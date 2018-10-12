@@ -94,7 +94,16 @@ namespace WBSF
 
 	double CCallback::GetNbStep()
 	{ 
-		return !GetTasks().empty()?GetTasks().top().m_nbSteps:0;
+
+		double nbSteps = 0;
+		CS.Enter();
+
+		if (!GetTasks().empty())
+			nbSteps = GetTasks().top().m_nbSteps;
+
+		CS.Leave();
+
+		return nbSteps;
 	}
 
 	size_t CCallback::GetNbTasks()

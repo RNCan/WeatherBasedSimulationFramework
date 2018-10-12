@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 2.1.6    04/10/2018	Rémi Saint-Amsant	change in trigger. remove pixel/median comparison.
+// 2.1.6    12/10/2018	Rémi Saint-Amsant	change in trigger. remove pixel/median comparison.
 // 2.1.5    03/10/2018	Rémi Saint-Amsant	try ranger optimization. add -new buffer options. add median file.
 // 2.1.4    02/10/2018	Rémi Saint-Amsant	Add BLOCK_THREADS options
 // 2.1.3    29/09/2018	Rémi Saint-Amsant	Add -PeriodTreated,-Rename and -OutputJD and many optimization.
