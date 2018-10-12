@@ -90,6 +90,6 @@ namespace WBSF
 		CMergeImagesOption m_options;
 
 		static const char* VERSION;
-		static const size_t NB_THREAD_PROCESS;
+		//static const size_t NB_THREAD_PROCESS;
 	};
 }

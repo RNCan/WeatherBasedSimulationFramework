@@ -71,7 +71,7 @@ namespace WBSF
 
 
 		static const char* VERSION;
-		static const int NB_THREAD_PROCESS;
+		//static const int NB_THREAD_PROCESS;
 	};
 
 }

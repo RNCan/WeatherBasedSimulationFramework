@@ -1447,7 +1447,8 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
 	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be Natural or LandWater. " },
 	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
-	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },//overide scene size defenition
+	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },
+	{ "-iFactor", 1, "f", false, "Multiplicator for indices that need multiplication to output in integer. 1000 by default." },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},
 	{"-???",0,"",false, "Print input/output files formats."},
@@ -1561,6 +1562,7 @@ void CBaseOptions::Reset()
 	m_TM = CTM::DAILY;
 	m_bOpenBandAtCreation = true;
 	m_RGBType = NO_RGB;
+	m_iFactor = 1000;
 
 	m_filesPath.empty();
 
@@ -1909,6 +1911,10 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 		if(m_RGBType == NO_RGB)
 			msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\", \"LandWater\" or \"TrueColor\"");
 		
+	}
+	else if (IsEqual(argv[i], "-iFactor"))
+	{ 
+		m_iFactor = stof(argv[++i]);
 	}
 	else if( IsEqual(argv[i],"-?") )
 	{

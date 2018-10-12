@@ -11,6 +11,7 @@
 //******************************************************************************
 #include "stdafx.h"
 #include <algorithm>
+#include <bitset>
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -23,6 +24,10 @@ using namespace std;
 
 namespace WBSF
 {
+
+	static double G_INDICES_FACTOR = 1000;
+	double Landsat::INDICES_FACTOR() { return G_INDICES_FACTOR; }
+	void Landsat::INDICES_FACTOR(double f) {G_INDICES_FACTOR = f;	}
 
 
 	const char* Landsat::GetBandName(size_t s)
@@ -923,33 +928,36 @@ namespace WBSF
 	LandsatDataType CLandsatPixel::operator[](const Landsat::TIndices& i)const
 	{
 		LandsatDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
-		if (IsInit())
+		if (IsInit(i))
 		{
 			switch (i)
 			{
-			case Landsat::B1:
-			case Landsat::B2:
-			case Landsat::B3:
-			case Landsat::B4:
-			case Landsat::B5:
-			case Landsat::B6:
-			case Landsat::B7:
-			case Landsat::QA:
-			case Landsat::JD:			val = LandsatPixel::operator[](i); break;
-			case Landsat::I_NBR:		val = max(-10000.0, min(10000.0, 10000 * NBR())); break;
-			case Landsat::I_NDVI:		val = max(-10000.0, min(10000.0, 10000 * NDVI())); break;
-			case Landsat::I_NDMI:		val = max(-10000.0, min(10000.0, 10000 * NDMI())); break;
-			case Landsat::I_TCB:		val = TCB(); break;
-			case Landsat::I_TCG:		val = TCG(); break;
-			case Landsat::I_TCW:		val = TCW(); break;
-			case Landsat::I_ZSW:		val = ZSW(); break;
-			case Landsat::I_NBR2:		val = NBR2(); break;
-			case Landsat::I_EVI:		val = EVI(); break;
-			case Landsat::I_SAVI:		val = SAVI(); break;
-			case Landsat::I_MSAVI:		val = MSAVI(); break;
-			case Landsat::I_SR:			val = SR(); break;
-			case Landsat::I_CL:			val = CL(); break;
-			case Landsat::I_HZ:			val = HZ(); break;
+			case B1:
+			case B2:
+			case B3:
+			case B4:
+			case B5:
+			case B6:
+			case B7:
+			case QA:
+			case JD:		val = LandsatPixel::operator[](i); break;
+//			case I_NBR:		val = (__int16)max(-INDICES_FACTOR(), min(INDICES_FACTOR(), INDICES_FACTOR() * NBR())); break;
+//			case I_NDVI:	val = (__int16)max(-INDICES_FACTOR(), min(INDICES_FACTOR(), INDICES_FACTOR() * NDVI())); break;
+//			case I_NDMI:	val = (__int16)max(-INDICES_FACTOR(), min(INDICES_FACTOR(), INDICES_FACTOR() * NDMI())); break;
+			case I_NBR:		val = (__int16)WBSF::LimitToBound( INDICES_FACTOR() * NBR(), GDT_Int16, 1); break;
+			case I_NDVI:	val = (__int16)WBSF::LimitToBound( INDICES_FACTOR() * NDVI(), GDT_Int16, 1); break;
+			case I_NDMI:	val = (__int16)WBSF::LimitToBound( INDICES_FACTOR() * NDMI(), GDT_Int16, 1); break;
+			case I_TCB:		val = (__int16)WBSF::LimitToBound(TCB(), GDT_Int16, 1); break;
+			case I_TCG:		val = (__int16)WBSF::LimitToBound(TCG(), GDT_Int16, 1); break;
+			case I_TCW:		val = (__int16)WBSF::LimitToBound(TCW(), GDT_Int16, 1); break;
+			case I_ZSW:		val = (__int16)WBSF::LimitToBound(ZSW(), GDT_Int16, 1); break;
+			case I_NBR2:	val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *NBR2(), GDT_Int16, 1); break;
+			case I_EVI:		val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *EVI(), GDT_Int16, 1); break;
+			case I_SAVI:	val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *SAVI(), GDT_Int16, 1); break;
+			case I_MSAVI:	val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *MSAVI(), GDT_Int16, 1); break;
+			case I_SR:		val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *SR(), GDT_Int16, 1); break;
+			case I_CL:		val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *CL(), GDT_Int16, 1); break;
+			case I_HZ:		val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() *HZ(), GDT_Int16, 1); break;
 			default: ASSERT(false);
 			}
 		}
@@ -961,6 +969,9 @@ namespace WBSF
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
+		if (IsZero())
+			return false;
+
 		bool bIsInit = false;
 		for (size_t z = 0; z < SCENES_SIZE && !bIsInit; z++)
 			bIsInit |= at(z) != noData;
@@ -968,6 +979,51 @@ namespace WBSF
 		return bIsInit;
 	}
 
+	bool CLandsatPixel::IsInit(TIndices i)const
+	{
+		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
+
+		if (IsZero())
+			return false;
+
+		std::bitset<9> need;
+		switch (i)
+		{
+		case B1:	
+		case B2:
+		case B3:
+		case B4:
+		case B5:
+		case B6:
+		case B7:
+		case QA:
+		case JD:		need.set(i); break;
+		case I_NBR:		need.set(B4); need.set(B7); break;
+		case I_NDVI:	need.set(B3); need.set(B4); break;
+		case I_NDMI:	need.set(B4); need.set(B5); break;
+		case I_TCB:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
+		case I_TCG:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
+		case I_TCW:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
+		case I_ZSW:		need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
+		case I_NBR2:	need.set(B5); need.set(B7); break;
+		case I_EVI:		need.set(B1); need.set(B3); need.set(B4); break;
+		case I_SAVI:	need.set(B3); need.set(B4); break;
+		case I_MSAVI:	need.set(B3); need.set(B4); break;
+		case I_SR:		need.set(B3); need.set(B4); break;
+		case I_CL:		need.set(B1); need.set(B6); break;
+		case I_HZ:		need.set(B1); need.set(B3); break;
+		default: ASSERT(false);
+		}
+
+		bool bIsInit = true;
+		for (size_t z = 0; z < SCENES_SIZE && bIsInit; z++)
+		{
+			if (need.test(z))
+				bIsInit &= at(z) != noData;
+		}
+
+		return bIsInit;
+	}
 	CTRef CLandsatPixel::GetTRef()const
 	{
 		CTRef TRef;
@@ -981,6 +1037,9 @@ namespace WBSF
 	bool CLandsatPixel::IsValid()const
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
+
+		if (IsZero())
+			return false;
 
 		bool bIsValid = true;
 		for (size_t z = 0; z < SCENES_SIZE&&bIsValid; z++)
@@ -1087,18 +1146,18 @@ namespace WBSF
 
 	double CLandsatPixel::NBR()const
 	{
-		return ((double)at(B4) - at(B7)) / max(0.1, double(at(B4) + at(B7)));
+		return ((double)at(B4) - at(B7)) / max(0.1, double(at(B4)) + at(B7));
 	}
 
 
 	double CLandsatPixel::NDVI()const
 	{
-		return ((double)at(B4) - at(B3)) / max(0.1, double(at(B4) + at(B3)));
+		return ((double)at(B4) - at(B3)) / max(0.1, double(at(B4)) + at(B3));
 	}
 
 	double CLandsatPixel::NDMI()const
 	{
-		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4) + at(B5)));
+		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4)) + at(B5));
 	}
 
 	double CLandsatPixel::TCB()const
@@ -1132,12 +1191,12 @@ namespace WBSF
 
 	double CLandsatPixel::NBR2()const
 	{
-		return ((double)at(B5) - at(B7)) / max(0.1, double(at(B5) + at(B7)));
+		return ((double)at(B5) - at(B7)) / max(0.1, double(at(B5)) + at(B7));
 	}
 
 	double CLandsatPixel::EVI()const
 	{
-		return 2.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + 6 * at(B3) - 7.5*at(B1) + 1));
+		return 2.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + 6.0 * at(B3) - 7.5*at(B1) + 1));
 	}
 
 
@@ -1147,7 +1206,7 @@ namespace WBSF
 	}
 	double CLandsatPixel::MSAVI()const
 	{
-		return (2.0 * at(B4) + 1 - sqrt((2 * at(B4) + 1)*(2 * at(B4) + 1) - 8 * (at(B4) - at(B3)))) / 2;
+		return (2.0 * at(B4) + 1 - sqrt((2.0 * at(B4) + 1)*(2.0 * at(B4) + 1) - 8 * ((double)at(B4) - at(B3)))) / 2;
 	}
 	double CLandsatPixel::SR() const
 	{

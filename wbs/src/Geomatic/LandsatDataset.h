@@ -23,11 +23,13 @@ namespace WBSF
 		enum TLandsatFormat	{ F_UNKNOWN=-1, F_OLD, F_NEW, NB_FORMATS };
 		enum TLandsatBands	{ B1, B2, B3, B4, B5, B6, B7, QA, JD, SCENES_SIZE };
 		enum TIndices{ I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B6, I_B7, I_QA, I_JD, I_NBR, I_NDVI, I_NDMI, I_TCB, I_TCG, I_TCW, I_ZSW, I_NBR2, I_EVI, I_SAVI, I_MSAVI, I_SR, I_CL, I_HZ, NB_INDICES};
+		double INDICES_FACTOR();
+		void INDICES_FACTOR(double f);
 
 		enum TDomain{ D_INVALID = -1, D_PRE_ONLY, D_POS_ONLY, D_AND, D_OR, NB_DOMAINS };
 		enum TOperator{ O_INVALID = -1, O_LOWER, O_GRATER, NB_OPERATORS };
 		enum TCorr8 { NO_CORR8 = -1, C_CANADA, C_AUSTRALIA, C_USA, NB_CORR8_TYPE };
-
+		
 
 		const char* GetBandName(size_t s);
 		const char* GetIndiceName(size_t i);
@@ -77,8 +79,10 @@ namespace WBSF
 		LandsatDataType operator[](const Landsat::TIndices& i){ return ((const CLandsatPixel*)(this))->operator[](i); }
 		
 		bool IsInit()const;
+		bool IsInit(Landsat::TIndices i)const;
 		bool IsValid()const;
-		bool IsBlack()const{ return (at(Landsat::B4) == 0 && at(Landsat::B5) == 0 && at(Landsat::B3) == 0); }
+		bool IsBlack()const{ return (at(Landsat::B1) == 0 && at(Landsat::B2) == 0 && at(Landsat::B3) == 0); }
+		bool IsZero()const { return (at(Landsat::B1) == 0 && at(Landsat::B2) == 0 && at(Landsat::B3) == 0 && at(Landsat::B4) == 0 && at(Landsat::B5) == 0 && at(Landsat::B6) == 0 && at(Landsat::B7) == 0);}
 
 		double GetCloudRatio()const;
 		double GetEuclideanDistance(const CLandsatPixel& pixel, CBaseOptions::TRGBTye type = CBaseOptions::NO_RGB)const;

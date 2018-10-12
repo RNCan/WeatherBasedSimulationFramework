@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.2	10/10/2018 Rémi Saint-Amant		Add -iFactor
 // 1.0.1	10/10/2018 Rémi Saint-Amant		Add window and weight
 // 1.0.0	27/06/2018	Rémi Saint-Amant	Creation
 
@@ -30,7 +31,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CLandsatIndices::VERSION = "1.0.1";
+	const char* CLandsatIndices::VERSION = "1.0.2";
 	
 
 	///*********************************************************************************************************************
@@ -41,24 +42,21 @@ namespace WBSF
 		m_scenesSize = SCENES_SIZE;
 		m_scenes = { { NOT_INIT, NOT_INIT } };
 		m_bVirtual = false;
-		m_mul = 10000;
 		m_rings = 0;
 
 		m_appDescription = "This software computes indices (NBR, HDMI, ...) from Landsat images (composed of " + to_string(SCENES_SIZE) + " bands).";
 
 		AddOption("-Period");
 		AddOption("-Rename");
+		AddOption("-iFactor");
 
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
 			{ "-Despike", 3, "type threshold min", true, "Despike to remove outbound pixels. Type is the indice type, threshold is the despike threshold and min is the minimum between T-1 and T+1 to execute despike. Supported type are the same as indice. Usual value are TCB 0.75 0.1." },
-//			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to output indices. All scenes are selected by default." },
 			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file that used input file. Combine with -NoResult, this avoid to copy files. " },
 			{ "-Window", 1, "n", false, "Compute window mean around the pixel. n is the number of rings. 0 = 1x1, 1 = 3x3, 2 = 5x5 etc. By default all rings have the same weight. Weight can be modified with option -weight. 1x1 by default." },
-			{ "-Weight", 1, "{w0,w1,...,wn}", false, "Change the weight of window's rings. For example, if you enter {3,2,1} for a 5x5 windows, weight of the center pixel will be w0=3/6, the first ring will be w1=2/6 and secoond right will be w2=1/6. Equal weights by default." },
-
-			//{ "-mul", 1, "multiplicator", false, "Multiplicator for indices that need multiplication to output in integer. 10000 by default." },
+			{ "-Weight", 1, "{w0,w1,...,wn}", false, "Change the weight of window's rings. For example, if you enter {8,1} for a 3x3 windows, weight of the center pixel will be w0=8/16 (50%) and each pixel of the ring will be w1=1/16. So the ring will have 50%. Equal weights by default." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -130,6 +128,8 @@ namespace WBSF
 
 		m_outputType = GDT_Int16;
 
+		Landsat::INDICES_FACTOR(m_iFactor);
+
 		return msg;
 	}
 
@@ -149,15 +149,6 @@ namespace WBSF
 			{
 				msg.ajoute(str + " is not a valid indices. See help.");
 			}
-		}
-		//else if (IsEqual(argv[i], "-Scenes"))
-		//{
-		//	m_scenes[0] = atoi(argv[++i]) - 1;
-		//	m_scenes[1] = atoi(argv[++i]) - 1;
-		//}
-		else if (IsEqual(argv[i], "-mul"))
-		{
-			m_mul = atof(argv[++i]);
 		}
 		else if (IsEqual(argv[i], "-Virtual"))
 		{

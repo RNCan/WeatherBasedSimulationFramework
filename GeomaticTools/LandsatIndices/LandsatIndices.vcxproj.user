@@ -9,11 +9,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-multi -IOCPU 6 -i TCB -i NBR -stats -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Output\puff_partout\pp_indices.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-te 487410 5392080  487680 5392290 -i NBR -overwrite  "D:\Travaux\Landsat\LC08_L1TP_016026_20180715_20180730_01_T1_2018-07-15\20180715.vrt" "D:\Travaux\Landsat\LC08_L1TP_016026_20180715_20180730_01_T1_2018-07-15\NBR.tif"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-window 2 -weight "3 2 1"  -multi -IOCPU 6 -i TCB -i NBR -stats -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Output\puff_partout\pp_indices2.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-multi -IOCPU 6 -i NBR -stats -of VRT -co "compress=LZW" --config GDAL_CACHEMAX 4096  -overview {4,8,16} -overwrite  "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Output\puff_partout\pp.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

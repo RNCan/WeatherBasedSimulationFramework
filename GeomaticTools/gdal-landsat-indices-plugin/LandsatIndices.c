@@ -26,14 +26,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *****************************************************************************/
-
+ 
 #include <math.h>
 #include <gdal.h>
 
 enum { B1, B2, B3, B4, B5, B6, B7 }; 
 
-static const double INDEX_MULT = 10000.0;
-static const double INDEX_DIV = 1.0;
+static const double INDEX_MULT = 1000.0;
+static const double INDEX_DIV = 0.1;
 
 __int16 LimitToInt16(double value)
 {
@@ -79,7 +79,7 @@ CPLErr NBR(void **papoSources, int nSources, void *pData,
 				//pix_val = 0;
 			//else 
 			if (b[B4] > -32768 && b[B7]>-32768 )
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B4] - b[B7]) / fmax(INDEX_DIV, (double)(b[B4] + b[B7])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B4] - b[B7]) / fmax(INDEX_DIV, (double)(b[B4] + b[B7])));
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
 				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
@@ -125,7 +125,7 @@ CPLErr NBR2(void **papoSources, int nSources, void *pData,
 				//pix_val = 0;
 			//else 
 			if (b[B5] > -32768 && b[B7]>-32768 )
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B5] - b[B7]) / max(INDEX_DIV, (double)(b[B5] + b[B7])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B5] - b[B7]) / max(INDEX_DIV, (double)(b[B5] + b[B7])));
 
 
 
@@ -170,7 +170,7 @@ int nPixelSpace, int nLineSpace)
 
 			pix_val = -32768;
 			if (b[B1] > -32768 && b[B3] > -32768 && b[B4]>-32768) 
-				pix_val = LimitToIndex(INDEX_MULT * 2.5 * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1)));
+				pix_val = LimitToInt16(INDEX_MULT * 2.5 * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (b[B4] + 6 * b[B3] - 7.5*b[B1] + 1)));
 			
 
 
@@ -216,7 +216,7 @@ int nPixelSpace, int nLineSpace)
 
 			pix_val = -32768;
 			if (b[B3] > -32768 && b[B4]>-32768 )//&& (b[B4] + b[B3] + 0.5) != 0
-				pix_val = LimitToIndex(INDEX_MULT * 1.5 * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (b[B4] + b[B3] + 0.5)));
+				pix_val = LimitToInt16(INDEX_MULT * 1.5 * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (b[B4] + b[B3] + 0.5)));
 
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -260,7 +260,7 @@ CPLErr MSAVI(void **papoSources, int nSources, void *pData,
 
 			pix_val = -32768;
 			if (b[B3] > -32768 && b[B4]>-32768 )
-				pix_val = LimitToIndex(INDEX_MULT * (2.0 * b[B4] + 1 - sqrt((2 * b[B4] + 1)*(2 * b[B4] + 1) - 8 * (b[B4] - b[B3]))) / 2);
+				pix_val = LimitToInt16(INDEX_MULT * (2.0 * b[B4] + 1 - sqrt((2 * b[B4] + 1)*(2 * b[B4] + 1) - 8 * (b[B4] - b[B3]))) / 2);
 			
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -305,7 +305,7 @@ CPLErr NDVI(void **papoSources, int nSources, void *pData,
 
 			pix_val = -32768;
 			if (b[B3] > -32768 && b[B4]>-32768 )//&& (b[B4] + b[B3]) != 0
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (double)(b[B4] + b[B3])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B4] - b[B3]) / max(INDEX_DIV, (double)(b[B4] + b[B3])));
 
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -350,7 +350,7 @@ CPLErr NDMI(void **papoSources, int nSources, void *pData,
 
 			pix_val = -32768;
 			if (b[B4] > -32768 && b[B5]>-32768 )//&& (b[B4] + b[B5]) != 0
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B4] - b[B5]) / max(INDEX_DIV, (double)(b[B4] + b[B5])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B4] - b[B5]) / max(INDEX_DIV, (double)(b[B4] + b[B5])));
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
 				((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
@@ -589,7 +589,7 @@ CPLErr SR(void **papoSources, int nSources, void *pData,
 			pix_val = -32768;
 			if (b[B3] > -32768 && b[B4]>-32768 )
 			{
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B4] / max(INDEX_DIV, (double)b[B3])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B4] / max(INDEX_DIV, (double)b[B3])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -637,7 +637,7 @@ CPLErr CL(void **papoSources, int nSources, void *pData,
 			pix_val = -32768;
 			if (b[B1] > -32768 && b[B6]>-32768 )
 			{
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B1] / max(INDEX_DIV, (double)b[B6])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B1] / max(INDEX_DIV, (double)b[B6])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -682,7 +682,7 @@ CPLErr HZ(void **papoSources, int nSources, void *pData,
 			pix_val = -32768;
 			if (b[B1] > -32768 && b[B3]>-32768 )
 			{
-				pix_val = LimitToIndex(INDEX_MULT * ((double)b[B1] / max(INDEX_DIV, (double)b[B3])));
+				pix_val = LimitToInt16(INDEX_MULT * ((double)b[B1] / max(INDEX_DIV, (double)b[B3])));
 			}
 
 			GDALCopyWords(&pix_val, GDT_Int16, 0,
@@ -1004,12 +1004,15 @@ CPLErr CPL_STDCALL GDALRegisterLandsatIndices()
 	GDALAddDerivedBandPixelFunc("Landsat.SR", SR);
 	GDALAddDerivedBandPixelFunc("Landsat.CL", CL);
 	GDALAddDerivedBandPixelFunc("Landsat.HZ", HZ);
-	GDALAddDerivedBandPixelFunc("Landsat.red(natural)", red_natural);
-	GDALAddDerivedBandPixelFunc("Landsat.green(natural)", green_natural);
-	GDALAddDerivedBandPixelFunc("Landsat.blue(natural)", blue_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.red(Natural)", red_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.green(Natural)", green_natural);
+	GDALAddDerivedBandPixelFunc("Landsat.blue(Natural)", blue_natural);
 	GDALAddDerivedBandPixelFunc("Landsat.red(LandWater)", red_LandWater);
 	GDALAddDerivedBandPixelFunc("Landsat.green(LandWater)", green_LandWater);
 	GDALAddDerivedBandPixelFunc("Landsat.blue(LandWater)", blue_LandWater);
+	GDALAddDerivedBandPixelFunc("Landsat.red(natural)", red_natural);//compatible with old name
+	GDALAddDerivedBandPixelFunc("Landsat.green(natural)", green_natural);//compatible with old name
+	GDALAddDerivedBandPixelFunc("Landsat.blue(natural)", blue_natural);//compatible with old name
 
 	return CE_None;
 }
@@ -1022,7 +1025,7 @@ CPLErr CPL_STDCALL GDALRegisterLandsatIndices()
 //Agriculture	6 5 2
 //Atmospheric Penetration	7 6 5
 //Healthy Vegetation	5 6 2
-//Land / Water	5 6 4
+//Land / Water	5 6 4 
 //Natural With Atmospheric Removal	7 5 3
 //Shortwave Infrared	7 5 4
 //Vegetation Analysis	6 5 4

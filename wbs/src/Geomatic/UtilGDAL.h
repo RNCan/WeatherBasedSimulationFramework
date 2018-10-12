@@ -277,7 +277,7 @@ namespace WBSF
 		CTPeriod m_period;
 		CTM m_TM;
 		TRGBTye m_RGBType; 
-		
+		double m_iFactor;
 
 		StringVector m_filesPath;
 		std::vector<int> m_bandsToUsed;

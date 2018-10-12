@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.4	11/10/2018	Rémi Saint-Amant	add -BLOCK_THREADS
 // 1.1.3	20/09/2018	Rémi Saint-Amant	bestMedian use B3, B4, B5 instead of all bands
 // 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, add bestMedian
 // 1.1.1	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
@@ -34,9 +35,9 @@ namespace WBSF
 {
 
 
-	const char* CMedianImage::VERSION = "1.1.3";
+	const char* CMedianImage::VERSION = "1.1.4";
 	std::string CMedianImage::GetDescription() { return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
-	const int CMedianImage::NB_THREAD_PROCESS = 2;
+	//const int CMedianImage::NB_THREAD_PROCESS = 2;
 
 
 	const char* CMedianImageOption::DEBUG_NAME[NB_DEBUG_BANDS] = { "Jday", "nbImages" };
@@ -137,14 +138,6 @@ namespace WBSF
 		{
 			m_bBestMedian = true;
 		}
-		
-		/*else if (IsEqual(argv[i], "-TCB"))
-		{
-		m_bFilterTCB = true;
-		m_TCBthreshold[0] = ToInt(argv[++i]);
-		m_TCBthreshold[1] = ToInt(argv[++i]);
-		m_bufferTCB = ToInt(argv[++i]);
-		}*/
 		else if (IsEqual(argv[i], "-corr8"))
 		{
 			m_corr8 = Landsat::GetCorr8(argv[++i]);
@@ -159,11 +152,6 @@ namespace WBSF
 		{
 			m_bBandSeparatly = true;
 		}
-		//else if (IsEqual(argv[i], "-Scenes"))
-		//{
-		//	m_scenes[0] = atoi(argv[++i]) - 1;
-		//	m_scenes[1] = atoi(argv[++i]) - 1;
-		//}
 		else
 		{
 			//Look to see if it's a know base option
@@ -208,7 +196,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+			CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 
 			if (maskDS.IsOpen())
 				bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
@@ -229,7 +217,7 @@ namespace WBSF
 			vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 			omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
 			for (int b = 0; b < (int)XYindex.size(); b++)
 			{
 				int xBlock = XYindex[b].first;
@@ -285,37 +273,8 @@ namespace WBSF
 		{
 			inputDS.UpdateOption(m_options);
 			m_options.InitFileInfo(inputDS);
-
-			//if (m_options.m_scenes[0] == NOT_INIT)
-			//	m_options.m_scenes[0] = 0;
-
-			//if (m_options.m_scenes[1] == NOT_INIT)
-			//	m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
-
-			//if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
-			//	msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
-
-			//if (m_options.m_scenes[0] > m_options.m_scenes[1])
-			//	msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
-
 		}
 
-		//m_options.m_period = inputDS.GetPeriod();
-		//size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
-
-		//CTPeriod processPeriod;
-		//const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
-
-		//ASSERT(m_options.m_scenes[0] < p.size());
-		//ASSERT(m_options.m_scenes[1] < p.size());
-
-		//for (size_t i = 0; i < nbScenedProcess; i++)
-		//{
-		//	size_t ii = size_t(m_options.m_scenes[0] + i);
-		//	ASSERT(ii < p.size());
-
-		//	processPeriod += p[ii];
-		//}
 
 		if (!m_options.m_bQuiet)
 		{
@@ -323,15 +282,33 @@ namespace WBSF
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
+			size_t nbSceneLoaded = 0;
+			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
+			CTPeriod period;
+			for (size_t z = 0; z < p.size(); z++)
+			{
+				if (m_options.m_period.IsIntersect(p[z]))
+				{
+					nbSceneLoaded++;
+					period.Inflate(p[z]);
+				}
+
+			}
+
+			
 			cout << "    Size           = " << inputDS->GetRasterXSize() << " cols x " << inputDS->GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
-			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+			//cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
+			///cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
+			//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 //			cout << "    Process period   = " << processPeriod.GetFormatedString() << endl;
+			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
+			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+			cout << "    Loaded period  = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
+
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;

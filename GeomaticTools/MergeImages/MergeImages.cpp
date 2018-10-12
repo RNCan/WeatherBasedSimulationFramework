@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 3.0.5	11/10/2018	Rémi Saint-Amant	add -BLOCK_THREADS, -iFactor
 // 3.0.4	22/05/2018	Rémi Saint-Amant	Set Best as default.
 // 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, ajout de MeanMax
 // 3.0.2	29/11/2017	Rémi Saint-Amant	Add 3 types of Landsat 8 corrections
@@ -78,8 +79,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.4";
-	const size_t CMergeImages::NB_THREAD_PROCESS = 2;
+	const char* CMergeImages::VERSION = "3.0.5";
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
 	//*********************************************************************************************************************
@@ -127,15 +127,18 @@ namespace WBSF
 
 		m_appDescription = "This software merge all Landsat scenes (composed of " + to_string(SCENES_SIZE) + " bands) of an input images by selecting desired pixels.";
 
-		AddOption("-period");
+		AddOption("-Period");
 		AddOption("-RGB");
+		AddOption("-iFactor");
+		
+
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-Type", 1, "t", false, "Merge type criteria: Oldest, Newest, August1, MaxNDVI, Best, SecondBest, MedianNDVI, MedianNBR, MedianNDMI, MedianJD, MedianTCB or MedianQA. Best by default." },
 			{ "-MedianType", 1, "type", false, "Median merge type to select the right median image when the number of image is even. Can be: Oldest, Newest, MaxNDVI, Best, SecondBest. Best by default." },
 			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\" or \"always2\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"No\" by default." },
 			{ "-MeanMax", 2, "max ideal", false, "Maximum difference between 2 pixels criteria to compute average. When difference is heigher than MeanMax, only the nearest value of the ideal value is taken. No limit by default. for MEDIAN_TCB, recommanded value are 600 and 2750." },
-			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
+			{ "-Corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-Debug", 0, "", false, "Export, for each output layer, the input temporal information." },
 			{ "-ExportStats", 0, "", false, "Output exportStats (lowest, mean, median, SD, highest) of all bands" },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -172,6 +175,9 @@ namespace WBSF
 
 		if (m_outputType == GDT_Unknown)
 			m_outputType = GDT_Int16;
+
+		//set global factor indices 
+		Landsat::INDICES_FACTOR(m_iFactor);
 
 		return msg;
 	}
@@ -287,7 +293,7 @@ namespace WBSF
 		CLandsatDataset outputDS;
 		CGDALDatasetEx debugDS;
 		CGDALDatasetEx statsDS;
-		CBandsHolderMT bandsHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandsHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 
 
 		msg = OpenAll(inputDS, maskDS, outputDS, debugDS, statsDS);
@@ -312,7 +318,7 @@ namespace WBSF
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti) 
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int thread = ::omp_get_thread_num();
@@ -428,15 +434,36 @@ namespace WBSF
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
+
+			size_t nbSceneLoaded = 0;
+			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
+			CTPeriod period;
+			for (size_t z = 0; z < p.size(); z++)
+			{
+				if (m_options.m_period.IsIntersect(p[z]))
+				{
+					nbSceneLoaded ++;
+					period.Inflate(p[z]);
+				}
+				
+			}
+
+			
+			
+
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
 			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
-			cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			//cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
+			//cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
+			//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
+			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
 			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
+			cout << "    Loaded period  = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
+
 
 			if (inputDS.GetSceneSize() != SCENES_SIZE)
 				cout << FormatMsg("WARNING: the number of bands per scene (%1) is different than the inspected number (%2)", to_string(inputDS.GetSceneSize()), to_string(SCENES_SIZE)) << endl;
@@ -456,8 +483,6 @@ namespace WBSF
 
 		if (m_options.m_bCreateImage)
 		{
-			//CTPeriod period = m_options.GetTTPeriod();
-
 			CMergeImagesOption options(m_options);
 			options.m_nbBands = SCENES_SIZE;
 
@@ -527,7 +552,7 @@ namespace WBSF
 
 	void CMergeImages::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
-#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIORead)
 		{
 			m_options.m_timerRead.Start();
 
@@ -545,178 +570,111 @@ namespace WBSF
 
 		if (bandHolder.IsEmpty())
 		{
-			int nbCells = blockSize.m_x*blockSize.m_y;
-
 #pragma omp atomic
-			m_options.m_xx += nbCells;
+			m_options.m_xx += blockSize.m_x*blockSize.m_y;
 			m_options.UpdateBar();
 
 			return;
 		}
 
 
-#pragma omp critical(ProcessBlock)
+		//#pragma omp critical(ProcessBlock)
+			//	{
+
+		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
+		window.m_corr8 = m_options.m_corr8;
+
+		InitMemory(bandHolder.GetSceneSize(), blockSize, outputData, debugData, statsData);
+		m_options.m_timerProcess.Start();
+
+
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti ) 
+		for (int y = 0; y < blockSize.m_y; y++)
 		{
-
-			CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
-			window.m_corr8 = m_options.m_corr8;
-
-			InitMemory(bandHolder.GetSceneSize(), blockSize, outputData, debugData, statsData);
-			m_options.m_timerProcess.Start();
-
-
-#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti ) 
-			for (int y = 0; y < blockSize.m_y; y++)
+			for (int x = 0; x < blockSize.m_x; x++)
 			{
-				for (int x = 0; x < blockSize.m_x; x++)
+				array<Test1Vector, CMergeImagesOption::NB_MERGE_TYPE> imageList;
+
+				for (size_t i = 0; i < imageList.size(); i++)
+					imageList[i].reserve(window.GetNbScenes());
+
+				vector<CStatisticEx> stats;
+
+				for (size_t s = 0; s < window.GetNbScenes(); s++)
 				{
-					array<Test1Vector, CMergeImagesOption::NB_MERGE_TYPE> imageList;
-					//Test1Vector imageList2;
-					for (size_t i = 0; i < imageList.size(); i++)
-						imageList[i].reserve(window.GetNbScenes());
-					//imageList2.reserve(window.GetNbScenes());
-
-					vector<CStatisticEx> stats;
-
-					for (size_t s = 0; s < window.GetNbScenes(); s++)
+					//Get pixel
+					CLandsatPixel pixel = window.GetPixel(s, x, y);
+					if (pixel.IsValid() && !pixel.IsBlack())
 					{
-						//Get pixel
-						CLandsatPixel pixel = window.GetPixel(s, x, y);
-						if (pixel.IsValid() && !pixel.IsBlack())
+						__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
+						__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
+
+						imageList[m_options.m_mergeType].push_back(make_pair(criterion1, s));
+						imageList[m_options.m_medianType].push_back(make_pair(criterion2, s));
+					}
+
+					if (m_options.m_bExportStats)
+					{
+						stats.resize(pixel.size());
+						for (size_t z = 0; z < pixel.size(); z++)
 						{
-							__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
-							__int16 criterion2 = GetCriterion(pixel, m_options.m_medianType);
-
-							imageList[m_options.m_mergeType].push_back(make_pair(criterion1, s));
-							imageList[m_options.m_medianType].push_back(make_pair(criterion2, s));
-							//for (size_t i = 0; i < CMergeImagesOption::NB_MERGE_TYPE; i++)
-							//{
-							//	__int16 criterion = GetCriterion(pixel, i);//m_options.m_mergeType
-							//	imageList[i].push_back(make_pair(criterion, s));
-							//}
-
+							if (window.IsValid(s, z, pixel[z]))
+								stats[z] += pixel[z];
 						}
+					}//if export
 
-						if (m_options.m_bExportStats)
-						{
-							stats.resize(pixel.size());
-							for (size_t z = 0; z < pixel.size(); z++)
-							{
-								if (window.IsValid(s, z, pixel[z]))
-									stats[z] += pixel[z];
-							}
-						}//if export
-
-					}//iz
+				}//iz
 
 
-					//find selected image index
-					Test1Vector& imageList1 = imageList[m_options.m_mergeType];
-					Test1Vector& imageList2 = imageList[m_options.m_medianType];
+				//find selected image index
+				Test1Vector& imageList1 = imageList[m_options.m_mergeType];
+				Test1Vector& imageList2 = imageList[m_options.m_medianType];
 
-					if (!imageList1.empty())
+				if (!imageList1.empty())
+				{
+					std::sort(imageList1.begin(), imageList1.end());
+
+					Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType);
+					ASSERT(it != imageList1.end());
+
+
+					size_t iz = it->second;
+					if (m_options.m_bCreateImage)
 					{
-						//for (size_t i = 0; i < imageList.size(); i++)
-							//std::sort(imageList[i].begin(), imageList[i].end());
-						std::sort(imageList1.begin(), imageList1.end());
-						
-						Test1Vector::const_iterator it = get_it(imageList1, m_options.m_mergeType);
-						ASSERT(it != imageList1.end());
+						CLandsatPixel pixel;
+						window.GetPixel(iz, x, y, pixel);
 
 
-						size_t iz = it->second;
-						if (m_options.m_bCreateImage)
+						if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size() >= 2)
 						{
-							CLandsatPixel pixel;
-							window.GetPixel(iz, x, y, pixel);
-
-
-							if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size() >= 2)
+							if ((m_options.m_meanType == CMergeImagesOption::NO_MEAN))
 							{
-								if ((m_options.m_meanType == CMergeImagesOption::NO_MEAN))
+								if (imageList1.size() % 2 == 0)
 								{
-									//cout << "no mean" << endl;
-									if (imageList1.size() % 2 == 0)
-									{
-										Test1Vector imageList3;
-										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
-										imageList3.push_back(*it3);
-										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
-										imageList3.push_back(*it3);
-										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
-
-										iz = it2->second;
-										window.GetPixel(iz, x, y, pixel);
-									}
-
-								}
-								else if (m_options.m_meanType == CMergeImagesOption::M_STANDARD)
-								{
-									//cout << "standard" << endl;
-									if (imageList1.size() % 2 == 0)
-									{
-										CLandsatPixel pixel2;
-
-										Test1Vector imageList3;
-										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
-										imageList3.push_back(*it3);
-										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
-										imageList3.push_back(*it3);
-										Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
-
-										//size_t iz2 = it2->second;
-										//window.GetPixel(iz2, x, y, pixel2);
-
-										//for (size_t z = 0; z < SCENES_SIZE; z++)
-											//pixel[z] = (pixel[z] + pixel2[z]) / 2;
-										if (fabs(it->first - it2->first) < m_options.m_meanMax)
-										{
-											size_t iz2 = it2->second;
-											window.GetPixel(iz2, x, y, pixel2);
-
-											for (size_t z = 0; z < SCENES_SIZE; z++)
-												pixel[z] = (pixel[z] + pixel2[z]) / 2;
-										}
-										else
-										{
-											
-											if (abs(m_options.m_meanIdeal - max(0, min(2* m_options.m_meanIdeal, int(it2->first)))) < abs(m_options.m_meanIdeal - max(0, min(2* m_options.m_meanIdeal, int(it->first)))))
-											{
-												size_t iz2 = it2->second;
-												window.GetPixel(iz2, x, y, pixel);
-											}
-										}
-									}
-								}
-								else if (m_options.m_meanType == CMergeImagesOption::M_ALWAYS2)
-								{
-									//cout << "always2" << endl;
 									Test1Vector imageList3;
-									Test1Vector::const_iterator it2;
+									Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
+									imageList3.push_back(*it3);
+									it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+									imageList3.push_back(*it3);
+									Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
+
+									iz = it2->second;
+									window.GetPixel(iz, x, y, pixel);
+								}
+
+							}
+							else if (m_options.m_meanType == CMergeImagesOption::M_STANDARD)
+							{
+								if (imageList1.size() % 2 == 0)
+								{
 									CLandsatPixel pixel2;
-									if (imageList1.size() % 2 == 0)
-									{
-										it2 = (it + 1);
-										ASSERT(it2 != imageList1.end());
-										//size_t iz2 = (it + 1)->second;
-										//window.GetPixel(iz2, x, y, pixel2);
-									}
-									else
-									{
 
-										Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
-										imageList3.push_back(*it3);
-										it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
-										imageList3.push_back(*it3);
-										//Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
-										it2 = get_it(imageList3, m_options.m_medianType);
-										ASSERT(it2 != imageList3.end());
-
-
-
-										//size_t iz2 = it2->second;
-										//window.GetPixel(iz2, x, y, pixel2);
-									}
+									Test1Vector imageList3;
+									Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it)->second;	});
+									imageList3.push_back(*it3);
+									it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+									imageList3.push_back(*it3);
+									Test1Vector::const_iterator it2 = get_it(imageList3, m_options.m_medianType);
 
 									if (fabs(it->first - it2->first) < m_options.m_meanMax)
 									{
@@ -728,7 +686,7 @@ namespace WBSF
 									}
 									else
 									{
-										//use 2000 as best pixel (no cloud and no dark)
+
 										if (abs(m_options.m_meanIdeal - max(0, min(2 * m_options.m_meanIdeal, int(it2->first)))) < abs(m_options.m_meanIdeal - max(0, min(2 * m_options.m_meanIdeal, int(it->first)))))
 										{
 											size_t iz2 = it2->second;
@@ -737,93 +695,93 @@ namespace WBSF
 									}
 								}
 							}
+							else if (m_options.m_meanType == CMergeImagesOption::M_ALWAYS2)
+							{
+								Test1Vector imageList3;
+								Test1Vector::const_iterator it2;
+								CLandsatPixel pixel2;
+								if (imageList1.size() % 2 == 0)
+								{
+									it2 = (it + 1);
+									ASSERT(it2 != imageList1.end());
+								}
+								else
+								{
 
+									Test1Vector::const_iterator it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it - 1)->second;	});
+									imageList3.push_back(*it3);
+									it3 = std::find_if(imageList2.begin(), imageList2.end(), [it](const pair<__int16, size_t >& a) {return a.second == (it + 1)->second;	});
+									imageList3.push_back(*it3);
+									it2 = get_it(imageList3, m_options.m_medianType);
+									ASSERT(it2 != imageList3.end());
+								}
 
+								if (fabs(it->first - it2->first) < m_options.m_meanMax)
+								{
+									size_t iz2 = it2->second;
+									window.GetPixel(iz2, x, y, pixel2);
 
-							//static const size_t test[2] = { CMergeImagesOption::BEST_PIXEL, CMergeImagesOption::MEDIAN_TCB};
-
-
-							//vector<pair<size_t, size_t>> scenesScore(window.GetNbScenes());
-							//for (size_t s = 0; s < window.GetNbScenes(); s++)
-							//	scenesScore[s] = make_pair(0, s);
-
-							//for (size_t k = 0; k < 3; k++)
-							//{
-							//	if (!imageList[test[k]].empty())
-							//	{
-							//		size_t N = (imageList[test[k]].size() + 1) / 2;
-
-							//		std::sort(imageList[test[k]].begin(), imageList[test[k]].end());
-							//		Test1Vector::const_iterator it = get_it(imageList[test[k]], test[k]);
-							//		for (size_t l = 0; l < imageList[test[k]].size(); l++)
-							//		{
-							//			int testN = (N - (abs((int)N - (int)l))) * 2;
-							//			if (test[k] == CMergeImagesOption::BEST_PIXEL)
-							//				scenesScore[imageList[test[k]][l].second].first += (l + 1);
-							//			else
-							//				scenesScore[imageList[test[k]][l].second].first += (N - (abs((int)N - (int)l))) * 2 + 1;
-							//		}
-							//	}
-							//}
-
-
-							//std::sort(scenesScore.begin(), scenesScore.end());
-
-							//CLandsatPixel pixel;
-							//if (scenesScore.rbegin()->first > 0)
-							//	window.GetPixel(scenesScore.rbegin()->second, x, y, pixel);
-
-
-
-							for (size_t z = 0; z < SCENES_SIZE; z++)
-								outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16, 1);
-							
-							if (outputData[JD][y][x] < 0)
-								outputData[JD][y][x] = WBSF::GetDefaultNoData(GDT_Int16);
+									for (size_t z = 0; z < SCENES_SIZE; z++)
+										pixel[z] = (pixel[z] + pixel2[z]) / 2;
+								}
+								else
+								{
+									//use 2000 as best pixel (no cloud and no dark)
+									if (abs(m_options.m_meanIdeal - max(0, min(2 * m_options.m_meanIdeal, int(it2->first)))) < abs(m_options.m_meanIdeal - max(0, min(2 * m_options.m_meanIdeal, int(it->first)))))
+									{
+										size_t iz2 = it2->second;
+										window.GetPixel(iz2, x, y, pixel);
+									}
+								}
+							}
 						}
 
-						if (m_options.m_bDebug)
-						{
-							CLandsatPixel pixel = window.GetPixel(iz, x, y);
-							CTRef TRef = m_options.GetTRef(int(pixel[JD]));
+						for (size_t z = 0; z < SCENES_SIZE; z++)
+							outputData[z][y][x] = (__int16)WBSF::LimitToBound(pixel[z], GDT_Int16, 1);
 
-							debugData[CMergeImagesOption::D_CAPTOR][y][x] = m_options.m_info[iz].m_captor;
-							debugData[CMergeImagesOption::D_PATH][y][x] = m_options.m_info[iz].m_path;
-							debugData[CMergeImagesOption::D_ROW][y][x] = m_options.m_info[iz].m_row;
-							//debugData[CMergeImagesOption::D_YEAR][y][x] = TRef.GetYear();
-							//debugData[CMergeImagesOption::D_MONTH][y][x] = int(TRef.GetMonth()) + 1;
-							//debugData[CMergeImagesOption::D_DAY][y][x] = int(TRef.GetDay()) + 1;
-							debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
-							debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList1.size());
-							debugData[CMergeImagesOption::SCENE][y][x] = (int)iz + 1;
-							debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first;
-						}
+						if (outputData[JD][y][x] < 0)
+							outputData[JD][y][x] = WBSF::GetDefaultNoData(GDT_Int16);
+					}
 
-						if (m_options.m_bExportStats)
-						{
-							for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
-								for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
-									if (stats[z][NB_VALUE] > 0)
-										statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16, 1);
-						}//if export stats
-					}//if image list no empty
+					if (m_options.m_bDebug)
+					{
+						CLandsatPixel pixel = window.GetPixel(iz, x, y);
+						CTRef TRef = m_options.GetTRef(int(pixel[JD]));
+
+						debugData[CMergeImagesOption::D_CAPTOR][y][x] = m_options.m_info[iz].m_captor;
+						debugData[CMergeImagesOption::D_PATH][y][x] = m_options.m_info[iz].m_path;
+						debugData[CMergeImagesOption::D_ROW][y][x] = m_options.m_info[iz].m_row;
+						debugData[CMergeImagesOption::D_JDAY][y][x] = int(m_options.GetTRefIndex(TRef));
+						debugData[CMergeImagesOption::NB_IMAGES][y][x] = int(imageList1.size());
+						debugData[CMergeImagesOption::SCENE][y][x] = (int)iz + 1;
+						debugData[CMergeImagesOption::SORT_TEST][y][x] = it->first;
+					}
+
+					if (m_options.m_bExportStats)
+					{
+						for (size_t z = 0; z < bandHolder.GetSceneSize(); z++)
+							for (size_t ss = 0; ss < CMergeImagesOption::NB_STATS; ss++)
+								if (stats[z][NB_VALUE] > 0)
+									statsData[z*CMergeImagesOption::NB_STATS + ss][y][x] = (__int16)WBSF::LimitToBound(stats[z][CMergeImagesOption::BANDS_STATS[ss]], GDT_Int16, 1);
+					}//if export stats
+				}//if image list no empty
 
 #pragma omp atomic 
-					m_options.m_xx++;
+				m_options.m_xx++;
 
-				}//for x
-				m_options.UpdateBar();
-			}//for y
+			}//for x
+			m_options.UpdateBar();
+		}//for y
 
-			m_options.m_timerProcess.Stop();
+		m_options.m_timerProcess.Stop();
 
-		}//critical process
+		//}//critical process
 	}
 
 
 	void CMergeImages::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData)
 	{
-#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIOWrite)
 		{
 			m_options.m_timerWrite.Start();
 
@@ -852,7 +810,7 @@ namespace WBSF
 					}
 					else
 					{
-						__int16 noData = (__int16)outputDS.GetNoData(z);
+						__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
 					}
 				}
@@ -863,7 +821,7 @@ namespace WBSF
 			{
 				for (size_t z = 0; z < CMergeImagesOption::NB_DEBUG_BANDS; z++)
 				{
-					GDALRasterBand *pBand = debugDS.GetRasterBand(z);//s*CMergeImagesOption::NB_DEBUG_BANDS + 
+					GDALRasterBand *pBand = debugDS.GetRasterBand(z);
 					if (!debugData.empty())
 					{
 						for (int y = 0; y < outputRect.Height(); y++)
@@ -871,7 +829,7 @@ namespace WBSF
 					}
 					else
 					{
-						__int16 noData = (__int16)debugDS.GetNoData(z);
+						__int16 noData = (__int16)GetDefaultNoData(GDT_Int16);
 						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
 					}
 				}
@@ -887,9 +845,6 @@ namespace WBSF
 						vector<__int16> tmp;
 						tmp.reserve(outputRect.Width()*outputRect.Height());
 
-						//for (int y = 0; y < outputRect.Height(); y++)
-						//tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].begin() + outputRect.Width());
-
 						for (int y = 0; y < statsData[z].size(); y++)
 							tmp.insert(tmp.end(), statsData[z][y].begin(), statsData[z][y].end());
 
@@ -897,7 +852,7 @@ namespace WBSF
 					}
 					else
 					{
-						__int16 noData = (__int16)statsDS.GetNoData(z);
+						__int16 noData = (__int16)GetDefaultNoData(GDT_Int16);
 						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
 					}
 				}//for all bands in a scene
@@ -914,28 +869,8 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 
-		//if (m_options.m_bComputeStats)
-		//	outputDS.ComputeStats(m_options.m_bQuiet);
-
-		//if (!m_options.m_overviewLevels.empty())
-		//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-
 		outputDS.Close(m_options);
-
-		//if (m_options.m_bComputeStats)
-		//debugDS.ComputeStats(m_options.m_bQuiet);
-
-		//if (!m_options.m_overviewLevels.empty())
-		//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-
 		debugDS.Close(m_options);
-
-		//if (m_options.m_bComputeStats)
-		//statsDS.ComputeStats(m_options.m_bQuiet);
-
-		//if (!m_options.m_overviewLevels.empty())
-		//statsDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
-
 		statsDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();
@@ -963,31 +898,28 @@ namespace WBSF
 		}
 		else if (type == CMergeImagesOption::MAX_NDVI || type == CMergeImagesOption::MEDIAN_NDVI)
 		{
-			//criterion = (__int16)WBSF::LimitToBound(pixel.NDVI() * 10000, GDT_Int16, 1);
-			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDVI() * 10000));
+			criterion = pixel[I_NDVI];
 		}
 		else if (type == CMergeImagesOption::MEDIAN_NBR)
 		{
-			//criterion = (__int16)WBSF::LimitToBound(pixel.NBR() * 10000, GDT_Int16, 1);
-			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NBR() * 10000));
+			criterion = pixel[I_NBR];
 
 		}
 		else if (type == CMergeImagesOption::MEDIAN_NDMI)
 		{
-			//criterion = (__int16)WBSF::LimitToBound(pixel.NDMI() * 10000, GDT_Int16, 1);
-			criterion = (__int16)max(-10000.0, min(10000.0, pixel.NDMI() * 10000));
+			criterion = pixel[I_NDMI];
 		}
 		else if (type == CMergeImagesOption::MEDIAN_TCB)
 		{
-			criterion = (__int16)WBSF::LimitToBound(pixel.TCB(), GDT_Int16, 1);
+			criterion = pixel[I_TCB];
 		}
 		else if (type == CMergeImagesOption::MEDIAN_B1)
 		{
-			criterion = (__int16)WBSF::LimitToBound(pixel[B1], GDT_Int16, 1);
+			criterion = pixel[I_B1];
 		}
 		else if (type == CMergeImagesOption::MEDIAN_SZW)
 		{
-			criterion = (__int16)WBSF::LimitToBound(pixel[I_ZSW], GDT_Int16, 1);
+			criterion = pixel[I_ZSW];
 		}
 
 
@@ -1053,7 +985,6 @@ namespace WBSF
 			it = get_it(imageList1, type1);
 
 			if (type1 > CMergeImagesOption::SECOND_BEST
-				//&&		imageList1.size() >= 2)
 				&&		imageList1.size() % 2 == 0)
 			{
 
