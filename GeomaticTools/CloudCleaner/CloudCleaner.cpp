@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.1.6    04/10/2018	Rémi Saint-Amsant	change in trigger. remove pixel/median comparison.
 // 2.1.5    03/10/2018	Rémi Saint-Amsant	try ranger optimization. add -new buffer options. add median file.
 // 2.1.4    02/10/2018	Rémi Saint-Amsant	Add BLOCK_THREADS options
 // 2.1.3    29/09/2018	Rémi Saint-Amsant	Add -PeriodTreated,-Rename and -OutputJD and many optimization.
@@ -77,8 +78,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.1.5";
-//static const int NB_THREAD_PROCESS = 2;
+static const char* version = "2.1.6";
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag","_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB" };
@@ -97,9 +97,8 @@ CCloudCleanerOption::CCloudCleanerOption()
 	m_scenesSize = Landsat::SCENES_SIZE;
 	m_bDebug = false;
 	m_bOutputCode = false;
-	//	m_bOutputJD = false;
-	m_B1threshold = { -175, -80/*, 250*/ };
-	m_TCBthreshold = { 600, 300/*, 2400*/ };
+	m_B1threshold = { -175, -80};
+	m_TCBthreshold = { 600, 300};
 	m_bFillClouds = false;
 	m_bFillMissing = false;
 	m_bUseMedian = false;

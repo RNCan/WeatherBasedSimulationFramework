@@ -274,8 +274,10 @@ namespace WBSF
 			cout << endl << "Open input image..." << endl;
 
 		msg = inputDS.OpenInputImage(m_options.m_filesPath[CLandsat2RGBOption::INPUT_FILE_PATH], m_options);
-		if (msg)
-			inputDS.UpdateOption(m_options);
+		if (!msg)
+			return msg;
+
+		inputDS.UpdateOption(m_options);
 
 
 		if (msg && !m_options.m_bQuiet)
