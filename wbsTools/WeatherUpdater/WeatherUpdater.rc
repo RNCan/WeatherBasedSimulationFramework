@@ -735,7 +735,7 @@ BEGIN
     IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_VIRTUAL_P 
-                            "Fichier Gribs|Fichier de sortie|Fichier de localisations|Type de sortie|Première année|Dernière année|Incrémental"
+                            "Fichier Gribs|Fichier de localisations|Fichier de sortie|Variables|Type de sortie|Type d'extraction|Première année|Dernière année|Incrémental"
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Type"
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
@@ -1208,7 +1208,7 @@ BEGIN
     IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_VIRTUAL_P 
-                            "Gribs file|Output file|Locations file|Output type|First year|Last year|Incremental"
+                            "Gribs file|Locations file|Output file|Variables|Output type|Extraction type|First year|Last year|Incremental"
     IDS_TOOL_MERGE_DB_P     "Input file 1|Input file 2|Output file path|Max distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input file 1|Input file 2|Output file|Type"
     IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
