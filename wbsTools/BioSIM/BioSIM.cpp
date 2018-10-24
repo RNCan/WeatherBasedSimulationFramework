@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
+// 11.5.1 (1.1.1): 24/10/2018 Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
 // 11.5.0 (1.1.0): 12/09/2018 Rémi Saint-Amant	Bug correction in unit of vapor pressure.
 //												Bug correction in generation of hourly precipitation from daily values
 //												Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
