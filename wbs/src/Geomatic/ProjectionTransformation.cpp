@@ -35,6 +35,13 @@ namespace WBSF
 
 	void CProjectionTransformation::Set(size_t src, size_t dst){ Set(CProjectionManager::GetPrj(src), CProjectionManager::GetPrj(dst)); }
 
+	CProjectionTransformation::CProjectionTransformation(CProjection const& src, CProjection const& dst) :
+		m_src( new CProjection(src)), m_dst(new CProjection(dst))
+	{
+		m_bInit = false;
+		m_poCT = NULL;
+	}
+
 	CProjectionTransformation::CProjectionTransformation(CProjectionPtr const& src, CProjectionPtr const& dst) :
 		m_src(src), m_dst(dst)
 	{

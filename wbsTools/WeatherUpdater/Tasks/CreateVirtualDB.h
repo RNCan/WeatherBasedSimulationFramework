@@ -2,16 +2,18 @@
 
 #include "TaskBase.h"
 #include "basic/weatherStation.h"
+#include "basic/FileStamp.h"
 
 namespace WBSF
 {
+	
 
 	//**************************************************************
 	class CCreateVirtualDB : public CTaskBase
 	{
 	public:
 
-		enum TExtraction { E_NEREST, E_4NEAREST, E_AT_LOCATION, NB_EXTRACTIONS_TYPES };
+		enum TExtraction { E_AT_LOCATION, E_NEREST, E_4NEAREST, NB_EXTRACTIONS_TYPES };
 		enum TOutput{ OT_HOURLY, OT_DAILY, NB_OUTPUT_TYPES };
 		enum TATTRIBUTE { INPUT_FILEPATH, LOCATIONS_FILEPATH, OUTPUT_FILEPATH, VARIABLES, OUTPUT_TYPE, EXTRACTION_TYPE, FIRST_YEAR, LAST_YEAR, INCREMENTAL, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
@@ -35,6 +37,8 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+		static ERMsg ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback);
+
 	protected:
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
@@ -42,11 +46,10 @@ namespace WBSF
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 
-		static ERMsg load_gribs(const std::string& filepath, std::map<CTRef, std::string>& gribs);
-		static ERMsg ExtractPoint(const std::string& outputFilePath, CWeatherStationVector& stations, CCallback& callback);
+		
 
-		void CleanSparse(CWeatherStation& station)const;
-		ERMsg CreateDatabase(const std::string& outputFilepath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback = DEFAULT_CALLBACK)const;
+		//void CleanSparse(CWeatherStation& station)const;
+		//ERMsg CreateDatabase(const std::string& outputFilepath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback = DEFAULT_CALLBACK)const;
 	};
 
 }

@@ -77,7 +77,11 @@ namespace WBSF
 
 	CProjection::CProjection(const char* prjStr, size_t prjID, const OGRSpatialReference& SR, projPJ pProjPJ)
 	{
-		m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(prjStr);
+		//if (SR)
+		//{
+		m_pSpatialReference = SR.Clone();
+		//}
+		//m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(prjStr);
 		if (m_pSpatialReference)
 		{
 			m_prjID = prjID;
@@ -385,6 +389,7 @@ namespace WBSF
 
 							CPLFree(pProj4String);
 							pProj4String = NULL;
+						
 						}
 						else
 						{
@@ -414,8 +419,8 @@ namespace WBSF
 					ASSERT(CProjectionNameManager::GetInstance().Exists(prjID));
 				}
 
-				ASSERT(CProjectionNameManager::GetInstance().Exists(prjStr));
-				ASSERT(CProjectionNameManager::GetPrjID(prjStr) != PRJ_NOT_INIT);
+				ASSERT(!msg || CProjectionNameManager::GetInstance().Exists(prjStr));
+				ASSERT(!msg || CProjectionNameManager::GetPrjID(prjStr) != PRJ_NOT_INIT);
 			}
 			else
 			{

@@ -183,6 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Geomatic\GDALBasic.cpp" />
+    <ClCompile Include="..\src\Geomatic\SfcGribsDatabase.cpp" />
     <ClCompile Include="..\src\Geomatic\GridInterpol.cpp" />
     <ClCompile Include="..\src\Geomatic\GridInterpolBase.cpp" />
     <ClCompile Include="..\src\Geomatic\ImageParser.cpp" />
@@ -219,6 +220,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\Geomatic\GDALBasic.h" />
     <ClInclude Include="..\src\Geomatic\GDAL.h" />
+    <ClInclude Include="..\src\Geomatic\SfcGribsDatabase.h" />
     <ClInclude Include="..\src\Geomatic\GridInterpol.h" />
     <ClInclude Include="..\src\Geomatic\GridInterpolBase.h" />
     <ClInclude Include="..\src\Geomatic\ImageParser.h" />

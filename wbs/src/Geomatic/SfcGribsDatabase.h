@@ -21,6 +21,7 @@
 #include "Basic/Location.h"
 #include "Basic/WeatherStation.h"
 #include "Basic/HourlyDatabase.h"
+#include "Basic/FileStamp.h"
 //#include "Basic/ModelStat.h"
 //#include "Basic/WaterTemperature.h"
 //#include "Geomatic/IWD.h"
@@ -38,6 +39,32 @@ namespace WBSF
 	//{
 	//	return fmod(time, 3600);
 	//}
+
+	//*****************************************************************************************************************
+	class CGribsDB : public std::map<CTRef, std::string>
+	{
+	public:
+
+		ERMsg load(const std::string& file_path);
+		ERMsg save(const std::string& file_path)const;
+
+		CTPeriod GetEntireTPeriod()const;
+		std::set<CTRef> GetAllTRef()const;
+	};
+
+	//*****************************************************************************************************************
+	class CIncementalDB : public std::map<CTRef, CFileStamp>
+	{
+	public:
+		ERMsg load(const std::string& file_path);
+		ERMsg save(const std::string& file_path)const;
+
+		//ERMsg GetInvalidPeriod(const std::string& gribs_file_path, CTPeriod& p_invalid)const;
+		ERMsg GetInvalidPeriod(const CGribsDB& gribs, CTPeriod& p_invalid)const;
+		ERMsg GetInvalidTRef(const CGribsDB& gribs, std::set<CTRef>& invalid)const;
+		ERMsg Update(const CGribsDB& gribs);
+	};
+
 
 
 	//*****************************************************************************************************************
@@ -68,6 +95,8 @@ namespace WBSF
 	typedef std::shared_ptr<CSfcVariableLine> CSfcVariableLinePtr;
 	typedef std::array < CSfcVariableLinePtr, HOURLY_DATA::NB_VAR_EX> CSfcWeatherLine;
 	typedef std::shared_ptr<CSfcWeatherLine> CSfcWeatherLinePtr;
+	typedef std::array<std::array< CHourlyData, 2>, 2> CHourlyData4;
+
 	//typedef boost::multi_array <CSfcDataLinePtr, 2> CSfcDataCache;
 	//all gribs seem to have one line block
 	//so the number of blocq equl the number of line (y)
@@ -90,6 +119,12 @@ namespace WBSF
 		size_t get_band(size_t v)const { return m_bands[v]; }
 		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_EX> in) { m_variables = in; }
 
+
+		void get_weather(const CGeoPoint& pt, CHourlyData& data)const;
+		CGeoPointIndex get_ul(const CGeoPoint& ptIn)const;
+		void get_nearest(const CGeoPoint& pt, CHourlyData& data)const;
+		void get_4nearest(const CGeoPoint& pt, CHourlyData4& data4)const;
+
 	protected:
 
 
@@ -106,74 +141,74 @@ namespace WBSF
 	};
 
 	//*****************************************************************************************************************
-	typedef std::map <CTRef, std::string > TTRefFilePathMap;
-	typedef std::shared_ptr<CSfcDatasetCached >CSfcDatasetCachedPtr;
-	typedef std::map <CTRef, CSfcDatasetCachedPtr> CSfcDatasetMapBase;
+	//typedef std::map <CTRef, std::string > TTRefFilePathMap;
+	//typedef std::shared_ptr<CSfcDatasetCached >CSfcDatasetCachedPtr;
+	//typedef std::map <CTRef, CSfcDatasetCachedPtr> CSfcDatasetMapBase;
 
-	class CSfcDatasetMap : public CSfcDatasetMapBase
-	{
-	public:
+	//class CSfcDatasetMap : public CSfcDatasetCached
+	//{
+	//public:
 
-		CSfcDatasetMap();
+	//	CSfcDatasetMap();
 
-		ERMsg load(CTRef TRef, const std::string& filePath, CCallback& callback)const;
-		void get_weather(CTRef TRef, const CGeoPointIndex& xy, CHourlyData& data)const;
-		const CGeoExtents& get_extents(CTRef TRef)const;
-		bool is_loaded(CTRef TRef)const;
-		ERMsg discard(CCallback& callback);
-		size_t get_band(CTRef TRef, size_t v)const;
-		//size_t get_prj_ID(CTRef TRef)const;
-	};
-
-
-
-	typedef std::array<std::array< CHourlyData, 2>, 2> CHourlyData4;
-	class CSfcWeather
-	{
-	public:
-
-		CSfcWeather()
-		{
-			//m_bHgtOverSea = false;
-			//m_bHgtOverSeaTested = false;
-		}
-
-		ERMsg load(const std::string& filepath, CCallback& callback);
-		ERMsg discard(CCallback& callback);
-
-		ERMsg load_weather(CTRef TRef, CCallback& callback);
-		
-		void get_weather(const CGeoPoint& pt, CTRef TRef, CHourlyData4& data)const;
-		void get_weather(const CGeoPoint& pt, CTRef TRef, CHourlyData& data)const;
-		std::string get_image_filepath(CTRef TRef)const;
-
-		CGeoPointIndex get_ul(const CGeoPoint& pt, CTRef UTCWeatherTime)const;
-		//double GetFirstAltitude(const CGeoPointIndex& xy, CTRef TRef)const;
-
-		bool is_init()const { return !m_filepath_map.empty(); }
-		size_t get_prj_ID(CTRef UTCWeatherTime)const;
+	//	//ERMsg load(CTRef TRef, const std::string& filePath, CCallback& callback)const;
+	//	void get_weather(CTRef TRef, const CGeoPointIndex& xy, CHourlyData& data)const;
+	//	const CGeoExtents& get_extents(CTRef TRef)const;
+	//	//bool is_loaded(CTRef TRef)const;
+	//	//ERMsg discard(CCallback& callback);
+	//	size_t get_band(CTRef TRef, size_t v)const;
+	//	//size_t get_prj_ID(CTRef TRef)const;
+	//};
 
 
-		CSfcDatasetCachedPtr& at(CTRef TRef) { return m_p_weather_DS.at(TRef); }
-		bool is_loaded(CTRef TRef)const;
+//
 
-		CTPeriod GetEntireTPeriod()const;
-
-		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_EX> in) { m_variables = in; }
-
-	protected:
-
-		std::string m_file_path_gribs;
-		
-
-		TTRefFilePathMap m_filepath_map;
-		CSfcDatasetMap m_p_weather_DS;
-		std::bitset< HOURLY_DATA::NB_VAR_EX> m_variables;
-
-		//bool m_bHgtOverSea;
-		//bool m_bHgtOverSeaTested;
-	};
-
+//	class CSfcWeather
+//	{
+//	public:
+//
+//		CSfcWeather()
+//		{
+//			//m_bHgtOverSea = false;
+//			//m_bHgtOverSeaTested = false;
+//		}
+//
+//		ERMsg load(const std::string& filepath, CCallback& callback);
+//		ERMsg discard(CCallback& callback);
+//
+//		ERMsg load_weather(CTRef TRef, CCallback& callback);
+//		
+//		//void get_weather(const CGeoPoint& pt, CTRef TRef, CHourlyData4& data)const;
+//		void get_weather(const CGeoPoint& pt, CTRef TRef, CHourlyData& data, bool bAtLocation)const;
+//		std::string get_image_filepath(CTRef TRef)const;
+//
+//		CGeoPointIndex get_ul(const CGeoPoint& pt, CTRef UTCWeatherTime)const;
+//		//double GetFirstAltitude(const CGeoPointIndex& xy, CTRef TRef)const;
+//
+//		bool is_open()const { return !m_file_path_gribs.empty(); }
+//		size_t get_prj_ID()const;
+//
+//
+////		CSfcDatasetCachedPtr& at(CTRef TRef) { return m_p_weather_DS.at(TRef); }
+//		//bool is_loaded(CTRef TRef)const;
+//
+//		CTPeriod GetEntireTPeriod()const;
+//
+//		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_EX> in) { m_variables = in; }
+//
+//	protected:
+//
+//		std::string m_file_path_gribs;
+//		
+//
+//		//TTRefFilePathMap m_filepath_map;
+//		CSfcDatasetMap m_p_weather_DS;
+//		std::bitset< HOURLY_DATA::NB_VAR_EX> m_variables;
+//
+//		//bool m_bHgtOverSea;
+//		//bool m_bHgtOverSeaTested;
+//	};
+//
 
 	/*
 
