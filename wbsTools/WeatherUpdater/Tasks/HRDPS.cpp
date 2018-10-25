@@ -20,17 +20,6 @@ using namespace boost;
 namespace WBSF
 {
 
-	string CHRDPSVariables::GetHRDPSSelectionString()
-	{
-		string select;
-		for (size_t i = 0; i < NB_HRDPS_VARIABLES; i++)
-			select += string(CHRDPSVariables::GetName(i)) + "=" + string(CHRDPSVariables::GetName(i)) + ":" + CHRDPSVariables::GetDescription(i) + "|";
-
-		return select;
-	}
-
-
-
 
 
 	//*********************************************************************
@@ -47,7 +36,7 @@ namespace WBSF
 	{
 		m_variables.set();
 		m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");//for ISBL var
-		m_height.FromString("2|10|40|80|120");//for TGL var
+		m_heights.FromString("2|10|40|80|120");//for TGL var
 	}
 
 	CHRDPS::~CHRDPS(void)
@@ -75,18 +64,28 @@ namespace WBSF
 		return FormatA("%s%d\\%02d\\%02d\\%02d\\%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), fileName.c_str());
 	}
 
-	size_t CHRDPS::GetVariable(const string& fileName)
+	size_t CHRDPS::GetVariable(string title)
 	{
 		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
-		StringVector parts(fileName, "_");
+		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
+		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
+
+		StringVector parts(title, "_");
 		ASSERT(parts.size() == 9);
-		return CHRDPSVariables::GetVariable(parts[3] + "_" + parts[4]);
+		string name = parts[3] + "_" + parts[4];
+		WBSF::ReplaceString(name, "GUST-MAX", "GUST_MAX");
+		WBSF::ReplaceString(name, "GUST-MIN", "GUST_MIN");
+
+		return CHRDPSVariables::GetVariable(name);
 	}
 
-	size_t CHRDPS::GetLevel(const string& fileName)
+	size_t CHRDPS::GetLevel(string title)
 	{
+		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
+		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
+
 		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
-		StringVector parts(fileName, "_");
+		StringVector parts(title, "_");
 		ASSERT(parts.size() == 9);
 		return CHRDPSVariables::GetLevel(parts[5]);
 	}
@@ -147,7 +146,7 @@ namespace WBSF
 
 		callback.PushTask(string("Get directories list from: ") + SERVER_PATH, 4);
 
-
+	
 
 		CFileInfoVector dir1;
 		CFileInfoVector dir2;
@@ -233,10 +232,10 @@ namespace WBSF
 									{
 										if (m_variables.test(var))
 										{
-											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_height.find(level) != m_height.end();
+											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
 
-											if (bKeep1 || bKeep2)
+											if (bKeep1 && bKeep2)
 											{
 												if (NeedDownload(outputFilePath))
 												{
@@ -247,7 +246,7 @@ namespace WBSF
 									}//Humm new variable
 									else
 									{
-										callback.AddMessage("HRDPS var unknowns : " + fileName);
+										callback.AddMessage("Unknowns HRDPS var: " + fileName);
 									}
 								}//for all files
 							}//take only 6 first hours
@@ -554,10 +553,13 @@ namespace WBSF
 		return msg;
 	}
 
-	CTRef CHRDPS::GetTRef(const string& fileName)
+	CTRef CHRDPS::GetTRef(string title)
 	{
+		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
+		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
+		
 		CTRef TRef;
-		StringVector tmp(fileName, "_");
+		StringVector tmp(title, "_");
 		ASSERT(tmp.size() == 9 || tmp.size() == 8);
 		if (tmp.size() == 9 || tmp.size() == 8)
 		{
@@ -580,8 +582,11 @@ namespace WBSF
 		return CTRef.GetHour();
 	}
 
-	size_t CHRDPS::Gethhh(const string& title)const
+	size_t CHRDPS::Gethhh(string title)const
 	{
+		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
+		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
+
 		size_t hhh = NOT_INIT;
 		StringVector tmp(title, "_");
 		if (tmp.size() == 9)
@@ -733,6 +738,11 @@ namespace WBSF
 	}
 
 	//******************************************************************************************************************
+
+	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ISBY", "ETAL", "EATM", "MSL", "DBLY", "DBLL", "NTAT" };
+	StringVector CHRDPSVariables::DESCRIPTION[NB_HRDPS_CATEGORY];
+
+
 	const char* CHRDPSVariables::NAME[NB_HRDPS_VARIABLES] =
 	{
 		"4LFTX_SFC", "ALBDO_SFC", "APCP_SFC", "DLWRF_SFC", "DSWRF_SFC", "HGT_SFC", "ICEC_SFC", "LAND_SFC", "LHTFL_SFC", "NLWRS_SFC", "NSWRS_SFC", "PRATE_SFC",
@@ -761,22 +771,28 @@ namespace WBSF
 		{PRMSL_MSL,LAST_MSL},
 		{SOILW_DBLY,LAST_DBLY},
 		{TSOIL_DBLL,LAST_DBLL},
-		{DSWRF_NTAT,USWRF_NTAT},
+		{DSWRF_NTAT,LAST_NTAT},
 	};
 
-	bool CHRDPSVariables::Is(size_t var, THRDPSCategory cat)
+	bool CHRDPSVariables::Is(size_t var, THRDPSCategory c)
 	{
-		return var >= ABSV_ISBL && var <= WIND_ISBL;
+		return var >= CAT_RANGE[c][0] && var < CAT_RANGE[c][1];
 	}
 
 
+	string CHRDPSVariables::GetHRDPSSelectionString(size_t c)
+	{
+		ASSERT(c < NB_HRDPS_CATEGORY);
 
+		string select;
 
+		for (size_t i = CAT_RANGE[c][0]; i < CAT_RANGE[c][1]; i++)
+		{
+			select += string(CHRDPSVariables::GetName(i)) + "=" + string(CHRDPSVariables::GetName(i)) + ":" + CHRDPSVariables::GetDescription(i) + "|";
+		}
 
-
-
-	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ISBY", "ETAL", "EATM", "MSL", "DBLY", "DBLL", "NTAT" };
-	StringVector CHRDPSVariables::DESCRIPTION[NB_HRDPS_CATEGORY];
+		return select;
+	}
 
 
 	void CHRDPSVariables::LoadDescription()
@@ -785,7 +801,7 @@ namespace WBSF
 		{
 			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
 			{
-				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR+c, "|");
+				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC+UINT(c), "|");
 				ASSERT(DESCRIPTION[c].size() == GetNbVar(c));
 			}
 		}
@@ -799,7 +815,7 @@ namespace WBSF
 		size_t c = NOT_INIT;
 		for (size_t i = 0; i < NB_HRDPS_CATEGORY&&c==NOT_INIT; i++)
 		{
-			if (var >= CAT_RANGE[i][0] && var <= CAT_RANGE[i][1])
+			if (var >= CAT_RANGE[i][0] && var < CAT_RANGE[i][1])
 				c = i;
 		}
 

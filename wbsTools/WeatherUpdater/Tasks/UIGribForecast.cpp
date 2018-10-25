@@ -86,7 +86,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Forecast\\"; break;
 		case SOURCES: str = "0"; break;
 		case MAX_HOUR: str = "24"; break;
-		case HRDPS_VARS: str = ""; break;
+		case HRDPS_VARS: str = "PRATE_SFC|PRES_SFCDPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
 		};
 
 		return str;

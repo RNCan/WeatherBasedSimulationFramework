@@ -124,7 +124,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-FillMissing", 0, "", false, "Fill also missing pixels when -FillClouds is activated." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 		{ "-PeriodTreated", 2, "Begin End", false, "Same as scenes. Select the period (YYYY-MM-DD YYYY-MM-DD) to clean cloud. The entire period are selected by default. Cannot be used with -scenes." },
-		{ "-Dmax", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther thant tnis maximum buffer will be reset. 9 by default." },
+		{ "-Dmax", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther thant this maximum buffer will be reset. 9 by default." },
 		{ "-Buffer", 1, "nbPixels", false, "Set suspicious buffer around suspicious pixels before Ranger. 1 by default." },
 		{ "-BufferEx", 2, "primary secondary", false, "After Ranger, set all suspicious pixels arround cloud pixels as cloud. 1 1 by default." },
 		{ "-MedianFile", 1, "path", false, "Use median image file instead of computing median on the fly." },

@@ -23,8 +23,8 @@ namespace WBSF
 		LFTX_SFC, ALBDO_SFC, APCP_SFC, DLWRF_SFC, DSWRF_SFC, HGT_SFC, ICEC_SFC, LAND_SFC, LHTFL_SFC, NLWRS_SFC, NSWRS_SFC, PRATE_SFC,
 		PRES_SFC, SHOWA_SFC, SHTFL_SFC, SNOD_SFC, SPFH_SFC, TCDC_SFC, TSOIL_SFC, WEAFR_SFC, WEAPE_SFC, WEARN_SFC, WEASN_SFC,
 		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC, GUST_MAX_SFC, GUST_MIN_SFC, SDEN_SFC, SFCWRO_SFC, LAST_SFC,
-		DEN_TGL = LAST_SFC, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, ABSV_ISBL, LAST_TGL,
-		DEPR_ISBL = LAST_TGL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, LAST_ISBL,
+		DEN_TGL = LAST_SFC, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, LAST_TGL,
+		ABSV_ISBL = LAST_TGL, DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, LAST_ISBL,
 		HGT_ISBY = LAST_ISBL, LAST_ISBY,
 		CAPE_ETAL = LAST_ISBY, HLCY_ETAL, LAST_ETAL,
 		CWAT_EATM = LAST_ETAL, LAST_EATM,
@@ -52,6 +52,13 @@ namespace WBSF
 			size_t v = GetVarPos(var);
 			return DESCRIPTION[c][v];
 		}
+
+		CHRDPSVariables(std::string in="")
+		{
+			operator = (in);
+		}
+
+		using std::bitset<NB_HRDPS_VARIABLES>::operator =;
 		CHRDPSVariables& operator = (std::string in);
 
 
@@ -59,9 +66,18 @@ namespace WBSF
 		static size_t GetCategory(const std::string& name);
 		static size_t GetLevel(const std::string& name);
 
-		static std::string GetHRDPSSelectionString();
+		static std::string GetHRDPSSelectionString()
+		{
+			std::string str;
+			for (size_t c = HRDPS_ISBY; c < NB_HRDPS_CATEGORY; c++)
+				str += CHRDPSVariables::GetHRDPSSelectionString(c); 
+			
+			return str;
+		}
+		
+		static std::string GetHRDPSSelectionString(size_t c);
 		static bool Is(size_t var, THRDPSCategory c);
-		static size_t GetNbVar(size_t c) { return CAT_RANGE[c][1] - CAT_RANGE[c][0] + 1; }
+		static size_t GetNbVar(size_t c) { return CAT_RANGE[c][1] - CAT_RANGE[c][0]; }
 		static size_t GetCat(size_t var);
 		static size_t GetVarPos(size_t var);
 
@@ -97,8 +113,9 @@ namespace WBSF
 
 		bool m_bCreateVRT;
 		CHRDPSVariables m_variables;
+		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
-		CHRDPSHeight m_height;
+		
 
 		int m_max_hours;
 		bool m_bForecast;
@@ -111,7 +128,7 @@ namespace WBSF
 		std::string GetVRTFilePath(std::string outputFilePath);
 		ERMsg GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback);
 		//std::string GetVRTFilePath(CTRef TRef);
-		static CTRef GetTRef(const std::string& title);
+		static CTRef GetTRef(std::string title);
 
 
 	protected:
@@ -123,13 +140,13 @@ namespace WBSF
 		std::string GetRemoteFilePath(size_t HH, size_t hhh, const std::string& filetitle)const;
 
 		size_t GetHH(const std::string& title)const;
-		size_t Gethhh(const std::string& title)const;
+		size_t Gethhh(std::string title)const;
 		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
 
 		ERMsg OpenDatasets(CCallback& callback);
 
-		static size_t GetVariable(const std::string& fileTitle);
-		static size_t GetLevel(const std::string& fileName);
+		static size_t GetVariable(std::string fileTitle);
+		static size_t GetLevel(std::string fileName);
 
 
 		static const char* SERVER_NAME;

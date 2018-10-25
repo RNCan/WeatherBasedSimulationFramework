@@ -61,7 +61,7 @@ namespace WBSF
 				if (captor == 4 || captor == 5 || captor == 7 || captor == 8)
 					format = F_NEW;
 			}
-			else if (title.size() >= 9)
+			else if (title.size() >= 15)
 			{
 				char captor = char(title[2] - '0');
 				if (captor == 4 || captor == 5 || captor == 7 || captor == 8)
