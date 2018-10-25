@@ -30,7 +30,7 @@ namespace WBSF
 	}
 
 
-	
+
 
 
 	//*********************************************************************
@@ -46,7 +46,8 @@ namespace WBSF
 		m_max_hours(99)
 	{
 		m_variables.set();
-		m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");
+		m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");//for ISBL var
+		m_height.FromString("2|10|40|80|120");//for TGL var
 	}
 
 	CHRDPS::~CHRDPS(void)
@@ -89,8 +90,8 @@ namespace WBSF
 		ASSERT(parts.size() == 9);
 		return CHRDPSVariables::GetLevel(parts[5]);
 	}
-	
-	
+
+
 
 	ERMsg CHRDPS::GetLatestHH(size_t& HH, CCallback& callback)const
 	{
@@ -215,7 +216,7 @@ namespace WBSF
 							size_t HH = as<size_t>(GetLastDirName(path));
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
 							//CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
-		
+
 							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && hhh <= m_max_hours) : hhh < 6;
 							if (bDownload)
 							{
@@ -227,12 +228,15 @@ namespace WBSF
 									string outputFilePath = GetOutputFilePath(fileName);
 									size_t var = GetVariable(fileName);
 									size_t level = GetLevel(fileName);
-									
+
 									if (var < m_variables.size())
 									{
 										if (m_variables.test(var))
 										{
-											if (!m_variables.IsIsobar(var) || m_levels.find(level)!= m_levels.end())
+											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_height.find(level) != m_height.end();
+											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
+
+											if (bKeep1 || bKeep2)
 											{
 												if (NeedDownload(outputFilePath))
 												{
@@ -280,7 +284,7 @@ namespace WBSF
 		set<string> ouputsPath;
 		if (msg)
 		{
-			
+
 			callback.PushTask("Download HRDPS gribs (" + ToString(fileList.size()) + ")", fileList.size());
 			callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
 
@@ -307,7 +311,7 @@ namespace WBSF
 							string outputFilePath = GetOutputFilePath(fileName);
 
 							CreateMultipleDir(GetPath(outputFilePath));
-							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT );
+							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT);
 							if (msg)
 							{
 								ASSERT(GoodGrib(outputFilePath));
@@ -350,16 +354,16 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	string CHRDPS::GetVRTFilePath(string outputFilePath)
 	{
-		
+
 		//string path = GetPath(outputFilePath);
 		string title = GetFileTitle(outputFilePath);
 		size_t pos = title.find("2.5km_");
 		ASSERT(pos != string::npos);
 
-		string year = title.substr(pos+6, 4);
+		string year = title.substr(pos + 6, 4);
 		string month = title.substr(pos + 10, 2);
 		string day = title.substr(pos + 12, 2);
 		size_t h1 = WBSF::as<size_t>(title.substr(pos + 14, 2));
@@ -408,7 +412,7 @@ namespace WBSF
 
 							//string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
 							//StringVector fileList = WBSF::GetFilesList(filter, 2, true);
-				
+
 							//sort(fileList.begin(), fileList.end());
 							//for (StringVector::iterator it5 = fileList.begin(); it5 != fileList.end() && msg; it5++)
 							//{
@@ -448,7 +452,7 @@ namespace WBSF
 			size_t h2 = WBSF::as<size_t>(title.substr(17, 3));
 			//size_t h1 = (h / 6) * 6;
 			//size_t h2 = (h % 6);
-		
+
 			//create VRT
 			string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
 			string HH = FormatA("%02d", h1);
@@ -527,8 +531,8 @@ namespace WBSF
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
 			size_t d = TRef.GetDay();
-//			size_t h = TRef.GetHour();
-			
+			//			size_t h = TRef.GetHour();
+
 			string filter = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02*.vrt", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
 			StringVector fileList = WBSF::GetFilesList(filter);
 			for (size_t i = 0; i < fileList.size(); i++)
@@ -539,8 +543,8 @@ namespace WBSF
 				size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
 				size_t h = WBSF::as<int>(title.substr(14, 2));
 				size_t hh = WBSF::as<int>(title.substr(17, 3));
-				CTRef TRef = CTRef(year,m,d,h) + hh;
-//				CTRef TRef = GetTRef(fileList[i]);
+				CTRef TRef = CTRef(year, m, d, h) + hh;
+				//				CTRef TRef = GetTRef(fileList[i]);
 				if (p.IsInside(TRef))
 					gribsList[TRef] = fileList[i];
 			}
@@ -733,25 +737,81 @@ namespace WBSF
 	{
 		"4LFTX_SFC", "ALBDO_SFC", "APCP_SFC", "DLWRF_SFC", "DSWRF_SFC", "HGT_SFC", "ICEC_SFC", "LAND_SFC", "LHTFL_SFC", "NLWRS_SFC", "NSWRS_SFC", "PRATE_SFC",
 		"PRES_SFC", "SHOWA_SFC", "SHTFL_SFC", "SNOD_SFC", "SPFH_SFC", "TCDC_SFC", "TSOIL_SFC", "WEAFR_SFC", "WEAPE_SFC", "WEARN_SFC", "WEASN_SFC", "WTMP_SFC",
-		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC",
+		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC", "GUST_MAX_SFC", "GUST_MIN_SFC", "SDEN_SFC", "SFCWRO_SFC",
 		"DEN_TGL", "DEPR_TGL", "DPT_TGL", "RH_TGL", "SPFH_TGL", "TMP_TGL", "UGRD_TGL", "VGRD_TGL", "WDIR_TGL", "WIND_TGL",
 		"ABSV_ISBL", "DEPR_ISBL", "HGT_ISBL", "RH_ISBL", "SPFH_ISBL", "TMP_ISBL", "UGRD_ISBL", "VGRD_ISBL", "VVEL_ISBL", "WDIR_ISBL", "WIND_ISBL",
-		"CAPE_ETAL", "CWAT_EATM", "DSWRF_NTAT", "HGT_ISBY", "HLCY_ETAL", "PRMSL_MSL", "SOILW_DBLY", "TSOIL_DBLL", "ULWRF_NTAT", "USWRF_NTAT",
+		"HGT_ISBY",
+		"CAPE_ETAL", "HLCY_ETAL",
+		"CWAT_EATM",
+		"PRMSL_MSL",
+		"SOILW_DBLY",
+		"TSOIL_DBLL", "SOILW_DBLL",
+		"DSWRF_NTAT", "ULWRF_NTAT", "USWRF_NTAT"
+
 	};
 
+	const size_t CHRDPSVariables::CAT_RANGE[NB_HRDPS_CATEGORY][2] =
+	{
+		{LFTX_SFC, LAST_SFC},
+		{DEN_TGL, LAST_TGL},
+		{ABSV_ISBL, LAST_ISBL},
+		{HGT_ISBY,LAST_ISBY},
+		{CAPE_ETAL, LAST_ETAL},
+		{CWAT_EATM,LAST_EATM},
+		{PRMSL_MSL,LAST_MSL},
+		{SOILW_DBLY,LAST_DBLY},
+		{TSOIL_DBLL,LAST_DBLL},
+		{DSWRF_NTAT,USWRF_NTAT},
+	};
+
+	bool CHRDPSVariables::Is(size_t var, THRDPSCategory cat)
+	{
+		return var >= ABSV_ISBL && var <= WIND_ISBL;
+	}
 
 
 
 
 
-	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ETAL", "EATM", "NTAT", "ISBY", "MSL", "DBLY", "DBLL" };
-	StringVector CHRDPSVariables::DESCRIPTION;
+
+
+	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ISBY", "ETAL", "EATM", "MSL", "DBLY", "DBLL", "NTAT" };
+	StringVector CHRDPSVariables::DESCRIPTION[NB_HRDPS_CATEGORY];
 
 
 	void CHRDPSVariables::LoadDescription()
 	{
-		if (DESCRIPTION.empty())
-			DESCRIPTION.LoadString(IDS_HRDPS_VAR, "|");
+		if (DESCRIPTION[0].empty())
+		{
+			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
+			{
+				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR+c, "|");
+				ASSERT(DESCRIPTION[c].size() == GetNbVar(c));
+			}
+		}
+			
+	}
+	
+	size_t CHRDPSVariables::GetCat(size_t var)
+	{
+		ASSERT(var < NB_HRDPS_VARIABLES);
+
+		size_t c = NOT_INIT;
+		for (size_t i = 0; i < NB_HRDPS_CATEGORY&&c==NOT_INIT; i++)
+		{
+			if (var >= CAT_RANGE[i][0] && var <= CAT_RANGE[i][1])
+				c = i;
+		}
+
+		return c;
+	}
+	
+	size_t CHRDPSVariables::GetVarPos(size_t var)
+	{
+		ASSERT(var < NB_HRDPS_VARIABLES);
+
+		size_t c = GetCat(var);
+		return var - CAT_RANGE[c][0];
 	}
 
 	size_t CHRDPSVariables::GetVariable(const std::string& in)
@@ -836,6 +896,8 @@ namespace WBSF
 		return bGoodGrib;
 	}
 
+	//*********************************************************************
+
 	CHRDPSLevels::CHRDPSLevels(std::string str)
 	{
 		FromString(str);
@@ -845,7 +907,7 @@ namespace WBSF
 	{
 		clear();
 		tokenizer<escaped_list_separator<char> > tk(str, escaped_list_separator<char>("\\", ",|;", "\""));
-		for (tokenizer<escaped_list_separator<char> >::iterator i(tk.begin());i != tk.end(); ++i)
+		for (tokenizer<escaped_list_separator<char> >::iterator i(tk.begin()); i != tk.end(); ++i)
 		{
 			insert(ToSizeT(*i));
 		}
@@ -864,4 +926,9 @@ namespace WBSF
 
 		return str;
 	}
+
+	//*********************************************************************
+
+
+
 }

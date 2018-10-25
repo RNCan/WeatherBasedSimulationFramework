@@ -14,55 +14,76 @@
 namespace WBSF
 {
 
+
+
+
+
 	enum THRDPSVariables
 	{
 		LFTX_SFC, ALBDO_SFC, APCP_SFC, DLWRF_SFC, DSWRF_SFC, HGT_SFC, ICEC_SFC, LAND_SFC, LHTFL_SFC, NLWRS_SFC, NSWRS_SFC, PRATE_SFC,
 		PRES_SFC, SHOWA_SFC, SHTFL_SFC, SNOD_SFC, SPFH_SFC, TCDC_SFC, TSOIL_SFC, WEAFR_SFC, WEAPE_SFC, WEARN_SFC, WEASN_SFC,
-		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC,
-		DEN_TGL, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, ABSV_ISBL,
-		DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, CAPE_ETAL,
-		CWAT_EATM, DSWRF_NTAT, HGT_ISBY, HLCY_ETAL, PRMSL_MSL, SOILW_DBLY, TSOIL_DBLL, ULWRF_NTAT, USWRF_NTAT, NB_HRDPS_VARIABLES
+		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC, GUST_MAX_SFC, GUST_MIN_SFC, SDEN_SFC, SFCWRO_SFC, LAST_SFC,
+		DEN_TGL = LAST_SFC, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, ABSV_ISBL, LAST_TGL,
+		DEPR_ISBL = LAST_TGL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, LAST_ISBL,
+		HGT_ISBY = LAST_ISBL, LAST_ISBY,
+		CAPE_ETAL = LAST_ISBY, HLCY_ETAL, LAST_ETAL,
+		CWAT_EATM = LAST_ETAL, LAST_EATM,
+		PRMSL_MSL = LAST_EATM, LAST_MSL,
+		SOILW_DBLY = LAST_MSL, LAST_DBLY,
+		TSOIL_DBLL = LAST_DBLY, SOILW_DBLL, LAST_DBLL,
+		DSWRF_NTAT = LAST_DBLL, ULWRF_NTAT, USWRF_NTAT, LAST_NTAT,
+		NB_HRDPS_VARIABLES = LAST_NTAT
 	};
 
+	enum THRDPSCategory { HRDPS_SFR, HRDPS_TGL, HRDPS_ISBL, HRDPS_ISBY, HRDPS_ETAL, HRDPS_EATM, HRDPS_MSL, HRDPS_DBLY, HRDPS_DBLL, HRDPS_NTAT, NB_HRDPS_CATEGORY };
 
 	class CHRDPSVariables : public std::bitset<NB_HRDPS_VARIABLES>
 	{
 	public:
 
 
-		enum THRDPSCategory{ HRDPS_TGL, HRDPS_SFR, HRDPS_ISBL, HRDPS_ETAL, HRDPS_EATM, HRDPS_NTAT, HRDPS_ISBY, HRDPS_MSL, HRDPS_DBLY, HRDPS_DBLL, NB_HRDPS_CATEGORY };
+		static const char* GetName(size_t i) { ASSERT(i < NB_HRDPS_VARIABLES); return NAME[i]; }
+		static const char* GetCategory(size_t i) { ASSERT(i < NB_HRDPS_CATEGORY); return CATEGORY[i]; }
 
-		static const char* GetName(size_t i){ ASSERT(i<NB_HRDPS_VARIABLES); return NAME[i]; }
-		static const char* GetCategory(size_t i){ ASSERT(i<NB_HRDPS_CATEGORY); return CATEGORY[i]; }
-
-		static const std::string& GetDescription(size_t i){ ASSERT(i < NB_HRDPS_VARIABLES); LoadDescription();  return DESCRIPTION[i]; }
+		static const std::string& GetDescription(size_t var)
+		{
+			ASSERT(var < NB_HRDPS_VARIABLES); LoadDescription();
+			size_t c = GetCat(var);
+			size_t v = GetVarPos(var);
+			return DESCRIPTION[c][v];
+		}
 		CHRDPSVariables& operator = (std::string in);
-		
+
 
 		static size_t GetVariable(const std::string& name);
 		static size_t GetCategory(const std::string& name);
 		static size_t GetLevel(const std::string& name);
-		
+
 		static std::string GetHRDPSSelectionString();
-		static bool IsIsobar(size_t var) { return var >= ABSV_ISBL && var <= WIND_ISBL; }
+		static bool Is(size_t var, THRDPSCategory c);
+		static size_t GetNbVar(size_t c) { return CAT_RANGE[c][1] - CAT_RANGE[c][0] + 1; }
+		static size_t GetCat(size_t var);
+		static size_t GetVarPos(size_t var);
 
 	protected:
 
 		static void LoadDescription();
 		static const char* NAME[NB_HRDPS_VARIABLES];
 		static const char* CATEGORY[NB_HRDPS_CATEGORY];
-		
-		static StringVector DESCRIPTION;
+		static StringVector DESCRIPTION[NB_HRDPS_CATEGORY];
+		static const size_t CAT_RANGE[NB_HRDPS_CATEGORY][2];
 	};
 
 	class CHRDPSLevels : public std::set<size_t>
 	{
 	public:
 
-		CHRDPSLevels(std::string str="");
+		CHRDPSLevels(std::string str = "");
 		void FromString(std::string str);
 		std::string ToString()const;
 	};
+
+	typedef CHRDPSLevels CHRDPSHeight;
 
 	//**************************************************************
 	class CHRDPS
@@ -77,6 +98,8 @@ namespace WBSF
 		bool m_bCreateVRT;
 		CHRDPSVariables m_variables;
 		CHRDPSLevels m_levels;
+		CHRDPSHeight m_height;
+
 		int m_max_hours;
 		bool m_bForecast;
 
@@ -89,7 +112,7 @@ namespace WBSF
 		ERMsg GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback);
 		//std::string GetVRTFilePath(CTRef TRef);
 		static CTRef GetTRef(const std::string& title);
-		
+
 
 	protected:
 
@@ -102,7 +125,7 @@ namespace WBSF
 		size_t GetHH(const std::string& title)const;
 		size_t Gethhh(const std::string& title)const;
 		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
-		
+
 		ERMsg OpenDatasets(CCallback& callback);
 
 		static size_t GetVariable(const std::string& fileTitle);
