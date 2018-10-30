@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "UIEnvCanPrcpRadar.h"
+#include "UIHRDPA.h"
 #include "Basic/FileStamp.h"
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
@@ -18,47 +18,53 @@ namespace WBSF
 
 
 	//http://climate.weather.gc.ca/radar/image.php?time=04-MAR-14%2005.21.06.293480%20PM&site=WBI
+	////HRDPA:
+	//http://dd.weather.gc.ca/analysis/precip/hrdpa/grib2/polar_stereographic/24/
 
 
 	//*********************************************************************
-	const char* CUIEnvCanPrcpRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type"};
-	const size_t CUIEnvCanPrcpRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX};
-	const UINT CUIEnvCanPrcpRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_PRCP_RADAR_P;
-	const UINT CUIEnvCanPrcpRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_PRCP_RADAR;
+	const char* CUIHRDPA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Type"};
+	const size_t CUIHRDPA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX};
+	const UINT CUIHRDPA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_PRCP_RADAR_P;
+	const UINT CUIHRDPA::DESCRIPTION_TITLE_ID = ID_TASK_EC_PRCP_RADAR;
 
-	const char* CUIEnvCanPrcpRadar::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanRadarPrcp";  return THE_CLASS_NAME; }
-	CTaskBase::TType CUIEnvCanPrcpRadar::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanPrcpRadar::CLASS_NAME(), (createF)CUIEnvCanPrcpRadar::create);
+	const char* CUIHRDPA::CLASS_NAME(){ static const char* THE_CLASS_NAME = "HRDPA";  return THE_CLASS_NAME; }
+	CTaskBase::TType CUIHRDPA::ClassType()const { return CTaskBase::UPDATER; }
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIHRDPA::CLASS_NAME(), (createF)CUIHRDPA::create);
+	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("EnvCanRadarPrcp", (createF)CUIHRDPA::create);
+	
 
 	
-	const char* CUIEnvCanPrcpRadar::SERVER_NAME = "dd.weather.gc.ca";
-	const char* CUIEnvCanPrcpRadar::SERVER_PATH = "analysis/precip/rdpa/grib2/polar_stereographic/";
+	const char* CUIHRDPA::SERVER_NAME = "dd.weather.gc.ca";
+	const char* CUIHRDPA::SERVER_PATH = "analysis/precip/%1/grib2/polar_stereographic/";
 
 
 
-	CUIEnvCanPrcpRadar::CUIEnvCanPrcpRadar(void)
+	CUIHRDPA::CUIHRDPA(void)
 	{}
 
-	CUIEnvCanPrcpRadar::~CUIEnvCanPrcpRadar(void)
+	CUIHRDPA::~CUIHRDPA(void)
 	{}
 	
-	std::string CUIEnvCanPrcpRadar::Option(size_t i)const
+	std::string CUIHRDPA::Option(size_t i)const
 	{
 		string str;
 		switch (i)
 		{
+		case PRODUCT:	str = "RDPA|HRDPA"; break;
 		case TYPE:	str = "06|24"; break;
 		};
 		return str;
 	}
 
-	std::string CUIEnvCanPrcpRadar::Default(size_t i)const
+	std::string CUIHRDPA::Default(size_t i)const
 	{
 		string str;
 
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\PrcpRadar\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\HRDPA\\"; break;
+		case PRODUCT:	str = "1"; break;
 		case TYPE: str = ToString(TYPE_06HOURS); break;
 		};
 
@@ -66,7 +72,7 @@ namespace WBSF
 	}
 
 
-	bool CUIEnvCanPrcpRadar::NeedDownload(const CFileInfo& info, const string& filePath)const
+	bool CUIHRDPA::NeedDownload(const CFileInfo& info, const string& filePath)const
 	{
 		bool bDownload = true;
 
@@ -78,7 +84,7 @@ namespace WBSF
 		return bDownload;
 	}
 
-	string CUIEnvCanPrcpRadar::GetOutputFilePath(const string& fileName)const
+	string CUIHRDPA::GetOutputFilePath(const string& fileName)const
 	{
 
 		string year = Right(fileName, 20).substr(0, 4);
@@ -88,7 +94,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIEnvCanPrcpRadar::Execute(CCallback& callback)
+	ERMsg CUIHRDPA::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 		string workingDir = GetDir(WORKING_DIR);
@@ -106,8 +112,10 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
+		size_t product = as<size_t>(PRODUCT);
 		string type = as<size_t>(TYPE) == TYPE_06HOURS ? "06" : "24";
 		string path = SERVER_PATH + type + "/*.grib2";
+		ReplaceString(path, "%1", product == RDPA ? "rdpa":"hrdpa");
 
 
 		CFileInfoVector fileList;
@@ -150,7 +158,7 @@ namespace WBSF
 
 
 		callback.AddMessage("Number of images to download after clearing: " + ToString(fileList.size()));
-		callback.PushTask("Download precipitation images + (" + ToString(fileList.size() )+ ")", fileList.size());
+		callback.PushTask("Download RDPA/HRDPA precipitation images (" + ToString(fileList.size() )+ ")", fileList.size());
 		//callback.SetNbStep(fileList.size());
 
 		int nbDownload = 0;
@@ -177,7 +185,7 @@ namespace WBSF
 	}
 
 
-	//ERMsg CUIEnvCanPrcpRadar::GetStationList(StringVector& stationList, CCallback& callback)
+	//ERMsg CUIHRDPA::GetStationList(StringVector& stationList, CCallback& callback)
 	//{
 	//	ERMsg msg;
 	//	return msg;

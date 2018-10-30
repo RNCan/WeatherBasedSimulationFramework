@@ -8,40 +8,39 @@
 
 namespace WBSF
 {
-	class CUIEnvCanPrcpRadar : public CTaskBase
+	class CUIHRDPA : public CTaskBase
 	{
 	public:
 
 		enum{ TYPE_06HOURS, TYPE_24HOURS };
-		enum TAttributes { WORKING_DIR, TYPE, NB_ATTRIBUTES };
+		enum TProduct { RDPA, HRDPA, NB_PRODUCTS };
+		enum TAttributes { WORKING_DIR, PRODUCT, TYPE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
-		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanPrcpRadar); }
+		static CTaskPtr create(){ return CTaskPtr(new CUIHRDPA); }
 
-		CUIEnvCanPrcpRadar(void);
-		virtual ~CUIEnvCanPrcpRadar(void);
+		CUIHRDPA(void);
+		virtual ~CUIHRDPA(void);
 
 		//proptree param
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-	
+		virtual bool IsDaily()const { return true; }
+		virtual bool IsGribs()const { return true; }
+
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
-		//virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
-		//virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
-
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
-		//virtual const std::string& Title(size_t i)const{ ASSERT(i < NB_ATTRIBUTES); return ATTRIBUTE_TITLE[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
 
 	protected:
 
-		ERMsg DownloadForecast(CCallback& callback);
+	//	ERMsg DownloadForecast(CCallback& callback);
 		std::string GetOutputFilePath(const std::string& fileName)const;
 		bool NeedDownload(const CFileInfo& info, const std::string& filePath)const;
 
