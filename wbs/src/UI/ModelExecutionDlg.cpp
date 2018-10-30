@@ -382,9 +382,6 @@ namespace WBSF
 
 		m_seedCtrl.SetCurSel((int)m_modelExecution.m_seedType);
 		m_nbReplicationsCtrl.SetWindowText(std::to_string(m_modelExecution.m_nbReplications));
-
-		//m_weatherLocCtrl.SetCheck(m_modelExecution.GetWeatherLoc() );
-		//m_XValidationCtrl.SetCheck(m_modelExecution.GetWeatherLoc()&&m_modelExecution.GetXValidation() );
 		m_useHxGridCtrl.SetCheck(m_modelExecution.m_bUseHxGrid);
 
 		if (!msg)

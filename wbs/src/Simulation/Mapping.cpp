@@ -221,7 +221,7 @@ namespace WBSF
 									if (msg && !m_XValOnly)
 										msg += gridInterpol.CreateSurface(callback);
 
-									XValVector[index] = gridInterpol.GetXValidation();
+									XValVector[index] = gridInterpol.GetOutput();
 									
 								}
 								else

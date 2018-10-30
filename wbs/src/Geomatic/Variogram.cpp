@@ -735,7 +735,7 @@ ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector&
 		m_R2 = 1 - RSS / TSS;
 			
 	}
-	catch (exception& e)
+	catch (exception& /*e*/)
 	{
 		//Usually BOBYQA that are not able to solve problem
 		//callback.AddMessage(string("WARNING: Variagram (") + GetModelName(model)  + ") " + e.what());

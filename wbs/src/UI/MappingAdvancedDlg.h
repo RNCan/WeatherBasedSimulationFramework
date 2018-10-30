@@ -41,6 +41,7 @@ namespace WBSF
 		CCFLEdit	m_noDataCtrl;
 		CCFLEdit	m_maxDistanceCtrl;
 		CCFLEdit	m_XvalPointCtrl;
+		CComboBox	m_outputTypeCtrl;
 		CCFLEdit	m_GDALOptionsCtrl;
 		CButton		m_useElevationCtrl;
 		CButton		m_useExpositionCtrl;

@@ -38,12 +38,14 @@ namespace WBSF
 	void CMappingAdvancedDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		CDialog::DoDataExchange(pDX);
-
+		
 
 		DDX_Control(pDX, IDC_MAP_NBPOINT, m_nbPointCtrl);
 		DDX_Control(pDX, IDC_MAP_NO_DATA, m_noDataCtrl);
 		DDX_Control(pDX, IDC_MAP_MAX_DISTANCE, m_maxDistanceCtrl);
 		DDX_Control(pDX, IDC_MAP_XVAL_POINTS, m_XvalPointCtrl);
+		DDX_Control(pDX, IDC_MAP_OUTPUT_TYPE, m_outputTypeCtrl);
+		
 		DDX_Control(pDX, IDC_MAP_USE_ELEVATION, m_useElevationCtrl);
 		DDX_Control(pDX, IDC_MAP_USE_EXPOSITION, m_useExpositionCtrl);
 		DDX_Control(pDX, IDC_MAP_USE_SHORE_DISTANCE, m_useShoreCtrl);
@@ -154,6 +156,7 @@ namespace WBSF
 		m_pParam->m_noData = ToFloat(m_noDataCtrl.GetString());
 		m_pParam->m_maxDistance = ToFloat(m_maxDistanceCtrl.GetString()) * 1000.0f;
 		m_pParam->m_XvalPoints = ToFloat(m_XvalPointCtrl.GetString())/100.0f;
+		m_pParam->m_outputType = m_outputTypeCtrl.GetCurSel();
 		m_pParam->m_bUseElevation = m_useElevationCtrl.GetCheck();
 		m_pParam->m_bUseExposition = m_useExpositionCtrl.GetCheck();
 		m_pParam->m_bUseShore = m_useShoreCtrl.GetCheck();
@@ -201,6 +204,7 @@ namespace WBSF
 		m_noDataCtrl.SetWindowText(ToString(m_pParam->m_noData));
 		m_maxDistanceCtrl.SetWindowText(ToString(m_pParam->m_maxDistance / 1000.0f, 0));
 		m_XvalPointCtrl.SetWindowText(ToString(m_pParam->m_XvalPoints * 100.0f, 2));
+		m_outputTypeCtrl.SetCurSel((int)m_pParam->m_outputType);
 		m_useElevationCtrl.SetCheck(m_pParam->m_bUseElevation);
 		m_useExpositionCtrl.SetCheck(m_pParam->m_bUseExposition);
 		m_useShoreCtrl.SetCheck(m_pParam->m_bUseShore);

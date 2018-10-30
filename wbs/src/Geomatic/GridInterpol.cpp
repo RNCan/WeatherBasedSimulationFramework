@@ -436,10 +436,10 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 		m_pGridInterpol->SetParam(m_param);
 
 		//Get Xvalidation with good parameter
-		msg = m_pGridInterpol->GetXValidation(m_XValidation, callback);
+		msg = m_pGridInterpol->GetXValidation(CGridInterpolParam::O_VALIDATION, m_validation, callback);
 		
 		//replace noData by VMISS
-		for (CXValidationVector::iterator it = m_XValidation.begin(); it != m_XValidation.end(); it++)
+		for (CXValidationVector::iterator it = m_validation.begin(); it != m_validation.end(); it++)
 		{
 			if (fabs(it->m_observed - m_param.m_noData) < 0.1)
 				it->m_observed = VMISS;
@@ -467,17 +467,48 @@ ERMsg CGridInterpol::OptimizeParameter(CCallback& callback)
 				
 				for(vector<size_t>::const_reverse_iterator p=m_trimPosition.rbegin(); p!=m_trimPosition.rend(); p++)
 				{
-					m_XValidation.insert(m_XValidation.begin()+*p, empty);
+					m_validation.insert(m_validation.begin()+*p, empty);
 				}
 			}
 	
 			CStatisticXY stat;
-			m_XValidation.GetStatistic(stat, VMISS);
+			m_validation.GetStatistic(stat, VMISS);
 		
 			string comment = FormatMsg(IDS_MAP_METHOD_CHOOSE, GetMethodName(), ToString(stat[NB_VALUE]),  ToString(stat[COEF_D], 4) );
 			callback.AddMessage(comment);
 			callback.AddMessage(m_pGridInterpol->GetFeedbackBestParam());
 		}
+
+		if (m_param.m_outputType == CGridInterpolParam::O_INTERPOLATION)
+		{
+			msg = m_pGridInterpol->GetXValidation(CGridInterpolParam::O_INTERPOLATION, m_interpolation, callback);
+
+			//replace noData by VMISS
+			for (CXValidationVector::iterator it = m_interpolation.begin(); it != m_interpolation.end(); it++)
+			{
+				if (fabs(it->m_observed - m_param.m_noData) < 0.1)
+					it->m_observed = VMISS;
+
+				if (fabs(it->m_predicted - m_param.m_noData) < 0.1)
+					it->m_predicted = VMISS;
+			}
+
+
+			//update
+			if (msg)
+			{
+				//push back removed point with VMISS data
+				if (!m_trimPosition.empty())
+				{
+					CXvalTuple empty(VMISS, VMISS);
+
+					for (vector<size_t>::const_reverse_iterator p = m_trimPosition.rbegin(); p != m_trimPosition.rend(); p++)
+					{
+						m_interpolation.insert(m_interpolation.begin() + *p, empty);
+					}
+				}
+			}//if msg
+		}//if interpolation
 	}
 	
 	return msg;

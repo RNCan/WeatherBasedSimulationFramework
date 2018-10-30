@@ -50,7 +50,7 @@ namespace WBSF
 
 	void CThinPlateSpline::Reset()
 	{
-		m_inc = 1;
+		//m_inc = 1;
 
 		if (m_pObject)
 		{

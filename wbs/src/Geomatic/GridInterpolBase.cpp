@@ -90,7 +90,7 @@ namespace WBSF
 	//***************************************************************************
 	const char* CGridInterpolParam::XML_FLAG = "InterpolParam";
 
-	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "UseElev", "UseExpo", "UseShore", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "TPSMaxError", "RFTreeType", "OutputVariogramInfo" };
+	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "OutputType", "UseElev", "UseExpo", "UseShore", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "TPSMaxError", "RFTreeType", "OutputVariogramInfo" };
 
 	CGridInterpolParam::CGridInterpolParam()
 	{
@@ -104,6 +104,7 @@ namespace WBSF
 		m_noData = -999;
 		m_maxDistance = 200000;//200 km
 		m_XvalPoints = 0.2;//20% for X-validation
+		m_outputType = O_VALIDATION;
 		m_bUseElevation = true;
 		m_bUseExposition = true;
 		m_bUseShore = true;
@@ -156,6 +157,7 @@ namespace WBSF
 		m_noData = in.m_noData;
 		m_maxDistance = in.m_maxDistance;
 		m_XvalPoints = in.m_XvalPoints;
+		m_outputType = in.m_outputType;
 		m_bUseElevation = in.m_bUseElevation;
 		m_bUseExposition = in.m_bUseExposition;
 		m_bUseShore = in.m_bUseShore;
@@ -208,6 +210,7 @@ namespace WBSF
 		if ((float)m_noData != (float)in.m_noData)bEqual = false;
 		if ((float)m_maxDistance != (float)in.m_maxDistance)bEqual = false;
 		if ((float)m_XvalPoints != (float)in.m_XvalPoints)bEqual = false;
+		if (m_outputType!=in.m_outputType)bEqual = false;
 		if (m_bUseElevation != in.m_bUseElevation)bEqual = false;
 		if (m_bUseExposition != in.m_bUseExposition)bEqual = false;
 		if (m_bUseShore != in.m_bUseShore)bEqual = false;
@@ -264,6 +267,7 @@ namespace WBSF
 		case OUTPUT_NO_DATA:		str = ToString(m_noData); break;
 		case MAX_DISTANCE:			str = ToString(m_maxDistance); break;
 		case XVAL_POINTS:			str = ToString(m_XvalPoints); break;
+		case OUTPUT_TYPE:			str = ToString(m_outputType); break;
 		case USE_ELEV:				str = ToString(m_bUseElevation); break;
 		case USE_EXPO:				str = ToString(m_bUseExposition); break;
 		case USE_SHORE:				str = ToString(m_bUseShore); break;
@@ -429,12 +433,6 @@ namespace WBSF
 					kk++;
 				}
 			}
-			//for (int j = 0; j < m_nbDimension; j++)
-			//	m_pDataPts[i][j] = m_bGeographic ? pts[i](j) : pts[i][j];
-
-			//if (m_bUseElevation)//elevation
-			//	m_pDataPts[i][m_nbDimension - 1] *= 100;
-
 		}
 
 		m_pTreeRoot.reset(new ANNkd_tree(m_pDataPts, (int)m_nSize, (int)m_nbDimension));
@@ -455,11 +453,6 @@ namespace WBSF
 			ANNdistArray	dd = new ANNdist[nbPointSearch];	// allocate near neighbor dists
 			ANNpoint	q = annAllocPt((int)m_nbDimension);		// query point
 
-			//for (int i = 0; i < m_nbDimension; i++)
-				//q[i] = m_bGeographic ? pt(i) : pt[i];
-
-			//if (m_bUseElevation)//elevation
-				//q[m_nbDimension - 1] *= 100;
 			for (int k = 0, kk = 0; k < 6; k++)
 			{
 
@@ -646,7 +639,7 @@ namespace WBSF
 		double R² = -999;
 
 		CXValidationVector XValidation;
-		if (GetXValidation(XValidation, callback))
+		if (GetXValidation(CGridInterpolParam::O_VALIDATION, XValidation, callback))
 		{
 			//Gat statistic for this parameter set
 			CStatisticXY stat;
@@ -697,7 +690,7 @@ namespace WBSF
 		//LeaveCriticalSection(&me.m_CS);
 	}
 
-	ERMsg CGridInterpolBase::GetXValidation(CXValidationVector& XValidation, CCallback& callback)const
+	ERMsg CGridInterpolBase::GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -718,7 +711,10 @@ namespace WBSF
 				const CGridPoint& pt = m_pPts->at(i);
 
 				XValidation[i].m_observed = pt.m_event;
-				XValidation[i].m_predicted = Evaluate(pt, i);
+				if(type == CGridInterpolParam::O_VALIDATION)
+					XValidation[i].m_predicted = Evaluate(pt, i);
+				else
+					XValidation[i].m_predicted = Evaluate(pt);
 
 				if (m_pAgent && m_pAgent->TestConnection(m_hxGridSessionID) == S_FALSE)
 					throw(CHxGridException());

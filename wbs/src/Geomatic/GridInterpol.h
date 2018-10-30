@@ -41,7 +41,11 @@ namespace WBSF
 		ERMsg OptimizeParameter(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg CreateSurface(CCallback& callback = DEFAULT_CALLBACK);
 		void Finalize();
-		const CXValidationVector& GetXValidation()const{ return m_XValidation; }
+		//const CXValidationVector& GetXValidation()const{ return m_validation; }
+		const CXValidationVector& GetOutput()const 
+		{ 
+			return (m_param.m_outputType == CGridInterpolParam::O_VALIDATION) ? m_validation : m_interpolation; 
+		}
 
 
 		CGridPointVectorPtr m_pts;
@@ -80,7 +84,8 @@ namespace WBSF
 		static const char* METHOD_NAME[NB_METHOD];
 
 
-		CXValidationVector m_XValidation;
+		CXValidationVector m_validation;
+		CXValidationVector m_interpolation;
 		std::vector<size_t> m_trimPosition;
 
 		//CProjectionTransformation m_PT;

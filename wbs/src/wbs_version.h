@@ -1,3 +1,5 @@
+
+//30-10-2018	1.1.2	Rémi Saint-Amant	Change mapping interpolation result
 //24-10-2018	1.1.1	Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
 //13-09-2018	1.1.0	Rémi Saint-Amant	Resolve confusion in vapor pressure units. 
 //											thread safe correction in GetData() if hourly object
@@ -7,4 +9,4 @@
 //29-08-2018	1.0.0	Rémi Saint-Amant	first version number of WBSF
 
 #pragma once
-static const char* WBSF_VERSION = "1.1.1";
+static const char* WBSF_VERSION = "1.1.2";

@@ -48,7 +48,7 @@ namespace WBSF
 
 		//a mettre dans m_param;
 		//bool m_bClustered;
-		double m_inc;
+	
 	};
 
 }

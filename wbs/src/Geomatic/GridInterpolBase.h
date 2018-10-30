@@ -119,6 +119,7 @@ namespace WBSF
 	{
 	public:
 
+		enum TOutputType {O_VALIDATION, O_INTERPOLATION, NB_OUTPUT_TYPE};
 		enum TIWDModel{ BEST_IWD_MODEL = -1, IWD_CLASIC, IWD_TENSION, NB_IWD_MODEL };
 		enum TVariogram{ BEST_VARIOGRAM = -1, SPERICAL, EXPONENTIAL, GAUSSIAN, POWER, NB_MODEL };
 		enum TDetrending { BEST_DETRENDING = -1, NO_DETRENDING, NB_DETRENDINGS=21};
@@ -126,7 +127,7 @@ namespace WBSF
 		enum TRegression { BEST_REGRESSION = -1, /*...*/ };
 		//enum TTPSType{ TPS_REGIONAL, TPS_GLOBAL, TPS_GLOBAL_WITH_CLUSTER, NB_TPSTYPE };
 
-		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, XVAL_POINTS, USE_ELEV, USE_EXPO, USE_SHORE, GDAL_OPTIONS, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, TPS_MAX_ERROR, RF_TREE_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
+		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, XVAL_POINTS, OUTPUT_TYPE, USE_ELEV, USE_EXPO, USE_SHORE, GDAL_OPTIONS, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, TPS_MAX_ERROR, RF_TREE_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 		static const int DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4];
@@ -148,6 +149,7 @@ namespace WBSF
 		double	m_noData;
 		double	m_maxDistance;
 		double	m_XvalPoints;
+		size_t	m_outputType;
 		std::string  m_GDALOptions;
 		bool m_bUseElevation;
 		bool m_bUseExposition;
@@ -308,7 +310,7 @@ namespace WBSF
 
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const{ return -999; }
 
-		virtual ERMsg GetXValidation(CXValidationVector& XValidation, CCallback& callback)const;
+		virtual ERMsg GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const;
 		virtual bool GetVariogram(CVariogram& variogram)const;
 		virtual ERMsg Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const;
 
@@ -379,6 +381,7 @@ namespace zen
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_NO_DATA)](in.m_noData);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::MAX_DISTANCE)](in.m_maxDistance);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::XVAL_POINTS)](in.m_XvalPoints);
+		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_TYPE)](in.m_outputType);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_ELEV)](in.m_bUseElevation);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_EXPO)](in.m_bUseExposition);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_SHORE)](in.m_bUseShore);
@@ -428,6 +431,7 @@ namespace zen
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_NO_DATA)](out.m_noData);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::MAX_DISTANCE)](out.m_maxDistance);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::XVAL_POINTS)](out.m_XvalPoints);
+		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::OUTPUT_TYPE)](out.m_outputType);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_ELEV)](out.m_bUseElevation);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_EXPO)](out.m_bUseExposition);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::USE_SHORE)](out.m_bUseShore);

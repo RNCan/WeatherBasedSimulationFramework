@@ -106,6 +106,7 @@
 #define IDC_PT_NBROWS_OUT               1012
 #define IDC_SIM_SPIN                    1012
 #define IDC_SIM_PARAMETERS_VARIATIONS_EDITOR 1012
+#define IDC_MAP_OUTPUT_TYPE             1012
 #define IDC_CMN_NEWPRJ_ICON             1013
 #define IDC_LP_INFO_FIELD               1013
 #define IDC_MASK_REMOVE                 1013
