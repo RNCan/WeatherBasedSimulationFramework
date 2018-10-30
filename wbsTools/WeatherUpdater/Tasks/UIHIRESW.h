@@ -20,12 +20,12 @@ namespace WBSF
 	public:
 
 		
-		enum TAttributes { WORKING_DIR, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, DYNAMICAL_CORES, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHIRESW); }
 		static CTRef GetTRef(std::string filePath);
-		static size_t GetSourcesIndex(const std::string& name);
+		//static size_t GetSourcesIndex(const std::string& name);
 
 		CUIHIRESW(void);
 		virtual ~CUIHIRESW(void);
@@ -35,8 +35,9 @@ namespace WBSF
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
-		virtual bool IsHourly()const{ return true; }
-		virtual bool IsGribs()const{ return true; }
+		virtual bool IsHourly()const override{ return true; }
+		virtual bool IsGribs()const override { return true; }
+		virtual bool IsForecast()const override { return true; }
 		
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -52,11 +53,11 @@ namespace WBSF
 
 	protected:
 
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
-		bool NeedDownload(const std::string& filePath)const;
+		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		//bool NeedDownload(const std::string& filePath)const;
 		std::string GetLocalFilePath(const std::string& filePath)const;
 	
-		CTPeriod GetPeriod()const;
+		//CTPeriod GetPeriod()const;
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

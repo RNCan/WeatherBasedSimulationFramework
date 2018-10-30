@@ -443,10 +443,20 @@ namespace WBSF
 					catch (std::exception& e)
 					{
 						msg.ajoute(e.what());
+						std::string str = GetOutputString(msg, callback, false, "\n");
+						ReplaceString(str, "\n", "|");
+						ReplaceString(str, "\r", "");
+
+						(*it2)->SetLastMsg(str);
 					}
 					catch (...)
 					{
 						msg.ajoute("A exception was throw by: " + (*it2)->m_name);
+						std::string str = GetOutputString(msg, callback, false, "\n");
+						ReplaceString(str, "\n", "|");
+						ReplaceString(str, "\r", "");
+
+						(*it2)->SetLastMsg(str);
 					}
 					
 

@@ -1882,7 +1882,11 @@ ERMsg CDHDatabaseBase::Set(size_t index, const CLocation& location)
 {
 	ASSERT(IsOpen());
 	ASSERT(m_openMode == modeWrite);
-	ASSERT(index >= 0 && index<m_zop.size());
+
+	if (index == m_zop.size())
+		return Add(location);
+
+	ASSERT(index<m_zop.size());
 
 	ERMsg msg;
 

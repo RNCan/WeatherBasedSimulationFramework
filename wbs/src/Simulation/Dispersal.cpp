@@ -724,7 +724,7 @@ namespace WBSF
 			//get period of simulation
 			CTPeriod period = world.m_world_param.m_simulationPeriod;
 			callback.PushTask("Execute dispersal for year = " + ToString(period.Begin().GetYear()) + " (" + ToString(period.GetNbDay()) + " days)", period.GetNbDay() * 2);
-			callback.AddMessage("Date              NotEmerged        Emerging          WaitingToFly      Flying            FinishingEggs     Finished       ");
+			callback.AddMessage("Date            NotEmerged       Emerging         WaitingToFly     Flying           FinishingEggs    Finished        ");
 
 			//for all days
 			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)

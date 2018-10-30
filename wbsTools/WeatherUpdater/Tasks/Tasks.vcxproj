@@ -180,7 +180,7 @@
     <ClInclude Include="UICIPRA.h" />
     <ClInclude Include="UIEnvCanForecast.h" />
     <ClInclude Include="EnvCanGribForecast.h" />
-    <ClInclude Include="UIEnvCanPrcpRadar.h" />
+    <ClInclude Include="UIHRDPA.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
     <ClInclude Include="UIGPCP.h" />
     <ClInclude Include="UIGribForecast.h" />
@@ -215,6 +215,7 @@
     <ClInclude Include="UIGHCN.h" />
     <ClInclude Include="UIGSOD.h" />
     <ClInclude Include="UIISDLite.h" />
+    <ClInclude Include="UIRTMA.h" />
     <ClInclude Include="UISaskatchewan.h" />
     <ClInclude Include="UISnowTel.h" />
     <ClInclude Include="UISolutionMesonetDaily.h" />
@@ -253,7 +254,7 @@
     <ClCompile Include="UICIPRA.cpp" />
     <ClCompile Include="UIEnvCanForecast.cpp" />
     <ClCompile Include="EnvCanGribForecast.cpp" />
-    <ClCompile Include="UIEnvCanPrcpRadar.cpp" />
+    <ClCompile Include="UIHRDPA.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
     <ClCompile Include="UIGPCP.cpp" />
     <ClCompile Include="UIGribForecast.cpp" />
@@ -288,6 +289,7 @@
     <ClCompile Include="UIGHCN.cpp" />
     <ClCompile Include="UIGSOD.cpp" />
     <ClCompile Include="UIISDLite.cpp" />
+    <ClCompile Include="UIRTMA.cpp" />
     <ClCompile Include="UISaskatchewan.cpp" />
     <ClCompile Include="UISnowTel.cpp" />
     <ClCompile Include="UISolutionMesonetDaily.cpp" />

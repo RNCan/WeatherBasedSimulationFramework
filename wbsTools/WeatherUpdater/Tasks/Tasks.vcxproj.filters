@@ -86,9 +86,6 @@
     <ClInclude Include="UIRapidUpdateCycle.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIEnvCanPrcpRadar.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UIEnvCanRadar.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -209,6 +206,12 @@
     <ClInclude Include="CreateRadarAnimation.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIRTMA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIHRDPA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -284,9 +287,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIRapidUpdateCycle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIEnvCanPrcpRadar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIEnvCanRadar.cpp">
@@ -407,6 +407,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateRadarAnimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIRTMA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHRDPA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

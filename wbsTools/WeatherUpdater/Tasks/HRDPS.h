@@ -69,8 +69,8 @@ namespace WBSF
 		static std::string GetHRDPSSelectionString()
 		{
 			std::string str;
-			for (size_t c = HRDPS_ISBY; c < NB_HRDPS_CATEGORY; c++)
-				str += CHRDPSVariables::GetHRDPSSelectionString(c); 
+			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
+				str += CHRDPSVariables::GetHRDPSSelectionString(c) + "|"; 
 			
 			return str;
 		}

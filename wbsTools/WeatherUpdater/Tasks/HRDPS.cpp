@@ -20,7 +20,11 @@ using namespace boost;
 namespace WBSF
 {
 
+	//precipitation historique 10 km
+	//http://collaboration.cmc.ec.gc.ca/science/outgoing/capa.grib/
 
+	//HRDPA:
+	//http://dd.weather.gc.ca/analysis/precip/hrdpa/grib2/polar_stereographic/24/
 
 	//*********************************************************************
 	const char* CHRDPS::SERVER_NAME = "dd.weather.gc.ca";
@@ -760,6 +764,8 @@ namespace WBSF
 
 	};
 
+	//Accumulated Freezing Rain|Accumulated Ice Pellets|Accumulated Rain|Accumulated Snow
+	
 	const size_t CHRDPSVariables::CAT_RANGE[NB_HRDPS_CATEGORY][2] =
 	{
 		{LFTX_SFC, LAST_SFC},

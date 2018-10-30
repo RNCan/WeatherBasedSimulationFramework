@@ -22,22 +22,23 @@ namespace WBSF
 	//Real-Time Mesoscale Analysis (RTMA) Products (meme extent que Hires)
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/rtma/prod/rtma2p5.20170616/
 
+	////ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/hiresw/prod/hiresw.20181026/
+
 
 	//WARNING: this product don't have precipitation
 
 
 	//*********************************************************************
-	const char* CUIHIRESW::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir" };
-	const size_t CUIHIRESW::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH };
+	const char* CUIHIRESW::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DynamicalCores" };
+	const size_t CUIHIRESW::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH,  T_COMBO_INDEX };
 	const UINT CUIHIRESW::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HIRESW_P;
 	const UINT CUIHIRESW::DESCRIPTION_TITLE_ID = ID_TASK_HIRESW;
 
 	const char* CUIHIRESW::CLASS_NAME(){ static const char* THE_CLASS_NAME = "HIRESW";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIHIRESW::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIHIRESW::CLASS_NAME(), (createF)CUIHIRESW::create);
-	const char* CUIHIRESW::SERVER_NAME = "ftpprd.ncep.noaa.gov";
+	const char* CUIHIRESW::SERVER_NAME = "ftp.ncep.noaa.gov";// "ftpprd.ncep.noaa.gov";
 	const char* CUIHIRESW::SERVER_PATH = "pub/data/nccf/com/hiresw/prod/hiresw.*";
-
 
 	CUIHIRESW::CUIHIRESW(void)
 	{}
@@ -49,11 +50,10 @@ namespace WBSF
 	std::string CUIHIRESW::Option(size_t i)const
 	{
 		string str;
-		//switch (i)
-		//{
-		//case SOURCES:	str = "HRDPS=HRDPS (canada)|HRRR=HRRR (USA)"; break;
-		//case HRDPS_VARS: str = GetHRDPSSelectionString(); break;
-		//};
+		switch (i)
+		{
+		case DYNAMICAL_CORES:	str = "Advanced Research Weather Research and Forecasting (WRF-ARW)|Nonhydrostatic Multiscale Model on B-grid (NMMB)"; break;
+		};
 		return str;
 	}
 
@@ -63,6 +63,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HIRESW\\"; break;
+		case DYNAMICAL_CORES: str = "1"; break;
 		};
 
 		return str;
@@ -98,9 +99,9 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
+		size_t core = as<size_t>(DYNAMICAL_CORES);
 
-
-		callback.PushTask(string("Get files list from: ") + SERVER_PATH, 2);
+		callback.PushTask(string("Get HIRESW files list from: ") + SERVER_PATH, 2);
 		CFileInfoVector fileList;
 
 
@@ -110,7 +111,7 @@ namespace WBSF
 		{
 			CFileInfoVector fileListTmp;
 			//msg = FindFiles(pConnection, it1->m_filePath + "hiresw.t??z.arw_2p5km.f00.conus.grib2", fileListTmp);
-			msg = FindFiles(pConnection, it1->m_filePath + "hiresw.t??z.nmmb_2p5km.f00.conus.*", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + +"hiresw.t??z." + (core==0?"arw":"nmmb") +"_2p5km.f??.conus.grb2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
@@ -214,21 +215,13 @@ namespace WBSF
 
 			StringVector list1;
 			list1 = GetFilesList(workingDir + ToString(year) + "\\*.grib2", FILE_PATH, true);
-			StringVector list2;
-			list2 = GetFilesList(workingDir + ToString(year) + "\\*.grib2.idx", FILE_PATH, true);
-
-
-			std::set<CTRef> TRef2;
-			for (size_t i = 0; i < list2.size(); i++)
-			{
-				CTRef TRef = GetTRef(list2[i]);
-				TRef2.insert(TRef);
-			}
+			//StringVector list2;
+			//list2 = GetFilesList(workingDir + ToString(year) + "\\*.grib2.idx", FILE_PATH, true);
 
 			for (size_t i = 0; i < list1.size(); i++)
 			{
 				CTRef TRef = GetTRef(list1[i]);
-				if (p.IsInside(TRef) && TRef2.find(TRef) != TRef2.end())
+				if (p.IsInside(TRef) )
 					gribsList[TRef] = list1[i];
 			}
 			
@@ -259,6 +252,7 @@ namespace WBSF
 		size_t m = WBSF::as<int>(dir2) - 1;
 		size_t d = WBSF::as<int>(dir1) - 1;
 		size_t h = WBSF::as<int>(name.substr(8, 2));
+		TRef = CTRef(year, m, d, h);
 
 		return TRef;
 	}

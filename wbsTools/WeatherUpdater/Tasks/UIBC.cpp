@@ -140,7 +140,9 @@ namespace WBSF
 
 		if (as<bool>(UPDATE_STATION_LIST))
 		{
-			UpdateStationList(pConnection, callback);
+			msg = UpdateStationList(pConnection, callback);
+			if (!msg)
+				return msg;
 		}
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));

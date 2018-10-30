@@ -93,7 +93,7 @@ namespace WBSF
 
 	
 	typedef std::shared_ptr<CSfcVariableLine> CSfcVariableLinePtr;
-	typedef std::array < CSfcVariableLinePtr, HOURLY_DATA::NB_VAR_EX> CSfcWeatherLine;
+	typedef std::array < CSfcVariableLinePtr, HOURLY_DATA::NB_VAR_ALL> CSfcWeatherLine;
 	typedef std::shared_ptr<CSfcWeatherLine> CSfcWeatherLinePtr;
 	typedef std::array<std::array< CHourlyData, 2>, 2> CHourlyData4;
 
@@ -117,7 +117,7 @@ namespace WBSF
 		float get_variable(const CGeoPointIndex& index, size_t v)const;
 		bool is_cached(size_t y)const { assert(is_block_inside(y));  return m_lines[y] != NULL; }
 		size_t get_band(size_t v)const { return m_bands[v]; }
-		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_EX> in) { m_variables = in; }
+		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_ALL> in) { m_variables = in; }
 
 
 		void get_weather(const CGeoPoint& pt, CHourlyData& data)const;
@@ -134,8 +134,9 @@ namespace WBSF
 		void load_block(size_t y);
 		bool is_block_inside(size_t y)const { return y < m_lines.size(); }
 
-		std::bitset< HOURLY_DATA::NB_VAR_EX> m_variables;
-		std::array<size_t, HOURLY_DATA::NB_VAR_EX> m_bands;
+		std::bitset< HOURLY_DATA::NB_VAR_ALL> m_variables;
+		std::array<size_t, HOURLY_DATA::NB_VAR_ALL> m_bands;
+		std::array<std::string, HOURLY_DATA::NB_VAR_ALL> m_units;
 		CSfcWeatherData m_lines;
 		//static std::mutex m_mutex;
 	};
@@ -194,7 +195,7 @@ namespace WBSF
 //
 //		CTPeriod GetEntireTPeriod()const;
 //
-//		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_EX> in) { m_variables = in; }
+//		void set_variables(std::bitset< HOURLY_DATA::NB_VAR_ALL> in) { m_variables = in; }
 //
 //	protected:
 //
@@ -203,7 +204,7 @@ namespace WBSF
 //
 //		//TTRefFilePathMap m_filepath_map;
 //		CSfcDatasetMap m_p_weather_DS;
-//		std::bitset< HOURLY_DATA::NB_VAR_EX> m_variables;
+//		std::bitset< HOURLY_DATA::NB_VAR_ALL> m_variables;
 //
 //		//bool m_bHgtOverSea;
 //		//bool m_bHgtOverSeaTested;
