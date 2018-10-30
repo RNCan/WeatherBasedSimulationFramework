@@ -16,6 +16,9 @@ using namespace UtilWWW;
 
 namespace WBSF
 {
+	//HRRR(SFC) historical since at least 2017
+	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20180101/hrrr.t00z.wrfsfcf00.grib2
+	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20170101/hrrr.t00z.wrfsfcf00.grib2
 
 	//*********************************************************************
 	const char* CHRRR::SERVER_NAME[NB_SERVER_TYPE] = {"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"};
