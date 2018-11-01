@@ -104,7 +104,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case SOURCES: str = "NOMADS=Historical (NOMADS)|NCEP=Current (NCEP)"; break;
+		case SOURCES: str = "NOMADS=Archived (NOMADS)|NCEP=Current (NCEP)"; break;
 		case PRODUCT:	str = "pgrb|bgrb"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
@@ -396,7 +396,7 @@ namespace WBSF
 								}
 								catch (CException* e)
 								{
-									msg = UtilWin::SYGetMessage(*e);
+									//msg = UtilWin::SYGetMessage(*e);
 									if (nbTry < 5)
 									{
 										callback.AddMessage(UtilWin::SYGetMessage(*e));

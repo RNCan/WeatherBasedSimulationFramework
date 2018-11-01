@@ -134,13 +134,13 @@ namespace WBSF
 			//	msg += CDailyDatabase::DeleteDatabase(outputFilePath, callback);
 			//}
 
-			
+
 		}
 
 
-	
-		
-		
+
+
+
 		msg = CreateMultipleDir(GetPath(outputFilePath));
 
 
@@ -153,7 +153,7 @@ namespace WBSF
 		//if (msg)
 		msg += DB.Open(outputFilePath, CDailyDatabase::modeWrite);
 
-		
+
 
 		CWeatherStationVector stations;
 
@@ -163,26 +163,24 @@ namespace WBSF
 			if (FileExists(outputFilePath + ".inc"))
 				msg = incremental.load(outputFilePath + ".inc");
 
-			if (DB.empty())
+			stations.resize(locationsII.size());
+
+			if (!DB.empty() && DB.size() != locationsII.size())
 			{
-				stations.resize(locationsII.size());
-				for (size_t i = 0; i < locationsII.size(); i++)
-				{
-					((CLocation&)stations[i]) = locationsII[i];
-					stations[i].SetHourly(true);
-				}
+				msg.ajoute("The number of station in the database is not the same as the previous execution. Do not use incremental.");
+				return msg;
 			}
-			else
+
+			for (size_t i = 0; i < locationsII.size(); i++)
 			{
 				if (DB.size() == locationsII.size())
 				{
-					//load database
-					for (size_t i = 0; i < locationsII.size(); i++)
-						msg += DB.Get(stations[i], i);
+					msg += DB.Get(stations[i], i);
 				}
 				else
 				{
-					msg.ajoute("The number of station in the database is not the same as the ... Do not use incremental.");
+					((CLocation&)stations[i]) = locationsII[i];
+					stations[i].SetHourly(true);
 				}
 			}
 		}
@@ -196,90 +194,87 @@ namespace WBSF
 			}
 		}
 
-	
+
 
 		//CTPeriod invalid_period;
 		std::set<CTRef> invalid;
-		incremental.GetInvalidTRef(gribs, invalid);
-		if (!invalid.empty())//there is an invalid period, up-tu-date otherwise
+		msg = incremental.GetInvalidTRef(gribs, invalid);
+		if (msg && !invalid.empty())//there is an invalid period, up-tu-date otherwise
 		{
+
+			callback.AddMessage("Nb input hours: " + to_string(gribs.size()));
+			callback.AddMessage("hours to update: " + to_string(invalid.size()));
+			callback.AddMessage(string("Incremental: ") + (bIncremental ? "yes" : "no"));
 			
+			CTimer timer(true);
+			CTimer timerRead;
+			CTimer timerWrite;
+
+			int nbStationAdded = 0;
+			string feed = GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + to_string(invalid.size()) + " hours for " + to_string(stations.size()) + " virtual stations)";
+			callback.PushTask(feed, invalid.size()*stations.size());
+			callback.AddMessage(feed);
+
+			//init coord and info
+			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+			{
+				timerRead.Start();
+				msg = ExtractStation(*it, gribs[*it], stations, callback);
+				timerRead.Stop();
+			}
+			callback.PopTask();
+			callback.PushTask("Save weather to disk", invalid.size()*stations.size());
+			for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
+			{
+				if (msg)
+				{
+					if (it->HaveData())
+					{
+						//Force write file name in the file
+						it->SetDataFileName(it->GetDataFileName());
+						it->UseIt(true);
+
+						timerWrite.Start();
+						msg = DB.Set(std::distance(stations.begin(), it), *it);
+						timerWrite.Stop();
+
+						if (msg)
+							nbStationAdded++;
+					}
+				}
+
+				msg += callback.StepIt();
+			}
+
+
+			msg += DB.Close();
+			timer.Stop();
+			callback.PopTask();
+
+
 			if (msg)
 			{
-				CTimer timer(true);
-				CTimer timerRead;
-				CTimer timerWrite;
-				
-				int nbStationAdded = 0;
-				callback.PushTask(GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + ToString(stations.size()) + " virtual stations)", invalid.size()*stations.size());
-
-				//init coord and info
-				for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end()&&msg; it++)
-				{
-					timerRead.Start();
-					msg = ExtractStation(*it, gribs[*it], stations, callback);
-					timerRead.Stop();
-				}
-
-				callback.PushTask("Save weather to disk", invalid.size()*stations.size());
-				for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end(); it++)
-				{
-					if (msg)
-					{
-						if (it->HaveData())
-						{
-							string newName = DB.GetUniqueName(it->m_name);
-							if (newName != it->m_name)
-							{
-								it->m_name = newName;
-								it->SetDataFileName("");
-							}
-
-							//Force write file name in the file
-							it->SetDataFileName(it->GetDataFileName());
-							it->UseIt(true);
-
-
-							timerWrite.Start();
-							msg = DB.Set(std::distance(stations.begin(), it), *it);
-							timerWrite.Stop();
-
-							if (msg)
-								nbStationAdded++;
-						}
-					}
-
-					//if (!msg)
-			//			callback.AddMessage(messageTmp, 1);
-		//
-					msg += callback.StepIt();
-
-				}
-
-				msg += DB.Close();
-				timer.Stop();
-				callback.PopTask();
-
-
-				if (msg)
-				{
-					msg = DB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
-					DB.Close();
-				}
-
-				if (msg)
-				{
-					callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
-					callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
-					callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
-					callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
-				}
+				//update incremental even if incremental is not activate yet
+				msg += DB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
+				DB.Close();
 			}
+
+			if (msg)
+			{
+				incremental.Update(gribs);
+				msg = incremental.save(outputFilePath + ".inc");
+
+				callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
+				callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
+			}
+			//}
 		}
 
 		return msg;
 	}
-	
+
 	std::bitset< HOURLY_DATA::NB_VAR_ALL> GetVariables(string str)
 	{
 		std::bitset< HOURLY_DATA::NB_VAR_ALL> variables;
@@ -289,7 +284,7 @@ namespace WBSF
 		}
 		else
 		{
-			StringVector vars(str, ",;| "); 
+			StringVector vars(str, ",;| ");
 			for (size_t v = 0; v < vars.size(); v++)
 			{
 				TVarH var = HOURLY_DATA::GetVariableFromName(vars[v], true);
@@ -315,7 +310,7 @@ namespace WBSF
 		if (msg)
 		{
 			CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, sfcDS.GetPrjID());
-			for (size_t i = 0; i < stations.size()&&msg; i++)
+			for (size_t i = 0; i < stations.size() && msg; i++)
 			{
 				CGeoPoint pt = stations[i];
 				pt.Reproject(GEO_2_WEA);

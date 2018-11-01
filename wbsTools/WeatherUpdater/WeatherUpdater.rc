@@ -729,10 +729,10 @@ BEGIN
 	IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
 	IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
 	
-    IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début historique (YYYY-MM-DD)|Fin historique (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Début historique (YYYY-MM-DD)|Fin historique (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares"
-    IDS_UPDATER_HRRR_P      "Répertoire de travail|Type de données|Type de serveur|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si natif)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
@@ -1214,10 +1214,10 @@ BEGIN
                             "Working directory|Dataset|First year|Last year|Show progression"
 	IDS_UPDATER_RTMA_P      "Working directory|Product"
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"
-    IDS_UPDATER_RAP_P       "Working directory|Souces|Historical start (YYYY-MM-DD)|Historical end (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
-    IDS_UPDATER_NAM_P       "Working directory|Souces|Historical start (YYYY-MM-DD)|Historical end (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
+    IDS_UPDATER_RAP_P       "Working directory|Souces|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
+    IDS_UPDATER_NAM_P       "Working directory|Souces|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Gound height|Isobars"
-    IDS_UPDATER_HRRR_P      "Working directory|Date Type|Server Type"
+    IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (for native)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"

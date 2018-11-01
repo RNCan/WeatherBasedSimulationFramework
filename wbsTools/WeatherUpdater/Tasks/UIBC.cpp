@@ -191,7 +191,7 @@ namespace WBSF
 
 					
 					callback.PushTask("Downloading " + string(NETWORK_NAME[n]) + " " + ToString(year) + "...", NOT_INIT);
-					msg += UtilWWW::CopyFile(pConnection, URL, filePathZip, FLAGS, "", "", false, callback);
+					msg += UtilWWW::CopyFile(pConnection, URL, filePathZip, FLAGS, false, callback);
 					callback.PopTask();
 					if (msg)
 					{
@@ -291,7 +291,7 @@ namespace WBSF
 		CreateMultipleDir(GetPath(localFilePath));
 
 		callback.PushTask("Downloading station list", NOT_INIT);
-		msg = UtilWWW::CopyFile(pConnection, URL, localFilePath.c_str(), FLAGS, "", "", false, callback);
+		msg = UtilWWW::CopyFile(pConnection, URL, localFilePath.c_str(), FLAGS, false, callback);
 		callback.PopTask();
 
 

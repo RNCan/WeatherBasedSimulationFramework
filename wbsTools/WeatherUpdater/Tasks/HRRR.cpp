@@ -4,7 +4,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-//#include "cctz\time_zone.h"
+#include "UI/Common/SYShowMessage.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
@@ -21,17 +21,17 @@ namespace WBSF
 	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20170101/hrrr.t00z.wrfsfcf00.grib2
 
 	//*********************************************************************
-	const char* CHRRR::SERVER_NAME[NB_SERVER_TYPE] = {"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"};
-	const char* CHRRR::SERVER_PATH[NB_SERVER_TYPE] = { "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" };
-	const char* CHRRR::NAME[NB_SOURCES] = {"nat", "sfc"};
+	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"}};
+	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
+	const char* CHRRR::PRODUCT_ABR[NB_PRODUCT] = { "nat", "sfc" };
 
-	CHRRR::CHRRR(const std::string& workingDir):
+	CHRRR::CHRRR(const std::string& workingDir) :
 		m_workingDir(workingDir),
-		m_source(HRRR_3D),
+		m_product(HRRR_SFC),
 		m_serverType(HTTP_SERVER),
 		m_bShowWINSCP(false)
 	{}
-	
+
 	CHRRR::~CHRRR(void)
 	{}
 
@@ -42,13 +42,35 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		switch(m_serverType)
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(m_workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(SERVER_NAME[m_source][m_serverType], 1);
+		callback.AddMessage("");
+
+
+		switch (m_source)
 		{
-			case HTTP_SERVER:msg=ExecuteHTTP(callback); break;
+		case MESO_WEST:
+			switch (m_serverType)
+			{
+			case HTTP_SERVER:msg = msg = ExecuteHistorical(callback); break;
+			case FTP_SERVER: msg.ajoute("ftp not available for HRRR archived files"); break;
+			default:ASSERT(false);
+			}
+			break;
+
+		case NOMADS:
+			switch (m_serverType)
+			{
+			case HTTP_SERVER:msg = ExecuteHTTP(callback); break;
 			case FTP_SERVER:msg = ExecuteFTP(callback); break;
 			default:ASSERT(false);
+			}
+			break;
+			
+		default:ASSERT(false);
 		}
-
 		return msg;
 	}
 
@@ -58,15 +80,12 @@ namespace WBSF
 
 		int nbDownloaded = 0;
 
-		
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME[FTP_SERVER], 1);
-		callback.AddMessage("");
+
 
 
 		CFileInfoVector fileList;
 		msg = GetFilesToDownload(fileList, callback);
-	
+
 		if (msg)
 		{
 
@@ -96,7 +115,7 @@ namespace WBSF
 					stript << "exit" << endl;
 					stript.close();
 
-					
+
 					//# Execute the script using a command like:
 					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(m_bShowWINSCP ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
@@ -108,7 +127,7 @@ namespace WBSF
 						if (exit_code == 0 && FileExists(tmpFilePaht))
 						{
 							if (GoodGrib(tmpFilePaht))
-							{	
+							{
 								nbDownloaded++;
 								msg = RenameFile(tmpFilePaht, outputFilePath);
 							}
@@ -135,7 +154,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	ERMsg CHRRR::GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback)
 	{
 		ERMsg msg;
@@ -144,27 +163,27 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[FTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+		msg = GetFtpConnection(SERVER_NAME[NOMADS][FTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (!msg)
 			return msg;
 
-		callback.PushTask(string("Get files list from: ") + SERVER_PATH[FTP_SERVER], 2);
+		callback.PushTask(string("Get files list from: ") + SERVER_PATH[NOMADS][FTP_SERVER], 2);
 
 		CFileInfoVector dir;
-		msg = FindDirectories(pConnection, SERVER_PATH[FTP_SERVER], dir);
+		msg = FindDirectories(pConnection, SERVER_PATH[NOMADS][FTP_SERVER], dir);
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[m_product] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
 				if (GetFileExtension(it->m_filePath) == ".grib2")
 				{
 					string outputFilePath = GetOutputFilePath(it->m_filePath);
-					if(!GoodGrib(outputFilePath))
+					if (!GoodGrib(outputFilePath))
 						fileList.push_back(*it);
-					
+
 				}
 			}
 
@@ -186,31 +205,26 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		callback.AddMessage(m_workingDir, 1);
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME[HTTP_SERVER], 1);
-		callback.AddMessage("");
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[HTTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		msg = GetHttpConnection(SERVER_NAME[NOMADS][HTTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
 
 
-		callback.PushTask(string("Get files list from: ") + SERVER_PATH[HTTP_SERVER], 2);
+		callback.PushTask(string("Get files list from: ") + SERVER_PATH[NOMADS][HTTP_SERVER], 2);
 		CFileInfoVector fileList;
 
 
 		CFileInfoVector dir;
-		msg = FindDirectories(pConnection, SERVER_PATH[HTTP_SERVER], dir);
+		msg = FindDirectories(pConnection, SERVER_PATH[NOMADS][HTTP_SERVER], dir);
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + NAME[m_source] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[m_product] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
@@ -231,7 +245,7 @@ namespace WBSF
 		callback.PopTask();
 
 
-		
+
 		callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
 		callback.AddMessage("Number of HRRR gribs to download from HTTP: " + ToString(fileList.size()));
 
@@ -240,11 +254,11 @@ namespace WBSF
 		{
 			//string fileName = GetFileName(it->m_filePath);
 			string outputFilePath = GetOutputFilePath(it->m_filePath);
-			
+
 			callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
 
 			CreateMultipleDir(GetPath(outputFilePath));
-			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, false, callback);
 			//if (msg && FileExists(outputFilePath))
 			//{
 			//	nbDownload++;
@@ -273,6 +287,125 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CHRRR::ExecuteHistorical(CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t nbFilesToDownload = 0;
+		size_t nbDownloaded = 0;
+
+		CArray<bool> bGrbNeedDownload;
+		bGrbNeedDownload.SetSize(m_period.size());
+
+
+
+		for (CTRef h = m_period.Begin(); h <= m_period.End(); h++)
+		{
+			size_t hh = (h - m_period.Begin());
+
+			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h));
+			nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
+
+			msg += callback.StepIt(0);
+		}
+
+		callback.PushTask(string("Download HRRR gribs from \"") + SERVER_NAME[MESO_WEST][HTTP_SERVER] + "\" for period " + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(nbFilesToDownload) + " files", nbFilesToDownload);
+		callback.AddMessage(string("Download HRRR gribs from \"") + SERVER_NAME[MESO_WEST][HTTP_SERVER] + "\" for period " + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(nbFilesToDownload) + " files");
+
+		if (nbFilesToDownload > 0)
+		{
+			size_t nbTry = 0;
+			CTRef curH = m_period.Begin();
+
+			while (curH < m_period.End() && msg)
+			{
+				nbTry++;
+
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+				msg = GetHttpConnection(SERVER_NAME[MESO_WEST][HTTP_SERVER], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+
+
+				if (msg)
+				{
+					try
+					{
+						while (curH <= m_period.End() && msg)
+						{
+							size_t hh = (curH - m_period.Begin());
+							if (bGrbNeedDownload[hh])
+							{
+								//download gribs file
+								//string inputPath = GetInputFilePath(curH, true, false);
+								//
+
+								const char* str_p = PRODUCT_ABR[m_product];
+								int y = curH.GetYear();
+								int m = int(curH.GetMonth() + 1);
+								int d = int(curH.GetDay() + 1);
+								int hs = int(curH.GetHour());
+
+
+								//"/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2"
+								string URL = FormatA(SERVER_PATH[MESO_WEST][HTTP_SERVER], str_p, y, m, d, hs, str_p);
+
+								string outputPath = GetOutputFilePath(curH);
+								CreateMultipleDir(GetPath(outputPath));
+
+								msg += CopyFile(pConnection, URL, outputPath, INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT, true, callback);
+								if (msg)
+								{
+									if (GoodGrib(outputPath))
+									{
+										nbDownloaded++;
+									}
+									else
+									{
+										//remove file
+										msg += RemoveFile(outputPath);
+									}
+								}
+
+								if (msg)
+								{
+									nbTry = 0;
+									msg += callback.StepIt();
+								}
+							}//need download
+
+							if (msg)
+								curH++;
+						}
+					}
+					catch (CException* e)
+					{
+						//msg = UtilWin::SYGetMessage(*e);
+						if (nbTry < 5)
+						{
+							callback.AddMessage(UtilWin::SYGetMessage(*e));
+							msg += WaitServer(10, callback);
+						}
+						else
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
+
+					//clean connection
+					pConnection->Close();
+					pSession->Close();
+				}
+			}
+		}
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
+		callback.PopTask();
+
+
+		return msg;
+	}
+
+
 	//****************************************************************************************************
 
 	ERMsg CHRRR::GetStationList(StringVector& stationList, CCallback& callback)
@@ -299,7 +432,7 @@ namespace WBSF
 
 
 		ASSERT(tmp1.length() == 8);
-		if (tmp1.length() == 8 && tmp2.size()==4)
+		if (tmp1.length() == 8 && tmp2.size() == 4)
 		{
 			int year = WBSF::as<int>(tmp1.substr(0, 4));
 			size_t m = WBSF::as<size_t >(tmp1.substr(4, 2)) - 1;
@@ -317,6 +450,11 @@ namespace WBSF
 		CTRef TRef = GetTRef(filePath);
 		string fileName = GetFileName(filePath);
 		return FormatA("%s%d\\%02d\\%02d\\%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, fileName.c_str());
+	}
+
+	string CHRRR::GetOutputFilePath(CTRef TRef)const
+	{
+		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[m_product]);
 	}
 
 

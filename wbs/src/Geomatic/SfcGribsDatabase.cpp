@@ -158,7 +158,7 @@ namespace WBSF
 		msg = file.open(file_path);
 		if (msg)
 		{
-			file << "Date,Name,LastUpdate,Size,Attribute";
+			file << "Date,Name,LastUpdate,Size,Attribute" << endl;
 			for (auto it = begin(); it != end(); it++)
 			{
 				//const CIncementalInfo& rec = at(i);
@@ -228,14 +228,14 @@ namespace WBSF
 	ERMsg CIncementalDB::Update(const CGribsDB& gribs)
 	{
 		ERMsg msg;
-
+		
 		for (auto it = gribs.begin(); it != gribs.end() && msg; it++)
 		{
 			CFileStamp info_new;
 			msg += info_new.SetFileStamp(it->second);
 			if (msg)
 			{
-				at(it->first) = info_new;
+				insert( make_pair(it->first, info_new));
 			}
 		}
 

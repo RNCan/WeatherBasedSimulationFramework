@@ -19,6 +19,20 @@ namespace WBSF
 	//Real-Time Mesoscale Analysis (RTMA/URMA) Products (meme extent que Hires)
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/rtma/prod/rtma2p5.20170616/
 
+	//historical archive
+	//http://www.nco.ncep.noaa.gov/pmb/docs/on388/appendixa.html
+	//ftp://nomads.ncdc.noaa.gov/NDGD/201809/20180923/
+	//https://nomads.ncdc.noaa.gov/data/ndgd/201810/20181010/
+	
+	//LHIA98_KWBR: geopotentiel height
+	//LRIA98_KWBR: dew-point
+	//LPIA98_KWBR: pressure
+	//LTIA98_KWBR: temperature
+	//LUIA98_KWBR: U-wind
+	//LVIA98_KWBR: V-wind
+	//LNIA98_KWBR: wind
+	//LEIA98_KWBR: precipitation
+
 	//*********************************************************************
 	const char* CUIURMA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product" };
 	const size_t CUIURMA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH,  T_COMBO_INDEX };

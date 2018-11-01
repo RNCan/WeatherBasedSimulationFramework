@@ -49,7 +49,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case SOURCES: str = "NOMADS=Historical (NOMADS)|NCEP=Current (NCEP)"; break;
+		case SOURCES: str = "NOMADS=Archived (NOMADS)|NCEP=Current (NCEP)"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
 		return str;
@@ -114,7 +114,7 @@ namespace WBSF
 		string outputPath = GetOutputFilePath(TRef);
 		CreateMultipleDir(GetPath(outputPath));
 
-		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, "", "", true, callback);
+		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
 		if (msg)
 		{
 			//CFileInfo info = GetFileInfo(outputPath);

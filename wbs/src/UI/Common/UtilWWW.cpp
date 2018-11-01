@@ -229,7 +229,7 @@ namespace UtilWWW
 		return msg;
 	}
 
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, LPCTSTR userName, LPCTSTR password, BOOL bThrow, WBSF::CCallback& callback)
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, BOOL bThrow, WBSF::CCallback& callback)
 	{
 		ASSERT(pConnection.get() != NULL);
 
@@ -895,9 +895,9 @@ namespace UtilWWW
 	{
 		return GetFtpConnection(UtilWin::Convert(serverName), pConnection, pSession, flags, UtilWin::Convert(userName), UtilWin::Convert(password), bPassif, maxTry, callback);
 	}
-	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, const std::string& userName, const std::string& password, BOOL bThrow, WBSF::CCallback& callback)
+	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bThrow, WBSF::CCallback& callback)
 	{
-		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, UtilWin::Convert(userName), UtilWin::Convert(password), bThrow, callback);
+		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, bThrow, callback);
 	}
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bThrow)
 	{

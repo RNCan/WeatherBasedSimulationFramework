@@ -23,9 +23,14 @@ namespace WBSF
 	//sur ftp
 	//ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/
 
+	//historical
+	//http://home.chpc.utah.edu/~u0553130/Brian_Blaylock/cgi-bin/hrrr_download.cgi?model=hrrr&field=sfc&date=2018-10-28&link2=sample
+	//https://pando-rgw01.chpc.utah.edu/hrrrX/sfc/20181028/hrrrX.t20z.wrfsfcf00.grib2
+
+
 	//*********************************************************************
-	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ServerType", "ShowWINSCP" };
-	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_BOOL };
+	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Source", "ServerType", "Begin", "End", "ShowWINSCP" };
+	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL };
 	const UINT CUIHRRR::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRRR_P;
 	const UINT CUIHRRR::DESCRIPTION_TITLE_ID = ID_TASK_HRRR;
 
@@ -54,8 +59,9 @@ namespace WBSF
 	{
 		string str;
 		switch (i)
-		{
-		case SOURCES:	str = "HRRR(3D)|HRRR(2D)"; break;
+		{ 
+		case PRODUCT:	str = "HRRR (native)|HRRR (surface)"; break;
+		case SOURCE:	str = "Archived|Current"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
 		return str;
@@ -67,8 +73,11 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRRR\\"; break;
-		case SOURCES: str = "0"; break;
+		case PRODUCT: str = "1"; break;
+		case SOURCE: str = "1"; break;
 		case SERVER_TYPE: str = "0"; break;
+		case FIRST_DATE:
+		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		case SHOW_WINSCP: str = "0"; break;
 		};
 
@@ -82,16 +91,16 @@ namespace WBSF
 
 
 	//*************************************************************************************************
-
+	
 	CTPeriod CUIHRRR::GetPeriod()const
 	{
 		CTPeriod p;
 
-		/*StringVector t1(Get(FIRST_DATE), "-/");
+		StringVector t1(Get(FIRST_DATE), "-/");
 		StringVector t2(Get(LAST_DATE), "-/");
 		if (t1.size() == 3 && t2.size() == 3)
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, FIRST_HOUR), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, LAST_HOUR));
-*/
+
 		return p;
 	}
 
@@ -104,9 +113,11 @@ namespace WBSF
 		CreateMultipleDir(workingDir);
 
 		CHRRR HRRR(workingDir);
-		HRRR.m_source = as<size_t>(SOURCES);
+		HRRR.m_product = as<size_t>(PRODUCT);
+		HRRR.m_source = as<size_t>(SOURCE);
 		HRRR.m_serverType = as<size_t>(SERVER_TYPE);
 		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
+		HRRR.m_period = GetPeriod();
 		msg = HRRR.Execute(callback);
 
 
