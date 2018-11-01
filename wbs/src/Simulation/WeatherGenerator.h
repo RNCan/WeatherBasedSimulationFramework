@@ -36,62 +36,62 @@ namespace WBSF
 	class CWeatherYears;
 
 
-	class CGribsDatabase
-	{
-	public:
+	//class CGribsDatabase
+	//{
+	//public:
 
-		
+	//	
 
-		CGribsDatabase(bool m_bUseOnlySurface) :
-			m_bUseOnlySurface(m_bUseOnlySurface)
-		{
-		}
-
-
+	//	CGribsDatabase(bool m_bUseOnlySurface) :
+	//		m_bUseOnlySurface(m_bUseOnlySurface)
+	//	{
+	//	}
 
 
-		bool IsInit()const{ return !m_filepath_map.empty(); }
-		ERMsg Open(const std::string& filepath, CCallback& callback);
-		ERMsg Close(CCallback& callback);
-
-		bool IsLoaded(CTRef TRef)const{ return m_p_weather_DS.IsLoaded(CTimeZones::TRef2Time(TRef)); }
-		ERMsg LoadWeather(CTRef TRef, CCallback& callback);
-		ERMsg DiscardWeather(CCallback& callback);
-		double GetWeather(const CGeoPoint3D& pt, CTRef UTCRef, size_t v)const;
-		
-		std::string get_image_filepath(CTRef TRef)const;
-
-		CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
-		int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const;
-		int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
-		double GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
-		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
-
-		//size_t GetPrjID()const{ return m_extents.GetPrjID(); }
-		//CGDALDatasetCachedPtr& Get(CTRef TRef) { return m_p_weather_DS.Get(TRef); }
-		
-
-		const CGeoExtents& GetExtents()const{ return  m_extents; }
-
-		//void ResetSkipDay(){ m_bSkipDay = false; }
-		//bool SkipDay()const{ return  m_bSkipDay; }
-
-	protected:
-
-		
-		std::string m_filePathGribs;
-
-		TTimeFilePathMap m_filepath_map;
-		CTimeDatasetMap m_p_weather_DS;
-		CGeoExtents m_extents;
-		CProjectionTransformation m_GEO2WEA;
 
 
-		bool m_bUseOnlySurface;
-		//bool m_bSkipDay;
-	};
+	//	bool IsInit()const{ return !m_filepath_map.empty(); }
+	//	ERMsg Open(const std::string& filepath, CCallback& callback);
+	//	ERMsg Close(CCallback& callback);
 
-	typedef std::shared_ptr<CGribsDatabase> CGribsDatabasePtr;
+	//	bool IsLoaded(CTRef TRef)const{ return m_p_weather_DS.IsLoaded(CTimeZones::TRef2Time(TRef)); }
+	//	ERMsg LoadWeather(CTRef TRef, CCallback& callback);
+	//	ERMsg DiscardWeather(CCallback& callback);
+	//	double GetWeather(const CGeoPoint3D& pt, CTRef UTCRef, size_t v)const;
+	//	
+	//	std::string get_image_filepath(CTRef TRef)const;
+
+	//	CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
+	//	int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const;
+	//	int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
+	//	double GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
+	//	CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
+
+	//	//size_t GetPrjID()const{ return m_extents.GetPrjID(); }
+	//	//CGDALDatasetCachedPtr& Get(CTRef TRef) { return m_p_weather_DS.Get(TRef); }
+	//	
+
+	//	const CGeoExtents& GetExtents()const{ return  m_extents; }
+
+	//	//void ResetSkipDay(){ m_bSkipDay = false; }
+	//	//bool SkipDay()const{ return  m_bSkipDay; }
+
+	//protected:
+
+	//	
+	//	std::string m_filePathGribs;
+
+	//	TTimeFilePathMap m_filepath_map;
+	//	CTimeDatasetMap m_p_weather_DS;
+	//	CGeoExtents m_extents;
+	//	CProjectionTransformation m_GEO2WEA;
+
+
+	//	bool m_bUseOnlySurface;
+	//	//bool m_bSkipDay;
+	//};
+
+	//typedef std::shared_ptr<CGribsDatabase> CGribsDatabasePtr;
 
 	class CWeatherGenerator
 	{
@@ -121,8 +121,8 @@ namespace WBSF
 		void SetDailyDB(CDailyDatabasePtr& pDailyDB){ if (m_pDailyDB.get() != pDailyDB.get())m_pDailyDB = pDailyDB; }
 		CHourlyDatabasePtr& GetHourlyDB(){ return m_pHourlyDB; }
 		void SetHourlyDB(CHourlyDatabasePtr& pHourlyDB){ if (m_pHourlyDB.get() != pHourlyDB.get())m_pHourlyDB = pHourlyDB; }
-		CGribsDatabasePtr& GetGribsDB(){ return m_pGribsDB; }
-		void SetGribsDB(CGribsDatabasePtr& pGribsDB){ if (m_pGribsDB.get() != pGribsDB.get())m_pGribsDB = pGribsDB; }
+//		CGribsDatabasePtr& GetGribsDB(){ return m_pGribsDB; }
+	//	void SetGribsDB(CGribsDatabasePtr& pGribsDB){ if (m_pGribsDB.get() != pGribsDB.get())m_pGribsDB = pGribsDB; }
 		const CLocation& GetTarget()const{ return m_target; }
 		void SetTarget(const CLocation& target){ ((CLocation&)m_target) = target; }
 		size_t GetNbReplications() const { return m_nbReplications; }
@@ -167,7 +167,7 @@ namespace WBSF
 		CNormalsDatabasePtr m_pNormalDB;	//Normal database
 		CDailyDatabasePtr m_pDailyDB;		//daily database
 		CHourlyDatabasePtr m_pHourlyDB;		//hourly database
-		CGribsDatabasePtr	m_pGribsDB;
+		//CGribsDatabasePtr	m_pGribsDB;
 
 		//result
 		CSeedMatrix m_seedMatrix;	//seed for random generator for each iteration

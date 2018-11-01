@@ -93,7 +93,7 @@ namespace WBSF
 		CCFLComboBox m_hourlyDBNameCtrl;
 		CMFCButton m_hourlyLinkCtrl;
 		CCFLEdit m_hourlyNbStationsCtrl;
-		CCFLEdit m_gribsNbPointsCtrl;
+		CCFLEdit m_gribNbPointsCtrl;
 
 		CCFLComboBox m_gribsDBNameCtrl;
 		CMFCButton m_gribsLinkCtrl;

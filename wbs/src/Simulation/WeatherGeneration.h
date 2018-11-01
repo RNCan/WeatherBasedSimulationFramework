@@ -113,6 +113,7 @@ namespace WBSF
 			const CLocationVector& locArray, CTimer& timerTG, CResult& result, CCallback& callback);
 
 
+		ERMsg UpdateGrib(const CLocationVector& locations);
 		//ca va dans model...
 		//ERMsg CheckTGInput(  const CWGInput& TGInput, const CModel& model)const;
 

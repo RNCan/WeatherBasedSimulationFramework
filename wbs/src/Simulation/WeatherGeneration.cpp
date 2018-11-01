@@ -29,7 +29,7 @@
 #include "Simulation/WeatherGeneration.h"
 #include "Simulation/ExecutableFactory.h"
 #include "WeatherBasedSimulationString.h"
-
+#include "Geomatic/SfcGribsDatabase.h"
 
 using namespace std;
 using namespace VITALENGINE;
@@ -511,12 +511,6 @@ namespace WBSF
 				msg = hourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
 		}
 
-		CGribsDatabasePtr pGribsDB;
-		if (msg && WGInput.UseGribs())
-		{
-			pGribsDB = make_shared<CGribsDatabase>(WGInput.m_bAtSurfaceOnly);
-			msg = pGribsDB->Open(GFilePath, callback);
-		}
 
 		//Load location list
 		CLocationVector locations;
@@ -525,6 +519,14 @@ namespace WBSF
 
 		if (msg)
 			msg = CheckLocationsInDatabase(normalDB, dailyDB, hourlyDB, locations, WGInput, callback);
+
+		//CGribsDatabasePtr pGribsDB;
+		if (msg && WGInput.UseGribs())
+		{
+			msg = UpdateGrib(locations);
+			//pGribsDB = make_shared<CGribsDatabase>(WGInput.m_bAtSurfaceOnly);
+			//msg = pGribsDB->Open(GFilePath, callback);
+		}
 
 
 		if (msg)
@@ -794,8 +796,11 @@ namespace WBSF
 			locPos[i] = pos[i].second;
 	}
 
+	ERMsg CWeatherGeneration::UpdateGrib(const CLocationVector& locations)
+	{
 
-
+	}
+	
 
 	void CWeatherGeneration::writeStruc(zen::XmlElement& output)const
 	{

@@ -229,7 +229,7 @@ namespace WBSF
 		m_normalsNbStationsCtrl.SetString(to_string(WGInput.m_nbNormalsStations));
 		m_dailyNbStationsCtrl.SetString(to_string(WGInput.m_nbDailyStations));
 		m_hourlyNbStationsCtrl.SetString(to_string(WGInput.m_nbHourlyStations));
-		m_gribsNbPointsCtrl.SetString(to_string(WGInput.m_nbGribsPoints));
+		m_gribNbPointsCtrl.SetString(to_string(WGInput.m_nbGribPoints));
 		m_useGribCtrl.SetCheck(WGInput.m_bUseGribs);
 		//m_atSurfaceCtrl.SetCheck(WGInput.m_bAtSurfaceOnly);
 
@@ -266,10 +266,10 @@ namespace WBSF
 		WGInput.m_nbDailyStations = stoi(m_dailyNbStationsCtrl.GetString());
 		WGInput.m_hourlyDBName = m_hourlyDBNameCtrl.GetString();
 		WGInput.m_nbHourlyStations = stoi(m_hourlyNbStationsCtrl.GetString());
-		WGInput.m_nbGribsPoints = stoi(m_gribsNbPointsCtrl.GetString());
+		WGInput.m_nbGribPoints = stoi(m_gribNbPointsCtrl.GetString());
 		WGInput.m_gribsDBName = m_gribsDBNameCtrl.GetString();
 		WGInput.m_bUseGribs = m_useGribCtrl.GetCheck();
-		WGInput.m_bAtSurfaceOnly = m_atSurfaceCtrl.GetCheck();
+//		WGInput.m_bAtSurfaceOnly = m_atSurfaceCtrl.GetCheck();
 
 		WGInput.m_nbNormalsYears = stoi(m_nbYearsCtrl.GetString());
 		WGInput.m_firstYear = stoi(m_firstYearCtrl.GetString());
