@@ -23,7 +23,7 @@ namespace WBSF
 
 	const char* CWGInput::XML_FLAG = "WGInput";
 	const char* CWGInput::MEMBERS_NAME[NB_MEMBERS] = { "Variables", "SourceType", "GenerationType", "NbNormalsYears", "FirstYear", "LastYear", "UseForecast", "UseRadarPrcp", "NormalDBName", "NbNormalsStations",
-		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "GribsDBName", "UseGribs", "AtSurfaceOnly", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing", "UseShore" };
+		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "UseGribs", "NbGribPoints", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing", "UseShore" };
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction
@@ -57,8 +57,9 @@ namespace WBSF
 		m_hourlyDBName.clear();
 		m_nbHourlyStations = 4;
 		m_gribsDBName.clear();
+		m_nbGribPoints = 4;
 		m_bUseGribs = false;
-		m_bAtSurfaceOnly = true;
+		//m_bAtSurfaceOnly = true;
 		m_albedo = CANOPY;
 		m_seed = CRandomGenerator::RANDOM_SEED;
 		m_allowedDerivedVariables = "T WD R Z S SD SWE WS2 A1 A2";
@@ -90,9 +91,10 @@ namespace WBSF
 			m_nbDailyStations = in.m_nbDailyStations;
 			m_hourlyDBName = in.m_hourlyDBName;
 			m_nbHourlyStations = in.m_nbHourlyStations;
+			m_nbGribPoints = in.m_nbGribPoints;
 			m_gribsDBName = in.m_gribsDBName;
 			m_bUseGribs = in.m_bUseGribs;
-			m_bAtSurfaceOnly = in.m_bAtSurfaceOnly;
+			//m_bAtSurfaceOnly = in.m_bAtSurfaceOnly;
 			m_albedo = in.m_albedo;
 			m_seed = in.m_seed;
 			m_allowedDerivedVariables = in.m_allowedDerivedVariables;
@@ -130,9 +132,10 @@ namespace WBSF
 		case NB_DAILY_STATION:	str = ToString(m_nbDailyStations); break;
 		case HOURLY_DB_NAME:	str = m_hourlyDBName; break;
 		case NB_HOURLY_STATION:	str = ToString(m_nbHourlyStations); break;
+		case NB_GRIB_POINTS:	str = ToString(m_nbGribPoints); break;
 		case GRIBS_DB_NAME:		str = m_gribsDBName; break;
 		case USE_GRIBS:			str = ToString(m_bUseGribs); break;
-		case ATSURFACE_ONLY:	str = ToString(m_bAtSurfaceOnly); break;
+		//case ATSURFACE_ONLY:	str = ToString(m_bAtSurfaceOnly); break;
 		case ALBEDO:			str = ToString(m_albedo); break;
 		case SEED:				str = ToString(m_seed); break;
 		case ALLOWED_DERIVED_VARIABLES: str = m_allowedDerivedVariables.to_string(); break;
@@ -166,9 +169,10 @@ namespace WBSF
 		if (m_nbDailyStations != in.m_nbDailyStations)bEqual = false;
 		if (m_hourlyDBName != in.m_hourlyDBName)bEqual = false;
 		if (m_nbHourlyStations != in.m_nbHourlyStations)bEqual = false;
+		if (m_nbGribPoints != in.m_nbGribPoints)bEqual = false;
 		if (m_gribsDBName != in.m_gribsDBName)bEqual = false;
 		if (m_bUseGribs != in.m_bUseGribs)bEqual = false;
-		if (m_bAtSurfaceOnly != in.m_bAtSurfaceOnly)bEqual = false;
+//		if (m_bAtSurfaceOnly != in.m_bAtSurfaceOnly)bEqual = false;
 		if (m_albedo != in.m_albedo)bEqual = false;
 		if (m_seed != in.m_seed)bEqual = false;
 		if (m_allowedDerivedVariables != in.m_allowedDerivedVariables)bEqual = false;

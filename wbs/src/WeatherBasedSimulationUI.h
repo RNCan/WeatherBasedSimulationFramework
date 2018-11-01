@@ -403,6 +403,7 @@
 #define IDC_MODELS_VARIABLES            1195
 #define IDC_RS_FIELD_NAME               1195
 #define IDC_WG_GRIBS_NB_NEAREST         1195
+#define IDC_WG_GRIBS_NB_POINTS          1195
 #define IDC_MODELS_SSI                  1196
 #define IDC_RS_SHOW_ALL_FIELD           1196
 #define IDC_SIMUL_RANDOM                1196
@@ -873,7 +874,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1249
 #define _APS_NEXT_SYMED_VALUE           101

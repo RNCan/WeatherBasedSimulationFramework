@@ -377,13 +377,14 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,311,406,10
     COMBOBOX        IDC_WG_GRIBS_DBNAME,92,155,235,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,331,155,17,14
-    CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,156,69,12
-    CONTROL         "à la surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,352,156,53,12
+    CONTROL         "Utiliser Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,14,156,69,12
+    CONTROL         "à la surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,360,57,53,12
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,171,104,14
     CONTROL         "Ne pas compléter les valeur manquantes avec les normales",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
     CONTROL         "Utiliser la distance au littoral dans la sélection des stations météo et des gradients",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,336,406,10
+    EDITTEXT        IDC_WG_GRIBS_NB_POINTS,352,155,53,14,ES_AUTOHSCROLL
 END
 
 IDD_VARIABLES DIALOGEX 0, 0, 199, 327
@@ -4155,6 +4156,11 @@ BEGIN
     0
 END
 
+IDD_WG_INPUT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4605,7 +4611,7 @@ BEGIN
     EDITTEXT        IDC_WG_FIRST_YEAR,79,198,46,14,ES_AUTOHSCROLL
     LTEXT           "to",IDC_CMN_STATIC3,130,200,8,8
     EDITTEXT        IDC_WG_LAST_YEAR,140,198,46,14,ES_AUTOHSCROLL
-    CONTROL         "Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,15,156,58,12
+    CONTROL         "Use Gribs",IDC_WG_USE_GRIBS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_MULTILINE | WS_TABSTOP,15,156,58,12
     LTEXT           "When ‘’Use forecast’’ is checked, BioSIM uses any available observation data beyond the current date (Observation  mode only).",-1,291,188,114,41
     LTEXT           "Exposition factor (Albedo):",-1,7,248,83,8
     COMBOBOX        IDC_WG_ALBEDO,120,244,293,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -4629,13 +4635,14 @@ BEGIN
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,336,155,17,14
     CONTROL         "Skip database verification (when the database is never updated)",IDC_WG_SKIP_VERIFY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,314,406,10
-    CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,357,156,48,12
+    CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,357,57,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,198,81,12
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,172,114,14
     CONTROL         "Don't fill missing values with Normals",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
     CONTROL         "Use shore distance in selection of weather stations and gradients",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,339,406,10
+    EDITTEXT        IDC_WG_GRIBS_NB_POINTS,357,155,48,14,ES_AUTOHSCROLL
 END
 
 IDD_PARAMETERS_VARIATIONS_MANAGER DIALOG 0, 0, 307, 282
@@ -8318,6 +8325,11 @@ BEGIN
 END
 
 IDD_SIM_LOC_GENERATE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_WG_INPUT AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

@@ -174,6 +174,10 @@ namespace WBSF
 
 					if (station.HaveData())
 					{
+						//remove the added number "2" at the end of the name
+						if (!station.m_name.empty() && station.m_name.back() == 2)
+							station.m_name = station.m_name.substr(0, station.m_name.length()-1);
+
 						string newName = dailyDB.GetUniqueName(station.m_name);
 						if (newName != station.m_name)
 						{

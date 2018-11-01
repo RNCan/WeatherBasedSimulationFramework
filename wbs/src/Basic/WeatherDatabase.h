@@ -111,7 +111,7 @@ namespace WBSF
 		int GetStationIndex(const std::string& nameIn, bool bByName = true)const;
 
 		StringVector GetStationNameList(const CSearchResultVector& searchResultArray)const;
-		std::string GetUniqueName(std::string const& name)const;
+		std::string GetUniqueName(const std::string & ID, const std::string & name)const;
 		void SearchD(CSearchResultVector& searchResultArray, const CLocation& station, double radius, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true)const;
 
 		//tools

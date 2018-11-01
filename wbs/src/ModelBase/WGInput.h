@@ -88,7 +88,7 @@ namespace WBSF
 
 		enum TMember {
 			VARIABLES, SOURCE_TYPE, GENERATION_TYPE, NB_NORMALS_YEARS, FIRST_YEAR, LAST_YEAR, USE_FORECAST, USE_RADAR_PRCP, NORMAL_DB_NAME, NB_NORMAL_STATION,
-			DAILY_DB_NAME, NB_DAILY_STATION, HOURLY_DB_NAME, NB_HOURLY_STATION, GRIBS_DB_NAME, USE_GRIBS, ATSURFACE_ONLY, ALBEDO, SEED, ALLOWED_DERIVED_VARIABLES, XVALIDATION, 
+			DAILY_DB_NAME, NB_DAILY_STATION, HOURLY_DB_NAME, NB_HOURLY_STATION, USE_GRIBS, GRIBS_DB_NAME, NB_GRIB_POINTS, ALBEDO, SEED, ALLOWED_DERIVED_VARIABLES, XVALIDATION,
 			SKIP_VERIFY, SEARCH_RADIUS, NO_FILL_MISSING, USE_SHORE, NB_MEMBERS
 		};
 
@@ -107,7 +107,7 @@ namespace WBSF
 		bool m_bUseForecast;
 		bool m_bUseRadarPrcp;
 		bool m_bUseGribs;
-		bool m_bAtSurfaceOnly;
+		//bool m_bAtSurfaceOnly;
 
 		std::string m_normalsDBName;
 		size_t m_nbNormalsStations;
@@ -116,6 +116,7 @@ namespace WBSF
 		std::string m_hourlyDBName;
 		size_t m_nbHourlyStations;
 		std::string m_gribsDBName;
+		size_t m_nbGribPoints;
 		size_t m_albedo;
 		size_t m_seed;
 		CWVariables m_allowedDerivedVariables;
@@ -189,7 +190,7 @@ namespace WBSF
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & m_variables&m_sourceType&m_generationType&m_nbNormalsYears&m_firstYear&m_lastYear&m_bUseForecast&m_bUseRadarPrcp&m_normalsDBName;
-			ar & m_nbNormalsStations&m_dailyDBName&m_nbDailyStations&m_hourlyDBName&m_nbHourlyStations&m_gribsDBName&m_bUseGribs&m_bAtSurfaceOnly&m_albedo&m_seed&m_allowedDerivedVariables&m_bXValidation&m_bSkipVerify&m_bNoFillMissing&m_bUseShore;
+			ar & m_nbNormalsStations&m_dailyDBName&m_nbDailyStations&m_hourlyDBName&m_nbHourlyStations&m_bUseGribs&m_gribsDBName&m_nbGribPoints&/*m_bAtSurfaceOnly&*/m_albedo&m_seed&m_allowedDerivedVariables&m_bXValidation&m_bSkipVerify&m_bNoFillMissing&m_bUseShore;
 			ar & m_searchRadius;
 		}
 
@@ -229,9 +230,10 @@ namespace zen
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::DAILY_DB_NAME)](in.m_dailyDBName);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::NB_HOURLY_STATION)](in.m_nbHourlyStations);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::HOURLY_DB_NAME)](in.m_hourlyDBName);
+		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::NB_GRIB_POINTS)](in.m_nbGribPoints);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::GRIBS_DB_NAME)](in.m_gribsDBName);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::USE_GRIBS)](in.m_bUseGribs);
-		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ATSURFACE_ONLY)](in.m_bAtSurfaceOnly);
+//		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ATSURFACE_ONLY)](in.m_bAtSurfaceOnly);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALBEDO)](in.m_albedo);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SEED)](in.m_seed);
 		out[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALLOWED_DERIVED_VARIABLES)](in.m_allowedDerivedVariables);
@@ -263,8 +265,9 @@ namespace zen
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::HOURLY_DB_NAME)](out.m_hourlyDBName);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::NB_HOURLY_STATION)](out.m_nbHourlyStations);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::GRIBS_DB_NAME)](out.m_gribsDBName);
+		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::NB_GRIB_POINTS)](out.m_nbGribPoints);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::USE_GRIBS)](out.m_bUseGribs);
-		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ATSURFACE_ONLY)](out.m_bAtSurfaceOnly);
+		//in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ATSURFACE_ONLY)](out.m_bAtSurfaceOnly);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALBEDO)](out.m_albedo);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::SEED)](out.m_seed);
 		in[WBSF::CWGInput::GetMemberName(WBSF::CWGInput::ALLOWED_DERIVED_VARIABLES)](out.m_allowedDerivedVariables);

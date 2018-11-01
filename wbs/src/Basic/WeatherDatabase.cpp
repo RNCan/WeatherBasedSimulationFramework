@@ -976,12 +976,12 @@ ERMsg CWeatherDatabase::GetStationOrder(vector<size_t>& DBOrder, CWVariables fil
 
 
 
-std::string CWeatherDatabase::GetUniqueName(const std::string& name)const
+std::string CWeatherDatabase::GetUniqueName(const std::string & ID, const std::string & name)const
 {
 	std::string newName = name;
 
 	int xx=2;
-	while( StationExist(newName) )
+	while(StationExist(ID, false) && StationExist(newName) )
 	{
 		newName = name + ToString(xx);
 		xx++;
@@ -1239,7 +1239,7 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 			Trim(station.m_name);
 			ASSERT(!station.m_name.empty());
 			//Eliminate duplication in name
-			string newName = GetUniqueName(station.m_name);
+			string newName = GetUniqueName(station.m_ID, station.m_name);
 			if (newName != station.m_name)
 			{
 				station.m_name = newName;
@@ -1309,7 +1309,7 @@ ERMsg CDHDatabaseBase::CreateFromMerge(const std::string& filePath1, const std::
 			Trim(station.m_name);
 			ASSERT(!station.m_name.empty());
 			//Eliminate duplication in name
-			string newName = GetUniqueName(station.m_name);
+			string newName = GetUniqueName(station.m_ID, station.m_name);
 			if (newName != station.m_name)
 			{
 				station.m_name = newName;

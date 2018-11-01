@@ -60,11 +60,13 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_HOURLY_DBNAME, m_hourlyDBNameCtrl);
 		DDX_Control(pDX, IDC_WG_HOURLY_LINK, m_hourlyLinkCtrl);
 		DDX_Control(pDX, IDC_WG_HOURLY_NB_STATIONS, m_hourlyNbStationsCtrl);
+		DDX_Control(pDX, IDC_WG_GRIBS_NB_POINTS, m_gribsNbPointsCtrl);
+		
 
 		DDX_Control(pDX, IDC_WG_GRIBS_DBNAME, m_gribsDBNameCtrl);
 		DDX_Control(pDX, IDC_WG_GRIBS_LINK, m_gribsLinkCtrl);
 		DDX_Control(pDX, IDC_WG_USE_GRIBS, m_useGribCtrl);
-		DDX_Control(pDX, IDC_WG_AT_SURFACE, m_atSurfaceCtrl); 
+		//DDX_Control(pDX, IDC_WG_AT_SURFACE, m_atSurfaceCtrl); 
 		
 		
 		DDX_Control(pDX, IDC_WG_NB_YEARS, m_nbYearsCtrl);
@@ -141,6 +143,8 @@ namespace WBSF
 		m_testToolTips.AddWindowTool(&m_normalsNbStationsCtrl, nbStationStr);
 		m_testToolTips.AddWindowTool(&m_dailyNbStationsCtrl, nbStationStr);
 		m_testToolTips.AddWindowTool(&m_hourlyNbStationsCtrl, nbStationStr);
+		//m_testToolTips.AddWindowTool(&m_gribsNbPointsCtrl, nbStationStr);
+		
 		m_testToolTips.AddWindowTool(&m_normalLinkCtrl, linkStr);
 		m_testToolTips.AddWindowTool(&m_dailyLinkCtrl, linkStr);
 		m_testToolTips.AddWindowTool(&m_hourlyLinkCtrl, linkStr);
@@ -225,8 +229,9 @@ namespace WBSF
 		m_normalsNbStationsCtrl.SetString(to_string(WGInput.m_nbNormalsStations));
 		m_dailyNbStationsCtrl.SetString(to_string(WGInput.m_nbDailyStations));
 		m_hourlyNbStationsCtrl.SetString(to_string(WGInput.m_nbHourlyStations));
+		m_gribsNbPointsCtrl.SetString(to_string(WGInput.m_nbGribsPoints));
 		m_useGribCtrl.SetCheck(WGInput.m_bUseGribs);
-		m_atSurfaceCtrl.SetCheck(WGInput.m_bAtSurfaceOnly);
+		//m_atSurfaceCtrl.SetCheck(WGInput.m_bAtSurfaceOnly);
 
 		m_nbYearsCtrl.SetString(to_string(WGInput.m_nbNormalsYears));
 		m_firstYearCtrl.SetString(to_string(WGInput.m_firstYear));
@@ -261,6 +266,7 @@ namespace WBSF
 		WGInput.m_nbDailyStations = stoi(m_dailyNbStationsCtrl.GetString());
 		WGInput.m_hourlyDBName = m_hourlyDBNameCtrl.GetString();
 		WGInput.m_nbHourlyStations = stoi(m_hourlyNbStationsCtrl.GetString());
+		WGInput.m_nbGribsPoints = stoi(m_gribsNbPointsCtrl.GetString());
 		WGInput.m_gribsDBName = m_gribsDBNameCtrl.GetString();
 		WGInput.m_bUseGribs = m_useGribCtrl.GetCheck();
 		WGInput.m_bAtSurfaceOnly = m_atSurfaceCtrl.GetCheck();
@@ -317,12 +323,14 @@ namespace WBSF
 			m_hourlyLinkCtrl.EnableWindow(bGenerateHourly);
 			m_hourlyNbStationsCtrl.EnableWindow(bGenerateHourly);
 
+
 			
 			bool bUseGribs = bFromObservations && m_useGribCtrl.GetCheck();
 			m_useGribCtrl.EnableWindow(bFromObservations);
 			m_gribsDBNameCtrl.EnableWindow(bUseGribs);
 			m_gribsLinkCtrl.EnableWindow(bUseGribs);
-			m_atSurfaceCtrl.EnableWindow(bUseGribs);
+			//m_atSurfaceCtrl.EnableWindow(bUseGribs);
+			m_gribsNbPointsCtrl.EnableWindow(bUseGribs);
 		}
 	}
 
