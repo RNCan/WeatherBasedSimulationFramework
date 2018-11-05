@@ -21,10 +21,11 @@
 #include "Basic/NormalsDatabase.h"
 #include "Basic/HourlyDatabase.h"
 #include "Basic/DailyDatabase.h"
+#include "Geomatic/SfcGribsDatabase.h"
 #include "ModelBase/WGInput.h"
 #include "Simulation/WeatherGradient.h"
 #include "Simulation/WeatherGeneratorKernel.h"
-#include "Simulation/ATM.h"
+//#include "Simulation/ATM.h"
 
 namespace WBSF
 {
@@ -121,8 +122,8 @@ namespace WBSF
 		void SetDailyDB(CDailyDatabasePtr& pDailyDB){ if (m_pDailyDB.get() != pDailyDB.get())m_pDailyDB = pDailyDB; }
 		CHourlyDatabasePtr& GetHourlyDB(){ return m_pHourlyDB; }
 		void SetHourlyDB(CHourlyDatabasePtr& pHourlyDB){ if (m_pHourlyDB.get() != pHourlyDB.get())m_pHourlyDB = pHourlyDB; }
-//		CGribsDatabasePtr& GetGribsDB(){ return m_pGribsDB; }
-	//	void SetGribsDB(CGribsDatabasePtr& pGribsDB){ if (m_pGribsDB.get() != pGribsDB.get())m_pGribsDB = pGribsDB; }
+		CSfcGribDatabasePtr& GetGribsDB(){ return m_pGribDB; }
+		void SetGribsDB(CSfcGribDatabasePtr& pGribDB){ if (m_pGribDB.get() != pGribDB.get())m_pGribDB = pGribDB; }
 		const CLocation& GetTarget()const{ return m_target; }
 		void SetTarget(const CLocation& target){ ((CLocation&)m_target) = target; }
 		size_t GetNbReplications() const { return m_nbReplications; }
@@ -137,7 +138,7 @@ namespace WBSF
 		ERMsg GetNormals(CNormalsStation& normals, CCallback& callback);
 		ERMsg GetDaily(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GetHourly(CSimulationPoint& simulationPoint, CCallback& callback);
-		ERMsg GetGribs(CSimulationPoint& simulationPoint, CCallback& callback);
+		//ERMsg GetGribs(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GenerateNormals(CSimulationPointVector& simulationPointVector, CCallback& callback);
 		void RemoveForecast(CSimulationPoint& simulationPoint);
 	protected:
@@ -167,7 +168,7 @@ namespace WBSF
 		CNormalsDatabasePtr m_pNormalDB;	//Normal database
 		CDailyDatabasePtr m_pDailyDB;		//daily database
 		CHourlyDatabasePtr m_pHourlyDB;		//hourly database
-		//CGribsDatabasePtr	m_pGribsDB;
+		CSfcGribDatabasePtr	m_pGribDB;
 
 		//result
 		CSeedMatrix m_seedMatrix;	//seed for random generator for each iteration

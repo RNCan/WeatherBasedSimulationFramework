@@ -367,25 +367,7 @@ namespace WBSF
 		}
 
 
-		// Get observation
-		if (m_tgi.UseGribs())
-		{
-			CSimulationPoint gribsData;
-			msg = GetGribs(gribsData, callback);
-
-			//replace daily our ourly observation with gribs data
-			CTPeriod p = m_tgi.GetTPeriod();
-			for (CTRef TRef = p.Begin(); TRef <= p.End() && msg; TRef++)
-			{
-				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
-				{
-					if (m_tgi.m_variables[v] && gribsData[TRef][v].IsInit())
-						m_simulationPoints[0][TRef].SetStat(v, gribsData[TRef][v]);
-				}
-
-				msg += callback.StepIt();
-			}
-		}
+		
 		//******************************************************************
 		//Get normals data
 
@@ -997,6 +979,8 @@ namespace WBSF
 				if (m_tgi.m_variables[v] && (v != H_TMIN && v != H_TMAX))
 				{
 					CSearchResultVector results;
+					CSearchResultVector resultsG;
+
 					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
@@ -1005,8 +989,18 @@ namespace WBSF
 					if (year > currentYear)
 						msg = ERMsg();
 
-					//if (!msg && (v == H_TMIN || v == H_TMAX))//Tmin and Tmax equal Tair in hourly data
-					//msg = ERMsg();
+					if (m_tgi.UseGribs())
+					{
+						
+						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year);
+						//if (!results.empty() && m_tgi.XVal())
+							//results.erase(results.begin());
+						if (msgG && !msg)//if we find grib data, we remove error on hourly database
+							msg = ERMsg();
+
+						CWeatherStationVector stationsG;
+						msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+					}
 
 					if (!msg)
 					{
@@ -1018,11 +1012,24 @@ namespace WBSF
 					if (msg && results.size() > 0)
 					{
 						CWeatherStationVector stations;
+						CWeatherStationVector stationsG;
 						msg = m_pHourlyDB->GetStations(stations, results, year);
+						// Get observation from gribs
+						if (m_tgi.UseGribs())
+							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+
 						if (msg)
 						{
 							stations.FillGaps();//internal completion
 							stations.ApplyCorrections(m_gradients);
+							//stationsG.FillGaps();//no internal completion for grib product
+
+							stationsG.ApplyCorrections(m_gradients);
+							for(size_t i=0; i< stationsG.size(); i++)
+								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
+							
+							stationsG.clear();
+
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 						}
 					}
@@ -1051,6 +1058,7 @@ namespace WBSF
 					if (neededVariables[v] && (v != H_TMIN && v != H_TMAX))
 					{
 						CSearchResultVector results;
+						CSearchResultVector resultsG;
 						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
@@ -1059,8 +1067,18 @@ namespace WBSF
 						if (year > currentYear)
 							msg = ERMsg();
 
-						//if (!msg && v == H_TRNG)//Trange assume to be zero in hourly data
-						//	msg = ERMsg();
+						if (m_tgi.UseGribs())
+						{
+
+							ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year);
+							//if (!results.empty() && m_tgi.XVal())
+								//results.erase(results.begin());
+							if (msgG && !msg)//if we find grib data, we remove error on hourly database
+								msg = ERMsg();
+
+							CWeatherStationVector stationsG;
+							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+						}
 
 						if (!msg)
 						{
@@ -1083,11 +1101,22 @@ namespace WBSF
 						if (msg && results.size() > 0)
 						{
 							CWeatherStationVector stations;
+							CWeatherStationVector stationsG;
 							msg = m_pHourlyDB->GetStations(stations, results, year);
+							if (m_tgi.UseGribs())
+								msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+
 							if (msg)
 							{
 								stations.FillGaps();//internal completion
 								stations.ApplyCorrections(m_gradients);//apply gradient to weather data
+
+								stationsG.ApplyCorrections(m_gradients);
+								for (size_t i = 0; i < stationsG.size(); i++)
+									stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
+
+								stationsG.clear();
+
 								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}
 						}
@@ -1740,412 +1769,412 @@ namespace WBSF
 		//callback.AddMessage("COMMENT: Complete normals data with more than one replications. Replications is not usefull in this case.");
 	}
 
-	//DPT:2 m
-	//RH
+	////DPT:2 m
+	////RH
 
 
-	ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& callback)
-	{
-		assert(m_tgi.m_firstYear > 0);
-		assert(m_tgi.GetNbYears() > 0);
-		assert(m_tgi.m_nbHourlyStations > 0);
-		assert(m_tgi.m_variables.any());
-		assert(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+	//ERMsg CWeatherGenerator::GetGribs(CSimulationPoint& simulationPoint, CCallback& callback)
+	//{
+	//	assert(m_tgi.m_firstYear > 0);
+	//	assert(m_tgi.GetNbYears() > 0);
+	//	assert(m_tgi.m_nbHourlyStations > 0);
+	//	assert(m_tgi.m_variables.any());
+	//	assert(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
 
-		//if (omp_get_num_threads() == 0)
-		//{
-		CTPeriod p = m_tgi.GetTPeriod().Transform(CTM(CTM::HOURLY));
-		size_t nbSteps = 0;
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-			nbSteps += m_pGribsDB->get_image_filepath(TRef).empty() ? 0 : 2;//2 = load + unload
+	//	//if (omp_get_num_threads() == 0)
+	//	//{
+	//	CTPeriod p = m_tgi.GetTPeriod().Transform(CTM(CTM::HOURLY));
+	//	size_t nbSteps = 0;
+	//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+	//		nbSteps += m_pGribDB->get_image_filepath(TRef).empty() ? 0 : 2;//2 = load + unload
 
-		callback.PushTask("Load gribs data weather for " + m_target.m_name, nbSteps);
-		//callback.SetNbStep(nbSteps);
-		//}
+	//	callback.PushTask("Load gribs data weather for " + m_target.m_name, nbSteps);
+	//	//callback.SetNbStep(nbSteps);
+	//	//}
 
-		ERMsg msg;
-		//int currentYear = CTRef::GetCurrentTRef().GetYear();
-		((CLocation&)simulationPoint) = m_target;
-		simulationPoint.SetHourly(true);
+	//	ERMsg msg;
+	//	//int currentYear = CTRef::GetCurrentTRef().GetYear();
+	//	((CLocation&)simulationPoint) = m_target;
+	//	simulationPoint.SetHourly(true);
 
-		for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
-		{
-			int year = m_tgi.GetFirstYear() + int(y);
+	//	for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
+	//	{
+	//		int year = m_tgi.GetFirstYear() + int(y);
 
-			for (size_t m = 0; m < 12 && msg; m++)
-			{
-				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
-				{
-					for (size_t h = 0; h < 24 && msg; h++)
-					{
-						CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(CTRef(year, m, d, h), m_target);
-						if (!m_pGribsDB->get_image_filepath(UTCRef).empty())
-						{
-							msg += m_pGribsDB->LoadWeather(UTCRef, callback);
-							if (msg)
-							{
-								for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
-								{
-									if (m_tgi.m_variables[v])
-									{
-										double value = m_pGribsDB->GetWeather(m_target, UTCRef, v);
-										if (value != -9999)
-											simulationPoint[year][m][d][h][v] = value;
-									}
+	//		for (size_t m = 0; m < 12 && msg; m++)
+	//		{
+	//			for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
+	//			{
+	//				for (size_t h = 0; h < 24 && msg; h++)
+	//				{
+	//					CTRef UTCRef = CTimeZones::LocalTRef2UTCTRef(CTRef(year, m, d, h), m_target);
+	//					if (!m_pGribsDB->get_image_filepath(UTCRef).empty())
+	//					{
+	//						msg += m_pGribsDB->LoadWeather(UTCRef, callback);
+	//						if (msg)
+	//						{
+	//							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
+	//							{
+	//								if (m_tgi.m_variables[v])
+	//								{
+	//									double value = m_pGribsDB->GetWeather(m_target, UTCRef, v);
+	//									if (value != -9999)
+	//										simulationPoint[year][m][d][h][v] = value;
+	//								}
 
-								}//for all variables
-								msg += callback.StepIt();
-							}//if the gribs exist and it's correctly loaded
-						}//not empty
-						msg += callback.StepIt(0);
-					}//for all hours
-				}//for all days
-			}//for all months
-		}//for all years
+	//							}//for all variables
+	//							msg += callback.StepIt();
+	//						}//if the gribs exist and it's correctly loaded
+	//					}//not empty
+	//					msg += callback.StepIt(0);
+	//				}//for all hours
+	//			}//for all days
+	//		}//for all months
+	//	}//for all years
 
-		callback.PopTask();
+	//	callback.PopTask();
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 	//******************************************************************************
 
-	string CGribsDatabase::get_image_filepath(CTRef UTCTRef)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		
+	//string CGribsDatabase::get_image_filepath(CTRef UTCTRef)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	
 
-		string filePath;
-		//TRef.Transform(CTM(CTM::HOURLY));
-		TTimeFilePathMap::const_iterator it = m_filepath_map.find(UTCTime);
-		//if (it == m_filepath_map.end())
-			//UTCTime = GetNearest...
-
-
-		if (it != m_filepath_map.end())
-		{
-			filePath = GetAbsolutePath(GetPath(m_filePathGribs), it->second);
-		}
-
-		return filePath;
-	}
-
-	ERMsg CGribsDatabase::Open(const std::string& filepath, CCallback& callback)
-	{
-		ERMsg msg;
-
-		m_p_weather_DS.m_max_hour_load = 3;
-		m_extents.Reset();
-
-		ifStream file;
-		msg = file.open(filepath);
-		if (msg)
-		{
-			std::ios::pos_type length = file.length();
-			callback.PushTask("Open Gribs", length);
-			//callback.SetNbStep(length);
-
-			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
-			{
-				if ((*loop).size() == 2)
-				{
-					//CTRef TRef;
-					//TRef.FromFormatedString((*loop)[0], "", "-", 1);
-					//assert(TRef.IsValid());
-
-					//m_filepath_map[TRef] = (*loop)[1];
-					ASSERT(false);
-				}
-
-				callback.SetCurrentStepPos((double)file.tellg());
-				msg += callback.StepIt(0);
-			}
-
-			if (msg)
-				m_filePathGribs = filepath;
-
-
-			callback.PopTask();
-		}
-
-
-		if (msg)
-		{
-			__int64 UTCTime = m_filepath_map.begin()->first;
-			msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
-			if (msg)
-			{
-				//reproject into DEM projection
-				m_extents.ExtendBounds(m_p_weather_DS.at(UTCTime)->GetExtents());
-				m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
-			}
-		}
-
-		return msg;
-
-	}
-	double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t vv)const
-	{
-		ASSERT(ptIn.m_z >= -100);
-		ASSERT(ptIn.IsGeographic());
-
-		ERMsg msg;
-
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
-		if (!IsLoaded(UTCRef))
-			return -999;
-
-		//if (vv == H_TRNG)
-		//return 0;
-
-		size_t v = Hourly2ATM(vv);
-		if (v == NOT_INIT)
-			return -999;
-
-		CGeoPoint3D pt(ptIn);
-		pt.Reproject(m_GEO2WEA);
-
-		const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCTime);
-
-		if (!extents.IsInside(pt))
-			return -9999;
-
-		CGeoPointIndex xy = get_xy(pt, UTCTime);
-		double mean_alt[2] = { 0, 0 };
-		double weather[2] = { -999, -999 };
-
-		size_t nb_z = m_bUseOnlySurface ? 1 : 2;
-		for (size_t z = 0; z < nb_z; z++)
-		{
-			int L = m_bUseOnlySurface ? 0 : get_level(xy, pt.m_alt, UTCRef, z == 0);
-			size_t bGph = m_p_weather_DS.get_band(UTCTime, ATM_HGT, L);
-			mean_alt[z] = m_p_weather_DS.GetPixel(UTCTime, bGph, xy); //geopotential height [m]
-
-			size_t b = m_p_weather_DS.get_band(UTCTime, v, L);
-
-			if (b != UNKNOWN_POS)
-			{
-				float value = m_p_weather_DS.GetPixel(UTCTime, b, xy);
-
-				if (v == ATM_PRES)
-					value /= 100; //convert Pa into hPa
-
-				if (v == ATM_PRCP)
-				{
-					value *= 3600; //convert mm/s into mm/h
-					if (value < 0.05)
-						value = 0;
-
-					ASSERT(value >= 0 && value < 40);
-				}
-
-
-				if (v == ATM_WNDU)
-				{
-					size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDV, L);
-					double u = value;
-					double v = m_p_weather_DS.GetPixel(UTCTime, b, xy);
-					assert(false);//need to convert to thrueNorth
-					value = sqrt(Square(u) + Square(v)) * 3600 / 1000;
-					ASSERT(value >= 0 && value < 300);
-				}
-
-				if (v == ATM_WNDV)
-				{
-					size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDU, L);
-					double u = m_p_weather_DS.GetPixel(UTCTime, b, xy);
-					double v = value;
-
-					assert(false);//need to convert to thrueNorth
-					value = (float)GetWindDirection(u, v);
-					ASSERT(value >= 0 && value <= 360);
-					/*GetWindUV(10, 0, u, v);
-					GetWindUV(10, 45, u, v);
-					GetWindUV(10, 90, u, v);
-					GetWindUV(10, 135, u, v);
-					GetWindUV(10, 180, u, v);
-					GetWindUV(10, 225, u, v);
-					GetWindUV(10, 270, u, v);
-					GetWindUV(10, 315, u, v);*/
-
-
-					//double alpha = PI / 2;
-					//if (u != 0 || v != 0)
-					//alpha = atan2(u,v);//y, x
-
-
-					//double angle = int(360 + Rad2Deg(alpha)) % 360;
-					//ASSERT(angle >= 0 && angle <= 360);
-					//value = angle;
-
-					//value = GetWindDirection(00, 10);
-					//value = GetWindDirection(10, 10);
-					//value = GetWinBdDirection(10, 00);
-					//value = GetWindDirection(10, -10);
-					//value = GetWindDirection(00, -10);
-					//value = GetWindDirection(-10, -10);
-					//value = GetWindDirection(-10, 00);
-					//value = GetWindDirection(-10, 10);
-
-
-				}
-
-				weather[z] = value;
-			}
-		}//z
-
-
-
-		CStatistic  w;
-		CStatistic  d;
-
-		for (size_t z = 0; z < nb_z; z++)
-		{
-			if (weather[z] > -999)
-			{
-				double p = fabs(pt.m_alt - mean_alt[z]) + 1;
-				w += weather[z] / p;
-				d += 1.0 / p;
-			}
-		}
-
-		return w.IsInit() ? w[SUM] / d[SUM] : -999;
-	}
-
-
-
-	CGeoPointIndex CGribsDatabase::get_xy(const CGeoPoint& pt, CTRef UTCTRef)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
-		return extents.CoordToXYPos(pt);//take lower-left corner
-	}
-
-	int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		vector<pair<double, int>> test;
-
-		for (int l = 1; l < NB_LEVELS; l++)
-		{
-			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
-			test.push_back(make_pair(gph, l));
-
-			if (alt < gph)
-				break;
-		}
-
-		double grAlt = GetGroundAltitude(xy, UTCTime);//get the first level over the ground
-		test.push_back(make_pair(grAlt, 0));
-		sort(test.begin(), test.end());
-
-		int L = NB_LEVELS - 1;
-		for (int l = 0; l < (int)test.size(); l++)
-		{
-			if (alt < test[l].first)
-			{
-				L = test[bLow ? max(0, l - 1) : l].second;
-				break;
-			}
-		}
-
-		ASSERT(L >= 0 && L < NB_LEVELS);
-		return L;
-	}
-
-	int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		int L = NB_LEVELS - 1;//take the last level
-
-		for (int l = 1; l < NB_LEVELS; l++)
-		{
-			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
-
-			if (alt < gph)
-			{
-				L = l;
-				break;
-			}
-		}
-
-		return L;
-	}
-
-	double CGribsDatabase::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, 0);
-		double alt = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
-
-		return alt;
-	}
-
-
-	CGeoPoint3DIndex CGribsDatabase::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
-	{
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
-		CGeoPoint3DIndex xyz;
-		((CGeoPointIndex&)xyz) = extents.CoordToXYPos(pt + CGeoDistance3D(extents.XRes() / 2, extents.YRes() / 2, 0, extents.GetPrjID()));
-
-
-		xyz.m_z = NB_LEVELS - 1;//take the last on by default
-		for (size_t l = 0; l < NB_LEVELS; l++)
-		{
-			size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
-			double gph = m_p_weather_DS.GetPixel(UTCTime, b, xyz); //geopotential height [m]
-
-			if (gph > pt.m_alt)
-			{
-				xyz.m_z = int(b);
-				break;
-			}
-		}
-
-		return xyz;
-	}
-
-
-
-
-	ERMsg CGribsDatabase::LoadWeather(CTRef UTCTRef, CCallback& callback)
-	{
-		ERMsg msg;
-
-		__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
-		if (!m_p_weather_DS.IsLoaded(UTCTime))
-		{
-			string filePath = get_image_filepath(UTCTime);
-			if (!filePath.empty())
-			{
-				msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
-			}
-			else
-			{
-				msg.ajoute("File " + filePath + " is Missing");
-			}
-		}
-
-
-		return msg;
-	}
-
-	ERMsg CGribsDatabase::Close(CCallback& callback)
-	{
-		m_filePathGribs.clear();
-		m_filepath_map.clear();
-		m_extents.clear();
-
-		return m_p_weather_DS.Discard(callback);
-	}
-
-	ERMsg CGribsDatabase::DiscardWeather(CCallback& callback)
-	{
-		return m_p_weather_DS.Discard(callback);
-	}
+	//	string filePath;
+	//	//TRef.Transform(CTM(CTM::HOURLY));
+	//	TTimeFilePathMap::const_iterator it = m_filepath_map.find(UTCTime);
+	//	//if (it == m_filepath_map.end())
+	//		//UTCTime = GetNearest...
+
+
+	//	if (it != m_filepath_map.end())
+	//	{
+	//		filePath = GetAbsolutePath(GetPath(m_filePathGribs), it->second);
+	//	}
+
+	//	return filePath;
+	//}
+
+	//ERMsg CGribsDatabase::Open(const std::string& filepath, CCallback& callback)
+	//{
+	//	ERMsg msg;
+
+	//	m_p_weather_DS.m_max_hour_load = 3;
+	//	m_extents.Reset();
+
+	//	ifStream file;
+	//	msg = file.open(filepath);
+	//	if (msg)
+	//	{
+	//		std::ios::pos_type length = file.length();
+	//		callback.PushTask("Open Gribs", length);
+	//		//callback.SetNbStep(length);
+
+	//		for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
+	//		{
+	//			if ((*loop).size() == 2)
+	//			{
+	//				//CTRef TRef;
+	//				//TRef.FromFormatedString((*loop)[0], "", "-", 1);
+	//				//assert(TRef.IsValid());
+
+	//				//m_filepath_map[TRef] = (*loop)[1];
+	//				ASSERT(false);
+	//			}
+
+	//			callback.SetCurrentStepPos((double)file.tellg());
+	//			msg += callback.StepIt(0);
+	//		}
+
+	//		if (msg)
+	//			m_filePathGribs = filepath;
+
+
+	//		callback.PopTask();
+	//	}
+
+
+	//	if (msg)
+	//	{
+	//		__int64 UTCTime = m_filepath_map.begin()->first;
+	//		msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
+	//		if (msg)
+	//		{
+	//			//reproject into DEM projection
+	//			m_extents.ExtendBounds(m_p_weather_DS.at(UTCTime)->GetExtents());
+	//			m_GEO2WEA = GetReProjection(PRJ_WGS_84, m_extents.GetPrjID());
+	//		}
+	//	}
+
+	//	return msg;
+
+	//}
+	//double CGribsDatabase::GetWeather(const CGeoPoint3D& ptIn, CTRef UTCRef, size_t vv)const
+	//{
+	//	ASSERT(ptIn.m_z >= -100);
+	//	ASSERT(ptIn.IsGeographic());
+
+	//	ERMsg msg;
+
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCRef);
+	//	if (!IsLoaded(UTCRef))
+	//		return -999;
+
+	//	//if (vv == H_TRNG)
+	//	//return 0;
+
+	//	size_t v = Hourly2ATM(vv);
+	//	if (v == NOT_INIT)
+	//		return -999;
+
+	//	CGeoPoint3D pt(ptIn);
+	//	pt.Reproject(m_GEO2WEA);
+
+	//	const CGeoExtents& extents = m_p_weather_DS.GetExtents(UTCTime);
+
+	//	if (!extents.IsInside(pt))
+	//		return -9999;
+
+	//	CGeoPointIndex xy = get_xy(pt, UTCTime);
+	//	double mean_alt[2] = { 0, 0 };
+	//	double weather[2] = { -999, -999 };
+
+	//	size_t nb_z = m_bUseOnlySurface ? 1 : 2;
+	//	for (size_t z = 0; z < nb_z; z++)
+	//	{
+	//		int L = m_bUseOnlySurface ? 0 : get_level(xy, pt.m_alt, UTCRef, z == 0);
+	//		size_t bGph = m_p_weather_DS.get_band(UTCTime, ATM_HGT, L);
+	//		mean_alt[z] = m_p_weather_DS.GetPixel(UTCTime, bGph, xy); //geopotential height [m]
+
+	//		size_t b = m_p_weather_DS.get_band(UTCTime, v, L);
+
+	//		if (b != UNKNOWN_POS)
+	//		{
+	//			float value = m_p_weather_DS.GetPixel(UTCTime, b, xy);
+
+	//			if (v == ATM_PRES)
+	//				value /= 100; //convert Pa into hPa
+
+	//			if (v == ATM_PRCP)
+	//			{
+	//				value *= 3600; //convert mm/s into mm/h
+	//				if (value < 0.05)
+	//					value = 0;
+
+	//				ASSERT(value >= 0 && value < 40);
+	//			}
+
+
+	//			if (v == ATM_WNDU)
+	//			{
+	//				size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDV, L);
+	//				double u = value;
+	//				double v = m_p_weather_DS.GetPixel(UTCTime, b, xy);
+	//				assert(false);//need to convert to thrueNorth
+	//				value = sqrt(Square(u) + Square(v)) * 3600 / 1000;
+	//				ASSERT(value >= 0 && value < 300);
+	//			}
+
+	//			if (v == ATM_WNDV)
+	//			{
+	//				size_t b = m_p_weather_DS.get_band(UTCTime, ATM_WNDU, L);
+	//				double u = m_p_weather_DS.GetPixel(UTCTime, b, xy);
+	//				double v = value;
+
+	//				assert(false);//need to convert to thrueNorth
+	//				value = (float)GetWindDirection(u, v);
+	//				ASSERT(value >= 0 && value <= 360);
+	//				/*GetWindUV(10, 0, u, v);
+	//				GetWindUV(10, 45, u, v);
+	//				GetWindUV(10, 90, u, v);
+	//				GetWindUV(10, 135, u, v);
+	//				GetWindUV(10, 180, u, v);
+	//				GetWindUV(10, 225, u, v);
+	//				GetWindUV(10, 270, u, v);
+	//				GetWindUV(10, 315, u, v);*/
+
+
+	//				//double alpha = PI / 2;
+	//				//if (u != 0 || v != 0)
+	//				//alpha = atan2(u,v);//y, x
+
+
+	//				//double angle = int(360 + Rad2Deg(alpha)) % 360;
+	//				//ASSERT(angle >= 0 && angle <= 360);
+	//				//value = angle;
+
+	//				//value = GetWindDirection(00, 10);
+	//				//value = GetWindDirection(10, 10);
+	//				//value = GetWinBdDirection(10, 00);
+	//				//value = GetWindDirection(10, -10);
+	//				//value = GetWindDirection(00, -10);
+	//				//value = GetWindDirection(-10, -10);
+	//				//value = GetWindDirection(-10, 00);
+	//				//value = GetWindDirection(-10, 10);
+
+
+	//			}
+
+	//			weather[z] = value;
+	//		}
+	//	}//z
+
+
+
+	//	CStatistic  w;
+	//	CStatistic  d;
+
+	//	for (size_t z = 0; z < nb_z; z++)
+	//	{
+	//		if (weather[z] > -999)
+	//		{
+	//			double p = fabs(pt.m_alt - mean_alt[z]) + 1;
+	//			w += weather[z] / p;
+	//			d += 1.0 / p;
+	//		}
+	//	}
+
+	//	return w.IsInit() ? w[SUM] / d[SUM] : -999;
+	//}
+
+
+
+	//CGeoPointIndex CGribsDatabase::get_xy(const CGeoPoint& pt, CTRef UTCTRef)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
+	//	return extents.CoordToXYPos(pt);//take lower-left corner
+	//}
+
+	//int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	vector<pair<double, int>> test;
+
+	//	for (int l = 1; l < NB_LEVELS; l++)
+	//	{
+	//		size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+	//		double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
+	//		test.push_back(make_pair(gph, l));
+
+	//		if (alt < gph)
+	//			break;
+	//	}
+
+	//	double grAlt = GetGroundAltitude(xy, UTCTime);//get the first level over the ground
+	//	test.push_back(make_pair(grAlt, 0));
+	//	sort(test.begin(), test.end());
+
+	//	int L = NB_LEVELS - 1;
+	//	for (int l = 0; l < (int)test.size(); l++)
+	//	{
+	//		if (alt < test[l].first)
+	//		{
+	//			L = test[bLow ? max(0, l - 1) : l].second;
+	//			break;
+	//		}
+	//	}
+
+	//	ASSERT(L >= 0 && L < NB_LEVELS);
+	//	return L;
+	//}
+
+	//int CGribsDatabase::get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	int L = NB_LEVELS - 1;//take the last level
+
+	//	for (int l = 1; l < NB_LEVELS; l++)
+	//	{
+	//		size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+	//		double gph = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
+
+	//		if (alt < gph)
+	//		{
+	//			L = l;
+	//			break;
+	//		}
+	//	}
+
+	//	return L;
+	//}
+
+	//double CGribsDatabase::GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, 0);
+	//	double alt = m_p_weather_DS.GetPixel(UTCTime, b, xy); //geopotential height [m]
+
+	//	return alt;
+	//}
+
+
+	//CGeoPoint3DIndex CGribsDatabase::get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const
+	//{
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	CGeoExtents extents = m_p_weather_DS.GetExtents(UTCTime);
+	//	CGeoPoint3DIndex xyz;
+	//	((CGeoPointIndex&)xyz) = extents.CoordToXYPos(pt + CGeoDistance3D(extents.XRes() / 2, extents.YRes() / 2, 0, extents.GetPrjID()));
+
+
+	//	xyz.m_z = NB_LEVELS - 1;//take the last on by default
+	//	for (size_t l = 0; l < NB_LEVELS; l++)
+	//	{
+	//		size_t b = m_p_weather_DS.get_band(UTCTime, ATM_HGT, l);
+	//		double gph = m_p_weather_DS.GetPixel(UTCTime, b, xyz); //geopotential height [m]
+
+	//		if (gph > pt.m_alt)
+	//		{
+	//			xyz.m_z = int(b);
+	//			break;
+	//		}
+	//	}
+
+	//	return xyz;
+	//}
+
+
+
+
+	//ERMsg CGribsDatabase::LoadWeather(CTRef UTCTRef, CCallback& callback)
+	//{
+	//	ERMsg msg;
+
+	//	__int64 UTCTime = CTimeZones::TRef2Time(UTCTRef);
+	//	if (!m_p_weather_DS.IsLoaded(UTCTime))
+	//	{
+	//		string filePath = get_image_filepath(UTCTime);
+	//		if (!filePath.empty())
+	//		{
+	//			msg = m_p_weather_DS.load(UTCTime, get_image_filepath(UTCTime), callback);
+	//		}
+	//		else
+	//		{
+	//			msg.ajoute("File " + filePath + " is Missing");
+	//		}
+	//	}
+
+
+	//	return msg;
+	//}
+
+	//ERMsg CGribsDatabase::Close(CCallback& callback)
+	//{
+	//	m_filePathGribs.clear();
+	//	m_filepath_map.clear();
+	//	m_extents.clear();
+
+	//	return m_p_weather_DS.Discard(callback);
+	//}
+
+	//ERMsg CGribsDatabase::DiscardWeather(CCallback& callback)
+	//{
+	//	return m_p_weather_DS.Discard(callback);
+	//}
 
 
 }

@@ -1494,9 +1494,9 @@ namespace WBSF
 
 		void GetGeoTransform(CGeoTransform& GT)const;
 		void SetGeoTransform(const CGeoTransform& GT, int XSize, int YSize);
-		void GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointVector& ptArray);
-		void GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointIndexVector& ptArray);
-		void GetNearestCellPosition(const CGeoPointIndex& pt, int nbPoint, CGeoPointIndexVector& ptArray);
+		void GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointVector& ptArray)const;
+		void GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointIndexVector& ptArray)const;
+		void GetNearestCellPosition(const CGeoPointIndex& pt, int nbPoint, CGeoPointIndexVector& ptArray)const;
 
 		void NormalizeRect();
 	

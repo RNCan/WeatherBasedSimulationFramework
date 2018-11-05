@@ -14,10 +14,6 @@
 namespace WBSF
 {
 
-
-
-
-
 	enum THRDPSVariables
 	{
 		LFTX_SFC, ALBDO_SFC, APCP_SFC, DLWRF_SFC, DSWRF_SFC, HGT_SFC, ICEC_SFC, LAND_SFC, LHTFL_SFC, NLWRS_SFC, NSWRS_SFC, PRATE_SFC,
@@ -126,7 +122,7 @@ namespace WBSF
 
 		ERMsg CreateVRT(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
 		std::string GetVRTFilePath(std::string outputFilePath);
-		ERMsg GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback);
+		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK);
 		//std::string GetVRTFilePath(CTRef TRef);
 		static CTRef GetTRef(std::string title);
 

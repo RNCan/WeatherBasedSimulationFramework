@@ -2,6 +2,7 @@
 #include "UIHIRESW.h"
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
+#include "Geomatic/SfcGribsDatabase.h"
 
 #include "TaskFactory.h"
 #include "WeatherBasedSimulationString.h"
@@ -197,7 +198,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIHIRESW::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CUIHIRESW::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -222,7 +223,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(list1[i]);
 				if (p.IsInside(TRef) )
-					gribsList[TRef] = list1[i];
+					gribsList[TRef].push_back(list1[i]);
 			}
 			
 		}

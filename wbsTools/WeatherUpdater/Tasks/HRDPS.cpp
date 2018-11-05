@@ -6,6 +6,8 @@
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
 #include "boost/tokenizer.hpp"
+#include "Geomatic/SfcGribsDatabase.h"
+
 //#include "cctz\time_zone.h"
 
 #include "WeatherBasedSimulationString.h"
@@ -524,7 +526,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CHRDPS::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CHRDPS::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -534,7 +536,6 @@ namespace WBSF
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
 			size_t d = TRef.GetDay();
-			//			size_t h = TRef.GetHour();
 
 			string filter = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02*.vrt", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
 			StringVector fileList = WBSF::GetFilesList(filter);
@@ -547,9 +548,11 @@ namespace WBSF
 				size_t h = WBSF::as<int>(title.substr(14, 2));
 				size_t hh = WBSF::as<int>(title.substr(17, 3));
 				CTRef TRef = CTRef(year, m, d, h) + hh;
-				//				CTRef TRef = GetTRef(fileList[i]);
+				
+
+				
 				if (p.IsInside(TRef))
-					gribsList[TRef] = fileList[i];
+					gribsList[TRef].push_back(fileList[i]);
 			}
 
 		}

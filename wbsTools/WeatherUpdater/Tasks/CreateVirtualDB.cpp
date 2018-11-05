@@ -6,7 +6,6 @@
 #include "Basic/WeatherDatabaseCreator.h"
 #include "Basic/Timer.h"
 #include "Basic/CSV.h"
-#include "Geomatic/SfcGribsDatabase.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "TaskFactory.h"
@@ -22,8 +21,8 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 	//*********************************************************************
-	const char* CCreateVirtualDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GribsFilePath", "LocationsFilePath", "OutputFilePath", "Variables", "OutputType", "ExportType", "FirstDate", "LastDate", "Incremental" };
-	const size_t CCreateVirtualDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING_SELECT, T_COMBO_INDEX,  T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL };
+	const char* CCreateVirtualDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GribsFilePath", "LocationsFilePath", "OutputFilePath", "Variables", "NbPoints", "Incremental" };
+	const size_t CCreateVirtualDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING_SELECT, T_STRING, T_BOOL };
 	const UINT CCreateVirtualDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_VIRTUAL_P;
 	const UINT CCreateVirtualDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_VIRTUAL;
 
@@ -48,11 +47,10 @@ namespace WBSF
 		case INPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_GRIBS); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_OBSERVATION); break;
 		case LOCATIONS_FILEPATH:str = GetString(IDS_STR_FILTER_LOC); break;
-		case VARIABLES:			str = "Tmin|Tair|Tmax|Prcp|Tdew|RelH|WinS|WinD|SRad|Pres"; break;
-		case OUTPUT_TYPE:		str = "Hourly|Daily"; break;
-		case EXTRACTION_TYPE:	str = "At location|Nearest point|4 nearest points"; break;
+		case VARIABLES:			str = "Tmin|Tair|Tmax|Prcp|Tdew|RelH|WndS|WndD|SRad|Pres|Snow|SnDh|SWE|Wnd2"; break;
+		case NB_POINTS:			str = "0"; break;
 		};
-
+		
 		return str;
 	}
 
@@ -62,9 +60,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		case OUTPUT_TYPE:		str = "0"; break;
-		case FIRST_YEAR:
-		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case NB_POINTS:		str = "0"; break;
 		};
 
 		return str;
@@ -88,12 +84,14 @@ namespace WBSF
 			return msg;
 		}
 
+		msg = CreateMultipleDir(GetPath(outputFilePath));
+
 		//SetFileExtension(outputFilePath, (outputType == OT_HOURLY) ? CHourlyDatabase::DATABASE_EXT : CDailyDatabase::DATABASE_EXT);
 		SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
 		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 
-		CGribsDB gribs;
+		CGribsMap gribs;
 		msg += gribs.load(inputFilePath);
 
 
@@ -102,182 +100,230 @@ namespace WBSF
 			msg += locations.Load(Get(LOCATIONS_FILEPATH));
 
 
+
+		CSfcGribDatabase DB;
+		DB.m_nb_points = as<size_t>(NB_POINTS);
+		DB.m_bIncremental = as<bool>(INCREMENTAL);
+		DB.m_variables = GetVariables(Get(VARIABLES));
+
+		if (!DB.m_bIncremental)
+		{
+			//delete incremental file
+			msg += CIncementalDB::Delete(outputFilePath);
+			
+			//delete database
+			msg += DB.DeleteDatabase(outputFilePath, callback);
+		}
+
+		if(msg)
+			msg += DB.Open(outputFilePath, CDailyDatabase::modeWrite);
+
 		if (!msg)
 			return msg;
 
-		CLocationVector locationsII;
-		size_t extractionType = as<size_t>(EXTRACTION_TYPE);
-		switch (extractionType)
-		{
-		case E_AT_LOCATION: locationsII = locations;  break;
-			//case E_NEREST: locationsII = GetNearest(locations, 1); break;
-			//case E_4NEAREST: locationsII = GetNearest(locations, 4); break;
-		};
+		msg = DB.Update(gribs, locations, callback);
+
+		//size_t extractionType = 
+		//switch (extractionType)
+		//{
+		//case E_AT_LOCATION: nb_points = 0;  break;
+		//case E_NEREST: nb_points = 1; break;
+		//case E_4NEAREST:nb_points = 4; break;
+		////{
+		////	/*size_t nb_points = 1;
+		////	if (E_4NEAREST)
+		////		nb_points = 4;
+
+		////	GribVariable variables;
+		////	variables.set(H_GHGT);
+		////	
+		////	CSfcDatasetCached sfcDS;
+		////	sfcDS.set_variables(variables);
+
+		////	string file_path = gribs.begin()->second;
+		////	msg = sfcDS.open(file_path, true);
+		////	if (msg)
+		////	{
+		////		if (sfcDS.get_band(H_GHGT))
+		////			locationsII = sfcDS.get_nearest(locations, nb_points);
+		////		else
+		////			msg.ajoute("Unable to find nearest point from locations because geopotentiel height is not avaliable for the first image");
+
+		////		sfcDS.close();
+		////	}
+		////	
+		////	break;*/
+		////}
+		//};
+
+
+		//if (!msg)
+		//	return msg;
 
 		//size_t outputType = as<size_t>(OUTPUT_TYPE);
-		bool bIncremental = as<bool>(INCREMENTAL);
+		
 
-		CIncementalDB incremental;
-		if (!bIncremental)
+		//CIncementalDB incremental;
+		//if (!bIncremental)
 
+		//{
+		//	//delete incremental file
+		//	WBSF::RemoveFile(outputFilePath + ".inc");
+		//	//pDB->DeleteDatabase()
+		//	//delete database
+		//	//if (outputType == OT_HOURLY)
+		//	//{
+		//	msg += CHourlyDatabase::DeleteDatabase(outputFilePath, callback);
+		//	//}
+		//	//else
+		//	//{
+		//	//	msg += CDailyDatabase::DeleteDatabase(outputFilePath, callback);
+		//	//}
+
+
+		//}
+
+
+
+
+
+		//msg = CreateMultipleDir(GetPath(outputFilePath));
+
+
+		////Get the data for each station
+		////CWeatherDatabasePtr pDB = CreateWeatherDatabase(outputFilePath);
+		//CHourlyDatabase DB;
+		////if (pDB.get() == NULL)
+		//	//msg.ajoute("Unknown output database type");
+
+		////if (msg)
+		//msg += DB.Open(outputFilePath, CDailyDatabase::modeWrite);
+
+
+
+		//CWeatherStationVector stations;
+
+
+		//if (bIncremental)
+		//{
+		//	if (FileExists(outputFilePath + ".inc"))
+		//		msg = incremental.load(outputFilePath + ".inc");
+
+		//	stations.resize(locationsII.size());
+
+		//	if (!DB.empty() && DB.size() != locationsII.size())
+		//	{
+		//		msg.ajoute("The number of station in the database is not the same as the previous execution. Do not use incremental.");
+		//		return msg;
+		//	}
+
+		//	for (size_t i = 0; i < locationsII.size(); i++)
+		//	{
+		//		if (DB.size() == locationsII.size())
+		//		{
+		//			msg += DB.Get(stations[i], i);
+		//		}
+		//		else
+		//		{
+		//			((CLocation&)stations[i]) = locationsII[i];
+		//			stations[i].SetHourly(true);
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	stations.resize(locationsII.size());
+		//	for (size_t i = 0; i < locationsII.size(); i++)
+		//	{
+		//		((CLocation&)stations[i]) = locationsII[i];
+		//		stations[i].SetHourly(true);
+		//	}
+		//}
+
+
+
+		////CTPeriod invalid_period;
+		//std::set<CTRef> invalid;
+		//msg = incremental.GetInvalidTRef(gribs, invalid);
+		//if (msg && !invalid.empty())//there is an invalid period, up-tu-date otherwise
+		//{
+
+		//	callback.AddMessage("Nb input hours: " + to_string(gribs.size()));
+		//	callback.AddMessage("hours to update: " + to_string(invalid.size()));
+		//	callback.AddMessage(string("Incremental: ") + (bIncremental ? "yes" : "no"));
+
+		//	CTimer timer(true);
+		//	CTimer timerRead;
+		//	CTimer timerWrite;
+
+		//	int nbStationAdded = 0;
+		//	string feed = GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + to_string(invalid.size()) + " hours for " + to_string(stations.size()) + " virtual stations)";
+		//	callback.PushTask(feed, invalid.size()*stations.size());
+		//	callback.AddMessage(feed);
+
+		//	//init coord and info
+		//	for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+		//	{
+		//		timerRead.Start();
+		//		msg = ExtractStation(*it, gribs[*it], stations, callback);
+		//		timerRead.Stop();
+		//	}
+		//	callback.PopTask();
+		//	callback.PushTask("Save weather to disk", invalid.size()*stations.size());
+		//	for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
+		//	{
+		//		if (msg)
+		//		{
+		//			if (it->HaveData())
+		//			{
+		//				//Force write file name in the file
+		//				it->SetDataFileName(it->GetDataFileName());
+		//				it->UseIt(true);
+
+		//				timerWrite.Start();
+		//				msg = DB.Set(std::distance(stations.begin(), it), *it);
+		//				timerWrite.Stop();
+
+		//				if (msg)
+		//					nbStationAdded++;
+		//			}
+		//		}
+
+		//		msg += callback.StepIt();
+		//	}
+
+
+		msg += DB.Close(true, callback);
+		//	timer.Stop();
+		//	callback.PopTask();
+
+
+		if (msg)
 		{
-			//delete incremental file
-			WBSF::RemoveFile(outputFilePath + ".inc");
-			//pDB->DeleteDatabase()
-			//delete database
-			//if (outputType == OT_HOURLY)
+			//open for vérification
+			msg += DB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
+			DB.Close();
+		}
+
+			//if (msg)
 			//{
-			msg += CHourlyDatabase::DeleteDatabase(outputFilePath, callback);
+			//	//incremental.Update(gribs);
+			//	//msg = incremental.save(outputFilePath + ".inc");
+
+			//	callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
+			//	callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
+			//	callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
+			//	callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
 			//}
-			//else
-			//{
-			//	msg += CDailyDatabase::DeleteDatabase(outputFilePath, callback);
 			//}
-
-
-		}
-
-
-
-
-
-		msg = CreateMultipleDir(GetPath(outputFilePath));
-
-
-		//Get the data for each station
-		//CWeatherDatabasePtr pDB = CreateWeatherDatabase(outputFilePath);
-		CHourlyDatabase DB;
-		//if (pDB.get() == NULL)
-			//msg.ajoute("Unknown output database type");
-
-		//if (msg)
-		msg += DB.Open(outputFilePath, CDailyDatabase::modeWrite);
-
-
-
-		CWeatherStationVector stations;
-
-
-		if (bIncremental)
-		{
-			if (FileExists(outputFilePath + ".inc"))
-				msg = incremental.load(outputFilePath + ".inc");
-
-			stations.resize(locationsII.size());
-
-			if (!DB.empty() && DB.size() != locationsII.size())
-			{
-				msg.ajoute("The number of station in the database is not the same as the previous execution. Do not use incremental.");
-				return msg;
-			}
-
-			for (size_t i = 0; i < locationsII.size(); i++)
-			{
-				if (DB.size() == locationsII.size())
-				{
-					msg += DB.Get(stations[i], i);
-				}
-				else
-				{
-					((CLocation&)stations[i]) = locationsII[i];
-					stations[i].SetHourly(true);
-				}
-			}
-		}
-		else
-		{
-			stations.resize(locationsII.size());
-			for (size_t i = 0; i < locationsII.size(); i++)
-			{
-				((CLocation&)stations[i]) = locationsII[i];
-				stations[i].SetHourly(true);
-			}
-		}
-
-
-
-		//CTPeriod invalid_period;
-		std::set<CTRef> invalid;
-		msg = incremental.GetInvalidTRef(gribs, invalid);
-		if (msg && !invalid.empty())//there is an invalid period, up-tu-date otherwise
-		{
-
-			callback.AddMessage("Nb input hours: " + to_string(gribs.size()));
-			callback.AddMessage("hours to update: " + to_string(invalid.size()));
-			callback.AddMessage(string("Incremental: ") + (bIncremental ? "yes" : "no"));
-			
-			CTimer timer(true);
-			CTimer timerRead;
-			CTimer timerWrite;
-
-			int nbStationAdded = 0;
-			string feed = GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + to_string(invalid.size()) + " hours for " + to_string(stations.size()) + " virtual stations)";
-			callback.PushTask(feed, invalid.size()*stations.size());
-			callback.AddMessage(feed);
-
-			//init coord and info
-			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-			{
-				timerRead.Start();
-				msg = ExtractStation(*it, gribs[*it], stations, callback);
-				timerRead.Stop();
-			}
-			callback.PopTask();
-			callback.PushTask("Save weather to disk", invalid.size()*stations.size());
-			for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
-			{
-				if (msg)
-				{
-					if (it->HaveData())
-					{
-						//Force write file name in the file
-						it->SetDataFileName(it->GetDataFileName());
-						it->UseIt(true);
-
-						timerWrite.Start();
-						msg = DB.Set(std::distance(stations.begin(), it), *it);
-						timerWrite.Stop();
-
-						if (msg)
-							nbStationAdded++;
-					}
-				}
-
-				msg += callback.StepIt();
-			}
-
-
-			msg += DB.Close();
-			timer.Stop();
-			callback.PopTask();
-
-
-			if (msg)
-			{
-				//update incremental even if incremental is not activate yet
-				msg += DB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
-				DB.Close();
-			}
-
-			if (msg)
-			{
-				incremental.Update(gribs);
-				msg = incremental.save(outputFilePath + ".inc");
-
-				callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
-				callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
-				callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
-				callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
-			}
-			//}
-		}
+		//}
 
 		return msg;
 	}
 
-	std::bitset< HOURLY_DATA::NB_VAR_ALL> GetVariables(string str)
+	GribVariables CCreateVirtualDB::GetVariables(string str)
 	{
-		std::bitset< HOURLY_DATA::NB_VAR_ALL> variables;
+		GribVariables variables;
 		if (str.empty())
 		{
 			variables.set();
@@ -296,12 +342,12 @@ namespace WBSF
 		return variables;
 	}
 
-	ERMsg CCreateVirtualDB::ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback)
+	/*ERMsg CCreateVirtualDB::ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback)
 	{
 		ERMsg msg;
 
 		string str = Get(VARIABLES);
-		std::bitset< HOURLY_DATA::NB_VAR_ALL> variables = GetVariables(str);
+		GribVariable variables = GetVariables(str);
 
 		CSfcDatasetCached sfcDS;
 		sfcDS.set_variables(variables);
@@ -327,7 +373,7 @@ namespace WBSF
 		}
 
 		return msg;
-	}
+	}*/
 	//ERMsg CCreateVirtualDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
 	//{
 	//	ERMsg msg;

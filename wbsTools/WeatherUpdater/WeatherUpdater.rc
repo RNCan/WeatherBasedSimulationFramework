@@ -136,7 +136,7 @@ BEGIN
     BUTTON      ID_TASK_EC_RADAR
     BUTTON      ID_TASK_EC_PRCP_RADAR
     SEPARATOR
-	BUTTON      ID_TASK_RTMA
+    BUTTON      ID_TASK_RTMA
     BUTTON      ID_TASK_HIRESW
     SEPARATOR
     BUTTON      ID_TASK_RAP
@@ -205,7 +205,7 @@ BEGIN
     BUTTON      ID_TASK_MISCELLANEOUS
     BUTTON      ID_TASK_EC_RADAR
     BUTTON      ID_TASK_EC_PRCP_RADAR
-	BUTTON      ID_TASK_RTMA
+    BUTTON      ID_TASK_RTMA
     BUTTON      ID_TASK_HIRESW
     BUTTON      ID_TASK_RAP
     BUTTON      ID_TASK_NAM
@@ -244,8 +244,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,7,0,0
- PRODUCTVERSION 5,7,0,0
+ FILEVERSION 5,7,1,0
+ PRODUCTVERSION 5,7,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -262,21 +262,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.7.0.0"
+            VALUE "FileVersion", "5.7.1.0"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.7.0.0"
+            VALUE "ProductVersion", "5.7.1.0"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.7.0.0"
+            VALUE "FileVersion", "5.7.1.0"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.7.0.0"
+            VALUE "ProductVersion", "5.7.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -663,17 +663,16 @@ END
 
 STRINGTABLE
 BEGIN
-    
-	IDS_HRDPS_VAR_SFC	"Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
-	IDS_HRDPS_VAR_TGL	"Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
-	IDS_HRDPS_VAR_ISBL	"Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
-	IDS_HRDPS_VAR_ISBY	"Geopotential height"
-	IDS_HRDPS_VAR_ETAL	"Convective Available Potential Energy|Storm relative helicity"
-	IDS_HRDPS_VAR_EATM	"Cloud water"
-	IDS_HRDPS_VAR_MSL	"Pressure reduced to MSL"
-	IDS_HRDPS_VAR_DBLY	"Soil temperature W"
-	IDS_HRDPS_VAR_DBLL	"Soil temperature L|Soil temperature W"
-	IDS_HRDPS_VAR_NTAT  "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
+    IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
+    IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
+    IDS_HRDPS_VAR_ISBY      "Geopotential height"
+    IDS_HRDPS_VAR_ETAL      "Convective Available Potential Energy|Storm relative helicity"
+    IDS_HRDPS_VAR_EATM      "Cloud water"
+    IDS_HRDPS_VAR_MSL       "Pressure reduced to MSL"
+    IDS_HRDPS_VAR_DBLY      "Soil temperature W"
+    IDS_HRDPS_VAR_DBLL      "Soil temperature L|Soil temperature W"
+    IDS_HRDPS_VAR_NTAT      "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
 END
 
 STRINGTABLE
@@ -726,9 +725,7 @@ BEGIN
     IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
-	IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
-	IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
-	
+    IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
     IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares"
@@ -737,6 +734,7 @@ BEGIN
                             "Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
+    IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
     IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
@@ -746,10 +744,10 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale [km]|Puissance"
-    IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
+    IDS_TOOL_CREATE_GRIBS_P "Type de fusion|Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_VIRTUAL_P 
-                            "Fichier Gribs|Fichier de localisations|Fichier de sortie|Variables|Type de sortie|Type d'extraction|Début|Fin|Incrémental"
+                            "Fichier Gribs|Fichier de localisations|Fichier de sortie|Variables|Nb points|Incrémental"
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Type"
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
@@ -798,15 +796,15 @@ BEGIN
     ID_TASK_MISCELLANEOUS   "Télécharger les données de diverse provenances\nMétéo diverse"
     ID_TASK_EC_RADAR        "Télécharger les images radars d'Environnement Canada (format GIF)\nImages radars"
     ID_TASK_EC_PRCP_RADAR   "Télécharger les précipitations ""Analyse à haute résolution déterministe de précipitation"" (HRDPA)\nHRDPA (Précipitations)"
-	ID_TASK_RTMA			"Télécharger les grilles (surface) ""Real-Time and Unrestricted Mesoscale Analysis"" (RTMA/URMA) via NCEP\nRTMA/URMA"
+    ID_TASK_RTMA            "Télécharger les grilles (surface) ""Real-Time and Unrestricted Mesoscale Analysis"" (RTMA/URMA) via NCEP\nRTMA/URMA"
     ID_TASK_HIRESW          "Télécharger les grilles (surface) ""High-Resolution Window"" (HIRESW) via NCEP\nPrévision de surface HIRESW"
     ID_TASK_RAP             "Télécharger les grilles de données ""Rapid Update Cycle (RAP)"" via NOMADS (NOAA)\nGrille 3D RAP"
     ID_TASK_NAM             "Télécharger les grilles de données ""North American Mesoscale Forecast System (NAM)"" via NOMADS (NOAA)\nGrille 3D NAM"
-    ID_TASK_HRDPS           "Télécharger les grilles hautes résolutons HRDPS (Canada)\nGrilles 3D HRDPS (Canada)"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_HRDPS           "Télécharger les grilles hautes résolutons HRDPS (Canada)\nGrilles 3D HRDPS (Canada)"
     ID_TASK_HRRR            "Télécharger les grilles hautes résolutons HRRR (État-Unis)\nGrilles 3D HRRR (États-Unis)"
     ID_TASK_GRIB_FORECAST   "Télécharger les grilles prévisionnelles 3D\nGrilles prévisionnelles 3D"
     ID_TASK_CMIP5           "Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
@@ -1137,17 +1135,16 @@ END
 
 STRINGTABLE
 BEGIN
-	IDS_HRDPS_VAR_SFC	"Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
-	IDS_HRDPS_VAR_TGL	"Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
-	IDS_HRDPS_VAR_ISBL	"Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
-	IDS_HRDPS_VAR_ISBY	"Geopotential height"
-	IDS_HRDPS_VAR_ETAL	"Convective Available Potential Energy|Storm relative helicity"
-	IDS_HRDPS_VAR_EATM	"Cloud water"
-	IDS_HRDPS_VAR_MSL	"Pressure reduced to MSL"
-	IDS_HRDPS_VAR_DBLY	"Soil temperature W"
-	IDS_HRDPS_VAR_DBLL	"Soil temperature L|Soil temperature W"
-	IDS_HRDPS_VAR_NTAT  "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
-
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
+    IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
+    IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
+    IDS_HRDPS_VAR_ISBY      "Geopotential height"
+    IDS_HRDPS_VAR_ETAL      "Convective Available Potential Energy|Storm relative helicity"
+    IDS_HRDPS_VAR_EATM      "Cloud water"
+    IDS_HRDPS_VAR_MSL       "Pressure reduced to MSL"
+    IDS_HRDPS_VAR_DBLY      "Soil temperature W"
+    IDS_HRDPS_VAR_DBLL      "Soil temperature L|Soil temperature W"
+    IDS_HRDPS_VAR_NTAT      "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
 END
 
 STRINGTABLE
@@ -1212,7 +1209,6 @@ BEGIN
     IDS_UPDATER_NEWA_P      "Working directory|Data Type|First year|Last year|States|Update until x days|Update stations list"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
-	IDS_UPDATER_RTMA_P      "Working directory|Product"
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"
     IDS_UPDATER_RAP_P       "Working directory|Souces|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Produit|Server|Show WinSCP (if FTP)"
     IDS_UPDATER_NAM_P       "Working directory|Souces|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
@@ -1222,6 +1218,7 @@ BEGIN
                             "Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
+    IDS_UPDATER_RTMA_P      "Working directory|Product"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
@@ -1231,10 +1228,10 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
-    IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
+    IDS_TOOL_CREATE_GRIBS_P "Merge type|Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_VIRTUAL_P 
-                            "Gribs file|Locations file|Output file|Variables|Output type|Extraction type|Begin|End|Incremental"
+                            "Gribs file|Locations file|Output file|Variables|Nb points|Incremental"
     IDS_TOOL_MERGE_DB_P     "Input file 1|Input file 2|Output file path|Max distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input file 1|Input file 2|Output file|Type"
     IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
@@ -1283,15 +1280,15 @@ BEGIN
     ID_TASK_MISCELLANEOUS   "Download data from miscellaneous sources\nMiscellaneous"
     ID_TASK_EC_RADAR        "Dowload Radar images data from Environment Canada (GIF format)\nRadar Images"
     ID_TASK_EC_PRCP_RADAR   "Download High Resolution Deterministic Precipitation Analysis (HRDPA) from Environment Canada\nHRDPA (Precipitation)"
-	ID_TASK_RTMA			"Download Real Time and Unrestricted Mesoscale Analysis (RTMA/URMA) via NCEP\nRTMA/URMA Grid"
-	ID_TASK_HIRESW          "Download High-Resolution Window (HIRESW) via NCEP\nHIRESW forecast Grid"
+    ID_TASK_RTMA            "Download Real Time and Unrestricted Mesoscale Analysis (RTMA/URMA) via NCEP\nRTMA/URMA Grid"
+    ID_TASK_HIRESW          "Download High-Resolution Window (HIRESW) via NCEP\nHIRESW forecast Grid"
     ID_TASK_RAP             "Download Rapid Update Cycle (RAP) 3D grids via NOMADS (NOAA)\nRAP 3D Gribs"
     ID_TASK_NAM             "Download North American Mesoscale Forecast System (NAM) 3D grids via NOMADS (NOAA)\nNAM 3D Gribs"
-    ID_TASK_HRDPS           "Download high resolution HRDPS (Canada) 3D gribs\nHRDPS 3D Gribs"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_HRDPS           "Download high resolution HRDPS (Canada) 3D gribs\nHRDPS 3D Gribs"
     ID_TASK_HRRR            "Download high resolution HRRR (USA) 3D gribs\nHRRR 3D Gribs"
     ID_TASK_GRIB_FORECAST   "Download 3D gribs forecast\n3D Gribs Forecast"
     ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"

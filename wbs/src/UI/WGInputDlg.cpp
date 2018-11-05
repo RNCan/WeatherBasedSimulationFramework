@@ -60,7 +60,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_HOURLY_DBNAME, m_hourlyDBNameCtrl);
 		DDX_Control(pDX, IDC_WG_HOURLY_LINK, m_hourlyLinkCtrl);
 		DDX_Control(pDX, IDC_WG_HOURLY_NB_STATIONS, m_hourlyNbStationsCtrl);
-		DDX_Control(pDX, IDC_WG_GRIBS_NB_POINTS, m_gribsNbPointsCtrl);
+		DDX_Control(pDX, IDC_WG_GRIBS_NB_POINTS, m_gribNbPointsCtrl);
 		
 
 		DDX_Control(pDX, IDC_WG_GRIBS_DBNAME, m_gribsDBNameCtrl);
@@ -330,7 +330,7 @@ namespace WBSF
 			m_gribsDBNameCtrl.EnableWindow(bUseGribs);
 			m_gribsLinkCtrl.EnableWindow(bUseGribs);
 			//m_atSurfaceCtrl.EnableWindow(bUseGribs);
-			m_gribsNbPointsCtrl.EnableWindow(bUseGribs);
+			m_gribNbPointsCtrl.EnableWindow(bUseGribs);
 		}
 	}
 

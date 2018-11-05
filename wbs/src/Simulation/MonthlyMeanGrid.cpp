@@ -306,7 +306,7 @@ namespace WBSF
 		CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
 
 		int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
-		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
+		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts); 
 
 		std::vector<double> d;
 		for (size_t i = 0; i < pts.size(); i++)

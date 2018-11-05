@@ -3,6 +3,7 @@
 #include "Basic/FileStamp.h"
 #include "Basic/CSV.h"
 #include "Basic/WeatherStation.h"
+#include "Geomatic/SfcGribsDatabase.h"
 #include "UI/Common/SYShowMessage.h"
 
 
@@ -779,7 +780,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIRapidUpdateCycle::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CUIRapidUpdateCycle::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -799,7 +800,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(fileList[i]);
 				if (p.IsInside(TRef))
-					gribsList[TRef] = fileList[i];
+					gribsList[TRef].push_back(fileList[i]);
 			}
 		}
 

@@ -8,6 +8,7 @@
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
 #include "HRDPS.h"
+#include "Geomatic/SfcGribsDatabase.h"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -498,7 +499,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGribForecast::GetGribsList(CTPeriod p, std::map<CTRef, std::string>& gribsList, CCallback& callback)
+	ERMsg CUIGribForecast::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -543,7 +544,7 @@ namespace WBSF
 						{
 							CTRef TRef = GetTRef(source, fileList[i]);
 							if (p.IsInside(TRef))
-								gribsList[TRef] = fileList[i];
+								gribsList[TRef].push_back(fileList[i]);
 						}
 					}
 				}

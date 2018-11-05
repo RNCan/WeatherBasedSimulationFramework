@@ -3,6 +3,7 @@
 #include "TaskBase.h"
 #include "basic/weatherStation.h"
 #include "basic/FileStamp.h"
+#include "Geomatic/SfcGribsDatabase.h"
 
 namespace WBSF
 {
@@ -13,9 +14,9 @@ namespace WBSF
 	{
 	public:
 
-		enum TExtraction { E_AT_LOCATION, E_NEREST, E_4NEAREST, NB_EXTRACTIONS_TYPES };
+		enum TNbPoints { E_AT_LOCATION=0};
 		enum TOutput{ OT_HOURLY, OT_DAILY, NB_OUTPUT_TYPES };
-		enum TATTRIBUTE { INPUT_FILEPATH, LOCATIONS_FILEPATH, OUTPUT_FILEPATH, VARIABLES, OUTPUT_TYPE, EXTRACTION_TYPE, FIRST_YEAR, LAST_YEAR, INCREMENTAL, NB_ATTRIBUTES };
+		enum TATTRIBUTE { INPUT_FILEPATH, LOCATIONS_FILEPATH, OUTPUT_FILEPATH, VARIABLES, NB_POINTS, INCREMENTAL, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CCreateVirtualDB); }
 
@@ -37,7 +38,8 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
-		ERMsg ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback);
+		//ERMsg ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback);
+		static GribVariables GetVariables(std::string str);
 
 	protected:
 

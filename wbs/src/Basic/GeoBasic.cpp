@@ -441,7 +441,7 @@ typedef std::pair<double, CGeoPointIndex>	CDistancePoint;
 typedef vector<CDistancePoint> CCDistancePointVector;
 static  bool cmp_less_first (CDistancePoint i, CDistancePoint j) { return i.first < j.first; }
 
-void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointVector& ptArray)
+void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointVector& ptArray)const
 {
 	ptArray.clear();
 
@@ -456,13 +456,13 @@ void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoP
 }
 
 
-void CGeoExtents::GetNearestCellPosition(const CGeoPointIndex& xy, int nbPoint, CGeoPointIndexVector& ptArray)
+void CGeoExtents::GetNearestCellPosition(const CGeoPointIndex& xy, int nbPoint, CGeoPointIndexVector& ptArray)const
 {
 	CGeoPoint pt = XYPosToCoord(xy);//, true
 	GetNearestCellPosition(pt, nbPoint, ptArray);
 }
 
-void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointIndexVector& ptArray)
+void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoPointIndexVector& ptArray)const
 {
     ASSERT( nbPoint > 0);
 	ASSERT(IsInside(pt));

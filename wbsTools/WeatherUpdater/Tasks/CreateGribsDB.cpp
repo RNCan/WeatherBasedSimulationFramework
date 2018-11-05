@@ -6,6 +6,9 @@
 #include "../resource.h"
 #include "boost\dynamic_bitset.hpp"
 #include "WeatherBasedSimulationString.h"
+#include "Geomatic/SfcGribsDatabase.h"
+
+
 
 using namespace std; 
 
@@ -13,8 +16,8 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
-	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
+	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Type", "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
+	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_INDEX, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
 	const UINT CCreateGribsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
 	const UINT CCreateGribsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
 
@@ -37,6 +40,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case MERGE_TYPE:str = "Take first available|Take all available"; break;
 		case INPUT1:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
 		case INPUT2:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
 		case INPUT3:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
@@ -56,6 +60,7 @@ namespace WBSF
 
 		switch (i)
 		{
+		case MERGE_TYPE:	str = "0"; break;
 		case FIRST_DATE:	
 		case LAST_DATE:		str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break; //str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString(); break;
 		};
@@ -82,7 +87,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-
+		size_t mergeType = as<size_t>(MERGE_TYPE);
 		string outputFilePath = Get(OUTPUT);
 		if (outputFilePath.empty())
 		{
@@ -106,9 +111,11 @@ namespace WBSF
 			return msg;
 		}
 
-		boost::dynamic_bitset<size_t> presence(p.size());
-		std::map<CTRef, std::string> gribsList;
-		
+		//boost::dynamic_bitset<size_t> presence(p.size());
+		//set<CTRef> presence;
+		//array<std::map<CTRef, std::string>, 6> gribsList;
+		size_t nbGrib = 0;
+		CGribsMap gribs;
 
 		msg = RemoveFile(outputFilePath);
 
@@ -118,24 +125,9 @@ namespace WBSF
 				nbTask++;
 
 		callback.PushTask("Gather gribs list (" +ToString(nbTask) + " sources)", nbTask);
-		//Get forecast if any
-		for (int i = 2; i >= 0&&msg; i--)
-		{
-			if (!Get(FORECAST1+i).empty())
-			{
-				CTaskPtr pForecastTask;
-				pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST1 + i));
-				if (pForecastTask)
-					msg = pForecastTask->GetGribsList(p, gribsList, callback);
-				else
-					msg.ajoute(FormatMsg(IDS_TASK_NOT_EXIST, Get(FORECAST1 + i)));
-
-				msg += callback.StepIt();
-			}
-		}
-			
-
-		for (int i = 2; i >= 0&&msg; i--)
+	
+	//get all 
+		for (int i = 0; i < 6 && msg; i++)
 		{
 			if (!Get(INPUT1 + i).empty())
 			{
@@ -145,7 +137,18 @@ namespace WBSF
 				if (pTask.get() != NULL)
 				{
 					ASSERT(pTask->IsGribs());
+					CGribsMap gribsList;
 					msg = pTask->GetGribsList(p, gribsList, callback);
+					for (CGribsMap::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
+					{
+						bool already = gribs.find(it->first) != gribs.end();
+						if (!already || mergeType == ALL_AVAIL)
+						{
+							gribs[it->first].insert(gribs[it->first].begin(), it->second.begin(), it->second.end());
+							nbGrib++;
+						}
+						msg += callback.StepIt(0);
+					}
 				}
 				else
 				{
@@ -154,54 +157,66 @@ namespace WBSF
 
 				msg += callback.StepIt();
 			}
-			else
+			/*else
 			{
 				if (i==0)
 					msg.ajoute("Main task must to be defined");
-			}
+			}*/
 		}
 
 		callback.PopTask();
 
-		ofStream file;
-		if (msg)
-			msg = file.open(outputFilePath);
+	//	ofStream file;
+		//if (msg)
+			//msg = file.open(outputFilePath);
 
 		if (msg)
 		{
-			size_t nbGrib = 0;
-			file << "TRef,path" << endl;
-			for (std::map<CTRef, std::string>::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
+			
+			//std::map<CTRef, vector<std::string>> gribs;
+			
+			msg = gribs.save(outputFilePath);
+
+			//size_t nbGrib = 0;
+			//file << "TRef,path" << endl;
+			//for (std::map<CTRef, vector<std::string>::const_iterator it = gribsList[j * 3 + i].begin(); it != gribsList[j * 3 + i].end() && msg; it++)
+			//{
+			//	CTRef TRef = it->first;
+			//	string relativePath = GetRelativePath(basePath, it->second);
+			//	bool already = presence.find(TRef) != presence.end();
+			//	if (!already || mergeType == ALL_AVAIL)
+			//	{
+			//		file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
+			//		nbGrib++;
+			//	}
+
+			//	ASSERT(p.IsInside(TRef));
+			//	size_t pos = TRef - p.Begin();
+
+			//	//Put warning when gribs missing	
+			//	presence.insert(pos);
+
+			//	msg += callback.StepIt(0);
+			//}
+			
+			size_t nbMissing = 0;
+			//for (size_t pos = 0; pos != presence.size() && msg; pos++)
+			for (CTRef TRef = p.Begin(); TRef < now && msg; TRef++)
 			{
-				CTRef TRef = it->first;
-				string relativePath = GetRelativePath(basePath, it->second);
-				file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
-				nbGrib++;
-
-				ASSERT(p.IsInside(TRef));
-				size_t pos = TRef - p.Begin();
-
-				//Put warning when gribs missing	
-				presence.set(pos);
-
-				msg += callback.StepIt(0);
-			}
-
-
-			for (size_t pos = 0; pos != presence.size() && msg; pos++)
-			{
-				CTRef TRef = p.Begin() + pos;
-
-				if (TRef<now && !presence.test(pos))
-					callback.AddMessage("WARNING: " + TRef.GetFormatedString("%Y-%m-%d-%H") + " is missing");
+				//CTRef TRef = p.Begin() + pos;
+				bool alvailable = gribs.find(TRef) != gribs.end();
+				if (!alvailable)
+					nbMissing++;
 
 				msg += callback.StepIt(0);
 			}
 
 			callback.AddMessage("Nb gribs added: " + ToString(nbGrib));
+			if(nbMissing>0)
+				callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " missing image for the period");
 
 
-			file.close();
+//			file.close();
 		}
 		
 		

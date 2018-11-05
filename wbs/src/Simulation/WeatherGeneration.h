@@ -10,9 +10,10 @@
 #pragma once
 
 
-#include "Basic/NormalsDatabase.h"
-#include "Basic/DailyDatabase.h"
-#include "Basic/HourlyDatabase.h"
+//#include "Basic/NormalsDatabase.h"
+//#include "Basic/DailyDatabase.h"
+//#include "Basic/HourlyDatabase.h"
+//#include "Geomatic/SfcGribsDatabase.h"
 #include "Basic/Timer.h"
 #include "ModelBase/ModelInput.h"
 #include "Simulation/Executable.h"
@@ -22,7 +23,8 @@ namespace WBSF
 {
 	class CFileManager;
 	class CWGInput;
-
+	//class CGribsMap;
+	//class CSfvGribsDatabase;
 
 	class CWeatherGeneration : public CExecutable
 	{
@@ -77,10 +79,10 @@ namespace WBSF
 		virtual std::string GetPath(const CFileManager& fileManager)const;
 
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callback = DEFAULT_CALLBACK);
-		virtual int GetNbTask()const{ return 4; }//open daily, open hourly, verify locations and execute
+		virtual int GetNbTask()const{ return 5; }//open daily, open hourly, update gribs, verify locations and execute
 
 		ERMsg GenerateWeather(const CFileManager& fileManager, CNormalsDatabasePtr& normalDB, CDailyDatabasePtr& dailyDB, CHourlyDatabasePtr& hourlyDB,
-			CGribsDatabasePtr& gribsDB, const CWGInput& TGInput, const CLocationVector& locArray, CCallback& callback);
+			CSfcGribDatabasePtr& gribsDB, const CWGInput& TGInput, const CLocationVector& locArray, CCallback& callback);
 
 		virtual ERMsg GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter)const;
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_FLOAT; }
@@ -113,7 +115,7 @@ namespace WBSF
 			const CLocationVector& locArray, CTimer& timerTG, CResult& result, CCallback& callback);
 
 
-		ERMsg UpdateGrib(const CLocationVector& locations);
+		
 		//ca va dans model...
 		//ERMsg CheckTGInput(  const CWGInput& TGInput, const CModel& model)const;
 

@@ -480,6 +480,7 @@ namespace WBSF
 		if (msg && WGInput.UseGribs())
 			msg = fileManager.Gribs().GetFilePath(WGInput.m_gribsDBName, GFilePath);
 
+		
 
 		//open normal database
 		CNormalsDatabasePtr normalDB(new CNormalsDatabase);
@@ -520,12 +521,36 @@ namespace WBSF
 		if (msg)
 			msg = CheckLocationsInDatabase(normalDB, dailyDB, hourlyDB, locations, WGInput, callback);
 
-		//CGribsDatabasePtr pGribsDB;
+		CGribsMap gribs;
+		CSfcGribDatabasePtr pGribDB;
 		if (msg && WGInput.UseGribs())
 		{
-			msg = UpdateGrib(locations);
-			//pGribsDB = make_shared<CGribsDatabase>(WGInput.m_bAtSurfaceOnly);
-			//msg = pGribsDB->Open(GFilePath, callback);
+			msg = gribs.load(GFilePath);
+			if (msg)
+			{
+				pGribDB = make_shared<CSfcGribDatabase>();
+				pGribDB->m_nb_points = WGInput.m_nbGribPoints;
+				pGribDB->m_bIncremental = true;
+				pGribDB->m_variables = CSfcGribDatabase::get_var(WGInput.m_variables);
+
+				std::string GFilePath;
+				if (msg && WGInput.UseGribs())
+					msg = fileManager.Gribs().GetFilePath(WGInput.m_gribsDBName, GFilePath);
+
+				std::string outputPath = GetPath(fileManager);//Generate output path
+				string file_path = GetDBFilePath(outputPath);//Generate DB file path
+				SetFileExtension(file_path, CSfcGribDatabase::DATABASE_EXT);
+				
+				msg = pGribDB->Open(file_path, CSfcGribDatabase::modeEdit, callback, true);
+				if(msg)
+					msg = pGribDB->Update(gribs, locations, callback);
+
+				if (msg)
+					msg = pGribDB->Close(true, callback);
+				
+				if (msg)
+					msg = pGribDB->Open(file_path, CSfcGribDatabase::modeRead, callback, true);
+			}
 		}
 
 
@@ -549,7 +574,7 @@ namespace WBSF
 			}
 
 			//Generate weather
-			msg = GenerateWeather(fileManager, normalDB, dailyDB, hourlyDB, pGribsDB, WGInput, locations, callback);
+			msg = GenerateWeather(fileManager, normalDB, dailyDB, hourlyDB, pGribDB, WGInput, locations, callback);
 		}
 
 
@@ -562,8 +587,8 @@ namespace WBSF
 		if (hourlyDB)
 			hourlyDB->Close();
 
-		if (pGribsDB)
-			msg += pGribsDB->Close(callback);
+		if (pGribDB)
+			msg += pGribDB->Close();
 
 
 		return msg;
@@ -571,7 +596,7 @@ namespace WBSF
 
 
 	ERMsg CWeatherGeneration::GenerateWeather(const CFileManager& fileManager, CNormalsDatabasePtr& normalDB, CDailyDatabasePtr& dailyDB, CHourlyDatabasePtr& hourlyDB,
-		CGribsDatabasePtr& gribsDB, const CWGInput& WGInput, const CLocationVector& locations, CCallback& callback)
+		CSfcGribDatabasePtr& gribsDB, const CWGInput& WGInput, const CLocationVector& locations, CCallback& callback)
 	{
 		ASSERT(!m_internalName.empty());
 
@@ -766,7 +791,7 @@ namespace WBSF
 
 
 		CTimer timer(true);
-		cout << "\nExecuting Clustering Algorithm: Swap\n";
+//		std::cout << "\nExecuting Clustering Algorithm: Swap\n";
 		KMlocalSwap kmSwap(ctrs, term);		// Swap heuristic
 		ctrs = kmSwap.execute();
 
@@ -796,11 +821,6 @@ namespace WBSF
 			locPos[i] = pos[i].second;
 	}
 
-	ERMsg CWeatherGeneration::UpdateGrib(const CLocationVector& locations)
-	{
-
-	}
-	
 
 	void CWeatherGeneration::writeStruc(zen::XmlElement& output)const
 	{

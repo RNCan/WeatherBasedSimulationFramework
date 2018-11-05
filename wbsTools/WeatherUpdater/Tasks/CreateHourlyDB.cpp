@@ -327,7 +327,7 @@ namespace WBSF
 					if (station.HaveData())
 					{
 						ASSERT(!station.m_name.empty());
-						string newName = DB.GetUniqueName(station.m_name);
+						string newName = DB.GetUniqueName(station.m_ID, station.m_name);
 						if (newName != station.m_name)
 						{
 							station.m_name = newName;
