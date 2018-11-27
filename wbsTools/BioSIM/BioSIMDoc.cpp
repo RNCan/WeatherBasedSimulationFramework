@@ -472,15 +472,59 @@ void CBioSIMDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 
 #include "UI/Common/UtilWWW.h"
 #include "json\json11.hpp"
+#include "basic/DailyDatabase.h"
+#include "basic/WeatherStation.h"
+
 using namespace UtilWWW;
 using namespace json11;
+using namespace HOURLY_DATA;
 
 void UpdateQuebec();
 void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 {
 	ERMsg msg;
-	
-	
+
+	//static const TVarH filter[4] = { H_TMIN, H_PRCP, H_RELH, H_WNDS };
+
+	//ofStream out;
+	//out.open("D:/nbStations2.csv");
+	//out << "Année,Température,Température90,Précipitation,Précipitation90,Humidité,Humidité90,Vent,Vent90" << endl;
+
+	//static const char* fp[2] = { "H:/BioSIM_Database/Daily/Canada/Canada 1950-1980.DailyDB","H:/BioSIM_Database/Daily/Canada/Canada 1980-2018.DailyDB" };
+	//for (size_t i = 0; i < 2; i++)
+	//{
+	//	CDailyDatabase DB1;
+	//	DB1.Open(fp[i]);
+
+	//	std::set<int> years = DB1.GetYears();
+	//	for (auto y = years.begin(); y != years.end(); y++)
+	//	{
+	//		out << *y;
+
+
+	//		for (size_t f = 0; f < 4; f++)
+	//		{
+	//			size_t nbSt = 0;
+	//			CSearchResultVector result;
+	//			DB1.GetStationList(result, CWVariables(filter[f]), *y);
+	//			for (size_t s = 0; s < result.size(); s++)
+	//			{
+	//				CWeatherStation station;
+	//				DB1.Get(station, result[s].m_index, *y);
+	//				CWVariablesCounter count = station.GetVariablesCount(true);
+	//				double compl = 100.0*count[filter[f]].first / GetNbDaysPerYear(*y);
+	//				if (compl>= 90)
+	//					nbSt++;
+	//			}
+
+	//			out << "," << result.size() << "," << nbSt;
+	//		}
+
+	//		out << endl;
+	//	}
+	//	DB1.Close();
+	//}
+
 	//UpdateQuebec();
 	//
 	//CShoreCreator::ComputeDistance( "D:\\Layers\\coastlines-generalized-3857\\coastlines_z8.shp", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.NormalsHdr.csv", "D:\\Travaux\\Weather\\Normals\\Canada-USA 1981-2010.WithShoreDistanceVector.csv");

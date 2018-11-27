@@ -17,6 +17,7 @@
 #include "Basic/DailyDatabase.h"
 #include "Basic/HourlyDatabase.h"
 #include "Basic/Shore.h"
+#include "Basic/WeatherDatabaseCreator.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/AdvancedNormalStation.h"
 #include "Simulation/WGInputAnalysis.h"
@@ -45,7 +46,7 @@ namespace WBSF
 	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
 
-	CWeatherDatabase& GetObsDB(CWeatherGenerator& WG){ return WG.GetWGInput().IsHourly() ? (CWeatherDatabase&)(*WG.GetHourlyDB()) : (CWeatherDatabase&)(*WG.GetDailyDB()); }
+	CWeatherDatabase& GetObsDB(CWeatherGenerator& WG) { return WG.GetWGInput().IsHourly() ? (CWeatherDatabase&)(*WG.GetHourlyDB()) : (CWeatherDatabase&)(*WG.GetDailyDB()); }
 
 	ERMsg GetSimulation(CWeatherGenerator& WG, CWeatherStation& simStation, CCallback& callback)
 	{
@@ -204,12 +205,82 @@ namespace WBSF
 
 		ASSERT(m_pParent);
 		const CWeatherGeneration& parent = dynamic_cast<const CWeatherGeneration&>(*m_pParent);
+		CTPeriod completenessPeriod;
+		CLocationVector completenessLocation;
+		//same as weather generator variables
+		if (m_kind == DB_COMPLETENESS && 
+			(filter[LOCATION]|| filter[TIME_REF]))
+		{
+			CWGInput WGInput;
+			msg = parent.GetWGInput(fileManager, WGInput);
 
+			//find daily file apth if any
+
+			if (msg && WGInput.UseDaily())
+			{
+				std::string filePath;
+				msg = fileManager.Daily().GetFilePath(WGInput.m_dailyDBName, filePath);
+
+				CDailyDatabase DB1;
+				if (msg)
+					msg = DB1.Open(filePath);
+
+				if (msg)
+				{
+					//CSearchResultVector result;
+					//DB1.GetStationList(result);
+					completenessLocation.resize(DB1.size());
+					for (size_t i = 0; i < DB1.size(); i++)
+						completenessLocation[i] = DB1[i];
+
+					const set<int>& years = DB1.GetYears();
+					if (!years.empty())
+						completenessPeriod = CTPeriod(*years.begin(), *years.rbegin());
+
+
+					DB1.Close();
+				}
+
+			}
+
+			if (msg && WGInput.UseHourly())
+			{
+				std::string filePath;
+				msg = fileManager.Hourly().GetFilePath(WGInput.m_hourlyDBName, filePath);
+				CHourlyDatabase DB1;
+				if (msg)
+					msg = DB1.Open(filePath);
+
+				if (msg)
+				{
+					/*CSearchResultVector result;
+					DB1.GetStationList(result);
+					completenessLocation.resize(result.size());
+					for (size_t i = 0; i < result.size(); i++)
+						completenessLocation[i] = result[i].m_location;*/
+					completenessLocation.resize(DB1.size());
+					for (size_t i = 0; i < DB1.size(); i++)
+						completenessLocation[i] = DB1[i];
+
+
+					const set<int>& years = DB1.GetYears();
+					if (!years.empty())
+						completenessPeriod = CTPeriod(*years.begin(), *years.rbegin());
+
+					DB1.Close();
+				}
+
+			}
+
+		}
 
 		if (filter[LOCATION])
 		{
-			//same as weather generator variables
-			msg = m_pParent->GetParentInfo(fileManager, info, LOCATION);
+			if (m_kind == DB_COMPLETENESS)
+				info.m_locations = completenessLocation;
+			else
+				msg = m_pParent->GetParentInfo(fileManager, info, LOCATION);
+
 		}
 
 		if (filter[PARAMETER])
@@ -263,7 +334,8 @@ namespace WBSF
 				info.m_parameterset.m_variation.push_back(CParameterVariation("Field", true, CModelInputParameterDef::kMVString));
 
 			}
-			else if (m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == XVALIDATION_OBSERVATIONS || m_kind == MATCH_STATION_OBSERVATIONS)
+			else if (m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == XVALIDATION_OBSERVATIONS ||
+				m_kind == MATCH_STATION_OBSERVATIONS )
 			{
 				//for all variable in the category
 				for (size_t v = 0; v < NB_VAR_H; v++)
@@ -278,7 +350,7 @@ namespace WBSF
 				}
 				info.m_parameterset.m_variation.push_back(CParameterVariation("Variable", true, CModelInputParameterDef::kMVString));
 			}
-			else if (m_kind == LAST_OBSERVATION || m_kind == EXTRACT_NORMALS || m_kind == MISSING_OBSERVATIONS)
+			else if (m_kind == LAST_OBSERVATION || m_kind == EXTRACT_NORMALS || m_kind == MISSING_OBSERVATIONS || m_kind == DB_COMPLETENESS)
 			{
 				info.m_parameterset.push_back(CModelInput());//no input parameters
 			}
@@ -311,12 +383,16 @@ namespace WBSF
 				CTM TM(CTM::MONTHLY, CTM::OVERALL_YEARS);
 				info.m_period = CTPeriod(CTRef(YEAR_NOT_INIT, JANUARY, 0, 0, TM), CTRef(YEAR_NOT_INIT, DECEMBER, 0, 0, TM));
 			}
-			else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS)
+			else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS )
 			{
 				msg += m_pParent->GetParentInfo(fileManager, info, TIME_REF);
 
 				CTM TM(CTM::ANNUAL);
 				info.m_period.Transform(TM);
+			}
+			else if (m_kind == DB_COMPLETENESS)
+			{
+				info.m_period = completenessPeriod;
 			}
 			else
 			{
@@ -328,7 +404,7 @@ namespace WBSF
 		if (filter[VARIABLE])
 		{
 			info.m_variables.clear();
-			
+
 			if (m_kind == MATCH_STATION_NORMALS || m_kind == MATCH_STATION_OBSERVATIONS)
 			{
 				info.m_variables.push_back(CModelOutputVariableDef("Station number", "Station number", "", "Station number"));
@@ -363,7 +439,7 @@ namespace WBSF
 					info.m_variables.push_back(CModelOutputVariableDef(name, title, units, description));
 				}
 			}
-			else if (m_kind == LAST_OBSERVATION || m_kind == MISSING_OBSERVATIONS)
+			else if (m_kind == LAST_OBSERVATION || m_kind == MISSING_OBSERVATIONS || m_kind == DB_COMPLETENESS)
 			{
 				//same as weather generator variables
 				msg += m_pParent->GetParentInfo(fileManager, info, VARIABLE);
@@ -420,6 +496,7 @@ namespace WBSF
 				case KERNEL_VALIDATION:				msg = KernelValidation(fileManager, resultDB, callback); break;
 				case EXTRACT_NORMALS:				msg = ExtractNormal(fileManager, resultDB, callback); break;
 				case MISSING_OBSERVATIONS:			msg = GetNbMissingObservations(fileManager, resultDB, callback); break;
+				case DB_COMPLETENESS:				msg = GetCompleteness(fileManager, resultDB, callback); break;
 				default: ASSERT(false);
 				}
 
@@ -439,7 +516,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		CWGInput WGInput;
 		msg = GetWGInput(fileManager, WGInput);
 
@@ -466,7 +543,7 @@ namespace WBSF
 				if (m_kind == MATCH_STATION_OBSERVATIONS)
 					oFile << "Year,";
 
-				oFile << "MatchNo,StationID,StationName,Latitude,Longitude,Elevation,ShoreDistance,Distance,DeltaElev,DeltaShore,VirtualDistance,Weight" <<endl;
+				oFile << "MatchNo,StationID,StationName,Latitude,Longitude,Elevation,ShoreDistance,Distance,DeltaElev,DeltaShore,VirtualDistance,Weight" << endl;
 			}
 		}
 
@@ -500,16 +577,16 @@ namespace WBSF
 				static const TVarH VARIABLE_FOR_CATEGORY[4] = { H_TAIR, H_PRCP, H_RELH, H_WNDS };
 				bitset<4> category = GetCategory(WGInput.m_variables);
 
-				static const char* CAT_ID[4] = {"T","P","H","W" };
+				static const char* CAT_ID[4] = { "T","P","H","W" };
 				for (size_t c = 0; c < 4; c++)
 				{
 					if (category[c])
 					{
 						TVarH v = GetLeadCategoryVariable(c);
-						
+
 						CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
 						size_t nbStations = WG.GetWGInput().m_nbNormalsStations;
-						
+
 
 						CSearchResultVector searchResultArray;
 						msg += WG.GetNormalDB()->Search(searchResultArray, locations[l], WG.GetWGInput().GetNbNormalsToSearch(), WGInput.m_searchRadius[v], VARIABLE_FOR_CATEGORY[c], -999, true, true, WGInput.m_bUseShore);
@@ -531,7 +608,7 @@ namespace WBSF
 								section[0][1] = searchResultArray[j].m_location.m_lat;
 								section[0][2] = searchResultArray[j].m_location.m_lon;
 								section[0][3] = searchResultArray[j].m_location.m_elev;
-								section[0][4] = searchResultArray[j].m_location.GetShoreDistance()/1000;
+								section[0][4] = searchResultArray[j].m_location.GetShoreDistance() / 1000;
 								section[0][5] = locations[l].GetDistance(searchResultArray[j].m_location, false, false) / 1000;
 								section[0][6] = searchResultArray[j].m_deltaElev;
 								section[0][7] = (locations[l].GetShoreDistance() - searchResultArray[j].m_location.GetShoreDistance()) / 1000;
@@ -544,12 +621,12 @@ namespace WBSF
 								{
 									string line;
 									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%s,", l + 1, locations[l].m_ID.c_str(), locations[l].m_name.c_str(), locations[l].m_lat, locations[l].m_lon, locations[l].m_elev, locations[l].GetShoreDistance() / 1000, CAT_ID[c]);
-									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf", j + 1, searchResultArray[j].m_location.m_ID.c_str(), searchResultArray[j].m_location.m_name.c_str(),section[0][1][MEAN], section[0][2][MEAN], section[0][3][MEAN], section[0][4][MEAN], section[0][5][MEAN], section[0][6][MEAN], section[0][7][MEAN], section[0][8][MEAN], section[0][9][MEAN]);
-									
-									
+									line += FormatA("%d,%s,%s,%.5lf,%.5lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf", j + 1, searchResultArray[j].m_location.m_ID.c_str(), searchResultArray[j].m_location.m_name.c_str(), section[0][1][MEAN], section[0][2][MEAN], section[0][3][MEAN], section[0][4][MEAN], section[0][5][MEAN], section[0][6][MEAN], section[0][7][MEAN], section[0][8][MEAN], section[0][9][MEAN]);
+
+
 									std::replace(line.begin(), line.end(), ',', CTRL.m_listDelimiter);
 									std::replace(line.begin(), line.end(), '.', CTRL.m_decimalDelimiter);
-									
+
 									oFile << line << endl;
 								}
 
@@ -567,7 +644,7 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-						const char* pVarID =  GetVariableAbvr(v);
+						const char* pVarID = GetVariableAbvr(v);
 						CWeatherDatabase& obsDB = GetObsDB(WG);
 						size_t nbYears = WG.GetWGInput().GetNbYears();
 						size_t nbStations = WG.GetWGInput().GetNbObservationToSearch();
@@ -590,7 +667,7 @@ namespace WBSF
 								msg = ERMsg();
 
 
-							
+
 							vector<double> weight = searchResultArray.GetStationWeight(/*true, WEATHER::SHORE_DISTANCE_FACTOR>0*/);
 							for (size_t r = 0; r < searchResultArray.size(); r++)
 							{
@@ -667,8 +744,10 @@ namespace WBSF
 		array < CStatisticXY, NORMALS_DATA::NB_FIELDS> overallStat;
 
 		//limit category to basic variable
-		CWVariables variables = WGInput.m_variables;
-		bitset<4> category = GetCategory(variables);
+		//CWVariables variables = WGInput.m_variables;
+		//bitset<4> category = GetCategory(variables);
+		bitset<4> category = GetCategory(WGInput.m_variables);
+		CWVariables variables = GetCategoryVariables(category);
 
 		callback.PushTask("Kernel Validation", category.count()*locations.size());
 		callback.AddMessage("Nb replications = " + ToString(WG.GetNbReplications()));
@@ -735,7 +814,7 @@ namespace WBSF
 
 
 			//save data 
-			for (size_t f = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
+			for (size_t f = 0, ff = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
 			{
 				if (variables[NORMALS_DATA::F2V(f)])
 				{
@@ -759,7 +838,9 @@ namespace WBSF
 
 					//add only once
 					section[0][S_STAT_R²] = all[STATISTICS[S_STAT_R²]];
-					resultDB.AddSection(section);
+					size_t sectionNo = resultDB.GetSectionNo(l, ff, 0);
+					resultDB.SetSection(sectionNo, section);
+					ff++;
 				}//if selected field
 			}
 		}// for all locations
@@ -825,10 +906,10 @@ namespace WBSF
 
 		//open search to avoir thread problem
 		msg = WGin.GetNormalDB()->OpenSearchOptimization(callback);
-		
 
-	//	for (size_t l = 0; l < locations.size() && msg; l++)
-		//{
+
+		//	for (size_t l = 0; l < locations.size() && msg; l++)
+			//{
 		vector<size_t> locPos;
 		CWeatherGeneration::GetLocationIndexGrid(locations, locPos);
 
@@ -894,7 +975,7 @@ namespace WBSF
 
 
 				//save data 
-				for (size_t f = 0, ff=0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
+				for (size_t f = 0, ff = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
 				{
 					if (variables[NORMALS_DATA::F2V(f)])
 					{
@@ -1091,8 +1172,10 @@ namespace WBSF
 		CStatisticXY overallStat[NORMALS_DATA::NB_FIELDS];
 
 		//limit category to basic variable
-		CWVariables variables = WGInput.m_variables;
-		bitset<4> category = GetCategory(variables);
+		//CWVariables variables = WGInput.m_variables;
+		//bitset<4> category = GetCategory(variables);
+		bitset<4> category = GetCategory(WGInput.m_variables);
+		CWVariables variables = GetCategoryVariables(category);
 
 		callback.PushTask("Estimate of gradients error for normals", category.count()*locations.size());
 		//callback.SetNbStep(category.count()*locations.size());
@@ -1536,8 +1619,7 @@ namespace WBSF
 		CWVariables variables = WG.GetWGInput().m_variables;
 
 		callback.PushTask("Getting number of obsevations", locations.size());
-		//callback.SetNbStep(locations.size());
-
+		
 		for (size_t l = 0; l < locations.size() && msg; l++)
 		{
 			WG.SetTarget(locations[l]);
@@ -1575,6 +1657,86 @@ namespace WBSF
 		return msg;
 	}
 
+
+	ERMsg CWGInputAnalysis::GetCompleteness(const CFileManager& fileManager, CResult& resultDB, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CWGInput WGInput;
+		msg = GetWGInput(fileManager, WGInput);
+
+		if (msg && WGInput.IsNormals())
+			msg.ajoute("The input weather generation don't use observation");
+
+		if (!msg)
+			return msg;
+
+		callback.AddMessage(FormatMsg(IDS_SIM_CREATE_DATABASE, m_name));
+		callback.AddMessage(resultDB.GetFilePath(), 1);
+
+		CWVariables variables = WGInput.m_variables;
+
+		string DBFilePath;
+
+		if (WGInput.IsHourly())
+			DBFilePath = fileManager.Hourly().GetFilePath(WGInput.m_hourlyDBName);
+		else
+			DBFilePath = fileManager.Daily().GetFilePath(WGInput.m_dailyDBName);
+
+		
+		CWeatherDatabasePtr pWeatherDB = CreateWeatherDatabase(DBFilePath);
+		if (pWeatherDB)
+		{
+			msg = pWeatherDB->Open(DBFilePath, CWeatherDatabase::modeRead, callback, WGInput.m_bSkipVerify);
+			if (msg && !pWeatherDB->GetYears().empty())
+			{
+				callback.PushTask("Completness of obsevations", pWeatherDB->size());
+
+				int begin = *pWeatherDB->GetYears().begin();
+				int end = *pWeatherDB->GetYears().rbegin();
+				size_t nbYears = end - begin + 1;
+
+				for (size_t s = 0; s < pWeatherDB->size(); s++)
+				{
+					CTRef TRef(begin, 0, 0, 0, CTM(CTM::ANNUAL));
+					CNewSectionData section(nbYears, variables.count(), TRef);
+
+					std::set<int> years = pWeatherDB->GetYears(s);
+					for (size_t y = 0; y < nbYears; y++)
+					{
+						int year = begin + int(y);
+						if (years.find(year) != years.end())
+						{
+							CWVariablesCounter count = pWeatherDB->GetWVariablesCounter(s, year);
+
+							for (size_t v = 0, vv = 0; v < NB_VAR_H&&msg; v++)
+							{
+								if (variables[v])
+								{
+									double compl = 100.0*count[v].first / GetNbDaysPerYear(year);
+									section[y][vv++] = compl;
+								}
+
+							}//for all variables
+						}
+						else
+						{
+							for (size_t v = 0; v < section[y].size(); v++)
+								section[y][v] = 0;
+						}
+					}
+
+					resultDB.AddSection(section);
+					msg += callback.StepIt();
+				}//for all stations
+
+				pWeatherDB->Close();
+				callback.PopTask();
+			}//if open
+		}
+
+		return msg;
+	}
 
 
 	ERMsg CWGInputAnalysis::GetWGInput(const CFileManager& fileManager, CWGInput& WGInput)
@@ -1677,7 +1839,7 @@ namespace WBSF
 		out[GetMemberName(KIND)](m_kind);
 		out[GetMemberName(EXPORT_MATCH)](m_bExportMatch);
 		out[GetMemberName(MATCH_NAME)](m_matchName);
-		
+
 	}
 
 	bool CWGInputAnalysis::readStruc(const zen::XmlElement& input)

@@ -111,6 +111,7 @@ namespace WBSF
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
+		bool m_compute_prcp;
 		
 
 		int m_max_hours;

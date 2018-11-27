@@ -37,7 +37,8 @@ namespace WBSF
 			MATCH_STATION_NORMALS, MATCH_STATION_OBSERVATIONS,//, MATCH_STATION_HOURLY, 
 			ESTIMATE_ERROR_NORMALS, ESTIMATE_ERROR_OBSERVATIONS,
 			XVALIDATION_NORMALS, XVALIDATION_OBSERVATIONS,
-			KERNEL_VALIDATION, EXTRACT_NORMALS, MISSING_OBSERVATIONS, LAST_OBSERVATION, NB_KIND
+			KERNEL_VALIDATION, EXTRACT_NORMALS, MISSING_OBSERVATIONS, LAST_OBSERVATION, 
+			DB_COMPLETENESS, NB_KIND
 		};
 
 		enum TMember{
@@ -90,6 +91,7 @@ namespace WBSF
 		ERMsg ExtractNormal(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg GetNbMissingObservations(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg LastObservation(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
+		ERMsg GetCompleteness(const CFileManager& fileManager, CResult& resultDB, CCallback& callback);
 
 
 

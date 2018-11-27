@@ -26,8 +26,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "VariablesSFC", "VariablesTGL", "VariablesISBL", "VariablesOthers",  "TGLHeight", "ISBLLevels" };
-	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT };
+	const char* CUIHRDPS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "VariablesSFC", "VariablesTGL", "VariablesISBL", "VariablesOthers",  "TGLHeight", "ISBLLevels", "ComputeHourlyPrecipitation" };
+	const size_t CUIHRDPS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
 	const UINT CUIHRDPS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRDPS_P; 
 	const UINT CUIHRDPS::DESCRIPTION_TITLE_ID = ID_TASK_HRDPS;
 
@@ -66,12 +66,13 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRDPS\\"; break;
-		case HRDPS_VARS_SFC: str = "PRATE_SFC|PRES_SFC"; break;
+		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
 		case HRDPS_VARS_TGL:str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
 		case HRDPS_VARS_ISBL:str = "----"; break;
 		case HRDPS_VARS_OTHERS:str = "----"; break;
 		case TGL_HEIGHTS:str = "2|10"; break;
 		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
+		case COMPUTE_HOURLY_PRCP: str = "1"; break;
 		};
 
 		return str;
@@ -108,6 +109,9 @@ namespace WBSF
 			HRDPS.m_heights.FromString("2|10|40|80|120"); 
 		if (HRDPS.m_levels.empty())
 			HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
+
+		HRDPS.m_compute_prcp = Get(COMPUTE_HOURLY_PRCP);
+
 
 		msg = HRDPS.Execute(callback);
 

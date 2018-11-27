@@ -222,7 +222,7 @@ namespace WBSF
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
 							//CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
 
-							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && hhh <= m_max_hours) : hhh < 6;
+							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && hhh <= m_max_hours) : hhh < 7;
 							if (bDownload)
 							{
 								CFileInfoVector fileListTmp;
@@ -240,8 +240,9 @@ namespace WBSF
 										{
 											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
+											bool bKeep3 = var == APCP_SFC && hhh == 6;
 
-											if (bKeep1 && bKeep2)
+											if (bKeep1 && bKeep2 && bKeep3)
 											{
 												if (NeedDownload(outputFilePath))
 												{

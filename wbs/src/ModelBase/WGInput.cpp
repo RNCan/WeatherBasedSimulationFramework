@@ -23,7 +23,7 @@ namespace WBSF
 
 	const char* CWGInput::XML_FLAG = "WGInput";
 	const char* CWGInput::MEMBERS_NAME[NB_MEMBERS] = { "Variables", "SourceType", "GenerationType", "NbNormalsYears", "FirstYear", "LastYear", "UseForecast", "UseRadarPrcp", "NormalDBName", "NbNormalsStations",
-		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "UseGribs", "NbGribPoints", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing", "UseShore" };
+		"DailyDBName", "NbDailyStations", "HourlyDBName", "NbHourlyStations", "UseGribs", "GribDBName", "NbGribPoints", "Albedo", "Seed", "AllowedDerivedVariables", "Xvalidation", "SkipVerify", "SearchRadius", "NoFillMissing", "UseShore" };
 
 	//////////////////////////////////////////////////////////////////////
 	// Construction/Destruction

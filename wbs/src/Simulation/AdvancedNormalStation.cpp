@@ -72,8 +72,9 @@ namespace WBSF
 							{
 								switch (v)
 								{
-								case H_TMAX:
 								case H_TMIN:
+								case H_TAIR:
+								case H_TMAX:
 								case H_TDEW:
 								case H_RELH:
 								case H_WNDD:
