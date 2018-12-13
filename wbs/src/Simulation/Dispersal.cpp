@@ -214,7 +214,7 @@ namespace WBSF
 	void CDispersal::GetOutputDefinition(CModelOutputVariableDefVector& outputVar)const
 	{
 		outputVar.clear();
-		ASSERT(NB_ATM_OUTPUT == 34);
+		ASSERT(NB_ATM_OUTPUT == 35);
 		outputVar.push_back(CModelOutputVariableDef("FlightNo", "FlightNo", "", "Flight numero for this moth", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Age", "Age", "[0..1]", "Phisiological age", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of moth", CTM(CTM::ATEMPORAL), 0));
@@ -234,6 +234,7 @@ namespace WBSF
 		outputVar.push_back(CModelOutputVariableDef("U", "U", "km/h", "mean U wind speed", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("V", "V", "km/h", "mean V wind speed", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("W", "W", "km/h", "mean W wind speed", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("Galt", "GroundAltitude", "m", "Ground altitude.", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("MH", "MeanHeight", "m", "Mean flight height.", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("CH", "CurrentHeight", "m", "Current flight height. Begin at 5 meters and end at 0.", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("MDH", "MeanDeltaHeight", "m", "Mean change in height", CTM(CTM::ATEMPORAL), 5));
@@ -616,9 +617,10 @@ namespace WBSF
 									moth.m_Fᴰ = v[I_Fᴰ];
 									moth.m_F = moth.m_Fᴰ;
 									moth.m_location = locations[l];
-									moth.m_newLocation = locations[l];
+									//moth.m_newLocation = locations[l];
 									moth.m_pt = locations[l];
-									moth.m_UTCShift = CTimeZones::GetTimeZone(locations[l]);
+									//moth.m_UTCShift = /*Round(locations[l].m_lon/15)*3600;*/ CTimeZones::GetTimeZone(locations[l]);
+									//moth.m_UTCShift = __int64(locations[l].m_lon/15.0*3600.0);
 
 									if (extents.IsInside(moth.m_pt))
 										world.m_moths.push_back(moth);
@@ -745,6 +747,7 @@ namespace WBSF
 				{
 					msg += world.save_sub_output(TRef, sub_hourly_file, sub_output, callback);
 				}//if sub hourly output
+
 			}//for all valid days
 
 
