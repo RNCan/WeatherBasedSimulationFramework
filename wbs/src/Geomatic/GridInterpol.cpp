@@ -102,8 +102,8 @@ CGridInterpolBasePtr CGridInterpol::CreateNewGridInterpol()const
 		ASSERT( m_inputGrid.IsOpen() );
 
 		CGridInterpolInfo info;
-		info.m_cellSizeX = m_inputGrid->GetRasterXSize();
-		info.m_cellSizeY = m_inputGrid->GetRasterYSize();
+		info.m_cellSizeX = m_inputGrid.GetExtents().XRes();//m_inputGrid->GetRasterXSize();
+		info.m_cellSizeY = m_inputGrid.GetExtents().YRes();//m_inputGrid->GetRasterYSize();
 		info.m_noData =  m_inputGrid.GetNoData(0);
 		info.m_bMulti = m_options.m_bMulti;
 		info.m_nbCPU = m_options.m_CPU;
