@@ -194,6 +194,7 @@ namespace WBSF
 		CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
 
 		size_t nbFilter = variables.count();
+		int current_year = CTRef::GetCurrentTRef().GetYear();
 
 		int nested = omp_get_nested();
 		omp_set_nested(1);
@@ -226,110 +227,113 @@ namespace WBSF
 #pragma omp flush(msg)
 					if (msg)
 					{
-						int year = WGInput.GetFirstYear() + int(y);
-						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
+						int year = i == 0 ? 0: WGInput.GetFirstYear() + int(y);
+						if (year <= current_year)//if not in future
 						{
-							if (variables[v])
+							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 							{
-								double Dmin = DBL_MAX;
-								double Dmax = DBL_MIN;
-								int maxIndex = 0;
-								ERMsg messageTmp;
+								if (variables[v])
+								{
+									double Dmin = DBL_MAX;
+									double Dmax = DBL_MIN;
+									int maxIndex = 0;
+									ERMsg messageTmp;
 
 #pragma omp parallel for num_threads(nbThreadsLoc) shared(msg, messageTmp) 
-								for (__int64 l = 0; l < (__int64)locations.size(); l++)
-								{
-#pragma omp flush(messageTmp)
-									if (messageTmp)
+									for (__int64 l = 0; l < (__int64)locations.size(); l++)
 									{
-										CSearchResultVector results;
-										ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
-										if (messageTmp && !msgTmp)
-										{
-											if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] || 
-												(i == 2 && (v == H_TMIN || v == H_TMAX)) || 
-												(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
-												v == H_PRES)
-											{
-												Dmin = 0;
-												Dmax = 0;
-											}
-											else
-											{
-												messageTmp += msgTmp;
-											}
 #pragma omp flush(messageTmp)
-										}
-
-										if (msgTmp)
+										if (messageTmp)
 										{
-#pragma omp critical(test)
+											CSearchResultVector results;
+											ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
+											if (messageTmp && !msgTmp)
 											{
-
-												Dmin = min(Dmin, results[0].m_distance / 1000);
-												if (results[0].m_distance / 1000 > Dmax)
+												if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] ||
+													(i == 2 && (v == H_TMIN || v == H_TMAX)) ||
+													(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
+													v == H_PRES)
 												{
-													maxIndex = l;
-													Dmax = results[0].m_distance / 1000;
+													Dmin = 0;
+													Dmax = 0;
 												}
+												else
+												{
+													messageTmp += msgTmp;
+												}
+#pragma omp flush(messageTmp)
 											}
 
+											if (msgTmp)
+											{
+#pragma omp critical(test)
+												{
+
+													Dmin = min(Dmin, results[0].m_distance / 1000);
+													if (results[0].m_distance / 1000 > Dmax)
+													{
+														maxIndex = l;
+														Dmax = results[0].m_distance / 1000;
+													}
+												}
+
 
 #pragma omp flush(messageTmp)
-											if (messageTmp)
-												messageTmp += callback.StepIt();
+												if (messageTmp)
+													messageTmp += callback.StepIt();
 #pragma omp flush(messageTmp)
-											//}
+												//}
 
 
+											}
 										}
-									}
-								}//for all locations
-
-								if (messageTmp)
-								{
-									if (locations.size() > 1)
-									{
-										if (Dmin > CTRL.m_maxDistFromLOC)
-										{
-
-											string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
-											if (i > 0)
-												str += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
-
-											if (CTRL.m_bRunEvenFar)
-												callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
-											else
-												messageTmp.ajoute(str);
-										}
-									}
-
+									}//for all locations
 
 									if (messageTmp)
 									{
-										if (Dmax > CTRL.m_maxDistFromPoint)
+										if (locations.size() > 1)
 										{
-											string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
-											if (i > 0)
-												warning += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
+											if (Dmin > CTRL.m_maxDistFromLOC)
+											{
 
-											callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
+												string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
+												if (i > 0)
+													str += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
+
+												if (CTRL.m_bRunEvenFar)
+													callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
+												else
+													messageTmp.ajoute(str);
+											}
+										}
+
+
+										if (messageTmp)
+										{
+											if (Dmax > CTRL.m_maxDistFromPoint)
+											{
+												string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
+												if (i > 0)
+													warning += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
+
+												callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
+											}
 										}
 									}
-								}
-								else
-								{
-									//this variable can be founb by virtual variable
+									else
+									{
+										//this variable can be founb by virtual variable
 
-									//	messageTmp = ERMsg();
-								}
+										//	messageTmp = ERMsg();
+									}
 
-								if (!messageTmp)
-									msg.ajoute(messageTmp);
+									if (!messageTmp)
+										msg.ajoute(messageTmp);
 
-								//msg += callback.StepIt(n);
-							}//if variable
-						}//for all variables
+									//msg += callback.StepIt(n);
+								}//if variable
+							}//for all variables
+						}//if not in future
 					}//if msg
 				}//for all years
 
