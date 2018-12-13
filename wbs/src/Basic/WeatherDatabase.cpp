@@ -2018,7 +2018,7 @@ ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLoc
 
 		if (!m_zop.SearchIsOpen())
 		{
-			assert(omp_get_num_threads() == 1);
+			
 			msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
 			if (!msg)
 				return msg;
