@@ -41,7 +41,7 @@ namespace WBSF
 	typedef std::pair<__int64, __int64> CTimePeriod;
 
 	extern const char ATM_HEADER[];//ATM_W_ASCENT
-	enum TATMOuput{ ATM_FLIGHT, ATM_AGE, ATM_SEX, ATM_A, ATM_M, ATM_EGGS, ATM_G, ATM_F, ATM_STATE, ATM_FLAG, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_MOTH_SPEED, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_LIFTOFF_T, ATM_LANDING_T, ATM_DEFOLIATION, NB_ATM_OUTPUT };
+	enum TATMOuput{ ATM_FLIGHT, ATM_AGE, ATM_SEX, ATM_A, ATM_M, ATM_EGGS, ATM_G, ATM_F, ATM_STATE, ATM_FLAG, ATM_X, ATM_Y, ATM_LAT, ATM_LON, ATM_T, ATM_P, ATM_U, ATM_V, ATM_W, ATM_GROUND_ALT, ATM_MEAN_HEIGHT, ATM_CURRENT_HEIGHT, ATM_DELTA_HEIGHT, ATM_MOTH_SPEED, ATM_W_HORIZONTAL, ATM_W_VERTICAL, ATM_DIRECTION, ATM_DISTANCE, ATM_DISTANCE_FROM_OIRIGINE, ATM_FLIGHT_TIME, ATM_LIFTOFF_TIME, ATM_LANDING_TIME, ATM_LIFTOFF_T, ATM_LANDING_T, ATM_DEFOLIATION, NB_ATM_OUTPUT };
 	typedef CModelStatVectorTemplate<NB_ATM_OUTPUT, ATM_HEADER> ATMOutput;
 	//typedef std::vector<std::vector<std::vector<ATMOutput>>> CATMOutputMatrix;
 	typedef std::vector<ATMOutput> CATMOutputMatrix;
@@ -681,9 +681,8 @@ namespace WBSF
 		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const;
 		std::string get_image_filepath(__int64 UTCWeatherTime)const;
 
-		CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
-		
-		CGeoPointIndex get_xy(const CGeoPoint& pt, __int64 UTCWeatherTime)const;
+		CGeoPoint3DIndex get_ulz(const CGeoPoint3D& pt, __int64 UTCWeatherTime)const;
+		CGeoPointIndex get_ul(const CGeoPoint& pt, __int64 UTCWeatherTime)const;
 		size_t get_level(const CGeoPointIndex& xy, const CGeoPoint3D& pt, __int64 UTCWeatherTime, bool bLow)const;
 		double GetFirstAltitude(const CGeoPointIndex& xy, __int64 UTCWeatherTime)const;
 
@@ -756,11 +755,11 @@ namespace WBSF
 
 		
 		CLocation m_location;	//initial position
-		CLocation m_newLocation;//actual position, z is elevation over sea level
+		//CLocation m_newLocation;//actual position, z is elevation over sea level
 		CGeoPoint3D m_pt;		//same as m_newLocation but with flight height instead of elevation over sea level
 		double m_w_horizontal;	//horizontal flight speed [m/s]
 		double m_w_descent;		//descent flight speed [m/s]
-		__int64 m_liffoff_time;	//UTC liftoff time [s]
+		__int64 m_liftoff_time;	//UTC liftoff time [s]
 		__int64 m_duration;		//maximum flight duration [s]
 		double m_p_exodus;		//probability of exedus in function of hour
 		__int64 m_UTCShift;		//shift between local time and UTC [s]
@@ -780,7 +779,7 @@ namespace WBSF
 		const CGeoPoint3D& get_pt()const{ return m_pt; }
 		CATMVariables get_weather(__int64 UTCWeatherTime, __int64 UTCCurrentTime)const;
 		CGeoDistance3D get_U(const CATMVariables& w, __int64 UTCWeatherTime)const;
-		double get_Uz(__int64 UTCTime, const CATMVariables& w)const;
+		double get_Uz(const CATMVariables& w)const;
 		double get_Tᶠ(double Δv)const;
 
 		static double get_Vᴸ(double A, double M);
@@ -788,6 +787,7 @@ namespace WBSF
 		static double get_Tᴸ(double A, double M);
 		static double get_Tᶠ(double A, double M, double Δv);
 		static double ComputeRate(double T);
+		static double get_Uz(double A, double M, double Tair, double Δv, double α);
 
 		double GetLogTime(size_t i)const{ return m_logTime[i]; }
 		double GetLogT(size_t i)const { return m_logT[i]; }
@@ -806,6 +806,7 @@ namespace WBSF
 		bool ForceFirst()const; 
 		bool IsOverWater()const;
 		void KillByWater();
+		double z_AGL()const;
 
 	protected:
 
@@ -862,8 +863,8 @@ namespace WBSF
 		size_t get_time_step()const{ return m_world_param.get_time_step(); }//[s]
 		size_t get_nb_time_step()const{ return m_world_param.get_nb_time_step(); }	//number of timeStep per hour
 		
-		static __int64 get_sunrise(CTRef TRef, const CLocation& loc);
-		static __int64 get_sunset(CTRef TRef, const CLocation& loc);
+		static __int64 get_sunrise(CTRef TRef, const CGeoPoint& loc, double zone);
+		static __int64 get_sunset(CTRef TRef, const CGeoPoint& loc, double zone);
 		CATMVariables get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const { return m_weather.get_weather(pt, UTCWeatherTime, UTCCurrentTime); }
 		
 
@@ -934,6 +935,10 @@ namespace WBSF
 	protected:
 
 		CRandomGenerator m_random;
+
+		//last GetGroundAltitudePoint and value
+		/*CGeoPoint m_last_GGA_pt;
+		double m_last_GGA;*/
 	};
 
 	
