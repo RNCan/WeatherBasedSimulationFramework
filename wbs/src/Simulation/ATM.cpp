@@ -922,7 +922,7 @@ namespace WBSF
 		ASSERT(m_sex == CSBWMothParameters::FEMALE);
 
 		static const double A = -6.4648;
-		static const double B = 1.3260;
+		static const double B = 0.9736;
 		static const double C = 2.1400;
 		static const double D = 1.3050;
 
@@ -955,16 +955,13 @@ namespace WBSF
 		if (m_F - broods < 5.74)//eliminate too small eggs/mass  deposition
 			broods = m_F;
 
+		//update female states
 		m_lastF = m_F;
 		m_F = m_F - broods;
 		ASSERT(m_G > m_F / m_Fᵒ);
 
 		m_G = m_F / m_Fᵒ;
 		ASSERT(m_G >= 0.0 && m_G <= 1.0);
-
-		//**************************************************************
-		//compute new M
-
 
 		m_M = exp(A + B * m_G + C * m_A + D * m_G * m_A)*m_ξ;
 	}
