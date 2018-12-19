@@ -6,7 +6,7 @@
     <EXE>Spruce Budworm Biology.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>
-    <WindowRect>0 0 275 315</WindowRect>
+    <WindowRect>0 0 306 315</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -31,7 +31,7 @@
             <Caption>Females create eggs</Caption>
             <Description>Give the possibility to simulate more than one generation</Description>
             <Type>0</Type>
-            <Rect>35 5 55 275</Rect>
+            <Rect>65 5 85 275</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -43,7 +43,7 @@
             <Caption>Tree species:</Caption>
             <Description>The tree on witch the insect develop</Description>
             <Type>5</Type>
-            <Rect>60 5 80 275</Rect>
+            <Rect>90 5 110 275</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -55,7 +55,7 @@
             <Caption>Last sample date (dd/mm/yyyy):</Caption>
             <Description>The date (dd/mm/yyyy) of the last field observation</Description>
             <Type>3</Type>
-            <Rect>170 10 190 280</Rect>
+            <Rect>200 10 220 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -67,7 +67,7 @@
             <Caption>Observed AI:</Caption>
             <Description>Last field observed average instar</Description>
             <Type>2</Type>
-            <Rect>195 10 215 280</Rect>
+            <Rect>225 10 245 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -79,7 +79,7 @@
             <Caption>Defoliation</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>85 5 110 275</Rect>
+            <Rect>115 5 140 275</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -87,11 +87,23 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
+            <Name>ApplyAdultMortality</Name>
+            <Caption>Apply Adult Mortality</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>35 5 55 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
             <Name>Line1</Name>
             <Caption>Line1</Caption>
             <Description/>
             <Type>9</Type>
-            <Rect>130 5 150 275</Rect>
+            <Rect>150 5 170 275</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>-999</MinValue>
@@ -103,7 +115,7 @@
             <Caption>Fixe Average Instar</Caption>
             <Description/>
             <Type>8</Type>
-            <Rect>150 5 170 155</Rect>
+            <Rect>175 5 195 155</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue>-999</MinValue>

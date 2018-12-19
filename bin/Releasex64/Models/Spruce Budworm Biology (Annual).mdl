@@ -86,6 +86,18 @@
             <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
+		<InputVariable>
+            <Name>ApplyAdultMortality</Name>
+            <Caption>Apply Adult Mortality</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>35 5 55 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
         <InputVariable>
             <Name>Line1</Name>
             <Caption>Line1</Caption>
