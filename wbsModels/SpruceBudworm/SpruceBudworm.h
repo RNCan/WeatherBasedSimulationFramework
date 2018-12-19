@@ -117,6 +117,7 @@ namespace WBSF
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];
 		static const double POTENTIAL_FECONDITY;
 		static double GetEnergyLost(double T);
+		//static const bool ALWAYSE_APPLY_ADULT_ATTRITION;
 	};
 
 	class CSBWTree : public CHost
@@ -161,6 +162,7 @@ namespace WBSF
 
 		//global variables of all bugs
 		bool m_bApplyAttrition;
+		bool m_bApplyAdultAttrition;
 		bool m_bFertilEgg;
 		bool m_bStopL22; //stop to L22 stage to get accumulation
 		double m_defoliation; //defoliation [%]
@@ -170,6 +172,7 @@ namespace WBSF
 			m_equations(pModel->RandomGenerator())
 		{
 			m_bApplyAttrition = true;
+			m_bApplyAdultAttrition = true;
 			m_bFertilEgg = false;
 			m_bStopL22 = false; //stop to L22 stage to get accumulation
 			m_defoliation=0;
@@ -179,7 +182,6 @@ namespace WBSF
 
 	};
 
-	//typedef std::shared_ptr<CSBWStand> CSBWStandPtr;
 
 	//WARNING: cast must be defined here to avoid bug
 	inline CSBWTree* CSpruceBudworm::GetTree(){ return static_cast<CSBWTree*>(m_pHost); }

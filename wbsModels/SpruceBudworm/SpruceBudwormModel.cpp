@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 19/12/2018   3.1.7   Rémi Saint-Amant	Add option of adult attrition
 // 02/05/2018   3.1.6   Rémi Saint-Amant	Compile with VS 2017
 // 04/05/2017   3.1.5   Rémi Saint-Amant	Update with new hourly generation
 // 03/03/2017   3.1.4   Rémi Saint-Amant	Add defoliation parameter
@@ -49,11 +50,12 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "3.1.6 (2018)";
+		NB_INPUT_PARAMETER = 7;
+		VERSION = "3.1.7 (2018)";
 
 		// initialize your variables here (optional)
-		m_bHaveAttrition = true;
+		m_bApplyAttrition = true;
+		m_bApplyAdultAttrition = true;
 		m_fixAI = 0;
 
 		m_treeKind = 0;
@@ -72,13 +74,15 @@ namespace WBSF
 
 		int c = 0;
 
-		m_bHaveAttrition = parameters[c++].GetBool();
+		m_bApplyAttrition = parameters[c++].GetBool();
 		m_bFertility = parameters[c++].GetBool();
 		m_treeKind = parameters[c++].GetInt();
 
 		m_fixDate = parameters[c++].GetTRef();
 		m_fixAI = parameters[c++].GetReal();
 		m_defoliation = parameters[c++].GetReal();
+		m_bApplyAdultAttrition = parameters[c++].GetBool();
+
 
 		return msg;
 	}
@@ -148,7 +152,8 @@ namespace WBSF
 			//Create stand
 			//warning, to not change stand and tree order because insect create used stand defoliation
 			stand.m_bFertilEgg = m_bFertility;
-			stand.m_bApplyAttrition = m_bHaveAttrition;
+			stand.m_bApplyAttrition = m_bApplyAttrition;
+			stand.m_bApplyAdultAttrition = m_bApplyAdultAttrition;
 			stand.m_defoliation = m_defoliation;
 			stand.m_bStopL22 = bStopL22;
 

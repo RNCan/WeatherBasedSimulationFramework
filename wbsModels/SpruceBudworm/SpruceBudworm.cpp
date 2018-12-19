@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 19-12-2018	Rémi Saint-Amant	Add option of adult attrition.
 // 03-08-2018	Rémi Saint-Amant	Remove the reduction factor for defoliation. 
 // 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
 // 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0}
@@ -44,7 +45,7 @@ namespace WBSF
 	static const double MINIMUM_AGE_LIFTOFF[2] = { 0.15, 0 };
 	
 	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
-
+	//const bool CSpruceBudworm::ALWAYSE_APPLY_ADULT_ATTRITION = true;
 
 	//*****************************************************************************
 	// Object creator
@@ -653,12 +654,16 @@ namespace WBSF
 	{
 		bool bDeath = false;
 
-		if ((GetStand()->m_bApplyAttrition && SURVIVAL_RATE[GetStage()] < 1))
+		bool bAdultAttrition = GetStage() == ADULT && GetStand()->m_bApplyAdultAttrition;
+		if (GetStand()->m_bApplyAttrition || bAdultAttrition)
 		{
-			//Computes attrition (probability of survival in a given time step, based on development rate)
-			double probabSurvival = pow(SURVIVAL_RATE[GetStage()], RR);
-			if (RandomGenerator().Randu() > probabSurvival)
-				bDeath = true;
+			if (SURVIVAL_RATE[GetStage()] < 1)
+			{
+				//Computes attrition (probability of survival in a given time step, based on development rate)
+				double probabSurvival = pow(SURVIVAL_RATE[GetStage()], RR);
+				if (RandomGenerator().Randu() > probabSurvival)
+					bDeath = true;
+			}
 		}
 
 		return bDeath;

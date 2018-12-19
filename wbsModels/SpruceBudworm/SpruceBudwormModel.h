@@ -34,7 +34,8 @@ namespace WBSF
 		//double m_surv[10];
 		//double m_P[5];
 
-		bool m_bHaveAttrition;
+		bool m_bApplyAttrition;
+		bool m_bApplyAdultAttrition;
 		bool m_bFertility;
 		short m_treeKind;
 		double m_defoliation;
