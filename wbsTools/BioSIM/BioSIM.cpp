@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
 // 11.5.3 (1.1.3): 23/11/2018 Rémi Saint-Amant	Add completeness in WGInputAnalysis
+//												Add categories in Normals
 //												Able to simulate next year without error
 // 11.5.2 (1.1.2): 24/10/2018 Rémi Saint-Amant	Change mapping interpolation result
 // 11.5.1 (1.1.1): 24/10/2018 Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
