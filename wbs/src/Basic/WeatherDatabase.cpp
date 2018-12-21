@@ -131,6 +131,12 @@ ERMsg CWeatherDatabase::Open(const std::string& filePath, UINT flag, CCallback& 
 
 	ERMsg msg;
 
+	if (flag == modeRead && !FileExists(filePath))
+	{
+		msg.ajoute("Unable to open: " + filePath);
+		return msg;
+	}
+
 	if(IsOpen())
 		Close();
 

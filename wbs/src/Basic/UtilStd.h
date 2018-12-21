@@ -235,22 +235,24 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	inline std::string FormatMsg(PCSTR szFormat, const std::string& v1, const std::string& v2 = "", const std::string& v3 = "", const std::string& v4 = "", const std::string& v5 = "", const std::string& v6 = "", const std::string& v7 = "", const std::string& v8 = "", const std::string& v9 = "")
 	{
-		ASSERT(szFormat && strlen(szFormat)>0);
+		
 		std::string str;
-
-		int nbParams = 1 + (v2.empty() ? 0 : 1) + (v3.empty() ? 0 : 1) + (v4.empty() ? 0 : 1) + (v5.empty() ? 0 : 1) + (v6.empty() ? 0 : 1) + (v7.empty() ? 0 : 1) + (v8.empty() ? 0 : 1) + (v9.empty() ? 0 : 1);
-		switch (nbParams)
+		if (szFormat && strlen(szFormat) > 0)
 		{
-		case 1: str = FormatMsgA(szFormat, v1.c_str()); break;
-		case 2: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str()); break;
-		case 3: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str()); break;
-		case 4: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str()); break;
-		case 5: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str()); break;
-		case 6: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str()); break;
-		case 7: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str()); break;
-		case 8: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str(), v8.c_str()); break;
-		case 9: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str(), v8.c_str(), v9.c_str()); break;
-		default: ASSERT(false);  break;
+			int nbParams = 1 + (v2.empty() ? 0 : 1) + (v3.empty() ? 0 : 1) + (v4.empty() ? 0 : 1) + (v5.empty() ? 0 : 1) + (v6.empty() ? 0 : 1) + (v7.empty() ? 0 : 1) + (v8.empty() ? 0 : 1) + (v9.empty() ? 0 : 1);
+			switch (nbParams)
+			{
+			case 1: str = FormatMsgA(szFormat, v1.c_str()); break;
+			case 2: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str()); break;
+			case 3: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str()); break;
+			case 4: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str()); break;
+			case 5: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str()); break;
+			case 6: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str()); break;
+			case 7: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str()); break;
+			case 8: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str(), v8.c_str()); break;
+			case 9: str = FormatMsgA(szFormat, v1.c_str(), v2.c_str(), v3.c_str(), v4.c_str(), v5.c_str(), v6.c_str(), v7.c_str(), v8.c_str(), v9.c_str()); break;
+			default: ASSERT(false);  break;
+			}
 		}
 
 		return str;

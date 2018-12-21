@@ -145,6 +145,17 @@ namespace WBSF
 
 		size_t F2V(size_t f);
 		size_t V2F(size_t v);
+
+		enum TNormalsCategory{ C_TEMPERATURE, C_PRECIPITATION, C_HUMIDITY, C_WIND, NB_CATEGORIES };
+		size_t GetCategoryV(size_t v);
+		size_t GetCategoryN(size_t f);
+		
+		std::bitset<NB_CATEGORIES> GetCategories(CWVariables variables);
+		CWVariables GetCategoryVariables(size_t c);
+		CWVariables GetCategoryVariables(const std::bitset<NB_CATEGORIES>& category);
+		HOURLY_DATA::TVarH GetCategoryLeadVariable(size_t c);
+		CWVariables GetCategoryLeadVariables(const std::bitset<NB_CATEGORIES>& category);
+		
 	}
 
 

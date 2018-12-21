@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 28-11-2018	Rémi Saint-Amant	Change in NormalsWeith size NBVarH by NB_CATEGORIES
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 // 15-09-2015	Rémi Saint-Amant	Created from old file
 //******************************************************************************
@@ -125,7 +126,7 @@ namespace WBSF
 	CWVariables CNormalsMonth::GetVariables()const
 	{
 		using namespace HOURLY_DATA;
-		static const size_t VARIABLES[NB_FIELDS] = { H_TMIN, H_TMAX, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_PRCP, H_PRCP, H_TDEW, H_RELH, H_RELH, H_WNDS, H_WNDS };
+		static const size_t VARIABLES[NB_FIELDS] = { H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_TAIR, H_PRCP, H_PRCP, H_TDEW, H_TDEW, H_TDEW, H_WNDS, H_WNDS };
 
 		CWVariables vars;
 		for (size_t f = 0; f < NB_FIELDS; f++)
@@ -137,6 +138,10 @@ namespace WBSF
 			vars[H_TMAX] = true;
 		}
 			
+		if (vars[H_TDEW])
+		{
+			vars[H_RELH] = true;
+		}
 
 		return vars;
 	}
@@ -311,7 +316,7 @@ namespace WBSF
 	{
 		CWVariables vars;
 		for (int m = 0; m < 12; m++)
-			vars |= at(m).GetVariables();//c'est un ou ou un et????
+			vars |= at(m).GetVariables();
 
 		return vars;
 	}
@@ -370,13 +375,19 @@ namespace WBSF
 		assert(!m_bAdjusted);
 		assert(!data.m_bAdjusted);
 
+
+
 		if (this != &data)
 		{
+			bitset<NB_CATEGORIES> categories = GetCategories(variables);
+
 			for (size_t m = 0; m < 12; m++)
 			{
 				for (size_t f = 0; f < NB_FIELDS; f++)
 				{
-					if (variables[F2V(f)])
+					size_t c = GetCategoryN(f);
+					if (categories[c])
+//					if (variables[F2V(f)])
 					{
 						ASSERT(data.at(m).IsValid(f));
 						at(m)[f] = data.at(m)[f];
@@ -451,12 +462,17 @@ namespace WBSF
 		CNormalsData& me = *this;
 
 		//average normals
+
+		bitset<NB_CATEGORIES> categories = GetCategories(variables);
+
+		
 		for (size_t f = 0; f < NB_FIELDS; f++)
 		{
-			size_t v = F2V(f);
-			if (variables[v])
+			size_t c = GetCategoryN(f);
+			//if (variables[v])
+			if (categories[c])
 			{
-				ASSERT(normalVector.size() == weight[v].size());
+				ASSERT(normalVector.size() == weight[c].size());
 				for (size_t m = 0; m < 12; m++)
 				{
 					if (f >= TACF_A1 && f <= TACF_B2)
@@ -472,7 +488,7 @@ namespace WBSF
 							ASSERT(WEATHER::HaveValue(normalVector[i][m][f]));
 							ASSERT(normalVector[i][m].IsValid(f));
 
-							me[m][f] += float(weight[v][i] * normalVector[i][m][f]);
+							me[m][f] += float(weight[c][i] * normalVector[i][m][f]);
 						}
 
 						if (f == PRCP_TT && me[m][f] < 0)
@@ -530,7 +546,7 @@ namespace WBSF
 			}
 			else
 			{
-				msg.ajoute("Bad Normal Database");
+				msg.ajoute("Bad Normals Database");
 			}
 
 		}

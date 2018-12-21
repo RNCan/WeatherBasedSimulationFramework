@@ -46,6 +46,10 @@ namespace WBSF
 	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
 
+	static const char* CAT_ID[4] = { "T", "P", "H", "W" };
+	static const StringVector CAT_TITLE(IDS_SIM_CATEGORY_NAME, ";|");
+
+
 	CWeatherDatabase& GetObsDB(CWeatherGenerator& WG) { return WG.GetWGInput().IsHourly() ? (CWeatherDatabase&)(*WG.GetHourlyDB()) : (CWeatherDatabase&)(*WG.GetDailyDB()); }
 
 	ERMsg GetSimulation(CWeatherGenerator& WG, CWeatherStation& simStation, CCallback& callback)
@@ -74,81 +78,6 @@ namespace WBSF
 
 	}
 
-
-	size_t GetCategory(size_t v)
-	{
-		size_t c = UNKNOWN_POS;
-		switch (NORMALS_DATA::V2F(v))
-		{
-		case NORMALS_DATA::TMIN_MN: c = 0; break;
-		case NORMALS_DATA::TMAX_MN: c = 0; break;
-		case NORMALS_DATA::PRCP_TT: c = 1; break;
-		case NORMALS_DATA::TDEW_MN:
-		case NORMALS_DATA::RELH_MN: c = 2; break;
-		case NORMALS_DATA::WNDS_MN: c = 3; break;
-		case UNKNOWN_POS: break;
-		default: ASSERT(false);
-		}
-
-		return c;
-	}
-
-	std::bitset<4> GetCategory(CWVariables variables)
-	{
-		std::bitset<4> category;
-		for (size_t v = 0; v < NB_VAR_H; v++)
-		{
-			//select this category
-			if (variables[v])
-			{
-				size_t c = GetCategory(v);
-				if (c < category.size())
-					category.set(c);
-			}
-		}
-
-		return category;
-	}
-
-	CWVariables GetCategoryVariables(size_t c)
-	{
-		CWVariables variables;
-		switch (c)
-		{
-		case 0: variables = "TN T TX"; break;
-		case 1: variables = "P"; break;
-		case 2: variables = "TD H"; break;
-		case 3: variables = "WS"; break;
-		default: ASSERT(false);
-		}
-
-		return variables;
-	}
-
-	TVarH GetLeadCategoryVariable(size_t c)
-	{
-		TVarH variable;
-		switch (c)
-		{
-		case 0: variable = H_TAIR; break;
-		case 1: variable = H_PRCP; break;
-		case 2: variable = H_TDEW; break;
-		case 3: variable = H_WNDS; break;
-		default: ASSERT(false);
-		}
-
-		return variable;
-	}
-
-	CWVariables GetCategoryVariables(const std::bitset<4>& category)
-	{
-		CWVariables variables;
-		for (size_t c = 0; c < category.size(); c++)
-			if (category[c])
-				variables |= GetCategoryVariables(c);
-
-		return variables;
-	}
 
 	CWGInputAnalysis::CWGInputAnalysis()
 	{
@@ -208,8 +137,8 @@ namespace WBSF
 		CTPeriod completenessPeriod;
 		CLocationVector completenessLocation;
 		//same as weather generator variables
-		if (m_kind == DB_COMPLETENESS && 
-			(filter[LOCATION]|| filter[TIME_REF]))
+		if (m_kind == DB_COMPLETENESS &&
+			(filter[LOCATION] || filter[TIME_REF]))
 		{
 			CWGInput WGInput;
 			msg = parent.GetWGInput(fileManager, WGInput);
@@ -296,17 +225,16 @@ namespace WBSF
 			if (m_kind == MATCH_STATION_NORMALS)
 			{
 				//get standardized normal variables
-				static const char* CAT_NAME[4] = { "T", "P", "H", "W" };
-				StringVector catTitle(IDS_SIM_CATEGORY_NAME, ";|");
-				bitset<4> category = GetCategory(WGInput.m_variables);
-				for (size_t c = 0; c < 4; c++)
+
+				bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
+				for (size_t c = 0; c < NB_CATEGORIES; c++)
 				{
-					if (category[c])
+					if (categories[c])
 					{
 						CModelInput modelInput;
 
-						modelInput.SetName(CAT_NAME[c]);
-						modelInput.push_back(CModelInputParam(CAT_NAME[c], catTitle[c]));
+						modelInput.SetName(CAT_ID[c]);
+						modelInput.push_back(CModelInputParam(CAT_ID[c], CAT_TITLE[c]));
 						info.m_parameterset.push_back(modelInput);
 					}
 				}
@@ -316,8 +244,8 @@ namespace WBSF
 			else if (m_kind == KERNEL_VALIDATION || m_kind == XVALIDATION_NORMALS || m_kind == ESTIMATE_ERROR_NORMALS)
 			{
 				//get standardized normal variables
-				bitset<4> category = GetCategory(WGInput.m_variables);
-				CWVariables variables = GetCategoryVariables(category);
+				bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
+				CWVariables variables = GetCategoryVariables(categories);
 
 				//for all variable in the category
 				for (size_t f = 0; f < NORMALS_DATA::NB_FIELDS; f++)
@@ -335,9 +263,9 @@ namespace WBSF
 
 			}
 			else if (m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == XVALIDATION_OBSERVATIONS ||
-				m_kind == MATCH_STATION_OBSERVATIONS )
+				m_kind == MATCH_STATION_OBSERVATIONS)
 			{
-				//for all variable in the category
+				//for all variable in the categories
 				for (size_t v = 0; v < NB_VAR_H; v++)
 				{
 					if (WGInput.m_variables[v])
@@ -383,7 +311,7 @@ namespace WBSF
 				CTM TM(CTM::MONTHLY, CTM::OVERALL_YEARS);
 				info.m_period = CTPeriod(CTRef(YEAR_NOT_INIT, JANUARY, 0, 0, TM), CTRef(YEAR_NOT_INIT, DECEMBER, 0, 0, TM));
 			}
-			else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS )
+			else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS)
 			{
 				msg += m_pParent->GetParentInfo(fileManager, info, TIME_REF);
 
@@ -575,14 +503,14 @@ namespace WBSF
 			if (m_kind == MATCH_STATION_NORMALS)
 			{
 				static const TVarH VARIABLE_FOR_CATEGORY[4] = { H_TAIR, H_PRCP, H_RELH, H_WNDS };
-				bitset<4> category = GetCategory(WGInput.m_variables);
+				bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
 
-				static const char* CAT_ID[4] = { "T","P","H","W" };
-				for (size_t c = 0; c < 4; c++)
+				//static const char* CAT_ID[4] = { "T","P","H","W" };
+				for (size_t c = 0; c < NB_CATEGORIES; c++)
 				{
-					if (category[c])
+					if (categories[c])
 					{
-						TVarH v = GetLeadCategoryVariable(c);
+						TVarH v = GetCategoryLeadVariable(c);
 
 						CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
 						size_t nbStations = WG.GetWGInput().m_nbNormalsStations;
@@ -639,7 +567,7 @@ namespace WBSF
 			}
 			else
 			{
-
+				size_t vv = 0;
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 				{
 					if (variables[v])
@@ -701,7 +629,12 @@ namespace WBSF
 
 
 						for (size_t r = 0; r < section.size(); r++)
-							resultDB.AddSection(section[r]);
+						{
+							size_t e = resultDB.GetSectionNo(l, vv, r);
+							resultDB.SetSection(e, section[r]);
+						}
+
+						vv++;
 					}//variables used?
 				}//for all variables
 			}//normals/observations
@@ -731,121 +664,141 @@ namespace WBSF
 			msg.ajoute("The kernel validation can only be done from disaggregation weather generation");
 
 
-		CWeatherGenerator WG;
+		CWeatherGenerator WGin;
 		if (msg)
-			msg = InitDefaultWG(fileManager, WG, callback);
+			msg = InitDefaultWG(fileManager, WGin, callback);
+
 
 		if (!msg)
 			return msg;
 
 
 		const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
+		
 
-		array < CStatisticXY, NORMALS_DATA::NB_FIELDS> overallStat;
+		array < CStatisticXY, NB_FIELDS> overallStat;
 
 		//limit category to basic variable
-		//CWVariables variables = WGInput.m_variables;
-		//bitset<4> category = GetCategory(variables);
-		bitset<4> category = GetCategory(WGInput.m_variables);
-		CWVariables variables = GetCategoryVariables(category);
+		bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
+		CWVariables variables = GetCategoryVariables(categories);
 
-		callback.PushTask("Kernel Validation", category.count()*locations.size());
-		callback.AddMessage("Nb replications = " + ToString(WG.GetNbReplications()));
+		callback.PushTask("Kernel Validation", categories.count()*locations.size());
+		callback.AddMessage("Nb replications = " + ToString(WGin.GetNbReplications()));
 		callback.AddMessage("Nb years = " + ToString(WGInput.GetNbYears()));
-		callback.AddMessage(string("Remove nearest station = ") + (WGInput.m_bXValidation ? "yes" : "no"));//take the same station
+		if (WGInput.m_bXValidation)
+		{
+			callback.AddMessage("WARNING: remove nearest station ignored");
+			WGInput.m_bXValidation = false;
+		}
+
 		if (WGInput.GetNbYears() < 10)
 			callback.AddMessage("WARNING: nb years lesser thant 10");
 
 
 		CStatistic::SetVMiss(VMISS);
 
+		vector<size_t> locPos;
+		CWeatherGeneration::GetLocationIndexGrid(locations, locPos);
 
-		for (size_t l = 0; l < locations.size() && msg; l++)
+#pragma omp parallel for schedule(static, 1) shared(resultDB, msg) 
+		for (__int64 ll = 0; ll < (__int64)locPos.size(); ll++)
 		{
-			vector< array < array < CStatisticXY, NORMALS_DATA::NB_FIELDS>, 12>> stationStat(WG.GetNbReplications());
-			for (size_t c = 0; c < 4 && msg; c++)//for all category
+#pragma omp flush(msg)
+			if (msg)
 			{
-				if (category[c])//if this category is selected
+				size_t l = locPos[ll];
+
+				//for (size_t l = 0; l < locations.size() && msg; l++)
+				//{
+				vector< array < array < CStatisticXY, NB_FIELDS>, 12>> stationStat(WGin.GetNbReplications());
+				for (size_t c = 0; c < NB_CATEGORIES && msg; c++)//for all categories
 				{
-					CWGInput WGInputTmp(WGInput);
-					WGInputTmp.m_variables = GetCategoryVariables(c);
-					WG.SetWGInput(WGInputTmp);
-					TVarH v = GetLeadCategoryVariable(c);
-
-					//fin stations for this variables
-					CSearchResultVector weatherStationsI;
-					msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables, -999, true, true, WGInput.m_bUseShore);
-
-					if (msg && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
+					if (categories[c])//if this categories is selected
 					{
-						CNormalsStation obsStation;
-						WG.GetNormalDB()->Get(obsStation, weatherStationsI[0].m_index);
+						CWeatherGenerator WG = WGin;
+						CWGInput WGInputTmp(WGInput);
+						WGInputTmp.m_variables = GetCategoryVariables(c);
+						WG.SetWGInput(WGInputTmp);
+						TVarH v = GetCategoryLeadVariable(c);
 
-						// init the loc part of WGInput
-						WG.SetTarget(obsStation);
-						msg = WG.Generate(callback);//create data
+						//fin stations for this variables
+						CSearchResultVector weatherStationsI;
+						msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables, -999, true, true, WGInput.m_bUseShore);
 
-						if (msg)
+						if (msg && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 						{
-							for (size_t r = 0; r < WG.GetNbReplications(); r++)
-							{
-								CAdvancedNormalStation simStation;
-								msg = simStation.FromDaily(WG.GetWeather(r), (int)WG.GetWeather(r).GetNbYears());
+							CNormalsStation obsStation;
+							WG.GetNormalDB()->Get(obsStation, weatherStationsI[0].m_index);
 
-								for (size_t f = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
+							// init the loc part of WGInput
+							WG.SetTarget(obsStation);
+							msg = WG.Generate(callback);//create data
+
+							if (msg)
+							{
+								for (size_t r = 0; r < WG.GetNbReplications(); r++)
 								{
-									if (WGInputTmp.m_variables[NORMALS_DATA::F2V(f)])
+									CAdvancedNormalStation simStation;
+									msg = simStation.FromDaily(WG.GetWeather(r), (int)WG.GetWeather(r).GetNbYears());
+
+									for (size_t f = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
 									{
-										for (size_t m = 0; m < 12; m++)
+										if (WGInputTmp.m_variables[NORMALS_DATA::F2V(f)])
 										{
-											stationStat[r][m][f].Add(simStation[m][f], obsStation[m][f]);
-											overallStat[f].Add(simStation[m][f], obsStation[m][f]);
+											for (size_t m = 0; m < 12; m++)
+											{
+												stationStat[r][m][f].Add(simStation[m][f], obsStation[m][f]);
+//#pragma omp critical(SAVE_STATS)
+	//											overallStat[f].Add(simStation[m][f], obsStation[m][f]);
+											}
 										}
 									}
 								}
 							}
-						}
-					}//for nearest weather stations I
-
-					msg += callback.StepIt();
-
-				}//if this category is used
-			}//for all category	
-
-
-			//save data 
-			for (size_t f = 0, ff = 0; f < NORMALS_DATA::NB_FIELDS&&msg; f++)
-			{
-				if (variables[NORMALS_DATA::F2V(f)])
-				{
-					CNewSectionData section(1, S_NB_STAT, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
-
-					CStatisticXY all;
-					for (size_t r = 0; r < WG.GetNbReplications(); r++)
-					{
-						for (size_t m = 0; m < 12; m++)
+						}//for nearest weather stations I
+						else
 						{
-							double obs = stationStat[r][m][f][MEAN_Y];
-							double sim = stationStat[r][m][f][MEAN_X];
-							overallStat[f].Add(sim, obs);
-							all.Add(sim, obs);
-
-							for (size_t s = 0; s < S_NB_STAT; s++)
-								section[0][s] += stationStat[r][m][f][STATISTICS[s]];
-
+							callback.AddMessage("WARNING: " + locations[l].m_name + " is not eligible for kernel validation for category " + CAT_TITLE[c]);
 						}
-					}
 
-					//add only once
-					section[0][S_STAT_R²] = all[STATISTICS[S_STAT_R²]];
-					size_t sectionNo = resultDB.GetSectionNo(l, ff, 0);
-					resultDB.SetSection(sectionNo, section);
-					ff++;
-				}//if selected field
-			}
+						msg += callback.StepIt();
+
+					}//if this category is used
+				}//for all category	
+
+
+				//save data 
+				for (size_t f = 0, ff = 0; f < NB_FIELDS&&msg; f++)
+				{
+					if (variables[F2V(f)])
+					{
+						CNewSectionData section(1, S_NB_STAT, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
+
+						CStatisticXY all;
+						for (size_t r = 0; r < stationStat.size(); r++)
+						{
+							for (size_t m = 0; m < 12; m++)
+							{
+								double obs = stationStat[r][m][f][MEAN_Y];
+								double sim = stationStat[r][m][f][MEAN_X];
+								overallStat[f].Add(sim, obs);
+								all.Add(sim, obs);
+
+								for (size_t s = 0; s < S_NB_STAT; s++)
+									section[0][s] += stationStat[r][m][f][STATISTICS[s]];
+
+							}
+						}
+
+						//add only once
+						section[0][S_STAT_R²] = all[STATISTICS[S_STAT_R²]];
+						size_t sectionNo = resultDB.GetSectionNo(l, ff, 0);
+						resultDB.SetSection(sectionNo, section);
+						ff++;
+					}//if selected field
+				}
+			}//if msg
 		}// for all locations
-
-
 
 		callback.AddMessage("");
 		callback.AddMessage("Overall statistics:");
@@ -898,10 +851,10 @@ namespace WBSF
 		array < CStatisticXY, NORMALS_DATA::NB_FIELDS> overallStat;
 
 		//limit category to basic variable
-		bitset<4> category = GetCategory(WGInput.m_variables);
-		CWVariables variables = GetCategoryVariables(category);
+		bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
+		CWVariables variables = GetCategoryVariables(categories);
 
-		callback.PushTask("Normals X-Validation", category.count()*locations.size());
+		callback.PushTask("Normals X-Validation", categories.count()*locations.size());
 		CStatistic::SetVMiss(VMISS);
 
 		//open search to avoir thread problem
@@ -922,16 +875,16 @@ namespace WBSF
 				size_t l = locPos[ll];
 				array < array < CStatisticXY, NORMALS_DATA::NB_FIELDS>, 12> stationStat;
 
-				for (size_t c = 0; c < 4 && msg; c++)//for all category
+				for (size_t c = 0; c < NB_CATEGORIES && msg; c++)//for all categories
 				{
-					if (category[c])//if this category is selected
+					if (categories[c])//if this category is selected
 					{
 						CWeatherGenerator WG = WGin;
 						CWGInput WGInputTmp(WGInput);
 						WGInputTmp.m_variables = GetCategoryVariables(c);
 						WGInputTmp.m_bXValidation = true;
 						WG.SetWGInput(WGInputTmp);
-						TVarH v = GetLeadCategoryVariable(c);
+						TVarH v = GetCategoryLeadVariable(c);
 
 						//find the nearest station for this variable
 						CSearchResultVector weatherStationsI;
@@ -959,9 +912,9 @@ namespace WBSF
 									{
 										for (size_t m = 0; m < 12; m++)
 										{
+											stationStat[m][f].Add(simStation[m][f], obsStation[m][f]);
 #pragma omp critical(SAVE_STATS)
 											overallStat[f].Add(simStation[m][f], obsStation[m][f]);
-											stationStat[m][f].Add(simStation[m][f], obsStation[m][f]);
 										}
 									}
 								}
@@ -1036,6 +989,10 @@ namespace WBSF
 
 		CWGInput WGInput;
 		msg = GetWGInput(fileManager, WGInput);
+		
+		set<int> years;
+		for (int year = WGInput.GetFirstYear(); year <= WGInput.GetLastYear(); year++)
+			years.insert(year);
 
 
 		if (msg && WGInput.IsNormals())
@@ -1059,8 +1016,13 @@ namespace WBSF
 		CWVariables variables = WGInput.m_variables;
 
 		callback.PushTask("X-Validation of observation", variables.count()*locations.size());
-		//callback.SetNbStep(variables.count()*locations.size());
 		CStatistic::SetVMiss(VMISS);
+
+		if (WGInput.m_bXValidation)
+		{
+			callback.AddMessage("WARNING: remove nearest station ignored");
+			WGInput.m_bXValidation = false;
+		}
 
 
 		for (size_t l = 0; l < locations.size() && msg; l++)
@@ -1068,7 +1030,7 @@ namespace WBSF
 
 			array<CStatisticXY, NB_VAR_H> stationStat;
 
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all category
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all categories
 			{
 				if (variables[v])//if this variable is selected
 				{
@@ -1079,7 +1041,7 @@ namespace WBSF
 					if (!weatherStationsI.empty() && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 					{
 						CWeatherStation obsStation;
-						obsDB.Get(obsStation, weatherStationsI[0].m_index);
+						obsDB.Get(obsStation, weatherStationsI[0].m_index, years);
 
 
 						CWGInput WGInputTmp(WGInput);
@@ -1116,7 +1078,7 @@ namespace WBSF
 
 
 			//save data 
-			for (size_t v = 0; v < NB_VAR_H&&msg; v++)
+			for (size_t v = 0, vv=0; v < NB_VAR_H&&msg; v++)
 			{
 				if (variables[v])
 				{
@@ -1128,7 +1090,9 @@ namespace WBSF
 
 
 					//for all statistics
-					resultDB.AddSection(section);
+					size_t no = resultDB.GetSectionNo(l,vv,0);
+					resultDB.SetSection(no, section);
+					vv++;
 				}//if selected field
 			}
 		}// for all locations
@@ -1173,12 +1137,12 @@ namespace WBSF
 
 		//limit category to basic variable
 		//CWVariables variables = WGInput.m_variables;
-		//bitset<4> category = GetCategory(variables);
-		bitset<4> category = GetCategory(WGInput.m_variables);
-		CWVariables variables = GetCategoryVariables(category);
+		//bitset<NB_CATEGORIES> categories = GetCategory(variables);
+		bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
+		CWVariables variables = GetCategoryVariables(categories);
 
-		callback.PushTask("Estimate of gradients error for normals", category.count()*locations.size());
-		//callback.SetNbStep(category.count()*locations.size());
+		callback.PushTask("Estimate of gradients error for Normals", categories.count()*locations.size());
+		//callback.SetNbStep(categories.count()*locations.size());
 
 
 		CStatistic::SetVMiss(VMISS);
@@ -1188,15 +1152,15 @@ namespace WBSF
 		{
 			array<array<CStatisticXYW, NORMALS_DATA::NB_FIELDS>, 12>  stationStat;
 
-			for (size_t c = 0; c < 4 && msg; c++)//for all category
+			for (size_t c = 0; c < NB_CATEGORIES && msg; c++)//for all categories
 			{
-				if (category[c])//if this category is selected
+				if (categories[c])//if this categories is selected
 				{
 					CWGInput WGInputTmp(WGInput);
 					WGInputTmp.m_variables = GetCategoryVariables(c);
 					WGInputTmp.m_bXValidation = true;
 					WG.SetWGInput(WGInputTmp);
-					TVarH v = GetLeadCategoryVariable(c);
+					TVarH v = GetCategoryLeadVariable(c);
 
 					//fin stations for this variables
 					CSearchResultVector weatherStationsI;
@@ -1619,7 +1583,7 @@ namespace WBSF
 		CWVariables variables = WG.GetWGInput().m_variables;
 
 		callback.PushTask("Getting number of obsevations", locations.size());
-		
+
 		for (size_t l = 0; l < locations.size() && msg; l++)
 		{
 			WG.SetTarget(locations[l]);
@@ -1683,7 +1647,7 @@ namespace WBSF
 		else
 			DBFilePath = fileManager.Daily().GetFilePath(WGInput.m_dailyDBName);
 
-		
+
 		CWeatherDatabasePtr pWeatherDB = CreateWeatherDatabase(DBFilePath);
 		if (pWeatherDB)
 		{

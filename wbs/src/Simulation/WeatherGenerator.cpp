@@ -63,6 +63,7 @@ using namespace std;
 
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::WEATHER;
+using namespace WBSF::NORMALS_DATA;
 namespace WBSF
 {
 
@@ -1427,11 +1428,21 @@ namespace WBSF
 
 		//load wanted variable
 		CWVariables mVariables = m_tgi.GetNormalMandatoryVariables();
-		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-		{
+		bitset<NB_CATEGORIES> categories = GetCategories(mVariables);
+//		CWVariables variables = GetCategoryVariables(category);
+
+		//for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+		//{
 			//if (m_tgi.m_variables[v] )
-			if (mVariables[v])
+			//if (mVariables[v])
+			//{
+		for (size_t c = 0; c < 4 && msg; c++)//for all category
+		{
+			if (categories[c])//if this category is selected
 			{
+				//CWVariables variables = NORMALS_DATA::GetCategoryVariables(c);
+				TVarH v = GetCategoryLeadVariable(c);
+
 				CSearchResultVector results;
 				// find stations with category
 				msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v);

@@ -290,23 +290,30 @@ namespace WBSF
 
 	void CNormalsStationVector::GetWeight(const CLocation& target, CWVariables variables, CNormalWeight& weight, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
-		for (size_t v = 0; v < variables.size(); v++)
+		//for (size_t v = 0; v < variables.size(); v++)
+		//{
+			//if (variables[v])
+			//{
+
+		bitset<NB_CATEGORIES> categories = GetCategories(variables);
+
+		for (size_t c = 0; c < 4; c++)
 		{
-			if (variables[v])
+			if (categories[c])
 			{
-				weight[v].resize(size());
+				weight[c].resize(size());
 
 				double distSum = 0;
 				for (size_t i = 0; i < size(); i++)
 				{
 					double xtemp = at(i).GetXTemp(target, bTakeElevation, bTakeShoreDistance);
-					weight[v][i] = xtemp;
+					weight[c][i] = xtemp;
 					distSum += xtemp;
 				}
 
-				for (int i = 0; i < (int)weight[v].size(); i++)
+				for (int i = 0; i < (int)weight[c].size(); i++)
 				{
-					weight[v][i] /= distSum;
+					weight[c][i] /= distSum;
 				}
 			}
 		}
@@ -323,8 +330,8 @@ namespace WBSF
 
 	void CNormalsStationVector::GetInverseDistanceMean(const CLocation& target, CWVariables variables, CNormalsStation& normalsStation, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
-		if (variables[H_TDEW])
-			variables.set(H_RELH);
+		//if (variables[H_TDEW])
+			//variables.set(H_RELH);
 
 		((CLocation&)normalsStation) = target;
 

@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 28-11-2018	Rémi Saint-Amant	Add of Normals Categories
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 
@@ -220,14 +221,11 @@ namespace WBSF
 			case HOURLY_DATA::H_SNOW:
 			case HOURLY_DATA::H_SNDH:
 			case HOURLY_DATA::H_SWE:  f = PRCP_TT; break;
-	//		case HOURLY_DATA::H_EA:
 			case HOURLY_DATA::H_TDEW: f = TDEW_MN; break;
 			case HOURLY_DATA::H_RELH: f = RELH_MN; break;
 			case HOURLY_DATA::H_WNDS:
 			case HOURLY_DATA::H_WND2: f = WNDS_MN; break;
 			case HOURLY_DATA::H_WNDD:
-		//	case HOURLY_DATA::H_ES:
-//			case HOURLY_DATA::H_VPD:
 			case HOURLY_DATA::H_TAIR:
 			case HOURLY_DATA::H_PRES:
 			case HOURLY_DATA::H_SRAD: break;
@@ -237,6 +235,113 @@ namespace WBSF
 			return f;
 		}
 
+
+		
+
+		size_t GetCategoryV(size_t v)
+		{
+			size_t c = UNKNOWN_POS;
+			switch (v)
+			{
+			case HOURLY_DATA::H_TMIN: 
+			case HOURLY_DATA::H_TAIR:
+			case HOURLY_DATA::H_TMAX: c = C_TEMPERATURE; break;
+			case HOURLY_DATA::H_PRCP:
+			case HOURLY_DATA::H_SNOW:
+			case HOURLY_DATA::H_SNDH:
+			case HOURLY_DATA::H_SWE:  c = C_PRECIPITATION; break;
+			case HOURLY_DATA::H_TDEW: 
+			case HOURLY_DATA::H_RELH: c = C_HUMIDITY; break;
+			case HOURLY_DATA::H_WNDS:
+			case HOURLY_DATA::H_WND2: c = C_WIND; break;
+			case HOURLY_DATA::H_WNDD:
+			case HOURLY_DATA::H_PRES:
+			case HOURLY_DATA::H_SRAD: break;
+			default: ASSERT(false);
+			}
+
+			return c;
+		}
+
+		size_t GetCategoryN(size_t f)
+		{
+			size_t c = UNKNOWN_POS;
+			if (f >= TMIN_MN && f <= TACF_B2)
+				c = C_TEMPERATURE;
+			else if (f >= PRCP_TT && f <= PRCP_SD)
+				c = C_PRECIPITATION;
+			else if (f >= TDEW_MN && f <= RELH_SD)
+				c = C_HUMIDITY;
+			else if (f >= WNDS_MN && f <= WNDS_SD)
+				c = C_WIND;
+
+			return c;
+		}
+		std::bitset<NB_CATEGORIES> GetCategories(CWVariables variables)
+		{
+			std::bitset<NB_CATEGORIES> categories;
+			for (size_t v = 0; v < HOURLY_DATA::NB_VAR_H; v++)
+			{
+				//select this category
+				if (variables[v])
+				{
+					size_t c = GetCategoryV(v);
+					if (c < categories.size())
+						categories.set(c);
+				}
+			}
+
+			return categories;
+		}
+
+		CWVariables GetCategoryVariables(size_t c)
+		{
+			CWVariables variables;
+			switch (c)
+			{
+			case 0: variables = "TN T TX"; break;
+			case 1: variables = "P"; break;
+			case 2: variables = "TD H"; break;
+			case 3: variables = "WS"; break;
+			default: ASSERT(false);
+			}
+
+			return variables;
+		}
+		CWVariables GetCategoryVariables(const std::bitset<NB_CATEGORIES>& categories)
+		{
+			CWVariables variables;
+			for (size_t c = 0; c < categories.size(); c++)
+				if (categories[c])
+					variables |= GetCategoryVariables(c);
+
+			return variables;
+		}
+
+		HOURLY_DATA::TVarH GetCategoryLeadVariable(size_t c)
+		{
+			HOURLY_DATA::TVarH variable;
+			switch (c)
+			{
+			case C_TEMPERATURE: variable = HOURLY_DATA::H_TAIR; break;
+			case C_PRECIPITATION: variable = HOURLY_DATA::H_PRCP; break;
+			case C_HUMIDITY: variable = HOURLY_DATA::H_TDEW; break;
+			case C_WIND: variable = HOURLY_DATA::H_WNDS; break;
+			default: ASSERT(false);
+			}
+
+			return variable;
+		}
+		CWVariables GetCategoryLeadVariables(const std::bitset<NB_CATEGORIES>& categories)
+		{
+			CWVariables variables;
+			for (size_t c = 0; c < categories.size(); c++)
+				if (categories[c])
+					variables.set( GetCategoryLeadVariable(c) );
+
+			return variables;
+		}
+		
 		
 	}
 

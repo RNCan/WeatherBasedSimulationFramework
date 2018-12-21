@@ -13,10 +13,6 @@
 //***************************************************************************
 #pragma once
 
-//#include <boost\array.hpp>
-//#include <boost\container\vector.hpp>
-//#include <vector>
-//#include <array>
 #include "basic/ERMsg.h"
 #include "Basic/WeatherDefine.h"
 
@@ -26,7 +22,7 @@ namespace WBSF
 	//***********************************************************************************
 	//CNormalWeight
 
-	typedef std::array<std::vector<double>, HOURLY_DATA::NB_VAR_H> CNormalWeight;
+	typedef std::array<std::vector<double>, NORMALS_DATA::NB_CATEGORIES> CNormalWeight;
 
 	//***********************************************************************************
 	//CNormalsMonth

@@ -35,6 +35,7 @@ using namespace std;
 using namespace VITALENGINE;
 using namespace WBSF::WEATHER;
 using namespace WBSF::HOURLY_DATA;
+using namespace WBSF::NORMALS_DATA;
 using namespace WBSF::DIMENSION;
 
 
@@ -192,6 +193,7 @@ namespace WBSF
 
 		CWVariables variables = WGInput.m_variables;
 		CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
+		std::bitset<NB_CATEGORIES> categories = GetCategories(variables);
 
 		size_t nbFilter = variables.count();
 		int current_year = CTRef::GetCurrentTRef().GetYear();
@@ -205,9 +207,9 @@ namespace WBSF
 			CWeatherDatabasePtr pDB = NULL;
 			switch (i)
 			{
-			case 0: pDB = pNormalDB; break;
-			case 1: pDB = pDailyDB; break;
-			case 2: pDB = pHourlyDB; break;
+			case 0: pDB = pNormalDB; variables = GetCategoryLeadVariables(categories); break;
+			case 1: pDB = pDailyDB; variables = WGInput.m_variables; break;
+			case 2: pDB = pHourlyDB; variables = WGInput.m_variables; break;
 			default: assert(false);
 			}
 

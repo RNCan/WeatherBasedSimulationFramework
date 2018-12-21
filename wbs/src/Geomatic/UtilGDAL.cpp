@@ -1447,7 +1447,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
 	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be Natural or LandWater. " },
 	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
-	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },
+	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %%F for YYYY-MM-DD. Use %%J for julian day since 1970 and %P for path/row." },
 	{ "-iFactor", 1, "f", false, "Multiplicator for indices that need multiplication to output in integer. 1000 by default." },
 	{"-?",0,"",false, "Print short usage."},
 	{"-??",0,"",false, "Print full usage."},

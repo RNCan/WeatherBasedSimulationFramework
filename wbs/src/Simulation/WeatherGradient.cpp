@@ -67,7 +67,7 @@ namespace WBSF
 	}
 
 
-	size_t CWeatherGradient::GetNbSpaces()const{ return m_bUseShore ? NB_SPACE_EX : NB_SPACE; }
+	size_t CWeatherGradient::GetNbSpaces()const { return m_bUseShore ? NB_SPACE_EX : NB_SPACE; }
 
 
 	const double CWeatherGradient::FACTOR_Z = 1000;
@@ -891,11 +891,11 @@ namespace WBSF
 		ERMsg msg;
 
 		string filePath1 = GetPath(filePath) + GetFileTitle(filePath) + "_info.csv";
-		string filePath2 = GetPath(filePath) + GetFileTitle(filePath) + "_S°.txt"; 
+		string filePath2 = GetPath(filePath) + GetFileTitle(filePath) + "_S°.txt";
 		string filePath3 = GetPath(filePath) + GetFileTitle(filePath) + "_gradient.txt";
 
 		reset_data();
-		
+
 		callback.PushTask("Create Default Gradient", NB_HEMISPHERE*m_variables.count());
 
 		std::array < CGradientVariables, NB_HEMISPHERE> gradient;
@@ -919,7 +919,7 @@ namespace WBSF
 
 					ERMsg msgTmp = m_pNormalDB->GetStationList(results, v, YEAR_NOT_INIT, true, DEFAULT_RECT[e]);
 
-					
+
 
 					if (msgTmp)
 						msgTmp = m_pNormalDB->GenerateLOC(results, CWeatherDatabase::WELL_DISTRIBUTED_STATIONS, min(results.size(), NB_S_MAX[e]), v, YEAR_NOT_INIT, true, true, DEFAULT_RECT[e], callback);
@@ -935,7 +935,7 @@ namespace WBSF
 						GetSᵒ(g, results, Sᵒ[e][g]);
 
 						CLocationVector locations = m_pNormalDB->GetLocations(results);
-						msg += locations.Save(GetPath(filePath) + GetFileTitle(filePath) + "_" + GetHemisphereName(e) + "_" + GetGradientName(g) +".csv");
+						msg += locations.Save(GetPath(filePath) + GetFileTitle(filePath) + "_" + GetHemisphereName(e) + "_" + GetGradientName(g) + ".csv");
 
 					}
 				}
@@ -971,7 +971,7 @@ namespace WBSF
 
 			file1.close();
 		}
-		
+
 		ofStream file2;
 		msg = file2.open(filePath2);
 
@@ -1028,8 +1028,8 @@ namespace WBSF
 								text += ",";
 							text += FormatA("%+08.4lf", gradient[z][g][m][s]);
 						}
-							
-						
+
+
 						text += "},\n";
 					}
 					text += "\t\t},\n";
@@ -1042,7 +1042,7 @@ namespace WBSF
 			file3.close();
 		}
 
-		
+
 		callback.PopTask();
 
 		return msg;
@@ -1061,7 +1061,7 @@ namespace WBSF
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
 			size_t g = V2G(v);
-			if (m_variables[v] && g < NB_GRADIENT )
+			if (m_variables[v] && g < NB_GRADIENT)
 				nbVar++;
 		}
 		callback.PushTask("Create gradient", NB_SCALE_GRADIENT*nbVar, 1);
@@ -1082,7 +1082,7 @@ namespace WBSF
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
 			size_t g = V2G(v);
-			if (m_variables[v] && g < NB_GRADIENT )
+			if (m_variables[v] && g < NB_GRADIENT)
 			{
 				for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
 				{
@@ -1245,6 +1245,25 @@ namespace WBSF
 				msg.ajoute(NEWMAT::Exception::what());
 		}
 
+		/*ofStream out;
+		out.open("C:/temp/testGradient.csv");
+		out << "station,X,Y,Z,S,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12" << endl;
+
+		for (int i = 0; i < (int)results.size() && msg; i++)
+		{
+			out << i;
+			out << "," << M[i][X_GR];
+			out << "," << M[i][Y_GR];
+			out << "," << M[i][Z_GR];
+			out << "," << M[i][S_GR];
+
+			for (size_t m = 0; m < 12; m++)
+				out << "," << V[m][i];
+
+			out << endl;
+		}
+		out.close();*/
+
 		return msg;
 	}
 
@@ -1312,7 +1331,7 @@ namespace WBSF
 				double p = (sin(2 * PI*TRef.GetHour() / 24.0) + 1) / 2;//full Tmin gradient at 6:00 and full Tmax gradient at 18:00
 				assert(p >= 0 && p <= 1);
 
-				correction = cTmin*p + cTmax*(1 - p);
+				correction = cTmin * p + cTmax * (1 - p);
 
 			}
 			else
@@ -1431,7 +1450,7 @@ namespace WBSF
 					station.m_lon,
 					station.m_elev,
 					D
-					);
+				);
 
 
 				const CNormalsData& data = m_pNormalDB->GetData(results[i].m_index);
