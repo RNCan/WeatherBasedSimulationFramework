@@ -240,7 +240,7 @@ namespace WBSF
 										{
 											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
-											bool bKeep3 = var == APCP_SFC && hhh == 6;
+											bool bKeep3 = var == APCP_SFC || hhh < 6;
 
 											if (bKeep1 && bKeep2 && bKeep3)
 											{
@@ -352,6 +352,8 @@ namespace WBSF
 			callback.PopTask();
 		}
 
+		//if (msg && m_compute_prcp)
+			//msg = CreateHourlyPrcp(ouputsPath, callback);
 
 		//now, create .vrt and index file
 		if (msg && m_bCreateVRT)
