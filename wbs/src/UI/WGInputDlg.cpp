@@ -34,7 +34,8 @@ using namespace std;
 
 namespace WBSF
 {
-	CWGInputDlg::CWGInputDlg(CWnd* pParent /*=NULL*/)
+	CWGInputDlg::CWGInputDlg(CWnd* pParent /*=NULL*/):
+		CDialogEx(IDD_WG_INPUT,pParent)
 	{
 		//m_bDefaultModel = true;
 	}
@@ -42,7 +43,7 @@ namespace WBSF
 
 	void CWGInputDlg::DoDataExchange(CDataExchange* pDX)
 	{
-		CDialog::DoDataExchange(pDX);
+		CDialogEx::DoDataExchange(pDX);
 
 
 		DDX_Control(pDX, IDC_WG_VARIABLES, m_variablesCtrl);
@@ -95,7 +96,7 @@ namespace WBSF
 
 
 
-	BEGIN_MESSAGE_MAP(CWGInputDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CWGInputDlg, CDialogEx)
 		ON_CBN_SELCHANGE(IDC_WG_SOURCE_TYPE, &UpdateCtrl)
 		ON_CBN_SELCHANGE(IDC_WG_GENERATION_TYPE, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_WG_USE_GRIBS, &UpdateCtrl)
@@ -114,7 +115,7 @@ namespace WBSF
 
 	BOOL CWGInputDlg::OnInitDialog()
 	{
-		CDialog::OnInitDialog();
+		CDialogEx::OnInitDialog();
 
 		CWaitCursor cursor;
 		FillNormalsDBNameList();
@@ -337,7 +338,7 @@ namespace WBSF
 	
 	BOOL CWGInputDlg::Create(const CModel& model, CWnd* pParentWnd)
 	{
-		BOOL bRep = CDialog::Create(IDD, pParentWnd);
+		BOOL bRep = CDialogEx::Create(IDD, pParentWnd);
 
 		if (bRep)
 		{
@@ -430,7 +431,7 @@ namespace WBSF
 		option.WriteProfilePoint(_T("WGInputDlg"), curRect.TopLeft());
 
 
-		CDialog::OnDestroy();
+		CDialogEx::OnDestroy();
 	}
 
 
@@ -552,7 +553,7 @@ namespace WBSF
 	{
 		m_testToolTips.RelayEvent(pMsg);
 
-		return CDialog::PreTranslateMessage(pMsg);
+		return CDialogEx::PreTranslateMessage(pMsg);
 	}
 
 
@@ -570,6 +571,7 @@ namespace WBSF
 	void CWGInputDlg::OnEnable(BOOL bEnable)
 	{
 		UpdateCtrl(bEnable);
+		GetParent()->EnableWindow(bEnable);
 	}
 
 

@@ -26,8 +26,17 @@ public:
 
 	void SetYears(const std::set<int>& years)
 	{
+		
 		GetEditBox()->GetWindowText(m_strContents);
+		
 		std::string tmp = WBSF::to_string(years, " ");
+		
+		if (!years.empty())
+		{
+			if (*years.rbegin() - *years.begin() == years.size() - 1)
+				tmp = std::to_string(*years.begin()) + "-" + std::to_string(*years.rbegin());
+		}
+
 
 		CString newStr(tmp.c_str());
 		if (newStr != m_strContents)
@@ -44,11 +53,52 @@ public:
 			GetEditBox()->GetWindowText(tmp);
 
 		std::string str = CStringA(tmp);
-		return WBSF::to_object<int, std::set<int>>(str," ");
+		std::set<int> years = WBSF::to_object<int, std::set<int>>(str, " -");
+		if (str.find('-') != std::string::npos)
+		{
+			for (int y = *years.begin(); y <= *years.rbegin(); y++)
+				years.insert(y);
+		}
+
+		return years;
 	}
 	
 };
 
+
+class CMFCToolBarNameButton : public CMFCToolBarEditBoxButton
+{
+public:
+
+	DECLARE_SERIAL(CMFCToolBarNameButton)
+
+	CMFCToolBarNameButton() {}
+	CMFCToolBarNameButton(UINT uiID, UINT uimageID, int iWidth = 0) : CMFCToolBarEditBoxButton(uiID, uimageID, ES_AUTOHSCROLL | ES_WANTRETURN | WS_TABSTOP, iWidth)
+	{
+	}
+
+	void SetFilter(std::string filter)
+	{
+		GetEditBox()->GetWindowText(m_strContents);
+		CString newStr(filter.c_str());
+		if (newStr != m_strContents)
+		{
+			m_strContents = newStr;
+			GetEditBox()->SetWindowText(m_strContents);
+		}
+	}
+
+	std::string GetFilter()
+	{
+		CString tmp;
+		if (GetEditBox())
+			GetEditBox()->GetWindowText(tmp);
+
+		std::string str = CStringA(tmp);
+		return str;
+	}
+
+};
 class CStationsListToolBar : public CMFCToolBar
 {
 public:

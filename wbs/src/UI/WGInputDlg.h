@@ -26,7 +26,7 @@ namespace WBSF
 	/////////////////////////////////////////////////////////////////////////////
 	// CWGInputDlg dialog
 
-	class CWGInputDlg : public CDialog
+	class CWGInputDlg : public CDialogEx
 	{
 		// Construction
 	public:

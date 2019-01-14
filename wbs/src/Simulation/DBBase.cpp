@@ -356,14 +356,14 @@ namespace WBSF
 					{
 						//bad file
 						m_file.close();
-						msg.ajoute("Error: zero size database. The simulation have probably finish before the end of simulation");
+						msg.ajoute("Zero size database. Simulation terminated before completion");
 					}
 				}
 				else
 				{
 					//bad file
 					m_file.close();
-					msg.ajoute("Error: empty database");
+					msg.ajoute("Empty database");
 				}
 			}
 			else
@@ -517,14 +517,14 @@ namespace WBSF
 					{
 						//bad file
 						m_file.close();
-						msg.ajoute("Error: zero size database. The simulation have probably finish before the end of simulation");
+						msg.ajoute("Zero size database. Simulation terminated before completion");
 					}
 				}
 				else
 				{
 					//bad file
 					m_file.close();
-					msg.ajoute("Error: empty database");
+					msg.ajoute("Empty database");
 				}
 			}
 			else

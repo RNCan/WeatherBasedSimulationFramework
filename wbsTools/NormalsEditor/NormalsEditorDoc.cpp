@@ -37,7 +37,9 @@ CNormalsEditorDoc::CNormalsEditorDoc()
 	m_bDataInEdition = false;
 	m_stationIndex = UNKNOWN_POS;
 	m_bExecute = false;
-
+	
+	m_nameFilters = CStringA(options.GetProfileString(_T("NameFilters")));
+	m_filters = CStringA(options.GetProfileString(_T("Filters")));
 }
 
 CNormalsEditorDoc::~CNormalsEditorDoc()
@@ -169,6 +171,10 @@ void CNormalsEditorDoc::OnCloseDocument()
 {
 	//Save setting
 	CAppOption options(_T("Settings"));
+
+	options.WriteProfileString(_T("NameFilters"), CString(m_nameFilters.c_str()));
+	options.WriteProfileString(_T("Filters"), CString(m_filters.to_string().c_str()));
+
 
 	ASSERT(!m_bDataInEdition);
 

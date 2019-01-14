@@ -509,6 +509,7 @@
 #define IDC_MAP_REGIONAL_LIMIT_SD       1248
 #define IDC_MATCH_NAME                  1248
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
+#define IDC_RESET_DEFAULT               1249
 #define IDC_MAP_REGIONAL_LIMIT          1250
 #define IDC_MAP_GLOBAL_LIMIT            1251
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND 1252
@@ -876,7 +877,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1249
+#define _APS_NEXT_CONTROL_VALUE         1250
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

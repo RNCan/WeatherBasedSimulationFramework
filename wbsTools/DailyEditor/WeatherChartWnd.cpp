@@ -210,7 +210,7 @@ void CWeatherChartWnd::OnSaveGraph()
 {
 	CAppOption option;
 
-	CString filter = GetExportImageFilter();
+	CString filter = GetExportImageFilter(); 
 	option.SetCurrentProfile(_T("LastOpenPath"));
 	CString lastDir = option.GetProfileString(_T("ExportImage" ));
 
@@ -240,7 +240,7 @@ void CWeatherChartWnd::OnGraphOptions()
 	CWVariablesCounter variables;
 	variables.fill(1);//emulate full variables
 
-	CChartsProperties dlg;
+	CChartsProperties dlg(false);
 	dlg.m_graphics = CWeatherChartsCtrl::GetCharts(variables, false);
 
 	if (dlg.DoModal()==IDOK)
@@ -270,7 +270,7 @@ void CWeatherChartWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 	{
 	case ID_GRAPH_COPY:				pCmdUI->Enable(bInit&&false); break;
 	case ID_GRAPH_SAVE:				pCmdUI->Enable(bInit ); break;
-	case ID_GRAPH_OPTIONS:			pCmdUI->Enable(true); break;
+	case ID_GRAPH_OPTIONS:			pCmdUI->Enable(bInit); break;
 	case ID_GRAPH_ZOOM:				pCmdUI->Enable(bInit); break;
 	case ID_GRAPH_PERIOD_ENABLED:	pCmdUI->SetCheck(bPeriodEnable);  pCmdUI->Enable(bInit); break;
 	case ID_GRAPH_PERIOD_BEGIN:		pCmdUI->Enable(bInit&&bPeriodEnable); break;

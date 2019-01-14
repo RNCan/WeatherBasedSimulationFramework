@@ -190,7 +190,7 @@ void CNormalsChartWnd::OnGraphOptions()
 	CWVariables variables;
 	variables.set();//emulate full variables
 
-	CChartsProperties dlg;
+	CChartsProperties dlg(false);
 	dlg.m_graphics = CNormalsChartsCtrl::GetCharts(variables);
 
 	if (dlg.DoModal()==IDOK)
@@ -216,7 +216,7 @@ void CNormalsChartWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 	{
 	case ID_GRAPH_COPY:				pCmdUI->Enable(bInit&&false); break;
 	case ID_GRAPH_SAVE:				pCmdUI->Enable(bInit); break;
-	case ID_GRAPH_OPTIONS:			pCmdUI->Enable(true); break;
+	case ID_GRAPH_OPTIONS:			pCmdUI->Enable(bInit); break;
 	//case ID_GRAPH_ZOOM:				pCmdUI->Enable(bInit); break;
 	//case ID_GRAPH_FILTER:			pCmdUI->Enable(bInit); break;
 	}

@@ -137,7 +137,7 @@ namespace WBSF
 		CGraphVector m_graphics;
 
 
-		CChartsProperties(CWnd* pParent = NULL);   // standard constructor
+		CChartsProperties(bool bHourly, CWnd* pParent =NULL);   // standard constructor
 		virtual ~CChartsProperties();
 
 		// Dialog Data
@@ -159,6 +159,10 @@ namespace WBSF
 		afx_msg void AdjustLayout();
 
 
+		afx_msg void OnBnClickedResetDefault();
+	protected:
+
+		bool m_bHourly;
 	};
 
 }

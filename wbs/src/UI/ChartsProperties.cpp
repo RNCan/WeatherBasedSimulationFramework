@@ -37,6 +37,11 @@ namespace WBSF
 		{
 			AddItem(CString(m_graphics[i].m_name.c_str()));
 		}
+
+		//reset series when reset to default is clicked
+		m_seriesListCtrl.SetChartIndex(-1);
+		m_seriesListCtrl.SetChartIndex(GetSelItem());
+
 	}
 
 
@@ -50,7 +55,9 @@ namespace WBSF
 	void CChartsListCtrl::OnAfterAddItem(int iItem)
 	{
 		CVSListBox::OnAfterAddItem(iItem);
-		m_graphics.push_back(CGraph());
+		CGraph g;
+		g.m_name = CStringA(GetItemText(iItem));
+		m_graphics.push_back(g);
 
 		m_seriesListCtrl.SetChartIndex(-1);
 		m_seriesListCtrl.SetChartIndex(iItem);
@@ -132,7 +139,7 @@ namespace WBSF
 		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
 
 		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
-		series.push_back(CGraphSerie());
+		series.push_back(CGraphSerie((LPCSTR)CStringA(GetItemText(iItem))));
 		m_seriesPropertyGridCtrl.Set(m_chartIndex, GetSelItem(), true);
 
 		ASSERT(iItem >= 0 && iItem < series.size());
@@ -154,6 +161,9 @@ namespace WBSF
 		CGraphSerieVector& series = m_graphics[m_chartIndex].m_series;
 		ASSERT(iItem >= 0 && iItem < series.size());
 		ASSERT(m_chartIndex >= 0 && m_chartIndex < m_graphics.size());
+		series[iItem].m_name = CStringA(GetItemText(iItem));
+
+
 
 		CVSListBox::OnAfterRenameItem(iItem);
 	}
@@ -196,92 +206,6 @@ namespace WBSF
 	}
 
 	//*****************************************************************************************************
-
-
-	//class CSymbolProperty : public CStdComboPosProperty
-	//{
-	//public:
-
-	//	//CString GetOptionText(int i){ return CString(CGraphSerie::GetSyboleTypeTitle(i).c_str()); }
-	//	CSymbolProperty(const std::string& strName, size_t index = -1, const std::string& lpszDescr = "", size_t dwData = 0) : CStdComboPosProperty(strName, index, lpszDescr, GetString(IDS_WG_GRAPH_SYMBOL_TYPE), false, dwData)
-	//	{
-	//		m_bAllowEdit = false;
-
-	//		for (int i = -1; i < CGraphSerie::NB_SYMBOL_TYPE; i++)
-	//			AddOption(GetOptionText(i));
-
-	//		AllowEdit(FALSE);
-
-	//		SetOriginalValue(GetOptionText(index));
-	//	}
-
-
-	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-	//	{
-	//		//new CLineStyleCB(;
-	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-	//	}
-
-	//	//int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-	//	//void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	//};
-
-	//class CLineStyleProperty : public CMFCPropertyGridProperty
-	//{
-	//public:
-
-		//CString GetOptionText(int i){ return CString(CGraphSerie::GetLineStyleTitle(i).c_str()); }
-	//	CLineStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-	//	{
-	//		m_bAllowEdit = false;
-
-	//		for (int i = -1; i < CGraphSerie::NB_LINE_STYLE; i++)
-	//			AddOption(GetOptionText(i));
-
-	//		AllowEdit(FALSE);
-
-	//		SetOriginalValue(GetOptionText(index));
-	//	}
-
-
-	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-	//	{
-	//		//new CLineStyleCB(;
-	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-	//	}
-
-	//	int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-	//	void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	//};
-
-
-	//class CFillStyleProperty : public CMFCPropertyGridProperty
-	//{
-	//public:
-
-		//CString GetOptionText(int i){ return CString(CGraphSerie::GetFillStyleTitle(i).c_str()); }
-	//	CFillStyleProperty(const CString& strName, int index = -1, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0) : CMFCPropertyGridProperty(strName, _T(""), lpszDescr, dwData)
-	//	{
-	//		m_bAllowEdit = false;
-
-	//		for (int i = -1; i < CGraphSerie::NB_FILL_STYLE; i++)
-	//			AddOption(GetOptionText(i));
-
-	//		AllowEdit(FALSE);
-
-	//		SetOriginalValue(GetOptionText(index));
-	//	}
-
-
-	//	virtual CComboBox* CreateCombo(CWnd* pWndParent, CRect rect)
-	//	{
-	//		//new CLineStyleCB(;
-	//		return CMFCPropertyGridProperty::CreateCombo(pWndParent, rect);
-	//	}
-
-	//	int GetIndex()const	{ return m_pWndCombo->GetCurSel() - 1; }
-	//	void SetIndex(int index){ CMFCPropertyGridProperty::SetValue(GetOptionText(index)); }
-	//};
 
 	typedef CStdIndexProperty < IDS_WG_GRAPH_SYMBOL_TYPE, true > CSymbolProperty;
 	typedef CStdIndexProperty < IDS_WG_GRAPH_LINE_STYLE, true > CLineStyleProperty;
@@ -631,6 +555,7 @@ namespace WBSF
 		BEGIN_MESSAGE_MAP(CChartsProperties, CDialog)
 			ON_WM_SIZE()
 			ON_WM_DESTROY()
+			ON_BN_CLICKED(IDC_RESET_DEFAULT, &CChartsProperties::OnBnClickedResetDefault)
 		END_MESSAGE_MAP()
 
 		void CChartsProperties::DoDataExchange(CDataExchange* pDX)
@@ -639,7 +564,7 @@ namespace WBSF
 			DDX_Control(pDX, IDC_CHARTS, m_chartsCtrl);
 			DDX_Control(pDX, IDC_SERIES, m_seriesCtrl);
 			DDX_Control(pDX, IDC_SERIES_PROPERTY, m_seriesPropertiesCtrl);
-
+			
 
 			if (!pDX->m_bSaveAndValidate)
 			{
@@ -660,11 +585,12 @@ namespace WBSF
 
 
 
-		CChartsProperties::CChartsProperties(CWnd* pParent /*=NULL*/) :
+		CChartsProperties::CChartsProperties(bool bHourly, CWnd* pParent /*=NULL*/) :
 			CDialog(CChartsProperties::IDD, pParent),
 			m_seriesPropertiesCtrl(m_graphics),
 			m_seriesCtrl(m_graphics, m_seriesPropertiesCtrl),
-			m_chartsCtrl(m_graphics, m_seriesCtrl)
+			m_chartsCtrl(m_graphics, m_seriesCtrl),
+			m_bHourly(bHourly)
 		{
 
 		}
@@ -703,9 +629,16 @@ namespace WBSF
 			rectCancel.left = rectClient.right - MARGE - rectCancel.Width();
 			rectCancel.right = rectClient.right - MARGE;
 
+			CRect rectReset;
+			GetDlgItem(IDC_RESET_DEFAULT)->GetWindowRect(rectReset); ScreenToClient(rectReset);
+			rectReset.left = rectClient.right - MARGE - rectReset.Width();
+			rectReset.right = rectClient.right - MARGE;
+
+			
+
 			CRect rect1;
 			m_chartsCtrl.GetWindowRect(rect1); ScreenToClient(rect1);
-			rect1.bottom = rectClient.bottom - MARGE;
+			rect1.bottom = rectClient.bottom - MARGE; 
 
 			CRect rect2;
 			m_seriesCtrl.GetWindowRect(rect2); ScreenToClient(rect2);
@@ -722,6 +655,7 @@ namespace WBSF
 
 			GetDlgItem(IDOK)->SetWindowPos(NULL, rectOK.left, rectOK.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 			GetDlgItem(IDCANCEL)->SetWindowPos(NULL, rectCancel.left, rectCancel.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+			GetDlgItem(IDC_RESET_DEFAULT)->SetWindowPos(NULL, rectReset.left, rectReset.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 		}
 
 
@@ -736,4 +670,14 @@ namespace WBSF
 			CDialog::OnDestroy();
 		}
 
+}
+
+void WBSF::CChartsProperties::OnBnClickedResetDefault()
+{
+	if (AfxMessageBox(IDS_CMN_ASK_RESET_DEFAULT, MB_YESNO) == IDYES)
+	{
+		m_graphics = GetDefaultWeatherGraphVector(m_bHourly);
+		m_chartsCtrl.FillCharts();
+	}
+	
 }

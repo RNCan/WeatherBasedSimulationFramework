@@ -17,7 +17,7 @@ public:
 	enum TEvent
 	{
 		INIT = 0, STATION_INDEX_CHANGE, LOCATION_CHANGE, OUTPUT_CHANGE, LANGUAGE_CHANGE,
-		STATION_LIST_PROPERTIES_FILTERS_CHANGE, DATA_PROPERTIES_EDITION_MODE_CHANGE,
+		STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE, STATION_LIST_PROPERTIES_FILTERS_CHANGE, DATA_PROPERTIES_EDITION_MODE_CHANGE,
 		PROPERTIES_TM_CHANGE, NB_EVENTS
 	};
 
@@ -35,6 +35,8 @@ public:
 	WBSF::CNormalsDatabasePtr& GetDatabase(){ return m_pDatabase; }
 	bool CancelDataEdition();
 
+	std::string GetNameFilters()const { return m_nameFilters; }
+	void SetNameFilters(std::string in) { if (in != m_nameFilters) { m_nameFilters = in; UpdateAllViews(NULL, STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE); } }
 	WBSF::CWVariables GetFilters()const{ return m_filters; }
 	void SetFilters(WBSF::CWVariables in){ if (in != m_filters){ m_filters = in; UpdateAllViews(NULL, STATION_LIST_PROPERTIES_FILTERS_CHANGE); } }
 	bool GetDataInEdition()const{ return m_bDataInEdition; }
@@ -67,6 +69,7 @@ protected:
 	
 
 	//properties
+	std::string m_nameFilters;
 	WBSF::CWVariables m_filters;
 	bool m_bDataInEdition;
 	std::string m_outputText;

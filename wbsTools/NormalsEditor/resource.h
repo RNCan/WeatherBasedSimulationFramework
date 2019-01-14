@@ -59,7 +59,7 @@
 #define ID_ADD_WEATHER_STATION          32772
 #define ID_SENDTO_SHOWMAP               32773
 #define ID_SENDTO_EXCEL                 32774
-#define ID_STATION_LIST_YEAR            32775
+#define ID_STATION_LIST_NAME			32775
 #define ID_STATION_LIST_FILTER          32776
 #define ID_SHOW_EMPTY                   32785
 #define ID_TABLE_MODE_VISUALISATION     32786

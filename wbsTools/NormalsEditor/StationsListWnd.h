@@ -12,6 +12,42 @@
 class CNormalsEditorDoc;
 
 
+
+class CMFCToolBarNameButton : public CMFCToolBarEditBoxButton
+{
+public:
+
+	DECLARE_SERIAL(CMFCToolBarNameButton)
+
+	CMFCToolBarNameButton() {}
+	CMFCToolBarNameButton(UINT uiID, UINT uimageID, int iWidth = 0) : CMFCToolBarEditBoxButton(uiID, uimageID, ES_AUTOHSCROLL | ES_WANTRETURN | WS_TABSTOP, iWidth)
+	{
+	}
+
+	void SetFilter(std::string filter)
+	{
+		GetEditBox()->GetWindowText(m_strContents);
+		CString newStr(filter.c_str());
+		if (newStr != m_strContents)
+		{
+			m_strContents = newStr;
+			GetEditBox()->SetWindowText(m_strContents);
+		}
+	}
+
+	std::string GetFilter()
+	{
+		CString tmp;
+		if (GetEditBox())
+			GetEditBox()->GetWindowText(tmp);
+
+		std::string str = CStringA(tmp);
+		return str;
+	}
+
+};
+
+//*************************************************************************************************************
 class CStationsListToolBar : public CMFCToolBar
 {
 public:

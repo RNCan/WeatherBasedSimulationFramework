@@ -149,7 +149,7 @@ namespace WBSF
 			for (CGraphSerieVector::iterator it2 = it1->m_series.begin(); it2 != it1->m_series.end();)
 			{
 
-				if (variables[it2->m_variable].first > 0)
+				if (it2->m_variable>=0 && it2->m_variable< variables.size()&&variables[it2->m_variable].first > 0)
 					it2++;
 				else
 					it2 = it1->m_series.erase(it2);

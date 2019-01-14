@@ -369,6 +369,7 @@ void CMainFrame::LoadtBasicCommand()
 	lstBasicCommands.AddTail(ID_SORTING_SORTBYACCESS);
 	lstBasicCommands.AddTail(ID_SORTING_GROUPBYTYPE);
 	lstBasicCommands.AddTail(ID_SENDTO_SHOWMAP);
+	lstBasicCommands.AddTail(ID_STATION_LIST_NAME);
 	lstBasicCommands.AddTail(ID_STATION_LIST_YEAR);
 	lstBasicCommands.AddTail(ID_STATION_LIST_FILTER);
 	lstBasicCommands.AddTail(ID_TABLE_MODE_VISUALISATION);

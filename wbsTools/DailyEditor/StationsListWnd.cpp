@@ -36,6 +36,7 @@ END_MESSAGE_MAP()
 
 
 IMPLEMENT_SERIAL(CMFCToolBarYearsButton, CMFCToolBarEditBoxButton, 1)
+IMPLEMENT_SERIAL(CMFCToolBarNameButton, CMFCToolBarEditBoxButton, 1)
 IMPLEMENT_SERIAL(CStationsListToolBar, CMFCToolBar, 1)
 
 BOOL CStationsListToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& params, BOOL bLocked)
@@ -44,13 +45,23 @@ BOOL CStationsListToolBar::LoadToolBarEx(UINT uiToolbarResID, CMFCToolBarInfo& p
 		return FALSE;
 
 	
-	CMFCToolBarYearsButton yearCtrl(ID_STATION_LIST_YEAR, 3, 150);
-	CMFCToolBarWVariablesButton filterCtrl(ID_STATION_LIST_FILTER, 4, 150);
+	CMFCToolBarNameButton nameCtrl(ID_STATION_LIST_NAME, 3, 150);
+	CMFCToolBarYearsButton yearCtrl(ID_STATION_LIST_YEAR, 4, 100);
+	CMFCToolBarWVariablesButton filterCtrl(ID_STATION_LIST_FILTER, 5, 150);
 
+	
+	ReplaceButton(ID_STATION_LIST_NAME, nameCtrl);
 	ReplaceButton(ID_STATION_LIST_YEAR, yearCtrl);
 	ReplaceButton(ID_STATION_LIST_FILTER, filterCtrl);
 
-	
+	CString txt1 = UtilWin::GetCString(ID_STATION_LIST_NAME);txt1 = txt1.Mid(txt1.Find(_T("\n")) +1);
+	CString txt2 = UtilWin::GetCString(ID_STATION_LIST_YEAR); txt2 = txt2.Mid(txt2.Find(_T("\n")) + 1);
+	CString txt3 = UtilWin::GetCString(ID_STATION_LIST_FILTER); txt3 = txt3.Mid(txt3.Find(_T("\n")) + 1);
+	((CMFCToolBarEditBoxButton*)GetButton(CommandToIndex(ID_STATION_LIST_NAME)))->GetEditBox()->SetCueBanner(txt1);
+	((CMFCToolBarEditBoxButton*)GetButton(CommandToIndex(ID_STATION_LIST_YEAR)))->GetEditBox()->SetCueBanner(txt2);
+	((CMFCToolBarEditBoxButton*)GetButton(CommandToIndex(ID_STATION_LIST_FILTER)))->GetEditBox()->SetCueBanner(txt3);
+
+
 	return TRUE;
 }
 
@@ -120,7 +131,7 @@ BEGIN_MESSAGE_MAP(CStationsListWnd, CDockablePane)
 	ON_WM_SETTINGCHANGE()
 	ON_UPDATE_COMMAND_UI_RANGE(ID_ADD_WEATHER_STATION, ID_STATION_LIST_FILTER, OnUpdateToolbar)
 	ON_COMMAND_RANGE(ID_ADD_WEATHER_STATION, ID_STATION_LIST_FILTER, OnToolbarCommand)
-	ON_CONTROL_RANGE(EN_KILLFOCUS, ID_STATION_LIST_YEAR, ID_STATION_LIST_FILTER, OnToolbarCommand)
+	ON_CONTROL_RANGE(EN_KILLFOCUS, ID_STATION_LIST_NAME, ID_STATION_LIST_FILTER, OnToolbarCommand)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_NB_STATIONS, OnUpdateStatusBar)
 	ON_MESSAGE(CStationsListCtrl::UWM_SELECTION_CHANGE, OnSelectionChange)
 END_MESSAGE_MAP()
@@ -237,6 +248,13 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	ASSERT(pDoc);
 	bEnable = pDoc->GetDatabase()->IsOpen();
 
+	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE)
+	{
+		int index = m_wndToolBar.CommandToIndex(ID_STATION_LIST_NAME);
+		CMFCToolBarNameButton* pCtrl = (CMFCToolBarNameButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
+		pCtrl->SetFilter(pDoc->GetNameFilters());
+	}
+
 	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_YEARS_CHANGE)
 	{
 		int index = m_wndToolBar.CommandToIndex(ID_STATION_LIST_YEAR);
@@ -252,7 +270,9 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	}
 
 
-	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_YEARS_CHANGE ||
+	if (lHint == CDailyEditorDoc::INIT || 
+		lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE ||
+		lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_YEARS_CHANGE ||
 		lHint == CDailyEditorDoc::STATION_LIST_PROPERTIES_FILTERS_CHANGE)
 	{
 		CWeatherDatabasePtr pDB = pDoc->GetDatabase();
@@ -260,6 +280,7 @@ void CStationsListWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 		m_stationsList.m_pDB = pDoc->GetDatabase();
 		m_stationsList.m_initial_index = pDoc->GetCurStationIndex();
+		m_stationsList.m_nameFilters = pDoc->GetNameFilters();
 		m_stationsList.m_years = pDoc->GetYears();
 		m_stationsList.m_filter = pDoc->GetFilters();
 
@@ -297,6 +318,7 @@ void CStationsListWnd::OnUpdateToolbar(CCmdUI *pCmdUI)
 	case ID_ADD_WEATHER_STATION:pCmdUI->Enable(bInit); break;
 	case ID_SENDTO_SHOWMAP:
 	case ID_SENDTO_EXCEL:
+	case ID_STATION_LIST_NAME:
 	case ID_STATION_LIST_YEAR:
 	case ID_STATION_LIST_FILTER:pCmdUI->Enable(bInit); break;
 	default: ASSERT(false);
@@ -355,6 +377,14 @@ void CStationsListWnd::OnToolbarCommand(UINT ID)
 			if (!msg)
 				UtilWin::SYShowMessage(msg, this);
 		}
+		else if (ID == ID_STATION_LIST_NAME)
+		{
+			int index = m_wndToolBar.CommandToIndex(ID);
+			CMFCToolBarNameButton* pCtrl = (CMFCToolBarNameButton*)m_wndToolBar.GetButton(index); ASSERT(pCtrl);
+
+			std::string filter = pCtrl->GetFilter();
+			pDoc->SetNameFilters(filter);
+		}
 		else if (ID == ID_STATION_LIST_YEAR)
 		{
 			int index = m_wndToolBar.CommandToIndex(ID);
@@ -378,6 +408,16 @@ BOOL CStationsListWnd::PreTranslateMessage(MSG* pMsg)
 		//GetKeyState
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN )
 	{
+		int index0 = m_wndToolBar.CommandToIndex(ID_STATION_LIST_NAME);
+		CMFCToolBarNameButton* pCtrl0 = (CMFCToolBarNameButton*)m_wndToolBar.GetButton(index0); ASSERT(pCtrl0);
+		if (pMsg->hwnd == pCtrl0->GetEditBox()->GetSafeHwnd())
+		{
+			// handle return pressed in edit control
+			OnToolbarCommand(ID_STATION_LIST_NAME);
+			return TRUE; // this doesn't need processing anymore
+		}
+
+
 		int index1 = m_wndToolBar.CommandToIndex(ID_STATION_LIST_YEAR);
 		CMFCToolBarYearsButton* pCtrl1 = (CMFCToolBarYearsButton*)m_wndToolBar.GetButton(index1); ASSERT(pCtrl1);
 		if (pMsg->hwnd == pCtrl1->GetEditBox()->GetSafeHwnd())

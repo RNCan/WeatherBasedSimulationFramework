@@ -36,12 +36,11 @@ namespace WBSF
 
 		CWeatherDatabasePtr m_pDB;
 
-
+		std::string		m_nameFilters;
 		std::set<int>	m_years;
 		CWVariables		m_filter;
 		size_t			m_initial_index;
-		//	boost::dynamic_bitset<size_t> m_selection;//specific station selection;
-		//bool			m_bStationModified;
+	
 
 		CStationsListCtrl();
 
@@ -67,15 +66,10 @@ namespace WBSF
 		virtual COLORREF OnGetDefBackColor(int section);
 
 
-
-
-
-		//CWVariables GetVariables(){ return m_variables; }
 		void	SetStationIndex(size_t in);
 		size_t	GetStationIndex()const;
 
 		void SetStationModified(size_t i, bool bModified){ bModified ? m_stationModified.set(i) : m_stationModified.reset(i); }
-		//int RedrawRow(long index);
 		void SetEditionMode(bool bInEdition);
 
 		inline int OtherDir(int dir){ return (dir == UGCT_SORTARROWUP) ? UGCT_SORTARROWDOWN : UGCT_SORTARROWUP; }
@@ -86,7 +80,7 @@ namespace WBSF
 		CPen m_cellBorderPen;
 
 		std::string		m_lastFilePath;
-		//size_t			m_lastStationIndex;
+		std::string		m_lastNameFilters;
 		std::set<int>	m_lastYears;
 		CWVariables		m_lastFilter;
 
@@ -114,11 +108,6 @@ namespace WBSF
 		CLocation			m_location;
 		CSearchResultVector	m_nearest;
 
-		//	size_t	m_nbStations;
-		//int		m_year;
-		//size_t	m_variable;
-		//bool		m_bXVal;
-
 		CMatchStationsCtrl();
 
 
@@ -138,24 +127,17 @@ namespace WBSF
 		virtual void OnCB_LClicked(int updn, RECT *rect, POINT *point, BOOL processed = 0);
 		virtual void OnSH_LClicked(int col, long row, int updn, RECT *rect, POINT *point, BOOL processed = 0);
 
-
 		virtual void OnDClicked(int col, long row, RECT *rect, POINT *point, BOOL processed);
 		virtual void OnSH_DClicked(int col, long row, RECT *rect, POINT *point, BOOL processed = 0);
-
-
-
 
 		virtual void OnColSized(int col, int *width);
 		virtual int OnHint(int col, long row, int section, CString *string);
 		virtual int OnVScrollHint(long row, CString *string);
 		virtual COLORREF OnGetDefBackColor(int section);
 
-		//CWVariables GetVariables(){ return m_variables; }
 		void	SetStationIndex(size_t in);
 		size_t	GetStationIndex()const;
 
-
-		//int RedrawRow(long index);
 		inline int OtherDir(int dir){ return (dir == UGCT_SORTARROWUP) ? UGCT_SORTARROWDOWN : UGCT_SORTARROWUP; }
 
 	protected:
@@ -167,12 +149,7 @@ namespace WBSF
 		std::string		m_lastFilePath;
 		CLocation		m_lastLocation;
 		CSearchResultVector	m_lastNearest;
-		//int				m_lastYear;
-		//size_t			m_lastVariable;
-		//size_t			m_lastNbStations;
-		//std::array<std::vector<double>, HOURLY_DATA::NB_VAR_H> m_weight;
 		std::vector<double> m_shoreD;
-		//std::vector<double> m_deltaShore;
 		std::vector<double> m_weight;
 
 		void CreateBoldFont();

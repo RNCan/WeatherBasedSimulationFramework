@@ -366,7 +366,7 @@ void CMainFrame::LoadtBasicCommand()
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_WINDOWS_7);
 	lstBasicCommands.AddTail(ID_SENDTO_SHOWMAP);
-	lstBasicCommands.AddTail(ID_STATION_LIST_YEAR);
+	lstBasicCommands.AddTail(ID_STATION_LIST_NAME);
 	lstBasicCommands.AddTail(ID_STATION_LIST_FILTER);
 	lstBasicCommands.AddTail(ID_TABLE_MODE_VISUALISATION);
 	lstBasicCommands.AddTail(ID_TABLE_MODE_EDITION);

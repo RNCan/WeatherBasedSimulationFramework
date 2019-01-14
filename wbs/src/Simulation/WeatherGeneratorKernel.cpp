@@ -185,30 +185,33 @@ namespace WBSF
 		//relative humidity part
 		if (m_variables[H_TDEW] || m_variables[H_RELH])
 		{
-			//ASSERT(m_variables[H_RELH] && m_variables[H_TDEW]);
-			ASSERT(m_normals.GetVariables()[H_RELH]);
-
-			for (size_t m = 0; m < 12; m++)
+			//if there is no humidity, they will be complete later in the process
+			//ASSERT(m_normals.GetVariables()[H_RELH]);
+			if (m_normals.GetVariables()[H_RELH])
 			{
-				double mean = m_normals[m][RELH_MN] / 100;
-				double variance = Square(m_normals[m][RELH_SD] / 100);
 
-				double alpha = mean    *((mean*(1 - mean) / variance) - 1);
-				double beta = (1 - mean)*((mean*(1 - mean) / variance) - 1);
-
-				for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
+				for (size_t m = 0; m < 12; m++)
 				{
-					_ASSERTE(dailyData[m][d][H_TMIN].IsInit());
-					_ASSERTE(dailyData[m][d][H_TMAX].IsInit());
+					double mean = m_normals[m][RELH_MN] / 100;
+					double variance = Square(m_normals[m][RELH_SD] / 100);
 
-					//NOTE: old beta distribution have a biasis of 1%, the new don't, RSA 28/07/2012
-					double Hr = m_rand.RandBeta(alpha, beta) * 100;
-					ASSERT(Hr >= 0 && Hr <= 100);
-					double Tmean = (dailyData[m][d][H_TMIN][MEAN] + dailyData[m][d][H_TMAX][MEAN]) / 2;
+					double alpha = mean * ((mean*(1 - mean) / variance) - 1);
+					double beta = (1 - mean)*((mean*(1 - mean) / variance) - 1);
+
+					for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
+					{
+						_ASSERTE(dailyData[m][d][H_TMIN].IsInit());
+						_ASSERTE(dailyData[m][d][H_TMAX].IsInit());
+
+						//NOTE: old beta distribution have a biasis of 1%, the new don't, RSA 28/07/2012
+						double Hr = m_rand.RandBeta(alpha, beta) * 100;
+						ASSERT(Hr >= 0 && Hr <= 100);
+						double Tmean = (dailyData[m][d][H_TMIN][MEAN] + dailyData[m][d][H_TMAX][MEAN]) / 2;
 
 
-					dailyData[m][d][H_RELH] = Hr;
-					dailyData[m][d][H_TDEW] = Hr2Td(Tmean, Hr);
+						dailyData[m][d][H_RELH] = Hr;
+						dailyData[m][d][H_TDEW] = Hr2Td(Tmean, Hr);
+					}
 				}
 			}
 		}

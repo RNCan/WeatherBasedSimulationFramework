@@ -43,6 +43,8 @@ CDailyEditorDoc::CDailyEditorDoc()
 
 	m_statistic = options.GetProfileInt(_T("DataStatistic"), MEAN);
 	m_TM = CTM(options.GetProfileInt(_T("DataTMType"), CTM::DAILY));
+
+	m_nameFilters = CStringA(options.GetProfileString(_T("NameFilters")));
 	m_filters = CStringA(options.GetProfileString(_T("Filters")));
 	std::string tmp = CStringA(options.GetProfileString(_T("ChartsPeriod")));
 	m_period.FromString(tmp);
@@ -236,6 +238,8 @@ void CDailyEditorDoc::OnCloseDocument()
 	CAppOption options(_T("Settings"));
 	options.WriteProfileInt(_T("DataTMType"), (int)m_TM.Type() );
 	options.WriteProfileInt(_T("DataStatistic"), (int)m_statistic);
+	
+	options.WriteProfileString(_T("NameFilters"), CString(m_nameFilters.c_str()) );
 	options.WriteProfileString(_T("Years"), CString(WBSF::to_string(m_years, " ").c_str()));
 	options.WriteProfileString(_T("Filters"), CString(m_filters.to_string().c_str()) );
 	options.WriteProfileString(_T("ChartsPeriod"), CString(m_period.ToString().c_str()));

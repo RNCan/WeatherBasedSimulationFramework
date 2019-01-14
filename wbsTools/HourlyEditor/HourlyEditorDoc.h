@@ -20,7 +20,7 @@ public:
 	enum TEvent
 	{
 		INIT = 0, STATION_INDEX_CHANGE, LOCATION_CHANGE, OUTPUT_CHANGE, CLOSE, LANGUAGE_CHANGE,
-		STATION_LIST_PROPERTIES_YEARS_CHANGE, STATION_LIST_PROPERTIES_FILTERS_CHANGE,
+		STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE, STATION_LIST_PROPERTIES_YEARS_CHANGE, STATION_LIST_PROPERTIES_FILTERS_CHANGE,
 		DATA_PROPERTIES_EDITION_MODE_CHANGE, DATA_PROPERTIES_STAT_CHANGE, 
 		CHARTS_PROPERTIES_ZOOM_CHANGE, DATA_PROPERTIES_ENABLE_PERIOD_CHANGE, DATA_PROPERTIES_PERIOD_CHANGE, 
 		DATA_PROPERTIES_VARIABLES_CHANGE, //TAB_VIEW_CHANGE,
@@ -42,6 +42,8 @@ public:
 	WBSF::CWeatherDatabasePtr& GetDatabase(){ return m_pDatabase; }
 	bool CancelDataEdition();
 
+	std::string GetNameFilters()const { return m_nameFilters; }
+	void SetNameFilters(std::string in) { if (in != m_nameFilters) { m_nameFilters = in; UpdateAllViews(NULL, STATION_LIST_PROPERTIES_NAME_FILTERS_CHANGE); } }
 	std::set<int> GetYears()const{ return m_years; }
 	void SetYears(std::set<int> in){ if (in != m_years){ m_years = in; UpdateAllViews(NULL, STATION_LIST_PROPERTIES_YEARS_CHANGE); } }
 	WBSF::CWVariables GetFilters()const{ return m_filters; }
@@ -97,6 +99,7 @@ protected:
 
 
 	//properties
+	std::string m_nameFilters;
 	std::set<int> m_years;
 	WBSF::CWVariables m_filters;
 	bool m_bDataInEdition;

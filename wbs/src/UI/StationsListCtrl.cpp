@@ -143,7 +143,7 @@ namespace WBSF
 
 	void CStationsListCtrl::Update()
 	{
-		if (m_pDB->GetFilePath() != m_lastFilePath || m_years != m_lastYears || m_filter != m_lastFilter)
+		if (m_pDB->GetFilePath() != m_lastFilePath || m_nameFilters!= m_lastNameFilters || m_years != m_lastYears || m_filter != m_lastFilter)
 		{
 			m_stationModified.clear();
 			m_curSortCol = -999;
@@ -154,6 +154,7 @@ namespace WBSF
 			{
 				m_enableUpdate = FALSE;
 
+				m_lastNameFilters = m_nameFilters;
 				m_lastYears = m_years;
 				m_lastFilter = m_filter;
 
@@ -524,6 +525,25 @@ namespace WBSF
 
 				if (msg)
 				{
+					if (!m_nameFilters.empty())
+					{
+						CSearchResultVector clean;
+						clean.reserve(results.size());
+						for (CSearchResultVector::const_iterator it = results.begin(); it != results.end(); it++)
+						{
+							bool b1 = WBSF::Find(it->m_location.m_ID, m_nameFilters);
+							bool b2 = WBSF::Find(it->m_location.m_name, m_nameFilters);
+
+							if (b1 || b2)
+							{
+								clean.push_back(*it);
+							}
+						}
+
+						results = clean;
+					}
+
+
 					CWeatherDatabaseOptimization const& zop = m_pDB->GetOptimization();
 					m_sortInfo.resize(results.size());
 					for (CSearchResultVector::const_iterator it = results.begin(); it != results.end(); it++)
