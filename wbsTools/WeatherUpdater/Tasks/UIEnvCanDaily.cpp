@@ -477,7 +477,7 @@ namespace WBSF
 	//************************************************************************************************************
 	//data section
 
-	ERMsg CUIEnvCanDaily::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, const string& filePath)
+	ERMsg CUIEnvCanDaily::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, const string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -499,25 +499,25 @@ namespace WBSF
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
 		{
-			ofStream file;
-
-			msg = file.open(filePath);
-
-			if (msg)
-			{
 				string::size_type posBegin = source.find("\"Date/Time\"", 0);
 				ASSERT(posBegin != string::npos);
 
 				if (posBegin != string::npos)
 				{
-					file << source.substr(posBegin);
-					file.close();
+					ofStream file;
+					msg = file.open(filePath);
+
+					if (msg)
+					{
+						file << source.substr(posBegin);
+						file.close();
+					}
 				}
 				else
 				{
-					msg.ajoute("error loading page ID = " + ToString(ID) + ", year = " + ToString(year));
+					callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
+					msg = WaitServer(10, callback);
 				}
-			}
 		}
 
 
@@ -569,8 +569,17 @@ namespace WBSF
 				string internalID = info.GetSSI("InternalID");
 				string filePath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
 				CreateMultipleDir(GetPath(filePath));
-
-				msg += CopyStationDataPage(pConnection, ToLong(internalID), year, filePath);
+				try
+				{
+					msg += CopyStationDataPage(pConnection, ToLong(internalID), year, filePath, callback);
+				}
+				catch (CException* e)
+				{
+					if (nbFilesToDownload > 10)
+						callback.PopTask();
+					
+					throw e;
+				}
 
 				if (nbFilesToDownload > 10)
 					msg += callback.StepIt();

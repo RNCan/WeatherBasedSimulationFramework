@@ -74,7 +74,7 @@ namespace WBSF
 		ERMsg ParseStationDataPage(const std::string& sourceIn, CLocation& station, std::string& parsedText)const;
 
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int y)const;
-		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, const std::string& page);
+		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, const std::string& page, CCallback& callback);
 		//std::string GetForecastListFilePath()const{ return GetApplicationPath() + "ForecastLinkEnvCan.csv"; }
 		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "DailyStationsList.csv"; }
 		ERMsg DownloadStation(UtilWWW::CHttpConnectionPtr& pConnection, const CLocation& info, CCallback& callback);

@@ -509,7 +509,7 @@ namespace WBSF
 	}
 
 	//******************************************************
-	ERMsg CUIEnvCanHourly::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const string& filePath)
+	ERMsg CUIEnvCanHourly::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -531,23 +531,23 @@ namespace WBSF
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
 		{
-			ofStream file;
-			msg = file.open(filePath);
+			string::size_type posBegin = source.find("\"Date/Time\"", 0);
 
-			if (msg)
+			if (posBegin != string::npos)
 			{
-				string::size_type posBegin = source.find("\"Date/Time\"", 0);
-				//ASSERT(posBegin != string::npos);
-				if (posBegin != string::npos)
+				ofStream file;
+				msg = file.open(filePath);
+
+				if (msg)
 				{
 					file << source.substr(posBegin);
 					file.close();
 				}
-				else
-				{
-					msg.ajoute("error loading page ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
-				}
-
+			}
+			else
+			{
+				callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
+				msg = WaitServer(10, callback);
 			}
 		}
 
@@ -708,7 +708,7 @@ namespace WBSF
 				}
 				catch (CException* e)
 				{
-					
+
 					if (nbRun < 5)
 					{
 						callback.AddMessage(UtilWin::SYGetMessage(*e));
@@ -768,7 +768,7 @@ namespace WBSF
 		if (nbYear > 5)
 			callback.PushTask("Get number of files to update for " + station.m_name, nbYear * 12, 1);
 
-		
+
 		vector< array<bool, 12> > bNeedDownload;
 		bNeedDownload.resize(nbYear);
 
@@ -820,23 +820,22 @@ namespace WBSF
 							CreateMultipleDir(GetPath(filePath));
 
 
-							msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath);
+							msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath, callback);
 							msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
 						}
 					}
 				}
-
-				if (nbFilesToDownload > 60)
-					callback.PopTask();
 			}
 			catch (CException*)
 			{
 				if (nbFilesToDownload > 60)
 					callback.PopTask();
 
-				//msg = UtilWin::SYGetMessage(*e);
 				throw;
 			}
+
+			if (nbFilesToDownload > 60)
+				callback.PopTask();
 		}
 
 		return msg;
@@ -1503,7 +1502,7 @@ namespace WBSF
 										string ICAOID = GetLastDirName(it2->m_filePath);
 										CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
 
-										string prov; 
+										string prov;
 										if (itMissing != locations.end())
 											prov = itMissing->GetSSI("Province");
 										else
@@ -1721,7 +1720,7 @@ namespace WBSF
 
 			string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
 			callback.PushTask("Download SWOB-ML for " + ID + ": (" + ToString(it1->second.size()) + " hours)", it1->second.size());
-			
+
 			map < CTRef, SWOBData > data;
 			CTRef lastTRef;
 
@@ -1773,7 +1772,7 @@ namespace WBSF
 							}//if msg
 
 							msg += callback.StepIt();
-							
+
 							nbTry = 0;
 							it2++;
 						}//for all files
@@ -1807,14 +1806,14 @@ namespace WBSF
 				msgSaved += SaveSWOB(filePath, it->second);
 			}
 
-			if(msgSaved)
+			if (msgSaved)
 				lastUpdate[ID] = lastTRef;
-			
+
 			msg += msgSaved;
 
 			callback.PopTask();
 			msg += callback.StepIt();
-		
+
 		}//for all station
 
 		callback.AddMessage("Number of SWOB-ML files downloaded: " + ToString(nbDownload));

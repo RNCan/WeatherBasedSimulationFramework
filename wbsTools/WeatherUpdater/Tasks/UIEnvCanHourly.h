@@ -94,7 +94,7 @@ namespace WBSF
 		
 
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int year, size_t m)const;
-		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page);
+		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page, CCallback& callback);
 
 		
 		CLocationVector m_stations;
