@@ -494,7 +494,9 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 
 	int nbThreadsRep = max(1, min(CTRL.m_nbMaxThreads-1, int(CTRL.m_nbMaxThreads*repLocRatio)));
 	int nbThreadsLoc = max(1, min(int(ceil(CTRL.m_nbMaxThreads / nbThreadsRep)), int(CTRL.m_nbMaxThreads*(1 - repLocRatio))));
-	
+	callback.AddMessage("Model loc thread: " + to_string(nbThreadsLoc));
+	callback.AddMessage("Model rep thread: " + to_string(nbThreadsRep));
+
 	size_t memoryUsedByOneThread = sizeof(CWeatherYear)*period.GetNbYears() / (1024 * 1024) * 120 / 100;
 	size_t availableMemory = GetTotalSystemMemory() / (1024 * 1024) - 6000;
 

@@ -1691,6 +1691,11 @@ ERMsg CBaseOptions::ParseOption(int argc, char* argv[])
 	int CPU = m_bMulti ? omp_get_num_procs() : 1;
 	m_CPU = min(CPU, max(1, m_CPU>0?m_CPU:CPU+m_CPU) );
 	
+	if (!m_bMulti)
+	{
+		m_BLOCK_THREADS = 1;
+		m_IOCPU = 1;
+	}
 
 	return msg;
 }

@@ -284,9 +284,6 @@ namespace WBSF
 												if (messageTmp)
 													messageTmp += callback.StepIt();
 #pragma omp flush(messageTmp)
-												//}
-
-
 											}
 										}
 									}//for all locations

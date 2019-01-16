@@ -27,7 +27,7 @@ using namespace VITALENGINE;
 
 namespace WBSF
 {
-	static CCriticalSection FREE_CS;
+	//static CCriticalSection FREE_CS;
 
 	//CANNSearchCache CGridInterpolBase::ANN_SEARCH_CACHE;
 	void CANNSearchCache::FreeMemoryCache2()
@@ -43,9 +43,9 @@ namespace WBSF
 
 	void CGridInterpolBase::FreeMemoryCache()
 	{
-		FREE_CS.Enter();
+		//FREE_CS.Enter();
 		//ANN_SEARCH_CACHE.FreeMemoryCache2();
-		FREE_CS.Leave();
+		//FREE_CS.Leave();
 	}
 
 	const int CGridInterpolParam::DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4] =
@@ -629,7 +629,7 @@ namespace WBSF
 		if (msg)
 
 
-			me.m_CS.Leave();
+		me.m_CS.Leave();
 
 		return msg;
 	}

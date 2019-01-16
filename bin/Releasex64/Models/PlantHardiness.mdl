@@ -26,8 +26,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ClimaticZone</Name>
-            <Title>ClimaticZone</Title>
+            <Name>PlantHardinessZones</Name>
+            <Title>PlantHardinessZones</Title>
             <Units/>
             <Description>Canada's Plant Hardiness Zones. Decimsl .0 = a and .5 = b</Description>
             <TimeMode>4 0</TimeMode>

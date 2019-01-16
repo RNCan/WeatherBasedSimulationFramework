@@ -686,7 +686,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
+	/*ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -697,8 +697,7 @@ namespace WBSF
 			CWVariables variables = section.GetVariables();
 			CTPeriod period = section.GetEntireTPeriod();
 			int type = DATA_FLOAT;
-			//rsa ?? EST-CE QUE CA SERT A QUEL;QUE CHOSE D'UTILISER UNE STATISTIQUE POUR LES siMULATIONpOINT???
-			//int type = period.GetTM().Type() == CTM::HOURLY ? DATA_FLOAT : DATA_STATISTIC;
+		
 			assert(m_type == UNKNOWN || m_type == type);
 			assert(m_nbCols == 0 || m_nbCols == variables.count());
 			assert(sizeof(CStatistic)==40);
@@ -734,7 +733,55 @@ namespace WBSF
 		m_CS.Leave();
 
 		return msg;
+	}*/
+
+	
+	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
+	{
+		ERMsg msg;
+
+		if (!callback.GetUserCancel())
+		{
+			CWVariables variables = section.GetVariables();
+			CTPeriod period = section.GetEntireTPeriod();
+			int type = DATA_FLOAT;
+			assert(m_type == UNKNOWN || m_type == type);
+			assert(m_nbCols == 0 || m_nbCols == variables.count());
+
+			vector<float> tmp(period.GetNbRef()*variables.count());
+
+			size_t pp = 0;
+			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
+			{
+				size_t vv = 0;
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
+				{
+					if (variables[v])
+					{
+						tmp[pp*variables.count() + vv] = float(section[TRef][v].IsInit() ? section[TRef][v][MEAN] : -999);
+						vv++;
+					}
+				}
+				pp++;
+			}
+			
+			m_CS.Enter();
+			m_type = type;
+			m_nbCols = variables.count();
+			m_nbRows += period.size();
+
+			m_metadata.AddSection(section);
+			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin(), section.HaveData()));
+			m_file.write((const char*)tmp.data(), tmp.size()*sizeof(float));
+			m_CS.Leave();
+
+			assert(!msg || m_file.lengthp() == GetDataSize());
+		}
+
+
+		return msg;
 	}
+	
 	ERMsg CBioSIMDatabase::AddSection(const CModelStatVector& section, int type, CCallback& callback)
 	{
 		ASSERT(m_nbCols == 0 || m_nbCols == section.GetCols());
@@ -772,6 +819,7 @@ namespace WBSF
 		return msg;
 	}
 
+	/*
 	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CModelStatVector& section, int type, CCallback& callback)
 	{
 		assert(m_nbCols == 0 || m_nbCols == section.GetCols());
@@ -779,9 +827,12 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
+				m_CS.Enter();
 		if (!callback.GetUserCancel())
 		{
+			
+
+			
 			m_nbCols = section.GetCols();
 			m_type = type;
 			m_nbRows += section.GetRows();
@@ -804,6 +855,45 @@ namespace WBSF
 		}
 
 		m_CS.Leave();
+
+		return msg;
+	}
+	*/
+	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CModelStatVector& section, int type, CCallback& callback)
+	{
+		assert(m_nbCols == 0 || m_nbCols == section.GetCols());
+		assert(m_type == UNKNOWN || m_type == type);
+
+		ERMsg msg;
+
+
+		if (!callback.GetUserCancel())
+		{
+			vector<float> tmp(section.GetRows()*section.GetCols());
+			for (size_t i = 0; i < section.GetRows() && msg; i++)
+			{
+				ASSERT(i >= section.size() || section[i].size() == section.GetCols());
+				for (size_t j = 0; j < section.GetCols() &&msg; j++)
+				{
+					tmp[i*section.GetCols() + j] = (i < section.GetRows()) ? float(section[i][j]) : float(VMISS);
+				}
+			}
+
+			m_CS.Enter();
+			m_nbCols = section.GetCols();
+			m_type = type;
+			m_nbRows += section.GetRows();
+			m_metadata.AddSection(section);
+			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.size(), section.GetFirstTRef(), section.HaveData()));
+			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(float));
+			m_CS.Leave();
+
+			
+			
+			assert(!msg || m_file.lengthp() <= GetDataSize());
+		}
+
+		
 
 		return msg;
 	}
@@ -854,10 +944,62 @@ namespace WBSF
 		m_CS.Leave();
 	}
 
+	//void CBioSIMDatabase::GetSection(size_t no, CSimulationPoint& section, CWVariables filter)const
+	//{
+	//	m_CS.Enter();
+
+	//	assert(IsOpen());
+	//	assert(no < m_index.size());
+	//	assert(m_file.lengthg() == GetDataSize());
+
+	//	CBioSIMDatabase& me = const_cast<CBioSIMDatabase&>(*this);
+	//	size_t nbRows = m_index[no].GetNbRows();
+	//	CTPeriod period = m_metadata.GetTPeriod();
+	//	CWVariables variables = m_metadata.GetOutputDefinition().GetWVariables();
+
+
+	//	if (variables.count() == m_nbCols &&
+	//		period.GetNbRef() == nbRows )
+	//	{
+	//		size_t locPos = m_metadata.GetLno(no);
+	//		((CLocation&)section) = m_metadata.GetLocations()[locPos];
+	//		section.CreateYears(period);
+
+	//		CTRef TRef = period.Begin();
+	//		section.SetHourly(TRef.GetType() == CTM::HOURLY);
+	//		me.m_file.seekg(GetFilePos(no, 0, 0));
+	//		for (size_t i = 0; i < nbRows; i++, TRef++)
+	//		{
+	//			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+	//			{
+	//				if (variables[v])
+	//				{
+	//					if (m_type == DATA_FLOAT)
+	//					{
+	//						float value = 0;
+	//						me.m_file.read_value(value);
+	//						if (filter[v] && !WEATHER::IsMissing(value))
+	//							section[period.Begin() + i].SetStat(v, value);
+	//					}
+	//					else 
+	//					{
+	//						ASSERT(m_type == DATA_STATISTIC);
+
+	//						CStatistic value;
+	//						me.m_file.read_value(value);
+	//						if (filter[v])
+	//							section[TRef].SetStat(v, value);
+	//					}
+	//				}//if used variables
+	//			}//for all variables
+	//		}//for all rows
+	//	}//if valid
+
+	//	m_CS.Leave();
+	//}
+
 	void CBioSIMDatabase::GetSection(size_t no, CSimulationPoint& section, CWVariables filter)const
 	{
-		m_CS.Enter();
-
 		assert(IsOpen());
 		assert(no < m_index.size());
 		assert(m_file.lengthg() == GetDataSize());
@@ -869,7 +1011,7 @@ namespace WBSF
 
 
 		if (variables.count() == m_nbCols &&
-			period.GetNbRef() == nbRows )
+			period.GetNbRef() == nbRows)
 		{
 			size_t locPos = m_metadata.GetLno(no);
 			((CLocation&)section) = m_metadata.GetLocations()[locPos];
@@ -877,35 +1019,31 @@ namespace WBSF
 
 			CTRef TRef = period.Begin();
 			section.SetHourly(TRef.GetType() == CTM::HOURLY);
+
+			ASSERT(m_type == DATA_FLOAT);
+			vector<float> tmp(nbRows*variables.count());
+
+			m_CS.Enter();
 			me.m_file.seekg(GetFilePos(no, 0, 0));
+			me.m_file.read((char*)tmp.data(), tmp.size() * sizeof(float));
+			m_CS.Leave();
+
 			for (size_t i = 0; i < nbRows; i++, TRef++)
 			{
+				size_t vv = 0;
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
-						if (m_type == DATA_FLOAT)
-						{
-							float value = 0;
-							me.m_file.read_value(value);
-							if (filter[v] && !WEATHER::IsMissing(value))
-								section[period.Begin() + i].SetStat(v, value);
-						}
-						else 
-						{
-							ASSERT(m_type == DATA_STATISTIC);
+						float value = tmp[i*variables.count() + vv];
 
-							CStatistic value;
-							me.m_file.read_value(value);
-							if (filter[v])
-								section[TRef].SetStat(v, value);
-						}
+						if (filter[v] && !WEATHER::IsMissing(value))
+							section[TRef].SetStat(v, value);
+						vv++;
 					}//if used variables
 				}//for all variables
 			}//for all rows
 		}//if valid
-
-		m_CS.Leave();
 	}
 
 	ULONGLONG CBioSIMDatabase::GetFilePos(size_t no, size_t row, size_t col)const

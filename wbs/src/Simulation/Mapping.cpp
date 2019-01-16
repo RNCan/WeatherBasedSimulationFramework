@@ -463,8 +463,10 @@ namespace WBSF
 			mapInput.m_bUseHxGrid = CTRL.m_bUseHxGrid && m_bUseHxGrid;
 			mapInput.m_options.m_format = "GTiff";
 			mapInput.m_options.m_bOverwrite = true;
-			mapInput.m_options.m_CPU = CTRL.m_nbMaxThreads;
 			mapInput.m_options.m_outputType = 6; // GDT_Float32;
+			mapInput.m_options.m_CPU = CTRL.m_nbMaxThreads;
+			mapInput.m_options.m_IOCPU = min(CTRL.m_nbMaxThreads, 4);
+			mapInput.m_options.m_BLOCK_THREADS = CTRL.m_nbMaxThreads;
 			mapInput.m_options.m_bMulti = true;
 			mapInput.m_options.m_nbBands = 1;
 			mapInput.m_options.m_dstNodata = m_pParam->m_noData;
