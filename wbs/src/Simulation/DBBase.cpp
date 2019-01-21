@@ -93,7 +93,7 @@ namespace WBSF
 
 	size_t CDBMetadata::GetSectionNo(size_t loc, size_t param, size_t iter)const
 	{
-		return loc*(m_dimension[REPLICATION] * m_dimension[PARAMETER]) + param*m_dimension[REPLICATION] + iter;
+		return loc * (m_dimension[REPLICATION] * m_dimension[PARAMETER]) + param * m_dimension[REPLICATION] + iter;
 	}
 
 	size_t CDBMetadata::GetLno(size_t section)const
@@ -413,7 +413,7 @@ namespace WBSF
 	size_t CDBSectionIndexVector::GetNbRows(size_t section)const
 	{
 		ASSERT(section >= 0 && section < size());
-		ASSERT(size()>0);
+		ASSERT(size() > 0);
 
 		return at(section).GetNbRows();
 	}
@@ -456,22 +456,22 @@ namespace WBSF
 		CDBSectionIndexVector& me = const_cast<CDBSectionIndexVector&>(*this);
 
 		m_CS.Enter();
-		
-		
+
+
 		if (!((CDBSectionIndexVectorBase&)me).at(no).IsInit())
 		{
 			me.m_file.seekg(get_pos(no));
 			me.m_file >> ((CDBSectionIndexVectorBase&)me).at(no);
 		}
-		
+
 		m_CS.Leave();
 	}
 
 	//************************************************************************
 
 
-	string CBioSIMDatabase::GetMetadataFilePath(string filePath){ return SetFileExtension(filePath, ".DBmeta"); }
-	string CBioSIMDatabase::GetIndexFilePath(string filePath){ return SetFileExtension(filePath, ".DBindex"); }
+	string CBioSIMDatabase::GetMetadataFilePath(string filePath) { return SetFileExtension(filePath, ".DBmeta"); }
+	string CBioSIMDatabase::GetIndexFilePath(string filePath) { return SetFileExtension(filePath, ".DBindex"); }
 
 
 	CBioSIMDatabase::CBioSIMDatabase()
@@ -511,7 +511,7 @@ namespace WBSF
 
 					if (m_nbCols > 0 && m_nbRows > 0 && m_file.lengthg() == GetDataSize())
 					{
-						
+
 					}
 					else
 					{
@@ -603,7 +603,7 @@ namespace WBSF
 
 		if (FileExists(GetIndexFilePath(filePath)))
 			msg = RemoveFile(GetIndexFilePath(filePath));
-		
+
 		return msg;
 	}
 
@@ -623,7 +623,7 @@ namespace WBSF
 			m_type = type;
 
 			m_metadata.AddSection(section);
-			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData() ));
+			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
 			for (size_t i = 0; i < section.GetRows() && msg; i++)
 			{
@@ -697,12 +697,12 @@ namespace WBSF
 			CWVariables variables = section.GetVariables();
 			CTPeriod period = section.GetEntireTPeriod();
 			int type = DATA_FLOAT;
-		
+
 			assert(m_type == UNKNOWN || m_type == type);
 			assert(m_nbCols == 0 || m_nbCols == variables.count());
 			assert(sizeof(CStatistic)==40);
-			
-			
+
+
 
 			m_type = type;
 			m_nbCols = variables.count();
@@ -735,7 +735,7 @@ namespace WBSF
 		return msg;
 	}*/
 
-	
+
 	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
 	{
 		ERMsg msg;
@@ -764,7 +764,7 @@ namespace WBSF
 				}
 				pp++;
 			}
-			
+
 			m_CS.Enter();
 			m_type = type;
 			m_nbCols = variables.count();
@@ -772,7 +772,7 @@ namespace WBSF
 
 			m_metadata.AddSection(section);
 			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin(), section.HaveData()));
-			m_file.write((const char*)tmp.data(), tmp.size()*sizeof(float));
+			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(float));
 			m_CS.Leave();
 
 			assert(!msg || m_file.lengthp() == GetDataSize());
@@ -781,7 +781,7 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	ERMsg CBioSIMDatabase::AddSection(const CModelStatVector& section, int type, CCallback& callback)
 	{
 		ASSERT(m_nbCols == 0 || m_nbCols == section.GetCols());
@@ -830,9 +830,9 @@ namespace WBSF
 				m_CS.Enter();
 		if (!callback.GetUserCancel())
 		{
-			
 
-			
+
+
 			m_nbCols = section.GetCols();
 			m_type = type;
 			m_nbRows += section.GetRows();
@@ -873,7 +873,7 @@ namespace WBSF
 			for (size_t i = 0; i < section.GetRows() && msg; i++)
 			{
 				ASSERT(i >= section.size() || section[i].size() == section.GetCols());
-				for (size_t j = 0; j < section.GetCols() &&msg; j++)
+				for (size_t j = 0; j < section.GetCols() && msg; j++)
 				{
 					tmp[i*section.GetCols() + j] = (i < section.GetRows()) ? float(section[i][j]) : float(VMISS);
 				}
@@ -888,12 +888,12 @@ namespace WBSF
 			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(float));
 			m_CS.Leave();
 
-			
-			
+
+
 			assert(!msg || m_file.lengthp() <= GetDataSize());
 		}
 
-		
+
 
 		return msg;
 	}
@@ -1020,12 +1020,27 @@ namespace WBSF
 			CTRef TRef = period.Begin();
 			section.SetHourly(TRef.GetType() == CTM::HOURLY);
 
-			ASSERT(m_type == DATA_FLOAT);
-			vector<float> tmp(nbRows*variables.count());
+			//ASSERT(m_type == DATA_FLOAT);
+			
+			vector<float> tmpFloat;
+			vector<CStatistic> tmpStat;
+
+			
 
 			m_CS.Enter();
 			me.m_file.seekg(GetFilePos(no, 0, 0));
-			me.m_file.read((char*)tmp.data(), tmp.size() * sizeof(float));
+			if (m_type == DATA_FLOAT)
+			{
+				tmpFloat.resize(nbRows*variables.count());
+				me.m_file.read((char*)tmpFloat.data(), tmpFloat.size() * sizeof(float));
+			}
+			else
+			{
+				tmpStat.resize(nbRows*variables.count());
+				me.m_file.read((char*)tmpStat.data(), tmpStat.size() * sizeof(CStatistic));
+			}
+				
+
 			m_CS.Leave();
 
 			for (size_t i = 0; i < nbRows; i++, TRef++)
@@ -1035,10 +1050,24 @@ namespace WBSF
 				{
 					if (variables[v])
 					{
-						float value = tmp[i*variables.count() + vv];
+						if (filter[v])
+						{
+							if (m_type == DATA_FLOAT)
+							{
+								float value = tmpFloat[i*variables.count() + vv];
 
-						if (filter[v] && !WEATHER::IsMissing(value))
-							section[TRef].SetStat(v, value);
+								if (!WEATHER::IsMissing(value))
+									section[TRef].SetStat(v, value);
+							}
+							else
+							{
+								ASSERT(m_type == DATA_STATISTIC);
+
+								const CStatistic& value = tmpStat[i*variables.count() + vv];
+								section[TRef].SetStat(v, value);
+							}
+						}
+
 						vv++;
 					}//if used variables
 				}//for all variables
@@ -1049,7 +1078,7 @@ namespace WBSF
 	ULONGLONG CBioSIMDatabase::GetFilePos(size_t no, size_t row, size_t col)const
 	{
 		ASSERT(m_index[no].IsInit());
-		ASSERT(row < m_index[no].GetNbRows() || m_index[no].GetNbRows()==0);
+		ASSERT(row < m_index[no].GetNbRows() || m_index[no].GetNbRows() == 0);
 		ASSERT(col < m_nbCols);
 
 		return  m_index[no].GetBeginPos() + (row*m_nbCols + col)*GetTypeSize();
