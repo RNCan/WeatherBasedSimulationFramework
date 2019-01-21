@@ -3,6 +3,8 @@
 //									 
 //***********************************************************************
 // version 
+// 2.0.2    25/12/2018	Rémi Saint-Amant	Eliminate the verification of independant variables
+// 2.0.l	21/12/2018	Rémi Saint-Amant	Use Entry to evaluate the number of input variables
 // 2.0.0	29/09/2018	Rémi Saint-Amant	Creation from DisturbanceAnalyser
 
 
@@ -34,7 +36,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.0";
+static const char* version = "2.0.2";
 
 
 enum TFilePath { SEE5_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
@@ -92,8 +94,7 @@ public:
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
 		}
 		
-		if(!m_bMulti)
-			m_BLOCK_THREADS = 1;
+		
 
 		return msg;
 	}
@@ -145,7 +146,7 @@ ERMsg CSee5::LoadModel(string filePath, CSee5TreeMT& DT)
 		cout << "Read rules..." << endl;
 	}
 
-	CTimer timer(true);
+	CTimer timer(true); 
 
 	msg += DT.Load(filePath, m_options.m_BLOCK_THREADS, m_options.m_IOCPU);
 	timer.Stop();
@@ -249,8 +250,9 @@ ERMsg CSee5::Execute()
 
 	msg = OpenAll(inputDS, maskDS, outputDS);
 	
-	if (msg && inputDS.GetRasterCount() != DT.front().NTest)
-		msg.ajoute("The number of bands in the input image (" + to_string(inputDS.GetRasterCount()) + ") is not equal as the number of independants variables (" + to_string(DT.front().NTest) + ") in the model.");
+	//int nbIndVar = DT.front().MaxAtt - 1;
+	//if (msg && inputDS.GetRasterCount() != DT.front().Entry)
+		//msg.ajoute("The number of bands in the input image (" + to_string(inputDS.GetRasterCount()) + ") is not equal as the number of independants variables (" + to_string(DT.front().Entry) + ") in the model.");
 
 	if (msg)
 	{
@@ -332,7 +334,7 @@ void CSee5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder,
 	//	m_options.m_timerProcess.Start();
 
 		//allocate process memory
-		data.resize(nbCells);
+		data.resize(blockSize.m_x*blockSize.m_y, (__int16)m_options.m_dstNodata);
 
 		//process all x and y 
 //#pragma omp parallel for schedule(static, 1) num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)  
