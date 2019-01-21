@@ -112,7 +112,7 @@ namespace WBSF
 			//Create stand
 			CSBWStand stand(this);
 			stand.m_bFertilEgg = false;
-			stand.m_bApplyAttrition = true;
+			stand.m_bApplyAttrition = false;
 			stand.m_bApplyAdultAttrition = true;
 			stand.m_defoliation = m_defoliation;
 
