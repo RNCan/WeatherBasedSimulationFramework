@@ -22,6 +22,7 @@ namespace WBSF
 	//NAM analysis
 	//ftp://nomads.ncdc.noaa.gov/NAM/Grid218/
 
+	//https://nomads.ncdc.noaa.gov/data/
 	//*********************************************************************
 	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "Begin", "End", "ServerType", "ShowWinSCP" };
 	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL };
@@ -293,7 +294,7 @@ namespace WBSF
 											//download gribs file
 											static const char* HTTP_FORMAT[2] =
 											{
-												"/data/namanl/%4d%02d/%4d%02d%02d/namanl_218_%4d%02d%02d_%02d00_%03d%s",
+												"/data/namanl/%4d%02d/%4d%02d%02d/namanl_218_%4d%02d%02d_%02d00_%03d.grb",
 												"pub/data/nccf/com/nam/prod/nam.%4d%02d%02d/nam.t%02dz.awphys%02d.tm00.grib2"
 											};
 

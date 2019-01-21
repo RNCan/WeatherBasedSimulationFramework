@@ -14,9 +14,6 @@
 #include "UI/Common/UtilWin.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
-//#include "cctz\time_zone.h"
-
-
 
 
 #include "../Resource.h"
@@ -87,31 +84,13 @@ namespace WBSF
 
 		return long(year * 365 + m * 30.42 + d);
 	}
-	//
-	//void CUIEnvCanHourly::Reset()
-	//{
-	//	CTaskBase::Reset();
-	//
-	//	m_selection.Reset();
-	//	m_firstMonth=0;
-	//	m_lastMonth=11;
-	//	m_bForceDownload=false;
-	//	m_bExtractWindDir=false;
-	//	m_bExtractVaporPressure=false;
-	//	m_bExtractPressure = false;
-	//
-	//	m_boundingBox = DEFAULT_BOUDINGBOX;
-	//		
-	//	m_nbDays = GetNbDay(CTime::GetCurrentTime());
-	//
-	//}
+	
 
 
 	static string CleanString(string str)
 	{
 		string output;
 
-		//str = FindString(str, "<td>", "</td>");
 		ReplaceString(str, "<abbr title=\"degrees\">", "");
 		ReplaceString(str, "<abbr title=\"minute\">", "");
 		ReplaceString(str, "<abbr title=\"second\">", "");
@@ -272,7 +251,7 @@ namespace WBSF
 
 			if (posBegin != string::npos)
 			{
-				posBegin -= 8;//return before hte requested number
+				posBegin -= 8;//return before the requested number
 				string tmp = FindString(source, ">", "stations found", posBegin);
 				nbStation = ToInt(tmp);
 			}
@@ -342,7 +321,7 @@ namespace WBSF
 
 			if (posBegin != string::npos)
 			{
-				//when the station don't have hourly value, the period ios "|"
+				//when the station don't have hourly value, the period is "|"
 				if (!period.empty() && period != "N/A" && period != "|")
 				{
 					stationInfo.m_name = Trim(name);
@@ -1155,7 +1134,7 @@ namespace WBSF
 				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
 				if (loop.Header().size() != (NB_INPUT_HOURLY_COLUMN + fix))
 				{
-					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
+					msg.ajoute("Numbers of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
 					msg.ajoute(filePath);
 					return msg;
 				}
@@ -1389,7 +1368,7 @@ namespace WBSF
 					};
 
 					msg += callback.StepIt(0);
-				}//for all colums
+				}//for all columns
 
 				if (location.m_ID == "9052008")
 					location.SetSSI("Province", "ON");
@@ -1524,7 +1503,7 @@ namespace WBSF
 								msg += callback.StepIt();
 								nbTry = 0;
 								it1++;
-							}//for all dir
+							}//for all directories
 						}
 						catch (CException* e)
 						{
@@ -2060,7 +2039,7 @@ namespace WBSF
 										if (v == H_SRAD && value < 0)
 											value = 0;
 
-										if (v == H_SRAD && bFredericton)//fredericton have data 10 *????
+										if (v == H_SRAD && bFredericton)//Fredericton have data 10 *????
 											value /= 10;
 
 										station[TRef].SetStat(v, value);
@@ -2101,7 +2080,7 @@ namespace WBSF
 		{
 			for (CSVIterator loop(ifile); loop != CSVIterator() && msg; ++loop)
 			{
-				if (loop->size() >= 4)//when data finish with empty column, the llast column is removed
+				if (loop->size() >= 4)//when data finish with empty column, the last column is removed
 				{
 					if (!(*loop)[0].empty() && !(*loop)[1].empty() && !(*loop)[2].empty() && !(*loop)[3].empty())
 					{
@@ -2144,7 +2123,6 @@ namespace WBSF
 			{
 				for (size_t h = 0; h < 24; h++)
 				{
-					//ofile << TRef.GetYear() << "," << TRef.GetMonth() + 1 << "," << TRef.GetDay() + 1 << "," << TRef.GetHour();
 					if (!data[d][h][0].empty() && !data[d][h][1].empty() && !data[d][h][2].empty() && !data[d][h][3].empty())
 					{
 						for (size_t i = 0; i < data[d][h].size(); i++)
