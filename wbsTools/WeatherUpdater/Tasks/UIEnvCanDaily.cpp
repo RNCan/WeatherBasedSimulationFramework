@@ -129,7 +129,7 @@ namespace WBSF
 
 
 		//Interface attribute index to attribute index
-		//sample for alberta:
+		//sample for Alberta:
 		//http://climate.weatheroffice.ec.gc.ca/advanceSearch/searchHistoricDataStations_f.html?timeframe=1&Prov=XX&StationID=99999&Year=2007&Month=10&Day=2&selRowPerPage=ALL&optlimit=yearRange&searchType=stnProv&startYear=2007&endYear=2007&lstProvince=ALTA&startRow=1
 		//                                     /advanceSearch/searchHistoricDataStations_e.html?timeframe=1&lstProvince=PE&optLimit=yearRange&StartYear=1993&EndYear=2014&Year=2014&Month=8&Day=7&selRowPerPage=100&cmdProvSubmit=Search
 		static const char pageFormat[] =
@@ -325,7 +325,7 @@ namespace WBSF
 
 			if (posBegin != string::npos)
 			{
-				//when the station don't have dayly value, the period is "|"
+				//when the station don't have daily value, the period is "|"
 				if (!period.empty() && period != "N/A" && period != "|")
 				{
 					stationInfo.m_name = WBSF::PurgeFileName(Trim(WBSF::UppercaseFirstLetter(name)));
@@ -367,15 +367,18 @@ namespace WBSF
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
 			if (it2 == stations.end() || it2->m_lat == -999)
 			{
+				if (it2 == stations.end())
+				{
+					stations.push_back(*it);
+					it2 = stations.FindBySSI("InternalID", internalID, false);
+				}
+
+				ASSERT(it2 != stations.end());
 				__int64 internalID64 = ToInt64(internalID);
 
-				stations.push_back(*it);
-				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), stations.back());
-				if (msgTmp)
-					it2 = stations.FindBySSI("InternalID", internalID, false);
-				else
+				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), *it2);
+				if (!msgTmp)
 					callback.AddMessage(msgTmp);
-
 			}
 			else
 			{
@@ -412,63 +415,68 @@ namespace WBSF
 
 		ERMsg msg;
 
-		string URL;
+		string URL = FormatA(webPageDataFormat, id, year, month + 1);
 
-
-		URL = FormatA(webPageDataFormat, id, year, month + 1);
-
-		string source;
-		msg = GetPageText(pConnection, URL, source);
-		if (msg)
+		try
 		{
-			string::size_type posBegin = source.find("latitude");
-			string::size_type posEnd = 0;
-
-			if (posBegin != string::npos)
+			string source;
+			msg = GetPageText(pConnection, URL, source);
+			if (msg)
 			{
-				//find latitude						   
-				string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
-				latitude = CleanString(latitude);
+				string::size_type posBegin = source.find("latitude");
+				string::size_type posEnd = 0;
 
-				//find longitude
-				string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
-				longitude = CleanString(longitude);
-				longitude.insert(longitude.begin(), '-');
-
-				//find elevation
-				string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
-				elevation = CleanString(elevation);
-
-				string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
-				ClimateID = CleanString(ClimateID);
-
-				string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
-				WMOID = CleanString(WMOID);
-
-				string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
-				TCID = CleanString(TCID);
-
-				if (!latitude.empty() &&
-					!longitude.empty() &&
-					!elevation.empty())
+				if (posBegin != string::npos)
 				{
-					station.m_lat = GetCoordinate(latitude);
-					station.m_lon = GetCoordinate(longitude);
-					station.m_elev = ToDouble(elevation);
+					//find latitude						   
+					string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
+					latitude = CleanString(latitude);
 
-					station.m_ID = ClimateID;
-					if (!WMOID.empty())
-						station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
-					if (!TCID.empty())
-						station.SetSSI("TransportCanadaID", TCID);
+					//find longitude
+					string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
+					longitude = CleanString(longitude);
+					longitude.insert(longitude.begin(), '-');
 
-					ASSERT(station.IsValid());
-				}
-				else
-				{
-					msg.ajoute("EnvCan Daily bad coordinate: " + URL);
+					//find elevation
+					string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
+					elevation = CleanString(elevation);
+
+					string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
+					ClimateID = Trim(ClimateID);
+
+					string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
+					WMOID = Trim(WMOID);
+
+					string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
+					TCID = Trim(TCID);
+
+					if (!latitude.empty() &&
+						!longitude.empty() &&
+						!elevation.empty())
+					{
+						station.m_lat = GetCoordinate(latitude);
+						station.m_lon = GetCoordinate(longitude);
+						station.m_elev = ToDouble(elevation);
+
+						station.m_ID = ClimateID;
+						if (!WMOID.empty())
+							station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
+						if (!TCID.empty())
+							station.SetSSI("TransportCanadaID", TCID);
+
+						ASSERT(station.IsValid());
+					}
+					else
+					{
+						msg.ajoute("EnvCan Daily bad coordinate: " + URL);
+					}
 				}
 			}
+		}
+		catch (CException* e)
+		{
+			//if an error occur: try again
+			msg = UtilWin::SYGetMessage(*e);
 		}
 
 		return msg;
@@ -499,25 +507,25 @@ namespace WBSF
 		msg = GetPageText(pConnection, URL, source);
 		if (msg)
 		{
-				string::size_type posBegin = source.find("\"Date/Time\"", 0);
-				ASSERT(posBegin != string::npos);
+			string::size_type posBegin = source.find("\"Date/Time\"", 0);
+			ASSERT(posBegin != string::npos);
 
-				if (posBegin != string::npos)
-				{
-					ofStream file;
-					msg = file.open(filePath);
+			if (posBegin != string::npos)
+			{
+				ofStream file;
+				msg = file.open(filePath);
 
-					if (msg)
-					{
-						file << source.substr(posBegin);
-						file.close();
-					}
-				}
-				else
+				if (msg)
 				{
-					callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
-					msg = WaitServer(10, callback);
+					file << source.substr(posBegin);
+					file.close();
 				}
+			}
+			else
+			{
+				callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
+				msg = WaitServer(10, callback);
+			}
 		}
 
 
@@ -577,7 +585,7 @@ namespace WBSF
 				{
 					if (nbFilesToDownload > 10)
 						callback.PopTask();
-					
+
 					throw e;
 				}
 
@@ -704,7 +712,7 @@ namespace WBSF
 			{
 				try
 				{
-					while (curI< stationList.size() && msg)
+					while (curI < stationList.size() && msg)
 					{
 						msg = DownloadStation(pConnection, stationList[curI], callback);
 						if (msg)

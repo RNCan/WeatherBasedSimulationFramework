@@ -324,7 +324,8 @@ namespace WBSF
 				//when the station don't have hourly value, the period is "|"
 				if (!period.empty() && period != "N/A" && period != "|")
 				{
-					stationInfo.m_name = Trim(name);
+					//stationInfo.m_name = Trim(name);
+					stationInfo.m_name = WBSF::PurgeFileName(Trim(WBSF::UppercaseFirstLetter(name)));
 					stationInfo.SetSSI("InternalID", internalID);
 					stationInfo.SetSSI("Province", prov);
 					stationInfo.SetSSI("Period", period);
@@ -382,15 +383,20 @@ namespace WBSF
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
+
 			if (it2 == stations.end() || it2->m_lat == -999)
 			{
-				__int64 internalID64 = ToInt64(internalID);
-
-				stations.push_back(*it);
-				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stations.back());
-				if (msgTmp)
+				if (it2 == stations.end())
+				{
+					stations.push_back(*it);
 					it2 = stations.FindBySSI("InternalID", internalID, false);
-				else
+				}
+
+				ASSERT(it2 != stations.end());
+				__int64 internalID64 = ToInt64(internalID);
+				
+				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), *it2);
+				if (!msgTmp)
 					callback.AddMessage(msgTmp);
 			}
 			else
@@ -430,58 +436,66 @@ namespace WBSF
 
 		string URL = FormatA(webPageDataFormat, ID, year, m + 1, d + 1);
 
-		string source;
-		msg = GetPageText(pConnection, URL, source);
-		if (msg)
+		try
 		{
-			string::size_type posBegin = source.find("latitude");
-			string::size_type posEnd = 0;
-
-			if (posBegin != string::npos)
+			string source;
+			msg = GetPageText(pConnection, URL, source);
+			if (msg)
 			{
-				//find latitude						   
-				string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
-				latitude = CleanString(latitude);
+				string::size_type posBegin = source.find("latitude");
+				string::size_type posEnd = 0;
 
-				//find longitude
-				string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
-				longitude = CleanString(longitude);
-				longitude.insert(longitude.begin(), '-');
-
-				//find elevation
-				string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
-				elevation = CleanString(elevation);
-
-				string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
-				ClimateID = CleanString(ClimateID);
-
-				string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
-				WMOID = CleanString(WMOID);
-
-				string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
-				TCID = CleanString(TCID);
-
-				if (!latitude.empty() &&
-					!longitude.empty() &&
-					!elevation.empty())
+				if (posBegin != string::npos)
 				{
-					station.m_lat = GetCoordinate(latitude);
-					station.m_lon = GetCoordinate(longitude);
-					station.m_elev = ToDouble(elevation);
+					//find latitude						   
+					string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
+					latitude = CleanString(latitude);
 
-					station.m_ID = ClimateID;
-					if (!WMOID.empty())
-						station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
-					if (!TCID.empty())
-						station.SetSSI("TransportCanadaID", TCID);
+					//find longitude
+					string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
+					longitude = CleanString(longitude);
+					longitude.insert(longitude.begin(), '-');
 
-					ASSERT(station.IsValid());
-				}
-				else
-				{
-					msg.ajoute("EnvCan Hourly bad coordinate: " + URL);
+					//find elevation
+					string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
+					elevation = CleanString(elevation);
+
+					string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
+					ClimateID = Trim(ClimateID);
+
+					string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
+					WMOID = Trim(WMOID);
+
+					string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
+					TCID = Trim(TCID);
+
+					if (!latitude.empty() &&
+						!longitude.empty() &&
+						!elevation.empty())
+					{
+						station.m_lat = GetCoordinate(latitude);
+						station.m_lon = GetCoordinate(longitude);
+						station.m_elev = ToDouble(elevation);
+
+						station.m_ID = ClimateID;
+						if (!WMOID.empty())
+							station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
+						if (!TCID.empty())
+							station.SetSSI("TransportCanadaID", TCID);
+
+						ASSERT(station.IsValid());
+					}
+					else
+					{
+						msg.ajoute("EnvCan Hourly bad coordinate: " + URL);
+					}
 				}
 			}
+		}
+		catch (CException* e)
+		{
+			//if an error occur: try again
+			msg = UtilWin::SYGetMessage(*e);
 		}
 
 		return msg;
