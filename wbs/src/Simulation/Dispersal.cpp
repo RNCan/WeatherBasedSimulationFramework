@@ -385,7 +385,7 @@ namespace WBSF
 		//return CreateGribsFromNetCDF(callback);
 
 		callback.AddMessage(string("Execute dispersal with ATM-SBW version: ") + WBSF_ATM_VERSION);
-		 
+
 
 		GIntBig test = GDALGetCacheMax64();
 		GDALSetCacheMax64(128 * 1024 * 1024);
@@ -532,10 +532,10 @@ namespace WBSF
 		//weatherPeriod.Transform(CTM::DAILY);
 
 		CTPeriod savedPeriod = outputPeriod2.Intersect(weatherPeriod);
-		
 
-		
-		ASSERT(outputPeriod2.GetTM() == weatherPeriod.GetTM() );
+
+
+		ASSERT(outputPeriod2.GetTM() == weatherPeriod.GetTM());
 		if (!outputPeriod2.IsIntersect(weatherPeriod))
 		{
 			msg.ajoute("Weather period doesn't intersect simulation period");
@@ -549,26 +549,23 @@ namespace WBSF
 
 
 		const CLocationVector& locations = metadata.GetLocations();
-		callback.PushTask("Init dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
+		callback.PushTask("Initialize dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
 
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
 
 		double max_moth_prop = 1;//all moths by default
 		size_t nbMoths = 0;
-		//size_t nbMothsPeriod = 0;
-		CTPeriod period98;
-		//CSBWMoths moths;
-		if (world.m_world_param.m_maxFlyers > 0)//remplacer maxFlyers par maxMoths
+		//CTPeriod period98;
+		if (world.m_world_param.m_maxFlyers > 0)//replace maxFlyers par maxMoths
 		{
-			//for optimisation, clean extra moths
-			GetNbMoths(pResult, nbMoths, period98);
-			if (nbMoths > world.m_world_param.m_maxFlyers*0.98)
+			//for optimization, clean extra moths
+			GetNbMoths(pResult, nbMoths, CTPeriod());
+			if (nbMoths > world.m_world_param.m_maxFlyers/**0.98*/)
 			{
-				max_moth_prop = ((double)world.m_world_param.m_maxFlyers*0.98 / nbMoths);
+				max_moth_prop = ((double)world.m_world_param.m_maxFlyers/**0.98*/ / nbMoths);
 
 				callback.AddMessage("Number of moths before optimization: " + ToString(nbMoths) + " moths");
-				callback.AddMessage("Keepted ratio: " + ToString(max_moth_prop * 100, 1) + " %");
 			}
 		}
 
@@ -577,6 +574,9 @@ namespace WBSF
 
 		size_t no = 0;
 		size_t nbReplications = 0;
+		size_t moths_before = 0;
+		size_t moths_after = 0;
+		size_t sum_individual = 0;
 		for (size_t l = 0; l < locations.size() && msg; l++)
 		{
 			for (size_t p = 0; p < pResult->GetMetadata().GetParameterSet().size() && msg; p++)
@@ -596,10 +596,10 @@ namespace WBSF
 
 						if (v[I_YEAR] > -999 && v[I_MONTH] > -999 && v[I_DAY] > -999)
 						{
-							//let the first and the last 1% to keep extrem
+							//let the first and the last 1% to keep extreme
 							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-							bool bExtrem = !period98.IsInside(emergingDate);
-							if (bExtrem || world.random().Randu() <= max_moth_prop)//remove moth by optimization
+							//bool bExtrem = !period98.IsInside(emergingDate);
+							if (/*bExtrem ||*/ world.random().Randu() <= max_moth_prop)//remove moth by optimization
 							{
 								if (world.m_world_param.m_simulationPeriod.IsInside(emergingDate))
 								{
@@ -617,10 +617,7 @@ namespace WBSF
 									moth.m_Fᴰ = v[I_Fᴰ];
 									moth.m_F = moth.m_Fᴰ;
 									moth.m_location = locations[l];
-									//moth.m_newLocation = locations[l];
 									moth.m_pt = locations[l];
-									//moth.m_UTCShift = /*Round(locations[l].m_lon/15)*3600;*/ CTimeZones::GetTimeZone(locations[l]);
-									//moth.m_UTCShift = __int64(locations[l].m_lon/15.0*3600.0);
 
 									if (extents.IsInside(moth.m_pt))
 										world.m_moths.push_back(moth);
@@ -630,32 +627,40 @@ namespace WBSF
 									rr++;
 									nbReplications = max(nbReplications, rr);
 									no++;
-
-								}//is inside simulation period
-
+								}
+								else//is inside simulation period
+								{
+									if (emergingDate < world.m_world_param.m_simulationPeriod.Begin())
+										moths_before++;
+									else
+										moths_after++;
+								}
+								
 								world.m_seasonalIndividuals++;
 							}
+
+
+							sum_individual++;
 						}//is valid insect
 					}//for all rows
 
 					msg += callback.StepIt();
 				}//for all replications
-			}//for all paramterset
+			}//for all parameter set
 		}//for all locations
-
-
 
 
 		callback.PopTask();
 
-		//CTPeriod outputPeriod = period;
-
+		callback.AddMessage("Kept ratio: " + ToString(100.0*world.m_seasonalIndividuals/ sum_individual, 1) + " %");
 		callback.AddMessage("Number of moths for the entire season: " + ToString(world.m_seasonalIndividuals) + " moths");
-		callback.AddMessage("Number of moths for the period: " + to_string(world.m_moths.size()) + " moths (" + to_string(100.0*world.m_moths.size() / world.m_seasonalIndividuals) + " %)");
-		callback.AddMessage("Execute dispersal with: " + to_string(world.m_moths.size()) + " moths (" + to_string(100.0*world.m_moths.size() / world.m_seasonalIndividuals) + " %)");
+		callback.AddMessage("Number of moths before the period: " + to_string(moths_before) + " moths (" + ToString(100.0*moths_before / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Number of moths for the period: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0*world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Number of moths after the period: " + to_string(moths_after) + " moths (" + ToString(100.0*moths_after / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Execute dispersal with: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0*world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
 		callback.AddMessage("Weather period:         " + world.m_weather.GetEntireTPeriod().GetFormatedString());
 		callback.AddMessage("Output period:          " + outputPeriod2.GetFormatedString());
-		callback.AddMessage("Output replications (max moths per location):" + ToString(nbReplications));
+		callback.AddMessage("Output replications (max moths/location):" + ToString(nbReplications));
 
 		metadata.SetNbReplications(nbReplications);
 		metadata.SetTPeriod(outputPeriod2);
@@ -891,6 +896,6 @@ namespace WBSF
 
 		period98.Begin() = Tref98.percentil(1) + 1;
 		period98.End() = Tref98.percentil(99) - 1;
-//		return seasonalIndividuals;
+		//		return seasonalIndividuals;
 	}
 }
