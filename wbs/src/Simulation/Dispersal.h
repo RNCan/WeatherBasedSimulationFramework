@@ -125,7 +125,7 @@ namespace WBSF
 		ERMsg copy_result(const std::string& file_path, const std::vector<std::array<size_t, 3>>& IDmap, CTPeriod output_p, CResult& result, CCallback& callback);
 
 		static CGeoPoint GetNewPosition(const CGeoPoint& pt, double U, double V);
-		void GetNbMoths(CResultPtr pResult, size_t& nbMoths, CTPeriod& period98);
+		size_t GetNbMoths(CResultPtr pResult);
 
 
 	protected:

@@ -981,8 +981,8 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
-
-					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
+					
+					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 
@@ -993,7 +993,7 @@ namespace WBSF
 					if (m_tgi.UseGribs())
 					{
 						
-						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year);
+						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
 						//if (!results.empty() && m_tgi.XVal())
 							//results.erase(results.begin());
 						if (msgG && !msg)//if we find grib data, we remove error on hourly database
@@ -1060,7 +1060,7 @@ namespace WBSF
 					{
 						CSearchResultVector results;
 						CSearchResultVector resultsG;
-						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year);
+						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
@@ -1071,7 +1071,7 @@ namespace WBSF
 						if (m_tgi.UseGribs())
 						{
 
-							ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year);
+							ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
 							//if (!results.empty() && m_tgi.XVal())
 								//results.erase(results.begin());
 							if (msgG && !msg)//if we find grib data, we remove error on hourly database
@@ -1179,7 +1179,7 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 
-					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
+					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
@@ -1235,7 +1235,7 @@ namespace WBSF
 					if (neededVariables[v] && v != H_TAIR)
 					{
 						CSearchResultVector results;
-						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year);
+						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
@@ -1445,7 +1445,8 @@ namespace WBSF
 
 				CSearchResultVector results;
 				// find stations with category
-				msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v);
+				
+				msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v, YEAR_NOT_INIT, true, true, m_tgi.m_bUseShore);
 
 				if (!results.empty() && m_tgi.XVal())
 					results.erase(results.begin());
@@ -1501,7 +1502,7 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					// find stations with category
-					msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v);
+					msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v, YEAR_NOT_INIT, true, true, m_tgi.m_bUseShore);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 

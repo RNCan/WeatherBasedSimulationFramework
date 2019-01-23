@@ -768,8 +768,11 @@ namespace WBSF
 
 	LRESULT CLocDlg::OnKickIdle(WPARAM, LPARAM)
 	{
-		for (int i = 0; i < m_wndToolBar.GetCount(); i++)
-			m_wndToolBar.UpdateButton(i);
+		if (IsWindowVisible())
+		{
+			for (int i = 0; i < m_wndToolBar.GetCount(); i++)
+				m_wndToolBar.UpdateButton(i);
+		}
 
 		return FALSE;
 	}

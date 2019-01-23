@@ -1,4 +1,8 @@
-//23-11-2018	1.1.3	Rémi Saint-Amant	Add completeness in WGInputAnalysis
+//22-01-2019	1.1.3	Rémi Saint-Amant	Add completeness in WGInputAnalysis
+//											Add filter by name in weather editors
+//											Simulate next year without error
+//											Correctly simulate without shore when desabled
+//											Optimization of internal database
 //30-10-2018	1.1.2	Rémi Saint-Amant	Change mapping interpolation result
 //24-10-2018	1.1.1	Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
 //13-09-2018	1.1.0	Rémi Saint-Amant	Resolve confusion in vapor pressure units. 

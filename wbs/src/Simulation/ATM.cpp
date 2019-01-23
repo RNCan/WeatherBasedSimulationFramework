@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 22-01-2019	1.0.3	Rémi Saint-Amant	sieve uniformly for moths reduction (optimization)
 // 11-10-2018	1.0.2	Rémi Saint-Amant	Bug correction in GetNearestFloorTime.
 // 13-09-2018   1.0.1   Rémi Saint-Amant	Bug correction when weather is not complete over simulation period
 //											Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
@@ -30,7 +31,7 @@
 
 #include "WeatherBasedSimulationString.h"
 
-const char* WBSF_ATM_VERSION = "1.0.2";
+const char* WBSF_ATM_VERSION = "1.0.3";
 
 
 

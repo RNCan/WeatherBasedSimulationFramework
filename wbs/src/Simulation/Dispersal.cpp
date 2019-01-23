@@ -6,8 +6,9 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
-// 17-04-2018	Rémi Saint-Amant	Transfer liftoff here instead of in the model
-// 01-01-2016	Rémi Saint-Amant	Creation
+// 22-01-2019	1.0.3	Rémi Saint-Amant	sieve uniformly for moths reduction (optimization)
+// 17-04-2018	1.0.2	Rémi Saint-Amant	Transfer liftoff here instead of in the model
+// 01-01-2016	1.0.1	Rémi Saint-Amant	Creation
 //******************************************************************************
 #include "stdafx.h"
 #include <boost\algorithm\string.hpp>
@@ -119,13 +120,10 @@ namespace WBSF
 
 		if (filter[REPLICATION])
 			filter.set(TIME_REF);
-		//if (filter[PARAMETER])
-			//filter.set(VARIABLE);
 
 		msg = m_pParent->GetParentInfo(fileManager, info, filter);
 		if (msg)
 		{
-			//CTPeriod pIn = info.m_period;
 			if (filter[LOCATION])
 			{
 				//same as parent
@@ -134,21 +132,6 @@ namespace WBSF
 			if (filter[PARAMETER])
 			{
 				//same as parent
-
-				/*const CModelOutputVariableDefVector& vars = info.m_variables;
-
-				if (!vars.empty())
-				{
-					info.m_parameterset.clear();
-
-					for (size_t i = 0; i < vars.size(); i++)
-					{
-						CModelInput modelInput;
-						modelInput.push_back(CModelInputParam("Variable", vars[i].m_name));
-						info.m_parameterset.push_back(modelInput);
-					}
-					info.m_parameterset.m_pioneer = info.m_parameterset[0];
-				}*/
 			}
 
 			if (filter[REPLICATION])
@@ -556,14 +539,13 @@ namespace WBSF
 
 		double max_moth_prop = 1;//all moths by default
 		size_t nbMoths = 0;
-		//CTPeriod period98;
 		if (world.m_world_param.m_maxFlyers > 0)//replace maxFlyers par maxMoths
 		{
 			//for optimization, clean extra moths
-			GetNbMoths(pResult, nbMoths, CTPeriod());
-			if (nbMoths > world.m_world_param.m_maxFlyers/**0.98*/)
+			nbMoths = GetNbMoths(pResult);
+			if (nbMoths > world.m_world_param.m_maxFlyers)
 			{
-				max_moth_prop = ((double)world.m_world_param.m_maxFlyers/**0.98*/ / nbMoths);
+				max_moth_prop = ((double)world.m_world_param.m_maxFlyers/ nbMoths);
 
 				callback.AddMessage("Number of moths before optimization: " + ToString(nbMoths) + " moths");
 			}
@@ -596,10 +578,9 @@ namespace WBSF
 
 						if (v[I_YEAR] > -999 && v[I_MONTH] > -999 && v[I_DAY] > -999)
 						{
-							//let the first and the last 1% to keep extreme
 							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-							//bool bExtrem = !period98.IsInside(emergingDate);
-							if (/*bExtrem ||*/ world.random().Randu() <= max_moth_prop)//remove moth by optimization
+							
+							if (world.random().Randu() <= max_moth_prop)//remove moth by optimization
 							{
 								if (world.m_world_param.m_simulationPeriod.IsInside(emergingDate))
 								{
@@ -853,13 +834,9 @@ namespace WBSF
 	}
 
 
-	void CDispersal::GetNbMoths(CResultPtr pResult, size_t& nbMoths, CTPeriod& period98)
+	size_t CDispersal::GetNbMoths(CResultPtr pResult)
 	{
-		//seasonalIndividuals = 0;
-		//periodIndividuals = 0;
-	//	size_t seasonalIndividuals = 0;
-
-		CStatisticEx Tref98;
+		size_t nbMoths = 0;
 		const CModelOutputVariableDefVector& vars = pResult->GetMetadata().GetOutputDefinition();
 		std::array<size_t, NB_SBW_INPUTS> varsPos;
 		for (size_t i = 0; i < NB_SBW_INPUTS; i++)
@@ -887,15 +864,13 @@ namespace WBSF
 						{
 							nbMoths++;
 							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-							Tref98 += emergingDate;
+							
 						}
 					}//for all rows
 				}//for all replications
 			}//for all paramterset
 		}//for all locations
 
-		period98.Begin() = Tref98.percentil(1) + 1;
-		period98.End() = Tref98.percentil(99) - 1;
-		//		return seasonalIndividuals;
+		return nbMoths;
 	}
 }
