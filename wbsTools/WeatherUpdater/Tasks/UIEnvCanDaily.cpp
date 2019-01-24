@@ -901,8 +901,8 @@ namespace WBSF
 			{
 				if (loop.Header().size() != NB_DAILY_COLUMN)
 				{
-					//if the Env Can web site change...
-					msg.ajoute("Numbert of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_DAILY_COLUMN));
+					//if the Env. Can web site change...
+					msg.ajoute("Number of columns in Env Can daily file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_DAILY_COLUMN));
 					msg.ajoute(filePath);
 					return msg;
 				}
