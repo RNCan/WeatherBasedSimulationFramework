@@ -37,62 +37,6 @@ namespace WBSF
 	class CWeatherYears;
 
 
-	//class CGribsDatabase
-	//{
-	//public:
-
-	//	
-
-	//	CGribsDatabase(bool m_bUseOnlySurface) :
-	//		m_bUseOnlySurface(m_bUseOnlySurface)
-	//	{
-	//	}
-
-
-
-
-	//	bool IsInit()const{ return !m_filepath_map.empty(); }
-	//	ERMsg Open(const std::string& filepath, CCallback& callback);
-	//	ERMsg Close(CCallback& callback);
-
-	//	bool IsLoaded(CTRef TRef)const{ return m_p_weather_DS.IsLoaded(CTimeZones::TRef2Time(TRef)); }
-	//	ERMsg LoadWeather(CTRef TRef, CCallback& callback);
-	//	ERMsg DiscardWeather(CCallback& callback);
-	//	double GetWeather(const CGeoPoint3D& pt, CTRef UTCRef, size_t v)const;
-	//	
-	//	std::string get_image_filepath(CTRef TRef)const;
-
-	//	CGeoPointIndex get_xy(const CGeoPoint& pt, CTRef UTCTRef)const;
-	//	int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef, bool bLow)const;
-	//	int get_level(const CGeoPointIndex& xy, double alt, CTRef UTCTRef)const;
-	//	double GetGroundAltitude(const CGeoPointIndex& xy, CTRef UTCTRef)const;
-	//	CGeoPoint3DIndex get_xyz(const CGeoPoint3D& pt, CTRef UTCTRef)const;
-
-	//	//size_t GetPrjID()const{ return m_extents.GetPrjID(); }
-	//	//CGDALDatasetCachedPtr& Get(CTRef TRef) { return m_p_weather_DS.Get(TRef); }
-	//	
-
-	//	const CGeoExtents& GetExtents()const{ return  m_extents; }
-
-	//	//void ResetSkipDay(){ m_bSkipDay = false; }
-	//	//bool SkipDay()const{ return  m_bSkipDay; }
-
-	//protected:
-
-	//	
-	//	std::string m_filePathGribs;
-
-	//	TTimeFilePathMap m_filepath_map;
-	//	CTimeDatasetMap m_p_weather_DS;
-	//	CGeoExtents m_extents;
-	//	CProjectionTransformation m_GEO2WEA;
-
-
-	//	bool m_bUseOnlySurface;
-	//	//bool m_bSkipDay;
-	//};
-
-	//typedef std::shared_ptr<CGribsDatabase> CGribsDatabasePtr;
 
 	class CWeatherGenerator
 	{
@@ -100,7 +44,7 @@ namespace WBSF
 
 
 		enum TWarning{ W_DATA_FILLED_WITH_NORMAL, W_UNEEDED_REPLICATION, NB_WARNING };
-
+		static void OutputWarning(const std::bitset<NB_WARNING>& bits, CCallback& callback);
 
 		CWeatherGenerator();
 		~CWeatherGenerator();
@@ -111,7 +55,7 @@ namespace WBSF
 		const CSimulationPoint& GetWeather(size_t r)const{ assert(r < m_simulationPoints.size());  return m_simulationPoints[r]; }
 
 
-		//initilization member
+		//initialization member
 		std::string GetNormalDBFilePath()const{ return m_pNormalDB ? m_pNormalDB->GetFilePath() : ""; }
 		std::string GetDailyDBFilePath()const{ return m_pDailyDB ? m_pDailyDB->GetFilePath() : ""; }
 		std::string GetHourlyDBFilePath()const{ return m_pHourlyDB ? m_pHourlyDB->GetFilePath() : ""; }
@@ -141,6 +85,9 @@ namespace WBSF
 		//ERMsg GetGribs(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GenerateNormals(CSimulationPointVector& simulationPointVector, CCallback& callback);
 		void RemoveForecast(CSimulationPoint& simulationPoint);
+
+		const std::bitset<NB_WARNING>& GetWarningBits()const { return m_warning; }
+		
 	protected:
 
 		void GenerateSeed();

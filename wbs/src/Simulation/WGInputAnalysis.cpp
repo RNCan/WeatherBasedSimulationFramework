@@ -857,7 +857,7 @@ namespace WBSF
 		callback.PushTask("Normals X-Validation", categories.count()*locations.size());
 		CStatistic::SetVMiss(VMISS);
 
-		//open search to avoir thread problem
+		//open search to avoid thread problem
 		msg = WGin.GetNormalDB()->OpenSearchOptimization(callback);
 
 
@@ -890,7 +890,7 @@ namespace WBSF
 						CSearchResultVector weatherStationsI;
 						msg = WG.GetNormalDB()->Search(weatherStationsI, locations[l], 1, WGInputTmp.m_searchRadius[v], WGInputTmp.m_variables, -999, true, true, WGInput.m_bUseShore);
 
-						//if this stations is nesrest 5km and less than 50 meters (delta elevation)
+						//if this stations is nearest 5km and less than 50 meters (delta elevation)
 						if (msg && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 						{
 							CNormalsStation obsStation;
@@ -1426,7 +1426,6 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		//const CWGInput& WGInput = WGBase.GetWGInput();
 		const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
 
 		callback.PushTask("Extract normals", locations.size());
@@ -1460,9 +1459,7 @@ namespace WBSF
 							section[m][f] = simStation[m][f];
 					}
 
-					//resultDB.AddSection(section);
 					resultDB.SetSection(l, section);
-
 					msg += callback.StepIt();
 #pragma omp flush(msg)
 				}
@@ -1762,7 +1759,7 @@ namespace WBSF
 				msg = pNormalDB->OpenSearchOptimization(callback);//open here to be thread safe
 		}
 
-		//open daily databse
+		//open daily database
 		CDailyDatabasePtr pDailyDB;
 		if (msg && WGInput.IsDaily())
 		{

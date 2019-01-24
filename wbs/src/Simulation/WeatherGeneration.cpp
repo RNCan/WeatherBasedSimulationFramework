@@ -191,151 +191,254 @@ namespace WBSF
 		StringVector title(IDS_SIM_WEATHER_GROUP_DATAHEAD, ";|");
 		ASSERT(title.size() == 3);
 
-		CWVariables variables = WGInput.m_variables;
-		CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
-		std::bitset<NB_CATEGORIES> categories = GetCategories(variables);
+		//CWVariables variables = WGInput.m_variables;
+		//CWVariables derivedVars = WGInput.m_allowedDerivedVariables;
+		//std::bitset<NB_CATEGORIES> categories = GetCategories(variables);
 
-		size_t nbFilter = variables.count();
+		//size_t nbFilter = variables.count();
 		int current_year = CTRef::GetCurrentTRef().GetYear();
 
 		int nested = omp_get_nested();
 		omp_set_nested(1);
+		enum { V_NORMALS, V_DAILY, V_HOURLY, NB_VERIFICATIONS };
 
-
-		for (size_t i = 0; i < 3 && msg; i++)
+		for (size_t i = 0; i < NB_VERIFICATIONS && msg; i++)
 		{
 			CWeatherDatabasePtr pDB = NULL;
 			switch (i)
 			{
-			case 0: pDB = pNormalDB; variables = GetCategoryLeadVariables(categories); break;
-			case 1: pDB = pDailyDB; variables = WGInput.m_variables; break;
-			case 2: pDB = pHourlyDB; variables = WGInput.m_variables; break;
+			case V_NORMALS: pDB = pNormalDB; break;//variables = GetCategoryLeadVariables(categories); break;
+			case V_DAILY: pDB = pDailyDB; break;//variables = WGInput.m_variables; break;
+			case V_HOURLY: pDB = pHourlyDB; break;//variables = WGInput.m_variables; break;
 			default: assert(false);
 			}
 
 			if (pDB && pDB->IsOpen())
 			{
 				int currentYear = CTRef::GetCurrentTRef().GetYear();
-				size_t nbYears = i == 0 ? 1 : WGInput.GetNbYears();
+				if (i == V_NORMALS)
+				{
+					CWVariables mVariables = WGInput.GetNormalMandatoryVariables();
+					bitset<NB_CATEGORIES> categories = GetCategories(mVariables);
+					int nbThreadsLoc = min(CTRL.m_nbMaxThreads, (int)locations.size());//priority over location
+					callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE) + " (" + title[i] + ")", categories.count()*locations.size());
 
-				int nbThreadsYear = min(CTRL.m_nbMaxThreads, (int)nbYears);//priority over years
-				int nbThreadsLoc = min(CTRL.m_nbMaxThreads / nbThreadsYear, (int)locations.size());//priority over location
-				callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE) + " (" + title[i] + ")", nbYears*variables.count()*locations.size());
+					for (size_t c = 0; c < 4 && msg; c++)//for all category
+					{
+						if (categories[c])//if this category is selected
+						{
+							TVarH v = GetCategoryLeadVariable(c);
+							if (v == H_TAIR)
+								v = H_TMIN;//use Tmin for search radius and derivable variable
+
+
+							double Dmin = DBL_MAX;
+							double Dmax = DBL_MIN;
+							int maxIndex = 0;
+							ERMsg messageTmp;
+
+#pragma omp parallel for num_threads(nbThreadsLoc) shared(msg, messageTmp) 
+							for (__int64 l = 0; l < (__int64)locations.size(); l++)
+							{
+#pragma omp flush(messageTmp)
+								if (messageTmp)
+								{
+									CSearchResultVector results;
+									ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v);
+									if (messageTmp && !msgTmp)
+									{
+										if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] ||
+											(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
+											v == H_PRES)
+										{
+											Dmin = 0;
+											Dmax = 0;
+										}
+										else
+										{
+											messageTmp += msgTmp;
+										}
+#pragma omp flush(messageTmp)
+									}
+
+									if (msgTmp)
+									{
+#pragma omp critical(test)
+										{
+
+											Dmin = min(Dmin, results[0].m_distance / 1000);
+											if (results[0].m_distance / 1000 > Dmax)
+											{
+												maxIndex = l;
+												Dmax = results[0].m_distance / 1000;
+											}
+										}
+
+
+#pragma omp flush(messageTmp)
+										if (messageTmp)
+											messageTmp += callback.StepIt();
+#pragma omp flush(messageTmp)
+									}
+								}
+							}//for all locations
+
+							if (messageTmp)
+							{
+								if (locations.size() > 1)
+								{
+									if (Dmin > CTRL.m_maxDistFromLOC)
+									{
+
+										string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
+
+										if (CTRL.m_bRunEvenFar)
+											callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
+										else
+											messageTmp.ajoute(str);
+									}
+								}
+
+
+								if (messageTmp)
+								{
+									if (Dmax > CTRL.m_maxDistFromPoint)
+									{
+										string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
+										callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
+									}
+								}
+							}
+
+							if (!messageTmp)
+								msg.ajoute(messageTmp);
+
+							//msg += callback.StepIt(n);
+						}//if category
+					}//for all category
+				}//if normals
+				else
+				{
+
+					CWVariables variables = WGInput.m_variables;
+
+					//size_t nbYears = i == 0 ? 1 : WGInput.GetNbYears();
+					size_t nbYears = WGInput.GetNbYears();
+
+					int nbThreadsYear = min(CTRL.m_nbMaxThreads, (int)nbYears);//priority over years
+					int nbThreadsLoc = min(CTRL.m_nbMaxThreads / nbThreadsYear, (int)locations.size());//priority over location
+					callback.PushTask(GetString(IDS_SIM_VERIFY_DISTANCE) + " (" + title[i] + ")", nbYears*variables.count()*locations.size());
 
 
 #pragma omp parallel for num_threads(nbThreadsYear) shared(msg) 
-				for (int y = 0; y < (int)nbYears; y++)
-				{
-#pragma omp flush(msg)
-					if (msg)
+					for (int y = 0; y < (int)nbYears; y++)
 					{
-						int year = i == 0 ? 0: WGInput.GetFirstYear() + int(y);
-						if (year <= current_year)//if not in future
+#pragma omp flush(msg)
+						if (msg)
 						{
-							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
+							//int year = i == 0 ? 0 : WGInput.GetFirstYear() + int(y);
+							int year = WGInput.GetFirstYear() + int(y);
+							if (year <= current_year)//if not in future
 							{
-								if (variables[v])
+								for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 								{
-									double Dmin = DBL_MAX;
-									double Dmax = DBL_MIN;
-									int maxIndex = 0;
-									ERMsg messageTmp;
+									if (variables[v])
+									{
+										double Dmin = DBL_MAX;
+										double Dmax = DBL_MIN;
+										int maxIndex = 0;
+										ERMsg messageTmp;
 
 #pragma omp parallel for num_threads(nbThreadsLoc) shared(msg, messageTmp) 
-									for (__int64 l = 0; l < (__int64)locations.size(); l++)
-									{
+										for (__int64 l = 0; l < (__int64)locations.size(); l++)
+										{
 #pragma omp flush(messageTmp)
+											if (messageTmp)
+											{
+												CSearchResultVector results;
+												ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
+												if (messageTmp && !msgTmp)
+												{
+													if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] ||
+														(i == 2 && (v == H_TAIR)) ||
+														(i == 2 && (v == H_TMIN || v == H_TMAX)) ||
+														//(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
+														v == H_PRES)
+													{
+														Dmin = 0;
+														Dmax = 0;
+													}
+													else
+													{
+														messageTmp += msgTmp;
+													}
+#pragma omp flush(messageTmp)
+												}
+
+												if (msgTmp)
+												{
+#pragma omp critical(test)
+													{
+
+														Dmin = min(Dmin, results[0].m_distance / 1000);
+														if (results[0].m_distance / 1000 > Dmax)
+														{
+															maxIndex = l;
+															Dmax = results[0].m_distance / 1000;
+														}
+													}
+
+
+#pragma omp flush(messageTmp)
+													if (messageTmp)
+														messageTmp += callback.StepIt();
+#pragma omp flush(messageTmp)
+												}
+											}
+										}//for all locations
+
 										if (messageTmp)
 										{
-											CSearchResultVector results;
-											ERMsg msgTmp = pDB->Search(results, locations[l], 1, WGInput.m_searchRadius[v], v, year);
-											if (messageTmp && !msgTmp)
+											if (locations.size() > 1)
 											{
-												if (callback.GetUserCancel() || WGInput.m_allowedDerivedVariables[v] ||
-													(i == 2 && (v == H_TMIN || v == H_TMAX)) ||
-													(i == 0 && (v == H_WNDD || v == H_SRAD || v == H_SNOW || v == H_SNDH || v == H_SWE)) ||
-													v == H_PRES)
-												{
-													Dmin = 0;
-													Dmax = 0;
-												}
-												else
-												{
-													messageTmp += msgTmp;
-												}
-#pragma omp flush(messageTmp)
-											}
-
-											if (msgTmp)
-											{
-#pragma omp critical(test)
+												if (Dmin > CTRL.m_maxDistFromLOC)
 												{
 
-													Dmin = min(Dmin, results[0].m_distance / 1000);
-													if (results[0].m_distance / 1000 > Dmax)
-													{
-														maxIndex = l;
-														Dmax = results[0].m_distance / 1000;
-													}
-												}
-
-
-#pragma omp flush(messageTmp)
-												if (messageTmp)
-													messageTmp += callback.StepIt();
-#pragma omp flush(messageTmp)
-											}
-										}
-									}//for all locations
-
-									if (messageTmp)
-									{
-										if (locations.size() > 1)
-										{
-											if (Dmin > CTRL.m_maxDistFromLOC)
-											{
-
-												string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
-												if (i > 0)
+													string str = FormatMsg(IDS_SIM_BAD_REGION, ToString(CTRL.m_maxDistFromLOC), ToString(Dmin), GetVariableName(v), title[i]);
+													//if (i > 0)
 													str += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
 
-												if (CTRL.m_bRunEvenFar)
-													callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
-												else
-													messageTmp.ajoute(str);
+													if (CTRL.m_bRunEvenFar)
+														callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + str);
+													else
+														messageTmp.ajoute(str);
+												}
 											}
-										}
 
 
-										if (messageTmp)
-										{
-											if (Dmax > CTRL.m_maxDistFromPoint)
+											if (messageTmp)
 											{
-												string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
-												if (i > 0)
+												if (Dmax > CTRL.m_maxDistFromPoint)
+												{
+													string warning = FormatMsg(IDS_SIM_FAR_STATION, locations[maxIndex].m_name, ToString(Dmax), ToString(CTRL.m_maxDistFromPoint), GetVariableName(v), title[i]);
+													//if (i > 0)
 													warning += " " + GetString(IDS_STR_YEARS) + " = " + ToString(year);
 
-												callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
+													callback.AddMessage(GetString(IDS_STR_WARNING) + " : " + warning, 1);
+												}
 											}
 										}
-									}
-									else
-									{
-										//this variable can be founb by virtual variable
 
-										//	messageTmp = ERMsg();
-									}
+										if (!messageTmp)
+											msg.ajoute(messageTmp);
 
-									if (!messageTmp)
-										msg.ajoute(messageTmp);
-
-									//msg += callback.StepIt(n);
-								}//if variable
-							}//for all variables
-						}//if not in future
-					}//if msg
-				}//for all years
-
+										//msg += callback.StepIt(n);
+									}//if variable
+								}//for all variables
+							}//if not in future
+						}//if msg
+					}//for all years
+				}//normal, observation
 				callback.PopTask();
 			}//is database open
 		}//for all database
@@ -470,7 +573,7 @@ namespace WBSF
 		if (msg)
 			msg = fileManager.Normals().GetFilePath(WGInput.m_normalsDBName, NFilePath);
 
-		//find daily file apth if any
+		//find daily file pa	th if any
 		std::string DFilePath;
 		if (msg && WGInput.UseDaily())
 			msg = fileManager.Daily().GetFilePath(WGInput.m_dailyDBName, DFilePath);
@@ -483,7 +586,7 @@ namespace WBSF
 		if (msg && WGInput.UseGribs())
 			msg = fileManager.Gribs().GetFilePath(WGInput.m_gribsDBName, GFilePath);
 
-		
+
 
 		//open normal database
 		CNormalsDatabasePtr normalDB(new CNormalsDatabase);
@@ -495,7 +598,7 @@ namespace WBSF
 		}
 
 
-		//open daily databse
+		//open daily database
 		CDailyDatabasePtr dailyDB;
 		if (msg && WGInput.IsDaily())
 		{
@@ -543,14 +646,14 @@ namespace WBSF
 				std::string outputPath = GetPath(fileManager);//Generate output path
 				string file_path = GetDBFilePath(outputPath);//Generate DB file path
 				SetFileExtension(file_path, CSfcGribDatabase::DATABASE_EXT);
-				
+
 				msg = pGribDB->Open(file_path, CSfcGribDatabase::modeEdit, callback, true);
-				if(msg)
+				if (msg)
 					msg = pGribDB->Update(gribs, locations, callback);
 
 				if (msg)
 					msg = pGribDB->Close(true, callback);
-				
+
 				if (msg)
 					msg = pGribDB->Open(file_path, CSfcGribDatabase::modeRead, callback, true);
 			}
@@ -652,11 +755,7 @@ namespace WBSF
 			int nbThreadsLoc = min(CTRL.m_nbMaxThreads, (int)locPos.size());//priority over location
 			size_t memoryUsedByOneThread = sizeof(CWeatherYear)*m_nbReplications*WGInput.GetNbYears() / (1024 * 1024) * 120 / 100;
 			size_t availableMemory = GetTotalSystemMemory() / (1024 * 1024) - 6000;
-
-			//callback.AddMessage("Memory for one thres = " + ToString(memoryUsedByOneThread));
-			//callback.AddMessage("Available memory = " + ToString(availableMemory));
-			//callback.AddMessage("max threads = " + ToString(CTRL.m_nbMaxThreads));
-			callback.AddMessage("Num loc threads = " + ToString(nbThreadsLoc));
+			callback.AddMessage("Number of location's threads: " + ToString(nbThreadsLoc));
 
 			if (nbThreadsLoc > 1 && nbThreadsLoc*memoryUsedByOneThread > availableMemory)
 			{
@@ -664,18 +763,18 @@ namespace WBSF
 				callback.AddMessage("The number of threads was limited by available memory. " + ToString(CTRL.m_nbMaxThreads) + " --> " + ToString(nbThreadsLoc) + " threads");
 			}
 
-
-			//bool bTestOK = true;
+			vector<std::bitset<CWeatherGenerator::NB_WARNING>> warning(nbThreadsLoc);
 
 			size_t n = 0;//progress
 
 			//static,1 is to do simulation in the good other. This is best way to optimize weather cache
 #pragma omp parallel for schedule(static, 1) shared(result, msg) num_threads(nbThreadsLoc) if ( !WGInput.UseGribs() ) 
-			for (int ll = 0; ll < (int)locPos.size(); ll++)
+			for (__int64 ll = 0; ll < (__int64)locPos.size(); ll++)
 			{
 #pragma omp flush(msg)
 				if (msg)
 				{
+					int thread = omp_get_thread_num();
 					size_t l = locPos[ll];
 
 					// init the loc part of WGInput
@@ -689,8 +788,9 @@ namespace WBSF
 					WG.SetGribsDB(gribsDB);
 					WG.SetTarget(locations[l]);
 
-					ERMsg msgTmp = WG.Generate(callback);
 
+					ERMsg msgTmp = WG.Generate(callback);
+					warning[thread] |= WG.GetWarningBits();
 
 #pragma omp flush(msg)
 					if (msg && !msgTmp)
@@ -722,21 +822,6 @@ namespace WBSF
 #pragma omp flush(msg)
 						}
 
-
-						/*CTPeriod p = weather.GetEntireTPeriod();
-						for (CTRef TRef = p.Begin(); TRef <= p.End() && bTestOK; TRef++)
-						{
-							for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-							{
-								if (WGInput.m_variables[v])
-								{
-									if (weather[TRef][v][MEAN] < -100 || weather[TRef][v][MEAN]>100)
-										bTestOK = false;
-								}
-							}
-						}*/
-
-
 						//wait when pause is activated								
 						callback.WaitPause();
 					}   // for replication
@@ -754,8 +839,17 @@ namespace WBSF
 
 			result.Close();
 
+			//gather all thread warnings into the first warning
+			for (size_t i = 1; i < warning.size(); i++)
+			{
+				warning[0] |= warning[i];
+			}
+
+			CWeatherGenerator::OutputWarning(warning[0], callback);
 			//callback.AddMessage(string("Test Validation = ") + (bTestOK ? "OK" : "Failed"));
-		}
+		}//if open result
+
+
 
 		callback.PopTask();
 
@@ -794,7 +888,7 @@ namespace WBSF
 
 
 		CTimer timer(true);
-//		std::cout << "\nExecuting Clustering Algorithm: Swap\n";
+		//		std::cout << "\nExecuting Clustering Algorithm: Swap\n";
 		KMlocalSwap kmSwap(ctrs, term);		// Swap heuristic
 		ctrs = kmSwap.execute();
 

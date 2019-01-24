@@ -10,11 +10,11 @@
 // Abstract:    This class simulate daily air temperature, precipitation, humidity and wind speed from monthly normal
 //
 // See article : Régnière, J., St-Amant, R. 2007. Stochastic simulation of daily air 
-//				 temperature and precipitation from monthly normals in Noth America north 
+//				 temperature and precipitation from monthly normals in North America north 
 //				 of Mexico. Int J Biometeorol. 
 //******************************************************************************
 // 01/01/2016	Rémi Saint-Amant	Include into Weather-based simulation framework
-// 01/12/2007	Jacques Régnière	Addition of new variable. DewPoint, Relitive Humidity and Wind Speed	
+// 01/12/2007	Jacques Régnière	Addition of new variable. DewPoint, Relative Humidity and Wind Speed	
 // 01/01/2007	Jacques Régnière	New kernel from article
 // 04/03/2009	Rémi Saint-Amant	Correction of 2 bugs in the wind generation
 // 10/02/2012	Rémi Saint-Amant	New random generator
@@ -84,7 +84,7 @@ namespace WBSF
 	//
 	// Description: Set and adjust normal
 	//
-	// Input:		const CNormalsData& normals: the normals
+	// Input:		CNormalsData: the normals
 	//
 	// Output:
 	//
@@ -110,7 +110,7 @@ namespace WBSF
 	void CWeatherGeneratorKernel::Generate(CWeatherYear& dailyData)
 	{
 
-		//      Daily Generator Loop
+		//Daily Generator Loop
 		//randomization for temperature
 		m_rand.Randomize(m_seed[H_TAIR]);
 
@@ -125,19 +125,16 @@ namespace WBSF
 				InitDeltaEpsilon();
 
 
-
-			//int date = 0;
 			for (size_t m = 0; m < 12; m++) //loop over 12 months
 			{
 				double e_min[31] = { 0 };
 				double e_max[31] = { 0 };
 
+				//generate daily fluctuation for Tmin and Tmax
 				GetRandomTraces(e_min, e_max, m);
 
 				for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 				{
-					//_ASSERTE(date>= 0 && date<365);
-
 					//Get today's temperature
 					double tmin = m_normals.Interpole(m, d, TMIN_MN) + e_min[d];
 					double tmax = m_normals.Interpole(m, d, TMAX_MN) + e_max[d];
@@ -148,16 +145,9 @@ namespace WBSF
 						Switch(tmin, tmax);
 
 					_ASSERTE(tmin < tmax);
-					//if (m_variables[H_TAIR])
-						dailyData[m][d][H_TMIN] = tmin;
-
-					//if (m_variables[H_TAIR])
-						dailyData[m][d][H_TAIR] = (tmin + tmax) / 2;
-
-					//if (m_variables[H_TMAX])
-						dailyData[m][d][H_TMAX] = tmax;
-
-					
+					dailyData[m][d][H_TMIN] = tmin;
+					dailyData[m][d][H_TAIR] = (tmin + tmax) / 2;
+					dailyData[m][d][H_TMAX] = tmax;
 				} // for all days in the month
 			}//for all months
 		}
@@ -168,13 +158,13 @@ namespace WBSF
 		if (m_variables[H_PRCP])
 		{
 			ASSERT(m_normals.GetVariables()[H_PRCP]);
-			//copy normals and make random ajustement for precipitation
+			//copy normals and make random adjustment for precipitation
 			CNormalsData normalTmp = m_normals;
 			RandomizeNormals(normalTmp);
 
 			for (int m = 0; m < 12; m++)
 			{
-				//distribute month's precip 
+				//distribute month's precipitation 
 				DailyPrecipitation(m, normalTmp, dailyData);
 			}
 		}
@@ -185,8 +175,7 @@ namespace WBSF
 		//relative humidity part
 		if (m_variables[H_TDEW] || m_variables[H_RELH])
 		{
-			//if there is no humidity, they will be complete later in the process
-			//ASSERT(m_normals.GetVariables()[H_RELH]);
+			//if there is no humidity from database, they will be complete later in the process
 			if (m_normals.GetVariables()[H_RELH])
 			{
 
@@ -203,7 +192,7 @@ namespace WBSF
 						_ASSERTE(dailyData[m][d][H_TMIN].IsInit());
 						_ASSERTE(dailyData[m][d][H_TMAX].IsInit());
 
-						//NOTE: old beta distribution have a biasis of 1%, the new don't, RSA 28/07/2012
+						//NOTE: old beta distribution have a bias of 1%, the new don't, RSA 28/07/2012
 						double Hr = m_rand.RandBeta(alpha, beta) * 100;
 						ASSERT(Hr >= 0 && Hr <= 100);
 						double Tmean = (dailyData[m][d][H_TMIN][MEAN] + dailyData[m][d][H_TMAX][MEAN]) / 2;
@@ -224,7 +213,7 @@ namespace WBSF
 		if (m_variables[H_WNDS] || m_variables[H_WND2])
 		{
 			ASSERT(m_normals.GetVariables()[H_WNDS]);
-			//int jd=0;
+			
 			for (int m = 0; m < 12; m++)
 			{
 				//WARNING : the mean and maximum of wind speed have been replaced, RSA 26/07/2012
@@ -244,14 +233,12 @@ namespace WBSF
 					static const double B = 0.1371;
 					static const double C = 0.8853;
 
-					//double WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
 					double WS = m_rand.RandLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
 
 					if (WS > WSMax)
 					{
 						while (WS<exp(windSpeedMean) || WS > WSMax)
 							WS = m_rand.RandLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
-							//WS = exp(m_rand.RandNormal(windSpeedMean, windSpeedSD))*(A + B*log(Rp + C));
 					}
 
 					if (WS < 0.1)
@@ -290,17 +277,16 @@ namespace WBSF
 		for (int i = 0; i < 12; i++)
 		{
 			// Total monthly precipitation
-			//Weibull Nu and Lambda, in p = 1-exp(-((Weibull/Lambda)^Nu)) Régnière (2007) Equ. [11]
+			//Weibull Nu and Lambda, in p = 1-exp(-((Weibull/Lambda)^Nu)) Régnière (2007) Eq. [11]
 			//which inverted gives
 			//Weibull = Lambda*(-ln((1-p)^(1/Nu))...
 
 			double Weibull = 1;
 			//new equations and parameters for high sp values (29/10/2006)
-			double Nu = 0.9277 / normalTmp[i][PRCP_SD] + 0.0752 / (normalTmp[i][PRCP_SD] * normalTmp[i][PRCP_SD]); //Régnière (2007) Equ. [12]
-			double Lambda = 1.1174* pow(1 - exp(-4.4107*Nu), 7.5088); //Régnière (2007) Equ. [13]
+			double Nu = 0.9277 / normalTmp[i][PRCP_SD] + 0.0752 / (normalTmp[i][PRCP_SD] * normalTmp[i][PRCP_SD]); //Régnière (2007) Eq. [12]
+			double Lambda = 1.1174* pow(1 - exp(-4.4107*Nu), 7.5088); //Régnière (2007) Eq. [13]
 
 			//Random number in [0,1[
-			//double p_rand=Randv();
 			double p_rand = m_rand.Randv();
 			//Compute a Weibull-distributed variate.
 			Weibull = min(25.0, max(0.0, (pow(-log(1.0 - p_rand), 1.0 / Nu)*Lambda)));
@@ -312,7 +298,7 @@ namespace WBSF
 	//****************************************************************************
 	// Summary:		InitDeltaEpsilon
 	//
-	// Description: Initialize dalta and epsilon to have a starting point of temperature variation
+	// Description: Initialize delta and epsilon to have a starting point of temperature variation
 	//
 	// Input:		
 	//
@@ -338,7 +324,7 @@ namespace WBSF
 		double P = m_normals[month].GetP(sigma_gamma, sigma_zeta);
 		ASSERT(!_isnan(sigma_gamma));
 		ASSERT(!_isnan(sigma_zeta));
-		//Régnière (2007) Equ [3] in standard 2nd order autoregressive process formulation
+		//Régnière (2007) Eq [3] in standard 2nd order autoregressive process formulation
 		//Initialize time series 
 		for (size_t i = 0; i < 50; i++)
 		{
@@ -381,19 +367,17 @@ namespace WBSF
 		double sigma_zeta = 0;
 		double P = m_normals[month].GetP(sigma_gamma, sigma_zeta);
 		ASSERT(!_isnan(sigma_zeta));
-		//Régnière (2007) Equ [3] in standard 2nd order autoregressive process formulation
+		//Régnière (2007) Eq [3] in standard 2nd order autoregressive process formulation
 		//Initialize time series 
 
 		double LimitTmin = 3.9*sigma_delta;
 		double LimitTmax = 3.9*sigma_epsilon;
 		for (size_t j = 0; j < GetNbDayPerMonth(month); j++)
 		{
-			//double gamma = RandNormal(0, sigma_gamma);
-			//double zeta  = RandNormal(0, sigma_zeta);
 			double gamma = m_rand.RandNormal(0, sigma_gamma);
 			double zeta = m_rand.RandNormal(0, sigma_zeta);
 
-			//Régnière (2007) Equ [3] in standard 2nd order autoregressive process formulation
+			//Régnière (2007) Eq [3] in standard 2nd order autoregressive process formulation
 			m_delta[2] = A1*m_delta[1] + A2*m_delta[0] + gamma;
 			m_epsilon[2] = (B1*m_epsilon[1] + B2*m_epsilon[0] + sigma_epsilon / sigma_delta * (P*gamma + (1 - abs(P))*zeta));
 
@@ -424,7 +408,7 @@ namespace WBSF
 	//
 	// Description: Get a random series of precipitation for a month
 	//
-	// Input:		int month, const CNormalsData& normalTmp, 
+	// Input:		int month, CNormalsData& normalTmp, 
 	//
 	// Output:		CDailyData& dailyData
 	//
@@ -438,7 +422,7 @@ namespace WBSF
 		InitRandomNumber(m, p_test, epsilon_prec);
 
 
-		//		Zero-initialize daily precip for the month
+		//		Zero-initialize daily precipitation for the month
 		for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 			dailyData[m][d][H_PRCP] = 0;
 
@@ -462,7 +446,7 @@ namespace WBSF
 				ASSERT(dailyData[m][d][H_TMIN].IsInit());
 				ASSERT(dailyData[m][d][H_TMAX].IsInit());
 
-				//		Get daily prob of precip given min, max, tot_precip of the month and the Sp
+				//		Get daily prob of precipitation given min, max, tot_precip of the month and the Sp
 				double Pprecip = m_AP.GetPprecip(dailyData[m][d][H_TMIN][MEAN], dailyData[m][d][H_TMAX][MEAN], normalTmp[m][PRCP_TT], Sp);
 
 				//Find the day when the probability of rain is the highest
@@ -512,25 +496,15 @@ namespace WBSF
 		}
 	}
 
-
-	//returns a float on the interval [0,1[
-	//double CWeatherGeneratorKernel::Randv(void) 
-	//{
-	//	return Randu(false, true);
-	//}
-
-
 	// JR JAN 2001 Set new variables, especially: store month's random trace
 	void CWeatherGeneratorKernel::InitRandomNumber(int m, double p_test[31], double epsilon_prec[31])
 	{
 		for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 		{
-			//p_test[d]=Randu();
-			//epsilon_prec[d]=Randu();
 			p_test[d] = m_rand.Randu();
 			epsilon_prec[d] = m_rand.Randu();
 		}
 	}
 
-
+	
 }

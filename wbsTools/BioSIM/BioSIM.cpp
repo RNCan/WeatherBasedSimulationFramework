@@ -1,21 +1,23 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
-// 11.5.3 (1.1.3): 22/01/2019 Rémi Saint-Amant	Add completeness in WGInputAnalysis
-//												Add categories in Normals
-//												Able to simulate next year without error
-//												Correctly simulate without shore when desabled
-// 11.5.2 (1.1.2): 24/10/2018 Rémi Saint-Amant	Change mapping interpolation result
-// 11.5.1 (1.1.1): 24/10/2018 Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
-// 11.5.0 (1.1.0): 12/09/2018 Rémi Saint-Amant	Bug correction in unit of vapor pressure.
-//												Bug correction in generation of hourly precipitation from daily values
-//												Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
-// 11.4.9 (1.0.1): 30/08/2018 Rémi Saint-Amant	Major update in spatial interpolation.
+// 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction
+//											Optimization of weather generation and model simulation save process
+//											Optimization of spatial interpolation
+// 11.5.3: 23/11/2018	Rémi Saint-Amant	Add completeness in WGInputAnalysis
+//											Add categories in Normals
+//											Able to simulate next year without error
+// 11.5.2: 24/10/2018	Rémi Saint-Amant	Change mapping interpolation result
+// 11.5.1: 24/10/2018	Rémi Saint-Amant	Change the default interpolation spatial drift param from Expo to Elev. 
+// 11.5.0: 12/09/2018	Rémi Saint-Amant	Bug correction in unit of vapor pressure.
+//											Bug correction in generation of hourly precipitation from daily values
+//											Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
+// 11.4.9: 30/08/2018	Rémi Saint-Amant	Major update in spatial interpolation.
 // 11.4.8: 11/07/2018	Rémi Saint-Amant	Optimization of memory in ATM
 //											Correction of bug in sub-hourly output and time step
 // 11.4.7: 05/07/2018	Rémi Saint-Amant	Bug correction ATM (no end loop)
 // 11.4.6: 20/06/2018	Rémi Saint-Amant	Add match station export (with station name)  
 // 11.4.5: 15/05/2018	Rémi Saint-Amant	New dispersal
-// 11.4.4: 13/04/2018	Rémi Saint-Amant	Resize FileManager correcly
+// 11.4.4: 13/04/2018	Rémi Saint-Amant	Resize FileManager correctly
 //											New SSI extraction dlg
 // 11.4.3: 28/03/2018	Rémi Saint-Amant	Add snow gradient
 // 11.4.2: 21/03/2018	Rémi Saint-Amant	Compile with Visual Studio 2017 
@@ -35,7 +37,7 @@
 //											Compile with GDAL 2.02 
 //											Bug correction in merge name and title
 // 11.3.1: 02/05/2017	Rémi Saint-Amant	Bug correction into the merge component
-//											Automaticly expand parent component when we add children
+//											Automatically expand parent component when we add children
 //											modification of the CSV reader. Read the last line event without CRLF
 // 11.2.7: 22/04/2017	Rémi Saint-Amant	Tair hourly change to AllenWave 
 // 11.2.6: 05/04/2017	Rémi Saint-Amant	Bug correction in mapping Xvalidation with noData and VMISS
@@ -68,7 +70,7 @@
 //						Rémi Saint-Amant	Bug correction in snow and Input Weather Generator Analysis
 //						Rémi Saint-Amant	Bug correction when only one element
 // 11.0.2: 21/04/2016	Rémi Saint-Amant	Correction of bug in the weather generation with more than 1 replication.
-// 11.0.0: 10/04/2016	Rémi Saint-Amant	Integreted with WBSF 
+// 11.0.0: 10/04/2016	Rémi Saint-Amant	Integrated with WBSF 
 //						Rémi Saint-Amant	Add hourly input data   
 //						Rémi Saint-Amant	Version 64 bits and UNICODE
 //						Rémi Saint-Amant	Add WeatherGeneration and ModelExecution
@@ -99,7 +101,7 @@
 //						Rémi Saint-Amant	Bug correction with hxGrid in Simulation
 //						Rémi Saint-Amant	Bug correction in multi-threaded weather optimization file 
 //						Rémi Saint-Amant	Correction in hxGrid simulation
-//						Rémi Saint-Amant	Add kriging local filter
+//						Rémi Saint-Amant	Add Kriging local filter
 //						Rémi Saint-Amant	Add mapping global filter
 //						Rémi Saint-Amant	Correction of a bug in CRegistry and leak of handle 
 // 10.2.4:18/09/2012	Rémi Saint-Amant	Correction of bug in Input Analysis
@@ -436,7 +438,7 @@ BOOL CBioSIMApp::InitInstance()
 	AfxEnableControlContainer();
 	
 
-	//init gdiplus to avoir crash when BioSIM close
+	//init gdiplus to avoid crash when BioSIM close
 	Gdiplus::GdiplusStartupInput    gdiplusStartupInput;
 	if (Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL) != Gdiplus::Ok)
 	{
@@ -445,7 +447,7 @@ BOOL CBioSIMApp::InitInstance()
 	}
 
 
-	//This DLL must be in the BioSIM directory for french version
+	//This DLL must be in the BioSIM directory for French version
 //	VERIFY( MTTools::registerCOMObject(_T("MTParserInfoFile.dll")) );
 	//try
 	//{
@@ -475,7 +477,7 @@ BOOL CBioSIMApp::InitInstance()
 	SetRegistryKey(_T("NRCan"));
 	LoadStdProfileSettings(15);  // Load standard INI file options (including MRU)
 
-	//intialise at the beggining of the application the random number for 
+	//initialize at the beginning of the application the random number for 
 	//the generation of the internalName
 	WBSF::Randomize();
 	RegisterGDAL();
