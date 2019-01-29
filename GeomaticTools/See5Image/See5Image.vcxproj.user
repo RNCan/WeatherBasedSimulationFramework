@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-BlockSize 1 8192 -multi -co "compress=LZW" -BLOCK_THREADS 16 -IOCPU 8 -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" --config GDAL_CACHEMAX 1024 -stats -overview {4,8,16} -overwrite -ot int16 -dstnodata -32768  "U:\GIS\#documents\TestCodes\See5Image\Model\DT_T12_LOSS_220199_3135_v2" "U:\GIS\#documents\TestCodes\See5Image\input\invrt.vrt"  "U:\GIS\#documents\TestCodes\See5Image\output\out2.tif"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-multi -IOCPU 4 -ot int16 -dstnodata -32768 --config GDAL_CACHEMAX 1024 -overwrite "D:\Travaux\See5\Model\DT_remi" "D:\Travaux\See5\Input\invrt.vrt" "D:\Travaux\See5\output\out.tif"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

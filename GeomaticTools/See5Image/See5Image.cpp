@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version 
-// 2.0.2    25/12/2018	Rémi Saint-Amant	Eliminate the verification of independant variables
+// 2.0.3    29/01/2019	Rémi Saint-Amant	new compilation
+// 2.0.2    25/12/2018	Rémi Saint-Amant	Eliminate the verification of independent variables
 // 2.0.l	21/12/2018	Rémi Saint-Amant	Use Entry to evaluate the number of input variables
 // 2.0.0	29/09/2018	Rémi Saint-Amant	Creation from DisturbanceAnalyser
 
@@ -36,7 +37,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.2";
+static const char* version = "2.0.3";
 
 
 enum TFilePath { SEE5_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
@@ -59,7 +60,7 @@ public:
 		
 		static const COptionDef OPTIONS[] =
 		{
-			{"-BLOCK_THREADS",1,"threads",false,"Number of threads used to process blocks. nb CPU by default. Only used when -multi is define. "},
+			//{"-BLOCK_THREADS",1,"threads",false,"Number of threads used to process blocks. nb CPU by default. Only used when -multi is define. "},
 			{ "See5Model",0,"",false,"See5 model file path."},
 			{ "srcfile",0,"",false, "Input image file path."},
 			{ "dstfile",0,"",false, "Output image file path."}
@@ -68,12 +69,12 @@ public:
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
 
-		//RemoveOption("-BLOCK_THREADS");
+		RemoveOption("-BLOCK_THREADS");
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Model", "DTModel","","","","Decision tree model file generate by See5."},
-			{ "Input Image", "srcfile","","nbBands","same number iof band as the input See5 model"},
+			{ "Input Image", "srcfile","","nbBands","same number of band as the input See5 model"},
 			{ "Output Image", "dstfile","1","","See5 model result"},
 		};
 
@@ -230,9 +231,6 @@ ERMsg CSee5::Execute()
 
 	GDALAllRegister();
 
-	//if (m_options.m_outputType != GDT_Unknown && m_options.m_outputType != GDT_Int16 && m_options.m_outputType != GDT_Int32)
-		//msg.ajoute("Invalid -ot option. Only GDT_Int16 or GDT_Int32 are supported");
-
 	if (!msg)
 		return msg;
 
@@ -250,10 +248,6 @@ ERMsg CSee5::Execute()
 
 	msg = OpenAll(inputDS, maskDS, outputDS);
 	
-	//int nbIndVar = DT.front().MaxAtt - 1;
-	//if (msg && inputDS.GetRasterCount() != DT.front().Entry)
-		//msg.ajoute("The number of bands in the input image (" + to_string(inputDS.GetRasterCount()) + ") is not equal as the number of independants variables (" + to_string(DT.front().Entry) + ") in the model.");
-
 	if (msg)
 	{
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
@@ -275,7 +269,7 @@ ERMsg CSee5::Execute()
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 		omp_set_nested(1);
-#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_BLOCK_THREADS) if (m_options.m_bMulti)
+#pragma omp parallel for schedule(static, 1) num_threads(m_options.m_CPU) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int thread = omp_get_thread_num();
@@ -328,16 +322,10 @@ void CSee5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder,
 		return;
 	}
 
-
-//#pragma omp critical(ProcessBlock)
-	//{
-	//	m_options.m_timerProcess.Start();
-
 		//allocate process memory
 		data.resize(blockSize.m_x*blockSize.m_y, (__int16)m_options.m_dstNodata);
 
 		//process all x and y 
-//#pragma omp parallel for schedule(static, 1) num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)  
 		for (int y = 0; y < blockSize.m_y; y++)
 		{
 			for (int x = 0; x < blockSize.m_x; x++)
@@ -413,6 +401,11 @@ void CSee5::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, OutputD
 			float noDataOut = (float)outputDS.GetNoData(0);
 			ASSERT(data.size() == blockSize.m_x*blockSize.m_y);
 			GDALRasterBand *pBand = outputDS.GetRasterBand(0);
+			/*for (size_t i = 0; i < data.size(); i++)
+			{
+				if (data[i] < -32000)
+					exit(99);
+			}*/
 
 			//for (size_t b = 0; b < outputDS.GetRasterCount(); b++)
 			if(!data.empty())
