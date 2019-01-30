@@ -638,6 +638,7 @@ namespace WBSF
 				pGribDB->m_nb_points = WGInput.m_nbGribPoints;
 				pGribDB->m_bIncremental = true;
 				pGribDB->m_variables = CSfcGribDatabase::get_var(WGInput.m_variables);
+				pGribDB->m_nbMaxThreads = CTRL.m_nbMaxThreads;
 
 				std::string GFilePath;
 				if (msg && WGInput.UseGribs())
@@ -685,13 +686,13 @@ namespace WBSF
 
 
 		if (normalDB)
-			normalDB->Close();
+			msg += normalDB->Close();
 
 		if (dailyDB)
-			dailyDB->Close();
+			msg += dailyDB->Close();
 
 		if (hourlyDB)
-			hourlyDB->Close();
+			msg += hourlyDB->Close();
 
 		if (pGribDB)
 			msg += pGribDB->Close();
@@ -846,7 +847,6 @@ namespace WBSF
 			}
 
 			CWeatherGenerator::OutputWarning(warning[0], callback);
-			//callback.AddMessage(string("Test Validation = ") + (bTestOK ? "OK" : "Failed"));
 		}//if open result
 
 

@@ -1025,8 +1025,8 @@ namespace WBSF
 							//stationsG.FillGaps();//no internal completion for grib product
 
 							stationsG.ApplyCorrections(m_gradients);
-							for(size_t i=0; i< stationsG.size(); i++)
-								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
+							//for(size_t i=0; i< stationsG.size(); i++)
+							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
 							
 							stationsG.clear();
 
