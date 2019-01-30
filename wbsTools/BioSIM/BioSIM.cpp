@@ -3,6 +3,7 @@
 // 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction
 //											Optimization of weather generation and model simulation save process
 //											Optimization of spatial interpolation
+//											Bug correction in ModelInputDlg and WGInputDlg and LocDlg
 // 11.5.3: 23/11/2018	Rémi Saint-Amant	Add completeness in WGInputAnalysis
 //											Add categories in Normals
 //											Able to simulate next year without error
