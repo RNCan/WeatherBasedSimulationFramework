@@ -185,31 +185,16 @@ namespace WBSF
 		size_t serverType = as<size_t>(SERVER_TYPE);
 		CreateMultipleDir(workingDir);
 
-		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		//callback.AddMessage(workingDir, 1);
-		//callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		//callback.AddMessage(SERVER_NAME, 1);
-		//callback.AddMessage("");
-
 		CTRef today = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		/*CTPeriod period = GetPeriod();
-		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
-		{*/
-			if (serverType == HTTP_SERVER)
-			{
-				msg = ExecuteHTTP(callback);
-			}
-			else
-			{
-				msg = ExecuteFTP(callback);
-			}
-		/*}
+		if (serverType == HTTP_SERVER)
+		{
+			msg = ExecuteHTTP(callback);
+		}
 		else
 		{
-			msg.ajoute("Invalid period");
-			return msg;
-		}*/
+			msg = ExecuteFTP(callback);
+		}
 
 
 		return msg;
@@ -368,89 +353,6 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 		}
-
-
-		//std::bitset<NB_SOURCES> sources = GetSources();
-
-		//size_t nbFilesToDownload = 0;
-		//size_t nbDownloaded = 0;
-
-		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
-
-		//if (period.End() >= now - 48)
-		//	period.End() = max(period.Begin(), now - 48);
-
-		//CArray<bool> bGrbNeedDownload;
-		//bGrbNeedDownload.SetSize(period.size());
-
-		//for (CTRef h = period.Begin(); h <= period.End(); h++)
-		//{
-		//	size_t hh = (h - period.Begin());
-
-		//	bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h, true));
-		//	nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
-
-		//	msg += callback.StepIt(0);
-		//}
-
-
-		//callback.PushTask("Download NAM gribs from HTTP server for period: " + period.GetFormatedString("%1 ---- %2") + " (" + to_string(nbFilesToDownload) + " gribs)", nbFilesToDownload);
-		//callback.AddMessage("Download NAM gribs from HTTP server for period: " + period.GetFormatedString("%1 ---- %2") + " (" + to_string(nbFilesToDownload) + " gribs)");
-
-		//if (nbFilesToDownload > 0)
-		//{
-		//	size_t nbTry = 0;
-		//	CTRef curH = period.Begin();
-
-		//	while (curH < period.End() && msg)
-		//	{
-		//		nbTry++;
-
-		//		CInternetSessionPtr pSession;
-		//		CHttpConnectionPtr pConnection;
-
-		//		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-		//		if (msg)
-		//		{
-		//			try
-		//			{
-		//				while (curH <= period.End() && msg)
-		//				{
-		//					size_t hh = (curH - period.Begin());
-		//					if (bGrbNeedDownload[hh])
-		//						msg = DownloadGrib(pConnection, curH, nbDownloaded, callback);
-
-		//					if (msg)
-		//					{
-		//						curH++;
-		//						nbTry = 0;
-		//						msg += callback.StepIt();
-		//					}
-		//				}
-		//			}
-		//			catch (CException* e)
-		//			{
-		//				msg = UtilWin::SYGetMessage(*e);
-		//				if (nbTry < 5)
-		//				{
-		//					callback.AddMessage(UtilWin::SYGetMessage(*e));
-		//					msg += WaitServer(10, callback);
-		//				}
-		//				else
-		//				{
-		//					msg = UtilWin::SYGetMessage(*e);
-		//				}
-		//			}
-
-
-		//			//clean connection
-		//			pConnection->Close();
-		//			pSession->Close();
-		//		}
-		//	}
-		//}
-
 		
 		callback.PopTask();
 
@@ -868,6 +770,6 @@ namespace WBSF
 		size_t hh = WBSF::as<int>(name.substr(22, 3));
 
 
-		return CTRef(year, m, d, h) + hh;//h+hh can be greather than 23
+		return CTRef(year, m, d, h) + hh;//h+hh can be greater than 23
 	}
 }

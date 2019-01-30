@@ -534,7 +534,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CTPeriod p_daily = p.as(CTM::DAILY);
-		for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
+		for (CTRef TRef = p_daily.Begin(); TRef != p_daily.End(); TRef++)
 		{
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
@@ -550,12 +550,12 @@ namespace WBSF
 				size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
 				size_t h = WBSF::as<int>(title.substr(14, 2));
 				size_t hh = WBSF::as<int>(title.substr(17, 3));
-				CTRef TRef = CTRef(year, m, d, h) + hh;
-				
-
-				
-				if (p.IsInside(TRef))
-					gribsList[TRef].push_back(fileList[i]);
+				if (hh < 6)
+				{
+					CTRef TRef2 = CTRef(year, m, d, h) + hh;
+					if (p.IsInside(TRef2))
+						gribsList[TRef2].push_back(fileList[i]);
+				}
 			}
 
 		}

@@ -23,7 +23,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"}};
 	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
-	const char* CHRRR::PRODUCT_ABR[NB_PRODUCT] = { "nat", "sfc" };
+	const char* CHRRR::PRODUCT_ABR[NB_SOURCES][NB_PRODUCT] = { {"prs","sfc"}, {"nat", "sfc"} };
 
 	CHRRR::CHRRR(const std::string& workingDir) :
 		m_workingDir(workingDir),
@@ -105,13 +105,13 @@ namespace WBSF
 				{
 
 					string outputFilePath = GetOutputFilePath(fileList[i].m_filePath);
-					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
+//					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePath));
 
-					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[FTP_SERVER] << endl;
+					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[NOMADS][FTP_SERVER] << endl;
 					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
-					stript << "lcd " << GetPath(tmpFilePaht) << endl;
-					stript << "get " << GetFileName(tmpFilePaht) << endl;
+					stript << "lcd " << GetPath(outputFilePath) << endl;
+					stript << "get " << GetFileName(outputFilePath) << endl;
 					stript << "exit" << endl;
 					stript.close();
 
@@ -124,16 +124,15 @@ namespace WBSF
 					{
 						//verify if the file finish with 7777
 
-						if (exit_code == 0 && FileExists(tmpFilePaht))
+						if (exit_code == 0 && FileExists(outputFilePath))
 						{
-							if (GoodGrib(tmpFilePaht))
+							if (GoodGrib(outputFilePath))
 							{
 								nbDownloaded++;
-								msg = RenameFile(tmpFilePaht, outputFilePath);
 							}
 							else
 							{
-								msg = WBSF::RemoveFile(tmpFilePaht);
+								msg = WBSF::RemoveFile(outputFilePath);
 							}
 						}
 						else
@@ -174,7 +173,7 @@ namespace WBSF
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[m_product] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
@@ -224,7 +223,7 @@ namespace WBSF
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
-			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[m_product] + "f00.grib2", fileListTmp);
+			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f00.grib2", fileListTmp);
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
@@ -249,7 +248,7 @@ namespace WBSF
 		callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
 		callback.AddMessage("Number of HRRR gribs to download from HTTP: " + ToString(fileList.size()));
 
-		int nbDownload = 0;
+		int nbDownloaded = 0;
 		for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 		{
 			//string fileName = GetFileName(it->m_filePath);
@@ -259,19 +258,18 @@ namespace WBSF
 
 			CreateMultipleDir(GetPath(outputFilePath));
 			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, false, callback);
-			//if (msg && FileExists(outputFilePath))
-			//{
-			//	nbDownload++;
-			//	
-			//	//now copy index file
-			//	msg = CopyFile(pConnection, it->m_filePath + ".idx", outputFilePath + ".idx", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-			//	//if (!FileExists(outputFilePath + ".idx"))
-			//	//{
-			//	//	//if .idx does not exist
-			//	//	msg += RemoveFile(outputFilePath);
-			//	//}
-			//}
-
+			if (msg && FileExists(outputFilePath) )
+			{
+				if (GoodGrib(outputFilePath))
+				{
+					nbDownloaded++;
+				}
+				else
+				{
+					msg = WBSF::RemoveFile(outputFilePath);
+				}
+		}
+			
 			callback.PopTask();
 			msg += callback.StepIt();
 		}
@@ -280,7 +278,7 @@ namespace WBSF
 		pSession->Close();
 
 
-		callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownload));
+		callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownloaded));
 		callback.PopTask();
 
 
@@ -339,7 +337,7 @@ namespace WBSF
 								//string inputPath = GetInputFilePath(curH, true, false);
 								//
 
-								const char* str_p = PRODUCT_ABR[m_product];
+								const char* str_p = PRODUCT_ABR[MESO_WEST][m_product];
 								int y = curH.GetYear();
 								int m = int(curH.GetMonth() + 1);
 								int d = int(curH.GetDay() + 1);
@@ -347,6 +345,8 @@ namespace WBSF
 
 
 								//"/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2"
+								//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20180724/hrrr.t00z.wrfsfcf00.grib2
+								//https://pando-rgw01.chpc.utah.edu/hrrr/prs/20180724/hrrr.t00z.wrfprsf00.grib2
 								string URL = FormatA(SERVER_PATH[MESO_WEST][HTTP_SERVER], str_p, y, m, d, hs, str_p);
 
 								string outputPath = GetOutputFilePath(curH);
@@ -454,7 +454,7 @@ namespace WBSF
 
 	string CHRRR::GetOutputFilePath(CTRef TRef)const
 	{
-		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[m_product]);
+		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[NOMADS][m_product]);
 	}
 
 

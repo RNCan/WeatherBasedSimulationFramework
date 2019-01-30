@@ -111,6 +111,7 @@
       <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,6 +147,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

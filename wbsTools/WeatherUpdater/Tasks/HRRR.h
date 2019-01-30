@@ -60,7 +60,7 @@ namespace WBSF
 		static const char* SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE];
 		static const char* SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE];
 
-		static const char* PRODUCT_ABR[NB_PRODUCT];
+		static const char* PRODUCT_ABR[NB_SOURCES][NB_PRODUCT];
 	};
 
 }

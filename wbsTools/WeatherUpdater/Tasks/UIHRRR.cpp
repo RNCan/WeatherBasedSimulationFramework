@@ -61,8 +61,8 @@ namespace WBSF
 		string str;
 		switch (i)
 		{ 
-		case PRODUCT:	str = "HRRR (native)|HRRR (surface)"; break;
-		case SOURCE:	str = "Archived|Current"; break;
+		case PRODUCT:	str = "HRRR (3d native)|HRRR (surface)"; break;
+		case SOURCE:	str = "Archived (MesoWest)|Current (NOAA)"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
 		return str;

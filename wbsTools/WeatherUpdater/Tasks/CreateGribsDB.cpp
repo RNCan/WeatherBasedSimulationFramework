@@ -200,7 +200,6 @@ namespace WBSF
 			//}
 			
 			size_t nbMissing = 0;
-			//for (size_t pos = 0; pos != presence.size() && msg; pos++)
 			for (CTRef TRef = p.Begin(); TRef < now && msg; TRef++)
 			{
 				//CTRef TRef = p.Begin() + pos;
@@ -211,12 +210,10 @@ namespace WBSF
 				msg += callback.StepIt(0);
 			}
 
-			callback.AddMessage("Nb gribs added: " + ToString(nbGrib));
+			callback.AddMessage("Nb gribs added: " + ToString(nbGrib) + " (" + to_string(Round(nbGrib / 24, 1)) + " days)");
 			if(nbMissing>0)
-				callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " missing image for the period");
+				callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " (" + to_string(Round(nbMissing / 24, 1)) + " days)" + " missing image for the period");
 
-
-//			file.close();
 		}
 		
 		
