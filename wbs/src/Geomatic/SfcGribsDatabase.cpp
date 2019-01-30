@@ -600,8 +600,11 @@ namespace WBSF
 		m_bands.fill(NOT_INIT);
 		m_units.fill("");
 		m_noData.fill(FLT_MIN);
-
-		msg = CGDALDatasetEx::OpenInputImage(filePath);
+		CBaseOptions options;
+		options.m_bMulti = true;
+		options.m_IOCPU = 8;// options.m_CPU;
+		
+		msg = CGDALDatasetEx::OpenInputImage(filePath, options);
 		if (msg)
 		{
 			init_cache();
