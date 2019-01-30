@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-multi -IOCPU 4 -ot int16 -dstnodata -32768 --config GDAL_CACHEMAX 1024 -overwrite "D:\Travaux\See5\Model\DT_remi" "D:\Travaux\See5\Input\invrt.vrt" "D:\Travaux\See5\output\out.tif"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-?? -multi -IOCPU 4 -ot int16 -dstnodata -32768 --config GDAL_CACHEMAX 1024 -overwrite "D:\Travaux\See5\Model\DT_remi" "D:\Travaux\See5\Input\invrt.vrt" "D:\Travaux\See5\output\out.tif"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -3,7 +3,7 @@
 //									 
 //***********************************************************************
 // version 
-// 2.0.3    29/01/2019	Rémi Saint-Amant	new compilation
+// 2.0.3    29/01/2019	Rémi Saint-Amant	Remove option -wm that cause strange result
 // 2.0.2    25/12/2018	Rémi Saint-Amant	Eliminate the verification of independent variables
 // 2.0.l	21/12/2018	Rémi Saint-Amant	Use Entry to evaluate the number of input variables
 // 2.0.0	29/09/2018	Rémi Saint-Amant	Creation from DisturbanceAnalyser
@@ -56,7 +56,7 @@ public:
 	{
 		m_scenesSize = 1;
 		m_appDescription = "This software interpolate values (with a decision tree model from See5) from input images";
-		m_BLOCK_THREADS = omp_get_num_procs();
+		//m_BLOCK_THREADS = omp_get_num_procs();
 		
 		static const COptionDef OPTIONS[] =
 		{
@@ -149,7 +149,7 @@ ERMsg CSee5::LoadModel(string filePath, CSee5TreeMT& DT)
 
 	CTimer timer(true); 
 
-	msg += DT.Load(filePath, m_options.m_BLOCK_THREADS, m_options.m_IOCPU);
+	msg += DT.Load(filePath, m_options.m_CPU, m_options.m_IOCPU);
 	timer.Stop();
 
 	if (!m_options.m_bQuiet)
@@ -250,7 +250,7 @@ ERMsg CSee5::Execute()
 	
 	if (msg)
 	{
-		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
+		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_CPU);
 
 		if (maskDS.IsOpen())
 			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
@@ -260,7 +260,7 @@ ERMsg CSee5::Execute()
 			return msg;
 
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-			cout << "Create output images x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R ) with " << m_options.m_BLOCK_THREADS << " threads..." << endl;
+			cout << "Create output images x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R ) with " << m_options.m_CPU << " threads..." << endl;
 
 
 		CGeoExtents extents = bandHolder.GetExtents();

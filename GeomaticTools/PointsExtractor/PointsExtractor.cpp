@@ -120,7 +120,7 @@ namespace WBSF
 		m_precision = 4;
 		m_appDescription = "This software extract bands information from input image and coordinates's file";
 
-		static const char* DEFAULT_OPTIONS[] = { "-srcnodata", "-dstnodata", "-q", "-overwrite", "-te", "-mask", "-maskValue", "-multi", "-CPU", "-IOCPU", "-wm", "-BlockSize", "-?", "-??", "-???", "-help" };
+		static const char* DEFAULT_OPTIONS[] = { "-srcnodata", "-dstnodata", "-q", "-overwrite", "-te", "-mask", "-maskValue", "-multi", "-CPU", "-IOCPU", "-BlockSize", "-?", "-??", "-???", "-help" };
 		for (int i = 0; i < sizeof(DEFAULT_OPTIONS) / sizeof(char*); i++)
 			AddOption(DEFAULT_OPTIONS[i]);
 
