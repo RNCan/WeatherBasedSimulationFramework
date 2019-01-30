@@ -77,12 +77,7 @@ namespace WBSF
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
 
 		CGridPointVector* pPts = m_pPts.get();
-
-		//double xValPercent = max(0.0, min(1.0, m_param.m_XvalPoints));
-		//size_t nbPoints = max(1.0, (1 - xValPercent)*m_pPts->size());
-		//m_inc = max(1.0, (double)pPts->size() / nbPoints);
-		size_t nbPoints = size_t(pPts->size() / m_inc);
-
+		size_t nbPoints = (size_t)round(pPts->size() / m_inc);
 
 		m_bGeographic = IsGeographic(pPts->GetPrjID());
 		m_bUseExposition = m_param.m_bUseExposition && pPts->HaveExposition();
@@ -183,7 +178,7 @@ namespace WBSF
 		catch (std::runtime_error e)
 		{
 			m_nbDim = 0;
-			msg.ajoute("Unable to create Thin Plate Splin. You can try to reduce maximum error");
+			msg.ajoute("Unable to create Thin Plate Spline. You can try to reduce maximum error");
 			msg.ajoute(e.what());
 		}
 		//}

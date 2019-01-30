@@ -168,7 +168,7 @@ namespace WBSF
 
 	ERMsg CGridInterpol::CreateSurface(CCallback& callback)
 	{
-		_ASSERTE(m_pGridInterpol.get());//call initialise first
+		_ASSERTE(m_pGridInterpol.get());//call initialize first
 		_ASSERTE(m_inputGrid.IsOpen());
 		_ASSERTE(!m_outputGrid.IsOpen());
 
@@ -418,7 +418,7 @@ namespace WBSF
 
 				m_param = parameterset[bestIndex];
 
-				callback.AddMessage("Optimisation = " + SecondToDHMS(timer.Elapsed()) + " s");
+				callback.AddMessage("Optimization = " + SecondToDHMS(timer.Elapsed()) + " s");
 				callback.AddMessage(m_pGridInterpol->GetFeedbackOnOptimisation(parameterset, optimisationR²));
 
 

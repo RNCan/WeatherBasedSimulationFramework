@@ -75,51 +75,7 @@ namespace WBSF
 			}
 
 			// Verbose output to logfile if non-verbose mode
-			//std::ostream* verbose_out;
-			/*if (arg_handler.verbose) {
-				verbose_out = &std::cout;
-			}
-			else {
-				std::ofstream* logfile = new std::ofstream();
-				logfile->open(arg_handler.outprefix + ".log");
-				if (!logfile->good()) {
-					throw std::runtime_error("Could not write to logfile.");
-				}
-				verbose_out = logfile;
-			}
-*/
-
-			//this->verbose_out = verbose_out;
-
-			// Initialize data with memmode
-			/*if (m_pData)
-			{
-				delete m_pData;
-				m_pData = nullptr;
-			}
-*/
 			CGridPointVector* pPts = m_pPts.get();
-			/*
-			StringVector names("X|Y|Z|Elev|Expo|Shore|Variable","|");
-			DataFloat input;
-			input.setVariableNames(names);
-			input.resize(pPts->size(), names.size());
-
-			for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
-			{
-				const CGridPoint& pt = pPts->at(int(ii));
-
-				bool error = false;
-				input.set(0, i, pt.IsProjected() ? pt.m_x : pt(0), error);
-				input.set(1, i, pt.IsProjected() ? pt.m_y : pt(1), error);
-				input.set(2, i, pt.IsProjected() ? 0 : pt(2), error);
-				input.set(3, i, m_param.m_bUseElevation ? pt.m_alt : 0, error);
-				input.set(4, i, m_param.m_bUseExposition ? pt.GetExposition() : 0, error);
-				input.set(5, i, m_param.m_bUseShore ? pt.m_shore : 0, error);
-				input.set(6, i, m_prePostTransfo.Transform(pt.m_event), error);
-			}*/
-
-	
 			
 			StringVector names("X|Y", "|");
 			m_bUseExposition = m_param.m_bUseExposition && pPts->HaveExposition();
@@ -134,7 +90,7 @@ namespace WBSF
 				names.push_back("Shore");
 			names.push_back("Variable");
 
-			size_t nbPoints = size_t(pPts->size() / m_inc);
+			size_t nbPoints = (size_t)round(pPts->size() / m_inc);
 
 			DataFloat input;
 			input.setVariableNames(names);
