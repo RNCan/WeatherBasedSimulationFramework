@@ -1436,7 +1436,7 @@ namespace WBSF
 			m_yBlockSize = blockSize.m_y;
 		}
 
-		
+		CGeoExtents(const CGeoExtents& in) { operator=(in); }
 		void clear(){ CGeoRect::clear(); m_xSize = 0; m_ySize = 0; m_xBlockSize = 0; m_yBlockSize = 0; }
 	
 		CGeoExtents& operator =(const CGeoExtents& in)

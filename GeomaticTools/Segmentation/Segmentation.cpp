@@ -21,7 +21,7 @@
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-#include "Geomatic/LandsatCloudsCleaner.h"
+//#include "Geomatic/LandsatCloudsCleaner.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -234,7 +234,7 @@ namespace WBSF
 				//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 
 				if (inputDS.GetRasterCount() < 2)
-					msg.ajoute("Segmentation need at leat 2 bands");
+					msg.ajoute("Segmentation need at least 2 bands");
 			}
 		}
 
@@ -371,7 +371,7 @@ namespace WBSF
 						std::vector<size_t> segment = Segmentation(data, m_options.m_maxLayers, m_options.m_RMSEThreshold);
 						ASSERT(segment.size() <= outputData.size());
 						
-						//if need ouput
+						//if need output
 						if (!outputData.empty())
 						{
 							for (size_t s = 0; s < segment.size(); s++)
@@ -557,7 +557,7 @@ namespace WBSF
 			ASSERT(it != data.end());
 			data.erase(it);
 
-			//A-Detect the point - Remove it - and recompute all the sats
+			//A-Detect the point - Remove it - and recompute all the stats
 			//1- GET the min value in the RMSE array and REMOVE it 
 			//remove RMSE item and update RMSE for points that have change
 			size_t pos = std::distance(dataRMSE.begin(), minIt);

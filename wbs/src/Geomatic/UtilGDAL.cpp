@@ -1534,7 +1534,7 @@ void CBaseOptions::Reset()
 	m_yRes=0;
 	m_bandsToUsed.clear();
 	m_maskDataUsed=DataTypeMin;
-	m_CPU=0;//slect all cpu by default
+	m_CPU=0;//select all cpu by default
 	m_IOCPU=1;//by default take only one thread for IO
 	m_BLOCK_THREADS = 2;
 
@@ -1689,7 +1689,7 @@ ERMsg CBaseOptions::ParseOption(int argc, char* argv[])
 		msg.ajoute( GetIOFileInfo() );
 	
 	int CPU = m_bMulti ? omp_get_num_procs() : 1;
-	m_CPU = min(CPU, max(1, m_CPU>0?m_CPU:CPU+m_CPU) );
+	m_CPU = min(2*CPU, max(1, m_CPU>0?m_CPU:CPU+m_CPU) );
 	
 	if (!m_bMulti)
 	{
@@ -1812,7 +1812,7 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	}   
 	else if( IsEqual(argv[i],"-CPU") )
 	{
-		m_CPU = min(omp_get_num_procs(), atoi(argv[i + 1])); i++;
+		m_CPU = min(2*omp_get_num_procs(), atoi(argv[i + 1])); i++;
 		if( m_CPU <= 0)
 			m_CPU = max(1, omp_get_num_procs() + m_CPU);
 	}   

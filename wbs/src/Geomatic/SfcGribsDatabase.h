@@ -174,12 +174,14 @@ namespace WBSF
 		size_t m_nb_points;
 		bool m_bIncremental;
 		GribVariables m_variables;
+		int m_nbMaxThreads;
 
 		CSfcGribDatabase(int cacheSize = 200) : CDHDatabaseBase(cacheSize)
 		{
 			m_nb_points = 0;
 			m_bIncremental = true;
 			m_variables.set();
+			m_nbMaxThreads = 1;
 		}
 
 		static int GetVersion(const std::string& filePath);

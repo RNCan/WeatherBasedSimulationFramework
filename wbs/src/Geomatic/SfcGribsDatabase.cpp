@@ -10,7 +10,7 @@
 //******************************************************************************
 #include "stdafx.h"
 
-
+#include <unordered_set>
 #include "Basic/Statistic.h"
 #include "Basic/Callback.h"
 #include "Basic/UtilStd.h"
@@ -125,10 +125,10 @@ namespace WBSF
 
 		clear();
 
-		if (FileExists(file_path + ".inc"))
+		if (FileExists(file_path + ".inc.csv"))
 		{
 			ifStream file;
-			msg = file.open(file_path + ".inc");
+			msg = file.open(file_path + ".inc.csv");
 			if (msg)
 			{
 				for (CSVIterator loop(file, ",", true); loop != CSVIterator(); ++loop)
@@ -198,7 +198,7 @@ namespace WBSF
 		ERMsg msg;
 
 		ofStream file;
-		msg = file.open(file_path + ".inc");
+		msg = file.open(file_path + ".inc.csv");
 		if (msg)
 		{
 			file << "Date,Name,LastUpdate,Size,Attribute" << endl;
@@ -215,7 +215,7 @@ namespace WBSF
 			}
 			file.close();
 
-			msg = file.open(file_path + ".inc.log");
+			msg = file.open(file_path + ".inc.txt");
 
 			if (msg)
 			{
@@ -236,8 +236,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		msg += WBSF::RemoveFile(file_path + ".inc");
-		msg += WBSF::RemoveFile(file_path + ".inc.log");
+		msg += WBSF::RemoveFile(file_path + ".inc.csv");
+		msg += WBSF::RemoveFile(file_path + ".inc.txt");
 
 		return msg;
 	}
@@ -275,7 +275,7 @@ namespace WBSF
 					msg += info_new.SetFileStamp(*iit);
 					if (msg)
 					{
-						vector<CFileStamp>::const_iterator iit_find = std::find_if(it_find->second.begin(), it_find->second.end(), [info_new](const CFileStamp& m)->bool{ return m.m_filePath == info_new.m_filePath; } );
+						vector<CFileStamp>::const_iterator iit_find = std::find_if(it_find->second.begin(), it_find->second.end(), [info_new](const CFileStamp& m)->bool { return m.m_filePath == info_new.m_filePath; });
 						if (iit_find != it_find->second.end())
 						{
 							const CFileStamp& info_old = *iit_find;
@@ -374,10 +374,9 @@ namespace WBSF
 	}
 
 
-	//	std::mutex CSfcDatasetCached::m_mutex;
 
-		//**************************************************************************************************************
-		//CSfcDatasetCached
+	//**************************************************************************************************************
+	//CSfcDatasetCached
 
 	CSfcDatasetCached::CSfcDatasetCached()
 	{
@@ -421,7 +420,7 @@ namespace WBSF
 
 						double U = m_lines[xy.m_y]->at(H_UWND)->get_value(xy.m_x);
 						double V = m_lines[xy.m_y]->at(H_VWND)->get_value(xy.m_x);
-						
+
 						if (fabs(U - m_noData[v]) > 0.1 && fabs(V - m_noData[v]) > 0.1)
 						{
 							data[H_WNDS] = (float)sqrt(U*U + V * V) * 3600.0 / 1000.0;
@@ -597,7 +596,7 @@ namespace WBSF
 	ERMsg CSfcDatasetCached::open(const std::string& filePath, bool bOpenInv)
 	{
 		ERMsg msg;
-		
+
 		m_bands.fill(NOT_INIT);
 		m_units.fill("");
 		m_noData.fill(FLT_MIN);
@@ -848,7 +847,7 @@ namespace WBSF
 	{
 		static const double POWER = 1;
 
-		//always coimpute from the 4 nearest points
+		//always compute from the 4 nearest points
 		CHourlyData4 data4;
 		get_4nearest(pt, data4);
 
@@ -1012,30 +1011,37 @@ namespace WBSF
 		{
 			CGeoPoint pt1 = locations[i];
 			pt1.Reproject(GEO_2_WEA);
-
-			CGeoPointIndexVector ptArray;
-			extents.GetNearestCellPosition(pt1, (int)nb_points, ptArray);
-
-			for (size_t j = 0; j < ptArray.size(); j++)
+			
+			if (extents.IsInside(pt1))
 			{
-				float z = -999;
+				CGeoPointIndexVector ptArray;
+				extents.GetNearestCellPosition(pt1, (int)nb_points, ptArray);
 
-				if (m_bands[H_GHGT] != NOT_INIT)
+				for (size_t j = 0; j < ptArray.size(); j++)
 				{
-					if (!is_cached(ptArray[j].m_y))
-						me.load_block(ptArray[j].m_y);
+					float z = -999;
 
-					assert(m_lines[ptArray[j].m_y] != nullptr);
-					assert(is_block_inside(ptArray[j].m_y));
-					float zz = m_lines[ptArray[j].m_y]->at(H_GHGT)->get_value(ptArray[j].m_x);
-					if (abs(zz - m_noData[H_GHGT]) > 0.1)
-						z = zz;
-				}
+					if (m_bands[H_GHGT] != NOT_INIT)
+					{
+						if (!is_cached(ptArray[j].m_y))
+							me.load_block(ptArray[j].m_y);
 
-				size_t pos = ptArray[j].m_y*extents.m_xSize + ptArray[j].m_x;
-				CGeoPoint pt2 = extents.XYPosToCoord(ptArray[j]);
-				pt2.Reproject(WEA_2_GEO);
-				tmp[pos] = CLocation(locations[i].m_name, to_string(ptArray[j].m_y) + "_" + to_string(ptArray[j].m_x), pt2.m_lat, pt2.m_lon, z);
+						assert(m_lines[ptArray[j].m_y] != nullptr);
+						assert(is_block_inside(ptArray[j].m_y));
+						float zz = m_lines[ptArray[j].m_y]->at(H_GHGT)->get_value(ptArray[j].m_x);
+						if (abs(zz - m_noData[H_GHGT]) > 0.1)
+							z = zz;
+					}
+
+					size_t pos = ptArray[j].m_y*extents.m_xSize + ptArray[j].m_x;
+					CGeoPoint pt2 = extents.XYPosToCoord(ptArray[j]);
+					pt2.Reproject(WEA_2_GEO);
+					tmp[pos] = CLocation(locations[i].m_name, to_string(ptArray[j].m_y) + "_" + to_string(ptArray[j].m_x), pt2.m_lat, pt2.m_lon, z);
+				}//for all points
+			}//is inside
+			else
+			{
+				//msg.ajoute();
 			}
 		}
 
@@ -1074,7 +1080,7 @@ namespace WBSF
 	}
 
 
-	//stategy to get static method
+	//strategy to get static method
 	int CSfcGribDatabase::GetVersion(const std::string& filePath) { return ((CDHDatabaseBase&)CSfcGribDatabase()).GetVersion(filePath); }
 	ERMsg CSfcGribDatabase::DeleteDatabase(const std::string&  outputFilePath, CCallback& callback) { return ((CDHDatabaseBase&)CSfcGribDatabase()).DeleteDatabase(outputFilePath, callback); }
 	ERMsg CSfcGribDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback) { return ((CDHDatabaseBase&)CSfcGribDatabase()).RenameDatabase(inputFilePath, outputFilePath, callback); }
@@ -1094,7 +1100,7 @@ namespace WBSF
 
 		if (m_nb_points == 0)
 		{
-			//extracvt at location
+			//extract at location
 			locations = locationsIn;
 		}
 		else
@@ -1104,8 +1110,11 @@ namespace WBSF
 
 			CSfcDatasetCached sfcDS;
 			sfcDS.set_variables(variables);
+			vector<CGeoExtents> extents;
 			
-			for (CGribsMap::const_iterator it = gribs.begin(); it != gribs.end()&& locations.empty()&&msg; it++)
+
+
+			for (CGribsMap::const_iterator it = gribs.begin(); it != gribs.end() && locations.empty() && msg; it++)
 			{
 				for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end() && locations.empty() && msg; iit++)
 				{
@@ -1114,7 +1123,13 @@ namespace WBSF
 					if (msg)
 					{
 						if (sfcDS.get_band(H_GHGT) != NOT_INIT)
+						{
 							locations = sfcDS.get_nearest(locationsIn, m_nb_points);
+
+							if (std::find( extents.begin(), extents.end(), sfcDS.GetExtents()) == extents.end())
+								extents.push_back(sfcDS.GetExtents());
+						}
+							
 
 						sfcDS.close();
 					}
@@ -1123,8 +1138,22 @@ namespace WBSF
 				}
 			}
 
-			if( msg && locations.empty() )
+			if (msg && locations.empty())
 				msg.ajoute("Unable to find nearest points from locations because there is no image with geopotentiel height");
+
+			
+			for (vector<CGeoExtents>::iterator it = extents.begin(); it != extents.end(); it++)
+			{
+				CGeoSize size = it->GetSize();
+				
+				CProjectionPtr pPrj = CProjectionManager::GetPrj(it->GetPrjID());
+				string prjName = pPrj ? pPrj->GetName() : "Unknown";
+				
+				//callback.AddMessage("Extents" + to_string(std::distance(it, extents.begin()) + 1));
+				callback.AddMessage("Grid spacing: " + to_string(it->XRes()) + " x " + to_string(it->YRes()) + " ("+ prjName+")", 1 );
+				//callback.AddMessage("Extents   : " + to_string(it->m_xMin) + " " + to_string(it->m_yMin) + " " + to_string(it->m_xMax) + " " +to_string(it->m_yMax), 1);
+				//callback.AddMessage("Projection: " + prjName, 1 );
+			}
 		}
 
 
@@ -1135,19 +1164,25 @@ namespace WBSF
 		CIncementalDB incremental;
 		CWeatherStationVector stations;
 
+		
 		if (m_bIncremental)
 		{
 			if (FileExists(m_filePath))
 				msg = incremental.load(m_filePath);
 
-			stations.resize(locations.size());
-
 			if (!empty() && size() != locations.size())
 			{
-				msg.ajoute("The number of station in the database is not the same as the previous execution. Do not use incremental.");
+				msg.ajoute("The number of location to extract ("+to_string(locations.size())+") from gribs is not the same as the previous execution ("+to_string(size())+"). Do not use incremental.");
 				return msg;
 			}
 
+			if (incremental.m_variables != m_variables)
+			{
+				msg.ajoute("The variable to extract from gribs is not the same as the previous execution. Do not use incremental.");
+				return msg;
+			}
+
+			stations.resize(locations.size());
 			for (size_t i = 0; i < locations.size(); i++)
 			{
 				if (size() == locations.size())
@@ -1171,38 +1206,67 @@ namespace WBSF
 			}
 		}
 
-
-
-		//CTPeriod invalid_period;
 		std::set<CTRef> invalid;
 		msg = incremental.GetInvalidTRef(gribs, invalid);
-		callback.AddMessage("Nb input hours: " + to_string(gribs.size()));
-		callback.AddMessage("Nb hours to update: " + to_string(invalid.size()));
+
+		callback.AddMessage("Nb input locations: " + to_string(locationsIn.size()));
+		if(m_nb_points>0)
+			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points)+ " nearest: " + to_string(locations.size()));
+		callback.AddMessage("Nb input hours: " + to_string(gribs.size()) + " ("+ to_string(int(gribs.size()/24))+" days)");
+		callback.AddMessage("Nb hours to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / 24)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));
 
 
-		if (msg && !invalid.empty())//there is an invalid period, up-tu-date otherwise
+		if (msg && !invalid.empty())//there is an invalid period, up-to-date otherwise
 		{
+			
+			//create all data for multi-thread
+			CTPeriod p(*invalid.begin(), *invalid.rbegin());
+			for (size_t i = 0; i < stations.size(); i++)
+				stations[i].CreateYears(p);
+
+
 			size_t nbGribs = 0;
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-				nbGribs+= gribs.at(*it).size();
+				nbGribs += gribs.at(*it).size();
 
 			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (Extracting " + to_string(invalid.size()) + " hours from " + to_string(nbGribs) + " gribs)";
+			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours from " + to_string(nbGribs) + " gribs)";
 			callback.PushTask(feed, nbGribs*stations.size());
 			callback.AddMessage(feed);
 
-			//init coord and info
+			//convert set into vector for multi-thread
+			//vector<CTRef> tmp; 
+			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+			//	tmp.push_back(*it); 
+			
+//#pragma omp parallel for shared(msg) num_threads(2)
+//			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
+//			{
+//#pragma omp flush(msg)
+//				if (msg)
+//				{
+//					CTRef TRef = tmp[i];
+//					for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
+//					{
+//						msg += ExtractStation(TRef, *iit, stations, callback);
+//#pragma omp flush(msg)
+//					}
+//				}
+//			}
+
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
 			{
+
 				for (std::vector<string>::const_iterator iit = gribs.at(*it).begin(); iit != gribs.at(*it).end() && msg; iit++)
 				{
-					msg = ExtractStation(*it, *iit, stations, callback);
+					msg += ExtractStation(*it, *iit, stations, callback);
 				}
 			}
 
+
 			callback.PopTask();
-			callback.PushTask("Save weather to disk", invalid.size()*stations.size());
+			callback.PushTask("Save weather to disk", stations.size());
 			for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
 			{
 				if (msg)
@@ -1282,7 +1346,7 @@ namespace WBSF
 		//variables.set(H_GHGT);//always set geopotentiel height
 
 
-		ASSERT(out.size() <= m_variables.size());
+		ASSERT( m_variables.size()<= out.size());
 		for (size_t i = 0; i < m_variables.size(); i++)
 			out.set(i, m_variables.test(i));
 

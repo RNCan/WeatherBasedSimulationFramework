@@ -783,34 +783,27 @@ namespace WBSF
 		return pixel;
 	}
 
-	CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int buffer, const std::vector<double>& weight)const
+	CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int n_rings, const std::vector<double>& weight)const
 	{
-		ASSERT(weight.empty() || buffer == weight.size());
+		ASSERT(weight.empty() || (n_rings +1) == weight.size());
+		if (n_rings == 0)
+			return GetPixel(i, x, y);
+
 		std::vector<double> w = weight;
 		if (w.empty())// no weight
-			w.resize(buffer, 1.0);
-
-		//LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
-
+			w.resize(n_rings +1, 1.0 / Square(2 * n_rings + 1));
 
 		CLandsatPixel pixel;
-		//if (GetPixel(i, x, y).IsValid())//???? est-ce qu
-		//{
-			//for (size_t z = 0; z < SCENES_SIZE; z++)
-			//{
-				//size_t ii = i * SCENES_SIZE + z;
 
 		array<CStatistic, SCENES_SIZE> stat;
 		CStatistic stat_w;
-		for (int yy = -buffer; yy <= buffer; yy++)
+		for (int yy = -n_rings; yy <= n_rings; yy++)
 		{
-			for (int xx = -buffer; xx <= buffer; xx++)
+			for (int xx = -n_rings; xx <= n_rings; xx++)
 			{
 				CLandsatPixel p = GetPixel(i, x + xx, y + yy);
 				if (p.IsValid())
 				{
-					//LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx, y + yy);
-					//if (val != noData)
 					for (size_t z = 0; z < SCENES_SIZE; z++)
 					{
 						size_t r = max(abs(xx), abs(yy));
@@ -828,8 +821,6 @@ namespace WBSF
 			for (size_t z = 0; z < SCENES_SIZE; z++)
 				pixel[z] = stat[z][SUM] / stat_w[SUM];
 		}
-		//}
-	//}
 
 		return pixel;
 	}

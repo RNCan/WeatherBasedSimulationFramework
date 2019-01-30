@@ -64,10 +64,10 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-Mean", 1, "type", false, "Compute mean of median pixels. Can be \"no\", \"standard\", \"always2\", \"always3\" or \"always4\". The \"standard\" type do the average of 2 medians values when even. The \"always2\" type average 2 medians pixel when even and the median and one neighbor select by MedianType when odd. \"no\" by default." },
-			{ "-corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
+			{ "-corr8", 1, "type", false, "Make a correction over the Landsat 8 images to get Landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for bands (B3,B4,B5,QA). Take individual median by band by default." },
 			{ "-worstQA", 1, "", false, "Remove the worst QA before computing median." },
-			{ "-BandValidity", 1, "", false, "Verify validity on each band separatly. all or not vbalid be default" },
+			{ "-BandValidity", 1, "", false, "Verify validity on each band separately. all valid or invalid be default" },
 			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -300,11 +300,6 @@ namespace WBSF
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			//cout << "    Nb. scenes     = " << inputDS.GetNbScenes() << endl;
-			///cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
-//			cout << "    Process period   = " << processPeriod.GetFormatedString() << endl;
 			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
 			cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
 			cout << "    Loaded period  = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
@@ -369,7 +364,7 @@ namespace WBSF
 
 	void CMedianImage::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 	{
-#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIORead)
 		{
 			m_options.m_timerRead.Start();
 
@@ -400,11 +395,8 @@ namespace WBSF
 			return;
 		}
 
-		//		vector<CDataWindowPtr> input;
-		//	bandHolder.GetWindow(input);
 		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
 		window.m_corr8 = m_options.m_corr8;
-
 
 		if (m_options.m_bCreateImage)
 			AllocateMemory(SCENES_SIZE, blockSize, outputData);
@@ -418,84 +410,11 @@ namespace WBSF
 				debugData[z].resize(blockSize.m_x*blockSize.m_y, dstNodata);
 		}
 
-		//vector<boost::dynamic_bitset<size_t>> clouds;
-
-
-#pragma omp critical(ProcessBlock)
+//#pragma omp critical(ProcessBlock)
 		{
 			m_options.m_timerProcess.Start();
 
-
-			//			if (m_options.m_bFilterTCB)
-			//			{
-			//				clouds.resize(window.GetNbScenes());
-			//				for (size_t i = 0; i < clouds.size(); i++)
-			//					clouds[i].resize(blockSize.m_x*blockSize.m_y);
-			//
-			//#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
-			//				for (int y = 0; y < blockSize.m_y; y++)
-			//				{
-			//					for (int x = 0; x < blockSize.m_x; x++)
-			//					{
-			//						size_t nbData = 0;
-			//						size_t nbCloud = 0;
-			//						size_t nbShadow = 0;
-			//						for (size_t iz = 0; iz < window.GetNbScenes() ; iz++)
-			//						{
-			//							CLandsatPixel pixel = window.GetPixel(iz, x, y);
-			//
-			//							if (pixel.IsValid() && !pixel.IsBlack())
-			//							{
-			//								double TCB = pixel.TCB();
-			//								if (TCB < m_options.m_TCBthreshold[0])
-			//									nbShadow++;
-			//								else if (TCB > m_options.m_TCBthreshold[1])
-			//									nbCloud++;
-			//								else
-			//									nbData++;
-			//							}
-			//						}
-			//						
-			//						if (nbCloud >= nbData)
-			//							nbCloud = 0;
-			//						if (nbShadow >= nbData)
-			//							nbShadow = 0;
-			//						if(nbData == 0 )
-			//							nbCloud = nbShadow = 0;
-			//
-			//						if ((nbCloud + nbShadow) > 0 )
-			//						{
-			//							for (size_t iz = 0; iz < window.GetNbScenes(); iz++)
-			//							{
-			//								CLandsatPixel pixel = window.GetPixel(iz, x, y);
-			//
-			//								if (pixel.IsValid() && !pixel.IsBlack())
-			//								{
-			//									for (size_t yy = 0; yy < 2 * m_options.m_bufferTCB + 1; yy++)
-			//									{
-			//										size_t yyy = y + yy - m_options.m_bufferTCB;
-			//										if (yyy < blockSize.m_y)
-			//										{
-			//											//for (int xx = -(int)m_options.m_buffer; xx <= -(int)m_options.m_buffer; xx++)
-			//											for (size_t xx = 0; xx < 2 * m_options.m_bufferTCB + 1; xx++)
-			//											{
-			//												size_t xxx = x + xx - m_options.m_bufferTCB;
-			//												if (xxx < blockSize.m_x)
-			//												{
-			//													size_t xy2 = yyy* blockSize.m_x + xxx;
-			//													clouds[iz].set(xy2);
-			//												}
-			//											}//for buffer x
-			//										}
-			//									}//for buffer y 
-			//								}
-			//							}//for all scene
-			//						}
-			//					}
-			//				}
-			//			}
-
-#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti) 
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
@@ -533,9 +452,7 @@ namespace WBSF
 									}
 								}
 							}
-						}
-
-						
+						}//!black
 					}//iz
 
 					if (!median[0].empty())
@@ -663,7 +580,13 @@ namespace WBSF
 									}
 								}
 							}
-						}
+
+							//a enlever...
+							/*CLandsatPixel testRemi = window.GetPixelMedian(x, y);
+							for (size_t z = 0; z < median.size(); z++)
+								outputData[z][xy] = testRemi[z];*/
+							
+						}//if output data
 
 						if (m_options.m_bDebug)
 						{
@@ -737,7 +660,7 @@ namespace WBSF
 
 	void CMedianImage::WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData)
 	{
-#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIOWrite)
 		{
 			m_options.m_timerWrite.Start();
 
@@ -797,19 +720,9 @@ namespace WBSF
 		inputDS.Close();
 		maskDS.Close();
 
-
 		m_options.m_timerWrite.Start();
 
-		//if (m_options.m_bComputeStats)
-			//outputDS.ComputeStats(m_options.m_bQuiet);
-		//if (!m_options.m_overviewLevels.empty())
-			//outputDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 		outputDS.Close(m_options);
-
-		//if (m_options.m_bComputeStats)
-			//debugDS.ComputeStats(m_options.m_bQuiet);
-		//if (!m_options.m_overviewLevels.empty())
-			//debugDS.BuildOverviews(m_options.m_overviewLevels, m_options.m_bQuiet);
 		debugDS.Close(m_options);
 
 		m_options.m_timerWrite.Stop();

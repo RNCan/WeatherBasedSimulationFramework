@@ -204,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="Segmentation.cpp" />
     <ClCompile Include="SegmentationApp.cpp" />
+    <ClCompile Include="SegmentationBase.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -213,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Segmentation.h" />
+    <ClInclude Include="SegmentationBase.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
