@@ -1470,7 +1470,7 @@ int CBaseOptions::GetOptionIndex(const char* name)
 }
 
 
-const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-BLOCK_THREADS","-wm","-BlockSize","-NoResult","-Overview","-stats", "-hist", "-?","-??","-???","-help"};//, "-stats"
+const char* CBaseOptions::DEFAULT_OPTIONS[] = {"-of","-ot","-co","-srcnodata","-dstnodata","-dstNoDataEx","-wo","-q","-overwrite","-te","-tap", "-mask","-maskValue","-multi","-CPU","-IOCPU","-BLOCK_THREADS","-BlockSize","-NoResult","-Overview","-stats", "-hist", "-?","-??","-???","-help"};//, "-stats"
 static const int NB_DEFAULT_OPTIONS = sizeof(CBaseOptions::DEFAULT_OPTIONS)/sizeof(char*);
 CBaseOptions::CBaseOptions(bool bAddDefaultOption)
 {
@@ -1825,8 +1825,6 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	else if (IsEqual(argv[i], "-BLOCK_THREADS"))
 	{
 		m_BLOCK_THREADS = atoi(argv[++i]);
-		//if (m_IOCPU <= 0)
-			//m_IOCPU = max(1, omp_get_num_procs() + m_IOCPU);
 	}
 	else if( IsEqual(argv[i],"-wm") )
 	{
