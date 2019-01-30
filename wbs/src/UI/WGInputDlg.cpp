@@ -323,15 +323,12 @@ namespace WBSF
 			m_hourlyDBNameCtrl.EnableWindow(bGenerateHourly);
 			m_hourlyLinkCtrl.EnableWindow(bGenerateHourly);
 			m_hourlyNbStationsCtrl.EnableWindow(bGenerateHourly);
-
-
 			
 			bool bUseGribs = bFromObservations && m_useGribCtrl.GetCheck();
-			m_useGribCtrl.EnableWindow(bFromObservations);
-			m_gribsDBNameCtrl.EnableWindow(bUseGribs);
-			m_gribsLinkCtrl.EnableWindow(bUseGribs);
-			//m_atSurfaceCtrl.EnableWindow(bUseGribs);
-			m_gribNbPointsCtrl.EnableWindow(bUseGribs);
+			m_useGribCtrl.EnableWindow(bFromObservations && bGenerateHourly);
+			m_gribsDBNameCtrl.EnableWindow(bUseGribs && bGenerateHourly);
+			m_gribsLinkCtrl.EnableWindow(bUseGribs && bGenerateHourly);
+			m_gribNbPointsCtrl.EnableWindow(bUseGribs && bGenerateHourly);
 		}
 	}
 

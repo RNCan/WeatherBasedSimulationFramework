@@ -212,7 +212,7 @@ namespace WBSF
 		BOOL bRep = CBioSIMListBox::OnBeforeCopyItem(iItem, newName);
 		if (bRep)
 		{
-			m_lastSelection = iItem;
+			//m_lastSelection = iItem;//By RSA 2019-01-24
 			//CString modelName = newName;
 
 			CModelInput modelInput;
@@ -519,7 +519,7 @@ namespace WBSF
 		BOOL bRep = CBioSIMListBox::OnBeforeCopyItem(iItem, newName);
 		if (bRep)
 		{
-			m_lastSelection = iItem;
+			//m_lastSelection = iItem;//By RSA 2019-01-24
 			CString TGName = newName;
 
 			CWGInput WGInput;
@@ -725,7 +725,7 @@ namespace WBSF
 		BOOL bRep = CBioSIMListBox::OnBeforeCopyItem(iItem, newName);
 		if (bRep)
 		{
-			m_lastSelection = iItem;
+			//m_lastSelection = iItem;//By RSA 2019-01-24
 			LoadPVDInput(newName, m_pPVDDlg->m_parametersVariations);
 			m_lastPVD = m_pPVDDlg->m_parametersVariations;
 			m_pPVDDlg->SelectParameters();

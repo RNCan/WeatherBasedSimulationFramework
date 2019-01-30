@@ -711,10 +711,10 @@ namespace WBSF
 
 			for (std::set<int>::reverse_iterator it = lines.rbegin(); it != lines.rend(); ++it)
 			{
-				ASSERT(*it >= 0 && *it < m_grid.GetNumberRows());
-				m_grid.DeleteRow(*it);
+				if(*it >= 0 && *it < m_grid.GetNumberRows())//selection is sometime pass the last row
+					m_grid.DeleteRow(*it);
 			}
-
+			
 			m_grid.SetHaveChange(true);
 
 			UpdateCtrl();
@@ -1221,14 +1221,14 @@ namespace WBSF
 	{
 		ASSERT(m_lastSelection);
 
-		if (m_lastSelection >= 0)
+		/*if (m_lastSelection >= 0)
 			if (!SaveLoc(GetItemText(m_lastSelection), false))
-				return FALSE;
+				return FALSE;*/
 
 		BOOL bRep = CBioSIMListBox::OnBeforeCopyItem(iItem, newName);
 		if (bRep)
 		{
-			m_lastSelection = iItem;
+			//m_lastSelection = iItem;//By RSA 2019-01-24
 			CString locName = newName;
 
 			CLocationVector loc;
