@@ -1070,7 +1070,7 @@ void CWeightChartWnd::OnGraphOptions()
 	CWVariablesCounter variables;
 	variables.fill(1);//emulate full variables
 
-	CChartsProperties dlg;
+	CChartsProperties dlg(false);
 	dlg.m_graphics = m_chartCtrl.GetChartDefine();
 
 	if (dlg.DoModal() == IDOK)

@@ -815,11 +815,12 @@ namespace WBSF
 #pragma omp flush(msg)
 						if (msg)
 						{
-#pragma omp atomic
-							n++;
+//#pragma omp atomic
+	//						n++;
 
-							if (omp_get_thread_num() == 0)
-								msg += callback.SetCurrentStepPos(n);
+		//					if (omp_get_thread_num() == 0)
+			//					msg += callback.SetCurrentStepPos(n);
+							msg += callback.StepIt();
 #pragma omp flush(msg)
 						}
 

@@ -589,9 +589,10 @@ ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CMod
 #pragma omp flush(msg)
 										if (msg)
 										{
-#pragma omp atomic
-											n++;
-											msg += callback.SetCurrentStepPos(n);
+//#pragma omp atomic
+	//										n++;
+		//									msg += callback.SetCurrentStepPos(n);
+											msg += callback.StepIt();
 #pragma omp flush(msg)
 										}
 
