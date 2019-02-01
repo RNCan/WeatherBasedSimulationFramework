@@ -71,17 +71,17 @@ namespace WBSF
 			{ "-ExportBrks", 0, "", false, "Export breaks indice (NBR) and reference image (index or year if -FirstYear is define). False by default." },
 			{ "-ExportAll", 0, "", false, "Export all perturbations. Export only the last by default." },
 			{ "-dThreshold", 1, "n", false, "Delta (T1-T2) indice (NBR) is greater than threshold to compute See5 model. For NBR, ranging from 100 to 150. 125 by default." },
-//			{ "-OutputPeriod", 2, "Begin End", false, "Select the period (YYYY-MM-DD YYYY-MM-DD) to output disturbance. The entire period are selected by default." },
-			{ "See5Model", 0, "", false, "See5 detection model file path." },
-			{ "srcfile", 0, "", false, "Input Landsat image file path." },
-			{ "dstfile", 0, "", false, "Output image file path." }
+			//			{ "-OutputPeriod", 2, "Begin End", false, "Select the period (YYYY-MM-DD YYYY-MM-DD) to output disturbance. The entire period are selected by default." },
+						{ "See5Model", 0, "", false, "See5 detection model file path." },
+						{ "srcfile", 0, "", false, "Input Landsat image file path." },
+						{ "dstfile", 0, "", false, "Output image file path." }
 		};
 
 
 		for (int i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
 
-		RemoveOption("-BLOCK_THREADS");
+		//RemoveOption("-BLOCK_THREADS");
 		RemoveOption("-ot");
 		//RemoveOption("-CPU");//no multi thread in inner loop
 
@@ -298,8 +298,8 @@ namespace WBSF
 			}
 
 			omp_set_nested(1);//for IOCPU
-//#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
-#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
+#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
+//#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
 			for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
 			{
 				int xBlock = XYindex[b].first;
@@ -313,7 +313,7 @@ namespace WBSF
 				BreakData breaksData;
 
 				ReadBlock(xBlock, yBlock, bandHolder[thread]);
-				ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK][thread], DT[MODEL_2BRK][thread], outputData, breaksData);
+				ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK], DT[MODEL_2BRK], outputData, breaksData);
 				WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 			}//for all blocks
 		}
@@ -373,7 +373,7 @@ namespace WBSF
 				}
 			}
 
-			
+
 			CGeoExtents extents = inputDS.GetExtents();
 			CProjectionPtr pPrj = inputDS.GetPrj();
 			string prjName = pPrj ? pPrj->GetName() : "Unknown";
@@ -393,10 +393,10 @@ namespace WBSF
 			if (m_options.m_period.IsInit())
 				cout << "    User's input working period = " << m_options.m_period.GetFormatedString() << endl;
 
-			
 
-		//	if (!m_options.m_outputPeriod.IsInit())
-				//m_options.m_outputPeriod = m_options.m_period;
+
+			//	if (!m_options.m_outputPeriod.IsInit())
+					//m_options.m_outputPeriod = m_options.m_period;
 
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
@@ -406,13 +406,13 @@ namespace WBSF
 			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
 			cout << "    Working period = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
 			//cout << "    Output period  = " << m_options.m_outputPeriod.GetFormatedString() << endl;
-			
+
 
 			m_options.m_period = period;
 
 			if (m_options.m_bYear)
 				m_options.m_firstYear = m_options.m_period.Begin().GetYear();
-			
+
 		}
 
 		if (msg && !m_options.m_maskName.empty())
@@ -426,16 +426,16 @@ namespace WBSF
 
 		if (msg && m_options.m_bCreateImage)
 		{
-			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-				cout << "Create output images " << " x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R x " << m_options.m_nbBands << " bands) with " << m_options.m_CPU << " threads..." << endl;
-
+			if (!m_options.m_bQuiet)
+				cout << "Open output images..." << endl;
 
 			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
-			
+
 			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
 			CDisturbanceAnalyserIIOption options = m_options;
 			size_t nb_outputs = options.m_bExportAll ? nbScenedProcess : 1;
 			options.m_nbBands = nb_outputs * NB_OUTPUTS;
+
 
 			//replace the common part by the new name
 			set<string> subnames;
@@ -464,6 +464,9 @@ namespace WBSF
 
 		if (msg && m_options.m_bExportBrks)
 		{
+			if (!m_options.m_bQuiet)
+				cout << "Open breaks images..." << endl;
+
 			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
 			SetFileTitle(filePath, GetFileTitle(filePath) + "_brk");
 			CDisturbanceAnalyserIIOption options = m_options;
@@ -500,7 +503,7 @@ namespace WBSF
 
 
 
-	void CDisturbanceAnalyserII::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5Tree& DT123, CSee5Tree& DT12, OutputData& outputData, BreakData& breaksData)
+	void CDisturbanceAnalyserII::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5TreeMT& DT123, CSee5TreeMT& DT12, OutputData& outputData, BreakData& breaksData)
 	{
 		ASSERT(m_options.m_weight.size() == m_options.m_rings + 1);
 
@@ -546,194 +549,177 @@ namespace WBSF
 			}
 		}
 
-		m_options.m_timerProcess.Start();
-
-		//multi thread here is very not efficient.
-//#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti) 
-		for (int y = 0; y < blockSize.m_y; y++)
+#pragma omp critical(Process)
 		{
-			for (int x = 0; x < blockSize.m_x; x++)
+			m_options.m_timerProcess.Start();
+			//	int thread1 = ::omp_get_thread_num()*m_options.BLOCK_CPU();
+
+				//multi thread here is very not efficient.
+#pragma omp parallel for num_threads( m_options.m_CPU - m_options.m_BLOCK_THREADS) if (m_options.m_bMulti) 
+			for (int y = 0; y < blockSize.m_y; y++)
 			{
-				int thread = ::omp_get_thread_num();
-				//#pragma omp atomic
-					//			test2[thread]++;
-				int xy = y * blockSize.m_x + x;
-				vector<bool> bSpiking(nbScenesProcess, false);
-
-				if (!m_options.m_despike.empty())//if despike
+				for (int x = 0; x < blockSize.m_x; x++)
 				{
-					vector< pair<CLandsatPixel, size_t>> data;
+					int thread = ::omp_get_thread_num();
+							//#pragma omp atomic
+								//			test2[thread]++;
+					int xy = y * blockSize.m_x + x;
+					vector<bool> bSpiking(nbScenesProcess, false);
 
-					ASSERT(window.GetNbScenes() == nbScenesProcess);
-					data.reserve(nbScenesProcess);
+					if (!m_options.m_despike.empty())//if despike
+					{
+						vector< pair<CLandsatPixel, size_t>> data;
+
+						ASSERT(window.GetNbScenes() == nbScenesProcess);
+						data.reserve(nbScenesProcess);
+
+						for (size_t zz = 0; zz < nbScenesProcess; zz++)
+						{
+							size_t z = m_options.m_scenes[0] + zz;
+							CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
+
+							if (pixel.IsValid())
+								data.push_back(make_pair(pixel, zz));
+						}
+
+						for (size_t i = 1; (i + 1) < data.size(); i++)
+						{
+							bSpiking[data[i].second] = m_options.m_despike.IsSpiking(data[i - 1].first, data[i].first, data[i + 1].first);
+						}
+
+					}
+
+					//__int16 dstNodata = (__int16)m_options.m_dstNodata;
+
+					//Get pixels
+					vector<double> dataNBR1(nbScenesProcess);
+					NBRVector dataNBR2;
+					dataNBR2.reserve(nbScenesProcess);
 
 					for (size_t zz = 0; zz < nbScenesProcess; zz++)
 					{
 						size_t z = m_options.m_scenes[0] + zz;
-						CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
+						CLandsatPixel pixel = window.GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
 
-						if (pixel.IsValid())
-							data.push_back(make_pair(pixel, zz));
-					}
-
-					for (size_t i = 1; (i + 1) < data.size(); i++)
-					{
-						bSpiking[data[i].second] = m_options.m_despike.IsSpiking(data[i - 1].first, data[i].first, data[i + 1].first);
-					}
-
-				}
-
-				//__int16 dstNodata = (__int16)m_options.m_dstNodata;
-
-				//Get pixels
-				vector<double> dataNBR1(nbScenesProcess);
-				NBRVector dataNBR2;
-				dataNBR2.reserve(nbScenesProcess);
-
-				for (size_t zz = 0; zz < nbScenesProcess; zz++)
-				{
-					size_t z = m_options.m_scenes[0] + zz;
-					CLandsatPixel pixel = window.GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
-
-					if (pixel.IsValid() && !bSpiking[zz])
-					{
-						size_t xy = (size_t)y*blockSize.m_x + x;
-						double nbr = pixel[m_options.m_indice];
-						dataNBR1[zz] = nbr;
-						dataNBR2.push_back(make_pair(nbr, zz));
-					}
-				}
-
-				//if there are more than 2 points
-				if (dataNBR2.size() >= 2)
-				{
-					//compute segmentation
-					std::vector<size_t> breaks = Segmentation(dataNBR2, m_options.m_maxBreaks, m_options.m_RMSEThreshold);
-
-					ASSERT(breaks.size() >= 2);
-
-					if (!outputData.empty())
-					{
-						for (size_t i = 1; i < breaks.size(); i++)
+						if (pixel.IsValid() && !bSpiking[zz])
 						{
-							//compute DT for all segment that NBR drop more than a threshold
-							//compute segmentation for this time series
-							size_t t1 = breaks[i - 1];
-							size_t t2 = breaks[i];
-							__int16 deltaNBR = __int16(dataNBR1[t1] - dataNBR1[t2]);
-							if (deltaNBR > m_options.m_dNBRThreshold)
-							{
-								size_t f = (i < breaks.size() - 1) ? 0 : 1;
-								CSee5Tree& DT = (f == MODEL_3BRK) ? DT123 : DT12;
+							size_t xy = (size_t)y*blockSize.m_x + x;
+							double nbr = pixel[m_options.m_indice];
+							dataNBR1[zz] = nbr;
+							dataNBR2.push_back(make_pair(nbr, zz));
+						}
+					}
 
-								if ((t2 == nbScenesProcess - 1) || m_options.m_bExportAll)
-								{
-									CSee5TreeBlock block(DT.MaxAtt + 1);
-
-									//fill the data structure for decision tree
-									size_t c = 0;
-									DVal(block, c++) = DT.MaxClass + 1;
-									DVal(block, c++) = Continuous(DT, 1) ? DT_UNKNOWN : 0;
-
-									size_t nb_z = (f == MODEL_3BRK) ? 3 : 2;
-									for (size_t zz = 0; zz < nb_z; zz++)
-									{
-										size_t z = breaks[i + zz - 1];
-										//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
-										CLandsatPixel pixel = window.GetPixel(z, x, y);
-
-										CVal(block, c++) = (ContValue)(pixel[I_B3]);
-										CVal(block, c++) = (ContValue)(pixel[I_B4]);
-										CVal(block, c++) = (ContValue)(pixel[I_B5]);
-										CVal(block, c++) = (ContValue)(pixel[I_B7]);
-										CVal(block, c++) = (ContValue)(pixel.GetTRef().GetYear());
-									}
-
-
-									ASSERT(c == (nb_z * 5 + 2));
-
-									//fill virtual bands 
-									//assuming virtual band never return no data
-									for (; c <= DT.MaxAtt; c++)
-									{
-										ASSERT(DT.AttDef[c]);
-										block[c] = DT.EvaluateDef(DT.AttDef[c], block.data());
-									}
-
-									ASSERT(!block.empty());
-									int predict = (int)DT.Classify(block.data());
-
-									ASSERT(predict >= 1 && predict <= DT.MaxClass);
-									int DTCode = atoi(DT.ClassName[predict]);
-
-
-									size_t z = 0;
-									if (m_options.m_bExportAll)
-										z = t2;
-
-									outputData[z][O_DT_CODE][xy] = (__int16)DTCode;
-									outputData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
-									//outputData[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
-									outputData[z][O_DELTA_NBR][xy] = deltaNBR;
-
-								}
-							}//if greater than dThreshold
-						}//for all breaks
-					}//if output data
-
-					if (!breaksData.empty())
+					//if there are more than 2 points
+					if (dataNBR2.size() >= 2)
 					{
-						ASSERT(breaks.size() <= breaksData.size());
-						for (size_t i = 0; i < breaks.size(); i++)
-						{
-							size_t z = breaks[breaks.size() - i - 1];//reverse order
+						//compute segmentation
+						std::vector<size_t> breaks = Segmentation(dataNBR2, m_options.m_maxBreaks, m_options.m_RMSEThreshold);
 
-							for (size_t j = 0; j < NB_BREAKS_OUTPUT; j++)
+						ASSERT(breaks.size() >= 2);
+
+						if (!outputData.empty())
+						{
+							for (size_t i = 1; i < breaks.size(); i++)
 							{
-								switch (j)
+								//compute DT for all segment that NBR drop more than a threshold
+								//compute segmentation for this time series
+								size_t t1 = breaks[i - 1];
+								size_t t2 = breaks[i];
+								__int16 deltaNBR = __int16(dataNBR1[t1] - dataNBR1[t2]);
+								if (deltaNBR > m_options.m_dNBRThreshold)
 								{
-								case O_NBR:breaksData[i][j][xy] = (__int16)dataNBR1[z]; break;
-								case O_T: breaksData[i][j][xy] = m_options.m_firstYear + (__int16)z; break;
-								default:ASSERT(false);
+									size_t f = (i < breaks.size() - 1) ? 0 : 1;
+									CSee5Tree& DT = (f == MODEL_3BRK) ? DT123[thread] : DT12[thread];
+
+									if ((t2 == nbScenesProcess - 1) || m_options.m_bExportAll)
+									{
+										CSee5TreeBlock block(DT.MaxAtt + 1);
+
+										//fill the data structure for decision tree
+										size_t c = 0;
+										DVal(block, c++) = DT.MaxClass + 1;
+										DVal(block, c++) = Continuous(DT, 1) ? DT_UNKNOWN : 0;
+
+										size_t nb_z = (f == MODEL_3BRK) ? 3 : 2;
+										for (size_t zz = 0; zz < nb_z; zz++)
+										{
+											size_t z = breaks[i + zz - 1];
+											//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
+											CLandsatPixel pixel = window.GetPixel(z, x, y);
+
+											CVal(block, c++) = (ContValue)(pixel[I_B3]);
+											CVal(block, c++) = (ContValue)(pixel[I_B4]);
+											CVal(block, c++) = (ContValue)(pixel[I_B5]);
+											CVal(block, c++) = (ContValue)(pixel[I_B7]);
+											CVal(block, c++) = (ContValue)(pixel.GetTRef().GetYear());
+										}
+
+
+										ASSERT(c == (nb_z * 5 + 2));
+
+										//fill virtual bands 
+										//assuming virtual band never return no data
+										for (; c <= DT.MaxAtt; c++)
+										{
+											ASSERT(DT.AttDef[c]);
+											block[c] = DT.EvaluateDef(DT.AttDef[c], block.data());
+										}
+
+										ASSERT(!block.empty());
+										int predict = (int)DT.Classify(block.data());
+
+										ASSERT(predict >= 1 && predict <= DT.MaxClass);
+										int DTCode = atoi(DT.ClassName[predict]);
+
+
+										size_t z = 0;
+										if (m_options.m_bExportAll)
+											z = t2;
+
+										outputData[z][O_DT_CODE][xy] = (__int16)DTCode;
+										outputData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
+										//outputData[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
+										outputData[z][O_DELTA_NBR][xy] = deltaNBR;
+
+									}
+								}//if greater than dThreshold
+							}//for all breaks
+						}//if output data
+
+						if (!breaksData.empty())
+						{
+							ASSERT(breaks.size() <= breaksData.size());
+							for (size_t i = 0; i < breaks.size(); i++)
+							{
+								size_t z = breaks[breaks.size() - i - 1];//reverse order
+
+								for (size_t j = 0; j < NB_BREAKS_OUTPUT; j++)
+								{
+									switch (j)
+									{
+									case O_NBR:breaksData[i][j][xy] = (__int16)dataNBR1[z]; break;
+									case O_T: breaksData[i][j][xy] = m_options.m_firstYear + (__int16)z; break;
+									default:ASSERT(false);
+									}
 								}
+
 							}
 
 						}
-
 					}
-					//if need output
-					//if (!outputData.empty())
-					//{
-					//	for (size_t s = 0; s < segment.size(); s++)
-					//	{
-					//		size_t z = segment[segment.size() - s - 1];//reverse order
-					//		outputData[s][xy] = m_options.m_firstYear + (__int16)z;
-					//	}
-					//}
-
-					//if output debug
-					//if (!debugData.empty())
-					//{
-					//	debugData[0][xy] = (__int16)segment.size();
-					//	for (size_t s = 0; s < segment.size(); s++)
-					//	{
-					//		size_t z = segment[segment.size() - s - 1];//reverse order
-					//		debugData[s + 1][xy] = (__int16)window[z]->at(x, y);
-					//	}
-					//}
-
 				}
 			}
-		}
 
 #pragma omp atomic 
-		m_options.m_xx += blockSize.m_x*blockSize.m_y;
+			m_options.m_xx += blockSize.m_x*blockSize.m_y;
 
-		m_options.UpdateBar();
-		m_options.m_timerProcess.Stop();
+			m_options.UpdateBar();
+			m_options.m_timerProcess.Stop();
 
-		bandHolder.FlushCache();
-		//}
+			//bandHolder.FlushCache();
+		}
+
 	}
 
 	void CDisturbanceAnalyserII::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreakData& breaksData)
@@ -756,7 +742,10 @@ namespace WBSF
 
 				size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 				size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess : 1;
-				for (size_t z = 0; z < nbOutputs; z++)
+
+				
+#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
+				for (int z = 0; z < nbOutputs; z++)
 				{
 					for (size_t i = 0; i < NB_OUTPUTS; i++)
 					{
@@ -787,7 +776,8 @@ namespace WBSF
 				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= breaksDS.GetRasterXSize());
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= breaksDS.GetRasterYSize());
 
-				for (size_t z = 0; z < m_options.m_maxBreaks; z++)
+#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
+				for (int z = 0; z < m_options.m_maxBreaks; z++)
 				{
 					for (size_t i = 0; i < NB_BREAKS_OUTPUT; i++)
 					{

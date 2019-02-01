@@ -62,7 +62,7 @@ namespace WBSF
 		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
 
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
-		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5Tree& DT123, CSee5Tree& DT12, OutputData& outputData, BreakData& breaksData);
+		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5TreeMT& DT123, CSee5TreeMT& DT12, OutputData& outputData, BreakData& breaksData);
 		void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreakData& breaksData);
 		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
 		ERMsg LoadModel(std::string filePath, CSee5TreeMT& DT);
