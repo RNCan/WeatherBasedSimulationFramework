@@ -134,18 +134,18 @@ namespace WBSF
 	{
 		ERMsg msg;
 		
-		//if (omp_get_thread_num() == 0)
-		//{
+		if (omp_get_thread_num() == 0)
+		{
 			//std::unique_lock<std::mutex> lock(m_mutex);
 			//m_mutex.lock();
 			
-			CS.Enter();
+			//CS.Enter();//problem with wind10
 
 			if (!GetTasks().empty())
 				GetTasks().top().m_stepPos = stepPos;
 
-			CS.Leave();
-		//}
+			//CS.Leave();
+		}
 
 		if (omp_get_thread_num() == 0)
 		{
@@ -166,7 +166,6 @@ namespace WBSF
 
 		if (stepBy!=0)
 		{
-			//std::unique_lock<std::mutex> lock(m_mutex);
 			CS.Enter();
 			if (!GetTasks().empty())
 			{
