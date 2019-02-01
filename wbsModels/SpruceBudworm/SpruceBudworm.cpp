@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 01-02-2019	Rémi Saint-Amant	Bug correction when sunset is before noon 
 // 19-12-2018	Rémi Saint-Amant	Add option of adult attrition.
 // 03-08-2018	Rémi Saint-Amant	Remove the reduction factor for defoliation. 
 // 13/03/2017   Jacques Régnière    Reduced OVERHEATING_FACTOR to 0.04 from 0.11
@@ -574,36 +575,40 @@ namespace WBSF
 		static const __int64 Δt = 60;//s
 		static const double Tº = 25.4;//°C
 
-		CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
-		__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
-		ASSERT(tᶳ > 12 * 3600);
-
-		//first estimate of exodus info
-		tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
-		tᴹ = (25 - 1) * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
 		__int64 tᵀº = 0;
 
-		ASSERT(tº > 0);
-		for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
+
+		CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
+		__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
+		if (tᶳ > 12 * 3600)//if sunset is after noon (avoid problem in north)
 		{
-			//sunset hour shifted by t
-			double h = t / 3600.0;
-			const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
 
-			//temperature interpolation between 2 hours
-			double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
-			if (Tair <= Tº)
-				tᵀº = t;
+			//first estimate of exodus info
+			tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
+			tᴹ = tᶳ + 4 * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
+
+
+			ASSERT(tº > 0);
+			for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
+			{
+				//sunset hour shifted by t
+				double h = t / 3600.0;
+				const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
+
+				//temperature interpolation between 2 hours
+				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
+				if (Tair <= Tº)
+					tᵀº = t;
+			}
+
+			ASSERT(tᵀº != 0);
+			if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
+				tᵀº = 22 * 3600;
+
+			//now calculate the real tº, tᶬ and tᶜ
+			tº = max(tº, tᵀº);
+			tᴹ = min(tº + Δtᶠ, tᴹ);
 		}
-
-		ASSERT(tᵀº != 0);
-		if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
-			tᵀº = 22 * 3600;
-		
-		//now calculate the real tº, tᶬ and tᶜ
-		tº = max(tᶳ + Δtᶳ - Δtᶠ / 2, tᵀº);
-		tᴹ = min(tº + Δtᶠ, __int64(25 * 3600));
-
 
 		return tᵀº != 0;
 	}

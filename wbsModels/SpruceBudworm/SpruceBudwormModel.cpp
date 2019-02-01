@@ -126,9 +126,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//CModelStat stat;
 		ExecuteDaily(m_output);
-		//SetOutput(stat);
 
 		return msg;
 	}
