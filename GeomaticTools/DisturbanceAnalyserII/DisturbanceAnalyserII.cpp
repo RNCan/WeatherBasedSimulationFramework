@@ -1,8 +1,9 @@
 //***********************************************************************
-// program to merge Landsat image image over a period
+// program to detect insect perturbation from Landsat image over a period
 //									 
 //***********************************************************************
 // version
+// 1.0.1	01/02/2019	Rémi Saint-Amant	Add export by segment
 // 1.0.0	27/01/2019	Rémi Saint-Amant	Creation
 
 
@@ -31,7 +32,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CDisturbanceAnalyserII::VERSION = "1.0.0";
+	const char* CDisturbanceAnalyserII::VERSION = "1.0.1";
 	typedef CDecisionTreeBlock CSee5TreeBlock;
 	typedef CDecisionTreeBaseEx CSee5Tree;
 	typedef CDecisionTree CSee5TreeMT;
@@ -68,13 +69,14 @@ namespace WBSF
 			{ "-RMSEThreshold", 1, "t", false, "RMSE threshold of the indice (NBR) value to continue breaking series. 50 by default." },
 			{ "-MaxBreaks", 1, "n", false, "Maximum number of breaks including beginning and end as a break. Minimum value 3, 12 by default" },
 			{ "-Year", 0, "", false, "Return year instead of index. By default, return the image index (0..nbImages-1)" },
-			{ "-ExportBrks", 0, "", false, "Export breaks indice (NBR) and reference image (index or year if -FirstYear is define). False by default." },
-			{ "-ExportAll", 0, "", false, "Export all perturbations. Export only the last by default." },
+			{ "-ExportBrks", 0, "", false, "Export breaks indice (NBR) and reference image (index or year if -Year is define). False by default." },
+			{ "-ExportSgts", 0, "", false, "Export perturbations by segment. False by default." },
+			{ "-ExportAll", 0, "", false, "Export all perturbations by year. Export only the last by default." },
 			{ "-dThreshold", 1, "n", false, "Delta (T1-T2) indice (NBR) is greater than threshold to compute See5 model. For NBR, ranging from 100 to 150. 125 by default." },
 			//			{ "-OutputPeriod", 2, "Begin End", false, "Select the period (YYYY-MM-DD YYYY-MM-DD) to output disturbance. The entire period are selected by default." },
-						{ "See5Model", 0, "", false, "See5 detection model file path." },
-						{ "srcfile", 0, "", false, "Input Landsat image file path." },
-						{ "dstfile", 0, "", false, "Output image file path." }
+			{ "See5Model", 0, "", false, "See5 detection model file path." },
+			{ "srcfile", 0, "", false, "Input Landsat image file path." },
+			{ "dstfile", 0, "", false, "Output image file path." }
 		};
 
 
@@ -190,6 +192,11 @@ namespace WBSF
 		{
 			m_dNBRThreshold = atoi(argv[++i]);
 		}
+		
+		else if (IsEqual(argv[i], "-ExportSgts"))
+		{
+			m_bExportSgts = true;
+		}
 		else if (IsEqual(argv[i], "-ExportBrks"))
 		{
 			m_bExportBrks = true;
@@ -240,7 +247,7 @@ namespace WBSF
 	}
 
 	//	static size_t test1[16] = { 0 };
-		//static size_t test2[16] = { 0 };
+	//static size_t test2[16] = { 0 };
 
 	ERMsg CDisturbanceAnalyserII::Execute()
 	{
@@ -271,7 +278,8 @@ namespace WBSF
 		CGDALDatasetEx maskDS;
 		CGDALDatasetEx outputDS;
 		CGDALDatasetEx breaksDS;
-		msg = OpenAll(inputDS, maskDS, outputDS, breaksDS);
+		CGDALDatasetEx segmentsDS;
+		msg = OpenAll(inputDS, maskDS, outputDS, segmentsDS, breaksDS);
 
 
 		CBandsHolderMT bandHolder(int(m_options.m_rings * 2 + 1), m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_CPU);
@@ -311,14 +319,15 @@ namespace WBSF
 
 				OutputData outputData;
 				BreakData breaksData;
+				SegmentData segmentsData;
 
 				ReadBlock(xBlock, yBlock, bandHolder[thread]);
-				ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK], DT[MODEL_2BRK], outputData, breaksData);
-				WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
+				ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK], DT[MODEL_2BRK], outputData, segmentsData, breaksData);
+				WriteBlock(xBlock, yBlock, outputDS, segmentsDS, breaksDS, outputData, segmentsData, breaksData);
 			}//for all blocks
 		}
 
-		CloseAll(inputDS, maskDS, outputDS, breaksDS);
+		CloseAll(inputDS, maskDS, outputDS, segmentsDS, breaksDS);
 
 		//cout << "block thread: " << m_options.m_BLOCK_THREADS << endl;
 		//cout << "block CPU: " << m_options.BLOCK_CPU() << endl;
@@ -330,7 +339,7 @@ namespace WBSF
 
 
 
-	ERMsg CDisturbanceAnalyserII::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS)
+	ERMsg CDisturbanceAnalyserII::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& segmentsDS, CGDALDatasetEx& breaksDS)
 	{
 		ERMsg msg;
 
@@ -433,7 +442,7 @@ namespace WBSF
 
 			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
 			CDisturbanceAnalyserIIOption options = m_options;
-			size_t nb_outputs = options.m_bExportAll ? nbScenedProcess : 1;
+			size_t nb_outputs = options.m_bExportAll ? nbScenedProcess-1 : 1;//-1 because the first year have never perturbation
 			options.m_nbBands = nb_outputs * NB_OUTPUTS;
 
 
@@ -443,7 +452,7 @@ namespace WBSF
 			{
 				size_t z = m_options.m_scenes[1];
 				if (options.m_bExportAll)
-					z = m_options.m_scenes[0] + zz;
+					z = m_options.m_scenes[0] + zz+1;//+1 skip the first
 
 				string subName = inputDS.GetSubname(z, m_options.m_rename);
 				string uniqueSubName = subName;
@@ -454,12 +463,46 @@ namespace WBSF
 				subnames.insert(uniqueSubName);
 
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_DTcode.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_dNBR.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_T1.tif|";
 				//options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_T2.tif|";
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_dNBR.tif|";
 			}
 
 			msg += outputDS.CreateImage(filePath, options);
+		}//create output
+
+		if (msg && m_options.m_bExportSgts)
+		{
+			if (!m_options.m_bQuiet)
+				cout << "Open segments images..." << endl;
+
+			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+
+			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
+			SetFileTitle(filePath, GetFileTitle(filePath) + "_sgt");
+			CDisturbanceAnalyserIIOption options = m_options;
+			options.m_nbBands = (options.m_maxBreaks-1) * NB_SEGMENTS_OUTPUTS;
+
+
+			//replace the common part by the new name
+			set<string> subnames;
+			for (size_t z = 0; z < options.m_maxBreaks - 1; z++)
+			{
+				string subName = inputDS.GetSubname(z, m_options.m_rename);
+				string uniqueSubName = subName;
+				size_t i = 1;
+				while (subnames.find(uniqueSubName) != subnames.end())
+					uniqueSubName = subName + "_" + to_string(++i);
+
+				subnames.insert(uniqueSubName);
+
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_DTcode.tif|",z+1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_dNBR.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_T1.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_T2.tif|", z + 1);
+			}
+
+			msg += segmentsDS.CreateImage(filePath, options);
 		}//create output
 
 		if (msg && m_options.m_bExportBrks)
@@ -471,7 +514,7 @@ namespace WBSF
 			SetFileTitle(filePath, GetFileTitle(filePath) + "_brk");
 			CDisturbanceAnalyserIIOption options = m_options;
 			options.m_outputType = GDT_Int16;
-			options.m_nbBands = NB_BREAKS_OUTPUT * options.m_maxBreaks;
+			options.m_nbBands = NB_BREAKS_OUTPUTS * options.m_maxBreaks;
 
 			for (size_t s = 0; s < options.m_maxBreaks; s++)
 			{
@@ -503,7 +546,7 @@ namespace WBSF
 
 
 
-	void CDisturbanceAnalyserII::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5TreeMT& DT123, CSee5TreeMT& DT12, OutputData& outputData, BreakData& breaksData)
+	void CDisturbanceAnalyserII::ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5TreeMT& DT123, CSee5TreeMT& DT12, OutputData& outputData, SegmentData& segmentsData, BreakData& breaksData)
 	{
 		ASSERT(m_options.m_weight.size() == m_options.m_rings + 1);
 
@@ -528,7 +571,7 @@ namespace WBSF
 		if (m_options.m_bCreateImage)
 		{
 			__int16 dstNodata = (__int16)m_options.m_dstNodata;
-			size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess : 1;
+			size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess -1 : 1;
 			outputData.resize(nbOutputs);
 			for (size_t i = 0; i < outputData.size(); i++)
 			{
@@ -536,6 +579,17 @@ namespace WBSF
 					outputData[i][j].resize(blockSize.m_x*blockSize.m_y, dstNodata);
 			}
 
+		}
+
+		if (m_options.m_bExportBrks)
+		{
+			__int16 dstNodata = (__int16)GetDefaultNoData(GDT_Int16);
+			segmentsData.resize(m_options.m_maxBreaks-1);
+			for (size_t i = 0; i < segmentsData.size(); i++)
+			{
+				for (size_t j = 0; j < segmentsData[i].size(); j++)
+					segmentsData[i][j].resize(blockSize.m_x*blockSize.m_y, dstNodata);
+			}
 		}
 
 		if (m_options.m_bExportBrks)
@@ -589,8 +643,6 @@ namespace WBSF
 
 					}
 
-					//__int16 dstNodata = (__int16)m_options.m_dstNodata;
-
 					//Get pixels
 					vector<double> dataNBR1(nbScenesProcess);
 					NBRVector dataNBR2;
@@ -618,7 +670,7 @@ namespace WBSF
 
 						ASSERT(breaks.size() >= 2);
 
-						if (!outputData.empty())
+						if (!outputData.empty() || !segmentsData.empty())
 						{
 							for (size_t i = 1; i < breaks.size(); i++)
 							{
@@ -645,7 +697,6 @@ namespace WBSF
 										for (size_t zz = 0; zz < nb_z; zz++)
 										{
 											size_t z = breaks[i + zz - 1];
-											//CLandsatPixel pixel = ((CLandsatWindow&)window).GetPixelMean(z, x, y, (int)m_options.m_rings, m_options.m_weight);
 											CLandsatPixel pixel = window.GetPixel(z, x, y);
 
 											CVal(block, c++) = (ContValue)(pixel[I_B3]);
@@ -671,17 +722,27 @@ namespace WBSF
 
 										ASSERT(predict >= 1 && predict <= DT.MaxClass);
 										int DTCode = atoi(DT.ClassName[predict]);
+										
+										if (!outputData.empty() )
+										{
+											size_t z = 0;
+											if (m_options.m_bExportAll)
+												z = t2 - 1;//-1 because the first year is removed
 
-
-										size_t z = 0;
-										if (m_options.m_bExportAll)
-											z = t2;
-
-										outputData[z][O_DT_CODE][xy] = (__int16)DTCode;
-										outputData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
-										//outputData[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
-										outputData[z][O_DELTA_NBR][xy] = deltaNBR;
-
+											outputData[z][O_DT_CODE][xy] = (__int16)DTCode;
+											outputData[z][O_DELTA_NBR][xy] = deltaNBR;
+											outputData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
+										}
+										
+										if ( !segmentsData.empty())
+										{
+											ASSERT(i < breaks.size());
+											size_t z = breaks.size() - i - 1;//reverse order
+											segmentsData[z][O_DT_CODE][xy] = (__int16)DTCode;
+											segmentsData[z][O_DELTA_NBR][xy] = deltaNBR;
+											segmentsData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
+											segmentsData[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
+										}
 									}
 								}//if greater than dThreshold
 							}//for all breaks
@@ -694,7 +755,7 @@ namespace WBSF
 							{
 								size_t z = breaks[breaks.size() - i - 1];//reverse order
 
-								for (size_t j = 0; j < NB_BREAKS_OUTPUT; j++)
+								for (size_t j = 0; j < NB_BREAKS_OUTPUTS; j++)
 								{
 									switch (j)
 									{
@@ -705,7 +766,6 @@ namespace WBSF
 								}
 
 							}
-
 						}
 					}
 				}
@@ -722,7 +782,7 @@ namespace WBSF
 
 	}
 
-	void CDisturbanceAnalyserII::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreakData& breaksData)
+	void CDisturbanceAnalyserII::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& segmentsDS, CGDALDatasetEx& breaksDS, OutputData& outputData, SegmentData& segmentsData, BreakData& breaksData)
 	{
 #pragma omp critical(BlockIOWrite)
 		{
@@ -741,7 +801,7 @@ namespace WBSF
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
 
 				size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
-				size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess : 1;
+				size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess-1 : 1;//-1 because first year is remove
 
 				
 #pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
@@ -754,6 +814,37 @@ namespace WBSF
 						if (!outputData.empty())
 						{
 							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+						}
+						else
+						{
+							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+						}
+					}
+				}
+			}
+
+			if (segmentsDS.IsOpen())
+			{
+				CGeoExtents extents = segmentsDS.GetExtents();
+				CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
+				CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+				__int16 noData = (__int16)m_options.m_dstNodata;
+
+				ASSERT(outputRect.m_x >= 0 && outputRect.m_x < segmentsDS.GetRasterXSize());
+				ASSERT(outputRect.m_y >= 0 && outputRect.m_y < segmentsDS.GetRasterYSize());
+				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= segmentsDS.GetRasterXSize());
+				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= segmentsDS.GetRasterYSize());
+
+#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
+				for (int z = 0; z < m_options.m_maxBreaks-1; z++)
+				{
+					for (size_t i = 0; i < NB_SEGMENTS_OUTPUTS; i++)
+					{
+						size_t b = z * NB_SEGMENTS_OUTPUTS + i;
+						GDALRasterBand *pBand = segmentsDS.GetRasterBand(b);
+						if (!segmentsData[z][i].empty())
+						{
+							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(segmentsData[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
 						}
 						else
 						{
@@ -779,9 +870,9 @@ namespace WBSF
 #pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
 				for (int z = 0; z < m_options.m_maxBreaks; z++)
 				{
-					for (size_t i = 0; i < NB_BREAKS_OUTPUT; i++)
+					for (size_t i = 0; i < NB_BREAKS_OUTPUTS; i++)
 					{
-						size_t b = z * NB_BREAKS_OUTPUT + i;
+						size_t b = z * NB_BREAKS_OUTPUTS + i;
 						GDALRasterBand *pBand = breaksDS.GetRasterBand(b);
 						if (!breaksData[z][i].empty())
 						{
@@ -800,7 +891,7 @@ namespace WBSF
 		}
 	}
 
-	void CDisturbanceAnalyserII::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS)
+	void CDisturbanceAnalyserII::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& segmentsDS, CGDALDatasetEx& breaksDS)
 	{
 		inputDS.Close();
 		maskDS.Close();
@@ -808,7 +899,9 @@ namespace WBSF
 
 		m_options.m_timerWrite.Start();
 		outputDS.Close(m_options);
+		segmentsDS.Close(m_options);
 		breaksDS.Close(m_options);
+		
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

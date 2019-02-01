@@ -59,6 +59,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "See5Images", "See5Image\See
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DisturbanceAnalyserII", "DisturbanceAnalyserII\DisturbanceAnalyserII.vcxproj", "{F615F0D4-79C4-402B-B24B-D517DBADC17B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireSeverity", "FireSeverity\FireSeverity.vcxproj", "{67D45C84-3518-4133-90F9-DEF675EE1CB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -291,6 +293,14 @@ Global
 		{F615F0D4-79C4-402B-B24B-D517DBADC17B}.Release|Win32.Build.0 = Release|Win32
 		{F615F0D4-79C4-402B-B24B-D517DBADC17B}.Release|x64.ActiveCfg = Release|x64
 		{F615F0D4-79C4-402B-B24B-D517DBADC17B}.Release|x64.Build.0 = Release|x64
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Debug|Win32.Build.0 = Debug|Win32
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Debug|x64.ActiveCfg = Debug|x64
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Debug|x64.Build.0 = Debug|x64
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|Win32.ActiveCfg = Release|Win32
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|Win32.Build.0 = Release|Win32
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|x64.ActiveCfg = Release|x64
+		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
