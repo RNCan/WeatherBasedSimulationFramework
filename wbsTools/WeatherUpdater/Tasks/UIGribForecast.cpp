@@ -49,8 +49,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "MaxHour", "ShowWinSCP", "Variables" };
-	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_BOOL, T_STRING_SELECT };
+	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "MaxHour", "ShowWinSCP",  "VariablesSFC", "VariablesTGL", "VariablesISBL", "VariablesOthers",  "TGLHeight", "ISBLLevels", "ComputeHourlyPrecipitation" };
+	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_BOOL, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
 	const UINT CUIGribForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_GRIB_FORECAST_P;
 	const UINT CUIGribForecast::DESCRIPTION_TITLE_ID = ID_TASK_GRIB_FORECAST;
 
@@ -73,8 +73,15 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case SOURCES:	str = "HRDPS (canada)|HRRR (3D)|HRRR (SFC)|RAP P (Canada/USA)|RAP B (Canada/USA)|NAM (Canada/USA)"; break;
-		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
+		case SOURCES:	str = "HRDPS (Canada)|HRRR (3D)|HRRR (SFC)|RAP P (Canada/USA)|RAP B (Canada/USA)|NAM (Canada/USA)"; break;
+//		case HRDPS_VARS: str = CHRDPSVariables::GetHRDPSSelectionString(); break;
+		case HRDPS_VARS_SFC: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_SFR); break;
+		case HRDPS_VARS_TGL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_TGL); break;
+		case HRDPS_VARS_ISBL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_ISBL); break;
+		case HRDPS_VARS_OTHERS: for (size_t c = HRDPS_ISBY; c < NB_HRDPS_CATEGORY; c++)str += CHRDPSVariables::GetHRDPSSelectionString(c); break;
+		case TGL_HEIGHTS:str = "2|10|40|80|120"; break;
+		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050"; break;
+
 		};
 		return str;
 	}
@@ -87,7 +94,15 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Forecast\\"; break;
 		case SOURCES: str = "0"; break;
 		case MAX_HOUR: str = "24"; break;
-		case HRDPS_VARS: str = "PRATE_SFC|PRES_SFCDPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
+//		case HRDPS_VARS: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
+		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
+		case HRDPS_VARS_TGL:str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
+		case HRDPS_VARS_ISBL:str = "----"; break;
+		case HRDPS_VARS_OTHERS:str = "----"; break;
+		case TGL_HEIGHTS:str = "2|10"; break;
+		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
+		case COMPUTE_HOURLY_PRCP: str = "1"; break;
+
 		};
 
 		return str;
@@ -142,8 +157,23 @@ namespace WBSF
 		{
 			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS] + "\\");
 			HRDPS.m_bForecast = true;
-			HRDPS.m_variables = Get(HRDPS_VARS);
 			HRDPS.m_max_hours = max_hours;
+			CHRDPSVariables sfc(Get(HRDPS_VARS_SFC));
+			CHRDPSVariables tlg(Get(HRDPS_VARS_TGL));
+			CHRDPSVariables isbl(Get(HRDPS_VARS_ISBL));
+			CHRDPSVariables others(Get(HRDPS_VARS_OTHERS));
+
+			HRDPS.m_variables = (sfc | tlg | isbl | others);
+			HRDPS.m_heights = Get(TGL_HEIGHTS);
+			HRDPS.m_levels = Get(ISBL_LEVELS);
+
+			if (HRDPS.m_heights.empty())
+				HRDPS.m_heights.FromString("2|10|40|80|120");
+			if (HRDPS.m_levels.empty())
+				HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
+
+			HRDPS.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
 			msg = HRDPS.Execute(callback);
 
 		}
@@ -211,50 +241,16 @@ namespace WBSF
 				}
 
 				msg += callback.StepIt();
-				//CInternetSessionPtr pSession;
-				//CFtpConnectionPtr pConnection;
-
-				//msg = GetFtpConnection(SERVER_NAME[source], pConnection, pSession);
-
-				//
-				//for (size_t i = curI; i != fileList.size() && msg; i++)
-				//{
-				//	string outputFilePath = GetLocaleFilePath(source, fileList[i].m_filePath);
-				//	CreateMultipleDir(GetPath(outputFilePath));
-				//	//if (!FileExists(outputFilePath))
-				//	//{
-				//	callback.PushTask("Download forecast gribs:" + outputFilePath, NOT_INIT);
-				//	msg = CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-				//	callback.PopTask();
-				//	//}
-
-				//	
-				//	if (msg && FileExists(outputFilePath))
-				//	{
-				//		nbDownload++;
-				//		nbRun = 0;
-				//		curI++;
-				//		msg += callback.StepIt();
-				//	}
-
-				//}
-
-				//pConnection->Close();
-				//pSession->Close();
-
-				//if (!msg && !callback.GetUserCancel())
-				//{
-				//	callback.AddMessage(msg);
-				//	msg = ERMsg();
-				//}
 			}
+
+			callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs downloaded: " + ToString(nbDownload));
 		}
 
 
 		//delete old files
 		Clean(source);
 
-		callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs downloaded: " + ToString(nbDownload));
+		
 		callback.PopTask();
 
 		return msg;
@@ -511,8 +507,23 @@ namespace WBSF
 		{
 			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS] + "\\");
 			HRDPS.m_bForecast = true;
-			HRDPS.m_variables = Get(HRDPS_VARS);
 			HRDPS.m_max_hours = as<__int32>(MAX_HOUR);
+			CHRDPSVariables sfc(Get(HRDPS_VARS_SFC));
+			CHRDPSVariables tlg(Get(HRDPS_VARS_TGL));
+			CHRDPSVariables isbl(Get(HRDPS_VARS_ISBL));
+			CHRDPSVariables others(Get(HRDPS_VARS_OTHERS));
+
+			HRDPS.m_variables = (sfc | tlg | isbl | others);
+			HRDPS.m_heights = Get(TGL_HEIGHTS);
+			HRDPS.m_levels = Get(ISBL_LEVELS);
+
+			if (HRDPS.m_heights.empty())
+				HRDPS.m_heights.FromString("2|10|40|80|120");
+			if (HRDPS.m_levels.empty())
+				HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
+
+			HRDPS.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
 			msg = HRDPS.GetGribsList(p, gribsList, callback);
 		}
 		else

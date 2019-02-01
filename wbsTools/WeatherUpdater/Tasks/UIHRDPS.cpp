@@ -100,7 +100,6 @@ namespace WBSF
 		CHRDPSVariables isbl( Get(HRDPS_VARS_ISBL));
 		CHRDPSVariables others (Get(HRDPS_VARS_OTHERS));
 
-		//string var = +"|"+Get(HRDPS_VARS_TGL) + "|" + Get(HRDPS_VARS_ISBL) + "|" + Get(HRDPS_VARS_OTHERS);
 		HRDPS.m_variables = (sfc| tlg| isbl| others);
 		HRDPS.m_heights = Get(TGL_HEIGHTS);
 		HRDPS.m_levels = Get(ISBL_LEVELS);

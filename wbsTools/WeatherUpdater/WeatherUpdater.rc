@@ -663,7 +663,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?|?"
     IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
     IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
     IDS_HRDPS_VAR_ISBY      "Geopotential height"
@@ -731,7 +731,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Calculer la précipitation horaire"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS"
+                            "Répertoire de travail|Type|Prévision max (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol (HRDPS)|Isobares (HRDPS) |Calculer la précipitation horaire (HRDPS)"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
@@ -1135,7 +1135,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|?|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|?|?|?"
     IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed"
     IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed"
     IDS_HRDPS_VAR_ISBY      "Geopotential height"
@@ -1215,7 +1215,7 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Gound height|Isobars|Compute hourly precipitation"
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS variables"
+                            "Working directory|Type|Max forecast (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|Gound height (HRDPS)|Isobars (HRDPS)|Compute hourly precipitation (HRDPS)"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output filepath"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
