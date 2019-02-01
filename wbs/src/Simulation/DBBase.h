@@ -183,7 +183,7 @@ namespace WBSF
 
 		bool IsOpen()const{ return m_file.is_open(); }
 
-		ERMsg SetSection(size_t no, const CDBSectionIndex& index);
+		//ERMsg SetSection(size_t no, const CDBSectionIndex& index);
 		const CDBSectionIndex& GetSection(size_t no)const { return at(no); }
 
 		size_t GetNbRows(size_t section = UNKNOWN_POS)const;
@@ -212,6 +212,7 @@ namespace WBSF
 
 		fStream m_file;
 		int m_openMode;
+		CCriticalSection m_CS;
 	};
 
 
