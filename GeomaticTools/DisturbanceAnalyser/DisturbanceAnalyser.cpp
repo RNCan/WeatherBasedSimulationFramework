@@ -1092,7 +1092,7 @@ void CDisterbanceAnalyser::WriteBlock(int xBlock, int yBlock, const CBandsHolder
 									double NBR2 = data[x][y][z + 1].NBR();
 									double dNBR = NBR1 - NBR2;
 
-									//Genreal Saturated Growth
+									//General Saturated Growth
 									double CBI_Ron = dNBR / (_a_[FS_RON] * dNBR + _b_[FS_RON]);
 									double CBI_Jo = dNBR / (_a_[FS_JO] * dNBR + _b_[FS_JO]);
 
