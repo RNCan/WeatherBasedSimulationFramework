@@ -805,15 +805,18 @@ __int16 CFireSeverity::GetZscore(const array <CLandsatPixel, 2>& p)
 	};
 
 	static const size_t B[4] = { I_B3, I_B4, I_B5, I_B7 };
-	int f = 1;
+	
 
-	double Zsore = 0;
-	for (int i = 0; i < 4; i++)
+	double Zsore[2] = { 0 };
+	for (int f = 0; f < 2; f++)
 	{
-		Zsore += Square((p[1][B[i]] - F[f][i][0]) / F[f][i][1]) / 4.0;
+		for (int i = 0; i < 4; i++)
+		{
+			Zsore[f] += 10*Square((p[1][B[i]] - F[f][i][0]) / F[f][i][1]) / 4.0;
+		}
 	}
 
-	return __int16(Round(10.0*Zsore));
+	return (Zsore[0]<15&& Zsore[1]<10)?1:0;
 }
 
 __int16 CFireSeverity::GetDeltaNBR(__int16 JD_base, array <CLandsatPixel, 2> p)
