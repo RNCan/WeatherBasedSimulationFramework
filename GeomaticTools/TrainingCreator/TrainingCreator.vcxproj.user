@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-dstNoData -32768 -nbPixels 0 0 -overwrite -AddMedian "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Model\TraningSource.csv" "D:\Travaux\CloudCleaner\Model\Traning2006.csv"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-period 1998-01-01 2018-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 0 2 -AddMedian "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8418_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingSource.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\RF_Input_Start.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-dstNoData -32768 -nbPixels 0 0 -overwrite -AddMedian "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Model\TraningSource.csv" "D:\Travaux\CloudCleaner\Model\Traning2006.csv"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-period 1998-01-01 2018-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 0 2 -AddMedian "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8418_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingSource.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\RF_Input_Start.csv"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

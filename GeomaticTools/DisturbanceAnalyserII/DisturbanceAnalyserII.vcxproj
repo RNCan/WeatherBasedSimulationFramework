@@ -181,7 +181,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external.lib</AdditionalDependencies>

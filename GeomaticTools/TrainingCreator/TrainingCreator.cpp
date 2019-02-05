@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.1    04/02/2019	Rémi Saint-Amant	Some bug correction
 // 1.0.0	20/09/2018	Rémi Saint-Amant	Creation 
 
 
@@ -32,6 +33,7 @@
 
 
 //-dstNoData -32768 -overwrite -ref "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout_median.vrt" "D:\Travaux\CloudCleaner\Input\puff_partout\puff_partout.tif" "D:\Travaux\CloudCleaner\Model\TraningSource.csv" "D:\Travaux\CloudCleaner\Model\Traning2005-2007.csv"
+//-period 1998-01-01 2018-12-31 -dstNoData -32768 -multi -IOCPU 8 -overwrite -nbPixels 0 2 -AddMedian "U:\GIS1\LANDSAT_SR\mos\20160909_MergeImages\VRT_L578_8418_local.vrt" "U:\GIS\#documents\TestCodes\TrainingCreator\Input\TrainingSource.csv" "U:\GIS\#documents\TestCodes\TrainingCreator\Output\RF_Input_Start.csv"
 
 
 
@@ -41,7 +43,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CTrainingCreator::VERSION = "1.0.0";
+	const char* CTrainingCreator::VERSION = "1.0.1";
 	const int CTrainingCreator::NB_THREAD_PROCESS = 2;
 	const char * CTrainingCreator::CONDITION_NAME[NB_CONDITION] = { "AllValid", "AtLeastOneValid", "AtLeastOneMissing", "AllMissing" };
 
@@ -588,16 +590,19 @@ namespace WBSF
 				}
 
 				//add ref cols
-				for (size_t i = 0; i < refDS.GetNbScenes(); i++)
+				if (refDS.IsOpen())
 				{
-					for (size_t j = 0; j < m_options.nbBandExport(); j++)
+					for (size_t i = 0; i < refDS.GetNbScenes(); i++)
 					{
-						string title = "r" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
+						for (size_t j = 0; j < m_options.nbBandExport(); j++)
+						{
+							string title = "r" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
 
-						//if (!inputDS.GetInternalName((int)i).empty())
-							//title = GetFileTitle(inputDS.GetInternalName((int)i));
+							//if (!inputDS.GetInternalName((int)i).empty())
+								//title = GetFileTitle(inputDS.GetInternalName((int)i));
 
-						oFile.m_header += "," + title;
+							oFile.m_header += "," + title;
+						}
 					}
 				}
 			}

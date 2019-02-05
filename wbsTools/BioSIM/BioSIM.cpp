@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
 // 11.5.5: 01/02/2019	Rémi Saint-Amant	Bug correction in Callback (freeze) on Windows10
-// 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction
+// 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction 
 //											Optimization of weather generation and model simulation save process
 //											Optimization of spatial interpolation
 //											Bug correction in ModelInputDlg and WGInputDlg and LocDlg

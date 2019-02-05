@@ -192,7 +192,7 @@ namespace WBSF
 		{
 			m_dNBRThreshold = atoi(argv[++i]);
 		}
-		
+
 		else if (IsEqual(argv[i], "-ExportSgts"))
 		{
 			m_bExportSgts = true;
@@ -277,8 +277,9 @@ namespace WBSF
 		CLandsatDataset inputDS;
 		CGDALDatasetEx maskDS;
 		CGDALDatasetEx outputDS;
-		CGDALDatasetEx breaksDS;
 		CGDALDatasetEx segmentsDS;
+		CGDALDatasetEx breaksDS;
+
 		msg = OpenAll(inputDS, maskDS, outputDS, segmentsDS, breaksDS);
 
 
@@ -292,40 +293,43 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		if (m_options.m_bCreateImage)
+		CGeoExtents extents = bandHolder.GetExtents();
+		size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+
+		m_options.ResetBar(extents.m_xSize*extents.m_ySize);
+		vector<pair<int, int>> XYindex = extents.GetBlockList();
+
+		if (!m_options.m_bQuiet)
 		{
-			CGeoExtents extents = bandHolder.GetExtents();
-			size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
-
-			m_options.ResetBar(extents.m_xSize*extents.m_ySize);
-			vector<pair<int, int>> XYindex = extents.GetBlockList();
-
-			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-			{
+			if (outputDS.IsOpen())
 				cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B)" << endl;
-			}
+			if (segmentsDS.IsOpen())
+				cout << "Create segment images (" << segmentsDS.GetRasterXSize() << " C x " << segmentsDS.GetRasterYSize() << " R x " << segmentsDS.GetRasterCount() << " B)" << endl;
+			if (breaksDS.IsOpen())
+				cout << "Create breaks images (" << breaksDS.GetRasterXSize() << " C x " << breaksDS.GetRasterYSize() << " R x " << breaksDS.GetRasterCount() << " B)" << endl;
+		}
 
-			omp_set_nested(1);//for IOCPU
+		omp_set_nested(1);//for IOCPU
 #pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti) 
 //#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_CPU ) if (m_options.m_bMulti) 
-			for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
-			{
-				int xBlock = XYindex[b].first;
-				int yBlock = XYindex[b].second;
+		for (__int64 b = 0; b < (__int64)XYindex.size(); b++)
+		{
+			int xBlock = XYindex[b].first;
+			int yBlock = XYindex[b].second;
 
-				int thread = ::omp_get_thread_num();
-				//#pragma omp atomic
-					//			test1[thread]++;
+			int thread = ::omp_get_thread_num();
+			//#pragma omp atomic
+				//			test1[thread]++;
 
-				OutputData outputData;
-				BreakData breaksData;
-				SegmentData segmentsData;
+			OutputData outputData;
+			BreakData breaksData;
+			SegmentData segmentsData;
 
-				ReadBlock(xBlock, yBlock, bandHolder[thread]);
-				ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK], DT[MODEL_2BRK], outputData, segmentsData, breaksData);
-				WriteBlock(xBlock, yBlock, outputDS, segmentsDS, breaksDS, outputData, segmentsData, breaksData);
-			}//for all blocks
-		}
+			ReadBlock(xBlock, yBlock, bandHolder[thread]);
+			ProcessBlock(xBlock, yBlock, bandHolder[thread], DT[MODEL_3BRK], DT[MODEL_2BRK], outputData, segmentsData, breaksData);
+			WriteBlock(xBlock, yBlock, outputDS, segmentsDS, breaksDS, outputData, segmentsData, breaksData);
+		}//for all blocks
+
 
 		CloseAll(inputDS, maskDS, outputDS, segmentsDS, breaksDS);
 
@@ -442,7 +446,7 @@ namespace WBSF
 
 			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
 			CDisturbanceAnalyserIIOption options = m_options;
-			size_t nb_outputs = options.m_bExportAll ? nbScenedProcess-1 : 1;//-1 because the first year have never perturbation
+			size_t nb_outputs = options.m_bExportAll ? nbScenedProcess - 1 : 1;//-1 because the first year have never perturbation
 			options.m_nbBands = nb_outputs * NB_OUTPUTS;
 
 
@@ -452,7 +456,7 @@ namespace WBSF
 			{
 				size_t z = m_options.m_scenes[1];
 				if (options.m_bExportAll)
-					z = m_options.m_scenes[0] + zz+1;//+1 skip the first
+					z = m_options.m_scenes[0] + zz + 1;//+1 skip the first
 
 				string subName = inputDS.GetSubname(z, m_options.m_rename);
 				string uniqueSubName = subName;
@@ -465,7 +469,6 @@ namespace WBSF
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_DTcode.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_dNBR.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_T1.tif|";
-				//options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_T2.tif|";
 			}
 
 			msg += outputDS.CreateImage(filePath, options);
@@ -481,9 +484,9 @@ namespace WBSF
 			string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
 			SetFileTitle(filePath, GetFileTitle(filePath) + "_sgt");
 			CDisturbanceAnalyserIIOption options = m_options;
-			options.m_nbBands = (options.m_maxBreaks-1) * NB_SEGMENTS_OUTPUTS;
+			options.m_nbBands = (options.m_maxBreaks - 1) * NB_SEGMENTS_OUTPUTS + 1;//+1 for nbSeg
 
-
+			options.m_VRTBandsName += GetFileTitle(filePath) + "_NbSeg.tif|";
 			//replace the common part by the new name
 			set<string> subnames;
 			for (size_t z = 0; z < options.m_maxBreaks - 1; z++)
@@ -496,10 +499,10 @@ namespace WBSF
 
 				subnames.insert(uniqueSubName);
 
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_DTcode.tif|",z+1);
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_dNBR.tif|", z + 1);
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_T1.tif|", z + 1);
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_"  + FormatA("%02d_T2.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + FormatA("%02d_DTcode.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + FormatA("%02d_dNBR.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + FormatA("%02d_T1.tif|", z + 1);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + FormatA("%02d_T2.tif|", z + 1);
 			}
 
 			msg += segmentsDS.CreateImage(filePath, options);
@@ -571,7 +574,7 @@ namespace WBSF
 		if (m_options.m_bCreateImage)
 		{
 			__int16 dstNodata = (__int16)m_options.m_dstNodata;
-			size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess -1 : 1;
+			size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess - 1 : 1;
 			outputData.resize(nbOutputs);
 			for (size_t i = 0; i < outputData.size(); i++)
 			{
@@ -581,14 +584,15 @@ namespace WBSF
 
 		}
 
-		if (m_options.m_bExportBrks)
+		if (m_options.m_bExportSgts)
 		{
 			__int16 dstNodata = (__int16)GetDefaultNoData(GDT_Int16);
-			segmentsData.resize(m_options.m_maxBreaks-1);
-			for (size_t i = 0; i < segmentsData.size(); i++)
+			segmentsData.m_nbSegments.resize(blockSize.m_x*blockSize.m_y, dstNodata);
+			segmentsData.m_segments.resize(m_options.m_maxBreaks - 1);
+			for (size_t i = 0; i < segmentsData.m_segments.size(); i++)
 			{
-				for (size_t j = 0; j < segmentsData[i].size(); j++)
-					segmentsData[i][j].resize(blockSize.m_x*blockSize.m_y, dstNodata);
+				for (size_t j = 0; j < segmentsData.m_segments[i].size(); j++)
+					segmentsData.m_segments[i][j].resize(blockSize.m_x*blockSize.m_y, dstNodata);
 			}
 		}
 
@@ -615,8 +619,8 @@ namespace WBSF
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
 					int thread = ::omp_get_thread_num();
-							//#pragma omp atomic
-								//			test2[thread]++;
+					//#pragma omp atomic
+						//			test2[thread]++;
 					int xy = y * blockSize.m_x + x;
 					vector<bool> bSpiking(nbScenesProcess, false);
 
@@ -624,7 +628,7 @@ namespace WBSF
 					{
 						vector< pair<CLandsatPixel, size_t>> data;
 
-						ASSERT(window.GetNbScenes() == nbScenesProcess);
+						ASSERT(window.GetNbScenes() >= nbScenesProcess);
 						data.reserve(nbScenesProcess);
 
 						for (size_t zz = 0; zz < nbScenesProcess; zz++)
@@ -670,8 +674,22 @@ namespace WBSF
 
 						ASSERT(breaks.size() >= 2);
 
-						if (!outputData.empty() || !segmentsData.empty())
+						if (!outputData.empty() || !segmentsData.m_nbSegments.empty())
 						{
+							__int16 nbSegment = 0;
+							for (size_t i = 1; i < breaks.size(); i++)
+							{
+								//compute DT for all segment that NBR drop more than a threshold
+								//compute segmentation for this time series
+								size_t t1 = breaks[i - 1];
+								size_t t2 = breaks[i];
+								__int16 deltaNBR = __int16(dataNBR1[t1] - dataNBR1[t2]);
+								if (deltaNBR > m_options.m_dNBRThreshold)
+								{
+									nbSegment++;
+								}
+							}
+
 							for (size_t i = 1; i < breaks.size(); i++)
 							{
 								//compute DT for all segment that NBR drop more than a threshold
@@ -722,8 +740,8 @@ namespace WBSF
 
 										ASSERT(predict >= 1 && predict <= DT.MaxClass);
 										int DTCode = atoi(DT.ClassName[predict]);
-										
-										if (!outputData.empty() )
+
+										if (!outputData.empty())
 										{
 											size_t z = 0;
 											if (m_options.m_bExportAll)
@@ -733,19 +751,27 @@ namespace WBSF
 											outputData[z][O_DELTA_NBR][xy] = deltaNBR;
 											outputData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
 										}
-										
-										if ( !segmentsData.empty())
+
+										if (!segmentsData.m_nbSegments.empty())
 										{
 											ASSERT(i < breaks.size());
-											size_t z = breaks.size() - i - 1;//reverse order
-											segmentsData[z][O_DT_CODE][xy] = (__int16)DTCode;
-											segmentsData[z][O_DELTA_NBR][xy] = deltaNBR;
-											segmentsData[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
-											segmentsData[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
+											//size_t z = breaks.size() - i - 1;//reverse order
+											if (segmentsData.m_nbSegments[xy] < 0)
+												segmentsData.m_nbSegments[xy] = 1;
+											else 
+												segmentsData.m_nbSegments[xy]++;
+
+											size_t z = nbSegment - segmentsData.m_nbSegments[xy];
+											segmentsData.m_segments[z][O_DT_CODE][xy] = (__int16)DTCode;
+											segmentsData.m_segments[z][O_DELTA_NBR][xy] = deltaNBR;
+											segmentsData.m_segments[z][O_T1][xy] = m_options.m_firstYear + (__int16)t1;
+											segmentsData.m_segments[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
 										}
 									}
 								}//if greater than dThreshold
 							}//for all breaks
+
+							
 						}//if output data
 
 						if (!breaksData.empty())
@@ -754,17 +780,8 @@ namespace WBSF
 							for (size_t i = 0; i < breaks.size(); i++)
 							{
 								size_t z = breaks[breaks.size() - i - 1];//reverse order
-
-								for (size_t j = 0; j < NB_BREAKS_OUTPUTS; j++)
-								{
-									switch (j)
-									{
-									case O_NBR:breaksData[i][j][xy] = (__int16)dataNBR1[z]; break;
-									case O_T: breaksData[i][j][xy] = m_options.m_firstYear + (__int16)z; break;
-									default:ASSERT(false);
-									}
-								}
-
+								breaksData[i][O_NBR][xy] = (__int16)dataNBR1[z];
+								breaksData[i][O_T][xy] = m_options.m_firstYear + (__int16)z;
 							}
 						}
 					}
@@ -801,9 +818,9 @@ namespace WBSF
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= outputDS.GetRasterYSize());
 
 				size_t nbScenesProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
-				size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess-1 : 1;//-1 because first year is remove
+				size_t nbOutputs = m_options.m_bExportAll ? nbScenesProcess - 1 : 1;//-1 because first year is remove
 
-				
+
 #pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
 				for (int z = 0; z < nbOutputs; z++)
 				{
@@ -835,16 +852,27 @@ namespace WBSF
 				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= segmentsDS.GetRasterXSize());
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= segmentsDS.GetRasterYSize());
 
-#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
-				for (int z = 0; z < m_options.m_maxBreaks-1; z++)
+				GDALRasterBand *pBand = segmentsDS.GetRasterBand(0);//first bans is the number of segment
+				if (!segmentsData.m_nbSegments.empty())
+				{
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(segmentsData.m_nbSegments[0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+				}
+				else
+				{
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+				}
+
+#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&segmentsDS.IsVRT()) 
+				for (int z = 0; z < m_options.m_maxBreaks - 1; z++)
 				{
 					for (size_t i = 0; i < NB_SEGMENTS_OUTPUTS; i++)
 					{
-						size_t b = z * NB_SEGMENTS_OUTPUTS + i;
+						size_t b = z * NB_SEGMENTS_OUTPUTS + i + 1;//skip first band
 						GDALRasterBand *pBand = segmentsDS.GetRasterBand(b);
-						if (!segmentsData[z][i].empty())
+
+						if (!segmentsData.m_nbSegments.empty())
 						{
-							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(segmentsData[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(segmentsData.m_segments[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
 						}
 						else
 						{
@@ -867,14 +895,14 @@ namespace WBSF
 				ASSERT(outputRect.m_xSize > 0 && outputRect.m_xSize <= breaksDS.GetRasterXSize());
 				ASSERT(outputRect.m_ySize > 0 && outputRect.m_ySize <= breaksDS.GetRasterYSize());
 
-#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&outputDS.IsVRT()) 
+#pragma omp parallel for num_threads( m_options.m_IOCPU ) if (m_options.m_bMulti&&breaksDS.IsVRT()) 
 				for (int z = 0; z < m_options.m_maxBreaks; z++)
 				{
 					for (size_t i = 0; i < NB_BREAKS_OUTPUTS; i++)
 					{
 						size_t b = z * NB_BREAKS_OUTPUTS + i;
 						GDALRasterBand *pBand = breaksDS.GetRasterBand(b);
-						if (!breaksData[z][i].empty())
+						if (!breaksData.empty())
 						{
 							pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(breaksData[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
 						}
@@ -901,7 +929,7 @@ namespace WBSF
 		outputDS.Close(m_options);
 		segmentsDS.Close(m_options);
 		breaksDS.Close(m_options);
-		
+
 
 		m_options.m_timerWrite.Stop();
 		m_options.PrintTime();

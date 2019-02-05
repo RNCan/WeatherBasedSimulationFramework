@@ -7,6 +7,7 @@
 
 
 //-te -790800 7649400 -711300 7709400 -multi -co "tiled=YES" -co "BLOCKXSIZE=512" -co "BLOCKYSIZE=512" -co "compress=LZW" -RGB Natural -of VRT --config GDAL_CACHEMAX 4096 -stats -overview {2,4,8,16} -overwrite "C:\Lansat(Fire)\Fire\fire.vrt"  "C:\Lansat(Fire)\Input\Landsat_2010-2015.vrt" "C:\Lansat(Fire)\Output\BC.vrt"
+//"U:\GIS\#documents\TestCodes\FireSeverity\Fires\Fires.vrt" "U:\GIS\#documents\TestCodes\FireSeverity\Input\Landsat_2010-2015.vrt" "U:\GIS\#documents\TestCodes\FireSeverity\Output\test.vrt"
 
 #include "stdafx.h"
 //#include "VisualLeakDetector\include\vld.h"
@@ -287,10 +288,13 @@ ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 		for (size_t zz = 0; zz < fireDS.GetRasterCount(); zz++)
 		{
 			string title = GetFileTitle(fireDS.GetInternalName(zz));
-			string sYear = title.substr(title.size() - 4);
-			options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_dNBR.tif|";
-			options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_zScore.tif|";
-			options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_FireS.tif|";
+			if (title.length() > 4)
+			{
+				string sYear = title.substr(title.size() - 4);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_dNBR.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_zScore.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_FireS.tif|";
+			}
 		}
 
 		msg += outputDS.CreateImage(filePath, options);
@@ -528,8 +532,11 @@ ERMsg CFireSeverity::LoadFires(CLandsatDataset& lansatDS, CGDALDatasetEx& fireDS
 									for (size_t x = 0; x < blockSize.m_x; x++)
 									{
 										size_t xy2 = ((size_t)index.m_y + y)* extents.m_xSize + index.m_x + x;
-										bool bSet = fire_window[zz]->at((int)x, (int)y) != 0;
-										fires[zz].second[T_FIRE].set(xy2, bSet);
+										if (fire_window[zz]->IsValid((int)x, (int)y))
+										{
+											bool bSet = fire_window[zz]->at((int)x, (int)y) > 0;
+											fires[zz].second[T_FIRE].set(xy2, bSet);
+										}
 									}//x
 								}//y
 							}//zz
@@ -570,11 +577,11 @@ ERMsg CFireSeverity::LoadFires(CLandsatDataset& lansatDS, CGDALDatasetEx& fireDS
 									}//yy
 								}//if fire
 							}//x
-						}//y
-
 #pragma omp atomic
-						m_options.m_xx += nbPixels;
-						m_options.UpdateBar();
+							m_options.m_xx += extents.m_xSize;
+							m_options.UpdateBar();
+
+						}//y
 					}//zz
 				}
 				else
@@ -615,9 +622,16 @@ size_t CFireSeverity::FindLayerIndex(CLandsatDataset& lansatDS, int year)
 
 int CFireSeverity::GetYear(const std::string& name)
 {
+	int year = -999;
+
 	string title = GetFileTitle(name);
-	string sYear = title.substr(title.length() - 4);
-	return stoi(sYear);
+	if (title.length() > 4)
+	{
+		string sYear = title.substr(title.length() - 4);
+		year = stoi(sYear);
+	}
+	
+	return year;
 }
 
 

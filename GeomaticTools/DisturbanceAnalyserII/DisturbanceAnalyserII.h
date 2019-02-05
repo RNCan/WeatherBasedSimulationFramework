@@ -17,7 +17,14 @@ namespace WBSF
 	enum TBreaksOutput { O_NBR, O_T, NB_BREAKS_OUTPUTS };
 
 	typedef std::deque< std::array < std::vector<__int16>, NB_OUTPUTS>> OutputData;
-	typedef std::deque< std::array < std::vector<__int16>, NB_SEGMENTS_OUTPUTS>> SegmentData;
+	class SegmentData
+	{
+	public:
+
+		std::vector<__int16> m_nbSegments;
+		std::deque< std::array < std::vector<__int16>, NB_SEGMENTS_OUTPUTS>> m_segments;
+	};
+	
 	typedef std::deque< std::array < std::vector<__int16>, NB_BREAKS_OUTPUTS>> BreakData;
 
 	class CDisturbanceAnalyserIIOption : public CBaseOptions

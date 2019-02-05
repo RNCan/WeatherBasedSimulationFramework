@@ -549,14 +549,16 @@ namespace WBSF
 
 				for (CSVIterator loop(file); loop != CSVIterator(); ++loop)
 				{
-					ASSERT((*loop).size() == NB_COLUMNS);
-					StringVector method((*loop)[C_CELL_METHOD], ":");
-					ASSERT(method.size() == 2);
+					if ((*loop).size() == NB_COLUMNS)
+					{
+						StringVector method((*loop)[C_CELL_METHOD], ":");
+						ASSERT(method.size() == 2);
 
-					string var_name = TrimConst((*loop)[C_VARIABLE]);
-					TVarH v = GetVariable(var_name);
-					if (v != H_SKIP)
-						me[var_name] = CVarInfo(v, TrimConst(method[1]), TrimConst((*loop)[C_UNIT]));
+						string var_name = TrimConst((*loop)[C_VARIABLE]);
+						TVarH v = GetVariable(var_name);
+						if (v != H_SKIP)
+							me[var_name] = CVarInfo(v, TrimConst(method[1]), TrimConst((*loop)[C_UNIT]));
+					}
 				}
 			}
 

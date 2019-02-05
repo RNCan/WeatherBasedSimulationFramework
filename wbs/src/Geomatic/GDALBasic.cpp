@@ -303,12 +303,13 @@ namespace WBSF
 						if (!bandsDef.empty())
 						{
 							LPXNode node = bandsDef.front();
-							if (node && node->GetChilds("ComplexSource").size() != 1)
-							{
-								//VRT file withou -separate options. 
-								//considarate this VRT as standard image
-								m_bVRT = false;
-							}
+							//When there is no nodata, vrt with -separate have singleSource
+							//if (node && node->GetChilds("ComplexSource").size() != 1)
+							//{
+							//	//VRT file without -separate options. 
+							//	//considarate this VRT as standard image
+							//	m_bVRT = false;
+							//}
 						}
 
 						file.close();
@@ -2875,7 +2876,10 @@ namespace WBSF
 				for (size_t i = 0; i < size(); ++i)
 				{
 					StringVector tmp(at(i), ",;");
-					m_time.push_back(tmp[*posTime.begin()]);
+					if (*posTime.begin() < tmp.size())
+						m_time.push_back(tmp[*posTime.begin()]);
+					else
+						msg.ajoute("Error at line : " + at(i));
 				}
 			}
 			else
