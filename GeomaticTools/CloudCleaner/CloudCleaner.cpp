@@ -3,15 +3,16 @@
 //									 
 //***********************************************************************
 // version 
-// 2.1.6    12/10/2018	Rémi Saint-Amsant	change in trigger. remove pixel/median comparison.
-// 2.1.5    03/10/2018	Rémi Saint-Amsant	try ranger optimization. add -new buffer options. add median file.
-// 2.1.4    02/10/2018	Rémi Saint-Amsant	Add BLOCK_THREADS options
-// 2.1.3    29/09/2018	Rémi Saint-Amsant	Add -PeriodTreated,-Rename and -OutputJD and many optimization.
-// 2.1.2	26/09/2018	Rémi Saint-Amant	Bug correction in seive. change in secondary definition.
+// 2.1.7	04/02/2018	Rémi Saint-Amant	Use loadPeriod for traitPeriod when not specified
+// 2.1.6    12/10/2018	Rémi Saint-Amant	change in trigger. remove pixel/median comparison.
+// 2.1.5    03/10/2018	Rémi Saint-Amant	try ranger optimization. add -new buffer options. add median file.
+// 2.1.4    02/10/2018	Rémi Saint-Amant	Add BLOCK_THREADS options
+// 2.1.3    29/09/2018	Rémi Saint-Amant	Add -PeriodTreated,-Rename and -OutputJD and many optimization.
+// 2.1.2	26/09/2018	Rémi Saint-Amant	Bug correction in sieve. change in secondary definition.
 // 2.1.1	25/09/2018	Rémi Saint-Amant	replace buffer and bufferEx. Separate cloud and shadow suspect pixel, 
 //											change in secondary definition.
 // 2.1.0	20/09/2018  Rémi Saint-Amant	Add the use of a reference image
-// 2.0.7	07/09/2018	Rémi Saint-Amant	Bug correctionn in flush cache
+// 2.0.7	07/09/2018	Rémi Saint-Amant	Bug correction in flush cache
 // 2.0.6    06/09/2018	Rémi Saint-Amant	Optimization of clear suspicious and LoadData. correction of memory leak in Ranger. 
 // 2.0.5    05/09/2018	Rémi Saint-Amant	Bug correction in sieve (stack overflow)
 // 2.0.4	04/07/2018	Rémi Saint-Amant	Add sieve and some debug layers
@@ -78,7 +79,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.1.6";
+static const char* version = "2.1.7";
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag","_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB" };
