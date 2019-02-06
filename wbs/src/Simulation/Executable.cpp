@@ -15,6 +15,7 @@
 
 #include "Basic/UtilStd.h"
 #include "Basic/Registry.h"
+#include "Basic/Timer.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/Executable.h"
 #include "Simulation/ExecutableFactory.h"
@@ -571,6 +572,7 @@ namespace WBSF
 			callback.AddMessage(GetDescription());
 			callback.AddMessage("");
 			callback.AddMessage(GetCurrentTimeString());
+			CTimer timer(TRUE);
 
 			//delete old result
 			msg = CResult::Remove(GetDBFilePath(GetPath(fileManager)));
@@ -587,8 +589,9 @@ namespace WBSF
 					ExecuteScript(fileManager, callback);
 			}
 
-
+			timer.Stop();
 			callback.AddMessage("");
+			callback.AddMessage("Time to execute task: " + SecondToDHMS(timer.Elapsed()) );
 			callback.AddMessage(GetCurrentTimeString());
 			callback.AddMessage("*******************************************");
 

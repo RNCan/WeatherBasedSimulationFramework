@@ -108,7 +108,14 @@ namespace WBSF
 
 	size_t CCallback::GetNbTasks()
 	{ 
-		return GetTasks().size();
+		size_t size = 0;
+		CS.Enter();
+
+		size = GetTasks().size();
+
+		CS.Leave();
+
+		return size;
 	}
 
 	size_t CCallback::GetCurrentLevel(){return GetNbTasks();}
@@ -127,7 +134,16 @@ namespace WBSF
 
 	double CCallback::GetCurrentStepPos()
 	{ 
-		return !GetTasks().empty() ? GetTasks().top().m_stepPos:0;
+		double stepPos = 0;
+		CS.Enter();
+
+		if (!GetTasks().empty())
+			stepPos = GetTasks().top().m_stepPos;
+
+		CS.Leave();
+
+		return stepPos;
+		//return !GetTasks().empty() ? GetTasks().top().m_stepPos:0;
 	}
 
 	ERMsg CCallback::SetCurrentStepPos(double stepPos)
@@ -195,7 +211,11 @@ namespace WBSF
 
 	double CCallback::GetCurrentStepPercent()
 	{ 
-		return !GetTasks().empty() ? (GetTasks().top().m_nbSteps != 0 ? std::min(100.0, std::max(0.0, GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps)) : 100.0) : 0.0;
+		double stepPos = GetCurrentStepPos();
+		double nbSteps = GetNbStep();
+		return nbSteps != 0 ? std::min(100.0, std::max(0.0, stepPos*100.0 / nbSteps)) : 100.0;
+		
+		//return !GetTasks().empty() ? (GetTasks().top().m_nbSteps != 0 ? std::min(100.0, std::max(0.0, GetTasks().top().m_stepPos*100.0 / GetTasks().top().m_nbSteps)) : 100.0) : 0.0;
 	}
 
 	void CCallback::AddMessage(const ERMsg& message, int level)
