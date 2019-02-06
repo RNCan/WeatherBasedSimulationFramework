@@ -400,12 +400,13 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			}
 		}
 
-
+		
+			
 		if (m_options.m_scenesTreated[0] == NOT_INIT)
-			m_options.m_scenesTreated[0] = 0;
+			m_options.m_scenesTreated[0] = m_options.m_scenesLoaded[0];
 
 		if (m_options.m_scenesTreated[1] == NOT_INIT)
-			m_options.m_scenesTreated[1] = landsatDS.GetNbScenes() - 1;
+			m_options.m_scenesTreated[1] = m_options.m_scenesLoaded[1];
 
 		if (m_options.m_scenesTreated[0] >= landsatDS.GetNbScenes() || m_options.m_scenesTreated[1] >= landsatDS.GetNbScenes())
 			msg.ajoute("Scenes {" + to_string(m_options.m_scenesTreated[0] + 1) + ", " + to_string(m_options.m_scenesTreated[1] + 1) + "} must be in range {1, " + to_string(landsatDS.GetNbScenes()) + "}");
@@ -465,8 +466,8 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 
 
 
-	if (!m_options.m_period.IsIntersect(processPeriod))
-		msg.ajoute("Input period and process perid does not intersect. Verify period or scenes options");
+	if (!m_options.m_period.IsInside(processPeriod))
+		msg.ajoute("Process period is not inside loaded period. Verify period and period options");
 
 
 	if (msg && !m_options.m_maskName.empty())

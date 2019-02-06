@@ -1015,6 +1015,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		callback.AddMessage("Manitoba agriculture network is no longer available");
+		return msg;
 
 		size_t type = as<size_t>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
