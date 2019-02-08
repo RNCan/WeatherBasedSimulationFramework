@@ -285,7 +285,7 @@ namespace WBSF
 		callback.AddMessage("");
 
 
-		//leand station list
+		//load station list
 		CFileInfoVector fileList;
 		msg = UpdateStationHistory(callback);
 
@@ -518,7 +518,6 @@ namespace WBSF
 			return msg;
 
 
-
 		msg = LoadOptimisation();
 		if (!msg)
 			return msg;
@@ -531,8 +530,6 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_GET_STATION_LIST), nbYears);
-		//callback.SetNbStep(nbYears);
-
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{

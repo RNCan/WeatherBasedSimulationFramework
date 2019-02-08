@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 
-		enum TNetwork{AGRI, FIRE, HYDRO, POTATO, NB_NETWORKS};
+		enum TNetwork{AGRI, AGRI2, FIRE, HYDRO, POTATO, NB_NETWORKS};
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
 		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, DATA_TYPE, NB_ATTRIBUTES };
 		static size_t GetNetwork(const std::string& network);
@@ -36,6 +36,7 @@ namespace WBSF
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK);
 
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
@@ -52,7 +53,7 @@ namespace WBSF
 		
 
 		std::string GetStationsListFilePath(size_t network)const;
-		std::string GetOutputFilePath(size_t network, size_t type, const std::string& stationName, int year, size_t m = NOT_INIT)const;
+		std::string GetOutputFilePath(size_t network, size_t type, const std::string& stationName, int year=-999, size_t m = NOT_INIT)const;
 		
 
 
@@ -61,6 +62,10 @@ namespace WBSF
 		ERMsg DownloadAgriData(UtilWWW::CHttpConnectionPtr& pConnection, size_t type, const std::string& ID, CTRef TRef, std::string& text);
 		ERMsg SaveAgriDailyStation(const std::string& filePath, std::string str);
 		ERMsg SaveAgriHourlyStation(const std::string& filePath, std::string str);
+		
+		ERMsg ExecuteAgri2(CCallback& callback);
+		ERMsg GetAgri2Files(StringVector& fileList, CCallback& callback);
+		ERMsg LoadAgri2(CCallback& callback);
 		
 		ERMsg ExecuteFire(CCallback& callback);
 		ERMsg SplitFireData(const std::string& outputFilePath, CCallback& callback);
@@ -77,6 +82,9 @@ namespace WBSF
 
 
 		CLocationVector m_stations;
+		std::map<std::string, CWeatherStation> m_agri2Stations;
+
+
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;

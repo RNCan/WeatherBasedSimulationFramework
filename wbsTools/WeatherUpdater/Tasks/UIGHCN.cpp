@@ -536,6 +536,13 @@ ERMsg CUIGHCND::GetStationList(StringVector& list, CCallback& callback)
 	return msg;
 }
 
+ERMsg CUIGHCND::Finalize(CCallback& callback)
+{
+	m_loadedData.clear();
+
+	return ERMsg();
+}
+
 
 static std::string TraitFileName(std::string name)
 {

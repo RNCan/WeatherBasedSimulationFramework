@@ -39,13 +39,6 @@ namespace WBSF
 
 	protected:
 
-		//std::string GetStationListFilePath()const;
-		//std::string GetMissingFilePath()const;
-
-		//ERMsg LoadStationList(CCallback& callback);
-		//ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
-		//ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
-
 		CLocationMap m_stations;
 
 
@@ -55,7 +48,6 @@ namespace WBSF
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
 		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
-		//ERMsg UpdateOptimisationDataFile(const std::string& workingDir, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOptFilePath(const std::string& filePath)const;
 
 		ERMsg LoadOptimisation();

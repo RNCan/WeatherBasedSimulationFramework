@@ -139,11 +139,11 @@ using namespace json11;
 namespace WBSF
 {
 
-	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Fire", "Hydro", "Potato" };
-	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Fire", "Manitoba Hydro", "Manitoba Potatoes" };
-	const char* CUIManitoba::NETWORK_ABVR[NB_NETWORKS] = { "Agri", "Fire", "Hydro", "Potato" };
-	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { /*"tgs.gov.mb.ca"*/"web43.gov.mb.ca", "www.gov.mb.ca", "www.hydro.mb.ca", "www.mbpotatoes.ca" };
-	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
+	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Agriculture2", "Fire", "Hydro", "Potato" };
+	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture2", "Manitoba Fire", "Manitoba Hydro", "Manitoba Potatoes" };
+	const char* CUIManitoba::NETWORK_ABVR[NB_NETWORKS] = { "Agri", "Agri2", "Fire", "Hydro", "Potato" };
+	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "web43.gov.mb.ca", "mbagweather.ca", "www.gov.mb.ca", "www.hydro.mb.ca", "www.mbpotatoes.ca" };
+	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "partners/CanAg/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
 
 	size_t CUIManitoba::GetNetwork(const string& network)
 	{
@@ -169,10 +169,8 @@ namespace WBSF
 		}
 		else
 		{
-			//StringVector net("HIST|SWOB", "|");
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				//size_t n = net.Find(str[i], false);
 				size_t n = GetNetwork(str[i]);
 				if (n < NB_NETWORKS)
 					network.set(n);
@@ -207,7 +205,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "Agri=Manitoba Agriculture|Fire=Manitoba fire|Hydro=Manitoba Hydro|Potato=Manitoba Potatoes"; break;
+		case NETWORK:	str = "Agri=Manitoba Agriculture|Agri2=Manitoba Agriculture (more stations, daily only)|Fire=Manitoba fire (hourly only)|Hydro=Manitoba Hydro|Potato=Manitoba Potatoes (daily only)"; break;
 		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		};
 		return str;
@@ -220,7 +218,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Manitoba\\"; break;
-		case NETWORK:	str = "Agri|Fire|Hydro"; break;
+		case NETWORK:	str = "Agri|Agri2|Fire|Hydro"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "0"; break;
@@ -235,7 +233,7 @@ namespace WBSF
 
 	std::string CUIManitoba::GetStationsListFilePath(size_t network)const
 	{
-		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv",  "ManitobaPotatoStations.csv" };
+		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaAgri2Stations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv",  "ManitobaPotatoStations.csv" };
 
 		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "Layers\\";
 		string filePath = path + FILE_NAME[network];
@@ -246,7 +244,17 @@ namespace WBSF
 	string CUIManitoba::GetOutputFilePath(size_t network, size_t type, const string& title, int year, size_t m)const
 	{
 		string strType = (type == HOURLY_WEATHER) ? "Hourly" : "Daily";
-		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + strType + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m + 1).c_str() : "") + title + ".csv";
+
+		string ext = ".csv";
+		if (network == AGRI2)
+		{
+			ext = "";
+			if (year == -999)
+				year = stoi(title.substr(0, 4));
+		}
+
+
+		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + strType + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m + 1).c_str() : "") + title + ext;
 	}
 
 
@@ -277,6 +285,7 @@ namespace WBSF
 				switch (n)
 				{
 				case AGRI: msg = ExecuteAgri(callback); break;
+				case AGRI2: msg = ExecuteAgri2(callback); break;
 				case FIRE: msg = ExecuteFire(callback); break;
 				case HYDRO:	msg = ExecuteHydro(callback); break;
 				case POTATO: msg = ExecutePotato(callback); break;
@@ -285,7 +294,7 @@ namespace WBSF
 
 				msg += callback.StepIt();
 			}//if selected network
-		}//for all newtwork
+		}//for all network
 
 
 		callback.PopTask();
@@ -326,11 +335,24 @@ namespace WBSF
 
 		if (msg)
 		{
+			if (network.test(AGRI2))
+			{
+				LoadAgri2(callback);
+			}
 
 		}
 
 
 		return msg;
+	}
+
+	ERMsg CUIManitoba::Finalize(CCallback& callback)
+	{
+
+		m_stations.clear();
+		m_agri2Stations.clear();
+
+		return ERMsg();
 	}
 
 	ERMsg CUIManitoba::GetWeatherStation(const std::string& NID, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -374,6 +396,13 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}
 			}
+			else if (n == AGRI2)
+			{
+				if (m_agri2Stations.find(ID) != m_agri2Stations.end())
+					station = m_agri2Stations.at(ID);
+
+				msg += callback.StepIt(0);
+			}
 			else
 			{
 				string filePath = GetOutputFilePath(n, type, ID, year);
@@ -399,257 +428,7 @@ namespace WBSF
 	}
 
 
-	//**********************************************************************************************************
-	//ERMsg CUIManitoba::GetAgriFileList(CFileInfoVector& fileList, CCallback& callback)const
-	//{
-	//	ERMsg msg;
 
-
-	//	fileList.clear();
-
-	//	//open a connection on the server
-	//	CInternetSessionPtr pSession;
-	//	CFtpConnectionPtr pConnection;
-
-	//	ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-	//	if (msgTmp)
-	//	{
-	//		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-	//		string command = as<size_t>(DATA_TYPE) == HOURLY_WEATHER ? "*60raw.txt" : "*24raw.txt";
-	//		msgTmp = FindFiles(pConnection, string(SERVER_PATH[AGRI]) + command, fileList, callback);
-	//	}
-
-
-	//	return msg;
-	//}
-
-
-
-	//these file seem to be no longer available
-	//ERMsg CUIManitoba::ExecuteAgriculture(CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-
-	//	size_t type = as<size_t>(DATA_TYPE);
-
-
-	//	string fileName = type == HOURLY_WEATHER ? "mawp60raw.txt" : "mawp24raw.txt";;
-	//	string remoteFilePath = "Tx_DMZ/" + fileName;
-	//	string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[AGRI] + "\\" + fileName;
-
-
-	//	int nbRun = 0;
-	//	bool bDownloaded = false;
-
-	//	while (!bDownloaded && nbRun < 5 && msg)
-	//	{
-	//		nbRun++;
-
-	//		CInternetSessionPtr pSession;
-	//		CFtpConnectionPtr pConnection;
-
-	//		ERMsg msgTmp = GetFtpConnection(SERVER_NAME[AGRI], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-	//		if (msgTmp)
-	//		{
-	//			TRY
-	//			{
-	//				callback.PushTask(GetString(IDS_UPDATE_FILE) + " for agriculture network", NOT_INIT);
-	//				msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-	//				callback.PopTask();
-
-	//				//split data in seperate files
-	//				if (msgTmp)
-	//				{
-	//					ASSERT(FileExists(outputFilePath));
-	//					SplitAgriStations(outputFilePath, callback);
-	//					RemoveFile(outputFilePath);
-
-	//					msg += callback.StepIt();
-	//					bDownloaded = true;
-	//				}
-	//			}
-	//				CATCH_ALL(e)
-	//			{
-	//				msgTmp = UtilWin::SYGetMessage(*e);
-	//			}
-	//			END_CATCH_ALL
-
-	//				//clean connection
-	//			pConnection->Close();
-	//			pSession->Close();
-	//		}
-	//		else
-	//		{
-	//			if (nbRun > 1 && nbRun < 5)
-	//			{
-	//				callback.PushTask("Waiting 30 seconds for server...", 600);
-	//				for (size_t i = 0; i < 600 && msg; i++)
-	//				{
-	//					Sleep(50);//wait 50 milisec
-	//					msg += callback.StepIt();
-	//				}
-	//				callback.PopTask();
-	//			}
-	//		}
-	//	}
-
-	//	return msg;
-	//}
-
-
-
-	//ERMsg CUIManitoba::SplitAgriStations(const string& outputFilePath, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	if (m_stations.empty())
-	//		msg = m_stations.Load(GetStationsListFilePath(AGRI));
-
-	//	size_t type = as<size_t>(DATA_TYPE);
-	//	CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
-
-	//	std::map<string, CWeatherYears> data;
-
-	//	ifStream file;
-	//	msg = file.open(outputFilePath);
-	//	if (msg)
-	//	{
-	//		callback.PushTask("Split Manitoba Data", file.length());
-
-	//		CWeatherAccumulator stat(TM);
-	//		string lastID;
-
-	//		enum TCommonyColumns{ TMSTAMP, RECNBR, STNID, BATMIN, COMMON_COLUMNS };
-	//		enum THourlyColumns{ AIR_T_H = COMMON_COLUMNS, AVGAIR_T_H, MAXAIR_T_H, MINAIR_T_H, RH_AVG_H, AVGRH_H, RAIN_H, RAIN24RT_H, WS_10MIN_H, WD_10MIN_H, AVGWS_H, AVGWD_H, AVGSD_H, MAXWS_10_H, MAXWD_10_H, MAXWS_H, HMMAXWS_H, MAXWD_H, MAX5WS_10_H, MAX5WD_10_H, WS_2MIN_H, WD_2MIN_H, SOIL_T05_H, AVGRS_KW_H, TOTRS_MJ_H, RAIN2_H, RAIN24RT2_H, NB_COLUMNS_H };
-	//		static const TVarH COL_POS_H[NB_COLUMNS_H] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TMAX, H_TMIN, H_SKIP, H_RELH, H_PRCP, H_SKIP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD, H_SKIP, H_PRCP, H_SKIP };
-	//		enum TDailyColumns{ PROGSIG_D = COMMON_COLUMNS, AVGAIR_T_D, MAXAIR_T_D, HMMAXAIR_T_D, MINAIR_T_D, HMMINAIR_T_D, AVGRH_D, MAXRH_D, HMMAXRH_D, MINRH_D, HMMINRH_D, RAIN_D, MAXWS_D, HMMAXWS_D, AVGWS_D, AVGWD_D, AVGSD_D, AVGSOIL_T05_D, MAXSOIL_T05_D, MINSOIL_T05_D, AVGRS_KW_D, MAXRS_KW_D, HMMAXRS_D, TOTRS_MJ_D, RAIN2_D, NB_COLUMNS_D };
-	//		static const TVarH COL_POS_D[NB_COLUMNS_D] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TMAX, H_SKIP, H_TMIN, H_SKIP, H_RELH, H_RELH, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_SKIP, H_WND2, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SRAD, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
-
-	//		bool b10m = true;
-	//		for (CSVIterator loop(file, ",", false); loop != CSVIterator() && msg; ++loop)
-	//		{
-	//			size_t nbCols = type == HOURLY_WEATHER ? NB_COLUMNS_H : NB_COLUMNS_D;
-	//			//ASSERT(loop->size() == nbCols || loop->size()==27);
-
-	//			if (loop->size() == nbCols || loop->size() == 27)
-	//			{
-	//				StringVector time((*loop)[TMSTAMP], "\"-: ");
-	//				ASSERT(time.size() == 6);
-
-	//				int year = ToInt(time[0]);
-	//				size_t month = ToInt(time[1]) - 1;
-	//				size_t day = ToInt(time[2]) - 1;
-	//				size_t hour = ToInt(time[3]);
-
-	//				ASSERT(month >= 0 && month < 12);
-	//				ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-	//				ASSERT(hour >= 0 && hour < 24);
-
-	//				CTRef TRef = type == HOURLY_WEATHER ? CTRef(year, month, day, hour) : CTRef(year, month, day);
-	//				string ID = (*loop)[STNID];
-	//				if (lastID.empty())
-	//				{
-	//					lastID = ID;
-	//					size_t it = m_stations.FindByID(ID);
-	//					if (it != NOT_INIT)
-	//						b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
-	//				}
-
-
-	//				if (stat.TRefIsChanging(TRef) || ID != lastID)
-	//				{
-	//					if (data.find(lastID) == data.end())
-	//					{
-	//						data[lastID] = CWeatherYears(type == HOURLY_WEATHER);
-	//						//try to load old data before changing it...
-	//						string filePath = GetOutputFilePath(AGRI, type, ID, year);
-	//						data[lastID].LoadData(filePath, -999, false);//don't erase other years when multiple years
-
-	//					}
-	//					//data[lastID].HaveData()
-	//					data[lastID][stat.GetTRef()].SetData(stat);
-	//					lastID = ID;
-	//					size_t it = m_stations.FindByID(ID);
-	//					if (it != NOT_INIT)
-	//						b10m = m_stations[it].GetSSI("WindHeight") == "10";
-
-	//				}
-
-	//				for (size_t v = 0; v < loop->size(); v++)
-	//				{
-	//					size_t cPos = type == HOURLY_WEATHER ? COL_POS_H[v] : COL_POS_D[v];
-	//					if (cPos < NB_VAR_H)
-	//					{
-	//						double value = ToDouble((*loop)[v]);
-	//						if (value > -99)
-	//						{
-	//							if (cPos == H_WND2)
-	//							{
-	//								value *= 3600 / 1000;//convert m/s into km/h
-	//								//some station is at 2 meters and some at 10 meters
-	//								if (b10m)
-	//									cPos = H_WNDS;
-	//							}
-
-	//							if (cPos == H_RELH)
-	//								value = max(1.0, min(100.0, value));
-
-
-	//							if (cPos == H_WNDS || cPos == H_WND2)
-	//							{
-	//								ASSERT(value < 100);
-	//							}
-
-	//							if (cPos == H_TAIR || cPos == H_TMIN || cPos == H_TMAX)
-	//							{
-	//								ASSERT(value > -60 && value < 60);
-	//							}
-
-
-	//							stat.Add(TRef, cPos, value);
-	//							if (type == HOURLY_WEATHER && cPos == H_RELH)
-	//							{
-	//								double T = ToDouble((*loop)[AVGAIR_T_H]);
-	//								double Hr = value;
-	//								if (T > -99 && Hr > -99)
-	//									stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}//empty
-
-	//			msg += callback.StepIt(loop->GetLastLine().length() + 2);
-	//		}//for all line (
-
-
-	//		if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
-	//			data[lastID][stat.GetTRef()].SetData(stat);
-
-
-	//		if (msg)
-	//		{
-	//			//save data
-	//			for (auto it1 = data.begin(); it1 != data.end(); it1++)
-	//			{
-	//				for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
-	//				{
-	//					string filePath = GetOutputFilePath(AGRI, type, it1->first, it2->first);
-	//					string outputPath = GetPath(filePath);
-	//					CreateMultipleDir(outputPath);
-	//					it2->second->SaveData(filePath, TM);
-	//				}
-	//			}
-	//		}//if msg
-
-	//		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(data.size()), 1);
-	//		callback.PopTask();
-	//	}//if msg
-
-	//	return msg;
-	//}
 
 	//******************************************************************************************************
 
@@ -674,11 +453,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
 		CString URL;
-		//CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");
 		CStringA strParam;
-
 
 		if (type == HOURLY_WEATHER)
 		{
@@ -707,7 +483,7 @@ namespace WBSF
 		//URL = _T("climate/DailyReport.aspx");
 		//strParam = "__VIEWSTATE=%2FwEPDwUJMjE5Njc0MjAyD2QWAmYPZBYCAgMPZBYCAgEPZBYIAgEPZBYGAgEPZBYCAgEPZBYCZg8QDxYGHg1EYXRhVGV4dEZpZWxkBQtTdGF0aW9uTmFtZR4ORGF0YVZhbHVlRmllbGQFBVN0bklEHgtfIURhdGFCb3VuZGdkEBU%2BBkFsdG9uYQZBcmJvcmcGQmlydGxlCkJvaXNzZXZhaW4HQnJhbmRvbghDYXJiZXJyeQZDYXJtYW4NQ3lwcmVzcyBSaXZlcgdEYXVwaGluCURlbG9yYWluZQZEdWdhbGQJRWxtIENyZWVrC0VtZXJzb24gQXV0CUVyaWtzZGFsZQlFdGhlbGJlcnQNRmlzaGVyIEJyYW5jaAdGb3JyZXN0BUdpbWxpCUdsYWRzdG9uZQhHbGVuYm9ybwlHcmFuZHZpZXcGR3JldG5hB0hhbWlvdGEJS2lsbGFybmV5CUxldGVsbGllcgdNYW5pdG91CE1jQ3JlYXJ5Bk1lbGl0YQxNZWxpdGEgU291dGgJTWlubmVkb3NhCU1vb3NlaG9ybgpNb3JkZW4gQ0RBBk1vcnJpcwdQaWVyc29uC1BpbG90IE1vdW5kClBpbmF3YSBBdXQHUG9ydGFnZQxQb3J0YWdlIEVhc3QGUmVzdG9uClJvYmxpbiBBVVQHUnVzc2VsbAdTZWxraXJrClNob2FsIExha2UIU29tZXJzZXQGU291cmlzC1NwcmFndWUgQVVUCVN0IFBpZXJyZQtTdC4gQWRvbHBoZQhTdGFyYnVjawlTdGUuIFJvc2UJU3RlaW5iYWNoClN3YW4gUml2ZXILU3dhbiBWYWxsZXkGVGV1bG9uB1RoZSBQYXMIVHJlaGVybmUGVmlyZGVuCldhc2FnYW1pbmcIV2F3YW5lc2ENV2lua2xlciBDTUNEQxBXaW5uaXBlZyBBaXJwb3J0CVdvb2RsYW5kcxU%2BAzI0NAMyMDYDMjE2AzIwOQEyATQBNQE4ATkDMjQxAzIxNwMyMzcCMTEDMjE4AzIxMwI1NgMyMzMCMTQDMjA0AzIzOQMyMTkCMTcDMjE0AzIyMAMyMzgDMjQyAjI1AjI2Azc0MAMyMjEDMjA1AjI5AzIyMgMyMzICMzQCMzUCMzcDMjM1AzI0NQIzOAMyMTUDMjEwAjQwAzI0NgMyMDgCNDEDMjAzAzI0MwMyMDIDMjExAzIyMwI0NAMyMzEDMjA3AjQ1AzIwMQMyMjQCNTEDMjQwAzIzMAI1MgMyMjUUKwM%2BZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dkZAICD2QWAgIBD2QWAgICDw9kFgweC29uTW91c2VPdmVyBT9DaGFuZ2VNb3VzZSgnY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nUGxhbnREYXRlJywgJ29uTW91c2VPdmVyJykeCm9uTW91c2VPdXQFPkNoYW5nZU1vdXNlKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdQbGFudERhdGUnLCAnb25Nb3VzZU91dCcpHgtvbk1vdXNlRG93bgVAQ2hhbmdlQm9yZGVyKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdQbGFudERhdGUnLCAnb25Nb3VzZURvd24nKR4Jb25Nb3VzZVVwBT5DaGFuZ2VCb3JkZXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X2ltZ1BsYW50RGF0ZScsICdvbk1vdXNlVXAnKR4Hb25DbGljawUxU2hvd0NhbGVuZGFyKCdjdGwwMF9EZWZhdWx0Q29udGVudF90eHRQbGFudERhdGUnKR4Kb25LZXlQcmVzcwUxU2hvd0NhbGVuZGFyKCdjdGwwMF9EZWZhdWx0Q29udGVudF90eHRQbGFudERhdGUnKWQCAw9kFgICAQ9kFgICAg8PZBYMHwMFPUNoYW5nZU1vdXNlKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdFbmREYXRlJywgJ29uTW91c2VPdmVyJykfBAU8Q2hhbmdlTW91c2UoJ2N0bDAwX0RlZmF1bHRDb250ZW50X2ltZ0VuZERhdGUnLCAnb25Nb3VzZU91dCcpHwUFPkNoYW5nZUJvcmRlcignY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nRW5kRGF0ZScsICdvbk1vdXNlRG93bicpHwYFPENoYW5nZUJvcmRlcignY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nRW5kRGF0ZScsICdvbk1vdXNlVXAnKR8HBS9TaG93Q2FsZW5kYXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X3R4dEVuZERhdGUnKR8IBS9TaG93Q2FsZW5kYXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X3R4dEVuZERhdGUnKWQCAw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%2BfIxvdGjFVCEs0K6GTIWA%2Bs80gVsOsX6WN3Wn3%2BZI%3D&__VIEWSTATEGENERATOR=31DECDD8&__EVENTVALIDATION=%2FwEdAEIRfgjWegxq%2BCMbI7zTjgUf1Rn3s3zLvBRcK30Re68sg%2Bw3bZWK3uZ1o45Q8ttLL%2BhElpdnEBBGduxPsQe%2BTq5M5jIUpgpdAYi%2FSomLt87qnBuYqHKC6crP0J4xwtZ4hlKyhKPgzgjinYykQeZCuOjVPIcqwtk5PzosS76ZIKUluUilO842d26iZl39%2F2D0cyqS%2FXOnUmzIIkIFRxnWExuqLWA86MPgwTIFgV5zR4doyZBWLwn1htOm9SIyeJYFb5YN37i6NdxV0igIHQLRE4S3AFrUrtqCFYWrQoxOsRlOVzPqgKglxt%2BEFeUakDwxeB1HLIR%2BpU4ymeiV0co43%2FDZf9mwziuVZpFM3rIPwJ0vLsVyze9rzy5g4Z4pZVVE8se4gfTH7xQ9FbGEM%2Bnq34XxXcjGAeCpn9jYC%2BCXPG7kw15VgxmHZC7jAdhyhp9alXRGsvrzJ%2FmW302Mkj27ZOhVrhK3Zc41sAoziXBMZ1tZyXPrnew0SOn%2By0xPEvpEZMiBsjrg%2FI9hCHLnk8zmA%2Fhrw8dMhR%2BKIbXzMhr38%2BjH%2Fuvv099C83W9TYlSOck72FHgveY7DcA3SMI9ApWnkHFTfPKtYOVOEdPvIjd3ADkQwI6DpB%2BtwXLyt%2Bun%2FVB9fw2euqGsxHQHJP%2B6WFDfSoJGg2zsyzmPuijgnOcdYHSdCMYc7XC6z%2BLpwGxEEWWHQ7j%2B1TCtCzw5t7H9RoT9Yoa08wMbwkJa5fZ%2BO5BN9OfE%2BQKWU2OmyhhGFtvtszIfyMDe6e9lkFFRSu0VND%2BhRMk7i48sKpqh%2FmPDn8Oq7eahrW6khJlulOytY75Enbjru%2FTlxcDtEX5Gflb3iP5DuvT4v88YBTp%2Ft8iCSaebOGciJNVDmXw%2B%2FGIFI2sRzMTPxNBos%2FpzsvOQZtcrqHtRmVjumNjSLqWXcfcJg%2F5swexjcnqMc48NSUVqWONytah4XR5vWhAos8DMCYNpNoZOVB%2FINKlXtU0M%2Ffok6JNDUZkWq9tqyX%2FZWmk9DLR%2BLKpkICx3%2BlAcLamSb9t1%2B84LNnBEGaF2mtccVHpaV475B3jOuxIW0OF6ak7jDdPaA6f1fOVEgyeSjFZlNpmE6cA%2BA%2FK9rrbZiJkDIXK683tOHErgoHKdbIixNq0oDxJcYpvwFq87zWF0MHsogpxPmKOzI7u4nW9uSq9EvljFVWSrjZgbsci5pMGYArvZbGAUZI7tT%2Bx%2FuiLjwd6NpIrr7J3ECmJPdOPHLDqnrzsfLGtj58A0ur%2BVxHkPq0z8rpD3CKXPlaiTXQyfE17BdXsTIngn1XzEa%2FC1DCzvQY4UCOdRo8X%2BTvb%2B4RbkdetbIp0iAkjxiv3HqQdHu7YxOFLra%2FgosKYckhbB5Q5GqqYnJo8poNhAbY0tFJ6FA5VYRXHzlEDStfDWgB2QNvezPyj8a6ybWcSz4moPAhgTzO3o%2BC0jBWanUw%3D%3D&ctl00%24DefaultContent%24cboStationNames=244&ctl00%24DefaultContent%24txtPlantDate=2019-01-01&ctl00%24DefaultContent%24txtEndDate=2019-02-05&ctl00%24DefaultContent%24btn_DRSearch=Submit";
 		//strParam = "__VIEWSTATE=%2FwEPDwUJMjE5Njc0MjAyD2QWAmYPZBYCAgMPZBYCAgEPZBYIAgEPZBYGAgEPZBYCAgEPZBYCZg8QDxYGHg1EYXRhVGV4dEZpZWxkBQtTdGF0aW9uTmFtZR4ORGF0YVZhbHVlRmllbGQFBVN0bklEHgtfIURhdGFCb3VuZGdkEBU%2BBkFsdG9uYQZBcmJvcmcGQmlydGxlCkJvaXNzZXZhaW4HQnJhbmRvbghDYXJiZXJyeQZDYXJtYW4NQ3lwcmVzcyBSaXZlcgdEYXVwaGluCURlbG9yYWluZQZEdWdhbGQJRWxtIENyZWVrC0VtZXJzb24gQXV0CUVyaWtzZGFsZQlFdGhlbGJlcnQNRmlzaGVyIEJyYW5jaAdGb3JyZXN0BUdpbWxpCUdsYWRzdG9uZQhHbGVuYm9ybwlHcmFuZHZpZXcGR3JldG5hB0hhbWlvdGEJS2lsbGFybmV5CUxldGVsbGllcgdNYW5pdG91CE1jQ3JlYXJ5Bk1lbGl0YQxNZWxpdGEgU291dGgJTWlubmVkb3NhCU1vb3NlaG9ybgpNb3JkZW4gQ0RBBk1vcnJpcwdQaWVyc29uC1BpbG90IE1vdW5kClBpbmF3YSBBdXQHUG9ydGFnZQxQb3J0YWdlIEVhc3QGUmVzdG9uClJvYmxpbiBBVVQHUnVzc2VsbAdTZWxraXJrClNob2FsIExha2UIU29tZXJzZXQGU291cmlzC1NwcmFndWUgQVVUCVN0IFBpZXJyZQtTdC4gQWRvbHBoZQhTdGFyYnVjawlTdGUuIFJvc2UJU3RlaW5iYWNoClN3YW4gUml2ZXILU3dhbiBWYWxsZXkGVGV1bG9uB1RoZSBQYXMIVHJlaGVybmUGVmlyZGVuCldhc2FnYW1pbmcIV2F3YW5lc2ENV2lua2xlciBDTUNEQxBXaW5uaXBlZyBBaXJwb3J0CVdvb2RsYW5kcxU%2BAzI0NAMyMDYDMjE2AzIwOQEyATQBNQE4ATkDMjQxAzIxNwMyMzcCMTEDMjE4AzIxMwI1NgMyMzMCMTQDMjA0AzIzOQMyMTkCMTcDMjE0AzIyMAMyMzgDMjQyAjI1AjI2Azc0MAMyMjEDMjA1AjI5AzIyMgMyMzICMzQCMzUCMzcDMjM1AzI0NQIzOAMyMTUDMjEwAjQwAzI0NgMyMDgCNDEDMjAzAzI0MwMyMDIDMjExAzIyMwI0NAMyMzEDMjA3AjQ1AzIwMQMyMjQCNTEDMjQwAzIzMAI1MgMyMjUUKwM%2BZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dkZAICD2QWAgIBD2QWAgICDw9kFgweC29uTW91c2VPdmVyBT9DaGFuZ2VNb3VzZSgnY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nUGxhbnREYXRlJywgJ29uTW91c2VPdmVyJykeCm9uTW91c2VPdXQFPkNoYW5nZU1vdXNlKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdQbGFudERhdGUnLCAnb25Nb3VzZU91dCcpHgtvbk1vdXNlRG93bgVAQ2hhbmdlQm9yZGVyKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdQbGFudERhdGUnLCAnb25Nb3VzZURvd24nKR4Jb25Nb3VzZVVwBT5DaGFuZ2VCb3JkZXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X2ltZ1BsYW50RGF0ZScsICdvbk1vdXNlVXAnKR4Hb25DbGljawUxU2hvd0NhbGVuZGFyKCdjdGwwMF9EZWZhdWx0Q29udGVudF90eHRQbGFudERhdGUnKR4Kb25LZXlQcmVzcwUxU2hvd0NhbGVuZGFyKCdjdGwwMF9EZWZhdWx0Q29udGVudF90eHRQbGFudERhdGUnKWQCAw9kFgICAQ9kFgICAg8PZBYMHwMFPUNoYW5nZU1vdXNlKCdjdGwwMF9EZWZhdWx0Q29udGVudF9pbWdFbmREYXRlJywgJ29uTW91c2VPdmVyJykfBAU8Q2hhbmdlTW91c2UoJ2N0bDAwX0RlZmF1bHRDb250ZW50X2ltZ0VuZERhdGUnLCAnb25Nb3VzZU91dCcpHwUFPkNoYW5nZUJvcmRlcignY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nRW5kRGF0ZScsICdvbk1vdXNlRG93bicpHwYFPENoYW5nZUJvcmRlcignY3RsMDBfRGVmYXVsdENvbnRlbnRfaW1nRW5kRGF0ZScsICdvbk1vdXNlVXAnKR8HBS9TaG93Q2FsZW5kYXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X3R4dEVuZERhdGUnKR8IBS9TaG93Q2FsZW5kYXIoJ2N0bDAwX0RlZmF1bHRDb250ZW50X3R4dEVuZERhdGUnKWQCAw9kFgRmD2QWAmYPZBYCZg8PFgIeBFRleHQFJzxiPkRhaWx5IFdlYXRoZXIgU3VtbWFyeSBmb3IgQWx0b25hPC9iPmRkAgEPZBYCZg9kFgJmDw8WAh8JBTQ8Yj5Gcm9tOiBKYW51YXJ5IDAxLCAyMDE5ICAgVG86IEphbnVhcnkgMzEsIDIwMTk8L2I%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%2FGWujxijWU4r92z6X7EMzNoV2l7I&__VIEWSTATEGENERATOR=31DECDD8&__EVENTVALIDATION=%2FwEdAEJM%2BrcZpLyVtSfgIIC%2FO1N71Rn3s3zLvBRcK30Re68sg%2Bw3bZWK3uZ1o45Q8ttLL%2BhElpdnEBBGduxPsQe%2BTq5M5jIUpgpdAYi%2FSomLt87qnBuYqHKC6crP0J4xwtZ4hlKyhKPgzgjinYykQeZCuOjVPIcqwtk5PzosS76ZIKUluUilO842d26iZl39%2F2D0cyqS%2FXOnUmzIIkIFRxnWExuqLWA86MPgwTIFgV5zR4doyZBWLwn1htOm9SIyeJYFb5YN37i6NdxV0igIHQLRE4S3AFrUrtqCFYWrQoxOsRlOVzPqgKglxt%2BEFeUakDwxeB1HLIR%2BpU4ymeiV0co43%2FDZf9mwziuVZpFM3rIPwJ0vLsVyze9rzy5g4Z4pZVVE8se4gfTH7xQ9FbGEM%2Bnq34XxXcjGAeCpn9jYC%2BCXPG7kw15VgxmHZC7jAdhyhp9alXRGsvrzJ%2FmW302Mkj27ZOhVrhK3Zc41sAoziXBMZ1tZyXPrnew0SOn%2By0xPEvpEZMiBsjrg%2FI9hCHLnk8zmA%2Fhrw8dMhR%2BKIbXzMhr38%2BjH%2Fuvv099C83W9TYlSOck72FHgveY7DcA3SMI9ApWnkHFTfPKtYOVOEdPvIjd3ADkQwI6DpB%2BtwXLyt%2Bun%2FVB9fw2euqGsxHQHJP%2B6WFDfSoJGg2zsyzmPuijgnOcdYHSdCMYc7XC6z%2BLpwGxEEWWHQ7j%2B1TCtCzw5t7H9RoT9Yoa08wMbwkJa5fZ%2BO5BN9OfE%2BQKWU2OmyhhGFtvtszIfyMDe6e9lkFFRSu0VND%2BhRMk7i48sKpqh%2FmPDn8Oq7eahrW6khJlulOytY75Enbjru%2FTlxcDtEX5Gflb3iP5DuvT4v88YBTp%2Ft8iCSaebOGciJNVDmXw%2B%2FGIFI2sRzMTPxNBos%2FpzsvOQZtcrqHtRmVjumNjSLqWXcfcJg%2F5swexjcnqMc48NSUVqWONytah4XR5vWhAos8DMCYNpNoZOVB%2FINKlXtU0M%2Ffok6JNDUZkWq9tqyX%2FZWmk9DLR%2BLKpkICx3%2BlAcLamSb9t1%2B84LNnBEGaF2mtccVHpaV475B3jOuxIW0OF6ak7jDdPaA6f1fOVEgyeSjFZlNpmE6cA%2BA%2FK9rrbZiJkDIXK683tOHErgoHKdbIixNq0oDxJcYpvwFq87zWF0MHsogpxPmKOzI7u4nW9uSq9EvljFVWSrjZgbsci5pMGYArvZbGAUZI7tT%2Bx%2FuiLjwd6NpIrr7J3ECmJPdOPHLDqnrzsfLGtj58A0ur%2BVxHkPq0z8rpD3CKXPlaiTXQyfE17BdXsTIngn1XzEa%2FC1DCzvQY4UCOdRo8X%2BTvb%2B4RbkdetbIp0iAkjxiv3HqQdHu7YxOFLra%2FgosKYckhbB5Q5GqqYnJo8poNhAbY0tFJ6FA5VYRXHzlEDStfCYDqoSZQmNt0V68Ed3BHfthdfYonEFbE%2Fj2BH1Ps86lA%3D%3D&ctl00%24DefaultContent%24cboStationNames=206&ctl00%24DefaultContent%24txtPlantDate=2019-01-01&ctl00%24DefaultContent%24txtEndDate=2019-01-31&ctl00%24DefaultContent%24btn_DRSearch=Submit";
-		DWORD HttpRequestFlags = INTERNET_FLAG_SECURE|INTERNET_FLAG_EXISTING_CONNECT;// | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
+		DWORD HttpRequestFlags = INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT;// | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
 		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, URL, NULL, 1, NULL, NULL, HttpRequestFlags);
 
 
@@ -720,20 +496,8 @@ namespace WBSF
 				{
 					CString strContentL;
 					strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
-					
-					//pURLFile->AddRequestHeaders(CString(_T("Host: web43.gov.mb.ca\r\n")));
 					pURLFile->AddRequestHeaders(strContentL);
-					//pURLFile->AddRequestHeaders(CString(_T("Cache-Control: max-age=0\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Origin: https://web43.gov.mb.ca\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Upgrade-Insecure-Requests: 1\r\n")));
 					pURLFile->AddRequestHeaders(CString(_T("Content-Type: application/x-www-form-urlencoded\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Referer: https://web43.gov.mb.ca/climate/DailyReport.aspx\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Accept-Encoding: gzip, deflate, br\r\n")));
-					//pURLFile->AddRequestHeaders(CString(_T("Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\r\n")));
-
-					//pURLFile->AddRequestHeaders(CString("Upgrade-Insecure-Requests: 1\r\n"));
-					//pURLFile->AddRequestHeaders(CString("Content-Type: application/x-www-form-urlencoded\r\n"));
 
 					// send request
 					bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
@@ -1033,9 +797,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//callback.AddMessage("Manitoba agriculture network is no longer available");
-		//return msg;
-
 		size_t type = as<size_t>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
@@ -1224,6 +985,238 @@ namespace WBSF
 
 
 	//******************************************************************************************************
+	//Manitoba Agri 2
+	ERMsg CUIManitoba::ExecuteAgri2(CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t type = as<size_t>(DATA_TYPE);
+		if (type == HOURLY_WEATHER)
+		{
+			callback.AddMessage("Hourly data is not available for Agriculture 2 network");
+			return msg;
+		}
+
+		size_t nbRun = 0;
+		size_t cur_i = 0;
+
+		StringVector fileList;
+		msg = GetAgri2Files(fileList, callback);
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		while (nbRun < 5 && cur_i < fileList.size() && msg)
+		{
+
+			nbRun++;
+			msg = GetHttpConnection(SERVER_NAME[AGRI2], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+			if (msg)
+			{
+				callback.AddMessage("Download Manitoba agriculture2 data (" + ToString(fileList.size()) + " files)");
+				callback.PushTask("Download Manitoba agriculture2 data (" + ToString(fileList.size()) + " files)", fileList.size());
+
+				for (size_t i = cur_i; i < fileList.size() && msg; i++)
+				{
+					string remoteFilePath = SERVER_PATH[AGRI2] + fileList[i];
+					string outputFilePath = GetOutputFilePath(AGRI2, type, fileList[i]);
+
+					CreateMultipleDir(GetPath(outputFilePath));
+
+					msg += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY);
+					if (msg)
+					{
+						cur_i++;
+					}
+
+
+					msg += callback.StepIt();
+				}
+
+				//if an error occur: try again
+				if (!msg && !callback.GetUserCancel())
+				{
+					if (nbRun < 5)
+					{
+						callback.AddMessage(msg);
+						msg = ERMsg();
+						msg += WaitServer(10, callback);
+					}
+				}
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
+			}//if get connection
+
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(cur_i), 1);
+			callback.PopTask();
+		}//while
+
+
+		return msg;
+	}
+
+	ERMsg CUIManitoba::GetAgri2Files(StringVector& fileList, CCallback& callback)
+	{
+		ERMsg msg;
+
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+		//		CTRef currentTRef = CTRef::GetCurrentTRef();
+
+		fileList.clear();
+		try
+		{
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+
+			msg = GetHttpConnection(SERVER_NAME[AGRI2], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+			if (msg)
+			{
+				string str;
+				msg = UtilWWW::GetPageText(pConnection, SERVER_PATH[AGRI2], str, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT);
+				if (msg)
+				{
+					string::size_type pos1 = str.find("<tbody>");
+					string::size_type pos2 = str.find("</tbody>");
+					if (pos1 < str.length() && pos2 < str.length())
+					{
+						str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + str.substr(pos1, pos2 - pos1 + 8);
+						WBSF::ReplaceString(str, "'", "\"");
+						WBSF::ReplaceString(str, "\t", "");
+
+
+						zen::XmlDoc doc = zen::parse(str);
+
+						zen::XmlIn in(doc.root());
+						for (zen::XmlIn itTR = in["tr"]; itTR; itTR.next())
+						{
+							string value;
+							itTR["td"]["a"](value);
+							if (value.length() == 14)
+							{
+								int year = stoi(value.substr(0, 4));
+								if (year >= firstYear && year <= lastYear)
+								{
+									string filePath = GetOutputFilePath(AGRI2, DAILY_WEATHER, value);
+									if (!FileExists(filePath))
+										fileList.push_back(value);
+								}
+							}
+						}
+					}
+				}
+				pSession->Close();
+				pConnection->Close();
+
+			}
+		}
+		catch (CException* e)
+		{
+			msg = UtilWin::SYGetMessage(*e);
+		}
+		catch (const zen::XmlParsingError& e)
+		{
+			// handle error
+			msg.ajoute("Error parsing XML file: col=" + WBSF::ToString(e.col) + ", row=" + WBSF::ToString(e.row));
+		}
+
+
+		return msg;
+	}
+
+	ERMsg CUIManitoba::LoadAgri2(CCallback& callback)
+	{
+		ERMsg msg;
+
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+
+		//std::map<string, CWeatherYears> data;
+		m_agri2Stations.clear();
+
+		StringVector fileList;
+		for (size_t y = 0; y < nbYears&& msg; y++)
+		{
+			int year = firstYear + int(y);
+			string filePath = GetOutputFilePath(AGRI2, DAILY_WEATHER, "*.txt", year);
+			StringVector tmp = GetFilesList(filePath);
+			fileList.insert(fileList.end(), tmp.begin(), tmp.end());
+		}
+
+		callback.PushTask("Load Manitoba Agri2 data (" + to_string(fileList.size()) + ")", fileList.size());
+		for (size_t i = 0; i < fileList.size() && msg; i++)
+		{
+			ifStream file;
+			msg = file.open(fileList[i]);
+			if (msg)
+			{
+				enum THourlyColumns { STNID, STNNAME, DATEDT, AVGAIR_T, MAXAIR_T, MINAIR_T, AVGRH, RAIN24, NB_COLUMNS };
+				static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TMAX, H_TMIN, H_RELH, H_PRCP };
+
+				for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
+				{
+					if (!loop->empty())
+					{
+						StringVector time((*loop)[DATEDT], "-");
+						ASSERT(time.size() == 3);
+
+						int year = ToInt(time[0]);
+						size_t month = ToInt(time[1]) - 1;
+						size_t day = ToInt(time[2]) - 1;
+
+						ASSERT(month >= 0 && month < 12);
+						ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+
+						CTRef TRef = CTRef(year, month, day);
+						string ID = (*loop)[STNID];
+
+						for (size_t v = 0; v < loop->size(); v++)
+						{
+							if (COL_POS_H[v] != H_SKIP)
+							{
+								double value = ToDouble((*loop)[v]);
+								if (value > -99)
+								{
+									m_agri2Stations[ID][TRef][COL_POS_H[v]] = value;
+								}
+							}
+						}
+					}//empty
+
+					msg += callback.StepIt(0);
+				}//for all line 
+
+				msg += callback.StepIt();
+			}//if msg
+		}//for all files (days)
+
+		callback.PopTask();
+
+
+		if (msg)
+		{
+			//save data
+			for (auto it1 = m_agri2Stations.begin(); it1 != m_agri2Stations.end(); it1++)
+			{
+				size_t pos = m_stations.FindByID(it1->first);
+				if (pos != NOT_INIT)
+					((CLocation&)it1->second) = m_stations[pos];
+				else
+					callback.AddMessage("Data without station information: " + it1->first, 1);
+			}
+		}//if msg
+
+		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(m_agri2Stations.size()), 1);
+		//callback.PopTask();
+
+		return msg;
+	}
+
+	//******************************************************************************************************
 	//Manitoba fire
 
 	ERMsg CUIManitoba::ExecuteFire(CCallback& callback)
@@ -1236,17 +1229,14 @@ namespace WBSF
 			return msg;
 
 
-		if (!FileExists(GetStationsListFilePath(FIRE)))//|| as<bool>(FORCE_UPDATE_STATIONS_LIST)
+		if (!FileExists(GetStationsListFilePath(FIRE)))
 		{
 			CLocationVector stationListTmp;
 			msg = UpdateFireStationsList(stationListTmp, callback);
 			if (msg)
 				msg = stationListTmp.Save(GetStationsListFilePath(FIRE), ',', callback);
 		}
-		//else
-		//{
-			//msg = stationListTmp.Load(GetStationsListFilePath(FIRE), ",", callback);
-		//}
+
 
 		if (!msg)
 			return msg;
@@ -1284,7 +1274,7 @@ namespace WBSF
 			{
 				TRY
 				{
-					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
+					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
 
 
 				//split data in seperate files
@@ -1994,75 +1984,76 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		size_t type = as<size_t>(DATA_TYPE);
+
+		if (type == HOURLY_WEATHER)
+		{
+			callback.AddMessage("Hourly data is not available for MB potato network");
+			return msg;
+		}
+
 		CLocationVector locations;
 		msg = locations.Load(GetStationsListFilePath(POTATO));
 
 		if (msg)
 		{
-			size_t type = as<size_t>(DATA_TYPE);
+			size_t nbDownloads = 0;
+			callback.PushTask("Update Manitoba Potatoes weather data (" + ToString(locations.size()) + " stations)", locations.size());
 
-			if (type == DAILY_WEATHER)
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+
+			msg = GetHttpConnection(SERVER_NAME[POTATO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			if (msg)
 			{
-
-
-				size_t nbDownloads = 0;
-				callback.PushTask("Update Manitoba Potatoes weather data (" + ToString(locations.size()) + " stations)", locations.size());
-
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-
-				msg = GetHttpConnection(SERVER_NAME[POTATO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-				if (msg)
+				TRY
 				{
-					TRY
-					{
 
-						for (size_t i = 0; i < locations.size() && msg; i++)
+					for (size_t i = 0; i < locations.size() && msg; i++)
+					{
+						StringVector filePath;
+						string ID = locations[i].m_ID;
+
+						string URL = FormatA("/weather.cfm?stn=%s", ID.c_str());
+
+						string str;
+						msg = UtilWWW::GetPageText(pConnection, URL, str);
+						if (msg)
 						{
-							StringVector filePath;
-							string ID = locations[i].m_ID;
-
-							string URL = FormatA("/weather.cfm?stn=%s", ID.c_str());
-
-							string str;
-							msg = UtilWWW::GetPageText(pConnection, URL, str);
-							if (msg)
+							string::size_type pos1 = str.find("<table id=\"StationInfoTable\">");
+							string::size_type pos2 = str.find("</table>");
+							if (pos1 < str.size() && pos2 < str.size())
 							{
-								string::size_type pos1 = str.find("<table id=\"StationInfoTable\">");
-								string::size_type pos2 = str.find("</table>");
-								if (pos1 < str.size() && pos2 < str.size())
-								{
-									nbDownloads++;
-									string::size_type count = (pos2 - pos1) + 8;
-									string source = str.substr(pos1, count);
-									WBSF::ReplaceString(source, "'", "\"");
-									WBSF::ReplaceString(source, "\t", "");
-									WBSF::ReplaceString(source, "<sup>2</sup>", "²");
-									WBSF::ReplaceString(source, "&deg;", "°");
+								nbDownloads++;
+								string::size_type count = (pos2 - pos1) + 8;
+								string source = str.substr(pos1, count);
+								WBSF::ReplaceString(source, "'", "\"");
+								WBSF::ReplaceString(source, "\t", "");
+								WBSF::ReplaceString(source, "<sup>2</sup>", "²");
+								WBSF::ReplaceString(source, "&deg;", "°");
 
 
-									msg += SplitPotatoData(locations[i].m_ID, source);
-								}//if valid 
-							}//msg
+								msg += SplitPotatoData(locations[i].m_ID, source);
+							}//if valid 
+						}//msg
 
-							msg += callback.StepIt();
-						}//for all locations
+						msg += callback.StepIt();
+					}//for all locations
 
-					}
-						CATCH_ALL(e)
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
-					END_CATCH_ALL
+				}
+					CATCH_ALL(e)
+				{
+					msg = UtilWin::SYGetMessage(*e);
+				}
+				END_CATCH_ALL
 
-						//clean connection
-						pConnection->Close();
-					pSession->Close();
-				}//if msg
+					//clean connection
+					pConnection->Close();
+				pSession->Close();
+			}//if msg
 
-				callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloads), 1);
-				callback.PopTask();
-			}//if daily
+			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloads), 1);
+			callback.PopTask();
 		}//if msg
 
 		return msg;
