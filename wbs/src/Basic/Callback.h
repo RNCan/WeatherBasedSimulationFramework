@@ -19,6 +19,7 @@
 
 #include "basic/ERMsg.h"
 #include "Basic/Event.h"
+#include "Basic/UtilStd.h"
 
 
 
@@ -74,15 +75,16 @@ public:
 	void PushTask(const std::string& description, size_t nbStep, size_t stepBy = 1){ PushTask(description, (double)nbStep, (double)stepBy); }
 	void PopTask();
 
-	double GetCurrentStepPercent();
-	double GetNbStep();// { return !m_tasks.empty() ? m_tasks.back().m_nbStep : 0; }
-	size_t GetNbTasks();// { return m_tasks.size(); }
+	double GetCurrentStepPercent()const;
+	double GetStepPercent(size_t i)const;
+	double GetNbStep()const;
+	size_t GetNbTasks()const;
 
 	
     ERMsg StepIt(double stepBy = -1);
-	double GetCurrentStepPos();// { ASSERT(!m_tasksVector.empty());  return !m_tasks.empty() ? m_tasks.back().m_stepPos : 0; }
-	ERMsg SetCurrentStepPos(double stepPos);// { ASSERT(!m_tasksVector.empty());  if (!m_tasks.empty()) m_tasks.back().m_stepPos = stepPos; return StepIt(0); }
-	ERMsg SetCurrentStepPos(size_t stepPos);// { ASSERT(!m_tasksVector.empty());  if (!m_tasks.empty()) m_tasks.back().m_stepPos = (double)stepPos; return StepIt(0); }
+	double GetCurrentStepPos()const;
+	ERMsg SetCurrentStepPos(double stepPos);
+	ERMsg SetCurrentStepPos(size_t stepPos);
 
 	
 	bool GetUserCancel()const
@@ -118,7 +120,8 @@ public:
 
 	void Lock();
 	void Unlock();
-	CCallbackTaskStack& GetTasks();
+	CCallbackTaskStack& GetTasks() { return m_tasks; }
+	const CCallbackTaskStack& GetTasks()const { return m_tasks; }
 	
 
 protected:
@@ -135,7 +138,7 @@ protected:
 	//std::map<int, CCallbackTaskStack> m_threadTasks;
 	//std::map<int, std::mutex> m_mutex;
 	
-	CCallbackTaskStack m_threadTasks;
+	CCallbackTaskStack m_tasks;
 	std::mutex m_mutex;
 	
 	manual_reset_event m_cancelEvent;
@@ -146,6 +149,7 @@ protected:
 	std::string m_userCancelMsg;
 	HWND* m_phWnd;
 	
+	static CCriticalSection CS;
 };
 
 

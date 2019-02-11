@@ -21,7 +21,7 @@ namespace WBSF
 {
 
 	CCallback CCallback::DEFAULT_CALLBACK;
-	static CCriticalSection CS;
+	CCriticalSection CCallback::CS;
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -50,8 +50,8 @@ namespace WBSF
 		
 		m_messageAccumulator.clear();
 		m_messageDlgAccumulator.clear();
-		while (m_threadTasks.size())
-			m_threadTasks.pop();
+		while (m_tasks.size())
+			m_tasks.pop();
 		
 		
 
@@ -71,7 +71,7 @@ namespace WBSF
 		{
 			m_messageAccumulator = in.m_messageAccumulator;
 			m_messageDlgAccumulator = in.m_messageDlgAccumulator;
-			m_threadTasks = in.m_threadTasks;
+			m_tasks = in.m_tasks;
 			m_phWnd = in.m_phWnd;
 		}
 
@@ -92,7 +92,7 @@ namespace WBSF
 		//m_mutex.unlock();
 	}
 
-	double CCallback::GetNbStep()
+	double CCallback::GetNbStep()const
 	{ 
 
 		double nbSteps = 0;
@@ -106,7 +106,7 @@ namespace WBSF
 		return nbSteps;
 	}
 
-	size_t CCallback::GetNbTasks()
+	size_t CCallback::GetNbTasks()const
 	{ 
 		size_t size = 0;
 		CS.Enter();
@@ -119,20 +119,14 @@ namespace WBSF
 	}
 
 	size_t CCallback::GetCurrentLevel(){return GetNbTasks();}
-	
 
-	CCallbackTaskStack& CCallback::GetTasks()
-	{
-		//int n = omp_get_thread_num();
-		return m_threadTasks;
-	}
 
 	std::string CCallback::GetMessages()
 	{ 
 		return m_messageAccumulator;
 	}
 
-	double CCallback::GetCurrentStepPos()
+	double CCallback::GetCurrentStepPos()const
 	{ 
 		double stepPos = 0;
 		CS.Enter();
@@ -203,13 +197,26 @@ namespace WBSF
 			}
 		}
 
-			
-
-
 		return msg;
 	}
 
-	double CCallback::GetCurrentStepPercent()
+	double CCallback::GetStepPercent(size_t i)const
+	{
+		double stepp = 0;
+		CS.Enter();
+
+		if (i < m_tasks.size())
+		{
+			const WBSF::CCallbackTask& t = m_tasks.c.at(i);
+			stepp = t.m_nbSteps > 0 ? std::min(100.0, std::max(0.0, t.m_stepPos*100.0 / t.m_nbSteps)) : 0;
+		}
+
+		CS.Leave();
+
+		return stepp;
+	}
+
+	double CCallback::GetCurrentStepPercent()const
 	{ 
 		double stepPos = GetCurrentStepPos();
 		double nbSteps = GetNbStep();
@@ -309,7 +316,7 @@ namespace WBSF
 		CS.Enter();
 		//std::unique_lock<std::mutex> lock(m_mutex);
 
-		if (!m_threadTasks.empty())
+		if (!m_tasks.empty())
 		{
 			//ASSERT(omp_get_thread_num() == 0);
 				

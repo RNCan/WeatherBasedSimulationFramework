@@ -7,7 +7,7 @@
 
 #ifdef _DEBUG
 #undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
+static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
@@ -34,7 +34,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CProgressWnd
 
-CProgressWnd::CProgressWnd():
+CProgressWnd::CProgressWnd() :
 	m_ptrThread(NULL),
 	m_pEdit(NULL)
 {
@@ -53,15 +53,15 @@ int CProgressWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 
-	if (!m_progressListCtrl.Create(WS_CHILD | WS_VISIBLE | WS_BORDER |LVS_REPORT | LVS_NOSORTHEADER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_CTRL))
+	if (!m_progressListCtrl.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_NOSORTHEADER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_CTRL))
 		return -1;
 
 
 	CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
 	m_progressListCtrl.InsertColumn(0, str[0], LVCFMT_LEFT, 200);
 	m_progressListCtrl.InsertColumn(1, str[1], LVCFMT_LEFT);
-	
-	
+
+
 	// Load view images:
 	VERIFY(m_toolbarCtrl.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_CMN_PROGRESS_TOOLBAR));
 	VERIFY(m_toolbarCtrl.LoadToolBar(IDR_CMN_PROGRESS_TOOLBAR, 0, 0, TRUE /* Is locked */));
@@ -92,7 +92,7 @@ void CProgressWnd::PreSubclassWindow()
 
 	_AFX_THREAD_STATE* pThreadState = AfxGetThreadState();
 	if (pThreadState->m_pWndInit == NULL)
-	{ 
+	{
 		VERIFY(m_progressListCtrl.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_NOSORTHEADER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_CTRL));
 
 		CStringArrayEx str(IDS_CMN_PROG_HEADER, _T("|;"));
@@ -121,15 +121,15 @@ void CProgressWnd::OnSize(UINT nType, int cx, int cy)
 
 void CProgressWnd::AdjustLayout()
 {
-	if (GetSafeHwnd() == NULL || m_toolbarCtrl.GetSafeHwnd()==NULL )
+	if (GetSafeHwnd() == NULL || m_toolbarCtrl.GetSafeHwnd() == NULL)
 		return;
 
 	CRect rect;
 	GetClientRect(rect);
 
 	int cyTlb = m_toolbarCtrl.CalcFixedLayout(FALSE, TRUE).cy;
-		
-	m_toolbarCtrl.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER );
+
+	m_toolbarCtrl.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_progressListCtrl.SetWindowPos(NULL, rect.left, rect.top + cyTlb, rect.Width(), rect.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_progressListCtrl.SetColumnWidth(1, rect.Width() - m_progressListCtrl.GetColumnWidth(0));
 
@@ -161,34 +161,36 @@ void CProgressWnd::OnTimer(UINT_PTR nIDEvent)
 	}
 	if (nIDEvent == 2)
 	{
-		for (int i = 0; i< m_progressListCtrl.GetItemCount(); i++)
+		for (int i = 0; i < m_progressListCtrl.GetItemCount(); i++)
 		{
 			//get the last progress bar
 			DWORD_PTR pItem = m_progressListCtrl.GetItemData(i);
 			if (pItem != NULL)
 			{
 				CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
-				if (pCtrl && pCtrl->GetSafeHwnd() && i<m_callback.GetTasks().c.size())
+				if (pCtrl && pCtrl->GetSafeHwnd() && i < m_callback.GetTasks().c.size())
 				{
-					const WBSF::CCallbackTask& t = m_callback.GetTasks().c.at(i);
+					/*const WBSF::CCallbackTask& t = m_callback.GetTasks().c.at(i);
 					if (t.m_nbSteps > 0)
 					{
 						double pos = t.m_nbSteps != 0 ? std::min(100.0, std::max(0.0, t.m_stepPos*100.0 / t.m_nbSteps)) : 100;
-						pCtrl->SetPos((int)pos);
+					*/
+					double pos = m_callback.GetStepPercent(i);
+					pCtrl->SetPos((int)pos);
 
 
-						CWnd* pMain = ::AfxGetMainWnd();
-						if (m_pTaskbar && pMain)
-							m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)pos, 100);
-					}
+					CWnd* pMain = ::AfxGetMainWnd();
+					if (m_pTaskbar && pMain)
+						m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)pos, 100);
+					//}
 				}
 			}
 		}
 	}
-	
+
 
 	CWnd::OnTimer(nIDEvent);
-	
+
 }
 
 
@@ -257,7 +259,7 @@ void CProgressWnd::OnPauseResume()
 
 LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 {
-	
+
 	//m_callback.Lock();
 	if (t == 0)
 	{
@@ -269,7 +271,7 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 			WBSF::ReplaceString(message, "\n", "\r\n");
 
 			//m_comment += message;
-			
+
 			if (m_pEdit)
 			{
 				m_pEdit->SetWindowTextW(CString(message.c_str()));
@@ -290,7 +292,7 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 
 	//update text
 	//m_callback.Unlock();
-	
+
 
 	return 0;
 }
@@ -314,10 +316,10 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 
 	if (GetSafeHwnd())
 	{
-		SetTimer(1, 200, NULL);
+		SetTimer(1, 250, NULL);
 		SetTimer(2, 1000, NULL);
 	}
-		
+
 
 	//create thread 
 	m_ptrThread = AfxBeginThread(pfnThreadProc, pParam, 0, 0, CREATE_SUSPENDED);
@@ -343,7 +345,7 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 				DispatchMessage((LPMSG)&winMsg);
 			}
 		}
-	} 
+	}
 
 	if (GetSafeHwnd())
 	{
@@ -354,20 +356,20 @@ ERMsg CProgressWnd::Execute(AFX_THREADPROC pfnThreadProc, CProgressStepDlgParam*
 	//clean callback
 	while (!m_callback.GetTasks().empty())
 		m_callback.PopTask();
-	
-	while (GetSafeHwnd() && m_progressListCtrl.GetItemCount()>0)
+
+	while (GetSafeHwnd() && m_progressListCtrl.GetItemCount() > 0)
 		m_progressListCtrl.DeleteItem(m_progressListCtrl.GetItemCount() - 1);
-		
+
 	//m_progressListCtrl.Invalidate();
-	
+
 	//clean up memory
 	delete m_ptrThread;
 	m_ptrThread = NULL;
 
-	
+
 	//update title 
 	CWnd* pMain = ::AfxGetMainWnd();
-	
+
 
 	if (m_pTaskbar && pMain)
 		m_pTaskbar->SetProgressState(pMain->GetSafeHwnd(), TBPF_NOPROGRESS);

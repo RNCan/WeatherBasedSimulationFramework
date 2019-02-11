@@ -643,6 +643,7 @@ namespace WBSF
 		return msg;
 	}
 
+	
 	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CNewSectionData& section, int type, CCallback& callback)
 	{
 		ASSERT(m_nbCols == 0 || section.GetCols() == m_nbCols);
@@ -651,30 +652,33 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
-
+		
 		if (!callback.GetUserCancel())
 		{
+
+			ASSERT(type == DATA_STATISTIC);
+			vector<CStatistic> tmp(section.GetRows()*section.GetCols());
+
+			
+			for (size_t i = 0; i < section.GetRows() && msg; i++)
+			{
+				ASSERT(i >= section.GetRows() || section[i].size() == section.GetCols());
+				for (size_t j = 0; j < section.GetCols() &&msg; j++)
+				{
+					tmp[i*section.GetCols() +j] = section[i][j];
+					msg += callback.StepIt(0);
+				}
+			}
+
+			m_CS.Enter();
 			m_type = type;
 			m_nbCols = section.GetCols();
 			m_nbRows += section.GetRows();
 			m_metadata.AddSection(section);
 			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
-
+			
 			//save data
-			CStatistic STAT_EMPTY;
-			for (size_t i = 0; i < section.GetRows() && msg; i++)
-			{
-				ASSERT(i >= section.GetRows() || section[i].size() == m_nbCols);
-				for (size_t j = 0; j < m_nbCols&&msg; j++)
-				{
-					if (i < section.GetRows())
-						m_file.write_value(section[i][j]);
-					else m_file.write_value(STAT_EMPTY);
-
-					msg += callback.StepIt(0);
-				}
-			}
+			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(CStatistic));
 
 			assert(!msg || m_file.lengthp() == GetDataSize());
 		}
@@ -685,55 +689,47 @@ namespace WBSF
 		return msg;
 	}
 
-
-	/*ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
-	{
-		ERMsg msg;
-
-		m_CS.Enter();
-
-		if (!callback.GetUserCancel())
-		{
-			CWVariables variables = section.GetVariables();
-			CTPeriod period = section.GetEntireTPeriod();
-			int type = DATA_FLOAT;
-
-			assert(m_type == UNKNOWN || m_type == type);
-			assert(m_nbCols == 0 || m_nbCols == variables.count());
-			assert(sizeof(CStatistic)==40);
+	//ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CNewSectionData& section, int type, CCallback& callback)
+	//{
+	//	ASSERT(m_nbCols == 0 || section.GetCols() == m_nbCols);
+	//	ASSERT(m_type == UNKNOWN || m_type == type);
 
 
+	//	ERMsg msg;
 
-			m_type = type;
-			m_nbCols = variables.count();
-			m_nbRows += period.size();
+	//	m_CS.Enter();
 
-			m_metadata.AddSection(section);
-			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin(), section.HaveData()));
+	//	if (!callback.GetUserCancel())
+	//	{
+	//		m_type = type;
+	//		m_nbCols = section.GetCols();
+	//		m_nbRows += section.GetRows();
+	//		m_metadata.AddSection(section);
+	//		m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
-			for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef++)
-			{
-				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
-				{
-					if (variables[v])
-					{
-						if (m_type == DATA_FLOAT)
-							m_file.write_value(float(section[TRef][v].IsInit()?section[TRef][v][MEAN]:-999));
-						else
-							m_file.write_value(section[TRef][v]);
+	//		//save data
+	//		CStatistic STAT_EMPTY;
+	//		for (size_t i = 0; i < section.GetRows() && msg; i++)
+	//		{
+	//			ASSERT(i >= section.GetRows() || section[i].size() == m_nbCols);
+	//			for (size_t j = 0; j < m_nbCols&&msg; j++)
+	//			{
+	//				if (i < section.GetRows())
+	//					m_file.write_value(section[i][j]);
+	//				else m_file.write_value(STAT_EMPTY);
 
-						msg += callback.StepIt(0);
-					}
-				}
-			}
+	//				msg += callback.StepIt(0);
+	//			}
+	//		}
 
-			assert(!msg || m_file.lengthp() == GetDataSize());
-		}
+	//		assert(!msg || m_file.lengthp() == GetDataSize());
+	//	}
 
-		m_CS.Leave();
 
-		return msg;
-	}*/
+	//	m_CS.Leave();
+
+	//	return msg;
+	//}
 
 
 	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CSimulationPoint& section, CCallback& callback)
@@ -819,46 +815,6 @@ namespace WBSF
 		return msg;
 	}
 
-	/*
-	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CModelStatVector& section, int type, CCallback& callback)
-	{
-		assert(m_nbCols == 0 || m_nbCols == section.GetCols());
-		assert(m_type == UNKNOWN || m_type == type);
-
-		ERMsg msg;
-
-				m_CS.Enter();
-		if (!callback.GetUserCancel())
-		{
-
-
-
-			m_nbCols = section.GetCols();
-			m_type = type;
-			m_nbRows += section.GetRows();
-			m_metadata.AddSection(section);
-			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.size(), section.GetFirstTRef(), section.HaveData()));
-
-			for (size_t i = 0; i < section.GetRows() && msg; i++)
-			{
-				ASSERT(i >= section.size() || section[i].size() == m_nbCols);
-				for (size_t j = 0; j < m_nbCols&&msg; j++)
-				{
-					float value = (i < section.GetRows()) ? float(section[i][j]) : float(VMISS);
-
-					m_file.write_value(value);
-					msg += callback.StepIt(0);
-				}
-			}
-
-			assert(!msg || m_file.lengthp() <= GetDataSize());
-		}
-
-		m_CS.Leave();
-
-		return msg;
-	}
-	*/
 	ERMsg CBioSIMDatabase::SetSection(size_t sectionNo, const CModelStatVector& section, int type, CCallback& callback)
 	{
 		assert(m_nbCols == 0 || m_nbCols == section.GetCols());
@@ -899,7 +855,7 @@ namespace WBSF
 	}
 
 
-	void CBioSIMDatabase::GetSection(size_t no, CNewSectionData& section)const
+	/*void CBioSIMDatabase::GetSection(size_t no, CNewSectionData& section)const
 	{
 		m_CS.Enter();
 
@@ -942,61 +898,65 @@ namespace WBSF
 		section.SetDataTM(m_metadata.GetDataTM());
 
 		m_CS.Leave();
+	}*/
+
+	void CBioSIMDatabase::GetSection(size_t no, CNewSectionData& section)const
+	{
+		//m_CS.Enter();
+
+
+		assert(IsOpen());
+		assert(no < m_index.size());
+		assert(m_file.lengthg() == GetDataSize());
+
+		CBioSIMDatabase& me = const_cast<CBioSIMDatabase&>(*this);
+		const CDBSectionIndex& index = m_index[no];
+		ASSERT(index.IsInit());
+
+
+		size_t nbRows = index.GetNbRows();
+		section.resize(nbRows, m_nbCols, m_index[no].GetTRef());
+		section.SetDataTM(m_metadata.GetDataTM());
+		if (index.HaveData())
+		{
+			vector<float> tmpFloat;
+			vector<CStatistic> tmpStat;
+
+			m_CS.Enter();
+			me.m_file.seekg(GetFilePos(no, 0, 0));
+			if (m_type == DATA_FLOAT)
+			{
+				tmpFloat.resize(nbRows*m_nbCols);
+				me.m_file.read((char*)tmpFloat.data(), tmpFloat.size() * sizeof(float));
+			}
+			else
+			{
+				tmpStat.resize(nbRows*m_nbCols);
+				me.m_file.read((char*)tmpStat.data(), tmpStat.size() * sizeof(CStatistic));
+			}
+			m_CS.Leave();
+			
+
+			for (size_t i = 0; i < nbRows; i++)
+			{
+				for (size_t j = 0; j < section.GetCols(); j++)
+				{
+					if (m_type == DATA_FLOAT)
+					{
+						float value = tmpFloat[i*section.GetCols() + j];
+						if (value > VMISS)
+							section[i][j] = value;
+					}
+					else
+					{
+						const CStatistic& value = tmpStat[i*section.GetCols() + j];
+						section[i][j] = value;
+					}
+				}
+			}
+		}
 	}
-
-	//void CBioSIMDatabase::GetSection(size_t no, CSimulationPoint& section, CWVariables filter)const
-	//{
-	//	m_CS.Enter();
-
-	//	assert(IsOpen());
-	//	assert(no < m_index.size());
-	//	assert(m_file.lengthg() == GetDataSize());
-
-	//	CBioSIMDatabase& me = const_cast<CBioSIMDatabase&>(*this);
-	//	size_t nbRows = m_index[no].GetNbRows();
-	//	CTPeriod period = m_metadata.GetTPeriod();
-	//	CWVariables variables = m_metadata.GetOutputDefinition().GetWVariables();
-
-
-	//	if (variables.count() == m_nbCols &&
-	//		period.GetNbRef() == nbRows )
-	//	{
-	//		size_t locPos = m_metadata.GetLno(no);
-	//		((CLocation&)section) = m_metadata.GetLocations()[locPos];
-	//		section.CreateYears(period);
-
-	//		CTRef TRef = period.Begin();
-	//		section.SetHourly(TRef.GetType() == CTM::HOURLY);
-	//		me.m_file.seekg(GetFilePos(no, 0, 0));
-	//		for (size_t i = 0; i < nbRows; i++, TRef++)
-	//		{
-	//			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-	//			{
-	//				if (variables[v])
-	//				{
-	//					if (m_type == DATA_FLOAT)
-	//					{
-	//						float value = 0;
-	//						me.m_file.read_value(value);
-	//						if (filter[v] && !WEATHER::IsMissing(value))
-	//							section[period.Begin() + i].SetStat(v, value);
-	//					}
-	//					else 
-	//					{
-	//						ASSERT(m_type == DATA_STATISTIC);
-
-	//						CStatistic value;
-	//						me.m_file.read_value(value);
-	//						if (filter[v])
-	//							section[TRef].SetStat(v, value);
-	//					}
-	//				}//if used variables
-	//			}//for all variables
-	//		}//for all rows
-	//	}//if valid
-
-	//	m_CS.Leave();
-	//}
+	
 
 	void CBioSIMDatabase::GetSection(size_t no, CSimulationPoint& section, CWVariables filter)const
 	{
@@ -1019,13 +979,9 @@ namespace WBSF
 
 			CTRef TRef = period.Begin();
 			section.SetHourly(TRef.GetType() == CTM::HOURLY);
-
-			//ASSERT(m_type == DATA_FLOAT);
 			
 			vector<float> tmpFloat;
 			vector<CStatistic> tmpStat;
-
-			
 
 			m_CS.Enter();
 			me.m_file.seekg(GetFilePos(no, 0, 0));
@@ -1039,8 +995,6 @@ namespace WBSF
 				tmpStat.resize(nbRows*variables.count());
 				me.m_file.read((char*)tmpStat.data(), tmpStat.size() * sizeof(CStatistic));
 			}
-				
-
 			m_CS.Leave();
 
 			for (size_t i = 0; i < nbRows; i++, TRef++)
