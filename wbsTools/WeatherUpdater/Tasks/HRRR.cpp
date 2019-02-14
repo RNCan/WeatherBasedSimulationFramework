@@ -361,6 +361,7 @@ namespace WBSF
 									}
 									else
 									{
+										callback.AddMessage("Invalid HRR: " + outputPath);
 										//remove file
 										msg += RemoveFile(outputPath);
 									}

@@ -138,6 +138,7 @@ namespace WBSF
 
 	GribVariables CCreateVirtualDB::GetVariables(string str)
 	{
+		
 		GribVariables variables;
 		if (str.empty())
 		{
@@ -145,13 +146,15 @@ namespace WBSF
 		}
 		else
 		{
-			StringVector vars(str, ",;| ");
+			variables = CSfcGribDatabase::get_var(CWVariables(str));
+
+			/*StringVector vars(str, ",;| ");
 			for (size_t v = 0; v < vars.size(); v++)
 			{
 				TVarH var = HOURLY_DATA::GetVariableFromName(vars[v], true);
 				if (var != SKIP)
 					variables.set(var);
-			}
+			}*/
 		}
 
 		return variables;

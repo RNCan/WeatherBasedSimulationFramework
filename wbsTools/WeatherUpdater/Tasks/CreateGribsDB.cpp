@@ -110,10 +110,7 @@ namespace WBSF
 			msg.ajoute(p.GetFormatedString()); 
 			return msg;
 		}
-
-		//boost::dynamic_bitset<size_t> presence(p.size());
-		//set<CTRef> presence;
-		//array<std::map<CTRef, std::string>, 6> gribsList;
+	
 		size_t nbGrib = 0;
 		CGribsMap gribs;
 
@@ -157,52 +154,21 @@ namespace WBSF
 
 				msg += callback.StepIt();
 			}
-			/*else
-			{
-				if (i==0)
-					msg.ajoute("Main task must to be defined");
-			}*/
 		}
 
 		callback.PopTask();
 
-	//	ofStream file;
-		//if (msg)
-			//msg = file.open(outputFilePath);
 
 		if (msg)
 		{
 			
-			//std::map<CTRef, vector<std::string>> gribs;
-			
 			msg = gribs.save(outputFilePath);
 
-			//size_t nbGrib = 0;
-			//file << "TRef,path" << endl;
-			//for (std::map<CTRef, vector<std::string>::const_iterator it = gribsList[j * 3 + i].begin(); it != gribsList[j * 3 + i].end() && msg; it++)
-			//{
-			//	CTRef TRef = it->first;
-			//	string relativePath = GetRelativePath(basePath, it->second);
-			//	bool already = presence.find(TRef) != presence.end();
-			//	if (!already || mergeType == ALL_AVAIL)
-			//	{
-			//		file << TRef.GetFormatedString("%Y-%m-%d-%H") << "," << relativePath << endl;
-			//		nbGrib++;
-			//	}
-
-			//	ASSERT(p.IsInside(TRef));
-			//	size_t pos = TRef - p.Begin();
-
-			//	//Put warning when gribs missing	
-			//	presence.insert(pos);
-
-			//	msg += callback.StepIt(0);
-			//}
+			p.End() = min(p.End(), now);
 			
 			size_t nbMissing = 0;
-			for (CTRef TRef = p.Begin(); TRef < now && msg; TRef++)
+			for (CTRef TRef = p.Begin(); TRef < p.End() && msg; TRef++)
 			{
-				//CTRef TRef = p.Begin() + pos;
 				bool alvailable = gribs.find(TRef) != gribs.end();
 				if (!alvailable)
 					nbMissing++;

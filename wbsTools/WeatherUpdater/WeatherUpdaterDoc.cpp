@@ -293,7 +293,7 @@ void CWeatherUpdaterDoc::OnExecute()
 		ReplaceString(m_lastLog, "\r", "");
 		
 		m_bExecute = false;
-		pView->AdjustLayout();
+		pView->AdjustLayout(); 
 	
 		//transfer message 
 		for (size_t t = 0; t < m_project.size(); t++)

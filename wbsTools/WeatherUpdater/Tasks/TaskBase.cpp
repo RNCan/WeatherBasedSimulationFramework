@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "TaskBase.h"
 #include "basic/UtilStd.h"
-#include "../resource.h"
 #include "Basic/utilzen.h"
+#include "Basic/Timer.h"
 #include "TaskFactory.h"
-
+#include "../resource.h"
+#include "WeatherBasedSimulationString.h"
 
 using namespace std;
 
@@ -421,14 +422,17 @@ namespace WBSF
 					
 					try
 					{
+						CTimer timer(TRUE);
 						ERMsg msgTmp = (*it2)->Execute(callback);
-
+						timer.Stop();
 
 						ASSERT(callback.GetNbTasks() == 1);
 						while (callback.GetNbTasks() > 1)
 							callback.PopTask();
 
+						
 						callback.AddMessage("");
+						callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
 						callback.AddMessage(GetCurrentTimeString());
 						callback.AddMessage("*******************************************");
 
