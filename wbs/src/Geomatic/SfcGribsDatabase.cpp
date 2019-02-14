@@ -18,7 +18,7 @@
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/GDAL.h"
 #include "Geomatic/SfcGribsDatabase.h"
-
+#include "Geomatic/TimeZones.h"
 
 #include "WeatherBasedSimulationString.h"
 
@@ -424,7 +424,7 @@ namespace WBSF
 						if (fabs(U - m_noData[v]) > 0.1 && fabs(V - m_noData[v]) > 0.1)
 						{
 							data[H_WNDS] = (float)sqrt(U*U + V * V) * 3600.0 / 1000.0;
-							data[H_WNDD] = (float)Rad2Deg(atan2(U, V));
+							data[H_WNDD] = (float)GetWindDirection(U, V, true);
 						}
 
 					}
@@ -432,26 +432,12 @@ namespace WBSF
 					{
 						//do nothing
 					}
-					else if (v == H_DSWR)
-					{
-						//a vérifier
-						if (m_bands[H_DLWR] != NOT_INIT)
-						{
-							double s = m_lines[xy.m_y]->at(H_DSWR)->get_value(xy.m_x);
-							double l = m_lines[xy.m_y]->at(H_DLWR)->get_value(xy.m_x);
-
-							if (fabs(s - m_noData[v]) > 0.1 && fabs(l - m_noData[v]) > 0.1)
-								data[H_SRAD] = (float)(s + l);//radiation is short + long wave radiation: a vérifier???
-						}
-					}
-					else if (v == H_DLWR)
-					{
-						//do nothing
-					}
-
-
-
-
+					//else if (v == H_DSWR)
+					//{
+					//	double s = m_lines[xy.m_y]->at(H_DSWR)->get_value(xy.m_x);
+					//	if (fabs(s - m_noData[v]) > 0.1)
+					//		data[H_SRAD] = float(s);
+					//}
 
 
 					//switch (v)
@@ -518,19 +504,25 @@ namespace WBSF
 			var = H_UWND;
 		else if (strVar == "VGRD")//u wind [m/s]
 			var = H_VWND;
-		else if (strVar == "WIND")//wind speed [m/s]
-			var = H_WNDS;
-		else if (strVar == "WDIR")//wind direction [deg true]
-			var = H_WNDD;
+	//	else if (strVar == "WIND")//wind speed [m/s]
+		//	var = H_WNDS;
+		//else if (strVar == "WDIR")//wind direction [deg true]
+			//var = H_WNDD;
 		///* 232 */ {"DTRF", "Downward total radiation flux [W/m^2]"},
 		///* 115 */ {"LWAVR", "Long wave [W/m^2]"},
 		///* 116 */{ "SWAVR", "Short wave [W/m^2]" },
-		else if (strVar == "GRAD")//Global radiation [W/m^2]
-			var = H_SRAD;
+		//else if (strVar == "GRAD")//Global radiation [W/m^2]
+			//var = H_SRAD;
 		else if (strVar == "DSWRF")//Downward short-wave radiation flux [W/(m^2)]
-			var = H_DSWR;//it only to get a place: to be revised
-		else if (strVar == "DLWRF")//Downward long-wave radiation flux [W/(m^2)]
-			var = H_DLWR;//it only to get a place: to be revised
+			var = H_SRAD;//it only to get a place: to be revised
+		//else if (strVar == "DSWRF")//Downward short-wave radiation flux [W/(m^2)]
+			//var = H_DSWR;//it only to get a place: to be revised
+		//else if (strVar == "DLWRF")//Downward long-wave radiation flux [W/(m^2)]
+			//var = H_DLWR;//it only to get a place: to be revised
+		//else if (strVar == "VBDSF")//Downward short-wave radiation flux [W/(m^2)]
+			//var = H_DSWR;//it only to get a place: to be revised
+		//else if (strVar == "VDDSF")//Downward long-wave radiation flux [W/(m^2)]
+			//var = H_DLWR;//it only to get a place: to be revised
 		else if (strVar == "PRES")//Pressure [Pa]
 			var = H_PRES;
 		//		else if (strVar == "SRWEQ")//Snowfall rate water equiv. [kg/m^2/s]
@@ -635,7 +627,7 @@ namespace WBSF
 						if (var < NB_VAR_GRIBS  && m_variables.test(var))
 						{
 							bool bScf = false;
-							if (strType == "SFC" || strType == "TGL")
+							if (strType == "SFC" || strType == "TGL" || strType == "HTGL")
 							{
 								if (strLevel == "0" || strLevel == "2" || strLevel == "10")
 									bScf = true;
@@ -818,9 +810,12 @@ namespace WBSF
 						ASSERT(nYBlockSize == m_extents.m_yBlockSize);
 						GDALDataType type = poBand->GetRasterDataType();
 						CSfcVariableLine* pBlockTmp = new CSfcVariableLine(nXBlockSize, type);
-						poBand->ReadBlock(0, int(y), pBlockTmp->m_ptr);
-						poBand->FlushBlock(0, int(y));
-						poBand->FlushCache();
+#pragma omp critical(READ_BLOCK)
+						{
+							poBand->ReadBlock(0, int(y), pBlockTmp->m_ptr);
+							poBand->FlushBlock(0, int(y));
+							poBand->FlushCache();
+						}
 
 						if (type == GDT_Float64)
 						{
@@ -852,7 +847,7 @@ namespace WBSF
 
 		//always compute from the 4 nearest points
 		CHourlyData4 data4;
-		get_4nearest(pt, data4);
+		get_4nearest(pt, data4); 
 
 		//compute weight
 		array<CStatistic, NB_VAR_H> sumV;
@@ -1151,11 +1146,7 @@ namespace WBSF
 				
 				CProjectionPtr pPrj = CProjectionManager::GetPrj(it->GetPrjID());
 				string prjName = pPrj ? pPrj->GetName() : "Unknown";
-				
-				//callback.AddMessage("Extents" + to_string(std::distance(it, extents.begin()) + 1));
 				callback.AddMessage("Grid spacing: " + to_string(it->XRes()) + " x " + to_string(it->YRes()) + " ("+ prjName+")", 1 );
-				//callback.AddMessage("Extents   : " + to_string(it->m_xMin) + " " + to_string(it->m_yMin) + " " + to_string(it->m_xMax) + " " +to_string(it->m_yMax), 1);
-				//callback.AddMessage("Projection: " + prjName, 1 );
 			}
 		}
 
@@ -1179,7 +1170,7 @@ namespace WBSF
 				return msg;
 			}
 
-			if (incremental.m_variables != m_variables)
+			if (!empty() && incremental.m_variables != m_variables)
 			{
 				msg.ajoute("The variable to extract from gribs is not the same as the previous execution. Do not use incremental.");
 				return msg;
@@ -1215,6 +1206,7 @@ namespace WBSF
 		callback.AddMessage("Nb input locations: " + to_string(locationsIn.size()));
 		if(m_nb_points>0)
 			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points)+ " nearest: " + to_string(locations.size()));
+		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
 		callback.AddMessage("Nb input hours: " + to_string(gribs.size()) + " ("+ to_string(int(gribs.size()/24))+" days)");
 		callback.AddMessage("Nb hours to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / 24)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));
@@ -1235,37 +1227,39 @@ namespace WBSF
 
 			size_t nbStationAdded = 0;
 			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours from " + to_string(nbGribs) + " gribs)";
-			callback.PushTask(feed, nbGribs*stations.size());
+			callback.PushTask(feed, nbGribs);
 			callback.AddMessage(feed);
 
 			//convert set into vector for multi-thread
-			//vector<CTRef> tmp; 
-			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-			//	tmp.push_back(*it); 
-			
-//#pragma omp parallel for shared(msg) num_threads(2)
-//			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
-//			{
-//#pragma omp flush(msg)
-//				if (msg)
-//				{
-//					CTRef TRef = tmp[i];
-//					for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
-//					{
-//						msg += ExtractStation(TRef, *iit, stations, callback);
-//#pragma omp flush(msg)
-//					}
-//				}
-//			}
-
+			vector<CTRef> tmp; 
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+				tmp.push_back(*it); 
+			
+#pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
+			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
 			{
-
-				for (std::vector<string>::const_iterator iit = gribs.at(*it).begin(); iit != gribs.at(*it).end() && msg; iit++)
+#pragma omp flush(msg)
+				if (msg)
 				{
-					msg += ExtractStation(*it, *iit, stations, callback);
+					CTRef TRef = tmp[i];
+					for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
+					{
+						msg += ExtractStation(TRef, *iit, stations, callback);
+						msg += callback.StepIt();
+#pragma omp flush(msg)
+					}
 				}
 			}
+
+			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+			//{
+
+			//	for (std::vector<string>::const_iterator iit = gribs.at(*it).begin(); iit != gribs.at(*it).end() && msg; iit++)
+			//	{
+			//		msg += ExtractStation(*it, *iit, stations, callback);
+			//		msg += callback.StepIt();
+			//	}
+			//}
 
 
 			callback.PopTask();
@@ -1316,7 +1310,9 @@ namespace WBSF
 		CSfcDatasetCached sfcDS;
 		sfcDS.set_variables(m_variables);
 
+#pragma omp critical(OPEN_GDAL)
 		msg = sfcDS.open(file_path, true);
+
 		if (msg)
 		{
 			CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, sfcDS.GetPrjID());
@@ -1326,14 +1322,15 @@ namespace WBSF
 				pt.Reproject(GEO_2_WEA);
 				if (sfcDS.GetExtents().IsInside(pt))
 				{
-					CHourlyData& data = stations[i].GetHour(TRef);
+					CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, stations[i]);
+					CHourlyData& data = stations[i].GetHour(localTRef);
 					if (m_nb_points == 0)
 						sfcDS.get_weather(pt, data);//estimate weather at location
 					else
 						sfcDS.get_nearest(pt, data);//get weather for this grid point
 
 
-					msg += callback.StepIt();
+					msg += callback.StepIt(0);
 				}
 			}
 
@@ -1343,26 +1340,24 @@ namespace WBSF
 		return msg;
 	}
 
-	GribVariables CSfcGribDatabase::get_var(CWVariables m_variables)
+	GribVariables CSfcGribDatabase::get_var(CWVariables variables)
 	{
 		GribVariables out;
-		//variables.set(H_GHGT);//always set geopotentiel height
 
+		ASSERT( variables.size()<= out.size());
+		for (size_t i = 0; i < variables.size(); i++)
+			out.set(i, variables.test(i));
 
-		ASSERT( m_variables.size()<= out.size());
-		for (size_t i = 0; i < m_variables.size(); i++)
-			out.set(i, m_variables.test(i));
-
-		if (m_variables.test(H_WNDS) || m_variables.test(H_WNDD))
+		if (variables.test(H_WNDS) || variables.test(H_WNDD))
 		{
 			out.set(H_UWND);
 			out.set(H_VWND);
 		}
-		if (m_variables.test(H_SRAD))
-		{
-			out.set(H_DSWR);
-			out.set(H_DLWR);
-		}
+		//if (variables.test(H_SRAD))
+		//{
+			//out.set(H_DSWR);
+			//out.set(H_DLWR);
+		//}
 
 
 		return out;
