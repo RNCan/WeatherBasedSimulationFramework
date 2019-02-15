@@ -1072,9 +1072,6 @@ namespace WBSF
 
 		if (network[N_SWOB])
 		{
-			//cctz::time_zone zone;
-//			CTimeZones::GetZone(station, zone);
-
 			string ICAO_ID = station.GetSSI("ICAO");
 
 			for (size_t y = 0; y < nbYears&&msg; y++)
@@ -1093,6 +1090,8 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}
 			}
+			
+			//todo:remove radiation with series of zero
 
 			CWAllVariables vars;
 			vars.reset(H_ADD1);
@@ -2044,20 +2043,25 @@ namespace WBSF
 							TVarH v = VARIABLE_TYPE[vv];
 							if (v != H_SKIP)
 							{
-								if (!swob[d][h][vv * 2 + 4].empty() && swob[d][h][vv * 2 + 4] != "MSNG")
+								string strValue = swob[d][h][vv * 2 + 4];
+								if (!strValue.empty() && strValue != "MSNG")
 								{
-									int QAValue = WBSF::as<int>(swob[d][h][vv * 2 + 1 + 4]);
-									if (QAValue > 0 || (v == H_SRAD && QAValue == 0))
+									string strQA = swob[d][h][vv * 2 + 1 + 4];
+									if (!strQA.empty())//is it valid or not?
 									{
-										float value = WBSF::as<float>(swob[i][j][vv * 2 + 4]);
-										if (v == H_SRAD && value < 0)
-											value = 0;
+										int QAValue = WBSF::as<int>(strQA);
+										if (v == H_SRAD && bFredericton && WBSF::as<float>(strValue) > 1000)//Fredericton some data 10 *????
+											QAValue = -1;
 
-										if (v == H_SRAD && bFredericton)//Fredericton have data 10 *????
-											value /= 10;
+										if (QAValue > 0 || (v == H_SRAD && QAValue == 0))
+										{
+											float value = WBSF::as<float>(strValue);
+											if (v == H_SRAD && value < 0)
+												value = 0;
 
-										station[TRef].SetStat(v, value);
-									}//if valid value
+											station[TRef].SetStat(v, value);
+										}//if valid value
+									}
 								}//if not missing
 							}//if it's a valid var
 						}//for all variables

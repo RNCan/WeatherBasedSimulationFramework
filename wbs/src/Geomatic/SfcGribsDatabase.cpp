@@ -674,7 +674,7 @@ namespace WBSF
 								if (description[2] == "SFC" || description[2] == "HTGL")
 								{
 									size_t level = as<size_t>(description[0]);
-									if (level <= 10)
+									if (level == 0 || level == 2 || level == 10)
 									{
 										bSfc = true;
 									}

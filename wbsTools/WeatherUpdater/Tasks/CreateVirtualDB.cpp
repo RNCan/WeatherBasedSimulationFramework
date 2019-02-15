@@ -12,6 +12,9 @@
 #include "TaskFactory.h"
 #include "../resource.h"
 #include "WeatherBasedSimulationString.h"
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
+
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -68,6 +71,8 @@ namespace WBSF
 	ERMsg CCreateVirtualDB::Execute(CCallback& callback)
 	{
 		ERMsg msg;
+
+		GDALSetCacheMax64(128 * 1024 * 1024);
 
 		string inputFilePath = Get(INPUT_FILEPATH);
 		if (inputFilePath.empty())
