@@ -240,7 +240,7 @@ namespace WBSF
 		if (simulationPoint.empty())
 			return;
 
-		double pa = GetPressure(simulationPoint.m_alt);
+		//double pa = GetPressure(simulationPoint.m_alt);
 
 		//compute direct hourly value. For example RH from Tdew and TAir or Ea from Tdew or Es from Tair
 		CTPeriod period = simulationPoint.GetEntireTPeriod();
@@ -263,10 +263,10 @@ namespace WBSF
 					data.SetStat(H_TAIR, (data[H_TMIN][MEAN] + data[H_TMAX][MEAN]) / 2);
 			}
 
-			if (variables[H_PRES] && !data[H_PRES].IsInit())
-			{
-				data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
-			}
+			//if (variables[H_PRES] && !data[H_PRES].IsInit())
+			//{
+			//	data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
+			//}
 
 			if (variables[H_TDEW] && !data[H_TDEW].IsInit() && data[H_RELH].IsInit() && data[H_TAIR].IsInit())
 			{
@@ -288,26 +288,6 @@ namespace WBSF
 				double U10 = U2 * 4.87 / log(67.8 * 2 - 5.42);//wind speed at 2 meters
 				data.SetStat(H_WNDS, U10);
 			}
-
-			//if (variables[H_EA] && !data[H_EA].IsInit() && data[H_TDEW].IsInit())
-			//{
-			//	double Ea = e°(data[H_TDEW][MEAN]);
-			//	data.SetStat(H_EA, Ea * 1000);//[Pa]
-			//}
-
-			//if (variables[H_ES] && !data[H_ES].IsInit() && data[H_TAIR])
-			//{
-			//	double Es = e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);//this format work for hourly and daily values
-			//	data.SetStat(H_ES, Es * 1000);//[Pa]
-			//}
-
-			//if (variables[H_VPD] && !data[H_VPD].IsInit() && (data[H_EA].IsInit() || data[H_TDEW].IsInit()) && (data[H_ES].IsInit() || data[H_TAIR]))
-			//{
-			//	double Ea = data[H_EA].IsInit() ? data[H_EA][MEAN] : e°(data[H_TDEW][MEAN]);
-			//	double Es = data[H_ES].IsInit() ? data[H_ES][MEAN] : e°(data[H_TMIN][MEAN], data[H_TMAX][MEAN]);
-
-			//	data.SetStat(H_VPD, (Es - Ea) * 1000);//[Pa]
-			//}
 
 			//Wnd2 from WndS 
 			if (variables[H_WND2] && !data[H_WND2].IsInit() && data[H_WNDS].IsInit())
@@ -362,13 +342,13 @@ namespace WBSF
 		{
 			msg = GetHourly(m_simulationPoints[0], callback);
 		}
-		else if (m_tgi.IsDaily()) 
+		else if (m_tgi.IsDaily())
 		{
 			msg = GetDaily(m_simulationPoints[0], callback);
 		}
 
 
-		
+
 		//******************************************************************
 		//Get normals data
 
@@ -395,18 +375,25 @@ namespace WBSF
 					bool bHR = mVariables[H_TDEW] || mVariables[H_RELH] || mVariables[H_SRAD];
 					bool bSN = mVariables[H_SNOW] || mVariables[H_SNDH] || mVariables[H_SWE];
 					bool bWD = mVariables[H_WNDD];
+					bool bPr = mVariables[H_PRES];
 					bool bTPcomplet = m_simulationPoints[0].IsComplete("Tmin Tair Tmax Prcp", m_tgi.GetTPeriod());
-					bool bHRcomplet = m_simulationPoints[0].IsComplete("Tdew", m_tgi.GetTPeriod());
+					bool bHRcomplet = bHR && m_simulationPoints[0].IsComplete("Tdew", m_tgi.GetTPeriod());
+					bool bPrcomplet = bPr && m_simulationPoints[0].IsComplete("Pres", m_tgi.GetTPeriod());
+					bool bWDcomplet = bWD && m_simulationPoints[0].IsComplete("WndD", m_tgi.GetTPeriod());
 
-					if (msg && bHR && bTPcomplet && (bHRcomplet/* || bEAcomplete*/))
+					if (msg && bHR && bTPcomplet && bHRcomplet)
 						msg = ComputeHumidityRadiation(m_simulationPoints[0], m_tgi.m_variables);
 
-					if (msg && bSN && bTPcomplet)//m_simulationPoints[0].IsComplete("Tair Trng Prcp", m_tgi.GetTPeriod()))
+					if (msg && bSN && bTPcomplet)
 						msg = ComputeSnow(m_simulationPoints[0], m_tgi.m_variables);
 
-					//fill wind direction because not integrated yet into the weather generator
+					//fill pressure because not integrated yet into the kernel generator
+					if (msg && bPr && bPrcomplet && !m_tgi.m_bNoFillMissing)
+						msg = ComputePressure(m_simulationPoints[0]);
+
+					//fill wind direction because not integrated yet into the kernel generator
 					if (msg && bWD)
-						msg = ComputeWindDirection(m_simulationPoints[0], m_tgi.m_variables);
+						msg = ComputeWindDirection(m_simulationPoints[0]);
 
 					//3- if they are missing mandatory variables, complete with normals 
 					if (!m_simulationPoints[0].IsComplete(m_tgi.GetMandatoryVariables(), m_tgi.GetTPeriod()))
@@ -426,6 +413,7 @@ namespace WBSF
 
 						if (msg)
 						{
+							//after normals is set, we compute radiation and snow if needed
 							for (size_t r = 0; r < m_simulationPoints.size() && msg; r++)
 							{
 								//4- now complete simple variables if missing
@@ -438,7 +426,9 @@ namespace WBSF
 									msg = ComputeSnow(m_simulationPoints[r], m_tgi.m_variables);
 
 								if (msg)
-									msg = ComputeWindDirection(m_simulationPoints[r], m_tgi.m_variables);
+									msg = ComputeWindDirection(m_simulationPoints[r]);
+
+								//here pressure is already fill
 							}
 						}
 						//do nothing for the moment, will be activated later
@@ -538,7 +528,7 @@ namespace WBSF
 								}
 								else
 								{
-									m_simulationPoints[r][y][m][d].SetStat(v, WBSF::Round(m_simulationPoints[r][y][m][d][v][MEAN], DIGIT_RES[v]) );
+									m_simulationPoints[r][y][m][d].SetStat(v, WBSF::Round(m_simulationPoints[r][y][m][d][v][MEAN], DIGIT_RES[v]));
 								}
 							}
 						}
@@ -571,7 +561,7 @@ namespace WBSF
 		{
 			bool bHaveExpo = (simulationPoint.GetSlope() >= 0) && (simulationPoint.GetAspect() >= 0);
 			bool bHaveHorizon = !simulationPoint.GetDefaultSSI(CLocation::E_HORIZON).empty() && !simulationPoint.GetDefaultSSI(CLocation::W_HORIZON).empty();
-			
+
 
 			MTClim43::CControl ctrl;
 			MTClim43::CParameter p;
@@ -602,9 +592,9 @@ namespace WBSF
 					{
 						const CDay& day = (const CDay&)simulationPoint[y][m][d];
 						size_t jd = day.GetTRef().GetJDay();
-						
-						
-						
+
+
+
 						//input
 						data.yday[jd] = int(jd + 1);
 						data.s_tmin[jd] = day[H_TMIN][MEAN];
@@ -612,7 +602,7 @@ namespace WBSF
 						data.s_tday[jd] = day.GetTdaylight(); //temperature during daylight
 						data.s_prcp[jd] = day[H_PRCP][SUM] / 10;	//ppt in cm
 						data.s_swe[jd] = bHaveSnowpack ? day[H_SWE][MEAN] / 10 : 0;	//Snow water equivalent MTClim 4.3 in cm. If not available, will be computed later
-						data.s_tdew[jd] = bHaveTdew? day[H_TDEW][MEAN] : -999;
+						data.s_tdew[jd] = bHaveTdew ? day[H_TDEW][MEAN] : -999;
 						_ASSERTE(!_isnan(data.s_tdew[jd]));
 
 						//output
@@ -887,42 +877,59 @@ namespace WBSF
 	}
 
 
-	ERMsg CWeatherGenerator::ComputeWindDirection(CSimulationPoint& simulationPoint, CWVariables variables)
+	ERMsg CWeatherGenerator::ComputeWindDirection(CSimulationPoint& simulationPoint)
 	{
 		ERMsg msg;
 
-		bool bCompute = false;
-		if (variables[H_WNDD] && !simulationPoint.IsComplete(CWVariables(H_WNDD)))
-			bCompute = true;
-
-		if (msg && bCompute)
+		if (!simulationPoint.IsComplete(CWVariables(H_WNDD)))
 		{
-			//put random number
-			//for (CSimulationPointVector::iterator itR = simulationPointVector.begin(); itR != simulationPointVector.end(); itR++)//for all replication
-			//{
 			double lastWindDir = 0;
 			CTPeriod period = simulationPoint.GetEntireTPeriod();
 			for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 			{
 				CDataInterface& data = simulationPoint[TRef];
 				//output
+
 				if (data[H_WNDD].IsInit())
 				{
 					lastWindDir = data[H_WNDD][MEAN];
 				}
 				else
 				{
-					data.SetStat(H_WNDD, lastWindDir);
+					//don't fill direction if no wind speed
+					//wind direction without wind speed have no sense
+					if (data[H_WNDS].IsInit())
+					{
+						data.SetStat(H_WNDD, lastWindDir);
+					}
 				}
 			}
-
 		}
 
 		return msg;
 
 	}
 
+	ERMsg CWeatherGenerator::ComputePressure(CSimulationPoint& simulationPoint)
+	{
+		ERMsg msg;
 
+		//fill pressure with default pressure for elevation
+		double pa = GetPressure(simulationPoint.m_alt);
+
+		CTPeriod period = simulationPoint.GetEntireTPeriod();
+		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+		{
+			CDataInterface& data = simulationPoint[TRef];
+
+			if (!data[H_PRES].IsInit())
+			{
+				data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
+			}
+		}
+
+		return msg;
+	}
 	//ERMsg CWeatherGenerator::Save(const std::stringArray& outputFilePathArray, short IOFileVersion)const
 	//{
 	//	ASSERT( m_results.size()==outputFilePathArray.size() );
@@ -980,7 +987,7 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
-					
+
 					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
@@ -991,7 +998,7 @@ namespace WBSF
 
 					if (m_tgi.UseGribs())
 					{
-						
+
 						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
 						//if (!results.empty() && m_tgi.XVal())
 							//results.erase(results.begin());
@@ -1027,7 +1034,7 @@ namespace WBSF
 							stationsG.ApplyCorrections(m_gradients);
 							//for(size_t i=0; i< stationsG.size(); i++)
 							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
-							
+
 							stationsG.clear();
 
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
@@ -1439,7 +1446,7 @@ namespace WBSF
 
 				// find stations for this category
 				CSearchResultVector results;
-				
+
 				msg = m_pNormalDB->Search(results, m_target, m_tgi.GetNbNormalsToSearch(), m_tgi.m_searchRadius[v], v, YEAR_NOT_INIT, true, true, m_tgi.m_bUseShore);
 
 				//remove nearest station if in X-validation
@@ -1771,7 +1778,7 @@ namespace WBSF
 
 		ASSERT(m_seedMatrix.size() == m_nbReplications);
 	}
-	
+
 	void CWeatherGenerator::OutputWarning(const std::bitset<NB_WARNING>& warning, CCallback& callback)
 	{
 		for (size_t i = 0; i < warning.size(); i++)

@@ -1313,7 +1313,8 @@ namespace WBSF
 
 		if (v == H_PRES)
 		{
-			correction = (GetPressure(station.m_alt) - GetPressure(m_target.m_alt)) / 100; //correction in [hPa]
+			//reverse correction by RSA 15-02-2019
+			correction = (GetPressure(m_target.m_alt) - GetPressure(station.m_alt) ) / 100; //correction in [hPa]
 		}
 		else if (v == H_TMIN || v == H_TAIR || v == H_TMAX)
 		{

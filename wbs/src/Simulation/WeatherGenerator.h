@@ -102,7 +102,8 @@ namespace WBSF
 		static void CompleteSimpleVariables(CSimulationPoint& simulationPoint, CWVariables variables);
 		static ERMsg ComputeHumidityRadiation(CSimulationPoint&  simulationPoint, CWVariables variables);
 		static ERMsg ComputeSnow(CSimulationPoint&  simulationPoint, CWVariables variables);
-		static ERMsg ComputeWindDirection(CSimulationPoint& simulationPoint, CWVariables variables);
+		static ERMsg ComputeWindDirection(CSimulationPoint& simulationPoint);
+		static ERMsg ComputePressure(CSimulationPoint& simulationPoint);
 		static bool VerifyData(const CSimulationPointVector& simulationPoints, CWVariables variables1);
 
 
