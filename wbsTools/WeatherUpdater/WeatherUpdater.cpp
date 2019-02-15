@@ -1,3 +1,4 @@
+//5.7.3 15/02/2019	Rémi Saint-Amant	Update in virtual station extraction (wind and solar)
 //5.7.2 01/02/2019	Rémi Saint-Amant	Update HRDPS forecast and interface
 //5.7.1	03/11/2018	Rémi Saint-Amant	Add virtual station 
 //										Add HRRR archive download, URMA and HRDPA
