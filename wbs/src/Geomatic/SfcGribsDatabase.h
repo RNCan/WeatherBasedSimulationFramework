@@ -122,8 +122,27 @@ namespace WBSF
 		float get_variable(const CGeoPointIndex& index, size_t v)const;
 		bool is_cached(size_t y)const { assert(is_block_inside(y));  return m_lines[y] != NULL; }
 		size_t get_band(size_t v)const { return m_bands[v]; }
-		void set_variables(GribVariables& in) { m_variables = in; }
-		//GribVariable get_var_avail() { return m_var_avail; }
+		const GribVariables& get_variables()const { return m_variables; }
+		void set_variables(GribVariables& in) 
+		{ 
+			if (in != m_variables)
+			{
+				m_variables = in;
+				//if open, reset band that is not selected
+				if (IsOpen())
+				{
+					ASSERT(m_bands.size() == m_variables.size());
+					for (size_t v = 0; v < m_bands.size(); v++)
+					{
+						if (!m_variables.test(v))
+						{
+							m_bands[v] = NOT_INIT;
+						}
+					}
+				}
+			}
+		}
+		
 
 
 		void get_weather(const CGeoPoint& pt, CHourlyData& data)const;
@@ -137,12 +156,10 @@ namespace WBSF
 
 		void init_cache()const;
 		bool is_cache_init()const { return !m_lines.empty(); }
-		//void LoadBlock(size_t b, const CGeoBlockIndex& xy){ LoadBlock(CGeoBlockIndex(xy.m_x, xy.m_y, (int)b)); }
 		void load_block(size_t y);
 		bool is_block_inside(size_t y)const { return y < m_lines.size(); }
 
 		GribVariables m_variables;
-		//GribVariable m_var_avail; 
 		std::array<size_t, NB_VAR_GRIBS> m_bands;
 		std::array<std::string, NB_VAR_GRIBS> m_units;
 		std::array<float, NB_VAR_GRIBS> m_noData;

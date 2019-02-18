@@ -504,10 +504,10 @@ namespace WBSF
 			var = H_UWND;
 		else if (strVar == "VGRD")//u wind [m/s]
 			var = H_VWND;
-	//	else if (strVar == "WIND")//wind speed [m/s]
-		//	var = H_WNDS;
-		//else if (strVar == "WDIR")//wind direction [deg true]
-			//var = H_WNDD;
+		else if (strVar == "WIND")//wind speed [m/s]
+			var = H_WNDS;
+		else if (strVar == "WDIR")//wind direction [deg true]
+			var = H_WNDD;
 		///* 232 */ {"DTRF", "Downward total radiation flux [W/m^2]"},
 		///* 115 */ {"LWAVR", "Long wave [W/m^2]"},
 		///* 116 */{ "SWAVR", "Short wave [W/m^2]" },
@@ -689,47 +689,7 @@ namespace WBSF
 							}
 						}
 					}
-
-
-					/*if (FileExists(invFilePath))
-				{
-					ifStream file;
-					msg = file.open(invFilePath);
-					if (msg)
-					{
-						size_t i = 0;
-						for (CSVIterator loop(file, ":", false); loop != CSVIterator() && msg; ++loop, i++)
-						{
-
-							ASSERT(loop->size() >= 6);
-							if (loop->size() >= 6)
-							{
-								string strVar = (*loop)[3];
-								string strLevel = (*loop)[4];
-								size_t var = get_var(strVar);
-
-								if (var < m_variables.size() && m_variables.test(var))
-								{
-									bool bSfc = is_sfc(strLevel);
-									if (bSfc)
-									{
-										m_bands[var] = i;
-										m_units[var] = GetDefaultUnit(var);
-									}
-								}
-							}
-							else
-							{
-								if (!TrimConst(loop->GetLastLine()).empty())
-									msg.ajoute("Bad .inv file : " + invFilePath);
-							}
-						}
-					}
 				}
-				else*/
-				//	{
-				}
-				//}
 			}
 		}
 
@@ -1315,6 +1275,29 @@ namespace WBSF
 
 		if (msg)
 		{
+			
+			//for optimization, we select only 2 wind variables
+			GribVariables var = sfcDS.get_variables();
+			if (var.test(H_WNDS) && var.test(H_WNDD))
+			{
+				var.reset(H_UWND);
+				var.reset(H_VWND);
+			}
+			else if (var.test(H_UWND) && var.test(H_VWND))
+			{
+				var.reset(H_WNDS);
+				var.reset(H_WNDD);
+			}
+			else
+			{
+				var.reset(H_UWND);
+				var.reset(H_VWND);
+				var.reset(H_WNDS);
+				var.reset(H_WNDD);
+			}
+
+			sfcDS.set_variables(var);
+
 			CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, sfcDS.GetPrjID());
 			for (size_t i = 0; i < stations.size() && msg; i++)
 			{

@@ -418,17 +418,6 @@ namespace WBSF
 							string hour = *it4;
 							size_t h1 = WBSF::as<size_t>(hour);
 
-							//string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-							//StringVector fileList = WBSF::GetFilesList(filter, 2, true);
-
-							//sort(fileList.begin(), fileList.end());
-							//for (StringVector::iterator it5 = fileList.begin(); it5 != fileList.end() && msg; it5++)
-							//{
-							//	//string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
-							//	string VRTFilePath = GetVRTFilePath(*it5);
-							//	outputPath.insert(VRTFilePath);
-							//}
-
 							for (size_t h2 = 0; h2 < 6; h2++)
 							{
 								//size_t h = h1 + h2;
