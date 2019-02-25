@@ -300,15 +300,16 @@ namespace WBSF
 						bandsDef = xmlDataset.GetChilds("VRTRasterBand");
 						ASSERT(bandsDef.size() == GetRasterCount());
 
-						if (!bandsDef.empty())
+						//if (!bandsDef.empty())
+						if (bandsDef.size()==1)
 						{
-							LPXNode node = bandsDef.front();
+							//LPXNode node = bandsDef.front();
 							//When there is no nodata, vrt with -separate have singleSource
 							//if (node && node->GetChilds("ComplexSource").size() != 1)
 							//{
 							//	//VRT file without -separate options. 
-							//	//considarate this VRT as standard image
-							//	m_bVRT = false;
+							//	considerate VRT with only one band as standard image
+							m_bVRT = false;
 							//}
 						}
 
