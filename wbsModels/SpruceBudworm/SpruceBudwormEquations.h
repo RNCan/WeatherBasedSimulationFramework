@@ -12,6 +12,7 @@ namespace WBSF
 	namespace SBW
 	{
 		enum TStages{ EGG, L1, L2o, L2, L3, L4, L5, L6, PUPAE, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		enum TAdultLongevity{ ADULT_BASE_ON_TEMPERATURE = 0 };
 	}
 
 
@@ -21,6 +22,8 @@ namespace WBSF
 	{
 	public:
 
+		
+
 		CSpruceBudwormEquations(const CRandomGenerator& RG);
 
 		static size_t GetEquationIndex(size_t stage, size_t sex);
@@ -28,6 +31,10 @@ namespace WBSF
 
 		double GetRate(size_t stage, size_t sex, double T)const
 		{
+			if (stage == SBW::ADULT && m_adult_longivity != SBW::ADULT_BASE_ON_TEMPERATURE)
+				return 1.0 / m_adult_longivity;
+
+
 			size_t e = GetEquationIndex(stage, sex);
 			return WBSF::CEquationTableLookup::GetRate(e, T);
 		}
@@ -41,11 +48,14 @@ namespace WBSF
 		double get_ξ(size_t sex, double A)const;
 		double get_P(double T)const;
 		static double get_L(double A);
-		//double get_Mᴰ(double Mº, double D)const;
 		
 		double get_p_exodus()const;
 		double get_defoliation(double defoliation)const;
 
+		//adult longevity
+		void SetAdultLongivity(int in) { m_adult_longivity = in; }
+		int GetAdultLongivity()const { return m_adult_longivity; }
+		
 	protected:
 
 		enum TEquation{ E_EGG, E_L1, E_L2o, E_L2, E_L3, E_L4, E_L5, E_L6_MALE, E_L6_FEMALE, E_PUPAE_MALE, E_PUPAE_FEMALE, E_ADULT, NB_EQUATION };
@@ -53,8 +63,9 @@ namespace WBSF
 
 		enum TSex{ MALE, FEMALE, NB_SEX };
 
-		//static double GetRate(size_t equation, double T);
 		
+		int m_adult_longivity;//adult longevity (days. zero = adult longevity base on temperature 
+
 
 		static double Equation1(size_t s, double T);
 		static double Equation2(size_t s, double T);
@@ -63,6 +74,7 @@ namespace WBSF
 
 		static const double P[NB_EQUATION][NB_PARAMETER];
 		static double b1Factor[SBW::NB_STAGES];
+		
 
 		//relative developement
 		enum TRelDevParameters{ A1, A2, NB_REL_DEV_PARAMETERS };

@@ -26,20 +26,17 @@ namespace WBSF
 	protected:
 
 		void ExecuteDaily(CModelStatVector& stat, bool bStopL22 = false);
-		CTRef GetHatchDate(const CWeatherYear& weather);
 
 		//parameter
 		CTRef m_fixDate;
 		double m_fixAI;
-		//double m_surv[10];
-		//double m_P[5];
 
 		bool m_bApplyAttrition;
 		bool m_bApplyAdultAttrition;
 		bool m_bFertility;
 		short m_treeKind;
 		double m_defoliation;
-
+		int m_adult_longivity;
 	};
 }
 

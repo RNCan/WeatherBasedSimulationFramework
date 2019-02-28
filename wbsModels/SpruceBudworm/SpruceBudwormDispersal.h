@@ -23,6 +23,7 @@ namespace WBSF
 
 		size_t m_nbMoths;
 		double m_defoliation;
+		int m_adult_longivity;
 	};
 }
 

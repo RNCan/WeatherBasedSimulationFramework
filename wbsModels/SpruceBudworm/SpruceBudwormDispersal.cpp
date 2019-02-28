@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormDispersal is a BioSIM model for Spruce budworm dispersal
 //*****************************************************************************
+// 28/02/2019	1.1.1	Rémi Saint-Amant	Add adult longevity parameters
 // 02/05/2018   1.1.0   Rémi Saint-Amant	Transfer liftoff from model to dispersal
 // 04/05/2017   1.0.1   Rémi Saint-Amant	Update with new hourly generation
 // 05/01/2016	1.0.0	Rémi Saint-Amant    Creation from old code
@@ -68,8 +69,12 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 2;
-		VERSION = "1.1.0 (2018)";
+		NB_INPUT_PARAMETER = 3;
+		VERSION = "1.1.1 (2019)";
+
+		m_nbMoths = 10;
+		m_defoliation = 0;
+		m_adult_longivity = SBW::ADULT_BASE_ON_TEMPERATURE;
 	}
 
 	CSpruceBudwormDispersal::~CSpruceBudwormDispersal()
@@ -85,6 +90,7 @@ namespace WBSF
 		int c = 0;
 		m_nbMoths = parameters[c++].GetInt();
 		m_defoliation = parameters[c++].GetFloat();
+		m_adult_longivity = parameters[c++].GetInt();
 
 		return msg;
 	}
@@ -115,6 +121,8 @@ namespace WBSF
 			stand.m_bApplyAttrition = false;
 			stand.m_bApplyAdultAttrition = true;
 			stand.m_defoliation = m_defoliation;
+			stand.m_equations.SetAdultLongivity(m_adult_longivity);
+			
 
 			CSBWTreePtr pTree(new CSBWTree(&stand));
 			stand.m_host.push_front(pTree);

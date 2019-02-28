@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 28/02/2019	3.1.8	Rémi Saint-Amant	Add adult longevity parameters
 // 19/12/2018   3.1.7   Rémi Saint-Amant	Add option of adult attrition
 // 02/05/2018   3.1.6   Rémi Saint-Amant	Compile with VS 2017
 // 04/05/2017   3.1.5   Rémi Saint-Amant	Update with new hourly generation
@@ -50,12 +51,13 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 7;
-		VERSION = "3.1.7 (2018)";
+		NB_INPUT_PARAMETER = 8;
+		VERSION = "3.1.8 (2019)";
 
 		// initialize your variables here (optional)
 		m_bApplyAttrition = true;
 		m_bApplyAdultAttrition = true;
+		m_adult_longivity = SBW::ADULT_BASE_ON_TEMPERATURE;
 		m_fixAI = 0;
 
 		m_treeKind = 0;
@@ -82,7 +84,7 @@ namespace WBSF
 		m_fixAI = parameters[c++].GetReal();
 		m_defoliation = parameters[c++].GetReal();
 		m_bApplyAdultAttrition = parameters[c++].GetBool();
-
+		m_adult_longivity = parameters[c++].GetInt();
 
 		return msg;
 	}
@@ -154,6 +156,7 @@ namespace WBSF
 			stand.m_bApplyAdultAttrition = m_bApplyAdultAttrition;
 			stand.m_defoliation = m_defoliation;
 			stand.m_bStopL22 = bStopL22;
+			stand.m_equations.SetAdultLongivity(m_adult_longivity);
 
 			//Create tree
 			CSBWTreePtr pTree(new CSBWTree(&stand));
