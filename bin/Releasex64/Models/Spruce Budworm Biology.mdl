@@ -6,7 +6,7 @@
     <EXE>Spruce Budworm Biology.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>
-    <WindowRect>0 0 306 315</WindowRect>
+    <WindowRect>0 0 384 315</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -55,7 +55,7 @@
             <Caption>Last sample date (dd/mm/yyyy):</Caption>
             <Description>The date (dd/mm/yyyy) of the last field observation</Description>
             <Type>3</Type>
-            <Rect>200 10 220 280</Rect>
+            <Rect>250 10 270 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -67,7 +67,7 @@
             <Caption>Observed AI:</Caption>
             <Description>Last field observed average instar</Description>
             <Type>2</Type>
-            <Rect>225 10 245 280</Rect>
+            <Rect>275 10 295 280</Rect>
             <SeparatorPos>165</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -99,11 +99,23 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
+            <Name>AdultLongevity</Name>
+            <Caption>Adult Longevity (days)</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>145 5 170 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>28</MaxValue>
+            <TextValue>Temperature|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28</TextValue>
+        </InputVariable>
+        <InputVariable>
             <Name>Line1</Name>
             <Caption>Line1</Caption>
             <Description/>
             <Type>9</Type>
-            <Rect>150 5 170 275</Rect>
+            <Rect>200 5 220 275</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>-999</MinValue>
@@ -115,7 +127,7 @@
             <Caption>Fixe Average Instar</Caption>
             <Description/>
             <Type>8</Type>
-            <Rect>175 5 195 155</Rect>
+            <Rect>225 5 245 155</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue>-999</MinValue>

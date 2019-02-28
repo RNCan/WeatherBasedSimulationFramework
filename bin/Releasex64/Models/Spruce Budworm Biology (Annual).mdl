@@ -98,6 +98,18 @@
             <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
+		 <InputVariable>
+            <Name>AdultLongevity</Name>
+            <Caption>Adult Longevity (days)</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>145 5 170 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>28</MaxValue>
+            <TextValue>Temperature|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28</TextValue>
+        </InputVariable>
         <InputVariable>
             <Name>Line1</Name>
             <Caption>Line1</Caption>
