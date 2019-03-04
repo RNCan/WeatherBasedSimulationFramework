@@ -57,7 +57,7 @@ namespace WBSF
 		// initialize your variables here (optional)
 		m_bApplyAttrition = true;
 		m_bApplyAdultAttrition = true;
-		m_adult_longivity = SBW::ADULT_BASE_ON_TEMPERATURE;
+		m_adult_longivity_max = SBW::NO_MAX_ADULT_LONGEVITY;
 		m_fixAI = 0;
 
 		m_treeKind = 0;
@@ -84,7 +84,7 @@ namespace WBSF
 		m_fixAI = parameters[c++].GetReal();
 		m_defoliation = parameters[c++].GetReal();
 		m_bApplyAdultAttrition = parameters[c++].GetBool();
-		m_adult_longivity = parameters[c++].GetInt();
+		m_adult_longivity_max = parameters[c++].GetInt();
 
 		return msg;
 	}
@@ -156,7 +156,7 @@ namespace WBSF
 			stand.m_bApplyAdultAttrition = m_bApplyAdultAttrition;
 			stand.m_defoliation = m_defoliation;
 			stand.m_bStopL22 = bStopL22;
-			stand.m_equations.SetAdultLongivity(m_adult_longivity);
+			stand.m_adult_longivity_max = m_adult_longivity_max;
 
 			//Create tree
 			CSBWTreePtr pTree(new CSBWTree(&stand));

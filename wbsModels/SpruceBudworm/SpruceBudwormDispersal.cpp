@@ -74,7 +74,7 @@ namespace WBSF
 
 		m_nbMoths = 10;
 		m_defoliation = 0;
-		m_adult_longivity = SBW::ADULT_BASE_ON_TEMPERATURE;
+		m_adult_longivity_max = SBW::NO_MAX_ADULT_LONGEVITY;
 	}
 
 	CSpruceBudwormDispersal::~CSpruceBudwormDispersal()
@@ -90,7 +90,7 @@ namespace WBSF
 		int c = 0;
 		m_nbMoths = parameters[c++].GetInt();
 		m_defoliation = parameters[c++].GetFloat();
-		m_adult_longivity = parameters[c++].GetInt();
+		m_adult_longivity_max = parameters[c++].GetInt();
 
 		return msg;
 	}
@@ -121,7 +121,7 @@ namespace WBSF
 			stand.m_bApplyAttrition = false;
 			stand.m_bApplyAdultAttrition = true;
 			stand.m_defoliation = m_defoliation;
-			stand.m_equations.SetAdultLongivity(m_adult_longivity);
+			stand.m_adult_longivity_max = m_adult_longivity_max;
 			
 
 			CSBWTreePtr pTree(new CSBWTree(&stand));

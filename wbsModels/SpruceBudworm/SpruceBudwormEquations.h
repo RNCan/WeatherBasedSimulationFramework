@@ -12,7 +12,7 @@ namespace WBSF
 	namespace SBW
 	{
 		enum TStages{ EGG, L1, L2o, L2, L3, L4, L5, L6, PUPAE, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
-		enum TAdultLongevity{ ADULT_BASE_ON_TEMPERATURE = 0 };
+		enum TAdultLongevity{ NO_MAX_ADULT_LONGEVITY= 0 };
 	}
 
 
@@ -31,15 +31,11 @@ namespace WBSF
 
 		double GetRate(size_t stage, size_t sex, double T)const
 		{
-			if (stage == SBW::ADULT && m_adult_longivity != SBW::ADULT_BASE_ON_TEMPERATURE)
-				return 1.0 / m_adult_longivity;
-
-
 			size_t e = GetEquationIndex(stage, sex);
 			return WBSF::CEquationTableLookup::GetRate(e, T);
 		}
 
-		//relative developement
+		//relative development
 		double RelativeDevRate(size_t s)const;
 
 		double get_Fº(double A)const;
@@ -52,9 +48,6 @@ namespace WBSF
 		double get_p_exodus()const;
 		double get_defoliation(double defoliation)const;
 
-		//adult longevity
-		void SetAdultLongivity(int in) { m_adult_longivity = in; }
-		int GetAdultLongivity()const { return m_adult_longivity; }
 		
 	protected:
 
@@ -62,10 +55,6 @@ namespace WBSF
 		enum TParameters{ PB1, PB2, PB3, PB4, PTB, PTM, NB_PARAMETER };
 
 		enum TSex{ MALE, FEMALE, NB_SEX };
-
-		
-		int m_adult_longivity;//adult longevity (days. zero = adult longevity base on temperature 
-
 
 		static double Equation1(size_t s, double T);
 		static double Equation2(size_t s, double T);
@@ -76,7 +65,7 @@ namespace WBSF
 		static double b1Factor[SBW::NB_STAGES];
 		
 
-		//relative developement
+		//relative development
 		enum TRelDevParameters{ A1, A2, NB_REL_DEV_PARAMETERS };
 
 		double RelativeDevRateBase(size_t s)const;

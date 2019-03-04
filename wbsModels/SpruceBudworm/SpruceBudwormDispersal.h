@@ -23,7 +23,7 @@ namespace WBSF
 
 		size_t m_nbMoths;
 		double m_defoliation;
-		int m_adult_longivity;
+		int m_adult_longivity_max;//maximum adult longevity [days]
 	};
 }
 

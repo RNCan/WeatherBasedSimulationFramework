@@ -52,7 +52,6 @@ namespace WBSF
 	double CSpruceBudwormEquations::b1Factor[NB_STAGES] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 	CSpruceBudwormEquations::CSpruceBudwormEquations(const CRandomGenerator& RG) :
-		m_adult_longivity(SBW::ADULT_BASE_ON_TEMPERATURE),
 		CEquationTableLookup(RG, CSpruceBudwormEquations::NB_EQUATION, -10, 40, 0.25)
 	{
 	}

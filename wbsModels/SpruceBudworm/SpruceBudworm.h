@@ -98,8 +98,9 @@ namespace WBSF
 		double m_F;				//current fecondity
 		double m_ξ;				//weight variability
 
-		CTRef m_overwinteringDate;			//When individual pass from Egg to OW, they must stop develop until next spring
-		CTRef m_emergingDate;				//When individual pass from Egg to OW, they must stop develop until next spring
+		CTRef m_overwinteringDate;			//When individual pass from L2 to L2o, they must stop develop until next spring
+		CTRef m_emergingL2oDate;				//When individual pass from L2o to L2, they restart develop 
+		CTRef m_emergingPupaeDate;				//When individual pass from Pupae to Adult 
 		double m_eatenFoliage;
 		double m_OWEnergy;					//survival of overwintering
 		bool m_bMissingEnergyAlreadyApplied;
@@ -166,6 +167,7 @@ namespace WBSF
 		bool m_bFertilEgg;
 		bool m_bStopL22; //stop to L22 stage to get accumulation
 		double m_defoliation; //defoliation [%]
+		int m_adult_longivity_max;//maximum adult longevity [days]
 
 		CSBWStand(WBSF::CBioSIMModelBase* pModel) :
 			WBSF::CStand(pModel),
@@ -176,6 +178,7 @@ namespace WBSF
 			m_bFertilEgg = false;
 			m_bStopL22 = false; //stop to L22 stage to get accumulation
 			m_defoliation=0;
+			m_adult_longivity_max = SBW::NO_MAX_ADULT_LONGEVITY;
 		}
 
 		CSpruceBudwormEquations m_equations;

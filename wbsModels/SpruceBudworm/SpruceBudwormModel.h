@@ -36,7 +36,7 @@ namespace WBSF
 		bool m_bFertility;
 		short m_treeKind;
 		double m_defoliation;
-		int m_adult_longivity;
+		int m_adult_longivity_max;//maximum adult longevity [days]
 	};
 }
 

@@ -109,7 +109,8 @@ namespace WBSF
 			m_bMissingEnergyAlreadyApplied = in.m_bMissingEnergyAlreadyApplied;
 
 			m_overwinteringDate = in.m_overwinteringDate;
-			m_emergingDate = in.m_emergingDate;
+			m_emergingL2oDate = in.m_emergingL2oDate;
+			m_emergingPupaeDate = in.m_emergingPupaeDate;
 
 			m_eatenFoliage = in.m_eatenFoliage;
 			m_bExodus = in.m_bExodus;
@@ -205,10 +206,13 @@ namespace WBSF
 		if (s == L1 && IsChangingStage(RR))
 			m_overwinteringDate = weather.GetTRef();
 
-		//Emerging 
+		//Emerging from overwintering
 		if (s == L2o && IsChangingStage(RR))
-			m_emergingDate = weather.GetTRef();
+			m_emergingL2oDate = weather.GetTRef();
 
+		//Emerging from pupae
+		if (s == PUPAE && IsChangingStage(RR))
+			m_emergingPupaeDate = weather.GetTRef().as(CTM::DAILY);
 
 		//Adjust age
 		m_age += RR;
@@ -329,7 +333,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (m_overwinteringDate.IsInit() && m_emergingDate == weather.GetTRef())
+		else if (m_overwinteringDate.IsInit() && m_emergingL2oDate == weather.GetTRef())
 		{
 			//second generation L2o emerging:compute mortality
 			if (IsDeadByMissingEnergy())
@@ -349,6 +353,16 @@ namespace WBSF
 			//all non l2o are kill by frost under -10ºC
 			m_status = DEAD;
 			m_death = FROZEN;
+		}
+		else if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
+		{
+			if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
+			{
+				//adult reach maximum longevity. Kill it.
+				m_status = DEAD;
+				m_death = OLD_AGE;
+			}
+			
 		}
 		/*else if (m_bRemoveExodus)
 		{
@@ -921,7 +935,7 @@ namespace WBSF
 
 	//		//Emerging 
 	//		if (s == L2o && IsChangingStage(RR))
-	//			m_emergingDate = weather.GetTRef();
+	//			m_emergingL2oDate = weather.GetTRef();
 
 	//		//Adjust age
 	//		m_age += RR;
