@@ -132,7 +132,7 @@ namespace WBSF
 			}
 		}
 
-		_ASSERTE(!_isnan(Rt) && _finite(Rt));
+		_ASSERTE(!_isnan(Rt) && _finite(Rt)); 
 		ASSERT(Rt >= 0);
 		return Rt;
 	}

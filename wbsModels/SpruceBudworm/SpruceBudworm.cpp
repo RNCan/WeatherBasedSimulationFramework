@@ -356,6 +356,7 @@ namespace WBSF
 		}
 		else if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
 		{
+			ASSERT(m_emergingPupaeDate.IsInit());
 			if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
 			{
 				//adult reach maximum longevity. Kill it.

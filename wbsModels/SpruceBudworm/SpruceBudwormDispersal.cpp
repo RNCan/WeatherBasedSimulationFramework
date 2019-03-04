@@ -3,7 +3,7 @@
 //
 // Description: CSpruceBudwormDispersal is a BioSIM model for Spruce budworm dispersal
 //*****************************************************************************
-// 28/02/2019	1.1.1	Rémi Saint-Amant	Add adult longevity parameters
+// 28/02/2019	1.1.1	Rémi Saint-Amant	Add adult longevity max parameters
 // 02/05/2018   1.1.0   Rémi Saint-Amant	Transfer liftoff from model to dispersal
 // 04/05/2017   1.0.1   Rémi Saint-Amant	Update with new hourly generation
 // 05/01/2016	1.0.0	Rémi Saint-Amant    Creation from old code

@@ -3,7 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
-// 28/02/2019	3.1.8	Rémi Saint-Amant	Add adult longevity parameters
+// 28/02/2019	3.1.8	Rémi Saint-Amant	Add adult longevity max parameters
 // 19/12/2018   3.1.7   Rémi Saint-Amant	Add option of adult attrition
 // 02/05/2018   3.1.6   Rémi Saint-Amant	Compile with VS 2017
 // 04/05/2017   3.1.5   Rémi Saint-Amant	Update with new hourly generation

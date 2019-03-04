@@ -31,9 +31,7 @@ namespace WBSF
 		double T = 999;
 		for (size_t m = 0; m < 12; m++)
 		{
-			
 			CStatistic stat = GetNormalStat(weather, m, H_TMIN);
-
 			if (stat[MEAN] < T)
 			{
 				T = stat[MEAN];
@@ -104,23 +102,29 @@ namespace WBSF
 		return prcp - snow;
 	}
 
+	//X1 = température minimale quotidienne moyenne (°C) du mois le plus froid
+	//X2 = nombre annuel moyen de jours sans gel (au-dessus de 0°C)
+	//X3 = précipitations (P) de juin à novembre inclusivement, transformées selon P/(P+a) où a=25.4 si P est exprimé en mm et a=1 if P est exprimé en pouces
+	//X4 = température maximale quotidienne moyenne (°C) du mois le plus chaud
+	//X5 = facteur hivernal donné par (0°C - X1)Pjan où Pjan représente précipitations de janvier (mm)
+	//X6 = épaisseur maximale moyenne du manteau neigeux (N), transformée selon N/(N+a) où a=25.4 si N est exprimé en mm et a=1 if Nest exprimé en pouces
+	//X7 = rafale maximale (km h-1) sur une période de 30 ans
+
+	//X1 = monthly mean of the daily minimum temperatures (°C) of the coldest month
+	//X2 = mean frost free period above 0°C in days
+	//X3 = amount of rainfall (R) from June to November, inclusive, in terms of R/(R+a) where a=25.4 if R is in millimeters and a=1 if R is in inches
+	//X4 = monthly mean of the daily maximum temperatures (°C) of the warmest month
+	//X5 = winter factor expressed in terms of (0°C - X1)Rjan where Rjan represents the rainfall in January expressed in mm
+	//X6 = mean maximum snow depth in terms of S/(S+a) where a=25.4 if S is in millimeters and a=1 if S is in inches
+	//X7 = maximum wind gust in (km/hr) in 30 years
 	double GetSuitabilityIndex(const CWeatherStation& weather)
 	{
 		//cm = coldest month
 		size_t cm = GetColdestMonth(weather);
 		size_t wm = GetWarmerMonth(weather);
-
-
-		//Y = estimated index of suitability 
-		//X1 = monthly mean of the daily minimum temperatures (°C) of the coldest month
-		//X2 = mean frost free period above 0°C in days
-		//X3 = amount of rainfall (R) from June to November, inclusive, in terms of R/(R+a) where a=25.4 if R is in millimeters and a=1 if R is in inches
-		//X4 = monthly mean of the daily maximum temperatures (°C) of the warmest month
-		//X5 = winter factor expressed in terms of (0°C - X1)Rjan where Rjan represents the rainfall in January expressed in mm
-		//X6 = mean maximum snow depth in terms of S/(S+a) where a=25.4 if S is in millimeters and a=1 if S is in inches
-		//X7 = maximum wind gust in (km/hr) in 30 years
+		
 		double X1 = GetNormalStat(weather, cm, H_TMIN)[MEAN];
-		double X2 = GetMeanFrosFreePeriod(weather);//(double)weather.GetFrostFreeDay()/weather.GetNbYear();
+		double X2 = GetMeanFrosFreePeriod(weather);
 		double P = GetJuneNovemberRain(weather);
 		double X3 = P / (P + 25.4);
 		double X4 = GetNormalStat(weather, wm, H_TMAX)[MEAN];
@@ -128,22 +132,13 @@ namespace WBSF
 		double X5 = (0 - X1)*Pjan;
 		double N = GetMeanMaximumSnowDepth(weather) * 10;//cm --> mm
 		double X6 = N / (N + 25.4);
-		double X7 = std::min(180.0, weather.GetStat(H_WNDS)[HIGHEST]*2.5);//???max gust is 2.5 time the maximum daily mean wind speed (from wikipedia 2.27 -  2.75)
-
-		//X1 = température minimale quotidienne moyenne (°C) du mois le plus froid
-		//X2 = nombre annuel moyen de jours sans gel (au-dessus de 0°C)
-		//X3 = précipitations (P) de juin à novembre inclusivement, transformées selon P/(P+a) où a=25.4 si P est exprimé en mm et a=1 if P est exprimé en pouces
-		//X4 = température maximale quotidienne moyenne (°C) du mois le plus chaud
-		//X5 = facteur hivernal donné par (0°C - X1)Pjan où Pjan représente précipitations de janvier (mm)
-		//X6 = épaisseur maximale moyenne du manteau neigeux (N), transformée selon N/(N+a) où a=25.4 si N est exprimé en mm et a=1 if Nest exprimé en pouces
-		//X7 = rafale maximale (km h-1) sur une période de 30 ans
-
+		//Approximation of max wind gust. max gust is 2.5 time the maximum daily mean wind speed (from wikipedia: 2.27-2.75)
+		double X7 = std::min(180.0, weather.GetStat(H_WNDS)[HIGHEST]*2.5);
+	
+		//Y: estimated index of suitability 
 		double Y = -67.62 + 1.734*X1 + 0.1868*X2 + 69.77*X3 + 1.256*X4 + 0.006119*X5 + 22.37*X6 - 0.01832*X7;
-		//double Y2 = -83.04 + 1.867*X1 + 0.1569*X2 + 113.0*X3 + 1.297*X4;
-
 
 		return std::max(0.0, Y);
-
 	}
 
 	void CPlantHardiness::Compute(const CWeatherStation& weather, CModelStatVector& result)
