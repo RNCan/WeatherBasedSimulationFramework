@@ -232,9 +232,13 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ForestTentCaterpillar.cpp" />
+    <ClCompile Include="ForestTentCaterpillarEquations.cpp" />
     <ClCompile Include="ForestTentCaterpillarModel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ForestTentCaterpillar.h" />
+    <ClInclude Include="ForestTentCaterpillarEquations.h" />
     <ClInclude Include="ForestTentCaterpillarModel.h" />
   </ItemGroup>
   <ItemGroup>

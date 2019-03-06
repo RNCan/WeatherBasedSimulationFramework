@@ -10,9 +10,21 @@
     <ClCompile Include="ForestTentCaterpillarModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ForestTentCaterpillar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ForestTentCaterpillarEquations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ForestTentCaterpillarModel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForestTentCaterpillar.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForestTentCaterpillarEquations.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
