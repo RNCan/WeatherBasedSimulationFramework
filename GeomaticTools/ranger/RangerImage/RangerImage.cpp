@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.1.1	14/02/2019	Rémi Saint-Amant	Update
 // 1.1.0	28/09/2018	Rémi Saint-Amant	Add virtual variables
 // 1.0.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.1	09/01/2018	Rémi Saint-Amant	bug correction with no end loop
@@ -39,9 +40,9 @@ using namespace WBSF;
 //-seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.regression.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"
 //-te 661190 5098890 668810 5111820 -seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 -mask U:\GIS\#documents\TestCodes\Ranger\Input\Ocean_CB_30_WGS84_UTM20_K.tif -maskValue 1 "U:\GIS\#documents\TestCodes\Ranger\Training\exemple_train_remi.regression.forest" "U:\GIS\#documents\TestCodes\Ranger\Input\L8_006028_20150717_ext.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\output.tif"
 //-te 2025000 6952000 2226000 7154000 -multi -co compress=LZW -multi -blocksize 1024 1024 -stats -hist -co tiled=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 --config GDAL_CACHEMAX 1024 -ot int16 -dstnodata 255  -seed %seed% -overview {16} -overwrite -mask U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\LOSSmsk_BK2_BK1.tif -maskvalue 1 -iocpu 3 "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test2_pv.classification.forest" "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\BK2_BK1_B123457.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\TestDeadLock.tif"
+//-te 2156430 7096950 2162160 7101150 
 
-
-static const char* version = "1.1.0";
+static const char* version = "1.1.1";
 static const int NB_THREAD_PROCESS = 2; 
 
 
@@ -56,7 +57,6 @@ public:
 	{
 		m_seed = 0;
 		m_bUncertainty = false;
-		//m_scenesSize = 7;
 		m_appDescription = "This software look up (with a random forest tree model) for disturbance in a any number series of LANDSAT scenes";
 
 		static const COptionDef OPTIONS[] = 
@@ -106,60 +106,7 @@ public:
 	virtual ERMsg ProcessOption(int& i, int argc, char* argv[])
 	{
 		ERMsg msg;
-		
-		//if (IsEqual(argv[i], "-Trigger"))
-		//{
-		//	string str = argv[++i];
-		//	TIndices type = GetIndiceType(str);
-		//	string op = argv[++i];
-		//	double threshold = atof(argv[++i]);
-
-		//	if (type != I_INVALID)
-		//	{
-		//		if (CIndices::IsValidOp(op))
-		//			m_trigger.push_back(CIndices(type, op, threshold));
-		//		else
-		//			msg.ajoute(op + " is an invalid operator for -Trigger option");
-		//	}
-		//	else
-		//	{
-		//		msg.ajoute(str + " is an invalid type for -Trigger option");
-		//	}
-		//		
-		//}
-		//else if (IsEqual(argv[i], "-Despike"))
-		//{
-		//	string str = argv[++i];
-		//	TIndices type = GetIndiceType(str);
-		//	//string op = argv[++i];
-		//	double threshold = atof(argv[++i]);
-		//	
-
-		//	if (type != I_INVALID)
-		//	{
-		//		//if (CIndices::IsValidOp(op))
-		//			m_despike.push_back(CIndices(type, "<", threshold));
-		//		//else
-		//			//msg.ajoute(op + " is an invalid operator for -Despike option");
-		//		
-		//	}
-		//	else
-		//	{
-		//		msg.ajoute(str + " is an invalid type for -Despike option");
-		//	}
-		//}
-		//else if (IsEqual(argv[i], "-nbDisturbances"))
-  //      {
-		//	m_nbDisturbances = atoi(argv[++i]);
-		//}
-		//else if (IsEqual(argv[i], "-FireSeverity"))
-  //      {
-		//	m_bFireSeverity = true;
-		//}
-		//else if (IsEqual(argv[i], "-ExportBands"))
-		//{
-		//	m_bExportBands = true;
-		//}	
+	
 		if (IsEqual(argv[i], "-uncertainty"))
 		{
 			m_bUncertainty = true;
@@ -180,13 +127,10 @@ public:
 	bool m_bUncertainty;
 	int m_seed;
 	StringVector m_cols_name;
-	//__int64 m_nbPixelDT;
-	//__int64 m_nbPixel;
 };
 
 typedef std::auto_ptr<Forest> ForestPtr;
-//typedef std::vector < ForestPtr > ForestVector;
-typedef std::deque < std::vector<__int16> > OutputData;
+typedef std::deque < std::vector<float> > OutputData;
 typedef std::vector<float>  UncertaintyData;
 
 //***********************************************************************
@@ -288,13 +232,6 @@ ERMsg CRangerImage::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGD
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 			cout << "    Projection     = " << prjName << endl;
 			cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
-			//cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-			//cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
-			//cout << "    First image    = " << inputDS.GetPeriod().Begin().GetFormatedString() << endl;
-			//cout << "    Last image     = " << inputDS.GetPeriod().End().GetFormatedString() << endl;
-			//cout << "    Input period   = " << m_options.m_period.GetFormatedString() << endl;
-
-			
 		}
 
 		
@@ -393,8 +330,8 @@ ERMsg CRangerImage::Execute()
 			return msg;
 		}
 
-		size_t nbScenes = inputDS.GetNbScenes();
-		size_t sceneSize = inputDS.GetSceneSize();
+		//size_t nbScenes = inputDS.GetNbScenes();
+		//size_t sceneSize = inputDS.GetSceneSize();
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 	
 
@@ -443,7 +380,7 @@ ERMsg CRangerImage::Execute()
 
 void CRangerImage::ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder)
 {
-	#pragma omp critical(BlockIO)
+	#pragma omp critical(BlockIORead)
 	{
 	
 		m_options.m_timerRead.Start();
@@ -479,20 +416,20 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 		m_options.m_timerProcess.Start();
 		
 		boost::dynamic_bitset<size_t> validPixel(blockSize.m_x*blockSize.m_y);
-		for (int y = 0; y < blockSize.m_y; y++)
+		for (size_t y = 0; y < blockSize.m_y; y++)
 		{
-			for (int x = 0; x < blockSize.m_x; x++)
+			for (size_t x = 0; x < blockSize.m_x; x++)
 			{
 				bool bValid = true;
-				for (size_t z = 0; z < window.GetSceneSize() && bValid; z++)
+				for (size_t z = 0; z < window.size() && bValid; z++)//for all bands
 				{
-					if (!window[z]->IsValid(x, y))
+					if (!window[z]->IsValid((int)x, (int)y))
 						bValid = false;
 				}
 				
 				if (bValid)
 				{
-					int xy = y*blockSize.m_x + x;
+					size_t xy = y*blockSize.m_x + x;
 					validPixel.set(xy);
 				}
 			}
@@ -507,26 +444,26 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 			{
 				output.resize(NB_OUTPUT_BANDS);
 				for (size_t i = 0; i < output.size(); i++)
-					output[i].insert(output[i].begin(), blockSize.m_x*blockSize.m_y, (__int16)m_options.m_dstNodata);
+					output[i].resize(blockSize.m_x*blockSize.m_y, (float)m_options.m_dstNodata);
 			}
 
 
 			DataShort input;
 			input.set_virtual_cols(forest->get_virtual_cols_txt(), forest->get_virtual_cols_name());
 			input.resize(validPixel.count(), m_options.m_cols_name);
-			
-			int cur_xy = 0;
-			for (int y = 0; y < blockSize.m_y; y++)
+		
+			size_t cur_xy = 0;
+			for (size_t y = 0; y < blockSize.m_y; y++)
 			{
-				for (int x = 0; x < blockSize.m_x; x++)
+				for (size_t x = 0; x < blockSize.m_x; x++)
 				{
-					int xy = y*blockSize.m_x + x;
+					size_t xy = y*blockSize.m_x + x;
 					if (validPixel.test(xy))
 					{
-						for (size_t z = 0; z < window.GetSceneSize(); z++)
+						for (size_t z = 0; z < window.size(); z++)//for all bands
 						{
 							bool error = false;
-							input.set(z, cur_xy, window[z]->at(x, y), error);
+							input.set(z, cur_xy, window[z]->at((int)x, (int)y), error);
 						}
 						cur_xy++;
 					}
@@ -539,15 +476,15 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 			forest->run_predict(&input);
 			
 			cur_xy = 0;
-			for (int y = 0; y < blockSize.m_y; y++)
+			for (size_t y = 0; y < blockSize.m_y; y++)
 			{
-				for (int x = 0; x < blockSize.m_x; x++)
+				for (size_t x = 0; x < blockSize.m_x; x++)
 				{
-					int xy = y*blockSize.m_x + x;
+					size_t xy = y*blockSize.m_x + x;
 					if (validPixel.test(xy))
 					{
 						if (!output.empty())
-							output[0][xy] = (__int16)(forest->getPredictions().at(0).at(0).at(cur_xy));
+							output[0][xy] = (float)(forest->getPredictions().at(0).at(0).at(cur_xy));
 						
 						if (!uncertainty.empty())
 							uncertainty[xy] = (float)(forest->getUncertainty().at(cur_xy));
@@ -570,7 +507,7 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 void CRangerImage::WriteBlock(int xBlock, int yBlock, OutputData& output, UncertaintyData& uncertainty, CGDALDatasetEx& outputDS, CGDALDatasetEx& uncertaintyDS)
 {
 
-#pragma omp critical(BlockIO)
+#pragma omp critical(BlockIOWrite)
 	{
 		m_options.m_timerWrite.Start();
 
@@ -579,14 +516,14 @@ void CRangerImage::WriteBlock(int xBlock, int yBlock, OutputData& output, Uncert
 
 		if (m_options.m_bCreateImage)
 		{
-			__int16 noDataOut = (__int16)outputDS.GetNoData(0);
+			float noDataOut = (float)outputDS.GetNoData(0);
 			for (size_t b = 0; b < outputDS.GetRasterCount(); b++)
 			{
 				GDALRasterBand *pBand = outputDS.GetRasterBand(b);
 				if (!output.empty())
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0][0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
 				else
-					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noDataOut), 1, 1, GDT_Int16, 0, 0);
+					pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noDataOut), 1, 1, GDT_Float32, 0, 0);
 
 
 			}//for all output bands

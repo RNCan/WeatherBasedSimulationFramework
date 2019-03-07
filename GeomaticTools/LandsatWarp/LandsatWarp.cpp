@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.3	22/02/2019	Rémi Saint-Amant	Add -corr8 options
 // 1.1.2	29/09/2018	Rémi Saint-Amant	Add option -RemoveEmpty and -Rename 
 // 1.1.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.0	16/11/2017	Rémi Saint-Amant	Compile with GDAL 2.2
@@ -35,7 +36,7 @@ namespace WBSF
 {
 
 
-	const char* CLandsatWarp::VERSION = "1.1.2";
+	const char* CLandsatWarp::VERSION = "1.1.3";
 	const int CLandsatWarp::NB_THREAD_PROCESS = 2;
 
 
@@ -55,6 +56,7 @@ namespace WBSF
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %F for YYYY-MM-DD. Use %J for julian day since 1970 and %P for path/row." },//overide scene size defenition
+			{ "-Corr8", 1, "type", false, "Make a correction over the landsat 8 images to get landsat 7 equivalent. The type can be \"Canada\", \"Australia\" or \"USA\"." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -102,6 +104,12 @@ namespace WBSF
 		if (IsEqual(argv[i], "-rename"))
 		{
 			m_rename = argv[++i];
+		}
+		else if (IsEqual(argv[i], "-corr8"))
+		{
+			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			if (m_corr8 == NO_CORR8)
+				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
 		else
 		{
@@ -414,6 +422,7 @@ namespace WBSF
 		}
 
 		CLandsatWindow window = static_cast<CLandsatWindow&>(bandHolder.GetWindow());
+		window.m_corr8 = m_options.m_corr8;
 
 		__int16 dstNodata = (__int16)m_options.m_dstNodata;
 		outputData.resize(imagesList.size());
@@ -439,7 +448,7 @@ namespace WBSF
 						size_t i = std::distance(imagesList.begin(), it);
 						CLandsatPixel pixel = window.GetPixel(*it, x, y);
 						if (pixel[JD] == -1)
-							pixel[JD] = (__int16)(m_options.m_bAlpha - dstNodata);
+							pixel.Reset();//pixel[JD] = (__int16)(dstNodata);
 
 						for (size_t z = 0; z < SCENES_SIZE; z++)
 							outputData[i][z][y*blockSize.m_x + x] = pixel[z];

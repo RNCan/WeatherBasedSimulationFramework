@@ -22,6 +22,7 @@ namespace WBSF
 
 
 		std::string m_rename;
+		Landsat::TCorr8 m_corr8;
 	};
 
 

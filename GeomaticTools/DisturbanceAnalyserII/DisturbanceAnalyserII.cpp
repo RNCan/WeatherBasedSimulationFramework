@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.2	22/02/2019	Rémi Saint-Amant	bug correction in last segment
 // 1.0.1	01/02/2019	Rémi Saint-Amant	Add export by segment
 // 1.0.0	27/01/2019	Rémi Saint-Amant	Creation
 
@@ -32,7 +33,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CDisturbanceAnalyserII::VERSION = "1.0.1";
+	const char* CDisturbanceAnalyserII::VERSION = "1.0.2";
 	typedef CDecisionTreeBlock CSee5TreeBlock;
 	typedef CDecisionTreeBaseEx CSee5Tree;
 	typedef CDecisionTree CSee5TreeMT;
@@ -690,6 +691,7 @@ namespace WBSF
 								}
 							}
 
+							size_t seg = 0;
 							for (size_t i = 1; i < breaks.size(); i++)
 							{
 								//compute DT for all segment that NBR drop more than a threshold
@@ -699,10 +701,11 @@ namespace WBSF
 								__int16 deltaNBR = __int16(dataNBR1[t1] - dataNBR1[t2]);
 								if (deltaNBR > m_options.m_dNBRThreshold)
 								{
+									seg++;
 									size_t f = (i < breaks.size() - 1) ? 0 : 1;
 									CSee5Tree& DT = (f == MODEL_3BRK) ? DT123[thread] : DT12[thread];
 
-									if ((t2 == nbScenesProcess - 1) || m_options.m_bExportAll)
+									if ((seg == nbSegment) || m_options.m_bExportAll)
 									{
 										CSee5TreeBlock block(DT.MaxAtt + 1);
 
@@ -768,6 +771,7 @@ namespace WBSF
 											segmentsData.m_segments[z][O_T2][xy] = m_options.m_firstYear + (__int16)t2;
 										}
 									}
+									
 								}//if greater than dThreshold
 							}//for all breaks
 

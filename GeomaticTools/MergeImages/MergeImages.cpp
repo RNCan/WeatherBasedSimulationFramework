@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 3.0.6    22/02/2018  Rémi Saint-Amant    Bug correction. reactivate -coor8
 // 3.0.5	11/10/2018	Rémi Saint-Amant	add -BLOCK_THREADS, -iFactor
 // 3.0.4	22/05/2018	Rémi Saint-Amant	Set Best as default.
 // 3.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017, ajout de MeanMax
@@ -79,7 +80,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.0.5";
+	const char* CMergeImages::VERSION = "3.0.6";
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
 	//*********************************************************************************************************************
@@ -603,7 +604,7 @@ namespace WBSF
 				for (size_t s = 0; s < window.GetNbScenes(); s++)
 				{
 					//Get pixel
-					CLandsatPixel pixel = window.GetPixel(s, x, y);
+					CLandsatPixel pixel = window.GetPixel(s, x, y); 
 					if (pixel.IsValid() && !pixel.IsBlack())
 					{
 						__int16 criterion1 = GetCriterion(pixel, m_options.m_mergeType);
@@ -642,7 +643,7 @@ namespace WBSF
 					if (m_options.m_bCreateImage)
 					{
 						CLandsatPixel pixel;
-						window.GetPixel(iz, x, y, pixel);
+						window.GetPixel(iz, x, y, pixel);//iz can be NOT_INIT
 
 
 						if (m_options.m_mergeType > CMergeImagesOption::SECOND_BEST && imageList1.size() >= 2)
