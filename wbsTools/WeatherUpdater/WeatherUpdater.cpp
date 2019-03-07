@@ -1,5 +1,6 @@
 //5.7.3 15/02/2019	Rémi Saint-Amant	Update in virtual station extraction (wind and solar)
 //5.7.2 01/02/2019	Rémi Saint-Amant	Update HRDPS forecast and interface
+//										Update of Manitoba agriculture network.
 //5.7.1	03/11/2018	Rémi Saint-Amant	Add virtual station 
 //										Add HRRR archive download, URMA and HRDPA
 //5.7.0	11/09/2018	Rémi Saint-Amant	Correction in vapor pressure units
@@ -114,7 +115,7 @@
 //1.7.1 12/05/2009	Rémi Saint-Amant	Add forecast to MRNF québec weatehr station. Chnage structure of the list file
 //1.7.0 28/04/2009	Rémi Saint-Amant	Add forecast to Environnement Canada. EC HTML Update.
 //1.6.4	24/03/2009	Rémi Saint-Amant	OURANOS Climatic change MRCC
-//1.6.3 26/01/2009	Rémi Saint-Amant	Correction of a bug in the donwload of Québec weather
+//1.6.3 26/01/2009	Rémi Saint-Amant	Correction of a bug in the download of Québec weather
 //1.6.2 06/01/2009	Rémi Saint-Amant	Put the FTP actif and not passif. 
 //1.6.1 09/10/2008  Rémi Saint-Amant	Compile with Visual studio 2008.
 //1.6.0 01/02/2008  Rémi Saint-Amant	New NOAA download from FTP site and packDB 

@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
+// 11.5.7: 25/02/2018	Rémi Saint-Amant	Bug correction in elevation extraction
 // 11.5.6: 15/02/2019	Rémi Saint-Amant	Bug correction in pressure gradient
 // 11.5.5: 01/02/2019	Rémi Saint-Amant	Bug correction in Callback (freeze) on Windows10
 // 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction 
@@ -262,8 +263,8 @@
 //					   Accept les fichier .Wea qui ont des lignes vides
 // 8.06: 23/03/2004	   Ajout d'un message pour les LOC > 58333 lignes.
 //					   Creation de répertoire sur un import
-//					   Correction d'un bud dans la sauvegarde des projets
-//					   Correction d'un bud dans progress bar des analyses.
+//					   Correction d'un bug dans la sauvegarde des projets
+//					   Correction d'un bug dans progress bar des analyses.
 // 8.05: 22/03/2004	   Correction d'un bug dans l'enregistrement d'une station quotidiennes
 //					   Correction de bugs quand les fichiers sont read-only
 //					   Permettre d'importer plusieur modelInput à la fois.

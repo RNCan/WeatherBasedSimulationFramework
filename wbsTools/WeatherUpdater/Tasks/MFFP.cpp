@@ -72,7 +72,8 @@ namespace WBSF
 			}
 		}
 
-		ASSERT(find);
+		//many variable is undifine
+		//ASSERT(find);
 
 		return v;
 	}
@@ -413,56 +414,56 @@ namespace WBSF
 		ERMsg msg;
 
 		StringVector str(GetFileTitle(filePath), "-");
-		ASSERT(str.size() == 4);
-		ASSERT(str[0][0] == 'm');
-		ASSERT(str[0].size() == 5);
-		str[0].erase(str[0].begin());//remove m
-
-		CTRef UTCRef(ToInt(str[0]), ToSizeT(str[1])-1, ToSizeT(str[2])-1, ToSizeT(str[3]));
-
-		ifStream  file;
-		msg = file.open(filePath);
-		if (msg)
+		if (str.size() == 4 && str[0][0] == 'm')//read FTP file
 		{
-			enum {PROV, STA_ID, DATE, F_TIME, FIRST_FILED};
-			for(CSVIterator loop(file, ";", false); loop!=CSVIterator(); ++loop)
-			{
-				ASSERT(loop->size() >= FIRST_FILED);
-				string ID = (*loop)[STA_ID];
-				MakeLower(ID);
-				
-				size_t pos = m_stationsList.FindByID(ID);
-				if (pos != NOT_INIT)
-				{
-					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef, m_stationsList[pos]);
-					for (size_t c = FIRST_FILED; c < loop->size() - 2; c += 3)
-					{
-						TVarH v = GetVariable((*loop)[c]);
-						string flag = (*loop)[c + 1];
-						string val = (*loop)[c + 2];
-						ASSERT(!val.empty());
+			ASSERT(str[0].size() == 5);
+			str[0].erase(str[0].begin());//remove m
 
-						if (v != H_SKIP && flag != "R" && !val.empty())
+			CTRef UTCRef(ToInt(str[0]), ToSizeT(str[1]) - 1, ToSizeT(str[2]) - 1, ToSizeT(str[3]));
+
+			ifStream  file;
+			msg = file.open(filePath);
+			if (msg)
+			{
+				enum { PROV, STA_ID, DATE, F_TIME, FIRST_FILED };
+				for (CSVIterator loop(file, ";", false); loop != CSVIterator(); ++loop)
+				{
+					ASSERT(loop->size() >= FIRST_FILED);
+					string ID = (*loop)[STA_ID];
+					MakeLower(ID);
+
+					size_t pos = m_stationsList.FindByID(ID);
+					if (pos != NOT_INIT)
+					{
+						CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef, m_stationsList[pos]);
+						for (size_t c = FIRST_FILED; c < loop->size() - 2; c += 3)
 						{
-							float value = ToFloat(val);
-							if (stations.find(ID) == stations.end())
+							TVarH v = GetVariable((*loop)[c]);
+							string flag = (*loop)[c + 1];
+							string val = (*loop)[c + 2];
+							ASSERT(!val.empty());
+
+							if (v != H_SKIP && flag != "R" && !val.empty())
 							{
-								((CLocation&)stations[ID]) = m_stationsList[pos];
-								stations[ID].SetHourly(true);
+								float value = ToFloat(val);
+								if (stations.find(ID) == stations.end())
+								{
+									((CLocation&)stations[ID]) = m_stationsList[pos];
+									stations[ID].SetHourly(true);
+								}
+
+								if (IsValid(v, value))
+									stations[ID][TRef].SetStat(v, value);
 							}
-							
-							if (IsValid(v, value ))
-								stations[ID][TRef].SetStat(v,value);
 						}
 					}
-				}
-				else
-				{
-					//callback.AddMessage("Undefine ID " + ID);
-				}
-			}//for all line
-		}//if open
-
+					else
+					{
+						//callback.AddMessage("Undefine ID " + ID);
+					}
+				}//for all line
+			}//if open
+		}
 
 		return msg;
 	}

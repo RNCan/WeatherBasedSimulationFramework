@@ -152,7 +152,7 @@ namespace WBSF
 
 		callback.PushTask(string("Get directories list from: ") + SERVER_PATH, 4);
 
-	
+
 
 		CFileInfoVector dir1;
 		CFileInfoVector dir2;
@@ -240,7 +240,7 @@ namespace WBSF
 										{
 											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
-											bool bKeep3 = var == APCP_SFC || (m_bForecast?true:hhh < 6);
+											bool bKeep3 = var == APCP_SFC || var == DSWRF_SFC || (m_bForecast ? true : hhh < 6);
 
 											if (bKeep1 && bKeep2 && bKeep3)
 											{
@@ -447,8 +447,6 @@ namespace WBSF
 			string day = title.substr(12, 2);
 			size_t h1 = WBSF::as<size_t>(title.substr(14, 2));
 			size_t h2 = WBSF::as<size_t>(title.substr(17, 3));
-			//size_t h1 = (h / 6) * 6;
-			//size_t h2 = (h % 6);
 
 			//create VRT
 			string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
@@ -457,11 +455,8 @@ namespace WBSF
 			StringVector fileList = WBSF::GetFilesList(filter, 2, true);
 			sort(fileList.begin(), fileList.end());
 
-			//if (fileList.size() > 300)
+			if (!fileList.empty())
 			{
-				//very long to bild vrt (~12 min???)
-				//msg += BuildVRT(VRTFilePath, fileList, true, EXEPath);
-
 				ofStream oFile;
 				msg = oFile.open(*it);
 				if (msg)
@@ -473,25 +468,34 @@ namespace WBSF
 					int b = 1;
 					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++, b++)
 					{
-						string fileName = GetFileName(*it4);
+						if (GoodGrib(*it4))
+						{
+							string fileName = GetFileName(*it4);
 
-						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
-						oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
-						oFile << "    <ComplexSource>" << endl;
-						oFile << "      <SourceFilename relativeToVRT=\"1\">" << HH << "\\" << fileName << "</SourceFilename>" << endl;
-						oFile << "      <SourceBand>1</SourceBand>" << endl;
-						oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
-						oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-						oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-						oFile << "      <NODATA>9999</NODATA>" << endl;
-						oFile << "</ComplexSource>" << endl;
-						oFile << "  </VRTRasterBand>" << endl;
+							oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
+							oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
+							oFile << "    <ComplexSource>" << endl;
+							oFile << "      <SourceFilename relativeToVRT=\"1\">" << HH << "\\" << fileName << "</SourceFilename>" << endl;
+							oFile << "      <SourceBand>1</SourceBand>" << endl;
+							oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
+							oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+							oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+							oFile << "      <NODATA>9999</NODATA>" << endl;
+							oFile << "    </ComplexSource>" << endl;
+							oFile << "  </VRTRasterBand>" << endl;
+						}
+						else
+						{
+							callback.AddMessage("Remove invalid grib " + *it4);
+							RemoveFile(*it4);
+						}
 					}
 
 					oFile << "</VRTDataset>" << endl;
 					oFile.close();
 				}
-			}//if valid layer
+			}
+
 
 			msg += callback.StepIt();
 
@@ -523,7 +527,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CTPeriod p_daily = p.as(CTM::DAILY);
-		for (CTRef TRef = p_daily.Begin(); TRef != p_daily.End(); TRef++)
+		for (CTRef TRef = p_daily.Begin(); TRef <= p_daily.End(); TRef++)
 		{
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
@@ -543,7 +547,9 @@ namespace WBSF
 				{
 					CTRef TRef2 = CTRef(year, m, d, h) + hh;
 					if (p.IsInside(TRef2))
+					{
 						gribsList[TRef2].push_back(fileList[i]);
+					}
 				}
 			}
 
@@ -556,7 +562,7 @@ namespace WBSF
 	{
 		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
 		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
-		
+
 		CTRef TRef;
 		StringVector tmp(title, "_");
 		ASSERT(tmp.size() == 9 || tmp.size() == 8);
@@ -760,7 +766,7 @@ namespace WBSF
 	};
 
 	//Accumulated Freezing Rain|Accumulated Ice Pellets|Accumulated Rain|Accumulated Snow
-	
+
 	const size_t CHRDPSVariables::CAT_RANGE[NB_HRDPS_CATEGORY][2] =
 	{
 		{LFTX_SFC, LAST_SFC},
@@ -802,19 +808,19 @@ namespace WBSF
 		{
 			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
 			{
-				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC+UINT(c), "|");
+				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC + UINT(c), "|");
 				ASSERT(DESCRIPTION[c].size() == GetNbVar(c));
 			}
 		}
-			
+
 	}
-	
+
 	size_t CHRDPSVariables::GetCat(size_t var)
 	{
 		ASSERT(var < NB_HRDPS_VARIABLES);
 
 		size_t c = NOT_INIT;
-		for (size_t i = 0; i < NB_HRDPS_CATEGORY&&c==NOT_INIT; i++)
+		for (size_t i = 0; i < NB_HRDPS_CATEGORY&&c == NOT_INIT; i++)
 		{
 			if (var >= CAT_RANGE[i][0] && var < CAT_RANGE[i][1])
 				c = i;
@@ -822,7 +828,7 @@ namespace WBSF
 
 		return c;
 	}
-	
+
 	size_t CHRDPSVariables::GetVarPos(size_t var)
 	{
 		ASSERT(var < NB_HRDPS_VARIABLES);
