@@ -409,6 +409,10 @@ namespace WBSF
 				}
 			}//if msg
 		}//if msg
+		else
+		{
+			msg.ajoute("Unable to open " + filePath);
+		}
 
 
 
@@ -593,7 +597,7 @@ namespace WBSF
 				bool bUseIt = true;
 				if (options.m_bRemoveEmptyBand)
 				{
-					for (size_t bb = 0; bb < GetSceneSize()&& bUseIt; bb++)//for all segment
+					for (size_t bb = 0; bb < GetSceneSize() && bUseIt; bb++)//for all segment
 					{
 						double min = 0;
 						double max = 0;

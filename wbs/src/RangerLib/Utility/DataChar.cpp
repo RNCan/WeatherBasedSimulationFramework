@@ -67,6 +67,7 @@ DataChar::DataChar(double* data_double, std::vector<std::string> variable_names,
 DataChar::~DataChar() {
   if (!externalData) {
     delete[] data;
+	data = nullptr;
   }
 }
 

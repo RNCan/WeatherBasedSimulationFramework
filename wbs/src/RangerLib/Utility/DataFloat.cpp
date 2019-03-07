@@ -55,6 +55,7 @@ DataFloat::DataFloat(double* data_double, std::vector<std::string> variable_name
 DataFloat::~DataFloat() {
   if (!externalData) {
     delete[] data;
+	data = nullptr;
   }
 }
 

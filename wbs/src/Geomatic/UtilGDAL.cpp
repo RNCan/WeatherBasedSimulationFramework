@@ -1539,7 +1539,6 @@ void CBaseOptions::Reset()
 	m_BLOCK_THREADS = 2;
 
 	m_bMulti=false;
-	m_bAlpha=false;
     m_bOverwrite=false;
 	m_bQuiet=false;
 	m_bVersion=false;
@@ -1732,10 +1731,6 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
 	else if( IsEqual(argv[i],"-dstNoDataEx") )
 	{
 		m_dstNodataEx = LimitToBound( atof(argv[++i]), GDT_Float64, 0, false);
-	}
-	else if( IsEqual(argv[i],"-dstalpha")  )
-	{
-		m_bAlpha=true;
 	}
 	else if( IsEqual(argv[i],"-ot") )
 	{

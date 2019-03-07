@@ -770,7 +770,7 @@ namespace WBSF
 
 	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
 	{
-		CLandsatPixel pixel;
+		CLandsatPixel pixel; 
 		for (size_t z = 0; z < SCENES_SIZE; z++)
 		{
 			size_t ii = i * SCENES_SIZE + z;
@@ -831,11 +831,12 @@ namespace WBSF
 
 		if (i != NOT_INIT)
 		{
-			for (size_t z = 0; z < SCENES_SIZE; z++)
+			pixel = GetPixel(i,x,y);
+			/*for (size_t z = 0; z < SCENES_SIZE; z++)
 			{
 				size_t ii = i * SCENES_SIZE + z;
 				pixel[z] = (LandsatDataType)at(ii)->at(x, y);
-			}
+			}*/
 		}
 
 		return i != NOT_INIT && IsValid(i, pixel);

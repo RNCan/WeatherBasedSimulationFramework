@@ -290,7 +290,6 @@ namespace WBSF
 		int m_BLOCK_THREADS;
 
 		bool m_bMulti;
-		bool m_bAlpha;
 		bool m_bOverwrite;
 		bool m_bQuiet;
 		bool m_bNeedHelp;

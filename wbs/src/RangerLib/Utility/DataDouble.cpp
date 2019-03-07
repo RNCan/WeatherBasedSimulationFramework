@@ -35,6 +35,7 @@ DataDouble::DataDouble() :
 DataDouble::~DataDouble() {
   if (!externalData) {
     delete[] data;
+	data = nullptr;
   }
 }
 
