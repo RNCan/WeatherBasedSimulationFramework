@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>LaricobiusLarvae</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>LaricobiusLarvae.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Cumulative DD above 0 °C starting November 1 &gt; 717</Description>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>ActualCumulativeDD</Name>
+            <Title>ActualCumulativeDD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Date717</Name>
+            <Title>Date717</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>2 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiffDay</Name>
+            <Title>Jday717</Title>
+            <Units/>
+            <Description>Differnece between prediticting date and actual day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
