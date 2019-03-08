@@ -24,7 +24,14 @@ namespace WBSF
 
 		static CBioSIMModelBase* CreateObject(){ return new CLaricobiusLarvaeModel; }
 
-		void ExecuteDaily(CModelStatVector& stat);
+		virtual void AddAnnualResult(const StringVector& header, const StringVector& data)override;
+		virtual void GetFValueAnnual(CStatisticXY& stat)override;
+
+		protected:
+
+		double m_threshold;
+		double m_sumDD;
+
 	};
 
 }
