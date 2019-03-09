@@ -29,8 +29,11 @@ namespace WBSF
 
 		protected:
 
+		CTRef m_start;
 		double m_threshold;
 		double m_sumDD;
+
+		std::set<int> m_years;
 
 	};
 
