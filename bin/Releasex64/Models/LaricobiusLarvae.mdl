@@ -6,14 +6,26 @@
     <EXE>LaricobiusLarvae.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Cumulative DD above -3 °C starting November 1 &gt; 1055</Description>
-    <WindowRect>0 0 142 250</WindowRect>
+    <WindowRect>0 0 135 250</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
-    <NbYearMin>2</NbYearMin>
+    <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
+        <InputVariable>
+            <Name>start</Name>
+            <Caption>start</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>5 10 30 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
         <InputVariable>
             <Name>threshold</Name>
             <Caption>threshold</Caption>
@@ -21,9 +33,9 @@
             <Type>2</Type>
             <Rect>32 10 54 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>-3</DefaultValue>
-            <MinValue>-10</MinValue>
-            <MaxValue>10</MaxValue>
+            <DefaultValue>5.4</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -33,7 +45,7 @@
             <Type>2</Type>
             <Rect>54 10 76 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1055</DefaultValue>
+            <DefaultValue>206</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>10000</MaxValue>
             <TextValue/>
