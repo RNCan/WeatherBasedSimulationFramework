@@ -86,13 +86,13 @@ namespace WBSF
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
 		double T = weather[H_TAIR];
-		if (NeedOverheating())
+		/*if (NeedOverheating())
 		{
-			static const double OVERHEAT_FACTOR = 0.25;
+			static const double OVERHEAT_FACTOR = 0.1;
 			COverheat overheat(OVERHEAT_FACTOR);
 			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
-		}
-			
+		}*/
+		
 
 		//Time step development rate
 		double r = Equations().GetRate(s, T) / (24.0 / timeStep);
@@ -260,7 +260,10 @@ namespace WBSF
 	//*********************************************************************************
 	//CFTCTree
 
-	CFTCTree::CFTCTree(CStand* pStand) : CHost(pStand)
+	CFTCTree::CFTCTree(CStand* pStand) : 
+		CHost(pStand),
+		m_DD(CDegreeDays::SINGLE_TRIANGLE, 6.8),
+		m_sumDD(0)
 	{
 	}
 
@@ -268,6 +271,7 @@ namespace WBSF
 	void CFTCTree::Live(const CWeatherDay& weather)
 	{
 		CHost::Live(weather);
+		m_sumDD += m_DD.GetDD(weather);
 	}
 
 	void CFTCTree::GetStat(CTRef d, CModelStat& stat, size_t generation)
@@ -275,6 +279,8 @@ namespace WBSF
 		CHost::GetStat(d, stat, generation);
 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
+		stat[S_DD68] = m_sumDD;
+		
 	}
 
 

@@ -251,18 +251,18 @@ namespace WBSF
 
 		//This is where the model is actually executed
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		p.Begin().m_year++;//skip the first year in result
+	//	p.Begin().m_year++;//skip the first year in result
 		stat.Init(p, FTC::NB_STATS, 0);
 
 		//we simulate 2 years at a time. 
 		//we also manager the possibility to have only one year
-		for (size_t y1 = 0; y1 < m_weather.size()-1; y1++)
+		for (size_t y = 0; y < m_weather.size(); y++)
 		{
-			int year1 = m_weather.GetFirstYear() + int(y1);
-			int year2 = year1 + 1;
-			CTPeriod p(year1, NOVEMBER, DAY_13, year2, DECEMBER, DAY_31);
+			//int year = m_weather.GetFirstYear() + int(y);
+			//int year2 = year1 + 1;
+			//CTPeriod py(year, MARCH, DAY_01, year, DECEMBER, DAY_31);
 
-			//CTPeriod p = m_weather[y1].GetEntireTPeriod(CTM(CTM::DAILY));
+			CTPeriod py = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
 			CFTCStand stand(this);
 			//Create stand
@@ -276,7 +276,7 @@ namespace WBSF
 			pTree->m_nbMinObjects = 100;
 			pTree->m_nbMaxObjects = 1000;
 			//pTree->Initialize<CForestTentCaterpillar>(CInitialPopulation(p.Begin(), 0, 4, 100, EGG));
-			pTree->Initialize<CForestTentCaterpillar>(CInitialPopulation(p.Begin(), 0, 400, 100, EGG));
+			pTree->Initialize<CForestTentCaterpillar>(CInitialPopulation(py.Begin(), 0, 400, 100, EGG));
 
 			//add tree to stand			
 			stand.m_host.push_front(pTree);
@@ -297,11 +297,14 @@ namespace WBSF
 
 				//CTPeriod p = m_weather[yy].GetEntireTPeriod(CTM(CTM::DAILY));
 
-			for (CTRef d = p.Begin(); d <= p.End(); d++)
+			for (CTRef d = py.Begin(); d <= py.End(); d++)
 			{
+				//if(d.GetJDay()>=75)
 				stand.Live(m_weather.GetDay(d));
-				if(stat.IsInside(d))
-					stand.GetStat(d, stat[d]);
+
+				int shift = 0;
+				if(stat.IsInside(d- shift))
+					stand.GetStat(d, stat[d- shift]);
 
 				stand.AdjustPopulation();
 				HxGridTestConnection();

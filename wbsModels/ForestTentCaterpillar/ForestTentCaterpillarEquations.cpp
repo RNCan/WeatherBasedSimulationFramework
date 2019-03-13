@@ -78,8 +78,16 @@ namespace WBSF
 			{0.4671, 21.5071, 0.2100, 0.6601, 18.9312}
 		};
 
+		//after Hodson 1945, development is relatively equal at 25 and 30°C
+		//therefor, the development must continue after 24°C
+		//In gray equation, development equal 0 at ~25°C, that it's impossible
+		//so I keep constant temperature after 22.5
+		if (T > 22.5)
+			T = 22.5;
+
 		double r = 0;
 		if (T > 6.8)
+		//if (T > 2.0)
 		{
 			double TT = T - 6.8;
 			double ƫ = (R[t][Tм] - TT) / R[t][Δᵀ];
@@ -102,9 +110,13 @@ namespace WBSF
 
 		//double f = 1 - exp(-pow((r - F[t][ɤ])/ F[t][β], F[t][α]));
 
-		double rr = m_randomGenerator.RandWeibull(F[t][α], F[t][β]) + F[t][ɤ];
-		while (rr>1.8)
-			rr = m_randomGenerator.RandWeibull(F[t][α], F[t][β]) + F[t][ɤ];
+		//relative developmental time
+		double dt = m_randomGenerator.RandWeibull(F[t][α], F[t][β]) + F[t][ɤ];
+		while (dt >1.8)
+			dt = m_randomGenerator.RandWeibull(F[t][α], F[t][β]) + F[t][ɤ];
+
+		//relative rate = 1/relative developmental time
+		double rr = 1.0 / dt;
 
 		return rr;
 	}
@@ -186,6 +198,11 @@ namespace WBSF
 	//
 	double CForestTentCaterpillarEquations::GetFecondity()const
 	{
+		//after Parry 2001 
+		//Fecundity is function of the latitude
+		//F = 0.16*lat² -19.5*lat + 782.4;
+		//for latitude from 22.5 to 57.5
+
 		//after William(2006)
 		//Forest tent caterpillar mating, oviposition, and adult congregation at town lights during a northern Minnesota outbreak
 		//246 ± SD 66,

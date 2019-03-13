@@ -1,12 +1,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HemlockWoollyAdelgid", "HemlockWoollyAdelgid.vcxproj", "{AB141CAD-875D-497B-8E97-F8A1CFFAD630}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWAPhenology", "HWAPhenology.vcxproj", "{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,8 +42,19 @@ Global
 		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|Win32.Build.0 = Release|Win32
 		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|x64.ActiveCfg = Release|x64
 		{AB141CAD-875D-497B-8E97-F8A1CFFAD630}.Release|x64.Build.0 = Release|x64
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Debug|Win32.Build.0 = Debug|Win32
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Debug|x64.ActiveCfg = Debug|x64
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Debug|x64.Build.0 = Debug|x64
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Release|Win32.ActiveCfg = Release|Win32
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Release|Win32.Build.0 = Release|Win32
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Release|x64.ActiveCfg = Release|x64
+		{0BDE2E89-DDAB-41A9-A8B3-3E3A46C0C268}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {903E3863-A6DA-4611-A4EF-E875306FEC8D}
 	EndGlobalSection
 EndGlobal

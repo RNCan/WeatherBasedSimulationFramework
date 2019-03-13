@@ -11,6 +11,7 @@
 #include "Basic/UtilTime.h"
 #include "ModelBase/IndividualBase.h"
 #include "ForestTentCaterpillarEquations.h"
+#include "Basic\DegreeDays.h"
 
 namespace WBSF
 {
@@ -22,7 +23,7 @@ namespace WBSF
 	{
 		enum TForestTentCaterpillarStats
 		{
-			S_EGG, S_L1, S_L2, S_L3, S_L4, S_L5, S_PUPA, S_ADULT, S_DEAD_ADULT, S_EMERGING_FEMALE, S_BROOD, S_AVERAGE_INSTAR, NB_STATS
+			S_EGG, S_L1, S_L2, S_L3, S_L4, S_L5, S_PUPA, S_ADULT, S_DEAD_ADULT, S_EMERGING_FEMALE, S_BROOD, S_AVERAGE_INSTAR, S_DD68, NB_STATS
 		};
 	}
 
@@ -83,6 +84,11 @@ namespace WBSF
 
 		virtual void Live(const CWeatherDay& weaDay);
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
+
+	protected:
+
+		CDegreeDays m_DD;
+		double m_sumDD;
 	};
 
 	typedef std::shared_ptr<CFTCTree> CFTCTreePtr;
