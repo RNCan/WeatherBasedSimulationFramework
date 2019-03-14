@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CHemlockWoollyAdelgidCMModel</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>HWAPhenology.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>CDD</Name>
+            <Title>CDD</Title>
+            <Units/>
+            <Description>Cumulative DD over 4.0 °C after January fist</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P_Eggs</Name>
+            <Title>P_Eggs</Title>
+            <Units>%</Units>
+            <Description>Progradiens eggs</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P_EggHatch</Name>
+            <Title>P_EggHatch</Title>
+            <Units>%</Units>
+            <Description>Progradiens egg hatch</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HatchedSistens</Name>
+            <Title>HatchedSistens</Title>
+            <Units>%</Units>
+            <Description>Newly hatched sistens</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SettledL1Sistens</Name>
+            <Title>SettledL1Sistens</Title>
+            <Units>%</Units>
+            <Description>Settles first instar sistens</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Phenology of Hemlock Woolly Adelgid (Hemiptera: Adelgidae) in the Central Appalachian Mountains, USA&#x0D;&#x0A;Patrick C. Tobin and Richard M. Turcotte</Credit>
+    <HelpFileName/>
+</Model>
