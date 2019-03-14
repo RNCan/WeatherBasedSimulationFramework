@@ -36,11 +36,10 @@ namespace WBSF
 		double m_sumDD;
 
 		bool m_bCumul;
-		double m_P[2][LNF::NB_RDR_PARAMS];
-		double m_F[4];
+		double m_P[4][LNF::NB_RDR_PARAMS];
 		double m_peak;
 		double m_s;
-
+		double m_maxTsoil;
 
 		std::set<int> m_years;
 

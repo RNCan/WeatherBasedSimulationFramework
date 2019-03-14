@@ -35,7 +35,7 @@ namespace WBSF
 		m_sumDD = 540;
 
 		m_bCumul = false;
-		for (size_t s = 0; s < 2; s++)
+		for (size_t s = 0; s < 4; s++)
 		{
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 			{
@@ -43,12 +43,11 @@ namespace WBSF
 			}
 		}
 
-		for (size_t p = 0; p < 4; p++)
-			m_F[p] = CLaricobiusNigrinusEquations::F[p];
-
+		
 		//calibrated with simulated annealing
 		m_peak=51;
 		m_s=17.2;
+		m_maxTsoil = 4.8;
 	}
 
 	CLaricobiusNigrinusModel::~CLaricobiusNigrinusModel()
@@ -73,22 +72,19 @@ namespace WBSF
 		}
 		
 
-		if (parameters.size() == 2 * NB_RDR_PARAMS + 3 +2 +1) 
+		if (parameters.size() == 4 * NB_RDR_PARAMS +3 +1) 
 		{
-			for (size_t s = 0; s < 2; s++)
+			for (size_t s = 0; s < 4; s++)
 			{
 				for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 				{
 					m_P[s][p] = parameters[c++].GetFloat();
 				}
 			}
-
-			for (size_t p = 0; p < 3 ; p++)
-				m_F[p] = parameters[c++].GetFloat();
-
-			m_F[3] = 1 - (m_F[0] + m_F[1] + m_F[2]);
+			
 			m_peak = parameters[c++].GetFloat();
 			m_s = parameters[c++].GetFloat();
+			m_maxTsoil = parameters[c++].GetFloat();
 		}
 
 		return msg;
@@ -181,28 +177,29 @@ namespace WBSF
 	{
 		//Create stand
 		CLNFStand stand(this);
+		stand.m_maxTsoil = m_maxTsoil;
 
+
+//		static const size_t COL[ADULT] = { 0,1,1,1,1,2,3 };
 		//Set parameters to equation
-		for (size_t s = 0; s < PREPUPAE; s++)
+		for (size_t s = 0; s < ADULT; s++)
 		{
-			size_t ss = (s == EGG) ? 0 : 1;
+			//size_t ss = COL[s];
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 			{
-				stand.m_equations.m_P[s][p] = m_P[ss][p];
+				stand.m_equations.m_P[s][p] = m_P[s][p];
 			}
 		}
 
-		for (size_t f = 0; f < 4; f++)
-			stand.m_equations.m_F[f] = m_F[f];
-
 		stand.m_equations.Reinit();//reinit to recompute rate whit new F
+		
 
 		int year = weather.GetTRef().GetYear();
 
 
 		//Create host
 		CLNFHostPtr pHost(new CLNFHost(&stand));
-
+		
 		pHost->m_nbMinObjects = 10;
 		pHost->m_nbMaxObjects = 1000;
 		//Zilahi-Balogh (2001)
@@ -276,12 +273,12 @@ namespace WBSF
 
 		m_years.insert(obs.m_ref.GetYear());*/
 
-		ASSERT(data.size() == 4);
+		ASSERT(data.size() == 5);
 
 		CSAResult obs;
 		obs.m_ref.FromFormatedString(data[1]);
-		obs.m_obs.resize(2);
-		for (size_t i = 0; i < 2; i++)
+		obs.m_obs.resize(3);
+		for (size_t i = 0; i < 3; i++)
 			obs.m_obs[i] = stod(data[i + 2]);
 
 		m_SAResult.push_back(obs);
@@ -315,7 +312,7 @@ namespace WBSF
 				output.Init(m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY)), NB_STATS, 0);
 				ExecuteDaily(m_weather[y], output);
 
-				static const size_t STAT_STAGE[2] = { S_EGG, S_LARVAE };
+				static const size_t STAT_STAGE[3] = { S_EGG, S_LARVAE, S_ADULT };
 			
 				for (size_t i = 0; i < m_SAResult.size(); i++)
 				{

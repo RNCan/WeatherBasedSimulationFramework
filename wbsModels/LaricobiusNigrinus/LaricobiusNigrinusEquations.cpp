@@ -25,28 +25,28 @@ namespace WBSF
 //N=     54001	T=  0.00508	F=5171.58457
 //NbVal=   107	Bias=-0.53334	MAE= 3.96183	RMSE= 6.95216	CD= 0.97125	R²= 0.97258
 //a1                  	= -33.52443  b1                  	=  79.04205  a2                  	=  -4.42992  b2                  	=  40.63253  peak                	=  51.06799  s                   	=  17.23233  
-//Eps = [0]{ 0.00000,  0.00000,  0.00000,  0.00000}
 //***********************************
 //13 mars 2019 15:43:33
-
+//N=     42501	T=  0.00846	F=3221.52351
+//NbVal=   117	Bias=-0.26109	MAE= 3.38268	RMSE= 5.24732	CD= 0.98206	R²= 0.98262
+//f1                  	=  -0.45249  f2                  	=   3.17877  f3                  	=  -0.51340  f4                  	=   2.14575  maxTsoil            	=   4.80572  
+//***********************************
+//14 mars 2019 06:32:07
+         
 	const double CLaricobiusNigrinusEquations::P[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
-		{ -33.52443, 79.04205 },//Egg
-		{ -4.42992,  40.63253 },//L1
-		{ -4.42992,  40.63253 },//L2
-		{ -4.42992,  40.63253 },//L3
-		{ -4.42992,  40.63253 },//L4
-		{ -1.80, 11.60 },//PrePupae
-		{ -1.80, 11.60 },//Pupae
-		{ -1.80, 11.60 },//Adult
+		{ -33.52, 79.04 },//Egg
+		{ -4.43,  40.63 },//Larvae
+		{ -0.452, 3.179 },//PrePupae
+		{ -0.513, 2.146 },//Pupae
+		{  0.000, 0.000 },//Adult
 	};
 
-	const double CLaricobiusNigrinusEquations::F[4] = { 0.25,0.25,0.25,0.25 };
-
+	
 
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, NB_STAGES, 0, 30, 0.25)
+		CEquationTableLookup(RG, NB_STAGES, -10, 30, 0.25)
 	{
 
 		for (size_t s = 0; s < NB_STAGES; s++)
@@ -56,10 +56,6 @@ namespace WBSF
 				m_P[s][p] = P[s][p];
 			}
 		}
-
-		for (size_t p = 0; p < 4; p++)
-			m_F[p] = F[p];
-		
 	}
 
 
@@ -110,46 +106,23 @@ namespace WBSF
 	double CLaricobiusNigrinusEquations::ComputeRate(size_t s, double T)const
 	{
 		ASSERT(s >= 0 && s < NB_STAGES);
-
-		
-
-//		12 mars 2019 01:12:47
-//Egg: Eq7
-//N=     97201	T=  0.00019	F= 0.00138
-//NbVal=     6	Bias=-0.00223	MAE= 0.01199	RMSE= 0.01519	CD= 0.97093	R²= 0.97217
-//0.87742,0.93156  ,0.86978  ,0.14425  ,18.13652  ,22.18765  
-         
-
-//Larva: Eq7
-//N=     93601	T=  0.00031	F= 0.00006
-//NbVal=     6	Bias= 0.00015	MAE= 0.00265	RMSE= 0.00313	CD= 0.98959	R²= 0.98961
-//0.64782,0.39320,1.11128,0.18811,0.71756,39.52194  
-
-//Prepupa: Eq7
-//N=     94801	T=  0.00027	F= 0.00000
-//NbVal=     5	Bias= 0.00012	MAE= 0.00087	RMSE= 0.00100	CD= 0.99749	R²= 0.99753
-//0.59803,0.31393,1.45562,0.59397,27.59838,38.32248  
-
-//Pupa: Eq7
-//N=     88801	T=  0.00060	F= 0.00003
-//NbVal=     5	Bias= 0.00016	MAE= 0.00187	RMSE= 0.00255	CD= 0.98291	R²= 0.98312
-//0.30749,0.50343,9.32570,1.59475,37.95035,3.39897  
-
-
+	
 		double r = 0;
 
+		//double Tsoil = min(5.3, T);// 0.7*T + 1.54;
 		//Equation from
 		//Temperature - Dependent Development of the Specialist Predator Laricobius nigrinus(Coleoptera: Derodontidae)
-		//G.M.G.ZILAHI-BALOGH, S.M.SALOM, AND L.T.KOK (2003) Entomological Society of America
+		//G.M.G.Zilahi-Balogh, S.M.SALOM, AND L.T.KOK (2003) Entomological Society of America
 		switch (s)
 		{
 		case EGG:	r = max(0.0, -0.0907 + 0.0165*T); break;
-		case L1:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[0]); break;
-		case L2:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[1]); break;
-		case L3:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[2]); break;
-		case L4:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[3]); break;
-		case PREPUPAE:	r = max(0.0, -0.0132 + 0.0047* min(6.0, T) ); break;//in the ground: need ground temperature
-		case PUPAE:	r = max(0.0, -0.0144 + 0.0047* min(6.0, T)); break;//in the ground: need ground temperature
+		//case L1:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[0]); break;
+		//case L2:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[1]); break;
+		//case L3:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[2]); break;
+		//case L4:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[3]); break;
+		case LARVAE: r = max(0.0, -0.0151 + 0.0048*T ); break;
+		case PREPUPAE:	r = max(0.0, -0.0132 + 0.0047* T); break;//in the ground: need ground temperature
+		case PUPAE:	r = max(0.0, -0.0144 + 0.0047* T); break;//in the ground: need ground temperature
 		case ADULT:	r = 1.0 / 172.0; break;//from October to April
 		default: _ASSERTE(false);
 		}
@@ -182,7 +155,36 @@ namespace WBSF
 	//*****************************************************************************
 	//
 
-	//Fecondity
-	//100.8 ± 89.6 (range, 2 - 396) eggs.
+	//l: longevity [days]
+	double CLaricobiusNigrinusEquations::GetFecondity(double l)const
+	{
+		//Fecondity from Zilahi-Balogh(2001)
+		//100.8 ± 89.6 (range, 2 - 396) eggs.
 
+		double w = l / 7.0;//[days] --> [weeks]
+		double fm = 6.1*w + 20.1;
+		double fs = 2.6*w + 13.3;
+
+		double f = m_randomGenerator.RandNormal(fm, fs);
+
+		while(f<2||f>396)
+			m_randomGenerator.RandNormal(fm, fs);
+
+
+		return f; 
+	}
+
+	double CLaricobiusNigrinusEquations::GetAdultLongevity()const
+	{
+		//Longevity of female
+		//value from fecundity/longevity Zilahi-Balogh(2001)
+
+		static const double P[2] = { 95.07427, 58.04989 };
+
+		double l = m_randomGenerator.RandNormal(P[0], P[1]);
+		while(l<14||l>224)
+			l = m_randomGenerator.RandNormal(P[0], P[1]);
+		
+		return l;
+	}
 }

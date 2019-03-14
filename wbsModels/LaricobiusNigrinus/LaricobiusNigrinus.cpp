@@ -37,6 +37,8 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
+		//m_AL = Equations().GetAdultLongevity();
+		m_AL = 172;//pour calibration seulement
 	}
 
 
@@ -77,6 +79,10 @@ namespace WBSF
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
 		double T = weather[H_TAIR];
+		if (GetStage() == PREPUPAE || GetStage() == PUPAE)
+		{
+			T = min(pStand->m_maxTsoil, T);
+		}
 		/*if (NeedOverheating())
 		{
 			static const double OVERHEAT_FACTOR = 0.1;
@@ -84,18 +90,25 @@ namespace WBSF
 			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
 		}*/
 		
+		if (GetStage() == ADULT)
+		{
+			double r = timeStep / (24.0*m_AL);
+			m_age = min(double(DEAD_ADULT), m_age + r );
+		}
+		else
+		{
+			//Time step development rate
+			double r = Equations().GetRate(s, T) / (24.0 / timeStep);
 
-		//Time step development rate
-		double r = Equations().GetRate(s, T) / (24.0 / timeStep);
-		//Relative development rate (development rate is accelerated relative to TREMBLING_ASPEN)
-		
-		double rr = m_RDR[s];
+			//Relative development rate for this individual
+			double rr = m_RDR[s];
 
-		//Time step development rate for this individual
-		r *= rr;
+			//Time step development rate for this individual
+			r *= rr;
 
-		//Adjust age
-		m_age = min(double(DEAD_ADULT), m_age + r);
+			//Adjust age
+			m_age += r;
+		}
 
 		//adjust overwintering energy
 		//if (s == EGG)
@@ -177,8 +190,8 @@ namespace WBSF
 		if (IsCreated(d) && IsAlive() || stage == DEAD_ADULT)
 		{
 			stat[S_EGG + stage] += m_scaleFactor;
-			if(stage>=L1 && stage<=L4)
-				stat[S_LARVAE] += m_scaleFactor;
+//			if(stage>=L1 && stage<=L4)
+				//stat[S_LARVAE] += m_scaleFactor;
 			
 	//		if (stage == ADULT && m_sex == FEMALE && HasChangedStage())
 		//		stat[S_EMERGING_FEMALE] += m_scaleFactor;

@@ -23,7 +23,7 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_L1, S_L2, S_L3, S_L4, S_PREPUPA, S_PUPA, S_ADULT, S_DEAD_ADULT, S_AVERAGE_INSTAR, S_LARVAE, NB_STATS
+			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_ADULT, S_DEAD_ADULT, S_AVERAGE_INSTAR, NB_STATS
 		};
 	}
 
@@ -64,6 +64,7 @@ namespace WBSF
 
 		//member
 		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
+		double m_AL; //adult longevity [days]
 
 	};
 
@@ -97,12 +98,14 @@ namespace WBSF
 
 		//global variables of all bugs
 		bool m_bApplyAttrition;
+		double m_maxTsoil;
 
 		CLNFStand(WBSF::CBioSIMModelBase* pModel) :
 			WBSF::CStand(pModel),
 			m_equations(pModel->RandomGenerator())
 		{
 			m_bApplyAttrition = false;
+			m_maxTsoil = 5.3;
 		}
 
 		CLaricobiusNigrinusEquations m_equations;
