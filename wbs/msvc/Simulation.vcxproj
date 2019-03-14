@@ -186,6 +186,7 @@
     <ClCompile Include="..\src\Simulation\BioSIMProject.cpp" />
     <ClCompile Include="..\src\Simulation\CopyExport.cpp" />
     <ClCompile Include="..\src\Simulation\DBBase.cpp" />
+    <ClCompile Include="..\src\Simulation\DevRateParameterization.cpp" />
     <ClCompile Include="..\src\Simulation\Dispersal.cpp" />
     <ClCompile Include="..\src\Simulation\Executable.cpp" />
     <ClCompile Include="..\src\Simulation\ExecutableFactory.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="..\src\Simulation\BioSIMProject.h" />
     <ClInclude Include="..\src\Simulation\CopyExport.h" />
     <ClInclude Include="..\src\Simulation\DBBase.h" />
+    <ClInclude Include="..\src\Simulation\DevRateParameterization.h" />
     <ClInclude Include="..\src\Simulation\Dispersal.h" />
     <ClInclude Include="..\src\Simulation\Executable.h" />
     <ClInclude Include="..\src\Simulation\ExecutableFactory.h" />

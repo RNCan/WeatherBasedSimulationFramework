@@ -24,6 +24,7 @@
 #include "UI/ScriptDlg.h"
 #include "UI/CopyExportDlg.h"
 #include "UI/ModelParameterizationDlg.h"
+#include "UI/DevRateParameterizationDlg.h"
 #include "UI/ExecutableTree.h"
 #include "Simulation/ExecutableGroup.h"
 #include "Simulation/BioSIMProject.h"
@@ -64,7 +65,8 @@ namespace WBSF
 		CDispersal::GetXMLFlag(),
 		CScript::GetXMLFlag(),
 		CCopyExport::GetXMLFlag(),
-		CModelParameterization::GetXMLFlag()
+		CModelParameterization::GetXMLFlag(),
+		CDevRateParameterization::GetXMLFlag()
 	};
 
 
@@ -431,7 +433,8 @@ namespace WBSF
 		case CExecutableTree::DISPERSAL:
 		case CExecutableTree::SCRIPT_R:
 		case CExecutableTree::COPY_EXPORT:	
-		case CExecutableTree::MODEL_PARAMETERIZATION:bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
+		case CExecutableTree::MODEL_PARAMETERIZATION:
+		case CExecutableTree::RATE_FIT:	bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
 		case CExecutableTree::INPUT_ANALYSIS:	  bRep = deepElemType == CExecutableTree::WEATHER_GENERATION; break;
 		case CExecutableTree::MERGE_EXECUTABLE:  bRep = (elemType == CExecutableTree::GROUP); break;
 
@@ -537,6 +540,11 @@ namespace WBSF
 			CModelParameterizationDlg dlg(pParent, this);
 			bAdd = DoModalDlg(dlg, pItem);
 		}break;
+		case CExecutableTree::RATE_FIT:
+		{
+			CDevRateParameterizationDlg dlg(pParent, this);
+			bAdd = DoModalDlg(dlg, pItem);
+		}break;
 
 		default: ASSERT(false);
 		}
@@ -563,6 +571,7 @@ namespace WBSF
 		case CExecutableTree::SCRIPT_R: pItem.reset(new CScript); break;
 		case CExecutableTree::COPY_EXPORT: pItem.reset(new CCopyExport); break;
 		case CExecutableTree::MODEL_PARAMETERIZATION:pItem.reset(new CModelParameterization); break;
+		case CExecutableTree::RATE_FIT:pItem.reset(new CDevRateParameterization); break;
 		default: ASSERT(false);
 		}
 		
@@ -590,6 +599,7 @@ namespace WBSF
 		case ID_ADD_SCRIPT_R: classType = CExecutableTree::SCRIPT_R; break;
 		case ID_ADD_COPY_EXPORT: classType = CExecutableTree::COPY_EXPORT; break;
 		case ID_ADD_MODEL_PARAMETERIZATION:classType = CExecutableTree::MODEL_PARAMETERIZATION; break;
+		case ID_ADD_RATE_FIT:classType = CExecutableTree::RATE_FIT; break;
 		default: ASSERT(false);
 		}
 
@@ -620,13 +630,15 @@ namespace WBSF
 			deepElemType != CExecutableTree::WEATHER_UPDATE && 
 			deepElemType != CExecutableTree::SCRIPT_R && 
 			deepElemType != CExecutableTree::MODEL_PARAMETERIZATION && 
+			deepElemType != CExecutableTree::RATE_FIT &&
 			deepElemType != CExecutableTree::COPY_EXPORT;
 
 		switch (pCmdUI->m_nID)
 		{
 		case ID_ADD_GROUP:             pCmdUI->Enable(bInit); break;
 		case ID_ADD_WEATHER_UPDATE:
-		case ID_ADD_WEATHER_GENERATION: pCmdUI->Enable(deepElemType == CExecutableTree::GROUP); break;
+		case ID_ADD_WEATHER_GENERATION: 
+		case ID_ADD_RATE_FIT:		   pCmdUI->Enable(deepElemType == CExecutableTree::GROUP); break;
 		case ID_ADD_MODEL_EXECUTION:
 		case ID_ADD_ANALYSIS:
 		case ID_ADD_FUNCTION_ANALYSIS:

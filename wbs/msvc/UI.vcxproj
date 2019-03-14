@@ -81,6 +81,7 @@
     <ClCompile Include="..\src\UI\Common\UtilWin.cpp" />
     <ClCompile Include="..\src\UI\Common\UtilWWW.cpp" />
     <ClCompile Include="..\src\UI\CopyExportDlg.cpp" />
+    <ClCompile Include="..\src\UI\DevRateParameterizationDlg.cpp" />
     <ClCompile Include="..\src\UI\FileManagerPages.cpp" />
     <ClCompile Include="..\src\UI\FileManagerPropSheet.cpp" />
     <ClCompile Include="..\src\UI\DispersalDlg.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="..\src\UI\Common\UtilWin.h" />
     <ClInclude Include="..\src\UI\Common\UtilWWW.h" />
     <ClInclude Include="..\src\UI\CopyExportDlg.h" />
+    <ClInclude Include="..\src\UI\DevRateParameterizationDlg.h" />
     <ClInclude Include="..\src\UI\FileManagerPages.h" />
     <ClInclude Include="..\src\UI\FileManagerPropSheet.h" />
     <ClInclude Include="..\src\UI\DispersalDlg.h" />

@@ -135,7 +135,7 @@ IDB_YEAR_BY_YEAR1       BITMAP                  "res/YearByYearPeriod1.bmp"
 
 IDB_YEAR_BY_YEAR1_CHECKED BITMAP                  "res/YearByYearPeriod1Checked.bmp"
 
-IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp"
+IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp" 
 
 IDB_YEAR_BY_YEAR2_CHECKED BITMAP                  "res/OverAllYearsA.bmp"
 
@@ -259,11 +259,94 @@ BEGIN
     BUTTON      ID_ADD_SCRIPT_R
     BUTTON      ID_ADD_COPY_EXPORT
     BUTTON      ID_ADD_MODEL_PARAMETERIZATION
+	BUTTON      ID_ADD_RATE_FIT
     SEPARATOR
     BUTTON      ID_ITEM_EXPAND_ALL
     BUTTON      ID_ITEM_COLLAPSE_ALL
     SEPARATOR
     BUTTON      ID_REMOVE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 423, 306
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Éditeur de paramétrisation du taux de dévlopement"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_SIM_DESCRIPTION,81,22,167,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,294,285,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,366,285,50,14
+    LTEXT           "Description :",-1,7,25,42,8
+    EDITTEXT        IDC_SIM_NAME,81,7,167,12,ES_AUTOHSCROLL
+    LTEXT           "Nom :",-1,7,9,42,8
+    EDITTEXT        IDC_SIM_INTERNAL_NAME,81,287,90,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Nom interne:",-1,7,290,50,8
+    PUSHBUTTON      "Préférence\ndu recuit simulé",IDC_SIM_SA,211,252,205,26,BS_MULTILINE
+    LTEXT           "Fichier d'entrées :",-1,7,41,68,8
+    LTEXT           "Remarque de sortie :",-1,7,267,68,10
+    COMBOBOX        IDC_SIM_FEEDBACK,81,265,89,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_SIM_RESULT,81,39,167,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Ce fichier doit contenir 3 colonnes: stade, temperature, taux (1/d)",-1,255,36,161,20
+    LTEXT           "Equation to evaluate",-1,7,58,74,8
+    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,81,57,213,186,WS_EX_CLIENTEDGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_SIM_FIT_EQUATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 416
+        VERTGUIDE, 13
+        VERTGUIDE, 81
+        VERTGUIDE, 96
+        VERTGUIDE, 211
+        VERTGUIDE, 248
+        VERTGUIDE, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 299
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_SIM_FIT_EQUATION DLGINIT
+BEGIN
+    IDC_SIM_FEEDBACK, 0x403, 7, 0
+0x6f42, 0x6375, 0x656c, "\000" 
+    IDC_SIM_FEEDBACK, 0x403, 10, 0
+0x7449, 0x72e9, 0x7461, 0x6f69, 0x006e, 
+    IDC_SIM_FEEDBACK, 0x403, 6, 0
+0x7943, 0x6c63, 0x0065, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SIM_FIT_EQUATION AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 #endif    // Neutral resources

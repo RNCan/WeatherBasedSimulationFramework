@@ -640,3 +640,10 @@ namespace WBSF
 	
 
 }//namespace WBSF
+
+
+//Fig. 1. Linear relationships between median developmental rate(days1) and temperature(C) for each life stage and
+//egg to adult.Regression model : y  a  bx, where y is developmental rate(days1) and x is temperature.Egg: y0.0907
+//0.0165x, SEof b0.0041, P0.026, R20.85; larvae: y0.01510.0048x, SEof b0.0003, P0.001, R20.99; prepupa:
+//y  0.0132  0.0047x, SE of b  0.0004, P  0.001, R2  0.98; pupa: y  0.0144  0.0047x, SE of b  0.0004, P  0.008,
+//R2  0.98; egg to adult : y  0.0056  0.0015x, SE of b  0.0002, P  0.013, R2  0.97.

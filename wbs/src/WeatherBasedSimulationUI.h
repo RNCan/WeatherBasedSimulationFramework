@@ -9,6 +9,7 @@
 #define IDR_MENU_EDIT                   202
 #define IDD_SEARCH_RADIUS               207
 #define IDR_MENU_REFORMAT               210
+#define IDD_SIM_FIT_EQUATION            217
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -511,6 +512,7 @@
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
 #define IDC_RESET_DEFAULT               1249
 #define IDC_MAP_REGIONAL_LIMIT          1250
+#define IDC_SIM_EQUATION                1250
 #define IDC_MAP_GLOBAL_LIMIT            1251
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND 1252
 #define IDC_MAP_GLOBAL_LIMIT_MIN        1253
@@ -856,8 +858,9 @@
 #define ID_ADD_SCRIPT_R                 42783
 #define ID_ADD_COPY_EXPORT              42784
 #define ID_ADD_MODEL_PARAMETERIZATION   42785
-#define ID_ADD_LAST                     42785
-#define ID_EDIT_DUPLICATE               42786
+#define ID_ADD_RATE_FIT					42786
+#define ID_ADD_LAST                     42786
+#define ID_EDIT_DUPLICATE               42789
 #define ID_ITEM_EXPAND_ALL              42790
 #define ID_ITEM_COLLAPSE_ALL            42791
 #define ID_EDIT                         42792
@@ -875,9 +878,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1250
+#define _APS_NEXT_CONTROL_VALUE         1251
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

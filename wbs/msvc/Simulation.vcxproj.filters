@@ -100,6 +100,9 @@
     <ClCompile Include="..\src\Simulation\ImportData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Simulation\DevRateParameterization.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Simulation\AdvancedNormalStation.h">
@@ -193,6 +196,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Simulation\ImportData.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Simulation\DevRateParameterization.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

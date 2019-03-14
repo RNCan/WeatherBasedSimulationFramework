@@ -319,7 +319,7 @@ namespace WBSF
 	{
 	public:
 
-		//attention j'ai inversé random et fixe
+		
 		enum TSeed { RANDOM_SEED, FIXE_SEED };
 		static const int RAND_MAX_INT = 2147483600;//2147483647;
 
@@ -407,8 +407,6 @@ namespace WBSF
 
 			_ASSERTE(l <= u);
 
-
-
 			//get a number [0, u-l] and add l
 			return l + (u - l)*Randu();
 		}
@@ -443,6 +441,15 @@ namespace WBSF
 			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
 			return gumbel(me.m_gen);
 		}
+
+		double RandWeibull(double a, double b)const
+		{
+			std::weibull_distribution<double> weibull(a, b);
+			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
+			return weibull(me.m_gen);
+		}
+		
+
 
 	protected:
 
