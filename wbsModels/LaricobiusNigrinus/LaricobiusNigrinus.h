@@ -65,7 +65,7 @@ namespace WBSF
 		//member
 		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
 		double m_AL; //adult longevity [days]
-
+		double m_F; //fecundity
 	};
 
 	//*******************************************************************************************************

@@ -11,12 +11,7 @@ using namespace std;
 
 namespace WBSF
 {
-	//static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::DAILY_AVERAGE;
 	static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::MODIFIED_ALLEN_WAVE;
-	//static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::SINGLE_TRIANGLE;
-	//static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::DOUBLE_SINE;
-
-
 	enum { ACTUAL_CDD, DATE_DD717, DIFF_DAY, NB_OUTPUTS };
 
 	//this line link this model with the EntryPoint of the DLL
@@ -43,11 +38,10 @@ namespace WBSF
 			}
 		}
 
-		
 		//calibrated with simulated annealing
-		m_peak=51;
-		m_s=17.2;
-		m_maxTsoil = 4.8;
+		m_peak= 53;
+		m_s= 16.6;
+		m_maxTsoil = 4.7;
 	}
 
 	CLaricobiusNigrinusModel::~CLaricobiusNigrinusModel()

@@ -21,26 +21,29 @@ using namespace std;
 namespace WBSF
 {
 
+//NbVal=   123	Bias=-0.11342	MAE= 4.06803	RMSE= 6.64924	CD= 0.97056	R²= 0.97288
+//a1                  	= -18.87912 
+//b1                  	=  26.40841 
+//a2                  	= -38.55547 
+//b2                  	=  60.51580 
+//f1                  	=  -8.82210 
+//f2                  	=  16.49080 
+//f3                  	=  -0.36875 
+//f4                  	=   1.81451 
+//peak                	=  53.41571 
+//s                   	=  16.59165 
+//maxTsoil            	=   4.67060 
+// 14 mars 2019 21:06:25
 
-//N=     54001	T=  0.00508	F=5171.58457
-//NbVal=   107	Bias=-0.53334	MAE= 3.96183	RMSE= 6.95216	CD= 0.97125	R²= 0.97258
-//a1                  	= -33.52443  b1                  	=  79.04205  a2                  	=  -4.42992  b2                  	=  40.63253  peak                	=  51.06799  s                   	=  17.23233  
-//***********************************
-//13 mars 2019 15:43:33
-//N=     42501	T=  0.00846	F=3221.52351
-//NbVal=   117	Bias=-0.26109	MAE= 3.38268	RMSE= 5.24732	CD= 0.98206	R²= 0.98262
-//f1                  	=  -0.45249  f2                  	=   3.17877  f3                  	=  -0.51340  f4                  	=   2.14575  maxTsoil            	=   4.80572  
-//***********************************
-//14 mars 2019 06:32:07
          
 	const double CLaricobiusNigrinusEquations::P[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
-		{ -33.52, 79.04 },//Egg
-		{ -4.43,  40.63 },//Larvae
-		{ -0.452, 3.179 },//PrePupae
-		{ -0.513, 2.146 },//Pupae
-		{  0.000, 0.000 },//Adult
+		{ -18.879,26.408 },//Egg
+		{ -38.555,60.516 },//Larvae
+		{ -8.8221,16.491 },//PrePupae
+		{ -0.3688,1.8145 },//Pupae
+		{  0.0000,0.0000 },//Adult
 	};
 
 	
@@ -165,10 +168,10 @@ namespace WBSF
 		double fm = 6.1*w + 20.1;
 		double fs = 2.6*w + 13.3;
 
-		double f = m_randomGenerator.RandNormal(fm, fs);
+		double f = m_randomGenerator.RandNormal(fm, fs); 
 
 		while(f<2||f>396)
-			m_randomGenerator.RandNormal(fm, fs);
+			f = m_randomGenerator.RandNormal(fm, fs);
 
 
 		return f; 

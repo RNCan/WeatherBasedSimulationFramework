@@ -37,8 +37,9 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-		//m_AL = Equations().GetAdultLongevity();
-		m_AL = 172;//pour calibration seulement
+		m_AL = Equations().GetAdultLongevity();
+		//m_AL = 172;//pour calibration seulement
+		m_F = Equations().GetFecondity(m_AL);
 	}
 
 
