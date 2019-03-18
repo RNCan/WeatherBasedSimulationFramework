@@ -97,27 +97,14 @@ namespace WBSF
 		CTRef today = CTRef::GetCurrentTRef();
 
 		CTPeriod outputPeriod = m_weather.GetEntireTPeriod(CTM::ANNUAL);
-		//outputPeriod.Begin()++;//begin output at the second year
 		m_output.Init(outputPeriod, NB_OUTPUTS);
 
-		//for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
+
 		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
 			int year = m_weather[y].GetTRef().GetYear();
-
-			//CTRef begin = CTRef(year, NOVEMBER, DAY_01);
-			//CTRef end = CTRef(year + 1, NOVEMBER, DAY_01);
-			//CTRef begin = CTRef(year, m_start.GetMonth(), m_start.GetDay());
-			//CTRef end = CTRef(year + 1, m_start.GetMonth(), m_start.GetDay());
-			//CTRef begin = CTRef(year+1, JANUARY, DAY_01);
-			//CTRef end = CTRef(year + 1, DECEMBER, DAY_31);
-			//CTRef begin = m_weather[y].GetEntireTPeriod().Begin();
-			//CTRef end = m_weather[y].GetEntireTPeriod().End();
 			CTRef begin = CTRef(year, m_start.GetMonth(), m_start.GetDay());
-			//CTRef begin = CTRef(year, JANUARY, DAY_01);
 			CTRef end = CTRef(year, DECEMBER, DAY_31);
-
-			
 
 			double CDD = 0;
 
@@ -182,8 +169,6 @@ namespace WBSF
 			}
 		}
 		
-		//stand.m_equations.Reinit();//re-initialize to recompute rate whit new F
-		
 
 		for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
 		{
@@ -206,22 +191,11 @@ namespace WBSF
 //Oviposition began in week 9 (27 December) with the active egg laying period between weeks 10 and 32 (7 January and 13
 //June, respectively) (Figure 2.5). Peak egg laying occurred week in 18 (7 March) (
 		pHost->Initialize<CLaricobiusNigrinus>(CInitialPopulation(400, 100, EGG));
-		//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, NOT_INIT, m_bFertility, 0));
 			
 		//add host to stand			
 		stand.m_host.push_front(pHost);
 
-		//if Simulated Annealing, set 
-		//if (ACTIVATE_PARAMETRIZATION)
-		{
-			//stand.m_rates.SetRho25(m_rho25Factor);
-			//stand.m_rates.Save("D:\\Rates.csv");
-		}
-
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		//for (size_t y = 0; y < m_weather.size(); y++)
-		//{
-//			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
 		for (CTRef d = p.Begin(); d <= p.End(); d++)
 		{
@@ -232,15 +206,13 @@ namespace WBSF
 			HxGridTestConnection();
 		}
 
-		//stand.HappyNewYear();
-		//}
 
 		if (m_bCumul)
 		{
 			//cumulative result
 			for (size_t s = S_EGG; s < NB_STATS; s++)
 			{ 
-				if (s >= S_ADULT && s <= S_AVERAGE_INSTAR)
+				if (s >= S_ADULT )
 					continue;
 
 				CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
@@ -352,18 +324,12 @@ namespace WBSF
 			if( !IsParamEqual())
 				return ;
 
-			//for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
+
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 			{
 				int year = m_weather[y].GetTRef().GetYear();
 				if (m_years.find(year) == m_years.end())
-					//if (m_years.find(year + 1) == m_years.end())
 					continue;
-
-				//CTRef begin = m_weather[y].GetEntireTPeriod().Begin();
-				//CTRef end = m_weather[y].GetEntireTPeriod().End();
-				//CTRef begin = CTRef(year, m_start.GetMonth(), m_start.GetDay());
-				//CTRef end = CTRef(year, DECEMBER, DAY_31);
 
 				CModelStatVector output;
 				output.Init(m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY)), NB_STATS, 0);

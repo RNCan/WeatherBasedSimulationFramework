@@ -22,9 +22,9 @@ using namespace std;
 namespace WBSF
 {
 //NbVal=   201	Bias= 1.35004	MAE= 6.47098	RMSE=10.14646	CD= 0.90988	R²= 0.91441
-//a1                  	=  -7.79345 
+//a1                  	=  7.79345 
 //b1                  	=  36.52359 
-//a2                  	=  -0.01016 
+//a2                  	=  0.01016 
 //b2                  	=  13.13306 
 //mu                  	= 101.39193 
 //s                   	=  27.21807 
@@ -35,8 +35,8 @@ namespace WBSF
 	const double CLaricobiusNigrinusEquations::D[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
-		{ -7.79, 36.5 },//Egg
-		{ -0.01, 13.1 },//Larvae
+		{ 7.79, 36.5 },//Egg
+		{ 0.01, 13.1 },//Larvae
 		{ 0.00 , 0.00 },//PrePupae
 		{ 0.00 , 0.00 },//Pupae
 	};
@@ -78,34 +78,6 @@ namespace WBSF
 		return max(0.0, Rt);
 	}
 
-	//double CLaricobiusNigrinusEquations::Equation2(size_t e, double T)
-	//{
-	//	const double* p = P[e];//current P for equation
-	//	size_t s = e2s(e);//compute stage for b1Factor
-
-	//	double p1 = exp(-0.5*Square((T - p[PB2]) / p[PB3]));
-	//	double Rt = p[PB1] * b1Factor[s] * p1;
-
-	//	return max(0.0, Rt);
-	//}
-
-	//double CLaricobiusNigrinusEquations::Equation3(size_t e, double T)
-	//{
-	//	const double* p = P[e];//current P for equation
-	//	size_t s = e2s(e);//compute stage for b1Factor
-	//	ASSERT(s == ADULT);
-	//	
-	//	T = max(8.0, min(35.0, T) );
-	//	double Rt = 1 / (p[PB1] * b1Factor[s] + p[PB2] * T + p[PB3] * T*T);
-	//	return max(0.0, Rt);
-	//}
-
-
-	//Egg hatch of forest tent caterpillar (Lepidoptera:Lasiocampidae) on two preferred host species
-	//David R.Gray, 1 Don P.Ostaff
-	//Can. Entomol. 144: 790–797 (2012)
-
-
 
 	//Daily development rate
 	double CLaricobiusNigrinusEquations::ComputeRate(size_t s, double T)const
@@ -122,10 +94,8 @@ namespace WBSF
 		//G.M.G.Zilahi-Balogh, S.M.SALOM, AND L.T.KOK (2003) Entomological Society of America
 		switch (s)
 		{
-		//case EGG:	r = max(0.0, -0.0907 + 0.0165*T); break;
 		case EGG:	r = Eq7(s, T); break;
 		case LARVAE: r = max(0.0, -0.0151 + 0.0048*T ); break;
-//		case LARVAE: r = Eq7(s, T); break;
 		case PREPUPAE:	r = max(0.0, -0.0132 + 0.0047* T); break;//in the ground: need ground temperature
 		case PUPAE:	r = max(0.0, -0.0144 + 0.0047* T); break;//in the ground: need ground temperature
 		case ADULT:	r = 1.0 / 172.0; break;//from October to April
@@ -148,11 +118,11 @@ namespace WBSF
 		if (s == EGG || s == LARVAE)
 		{
 			double Э = m_randomGenerator.Randu(true, true);
-			rr = 1.0 - log((pow(Э, m_D[s][Ϙ]) - 1.0) / (pow(0.5, m_D[s][Ϙ]) - 1.0)) / m_D[s][к];
+			rr = 1.0 - log((pow(Э, -m_D[s][Ϙ]) - 1.0) / (pow(0.5, -m_D[s][Ϙ]) - 1.0)) / m_D[s][к];//add -q by RSA 
 			while (rr<0.4 || rr>2.5)
 			{
 				double Э = m_randomGenerator.Randu(true, true);
-				rr = 1 - log((pow(Э, m_D[s][Ϙ]) - 1) / (pow(0.5, m_D[s][Ϙ]) - 1)) / m_D[s][к];
+				rr = 1 - log((pow(Э, -m_D[s][Ϙ]) - 1) / (pow(0.5, -m_D[s][Ϙ]) - 1)) / m_D[s][к];
 			}
 		}
 
