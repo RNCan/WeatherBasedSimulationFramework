@@ -5,8 +5,6 @@ using namespace std;
 
 namespace WBSF
 {
-
-
 	//bool CIndividual::m_bUseAttrition = false;
 
 	//*****************************************************************************
@@ -20,7 +18,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
-	CIndividual::CIndividual(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor)
+	CIndividual::CIndividual(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor)
 	{
 		ASSERT(pHost);//host must be define at the specimen creation
 
@@ -81,12 +79,15 @@ namespace WBSF
 
 		return *this;
 	}
-
-	void CIndividual::NewDay()
+	
+	void CIndividual::OnNewDay(const CWeatherDay& weather)
 	{
-		m_lastAge = m_age;
-		m_lastStatus = m_status;
-		m_broods = 0;
+		if (IsCreated(weather.GetTRef()))
+		{
+			m_lastAge = m_age;
+			m_lastStatus = m_status;
+			m_broods = 0;
+		}
 	}
 
 	void CIndividual::Live(const CHourlyData& weather, size_t dt)
@@ -242,9 +243,9 @@ namespace WBSF
 
 		for (iterator it = begin(); it != end(); it++)
 		{
+			(*it)->OnNewDay(weather);
 			if ((*it)->IsCreated(weather.GetTRef()))
 			{
-				(*it)->NewDay();
 				if ((*it)->IsAlive())
 				{
 					(*it)->Live(weather);

@@ -18,21 +18,21 @@
 #include "Basic/WeatherDefine.h"
 #include "Basic/CSV.h"
 
-
-//size_t  operator ""s ("_z", unsigned long long n);
-//size_t operator ""s _z(unsigned long long n){return n;}
-
-//constexpr
 using namespace std;
 
 namespace WBSF
 {
 
-	CInitialPopulation::CInitialPopulation(CTRef peakDay, double sigma, size_t nbObjects, double initialPopulation, double age, size_t sex, bool bFertil, size_t generation)
+	CInitialPopulation::CInitialPopulation(size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation)
+	{
+		Initialize(nbObjects, initialPopulation, age, sex, bFertil, generation);
+	}
+
+	CInitialPopulation::CInitialPopulation(CTRef peakDay, double sigma, size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation)
 	{
 		Initialize(peakDay, sigma, nbObjects, initialPopulation, age, sex, bFertil, generation);
 	}
-	void CInitialPopulation::Initialize(CTRef peakDay, double sigma, size_t nbObjects, double initialPopulation, double age, size_t sex, bool bFertil, size_t generation)
+	void CInitialPopulation::Initialize(CTRef peakDay, double sigma, size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation)
 	{
 		ASSERT(nbObjects > 0);
 		ASSERT(initialPopulation > 0);
@@ -64,6 +64,19 @@ namespace WBSF
 
 			ASSERT(size() == nbObjects);
 		}
+	}
+	
+	void CInitialPopulation::Initialize(size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation)
+	{
+		ASSERT(nbObjects > 0);
+		ASSERT(initialPopulation > 0);
+
+		clear();
+		double scaleFactor = initialPopulation / nbObjects;
+
+		for (size_t i=0; i < nbObjects; i++)
+			push_back(CIndividualInfo(CTRef(), age, sex, bFertil, generation, scaleFactor));
+
 	}
 
 	//**********************************************************************************************
@@ -524,7 +537,7 @@ namespace WBSF
 		
 	}
 
-	CInitialPopulation CModelStatVector::GetInitialPopulation(size_t var, size_t nbObjects, double initialPopulation, double age, size_t sex, bool bFertil, size_t generation, CTPeriod p)const
+	CInitialPopulation CModelStatVector::GetInitialPopulation(size_t var, size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation, CTPeriod p)const
 	{
 		CInitialPopulation population;
 

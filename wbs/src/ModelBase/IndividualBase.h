@@ -1,4 +1,5 @@
-//Weather-Based Simulation Framework Individue mod
+//Weather-Based Simulation Framework 
+//Individual insect base
 //
 #pragma once
 
@@ -15,6 +16,7 @@
 //Weather-Based Simulation Framework
 namespace WBSF
 {
+
 	class CStand;
 	typedef std::shared_ptr<CStand> CStandPtr;
 
@@ -38,14 +40,15 @@ namespace WBSF
 		enum TDeath{ OLD_AGE, FROZEN, MISSING_ENERGY, ATTRITION, ASYNCHRONY, INTOXICATED, WINDOW, TREE_DEFENSE, DENSITY_DEPENDENCE, EXODUS, HOST_DIE, OTHERS, NB_DEATHS };
 		enum TFecondity{ UNFERTIL, FERTIL, NB_FECONDITY };
 
-
-		CIndividual(CHost* pHost, CTRef creation = CTRef(), double age = 0, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0, double scaleFactor = 1);
+		
+		
+		CIndividual(CHost* pHost, CTRef creation = CTRef(), double age = 0, TSex sex = RANDOM_SEX, bool bFertil = false, size_t generation = 0, double scaleFactor = 1);
 		CIndividual(const CIndividual& in){ operator=(in); }
 		virtual ~CIndividual(void);
 
 		CIndividual& operator=(const CIndividual& in);
 
-		virtual void NewDay();
+		virtual void OnNewDay(const CWeatherDay& weather);//let object to be created if not created yet and reset var
 		virtual void Live(const CHourlyData& weather, size_t dt);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
@@ -70,7 +73,7 @@ namespace WBSF
 		size_t GetStage()const{ return (size_t)m_age; }					//Reports individual's stage
 		size_t GetStatus()const { return m_status; }                    //Reports individual's status
 		void SetStatus(size_t status){ m_status = status; }                    
-		size_t GetDeath()const{ return m_death; }						//Reason of death (NOT_DEATH for HEALTY individue)
+		size_t GetDeath()const{ return m_death; }						//Reason of death (NOT_DEATH for HEALTY individual)
 		void SetDeath(size_t death){ m_death = death; }
 		double GetAge()const { return m_age; }                            //Reports individual's age
 		double GetStageAge()const{ return m_age - GetStage(); }				//Report age into the current stage [0:1]
@@ -119,10 +122,10 @@ namespace WBSF
 		CHost* m_pHost;			//host on witch insect live
 		CTRef m_creationDate;	//creation date
 		size_t m_sex;			//sex (male or female)
-		double m_age;			//physiological age (0: just hatched. 1: bettle dead of old age)
-		bool m_bFertil;			//if female is fertil, they will create new feneration
-		size_t m_generation;	//generation of this individu (from 0 to ...)
-		double m_scaleFactor;	//How many individues this object represent
+		double m_age;			//physiological age (0: just hatched. 1: beetle dead of old age)
+		bool m_bFertil;			//if female is fertile, they will create new generation
+		size_t m_generation;	//generation of this individual (from 0 to ...)
+		double m_scaleFactor;	//How many individuals this object represent
 
 
 		//state member
@@ -191,7 +194,7 @@ namespace WBSF
 		void FixAI(double delta)
 		{
 			for (iterator it = begin(); it != end(); it++)
-				if ((*it)->IsAlive())//est-ce correcte???
+				if ((*it)->IsAlive())
 					(*it)->FixAI(delta);
 		}
 
@@ -339,28 +342,15 @@ namespace WBSF
 	inline CHostPtr CHost::GetNearestHost(){ ASSERT(m_pStand); return m_pStand->GetNearestHost(this); }
 	inline CBioSIMModelBase* CHost::GetModel(){ ASSERT(m_pStand); return m_pStand->GetModel(); }
 	inline const CBioSIMModelBase* CHost::GetModel()const { ASSERT(m_pStand); return m_pStand->GetModel(); }
-	//inline const CTimeStep& CHost::GetTimeStep()const{ ASSERT(GetModel());	return GetModel()->GetTimeStep(); }
-	//inline const CRandomGenerator& CHost::RandomGenerator()const{ ASSERT(GetModel());	return GetModel()->RandomGenerator(); }
-
+	
 
 	//***************************************************************************
 	//CAgeFrequency
-	//class CAgeFrequency
-	//{
-	//public:
-	//	CAgeFrequency(size_t month = 0, size_t day = 0, size_t nbBugs = 0, double age = 0);
-	//	
-	//	size_t m_month;
-	//	size_t m_day;
-	//	size_t m_nbBugs;
-	//	double m_age;
-	//};
 
 	class CAgeFrequencyVector : public CInitialPopulation
 	{
 	public:
 
-		//int size()const{ return (int) std::vector<CAgeFrequency>::size();}
 		void LoadDefault(CTRef TRef, size_t nbBugs, double age);
 		ERMsg Load(std::string& filePath);
 		size_t GetNbBugs()const;
