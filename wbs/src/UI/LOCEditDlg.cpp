@@ -768,7 +768,7 @@ namespace WBSF
 
 	LRESULT CLocDlg::OnKickIdle(WPARAM, LPARAM)
 	{
-		if (IsWindowVisible())
+		if (GetSafeHwnd() && IsWindowVisible())
 		{
 			for (int i = 0; i < m_wndToolBar.GetCount(); i++)
 				m_wndToolBar.UpdateButton(i);
@@ -1135,22 +1135,31 @@ namespace WBSF
 		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = rect.TopLeft();
 		option.WriteProfilePoint(_T("LocationsFileManager"), pt);
+		BOOL bDestroy = CDialog::DestroyWindow();
 
-		return CDialog::DestroyWindow();
+		ASSERT(GetSafeHwnd() == NULL);
+
+		return bDestroy;
 	}
 
 	void CLocationsFileManagerDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 	{
-		CDialog::OnActivateApp(bActive, dwThreadID);
+		if (GetSafeHwnd())
+		{
+			CDialog::OnActivateApp(bActive, dwThreadID);
 
-		if (bActive && IsWindowVisible())
-			m_fileListCtrl.OnAppActivate();
+			if (bActive && IsWindowVisible())
+				m_fileListCtrl.OnAppActivate();
+		}
 
 	}
 
 	LRESULT CLocationsFileManagerDlg::OnKickIdle(WPARAM w, LPARAM l)
 	{
-		return m_fileListCtrl.m_pLocDlg->SendMessage(WM_KICKIDLE, w, l);
+		if(m_fileListCtrl.m_pLocDlg->GetSafeHwnd())
+			return m_fileListCtrl.m_pLocDlg->SendMessage(WM_KICKIDLE, w, l);
+		
+		return 0;
 	}
 
 	//********************************************************************************

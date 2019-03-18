@@ -1496,23 +1496,29 @@ namespace WBSF
 							m_tmp.m_XP.resize(m_tmp.m_X.size());
 
 
-							//  Generate XP, the trial value of X. Note use of VM to choose XP.
-							for (int I = 0; I < m_tmp.m_X.size(); I++)
+							do
 							{
-								if (I == H)
-									m_tmp.m_XP[I] = m_tmp.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_tmp.m_VM[I];
-								else m_tmp.m_XP[I] = m_tmp.m_X[I];
-
-
-								//  If XP is out of bounds, select a point in bounds for the trial.
-								if (m_tmp.m_bounds[I].IsOutOfBound(m_tmp.m_XP[I]))
+								//  Generate XP, the trial value of X. Note use of VM to choose XP.
+								for (int I = 0; I < m_tmp.m_X.size(); I++)
 								{
-									m_tmp.m_XP[I] = m_tmp.m_bounds[I].GetLowerBound() + m_tmp.m_bounds[I].GetExtent()*random.Ranmar();
+									if (I == H)
+										m_tmp.m_XP[I] = m_tmp.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_tmp.m_VM[I];
+									else m_tmp.m_XP[I] = m_tmp.m_X[I];
 
-									LNOBDS++;
-									m_tmp.m_NOBDS++;
+
+									//  If XP is out of bounds, select a point in bounds for the trial.
+									if (m_tmp.m_bounds[I].IsOutOfBound(m_tmp.m_XP[I]))
+									{
+										m_tmp.m_XP[I] = m_tmp.m_bounds[I].GetLowerBound() + m_tmp.m_bounds[I].GetExtent()*random.Ranmar();
+
+										LNOBDS++;
+										m_tmp.m_NOBDS++;
+									}
 								}
-							}
+
+								//  Evaluate the function with the trial point XP and return as FP.
+								msg += GetFValue(m_tmp.m_XP, m_tmp.m_FP, m_tmp.m_SP, callback);
+							} while (!m_tmp.m_SP.GetX().IsInit());//if no stat (bad parameters), find new vlaus
 
 							//add X value to extreme XP statistic
 							for (int i = 0; i < m_tmp.m_XP.size() && i < (int)m_tmp.m_XPstat.size(); i++)
@@ -1521,8 +1527,7 @@ namespace WBSF
 							for (size_t i = 0; i < m_tmp.m_VMstat.size(); i++)
 								m_tmp.m_VMstat[i] += m_tmp.m_VM[i];
 
-							//  Evaluate the function with the trial point XP and return as FP.
-							msg += GetFValue(m_tmp.m_XP, m_tmp.m_FP, m_tmp.m_SP, callback);
+							
 
 							//  Accept the new point if the function value increases.
 							if (m_tmp.m_FP != m_ctrl.GetVMiss())
