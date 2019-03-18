@@ -135,7 +135,7 @@ IDB_YEAR_BY_YEAR1       BITMAP                  "res/YearByYearPeriod1.bmp"
 
 IDB_YEAR_BY_YEAR1_CHECKED BITMAP                  "res/YearByYearPeriod1Checked.bmp"
 
-IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp" 
+IDB_YEAR_BY_YEAR2       BITMAP                  "res/YearByYearPeriod2.bmp"
 
 IDB_YEAR_BY_YEAR2_CHECKED BITMAP                  "res/OverAllYearsA.bmp"
 
@@ -259,7 +259,7 @@ BEGIN
     BUTTON      ID_ADD_SCRIPT_R
     BUTTON      ID_ADD_COPY_EXPORT
     BUTTON      ID_ADD_MODEL_PARAMETERIZATION
-	BUTTON      ID_ADD_RATE_FIT
+    BUTTON      ID_ADD_RATE_FIT
     SEPARATOR
     BUTTON      ID_ITEM_EXPAND_ALL
     BUTTON      ID_ITEM_COLLAPSE_ALL
@@ -273,27 +273,25 @@ END
 // Dialog
 //
 
-IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 423, 306
+IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Éditeur de paramétrisation du taux de dévlopement"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_SIM_DESCRIPTION,81,22,167,12,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,294,285,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,366,285,50,14
+    DEFPUSHBUTTON   "OK",IDOK,186,285,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,244,285,50,14
     LTEXT           "Description :",-1,7,25,42,8
     EDITTEXT        IDC_SIM_NAME,81,7,167,12,ES_AUTOHSCROLL
     LTEXT           "Nom :",-1,7,9,42,8
     EDITTEXT        IDC_SIM_INTERNAL_NAME,81,287,90,12,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Nom interne:",-1,7,290,50,8
-    PUSHBUTTON      "Préférence\ndu recuit simulé",IDC_SIM_SA,211,252,205,26,BS_MULTILINE
+    PUSHBUTTON      "Préférence\ndu recuit simulé",IDC_SIM_SA,81,251,167,26,BS_MULTILINE
     LTEXT           "Fichier d'entrées :",-1,7,41,68,8
-    LTEXT           "Remarque de sortie :",-1,7,267,68,10
-    COMBOBOX        IDC_SIM_FEEDBACK,81,265,89,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_SIM_RESULT,81,39,167,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Ce fichier doit contenir 3 colonnes: stade, temperature, taux (1/d)",-1,255,36,161,20
+    LTEXT           "Ce fichier doit contenir 3 colonnes: stade, temperature, taux (1/d)",-1,7,78,62,55
     LTEXT           "Equation to evaluate",-1,7,58,74,8
-    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_HSCROLL | WS_TABSTOP,81,57,213,186,WS_EX_CLIENTEDGE
+    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,82,58,166,186
 END
 
 
@@ -308,7 +306,7 @@ BEGIN
     IDD_SIM_FIT_EQUATION, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 416
+        RIGHTMARGIN, 294
         VERTGUIDE, 13
         VERTGUIDE, 81
         VERTGUIDE, 96
@@ -320,23 +318,6 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog Info
-//
-
-IDD_SIM_FIT_EQUATION DLGINIT
-BEGIN
-    IDC_SIM_FEEDBACK, 0x403, 7, 0
-0x6f42, 0x6375, 0x656c, "\000" 
-    IDC_SIM_FEEDBACK, 0x403, 10, 0
-0x7449, 0x72e9, 0x7461, 0x6f69, 0x006e, 
-    IDC_SIM_FEEDBACK, 0x403, 6, 0
-0x7943, 0x6c63, 0x0065, 
-    0
-END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -4193,33 +4174,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Menu
-//
-
-IDR_MENU_EDIT MENU
-BEGIN
-    POPUP "Popup"
-    BEGIN
-        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
-        MENUITEM SEPARATOR
-        MENUITEM "&Sélectionner tout\tCtrl+A",  ID_EDIT_SELECT_ALL
-    END
-    MENUITEM SEPARATOR
-END
-
-IDR_MENU_REFORMAT MENU
-BEGIN
-    POPUP "Réinitialiser"
-    BEGIN
-        MENUITEM "Réinitialiser avec le séparateur par défaut", ID_REFORMAT1
-        MENUITEM "Réinitialiser avec -",        ID_REFORMAT2
-        MENUITEM "Réinitialiser avec /",        ID_REFORMAT3
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // AFX_DIALOG_LAYOUT
 //
 
@@ -4251,6 +4205,33 @@ END
 IDD_CHARTS_PROPETIES AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_EDIT MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "C&opier\tCtrl+C",             ID_EDIT_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "&Sélectionner tout\tCtrl+A",  ID_EDIT_SELECT_ALL
+    END
+    MENUITEM SEPARATOR
+END
+
+IDR_MENU_REFORMAT MENU
+BEGIN
+    POPUP "Réinitialiser"
+    BEGIN
+        MENUITEM "Réinitialiser avec le séparateur par défaut", ID_REFORMAT1
+        MENUITEM "Réinitialiser avec -",        ID_REFORMAT2
+        MENUITEM "Réinitialiser avec /",        ID_REFORMAT3
+    END
 END
 
 
@@ -4760,7 +4741,7 @@ BEGIN
     LTEXT           "Variation type:",IDC_CMN_STATIC1,7,219,46,8
     LTEXT           "Total random variations:",IDC_CMN_STATIC2,206,219,76,8
     EDITTEXT        IDC_PV_NB_VARIATIONS,303,216,99,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_PV_PARAMETERS,"SysTreeView32",WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,19,170,189
+    CONTROL         "",IDC_PV_PARAMETERS,"SysTreeView32",TVS_DISABLEDRAGDROP | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,19,170,189
 END
 
 IDD_MODELS_SSI DIALOG 0, 0, 351, 300
@@ -8370,33 +8351,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Menu
-//
-
-IDR_MENU_EDIT MENU
-BEGIN
-    POPUP "Popup"
-    BEGIN
-        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
-        MENUITEM "&Select All\tCtrl+A",         ID_EDIT_SELECT_ALL
-        MENUITEM SEPARATOR
-    END
-    MENUITEM SEPARATOR
-END
-
-IDR_MENU_REFORMAT MENU
-BEGIN
-    POPUP "Reset"
-    BEGIN
-        MENUITEM "Reset with default separator list", ID_REFORMAT1
-        MENUITEM "Resdet with -",               ID_REFORMAT2
-        MENUITEM "Reset with /",                ID_REFORMAT3
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // AFX_DIALOG_LAYOUT
 //
 
@@ -8433,6 +8387,33 @@ END
 IDD_CHARTS_PROPETIES AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_EDIT MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Select All\tCtrl+A",         ID_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+    END
+    MENUITEM SEPARATOR
+END
+
+IDR_MENU_REFORMAT MENU
+BEGIN
+    POPUP "Reset"
+    BEGIN
+        MENUITEM "Reset with default separator list", ID_REFORMAT1
+        MENUITEM "Resdet with -",               ID_REFORMAT2
+        MENUITEM "Reset with /",                ID_REFORMAT3
+    END
 END
 
 
