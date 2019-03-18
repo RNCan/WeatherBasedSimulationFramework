@@ -67,7 +67,7 @@ namespace WBSF
 
 		//member
 		double m_relativeDevRate[NB_STAGES]; //Individual's relative development rates in 9 stages
-		CTRef m_OWDate; //When individue pass from Egg to OW, they must stop devel until next spring
+		CTRef m_OWDate; //When individual pass from Egg to OW, they must stop development until next spring
 		double m_potentialFecundity;
 		bool m_bKillByAttrition;
 		bool m_bKillByOverwintering;

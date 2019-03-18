@@ -23,7 +23,7 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_ADULT, S_DEAD_ADULT, S_AVERAGE_INSTAR, NB_STATS
+			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_ADULT, S_AVERAGE_INSTAR, NB_STATS
 		};
 	}
 
@@ -37,22 +37,23 @@ namespace WBSF
 	{
 	public:
 
-		CLaricobiusNigrinus(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = LNF::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CLaricobiusNigrinus(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = LNF::EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CLaricobiusNigrinus(const CLaricobiusNigrinus& in) :WBSF::CIndividual(in){ operator=(in); }
 		CLaricobiusNigrinus& operator=(const CLaricobiusNigrinus& in);
 		~CLaricobiusNigrinus(void);
 
-		virtual void Live(const CHourlyData& weather, size_t dt);
-		virtual void Live(const CWeatherDay& weather);
-		virtual void Brood(const CWeatherDay& weather);
-		virtual void Die(const CWeatherDay& weather);
-		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual double GetInstar(bool includeLast)const;//	{ return (IsAlive() || m_death == OLD_AGE) ? std::min(m_age < LNF::L2o ? m_age : std::max(double(LNF::L2o), m_age - 1), double(LNF::NB_STAGES) - (includeLast ? 0.0 : 1.0)) : WBSF::CBioSIMModelBase::VMISS; }
-		virtual bool NeedOverheating()const { return true; }
+		virtual void OnNewDay(const CWeatherDay& weather)override;
+		virtual void Live(const CHourlyData& weather, size_t dt)override;
+		virtual void Live(const CWeatherDay& weather)override;
+		virtual void Brood(const CWeatherDay& weather)override;
+		virtual void Die(const CWeatherDay& weather)override;
+		virtual void GetStat(CTRef d, CModelStat& stat)override;
+		virtual double GetInstar(bool includeLast)const override;//	{ return (IsAlive() || m_death == OLD_AGE) ? std::min(m_age < LNF::L2o ? m_age : std::max(double(LNF::L2o), m_age - 1), double(LNF::NB_STAGES) - (includeLast ? 0.0 : 1.0)) : WBSF::CBioSIMModelBase::VMISS; }
+		virtual bool NeedOverheating()const override { return true; }
 
-		virtual void Pack(const WBSF::CIndividualPtr& in);
-		virtual size_t GetNbStages()const{ return LNF::NB_STAGES; }
-		virtual WBSF::CIndividualPtr CreateCopy()const{ return std::make_shared<CLaricobiusNigrinus>(*this); }
+		virtual void Pack(const WBSF::CIndividualPtr& in)override;
+		virtual size_t GetNbStages()const override { return LNF::NB_STAGES; }
+		virtual WBSF::CIndividualPtr CreateCopy()const override { return std::make_shared<CLaricobiusNigrinus>(*this); }
 
 		inline CLNFHost* GetHost();
 		inline const CLNFHost* GetHost()const;
@@ -63,8 +64,10 @@ namespace WBSF
 	protected:
 
 		//member
+		double m_creationCDD;//CDD need to create individual
+		double m_CDD;//actual CDD
 		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
-		double m_AL; //adult longevity [days]
+//		double m_AL; //adult longevity [days]
 		double m_F; //fecundity
 	};
 
@@ -98,18 +101,18 @@ namespace WBSF
 
 		//global variables of all bugs
 		bool m_bApplyAttrition;
-		double m_maxTsoil;
 
-		CLNFStand(WBSF::CBioSIMModelBase* pModel) :
+		CLNFStand(WBSF::CBioSIMModelBase* pModel, double DDThreshold) :
 			WBSF::CStand(pModel),
-			m_equations(pModel->RandomGenerator())
+			m_equations(pModel->RandomGenerator()),
+			m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, DDThreshold)
 		{
 			m_bApplyAttrition = false;
-			m_maxTsoil = 5.3;
 		}
-
+		
 		CLaricobiusNigrinusEquations m_equations;
-
+		CDegreeDays m_DD;
+		
 	};
 
 

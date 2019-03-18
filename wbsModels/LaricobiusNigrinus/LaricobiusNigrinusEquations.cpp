@@ -12,7 +12,8 @@
 // 10/03/2019   Rémi Saint-Amant    Creation 
 //*****************************************************************************
 #include "LaricobiusNigrinusEquations.h"
-
+#include <boost/math/distributions.hpp>
+#include <boost/math/distributions/logistic.hpp>
 
 using namespace WBSF;
 using namespace LNF;
@@ -20,32 +21,27 @@ using namespace std;
 
 namespace WBSF
 {
+//NbVal=   201	Bias= 1.35004	MAE= 6.47098	RMSE=10.14646	CD= 0.90988	R²= 0.91441
+//a1                  	=  -7.79345 
+//b1                  	=  36.52359 
+//a2                  	=  -0.01016 
+//b2                  	=  13.13306 
+//mu                  	= 101.39193 
+//s                   	=  27.21807 
+//DDThreshold         	=   4.27488 
+                
+              
 
-//NbVal=   123	Bias=-0.11342	MAE= 4.06803	RMSE= 6.64924	CD= 0.97056	R²= 0.97288
-//a1                  	= -18.87912 
-//b1                  	=  26.40841 
-//a2                  	= -38.55547 
-//b2                  	=  60.51580 
-//f1                  	=  -8.82210 
-//f2                  	=  16.49080 
-//f3                  	=  -0.36875 
-//f4                  	=   1.81451 
-//peak                	=  53.41571 
-//s                   	=  16.59165 
-//maxTsoil            	=   4.67060 
-// 14 mars 2019 21:06:25
-
-         
-	const double CLaricobiusNigrinusEquations::P[NB_STAGES][NB_RDR_PARAMS] =
+	const double CLaricobiusNigrinusEquations::D[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
-		{ -18.879,26.408 },//Egg
-		{ -38.555,60.516 },//Larvae
-		{ -8.8221,16.491 },//PrePupae
-		{ -0.3688,1.8145 },//Pupae
-		{  0.0000,0.0000 },//Adult
+		{ -7.79, 36.5 },//Egg
+		{ -0.01, 13.1 },//Larvae
+		{ 0.00 , 0.00 },//PrePupae
+		{ 0.00 , 0.00 },//Pupae
 	};
 
+	const double CLaricobiusNigrinusEquations::O[NB_OVIP_PARAMS] = { 101.4, 27.2, 4.3 };
 	
 
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
@@ -56,25 +52,31 @@ namespace WBSF
 		{
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 			{
-				m_P[s][p] = P[s][p];
+				m_D[s][p] = D[s][p];
 			}
 		}
+
+		for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
+			m_O[p] = O[p];
 	}
 
+	
 
+	double CLaricobiusNigrinusEquations::Eq7(size_t s, double T)
+	{
+		static const double p[2][6] = 
+		{
+			{ 0.87742, 0.93156, 0.86978, 0.14425, 18.13652, 22.18765 },
+			{0.64782, 0.3932, 1.11128, 0.18811, 30.71756, 39.52194}
+		};
 
-	//double CLaricobiusNigrinusEquations::Equation1(size_t e, double T)
-	//{
-	//	const double* p = P[e];//current P for equation
-	//	size_t s = e2s(e);//compute stage for b1Factor
+		double Tau = (T - p[s][4]) / (p[s][5] - p[s][4]);
+		double p1 = 1 / (1 + exp(p[s][1] - p[s][2] * Tau));
+		double p2 = exp((Tau - 1) / p[s][3]);
+		double Rt = p[s][0] * (p1 - p2);
 
-	//	double Tau = (T - p[PTB]) / (p[PTM] - p[PTB]);
-	//	double p1 = 1 / (1 + exp(p[PB2] - p[PB3] * Tau));
-	//	double p2 = exp((Tau - 1) / p[PB4]);
-	//	double Rt = p[PB1] * b1Factor[s] * (p1 - p2);
-
-	//	return max(0.0, Rt);
-	//}
+		return max(0.0, Rt);
+	}
 
 	//double CLaricobiusNigrinusEquations::Equation2(size_t e, double T)
 	//{
@@ -112,18 +114,18 @@ namespace WBSF
 	
 		double r = 0;
 
+
+
 		//double Tsoil = min(5.3, T);// 0.7*T + 1.54;
 		//Equation from
 		//Temperature - Dependent Development of the Specialist Predator Laricobius nigrinus(Coleoptera: Derodontidae)
 		//G.M.G.Zilahi-Balogh, S.M.SALOM, AND L.T.KOK (2003) Entomological Society of America
 		switch (s)
 		{
-		case EGG:	r = max(0.0, -0.0907 + 0.0165*T); break;
-		//case L1:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[0]); break;
-		//case L2:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[1]); break;
-		//case L3:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[2]); break;
-		//case L4:	r = max(0.0, (-0.0151 + 0.0048*T)/m_F[3]); break;
+		//case EGG:	r = max(0.0, -0.0907 + 0.0165*T); break;
+		case EGG:	r = Eq7(s, T); break;
 		case LARVAE: r = max(0.0, -0.0151 + 0.0048*T ); break;
+//		case LARVAE: r = Eq7(s, T); break;
 		case PREPUPAE:	r = max(0.0, -0.0132 + 0.0047* T); break;//in the ground: need ground temperature
 		case PUPAE:	r = max(0.0, -0.0144 + 0.0047* T); break;//in the ground: need ground temperature
 		case ADULT:	r = 1.0 / 172.0; break;//from October to April
@@ -141,19 +143,35 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetRelativeDevRate(size_t s)const
 	{
-		double rr = 0;
+		double rr = 1;
 
-		double Э = m_randomGenerator.Randu(true, true);
-		rr = 1.0 - log((pow(Э, m_P[s][Ϙ]) - 1.0) / (pow(0.5, m_P[s][Ϙ]) - 1.0)) / m_P[s][к];
-		while (rr<0.4 || rr>2.5)
+		if (s == EGG || s == LARVAE)
 		{
 			double Э = m_randomGenerator.Randu(true, true);
-			rr = 1 - log((pow(Э, m_P[s][Ϙ]) - 1) / (pow(0.5, m_P[s][Ϙ]) - 1)) / m_P[s][к];
+			rr = 1.0 - log((pow(Э, m_D[s][Ϙ]) - 1.0) / (pow(0.5, m_D[s][Ϙ]) - 1.0)) / m_D[s][к];
+			while (rr<0.4 || rr>2.5)
+			{
+				double Э = m_randomGenerator.Randu(true, true);
+				rr = 1 - log((pow(Э, m_D[s][Ϙ]) - 1) / (pow(0.5, m_D[s][Ϙ]) - 1)) / m_D[s][к];
+			}
 		}
 
 		_ASSERTE(!_isnan(rr) && _finite(rr));
 		return rr;
 	}
+
+	double CLaricobiusNigrinusEquations::GetOvipositionDD()const
+	{
+		boost::math::logistic_distribution<double> rldist(m_O[μ], m_O[ѕ]);
+
+		double DD = boost::math::quantile(rldist, m_randomGenerator.Randu());
+		while (DD < 0 || DD>5000)
+			DD = boost::math::quantile(rldist, m_randomGenerator.Randu());
+
+		return DD;
+	}
+
+	
 
 	//*****************************************************************************
 	//
@@ -190,4 +208,7 @@ namespace WBSF
 		
 		return l;
 	}
+
+	
 }
+

@@ -77,7 +77,7 @@ private:
 
 	//CTRef m_swarmingPredictedDate;
 	CTRef m_swarmingDate;
-	CTRef m_diapauseDate;	//When individue pass from Pupae to Teneral Adult, they can stop development until next spring
+	CTRef m_diapauseDate;	//When individual pass from Pupae to Teneral Adult, they can stop development until next spring
 	CTRef m_awakeDate;	
 	CTRef m_ecdysisDate;
 	//CTRef m_rebeginEating;

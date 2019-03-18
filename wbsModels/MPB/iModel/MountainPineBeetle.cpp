@@ -926,9 +926,9 @@ namespace WBSF
 
 		for (iterator it = begin(); it != end(); it++)
 		{
+			(*it)->OnNewDay(weather);
 			if ((*it)->IsCreated(weather.GetTRef()))
 			{
-				(*it)->NewDay();
 				if ((*it)->IsAlive())
 				{
 					(*it)->Live(weather);

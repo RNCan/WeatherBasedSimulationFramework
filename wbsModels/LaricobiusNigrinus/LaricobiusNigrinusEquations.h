@@ -11,8 +11,9 @@ namespace WBSF
 
 	namespace LNF
 	{
-		enum TStages{ EGG, /*L1, L2, L3, L4*/ LARVAE, PREPUPAE, PUPAE, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		enum TStages{ EGG, LARVAE, PREPUPAE, PUPAE, NB_STAGES, ADULT = NB_STAGES };
 		enum { Ϙ, к, NB_RDR_PARAMS };
+		enum { μ, ѕ, Τᴴ, NB_OVIP_PARAMS };
 	}
 
 
@@ -22,9 +23,11 @@ namespace WBSF
 	{
 	public:
 
-		static const double P[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
+		static const double D[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //development parameter
+		static const double O[LNF::NB_OVIP_PARAMS];//oviposition parameters
 		
-		double m_P[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
+		double m_D[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
+		double m_O[LNF::NB_OVIP_PARAMS];
 		
 		CLaricobiusNigrinusEquations(const CRandomGenerator& RG);
 		
@@ -34,9 +37,11 @@ namespace WBSF
 		double GetRelativeDevRate(size_t s)const;
 		double GetAdultLongevity()const;
 		double GetFecondity(double l)const;
+		double GetOvipositionDD()const;
 
 	protected:
 		
+		static double Eq7(size_t s, double T);
 
 	};
 

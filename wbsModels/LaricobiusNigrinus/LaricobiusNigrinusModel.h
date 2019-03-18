@@ -36,16 +36,16 @@ namespace WBSF
 		double m_sumDD;
 
 		bool m_bCumul;
-		double m_P[4][LNF::NB_RDR_PARAMS];
-		double m_peak;
-		double m_s;
-		double m_maxTsoil;
+		double m_D[4][LNF::NB_RDR_PARAMS];
+		double m_O[LNF::NB_OVIP_PARAMS];
 
 		std::set<int> m_years;
+		std::array<CStatistic, 3> m_nb_days;
 
 		
 		void ExecuteDaily(const CWeatherYear& weather, CModelStatVector& stat);
 
+		bool IsParamEqual()const;
 	};
 
 }

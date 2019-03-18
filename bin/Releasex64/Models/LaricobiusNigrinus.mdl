@@ -16,7 +16,7 @@
     <InputVariableArray>
         <InputVariable>
             <Name>Cumul</Name>
-            <Caption>Cumal</Caption>
+            <Caption>Cumulative</Caption>
             <Description/>
             <Type>0</Type>
             <Rect>15 15 35 165</Rect>
@@ -33,7 +33,7 @@
         <OutputVariable>
             <Name>Egg</Name>
             <Title>Egg</Title>
-            <Units/>
+            <Units>%</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -41,7 +41,7 @@
         <OutputVariable>
             <Name>Larvae</Name>
             <Title>Larvae</Title>
-            <Units/>
+            <Units>%</Units>
             <Description>L1 to L4</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -49,32 +49,24 @@
         <OutputVariable>
             <Name>PrePupa</Name>
             <Title>PrePupa</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description>Pre-pupa live undeground</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Pupa</Name>
             <Title>Pupa</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description>Pupa live undeground</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Adult</Name>
             <Title>Adult</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>DeadAdult</Name>
-            <Title>DeadAdult</Title>
-            <Units/>
-            <Description/>
+            <Units>%</Units>
+            <Description>Last stage. Aestivating adults. Active adult is not simulated. </Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -88,6 +80,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Model base on:&#x0D;&#x0A;Temperature-Dependent Development of the Specialist Predator Laricobius nigrinus (Coleoptera: Derodontidae)&#x0D;&#x0A;G.M.G. Zilahi-balogh, S. M. Salom AND L. T. Kok&#x0D;&#x0A;Environ. Entomol. 32(6): 1322-1328 (2003)&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Model egg laid and relatice dev rate calibrated by Remi Saint-Amant with data from Victoria (Zilahi-balogh) and Virginia (McAvoy)</Credit>
+    <Credit>Model base on:&#x0D;&#x0A;Temperature-Dependent Development of the Specialist Predator Laricobius nigrinus (Coleoptera: Derodontidae)&#x0D;&#x0A;G.M.G. Zilahi-balogh, S. M. Salom AND L. T. Kok&#x0D;&#x0A;Environ. Entomol. 32(6): 1322-1328 (2003)&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Model for initiate egg stage and relative development rate calibrated by Remi Saint-Amant with data from Victoria (BC) (Zilahi-Balogh) and Virginia (McAvoy)&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>

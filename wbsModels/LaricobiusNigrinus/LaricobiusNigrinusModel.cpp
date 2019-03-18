@@ -34,14 +34,14 @@ namespace WBSF
 		{
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 			{
-				m_P[s][p] = CLaricobiusNigrinusEquations::P[s][p];
+				m_D[s][p] = CLaricobiusNigrinusEquations::D[s][p];
 			}
 		}
 
-		//calibrated with simulated annealing
-		m_peak= 53;
-		m_s= 16.6;
-		m_maxTsoil = 4.7;
+		for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
+		{
+			m_O[p] = CLaricobiusNigrinusEquations::O[p];
+		}
 	}
 
 	CLaricobiusNigrinusModel::~CLaricobiusNigrinusModel()
@@ -66,19 +66,20 @@ namespace WBSF
 		}
 		
 
-		if (parameters.size() == 4 * NB_RDR_PARAMS +3 +1) 
+		if (parameters.size() == 1 + 4 * NB_RDR_PARAMS + NB_OVIP_PARAMS  )
 		{
 			for (size_t s = 0; s < 4; s++)
 			{
 				for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 				{
-					m_P[s][p] = parameters[c++].GetFloat();
+					m_D[s][p] = parameters[c++].GetFloat();
 				}
 			}
 			
-			m_peak = parameters[c++].GetFloat();
-			m_s = parameters[c++].GetFloat();
-			m_maxTsoil = parameters[c++].GetFloat();
+			for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
+			{
+				m_O[p] = parameters[c++].GetFloat();
+			}
 		}
 
 		return msg;
@@ -170,22 +171,25 @@ namespace WBSF
 	void CLaricobiusNigrinusModel::ExecuteDaily(const CWeatherYear& weather, CModelStatVector& output)
 	{
 		//Create stand
-		CLNFStand stand(this);
-		stand.m_maxTsoil = m_maxTsoil;
+		CLNFStand stand(this, m_O[Τᴴ]);
 
-
-//		static const size_t COL[ADULT] = { 0,1,1,1,1,2,3 };
 		//Set parameters to equation
 		for (size_t s = 0; s < ADULT; s++)
 		{
-			//size_t ss = COL[s];
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 			{
-				stand.m_equations.m_P[s][p] = m_P[s][p];
+				stand.m_equations.m_D[s][p] = m_D[s][p];
 			}
 		}
+		
+		//stand.m_equations.Reinit();//re-initialize to recompute rate whit new F
+		
 
-		stand.m_equations.Reinit();//reinit to recompute rate whit new F
+		for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
+		{
+			stand.m_equations.m_O[p] = m_O[p];
+		}
+		
 		
 
 		int year = weather.GetTRef().GetYear();
@@ -196,13 +200,13 @@ namespace WBSF
 		
 		pHost->m_nbMinObjects = 10;
 		pHost->m_nbMaxObjects = 1000;
+
+
 		//Zilahi-Balogh (2001)
 //Oviposition began in week 9 (27 December) with the active egg laying period between weeks 10 and 32 (7 January and 13
 //June, respectively) (Figure 2.5). Peak egg laying occurred week in 18 (7 March) (
-		pHost->Initialize<CLaricobiusNigrinus>(CInitialPopulation(CJDayRef(year, m_peak), m_s, 400, 100, EGG));
+		pHost->Initialize<CLaricobiusNigrinus>(CInitialPopulation(400, 100, EGG));
 		//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, NOT_INIT, m_bFertility, 0));
-
-		
 			
 		//add host to stand			
 		stand.m_host.push_front(pHost);
@@ -254,26 +258,17 @@ namespace WBSF
 
 	void CLaricobiusNigrinusModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		//Location,Year,Month,Day,date,EggNotLaid,Egg,L1,L2,L3,L4,PrePupa,Larvae
-		/*ASSERT(data.size() == 12);
-
-		CSAResult obs;
-		obs.m_ref = CTRef(stoi(data[1]), stoi(data[2]) - 1, stoi(data[3]) - 1);
-		obs.m_obs.resize(7);
-		for (size_t i = 0; i < 7; i++)
-			obs.m_obs[i] = stod(data[i + 5]);
-
-		m_SAResult.push_back(obs);
-
-		m_years.insert(obs.m_ref.GetYear());*/
-
 		ASSERT(data.size() == 5);
 
 		CSAResult obs;
 		obs.m_ref.FromFormatedString(data[1]);
 		obs.m_obs.resize(3);
 		for (size_t i = 0; i < 3; i++)
+		{
 			obs.m_obs[i] = stod(data[i + 2]);
+			if (obs.m_obs[i]>-999)
+				m_nb_days[i] += obs.m_ref.GetJDay();
+		}
 
 		m_SAResult.push_back(obs);
 
@@ -281,13 +276,81 @@ namespace WBSF
 
 	}
 
+	double GetSimX(size_t s, CTRef TRefO, double obs, const CModelStatVector& output)
+	{
+		double x = -999;
+
+		if (obs > -999)
+		{
+			//if (obs > 0.01 && obs < 99.99)
+			if (obs >= 100)
+				obs = 99.99;//to avoid some problem of truncation
+
+			long index = output.GetFirstIndex(s, ">=", obs, 1, CTPeriod(TRefO.GetYear(), FIRST_MONTH, FIRST_DAY, TRefO.GetYear(), LAST_MONTH, LAST_DAY));
+			if (index >= 1)
+			{
+				double obsX1 = output.GetFirstTRef().GetJDay() + index;
+				double obsX2 = output.GetFirstTRef().GetJDay() + index + 1;
+
+				double obsY1 = output[index][s];
+				double obsY2 = output[index + 1][s];
+				if (obsY2 != obsY1)
+				{
+					double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
+					double obsX = obsX1 + (obs - obsY1)*slope;
+					ASSERT(!_isnan(obsX) && _finite(obsX));
+
+					x = obsX;
+				}
+			}
+		}
+
+		return x;
+	}
+
+	bool CLaricobiusNigrinusModel::IsParamEqual()const
+	{
+		bool equal = true;
+		for (size_t s = 0; s <= LARVAE&&equal; s++)
+		{
+			CStatistic rL;
+			for (double Э = 0.01; Э < 0.5; Э += 0.01)
+			{
+				double r = 1.0 - log((pow(Э, m_D[s][Ϙ]) - 1.0) / (pow(0.5, m_D[s][Ϙ]) - 1.0)) / m_D[s][к];
+				if(r>=0.4 && r<=2.5 )
+					rL += 1.0 / r;//reverse for comparison
+			}
+
+			CStatistic rH;
+			for (double Э = 0.51; Э < 1.0; Э += 0.01)
+			{
+				double r = 1.0 - log((pow(Э, m_D[s][Ϙ]) - 1.0) / (pow(0.5, m_D[s][Ϙ]) - 1.0)) / m_D[s][к];
+				if (r >= 0.4 && r <= 2.5)
+					rH += r;
+			}
+
+			if (rL.IsInit() && rH.IsInit())
+				equal = fabs(rL[SUM] - rH[SUM])<5.3; //in Régnière (2012) obtain a max of 5.3
+			else
+				equal = false;
+		}
+
+		return equal;
+	}
+
 	void CLaricobiusNigrinusModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		if (!m_SAResult.empty())
 		{
+			if(!m_bCumul)
+				m_bCumul = true;//SA always cumulative
+
 			if (!m_weather.IsHourly())
 				m_weather.ComputeHourlyVariables();
 
+			//low and hi relative development rate must be approximatively the same
+			if( !IsParamEqual())
+				return ;
 
 			//for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
@@ -312,14 +375,25 @@ namespace WBSF
 				{
 					if (output.IsInside(m_SAResult[i].m_ref))
 					{
-						for (size_t j = 0; j < m_SAResult[i].m_obs.size(); j++)
+						for (size_t j = 0; j <3; j++)
 						{
-							double obs = m_SAResult[i].m_obs[j];
-							double sim = output[m_SAResult[i].m_ref][STAT_STAGE[j]];
-							if (obs > -999)
+							double obs_y = m_SAResult[i].m_obs[j];
+							double sim_y = output[m_SAResult[i].m_ref][STAT_STAGE[j]];
+							
+							if (obs_y > -999)
+								stat.Add(obs_y, sim_y);
+
+
+							double obs_x = m_SAResult[i].m_ref.GetJDay(); 
+							double sim_x = GetSimX(STAT_STAGE[j], m_SAResult[i].m_ref, obs_y, output);
+
+							if (sim_x > -999)
 							{
-								stat.Add(obs, sim);
+								obs_x = 100 * (obs_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE];
+								sim_x = 100 * (sim_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE];
+								stat.Add(obs_x, sim_x);
 							}
+								
 						}
 					}
 				}

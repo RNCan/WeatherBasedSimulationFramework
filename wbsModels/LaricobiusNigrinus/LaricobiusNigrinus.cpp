@@ -29,7 +29,7 @@ namespace WBSF
 	//
 	// Note: m_RDR (relative Development Rate)  member is init with random values.
 	//*****************************************************************************
-	CLaricobiusNigrinus::CLaricobiusNigrinus(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CLaricobiusNigrinus::CLaricobiusNigrinus(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage
@@ -37,9 +37,11 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-		m_AL = Equations().GetAdultLongevity();
+		m_CDD = 0;
+		m_creationCDD = Equations().GetOvipositionDD();
+		//m_AL = ;
 		//m_AL = 172;//pour calibration seulement
-		m_F = Equations().GetFecondity(m_AL);
+		m_F = Equations().GetFecondity(Equations().GetAdultLongevity());
 	}
 
 
@@ -62,7 +64,20 @@ namespace WBSF
 	CLaricobiusNigrinus::~CLaricobiusNigrinus(void)
 	{}
 
-
+	
+	void CLaricobiusNigrinus::OnNewDay(const CWeatherDay& weather)
+	{
+		if (!IsCreated(weather.GetTRef()))
+		{
+			m_CDD += GetStand()->m_DD.GetDD(weather);
+			if (m_CDD >= m_creationCDD)
+			{
+				m_creationDate = weather.GetTRef();
+				ASSERT(IsCreated(weather.GetTRef()));
+			}
+		}
+	}
+	
 	//*****************************************************************************
 	// Develops all stages for one time step
 	// Input:	weather: weather of the hour
@@ -82,34 +97,23 @@ namespace WBSF
 		double T = weather[H_TAIR];
 		if (GetStage() == PREPUPAE || GetStage() == PUPAE)
 		{
-			T = min(pStand->m_maxTsoil, T);
+			//estimate of soil temperature : need a real model
+			T = T * 0.7 + 1.5;
 		}
-		/*if (NeedOverheating())
-		{
-			static const double OVERHEAT_FACTOR = 0.1;
-			COverheat overheat(OVERHEAT_FACTOR);
-			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
-		}*/
 		
-		if (GetStage() == ADULT)
-		{
-			double r = timeStep / (24.0*m_AL);
-			m_age = min(double(DEAD_ADULT), m_age + r );
-		}
-		else
-		{
-			//Time step development rate
-			double r = Equations().GetRate(s, T) / (24.0 / timeStep);
+		
+		//Time step development rate
+		double r = Equations().GetRate(s, T) / (24.0 / timeStep);
 
-			//Relative development rate for this individual
-			double rr = m_RDR[s];
+		//Relative development rate for this individual
+		double rr = m_RDR[s];
 
-			//Time step development rate for this individual
-			r *= rr;
+		//Time step development rate for this individual
+		r *= rr;
 
-			//Adjust age
-			m_age += r;
-		}
+		//Adjust age
+		m_age = min(double(ADULT), m_age + r);
+		
 
 		//adjust overwintering energy
 		//if (s == EGG)
@@ -130,7 +134,7 @@ namespace WBSF
 			return;
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
+		for (size_t step = 0; step < nbSteps&&m_age < ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -160,12 +164,12 @@ namespace WBSF
 	void CLaricobiusNigrinus::Die(const CWeatherDay& weather)
 	{
 		//attrition mortality. Killed at the end of time step 
-		if (GetStage() == DEAD_ADULT)
-		{
-			//Old age
-			m_status = DEAD;
-			m_death = OLD_AGE;
-		}
+		//if (GetStage() == DEAD_ADULT)
+		//{
+		//	//Old age
+		//	m_status = DEAD;
+		//	m_death = OLD_AGE;
+		//}
 		//else if (GetStage() != EGG && weather[H_TMIN][MEAN] < -12)
 		//{
 		//	//all non EGG are kill by frost under -10ºC
@@ -188,7 +192,7 @@ namespace WBSF
 
 //		stat[S_BROOD] += m_broods * m_scaleFactor;
 
-		if (IsCreated(d) && IsAlive() || stage == DEAD_ADULT)
+		if (IsCreated(d) && IsAlive() /*|| stage == DEAD_ADULT*/)
 		{
 			stat[S_EGG + stage] += m_scaleFactor;
 //			if(stage>=L1 && stage<=L4)
@@ -286,10 +290,10 @@ namespace WBSF
 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
 		//stat[S_DD68] = m_sumDD;
-		
 	}
 
-
+//*************************************************
 	
+
 
 }
