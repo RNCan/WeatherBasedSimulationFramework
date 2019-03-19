@@ -19,8 +19,8 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CEmeraldAshBorerColdHardinessModel::CreateObject);
 
-	enum TColdHardinessH { O_TAIR, O_TBARK, O_H_WT, O_H_SCP, O_H_MORTALITY, NB_OUTPUTS_H };
-	enum TColdHardinessD { O_TMIN, O_TMAX, O_TBARK_MIN, O_TBARK_MAX, O_D_WT, O_D_SCP, O_D_MORTALITY, NB_OUTPUTS_D };
+	enum TColdHardinessH { O_TAIR, O_TBARK, O_H_WT, O_H_SCP, O_H_MORTALITY, O_H_DIFF_TMIN_SCP, NB_OUTPUTS_H };
+	enum TColdHardinessD { O_TMIN, O_TMAX, O_TBARK_MIN, O_TBARK_MAX, O_D_WT, O_D_SCP, O_D_MORTALITY, O_D_DIFF_TMIN_SCP, NB_OUTPUTS_D };
 	extern const char HEADER_H[] = "Tair,Tbark,wT,MDT,SCP,mortality";
 	extern const char HEADER_D[] = "Tmin,Tmax,Tbmin,Tbmax,wT,MDT,SCP,mortality";
 //
@@ -31,10 +31,17 @@ namespace WBSF
 //Lambda_a = 0.06354 {   0.06320, 0.06384}	VM = { 0.00019,   0.00028 }
 //mdTo_a = 6.35577 {   6.31232, 6.39598}	VM = { 0.01053,   0.04390 }
 
+//***********************************
+//N=     31601	T=  0.00027	F= 2.71107
+//NbVal=   175	Bias=-0.00797	MAE= 0.08341	RMSE= 0.12447	CD= 0.89321	R²= 0.89388
+//Lambda              	=   0.38622  wTo                 	= -28.45729  
+//Eps = [0]{ 0.00019,  0.00004,  0.00002,  0.00069}
+//***********************************
+
 	CEmeraldAshBorerColdHardinessModel::CEmeraldAshBorerColdHardinessModel()
 	{
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2018)";
+		VERSION = "1.0.2 (2019)";
 
 		
 		m_n_Δt=88;
@@ -131,12 +138,6 @@ namespace WBSF
 		return wT;
 	}
 
-	/*void get_wT(double& wTº, CModelStatVector& output, CTRef TRef, int n_Δt, double a0)
-	{
-		double wT¹ = get_wT(output, TRef, n_Δt, a0);
-		wTº = wT¹;
-	}
-*/
 	double get_SCP(double wT, double wTº, double λ, double SCPᶫ, double SCPᴴ)
 	{
 		ASSERT(SCPᶫ <= SCPᴴ);
@@ -168,6 +169,8 @@ namespace WBSF
 			outputD[TRef][O_D_WT] = stats[TRef][O_H_WT][MEAN];
 			outputD[TRef][O_D_SCP] = stats[TRef][O_H_SCP][MEAN];
 			outputD[TRef][O_D_MORTALITY] = stats[TRef][O_H_MORTALITY][MEAN];
+			if(stats[TRef][O_TBARK].IsInit() && stats[TRef][O_H_SCP].IsInit())
+				outputD[TRef][O_D_DIFF_TMIN_SCP] = stats[TRef][O_TBARK][LOWEST] - stats[TRef][O_H_SCP][LOWEST];
 		}
 
 	}
@@ -275,7 +278,9 @@ namespace WBSF
 				double SCP = get_SCP(wT, m_wTº, m_λ, m_SCPᶫ, m_SCPᴴ);
 				cur_SCP = (phase == ACCLIMATATION) ? min(cur_SCP, SCP) : max(cur_SCP, SCP);
 				//double SCP = wT* m_p[phase].λ + m_p[phase].wTº;
-				mortality = max(mortality, SShaped(output[TRef][O_TBARK], 0.98987, 0.39288, -28.52594));
+				//mortality = max(mortality, SShaped(output[TRef][O_TBARK], 0.98987, 0.39288, -28.52594));
+				mortality = max(mortality, Weibull(output[TRef][O_TBARK], -1.42150, -7.19593, -34.28952));
+				
 
 				if (phase == ACCLIMATATION && TRef >= lowTRef)
 				{
@@ -291,6 +296,7 @@ namespace WBSF
 				output[TRef][O_H_WT] = wT;
 				output[TRef][O_H_SCP] = cur_SCP;
 				output[TRef][O_H_MORTALITY] = mortality*100;
+				output[TRef][O_H_DIFF_TMIN_SCP] = output[TRef][O_TBARK] - output[TRef][O_H_SCP];
 			}//for all hours during the winter
 		}//for all years
 	}
@@ -349,13 +355,16 @@ namespace WBSF
 	{
 		return (K*(1 / (1 + A * exp(-R * (x- x0)))));
 	}
+	
+
+
 	double CEmeraldAshBorerColdHardinessModel::Weibull(double x, double k, double y, double x0)
 	{
 		return exp(-pow(max(0.0, (x - x0)) / y,k));
 	}
-	double CEmeraldAshBorerColdHardinessModel::SShaped(double x, double L, double k, double x0)
+	double CEmeraldAshBorerColdHardinessModel::SShaped(double x, double p, double k, double x0)
 	{
-		return (1.0 - L / (1.0 + exp(-k * (x-x0))));
+		return (1.0 - 1.0 / (1.0 + exp(-k * pow(x-x0, p))));
 	}
 	
 	void CEmeraldAshBorerColdHardinessModel::GetFValueDaily(CStatisticXY& stat)
@@ -370,9 +379,12 @@ namespace WBSF
 				{
 					//CEABCHParam& p = m_p[DESACCLIMATATION];
 					double obsV = m_SAResult[i].m_obs[2];
-					double simV = pow(SShaped(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº),1);
+					//double simV = pow(SShaped(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº),1);
+					
+					double simV = Weibull(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº);
 
-					stat.Add(simV, obsV);
+
+					stat.Add(obsV, simV);
 				}
 				return;
 			}

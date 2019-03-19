@@ -73,6 +73,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>Tmin_SCP</Name>
+            <Title>Tmin_SCP</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright>WARNING: this model was never validated</Copyright>
     <Credit>DEvloped by Remi Saint-Amant from Lyons 2004 publication</Credit>
