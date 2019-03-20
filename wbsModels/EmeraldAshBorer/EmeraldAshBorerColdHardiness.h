@@ -62,6 +62,7 @@ namespace WBSF
 //		double m_ΔΣwT;
 
 
+		static double logistic(double x, double L, double k, double x0);
 		static double Logistic(double x, double K, double A, double R, double x0);
 		static double Weibull(double x, double k, double y, double x0);
 		static double SShaped(double x, double L, double k, double x0);

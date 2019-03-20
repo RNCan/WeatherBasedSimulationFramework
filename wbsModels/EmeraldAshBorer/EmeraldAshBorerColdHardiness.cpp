@@ -279,8 +279,9 @@ namespace WBSF
 				cur_SCP = (phase == ACCLIMATATION) ? min(cur_SCP, SCP) : max(cur_SCP, SCP);
 				//double SCP = wT* m_p[phase].λ + m_p[phase].wTº;
 				//mortality = max(mortality, SShaped(output[TRef][O_TBARK], 0.98987, 0.39288, -28.52594));
-				mortality = max(mortality, Weibull(output[TRef][O_TBARK], -1.42150, -7.19593, -34.28952));
-				
+				//mortality = max(mortality, Weibull(output[TRef][O_TBARK], -1.42150, -7.19593, -34.28952));
+
+				mortality = max(mortality, logistic(output[TRef][O_TBARK], 2.10760, 0.24061, -8.07415) );
 
 				if (phase == ACCLIMATATION && TRef >= lowTRef)
 				{
@@ -345,10 +346,10 @@ namespace WBSF
 		}
 	}
 
-	double logistic(double x, double R, double x0)
+	double CEmeraldAshBorerColdHardinessModel::logistic(double x, double L, double k, double x0)
 	{
 		//return (K*(1 / (1 + A * exp(-R * (x- x0)))));
-		return 1 / (1 + exp(-R * (x - x0)));
+		return min(1.0, L - L / (1 + exp(-(k * x - x0))));
 	}
 
 	double CEmeraldAshBorerColdHardinessModel::Logistic(double x, double K, double A, double R, double x0)
@@ -381,7 +382,27 @@ namespace WBSF
 					double obsV = m_SAResult[i].m_obs[2];
 					//double simV = pow(SShaped(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº),1);
 					
-					double simV = Weibull(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº);
+					//double simV = Weibull(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº);
+					//double simV = SShaped(m_SAResult[i].m_obs[1], 1, m_λ, m_wTº);
+					//double simV = Logistic(m_SAResult[i].m_obs[1], m_SCPᶫ, m_wTmin, m_λ, m_wTº);
+
+					//double simV = 1.0 - exp(-pow(-m_SAResult[i].m_obs[1] / m_λ, m_wTº));
+
+					//double simV = 1.0 - exp(-pow(-m_SAResult[i].m_obs[1] / m_λ, m_wTº));
+					
+					//ouble simV = max(0.0,min(1.0, m_λ*m_SAResult[i].m_obs[1]  + m_wTº));
+
+
+					//double simV = min(1.0, m_wTmin - (m_wTmin / (1.0 + exp(-(m_λ * m_SAResult[i].m_obs[1] - m_wTº)))));
+					double simV = logistic(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº);
+
+					obsV = (m_SAResult.size() * obsV + 1) / (m_SAResult.size() + 2);
+					obsV = log(obsV / (1 - obsV));
+
+					simV = (m_SAResult.size() * simV + 1) / (m_SAResult.size() + 2);
+					simV = log(simV / (1 - simV));
+
+					
 
 
 					stat.Add(obsV, simV);
