@@ -20,7 +20,7 @@ using namespace LNF;
 using namespace std;
 
 namespace WBSF
-{
+{ 
 //NbVal=   201	Bias= 1.35004	MAE= 6.47098	RMSE=10.14646	CD= 0.90988	R²= 0.91441
 //a1                  	=  7.79345 
 //b1                  	=  36.52359 

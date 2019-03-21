@@ -1,7 +1,7 @@
 ﻿//**************************************************************************************************************
+// 20/03/2019	1.0.2	Rémi Saint-Amant	new equation opfr mortality based on logistic
 // 13/04/2018	1.0.1	Rémi Saint-Amant	Compile with VS 2017
-// 08/05/2017	1.0.0	Rémi Saint-Amant	Create from articles
-//												Lyons and Jones 2006
+// 08/05/2017	1.0.0	Rémi Saint-Amant	Create from articles Cuddington 2018
 //**************************************************************************************************************
 
 #include "ModelBase/EntryPoint.h"
@@ -21,8 +21,11 @@ namespace WBSF
 
 	enum TColdHardinessH { O_TAIR, O_TBARK, O_H_WT, O_H_SCP, O_H_MORTALITY, O_H_DIFF_TMIN_SCP, NB_OUTPUTS_H };
 	enum TColdHardinessD { O_TMIN, O_TMAX, O_TBARK_MIN, O_TBARK_MAX, O_D_WT, O_D_SCP, O_D_MORTALITY, O_D_DIFF_TMIN_SCP, NB_OUTPUTS_D };
+	enum TColdHardinessA { O_A_TMIN, O_A_TBARK_MIN_N, O_A_TBARK_MIN_R, O_A_MORTALITY_N, O_A_MORTALITY_R, NB_OUTPUTS_A };
+
 	extern const char HEADER_H[] = "Tair,Tbark,wT,MDT,SCP,mortality";
 	extern const char HEADER_D[] = "Tmin,Tmax,Tbmin,Tbmax,wT,MDT,SCP,mortality";
+	extern const char HEADER_A[] = "TairMin,TbarkNewtonian,TbarkRegression,MortalityNewtonian,MortalityRegression";
 //
 //N = 6262	T = 0.00031	F = 67.64103
 //NbVal = 18	Bias = 0.00310	MAE = 1.60007	RMSE = 1.93851	CD = 0.64793	R² = 0.64795
@@ -82,6 +85,48 @@ namespace WBSF
 			m_SCPᶫ = parameters[c++].GetReal();
 			m_SCPᴴ = parameters[c++].GetReal();
 			//m_ΔΣwT = parameters[c++].GetReal();
+		}
+
+		return msg;
+	}
+
+	ERMsg CEmeraldAshBorerColdHardinessModel::OnExecuteAnnual()
+	{
+		ERMsg msg;
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
+		ASSERT(m_weather.IsHourly());
+//		CTPeriod p = m_weather.GetEntireTPeriod(CTM::HOURLY);
+
+		m_output.Init(m_weather.GetEntireTPeriod(CTM::ANNUAL), NB_OUTPUTS_A, -999, HEADER_A);
+		for (size_t y = 1; y < m_weather.GetNbYears(); y++)
+		{
+			CTPeriod p = CTPeriod(CTRef(m_weather[y-1].GetTRef().GetYear(), SEPTEMBER, FIRST_DAY, FIRST_HOUR), CTRef(m_weather[y].GetTRef().GetYear(), APRIL, LAST_DAY, LAST_HOUR));
+		
+			CNewtonianBarkTemperature NBT(m_weather.GetHour(p.Begin())[H_TAIR]);
+
+			CStatistic statA;
+			CStatistic statB;
+			//first step: compute Newtonnian minimum Tbark temperatute
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				const CHourlyData& w = m_weather.GetHour(TRef);
+				double Tair = w[H_TAIR];
+				double Tbark = NBT.next_step(Tair);
+				statA += Tair;
+				statB += Tbark;
+			}
+			//stat += m_weather[y - 1].GetStat(H_TMIN, p);
+			//stat += m_weather[y].GetStat(H_TMIN, p);
+
+			//CStatistic stat = m_weather.GetStat(H_TMIN, p);
+			double Tmin = statA[LOWEST];
+			m_output[y][O_A_TMIN] = Tmin;
+			m_output[y][O_A_TBARK_MIN_N] = statB[LOWEST];
+			m_output[y][O_A_TBARK_MIN_R] = Tair2Tbark(Tmin);
+			m_output[y][O_A_MORTALITY_N] = Tbark2Mortality(m_output[y][O_A_TBARK_MIN_N])*100;
+			m_output[y][O_A_MORTALITY_R] = Tbark2Mortality(m_output[y][O_A_TBARK_MIN_R]) * 100;
 		}
 
 		return msg;
@@ -186,11 +231,27 @@ namespace WBSF
 			if (wT < lo_wT)
 			{
 				lo_wT = wT;
-				loTRef = TRef;// -int(672 / 2);
+				loTRef = TRef;
 			}
 		}
 			
 		return loTRef;
+	}
+
+	double CEmeraldAshBorerColdHardinessModel::Tair2Tbark(double Tair)
+	{
+		return 0.0173*Square(Tair) + 1.83*Tair + 13.3;
+	}
+	
+	double CEmeraldAshBorerColdHardinessModel::Tbark2Mortality(double Tbark)
+	{
+		//static const double k = 0.24061;
+		//static const double x0 = -8.07415;
+		//static const double L = 2.10760;
+		static const double k = 0.0002;
+		static const double x0 = -24183;
+
+		return 1.0 - 1.0 / (1.0 + exp(-(k * (pow(Tbark,3.0) - x0) )));
 	}
 
 	void CEmeraldAshBorerColdHardinessModel::ExecuteHourly(CModelStatVector& output)
@@ -215,7 +276,6 @@ namespace WBSF
 			output[TRef][O_TAIR] = Tair;
 			output[TRef][O_TBARK] = Tbark;
 		}
-
 
 		
 
@@ -281,7 +341,8 @@ namespace WBSF
 				//mortality = max(mortality, SShaped(output[TRef][O_TBARK], 0.98987, 0.39288, -28.52594));
 				//mortality = max(mortality, Weibull(output[TRef][O_TBARK], -1.42150, -7.19593, -34.28952));
 
-				mortality = max(mortality, logistic(output[TRef][O_TBARK], 2.10760, 0.24061, -8.07415) );
+				
+				mortality = max(mortality, Tbark2Mortality(output[TRef][O_TBARK]) );
 
 				if (phase == ACCLIMATATION && TRef >= lowTRef)
 				{
@@ -314,8 +375,6 @@ namespace WBSF
 
 	void CEmeraldAshBorerColdHardinessModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-
-		
 		if (header.size() == 3)
 		{
 			std::vector<double> obs(3);
@@ -346,10 +405,10 @@ namespace WBSF
 		}
 	}
 
-	double CEmeraldAshBorerColdHardinessModel::logistic(double x, double L, double k, double x0)
+	double CEmeraldAshBorerColdHardinessModel::logistic(double x, double k, double x0)
 	{
 		//return (K*(1 / (1 + A * exp(-R * (x- x0)))));
-		return min(1.0, L - L / (1 + exp(-(k * x - x0))));
+		return 1.0 - 1.0 / (1.0 + exp(-(k * (pow(x,3.0) - x0))));
 	}
 
 	double CEmeraldAshBorerColdHardinessModel::Logistic(double x, double K, double A, double R, double x0)
@@ -394,13 +453,13 @@ namespace WBSF
 
 
 					//double simV = min(1.0, m_wTmin - (m_wTmin / (1.0 + exp(-(m_λ * m_SAResult[i].m_obs[1] - m_wTº)))));
-					double simV = logistic(m_SAResult[i].m_obs[1], m_wTmin, m_λ, m_wTº);
+					double simV = logistic(m_SAResult[i].m_obs[1], m_λ, m_wTº);
 
-					obsV = (m_SAResult.size() * obsV + 1) / (m_SAResult.size() + 2);
-					obsV = log(obsV / (1 - obsV));
+					//obsV = (m_SAResult.size() * obsV + 1) / (m_SAResult.size() + 2);
+					//obsV = log(obsV / (1 - obsV));
 
-					simV = (m_SAResult.size() * simV + 1) / (m_SAResult.size() + 2);
-					simV = log(simV / (1 - simV));
+					//simV = (m_SAResult.size() * simV + 1) / (m_SAResult.size() + 2);
+					//simV = log(simV / (1 - simV));
 
 					
 

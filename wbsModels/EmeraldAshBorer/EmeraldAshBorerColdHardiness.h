@@ -35,9 +35,10 @@ namespace WBSF
 		virtual ~CEmeraldAshBorerColdHardinessModel();
 
 
-		virtual ERMsg OnExecuteDaily();
-		virtual ERMsg OnExecuteHourly();
-		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		virtual ERMsg OnExecuteAnnual()override;
+		virtual ERMsg OnExecuteDaily()override;
+		virtual ERMsg OnExecuteHourly()override;
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 		static CBioSIMModelBase* CreateObject() { return new CEmeraldAshBorerColdHardinessModel; }
 
 		void ExecuteDaily(CModelStatVector& output);
@@ -62,10 +63,11 @@ namespace WBSF
 //		double m_ΔΣwT;
 
 
-		static double logistic(double x, double L, double k, double x0);
+		static double logistic(double x, double k, double x0);
 		static double Logistic(double x, double K, double A, double R, double x0);
 		static double Weibull(double x, double k, double y, double x0);
 		static double SShaped(double x, double L, double k, double x0);
-
+		static double Tair2Tbark(double Tair);
+		static double Tbark2Mortality(double Tbark);
 	};
 }

@@ -14,59 +14,51 @@
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray/>
-    <OutputTypeMode>2 0</OutputTypeMode>
+    <OutputTypeMode>0 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Tair</Name>
-            <Title>Tair</Title>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units>°C</Units>
+            <Description>Annual minimum air temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TbarkNewtonian</Name>
+            <Title>TbarkNewtonian</Title>
+            <Units>°C</Units>
+            <Description>Annual minimum under-bark temperature estimate with Newtonian model</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TbarkRegression</Name>
+            <Title>TbarkRegression</Title>
             <Units/>
-            <Description/>
+            <Description>Annual minimum under-bark temperature estimate with Regression model</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Tbark</Name>
-            <Title>Tbark</Title>
-            <Units/>
-            <Description/>
+            <Name>MortalityNewtonian</Name>
+            <Title>MortalityNewtonian</Title>
+            <Units>%</Units>
+            <Description>Annual mortality estimate with newtonian under-bark temperature model</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
+            <Precision>2</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Tw</Name>
-            <Title>Tw</Title>
+            <Name>MortalityRegression</Name>
+            <Title>MortalityRegression</Title>
             <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>SCP</Name>
-            <Title>SCP</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Mortality</Name>
-            <Title>Mortality</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>TMIN_SCP</Name>
-            <Title>TMIN_SCP</Title>
-            <Units/>
-            <Description/>
+            <Description>Annual mortality estimate with regression under-bark temperature model</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright>WARNING: this model was never validated</Copyright>
-    <Credit>Developed by Remi Saint-Amant from Cuddington 2018 publication</Credit>
+    <Credit>Developed by Remi Saint-Amant from Cuddington 2018 publication&#x0D;&#x0A;Under-bark temperature Newtonian model based on Vermunt 2012</Credit>
     <HelpFileName/>
 </Model>
