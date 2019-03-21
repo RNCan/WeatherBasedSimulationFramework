@@ -240,14 +240,12 @@ namespace WBSF
 
 	double CEmeraldAshBorerColdHardinessModel::Tair2Tbark(double Tair)
 	{
-		return 0.0173*Square(Tair) + 1.83*Tair + 13.3;
+		Tair = max(-50.0, min(-15.0, Tair));
+		return -42.8 + 65.2 * exp(0.045*Tair);
 	}
 	
 	double CEmeraldAshBorerColdHardinessModel::Tbark2Mortality(double Tbark)
 	{
-		//static const double k = 0.24061;
-		//static const double x0 = -8.07415;
-		//static const double L = 2.10760;
 		static const double k = 0.0002;
 		static const double x0 = -24183;
 

@@ -109,6 +109,9 @@ copy /Y ".\bin\Releasex64\Models\HemlockLooperRemi.mdl" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid.dll" "..\Install\NRCan\Models\HemlockWoollyAdelgid.dll"
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid (Annual).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgid (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\HemlockWoollyAdelgid (Daily).mdl" "..\Install\NRCan\Models\HemlockWoollyAdelgid (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\HWA Phenology.mdl" "..\Install\NRCan\Models\HWA Phenology.mdl"
+copy /Y ".\bin\Releasex64\Models\HWA Phenology.dll" "..\Install\NRCan\Models\HWA Phenology.dll"
+
 
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator (Hourly).mdl" "..\Install\NRCan\Models\HourlyGenerator (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\HourlyGenerator.dll"
@@ -116,7 +119,8 @@ copy /Y ".\bin\Releasex64\Models\HourlyGenerator.dll" "..\Install\NRCan\Models\H
 
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\Jackpine Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
-
+copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models\LaricobiusNigrinus.dll"
+copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
 
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Daily).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Annual).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Annual).mdl"
