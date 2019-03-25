@@ -68,6 +68,8 @@ namespace WBSF
 		static double Weibull(double x, double k, double y, double x0);
 		static double SShaped(double x, double L, double k, double x0);
 		static double Tair2Tbark(double Tair);
-		static double Tbark2Mortality(double Tbark);
+//		static double Tbark2Mortality(double Tbark);
+		static double Tbark2MortalityLogistic(double Tbark);
+		static double Tbark2MortalityBriere2(double Tbark);
 	};
 }
