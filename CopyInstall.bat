@@ -70,6 +70,7 @@ copy /Y ".\bin\Releasex64\Models\DegreeHour.dll" "..\Install\NRCan\Models\Degree
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.mdl"  "..\Install\NRCan\Models\EmeraldAshBorer.mdl" 
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.dll"  "..\Install\NRCan\Models\EmeraldAshBorer.dll" 
 copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness (Daily).mdl"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness (Annual).mdl"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness.dll"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness.dll"
 copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.mdl" "..\Install\NRCan\Models\EuropeanElmScale.mdl"
 copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.dll" "..\Install\NRCan\Models\EuropeanElmScale.dll"
