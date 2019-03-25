@@ -34,8 +34,8 @@
             <Rect>105 20 130 170</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0.5</DefaultValue>
-            <MinValue>0.001</MinValue>
-            <MaxValue>50</MaxValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>100000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -46,8 +46,8 @@
             <Rect>135 20 155 170</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>-5</DefaultValue>
-            <MinValue>-40</MinValue>
-            <MaxValue>10</MaxValue>
+            <MinValue>-100000</MinValue>
+            <MaxValue>100000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>

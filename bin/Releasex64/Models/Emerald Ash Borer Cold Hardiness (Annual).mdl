@@ -26,34 +26,26 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>TbarkNewtonian</Name>
-            <Title>TbarkNewtonian</Title>
+            <Name>TbarkMin</Name>
+            <Title>TbarkMin</Title>
             <Units>°C</Units>
-            <Description>Annual minimum under-bark temperature estimate with Newtonian model</Description>
+            <Description>Annual minimum under-bark temperature estimate with regression</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>TbarkRegression</Name>
-            <Title>TbarkRegression</Title>
-            <Units/>
-            <Description>Annual minimum under-bark temperature estimate with Regression model</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>MortalityNewtonian</Name>
-            <Title>MortalityNewtonian</Title>
+            <Name>MortalityLogistic</Name>
+            <Title>MortalityLogistic</Title>
             <Units>%</Units>
-            <Description>Annual mortality estimate with newtonian under-bark temperature model</Description>
+            <Description>Annual mortality estimate with logistic model</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MortalityRegression</Name>
-            <Title>MortalityRegression</Title>
+            <Name>MortalityBriere2</Name>
+            <Title>MortalityBriere2</Title>
             <Units/>
-            <Description>Annual mortality estimate with regression under-bark temperature model</Description>
+            <Description>Annual mortality estimate with Briere2 model</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
