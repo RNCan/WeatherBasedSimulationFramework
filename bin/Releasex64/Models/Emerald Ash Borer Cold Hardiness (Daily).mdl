@@ -18,34 +18,18 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Tmin</Name>
-            <Title>Tmin</Title>
+            <Name>TairMin</Name>
+            <Title>TairMin</Title>
             <Units>°C</Units>
-            <Description/>
+            <Description>Minimum daily air temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Tmax</Name>
-            <Title>Tmax</Title>
+            <Name>TbarkMin</Name>
+            <Title>TbarkMin</Title>
             <Units>°C</Units>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>1</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Tbark_min</Name>
-            <Title>Tbark Min</Title>
-            <Units>°C</Units>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>1</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Tbark_max</Name>
-            <Title>Tbark Max</Title>
-            <Units>°C</Units>
-            <Description/>
+            <Description>Minimum daily bark temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>

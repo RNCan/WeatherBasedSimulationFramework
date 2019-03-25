@@ -18,8 +18,8 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Tmin</Name>
-            <Title>Tmin</Title>
+            <Name>TairMin</Name>
+            <Title>TairMin</Title>
             <Units>°C</Units>
             <Description>Annual minimum air temperature</Description>
             <TimeMode>4 0</TimeMode>
@@ -40,14 +40,6 @@
             <Description>Annual mortality estimate with logistic model</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>MortalityBriere2</Name>
-            <Title>MortalityBriere2</Title>
-            <Units/>
-            <Description>Annual mortality estimate with Briere2 model</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright>WARNING: this model was never validated</Copyright>

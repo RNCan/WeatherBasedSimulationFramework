@@ -1,5 +1,5 @@
 ﻿//**************************************************************************************************************
-// 20/03/2019	1.0.2	Rémi Saint-Amant	new equation opfr mortality based on logistic
+// 20/03/2019	1.0.2	Rémi Saint-Amant	new equation of mortality based on logistic model
 // 13/04/2018	1.0.1	Rémi Saint-Amant	Compile with VS 2017
 // 08/05/2017	1.0.0	Rémi Saint-Amant	Create from articles Cuddington 2018
 //**************************************************************************************************************
@@ -20,13 +20,13 @@ namespace WBSF
 		CModelFactory::RegisterModel(CEmeraldAshBorerColdHardinessModel::CreateObject);
 
 	enum TColdHardinessH { O_TAIR, O_TBARK, O_H_WT, O_H_SCP, O_H_MORTALITY, O_H_DIFF_TMIN_SCP, NB_OUTPUTS_H };
-	enum TColdHardinessD { O_TMIN, O_TMAX, O_TBARK_MIN, O_TBARK_MAX, O_D_WT, O_D_SCP, O_D_MORTALITY, O_D_DIFF_TMIN_SCP, NB_OUTPUTS_D };
-	enum TColdHardinessA { O_A_TMIN, O_A_TBARK_MIN, O_A_MORTALITY_LOGISTIC, O_A_MORTALITY_BRIERE2, NB_OUTPUTS_A };
+	enum TColdHardinessD { O_TMIN, O_TBARK_MIN, O_D_WT, O_D_SCP, O_D_MORTALITY, O_D_DIFF_TMIN_SCP, NB_OUTPUTS_D };
+	enum TColdHardinessA { O_A_TMIN, O_A_TBARK_MIN, O_A_MORTALITY_LOGISTIC, NB_OUTPUTS_A };
 	
 
 	extern const char HEADER_H[] = "Tair,Tbark,wT,MDT,SCP,mortality";
 	extern const char HEADER_D[] = "Tmin,Tmax,Tbmin,Tbmax,wT,MDT,SCP,mortality";
-	extern const char HEADER_A[] = "TairMin,TbarkMin,MortalityLogistic,MortalityBriere2";
+	extern const char HEADER_A[] = "TairMin,TbarkMin,MortalityLogistic";
 	//
 	//N = 6262	T = 0.00031	F = 67.64103
 	//NbVal = 18	Bias = 0.00310	MAE = 1.60007	RMSE = 1.93851	CD = 0.64793	R² = 0.64795
@@ -128,32 +128,31 @@ namespace WBSF
 			//m_output[y][O_A_TBARK_MIN_N] = statB[LOWEST];
 			m_output[y][O_A_TBARK_MIN] = Tair2Tbark(Tmin);
 			m_output[y][O_A_MORTALITY_LOGISTIC] = Tbark2MortalityLogistic(m_output[y][O_A_TBARK_MIN]) * 100;
-			m_output[y][O_A_MORTALITY_BRIERE2] = Tbark2MortalityBriere2(m_output[y][O_A_TBARK_MIN]) * 100;
 		}
 
 		return msg;
 	}
 
-	ERMsg CEmeraldAshBorerColdHardinessModel::OnExecuteDaily()
-	{
-		ERMsg msg;
+	//ERMsg CEmeraldAshBorerColdHardinessModel::OnExecuteDaily()
+	//{
+	//	ERMsg msg;
 
-		//Excute model on a daily basis
-		ExecuteDaily(m_output);
+	//	//Excute model on a daily basis
+	//	ExecuteDaily(m_output);
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 
-	ERMsg CEmeraldAshBorerColdHardinessModel::OnExecuteHourly()
-	{
-		ERMsg msg;
+	//ERMsg CEmeraldAshBorerColdHardinessModel::OnExecuteHourly()
+	//{
+	//	ERMsg msg;
 
-		//Excute model on a daily basis
-		ExecuteHourly(m_output);
+	//	//Excute model on a daily basis
+	//	ExecuteHourly(m_output);
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 	double get_w(int Δt, double a0)
 	{
@@ -210,9 +209,9 @@ namespace WBSF
 		for (CTRef TRef = stats.m_period.Begin(); TRef <= stats.m_period.End(); TRef++)
 		{
 			outputD[TRef][O_TMIN] = stats[TRef][O_TAIR][LOWEST];
-			outputD[TRef][O_TMAX] = stats[TRef][O_TAIR][HIGHEST];
+			//outputD[TRef][O_TMAX] = stats[TRef][O_TAIR][HIGHEST];
 			outputD[TRef][O_TBARK_MIN] = stats[TRef][O_TBARK][LOWEST];
-			outputD[TRef][O_TBARK_MAX] = stats[TRef][O_TBARK][HIGHEST];
+			//outputD[TRef][O_TBARK_MAX] = stats[TRef][O_TBARK][HIGHEST];
 			outputD[TRef][O_D_WT] = stats[TRef][O_H_WT][MEAN];
 			outputD[TRef][O_D_SCP] = stats[TRef][O_H_SCP][MEAN];
 			outputD[TRef][O_D_MORTALITY] = stats[TRef][O_H_MORTALITY][MEAN];
@@ -253,16 +252,7 @@ namespace WBSF
 
 		return 1.0 - 1.0 / (1.0 + exp(-(k * (pow(Tbark, 3.0) - x0))));
 	}
-	double CEmeraldAshBorerColdHardinessModel::Tbark2MortalityBriere2(double Tbark)
-	{
-		static const double aa = 0.001459;
-		static const double bb = 5.426480;
-		static const double Tmin = -21.409511;
-		static const double Tmax = -17.300000;
-
-		//Tbark = min(Tmax, Tbark);
-		return max(0.0, min(1.0, aa * Tbark*(Tbark - Tmin)*pow(Tmax - Tbark, 1 / bb)));
-	}
+	
 
 
 
@@ -277,15 +267,15 @@ namespace WBSF
 		output.Init(m_weather.GetEntireTPeriod(), NB_OUTPUTS_H, -999, HEADER_H);
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM::HOURLY);
-		CNewtonianBarkTemperature NBT(m_weather.GetHour(p.Begin())[H_TAIR]);
+		//CNewtonianBarkTemperature NBT(m_weather.GetHour(p.Begin())[H_TAIR]);
 
 
-		//first step: compute Tair and Tbark
+		//first step: compute Tair and Tbark from regression
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
 			const CHourlyData& w = m_weather.GetHour(TRef);
 			double Tair = w[H_TAIR];
-			double Tbark = NBT.next_step(Tair);
+			double Tbark = Tair2Tbark(Tair);// NBT.next_step(Tair);
 			output[TRef][O_TAIR] = Tair;
 			output[TRef][O_TBARK] = Tbark;
 		}
