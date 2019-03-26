@@ -445,7 +445,7 @@ namespace WBSF
 			if (!paramArray.empty())
 			{
 				//change the variable 
-				ASSERT(paramArray[noVar].size() < size());
+				ASSERT(paramArray[noVar].size() <= size());
 
 				for (size_t i = 0, ii=0; i < size(); i++)
 				{

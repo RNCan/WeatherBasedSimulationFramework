@@ -183,6 +183,12 @@
     <ClCompile Include="..\src\ModelBase\BioSIMModelBase.cpp" />
     <ClCompile Include="..\src\ModelBase\CommunicationStream.cpp" />
     <ClCompile Include="..\src\ModelBase\ContinuingRatio.cpp" />
+    <ClCompile Include="..\src\ModelBase\DevRateEquation.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\ModelBase\EntryPoint.cpp" />
     <ClCompile Include="..\src\ModelBase\EquationTableLookup.cpp" />
     <ClCompile Include="..\src\ModelBase\GridHelp.cpp" />
@@ -214,6 +220,7 @@
     <ClInclude Include="..\src\ModelBase\BioSIMModelBase.h" />
     <ClInclude Include="..\src\ModelBase\CommunicationStream.h" />
     <ClInclude Include="..\src\ModelBase\ContinuingRatio.h" />
+    <ClInclude Include="..\src\ModelBase\DevRateEquation.h" />
     <ClInclude Include="..\src\ModelBase\EntryPoint.h" />
     <ClInclude Include="..\src\ModelBase\EquationTableLookup.h" />
     <ClInclude Include="..\src\ModelBase\GridHelp.h" />

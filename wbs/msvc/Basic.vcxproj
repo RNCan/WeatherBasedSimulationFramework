@@ -286,6 +286,7 @@
     <ClCompile Include="..\src\Basic\Rijndael.cpp" />
     <ClCompile Include="..\src\Basic\SearchResult.cpp" />
     <ClCompile Include="..\src\Basic\Shore.cpp" />
+    <ClCompile Include="..\src\Basic\SimulatedAnnealing.cpp" />
     <ClCompile Include="..\src\Basic\SnowAnalysis.cpp" />
     <ClCompile Include="..\src\Basic\Statistic.cpp" />
     <ClCompile Include="..\src\Basic\Timer.cpp" />
@@ -366,6 +367,7 @@
     <ClInclude Include="..\src\Basic\Rijndael.h" />
     <ClInclude Include="..\src\Basic\SearchResult.h" />
     <ClInclude Include="..\src\Basic\Shore.h" />
+    <ClInclude Include="..\src\Basic\SimulatedAnnealing.h" />
     <ClInclude Include="..\src\Basic\SnowAnalysis.h" />
     <ClInclude Include="..\src\Basic\Statistic.h" />
     <ClInclude Include="..\src\Basic\Timer.h" />

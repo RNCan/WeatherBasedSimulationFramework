@@ -82,6 +82,9 @@
     <ClCompile Include="..\src\ModelBase\IndividualBase.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ModelBase\DevRateEquation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -163,6 +166,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ModelBase\IndividualBase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ModelBase\DevRateEquation.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

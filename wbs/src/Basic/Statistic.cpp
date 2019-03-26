@@ -21,6 +21,7 @@
 #include <math.h>
 #include <float.h>
 #include <algorithm>
+#include <boost/math/distributions/normal.hpp>
 
 
 #include "Basic/Statistic.h"
@@ -43,7 +44,7 @@ namespace WBSF
 		"Lowest", "Mean", "Sum", "Sum²", "StandardDeviation (N-1)", "StandardDeviation (N)", "StandardError", "CoeficientOfVariation", "Variance", "Highest", "TotalSumOfSquares", "QuadraticMean", "Range", "NbValue",
 		"MeanAbsoluteDeviation", "Skewness", "Kurtosis", "Median", "Mode", "Lo", "Q¹", "Q³", "Hi", "IQR",
 		"MeanX", "MeanY", "Intercept", "Slope", "Covariance", "Correlation", "Bias", "MeanAbsolutError", "RootMeanSquareError", "ResidualSumOfSquare", "CoeficientOfDetermination", "CoeficientOfCorrelation", "R²",
-		"TheilSenIntercept", "TheilSenSlope", "NegativeLogLikelihood"
+		"TheilSenIntercept", "TheilSenSlope", "LogLikelihood", "LogLikelihood2"
 	};
 
 	
@@ -689,7 +690,30 @@ namespace WBSF
 
 				value = stat[MEDIAN];
 			}
-			else if (type == NEGATIVE_LOG_LIKELIHOOD)
+			else if (type == LOG_LIKELIHOOD1)
+			{
+				//double xSum = m_x[SUM];
+				double ySum = m_y[SUM];
+				if (ySum > 0)
+				{
+					double LL = 0;
+					//likelihood with classical sigma hat
+					double sigma = sqrt(me[RSS] / (m_xValues.size() - 1))*(m_xValues.size()) / (m_xValues.size() - 1);
+					for (size_t i = 0; i < m_xValues.size(); i++)
+					{
+						double m = m_xValues[i];
+						boost::math::normal_distribution<> N(m, sigma);
+
+						double x = m_yValues[i];
+						double p = boost::math::pdf(N, x);
+						ASSERT(p > 0);
+						LL += log(p);
+					}
+
+					value = LL;
+				}
+			}
+			else if (type == LOG_LIKELIHOOD2)
 			{
 				double xSum = m_x[SUM];
 				double ySum = m_y[SUM];
@@ -703,7 +727,7 @@ namespace WBSF
 						LL -= LogFactorial(m_xValues[i]);
 					}
 
-					value = -LL;
+					value = LL;
 				}
 			}
 			else
