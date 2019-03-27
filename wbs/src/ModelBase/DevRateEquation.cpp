@@ -89,8 +89,8 @@ namespace WBSF
 		{"Lactin1_1995","exp(aa*T)-exp(aa*Tmax-(Tmax-T)/deltaT)","aa=0.016[0.0001,100]|Tmax=37[1,50]|deltaT=8[0.0001,100]"},
 		{"Lactin2_1995","exp(aa*T)-exp(aa*Tmax-(Tmax-T)/deltaT)+bb","aa=0.03[0.0001,10]|bb=-1.0[-10,10]|Tmax=41[1,60]|deltaT=4[0.0001,100]"},
 		{"Lamb_1992","Rm*exp(-1/2*((T-Tmax)/To)^2)","Rm=0.004[0.0001,10]|Tmax=12[0,50]|To=4[0.1,50]"},
-		{"Logan10_1976","phi*(1/(1+cc*exp(-bb*T))-exp(-((Tmax-T)/deltaT)))","phi=0.3[0.0001,100]|bb=0.0,-100,100]|cc=110[0.0001,1000]|Tmax=36.7[0,50]|deltaT=3.7,0.01,100]"},
 		{"Logan6_1976","phi*(exp(bb*T)-exp(bb*Tmax-(Tmax-T)/deltaT))","phi=0.12[0.0001,100]|bb=0.14[0.0001,100]|Tmax=34.6[0,50]|deltaT=4.6[0.01,100]"},
+		{"Logan10_1976","phi*(1/(1+cc*exp(-bb*T))-exp(-((Tmax-T)/deltaT)))","phi=0.3[0.0001,100]|bb=0.0,-100,100]|cc=110[0.0001,1000]|Tmax=36.7[0,50]|deltaT=3.7,0.01,100]"},
 		{"LoganExponential","sy*exp(b*(T-Tb))","sy=0.2[0.0001,1000]|b=0.2[0.0001,1000]|Tb=15[0,50]"},
 		{"LoganTb","sy*exp(b*(T-Tb)-exp(b*(T-Tb)/DTb))","sy=0.2[0.0001,1000]|b=0.2[0.0001,1000]|Tb=15[0,50]|DTb=0.2[0.0001,1000]"},
 		{"Poly1","a0+a1*T","a0=-0.05[-1E3,1E3]|a1=0.1[1E-4,1E4]"},
@@ -361,13 +361,13 @@ namespace WBSF
 		}
 		else if (model == Logan10_1976)//Logan10 1976
 		{
-			double alpha = P[P0];
+			double phi = P[P0];
 			double bb = P[P1];
 			double cc = P[P2];
 			double Tmax = P[P3];
 			double deltaT = P[P4];
 
-			rT = alpha * (1 / (1 + cc * exp(-bb * T)) - exp(-((Tmax - T) / deltaT)));
+			rT = phi * (1 / (1 + cc * exp(-bb * T)) - exp(-((Tmax - T) / deltaT)));
 		}
 		//  Briere 1
 		else if (model == Briere1_1999)//
@@ -409,7 +409,7 @@ namespace WBSF
 			double Tmax = P[P2];
 			double deltaT = P[P3];
 
-			rT = phi * ((T*T) / (T*T + d*d) - exp(-(Tmax - T) / deltaT));
+			rT = phi * ((T*T) / (T*T + d * d) - exp(-(Tmax - T) / deltaT));
 			//phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT))
 			//phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT))
 		}
@@ -437,8 +437,7 @@ namespace WBSF
 			double a2 = P[P2];
 			double a3 = P[P3];
 
-			double x = T;
-			rT = a0 + a1 * x + a2 * x * x + a3 * x * x* x;
+			rT = a0 + a1 * T + a2 * T*T + a3 * T*T*T;
 		}
 		else if (model == Poly4)
 		{
@@ -448,7 +447,7 @@ namespace WBSF
 			double a3 = P[P3];
 			double a4 = P[P4];
 
-			rT = a0 + a1 * T + a2 * T *T + a3 * T *T*T + a4 * T *T*T*T;
+			rT = a0 + a1 * T + a2 * T*T + a3 * T*T*T + a4 * T*T*T*T;
 		}
 		//  exponential simple
 		else if (model == Exponential)
@@ -457,8 +456,7 @@ namespace WBSF
 			double b1 = P[P0];
 			double b2 = P[P1];
 
-			double x = T;
-			rT = b1 * exp(b2*x);
+			rT = b1 * exp(b2*T);
 		}
 		else if (model == LoganTb)//  Tb Model (Logan)
 		{
@@ -468,8 +466,7 @@ namespace WBSF
 			double Tb = P[P2];
 			double DTb = P[P3];
 
-			double x = T;
-			rT = sy * exp(b*(x - Tb) - exp(b*(x - Tb) / DTb));
+			rT = sy * exp(b*(T - Tb) - exp(b*(T - Tb) / DTb));
 		}
 		//  Exponential Model (Logan)
 		else if (model == LoganExponential)
@@ -479,9 +476,7 @@ namespace WBSF
 			double b = P[P1];
 			double Tb = P[P2];
 
-			double x = T;
-			rT = sy * exp(b*(x - Tb));
-
+			rT = sy * exp(b*(T - Tb));
 		}
 		//  Square root model of Ratkowsky
 		else if (model == RatkowskySquare)
@@ -490,8 +485,7 @@ namespace WBSF
 			double b = P[P0];
 			double Tb = P[P1];
 
-			double x = T;
-			rT = b * pow((x - Tb), 2.0);
+			rT = b * pow((T - Tb), 2.0);
 		}
 		//Ratkowsky2
 		else if (model == Ratkowsky_1983)
@@ -502,8 +496,7 @@ namespace WBSF
 			double Tmin = P[P2];
 			double Tmax = P[P3];
 
-			double x = T;
-			rT = pow(aa*(x - Tmin)*(1 - exp((b*(Tmax - x)))), 2.0); //Agregar 1-exp
+			rT = pow(aa*(T - Tmin)*(1 - exp((b*(Tmax - T)))), 2.0); //Agregar 1-exp
 		}
 		//Davidson
 		else if (model == Davidson_1944)
@@ -552,7 +545,7 @@ namespace WBSF
 			double x = T;
 			rT = aa * (pow(x - Tmin, 2.0))*(Tmax - x);
 		}
-		//Janish1
+		//Janisch1
 		else if (model == Janisch1_1932)
 		{
 			//f < -function(x, Dmin, Topt, K) 
@@ -565,7 +558,7 @@ namespace WBSF
 			//rT = 2 / (Dmin*(exp(aa*(T - Topt)) + exp(-bb * (T – Topt)))) ^ (-1)
 
 		}
-		//Janish-2
+		//Janisch2
 		else if (model == Janisch2)
 		{
 			//f < -function(x, c, a, b, Tm)
@@ -577,7 +570,7 @@ namespace WBSF
 			double x = T;
 			rT = 2 * c / (pow(a, (x - Tm)) + pow(b, (Tm - x)));
 		}
-		//  Stinner
+		//  Stinner1
 		else if (model == Stinner1)
 		{
 			//f < -function(xp, Rmax, Topc, k1, k2) 
@@ -667,11 +660,11 @@ namespace WBSF
 		else if (model == Regniere_2012)
 		{
 			double phi = P[P0];
-			double bb = P[P4];
-			double Tb = P[P4];
-			double Tm = P[P4];
+			double bb = P[P1];
+			double Tb = P[P2];
+			double Tm = P[P3];
 			double deltab = P[P4];
-			double deltam = P[P4];
+			double deltam = P[P5];
 			rT = phi * (exp(bb * (T - Tb)) - ((Tm - T) / (Tm - Tb)) * exp(-bb * (T - Tb) / deltab) - ((T - Tb) / (Tm - Tb)) * exp(bb * (Tm - Tb) - (Tm - T) / deltam));
 		}
 		else if (model == Analytis_1977)

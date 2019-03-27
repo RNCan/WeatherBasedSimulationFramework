@@ -30,7 +30,7 @@ namespace WBSF
 			Allahyari, Analytis_1977, Bieri_1983, Briere1_1999, Briere2_1999, Damos_2008, Damos_2011,
 			Davidson_1944, DevaHiggis, Exponential, HilberLogan_1983, HilberLoganIII,
 			Janisch1_1932, Janisch2, Kontodimas_2004, Lactin1_1995, Lactin2_1995,
-			Lamb_1992, Logan10_1976, Logan6_1976, LoganExponential, LoganTb, 
+			Lamb_1992, Logan6_1976, Logan10_1976, LoganExponential, LoganTb,
 			Poly1, Poly2, Poly3, Poly4, Pradham, RatkowskySquare, Ratkowsky_1983,
 			Regniere_1987, Regniere_2012, SchoolfieldHigh_1981, SchoolfieldLow_1981,
 			Schoolfield_1981, SharpeDeMichele3, SharpeDeMichele4, SharpeDeMichele5, SharpeDeMichele6,

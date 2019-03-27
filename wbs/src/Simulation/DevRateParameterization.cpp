@@ -350,7 +350,7 @@ namespace WBSF
 					string outputFilePath = fileManager.GetOutputPath() + m_inputFileName;
 					//begin to read
 					ofStream file;
-					msg = file.open(outputFilePath);
+					msg += file.open(outputFilePath);
 					if (msg)
 					{
 						
@@ -812,7 +812,8 @@ namespace WBSF
 						//  If too many function evaluations occur, terminate the algorithm.
 						if (computation.m_NFCNEV >= m_ctrl.MAXEVL())
 						{
-							msg.ajoute("Number of function evaluations (NFCNEV) is greater than the maximum number (MAXEVL).");
+							callback.AddMessage("Number of function evaluations (NFCNEV) is greater than the maximum number (MAXEVL).");
+							//msg.ajoute();
 							return msg;
 						}
 

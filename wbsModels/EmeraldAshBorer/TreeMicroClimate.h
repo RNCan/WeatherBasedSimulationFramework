@@ -26,7 +26,7 @@ namespace WBSF
 	{
 	public:
 
-		CNewtonianBarkTemperature(double Tair, double K = 0.11);
+		CNewtonianBarkTemperature(double Tair, double K = 0.095);
 		double GetTbark()const;
 		double next_step(double Tair);
 
