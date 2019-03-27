@@ -293,42 +293,12 @@ namespace WBSF
 					//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) if(m_model.GetThreadSafe())
 					for (size_t s = 0; s < output.size(); s++)
 					{
-						//CDevRateEquation::TDevRateEquation  e = CDevRateEquation::e(se[s].second);
-
-						//CComputationVariable computation;
-						//CSAParameterVector parameters = CDevRateEquation::GetParameters(e);
-
-						//Initialize computable parameter
-						//msg = InitialiseComputationVariable(output[s].m_stage, output[s].m_model, output[s].m_parameters, output[s].m_computation, callback);
 						if (msg)
 						{
+							callback.AddMessage(output[s].m_stage + ": " + CDevRateEquation::GetEquationName(output[s].m_model));
 							msg = Optimize(output[s].m_stage, output[s].m_model, output[s].m_parameters, output[s].m_computation, callback);
 
-							callback.AddMessage(output[s].m_stage + ": " + CDevRateEquation::GetEquationName(output[s].m_model));
-
-							//CModelInputVector T = info.m_parameterset.m_variation.GetModelInputVector(info.m_parameterset.m_pioneer);
-							//size_t nbT = info.m_parameterset.m_variation.GetNbVariation();
-							//CNewSectionData section(T.size(), output.size(), CTRef(YEAR_NOT_INIT, 0, 0, 0, CTM(CTM::ATEMPORAL, CTM::OVERALL_YEARS)));
-							//  Evaluate the function with input X and return value as F.
-							//if (computation.m_F != m_ctrl.GetVMiss() && !computation.m_Xopt.empty())
-							//{
-							//	ASSERT(info.m_parameterset.m_variation.size() == 1);
-
-							//	for (size_t t = 0; t < T.size(); t++)
-							//	{
-							//		double Rt = CDevRateEquation::GetFValue(e, computation.m_Xopt, T[t][0].GetDouble());
-							//		section[t][s] = Rt;
-							//	}
-							//}
-
-
-
-#pragma omp critical(WRITE)
-							{
-								
-								WriteInfo(output[s].m_parameters, output[s].m_computation, callback);
-								//msg += resultDB.AddSection(section, callback);
-							}
+							WriteInfo(output[s].m_parameters, output[s].m_computation, callback);
 						}
 
 						//fileManager, result, callback
@@ -406,6 +376,7 @@ namespace WBSF
 			//to the calling routine.
 			if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
 			{
+				msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::e(e)));
 				msg.ajoute("The starting value (" + ToString(computation.m_XP[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
 				return msg;
 			}
@@ -819,24 +790,31 @@ namespace WBSF
 
 						computation.m_XP.resize(computation.m_X.size());
 
-
-						//  Generate XP, the trial value of X. Note use of VM to choose XP.
-						for (int I = 0; I < computation.m_X.size(); I++)
+						do
 						{
-							if (I == H)
-								computation.m_XP[I] = computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * computation.m_VM[I];
-							else computation.m_XP[I] = computation.m_X[I];
-
-
-							//  If XP is out of bounds, select a point in bounds for the trial.
-							if (computation.m_bounds[I].IsOutOfBound(computation.m_XP[I]))
+							//  Generate XP, the trial value of X. Note use of VM to choose XP.
+							for (int I = 0; I < computation.m_X.size(); I++)
 							{
-								computation.m_XP[I] = computation.m_bounds[I].GetLowerBound() + computation.m_bounds[I].GetExtent()*random.Ranmar();
+								if (I == H)
+									computation.m_XP[I] = computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * computation.m_VM[I];
+								else computation.m_XP[I] = computation.m_X[I];
 
-								LNOBDS++;
-								computation.m_NOBDS++;
+
+								//  If XP is out of bounds, select a point in bounds for the trial.
+								if (computation.m_bounds[I].IsOutOfBound(computation.m_XP[I]))
+								{
+									computation.m_XP[I] = computation.m_bounds[I].GetLowerBound() + computation.m_bounds[I].GetExtent()*random.Ranmar();
+
+									LNOBDS++;
+									computation.m_NOBDS++;
+								}
 							}
-						}
+							
+						} while (!CDevRateEquation::IsParamValid(CDevRateEquation::e(e), computation.m_XP));
+
+						//  Evaluate the function with the trial point XP and return as FP.
+						GetFValue(s, e, computation);
+
 
 						//add X value to extreme XP statistic
 						for (int i = 0; i < computation.m_XP.size() && i < (int)computation.m_XPstat.size(); i++)
@@ -845,8 +823,7 @@ namespace WBSF
 						for (size_t i = 0; i < computation.m_VMstat.size(); i++)
 							computation.m_VMstat[i] += computation.m_VM[i];
 
-						//  Evaluate the function with the trial point XP and return as FP.
-						GetFValue(s, e, computation);
+						
 
 						//  Accept the new point if the function value increases.
 						if (computation.m_FP != m_ctrl.GetVMiss())
