@@ -31,6 +31,7 @@ namespace WBSF
 	{
 	public:
 
+		enum  TTUBark{LINEAR, NONLINEAR, NB_UBARK_TYPES};
 		CEmeraldAshBorerColdHardinessModel();
 		virtual ~CEmeraldAshBorerColdHardinessModel();
 
@@ -67,7 +68,7 @@ namespace WBSF
 		static double Logistic(double x, double K, double A, double R, double x0);
 		static double Weibull(double x, double k, double y, double x0);
 		static double SShaped(double x, double L, double k, double x0);
-		static double Tair2Tbark(double Tair);
+		static double Tair2Tbark(TTUBark type, double Tair);
 		static double Tbark2MortalityLogistic(double Tbark);
 	};
 }

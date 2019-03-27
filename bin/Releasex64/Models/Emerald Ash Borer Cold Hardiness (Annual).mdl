@@ -26,20 +26,36 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>TbarkMin</Name>
-            <Title>TbarkMin</Title>
+            <Name>TbarkMinLinear</Name>
+            <Title>TbarkMinLinear</Title>
             <Units>°C</Units>
-            <Description>Annual minimum under-bark temperature estimate with regression</Description>
+            <Description>Annual minimum under-bark temperature estimate with linear regression</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MortalityLogistic</Name>
-            <Title>MortalityLogistic</Title>
+            <Name>TbarkMinNonlinear</Name>
+            <Title>TbarkMinNonlinear</Title>
+            <Units>°C</Units>
+            <Description>Annual minimum under-bark temperature estimate with nonlinear regression</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MortalityLinear</Name>
+            <Title>MortalityLinear</Title>
             <Units>%</Units>
-            <Description>Annual mortality estimate with logistic model</Description>
+            <Description>Annual mortality estimate with linear underbark temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>2</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MortalityNonlinear</Name>
+            <Title>MortalityNonlinear</Title>
+            <Units/>
+            <Description>Winter mortality estimate with nonlinear underbark temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright>WARNING: this model was never validated</Copyright>
