@@ -625,7 +625,8 @@ namespace WBSF
 
 					if (msg)
 					{
-						msg += callback.SetCurrentStepPos(m_options.m_xx);
+						if (omp_get_thread_num() == 0)//this line is essential to avoid very slow performence. Stanges!
+							msg += callback.SetCurrentStepPos(m_options.m_xx);
 #pragma omp flush(msg)
 					}
 					//	}//if msg

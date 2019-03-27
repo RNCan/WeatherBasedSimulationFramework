@@ -1,6 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM 
-// 11.5.7: 25/02/2018	Rémi Saint-Amant	Bug correction in elevation extraction
+// 11.5.8: 26/03/2019	Rémi Saint-Amant	Add "if (omp_get_thread_num() == 0)" to avoid slow performence in WeatherGenerator
+//											Add DevRate fit component
+// 11.5.7: 25/02/2019	Rémi Saint-Amant	Bug correction in elevation extraction
 // 11.5.6: 15/02/2019	Rémi Saint-Amant	Bug correction in pressure gradient
 // 11.5.5: 01/02/2019	Rémi Saint-Amant	Bug correction in Callback (freeze) on Windows10
 // 11.5.4: 25/01/2019	Rémi Saint-Amant	Some string correction 
