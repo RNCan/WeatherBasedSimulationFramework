@@ -26,7 +26,7 @@ namespace WBSF
 	class CDevRateDataRow
 	{
 	public:
-		std::string m_stage;
+		std::string m_variable;
 		double m_T;
 		double m_rate;
 		double m_n;
@@ -37,12 +37,12 @@ namespace WBSF
 	class CDevRateOutput
 	{
 	public:
-		CDevRateOutput(std::string s, CDevRateEquation::TDevRateEquation e):
-			m_stage(s), m_model(e), m_parameters( CDevRateEquation::GetParameters(e))
+		CDevRateOutput(std::string v, CDevRateEquation::TDevRateEquation e):
+			m_variable(v), m_equation(e), m_parameters( CDevRateEquation::GetParameters(e))
 		{}
 
-		std::string m_stage;
-		CDevRateEquation::TDevRateEquation m_model;
+		std::string m_variable;
+		CDevRateEquation::TDevRateEquation m_equation;
 		CSAParameterVector m_parameters;
 		CComputationVariable m_computation;
 	};
@@ -59,7 +59,7 @@ namespace WBSF
 		enum TFeedback { LOOP, ITERATION, CYCLE };
 		//ALWAYS_CREATE_WEATHER, TG_INPUT_NAME, LOC_NAME, 
 		enum TMember{
-			EQUATIONS = CExecutable::NB_MEMBERS, INPUT_FILE_NAME, CONTROL, FEEDBACK_TYPE,
+			EQUATIONS = CExecutable::NB_MEMBERS, INPUT_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, CONVERGE_01,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -68,8 +68,9 @@ namespace WBSF
 		static CExecutablePtr PASCAL CreateObject(){ return CExecutablePtr(new CDevRateParameterization); }
 
 		std::string m_inputFileName;
+		std::string m_outputFileName;
 		EquationBitset m_equations;
-		int m_feedbackType;
+		bool m_bConverge01;
 
 		CSAControl m_ctrl;
 
@@ -98,10 +99,10 @@ namespace WBSF
 		
 	protected:
 
-		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		void GetFValue(std::string s, size_t e, CComputationVariable& computation);
+		ERMsg Optimize(std::string s, TDevRateEquation  e, bool bConverge01, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
+		bool GetFValue(std::string s, TDevRateEquation  e, bool bConverge01, CComputationVariable& computation);
 
-		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
+		ERMsg InitialiseComputationVariable(std::string s, TDevRateEquation  e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
 
 		double Exprep(const double& RDUM);

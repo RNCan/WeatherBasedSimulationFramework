@@ -42,7 +42,7 @@ namespace WBSF
 	//CDevRateParameterization
 	const char* CDevRateParameterization::DATA_DESCRIPTOR = "DevRateParameterizationData";
 	const char* CDevRateParameterization::XML_FLAG = "DevRateParameterization";
-	const char* CDevRateParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "Equation", "InputFileName", "Control", "FeedbackType" };
+	const char* CDevRateParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "Equation", "InputFileName",  "OutputFileName", "Control", "Converge01" };
 	const int CDevRateParameterization::CLASS_NUMBER = CExecutableFactory::RegisterClass(CDevRateParameterization::GetXMLFlag(), &CDevRateParameterization::CreateObject);
 
 	CDevRateParameterization::CDevRateParameterization()
@@ -67,9 +67,18 @@ namespace WBSF
 
 		m_equations.set();
 		m_inputFileName.clear();
-		m_feedbackType = LOOP;
+		m_outputFileName.clear();
+		m_bConverge01 = true;
 
 		m_ctrl.Reset();
+		m_ctrl.m_MAXEVL = 200000;
+		m_ctrl.m_NS = 15;
+		m_ctrl.m_NT = 15;
+		m_ctrl.m_T = 10;
+		m_ctrl.m_RT = 0.65;
+		//m_ctrl.m_EPS = 0.001;
+
+
 		//		m_parameters.clear();
 	}
 
@@ -82,9 +91,9 @@ namespace WBSF
 
 			m_equations = in.m_equations;
 			m_inputFileName = in.m_inputFileName;
-			m_feedbackType = in.m_feedbackType;
+			m_outputFileName = in.m_outputFileName;
+			m_bConverge01 = in.m_bConverge01;
 			m_ctrl = in.m_ctrl;
-			//			m_parameters.clear();
 		}
 
 		return *this;
@@ -97,8 +106,9 @@ namespace WBSF
 		if (CExecutable::operator!=(in))bEqual = false;
 		if (m_equations != in.m_equations) bEqual = false;
 		if (m_inputFileName != in.m_inputFileName) bEqual = false;
+		if (m_outputFileName != in.m_outputFileName) bEqual = false;
 		if (m_ctrl != in.m_ctrl)bEqual = false;
-		if (m_feedbackType != in.m_feedbackType)bEqual = false;
+		if (m_bConverge01 != in.m_bConverge01)bEqual = false;
 
 
 		return bEqual;
@@ -125,11 +135,11 @@ namespace WBSF
 			modelInput.SetName("T");
 			modelInput.push_back(CModelInputParam("T", "15"));
 			info.m_parameterset.push_back(modelInput);
-			
+
 			info.m_parameterset.m_pioneer = modelInput;
 			info.m_parameterset.m_variation.SetType(CParametersVariationsDefinition::SYSTEMTIC_VARIATION);
 			info.m_parameterset.m_variation.push_back(CParameterVariation("T", true, CModelInputParameterDef::kMVReal, 0, 35, 0.5));
-			
+
 		}
 		if (filter[REPLICATION])
 		{
@@ -168,16 +178,18 @@ namespace WBSF
 
 	string to_string(const CSAParameterVector& P)
 	{
-		string str;
+		std::ostringstream streamObj;
+		
 		for (size_t i = 0; i < P.size(); i++)
 		{
-			if (!str.empty())
-				str += " ";
+			if (i > 0)
+				streamObj << " ";
 
-			str += P[i].m_name + "=" + ::to_string(P[i].m_initialValue);
+			streamObj << P[i].m_name << "=" << std::scientific << std::setprecision(6) << P[i].m_initialValue;
 		}
 
-		return str;
+		// Get string from output string stream
+		return streamObj.str();
 	}
 
 	ERMsg CDevRateParameterization::Execute(const CFileManager& fileManager, CCallback& callback)
@@ -211,11 +223,6 @@ namespace WBSF
 				//set vMiss value
 				m_ctrl.SetVMiss(m_ctrl.AdjustFValue(DBL_MAX));
 
-
-				//load model input to prepare parameters
-					//estimate file size to reserve memory
-
-				//m_inputFileName = "D:\\Travaux\\Laricobius nigrinus\\input\\rates.csv";
 				string inputFilePath = fileManager.Input().GetFilePath(m_inputFileName);
 				//begin to read
 				ifStream file;
@@ -226,12 +233,10 @@ namespace WBSF
 					{
 						if (loop->size() == 3)
 						{
-							//CDevRateDataRow test = { (*loop)[0], stod((*loop)[1]), stod((*loop)[2]) };
 							m_data.push_back({ (*loop)[0], stod((*loop)[1]), stod((*loop)[2]), 1.0 });
 						}
 						else if (loop->size() == 4)
 						{
-							//CDevRateDataRow test = { (*loop)[0], stod((*loop)[1]), stod((*loop)[2]) };
 							m_data.push_back({ (*loop)[0], stod((*loop)[1]), stod((*loop)[2]), stod((*loop)[3]) });
 						}
 						else
@@ -242,7 +247,7 @@ namespace WBSF
 
 					}
 
-					//msg = CreateGlobalData(fileManager, (void**)&gSession.m_pGlobalDataStream, callback); 
+					file.close();
 				}
 
 				if (!msg)
@@ -250,63 +255,87 @@ namespace WBSF
 
 
 				CResult result;
-				CCDevRateOutputVector output;
+				CCDevRateOutputVector output1;
+				CCDevRateOutputVector output2;
+				set<string> variables;
 
 
-				if (msg)
+
+				for (size_t s = 0; s < m_data.size(); s++)
+					variables.insert(m_data[s].m_variable);
+
+
+				//for all stage
+				for (auto v = variables.begin(); v != variables.end() && msg; v++)
 				{
-					set<string> stages;
-					for (size_t s = 0; s < m_data.size(); s++)
-						stages.insert(m_data[s].m_stage);
-					
-
-					//for all stage
-					for (auto s = stages.begin(); s != stages.end() && msg; s++)
+					//for all equation
+					for (size_t e = 0; e < m_equations.size() && msg; e++)
 					{
-						//for all equation
-						for (size_t e = 0; e < m_equations.size() && msg; e++)
+						if (m_equations.test(e))
 						{
-							if (m_equations.test(e))
-							{
-								CDevRateOutput out(*s, CDevRateEquation::e(e));
-								msg += InitialiseComputationVariable(out.m_stage, out.m_model, out.m_parameters, out.m_computation, callback);
-								output.push_back(out);
-							}
+							CDevRateOutput out(*v, CDevRateEquation::e(e));
+							msg += InitialiseComputationVariable(out.m_variable, out.m_equation, out.m_parameters, out.m_computation, callback);
+							output1.push_back(out);
+							if(m_bConverge01)
+								output2.push_back(out);
+
+							//std::set<double> test;
+							////test initial parameters
+							//for (double T = 10; T <= 30; T += 1)
+							//{
+							//	double sim = CDevRateEquation::GetFValue(out.m_equation, out.m_computation.m_XP, T);
+							//	if (sim < 0 || sim > 1)
+							//		test.insert(T);
+							//}
+
+							//if(!test.empty())
+							//	callback.AddMessage(string("Test ") + CDevRateEquation::GetEquationName(out.m_equation) + " failed : [" + to_string(*test.begin()) + ":" + to_string(*test.rbegin()) +"]");
+							//
+
 						}
 					}
+				}
 
-					callback.PushTask("Search optimum. variables x equations: " + ToString(output.size()), output.size());
-					 
-					//for (size_t e = CDevRateEquation::DevaHiggis; e < CDevRateEquation::NB_EQUATIONS; e++)
-					//{
-					//	CDevRateEquation::TDevRateEquation  eq = CDevRateEquation::e(e);
-					//	CSAParameterVector p = CDevRateEquation::GetParameters(eq);
-					//	std::vector<double> XP(p.size());
-					//	for (size_t i = 0; i < p.size(); i++)
-					//		XP[i] = p[i].m_initialValue;
-					//	
-					//	//  Evaluate the function with input X and return value as F.
-					//	double value = CDevRateEquation::GetFValue(eq, XP, 15);
-					//	ASSERT(isfinite(value) && !isnan(value));
-					//}
+				callback.PushTask("Search optimum. " + to_string(variables.size()) + " variables x " + to_string(m_equations.count()) + " equations: " + to_string(output1.size()) + " curve to fits", output1.size());
 
-					//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) if(m_model.GetThreadSafe())
-					for (size_t s = 0; s < output.size(); s++)
+
+#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) 
+				for (__int64 i = 0; i < (__int64)output1.size(); i++)
+	//			__int64 i = 2;
+				{
+#pragma omp flush(msg)
+					if (msg)
 					{
-						if (msg)
-						{
-							callback.AddMessage(output[s].m_stage + ": " + CDevRateEquation::GetEquationName(output[s].m_model));
-							msg = Optimize(output[s].m_stage, output[s].m_model, output[s].m_parameters, output[s].m_computation, callback);
 
-							WriteInfo(output[s].m_parameters, output[s].m_computation, callback);
+						msg += Optimize(output1[i].m_variable, output1[i].m_equation, false, output1[i].m_parameters, output1[i].m_computation, callback);
+						if (!output2.empty())
+						{
+							msg += Optimize(output2[i].m_variable, output2[i].m_equation, true, output2[i].m_parameters, output2[i].m_computation, callback);
+							if (output2[i].m_computation.m_Sopt[STAT_R²] > output1[i].m_computation.m_Sopt[STAT_R²] &&
+								output2[i].m_computation.m_AICopt > output1[i].m_computation.m_AICopt)
+							{
+								//select output2
+								output2[i].m_parameters = output1[i].m_parameters;
+								output2[i].m_computation = output1[i].m_computation;
+							}
 						}
+							
+
+#pragma omp critical(WRITE_INFO)
+						{
+							callback.AddMessage(output1[i].m_variable + ": " + CDevRateEquation::GetEquationName(output1[i].m_equation));
+							WriteInfo(output1[i].m_parameters, output1[i].m_computation, callback);
+						}
+
 
 						//fileManager, result, callback
 						msg += callback.StepIt();
+#pragma omp flush(msg)
 					}
-
-					callback.PopTask();
 				}
+
+				callback.PopTask();
+
 
 
 				callback.AddMessage(GetCurrentTimeString());
@@ -317,25 +346,39 @@ namespace WBSF
 
 				if (true)
 				{
-					string outputFilePath = fileManager.GetOutputPath() + m_inputFileName;
+					string outputFilePath = fileManager.GetOutputPath() + (!m_outputFileName.empty() ? m_outputFileName : GetFileTitle(m_inputFileName));
+					SetFileExtension(outputFilePath, ".csv");
+
 					//begin to read
 					ofStream file;
-					msg += file.open(outputFilePath);
-					if (msg)
+
+
+					ERMsg msg_file = file.open(outputFilePath);
+					if (msg_file)//save result event if user cancel or error
 					{
-						
-						sort(output.begin(), output.end(), [](const CDevRateOutput& a, const CDevRateOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
-						file << "Stage,EqName,P,Eq,RMSE,CD,R²,AIC" << endl;
-						for (size_t i = 0; i < output.size(); i++)
+
+						sort(output1.begin(), output1.end(), [](const CDevRateOutput& a, const CDevRateOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
+						file << "Variable,EqName,P,Eq,RMSE,CD,R2,AIC" << endl;
+						for (auto v = variables.begin(); v != variables.end() && msg; v++)
 						{
-							string name = CDevRateEquation::GetEquationName(output[i].m_model);
-							string eq = CDevRateEquation::GetEquationR(output[i].m_model);
-							string P = to_string(CDevRateEquation::GetParameters(output[i].m_model, output[i].m_computation.m_Xopt));
-							file << output[i].m_stage << "," << name << "," << P << "," << eq << ",";
-							file << output[i].m_computation.m_Sopt[RMSE] << "," << output[i].m_computation.m_Sopt[COEF_D] << ",";
-							file << output[i].m_computation.m_Sopt[STAT_R²] << "," << output[i].m_computation.m_AICopt << endl;
+							for (size_t i = 0; i < output1.size(); i++)
+							{
+								if (output1[i].m_variable == *v)
+								{
+									string name = CDevRateEquation::GetEquationName(output1[i].m_equation);
+									string eq = CDevRateEquation::GetEquationR(output1[i].m_equation);
+									string P = to_string(CDevRateEquation::GetParameters(output1[i].m_equation, output1[i].m_computation.m_Xopt));
+									file << output1[i].m_variable << "," << name << "," << P << ",\"" << eq << "\",";
+									file << output1[i].m_computation.m_Sopt[RMSE] << "," << output1[i].m_computation.m_Sopt[COEF_D] << ",";
+									file << output1[i].m_computation.m_Sopt[STAT_R²] << "," << output1[i].m_computation.m_AICopt << endl;
+								}
+							}
 						}
+
+						file.close();
 					}
+
+					msg += msg_file;
 				}
 
 
@@ -349,12 +392,9 @@ namespace WBSF
 
 	//Initialize input parameter
 	//user can override theses methods
-	ERMsg CDevRateParameterization::InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CDevRateParameterization::InitialiseComputationVariable(std::string s, TDevRateEquation  e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
 	{
 		ERMsg msg;
-
-		//callback.PushTask("Initialize Computation Variables", 1);
-		//callback.SetNbStep(1);
 
 		computation.m_bounds.resize(parameters.size());
 		computation.m_C.resize(parameters.size());
@@ -384,10 +424,7 @@ namespace WBSF
 
 		computation.Initialize(m_ctrl.T(), m_ctrl.NEPS(), m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
-		GetFValue(s, e, computation);
-
-
-
+		GetFValue(s, e, false, computation);
 
 		computation.m_NFCNEV++;
 
@@ -397,16 +434,15 @@ namespace WBSF
 		if (computation.m_FP != m_ctrl.GetVMiss())
 		{
 			computation.m_S = computation.m_SP;
-			computation.m_Sopt = computation.m_SP;
 			computation.m_F = computation.m_FP;
 			computation.m_AIC = computation.m_AICP;
-			computation.m_AICopt = computation.m_AIC;
-			computation.m_Fopt = computation.m_F;
+
+			computation.m_Sopt = computation.m_SP;
+			computation.m_Fopt = computation.m_FP;
+			computation.m_AICopt = computation.m_AICP;
+
 			computation.m_FSTAR[0] = computation.m_FP;
 		}
-
-
-		//callback.PopTask();
 
 		return msg;
 	}
@@ -446,9 +482,6 @@ namespace WBSF
 		if (computation.m_Sopt[NB_VALUE] > 0)
 		{
 			double F = m_ctrl.Max() ? computation.m_Fopt : -computation.m_Fopt;
-			//double LL = computation.m_Sopt[NEGATIVE_LOG_LIKELIHOOD];
-			//double AIC2 = computation.m_Sopt[NB_VALUE] * log(computation.m_Sopt[RSS] / computation.m_Sopt[NB_VALUE]) + 2 * computation.m_Xopt.size();
-
 
 			line = FormatA("N=%10d\tT=%9.5f\tF=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf\tAIC=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²], computation.m_AICopt);
 			callback.AddMessage(line);
@@ -475,7 +508,7 @@ namespace WBSF
 				}
 				else
 				{
-					tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), computation.m_Xopt[j]);
+					tmp = FormatA("%s = %5.3lg  ", name.c_str(), computation.m_Xopt[j]);
 				}
 
 				line += tmp;
@@ -747,7 +780,7 @@ namespace WBSF
 	//       some machines.
 	//    3. RMARIN and RANMAR are designed to be protable; they should not
 	//       cause any problems.
-	ERMsg CDevRateParameterization::Optimize(string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CDevRateParameterization::Optimize(string s, TDevRateEquation  e, bool bConverge01, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -775,10 +808,10 @@ namespace WBSF
 				vector<int> NACP;
 				NACP.insert(NACP.begin(), computation.m_X.size(), 0);
 
-				for (int J = 0; J < m_ctrl.NS() && msg; J++)
+				for (size_t j = 0; j < m_ctrl.NS() && msg; j++)
 				{
 
-					for (int H = 0; H < NACP.size() && msg; H++)
+					for (size_t h = 0; h < NACP.size() && msg; h++)
 					{
 						//  If too many function evaluations occur, terminate the algorithm.
 						if (computation.m_NFCNEV >= m_ctrl.MAXEVL())
@@ -789,41 +822,43 @@ namespace WBSF
 						}
 
 						computation.m_XP.resize(computation.m_X.size());
+						computation.m_SP.Reset();
+						computation.m_FP = m_ctrl.GetVMiss();
 
-						do
-						{
+						//for (size_t k = 0; k < 20 && computation.m_FP == m_ctrl.GetVMiss()&&msg; k++)
+						//{
 							//  Generate XP, the trial value of X. Note use of VM to choose XP.
-							for (int I = 0; I < computation.m_X.size(); I++)
+						for (size_t i = 0; i < computation.m_X.size(); i++)
+						{
+							if (i == h)
+								computation.m_XP[i] = computation.m_X[i] + (random.Ranmar()*2.0 - 1.0) * computation.m_VM[i];
+							else
+								computation.m_XP[i] = computation.m_X[i];
+
+
+							//  If XP is out of bounds, select a point in bounds for the trial.
+							if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
 							{
-								if (I == H)
-									computation.m_XP[I] = computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * computation.m_VM[I];
-								else computation.m_XP[I] = computation.m_X[I];
+								computation.m_XP[i] = computation.m_bounds[i].GetLowerBound() + computation.m_bounds[i].GetExtent()*random.Ranmar();
 
-
-								//  If XP is out of bounds, select a point in bounds for the trial.
-								if (computation.m_bounds[I].IsOutOfBound(computation.m_XP[I]))
-								{
-									computation.m_XP[I] = computation.m_bounds[I].GetLowerBound() + computation.m_bounds[I].GetExtent()*random.Ranmar();
-
-									LNOBDS++;
-									computation.m_NOBDS++;
-								}
+								LNOBDS++;
+								computation.m_NOBDS++;
 							}
-							
-						} while (!CDevRateEquation::IsParamValid(CDevRateEquation::e(e), computation.m_XP));
+						}
 
 						//  Evaluate the function with the trial point XP and return as FP.
-						GetFValue(s, e, computation);
+						GetFValue(s, e, bConverge01, computation);
+						//}
 
 
 						//add X value to extreme XP statistic
-						for (int i = 0; i < computation.m_XP.size() && i < (int)computation.m_XPstat.size(); i++)
+						for (size_t i = 0; i < computation.m_XP.size() && i < computation.m_XPstat.size(); i++)
 							computation.m_XPstat[i] += computation.m_XP[i];
 
 						for (size_t i = 0; i < computation.m_VMstat.size(); i++)
 							computation.m_VMstat[i] += computation.m_VM[i];
 
-						
+
 
 						//  Accept the new point if the function value increases.
 						if (computation.m_FP != m_ctrl.GetVMiss())
@@ -835,7 +870,7 @@ namespace WBSF
 								computation.m_AIC = computation.m_AICP;
 								computation.m_S = computation.m_SP;
 								computation.m_NACC++;
-								NACP[H]++;
+								NACP[h]++;
 								NUP++;
 
 								//  If greater than any other point, record as new optimum.
@@ -861,7 +896,7 @@ namespace WBSF
 									computation.m_AIC = computation.m_AICP;
 									computation.m_S = computation.m_SP;
 									computation.m_NACC++;
-									NACP[H]++;
+									NACP[h]++;
 									NDOWN++;
 								}
 								else
@@ -874,16 +909,18 @@ namespace WBSF
 						{
 							NREJ = NREJ + 1;
 							//Eliminate this evaluation??
-							H--;
+							h--;
 						}
 
 						computation.m_NFCNEV++;
 
 
-						if (msg)
-							msg += callback.StepIt(0);
+						//if (msg)
+						msg += callback.StepIt(0);
 					} //H
 				} //J
+
+				
 
 				//  Adjust VM so that approximately half of all evaluations are accepted.
 				ASSERT(computation.m_VM.size() == NACP.size());
@@ -904,26 +941,19 @@ namespace WBSF
 					{
 						computation.m_VM[I] = computation.m_bounds[I].GetExtent();
 					}
-
-					//m_tmp.m_VMstat[I] += m_tmp.m_VM[I];
-
 				}//all VM
 			}//M
 
-			//OnEndLoop(L, callback);
-			if (m_feedbackType == LOOP)
-			{
-				for (size_t i = 0; i < computation.m_XPstat.size(); i++)
-					computation.m_XPstat[i].Reset();
-			}
+			for (size_t i = 0; i < computation.m_XPstat.size(); i++)
+				computation.m_XPstat[i].Reset();
 
 			//clean VM stats
 			for (size_t i = 0; i < computation.m_VMstat.size(); i++)
 				computation.m_VMstat[i].Reset();
 
+			//WriteInfo(parameters, computation, callback);
+
 			//  Loop again.
-
-
 			bQuit = fabs(computation.m_F - computation.m_Fopt) <= m_ctrl.EPS();
 			for (int I = 0; I < computation.m_FSTAR.size() && bQuit; I++)
 			{
@@ -941,57 +971,75 @@ namespace WBSF
 	}
 
 
-	void CDevRateParameterization::GetFValue(string s, size_t e, CComputationVariable& computation)
+	bool CDevRateParameterization::GetFValue(string s, TDevRateEquation  e, bool bConverge01, CComputationVariable& computation)
 	{
-		CStatisticXYEx stat;
+		bool bValid = false;
 
-		computation.m_SP.Reset();
-		computation.m_FP = m_ctrl.GetVMiss();
 
-		for (__int64 i = 0; i < (__int64)m_data.size(); i++)
+		if (CDevRateEquation::IsParamValid(e, computation.m_XP))
 		{
-			if (WBSF::IsEqualNoCase(m_data[i].m_stage, s))
+			CStatisticXYEx stat;
+
+			for (__int64 i = 0; i < (__int64)m_data.size(); i++)
 			{
-				double sim = CDevRateEquation::GetFValue(CDevRateEquation::e(e), computation.m_XP, m_data[i].m_T);
-				if (!isfinite(sim) || isnan(sim) || sim<-1E6 || sim>1E6)
+				if (WBSF::IsEqualNoCase(m_data[i].m_variable, s))
 				{
-					stat.Reset();//find other set of parameters
-					return;
+					double sim = CDevRateEquation::GetFValue(e, computation.m_XP, m_data[i].m_T);
+
+					if (bConverge01)
+					{
+						if (sim < 0)
+							sim = -exp(1000 / sim);//let the code to give a chance to converge to the good direction
+						else if (sim > 1)
+							sim = 1 + exp(-1000 / (sim - 1));
+
+						//let the code to give a chance to converge to the good direction
+						//if (sim < 0)
+//							sim = -log(1-sim);
+	//					else if (sim > 1)
+		//					sim = 1 + log(sim);
+					}
+
+					if (!isfinite(sim) || isnan(sim) || sim<-1E8 || sim>1E8)
+					{
+						stat.Reset();//find other set of parameters
+						return false;
+					}
+
+					double obs = m_data[i].m_rate;
+					for (size_t n = 0; n < m_data[i].m_n; n++)
+						stat.Add(sim, obs);
 				}
-
-				double obs = m_data[i].m_rate;
-				for(size_t n=0; n< m_data[i].m_n; n++)
-					stat.Add(sim, obs);
 			}
-		}
 
-		//  If the function is to be minimized, switch the sign of the function.
-			//  Note that all intermediate and final output switches the sign back
-			//  to eliminate any possible confusion for the user.
-		if (stat[NB_VALUE] > 0)
-		{
-			double LL = 0;
-
-			//used sigma ML hat instead of classical sigma hat
-			double sigma = sqrt(stat[RSS] / (stat[NB_VALUE] - 1))*(stat[NB_VALUE]) / (stat[NB_VALUE] - 1);
-			double sigmaML = sigma * sqrt((stat[NB_VALUE] - computation.m_XP.size()) / stat[NB_VALUE]);
-			for (size_t i = 0; i < stat[NB_VALUE]; i++)
+			//  If the function is to be minimized, switch the sign of the function.
+				//  Note that all intermediate and final output switches the sign back
+				//  to eliminate any possible confusion for the user.
+			if (stat[NB_VALUE] > 1)
 			{
-				double m = stat.x(i);
-				boost::math::normal_distribution<> N(m, sigmaML);
+				double LL = 0;
 
-				double x = stat.y(i);
-				double p = boost::math::pdf(N, x);
+				//used sigma ML hat instead of classical sigma hat
+				double sigma = sqrt(stat[RSS] / (stat[NB_VALUE] - 1))*(stat[NB_VALUE]) / (stat[NB_VALUE] - 1);
+				double sigmaML = sigma * sqrt((stat[NB_VALUE] - computation.m_XP.size()) / stat[NB_VALUE]);
+				for (size_t i = 0; i < stat[NB_VALUE]; i++)
+				{
+					double m = stat.x(i);
+					boost::math::normal_distribution<> N(m, sigmaML);
 
-				ASSERT(p > 0);
-				LL += log(p);
+					double x = stat.y(i);
+					double p = boost::math::pdf(N, x);
+
+					ASSERT(p > 0);
+					LL += log(p);
+				}
+				computation.m_AICP = -2 * LL + 2 * (computation.m_XP.size() + 1);
+				computation.m_FP = m_ctrl.GetFinalFValue(stat);
+				computation.m_SP = stat;
 			}
-			computation.m_AICP = -2 * LL + 2 * (computation.m_XP.size() + 1);
-			computation.m_FP = m_ctrl.GetFinalFValue(stat);
-			computation.m_SP = stat;
 		}
 
-
+		return bValid;
 	}
 
 	void CDevRateParameterization::writeStruc(zen::XmlElement& output)const
@@ -1000,7 +1048,8 @@ namespace WBSF
 		zen::XmlOut out(output);
 		out[GetMemberName(EQUATIONS)](m_equations);
 		out[GetMemberName(INPUT_FILE_NAME)](m_inputFileName);
-		out[GetMemberName(FEEDBACK_TYPE)](m_feedbackType);
+		out[GetMemberName(OUTPUT_FILE_NAME)](m_outputFileName);
+		out[GetMemberName(CONVERGE_01)](m_bConverge01);
 		out[GetMemberName(CONTROL)](m_ctrl);
 
 	}
@@ -1011,7 +1060,8 @@ namespace WBSF
 		zen::XmlIn in(input);
 		in[GetMemberName(EQUATIONS)](m_equations);
 		in[GetMemberName(INPUT_FILE_NAME)](m_inputFileName);
-		in[GetMemberName(FEEDBACK_TYPE)](m_feedbackType);
+		in[GetMemberName(OUTPUT_FILE_NAME)](m_outputFileName);
+		in[GetMemberName(CONVERGE_01)](m_bConverge01);
 		in[GetMemberName(CONTROL)](m_ctrl);
 
 		return true;

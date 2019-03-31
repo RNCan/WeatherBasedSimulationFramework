@@ -188,12 +188,14 @@ namespace WBSF
 			CS.Leave();
 		}
 
-		if (omp_get_thread_num() == 0)
+		//if (omp_get_thread_num() == 0)
 		{
 			if (GetUserCancel())
 			{
+				CS.Enter();
 				ASSERT(!m_userCancelMsg.empty());
 				msg.ajoute(m_userCancelMsg);
+				CS.Leave();
 			}
 		}
 

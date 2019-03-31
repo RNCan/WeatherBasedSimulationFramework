@@ -263,8 +263,10 @@ namespace WBSF
 
 	double CEmeraldAshBorerColdHardinessModel::Tbark2MortalityLogistic(double Tbark)
 	{
-		static const double k = 0.0002;
-		static const double x0 = -24183;
+		//calibrated with R by nls
+		// 2.013084e-04 -2.417994e+04 
+		static const double k = 2.013E-4;
+		static const double x0 = -2.418E4;
 
 		return 1.0 - 1.0 / (1.0 + exp(-(k * (pow(Tbark, 3.0) - x0))));
 	}

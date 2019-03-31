@@ -431,7 +431,7 @@ namespace WBSF
 		case CExecutableTree::FUNCTION_ANALYSIS:
 		case CExecutableTree::MAPPING:
 		case CExecutableTree::DISPERSAL:
-		case CExecutableTree::SCRIPT_R:
+		case CExecutableTree::SCRIPT_R:bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
 		case CExecutableTree::COPY_EXPORT:	
 		case CExecutableTree::MODEL_PARAMETERIZATION:
 		case CExecutableTree::RATE_FIT:	bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
@@ -635,6 +635,7 @@ namespace WBSF
 
 		switch (pCmdUI->m_nID)
 		{
+		case ID_ADD_SCRIPT_R:
 		case ID_ADD_GROUP:             pCmdUI->Enable(bInit); break;
 		case ID_ADD_WEATHER_UPDATE:
 		case ID_ADD_WEATHER_GENERATION: 
@@ -643,7 +644,6 @@ namespace WBSF
 		case ID_ADD_ANALYSIS:
 		case ID_ADD_FUNCTION_ANALYSIS:
 		case ID_ADD_DISPERSAL:
-		case ID_ADD_SCRIPT_R:
 		case ID_ADD_MAP:               
 		case ID_ADD_MODEL_PARAMETERIZATION:pCmdUI->Enable(bInit && bDeepHaveData); break;
 		case ID_ADD_INPUT_ANALYSIS:	   pCmdUI->Enable(bInit && (deepElemType == CExecutableTree::WEATHER_GENERATION)); break;

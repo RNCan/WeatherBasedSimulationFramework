@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////// 
-// version de BioSIM 
+// version de BioSIM
 // 11.5.8: 26/03/2019	Rémi Saint-Amant	Add "if (omp_get_thread_num() == 0)" to avoid slow performence in WeatherGenerator
 //											Add DevRate fit component
 // 11.5.7: 25/02/2019	Rémi Saint-Amant	Bug correction in elevation extraction
@@ -396,6 +396,9 @@ CBioSIMApp theApp;
 
 BOOL CBioSIMApp::InitInstance()
 {
+	//set priority to low
+	SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+
 	CRegistry registre; 
 
     short language = registre.GetLanguage();

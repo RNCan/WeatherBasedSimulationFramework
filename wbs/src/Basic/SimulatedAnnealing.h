@@ -235,6 +235,7 @@ namespace WBSF
 
 			m_FSTAR[0] = m_F;
 
+			m_S = m_Sopt;
 			m_F = m_Fopt;
 			m_X = m_Xopt;
 			m_AIC = m_AICopt;

@@ -43,7 +43,9 @@ namespace WBSF
 		CCFLEdit	m_descriptionCtrl;
 		
 		CCFLComboBox	m_inputFileNameCtrl;
+		CCFLEdit		m_ouputFileNameCtrl;
 		CSelectionCtrl 	m_equationsCtrl;
+		CButton			m_converge01Ctrl;
 
 		// Overrides
 

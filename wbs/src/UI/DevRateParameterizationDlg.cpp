@@ -52,15 +52,23 @@ namespace WBSF
 		DDX_Control(pDX, IDC_SIM_NAME, m_nameCtrl);
 		DDX_Control(pDX, IDC_SIM_INTERNAL_NAME, m_internalNameCtrl);
 		DDX_Control(pDX, IDC_SIM_DESCRIPTION, m_descriptionCtrl);
-		DDX_Control(pDX, IDC_SIM_RESULT, m_inputFileNameCtrl);
+		DDX_Control(pDX, IDC_SIM_INPUT_NAME, m_inputFileNameCtrl);
+		DDX_Control(pDX, IDC_SIM_OUTPUT_NAME, m_ouputFileNameCtrl);
 		DDX_Control(pDX, IDC_SIM_EQUATION, m_equationsCtrl);
+		DDX_Control(pDX, IDC_SIM_LIMIT_DEVRATE, m_converge01Ctrl);
+	
+
 		
 		if (pDX->m_bSaveAndValidate)
 		{
 			m_sa.SetName(m_nameCtrl.GetString());
 			m_sa.SetDescription(m_descriptionCtrl.GetString());
 			m_sa.m_inputFileName = m_inputFileNameCtrl.GetString();
+			m_sa.m_outputFileName = m_ouputFileNameCtrl.GetString();
 			m_sa.m_equations.SetSelection(m_equationsCtrl.GetSelection());
+			m_sa.m_bConverge01 = m_converge01Ctrl.GetCheck();
+			
+
 		}
 		else
 		{
@@ -83,6 +91,10 @@ namespace WBSF
 
 			FillInputFile();
 			m_inputFileNameCtrl.SelectString(0, m_sa.m_inputFileName);
+			m_ouputFileNameCtrl.SetString(m_sa.m_outputFileName);
+			m_sa.m_equations.SetSelection(m_equationsCtrl.GetSelection());
+			m_converge01Ctrl.SetCheck(m_sa.m_bConverge01);
+
 		}
 
 	}

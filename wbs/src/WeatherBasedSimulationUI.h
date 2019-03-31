@@ -46,6 +46,7 @@
 #define IDC_MEAN_OVER_LOCATION          1003
 #define IDC_SIM_MODEL                   1003
 #define IDC_ERROR_TOLERENCE             1003
+#define IDC_SIM_OUTPUT_NAME             1003
 #define IDC_CMN_STEPNO                  1004
 #define IDC_LP_FILENAME                 1004
 #define IDC_PT_NBCOLS_IN                1004
@@ -514,7 +515,10 @@
 #define IDC_MAP_REGIONAL_LIMIT          1250
 #define IDC_SIM_EQUATION                1250
 #define IDC_MAP_GLOBAL_LIMIT            1251
+#define IDC_CHECK1                      1251
+#define IDC_SIM_LIMIT_DEVRATE           1251
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND 1252
+#define IDC_SIM_INPUT_NAME              1252
 #define IDC_MAP_GLOBAL_LIMIT_MIN        1253
 #define IDC_MAP_GLOBAL_LIMIT_MAX        1254
 #define IDC_MAP_OUTPUT_VARIOGRAM_INFO   1255
@@ -858,7 +862,7 @@
 #define ID_ADD_SCRIPT_R                 42783
 #define ID_ADD_COPY_EXPORT              42784
 #define ID_ADD_MODEL_PARAMETERIZATION   42785
-#define ID_ADD_RATE_FIT					42786
+#define ID_ADD_RATE_FIT                 42786
 #define ID_ADD_LAST                     42786
 #define ID_EDIT_DUPLICATE               42789
 #define ID_ITEM_EXPAND_ALL              42790
@@ -880,7 +884,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1251
+#define _APS_NEXT_CONTROL_VALUE         1253
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
