@@ -386,12 +386,15 @@ namespace WBSF
 			bHaveData[i] = m_columnLinkArray.HaveDimension(i);
 
 		ASSERT(bHaveData[VARIABLE]);
+		CModelOutputVariableDefVector column_def;
+		m_columnLinkArray.GetOutputDefinition(column_def);
 
 		data.Reset();
 		lastLOC.Reset();
 		lastReplication = NOT_INIT;
 
-
+		bool bDataNotWellFormated = false;
+		
 		ios::pos_type pos = file.tellg();
 		string line;
 
@@ -401,7 +404,7 @@ namespace WBSF
 			ASSERT(columnList.size() == m_columnLinkArray.size());
 
 
-			//Get lcoation
+			//Get location
 			CLocation LOC;
 			if (bHaveData[LOCATION])
 			{
@@ -438,9 +441,17 @@ namespace WBSF
 			m_columnLinkArray.GetVariable(columnList, outputVar);
 
 
-			if (true /*outputVar.size() ==*/)
+			if (outputVar.size() >= column_def.size())
 			{
+				
+				if (outputVar.size() != column_def.size())
+				{
+					outputVar.resize(column_def.size());
+					bDataNotWellFormated = true;
+				}
+				
 				data.Insert(TRef, outputVar);
+
 			}
 			else
 			{
@@ -454,6 +465,8 @@ namespace WBSF
 
 		file.seekg(pos);
 
+		if (bDataNotWellFormated)
+			callback.AddMessage("Some line don't have the good number of column");
 
 		return msg;
 	}

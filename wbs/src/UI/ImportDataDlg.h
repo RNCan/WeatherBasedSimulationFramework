@@ -44,8 +44,8 @@ namespace WBSF
 
 	private:
 
-		void GetImportFileFromInterface();
-		void SetImportFileToInterface();
+		//void GetImportFileFromInterface();
+		//void SetImportFileToInterface();
 
 		CString GetDimensionText(size_t dimension)const;
 		CString GetFieldText(size_t dimension, size_t field)const;

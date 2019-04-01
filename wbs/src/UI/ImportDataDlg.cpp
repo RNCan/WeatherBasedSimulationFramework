@@ -335,6 +335,18 @@ namespace WBSF
 		
 		DDX_Text(pDX, IDC_NAME, m_importData.m_name);
 		DDX_Text(pDX, IDC_DESCRIPTION, m_importData.m_description);
+		if (pDX->m_bSaveAndValidate)
+		{
+			m_importData.m_fileName = m_fileNameCtrl.GetString();
+			m_columnLink.GetData(m_importData.m_columnLinkArray);
+		}
+		else
+		{
+			m_fileNameCtrl.SelectString(0, m_importData.m_fileName);
+			OnFileNameChange();
+			m_columnLink.SetData(m_importData.m_columnLinkArray);
+		}
+		
 	}
 
 
@@ -369,7 +381,7 @@ namespace WBSF
 		SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
 
 
-		SetImportFileToInterface();
+		//SetImportFileToInterface();
 
 		return TRUE;
 	}
@@ -450,23 +462,16 @@ namespace WBSF
 		}
 	}
 
-	void CImportDataDlg::GetImportFileFromInterface()
-	{
-		m_importData.m_fileName = m_fileNameCtrl.GetString();
-		m_importData.SetInternalName(GetFileTitle(m_importData.m_fileName));
+	//void CImportDataDlg::GetImportFileFromInterface()
+	//{
+	//	//m_importData.m_name = m_nameCtrl.GetString();
+	//	
+	//}
 
-		m_columnLink.GetData(m_importData.m_columnLinkArray);
-		//	m_importData.m_bTemporalData = m_temporalDataCtrl.GetCheck();
-	}
-
-	void CImportDataDlg::SetImportFileToInterface()
-	{
-		//m_fileNameCtrl.SetWindowText(m_importData.m_fileName);	
-		m_fileNameCtrl.SelectString(0, m_importData.m_fileName);
-		OnFileNameChange();
-		m_columnLink.SetData(m_importData.m_columnLinkArray);
-		//m_temporalDataCtrl.SetCheck(m_importData.m_bTemporalData);
-	}
+	//void CImportDataDlg::SetImportFileToInterface()
+	//{
+	//	//m_temporalDataCtrl.SetCheck(m_importData.m_bTemporalData);
+	//}
 
 	void CImportDataDlg::OnSize(UINT nType, int cx, int cy)
 	{
