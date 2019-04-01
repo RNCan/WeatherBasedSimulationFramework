@@ -388,7 +388,7 @@ namespace WBSF
 			double Tmax = P[P3];
 
 			//T = max(Tmin, min(Tmax, T));
-			rT = pow(aa*(T - Tmin)*(1.0 - exp((b*(Tmax - T)))), 2.0);
+			rT = pow(aa*(T - Tmin)*(1.0 - exp((b*(T- Tmax)))), 2.0);
 		}
 		else if (model == Pradham)
 		{

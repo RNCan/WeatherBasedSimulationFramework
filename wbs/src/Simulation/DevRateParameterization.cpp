@@ -231,19 +231,27 @@ namespace WBSF
 				{
 					for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
 					{
-						if (loop->size() == 3)
+						if (loop->size() >= 3)
 						{
 							m_data.push_back({ (*loop)[0], stod((*loop)[1]), stod((*loop)[2]), 1.0 });
 						}
-						else if (loop->size() == 4)
+						
+						if (loop->size() >= 4)
 						{
-							m_data.push_back({ (*loop)[0], stod((*loop)[1]), stod((*loop)[2]), stod((*loop)[3]) });
+							try
+							{
+								m_data.back().m_n = stod((*loop)[3]);
+							}
+							catch (...)
+							{
+							}
+							
 						}
-						else
+						/*else
 						{
 							msg.ajoute("Invalid line at " + to_string(m_data.size() + 1));
 							msg.ajoute(loop->GetLastLine());
-						}
+						}*/
 
 					}
 
@@ -369,8 +377,17 @@ namespace WBSF
 									string eq = CDevRateEquation::GetEquationR(output1[i].m_equation);
 									string P = to_string(CDevRateEquation::GetParameters(output1[i].m_equation, output1[i].m_computation.m_Xopt));
 									file << output1[i].m_variable << "," << name << "," << P << ",\"" << eq << "\",";
-									file << output1[i].m_computation.m_Sopt[RMSE] << "," << output1[i].m_computation.m_Sopt[COEF_D] << ",";
-									file << output1[i].m_computation.m_Sopt[STAT_R²] << "," << output1[i].m_computation.m_AICopt << endl;
+									if (output1[i].m_computation.m_Fopt > m_ctrl.GetVMiss())
+									{
+										file << output1[i].m_computation.m_Sopt[RMSE] << "," << output1[i].m_computation.m_Sopt[COEF_D] << ",";
+										file << output1[i].m_computation.m_Sopt[STAT_R²] << "," << output1[i].m_computation.m_AICopt;
+									}
+									else
+									{
+										file << "0,0,0,0";
+									}
+
+									file << endl;
 								}
 							}
 						}
@@ -1022,20 +1039,28 @@ namespace WBSF
 				//used sigma ML hat instead of classical sigma hat
 				double sigma = sqrt(stat[RSS] / (stat[NB_VALUE] - 1))*(stat[NB_VALUE]) / (stat[NB_VALUE] - 1);
 				double sigmaML = sigma * sqrt((stat[NB_VALUE] - computation.m_XP.size()) / stat[NB_VALUE]);
-				for (size_t i = 0; i < stat[NB_VALUE]; i++)
+				if (sigmaML > 0)
 				{
-					double m = stat.x(i);
-					boost::math::normal_distribution<> N(m, sigmaML);
+					for (size_t i = 0; i < stat[NB_VALUE]; i++)
+					{
+						double m = stat.x(i);
+						boost::math::normal_distribution<> N(m, sigmaML);
 
-					double x = stat.y(i);
-					double p = boost::math::pdf(N, x);
+						double x = stat.y(i);
+						double p = boost::math::pdf(N, x);
 
-					ASSERT(p > 0);
-					LL += log(p);
+						ASSERT(p > 0);
+						LL += log(p);
+					}
+					computation.m_AICP = -2 * LL + 2 * (computation.m_XP.size() + 1);
+					computation.m_FP = m_ctrl.GetFinalFValue(stat);
+					computation.m_SP = stat;
 				}
-				computation.m_AICP = -2 * LL + 2 * (computation.m_XP.size() + 1);
-				computation.m_FP = m_ctrl.GetFinalFValue(stat);
-				computation.m_SP = stat;
+				else
+				{
+					stat.Reset();//find other set of parameters
+					bValid = false;
+				}
 			}
 		}
 
