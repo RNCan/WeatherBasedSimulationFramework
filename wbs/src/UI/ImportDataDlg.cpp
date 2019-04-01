@@ -6,9 +6,10 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 01-04-2019	Rémi Saint-Amant	Don't use file name as internal name. Cause many problems
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //****************************************************************************
-#include "stdafx.h"
+#include "stdafx.h" 
 
 #include "Basic/Dimension.h"
 #include "Basic/Location.h"
@@ -332,7 +333,15 @@ namespace WBSF
 		DDX_Control(pDX, IDC_IMPORT_FILENAME, m_fileNameCtrl);
 		DDX_Control(pDX, IDC_IMPORT_DEFAULT_DIR, m_defaultDirCtrl);
 		DDX_Control(pDX, IDC_IMPORT_INTERNAL_NAME, m_internalNameCtrl);
+		if(m_columnLink.GetSafeHwnd()==NULL)
+			m_columnLink.AttachGrid(this, IDC_IMPORT_COLUMN_LINK);
+
+		m_defaultDirCtrl.SetWindowText(WBSF::GetFM().Input().GetLocalPath().c_str());
+		m_internalNameCtrl.SetWindowText(m_importData.GetInternalName());
+
+		CString importFilter = UtilWin::GetCString(IDS_STR_FILTER_CSV);
 		
+
 		DDX_Text(pDX, IDC_NAME, m_importData.m_name);
 		DDX_Text(pDX, IDC_DESCRIPTION, m_importData.m_description);
 		if (pDX->m_bSaveAndValidate)
@@ -342,6 +351,7 @@ namespace WBSF
 		}
 		else
 		{
+			FillFileName();
 			m_fileNameCtrl.SelectString(0, m_importData.m_fileName);
 			OnFileNameChange();
 			m_columnLink.SetData(m_importData.m_columnLinkArray);
@@ -363,14 +373,7 @@ namespace WBSF
 	{
 		CDialog::OnInitDialog();
 
-		m_defaultDirCtrl.SetWindowText(WBSF::GetFM().Input().GetLocalPath().c_str());
-		m_internalNameCtrl.SetWindowText(m_importData.GetInternalName());
-		
-		m_columnLink.AttachGrid(this, IDC_IMPORT_COLUMN_LINK);
-
-		CString importFilter = UtilWin::GetCString(IDS_STR_FILTER_CSV);
-		FillFileName();
-
+	
 		CAppOption option;
 		
 		CRect rectClient;
@@ -404,7 +407,8 @@ namespace WBSF
 
 	void CImportDataDlg::OnOK()
 	{
-		GetImportFileFromInterface();
+		UpdateData();
+		
 
 
 		CProgressStepDlg progressDlg;

@@ -404,15 +404,16 @@ namespace WBSF
 			ASSERT(columnList.size() == m_columnLinkArray.size());
 
 
+			CLocation LOC;// ("defaut", "ID", 0, 0, 0);
 			//Get location
-			CLocation LOC;
 			if (bHaveData[LOCATION])
 			{
 				m_columnLinkArray.GetLocation(columnList, LOC);
 				if (!lastLOC.IsInit())
 					lastLOC = LOC;
 			}
-
+			
+			
 			//Get replication
 			size_t replication = 0;
 
@@ -525,8 +526,14 @@ namespace WBSF
 
 				msg = ReadData(file, data, lastLOC, lastReplication, callback);
 
-				if (!lastLOC.IsInit())
-					locArray.push_back(CLocation());
+				if (lastLOC.m_ID.empty())
+					lastLOC.m_ID = to_string(locArray.size()+1);
+
+				if (lastLOC.m_name.empty())
+					lastLOC.m_name = lastLOC.m_ID;
+
+				//if (!lastLOC.IsInit())
+					//locArray.push_back(CLocation());
 
 				//we keep in mind the first replication number
 				//to init loc correcly. We assume the the first line begin 
@@ -545,7 +552,7 @@ namespace WBSF
 							bAddLOC = false;//don't add loc because it's a replication
 					}
 
-					if (bAddLOC && lastLOC.IsInit())
+					if (bAddLOC/* && lastLOC.IsInit()*/)
 						locArray.push_back(lastLOC);
 
 					db.AddSection(data);
@@ -553,8 +560,9 @@ namespace WBSF
 					//msg += callback.StepIt(0);
 				}
 
-				if (locArray.empty())
-					locArray.push_back(CLocation("default", "0"));
+				ASSERT(!locArray.empty());
+				//if (locArray.empty())
+					//locArray.push_back(CLocation("default", "0"));
 
 				CModelOutputVariableDefVector outputVariable;
 				m_columnLinkArray.GetOutputDefinition(outputVariable);

@@ -44,9 +44,6 @@ namespace WBSF
 
 	private:
 
-		//void GetImportFileFromInterface();
-		//void SetImportFileToInterface();
-
 		CString GetDimensionText(size_t dimension)const;
 		CString GetFieldText(size_t dimension, size_t field)const;
 		size_t GetDimension(CString str)const;
@@ -57,9 +54,6 @@ namespace WBSF
 		CStringArrayEx LOC_LABLE;
 		CStringArrayEx TIME_LABLE;
 		CStringArrayEx VARIABLES_LABLE;
-
-		//	virtual int OnMenuStart(int col,long row,int section);
-		//	virtual void OnMenuCommand(int col, long row, int section, int item);
 	};
 
 	// CImportDataDlg dialog
@@ -106,10 +100,6 @@ namespace WBSF
 
 		void FillFileName();
 
-
-
-		void GetImportFileFromInterface();
-		void SetImportFileToInterface();
 
 		CImportData m_importData;
 		CImportData& GetImportData(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CImportData&>(*pItem); }

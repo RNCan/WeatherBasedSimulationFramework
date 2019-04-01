@@ -154,17 +154,23 @@ namespace WBSF
 			if (!GetTasks().empty())
 				GetTasks().top().m_stepPos = stepPos;
 
-			CS.Leave();
-		//}
-
-		if (omp_get_thread_num() == 0)
-		{
 			if (GetUserCancel())
 			{
 				ASSERT(!m_userCancelMsg.empty());
 				msg.ajoute(m_userCancelMsg);
 			}
-		}
+
+			CS.Leave();
+		//}
+
+		//if (omp_get_thread_num() == 0)
+		//{
+		/*	if (GetUserCancel())
+			{
+				ASSERT(!m_userCancelMsg.empty());
+				msg.ajoute(m_userCancelMsg);
+			}
+		}*/
 
 		return msg;
 	}
@@ -189,7 +195,7 @@ namespace WBSF
 		}
 
 		//if (omp_get_thread_num() == 0)
-		{
+		//{
 			if (GetUserCancel())
 			{
 				CS.Enter();
@@ -197,7 +203,7 @@ namespace WBSF
 				msg.ajoute(m_userCancelMsg);
 				CS.Leave();
 			}
-		}
+		//}
 
 		return msg;
 	}
