@@ -77,7 +77,7 @@ namespace WBSF
 		{"Poly4","a0+a1*T+a2*T^2+a3*T^3+a4*T^4","a0=0.2[-1E5,1E5]|a1=0.02[-1E4,1E4]|a2=0[-1E3,1E3]|a3=0[-1E2,1E2]|a4=0[-10,10]"},
 		{"Pradham","R*exp(-1/2*((T-Tm)/To))^2","R=4.2[1E-5,10]|Tm=84[1,200]|To=-18[-100,0]"},
 		{"Ratkowsky_1982(Square)","b*(T-Tb)^2","b=0.0002[1E-5,1000]|Tb=10[0,50]"},
-		{"Ratkowsky_1983","(a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[0,50]|Tmax=35[0,50]"},
+		{"Ratkowsky_1983","pmax(0, a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[0,50]|Tmax=35[0,50]"},
 		{"Regniere_1987","b1*((1/(1+exp(b2-b3*(T-Tb)/(Tm-Tb))))-(exp(((T-Tb)/(Tm-Tb)-1)/b4)))","b1=0.2[1E-6,1]|b2=2[1E-6,10]|b3=6[1E-6,10]|b4=0.15[1E-6,1]|Tb=15[-10,50]|Tm=35[0,50]"},
 		{"Regniere_2012","phi*(exp(bb*pmax(0,T-Tb))-(pmax(0,Tm-T)/(Tm-Tb))*exp(-bb*pmax(0,T-Tb)/deltab)-(pmax(0,T-Tb)/(Tm-Tb))*exp(bb*(Tm-Tb)-pmax(0,Tm-T)/deltam))","phi=0.01[1E-5,1]|bb=-0.01[-10,10]|Tb=7[0,50]|Tm=35[0,50]|deltab=4[1,10]|deltam=5[1,10]"},
 		{"SchoolfieldHigh_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|dd=-0.1[-1E5,1E5]|ee=280[250,350]"},
@@ -388,7 +388,8 @@ namespace WBSF
 			double Tmax = P[P3];
 
 			//T = max(Tmin, min(Tmax, T));
-			rT = pow(aa*(T - Tmin)*(1.0 - exp((b*(T- Tmax)))), 2.0);
+			//T = min(Tmax, T);
+			rT = pow(max(0.0, aa*(T - Tmin)*(1.0 - exp((b*(T- Tmax))))), 2.0);
 		}
 		else if (model == Pradham)
 		{

@@ -68,18 +68,14 @@ namespace WBSF
 		m_equations.set();
 		m_inputFileName.clear();
 		m_outputFileName.clear();
-		m_bConverge01 = true;
+		m_bConverge01 = false;
 
 		m_ctrl.Reset();
-		m_ctrl.m_MAXEVL = 200000;
+		m_ctrl.m_MAXEVL = 1000000;
 		m_ctrl.m_NS = 15;
-		m_ctrl.m_NT = 15;
+		m_ctrl.m_NT = 20;
 		m_ctrl.m_T = 10;
-		m_ctrl.m_RT = 0.65;
-		//m_ctrl.m_EPS = 0.001;
-
-
-		//		m_parameters.clear();
+		m_ctrl.m_RT = 0.5;
 	}
 
 
@@ -263,8 +259,8 @@ namespace WBSF
 
 
 				CResult result;
-				CCDevRateOutputVector output1;
-				CCDevRateOutputVector output2;
+				CCDevRateOutputVector output;
+//				CCDevRateOutputVector output2;
 				set<string> variables;
 
 
@@ -283,9 +279,9 @@ namespace WBSF
 						{
 							CDevRateOutput out(*v, CDevRateEquation::e(e));
 							msg += InitialiseComputationVariable(out.m_variable, out.m_equation, out.m_parameters, out.m_computation, callback);
-							output1.push_back(out);
-							if(m_bConverge01)
-								output2.push_back(out);
+							output.push_back(out);
+							//if(m_bConverge01)
+							//	output2.push_back(out);
 
 							//std::set<double> test;
 							////test initial parameters
@@ -304,35 +300,35 @@ namespace WBSF
 					}
 				}
 
-				callback.PushTask("Search optimum. " + to_string(variables.size()) + " variables x " + to_string(m_equations.count()) + " equations: " + to_string(output1.size()) + " curve to fits", output1.size());
+				callback.PushTask("Search optimum. " + to_string(variables.size()) + " variables x " + to_string(m_equations.count()) + " equations: " + to_string(output.size()) + " curve to fits", output.size());
 
 
 #pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) 
-				for (__int64 i = 0; i < (__int64)output1.size(); i++)
+				for (__int64 i = 0; i < (__int64)output.size(); i++)
 	//			__int64 i = 2;
 				{
 #pragma omp flush(msg)
 					if (msg)
 					{
 
-						msg += Optimize(output1[i].m_variable, output1[i].m_equation, false, output1[i].m_parameters, output1[i].m_computation, callback);
-						if (!output2.empty())
-						{
-							msg += Optimize(output2[i].m_variable, output2[i].m_equation, true, output2[i].m_parameters, output2[i].m_computation, callback);
-							if (output2[i].m_computation.m_Sopt[STAT_R²] > output1[i].m_computation.m_Sopt[STAT_R²] &&
-								output2[i].m_computation.m_AICopt > output1[i].m_computation.m_AICopt)
-							{
-								//select output2
-								output2[i].m_parameters = output1[i].m_parameters;
-								output2[i].m_computation = output1[i].m_computation;
-							}
-						}
-							
+						msg += Optimize(output[i].m_variable, output[i].m_equation, m_bConverge01, output[i].m_parameters, output[i].m_computation, callback);
+						//if (!output2.empty())
+						//{
+						//	msg += Optimize(output2[i].m_variable, output2[i].m_equation, true, output2[i].m_parameters, output2[i].m_computation, callback);
+						//	if (output2[i].m_computation.m_Sopt[STAT_R²] > output1[i].m_computation.m_Sopt[STAT_R²] &&
+						//		output2[i].m_computation.m_AICopt > output1[i].m_computation.m_AICopt)
+						//	{
+						//		//select output2
+						//		output2[i].m_parameters = output1[i].m_parameters;
+						//		output2[i].m_computation = output1[i].m_computation;
+						//	}
+						//}
+						//	
 
 #pragma omp critical(WRITE_INFO)
 						{
-							callback.AddMessage(output1[i].m_variable + ": " + CDevRateEquation::GetEquationName(output1[i].m_equation));
-							WriteInfo(output1[i].m_parameters, output1[i].m_computation, callback);
+							callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(output[i].m_equation));
+							WriteInfo(output[i].m_parameters, output[i].m_computation, callback);
 						}
 
 
@@ -365,22 +361,22 @@ namespace WBSF
 					if (msg_file)//save result event if user cancel or error
 					{
 
-						sort(output1.begin(), output1.end(), [](const CDevRateOutput& a, const CDevRateOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
+						sort(output.begin(), output.end(), [](const CDevRateOutput& a, const CDevRateOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
 						file << "Variable,EqName,P,Eq,RMSE,CD,R2,AIC" << endl;
 						for (auto v = variables.begin(); v != variables.end() && msg; v++)
 						{
-							for (size_t i = 0; i < output1.size(); i++)
+							for (size_t i = 0; i < output.size(); i++)
 							{
-								if (output1[i].m_variable == *v)
+								if (output[i].m_variable == *v)
 								{
-									string name = CDevRateEquation::GetEquationName(output1[i].m_equation);
-									string eq = CDevRateEquation::GetEquationR(output1[i].m_equation);
-									string P = to_string(CDevRateEquation::GetParameters(output1[i].m_equation, output1[i].m_computation.m_Xopt));
-									file << output1[i].m_variable << "," << name << "," << P << ",\"" << eq << "\",";
-									if (output1[i].m_computation.m_Fopt > m_ctrl.GetVMiss())
+									string name = CDevRateEquation::GetEquationName(output[i].m_equation);
+									string eq = CDevRateEquation::GetEquationR(output[i].m_equation);
+									string P = to_string(CDevRateEquation::GetParameters(output[i].m_equation, output[i].m_computation.m_Xopt));
+									file << output[i].m_variable << "," << name << "," << P << ",\"" << eq << "\",";
+									if (output[i].m_computation.m_Fopt > m_ctrl.GetVMiss())
 									{
-										file << output1[i].m_computation.m_Sopt[RMSE] << "," << output1[i].m_computation.m_Sopt[COEF_D] << ",";
-										file << output1[i].m_computation.m_Sopt[STAT_R²] << "," << output1[i].m_computation.m_AICopt;
+										file << output[i].m_computation.m_Sopt[RMSE] << "," << output[i].m_computation.m_Sopt[COEF_D] << ",";
+										file << output[i].m_computation.m_Sopt[STAT_R²] << "," << output[i].m_computation.m_AICopt;
 									}
 									else
 									{

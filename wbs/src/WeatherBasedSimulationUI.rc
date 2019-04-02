@@ -267,74 +267,6 @@ BEGIN
     BUTTON      ID_REMOVE
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Éditeur de paramétrisation du taux de dévelopement"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_SIM_DESCRIPTION,81,22,213,12,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,189,285,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,244,285,50,14
-    LTEXT           "Description :",-1,7,25,42,8
-    EDITTEXT        IDC_SIM_NAME,81,7,213,12,ES_AUTOHSCROLL
-    LTEXT           "Nom :",-1,7,9,42,8
-    EDITTEXT        IDC_SIM_INTERNAL_NAME,81,287,90,12,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Nom interne:",-1,7,290,50,8
-    PUSHBUTTON      "Préférence\ndu recuit simulé",IDC_SIM_SA,176,135,118,26,BS_MULTILINE
-    LTEXT           "Fichier d'entrées :",-1,7,41,68,8
-    COMBOBOX        IDC_SIM_INPUT_NAME,81,38,213,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Ce fichier doit avoir les colonnes suivantes :\n\tVariable, Temperature, Taux (1/j),N(optionnelle)",-1,81,54,213,17
-    LTEXT           "Équations à évaluer",-1,7,122,124,8
-    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,13,134,153,135
-    LTEXT           "Fichier de sortie :",-1,7,84,68,8
-    EDITTEXT        IDC_SIM_OUTPUT_NAME,81,82,213,12,ES_AUTOHSCROLL
-    LTEXT           "Nom du fichier d'entré si vide. Exporte dans sous répertoire output.",-1,81,99,213,10
-    CONTROL         "Essayer de converger le taux de dévelopement entre 0 et 1",IDC_SIM_LIMIT_DEVRATE,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,176,168,118,26
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_SIM_FIT_EQUATION, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 294
-        VERTGUIDE, 13
-        VERTGUIDE, 81
-        VERTGUIDE, 96
-        VERTGUIDE, 176
-        VERTGUIDE, 248
-        VERTGUIDE, 294
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 299
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_SIM_FIT_EQUATION AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -396,6 +328,32 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 //
 // Dialog
 //
+
+IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Éditeur de paramétrisation du taux de dévelopement"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_SIM_DESCRIPTION,81,22,213,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,189,285,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,244,285,50,14
+    LTEXT           "Description :",-1,7,25,42,8
+    EDITTEXT        IDC_SIM_NAME,81,7,213,12,ES_AUTOHSCROLL
+    LTEXT           "Nom :",-1,7,9,42,8
+    EDITTEXT        IDC_SIM_INTERNAL_NAME,81,287,90,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Nom interne:",-1,7,290,50,8
+    PUSHBUTTON      "Préférence\ndu recuit simulé",IDC_SIM_SA,176,135,118,26,BS_MULTILINE
+    LTEXT           "Fichier d'entrées :",-1,7,41,68,8
+    COMBOBOX        IDC_SIM_INPUT_NAME,81,38,213,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Format de fichier :   Variable,T,Rate (1/d),N(optionnelle)",-1,81,54,213,17
+    LTEXT           "Équations à évaluer",-1,7,122,124,8
+    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,13,134,153,135
+    LTEXT           "Fichier de sortie :",-1,7,84,68,8
+    EDITTEXT        IDC_SIM_OUTPUT_NAME,81,82,213,12,ES_AUTOHSCROLL
+    LTEXT           "Nom du fichier d'entré si vide. Exporte dans sous répertoire output.",-1,81,99,213,10
+    CONTROL         "Limiter le taux entre 0 et 1",IDC_SIM_LIMIT_DEVRATE,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,176,168,118,26
+END
 
 IDD_WG_INPUT DIALOGEX 0, 0, 419, 354
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
@@ -2106,6 +2064,20 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_SIM_FIT_EQUATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        VERTGUIDE, 13
+        VERTGUIDE, 81
+        VERTGUIDE, 96
+        VERTGUIDE, 176
+        VERTGUIDE, 248
+        VERTGUIDE, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 299
+    END
+
     IDD_WG_INPUT, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -2875,6 +2847,11 @@ END
 //
 // AFX_DIALOG_LAYOUT
 //
+
+IDD_SIM_FIT_EQUATION AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 IDD_MAP_GRID_INTERPOL AFX_DIALOG_LAYOUT
 BEGIN
@@ -6174,6 +6151,31 @@ BEGIN
     CONTROL         "",IDC_VARIABLES_RADIUS,"MfcPropertyGrid",0x100,7,7,245,280
 END
 
+IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Éditeur de paramétrisation du taux de dévelopement"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_SIM_DESCRIPTION,81,22,213,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,189,285,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,244,285,50,14
+    LTEXT           "Description:",-1,7,25,42,8
+    EDITTEXT        IDC_SIM_NAME,81,7,213,12,ES_AUTOHSCROLL
+    LTEXT           "Name:",-1,7,9,42,8
+    EDITTEXT        IDC_SIM_INTERNAL_NAME,81,287,90,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Internal name:",-1,7,288,50,8
+    PUSHBUTTON      "Simulated Annealing option",IDC_SIM_SA,176,135,118,26,BS_MULTILINE
+    LTEXT           "Input file:",-1,7,41,68,8
+    COMBOBOX        IDC_SIM_INPUT_NAME,81,38,213,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Files Format::   Variable,T,Rate(1/d),N(optionnal)",-1,81,54,213,17
+    LTEXT           "Select equations",-1,7,122,124,8
+    CONTROL         "",IDC_SIM_EQUATION,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,13,134,153,135
+    LTEXT           "Output file :",-1,7,84,68,8
+    EDITTEXT        IDC_SIM_OUTPUT_NAME,81,82,213,12,ES_AUTOHSCROLL
+    LTEXT           "If empty, input file name. Outputsub-directory.",-1,81,99,213,10
+    CONTROL         "Limit rate between 0 et 1",IDC_SIM_LIMIT_DEVRATE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,176,168,118,26
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -6960,6 +6962,20 @@ BEGIN
         HORZGUIDE, 287
         HORZGUIDE, 294
     END
+
+    IDD_SIM_FIT_EQUATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        VERTGUIDE, 13
+        VERTGUIDE, 81
+        VERTGUIDE, 96
+        VERTGUIDE, 176
+        VERTGUIDE, 248
+        VERTGUIDE, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 299
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -7005,6 +7021,11 @@ BEGIN
 END
 
 IDD_SIM_SIMULATED_ANNEALING_PARAMETERS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SIM_FIT_EQUATION AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
