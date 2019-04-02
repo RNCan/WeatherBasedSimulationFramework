@@ -12,6 +12,7 @@
 #include <Boost\multi_array.hpp>
 
 #include "Basic/Statistic.h"
+#include "Basic/OpenMP.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/Analysis.h"
 #include "Simulation/ExecutableFactory.h"
@@ -743,78 +744,96 @@ namespace WBSF
 		dimIn[PARAMETER] = parametersVariation.size();
 		dimIn[VARIABLE] = variables.size();
 
-		callback.PushTask(GetString(IDS_SIM_DOANALYSE), dimIn[LOCATION] * dimIn[PARAMETER] * dimIn[REPLICATION]);
+		callback.PushTask(GetString(IDS_SIM_DOANALYSE), locations.count() * dimIn[PARAMETER] * dimIn[REPLICATION]);
 
 
 		size_t test2 = locations.count();
-		//Compute statistics
-		//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads)
+		size_t n = 0;
+		//size_t I = 0;
+
+		std::vector<size_t> posI(locations.size(), NOT_INIT);
 		for (size_t i = locations.find_first(), I = 0; i != CVariableSelectionVector::npos; i = locations.find_next(i), I++)
+			posI[i] = I;
+
+
+		//Compute statistics
+		#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads)
+		for (__int64 i = 0; i < (__int64)locations.size(); i++)
+		//for (size_t i = locations.find_first(), I = 0; i != CVariableSelectionVector::npos; i = locations.find_next(i), I++)
 		{
-#pragma omp flush(msg)
-			if (msg)
+			if (locations.test(i))
 			{
-				CLocationStat locationStat(extents[dimOut[PARAMETER]][dimOut[REPLICATION]]);
-				for (size_t j = parametersVariation.find_first(), J = 0; j != CVariableSelectionVector::npos; j = parametersVariation.find_next(j), J++)
+				ASSERT(posI[i] < locations.size());
+				size_t I = posI[i];
+
+#pragma omp flush(msg)
+				if (msg)
 				{
-					for (size_t k = 0; k < dimIn[REPLICATION] && msg; k++)
+					CLocationStat locationStat(extents[dimOut[PARAMETER]][dimOut[REPLICATION]]);
+					for (size_t j = parametersVariation.find_first(), J = 0; j != CVariableSelectionVector::npos; j = parametersVariation.find_next(j), J++)
 					{
-						CNewSectionData section;
-
-						//Get section is protected with singleLock
-						result->GetSection(i, j, k, section);
-
-						section.CleanUp(period);
-						section.CleanUp(variables);
-
-						if (m_computation.m_bMeanOverParameterSet)
-							J = 0;
-
-						size_t K = (m_computation.m_bMeanOverReplication) ? 0 : k;
-
-
-						msg += m_computation.Compute(section, locationStat[J][K]);
-						ASSERT(locationStat[J][K].GetRows() == 0 || locationStat[J][K][0].size() == section[0].size());
-
-						callback.WaitPause();
-
-#pragma omp critical(stepIt)
+						for (size_t k = 0; k < dimIn[REPLICATION] && msg; k++)
 						{
+							CNewSectionData section;
+
+							//Get section is protected with singleLock
+							result->GetSection(i, j, k, section);
+
+							section.CleanUp(period);
+							section.CleanUp(variables);
+
+							if (m_computation.m_bMeanOverParameterSet)
+								J = 0;
+
+							size_t K = (m_computation.m_bMeanOverReplication) ? 0 : k;
+
+
+							msg += m_computation.Compute(section, locationStat[J][K]);
+							ASSERT(locationStat[J][K].GetRows() == 0 || locationStat[J][K][0].size() == section[0].size());
+
+							callback.WaitPause();
+
+#pragma omp atomic 
+							n++;
+							//#pragma omp critical(stepIt)
+								//					{
+							//#pragma omp flush(msg)
+							//	if (msg)
+							if (omp_get_thread_num() == 0)
+								msg += callback.SetCurrentStepPos(n);
 #pragma omp flush(msg)
-							if (msg)
-								msg += callback.StepIt();
-#pragma omp flush(msg)
+							//					}
 						}
 					}
-				}
 
-				//if we don't mean over location, then we save for each location
-				if (m_computation.m_bMeanOverLocation)
-				{
+					//if we don't mean over location, then we save for each location
+					if (m_computation.m_bMeanOverLocation)
+					{
 #pragma omp critical(WritetResult)
-				{
-					for (size_t J = 0; J < locationStat.size(); J++)
-					{
-						for (size_t K = 0; K < locationStat[J].size(); K++)
 						{
-							meanOverlocationStat[J][K].AppendRows(locationStat[J][K]);
+							for (size_t J = 0; J < locationStat.size(); J++)
+							{
+								for (size_t K = 0; K < locationStat[J].size(); K++)
+								{
+									meanOverlocationStat[J][K].AppendRows(locationStat[J][K]);
+								}
+							}
+						}
+					}
+					else
+					{
+						for (size_t J = 0; J < locationStat.size(); J++)
+						{
+							for (size_t K = 0; K < locationStat[J].size(); K++)
+							{
+								size_t sectionNo = analysisDB.GetSectionNo(I, J, K);
+								analysisDB.SetSection(sectionNo, locationStat[J][K]);
+							}
 						}
 					}
 				}
-				}
-				else
-				{
-					for (size_t J = 0; J < locationStat.size(); J++)
-					{
-						for (size_t K = 0; K < locationStat[J].size(); K++)
-						{
-							size_t sectionNo = analysisDB.GetSectionNo(I, J, K);
-							analysisDB.SetSection(sectionNo, locationStat[J][K]);
-						}
-					}
-				}
-			}
-		}
+			}//if i
+		}//for
 
 		//if mean over location, save now
 		if (msg  && m_computation.m_bMeanOverLocation)

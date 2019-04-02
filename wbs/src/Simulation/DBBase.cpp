@@ -679,12 +679,14 @@ namespace WBSF
 			
 			//save data
 			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(CStatistic));
+			m_CS.Leave();
+
 
 			assert(!msg || m_file.lengthp() == GetDataSize());
 		}
 
 
-		m_CS.Leave();
+		
 
 		return msg;
 	}
