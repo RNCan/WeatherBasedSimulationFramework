@@ -244,8 +244,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,7,3,1
- PRODUCTVERSION 5,7,3,1
+ FILEVERSION 5,7,4,2
+ PRODUCTVERSION 5,7,4,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -262,21 +262,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.7.3.1"
+            VALUE "FileVersion", "5.7.4.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.7.3.1"
+            VALUE "ProductVersion", "5.7.4.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.7.3.1"
+            VALUE "FileVersion", "5.7.4.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.7.3.1"
+            VALUE "ProductVersion", "5.7.4.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -717,7 +717,7 @@ BEGIN
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_NEWFOUNDLAND_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Province (si Canada)|Utiliser seulement les stations GoldStar"
+    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Type de données|Pays|États (si États-Unis)|Province (si Canada)|Liste des stations|Utiliser seulement les stations GoldStar"
 END
 
 STRINGTABLE
@@ -1201,7 +1201,7 @@ BEGIN
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 
                             "User Name|Password|Working directory|First year|Last year"
-    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Country|States (if USA)|Province (if Canada)|Use only GoldStar stations"
+    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Data type|Country|States (if USA)|Province (if Canada)|Stations list|Use only GoldStar stations"
 END
 
 STRINGTABLE

@@ -360,6 +360,7 @@ ILEDUC2,Meadowview,53.246,-113.525,726,Leduc,Acurite Pro Weather Center,0,Divisi
 ILEEDSAN2,Marble Rock,44.386,-76.144,91,Leeds And The Thousand Islands,Acurite Pro Weather Center,1,Leeds and Grenville United Counties,ON,CA
 ILETHBRI4,North Of Churchill,49.722,-112.82,911,Lethbridge,Acurite Pro Weather Center,0,Division No. 2,AB,CA
 ILEWISPO2,Lewisporte North,49.253,-55.043,11,Lewisporte,Acurite Pro Weather Center,0,Division No. 8,NL,CA
+ILISLET3,Lislet,47.095,-70.325,67,Lislet,Davis Vantage Pro2 (Wireless),0,Lislet,QC,CA
 ILINDEN26,Seacrest Lane,45.909,-63.817,1,Linden,Acurite Pro Weather Center,1,Cumberland County,NS,CA
 ILIONSBA2,Lions Bay Village Oceanview,49.457,-123.234,131,Lions Bay,Ambient Weather Ws-1400-Ip (Wireless),0,Greater Vancouver,BC,CA
 ILLOYDMI3,College Park,53.258,-110.016,655,Lloydminster,Other,1,Division No. 10,AB,CA
@@ -627,7 +628,7 @@ ISLAVELA2,Southeast,55.271,-114.764,591,Slave Lake,Acurite Pro Weather Center,1,
 ISLUICEP5,Sluice Point - Pointe Du Sault,43.788,-65.965,10,Sluice Point,Davis Vantage Pro2 (Wireless),1,Yarmouth County,NS,CA
 ISMOKYLA2,Garner Lake Sunrise Beach,54.201,-111.747,618,Smoky Lake County,Acurite Pro Weather Center,1,Division No. 12,AB,CA
 ISOOKE2,Broom Hill,48.386,-123.736,75,Sooke,Acurite Pro Weather Center,1,Capital,BC,CA
-ISORELTR4,1024 Chemin Des Patriotes Sorel-Tracyqc J3p2m2,46.018,-73.127,6,Sorel??Tracy,Acurite Pro Weather Center,1,Le Bas-Richelieu,QC,CA
+ISORELTR4,1024 Chemin Des Patriotes Sorel-Tracyqc J3p2m2,46.018,-73.127,6,Sorel-Tracy,Acurite Pro Weather Center,1,Le Bas-Richelieu,QC,CA
 ISOUTHBR4,Mar,44.82,-81.212,202,South Bruce Peninsula,Ambient Weather Ws-1001-Wifi (Wireless),1,Bruce County,ON,CA
 ISOUTHFR3,Eel Bay - North,44.451,-76.548,152,South Frontenac,Acurite Pro Weather Center,0,Frontenac County,ON,CA
 ISOUTHGL13,Bainsville Ontario. Canada,45.18,-74.412,50,South Glengarry,Bloomsky2 + Storm,1,Stormont  Dundas and Glengarry United Counties,ON,CA
@@ -2199,19 +2200,19 @@ IPRINCEE11,Winsloe Road,46.299,-63.177,60,Winsloe South,Davis Vantage Pro2 Plus 
 IQUEBECA3,Saguenay - Lac- St-Jean,48.546,-71.671,117,Alma,Oregon Scientific Wmr200a,1,Lac-Saint-Jean-Est,QC,CA
 IQCANGUS2,Molson,45.543,-73.572,52,Angus,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCBARNS2,Barnston-Ouest,45.131,-71.979,299,Barnston-Ouest,Davis Vantage Pro,0,Coaticook,QC,CA
-IQCBCANC2,B?Cancour (Ar?Na),46.35,-72.433,7,Becancour,Meteorological Service Of Canada,0,Becancour,QC,CA
+IQCBCANC2,Bécancour (Aréna),46.35,-72.433,7,Becancour,Meteorological Service Of Canada,0,Becancour,QC,CA
 IQCBEACO5,Pointe-Claire,45.425,-73.826,0,Beaconsfield,Weatherflow,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCBEAUP2,Beauport,46.9,-71.207,124,Beauport,Davis Vantage Pro2,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQCBROSS3,Brossard,45.443,-73.469,15,Brossard,Meteorological Service Of Canada,0,Champlain,QC,CA
-IQCCAPOS2,P?Monca,48.818,-72.743,255,Capostal G0w 1p0,Meteorological Service Of Canada,0,Le Domaine-du-Roy,QC,CA
-IQCCAPOS4,?Douard,47.647,-72.291,366,Capostal G0x 3n0,Meteorological Service Of Canada,0,Le Haut-Saint-Maurice,QC,CA
+IQCCAPOS2,Pîmonca,48.818,-72.743,255,Capostal G0w 1p0,Meteorological Service Of Canada,0,Le Domaine-du-Roy,QC,CA
+IQCCAPOS4,Édouard,47.647,-72.291,366,Capostal G0x 3n0,Meteorological Service Of Canada,0,Le Haut-Saint-Maurice,QC,CA
 IQCCAPOS3,Hilaire,45.816,-70.86,531,Capostal G0y 1m0,Meteorological Service Of Canada,0,Beauce-Sartigan,QC,CA
 IQCCHARE2,Charette,46.443,-72.893,120,Charette,Meteorological Service Of Canada,0,Le Centre-de-la-Mauricie,QC,CA
 IQCCHTEA2,Montreal,45.361,-73.733,22,Chateauguay,,1,Roussillon,QC,CA
 IQCCHICO2,Chicoutimi,48.431,-71.025,35,Chicoutimi,Davis Vp2,0,Le Fjord-du-Saguenay,QC,CA
 IQCFERME2,Mont-Saint-Michel,46.769,-75.432,266,Ferme-Neuve Quebec,Meteorological Service Of Canada,0,Antoine-Labelle Regional County Municipality,QC,CA
 IQCFRELI2,Frelighsburg,45.052,-72.862,170,Frelighsburg,Canadian Air And Precipitation Monitoring Network,0,Brome-Missisquoi,QC,CA
-IQCGATIN7,Hw50/V??Rendryeo,45.492,-75.727,60,Gatineau,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-l'Outaouais,QC,CA
+IQCGATIN7,Hw50/Vérendry,45.492,-75.727,60,Gatineau,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-l'Outaouais,QC,CA
 IQCGATIN10,Hull (Ile),45.437,-75.726,48,Gatineau,Meteorological Service Of Canada,0,Communaute-Urbaine-de-l'Outaouais,QC,CA
 IQCGATIN6,Quartier Le Baron,45.481,-75.703,53,Gatineau,National Geographic 265nc,1,Communaute-Urbaine-de-l'Outaouais,QC,CA
 IQCGRANB70,Bruces Pws In Grandby Ca,45.403,-72.734,99,Granby,Lacrosse Ws2317,0,La Haute-Yamaska,QC,CA
@@ -2224,6 +2225,7 @@ IQCLEGAR2,Repentigny,45.771,-73.467,13,Le Gardeur,Vantage Pro2,1,L'Assomption,QC
 IQCLONGU2,Bourassa,45.523,-73.494,25,Longueuil,Meteorological Service Of Canada,0,Champlain,QC,CA
 IQCMCGIL4,St-Dominique,45.512,-73.567,33,Mcgill Ghetto,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCMCGIL5,York-Roberval,45.512,-73.567,33,Mcgill Ghetto,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
+IQCMONTM2,Montmagny,46.973,-70.547,15,Montmagny,Netatmo,0,Montmagny,QC,CA
 IQUBECMO3,Mont-Carmel (Kamouraska),47.446,-69.85,181,Mont-Carmel (Kamouraska),,1,Kamouraska,QC,CA
 IQCMONTR7,Melrose - Ndg,45.472,-73.621,49,Montreal,Wmr200a,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQUEBECM21,Montreal - Villeray,45.543,-73.623,60,Montreal,Lacrosse Weather Pro Center Remote Monitoring 2800 Series,1,Communaute-Urbaine-de-Montreal,QC,CA
@@ -2233,7 +2235,7 @@ IQCNOTRE3,N.-D.-Du-Rosaire,46.851,-70.453,422.2,Notre-Dame-Du-Rosaire,Meteorolog
 IQCQUBEC3,St-Sauveur Quebec,46.808,-71.236,17,Quebec,National Geographic 265nc,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQCQUEBE3,Des Sables,46.821,-71.221,5,Quebec,Meteorological Service Of Canada,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQCQUEBE4,Parc Primavere,46.774,-71.37,21,Quebec,Environment Canada,0,Communaute-Urbaine-de-Quebec,QC,CA
-IQCRIVIE2,Rivi?Re-Des-Prairies,45.652,-73.574,23,Riviere-Des-Prairies,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
+IQCRIVIE2,Rivière-Des-Prairies,45.652,-73.574,23,Riviere-Des-Prairies,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCROUYN2,Parc Tremblay,48.234,-78.983,287,Rouyn-Noranda,Meteorological Service Of Canada,0,Rouyn-Noranda,QC,CA
 IQCROUYN8,Meteo16,48.226,-79.019,294,Rouyn-Noranda,Lacrosse,0,Rouyn-Noranda,QC,CA
 IQCSAGUE5,La Baie,48.334,-70.869,0,Saguenay,Weatherflow,0,Le Fjord-du-Saguenay,QC,CA
@@ -2241,7 +2243,7 @@ IQCSAINT29,Lac Anguille,46.785,-72.2,178,Saint-Alban,National Geographic 265nc,1
 IQUEBECS32,Saint-Jerome Mirabel,45.771,-74.086,156,Saint-Colomban,Vantage Pro 2,1,La Riviere-du-Nord,QC,CA
 IQCSAINT277,Saint-Jean-Baptiste,45.641,-73.5,10,Saint-Enfant-Jesus-De-La-Pointe-Aux-Trembles,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQCSAINT37,Saint-Faustin,46.035,-74.482,384,Saint-Faustin-Lac-Carre,Meteorological Service Of Canada,0,Les Laurentides,QC,CA
-IQCSAINT40,Fran?Ois,47.015,-70.864,48,Saint-Francois-De-L'Ile-D'Orleans,Meteorological Service Of Canada,0,L'Ile-d'Orleans,QC,CA
+IQCSAINT40,François,47.015,-70.864,48,Saint-Francois-De-L'Ile-D'Orleans,Meteorological Service Of Canada,0,L'Ile-d'Orleans,QC,CA
 IQUEBECS26,Mathieu Lussier (Stormchaser),45.498,-73.422,27,Saint-Hubert,Davis Vantage Pro 2,1,Champlain,QC,CA
 IQCSAINT11,Jardins De Napierville,45.213,-73.451,62,Saint-Jacques-Le-Mineur,Davis 6152 - Weatherlinkip,1,Les Jardins-de-Napierville,QC,CA
 IQCSAINT32,Levis Secteur St-Jean-Chrysostome,46.717,-71.205,88,Saint-Jean-Chrysostome,Davis Vantage Vue,1,Levis,QC,CA
@@ -2250,9 +2252,9 @@ IQUEBECS19,Meteo Haut-Richelieu,45.349,-73.303,36,Saint-Luc,Davis Monitor Ii,1,L
 IQCSAINT14,Saint-Pascal-De-Kamouraska,47.533,-69.803,62,Saint-Pascal-De-Kamouraska,Davis Vantage Pro2,1,Kamouraska,QC,CA
 IQCSAINT74,Baie-Des-Brises,45.206,-74.162,0,Saint-Stanislas-De-Kostka,Weatherflow,0,Beauharnois-Salaberry,QC,CA
 IQCSAINT276,Caserne 17,45.593,-73.637,32,Saint-Vincent-Marie-Strambi,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
-IQCSAINT36,Z?Phirin,46.042,-72.66,53,Saint-Zephirin-De-Courval,Meteorological Service Of Canada,0,Nicolet-Yamaska,QC,CA
+IQCSAINT36,Zéphirin,46.042,-72.66,53,Saint-Zephirin-De-Courval,Meteorological Service Of Canada,0,Nicolet-Yamaska,QC,CA
 IQCSAINT39,Catherine,46.837,-71.623,128,Sainte-Catherine-De-La-Jacques-Cartier,Meteorological Service Of Canada,0,La Jacques-Cartier,QC,CA
-IQCSAINT38,La P?Che,45.622,-76.018,194,Sainte-Cecile-De-Masham,Meteorological Service Of Canada,0,Les Collines-de-l'Outaouais,QC,CA
+IQCSAINT38,La Pèche,45.622,-76.018,194,Sainte-Cecile-De-Masham,Meteorological Service Of Canada,0,Les Collines-de-l'Outaouais,QC,CA
 IQCSAINT30,Ile D'Orleans,46.932,-71.013,66,Sainte-Famille,Wmr100,0,L'Ile-d'Orleans,QC,CA
 IQCSAINT16,Levis Secteur Breakeyville,46.681,-71.224,99,Sainte-Helene-De-Breakeyville,Davis Vantage Pro 2 Plus Ventilation Diurne,1,Levis,QC,CA
 IQCSHERB5,Parc Cambron,45.412,-71.874,204,Sherbrooke,Meteorological Service Of Canada,0,La Region-Sherbrookoise,QC,CA
@@ -2345,7 +2347,7 @@ IQUBECSA53,Glend Wexford,45.99,-74.118,91,Sainte-Adele,Oregon Scientific Profess
 IQUBECSA49,Laurentian Hills,46.036,-74.245,444,Sainte-Agathe-Des-Monts,Davis Vantage Pro2 (Wireless),1,Les Laurentides,QC,CA
 IQUBECSA30,Centre Du Quebec,46.462,-72.167,15,Sainte-Cecile-De-Levrard,Davis Vantage Pro2 (Wireless),0,Becancour,QC,CA
 IQUBECSA81,Lac Gauvreau,45.662,-75.985,161,Sainte-Cecile-De-Masham,Acurite Pro Weather Center,1,Les Collines-de-l'Outaouais,QC,CA
-IQUBECSA56,Sainte-C?Cile-Whitton,45.656,-70.954,502,Sainte-Cecile-De-Whitton,Other,1,Le Granit,QC,CA
+IQUBECSA56,Sainte-Cécile-Whitton,45.656,-70.954,502,Sainte-Cecile-De-Whitton,Other,1,Le Granit,QC,CA
 IQUBECSA28,Sainte-Claire Qc,46.597,-70.879,209,Sainte-Claire,Davis Vantage Pro2 (Wireless),0,Bellechasse,QC,CA
 IQUBECSA94,Rue De L'Amitie,45.6,-73.102,21,Sainte-Madeleine,Acurite Pro Weather Center,1,Les Maskoutains,QC,CA
 IQUBECSA99,Ferme Qualiferme 2017,45.946,-73.477,36,Sainte-Marie-Salome,Acurite Pro Weather Center,0,Montcalm,QC,CA
@@ -2409,7 +2411,7 @@ IQUEBECQ19,Ve2dew / Lacolle Qc,45.08,-73.375,46,Quebec,Davis Vantage Pro2 (Wirel
 IQUBECQU6,Quebec,46.783,-71.234,0,Quebec,Vantage Pro 2,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ15,Lac-Saint-Charles,46.91,-71.383,170,Quebec,Acurite Pro Weather Center,0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUBECQU7,Quebec,46.895,-71.198,115,Quebec,Davis Vue,0,Communaute-Urbaine-de-Quebec,QC,CA
-IQUBECQU4,Quebec,46.871,-71.221,74,Qu?Bec,Other,1,Communaute-Urbaine-de-Quebec,QC,CA
+IQUBECQU4,Quebec,46.871,-71.221,74,Quebec,Other,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECL8,Lac St-Charles,46.8,-71.4,60,Quebec City,Vantage Pro-Davis,1,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ20,Quartier Laurentien,46.77,-71.435,49,Quebec City,Davis Vantage Pro2 (Wireless),0,Communaute-Urbaine-de-Quebec,QC,CA
 IQUEBECQ16,West Quebec,45.573,-76.238,120,Quyon,Acurite Pro Weather Center,1,Les Collines-de-l'Outaouais,QC,CA
@@ -2438,7 +2440,7 @@ IQUBECTH2,Meteotm.Net,46.099,-71.29,317,Thetford Mines,Davis Vantage Pro2,1,L'Am
 IQUBECVA2,Lac Matapedia / Val-Brillant,48.535,-67.547,155,Val-Brillant,Davis Vantage Pro2 (Wireless),0,La Matapedia,QC,CA
 IQUBECVI2,Victoriaville,46.05,-71.991,127,Victoriaville,Vantage Vue,1,Arthabaska,QC,CA
 IQUEBECV4,Montchatel,46.856,-71.389,195,Ville De Quebec,Davis Vantage Pro2,1,Communaute-Urbaine-de-Quebec,QC,CA
-IQUBECMO6,Tetreaultville,45.61,-73.52,23,Montr??Al,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-Montreal,QC,CA
+IQUBECMO6,Tetreaultville,45.61,-73.52,23,Montréal,Davis Vantage Pro2 (Wireless),1,Communaute-Urbaine-de-Montreal,QC,CA
 IQUBECRI3,Ferme Michaud,48.41,-68.632,74,Rimouski,Other,1,Rimouski-Neigette,QC,CA
 ISASKDEL2,Delisle,51.692,-107.141,537,Delisle,Davis Vantage Pro2 (Wireless),1,Division No. 12,SK,CA
 ISASKVER2,West Of Verlo.,50.309,-108.76,744,Verlo,Vantage Pro 2,0,Division No. 8,SK,CA
@@ -3268,7 +3270,7 @@ IBAYVIEW2,Lynch'S Mountain,44.663,-65.772,28,Bay View,Acurite Pro Weather Center
 IBONFIEL2,Talon Area,46.292,-79.096,273,Bonfield,Other,1,Nipissing District,ON,CA
 ICALGARY74,Brentwood Calgary Ab Canada,51.092,-114.129,1106,Calgary,Acurite Pro Weather Center,0,Division No. 6,AB,CA
 ICALGARY16,Varsity,51.09,-114.158,1110,Calgary,Ambient Weather Ws-2090 (Wireless),0,Division No. 6,AB,CA
-ICAVANMO2,Devil'S Elbow,44.231,-78.571,321,Cavan??Monaghan,Other,0,Peterborough County,ON,CA
+ICAVANMO2,Devil'S Elbow,44.231,-78.571,321,Cavan-Monaghan,Other,0,Peterborough County,ON,CA
 ICOCHRAN4,Foothills Of Rocky Mountains,51.183,-114.469,1145,Cochrane,Acurite Pro Weather Center,0,Division No. 6,AB,CA
 IFOOTHIL15,North Cayley,50.453,-113.846,1060,Foothills No. 31,Acurite Pro Weather Center,1,Division No. 6,AB,CA
 IGREYHIG4,Epping,44.456,-80.561,427,Grey Highlands,Acurite Pro Weather Center,1,Grey County,ON,CA
@@ -3300,7 +3302,7 @@ IONTARIO245,Soho Queen West,43.651,-79.393,85,Toronto,,0,Toronto Division,ON,CA
 IPRINCEE15,Peat Bog,46.732,-64.018,7,Alberton,Davis Vantage Pro2 Plus (Wireless),0,Prince County,PE,CA
 IQCBAIEJ2,Chapais,49.822,-74.976,364,Baie-James,Canadian Air And Precipitation Monitoring Network,0,Nord-du-Quebec,QC,CA
 IQCDESCH2,Deschambault,46.682,-71.968,48,Deschambault,Meteorological Service Of Canada,0,Portneuf,QC,CA
-IQUMONTR2,A?Roport De Montr?Al 1,45.468,-73.741,28,Montreal/Pierre Elliott T,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
+IQUMONTR2,Aéroport De Montréal 1,45.468,-73.741,28,Montreal/Pierre Elliott T,Canada-Quebec2,0,Communaute-Urbaine-de-Montreal,QC,CA
 IQUEBECL40,Ste-Dorothee Laval,45.522,-73.821,91,Laval,Other,1,Laval,QC,CA
 IYUKONCR2,Crag Lake,60.243,-134.51,787,Crag Lake,,1,Yukon,YT,CA
 IYUKONTE3,Arkell,60.707,-135.116,701,Whitehorse,Acurite Pro Weather Center,1,Yukon,YT,CA

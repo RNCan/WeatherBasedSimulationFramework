@@ -300,9 +300,7 @@ namespace WBSF
 
 		//find all station in the directories
 		StringVector stationList;
-		
 		msg = pTask->GetStationList(stationList, callback);
-		
 
 
 		if (msg)

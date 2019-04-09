@@ -853,7 +853,7 @@ namespace WBSF
 								}
 								else if (nbDays > 0)
 								{
-									//load the file and varify if the last day of the moth is present
+									//load the file and verify if the last day of the moth is present
 									CWeatherStation junk;
 									if (junk.LoadData(filePath))
 									{
