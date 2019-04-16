@@ -670,16 +670,20 @@ namespace WBSF
 
 									string source;
 									msg = GetPageText(pConnection, URL, source, false, FLAGS);
-
-									if (!source.empty() && source.find("An error occurred while processing your request") == string::npos)
+									
+									if (!source.empty())
 									{
-										ASSERT(!source.empty());
-										if (source[0] == '\n')
+										if(source[0] == '\n')
 											source.erase(source.begin());
 
 										ReplaceString(source, "\n<br>", "");
 										ReplaceString(source, "<br>", "");
+									}
+										
 
+									//Time,TemperatureC,DewpointC,PressurehPa,WindDirection,WindDirectionDegrees,WindSpeedKMH,WindSpeedGustKMH,Humidity,HourlyPrecipMM,Conditions,Clouds,dailyrainMM,SoftwareType,DateUTC
+									if (source.substr(0,5) ==  "Time,")
+									{
 										if (FileExists(ouputFilePath))//don't remove header if file does not exist
 										{
 											clean_source((TRef == p.End()) ? last_hms : 24, source);
@@ -725,14 +729,19 @@ namespace WBSF
 						//{
 						string source;
 						msg = GetPageText(pConnection, URL, source, false, FLAGS);
-
-						if (!source.empty() && source.find("An error occurred while processing your request") == string::npos)
+						
+						if (!source.empty())
 						{
 							if (source[0] == '\n')
 								source.erase(source.begin());
 
 							ReplaceString(source, "\n<br>", "");
 							ReplaceString(source, "<br>", "");
+						}
+
+						if ( source.substr(0, 5) == "Date,")
+						{
+							
 
 							ofStream file;
 							msg = file.open(ouputFilePath);
