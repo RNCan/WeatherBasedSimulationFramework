@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticQc", "ClimaticQc.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Hourly", "Daily vs Hourly.vcxproj", "{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SnowMelt", "SnowMelt.vcxproj", "{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -178,6 +180,14 @@ Global
 		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|Win32.Build.0 = Release|Win32
 		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|x64.ActiveCfg = Release|x64
 		{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}.Release|x64.Build.0 = Release|x64
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Debug|Win32.Build.0 = Debug|Win32
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Debug|x64.ActiveCfg = Debug|x64
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Debug|x64.Build.0 = Debug|x64
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Release|Win32.ActiveCfg = Release|Win32
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Release|Win32.Build.0 = Release|Win32
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Release|x64.ActiveCfg = Release|x64
+		{B9B45683-B516-45A4-A3F0-14C2F50B3E5D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
