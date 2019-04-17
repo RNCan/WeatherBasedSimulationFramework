@@ -132,6 +132,13 @@ namespace WBSF
 			double TmeanGS = m_weather[y](H_TAIR, growingSeason)[MEAN];
 			double meanJuly = m_weather[y][JULY][H_TAIR][MEAN];
 
+
+			
+			
+			
+
+			
+
 			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
 			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
 
@@ -369,6 +376,43 @@ namespace WBSF
 	double GetNbFrostDay(const CWeatherDay& weather)
 	{
 		return (weather[H_TMIN][LOWEST] <= 0 ? 1 : 0);
+	}
+
+	//return vapor pressure deficit [kPa]
+	double CClimaticQc::GetVPD(const CWeatherYear& weather)
+	{
+		CStatistic stat;
+		for (size_t m = 0; m < weather.size(); m++)
+			stat += GetVPD(weather[m]);
+
+		return stat[MEAN];
+	}
+	//return vapor pressure deficit [kPa]
+	double CClimaticQc::GetVPD(const CWeatherMonth& weather)
+	{
+		CStatistic stat;
+		for (size_t d = 0; d < weather.size(); d++)
+			stat += GetVPD(weather[d]);
+
+		return stat[MEAN];
+	}
+
+
+	//return vapor pressure deficit [kPa]
+	double CClimaticQc::GetVPD(const CWeatherDay& weather)
+	{
+		CStatistic stat;
+		if (weather.IsHourly())
+		{
+			for (size_t h = 0; h < 24; h++)
+				stat += max(0.0f, weather[h][H_ES] - weather[h][H_EA]);
+		}
+		else
+		{
+			stat += max(0.0, weather[H_ES][MEAN] - weather[H_EA][MEAN]);
+		}
+
+		return stat[MEAN];
 	}
 
 

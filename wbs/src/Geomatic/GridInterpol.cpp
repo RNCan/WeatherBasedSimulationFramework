@@ -547,7 +547,7 @@ namespace WBSF
 		//run over all blocks
 		//schedule(static, 100)
 		omp_set_nested(1);//for IOCPU
-#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
+#pragma omp parallel for /*schedule(static, 1)*/ num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
 		for (__int64 xy = 0; xy < (__int64)XYindex.size(); xy++)//for all blocks
 		{
 #pragma omp flush(msg)

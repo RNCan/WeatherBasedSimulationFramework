@@ -138,7 +138,7 @@ namespace WBSF
 
 
 		//int nbVariation = m_WG.GetNbParamVariation();
-		size_t nbReplications = max(1, stoi(m_replicationsCtrl.GetString()));
+		size_t nbReplications = max(1, ToInt(m_replicationsCtrl.GetString()));
 
 		size_t nbRuns = m_nbLocation* m_nbVariations * nbReplications;
 
@@ -269,7 +269,7 @@ namespace WBSF
 
 		m_WG.m_WGInputName = m_WGInputNameCtrl.GetString();
 		m_WG.m_locationsName = m_locationsNameCtrl.GetString();
-		m_WG.m_nbReplications = stoi(m_replicationsCtrl.GetString());
+		m_WG.m_nbReplications = ToInt(m_replicationsCtrl.GetString());
 		//m_WG.m_bUseHxGrid = m_useHxGridCtrl.GetCheck();
 
 

@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.5.9: 16/04/2019	Rémi Saint-Amant	replace stoi by ToInt to avoid exception when empty string. Add message when error in load of parent.
 // 11.5.8: 26/03/2019	Rémi Saint-Amant	Add "if (omp_get_thread_num() == 0)" to avoid slow performance in WeatherGenerator
 //											Add DevRate fit component
 //											Add analysis in parallel
