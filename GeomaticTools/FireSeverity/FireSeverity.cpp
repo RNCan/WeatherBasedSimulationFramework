@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.0.1	17/04/2019	Rémi Saint-Amant	Some bug correction, add debug
 // 1.0.0	31/01/2019	Rémi Saint-Amant	Creation
 
 
@@ -43,7 +44,7 @@ using namespace std;
 using namespace WBSF;
 using namespace WBSF::Landsat;
 
-static const char* version = "1.0.0";
+static const char* version = "1.0.1";
 
 std::string CFireSeverity::GetDescription()
 {
@@ -58,13 +59,14 @@ CFireSeverityOption::CFireSeverityOption()
 	m_scenesLoaded = { NOT_INIT ,NOT_INIT };
 	m_scenesTreated = { NOT_INIT ,NOT_INIT };
 	m_buffer = 8;
+	m_bDebug = false;
 
 	m_appDescription = "This software compute fire severity (delta NBR) from Landsat images series";
 
 	static const COptionDef OPTIONS[] =
 	{
 			{ "-Buffer", 1, "nbPixels", false, "Set buffer size around fires to do NBR correction. 8 by default. 0 to don't use correction." },
-			//{ "-Debug",0,"",false,"Output debug information."},
+			{ "-Debug",0,"",false,"Output debug information."},
 			{ "Fires", 0, "", false, "fires zones (0=no fire, 1=fire) for each years. Bands name must finish with _year." },
 			{ "srcfile", 0, "", false, "Input LANDSAT scenes image file path." },
 			{ "dstfile", 0, "", false, "Output LANDSAT scenes image file path." }
@@ -97,6 +99,10 @@ ERMsg CFireSeverityOption::ProcessOption(int& i, int argc, char* argv[])
 		m_buffer = atoi(argv[++i]);
 		if (m_buffer > 100)
 			msg.ajoute("Invalid buffer. Buffer must be smaller than 100.");
+	}
+	else if (IsEqual(argv[i], "-Debug"))
+	{
+		m_bDebug = true;
 	}
 	else
 	{
@@ -131,7 +137,7 @@ ERMsg CFireSeverityOption::ParseOption(int argc, char* argv[])
 //***********************************************************************
 
 
-ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS)
+ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 {
 	ERMsg msg;
 
@@ -276,7 +282,7 @@ ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 
 	if (msg && m_options.m_bCreateImage)
 	{
-		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
+		if (!m_options.m_bQuiet)
 			cout << "Open output images " << endl;
 		//cout << "Open output images " << " x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R x " << m_options.m_nbBands << " bands) with " << m_options.m_CPU << " threads..." << endl;
 
@@ -292,12 +298,47 @@ ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			{
 				string sYear = title.substr(title.size() - 4);
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_dNBR.tif|";
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_zScore.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_zScore1.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_zScore2.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_FireS.tif|";
 			}
 		}
 
 		msg += outputDS.CreateImage(filePath, options);
+	}
+
+	if (msg && m_options.m_bDebug)
+	{
+		if (!m_options.m_bQuiet )
+			cout << "Open debug images " << endl;
+		//cout << "Open output images " << " x(" << m_options.m_extents.m_xSize << " C x " << m_options.m_extents.m_ySize << " R x " << m_options.m_nbBands << " bands) with " << m_options.m_CPU << " threads..." << endl;
+
+
+		string filePath = m_options.m_filesPath[CFireSeverityOption::OUTPUT_FILE_PATH];
+		SetFileTitle(filePath, GetFileTitle(filePath) + "_debug");
+		CFireSeverityOption options = m_options;
+		options.m_nbBands = NB_DEBUGS * fireDS.GetRasterCount();
+
+		for (size_t zz = 0; zz < fireDS.GetRasterCount(); zz++)
+		{
+			string title = GetFileTitle(fireDS.GetInternalName(zz));
+			if (title.length() > 4)
+			{
+				string sYear = title.substr(title.size() - 4);
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_nbMissing.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_offset.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B3.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B4.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B5.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B7.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T3_B3.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T3_B4.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T3_B5.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T3_B7.tif|";
+			}
+		}
+
+		msg += debugDS.CreateImage(filePath, options);
 	}
 
 	return msg;
@@ -328,8 +369,9 @@ ERMsg CFireSeverity::Execute()
 	CGDALDatasetEx maskDS;
 	CGDALDatasetEx outputDS;
 	CGDALDatasetEx fireDS;
+	CGDALDatasetEx debugDS;
 
-	msg = OpenAll(inputDS, maskDS, fireDS, outputDS);
+	msg = OpenAll(inputDS, maskDS, fireDS, outputDS, debugDS);
 
 
 	FireBitset fires;
@@ -415,9 +457,10 @@ ERMsg CFireSeverity::Execute()
 			if (bHaveFire[b])//there is some fire in this block?
 			{
 				OutputData output;
+				DebugData debug;
 				ReadBlock(xBlock, yBlock, bandHolder[thread]);
-				ProcessBlock(xBlock, yBlock, bandHolder[thread], fires, bufferStat, output);
-				WriteBlock(xBlock, yBlock, output, outputDS);
+				ProcessBlock(xBlock, yBlock, bandHolder[thread], fires, bufferStat, output, debug);
+				WriteBlock(xBlock, yBlock, output, debug, outputDS, debugDS);
 			}
 			else
 			{
@@ -429,7 +472,7 @@ ERMsg CFireSeverity::Execute()
 		}//for all blocks
 
 		//close inputs and outputs
-		CloseAll(inputDS, maskDS, fireDS, outputDS);
+		CloseAll(inputDS, maskDS, fireDS, outputDS, debugDS);
 
 		GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
 		cout << "Memory used: " << memCounter.WorkingSetSize / (1024 * 1024) << " Mo" << endl;
@@ -719,7 +762,7 @@ void CFireSeverity::ComputeBufferStat(size_t xBlock, size_t yBlock, const CBands
 }
 
 //Get input image reference
-void CFireSeverity::ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const FireBitset& fires, const BufferStat& bufferStat, OutputData& output)
+void CFireSeverity::ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const FireBitset& fires, const BufferStat& bufferStat, OutputData& output, DebugData& debug)
 {
 	size_t nbScenesLoaded = m_options.m_scenesLoaded[1] - m_options.m_scenesLoaded[0] + 1;
 	size_t nbScenesProcess = m_options.m_scenesTreated[1] - m_options.m_scenesTreated[0] + 1;
@@ -749,6 +792,18 @@ void CFireSeverity::ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolde
 			output[i][j].resize(blockSize.m_x*blockSize.m_y, noData);
 	}
 
+	if (m_options.m_bDebug)
+	{
+		
+		__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
+		debug.resize(fires.size());
+		for (size_t i = 0; i < debug.size(); i++)
+		{
+			for (size_t j = 0; j < debug[i].size(); j++)
+				debug[i][j].resize(blockSize.m_x*blockSize.m_y, noData);
+		}
+	}
+	
 	//compute dNBR and apply offset when buffer
 #pragma omp parallel for num_threads( m_options.BLOCK_CPU()) if (m_options.m_bMulti)
 	for (__int64 zz = 0; zz < (__int64)fires.size(); zz++)
@@ -781,9 +836,26 @@ void CFireSeverity::ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolde
 							offset = __int16(Round(it->second[MEAN]));
 
 						__int16 dNBR = GetDeltaNBR(JD_base, p);
-						output[zz][O_DNBR][xy] = dNBR + offset;
-						output[zz][O_ZSCORE][xy] = GetZscore(p);
-						output[zz][O_FIRE_SEV][xy] = GetFireSeverity(dNBR + offset);
+						array<__int16, 2> Zscore = GetZscore(p);
+						output[zz][O_DNBR][xy] = dNBR - offset;
+						output[zz][O_ZSCORE1][xy] = Zscore[0];
+						output[zz][O_ZSCORE2][xy] = Zscore[1];
+						output[zz][O_FIRE_SEV][xy] = GetFireSeverity(dNBR - offset);
+
+						if (!debug.empty())
+						{
+							debug[zz][D_NB_MISSING][xy] = GetNbMissing(JD_base, p);
+							debug[zz][D_OFFSET][xy] = offset;
+							debug[zz][D_T1_B3][xy] = p[0][I_B3];
+							debug[zz][D_T1_B4][xy] = p[0][I_B4];
+							debug[zz][D_T1_B5][xy] = p[0][I_B5];
+							debug[zz][D_T1_B7][xy] = p[0][I_B7];
+							debug[zz][D_T3_B3][xy] = p[1][I_B3];
+							debug[zz][D_T3_B4][xy] = p[1][I_B4];
+							debug[zz][D_T3_B5][xy] = p[1][I_B5];
+							debug[zz][D_T3_B7][xy] = p[1][I_B7];
+						}
+						
 					}
 				}
 			}//x
@@ -810,7 +882,7 @@ __int16 CFireSeverity::GetFireSeverity(__int16 dNBR)
 	return __int16(max(-32767.0, min(32767.0, fs)));
 }
 
-__int16 CFireSeverity::GetZscore(const array <CLandsatPixel, 2>& p)
+array<__int16, 2> CFireSeverity::GetZscore(const array <CLandsatPixel, 2>& p)
 {
 	static const double F[2][4][2] =
 	{
@@ -830,17 +902,28 @@ __int16 CFireSeverity::GetZscore(const array <CLandsatPixel, 2>& p)
 		}
 	}
 
-	return (Zsore[0]<15&& Zsore[1]<10)?1:0;
+	//array<__int16, 2>
+	return { {__int16(Zsore[0]), __int16(Zsore[1])} };
+	//return (Zsore[0]<15&& Zsore[1]<10)?1:0;
+}
+
+__int16 CFireSeverity::GetNbMissing(__int16 JD_base, array <CLandsatPixel, 2> p)
+{
+	int nbDays = p[1][I_JD] - JD_base;
+	ASSERT(nbDays >= 365); // at least the next year
+
+	__int16 nbMissing = __int16(max(0, nbDays-365)/365);
+
+	return nbMissing;
 }
 
 __int16 CFireSeverity::GetDeltaNBR(__int16 JD_base, array <CLandsatPixel, 2> p)
 {
-	CTRef test1 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, JD_base);
-	CTRef test2 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, p[0][I_JD]);
-	CTRef test3 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, p[1][I_JD]);
-	int nbDays = p[1][I_JD] - JD_base;
-	ASSERT(nbDays >= 365); // at least the next year
-
+	//CTRef test1 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, JD_base);
+	//CTRef test2 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, p[0][I_JD]);
+	//CTRef test3 = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, p[1][I_JD]);
+	//int nbDays = p[1][I_JD] - JD_base;
+	//ASSERT(nbDays >= 365); // at least the next year
 
 	static const double F[2][4][2] =
 	{
@@ -849,11 +932,15 @@ __int16 CFireSeverity::GetDeltaNBR(__int16 JD_base, array <CLandsatPixel, 2> p)
 		{{0.60,156.54},{0.57,195.84},{0.60,506.01},{0.71,447.77}}//T3 and T4 is missing
 	};
 
+	__int16 nbMissing = GetNbMissing(JD_base, p);
+
 	//make correction if missing year
-	if (nbDays > 2 * 365)
+	//if (nbDays > 2 * 365)
+	if (nbMissing>0)
 	{
 		static const size_t B[4] = { B3, B4, B5, B7 };
-		size_t f = (nbDays < 3 * 365) ? 0 : 1;
+		//size_t f = (nbDays < 3 * 365) ? 0 : 1;
+		size_t f = nbMissing == 1 ? 0 : 1;
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -861,12 +948,12 @@ __int16 CFireSeverity::GetDeltaNBR(__int16 JD_base, array <CLandsatPixel, 2> p)
 		}
 	}
 
-	return __int16(p[1][I_NBR] - p[0][I_NBR]);
+	return __int16(p[0][I_NBR] - p[1][I_NBR]);
 }
 
 
 
-void CFireSeverity::WriteBlock(size_t xBlock, size_t yBlock, OutputData& output, CGDALDatasetEx& outputDS)
+void CFireSeverity::WriteBlock(size_t xBlock, size_t yBlock, OutputData& output, DebugData& debug, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 {
 
 #pragma omp critical(WriteBlockIO)
@@ -900,6 +987,25 @@ void CFireSeverity::WriteBlock(size_t xBlock, size_t yBlock, OutputData& output,
 			}
 		}
 
+		if (m_options.m_bDebug)
+		{
+			__int16 noData = (__int16)::GetDefaultNoData(GDT_Int16);
+			for (size_t z = 0; z < debugDS.GetRasterCount() / NB_DEBUGS; z++)
+			{
+				for (size_t i = 0; i < NB_DEBUGS; i++)
+				{
+					size_t b = z * NB_DEBUGS + i;
+					ASSERT(debug.empty() || debug[z][i].size() == outputRect.Width()*outputRect.Height());
+
+					GDALRasterBand *pBand = debugDS.GetRasterBand(b);
+					if (!debug.empty())
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(debug[z][i][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+					else
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(noData), 1, 1, GDT_Int16, 0, 0);
+				}
+			}
+		}
+
 		m_options.m_timerWrite.Stop();
 	}
 
@@ -907,7 +1013,7 @@ void CFireSeverity::WriteBlock(size_t xBlock, size_t yBlock, OutputData& output,
 
 }
 
-void CFireSeverity::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS)
+void CFireSeverity::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
 {
 	if (!m_options.m_bQuiet)
 		_tprintf("\nClose all files...\n");
@@ -918,6 +1024,8 @@ void CFireSeverity::CloseAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& maskDS, 
 
 	m_options.m_timerWrite.Start();
 	outputDS.Close(m_options);
+	debugDS.Close(m_options);
+
 
 	m_options.m_timerWrite.Stop();
 	m_options.PrintTime();
