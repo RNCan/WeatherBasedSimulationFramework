@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Snow melt</Title>
+    <Version>1.0</Version>
+    <ID>.null</ID>
+    <EXE>SnowMelt.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model compute snow melt by month</Description>
+    <WindowRect>0 0 83 386</WindowRect>
+    <SimulatedCategory>P SWE</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Head</Name>
+            <Caption>No input</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>SWEBegin</Name>
+            <Title>SWEBegin</Title>
+            <Units>mm of water</Units>
+            <Description>Snow water equivalent at the begin of the month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SWEEnd</Name>
+            <Title>SWEEnd</Title>
+            <Units>mm of water</Units>
+            <Description>Snow water equivalent at the end of the month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Snowdiff</Name>
+            <Title>Snowdiff</Title>
+            <Units>mm</Units>
+            <Description>positive it snowfall and negative os snowmelt</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>montlhy precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Runoff</Name>
+            <Title>Runoff</Title>
+            <Units>mm</Units>
+            <Description>Runoff</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
