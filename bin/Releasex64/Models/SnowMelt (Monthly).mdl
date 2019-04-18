@@ -47,10 +47,10 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Snowdiff</Name>
-            <Title>Snowdiff</Title>
+            <Name>SnowDiff</Name>
+            <Title>SnowDiff</Title>
             <Units>mm</Units>
-            <Description>positive it snowfall and negative os snowmelt</Description>
+            <Description>positive is snowfall and negative is snow melt</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -58,7 +58,7 @@
             <Name>Prcp</Name>
             <Title>Prcp</Title>
             <Units>mm</Units>
-            <Description>montlhy precipitation</Description>
+            <Description>monthly precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
