@@ -36,6 +36,8 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-
 
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
+copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
+copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
 
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"
@@ -69,9 +71,9 @@ copy /Y ".\bin\Releasex64\Models\DegreeHour.dll" "..\Install\NRCan\Models\Degree
 
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.mdl"  "..\Install\NRCan\Models\EmeraldAshBorer.mdl" 
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.dll"  "..\Install\NRCan\Models\EmeraldAshBorer.dll" 
-copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness (Daily).mdl"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness (Daily).mdl"
-copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness (Annual).mdl"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness (Annual).mdl"
-copy /Y ".\bin\Releasex64\Models\Emerald Ash Borer Cold Hardiness.dll"  "..\Install\NRCan\Models\Emerald Ash Borer Cold Hardiness.dll"
+copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness (Daily).mdl"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness (Daily).mdl"
+copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness (Annual).mdl"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness (Annual).mdl"
+copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness.dll"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness.dll"
 copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.mdl" "..\Install\NRCan\Models\EuropeanElmScale.mdl"
 copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.dll" "..\Install\NRCan\Models\EuropeanElmScale.dll"
 
@@ -144,6 +146,10 @@ copy /Y ".\bin\Releasex64\Models\ReverseDegreeDay (Annual).mdl" "..\Install\NRCa
 copy /Y ".\bin\Releasex64\Models\ReverseDegreeDay (Overall years).mdl" "..\Install\NRCan\Models\ReverseDegreeDay (Overall years).mdl"
 copy /Y ".\bin\Releasex64\Models\ReverseDegreeDay.dll" "..\Install\NRCan\Models\ReverseDegreeDay.dll"
 copy /Y ".\bin\Releasex64\Models\ReverseDegreeDay.pdf" "..\Install\NRCan\Models\ReverseDegreeDay.pdf"
+
+copy /Y ".\bin\Releasex64\Models\SnowMelt (Monthly).mdl" "..\Install\NRCan\Models\SnowMelt (Monthly).mdl"
+copy /Y ".\bin\Releasex64\Models\SnowMelt.dll" "..\Install\NRCan\Models\SnowMelt.dll"
+
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index (Annual).mdl" "..\Install\NRCan\Models\Soil Moisture Index (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index (Monthly).mdl" "..\Install\NRCan\Models\Soil Moisture Index (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index (Daily).mdl" "..\Install\NRCan\Models\Soil Moisture Index (Daily).mdl"
