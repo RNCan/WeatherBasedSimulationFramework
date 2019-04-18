@@ -13,7 +13,7 @@ namespace WBSF
 	enum TFireBitset1 {T_Z, T_JD, NB_FB_TYPE1};
 	enum TFireBitset2 { T_FIRE, T_BUFFER, NB_FB_TYPE2 };
 	enum TOutput {O_DNBR, O_ZSCORE1, O_ZSCORE2, O_FIRE_SEV, NB_OUTPUTS};
-	enum TDebug { D_NB_MISSING, D_OFFSET, D_T1_B3, D_T1_B4, D_T1_B5, D_T1_B7, D_T3_B3, D_T3_B4, D_T3_B5, D_T3_B7, NB_DEBUGS };
+	enum TDebug { D_NB_MISSING, D_DNBR0, D_OFFSET, D_T1_B3, D_T1_B4, D_T1_B5, D_T1_B7, D_T3_B3, D_T3_B4, D_T3_B5, D_T3_B7, NB_DEBUGS };
 
 	typedef std::deque< std::array< std::vector<__int16>, NB_OUTPUTS>> OutputData;
 	typedef std::deque< std::array< std::vector<__int16>, NB_DEBUGS>> DebugData;

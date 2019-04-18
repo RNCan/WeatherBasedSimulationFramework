@@ -326,6 +326,7 @@ ERMsg CFireSeverity::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 			{
 				string sYear = title.substr(title.size() - 4);
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_nbMissing.tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_dNBR0.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_offset.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B3.tif|";
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + sYear + "_T1_B4.tif|";
@@ -835,16 +836,17 @@ void CFireSeverity::ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolde
 						if (it != bufferStat[zz].end())
 							offset = __int16(Round(it->second[MEAN]));
 
-						__int16 dNBR = GetDeltaNBR(JD_base, p);
+						__int16 dNBR0 = GetDeltaNBR(JD_base, p);
 						array<__int16, 2> Zscore = GetZscore(p);
-						output[zz][O_DNBR][xy] = dNBR - offset;
+						output[zz][O_DNBR][xy] = dNBR0 - offset;
 						output[zz][O_ZSCORE1][xy] = Zscore[0];
 						output[zz][O_ZSCORE2][xy] = Zscore[1];
-						output[zz][O_FIRE_SEV][xy] = GetFireSeverity(dNBR - offset);
+						output[zz][O_FIRE_SEV][xy] = GetFireSeverity(dNBR0 - offset);
 
 						if (!debug.empty())
 						{
 							debug[zz][D_NB_MISSING][xy] = GetNbMissing(JD_base, p);
+							debug[zz][D_DNBR0][xy] = dNBR0;
 							debug[zz][D_OFFSET][xy] = offset;
 							debug[zz][D_T1_B3][xy] = p[0][I_B3];
 							debug[zz][D_T1_B4][xy] = p[0][I_B4];
