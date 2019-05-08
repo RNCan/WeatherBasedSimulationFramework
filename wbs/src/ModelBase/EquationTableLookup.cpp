@@ -91,7 +91,7 @@ namespace WBSF
 				for (size_t s = 0; s < m_lookupTable[i].size(); s++)
 				{
 					me.m_lookupTable[i][s] = ComputeRate(s, t);
-					assert(me.m_lookupTable[i][s] >= 0 && me.m_lookupTable[i][s] <= 1);
+					assert(me.m_lookupTable[i][s] >= 0 /*&& me.m_lookupTable[i][s] <= 1*/);
 				}
 			}
 		}

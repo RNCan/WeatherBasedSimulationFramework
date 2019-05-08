@@ -23,284 +23,8 @@ namespace WBSF
 
 	class CWeatherGenerator;
 
-	//**********************************************************************
-	//CSAControl
-	//class CSAControl
-	//{
-	//public:
-	//	enum TMember{ TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_MEMBER };
-
-	//	static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
-	//	static const char* GetXMLFlag(){ return XML_FLAG; }
-
-	//	CSAControl();
-	//	~CSAControl();
-	//	CSAControl(const CSAControl& ctrl);
-	//	void Reset();
-
-	//	CSAControl& operator=(const CSAControl& ctrl);
-	//	bool operator == (const CSAControl& in)const;
-	//	bool operator != (const CSAControl& in)const{ return !operator==(in); }
-
-	//	std::string GetMember(size_t i)const;
-	//	void SetMember(size_t i, const std::string& str);
-
-	//	//std::string GetMember(int i, LPXNode& pNode = NULL_ROOT)const;
-	//	//void SetMember(int i, const std::string& str, const LPXNode pNode = NULL_ROOT);
-	//	//void GetXML(LPXNode& pRoot)const{ XGetXML(*this, pRoot); }
-	//	//void SetXML(const LPXNode pRoot){ XSetXML(*this, pRoot); }
-
-
-	//	double AdjustFValue(double F)
-	//	{
-	//		if (!m_bMax)
-	//			F = -F;
-
-	//		return F;
-	//	}
-
-
-	//	double GetFinalFValue(const CStatisticXY& stat)
-	//	{
-	//		return AdjustFValue(stat[m_statisticType]);
-	//	}
-
-	//	bool Max()const{ return m_bMax; }
-
-	//	void SetMax(bool bMax){ m_bMax = bMax; }
-
-	//	double RT()const { return m_RT; }
-	//	void SetRT(double RT){ m_RT = RT; }
-	//	double EPS()const{ return m_EPS; }
-	//	void SetEPS(double EPS)	{ m_EPS = EPS; }
-	//	//double deltaVar()const{	return m_deltaVar; }
-	//	//void SetdeltaVar(double EPS)	{ m_deltaVar = EPS; }
-	//	long NS()const{ return m_NS; }
-	//	void SetNS(long NS)	{ m_NS = NS; }
-	//	long NT()const{ return m_NT; }
-	//	void SetNT(long NT) { m_NT = NT; }
-	//	long NEPS()const { return m_NEPS; }
-	//	void SetNEPS(long NEPS) { m_NEPS = NEPS; }
-	//	long MAXEVL()const { return m_MAXEVL; }
-	//	void SetMAXEVL(long MAXEVL) { m_MAXEVL = MAXEVL; }
-	//	long Seed1()const { return m_seed1; }
-	//	void SetSeed1(long seed1) { m_seed1 = seed1; }
-	//	long Seed2()const { return m_seed2; }
-	//	void SetSeed2(long seed2) { m_seed2 = seed2; }
-	//	double T()const { return m_T; }
-	//	void SetT(double T) { ASSERT(T > 0.0);  m_T = T; }
-
-	//	void LoadProfile(const std::string& section);
-	//	void SaveProfile(const std::string& section);
-
-	//	double GetVMiss(){ return m_missing; }
-	//	void SetVMiss(double in){ m_missing = in; }
-
-	//	short m_statisticType;
-	//	bool m_bMax;
-	//	double m_RT;
-	//	double m_EPS;
-	//	long m_NS;
-	//	long m_NT;
-	//	long m_NEPS;
-	//	long m_MAXEVL;
-	//	long m_seed1;
-	//	long m_seed2;
-	//	double m_T;
-
-
-	//protected:
-
-	//	//internal value
-	//	double m_missing;
-
-	//	static const char* XML_FLAG;
-	//	static const char* MEMBER_NAME[NB_MEMBER];
-
-	//};
-
-
-
-
-
-	////*******************************************************************************
-	////CVariableBound
-	//class CVariableBound
-	//{
-	//public:
-
-	//	CVariableBound(double low = -1.0E25, double hi = 1.0E25){ m_lowerBound = low, m_upperBound = hi; }
-
-	//	void Reset(){ m_lowerBound = -1.0E25; m_upperBound = 1.0E25; }
-	//	bool operator == (const CVariableBound& in)const
-	//	{
-	//		return	fabs(m_lowerBound - in.m_lowerBound) < 0.0000001 &&
-	//			fabs(m_upperBound - in.m_upperBound) < 0.0000001;
-	//	}
-	//	bool operator != (const CVariableBound& in)const{ return !operator==(in); }
-
-
-	//	bool IsOutOfBound(double& value)const{ return (value < m_lowerBound) || (value > m_upperBound); }
-	//	double GetExtent()const
-	//	{
-	//		ASSERT(m_upperBound >= m_lowerBound);
-	//		return m_upperBound - m_lowerBound;
-	//	}
-
-	//	double GetLowerBound()const { return m_lowerBound; }
-	//	double GetUpperBound()const { return m_upperBound; }
-
-	//	void SetBound(double lowerBound, double upperBound)
-	//	{
-	//		m_lowerBound = std::min(lowerBound, upperBound);
-	//		m_upperBound = std::max(lowerBound, upperBound);
-	//		ASSERT(m_lowerBound <= m_upperBound);
-	//	}
-
-	//	std::string ToString()const
-	//	{
-	//		return FormatA("[%.7g, %.7g]", m_lowerBound, m_upperBound);
-	//	}
-
-	//	void FromString(const std::string& str)
-	//	{
-	//		sscanf(str.c_str(), "[%lf, %lf]", &m_lowerBound, &m_upperBound);
-	//	}
-
-
-	//	double m_lowerBound;
-	//	double m_upperBound;
-
-	//};
-
-
-
-
-
-	//typedef std::vector< CVariableBound> CVariableBoundVector;
-
-	////**********************************************************************
-	////CSAParam
-	//class CSAParameter
-	//{
-	//public:
-	//	enum TMember{ VALUE, BOUND, NB_MEMBER };
-
-	//	static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
-	//	static const char* GetXMLFlag(){ return XML_FLAG; }
-
-	//	CSAParameter(std::string name = "", double value = 0, double lo = -1.0E25, double hi = 1.0E25);
-	//	~CSAParameter();
-	//	CSAParameter(const CSAParameter& in);
-
-	//	void Reset();
-	//	CSAParameter& operator =(const CSAParameter& in);
-	//	bool operator == (const CSAParameter& in)const;
-	//	bool operator != (const CSAParameter& in)const{ return !operator==(in); }
-
-	//	std::string m_name;
-	//	double m_initialValue;
-	//	CVariableBound m_bounds;
-
-	//protected:
-
-	//	static const char* XML_FLAG;
-	//	static const char* MEMBER_NAME[NB_MEMBER];
-
-	//};
-
-
-
-	//typedef std::vector< CSAParameter > CSAParameterVector;
-
-
-
-
-
-	////*******************************************************************************
-	////CComputationVariable
-	//class CComputationVariable
-	//{
-	//public:
-	//	CComputationVariable(){ Initialize(1, 4, 0); }
-	//	void PrepareForAnotherLoop(double RT)
-	//	{
-	//		m_T = RT*m_T;
-	//		for (size_t I = m_FSTAR.size() - 1; I > 0; I--)
-	//		{
-	//			m_FSTAR[I] = m_FSTAR[I - 1];
-	//		}
-
-	//		m_FSTAR[0] = m_F;
-
-	//		m_F = m_Fopt;
-	//		m_X = m_Xopt;
-
-	//		//reset bounding parameter stat each loop
-	//		for (size_t i = 0; i < m_XPstat.size(); i++)
-	//		{
-	//			m_XPstat[i].Reset();
-	//		}
-	//	}
-
-	//	void Initialize(double T, long NEPS, double missingValue)
-	//	{
-	//		m_T = T;
-
-	//		//  Initialize variable
-	//		m_F = missingValue;
-	//		m_FP = missingValue;
-	//		m_Fopt = missingValue;
-
-
-	//		m_NACC = 0;
-	//		m_NOBDS = 0;
-	//		m_NFCNEV = 0;
-
-	//		//Initialise FSTAR
-	//		m_FSTAR.clear();
-	//		m_FSTAR.insert(m_FSTAR.begin(), NEPS, DBL_MAX);
-
-	//	}
-
-	//	std::vector<double> m_VM;
-	//	CStatisticVector m_VMstat;
-
-
-	//	std::vector<double> m_X;
-	//	std::vector<double> m_XP;
-	//	std::vector<double> m_Xopt;
-	//	CStatisticVector m_XPstat;
-
-
-	//	double m_T;
-
-	//	std::vector<double> m_FSTAR;
-
-	//	//output                
-	//	double m_F;
-	//	double m_FP;
-	//	double m_Fopt;
-
-	//	//statistic
-	//	CStatisticXY m_S;
-	//	CStatisticXY m_SP;
-	//	CStatisticXY m_Sopt;
-
-	//	long m_NACC;
-	//	long m_NFCNEV;
-	//	long m_NOBDS;
-
-	//	//constant 
-	//	std::vector<double> m_C;
-	//	CVariableBoundVector m_bounds;
-	//};
-
-
-
 	//*******************************************************************************
 	//CModelParameterization
-
 
 	class CModelParameterization : public CExecutable
 	{
@@ -308,9 +32,9 @@ namespace WBSF
 
 		static const char* DATA_DESCRIPTOR;
 		enum TFeedback { LOOP, ITERATION, CYCLE };
-		//ALWAYS_CREATE_WEATHER, TG_INPUT_NAME, LOC_NAME, 
+		
 		enum TMember{
-			USE_HX_GRID = CExecutable::NB_MEMBERS, MODEL_NAME, RESULT_FILE_NAME, LOCID_FIELD, MODEL_INPUT_NAME, NB_REPLICATION, PARAMETERS_VARIATIONS_NAME, CONTROL, FEEDBACK_TYPE,
+			USE_HX_GRID = CExecutable::NB_MEMBERS, MODEL_NAME, RESULT_FILE_NAME, LOCID_FIELD, MODEL_INPUT_NAME, MODEL_INPUT_OPT_NAME, NB_REPLICATION, PARAMETERS_VARIATIONS_NAME, CONTROL, FEEDBACK_TYPE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -324,6 +48,7 @@ namespace WBSF
 		std::string m_resultFileName;
 		size_t m_locIDField;
 		std::string m_modelInputName;
+		std::string m_modelInputOptName;
 		std::string m_parametersVariationsName;
 		size_t	m_nbReplications;
 		int m_feedbackType;
@@ -372,6 +97,7 @@ namespace WBSF
 	protected:
 
 		ERMsg LoadModelInput(const CFileManager& fileManager, const CModel& model, const std::string& name, CModelInput& modelInput)const;
+		ERMsg SaveModelInput(const CFileManager& fileManager, const CModel& model, const std::string& name, CModelInput& modelInput)const;
 		ERMsg LoadParametersVariation(const CFileManager& fileManager, const CModel& model, const std::string& name, CParametersVariationsDefinition& modelInput)const;
 		ERMsg Optimize(const CFileManager& fileManager, CResult& result, CCallback& callback);
 		ERMsg GetFValue(const std::vector<double>& X, double& F, CStatisticXY& stat, CCallback& callback);

@@ -57,9 +57,12 @@ namespace WBSF
 		DDX_Control(pDX, IDC_SIM_RESULT, m_resultFileNameCtrl);
 		DDX_Control(pDX, IDC_SIM_LOCID_FIELD, m_locIDFieldCtrl);
 		DDX_Control(pDX, IDC_SIM_MODELINPUT, m_modelInputNameCtrl);
+		DDX_Control(pDX, IDC_SIM_MODEL_OUTPUT, m_modelInputOptNameCtrl);
 		DDX_Control(pDX, IDC_SIM_PARAMETERS_SET, m_parametersVariationsNameCtrl);
 		DDX_Control(pDX, IDC_SIM_FEEDBACK, m_feedbackCtrl);
 		DDX_Control(pDX, IDC_SIM_REPLICATION, m_replicationCtrl);
+		
+		
 	}
 
 
@@ -258,6 +261,7 @@ namespace WBSF
 		m_sa.SetModelName(m_modelCtrl.GetString());
 
 		m_sa.SetModelInputName(m_modelInputNameCtrl.GetString());
+		m_sa.m_modelInputOptName = m_modelInputOptNameCtrl.GetString();
 		m_sa.m_parametersVariationsName = m_parametersVariationsNameCtrl.GetString();
 
 		m_sa.m_nbReplications = ToShort(m_replicationCtrl.GetString());
@@ -306,6 +310,8 @@ namespace WBSF
 			MessageBox(error, AfxGetAppName(), MB_ICONEXCLAMATION | MB_OK);
 			m_modelInputNameCtrl.SetCurSel(0);
 		}
+
+		m_modelInputOptNameCtrl.SetString(m_sa.m_modelInputOptName);
 
 		FillParametersVariations();
 

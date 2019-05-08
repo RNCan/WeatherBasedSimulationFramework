@@ -85,6 +85,7 @@
 #define IDC_GRAPH_TITLE                 1008
 #define IDC_SIM_TGINPUT                 1008
 #define IDC_TRANSFO_LOGIT               1008
+#define IDC_SIM_MODEL_OUTPUT            1008
 #define IDC_CMN_STEP_MESSAGE            1009
 #define IDC_LP_FORM_SIZE2               1009
 #define IDC_MAP_EXTERNAL_DRIFT          1009
@@ -882,7 +883,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        219
+#define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1253
 #define _APS_NEXT_SYMED_VALUE           101

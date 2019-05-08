@@ -488,8 +488,12 @@ namespace WBSF
 			double deltab = P[P4];
 			double deltam = P[P5];
 
-			T = max(Tb, min(Tm, T));
-			rT = phi * (exp(bb * (T - Tb)) - ((Tm - T) / (Tm - Tb)) * exp(-bb * (T - Tb) / deltab) - ((T - Tb) / (Tm - Tb)) * exp(bb * (Tm - Tb) - (Tm - T) / deltam));
+			if (T>=Tb&&T<=Tm)
+			{
+				//T = max(Tb, min(Tm, T));
+				rT = phi * (exp(bb * (T - Tb)) - ((Tm - T) / (Tm - Tb)) * exp(-bb * (T - Tb) / deltab) - ((T - Tb) / (Tm - Tb)) * exp(bb * (Tm - Tb) - (Tm - T) / deltam));
+			}
+
 		}
 		else if (model == Shi_beta_2016)
 		{

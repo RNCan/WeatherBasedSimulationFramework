@@ -51,7 +51,7 @@ namespace WBSF
 		CCFLComboBox	m_locIDFieldCtrl;
 		CButton			m_useHxGridCtrl;
 		CCFLEdit		m_replicationCtrl;
-
+		CCFLEdit		m_modelInputOptNameCtrl;
 
 		// Overrides
 		// ClassWizard generated virtual function overrides

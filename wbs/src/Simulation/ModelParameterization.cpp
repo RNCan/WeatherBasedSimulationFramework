@@ -97,187 +97,11 @@ namespace WBSF
 	//the current session
 	static TSimulatedAnnealingSessionData gSession;
 
-
-
-	//*****************************************************************
-	//const char* CSAControl::XML_FLAG = "Control";
-	//const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature" , "ReductionFactor", "Epsilon", "NbCycles", "NbIterations", "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2" };
-
-
-	//CSAControl::CSAControl()
-	//{
-	//	Reset();
-	//}
-
-	//CSAControl::~CSAControl()
-	//{
-	//}
-
-
-	//CSAControl::CSAControl(const CSAControl& in)
-	//{
-	//	operator=(in);
-	//}
-
-	//void CSAControl::Reset()
-	//{
-	//	m_bMax = false;
-	//	m_RT = 0.85;
-	//	m_EPS = 0.001;
-	//	m_NS = 20;
-	//	m_NT = 10;
-	//	m_NEPS = 4;
-	//	m_MAXEVL = 1000000;
-	//	m_seed1 = -1;
-	//	m_seed2 = -1;
-	//	m_T = 100;
-	//	m_statisticType = RSS;
-	//	m_missing = MISSING;
-	//}
-
-	//CSAControl& CSAControl::operator=(const CSAControl& in)
-	//{
-	//	if (&in != this)
-	//	{
-	//		m_bMax = in.m_bMax;
-	//		m_RT = in.m_RT;
-	//		m_EPS = in.m_EPS;
-	//		m_NS = in.m_NS;
-	//		m_NT = in.m_NT;
-	//		m_NEPS = in.m_NEPS;
-	//		m_MAXEVL = in.m_MAXEVL;
-	//		m_seed1 = in.m_seed1;
-	//		m_seed2 = in.m_seed2;
-	//		m_T = in.m_T;
-	//		m_statisticType = in.m_statisticType;
-	//	}
-
-	//	ASSERT(in == *this);
-
-	//	return *this;
-	//}
-
-	//bool CSAControl::operator == (const CSAControl& in)const
-	//{
-	//	bool bEqual = true;
-
-	//	if (m_bMax != in.m_bMax) bEqual = false;
-	//	if (fabs(m_T - in.m_T) > 0.001) bEqual = false;
-	//	if (fabs(m_RT - in.m_RT) > 0.001) bEqual = false;
-	//	if (fabs(m_EPS - in.m_EPS) > 0.00000001) bEqual = false;
-	//	if (m_NS != in.m_NS) bEqual = false;
-	//	if (m_NT != in.m_NT) bEqual = false;
-	//	if (m_NEPS != in.m_NEPS) bEqual = false;
-	//	if (m_MAXEVL != in.m_MAXEVL) bEqual = false;
-	//	if (m_seed1 != in.m_seed1) bEqual = false;
-	//	if (m_seed2 != in.m_seed2) bEqual = false;
-	//	if (m_statisticType != in.m_statisticType) bEqual = false;
-
-	//	return bEqual;
-	//}
-
-
-
-	//std::string CSAControl::GetMember(size_t i)const
-	//{
-	//	ASSERT(i >= 0 && i < NB_MEMBER);
-
-	//	std::string str;
-	//	switch (i)
-	//	{
-	//	case TYPE_OPTIMISATION:str = ToString(m_bMax); break;
-	//	case STAT_OPTIMISATION: str = ToString(m_statisticType); break;
-	//	case INITIAL_TEMPERATURE:str = ToString(m_T, -1); break;
-	//	case REDUCTION_FACTOR:str = ToString(m_RT); break;
-	//	case EPSILON:str = ToString(m_EPS, -1); break;
-	//	case NB_CYCLE:str = ToString(m_NS); break;
-	//	case NB_ITERATION:str = ToString(m_NT); break;
-	//	case NB_EPSILON:str = ToString(m_NEPS); break;
-	//	case MAX_EVALUATION:str = ToString(m_MAXEVL); break;
-	//	case SEED1:str = ToString(m_seed1); break;
-	//	case SEED2:str = ToString(m_seed2); break;
-
-	//	default: ASSERT(false);
-	//	}
-
-	//	return str;
-	//}
-
-	//void CSAControl::SetMember(size_t i, const std::string& str)
-	//{
-	//	ASSERT(i >= 0 && i < NB_MEMBER);
-	//	switch (i)
-	//	{
-	//	case TYPE_OPTIMISATION: m_bMax = ToBool(str); break;
-	//	case STAT_OPTIMISATION: m_statisticType = ToInt(str); break;
-	//	case INITIAL_TEMPERATURE:m_T = ToDouble(str); break;
-	//	case REDUCTION_FACTOR:m_RT = ToDouble(str); break;
-	//	case EPSILON: m_EPS = ToDouble(str); break;
-	//	case NB_CYCLE: m_NS = ToInt(str); break;
-	//	case NB_ITERATION:m_NT = ToInt(str); break;
-	//	case NB_EPSILON:m_NEPS = ToInt(str); break;
-	//	case MAX_EVALUATION:m_MAXEVL = ToInt(str); break;
-	//	case SEED1:m_seed1 = ToInt(str); break;
-	//	case SEED2:m_seed2 = ToInt(str); break;
-	//	default: ASSERT(false);
-	//	}
-	//}
-
-	////*****************************************************************
-
-	//const char* CSAParameter::XML_FLAG = "Parameter";
-	//const char* CSAParameter::MEMBER_NAME[NB_MEMBER] = { "Value", "Bound" };
-	//CSAParameter::CSAParameter(string name, double value, double low, double hi)
-	//{
-	//	m_name = name;
-	//	m_initialValue = value;
-	//	m_bounds.SetBound(low, hi);
-
-	//}
-	//CSAParameter::~CSAParameter()
-	//{}
-
-	//CSAParameter::CSAParameter(const CSAParameter& in)
-	//{
-	//	operator=(in);
-	//}
-
-	//void CSAParameter::Reset()
-	//{
-	//	m_name.clear();
-	//	m_initialValue = 0;
-	//	m_bounds.Reset();
-	//}
-
-	//CSAParameter& CSAParameter::operator =(const CSAParameter& in)
-	//{
-	//	if (&in != this)
-	//	{
-	//		m_name = in.m_name;
-	//		m_initialValue = in.m_initialValue;
-	//		m_bounds = in.m_bounds;
-	//	}
-
-	//	ASSERT(in == *this);
-	//	return *this;
-	//}
-
-	//bool CSAParameter::operator == (const CSAParameter& in)const
-	//{
-	//	bool bEqual = true;
-
-	//	if (m_name != in.m_name) bEqual = false;
-	//	if (m_initialValue != in.m_initialValue)bEqual = false;
-	//	if (m_bounds != in.m_bounds)bEqual = false;
-
-	//	return bEqual;
-	//}
-
 	//*****************************************************************
 	//CModelParameterization
 	const char* CModelParameterization::DATA_DESCRIPTOR = "ParameterizationData";
 	const char* CModelParameterization::XML_FLAG = "Parameterization";
-	const char* CModelParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "UseHxGrid", "ModelName", "ResultFileName", "LOCIDField", "ModelInputName", "NbReplications", "ParametersVariationsName", "Control", "FeedbackType" };
+	const char* CModelParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "UseHxGrid", "ModelName", "ResultFileName", "LOCIDField", "ModelInputName", "ModelInputOptName", "NbReplications", "ParametersVariationsName", "Control", "FeedbackType" };
 	const int CModelParameterization::CLASS_NUMBER = CExecutableFactory::RegisterClass(CModelParameterization::GetXMLFlag(), &CModelParameterization::CreateObject);
 
 	CModelParameterization::CModelParameterization()
@@ -303,6 +127,7 @@ namespace WBSF
 		m_modelName.clear();
 		m_resultFileName.clear();
 		m_modelInputName = STRDEFAULT;
+		m_modelInputOptName.empty();
 		m_parametersVariationsName.clear();
 
 		m_nbReplications = 1;
@@ -333,6 +158,7 @@ namespace WBSF
 			m_resultFileName = in.m_resultFileName;
 			m_locIDField = in.m_locIDField;;
 			m_modelInputName = in.m_modelInputName;
+			m_modelInputOptName = in.m_modelInputOptName;
 			m_parametersVariationsName = in.m_parametersVariationsName;
 			m_nbReplications = in.m_nbReplications;
 			m_feedbackType = in.m_feedbackType;
@@ -358,6 +184,7 @@ namespace WBSF
 		if (m_resultFileName != in.m_resultFileName) bEqual = false;
 		if (m_locIDField != in.m_locIDField) bEqual = false;
 		if (m_modelInputName != in.m_modelInputName)bEqual = false;
+		if (m_modelInputOptName != in.m_modelInputOptName)bEqual = false;
 		if (m_parametersVariationsName != in.m_parametersVariationsName)bEqual = false;
 		if (m_nbReplications != in.m_nbReplications)bEqual = false;
 		if (m_ctrl != in.m_ctrl)bEqual = false;
@@ -528,6 +355,23 @@ namespace WBSF
 
 		std::string filePath = GetLogFilePath(GetPath(fileManager));
 		msg += WriteOutputMessage(filePath, logText);
+
+		
+		if (/*msg && */!m_modelInputOptName.empty() && m_tmp.m_Xopt.size() == m_parameters.size())
+		{
+			CModelInput m_modelInputOpt = m_modelInput;
+			
+			for (size_t i = 0, j = 0; i < m_parametersVariations.size(); i++)
+			{
+				if (m_parametersVariations[i].m_bActive)
+				{
+					m_modelInputOpt[i].SetValue( Round(m_tmp.m_Xopt[j], 4) );
+					j++;
+				}
+			}
+
+			msg += SaveModelInput(fileManager, m_model, m_modelInputOptName, m_modelInputOpt);
+		}
 
 		m_model.UnloadDLL();
 
@@ -812,6 +656,15 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CModelParameterization::SaveModelInput(const CFileManager& fileManager, const CModel& model, const string& name, CModelInput& modelInput)const
+	{
+		ERMsg msg;
+		
+		msg = fileManager.ModelInput(model.GetExtension()).Set(name, modelInput);
+
+		return msg;
+	}
+
 	ERMsg CModelParameterization::LoadParametersVariation(const CFileManager& fileManager, const CModel& model, const string& name, CParametersVariationsDefinition& paratersVariations)const
 	{
 		ERMsg msg;
@@ -834,6 +687,7 @@ namespace WBSF
 
 		return msg;
 	}
+
 
 
 	std::string CModelParameterization::GetPath(const CFileManager& fileManager)const
@@ -1654,11 +1508,11 @@ namespace WBSF
 		out[GetMemberName(RESULT_FILE_NAME)](m_resultFileName);
 		out[GetMemberName(LOCID_FIELD)](m_locIDField);
 		out[GetMemberName(MODEL_INPUT_NAME)](m_modelInputName);
+		out[GetMemberName(MODEL_INPUT_OPT_NAME)](m_modelInputOptName);
 		out[GetMemberName(PARAMETERS_VARIATIONS_NAME)](m_parametersVariationsName);
 		out[GetMemberName(NB_REPLICATION)](m_nbReplications);
 		out[GetMemberName(FEEDBACK_TYPE)](m_feedbackType);
 		out[GetMemberName(CONTROL)](m_ctrl);
-		//out[GetMemberName(PARAMETERS)](m_parametersVariations);
 	}
 
 	bool CModelParameterization::readStruc(const zen::XmlElement& input)
@@ -1670,12 +1524,11 @@ namespace WBSF
 		in[GetMemberName(RESULT_FILE_NAME)](m_resultFileName);
 		in[GetMemberName(LOCID_FIELD)](m_locIDField);
 		in[GetMemberName(MODEL_INPUT_NAME)](m_modelInputName);
+		in[GetMemberName(MODEL_INPUT_OPT_NAME)](m_modelInputOptName);
 		in[GetMemberName(PARAMETERS_VARIATIONS_NAME)](m_parametersVariationsName);
 		in[GetMemberName(NB_REPLICATION)](m_nbReplications);
-
 		in[GetMemberName(FEEDBACK_TYPE)](m_feedbackType);
 		in[GetMemberName(CONTROL)](m_ctrl);
-		//in[GetMemberName(PARAMETERS)](m_parametersVariations);
 
 		return true;
 	}
