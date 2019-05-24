@@ -148,7 +148,7 @@ namespace WBSF
 			HRDPA.m_workingDir = m_workingDir;
 			HRDPA.m_type = CHRDPA::TYPE_06HOURS;
 			HRDPA.m_product = CHRDPA::HRDPA;
-			HRDPA.m_max_hours = 24;
+			HRDPA.m_max_hours = 48;
 
 			//only add message in case of error, continue anyway
 			ERMsg msg_tmp = HRDPA.Execute(callback);
