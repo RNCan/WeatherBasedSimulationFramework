@@ -414,7 +414,7 @@ namespace WBSF
 		CTRef TRef;
 
 		//2017/01/01 00:00
-		StringVector vec(str, " :/");
+		StringVector vec(str, " :/-");
 		ASSERT(vec.size() >= 4);
 
 		if (vec.size() >= 4)

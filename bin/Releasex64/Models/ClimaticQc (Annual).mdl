@@ -143,10 +143,10 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DaylightVPD</Name>
-            <Title>Daylight VPD</Title>
+            <Name>TotalVPD</Name>
+            <Title>TotalVPD</Title>
             <Units>hPa</Units>
-            <Description>Mean of daylight Vapor Pressure Deficit</Description>
+            <Description>Mean of annual Vapor Pressure Deficit (VPD)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -154,7 +154,7 @@
             <Name>UtilVPD</Name>
             <Title>Util VPD</Title>
             <Units>hPa (mbar)</Units>
-            <Description>Mean of vapour pressure deficit in June, July and August (Julian day between 152 and 243).</Description>
+            <Description>Mean of Vapour Pressure Deficit (VPD) in June, July and August (Julian day between 152 and 243).</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>

@@ -192,6 +192,8 @@ copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.dll" "..\Install\NRCan\M
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.mdl" "..\Install\NRCan\Models\Western Spruce Budworm.mdl"
 copy /Y ".\bin\Releasex64\Models\WetnessDuration (Hourly).mdl" "..\Install\NRCan\Models\WetnessDuration (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\WetnessDuration.dll" "..\Install\NRCan\Models\WetnessDuration.dll"
+copy /Y ".\bin\Releasex64\Models\WhitemarkedTussockMoth.mdl" "..\Install\NRCan\Models\WhitemarkedTussockMoth.mdl"
+copy /Y ".\bin\Releasex64\Models\WhitemarkedTussockMoth.dll" "..\Install\NRCan\Models\WhitemarkedTussockMoth.dll"
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.mdl" "..\Install\NRCan\Models\WhitePineWeevil.mdl"
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.dll" "..\Install\NRCan\Models\WhitePineWeevil.dll"
 

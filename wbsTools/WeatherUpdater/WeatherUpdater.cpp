@@ -1,4 +1,5 @@
-//5.7.5 24/04/2019	Rémi Saint-Amant	Create HRDPS hourly prcp and srad. Clean forecast.
+//5.7.6 24/04/2019	Rémi Saint-Amant	Create HRDPS hourly prcp and srad. Clean forecast.
+//5.7.5 16/05/2019	Rémi Saint-Amant	Fix problem in Nova-Scotia date format
 //5.7.4 16/04/2019	Rémi Saint-Amant	Add hourly WU download. Add some limitation.
 //5.7.3 15/02/2019	Rémi Saint-Amant	Update in virtual station extraction (wind and solar)
 //5.7.2 01/02/2019	Rémi Saint-Amant	Update HRDPS forecast and interface

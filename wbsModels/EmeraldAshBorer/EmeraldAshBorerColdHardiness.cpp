@@ -55,7 +55,6 @@ namespace WBSF
 
 		m_SCPᶫ = -37;
 		m_SCPᴴ = -14;//by venette
-		//m_ΔΣwT = 1000;//° hours
 	}
 
 	CEmeraldAshBorerColdHardinessModel::~CEmeraldAshBorerColdHardinessModel()
@@ -68,24 +67,13 @@ namespace WBSF
 
 		size_t c = 0;
 		if (parameters.size() == 6)
-		{/*
-			for (size_t i = 0; i < NB_PHASES; i++)
-			{
-				m_p[i].a0 = parameters[c++].GetReal();
-				m_p[i].K = parameters[c++].GetReal();
-				m_p[i].n_Δt = parameters[c++].GetInt();
-				m_p[i].λ = parameters[c++].GetReal();
-				m_p[i].wTº = parameters[c++].GetReal();
-
-			}*/
-
+		{
 			m_n_Δt = parameters[c++].GetInt();
 			m_λ = parameters[c++].GetReal();
 			m_wTº = parameters[c++].GetReal();
 			m_wTmin = parameters[c++].GetReal();
 			m_SCPᶫ = parameters[c++].GetReal();
 			m_SCPᴴ = parameters[c++].GetReal();
-			//m_ΔΣwT = parameters[c++].GetReal();
 		}
 
 		return msg;

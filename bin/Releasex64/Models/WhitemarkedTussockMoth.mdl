@@ -151,7 +151,7 @@
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
-    <Copyright/>
+    <Copyright>WARNING: Calibrated in Michigan with one location and 2 years.</Copyright>
     <Credit/>
     <HelpFileName/>
 </Model>

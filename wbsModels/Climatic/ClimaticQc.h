@@ -21,11 +21,12 @@ namespace WBSF
 		double m_threshold;
 		//long GetConsecutiveDayWithoutFrost(const CWeatherYear& weather, double th = 0);
 		double GetUtilDeficitPressionVapeur(const CWeatherYear& weather);
-
+		double GetTotalVaporPressureDeficit(const CWeatherYear& weather);
 
 		static double GetVPD(const CWeatherYear& weather);
 		static double GetVPD(const CWeatherMonth& weather);
 		static double GetVPD(const CWeatherDay& weather);
+		
 
 	};
 

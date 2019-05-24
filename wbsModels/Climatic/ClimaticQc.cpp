@@ -1,4 +1,5 @@
 ﻿//**********************************************************************
+// 10/09/2018	4.0.1	Rémi Saint-Amant    Daylight VPD change to toeal VPD
 // 10/09/2018	4.0.0	Rémi Saint-Amant    Change in units of aridity, pet 
 //											mean of VPD instead of summation
 //											Add PET as output
@@ -88,7 +89,7 @@ namespace WBSF
 	{
 		O_DD_SUM, O_TOTAL_PPT, O_UTIL_PPT, O_GS_PPT, O_TMIN, O_TMEAN, O_TMAX, O_GS_TMEAN, O_JULY_TMEAN,
 		O_DAY_WITHOUT_FROST, O_FF_PERIOD_LENGTH, O_GROWING_SEASON_LENGTH, O_FF_PERIOD_BEGIN, O_FFPERIOD_END,
-		O_MEAN_DAYLIGHT_VPD, O_MEAN_UVPD, O_PET, O_ARIDITY, O_SNOW_RATIO, O_ANNUAL_SNOW, O_TOTAL_RAD, O_GS_RAD, NB_OUTPUTS
+		/*O_MEAN_DAYLIGHT_VPD*/O_MEAN_TOTAL_VPD, O_MEAN_UVPD, O_PET, O_ARIDITY, O_SNOW_RATIO, O_ANNUAL_SNOW, O_TOTAL_RAD, O_GS_RAD, NB_OUTPUTS
 	};
 
 	ERMsg CClimaticQc::OnExecuteAnnual()
@@ -140,7 +141,10 @@ namespace WBSF
 			
 
 			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
-			double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
+			//double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
+			double VPD = GetTotalVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
+
+			
 
 			double PETa = 0;
 			double ar = 0;
@@ -182,7 +186,8 @@ namespace WBSF
 			m_output[y][O_GROWING_SEASON_LENGTH] = growingSeason.as(CTM::DAILY).GetLength();
 			m_output[y][O_FF_PERIOD_BEGIN] = FFPeriod.Begin().GetJDay();
 			m_output[y][O_FFPERIOD_END] = FFPeriod.End().GetJDay();
-			m_output[y][O_MEAN_DAYLIGHT_VPD] = VPD; //[hPa] (mBar)
+			//m_output[y][O_MEAN_DAYLIGHT_VPD] = VPD; //[hPa] (mBar)
+			m_output[y][O_MEAN_TOTAL_VPD] = VPD; //[hPa] (mBar)
 			m_output[y][O_MEAN_UVPD] = UVPD; //[hPa] (mBar)
 			m_output[y][O_PET] = PETa;//[mm]
 			m_output[y][O_ARIDITY] = ar;//[mm] since version 4.0., aridity are in mm, was in cm
@@ -245,6 +250,32 @@ namespace WBSF
 
 		return udpv[MEAN];
 	}
+
+	
+	double CClimaticQc::GetTotalVaporPressureDeficit(const CWeatherYear& weather)
+	{
+		CStatistic tdpv;
+
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
+		//CTPeriod p(CTRef(year, JUNE, FIRST_DAY), CTRef(year, AUGUST, LAST_DAY));
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			const CWeatherDay& day = weather.GetDay(TRef);
+			double Tmin = day[H_TMIN][LOWEST];
+			double Tmax = day[H_TMAX][HIGHEST];
+
+			if (Tmin > 0 && Tmax > 0)
+			{
+				double T1 = 7.5*Tmax / (237.3 + Tmax);
+				double T2 = 7.5*Tmin / (237.3 + Tmin);
+				tdpv += 0.6108*(pow(10., T1) - pow(10., T2));//[kPa]
+			}
+		}
+
+
+		return tdpv[MEAN];
+	}
+
 
 	//udpv2 += day.GetDaylightVaporPressureDeficit();
 
