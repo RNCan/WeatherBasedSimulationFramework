@@ -53,7 +53,7 @@ namespace WBSF
 		case HRDPS_VARS_TGL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_TGL); break;
 		case HRDPS_VARS_ISBL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_ISBL); break;
 		case HRDPS_VARS_OTHERS: for(size_t c= HRDPS_ISBY; c< NB_HRDPS_CATEGORY; c++)str += CHRDPSVariables::GetHRDPSSelectionString(c); break;
-		case TGL_HEIGHTS:str = "2|10|40|80|120"; break;
+		case TGL_HEIGHTS: str = "2|10|40|80|120"; break;
 		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050"; break;
 		};
 		return str;
@@ -66,11 +66,11 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRDPS\\"; break;
-		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
-		case HRDPS_VARS_TGL:str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
-		case HRDPS_VARS_ISBL:str = "----"; break;
-		case HRDPS_VARS_OTHERS:str = "----"; break;
-		case TGL_HEIGHTS:str = "2|10"; break;
+		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
+		case HRDPS_VARS_TGL: str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
+		case HRDPS_VARS_ISBL: str = "----"; break;
+		case HRDPS_VARS_OTHERS: str = "----"; break;
+		case TGL_HEIGHTS: str = "2|10"; break;
 		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
 		case COMPUTE_HOURLY_PRCP: str = "1"; break;
 		};
@@ -95,10 +95,18 @@ namespace WBSF
 		CreateMultipleDir(workingDir);
 	
 		CHRDPS HRDPS(workingDir);
+		HRDPS.m_bHRDPA6h = as<bool>(COMPUTE_HOURLY_PRCP);
+
+
+
 		CHRDPSVariables sfc (Get(HRDPS_VARS_SFC));
 		CHRDPSVariables tlg (Get(HRDPS_VARS_TGL));
 		CHRDPSVariables isbl( Get(HRDPS_VARS_ISBL));
 		CHRDPSVariables others (Get(HRDPS_VARS_OTHERS));
+
+		//if (HRDPS.m_bHRDPA6h)//add precipitation
+			//sfc.set(APCP_SFC);
+
 
 		HRDPS.m_variables = (sfc| tlg| isbl| others);
 		HRDPS.m_heights = Get(TGL_HEIGHTS);
@@ -109,7 +117,7 @@ namespace WBSF
 		if (HRDPS.m_levels.empty())
 			HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
 
-		HRDPS.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+		
 
 
 		msg = HRDPS.Execute(callback);

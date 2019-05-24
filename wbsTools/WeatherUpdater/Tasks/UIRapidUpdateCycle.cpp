@@ -191,7 +191,7 @@ namespace WBSF
 		string outputPath = GetOutputFilePath(TRef);
 		CreateMultipleDir(GetPath(outputPath));
 
-		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+		msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
 		if (msg)
 		{
 			CFileInfo info = GetFileInfo(outputPath);
@@ -203,31 +203,6 @@ namespace WBSF
 		}
 		return msg;
 	}
-
-
-	bool CUIRapidUpdateCycle::GoodGrib(const string& filePath)const
-	{
-		bool bGoodGrib = false;
-
-		if (!filePath.empty())
-		{
-			ifStream stream;
-			if (stream.open(filePath))
-			{
-				char test[5] = { 0 };
-				stream.seekg(-4, ifstream::end);
-				stream.read(&(test[0]), 4);
-				stream.close();
-				if (string(test) == "7777")
-					bGoodGrib = true;
-
-				stream.close();
-			}
-		}
-
-		return bGoodGrib;
-	}
-
 
 
 	//*************************************************************************************************
@@ -370,7 +345,7 @@ namespace WBSF
 											string outputPath = GetOutputFilePath(curH);
 											CreateMultipleDir(GetPath(outputPath));
 
-											msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+											msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
 											if (msg)
 											{
 												if (GoodGrib(outputPath))
@@ -800,7 +775,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(fileList[i]);
 				if (p.IsInside(TRef))
-					gribsList[TRef].push_back(fileList[i]);
+					gribsList[TRef] = fileList[i];
 			}
 		}
 

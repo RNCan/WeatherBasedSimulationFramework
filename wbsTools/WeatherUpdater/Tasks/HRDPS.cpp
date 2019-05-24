@@ -38,7 +38,8 @@ namespace WBSF
 		m_workingDir(workingDir),
 		m_bCreateVRT(true),
 		m_bForecast(false),
-		m_max_hours(99)
+		m_max_hours(24),
+		m_bHRDPA6h(false)
 	{
 		m_variables.set();
 		m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");//for ISBL var
@@ -66,7 +67,7 @@ namespace WBSF
 
 	string CHRDPS::GetOutputFilePath(const string& fileName)const
 	{
-		CTRef TRef = CHRDPS::GetTRef(fileName);
+		CTRef TRef = CHRDPS::GetTRef(fileName, false);
 		return FormatA("%s%d\\%02d\\%02d\\%02d\\%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), fileName.c_str());
 	}
 
@@ -118,8 +119,8 @@ namespace WBSF
 				CFileInfoVector fileListTmp;
 				if (FindFiles(pConnection, remotePath, fileListTmp) && !fileListTmp.empty())
 				{
-					string fileTitle = GetFileName(fileListTmp.front().m_filePath);
-					latest.push_back(make_pair(GetTRef(fileTitle), h));
+					for(size_t i=0; i< fileListTmp.size(); i++)
+						latest.push_back(make_pair(GetTRef(fileListTmp[i].m_filePath, false), h));
 				}
 			}
 
@@ -138,11 +139,30 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
+		//download HRDPA 
+		if (m_variables.test(APCP_SFC) && m_bHRDPA6h && !m_bForecast)
+		{
+			CHRDPA HRDPA;
+			HRDPA.m_bByHRDPS = true;
+			HRDPA.m_workingDir = m_workingDir;
+			HRDPA.m_type = CHRDPA::TYPE_06HOURS;
+			HRDPA.m_product = CHRDPA::HRDPA;
+			HRDPA.m_max_hours = 24;
+
+			//only add message in case of error, continue anyway
+			ERMsg msg_tmp = HRDPA.Execute(callback);
+			if (!msg_tmp)
+				callback.AddMessage(msg_tmp);
+		}
+
+		callback.AddMessage("Updating HRDPS");
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(m_workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
+
 
 		size_t lastestHH = NOT_INIT;
 		msg = GetLatestHH(lastestHH, callback);
@@ -164,6 +184,7 @@ namespace WBSF
 		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
+
 
 		try
 		{
@@ -190,7 +211,7 @@ namespace WBSF
 
 		callback.PopTask();
 
-		//CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 
 		CFileInfoVector fileList;
 		if (msg)
@@ -211,7 +232,6 @@ namespace WBSF
 				if (msg)
 				{
 					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-
 					try
 					{
 						while (it2 != dir2.end() && msg)
@@ -220,9 +240,8 @@ namespace WBSF
 							path = GetPath(path.substr(0, path.length() - 1));
 							size_t HH = as<size_t>(GetLastDirName(path));
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-							//CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath));
 
-							bool bDownload = m_bForecast ? (HH == lastestHH && hhh >= 6 && hhh <= m_max_hours) : hhh < 7;
+							bool bDownload = m_bForecast ? (HH == lastestHH) : (hhh < 7);
 							if (bDownload)
 							{
 								CFileInfoVector fileListTmp;
@@ -233,6 +252,8 @@ namespace WBSF
 									string outputFilePath = GetOutputFilePath(fileName);
 									size_t var = GetVariable(fileName);
 									size_t level = GetLevel(fileName);
+									CTRef TRefUTC = GetTRef(fileName, true);
+									int forecastHours = TRefUTC - nowUTC;
 
 									if (var < m_variables.size())
 									{
@@ -240,7 +261,8 @@ namespace WBSF
 										{
 											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
-											bool bKeep3 = var == APCP_SFC || var == DSWRF_SFC || (m_bForecast ? true : hhh < 6);
+											//bool bKeep3 = var == APCP_SFC || var == DSWRF_SFC || (m_bForecast ? true : hhh < 6);
+											bool bKeep3 = m_bForecast ? (forecastHours >= 0 && forecastHours <= m_max_hours) : (var == APCP_SFC || var == DSWRF_SFC || hhh < 6);
 
 											if (bKeep1 && bKeep2 && bKeep3)
 											{
@@ -308,6 +330,7 @@ namespace WBSF
 				if (msg)
 				{
 					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+					pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 15000);
 
 					try
 					{
@@ -325,7 +348,9 @@ namespace WBSF
 								it++;
 								nbTry = 0;
 								msg += callback.StepIt();
-								ouputsPath.insert(GetVRTFilePath(outputFilePath));
+								string VRT_file_path = GetVRTFilePath(outputFilePath);
+
+								ouputsPath.insert(/*GetPath(VRT_file_path) + */GetFileTitle(VRT_file_path).substr(6, 8));
 							}
 						}
 					}
@@ -352,8 +377,14 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-		//if (msg && m_compute_prcp)
-			//msg = CreateHourlyPrcp(ouputsPath, callback);
+
+		if (msg && m_variables.test(APCP_SFC))
+			msg = CreateHourlyPrcp(ouputsPath, callback);
+
+		if (msg && m_variables.test(DSWRF_SFC))
+			msg = CreateHourlySRad(ouputsPath, callback);
+
+
 
 		//now, create .vrt and index file
 		if (msg && m_bCreateVRT)
@@ -363,10 +394,8 @@ namespace WBSF
 		return msg;
 	}
 
-	string CHRDPS::GetVRTFilePath(string outputFilePath)
+	string CHRDPS::GetVRTFilePath(std::string workingDir, string outputFilePath)
 	{
-
-		//string path = GetPath(outputFilePath);
 		string title = GetFileTitle(outputFilePath);
 		size_t pos = title.find("2.5km_");
 		ASSERT(pos != string::npos);
@@ -376,16 +405,8 @@ namespace WBSF
 		string day = title.substr(pos + 12, 2);
 		size_t h1 = WBSF::as<size_t>(title.substr(pos + 14, 2));
 		size_t h2 = WBSF::as<size_t>(title.substr(pos + 18, 3));
-		//size_t h1 = (h / 6) * 6;
-		//size_t h2 = (h % 6);
 
-		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
-
-		string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
-
-		//create VRT
-		//string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-		//string HH = FormatA("%02d", h1);
+		string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
 
 		return VRTFilePath;
 	}
@@ -396,7 +417,6 @@ namespace WBSF
 
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		//StringVector filePaths;
 		if (outputPath.empty())
 		{
 			StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
@@ -422,10 +442,12 @@ namespace WBSF
 							{
 								//size_t h = h1 + h2;
 								string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+								//string VRTFilePath = FormatA("%s%s\\%s\\%s\\%s%s%s", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str());
 
 								if (!WBSF::FileExists(VRTFilePath))
 								{
-									outputPath.insert(VRTFilePath);
+									string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
+									outputPath.insert(date);
 								}
 
 								msg += callback.StepIt(0);
@@ -441,58 +463,78 @@ namespace WBSF
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
-			string title = GetFileTitle(*it);
-			string year = title.substr(6, 4);
-			string month = title.substr(10, 2);
-			string day = title.substr(12, 2);
-			size_t h1 = WBSF::as<size_t>(title.substr(14, 2));
-			size_t h2 = WBSF::as<size_t>(title.substr(17, 3));
-
-			//create VRT
-			string filter = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-			string HH = FormatA("%02d", h1);
-
-			StringVector fileList = WBSF::GetFilesList(filter, 2, true);
-			sort(fileList.begin(), fileList.end());
-
-			if (!fileList.empty())
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+			for (size_t h1 = 0; h1 < 24; h1 += 6)
 			{
-				ofStream oFile;
-				msg = oFile.open(*it);
-				if (msg)
+				for (size_t h2 = 0; h2 < 48; h2++)
 				{
-					oFile << "<VRTDataset rasterXSize=\"2576\" rasterYSize=\"1456\">" << endl;
-					oFile << "  <SRS>PROJCS[\"unnamed\",GEOGCS[\"Coordinate System imported from GRIB file\",DATUM[\"unknown\",SPHEROID[\"Sphere\",6371229,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",60],PARAMETER[\"central_meridian\",252],PARAMETER[\"scale_factor\",90],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0]]</SRS>" << endl;
-					oFile << "  <GeoTransform>-2.0991274944969425e+006, 2.5000000000000000e+003, 0.0000000000000000e+000,-2.0993885214996245e+006, 0.0000000000000000e+000,-2.5000000000000000e+003</GeoTransform>" << endl;
+					//create VRT
+					string filter1 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					string filter2 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					string HH = FormatA("%02d", h1);
 
-					int b = 1;
-					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++, b++)
+					StringVector fileList = WBSF::GetFilesList(filter1, 2, true);
+					StringVector fileList2 = WBSF::GetFilesList(filter2, 2, true);
+
+
+					//remove prcp
+					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; )
 					{
+						string fileName = GetFileName(*it4);
 						if (GoodGrib(*it4))
 						{
-							string fileName = GetFileName(*it4);
-
-							oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
-							oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
-							oFile << "    <ComplexSource>" << endl;
-							oFile << "      <SourceFilename relativeToVRT=\"1\">" << HH << "\\" << fileName << "</SourceFilename>" << endl;
-							oFile << "      <SourceBand>1</SourceBand>" << endl;
-							oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
-							oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-							oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-							oFile << "      <NODATA>9999</NODATA>" << endl;
-							oFile << "    </ComplexSource>" << endl;
-							oFile << "  </VRTRasterBand>" << endl;
+							if (WBSF::Find(fileName, "APCP_SFC") || WBSF::Find(fileName, "DSWRF_SFC"))
+								it4 = fileList.erase(it4);
+							else
+								it4++;
 						}
 						else
 						{
 							callback.AddMessage("Remove invalid grib " + *it4);
-							RemoveFile(*it4);
+							msg += RemoveFile(*it4);
+							it4 = fileList.erase(it4);
 						}
 					}
 
-					oFile << "</VRTDataset>" << endl;
-					oFile.close();
+					fileList.insert(fileList.end(), fileList2.begin(), fileList2.end());
+					sort(fileList.begin(), fileList.end());
+
+					if (!fileList.empty())
+					{
+						string file_path = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+
+						ofStream oFile;
+						msg = oFile.open(file_path);
+						if (msg)
+						{
+							oFile << "<VRTDataset rasterXSize=\"2576\" rasterYSize=\"1456\">" << endl;
+							oFile << "  <SRS>PROJCS[\"unnamed\",GEOGCS[\"Coordinate System imported from GRIB file\",DATUM[\"unknown\",SPHEROID[\"Sphere\",6371229,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",60],PARAMETER[\"central_meridian\",252],PARAMETER[\"scale_factor\",90],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0]]</SRS>" << endl;
+							oFile << "  <GeoTransform>-2.0991274944969425e+006, 2.5000000000000000e+003, 0.0000000000000000e+000,-2.0993885214996245e+006, 0.0000000000000000e+000,-2.5000000000000000e+003</GeoTransform>" << endl;
+
+							int b = 1;
+							for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++, b++)
+							{
+								string fileName = GetFileName(*it4);
+								oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
+								oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
+								oFile << "    <ComplexSource>" << endl;
+								oFile << "      <SourceFilename relativeToVRT=\"1\">" << HH << "\\" << fileName << "</SourceFilename>" << endl;
+								oFile << "      <SourceBand>1</SourceBand>" << endl;
+								oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
+								oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+								oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+								oFile << "      <NODATA>9999</NODATA>" << endl;
+								oFile << "    </ComplexSource>" << endl;
+								oFile << "  </VRTRasterBand>" << endl;
+
+							}
+
+							oFile << "</VRTDataset>" << endl;
+							oFile.close();
+						}
+					}
 				}
 			}
 
@@ -506,6 +548,203 @@ namespace WBSF
 	}
 
 
+	ERMsg CHRDPS::CreateHourlyPrcp(set<string> outputPath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t total_hours = 0;
+		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
+		{
+
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+			for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
+			{
+				for (size_t h2 = 0; h2 < 48; h2++)
+				{
+					string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					if (FileExists(HRDPS_file_path))
+						total_hours++;
+				}
+			}
+		}
+
+		callback.PushTask("Create hourly precipitation (" + to_string(total_hours) + " hours)", total_hours);
+		size_t nbTry = 0;
+
+		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
+		{
+
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+
+			for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
+			{
+
+				CTRef TRef = CTRef(WBSF::as<int>(year), WBSF::as<size_t>(month) - 1, WBSF::as<int>(day) - 1, h1) + 6;
+
+				if (m_bHRDPA6h)
+				{
+					size_t nb_hours = 0;
+					size_t last_hour = 0;
+					for (size_t h2 = 0; h2 < 48; h2++)
+					{
+						string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+						if (FileExists(HRDPS_file_path))
+						{
+							nb_hours++;
+							last_hour = h2;
+						}
+					}
+
+					//create hourly precipitation
+					string HRDPA_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_HRDPA_APCP-006-0700cutoff_SFC_0_ps2.5km_%4d%02d%02d%02d_000.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
+					string HRDPS_file_path_last = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, last_hour);
+					if (FileExists(HRDPA_file_path) && FileExists(HRDPS_file_path_last))
+					{
+						for (size_t h2 = 0; h2 < 48 && msg; h2++)
+						{
+							string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+							string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
+
+							string out_file_path = HRDPS_file_path1;
+							SetFileExtension(out_file_path, ".tif");
+
+							string argument;
+
+							if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
+							{
+								argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+								//argument = "-e \"prcp=round( i4b1/" + to_string(nb_hours) + "*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path6 + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+							}
+							else if (FileExists(HRDPS_file_path2) && h2 == 0)
+							{
+								argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+								//argument = "-e \"prcp= i3b1\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path6 + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+							}
+
+							if (!argument.empty())
+							{
+								string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+								msg += WinExecWait(command);
+								msg += callback.StepIt();
+							}
+
+
+						}
+					}
+				}
+				else
+				{
+					for (size_t h2 = 0; h2 < 48 && msg; h2++)
+					{
+						string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+						string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
+
+						string out_file_path = HRDPS_file_path1;
+						SetFileExtension(out_file_path, ".tif");
+
+						string argument;
+
+						if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
+						{
+							argument = "-e \"prcp=round( (i2b1-i1b1)*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						}
+						else if (FileExists(HRDPS_file_path2) && h2 == 0)
+						{
+							argument = "-e \"prcp=round( i1b1*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						}
+
+
+						if (!argument.empty())
+						{
+							string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+							msg += WinExecWait(command);
+							msg += callback.StepIt();
+						}
+
+					}
+				}
+			}
+		}
+
+		callback.PopTask();
+
+		return msg;
+	}
+
+	ERMsg CHRDPS::CreateHourlySRad(set<string> outputPath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t total_hours = 0;
+		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
+		{
+
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+			for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
+			{
+				for (size_t h2 = 0; h2 < 48; h2++)
+				{
+					string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_DSWRF_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					if (FileExists(HRDPS_file_path))
+						total_hours++;
+				}
+			}
+		}
+
+		callback.PushTask("Create hourly solar radiation (" + to_string(total_hours) + " hours)", total_hours);
+		size_t nbTry = 0;
+
+		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
+		{
+
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+
+			for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
+			{
+				CTRef TRef = CTRef(WBSF::as<int>(year), WBSF::as<size_t>(month) - 1, WBSF::as<int>(day) - 1, h1) + 6;
+
+				for (size_t h2 = 0; h2 < 48 && msg; h2++)
+				{
+					string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_DSWRF_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_DSWRF_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
+
+					string out_file_path = HRDPS_file_path1;
+					SetFileExtension(out_file_path, ".tif");
+
+					string argument;
+
+					//unit 1/10 of J/m²
+					if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
+					{
+						argument = "-e \"srad=max(0, round( (i2b1-i1b1)*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+					}
+					else if (FileExists(HRDPS_file_path2) && h2 == 0)
+					{
+						argument = "-e \"srad=max(0,round( i1b1*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+					}
+
+					if (!argument.empty())
+					{
+						string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+						msg += WinExecWait(command);
+						msg += callback.StepIt();
+					}
+				}
+			}
+		}
+
+		callback.PopTask();
+
+		return msg;
+	}
 
 	//****************************************************************************************************
 
@@ -543,12 +782,13 @@ namespace WBSF
 				size_t d = WBSF::as<int>(title.substr(12, 2)) - 1;
 				size_t h = WBSF::as<int>(title.substr(14, 2));
 				size_t hh = WBSF::as<int>(title.substr(17, 3));
-				if (hh < 6)
+				size_t max_hh = m_bForecast ? 48 : 6;
+				if (hh < max_hh)
 				{
 					CTRef TRef2 = CTRef(year, m, d, h) + hh;
 					if (p.IsInside(TRef2))
 					{
-						gribsList[TRef2].push_back(fileList[i]);
+						gribsList[TRef2] = fileList[i];
 					}
 				}
 			}
@@ -558,8 +798,9 @@ namespace WBSF
 		return msg;
 	}
 
-	CTRef CHRDPS::GetTRef(string title)
+	CTRef CHRDPS::GetTRef(string file_path, bool bAddForecast)
 	{
+		string title = GetFileTitle(file_path);
 		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
 		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
 
@@ -568,27 +809,38 @@ namespace WBSF
 		ASSERT(tmp.size() == 9 || tmp.size() == 8);
 		if (tmp.size() == 9 || tmp.size() == 8)
 		{
-			size_t i = 7;
-			ASSERT(tmp[i].length() == 10);
-			int year = WBSF::as<int>(tmp[i].substr(0, 4));
-			size_t m = WBSF::as<size_t >(tmp[i].substr(4, 2)) - 1;
-			size_t d = WBSF::as<size_t >(tmp[i].substr(6, 2)) - 1;
-			size_t h = WBSF::as<size_t >(tmp[i].substr(8, 2));
+			//size_t i = 7;
+			ASSERT(tmp[7].length() == 10);
+			int year = WBSF::as<int>(tmp[7].substr(0, 4));
+			size_t m = WBSF::as<size_t >(tmp[7].substr(4, 2)) - 1;
+			size_t d = WBSF::as<size_t >(tmp[7].substr(6, 2)) - 1;
+			size_t h = WBSF::as<size_t >(tmp[7].substr(8, 2));
+
+
 			TRef = CTRef(year, m, d, h);
+
+			if (bAddForecast)
+			{
+				ASSERT(tmp[8].length() == 7);
+				size_t hh = WBSF::as<size_t >(tmp[8].substr(1, 3));
+
+				TRef += int(hh);
+			}
 		}
 
 		return TRef;
 
 	}
 
-	size_t CHRDPS::GetHH(const string& fileName)const
+	size_t CHRDPS::GetHH(const string& title)const
 	{
-		CTRef CTRef = GetTRef(fileName);
+		CTRef CTRef = GetTRef(title, false);
 		return CTRef.GetHour();
 	}
 
 	size_t CHRDPS::Gethhh(string title)const
 	{
+
 		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
 		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
 
@@ -602,7 +854,15 @@ namespace WBSF
 			hhh = WBSF::as<size_t>(str_hhh);;
 		}
 
-		return hhh;
+
+		CTRef CTRef1 = GetTRef(title, false);
+		CTRef CTRef2 = GetTRef(title, true);
+
+		ASSERT((CTRef2 - CTRef1) == hhh);
+
+		return CTRef2 - CTRef1;
+
+		//	return hhh;
 	}
 
 
@@ -742,6 +1002,111 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CHRDPS::Clean(int delete_after, string workingDir, CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+		StringVector filesList;
+		StringVector dirList;
+
+		StringVector years = WBSF::GetDirectoriesList(workingDir + "*");//for security, need years
+		for (size_t y = 0; y < years.size(); y++)
+		{
+			int year = WBSF::as<int>(years[y]);
+			if (year >= 2000 && year <= 2100)
+			{
+				bool bRemoveDirY = true;
+
+				StringVector months = WBSF::GetDirectoriesList(workingDir + to_string(year) + "/*");//for security
+				for (size_t m = 0; m < months.size(); m++)
+				{
+					size_t month = WBSF::as<size_t>(months[m]);
+					if (month < 12)
+					{
+						bool bRemoveDirM = true;
+						StringVector days = WBSF::GetDirectoriesList(workingDir + to_string(year) + "/" + months[m] + "/*");//for security
+						for (size_t d = 0; d < days.size(); d++)
+						{
+
+							size_t day = WBSF::as<size_t>(months[m]);
+							if (day < 31)
+							{
+								bool bRemoveDirD = true;
+								StringVector hours = WBSF::GetDirectoriesList(workingDir + to_string(year) + "/" + months[m] + "/" + days[d] + "/*");//for security
+								for (size_t h = 0; h < hours.size(); h++)
+								{
+									size_t hour = WBSF::as<size_t>(hours[h]);
+									if (hour < 24)
+									{
+										StringVector filesListTmp = GetFilesList(workingDir + to_string(year) + "/" + months[m] + "/" + days[d] + "/" + hours[h] + "/*.*");//don't put extension because of the 2.5km trouble
+
+										bool bRemoveDirH = true;
+										for (size_t f = 0; f < filesListTmp.size(); f++)
+										{
+											CTRef TRefUTC = GetTRef(filesListTmp[f], true);
+											//size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+											//CTRef TRefUTC = GetTRef(GetFileTitle(it2->m_filePath)) + hhh;
+											int passHours = nowUTC - TRefUTC;
+
+
+
+											if (passHours > delete_after)
+											{
+												filesList.push_back(filesListTmp[f]);
+												filesList.push_back(GetVRTFilePath(workingDir, filesListTmp[f]));
+											}
+											else
+											{
+												bRemoveDirH = false;
+												bRemoveDirD = false;
+												bRemoveDirM = false;
+												bRemoveDirY = false;
+											}
+										}
+
+										if (bRemoveDirH)
+											dirList.push_back(workingDir + to_string(year) + "/" + months[m] + "/" + days[d] + "/" + hours[h]);
+									}//<24
+								}//for all hours
+
+								if (bRemoveDirD)
+									dirList.push_back(workingDir + to_string(year) + "/" + months[m] + "/" + days[d]);
+							}//<31
+						}//for all days
+
+						if (bRemoveDirM)
+							dirList.push_back(workingDir + to_string(year) + "/" + months[m]);
+					}//<12
+				}//for all months
+
+				if (bRemoveDirY)
+					dirList.push_back(workingDir + to_string(year));
+			}//2000-2100
+		}//for all years
+
+		callback.PushTask("Delete old HRDPS forecast (" + to_string(filesList.size()) + " files)", filesList.size());
+		callback.AddMessage("Delete old HRDPS forecast (" + to_string(filesList.size()) + " files)");
+		for (size_t i = 0; i != filesList.size() && msg; i++)
+		{
+			msg += RemoveFile(filesList[i]);
+			msg += callback.StepIt();
+		}
+
+		//remove directory
+
+		for (size_t i = 0; i != dirList.size() && msg; i++)
+		{
+			WBSF::RemoveDirectory(dirList[i]);
+		}
+
+		callback.PopTask();
+
+		return msg;
+	}
+
+
 	//******************************************************************************************************************
 
 	const char* CHRDPSVariables::CATEGORY[NB_HRDPS_CATEGORY] = { "SFC", "TGL", "ISBL", "ISBY", "ETAL", "EATM", "MSL", "DBLY", "DBLL", "NTAT" };
@@ -752,9 +1117,9 @@ namespace WBSF
 	{
 		"4LFTX_SFC", "ALBDO_SFC", "APCP_SFC", "DLWRF_SFC", "DSWRF_SFC", "HGT_SFC", "ICEC_SFC", "LAND_SFC", "LHTFL_SFC", "NLWRS_SFC", "NSWRS_SFC", "PRATE_SFC",
 		"PRES_SFC", "SHOWA_SFC", "SHTFL_SFC", "SNOD_SFC", "SPFH_SFC", "TCDC_SFC", "TSOIL_SFC", "WEAFR_SFC", "WEAPE_SFC", "WEARN_SFC", "WEASN_SFC", "WTMP_SFC",
-		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC", "GUST_MAX_SFC", "GUST_MIN_SFC", "SDEN_SFC", "SFCWRO_SFC", "SDWE_SFC",
+		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC", "GUST_MAX_SFC", "GUST_MIN_SFC", "SDEN_SFC", "SFCWRO_SFC", "SDWE_SFC", "HPBL_SFC", "PTYPE_SFC", "SKINT_SFC",
 		"DEN_TGL", "DEPR_TGL", "DPT_TGL", "RH_TGL", "SPFH_TGL", "TMP_TGL", "UGRD_TGL", "VGRD_TGL", "WDIR_TGL", "WIND_TGL",
-		"ABSV_ISBL", "DEPR_ISBL", "HGT_ISBL", "RH_ISBL", "SPFH_ISBL", "TMP_ISBL", "UGRD_ISBL", "VGRD_ISBL", "VVEL_ISBL", "WDIR_ISBL", "WIND_ISBL",
+		"ABSV_ISBL", "DEPR_ISBL", "HGT_ISBL", "RH_ISBL", "SPFH_ISBL", "TMP_ISBL", "UGRD_ISBL", "VGRD_ISBL", "VVEL_ISBL", "WDIR_ISBL", "WIND_ISBL", "MU-VT-LI_ISBL", "SHWINX_ISBL",
 		"HGT_ISBY",
 		"CAPE_ETAL", "HLCY_ETAL",
 		"CWAT_EATM",
@@ -894,29 +1259,6 @@ namespace WBSF
 		}
 
 		return *this;
-	}
-
-	bool CHRDPS::GoodGrib(const string& filePath)
-	{
-		bool bGoodGrib = false;
-
-		if (!filePath.empty())
-		{
-			ifStream stream;
-			if (stream.open(filePath))
-			{
-				char test[5] = { 0 };
-				stream.seekg(-4, ifstream::end);
-				stream.read(&(test[0]), 4);
-				stream.close();
-				if (string(test) == "7777")
-					bGoodGrib = true;
-
-				stream.close();
-			}
-		}
-
-		return bGoodGrib;
 	}
 
 	//*********************************************************************

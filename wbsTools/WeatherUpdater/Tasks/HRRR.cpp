@@ -21,7 +21,7 @@ namespace WBSF
 	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20170101/hrrr.t00z.wrfsfcf00.grib2
 
 	//*********************************************************************
-	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"}};
+	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"} };
 	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
 	const char* CHRRR::PRODUCT_ABR[NB_SOURCES][NB_PRODUCT] = { {"prs","sfc"}, {"nat", "sfc"} };
 
@@ -68,7 +68,7 @@ namespace WBSF
 			default:ASSERT(false);
 			}
 			break;
-			
+
 		default:ASSERT(false);
 		}
 		return msg;
@@ -105,7 +105,7 @@ namespace WBSF
 				{
 
 					string outputFilePath = GetOutputFilePath(fileList[i].m_filePath);
-//					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
+					//					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePath));
 
 					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[NOMADS][FTP_SERVER] << endl;
@@ -254,11 +254,12 @@ namespace WBSF
 			//string fileName = GetFileName(it->m_filePath);
 			string outputFilePath = GetOutputFilePath(it->m_filePath);
 
-			callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
+
+			//callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
 
 			CreateMultipleDir(GetPath(outputFilePath));
 			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, false, callback);
-			if (msg && FileExists(outputFilePath) )
+			if (msg && FileExists(outputFilePath))
 			{
 				if (GoodGrib(outputFilePath))
 				{
@@ -268,9 +269,9 @@ namespace WBSF
 				{
 					msg = WBSF::RemoveFile(outputFilePath);
 				}
-		}
-			
-			callback.PopTask();
+			}
+
+			//callback.PopTask();
 			msg += callback.StepIt();
 		}
 
@@ -588,24 +589,24 @@ namespace WBSF
 
 		return msg;
 	}
-
-	bool CHRRR::GoodGrib(const std::string& file_path)
-	{
-		bool bGood = false;
-		ifStream stream;
-		if (stream.open(file_path))
+	/*
+		bool CHRRR::GoodGrib(const std::string& file_path)
 		{
-			char test[5] = { 0 };
-			stream.seekg(-4, ifstream::end);
-			stream.read(&(test[0]), 4);
-			stream.close();
-			if (string(test) == "7777")
-				bGood = true;
+			bool bGood = false;
+			ifStream stream;
+			if (stream.open(file_path))
+			{
+				char test[5] = { 0 };
+				stream.seekg(-4, ifstream::end);
+				stream.read(&(test[0]), 4);
+				stream.close();
+				if (string(test) == "7777")
+					bGood = true;
 
-			stream.close();
-		}
+				stream.close();
+			}
 
-		return bGood;
-	}
+			return bGood;
+		}*/
 
 }

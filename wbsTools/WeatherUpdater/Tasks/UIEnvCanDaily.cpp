@@ -26,6 +26,9 @@ namespace WBSF
 	//données horaire par années:
 	//ftp://ftp.tor.ec.gc.ca/NAS_ClimateData_FlatFiles/HLY/HLY01/
 
+	//nouvelle interface ici: https://climate-change.canada.ca/climate-data/#/daily-climate-data
+	
+	
 	const char* CUIEnvCanDaily::SERVER_NAME = "climate.weather.gc.ca";
 
 	//*********************************************************************

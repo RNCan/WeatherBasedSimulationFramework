@@ -8,6 +8,7 @@
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
 #include "HRDPS.h"
+#include "HRRR.h"
 #include "Geomatic/SfcGribsDatabase.h"
 
 using namespace std;
@@ -49,8 +50,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "MaxHour", "ShowWinSCP",  "VariablesSFC", "VariablesTGL", "VariablesISBL", "VariablesOthers",  "TGLHeight", "ISBLLevels", "ComputeHourlyPrecipitation" };
-	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_BOOL, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
+	const char* CUIGribForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "MaxHour", "DeleteAfter", "ShowWinSCP",  "VariablesSFC", "VariablesTGL", "VariablesISBL", "VariablesOthers",  "TGLHeight", "ISBLLevels"};
+	const size_t CUIGribForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT};
 	const UINT CUIGribForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_GRIB_FORECAST_P;
 	const UINT CUIGribForecast::DESCRIPTION_TITLE_ID = ID_TASK_GRIB_FORECAST;
 
@@ -60,7 +61,7 @@ namespace WBSF
 
 	const char* CUIGribForecast::SOURCES_NAME[NB_SOURCES] = { "HRDPS", "HRRR", "HRRR(SRF)", "RAP(P)", "RAP(B)", "NAM" };
 	const char* CUIGribForecast::SERVER_NAME[NB_SOURCES] = { "dd.weather.gc.ca", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov", "ftpprd.ncep.noaa.gov" };
-	const char* CUIGribForecast::SERVER_PATH[NB_SOURCES] = { "model_hrdps/continental/grib2/", "pub/data/nccf/com/hrrr/prod/", "pub/data/nccf/com/hrrr/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/rap/prod/", "pub/data/nccf/com/nam/prod/" };
+	const char* CUIGribForecast::SERVER_PATH[NB_SOURCES] = { "/model_hrdps/continental/grib2/", "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/rap/prod/", "/pub/data/nccf/com/rap/prod/", "/pub/data/nccf/com/nam/prod/" };
 
 	CUIGribForecast::CUIGribForecast(void)
 	{}
@@ -94,15 +95,14 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Forecast\\"; break;
 		case SOURCES: str = "0"; break;
 		case MAX_HOUR: str = "24"; break;
+		case DELETE_AFTER: str = "96"; break;
 //		case HRDPS_VARS: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
-		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRATE_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
+		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
 		case HRDPS_VARS_TGL:str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
 		case HRDPS_VARS_ISBL:str = "----"; break;
 		case HRDPS_VARS_OTHERS:str = "----"; break;
 		case TGL_HEIGHTS:str = "2|10"; break;
 		case ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
-		case COMPUTE_HOURLY_PRCP: str = "1"; break;
-
 		};
 
 		return str;
@@ -112,34 +112,6 @@ namespace WBSF
 
 	//************************************************************************************************************
 	//Load station definition list section
-
-
-	//*************************************************************************************************
-
-	bool CUIGribForecast::GoodGrib(const string& filePath)const
-	{
-		bool bGoodGrib = false;
-
-		if (!filePath.empty())
-		{
-			ifStream stream;
-			if (stream.open(filePath))
-			{
-				char test[5] = { 0 };
-				stream.seekg(-4, ifstream::end);
-				stream.read(&(test[0]), 4);
-				stream.close();
-				if (string(test) == "7777")
-					bGoodGrib = true;
-
-				stream.close();
-			}
-		}
-
-		return bGoodGrib;
-	}
-
-
 
 	ERMsg CUIGribForecast::Execute(CCallback& callback)
 	{
@@ -158,10 +130,16 @@ namespace WBSF
 			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS] + "\\");
 			HRDPS.m_bForecast = true;
 			HRDPS.m_max_hours = max_hours;
+			HRDPS.m_bHRDPA6h = false;
+			
 			CHRDPSVariables sfc(Get(HRDPS_VARS_SFC));
 			CHRDPSVariables tlg(Get(HRDPS_VARS_TGL));
 			CHRDPSVariables isbl(Get(HRDPS_VARS_ISBL));
 			CHRDPSVariables others(Get(HRDPS_VARS_OTHERS));
+
+			//if (HRDPS.m_bHRDPA6h)//add precipitation
+				//sfc.set(APCP_SFC);
+
 
 			HRDPS.m_variables = (sfc | tlg | isbl | others);
 			HRDPS.m_heights = Get(TGL_HEIGHTS);
@@ -172,11 +150,22 @@ namespace WBSF
 			if (HRDPS.m_levels.empty())
 				HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
 
-			HRDPS.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
 
 			msg = HRDPS.Execute(callback);
 
 		}
+		//else if (source == N_HRRR || source == N_HRRR_SRF)
+		//{
+		//	CHRRR HRRR(workingDir);
+		//	HRRR.m_product = source == N_HRRR? CHRRR::HRRR_3D: CHRRR::HRRR_SFC;
+		//	HRRR.m_source = CHRRR::NOMADS;
+		//	HRRR.m_serverType = CHRRR::HTTP_SERVER;
+		//	HRRR.m_bShowWINSCP = false;
+		//	//HRRR.m_period = GetPeriod();
+		//	msg = HRRR.Execute(callback);
+
+		//}
 		else
 		{
 			string scriptFilePath = workingDir + "script.txt";
@@ -244,23 +233,98 @@ namespace WBSF
 			}
 
 			callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs downloaded: " + ToString(nbDownload));
+			callback.PopTask();
+
 		}
 
 
 		//delete old files
-		Clean(source);
+		Clean(source, callback);
 
 		
-		callback.PopTask();
+		
 
 		return msg;
 	}
 
 
-	ERMsg CUIGribForecast::Clean(size_t source)
+	ERMsg CUIGribForecast::Clean(size_t source, CCallback& callback)
 	{
 		ERMsg msg;
 
+		
+		int delete_after = as<int>(DELETE_AFTER);
+		//if (delete_after > 0)
+		//{
+			string workingDir = GetDir(WORKING_DIR) + SOURCES_NAME[source] + "\\";
+
+			if (source == N_HRDPS)
+			{
+				CHRDPS::Clean(delete_after, workingDir, callback);
+			}
+			else
+			{
+
+				CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+			
+				StringVector filesList;
+				StringVector dirList;
+
+				StringVector dates = WBSF::GetDirectoriesList(workingDir);//for security, need years
+				for (size_t i = 0; i < dates.size(); i++)
+				{
+					int year = WBSF::as<int>(dates[i].substr(0,4));
+					size_t m = WBSF::as<size_t>(dates[i].substr(4, 2))-1;
+					size_t d = WBSF::as<size_t>(dates[i].substr(6, 2))-1;
+
+
+					if (year >= 2000 && year <= 2100 && m<12 && d<31)
+					{
+						bool bRemoveDir = true;
+
+						StringVector filesListTmp = GetFilesList(workingDir + dates[i] + "/*.grib2");
+						for (size_t f = 0; f < filesListTmp.size(); f++)
+						{
+							CTRef TRefUTC = GetTRef(source, filesListTmp[f]);
+							int passHours = nowUTC - TRefUTC;
+
+							if (passHours > delete_after)
+							{
+								filesList.push_back(filesListTmp[f]);
+							}
+							else
+							{
+								bRemoveDir = false;
+							}
+						}
+
+						if (bRemoveDir)
+							dirList.push_back(workingDir + dates[d]);
+					}//if valid date
+				}//for all dates
+
+				string comment = string("Delete old ") + SOURCES_NAME[source] + " forecast (" + to_string(filesList.size()) + " files)";
+				callback.PushTask(comment, filesList.size());
+				callback.AddMessage(comment);
+
+				for (size_t i = 0; i != filesList.size() && msg; i++)
+				{
+					msg += RemoveFile(filesList[i]);
+					msg += callback.StepIt();
+				}
+
+				//remove directory
+
+				for (size_t i = 0; i != dirList.size() && msg; i++)
+				{
+					WBSF::RemoveDirectory(dirList[i]);
+				}
+
+				callback.PopTask();
+			
+
+			}
+		//}
 
 		return msg;
 	}
@@ -368,6 +432,8 @@ namespace WBSF
 
 	string CUIGribForecast::GetLocaleFilePath(size_t s, const string& remote)const
 	{
+		
+
 		string workingDir = GetDir(WORKING_DIR);
 
 
@@ -379,10 +445,11 @@ namespace WBSF
 		case N_HRDPS:	break;
 		default:
 		{
-			string dir = WBSF::GetLastDirName(GetPath(remote));
+			string dir = GetPath(remote);
+			//string dir = WBSF::GetLastDirName(GetPath(remote));
 			//std::replace(dir.begin(), dir.end(), '.', '\\');
-			size_t pos = dir.find(".");
-			string date = dir.substr(pos + 1);
+			size_t pos = dir.find(".");//find the date after the product name
+			string date = dir.substr(pos + 1,8);
 			string fileName = GetFileName(remote);
 			filePath += date + "\\" + fileName;
 		}
@@ -395,14 +462,15 @@ namespace WBSF
 
 	CTRef CUIGribForecast::GetLatestTRef(size_t source, CFtpConnectionPtr& pConnection)const
 	{
-		ERMsg msg;
+		CTRef TRef;
 
+		ERMsg msg;
 
 		string URL = SERVER_PATH[source];
 		switch (source)
 		{
-		case N_HRRR:	URL += "conus/hrrr.*"; break;
-		case N_HRRR_SRF:URL += "conus/hrrr.*"; break;
+		case N_HRRR:	URL += "hrrr.*"; break;
+		case N_HRRR_SRF:URL += "hrrr.*"; break;
 		case N_RAP_P:	URL += "rap.*"; break;
 		case N_RAP_B:	URL += "rap.*"; break;
 		case N_NAM:		URL += "nam.*"; break;
@@ -411,71 +479,72 @@ namespace WBSF
 
 
 		CFileInfoVector fileListTmp;
-		UtilWWW::FindDirectories(pConnection, URL, fileListTmp);
+		msg = UtilWWW::FindDirectories(pConnection, URL, fileListTmp);
 
 		//CTRef TRef;
-
-		set<CTRef> latest1;
-		for (size_t i = 0; i < fileListTmp.size(); i++)
+		if (msg)
 		{
-			string name = WBSF::GetLastDirName(fileListTmp[i].m_filePath);
-			size_t pos = name.find('.');
-			if (pos != NOT_INIT)
+			set<CTRef> latest1;
+			for (size_t i = 0; i < fileListTmp.size(); i++)
 			{
-				name = name.substr(pos + 1);
-				int year = WBSF::as<int>(name.substr(0, 4));
-				size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
-				size_t d = WBSF::as<size_t>(name.substr(6, 2)) - 1;
-
-				CTRef TRef(year, m, d, 0);
-				latest1.insert(TRef);
-			}
-		}
-
-		set<CTRef> latest2;
-		if (!latest1.empty())
-		{
-			for (auto it = latest1.rbegin(); it != latest1.rend() && latest2.empty(); it++)
-			{
-				CTRef TRef = *it;
-
-				string URL = SERVER_PATH[source];
-				switch (source)
+				string name = WBSF::GetLastDirName(fileListTmp[i].m_filePath);
+				size_t pos = name.find('.');
+				if (pos != NOT_INIT)
 				{
-				case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfnatf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfsfcf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130pgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130bgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t??z.awphys00.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
-				default: ASSERT(false);
+					name = name.substr(pos + 1);
+					int year = WBSF::as<int>(name.substr(0, 4));
+					size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
+					size_t d = WBSF::as<size_t>(name.substr(6, 2)) - 1;
+
+					CTRef TRef(year, m, d, 0);
+					latest1.insert(TRef);
 				}
+			}
 
-
-
-				CFileInfoVector fileListTmp;
-				if (FindFiles(pConnection, URL, fileListTmp))
+			set<CTRef> latest2;
+			if (!latest1.empty())
+			{
+				for (auto it = latest1.rbegin(); it != latest1.rend() && latest2.empty(); it++)
 				{
-					for (size_t i = 0; i < fileListTmp.size(); i++)
-					{
-						string name = GetFileTitle(fileListTmp[i].m_filePath);
-						size_t pos = name.find('.');
-						if (pos != NOT_INIT)
-						{
-							name = name.substr(pos + 1);
-							size_t h = WBSF::as<size_t>(name.substr(1, 2));
+					CTRef TRef = *it;
 
-							latest2.insert(TRef + h);
+					string URL = SERVER_PATH[source];
+					switch (source)
+					{
+					case N_HRRR:	URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfnatf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+					case N_HRRR_SRF:URL += FormatA("hrrr.%4d%02d%02d/conus/hrrr.t??z.wrfsfcf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+					case N_RAP_P:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130pgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+					case N_RAP_B:	URL += FormatA("rap.%4d%02d%02d/rap.t??z.awp130bgrbf00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+					case N_NAM:		URL += FormatA("nam.%4d%02d%02d/nam.t??z.awphys00.tm00.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1); break;
+					default: ASSERT(false);
+					}
+
+
+
+					CFileInfoVector fileListTmp;
+					if (FindFiles(pConnection, URL, fileListTmp))
+					{
+						for (size_t i = 0; i < fileListTmp.size(); i++)
+						{
+							string name = GetFileTitle(fileListTmp[i].m_filePath);
+							size_t pos = name.find('.');
+							if (pos != NOT_INIT)
+							{
+								name = name.substr(pos + 1);
+								size_t h = WBSF::as<size_t>(name.substr(1, 2));
+
+								latest2.insert(TRef + h);
+							}
 						}
 					}
 				}
 			}
+
+
+		
+			if (!latest2.empty())
+				TRef = *latest2.rbegin();;
 		}
-
-
-		CTRef TRef;
-		if (!latest2.empty())
-			TRef = *latest2.rbegin();;
-
 
 
 		return TRef;
@@ -508,6 +577,9 @@ namespace WBSF
 			CHRDPS HRDPS(workingDir + SOURCES_NAME[N_HRDPS] + "\\");
 			HRDPS.m_bForecast = true;
 			HRDPS.m_max_hours = as<__int32>(MAX_HOUR);
+			HRDPS.m_bHRDPA6h = false;
+
+
 			CHRDPSVariables sfc(Get(HRDPS_VARS_SFC));
 			CHRDPSVariables tlg(Get(HRDPS_VARS_TGL));
 			CHRDPSVariables isbl(Get(HRDPS_VARS_ISBL));
@@ -522,7 +594,7 @@ namespace WBSF
 			if (HRDPS.m_levels.empty())
 				HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
 
-			HRDPS.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
 
 			msg = HRDPS.GetGribsList(p, gribsList, callback);
 		}
@@ -555,7 +627,7 @@ namespace WBSF
 						{
 							CTRef TRef = GetTRef(source, fileList[i]);
 							if (p.IsInside(TRef))
-								gribsList[TRef].push_back(fileList[i]);
+								gribsList[TRef] = fileList[i];
 						}
 					}
 				}

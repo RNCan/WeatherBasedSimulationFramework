@@ -163,7 +163,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(list1[i]);
 				if (p.IsInside(TRef) )
-					gribsList[TRef].push_back(list1[i]);
+					gribsList[TRef] = list1[i];
 			}
 			
 		}

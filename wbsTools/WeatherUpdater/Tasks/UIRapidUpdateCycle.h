@@ -57,7 +57,7 @@ namespace WBSF
 		ERMsg GetFilesToDownload(size_t s, CFileInfoVector& fileList, CCallback& callback);
 		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath);  }
-		bool GoodGrib(const std::string& filePath)const;
+		//bool GoodGrib(const std::string& filePath)const;
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList);
 		CTRef GetTRef(size_t s, const std::string& fileList);
 		bool server_available(size_t s)const;

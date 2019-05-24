@@ -118,26 +118,29 @@ namespace WBSF
 			{
 				
 				string outputFilePath = GetLocalFilePath(it->m_filePath);
-				CFileInfo info;
-
-
-				ifStream stream;
-				if (!stream.open(outputFilePath))
-				{
+				if (!GoodGrib(outputFilePath))
 					fileList.push_back(*it);
-				}
-				else
-				{
-					//verify if the file finish with 7777
-					char test[5] = { 0 };
-					stream.seekg(-4, ifstream::end);
-					stream.read(&(test[0]), 4);
+				
+				//CFileInfo info;
 
-					if (string(test) != "7777")
-					{
-						fileList.push_back(*it);
-					}
-				}
+
+				//ifStream stream;
+				//if (!stream.open(outputFilePath))
+				//{
+				//	fileList.push_back(*it);
+				//}
+				//else
+				//{
+				//	//verify if the file finish with 7777
+				//	char test[5] = { 0 };
+				//	stream.seekg(-4, ifstream::end);
+				//	stream.read(&(test[0]), 4);
+
+				//	if (string(test) != "7777")
+				//	{
+				//		fileList.push_back(*it);
+				//	}
+				//}
 			}
 
 			msg += callback.StepIt();
@@ -223,7 +226,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(list1[i]);
 				if (p.IsInside(TRef) )
-					gribsList[TRef].push_back(list1[i]);
+					gribsList[TRef] = list1[i];
 			}
 			
 		}

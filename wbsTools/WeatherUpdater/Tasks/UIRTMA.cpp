@@ -143,26 +143,9 @@ namespace WBSF
 			{
 				
 				string outputFilePath = GetLocalFilePath(it->m_filePath);
-				CFileInfo info;
-
-
-				ifStream stream;
-				if (!stream.open(outputFilePath))
-				{
+				if(!GoodGrib(outputFilePath))
 					fileList.push_back(*it);
-				}
-				else
-				{
-					//verify if the file finish with 7777
-					char test[5] = { 0 };
-					stream.seekg(-4, ifstream::end);
-					stream.read(&(test[0]), 4);
-
-					if (string(test) != "7777")
-					{
-						fileList.push_back(*it);
-					}
-				}
+				
 			}
 
 			msg += callback.StepIt();
@@ -178,7 +161,6 @@ namespace WBSF
 		size_t nbDownload = 0;
 		for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 		{
-			//string fileName = GetFileName(it->m_filePath);
 			string outputFilePath = GetLocalFilePath(it->m_filePath);
 
 			callback.PushTask("Download RTMA/URMA gribs:" + outputFilePath, NOT_INIT);
@@ -187,7 +169,10 @@ namespace WBSF
 			msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, false);
 			if (msg && FileExists(outputFilePath))
 			{
-				nbDownload++;
+				if (GoodGrib(outputFilePath))
+					nbDownload++;
+				else
+					RemoveFile(outputFilePath);
 
 			}
 
@@ -198,13 +183,8 @@ namespace WBSF
 		pConnection->Close();
 		pSession->Close();
 
-
 		callback.AddMessage("Number of RTMA/URMA gribs downloaded: " + ToString(nbDownload));
 		callback.PopTask();
-
-
-		return msg;
-
 
 		return msg;
 	}
@@ -245,7 +225,7 @@ namespace WBSF
 			{
 				CTRef TRef = GetTRef(list1[i]);
 				if (p.IsInside(TRef) )
-					gribsList[TRef].push_back(list1[i]);
+					gribsList[TRef] = list1[i];
 			}
 			
 		}

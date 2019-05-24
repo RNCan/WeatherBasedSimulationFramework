@@ -168,7 +168,8 @@
     <ClInclude Include="CreateMMG.h" />
     <ClInclude Include="CreateNormalsDB.h" />
     <ClInclude Include="CreateRadarAnimation.h" />
-    <ClInclude Include="CreateVirtualDB.h" />
+    <ClInclude Include="CreateWeaGridDB.h" />
+    <ClInclude Include="HRDPA.h" />
     <ClInclude Include="HRDPS.h" />
     <ClInclude Include="HRRR.h" />
     <ClInclude Include="IrelandCounty.h" />
@@ -237,7 +238,8 @@
     <ClCompile Include="CreateMMG.cpp" />
     <ClCompile Include="CreateNormalsDB.cpp" />
     <ClCompile Include="CreateRadarAnimation.cpp" />
-    <ClCompile Include="CreateVirtualDB.cpp" />
+    <ClCompile Include="CreateWeaGridDB.cpp" />
+    <ClCompile Include="HRDPA.cpp" />
     <ClCompile Include="HRDPS.cpp" />
     <ClCompile Include="HRRR.cpp" />
     <ClCompile Include="IrelandCounty.cpp" />

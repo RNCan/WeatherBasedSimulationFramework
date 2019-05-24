@@ -14,7 +14,7 @@ namespace WBSF
 
 		enum{ TYPE_06HOURS, TYPE_24HOURS };
 		enum TProduct { RDPA, HRDPA, NB_PRODUCTS };
-		enum TAttributes { WORKING_DIR, PRODUCT, TYPE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, PRODUCT, TYPE, MAX_HOUR, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRDPA); }
 
@@ -41,16 +41,16 @@ namespace WBSF
 	protected:
 
 	//	ERMsg DownloadForecast(CCallback& callback);
-		std::string GetOutputFilePath(const std::string& fileName)const;
-		bool NeedDownload(const CFileInfo& info, const std::string& filePath)const;
+		//std::string GetOutputFilePath(const std::string& fileName)const;
+		//bool NeedDownload(const CFileInfo& info, const std::string& filePath)const;
 
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
-		static const char* SERVER_PATH;
+//		static const char* SERVER_NAME;
+	//	static const char* SERVER_PATH;
 	};
 
 }

@@ -35,7 +35,7 @@ namespace WBSF
 		ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
 		static bool NeedDownload(const std::string& filePath) { return !GoodGrib(filePath); }
-		static bool GoodGrib(const std::string& file_path);
+		//static bool GoodGrib(const std::string& file_path);
 
 		size_t m_product;
 		size_t m_source;

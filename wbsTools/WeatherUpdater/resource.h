@@ -144,7 +144,7 @@
 #define IDS_TOOL_CREATE_NORMALS_P        32752
 #define IDS_TOOL_CREATE_GRIBS_P          32753
 #define IDS_TOOL_CREATE_MMG_P			 32754
-#define IDS_TOOL_CREATE_VIRTUAL_P		 32755
+#define IDS_TOOL_CREATE_WEAGRID_P		 32755
 #define IDS_TOOL_MERGE_DB_P		         32756
 #define IDS_TOOL_APPEND_DB_P	         32757
 #define IDS_TOOL_CROP_DB_P		         32758
@@ -194,7 +194,7 @@
 #define ID_TASK_CREATE_NORMALS      	 32952
 #define ID_TASK_CREATE_GRIBS      	     32953
 #define ID_TASK_CREATE_MMG      	     32954
-#define ID_TASK_CREATE_VIRTUAL        	 32955
+#define ID_TASK_CREATE_WEAGRID        	 32955
 #define ID_TASK_MERGE_DB			     32956
 #define ID_TASK_APPEND_DB			     32957
 #define ID_TASK_CROP_DB			         32958

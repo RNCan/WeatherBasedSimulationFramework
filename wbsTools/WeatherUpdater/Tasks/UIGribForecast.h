@@ -9,6 +9,7 @@
 
 
 
+
 namespace WBSF
 {
 
@@ -20,7 +21,7 @@ namespace WBSF
 	public:
 
 		enum TNeytwork{ N_HRDPS, N_HRRR, N_HRRR_SRF, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, MAX_HOUR, SHOW_WINSCP, HRDPS_VARS_SFC, HRDPS_VARS_TGL, HRDPS_VARS_ISBL, HRDPS_VARS_OTHERS, TGL_HEIGHTS, ISBL_LEVELS, COMPUTE_HOURLY_PRCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, MAX_HOUR, DELETE_AFTER, SHOW_WINSCP, HRDPS_VARS_SFC, HRDPS_VARS_TGL, HRDPS_VARS_ISBL, HRDPS_VARS_OTHERS, TGL_HEIGHTS, ISBL_LEVELS, NB_ATTRIBUTES };
 
 
 		static const char* CLASS_NAME();
@@ -56,11 +57,11 @@ namespace WBSF
 		CTRef GetLatestTRef(size_t source, UtilWWW::CFtpConnectionPtr& pConnection)const;
 		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
-		bool GoodGrib(const std::string& filePath)const;
+		//bool GoodGrib(const std::string& filePath)const;
 		//CTPeriod GetPeriod()const;
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH);
 		
-		ERMsg Clean(size_t source);
+		ERMsg Clean(size_t source, CCallback& callback);
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList1);
 		ERMsg GetFilesToDownload(size_t source, CFileInfoVector& fileList, CCallback& callback);
 		std::string GetLocaleFilePath(size_t source, const std::string& remote)const;

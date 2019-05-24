@@ -139,9 +139,10 @@ namespace WBSF
 					for (CGribsMap::const_iterator it = gribsList.begin(); it != gribsList.end() && msg; it++)
 					{
 						bool already = gribs.find(it->first) != gribs.end();
-						if (!already || mergeType == ALL_AVAIL)
+						if (!already /*|| mergeType == ALL_AVAIL*/)
 						{
-							gribs[it->first].insert(gribs[it->first].begin(), it->second.begin(), it->second.end());
+							//gribs[it->first].insert(gribs[it->first].begin(), it->second.begin(), it->second.end());
+							gribs[it->first] = it->second;
 							nbGrib++;
 						}
 						msg += callback.StepIt(0);

@@ -8,7 +8,7 @@
 #include "Geomatic/ProjectionTransformation.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
-
+#include "HRDPA.h"
 
 
 namespace WBSF
@@ -18,9 +18,9 @@ namespace WBSF
 	{
 		LFTX_SFC, ALBDO_SFC, APCP_SFC, DLWRF_SFC, DSWRF_SFC, HGT_SFC, ICEC_SFC, LAND_SFC, LHTFL_SFC, NLWRS_SFC, NSWRS_SFC, PRATE_SFC,
 		PRES_SFC, SHOWA_SFC, SHTFL_SFC, SNOD_SFC, SPFH_SFC, TCDC_SFC, TSOIL_SFC, WEAFR_SFC, WEAPE_SFC, WEARN_SFC, WEASN_SFC,
-		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC, GUST_MAX_SFC, GUST_MIN_SFC, SDEN_SFC, SFCWRO_SFC, SDWE_SFC, LAST_SFC,
+		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC, GUST_MAX_SFC, GUST_MIN_SFC, SDEN_SFC, SFCWRO_SFC, SDWE_SFC, HPBL_SFC, PTYPE_SFC, SKINT_SFC, LAST_SFC,
 		DEN_TGL = LAST_SFC, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, LAST_TGL,
-		ABSV_ISBL = LAST_TGL, DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, LAST_ISBL,
+		ABSV_ISBL = LAST_TGL, DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, MU_VT_LI_ISBL, SHWINX_ISBL, LAST_ISBL,
 		HGT_ISBY = LAST_ISBL, LAST_ISBY,
 		CAPE_ETAL = LAST_ISBY, HLCY_ETAL, LAST_ETAL,
 		CWAT_EATM = LAST_ETAL, LAST_EATM,
@@ -36,7 +36,6 @@ namespace WBSF
 	class CHRDPSVariables : public std::bitset<NB_HRDPS_VARIABLES>
 	{
 	public:
-
 
 		static const char* GetName(size_t i) { ASSERT(i < NB_HRDPS_VARIABLES); return NAME[i]; }
 		static const char* GetCategory(size_t i) { ASSERT(i < NB_HRDPS_CATEGORY); return CATEGORY[i]; }
@@ -102,7 +101,7 @@ namespace WBSF
 	{
 	public:
 
-		static bool GoodGrib(const std::string& filePath);
+		//static bool GoodGrib(const std::string& filePath);
 
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
@@ -111,22 +110,29 @@ namespace WBSF
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
-		bool m_compute_prcp;
+		//bool m_compute_prcp;
 		
 
 		int m_max_hours;
 		bool m_bForecast;
+		bool m_bHRDPA6h;
+		bool m_bRadiation;
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetVirtuelStation(const CLocationVector& stations, CWVariables variables, CTPeriod p, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
-
+		std::string GetVRTFilePath(std::string outputFilePath) { return GetVRTFilePath(m_workingDir, outputFilePath); }
 		ERMsg CreateVRT(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
-		std::string GetVRTFilePath(std::string outputFilePath);
 		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK);
-		//std::string GetVRTFilePath(CTRef TRef);
-		static CTRef GetTRef(std::string title);
+		ERMsg CreateHourlyPrcp(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg CreateHourlySRad(std::set<std::string> outputPath, CCallback& callback);
+		
 
+
+		//std::string GetVRTFilePath(CTRef TRef);
+		static CTRef GetTRef(std::string title, bool bAddForecast);
+		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);
+		static std::string GetVRTFilePath(std::string workingDir, std::string outputFilePath);
 
 	protected:
 

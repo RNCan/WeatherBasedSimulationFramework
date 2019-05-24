@@ -146,9 +146,6 @@
     <ClInclude Include="UIMiscellaneous.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateVirtualDB.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UISaskatchewan.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -210,6 +207,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UIHRDPA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateWeaGridDB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HRDPA.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -349,9 +352,6 @@
     <ClCompile Include="UIMiscellaneous.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CreateVirtualDB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UISaskatchewan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -413,6 +413,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIHRDPA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateWeaGridDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HRDPA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
