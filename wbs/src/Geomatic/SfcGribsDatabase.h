@@ -36,7 +36,7 @@ namespace WBSF
 
 
 	//*****************************************************************************************************************
-	class CGribsMap : public std::map<CTRef, std::vector<std::string>>
+	class CGribsMap : public std::map<CTRef, std::string>
 	{
 	public:
 
@@ -53,7 +53,7 @@ namespace WBSF
 	};
 
 	//*****************************************************************************************************************
-	class CIncementalDB : public std::map<CTRef, std::vector<CFileStamp>>
+	class CIncementalDB : public std::map<CTRef, /*std::vector<*/CFileStamp/*>*/>
 	{
 	public:
 		ERMsg load(const std::string& file_path);

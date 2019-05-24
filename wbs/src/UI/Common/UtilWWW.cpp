@@ -253,6 +253,7 @@ namespace UtilWWW
 				const short MAX_READ_SIZE = 4096;
 				pURLFile->SetReadBufferSize(MAX_READ_SIZE);
 
+				bool bFirst = true;
 				bool bEmptyFile = true;
 				string source;
 				std::string tmp;
@@ -260,7 +261,14 @@ namespace UtilWWW
 				UINT charRead = 0;
 				while (((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0) && msg)
 				{
-					//source.append(tmp.c_str(), charRead);
+					if (bFirst)
+					{
+						CString str;
+						pURLFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH, str);
+						int LengthFile = ::atoi((LPCSTR)CStringA(str));
+						callback.PushTask((LPCSTR)CStringA(URL), (double)LengthFile, MAX_READ_SIZE);
+						bFirst = false;
+					}
 
 					if (charRead > 0)
 					{
@@ -268,9 +276,7 @@ namespace UtilWWW
 						bEmptyFile = false;
 					}
 
-					//file.Write(source.data(), (UINT)source.size());
-
-					msg += callback.StepIt(0);
+					msg += callback.StepIt();
 				}
 
 				file.Close();
@@ -278,7 +284,9 @@ namespace UtilWWW
 				if (!msg || bEmptyFile)
 					CFile::Remove(outputFilePath);
 
+				callback.PopTask();
 			}
+
 
 
 			pURLFile->Close();

@@ -57,7 +57,7 @@ namespace WBSF
 	inline bool IsGeocentric(size_t ID)	{ return ID >= PRJ_GEOCENTRIC_BASE && ID<PRJ_PROJECTED_BASE; }
 	inline bool IsProjected(size_t ID)	{ return ID >= PRJ_PROJECTED_BASE && ID < PRJ_PROJECTED_END; }
 	ERMsg BuildVRT(std::string filePath, StringVector fileList, bool bQuiet, std::string EXEPath="");
-
+	bool GoodGrib(const std::string& file_path);
 //*****************************************************************************************************
 //CProjectionNameManager
 
@@ -1791,6 +1791,7 @@ namespace WBSF
 		std::string m_noData;
 	};
 
+	
 
 }//namespace WBSF
 

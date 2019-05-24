@@ -1,4 +1,4 @@
-﻿//******************************************************************************
+﻿3//******************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
 //	Programmer:     Rémi Saint-Amant
 // 
@@ -56,7 +56,7 @@ namespace WBSF
 					assert(TRef.IsValid());
 
 					string abs_file_path = GetAbsolutePath(path, (*loop)[1]);
-					me[TRef].push_back(abs_file_path);
+					me[TRef] = abs_file_path;
 					//insert(make_pair(TRef, GetAbsolutePath(path, (*loop)[1])));
 				}
 			}
@@ -80,10 +80,10 @@ namespace WBSF
 			string path = GetPath(file_path);
 			file << "TRef,FilePath" << endl;
 			for (const_iterator it = begin(); it != end(); it++)
-			{
-				for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
-					file << it->first.GetFormatedString("%Y-%m-%d-%H") << "," << GetRelativePath(path, *iit) << endl;
-			}
+				//{
+				//	for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
+				file << it->first.GetFormatedString("%Y-%m-%d-%H") << "," << GetRelativePath(path, it->second) << endl;
+			//}
 
 			file.close();
 		}
@@ -144,7 +144,7 @@ namespace WBSF
 						stamp.m_size = stoi((*loop)[3]);
 						stamp.m_attribute = stoi((*loop)[4]);
 
-						me[TRef].push_back(stamp);
+						me[TRef] = stamp;
 						//insert(make_pair(TRef, stamp));
 					}
 				}
@@ -205,12 +205,12 @@ namespace WBSF
 			for (const_iterator it = begin(); it != end(); it++)
 			{
 				file << it->first.GetFormatedString("%Y-%m-%d-%H") << ",";
-				for (vector<CFileStamp>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
+				//for (vector<CFileStamp>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
 				{
-					file << iit->m_filePath << ",";
-					file << iit->m_time << ",";
-					file << iit->m_size << ",";
-					file << iit->m_attribute << endl;
+					file << it->second.m_filePath << ",";
+					file << it->second.m_time << ",";
+					file << it->second.m_size << ",";
+					file << it->second.m_attribute << endl;
 				}
 			}
 			file.close();
@@ -269,28 +269,40 @@ namespace WBSF
 			const_iterator it_find = find(it->first);
 			if (it_find != end())
 			{
-				for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
+				const CFileStamp& info_old = it_find->second;
+				//for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
+				//{
+				CFileStamp info_new;
+				msg += info_new.SetFileStamp(it->second);
+				if (msg)
 				{
-					CFileStamp info_new;
-					msg += info_new.SetFileStamp(*iit);
-					if (msg)
+				
+					if (info_new.m_filePath != info_old.m_filePath ||
+						info_new.m_time != info_old.m_time)
 					{
-						vector<CFileStamp>::const_iterator iit_find = std::find_if(it_find->second.begin(), it_find->second.end(), [info_new](const CFileStamp& m)->bool { return m.m_filePath == info_new.m_filePath; });
-						if (iit_find != it_find->second.end())
-						{
-							const CFileStamp& info_old = *iit_find;
-							if (info_new.m_filePath != info_old.m_filePath ||
-								info_new.m_time != info_old.m_time)
-							{
-								invalid.insert(it->first);
-							}
-						}
-						else
+						invalid.insert(it->first);
+					}
+					/*vector<CFileStamp>::const_iterator iit_find = std::find_if(it_find->second.begin(), it_find->second.end(), [info_new](const CFileStamp& m)->bool { return m.m_filePath == info_new.m_filePath; });
+					if (iit_find != it_find->second.end())
+					{
+						const CFileStamp& info_old = *iit_find;
+						if (info_new.m_filePath != info_old.m_filePath ||
+							info_new.m_time != info_old.m_time)
 						{
 							invalid.insert(it->first);
 						}
 					}
+					else
+					{
+						invalid.insert(it->first);
+					}*/
 				}
+				//}
+				else
+				{
+					invalid.insert(it->first);
+				}
+
 			}
 			else
 			{
@@ -309,13 +321,14 @@ namespace WBSF
 		CIncementalDB& me = *this;
 		for (auto it = gribs.begin(); it != gribs.end() && msg; it++)
 		{
-			for (auto iit = it->second.begin(); iit != it->second.end() && msg; iit++)
+			//for (auto iit = it->second.begin(); iit != it->second.end() && msg; iit++)
 			{
 				CFileStamp info_new;
-				msg += info_new.SetFileStamp(*iit);
+				msg += info_new.SetFileStamp(it->second);
 				if (msg)
 				{
-					me[it->first].push_back(info_new);
+					//me[it->first].push_back(info_new);
+					me[it->first] = info_new;
 				}
 			}
 		}
@@ -595,7 +608,7 @@ namespace WBSF
 		CBaseOptions options;
 		options.m_bMulti = true;
 		options.m_IOCPU = 8;// options.m_CPU;
-		
+
 		msg = CGDALDatasetEx::OpenInputImage(filePath, options);
 		if (msg)
 		{
@@ -807,7 +820,7 @@ namespace WBSF
 
 		//always compute from the 4 nearest points
 		CHourlyData4 data4;
-		get_4nearest(pt, data4); 
+		get_4nearest(pt, data4);
 
 		//compute weight
 		array<CStatistic, NB_VAR_H> sumV;
@@ -969,7 +982,7 @@ namespace WBSF
 		{
 			CGeoPoint pt1 = locations[i];
 			pt1.Reproject(GEO_2_WEA);
-			
+
 			if (extents.IsInside(pt1))
 			{
 				CGeoPointIndexVector ptArray;
@@ -1069,14 +1082,14 @@ namespace WBSF
 			CSfcDatasetCached sfcDS;
 			sfcDS.set_variables(variables);
 			vector<CGeoExtents> extents;
-			
+
 
 
 			for (CGribsMap::const_iterator it = gribs.begin(); it != gribs.end() && locations.empty() && msg; it++)
 			{
-				for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end() && locations.empty() && msg; iit++)
+				//for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end() && locations.empty() && msg; iit++)
 				{
-					string file_path = *iit;
+					string file_path = it->second;
 					msg = sfcDS.open(file_path, true);
 					if (msg)
 					{
@@ -1084,10 +1097,10 @@ namespace WBSF
 						{
 							locations = sfcDS.get_nearest(locationsIn, m_nb_points);
 
-							if (std::find( extents.begin(), extents.end(), sfcDS.GetExtents()) == extents.end())
+							if (std::find(extents.begin(), extents.end(), sfcDS.GetExtents()) == extents.end())
 								extents.push_back(sfcDS.GetExtents());
 						}
-							
+
 
 						sfcDS.close();
 					}
@@ -1099,14 +1112,14 @@ namespace WBSF
 			if (msg && locations.empty())
 				msg.ajoute("Unable to find nearest points from locations because there is no image with geopotentiel height");
 
-			
+
 			for (vector<CGeoExtents>::iterator it = extents.begin(); it != extents.end(); it++)
 			{
 				CGeoSize size = it->GetSize();
-				
+
 				CProjectionPtr pPrj = CProjectionManager::GetPrj(it->GetPrjID());
 				string prjName = pPrj ? pPrj->GetName() : "Unknown";
-				callback.AddMessage("Grid spacing: " + to_string(it->XRes()) + " x " + to_string(it->YRes()) + " ("+ prjName+")", 1 );
+				callback.AddMessage("Grid spacing: " + to_string(it->XRes()) + " x " + to_string(it->YRes()) + " (" + prjName + ")", 1);
 			}
 		}
 
@@ -1118,7 +1131,7 @@ namespace WBSF
 		CIncementalDB incremental;
 		CWeatherStationVector stations;
 
-		
+
 		if (m_bIncremental)
 		{
 			if (FileExists(m_filePath))
@@ -1126,7 +1139,7 @@ namespace WBSF
 
 			if (!empty() && size() != locations.size())
 			{
-				msg.ajoute("The number of location to extract ("+to_string(locations.size())+") from gribs is not the same as the previous execution ("+to_string(size())+"). Do not use incremental.");
+				msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(size()) + "). Do not use incremental.");
 				return msg;
 			}
 
@@ -1164,17 +1177,17 @@ namespace WBSF
 		msg = incremental.GetInvalidTRef(gribs, invalid);
 
 		callback.AddMessage("Nb input locations: " + to_string(locationsIn.size()));
-		if(m_nb_points>0)
-			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points)+ " nearest: " + to_string(locations.size()));
+		if (m_nb_points > 0)
+			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points) + " nearest: " + to_string(locations.size()));
 		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
-		callback.AddMessage("Nb input hours: " + to_string(gribs.size()) + " ("+ to_string(int(gribs.size()/24))+" days)");
+		callback.AddMessage("Nb input hours: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / 24)) + " days)");
 		callback.AddMessage("Nb hours to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / 24)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));
 
 
 		if (msg && !invalid.empty())//there is an invalid period, up-to-date otherwise
 		{
-			
+
 			//create all data for multi-thread
 			CTPeriod p(*invalid.begin(), *invalid.rbegin());
 			for (size_t i = 0; i < stations.size(); i++)
@@ -1191,10 +1204,10 @@ namespace WBSF
 			callback.AddMessage(feed);
 
 			//convert set into vector for multi-thread
-			vector<CTRef> tmp; 
+			vector<CTRef> tmp;
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-				tmp.push_back(*it); 
-			
+				tmp.push_back(*it);
+
 #pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
 			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
 			{
@@ -1202,9 +1215,9 @@ namespace WBSF
 				if (msg)
 				{
 					CTRef TRef = tmp[i];
-					for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
+					//for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
 					{
-						msg += ExtractStation(TRef, *iit, stations, callback);
+						msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
 						msg += callback.StepIt();
 #pragma omp flush(msg)
 					}
@@ -1275,7 +1288,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			
+
 			//for optimization, we select only 2 wind variables
 			GribVariables var = sfcDS.get_variables();
 			if (var.test(H_WNDS) && var.test(H_WNDD))
@@ -1327,7 +1340,7 @@ namespace WBSF
 	{
 		GribVariables out;
 
-		ASSERT( variables.size()<= out.size());
+		ASSERT(variables.size() <= out.size());
 		for (size_t i = 0; i < variables.size(); i++)
 			out.set(i, variables.test(i));
 
