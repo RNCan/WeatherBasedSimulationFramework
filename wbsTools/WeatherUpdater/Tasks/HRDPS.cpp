@@ -1183,7 +1183,7 @@ namespace WBSF
 		{
 			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
 			{
-				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC + UINT(c), "|");
+				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC + UINT(c), "|"); 
 				ASSERT(DESCRIPTION[c].size() == GetNbVar(c));
 			}
 		}

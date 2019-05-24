@@ -139,7 +139,7 @@ BEGIN
     BUTTON      ID_SENDTO_SHOWMAP
     BUTTON      ID_SENDTO_EXCEL
     SEPARATOR
-	BUTTON      ID_STATION_LIST_NAME
+    BUTTON      ID_STATION_LIST_NAME
     BUTTON      ID_STATION_LIST_FILTER
 END
 
@@ -150,8 +150,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,0,0
- PRODUCTVERSION 4,4,0,0
+ FILEVERSION 4,4,2,1
+ PRODUCTVERSION 4,4,2,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -168,21 +168,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques normales"
-            VALUE "FileVersion", "4.4.0.0"
+            VALUE "FileVersion", "4.4.2.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "EditeurNormales"
-            VALUE "ProductVersion", "4.4.0.0"
+            VALUE "ProductVersion", "4.4.2.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Normals weather data editor"
-            VALUE "FileVersion", "4.4.0.0"
+            VALUE "FileVersion", "4.4.2.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "NormalsEditor"
-            VALUE "ProductVersion", "4.4.0.0"
+            VALUE "ProductVersion", "4.4.2.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -543,7 +543,7 @@ BEGIN
     ID_ADD_WEATHER_STATION  "Ajouter une nouvelle station météorologique\nAjouter"
     ID_SENDTO_SHOWMAP       "Envoyer la liste actuelle de localisation des stations météorologiques dans ShowMap\nEnvoyer vers ShowMap"
     ID_SENDTO_EXCEL         "Envoyer la liste actuelle de localisation des stations météorologiques dans Excel\nEnvoyer vers Excel"
-	ID_STATION_LIST_NAME	"Afficher uniquement les stations météorologiques avec le nom/ID\nFiltre par nom/ID"
+    ID_STATION_LIST_NAME    "Afficher uniquement les stations météorologiques avec le nom/ID\nFiltre par nom/ID"
     ID_STATION_LIST_FILTER  "Afficher uniquement les stations météorologiques qui contiennent toutes les varaibles sélectionnés\nFiltrer par variables"
 END
 
@@ -855,7 +855,7 @@ BEGIN
     ID_ADD_WEATHER_STATION  "Add a new weather station\nAdd"
     ID_SENDTO_SHOWMAP       "Send the actual locations list to ShowMap\nSend To ShowMap"
     ID_SENDTO_EXCEL         "Send the locations list to Excel\nSend To Excel"
-	ID_STATION_LIST_NAME	"Show only weather stations with name/ID\nName/ID Filter"
+    ID_STATION_LIST_NAME    "Show only weather stations with name/ID\nName/ID Filter"
     ID_STATION_LIST_FILTER  "Show only weather stations that contain all selected variables\nVariables Filter"
 END
 

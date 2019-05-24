@@ -21,6 +21,23 @@
   <ItemGroup>
     <ResourceCompile Include="MatchStation.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Correction_wnd.ico" />
+    <Image Include="res\estimateN_wnd.ico" />
+    <Image Include="res\estimateO_wnd.ico" />
+    <Image Include="res\Gradient_wnd.ico" />
+    <Image Include="res\inputs_wnd.ico" />
+    <Image Include="res\LocationToolbar.png" />
+    <Image Include="res\MainFrameToolbar.png" />
+    <Image Include="res\MatchStation.ico" />
+    <Image Include="res\menuimages.bmp" />
+    <Image Include="res\Normals_wnd.ico" />
+    <Image Include="res\observations_wnd.ico" />
+    <Image Include="res\output_wnd.ico" />
+    <Image Include="res\properties_wnd.ico" />
+    <Image Include="res\weightToolbar.png" />
+    <Image Include="res\weight_chart_wnd.ico" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DFEB78CC-7812-4E50-AB73-002D5F63871A}</ProjectGuid>
     <RootNamespace>UpdaterRes</RootNamespace>

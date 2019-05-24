@@ -1,4 +1,5 @@
-// 4.4.0	18/09/2018	Rémi Saint-Amant	Crash correction on Windows 10
+// 4.4.2	24/05/2091	Rémi Saint-Amant	Update
+// 4.4.1	18/09/2018	Rémi Saint-Amant	Crash correction on Windows 10
 // 4.4.0	13/09/2018	Rémi Saint-Amant	Compile with WBSF 1.1.0 (BioSIM 11.5)
 // 4.3.2	12/06/2018	Rémi Saint-Amant	bug fix
 // 4.3.1	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
