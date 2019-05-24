@@ -61,11 +61,14 @@ namespace WBSF
 
 		//		if (GoodGrib(filePath))
 			//	{
-		CFileStamp fileStamp(filePath);
-		__time64_t lastUpdate = fileStamp.m_time;
-		if (lastUpdate > 0 && info.m_time < lastUpdate)
-			bDownload = false;
+		//CFileStamp fileStamp(filePath);
+		//__time64_t lastUpdate = fileStamp.m_time;
+		//if (lastUpdate > 0 && info.m_time < lastUpdate)
+			//bDownload = false;
 		//}
+
+		if(FileExists(filePath))
+			bDownload = false;
 
 		CTRef TRef = GetTRef(filePath);
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);

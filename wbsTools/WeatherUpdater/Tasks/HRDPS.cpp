@@ -263,7 +263,6 @@ namespace WBSF
 										{
 											bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
 											bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
-											//bool bKeep3 = var == APCP_SFC || var == DSWRF_SFC || (m_bForecast ? true : hhh < 6);
 											bool bKeep3 = m_bForecast ? (forecastHours >= 0 && forecastHours <= m_max_hours) : (var == APCP_SFC || var == DSWRF_SFC || hhh < 6);
 
 											if (bKeep1 && bKeep2 && bKeep3)
@@ -311,7 +310,7 @@ namespace WBSF
 
 		}//if msg
 
-		set<string> ouputsPath;
+		set<string> outputPath;
 		if (msg)
 		{
 
@@ -352,7 +351,7 @@ namespace WBSF
 								msg += callback.StepIt();
 								string VRT_file_path = GetVRTFilePath(outputFilePath);
 
-								ouputsPath.insert(/*GetPath(VRT_file_path) + */GetFileTitle(VRT_file_path).substr(6, 8));
+								outputPath.insert(GetFileTitle(VRT_file_path).substr(6, 8));
 							}
 						}
 					}
@@ -380,17 +379,65 @@ namespace WBSF
 		}
 
 
+
+		if (outputPath.empty())
+		{
+			StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+			for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+			{
+				string year = *it1;
+				StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+				for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+				{
+					string month = *it2;
+					StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+					for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+					{
+						string day = *it3;
+
+						StringVector hours = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\" + *it3 + "\\*");
+						for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
+						{
+							string hour = *it4;
+							size_t h1 = WBSF::as<size_t>(hour);
+
+							for (size_t h2 = 0; h2 < 6; h2++)
+							{
+								string filter1 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+								string filter2 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+
+								if (!WBSF::GetFilesList(filter1, 2, true).empty() || !WBSF::GetFilesList(filter2, 2, true).empty())
+								{
+									string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+
+									if (!WBSF::FileExists(VRTFilePath))
+									{
+										string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
+										outputPath.insert(date);
+									}
+								}
+
+								
+
+								msg += callback.StepIt(0);
+							}
+						}//for all hours
+					}//for all days
+				}//for all months
+			}//for all years
+		}
+
 		if (msg && m_variables.test(APCP_SFC))
-			msg = CreateHourlyPrcp(ouputsPath, callback);
+			msg = CreateHourlyPrcp(outputPath, callback);
 
 		if (msg && m_variables.test(DSWRF_SFC))
-			msg = CreateHourlySRad(ouputsPath, callback);
+			msg = CreateHourlySRad(outputPath, callback);
 
 
 
 		//now, create .vrt and index file
 		if (msg && m_bCreateVRT)
-			msg = CreateVRT(ouputsPath, callback);
+			msg = CreateVRT(outputPath, callback);
 
 
 		return msg;
@@ -419,49 +466,8 @@ namespace WBSF
 
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		if (outputPath.empty())
-		{
-			StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
-			for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
-			{
-				string year = *it1;
-				StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-				for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
-				{
-					string month = *it2;
-					StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
-					for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-					{
-						string day = *it3;
-
-						StringVector hours = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\" + *it3 + "\\*");
-						for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
-						{
-							string hour = *it4;
-							size_t h1 = WBSF::as<size_t>(hour);
-
-							for (size_t h2 = 0; h2 < 6; h2++)
-							{
-								//size_t h = h1 + h2;
-								string VRTFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
-								//string VRTFilePath = FormatA("%s%s\\%s\\%s\\%s%s%s", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str());
-
-								if (!WBSF::FileExists(VRTFilePath))
-								{
-									string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
-									outputPath.insert(date);
-								}
-
-								msg += callback.StepIt(0);
-							}
-						}//for all hours
-					}//for all days
-				}//for all months
-			}//for all years
-		}
-
-		callback.PushTask("Create VRT: " + ToString(outputPath.size()) + " files", outputPath.size());
-		callback.AddMessage("Create VRT: " + ToString(outputPath.size()) + " files");
+		callback.PushTask("Create VRT: " + ToString(outputPath.size()) + " days", outputPath.size());
+		callback.AddMessage("Create VRT: " + ToString(outputPath.size()) + " days");
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
@@ -725,14 +731,14 @@ namespace WBSF
 
 					string argument;
 
-					//unit 1/10 of J/m²
+					//Unknown units
 					if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 					{
-						argument = "-e \"srad=max(0, round( (i2b1-i1b1)*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						argument = "-e \"srad=max(0, round( (i2b1-i1b1)/1000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 					}
 					else if (FileExists(HRDPS_file_path2) && h2 == 0)
 					{
-						argument = "-e \"srad=max(0,round( i1b1*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						argument = "-e \"srad=max(0,round( i1b1/1000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 					}
 
 					if (!argument.empty())

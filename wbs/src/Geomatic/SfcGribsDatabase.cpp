@@ -1140,7 +1140,7 @@ namespace WBSF
 			if (!empty() && size() != locations.size())
 			{
 				msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(size()) + "). Do not use incremental.");
-				return msg;
+				return msg; 
 			}
 
 			if (!empty() && incremental.m_variables != m_variables)
@@ -1194,13 +1194,13 @@ namespace WBSF
 				stations[i].CreateYears(p);
 
 
-			size_t nbGribs = 0;
-			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-				nbGribs += gribs.at(*it).size();
+			//size_t nbGribs = 0;
+			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
+				//nbGribs += gribs.at(*it).size();
 
 			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours from " + to_string(nbGribs) + " gribs)";
-			callback.PushTask(feed, nbGribs);
+			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours)" ;
+			callback.PushTask(feed, invalid.size());
 			callback.AddMessage(feed);
 
 			//convert set into vector for multi-thread

@@ -125,7 +125,7 @@ namespace WBSF
 
 		
 		if (msg)
-		{
+		{ 
 			msg = grib.Update(gribs, locations, callback);
 			if (msg)
 				msg += grib.Close(true, callback);
