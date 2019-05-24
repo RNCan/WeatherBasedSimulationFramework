@@ -66,6 +66,7 @@ const char* WBSF_ATM_VERSION = "1.0.3";
 //END_OLD_AGE				35
 //END_OUTSIDE_MAP			36
 //END_OF_SIMULATION         37
+//WEATHER_NOT_INIT          38
 
 
 using namespace std;
@@ -663,7 +664,7 @@ namespace WBSF
 		else
 		{
 			m_state = FINISHED;
-			m_finish_flag = END_OUTSIDE_MAP;
+			m_finish_flag = WEATHER_NOT_INIT;
 		}
 
 	}
@@ -714,7 +715,7 @@ namespace WBSF
 		else
 		{
 			m_state = FINISHED;
-			m_finish_flag = END_OUTSIDE_MAP;
+			m_finish_flag = WEATHER_NOT_INIT;
 		}
 	}
 
@@ -1707,8 +1708,8 @@ namespace WBSF
 									if (b != UNKNOWN_POS)
 									{
 										(*cuboids)[i][z][y][x][v] = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy2);
-										if (v == ATM_PRCP)
-											(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
+										//if (v == ATM_PRCP) //precipitation must be in mm/h
+											//(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
 
 
 										if (bConvertVVEL)
@@ -3894,7 +3895,11 @@ namespace WBSF
 			var = ATM_TAIR;
 		else if (strVar == "PRES")
 			var = ATM_PRES;
-		else if (strVar == "PRATE")//PRATE is in mm/s and APCP is in mm : problem.... || strVar == "APCP"
+		//PRATE is the instantaneous rate : no longer supported by the ATM component
+		//else if (strVar == "PRATE")//PRATE is in mm/s and APCP is in mm : problem.... || strVar == "APCP"
+			//var = ATM_PRCP;
+		//We have to used APCP [mm/h]
+		else if (strVar == "APCP")
 			var = ATM_PRCP;
 		else if (strVar == "UGRD")
 			var = ATM_WNDU;
@@ -3910,6 +3915,11 @@ namespace WBSF
 			var = ATM_RH;
 
 		return var;
+	}
+
+	size_t IsPrcpRate(const string& strVar)
+	{
+		return (strVar == "PRATE");
 	}
 
 	size_t GetLevel(const string& strLevel)
@@ -4011,7 +4021,7 @@ namespace WBSF
 						for (size_t i = 0; i < m_internalName.size(); i++)
 						{
 
-							//PRATE is only for forcast hours, not for the analyses hour... hummm
+							//PRATE is only for forecast hours, not for the analyses hour... hummm
 							string title = GetFileTitle(m_internalName[i]);
 							StringVector tmp(title, "_");
 							ASSERT(tmp.size() == 9);
@@ -4064,7 +4074,7 @@ namespace WBSF
 									}
 								}
 
-								if (bSurfaceOnly && level > 0)//open only surface for optimisation
+								if (bSurfaceOnly && level > 0)//open only surface for optimization
 									level = NOT_INIT;
 
 								if (level < 38)
@@ -4074,7 +4084,7 @@ namespace WBSF
 					}
 					else
 					{
-						//get info from metadata
+						//get info from meta-data
 						BandsMetaData meta_data;
 
 						GetBandsMetaData(meta_data);
