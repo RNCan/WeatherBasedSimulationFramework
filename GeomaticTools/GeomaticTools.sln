@@ -61,6 +61,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DisturbanceAnalyserII", "Di
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireSeverity", "FireSeverity\FireSeverity.vcxproj", "{67D45C84-3518-4133-90F9-DEF675EE1CB9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvertNetCDF2GeoTIFF", "ConvertNetCDF2GeoTIFF\ConvertNetCDF2GeoTIFF.vcxproj", "{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -301,6 +303,14 @@ Global
 		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|Win32.Build.0 = Release|Win32
 		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|x64.ActiveCfg = Release|x64
 		{67D45C84-3518-4133-90F9-DEF675EE1CB9}.Release|x64.Build.0 = Release|x64
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Debug|Win32.Build.0 = Debug|Win32
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Debug|x64.ActiveCfg = Debug|x64
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Debug|x64.Build.0 = Debug|x64
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Release|Win32.ActiveCfg = Release|Win32
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Release|Win32.Build.0 = Release|Win32
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Release|x64.ActiveCfg = Release|x64
+		{77B4439A-D052-4D3A-9C7D-4CB54F4233E6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
