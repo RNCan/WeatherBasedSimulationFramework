@@ -154,6 +154,8 @@ namespace WBSF
 			ERMsg msg_tmp = HRDPA.Execute(callback);
 			if (!msg_tmp)
 				callback.AddMessage(msg_tmp);
+
+			callback.AddMessage("");
 		}
 
 		callback.AddMessage("Updating HRDPS");
@@ -161,7 +163,7 @@ namespace WBSF
 		callback.AddMessage(m_workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(SERVER_NAME, 1);
-		callback.AddMessage("");
+		callback.AddMessage("--------------------------");
 
 
 		size_t lastestHH = NOT_INIT;
@@ -459,7 +461,7 @@ namespace WBSF
 		}
 
 		callback.PushTask("Create VRT: " + ToString(outputPath.size()) + " files", outputPath.size());
-
+		callback.AddMessage("Create VRT: " + ToString(outputPath.size()) + " files");
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
@@ -571,6 +573,7 @@ namespace WBSF
 		}
 
 		callback.PushTask("Create hourly precipitation (" + to_string(total_hours) + " hours)", total_hours);
+		callback.AddMessage("Create hourly precipitation (" + to_string(total_hours) + " hours)");
 		size_t nbTry = 0;
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
@@ -698,6 +701,7 @@ namespace WBSF
 		}
 
 		callback.PushTask("Create hourly solar radiation (" + to_string(total_hours) + " hours)", total_hours);
+		callback.AddMessage("Create hourly solar radiation (" + to_string(total_hours) + " hours)");
 		size_t nbTry = 0;
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
