@@ -731,7 +731,7 @@ namespace WBSF
 
 					string argument;
 
-					//Unknown units
+					//j/m² (sum of one hour) -> watt/m²
 					if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 					{
 						argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
