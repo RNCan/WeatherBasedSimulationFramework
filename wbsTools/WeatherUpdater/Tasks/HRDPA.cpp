@@ -67,23 +67,13 @@ namespace WBSF
 			//bDownload = false;
 		//}
 
-		if(FileExists(filePath))
+		if (FileExists(filePath))
 			bDownload = false;
 
 		CTRef TRef = GetTRef(filePath);
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		if (abs(TRef - now) > m_max_hours)
+		if (now - TRef > m_max_hours)
 			bDownload = false;
-
-		if (m_product == HRDPA && TYPE_24HOURS == m_type && TRef.GetHour() == 6)//download prcp at noon only
-			bDownload = false;
-
-		if (m_product == HRDPA && TYPE_06HOURS == m_type)//download prcp at cutoff 7 only
-		{
-			string cutoff = GetFileTitle(filePath).substr(19, 4);
-			if (cutoff == "0100")
-				bDownload = false;
-		}
 
 
 		return bDownload;
@@ -139,13 +129,32 @@ namespace WBSF
 		ReplaceString(URL, "%1", product);
 		WBSF::MakeLower(URL);
 
-		CFileInfoVector fileList;				//"analysis/precip/HRDPA/grib2/polar_stereographic/06/*.grib2"
-		msg = UtilWWW::FindFiles(pConnection, URL, fileList);
+		CFileInfoVector fileListTmp;				//"analysis/precip/HRDPA/grib2/polar_stereographic/06/*.grib2"
+		msg = UtilWWW::FindFiles(pConnection, URL, fileListTmp);
 
 		pConnection->Close();
 		pSession->Close();
 
+		CFileInfoVector fileList;
+		for (CFileInfoVector::const_iterator it = fileListTmp.begin(); it != fileListTmp.end(); it++)
+		{
+			if (m_product == HRDPA)
+			{
+				if (m_type == TYPE_24HOURS)
+				{
+					CTRef TRef = CHRDPA::GetTRef(it->m_filePath);
+					if (TRef.GetHour() == 12)//download prcp at noon only
+						fileList.push_back(*it);
 
+				}
+				else if (m_type == TYPE_06HOURS)
+				{
+					string cutoff = GetFileTitle(it->m_filePath).substr(19, 4);
+					if (cutoff == "0700")//download prcp at cutoff 7 only
+						fileList.push_back(*it);
+				}
+			}
+		}
 
 		callback.AddMessage("Number of images found: " + ToString(fileList.size()));
 		//keep only 10km grid
@@ -234,7 +243,7 @@ namespace WBSF
 			}
 		}
 
-		
+
 
 		callback.AddMessage("Number of images downloaded: " + ToString(nbDownload));
 		callback.PopTask();
