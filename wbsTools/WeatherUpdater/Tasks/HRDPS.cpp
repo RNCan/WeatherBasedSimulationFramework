@@ -734,11 +734,11 @@ namespace WBSF
 					//Unknown units
 					if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 					{
-						argument = "-e \"srad=max(0, round( (i2b1-i1b1)*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 					}
 					else if (FileExists(HRDPS_file_path2) && h2 == 0)
 					{
-						argument = "-e \"srad=max(0,round( i1b1*3600/1000000)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+						argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 					}
 
 					if (!argument.empty())
@@ -1183,7 +1183,7 @@ namespace WBSF
 		{
 			for (size_t c = 0; c < NB_HRDPS_CATEGORY; c++)
 			{
-				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC + UINT(c), "|"); 
+				DESCRIPTION[c].LoadString(IDS_HRDPS_VAR_SFC + UINT(c), "|");
 				ASSERT(DESCRIPTION[c].size() == GetNbVar(c));
 			}
 		}
