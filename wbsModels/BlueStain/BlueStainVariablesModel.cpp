@@ -22,7 +22,6 @@ namespace WBSF
 
 	CBlueStainVariablesModel::CBlueStainVariablesModel()
 	{
-		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 0;
 		VERSION = "1.0.1 (2017)";
 	}

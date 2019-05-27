@@ -45,12 +45,8 @@ namespace WBSF
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
 		static CBioSIMModelBase* CreateObject(){ return new CBlueStainIndexModel; }
-
 		
 		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, size_t v, double f);
 		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, const CModelStatVector& values);
-
-		
-		
 	};
 }

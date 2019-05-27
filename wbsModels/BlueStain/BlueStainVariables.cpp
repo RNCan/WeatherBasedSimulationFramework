@@ -1,31 +1,27 @@
-﻿//**********************************************************************
-// 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
-// 28/05/2015 	1.0.0   Rémi Saint-Amant	Incorporate in BioSIMModelBase
-//**********************************************************************
-//variables :
-//1			annual_tmin			Minimum annual temperature(°C)
-//2		*	annual_temp_mean	Mean annual temperature(°C)
-//3			annual_tmax			Maximum annual temperature(°C)
-//4		*	annual_precip		Total annual precipitation(mm)
-//5			Warm_Prep			Warmest *quarter* total precipitation(mm)
-//6		*	Warm_tmean			Warmest quarter mean temperature(°C)
-//7			Cold_Prep			Coldest quarter total precipitation(mm)
-//8			Cold_tmean			Coldest quarter mean temperature(°C)
-//9			Wet_Prep			Wettest quarter total precipitation(mm)
-//10		Wet_tmean			Wettest quarter mean temperature(°C)
-//11		Dry_Prep			Driest quarter total precipitation(mm)
-//12		Dry_tmean			Driest quarter mean temperature(°C)
-//13		ann_arid			Annual aridity index(mm)
-//14		WarmQ_AR			Warmest quarter aridity index(mm)
-//15		ColdQ_AR			Coldest quarter aridity index(mm)
-//16		WetQ_AR				Wettest quarter aridity index(mm)
-//17	*	DryQ_AR				Driest quarter aridity index(mm)
-//18		WM_tmean			Warmest month mean temperature(°C)
-//19		CM_tmean			Coldest month mean temperature(°C)
-//20		Maxprep_WeM			Total precipitation in the wettest month(mm)
-//21		Minprep_DM			Total precipitation in the driest month(mm)
-//22		sum_dd_5			Degree day accumulation >5°C between 1 April and 31 August
-//*  = limited model (varaibles correletion)
+﻿//variables :
+//1	 annual_tmin		Minimum annual temperature(°C)
+//2	 annual_temp_mean	Mean annual temperature(°C)
+//3	 annual_tmax		Maximum annual temperature(°C)
+//4	 annual_precip		Total annual precipitation(mm)
+//5	 Warm_Prep			Warmest *quarter* total precipitation(mm)
+//6	 Warm_tmean			Warmest quarter mean temperature(°C)
+//7	 Cold_Prep			Coldest quarter total precipitation(mm)
+//8	 Cold_tmean			Coldest quarter mean temperature(°C)
+//9	 Wet_Prep			Wettest quarter total precipitation(mm)
+//10 Wet_tmean			Wettest quarter mean temperature(°C)
+//11 Dry_Prep			Driest quarter total precipitation(mm)
+//12 Dry_tmean			Driest quarter mean temperature(°C)
+//13 ann_arid			Annual aridity index(mm)
+//14 WarmQ_AR			Warmest quarter aridity index(mm)
+//15 ColdQ_AR			Coldest quarter aridity index(mm)
+//16 WetQ_AR			Wettest quarter aridity index(mm)
+//17 DryQ_AR			Driest quarter aridity index(mm)
+//18 WM_tmean			Warmest month mean temperature(°C)
+//19 CM_tmean			Coldest month mean temperature(°C)
+//20 Maxprep_WeM		Total precipitation in the wettest month(mm)
+//21 Minprep_DM			Total precipitation in the driest month(mm)
+//22 sum_dd_5			Degree day accumulation >5°C between 1 April and 31 August
+
 
 
 #include <functional>   // std::greater
@@ -256,8 +252,8 @@ namespace WBSF
 	
 		for (size_t y = 0; y < weather.size(); y++)
 		{
-			array < CTPeriod, NB_EXTREM> Q;	//quarter extrem
-			array < size_t, NB_EXTREM> M;		//monthly extrem
+			array < CTPeriod, NB_EXTREM> Q;		//quarter extreme
+			array < size_t, NB_EXTREM> M;		//monthly extreme
 
 			for (size_t e = 0; e < NB_EXTREM; e++)
 				Q[e] = GetExtremQuarter(weather[y], TExtrem(e), false);

@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+// 27/05/2019	1.2.3	Rémi Saint-Amant    Final version with non-limited
 // 29/04/2018	1.2.2	Rémi Saint-Amant    Add limited model
 // 23/03/2017	1.2.1	Rémi Saint-Amant    Bug corrected
 // 20/09/2016	1.2.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -24,78 +25,30 @@ namespace WBSF
 
 
 	const double CBlueStainIndexModel::PERCENTILS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS] =
-	{
-		//  Min		  10%		  90%		  Max
-		{ -8.58,   -0.16,    5.44,    7.02 },	  //V_TMIN_EXT
-		{ -2.27,    3.84,    9.78,   11.67 },	  //V_TMEAN
-		{ 4.05,    6.69,   13.86,   16.32 },	  //V_TMAX_EXT
-		{ 279.70,  463.50, 1411.40, 1842.50 },	  //V_PRCP
-		{ 11.11,   12.83,   19.07,   20.86 },	  //V_WARMQ_TMEAN
-		{ -21.00,   -8.17,    2.13,    4.92 },	  //V_COLDQ_TMEAN
-		{ -2.52,    6.37,   18.94,   20.86 },	  //V_WETQ_TMEAN
-		{ -9.79,   -5.55,    7.27,   12.28 },	  //V_DRYQ_TMEAN
-		{ 41.80,  117.70,  316.30,  480.50 },	  //V_WARMQ_PRCP
-		{ 10.80,   37.70,  235.10,  401.00 },	  //V_COLDQ_PRCP
-		{ 78.60,  120.40,  339.50,  461.90 },	  //V_WETQ_PRCP
-		{ 10.80,   36.50,  127.70,  164.80 },	  //V_DRYQ_PRCP
-		{ -1335.43, -945.13,  -20.68,  187.26 },  //V_AI
-		{ -420.50, -175.90,  114.50,  148.87 },	  //V_WARMQ_AI
-		{ -526.60, -294.40,  -42.50,   22.45 },	  //V_COLDQ_AI
-		{ -526.60, -420.50,   53.93,  128.16 },	  //V_WETQ_AI
-		{ -277.90, -148.50,   15.79,  140.60 },	  //V_DRYQ_AI
-		{ 11.87,   13.38,   20.25,   21.35 },	  //V_WARMM_TMEAN
-		{ -23.05,   -9.48,   -0.28,    2.12 },	  //V_COLDM_TMEAN
-		{ 56.60,   81.00,  251.80,  371.30 },	  //V_WETM_PRCP
-		{ 1.30,    4.20,   43.20,   61.10 },	  //V_DRYM_PRCP
-		{ 593.90,  837.95, 1787.40, 1980.60 }     //V_SUMMER_DD5
-
-		//Février 2018
-		/*{-8.7   , -0.1  ,  5.2  ,  7.0	   },
-		{-2.3   ,  3.9  ,  9.6  , 11.7	   },
-		{4.0    , 6.9   ,13.9   ,16.3	   },
-		{279.7  , 464.9 ,1410.1 ,1846.3	   },
-		{11.2   , 13.0  , 19.1  , 20.8	   },
-		{-21.1  ,  -8.0 ,   2.0 ,   3.8	   },
-		{-2.7   ,  7.4  , 18.9  , 20.8	   },
-		{-10.4  ,  -6.2 ,  10.7 ,  13.6	   },
-		{41.8   ,118.6  ,314.7  ,480.5	   },
-		{13.7   , 38.7  ,231.1  ,401.1	   },
-		{78.6   ,120.7  ,337.7  ,462.8	   },
-		{12.6   , 21.6  ,139.1  ,202.0	   },
-		{-1343.5, -938.0,   -5.8,  187.9   },
-		{-421.3 ,-169.7 ,  108.2,  158.0   },
-		{-523.7 ,-291.7 ,  -42.5,    1.2   },
-		{-523.7 ,-398.2 ,   57.2,  128.2   },
-		{-277.0 ,-154.3 ,   42.2,  140.9   },
-		{12.0   ,13.6   , 20.3  , 21.3	   },
-		{-23.1  , -9.0  ,  -0.5 ,   2.1	   },
-		{56.6   ,82.2   ,256.0  ,371.3     },
-		{1.2    ,4.3    ,43.2   ,61.1      },
-		{596.0  ,848.7  ,1796.8 ,1979.8    }*/
+	{//   lo       10%      90%     hi
+		{-8.7   , -0.1  ,  5.2  ,  7.0	   }, //Minimum annual temperature(°C)
+		{-2.3   ,  3.9  ,  9.6  , 11.7	   }, //Mean annual temperature(°C)
+		{4.0    , 6.9   ,13.9   ,16.3	   }, //Maximum annual temperature(°C)
+		{279.7  , 464.9 ,1410.1 ,1846.3	   }, //Total annual precipitation(mm)
+		{11.2   , 13.0  , 19.1  , 20.8	   }, //Warmest *quarter* total precipitation(mm)
+		{-21.1  ,  -8.0 ,   2.0 ,   3.8	   }, //Warmest quarter mean temperature(°C)
+		{-2.7   ,  7.4  , 18.9  , 20.8	   }, //Coldest quarter total precipitation(mm)
+		{-10.4  ,  -6.2 ,  10.7 ,  13.6	   }, //Coldest quarter mean temperature(°C)
+		{41.8   ,118.6  ,314.7  ,480.5	   }, //Wettest quarter total precipitation(mm)
+		{13.7   , 38.7  ,231.1  ,401.1	   }, //Wettest quarter mean temperature(°C)
+		{78.6   ,120.7  ,337.7  ,462.8	   }, //Driest quarter total precipitation(mm)
+		{12.6   , 21.6  ,139.1  ,202.0	   }, //Driest quarter mean temperature(°C)
+		{-1343.5, -938.0,   -5.8,  187.9   }, //Annual aridity index(mm)
+		{-421.3 ,-169.7 ,  108.2,  158.0   }, //Warmest quarter aridity index(mm)
+		{-523.7 ,-291.7 ,  -42.5,    1.2   }, //Coldest quarter aridity index(mm)
+		{-523.7 ,-398.2 ,   57.2,  128.2   }, //Wettest quarter aridity index(mm)
+		{-277.0 ,-154.3 ,   42.2,  140.9   }, //Driest quarter aridity index(mm)
+		{12.0   ,13.6   , 20.3  , 21.3	   }, //Warmest month mean temperature(°C)
+		{-23.1  , -9.0  ,  -0.5 ,   2.1	   }, //Coldest month mean temperature(°C)
+		{56.6   ,82.2   ,256.0  ,371.3     }, //Total precipitation in the wettest month(mm)
+		{1.2    ,4.3    ,43.2   ,61.1      }, //Total precipitation in the driest month(mm)
+		{596.0  ,848.7  ,1796.8 ,1979.8    }  //Degree day accumulation >5°C between 1 April and 31 August
 	};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -156,9 +109,8 @@ namespace WBSF
 
 	CBlueStainIndexModel::CBlueStainIndexModel()
 	{
-		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.2.2 (2018)";
+		VERSION = "1.2.3 (2019)";
 
 	}
 
