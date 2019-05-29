@@ -1,7 +1,6 @@
 ﻿//**************************************************************************************************************
 // 13/04/2018	1.0.1	Rémi Saint-Amant	Compile with VS 2017
 // 08/05/2017	1.0.0	Rémi Saint-Amant	Create from articles
-//												Lyons and Jones 2006
 //**************************************************************************************************************
 
 #include "ModelBase/EntryPoint.h"
@@ -25,6 +24,7 @@ namespace WBSF
 		double Sin = sin(2 * 3.14159*(weather.GetTRef().GetJDay() / 365. - 0.25));
 
 		//convert air temperature to bark temperature
+		//After Regnière for MPB
 		m_Tmin = -0.1493 + 0.8359*Tmin + 0.5417*Sin + 0.16980*Trange + 0.00000*Tmin*Sin + 0.005741*Tmin*Trange + 0.02370*Sin*Trange;
 		m_Tmax = 0.4196 + 0.9372*Tmax - 0.4265*Sin + 0.05171*Trange + 0.03125*Tmax*Sin - 0.004270*Tmax*Trange + 0.09888*Sin*Trange;
 
