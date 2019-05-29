@@ -41,10 +41,10 @@ namespace WBSF
 		size_t prov = -1;
 		std::string tmp(in);
 		Trim(tmp);
-		MakeUpper(tmp);
+		//MakeUpper(tmp);
 		for (size_t i = 0; i < NB_PROVINCES; i++)
 		{
-			if (tmp == DEFAULT_LIST[i][t])
+			if (WBSF::IsEqual(tmp,DEFAULT_LIST[i][t]))
 			{
 				prov = i;
 				break;

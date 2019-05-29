@@ -101,7 +101,7 @@ namespace WBSF
 		CLocationVector m_SWOBstations;
 
 		static CTPeriod String2Period(std::string period);
-		static void UpdatePeriod(CLocation& location, int year);
+		//static void UpdatePeriod(CLocation& location, int year);
 		static long GetNbDay(const CTime& t);
 		static long GetNbDay(int y, size_t m, size_t d);
 		static CTRef GetSWOBTRef(const std::string & fileName);
@@ -111,7 +111,7 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME;
+		static const char* SERVER_NAME[NB_NETWORKS];
 		static const char* SWOB_VARIABLE_NAME[NB_SWOB_VARIABLES];
 		static const char* DEFAULT_UNIT[NB_SWOB_VARIABLES];
 		static const HOURLY_DATA::TVarH VARIABLE_TYPE[NB_SWOB_VARIABLES];

@@ -32,7 +32,7 @@ namespace WBSF
 	//http://beta.weatheroffice.gc.ca/observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 
 
-	const char* CUIEnvCanHourly::SERVER_NAME = "climate.weather.gc.ca";
+	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weatheroffice.gc.ca" };
 	//*********************************************************************
 
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network" };
@@ -84,7 +84,7 @@ namespace WBSF
 
 		return long(year * 365 + m * 30.42 + d);
 	}
-	
+
 
 
 	static string CleanString(string str)
@@ -166,7 +166,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 			if (msg)
 			{
 
@@ -352,7 +352,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -394,7 +394,7 @@ namespace WBSF
 
 				ASSERT(it2 != stations.end());
 				__int64 internalID64 = ToInt64(internalID);
-				
+
 				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), *it2);
 				if (!msgTmp)
 					callback.AddMessage(msgTmp);
@@ -640,7 +640,7 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
+		callback.AddMessage(SERVER_NAME[N_HISTORICAL], 1);
 		callback.AddMessage("");
 
 
@@ -681,7 +681,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{
@@ -853,27 +853,6 @@ namespace WBSF
 		return bDownload;
 	}
 
-	//[vide] = Aucune donnée disponible 
-	//M = Données manquantes 
-	//E = Valeur estimée 
-	//A = Valeur accumulée 
-	//C = Précipitation, quantité incertaine 
-	//L = des précipitation peuvent avoir eu lieu 
-	//F = Valeur accumulée et estimée 
-	//N = Température manquante, mais > 0 
-	//Y = Température manquante, mais < 0 
-	//S = À plus d'une reprise 
-	//T = Trace 
-	//* = La valeur affichée est basée sur des données incomplètes. 
-	//= Ces données journalières n'ont subit qu'un contrôle de qualité préliminaire 
-
-	//ERMsg CUIEnvCanHourly::PreProcess(CCallback& callback)
-	//{
-	//	ERMsg msg;
-	//	msg = m_stations.Load(GetStationListFilePath());
-	//	return msg;
-	//}
-
 	string CUIEnvCanHourly::GetOutputFilePath(size_t n, const string& prov, int year, size_t m, const string& ID)const
 	{
 		ASSERT(prov.length() < 4);
@@ -996,7 +975,7 @@ namespace WBSF
 			{
 				network.set();
 				if (station.IsInit())
-					station.SetSSI("ICAO", m_SWOBstations[pos].GetSSI("ICAO"));
+					station.SetSSI("IATA", m_SWOBstations[pos].GetSSI("IATA"));
 				else
 					station = m_SWOBstations[pos];
 			}
@@ -1072,7 +1051,7 @@ namespace WBSF
 
 		if (network[N_SWOB])
 		{
-			string ICAO_ID = station.GetSSI("ICAO");
+			string IATA_ID = station.GetSSI("IATA");
 
 			for (size_t y = 0; y < nbYears&&msg; y++)
 			{
@@ -1083,14 +1062,14 @@ namespace WBSF
 					size_t size1 = sizeof(string);
 					size_t size2 = sizeof(SWOBDataHour);
 					size_t size3 = sizeof(SWOBData);
-					string filePath = GetOutputFilePath(N_SWOB, station.GetSSI("Province"), year, m, ICAO_ID);
+					string filePath = GetOutputFilePath(N_SWOB, station.GetSSI("Province"), year, m, IATA_ID);
 					if (FileExists(filePath))
 						msg = ReadSWOBData(filePath, TM, station, callback);
 
 					msg += callback.StepIt(0);
 				}
 			}
-			
+
 			//todo:remove radiation with series of zero
 
 			CWAllVariables vars;
@@ -1135,7 +1114,7 @@ namespace WBSF
 
 
 
-		//now extact data 
+		//now extract data 
 		ifStream file;
 		msg = file.open(filePath);
 
@@ -1243,12 +1222,12 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir + "SWOB_XML\\", 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage("dd.weatheroffice.gc.ca", 1);
+		callback.AddMessage(SERVER_NAME[N_SWOB], 1);
 		callback.AddMessage("");
 
 		string infoFilePath = GetSWOBStationsListFilePath();
-		if (!FileExists(infoFilePath))
-			msg = UpdateSWOBLocations(callback);
+		//if (!FileExists(infoFilePath))
+		msg = UpdateSWOBLocations(callback);
 
 		CLocationVector locations;
 		if (msg)
@@ -1307,7 +1286,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
 
@@ -1333,8 +1312,14 @@ namespace WBSF
 
 		if (msg)
 		{
-			enum TColumns { C_ID_IATA, C_FR_NAME, C_EN_NAME, C_PROVINCE, C_TYPE, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_ID_ICAO, C_ID_WMO, C_ID_MSC, C_ID_DST_TIMEZONE, C_ID_STD_TIMEZONE, NB_COLUMNS };
-			static const char* OUTPUT_NAME[NB_COLUMNS] = { "IATA", "NameFr", "", "Province", "Type", "", "", "", "ICAO", "WMO", "", "DSTTimeZone", "STDTimeZone" };
+			//old format
+			//#IATA,FR name,EN name,Province,AUTO/MAN,Latitude,Longitude,Elevation,# ICAO,# WMO,# MSC,DST Time Zone / Fuseau horaire été, STD Time Zone / Fuseau horaire heure normale
+			//enum TColumns { C_ID_IATA, C_FR_NAME, C_EN_NAME, C_PROVINCE, C_TYPE, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_ID_ICAO, C_ID_WMO, C_ID_MSC, C_ID_DST_TIMEZONE, C_ID_STD_TIMEZONE, NB_COLUMNS };
+
+			//new format : 29/05/2019 by RSA
+			enum TColumns { C_ID_IATA, C_NAME, C_ID_WMO, C_ID_MSC, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_DATA_PROVIDER, C_DATASET_NETWORK, C_AUTO_MAN, C_PROVINCE, NB_COLUMNS };
+			static const char* VAR_NAME[NB_COLUMNS] = { "IATA_ID", "Name", "WMO_ID", "MSC_ID", "Latitude", "Longitude", "Elevation(m)", "Data_Provider", "Dataset/Network", "AUTO/MAN", "Province/Territory" };
+			static const char* OUTPUT_NAME[NB_COLUMNS] = { "IATA", "", "WMO", "", "", "", "", "Data_Provider", "Dataset/Network", "AUTO/MAN", "Province" };
 
 			CLocationVector locations;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
@@ -1345,12 +1330,12 @@ namespace WBSF
 					switch (c)
 					{
 					case C_ID_MSC: location.m_ID = (*loop)[C_ID_MSC]; break;
-					case C_EN_NAME:
+					case C_NAME:
 					{
 
 						static const string CLEAN = "CDA|RCS|Auto|BC|AB|SK|MN|ON|QC|NB|NS|PI|NL|NFLD|NF|NU|P.E.I.|N.S.|Automatic|NOVA SCOTIA|Quebec|Climat|Climate|NU.|AGDM|AGCM|ON.|(AUT)|NWT|ONT.|QUE.|CS|A|NFLD.|-NFLD|SASK.|PEI|MAN.|ONT|NL.|MAN.|N.B.|N.W.T.|ONTARIO|MAN|CCG|CR10|CR3000|MB|(CR3000)|71482|23X|CR10x_V24|AAFC|AUT|71484|AEC|SE|CR23X|MCDC|RBG";
 						StringVector clean(CLEAN, "|");
-						StringVector name((*loop)[C_EN_NAME], " ,/\\");
+						StringVector name((*loop)[C_NAME], " ,/\\");
 						for (StringVector::iterator it = name.begin(); it != name.end();)
 						{
 							if (clean.Find(*it, false) == NOT_INIT)
@@ -1366,33 +1351,53 @@ namespace WBSF
 						location.m_name = WBSF::PurgeFileName(WBSF::TrimConst(WBSF::UppercaseFirstLetter(s.str())));
 						break;
 					}
+
 					case C_LATITUDE: location.m_lat = WBSF::as<double>((*loop)[C_LATITUDE]); break;
 					case C_LONGITUDE:location.m_lon = WBSF::as<double>((*loop)[C_LONGITUDE]); break;
 					case C_ELEVATION:location.m_elev = WBSF::as<double>((*loop)[C_ELEVATION]); break;
-					case C_FR_NAME: location.SetSSI(OUTPUT_NAME[c], WBSF::PurgeFileName((*loop)[c])); break;
-					case C_ID_IATA:
 					case C_PROVINCE:
-					case C_TYPE:
-					case C_ID_WMO:
-					case C_ID_ICAO:
-					case C_ID_DST_TIMEZONE:
-					case C_ID_STD_TIMEZONE: location.SetSSI(OUTPUT_NAME[c], (*loop)[c]); break;
+					{
+						size_t p = NOT_INIT;
+						if ((*loop).size() > C_PROVINCE)//the column is absent when the last value is empty
+							p = CProvinceSelection::GetProvince((*loop)[c], CProvinceSelection::NAME);
+
+						if (p == NOT_INIT)
+						{
+							if (location.m_ID.find("BC_ENV") != string::npos)
+								p = CProvinceSelection::BC;
+						}
+
+						if (p != NOT_INIT)
+							location.SetSSI(OUTPUT_NAME[c], CProvinceSelection::GetName(p, CProvinceSelection::ABVR));
+
+
+						break;
+					}
+					case C_ID_IATA:
+					case C_DATA_PROVIDER:
+					case C_DATASET_NETWORK:
+					case C_AUTO_MAN:
+					case C_ID_WMO:location.SetSSI(OUTPUT_NAME[c], (*loop)[c]); break;
+
 					default: ASSERT(false);
 					};
 
 					msg += callback.StepIt(0);
 				}//for all columns
 
-				if (location.m_ID == "9052008")
-					location.SetSSI("Province", "ON");
-				if (location.m_ID == "7032682")
-					location.SetSSI("Province", "QC");
-				if (location.m_ID == "2203913")
-					location.SetSSI("Province", "NT");
+				//if (location.m_ID == "9052008")
+				//	location.SetSSI("Province", "ON");
+				//if (location.m_ID == "7032682")
+				//	location.SetSSI("Province", "QC");
+				//if (location.m_ID == "2203913")
+				//	location.SetSSI("Province", "NT");
 
 
-				if (location.m_name.empty())
-					location.m_name = location.GetSSI("NameFr");
+
+
+				ASSERT(!location.m_name.empty());
+				ASSERT(!location.m_ID.empty());
+				//location.m_name = location.GetSSI("NameFr");
 
 				locations.push_back(location);
 			}
@@ -1446,7 +1451,7 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			//observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 			CFileInfoVector dir1;
@@ -1468,7 +1473,7 @@ namespace WBSF
 				{
 					nbTry++;
 
-					msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+					msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 					if (msg)
 					{
@@ -1477,41 +1482,45 @@ namespace WBSF
 							while (it1 != dir1.end() && msg)
 							{
 								string dirName = GetLastDirName(it1->m_filePath);
-								if (dirName != "latest")
+
+								if (dirName.size() == 8 &&
+									std::all_of(dirName.begin(), dirName.end(), [](unsigned char c) { return std::isdigit(c); }) )
 								{
 									//string dirName = GetLastDirName(GetPath(it2->m_filePath));
 									int year = WBSF::as<int>(dirName.substr(0, 4));
-									size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
-									size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
-									CTRef TRef(year, m, d);
+										size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
+										size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
 
 
-									CFileInfoVector dirTmp;
+										CTRef TRef(year, m, d);
+
+
+										CFileInfoVector dirTmp;
 									msg = FindDirectories(pConnection, it1->m_filePath, dirTmp);//stations
 
 									for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
 									{
-										string ICAOID = GetLastDirName(it2->m_filePath);
-										CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+										string IATA_ID = GetLastDirName(it2->m_filePath);
+										CLocationVector::const_iterator itMissing = locations.FindBySSI("IATA", IATA_ID, false);
 
 										string prov;
 										if (itMissing != locations.end())
 											prov = itMissing->GetSSI("Province");
 										else
-											missingID.insert(ICAOID);
+											missingID.insert(IATA_ID);
 
 
 										if (prov.empty() || selection.at(prov))
 										{
 
-											auto findIt = lastUpdate.find(ICAOID);
+											auto findIt = lastUpdate.find(IATA_ID);
 											if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
 											{
 												dir2.push_back(*it2);
 											}
 										}
 									}
-								}
+								}//if date
 
 								msg += callback.StepIt();
 								nbTry = 0;
@@ -1554,7 +1563,7 @@ namespace WBSF
 			{
 				nbTry++;
 
-				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{
@@ -1562,8 +1571,8 @@ namespace WBSF
 					{
 						while (it2 != dir2.end() && msg)//for all station
 						{
-							string ICAOID = GetLastDirName(it2->m_filePath);
-							CLocationVector::const_iterator itMissing = locations.FindBySSI("ICAO", ICAOID, false);
+							string IATA_ID = GetLastDirName(it2->m_filePath);
+							CLocationVector::const_iterator itMissing = locations.FindBySSI("IATA", IATA_ID, false);
 
 							CFileInfoVector fileListTmp;
 							msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
@@ -1575,9 +1584,9 @@ namespace WBSF
 								if (mm == 0)//take only hourly value (avoid download minute and 10 minutes files)
 								{
 									CTRef TRef = GetSWOBTRef(fileName);
-									auto findIt = lastUpdate.find(ICAOID);
+									auto findIt = lastUpdate.find(IATA_ID);
 									if (findIt == lastUpdate.end() || TRef > findIt->second)
-										fileList[ICAOID].push_back(*it);
+										fileList[IATA_ID].push_back(*it);
 								}
 								msg += callback.StepIt(0);
 							}//for all files
@@ -1623,7 +1632,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (!msg)
 			return msg;
@@ -1661,14 +1670,14 @@ namespace WBSF
 						msg = GetSWOBLocation(source, location);
 						if (msg)
 						{
-							location.SetSSI("ICAO", *it);
+							location.SetSSI("IATA", *it);
 							locations.push_back(location);
 							missingLoc.push_back(location);
 						}
 					}
 				}
 
-				ASSERT(locations.FindBySSI("ICAO", *it, false) != locations.end());
+				ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
 
 				msg += callback.StepIt();
 			}
@@ -1705,7 +1714,7 @@ namespace WBSF
 
 		for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
 		{
-			CLocationVector::const_iterator itLoc = locations.FindBySSI("ICAO", it1->first, false);
+			CLocationVector::const_iterator itLoc = locations.FindBySSI("IATA", it1->first, false);
 			ASSERT(itLoc != locations.end());
 
 			CLocation location = *itLoc;
@@ -1725,7 +1734,7 @@ namespace WBSF
 				CInternetSessionPtr pSession;
 				CHttpConnectionPtr pConnection;
 
-				msg = GetHttpConnection("dd.weatheroffice.gc.ca", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				msg = GetHttpConnection(SERVER_NAME[N_SWOB], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{
@@ -1735,6 +1744,7 @@ namespace WBSF
 						{
 							string source;
 							msg = GetPageText(pConnection, it2->m_filePath, source, false, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT);
+
 
 							if (msg)
 							{
@@ -2013,7 +2023,7 @@ namespace WBSF
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
-		bool bFredericton = station.GetSSI("ICAO") == "CAFC";
+		bool bFredericton = station.GetSSI("IATA") == "CAFC";
 		//CSun sun(station.m_lat, station.m_lon);
 
 
