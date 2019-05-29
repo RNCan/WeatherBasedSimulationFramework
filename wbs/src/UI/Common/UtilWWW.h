@@ -40,7 +40,7 @@ namespace UtilWWW
 	
 	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow=FALSE);
 	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow=FALSE, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
-	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList);
+	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow=FALSE, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 	ERMsg FindDirectories(CFtpConnectionPtr& pConnect, const CString& URL, WBSF::CFileInfoVector& fileList);
 	void ConvertString2FindFileInfo(CFtpConnectionPtr& pConnect, const CStringArray& fileListIn, WBSF::CFileInfoVector& fileListOut, BOOL bThrow = FALSE, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 	ERMsg WaitServer(size_t nbSecond, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
@@ -56,7 +56,7 @@ namespace UtilWWW
 
 	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const std::string& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow = FALSE);
 	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const std::string& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow = FALSE, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
-	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const std::string& URL, WBSF::CFileInfoVector& fileList);
+	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const std::string& URL, WBSF::CFileInfoVector& fileList, BOOL bThrow=false, WBSF::CCallback& callback = WBSF::CCallback::DEFAULT_CALLBACK);
 	ERMsg FindDirectories(CFtpConnectionPtr& pConnect, const std::string& URL, WBSF::CFileInfoVector& fileList);
 	bool IsFileUpToDate(const WBSF::CFileInfo& info, const std::string& localFile, bool bLookFileSize = true, bool bLookFileTime = true);
 	bool IsFileUpToDate(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& localFilePath, bool bLookFileSize = true, bool bLookFileTime = true);

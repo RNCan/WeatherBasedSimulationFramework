@@ -1357,9 +1357,18 @@ namespace WBSF
 					case C_ELEVATION:location.m_elev = WBSF::as<double>((*loop)[C_ELEVATION]); break;
 					case C_PROVINCE:
 					{
-						size_t p = NOT_INIT;
+						string prov_name;
 						if ((*loop).size() > C_PROVINCE)//the column is absent when the last value is empty
-							p = CProvinceSelection::GetProvince((*loop)[c], CProvinceSelection::NAME);
+							prov_name = (*loop)[C_PROVINCE];
+
+						if( IsEqual(prov_name, "Newfoundland and Labrador"))
+							prov_name = CProvinceSelection::GetName(CProvinceSelection::NFLD,CProvinceSelection::NAME);
+						else if (IsEqual(prov_name, "New Brunswick"))
+							prov_name = CProvinceSelection::GetName(CProvinceSelection::NB, CProvinceSelection::NAME);
+						else if (IsEqual(prov_name, "British Columbia"))
+							prov_name = CProvinceSelection::GetName(CProvinceSelection::BC, CProvinceSelection::NAME);
+
+						size_t p = CProvinceSelection::GetProvince(prov_name, CProvinceSelection::NAME);
 
 						if (p == NOT_INIT)
 						{
@@ -1442,12 +1451,12 @@ namespace WBSF
 
 		ifile.close();
 
+		set<string> dates;
+		set<string> stationsID;
 
 		CFileInfoVector dir2;
 		if (msg)
 		{
-
-
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
@@ -1486,7 +1495,6 @@ namespace WBSF
 								if (dirName.size() == 8 &&
 									std::all_of(dirName.begin(), dirName.end(), [](unsigned char c) { return std::isdigit(c); }) )
 								{
-									//string dirName = GetLastDirName(GetPath(it2->m_filePath));
 									int year = WBSF::as<int>(dirName.substr(0, 4));
 										size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
 										size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
@@ -1496,7 +1504,7 @@ namespace WBSF
 
 
 										CFileInfoVector dirTmp;
-									msg = FindDirectories(pConnection, it1->m_filePath, dirTmp);//stations
+									msg = FindDirectories(pConnection, it1->m_filePath, dirTmp, TRUE, callback);//stations
 
 									for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
 									{
@@ -1517,6 +1525,10 @@ namespace WBSF
 											if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
 											{
 												dir2.push_back(*it2);
+
+												dates.insert(dirName);
+												stationsID.insert(IATA_ID);
+
 											}
 										}
 									}
@@ -1555,7 +1567,12 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			callback.PushTask("Get hours to update for all days stations (" + to_string(dir2.size()) + " days stations)", dir2.size());
+			
+			
+
+
+			callback.PushTask("Get hours to update for all days ("+to_string(dates.size() )+") and stations (" + to_string(stationsID.size()) +"): "+ to_string(dir2.size()) + " days stations", dir2.size());
+			callback.AddMessage("Get hours to update for all days (" + to_string(dates.size()) + ") and stations (" + to_string(stationsID.size()) + ") " + to_string(dir2.size()) + " days stations");
 
 			size_t nbTry = 0;
 			CFileInfoVector::const_iterator it2 = dir2.begin();
@@ -1575,7 +1592,7 @@ namespace WBSF
 							CLocationVector::const_iterator itMissing = locations.FindBySSI("IATA", IATA_ID, false);
 
 							CFileInfoVector fileListTmp;
-							msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp);
+							msg = FindFiles(pConnection, it2->m_filePath + "*.xml", fileListTmp, true);
 							for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 							{
 								string fileName = GetFileName(it->m_filePath);
@@ -1605,7 +1622,7 @@ namespace WBSF
 						}
 						else
 						{
-							msg = UtilWin::SYGetMessage(*e);
+							msg = UtilWin::SYGetMessage(*e); 
 						}
 					}
 
