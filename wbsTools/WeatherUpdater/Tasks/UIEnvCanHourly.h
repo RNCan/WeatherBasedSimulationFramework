@@ -20,7 +20,7 @@ namespace WBSF
 		
 		enum TSWOBVar{ NB_SWOB_VARIABLES = 22 };
 		enum TNetwork{ N_HISTORICAL, N_SWOB, NB_NETWORKS };
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NETWORK, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NETWORK, MAX_SWOB_DAYS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanHourly); }
 
@@ -88,11 +88,6 @@ namespace WBSF
 		ERMsg ReadSWOB(const std::string& filePath, SWOBData& data);
 		ERMsg SaveSWOB(const std::string& filePath, const SWOBData& data);
 		
-		//ERMsg ReadSWOB_XML(const std::string& source, CHourlyData& data, CCallback& callback);
-		//ERMsg SaveSWOB(CTRef TRef, const std::string& source, const std::string& filePath, CCallback& callback);
-		
-		
-
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int year, size_t m)const;
 		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page, CCallback& callback);
 
@@ -101,7 +96,6 @@ namespace WBSF
 		CLocationVector m_SWOBstations;
 
 		static CTPeriod String2Period(std::string period);
-		//static void UpdatePeriod(CLocation& location, int year);
 		static long GetNbDay(const CTime& t);
 		static long GetNbDay(int y, size_t m, size_t d);
 		static CTRef GetSWOBTRef(const std::string & fileName);

@@ -35,8 +35,8 @@ namespace WBSF
 	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weatheroffice.gc.ca" };
 	//*********************************************************************
 
-	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network" };
-	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT };
+	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "MaxSwobDays" };
+	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING };
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
 	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
 
@@ -71,6 +71,7 @@ namespace WBSF
 		case WORKING_DIR:	str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Hourly\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
+		case MAX_SWOB_DAYS: str = "31"; break;
 		};
 
 		return str;
@@ -1361,8 +1362,8 @@ namespace WBSF
 						if ((*loop).size() > C_PROVINCE)//the column is absent when the last value is empty
 							prov_name = (*loop)[C_PROVINCE];
 
-						if( IsEqual(prov_name, "Newfoundland and Labrador"))
-							prov_name = CProvinceSelection::GetName(CProvinceSelection::NFLD,CProvinceSelection::NAME);
+						if (IsEqual(prov_name, "Newfoundland and Labrador"))
+							prov_name = CProvinceSelection::GetName(CProvinceSelection::NFLD, CProvinceSelection::NAME);
 						else if (IsEqual(prov_name, "New Brunswick"))
 							prov_name = CProvinceSelection::GetName(CProvinceSelection::NB, CProvinceSelection::NAME);
 						else if (IsEqual(prov_name, "British Columbia"))
@@ -1425,7 +1426,8 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 		CProvinceSelection selection(Get(PROVINCE));
-
+		int maxDays = as<int>(MAX_SWOB_DAYS);
+		CTRef now = CTRef::GetCurrentTRef();
 
 		string lastUpdateFilePath = workingDir + "SWOB-ML\\LastUpdate.csv";
 		map<string, CTRef> lastUpdate;
@@ -1493,45 +1495,48 @@ namespace WBSF
 								string dirName = GetLastDirName(it1->m_filePath);
 
 								if (dirName.size() == 8 &&
-									std::all_of(dirName.begin(), dirName.end(), [](unsigned char c) { return std::isdigit(c); }) )
+									std::all_of(dirName.begin(), dirName.end(), [](unsigned char c) { return std::isdigit(c); }))
 								{
 									int year = WBSF::as<int>(dirName.substr(0, 4));
-										size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
-										size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
+									size_t m = WBSF::as<size_t>(dirName.substr(4, 2)) - 1;
+									size_t d = WBSF::as<size_t>(dirName.substr(6, 2)) - 1;
 
 
-										CTRef TRef(year, m, d);
+									CTRef TRef(year, m, d);
 
+									if (now - TRef <= maxDays)
+									{
 
 										CFileInfoVector dirTmp;
-									msg = FindDirectories(pConnection, it1->m_filePath, dirTmp, TRUE, callback);//stations
+										msg = FindDirectories(pConnection, it1->m_filePath, dirTmp, TRUE, callback);//stations
 
-									for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
-									{
-										string IATA_ID = GetLastDirName(it2->m_filePath);
-										CLocationVector::const_iterator itMissing = locations.FindBySSI("IATA", IATA_ID, false);
-
-										string prov;
-										if (itMissing != locations.end())
-											prov = itMissing->GetSSI("Province");
-										else
-											missingID.insert(IATA_ID);
-
-
-										if (prov.empty() || selection.at(prov))
+										for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
 										{
+											string IATA_ID = GetLastDirName(it2->m_filePath);
+											CLocationVector::const_iterator itMissing = locations.FindBySSI("IATA", IATA_ID, false);
 
-											auto findIt = lastUpdate.find(IATA_ID);
-											if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+											string prov;
+											if (itMissing != locations.end())
+												prov = itMissing->GetSSI("Province");
+											else
+												missingID.insert(IATA_ID);
+
+
+											if (prov.empty() || selection.at(prov))
 											{
-												dir2.push_back(*it2);
 
-												dates.insert(dirName);
-												stationsID.insert(IATA_ID);
+												auto findIt = lastUpdate.find(IATA_ID);
+												if (findIt == lastUpdate.end() || TRef >= findIt->second.as(CTM::DAILY))
+												{
+													dir2.push_back(*it2);
 
+													dates.insert(dirName);
+													stationsID.insert(IATA_ID);
+
+												}
 											}
 										}
-									}
+									}//if smaller than nb max days
 								}//if date
 
 								msg += callback.StepIt();
@@ -1567,11 +1572,11 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CHttpConnectionPtr pConnection;
 
-			
-			
 
 
-			callback.PushTask("Get hours to update for all days ("+to_string(dates.size() )+") and stations (" + to_string(stationsID.size()) +"): "+ to_string(dir2.size()) + " days stations", dir2.size());
+
+
+			callback.PushTask("Get hours to update for all days (" + to_string(dates.size()) + ") and stations (" + to_string(stationsID.size()) + "): " + to_string(dir2.size()) + " days stations", dir2.size());
 			callback.AddMessage("Get hours to update for all days (" + to_string(dates.size()) + ") and stations (" + to_string(stationsID.size()) + ") " + to_string(dir2.size()) + " days stations");
 
 			size_t nbTry = 0;
@@ -1622,7 +1627,7 @@ namespace WBSF
 						}
 						else
 						{
-							msg = UtilWin::SYGetMessage(*e); 
+							msg = UtilWin::SYGetMessage(*e);
 						}
 					}
 

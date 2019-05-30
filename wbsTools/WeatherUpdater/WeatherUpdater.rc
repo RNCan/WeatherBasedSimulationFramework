@@ -678,7 +678,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Répertoire de travail|Première année|Dernière année|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau"
+    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau|Nb jours max (Swob)"
 END
 
 STRINGTABLE
@@ -1163,7 +1163,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Working directory|First year|Last year|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network"
+    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network|Max SWOB download (days)"
 END
 
 STRINGTABLE
