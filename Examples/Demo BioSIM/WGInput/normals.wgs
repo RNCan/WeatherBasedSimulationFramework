@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <WGInput version="1">
-    <Variables>T P</Variables>
+    <Variables>TN T TX P</Variables>
     <SourceType>0</SourceType>
     <GenerationType>1</GenerationType>
     <NbNormalsYears>1</NbNormalsYears>
@@ -9,18 +9,20 @@
     <UseForecast>false</UseForecast>
     <UseRadarPrcp>false</UseRadarPrcp>
     <NbNormalsStations>4</NbNormalsStations>
-    <NormalDBName/>
+    <NormalDBName>Canada-USA 1981-2010</NormalDBName>
     <NbDailyStations>4</NbDailyStations>
     <DailyDBName/>
     <NbHourlyStations>4</NbHourlyStations>
     <HourlyDBName/>
-    <GribsDBName/>
+    <NbGribPoints>4</NbGribPoints>
+    <GribDBName/>
     <UseGribs>false</UseGribs>
-    <AtSurfaceOnly>true</AtSurfaceOnly>
     <Albedo>1</Albedo>
     <Seed>0</Seed>
     <AllowedDerivedVariables>R Z S SD SWE A1 A2</AllowedDerivedVariables>
     <Xvalidation>false</Xvalidation>
     <SkipVerify>false</SkipVerify>
+    <NoFillMissing>false</NoFillMissing>
+    <UseShore>true</UseShore>
     <SearchRadius>-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1</SearchRadius>
 </WGInput>

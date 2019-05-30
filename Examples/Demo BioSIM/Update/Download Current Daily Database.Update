@@ -7,11 +7,11 @@
             <Parameters name="ConnectionTimeout">15000</Parameters>
             <Parameters name="Direction">0</Parameters>
             <Parameters name="Limit">0</Parameters>
-            <Parameters name="Local">tmp\Canada_2017-2018.zip</Parameters>
+            <Parameters name="Local">tmp\Canada_2018-2019.zip</Parameters>
             <Parameters name="Passive">1</Parameters>
             <Parameters name="Password"/>
             <Parameters name="Proxy"/>
-            <Parameters name="Remote">regniere/Data11/Weather/Daily/Canada_2017-2018.zip</Parameters>
+            <Parameters name="Remote">regniere/Data11/Weather/Daily/Canada_2018-2019.zip</Parameters>
             <Parameters name="Server">ftp.cfl.scf.rncan.gc.ca</Parameters>
             <Parameters name="ShowProgress">0</Parameters>
             <Parameters name="UserName"/>
@@ -21,7 +21,7 @@
             <Parameters name="Command">1</Parameters>
             <Parameters name="Directory">..\Weather\</Parameters>
             <Parameters name="Filter">*.*</Parameters>
-            <Parameters name="ZipFilepath">tmp\Canada_2017-2018.zip</Parameters>
+            <Parameters name="ZipFilepath">tmp\Canada_2018-2019.zip</Parameters>
         </Task>
     </Tasks>
 </WeatherUpdater>

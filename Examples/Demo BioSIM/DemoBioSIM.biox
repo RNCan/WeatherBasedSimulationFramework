@@ -29,7 +29,7 @@
                     <Name>Exemple 1: 2008-2010</Name>
                     <InternalName>fepjcf</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -86,7 +86,7 @@
                                     <Computation>
                                         <PreviousStatisticType>-1</PreviousStatisticType>
                                         <SelectTimeTransformation>false</SelectTimeTransformation>
-                                        <TemporalTypeMode>0 0</TemporalTypeMode>
+                                        <TemporalTypeMode>0 1</TemporalTypeMode>
                                         <Kind>0</Kind>
                                         <StatisticType>-1</StatisticType>
                                         <EventType>0</EventType>
@@ -99,7 +99,7 @@
                                 </Analysis>
                             </ExecutableArray>
                             <ModelName>DegreeDay (Annual)</ModelName>
-                            <ModelInputName/>
+                            <ModelInputName>3°C</ModelInputName>
                             <LocationsName/>
                             <ParamVariationsName/>
                             <SeedType>0</SeedType>
@@ -110,7 +110,7 @@
                             <Name>subset</Name>
                             <InternalName>iaxeve</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -123,7 +123,7 @@
                                     <Name>mean</Name>
                                     <InternalName>vbuoyz</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -171,7 +171,7 @@
                                 <UseCurrentDate-Last->false</UseCurrentDate-Last->
                                 <Shift-Last->0</Shift-Last->
                                 <SelectVariable>true</SelectVariable>
-                                <VariableSelectionArray>101</VariableSelectionArray>
+                                <VariableSelectionArray>00000101</VariableSelectionArray>
                                 <SelectParameters>false</SelectParameters>
                                 <ParametersSelection/>
                             </AnalysisWindow>
@@ -200,7 +200,7 @@
                     <Name>Exemple 3: Normals</Name>
                     <InternalName>nnnwqw</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -219,7 +219,7 @@
                             <Name>DD</Name>
                             <InternalName>jnfmxp</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -232,7 +232,7 @@
                                     <Name>Average</Name>
                                     <InternalName>pwnbdm</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -245,7 +245,7 @@
                                             <Name>Ex3</Name>
                                             <InternalName>wzpfak</InternalName>
                                             <Description/>
-                                            <Execute>false</Execute>
+                                            <Execute>true</Execute>
                                             <Export>
                                                 <FileName/>
                                                 <ScriptName/>
@@ -270,10 +270,12 @@
                                                 <NbPoints>35</NbPoints>
                                                 <OutputNoData>-999</OutputNoData>
                                                 <MaxDistance>200000</MaxDistance>
+                                                <XValPoints>0.2</XValPoints>
+                                                <OutputType>0</OutputType>
+                                                <UseElev>true</UseElev>
+                                                <UseExpo>true</UseExpo>
+                                                <UseShore>true</UseShore>
                                                 <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW  -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
-                                                <RegionalLimit>false</RegionalLimit>
-                                                <RegionalSD>2</RegionalSD>
-                                                <RegionalLimitToBound>false</RegionalLimitToBound>
                                                 <GlobalLimit>false</GlobalLimit>
                                                 <GlobalSD>2</GlobalSD>
                                                 <GlobalLimitToBound>false</GlobalLimitToBound>
@@ -290,10 +292,13 @@
                                                 <ExternalDrift>3</ExternalDrift>
                                                 <FillNugget>false</FillNugget>
                                                 <OutputVariogramInfo>false</OutputVariogramInfo>
+                                                <RegionalLimit>false</RegionalLimit>
+                                                <RegionalSD>2</RegionalSD>
+                                                <RegionalLimitToBound>false</RegionalLimitToBound>
                                                 <IWDModel>-1</IWDModel>
                                                 <IWDPower>0</IWDPower>
-                                                <IWDUseElev>false</IWDUseElev>
-                                                <TPSType>0</TPSType>
+                                                <TPSMaxError>0.0001</TPSMaxError>
+                                                <RFTreeType>1</RFTreeType>
                                             </InterpolParam>
                                         </Mapping>
                                     </ExecutableArray>
@@ -335,7 +340,7 @@
                             <UseHxGrid>false</UseHxGrid>
                         </ModelGeneration>
                     </ExecutableArray>
-                    <WGInputName/>
+                    <WGInputName>normals</WGInputName>
                     <LocationsName>Random Locations</LocationsName>
                     <ParametersVariationsName/>
                     <NbReplications>10</NbReplications>
@@ -686,10 +691,12 @@
                                                                 <NbPoints>35</NbPoints>
                                                                 <OutputNoData>-999</OutputNoData>
                                                                 <MaxDistance>200000</MaxDistance>
+                                                                <XValPoints>0.2</XValPoints>
+                                                                <OutputType>0</OutputType>
+                                                                <UseElev>true</UseElev>
+                                                                <UseExpo>true</UseExpo>
+                                                                <UseShore>true</UseShore>
                                                                 <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW  -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
-                                                                <RegionalLimit>false</RegionalLimit>
-                                                                <RegionalSD>2</RegionalSD>
-                                                                <RegionalLimitToBound>false</RegionalLimitToBound>
                                                                 <GlobalLimit>false</GlobalLimit>
                                                                 <GlobalSD>2</GlobalSD>
                                                                 <GlobalLimitToBound>false</GlobalLimitToBound>
@@ -706,10 +713,13 @@
                                                                 <ExternalDrift>3</ExternalDrift>
                                                                 <FillNugget>false</FillNugget>
                                                                 <OutputVariogramInfo>false</OutputVariogramInfo>
+                                                                <RegionalLimit>false</RegionalLimit>
+                                                                <RegionalSD>2</RegionalSD>
+                                                                <RegionalLimitToBound>false</RegionalLimitToBound>
                                                                 <IWDModel>-1</IWDModel>
                                                                 <IWDPower>0</IWDPower>
-                                                                <IWDUseElev>false</IWDUseElev>
-                                                                <TPSType>0</TPSType>
+                                                                <TPSMaxError>0.0001</TPSMaxError>
+                                                                <RFTreeType>1</RFTreeType>
                                                             </InterpolParam>
                                                         </Mapping>
                                                     </ExecutableArray>
@@ -754,7 +764,7 @@
                                                 <UseCurrentDate-Last->true</UseCurrentDate-Last->
                                                 <Shift-Last->0</Shift-Last->
                                                 <SelectVariable>true</SelectVariable>
-                                                <VariableSelectionArray>001110000</VariableSelectionArray>
+                                                <VariableSelectionArray>000000000000111000</VariableSelectionArray>
                                                 <SelectParameters>false</SelectParameters>
                                                 <ParametersSelection/>
                                             </AnalysisWindow>
@@ -773,7 +783,7 @@
                                             </Computation>
                                         </Analysis>
                                     </ExecutableArray>
-                                    <ModelName>HemlockLooperRemi</ModelName>
+                                    <ModelName>HemlockLooper</ModelName>
                                     <ModelInputName/>
                                     <LocationsName/>
                                     <ParamVariationsName/>

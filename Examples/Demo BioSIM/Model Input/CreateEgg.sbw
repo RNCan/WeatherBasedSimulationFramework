@@ -6,4 +6,6 @@
     <Parameter Name="LastSampleDate">0</Parameter>
     <Parameter Name="ObservedAI">0</Parameter>
     <Parameter Name="Defoliation">0</Parameter>
+    <Parameter Name="ApplyAdultMortality">1</Parameter>
+    <Parameter Name="AdultLongevity">0</Parameter>
 </ModelInput>
