@@ -1349,7 +1349,7 @@ namespace WBSF
 						std::copy(name.begin(), name.end(), ostream_iterator<string>(s, " "));
 
 						//Regina Upgrade - May 2008 
-						location.m_name = WBSF::PurgeFileName(WBSF::TrimConst(WBSF::UppercaseFirstLetter(s.str())));
+						location.m_name = WBSF::PurgeFileName(WBSF::TrimConst(WBSF::UppercaseFirstLetter(UTF8_ANSI(s.str()))));
 						break;
 					}
 
@@ -1914,7 +1914,7 @@ namespace WBSF
 						{
 						case STATION_NAME:
 						{
-							string name = WBSF::PurgeFileName(value);
+							string name = UTF8_ANSI(WBSF::PurgeFileName(value));
 							location.m_name = WBSF::UppercaseFirstLetter(name);
 							break;
 						}
