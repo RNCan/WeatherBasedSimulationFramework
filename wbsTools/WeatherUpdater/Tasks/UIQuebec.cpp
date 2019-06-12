@@ -8,7 +8,6 @@
 #include "TaskFactory.h"
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
-#include "json\json11.hpp"
 #include "Geomatic/TimeZones.h" 
 #include "mosa.h"
  
@@ -17,7 +16,6 @@ using namespace WBSF::HOURLY_DATA;
 using namespace Mosa;
 using namespace std;
 using namespace UtilWWW;
-using namespace json11;
 
 
 namespace WBSF

@@ -43,9 +43,6 @@ namespace WBSF
 		virtual std::string Default(size_t i)const;
 
 	protected:
-		
-
-		ERMsg UpdateStationsFile(CCallback& callback);
 
 		std::string GetStationsListFilePath(size_t network)const;
 		std::string GetOutputFilePath(size_t network, const std::string& stationName, int year, size_t m = NOT_INIT)const;

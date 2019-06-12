@@ -8,45 +8,39 @@
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
 #include "Basic\CSV.h"
-//#include "json\json11.hpp"
+#include "json\json11.hpp"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
 
-using namespace std; 
+using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
-//using namespace json11;
+using namespace json11;
 
-//plus de donn…es sur:
-//http://fmfpweb2.serm.gov.sk.ca/weather/serm_only.html
-//http ://fmfpweb2.serm.gov.sk.ca/currentcondsquick.php?station=SWIFT
+//stations coord
+//http://wfm.gov.sk.ca/wfm/map_data?first
+//hourly/daily data
+//http://wfm.gov.sk.ca/wfm/table?stn=URNMC&typ=extended&date=2019-05-15&submit=
+//http://wfm.gov.sk.ca/wfm/table/stn/data?stn=SNISB&date=2019-06-06&typ=today&dtype=hourly&tqx=reqId%3A0
 
-
-//WeatherFarm
-//http://weatherfarm.com/historical-data/
-//http://weatherfarm.com/weather-analysis/?station_id=P0328#.WNGPq281-Uk
-//http://weatherfarm.com/weather/current/SK/Endeavour/
-//http://weatherfarm.com/historical-data/date-range=last2days&station-id=P0179
-//http://weatherfarm.com/?share=P0179
-//http://weatherfarm.com/historical-data/date-range=last2days&station-id=P0551
 
 namespace WBSF
 {
 
 	const char* UISaskatchewan::SUBDIR_NAME[NB_NETWORKS] = { "Fire" };
 	const char* UISaskatchewan::NETWORK_NAME[NB_NETWORKS] = { "Saskatchewan Fire" };
-	const char* UISaskatchewan::SERVER_NAME[NB_NETWORKS] = { "fmfpweb2.serm.gov.sk.ca"};
-	const char* UISaskatchewan::SERVER_PATH[NB_NETWORKS] = { "/"};
+	const char* UISaskatchewan::SERVER_NAME[NB_NETWORKS] = { "wfm.gov.sk.ca" };
+	const char* UISaskatchewan::SERVER_PATH[NB_NETWORKS] = { "/" };
 
 	size_t UISaskatchewan::GetNetwork(const string& network)
 	{
 		size_t n = NOT_INIT;
 
-		for (size_t i = 0; i <NB_NETWORKS && n == NOT_INIT; i++)
+		for (size_t i = 0; i < NB_NETWORKS && n == NOT_INIT; i++)
 		{
 			if (IsEqualNoCase(network, NETWORK_NAME[i]))
 				n = i;
@@ -56,12 +50,12 @@ namespace WBSF
 	}
 
 	//*********************************************************************
-	const char* UISaskatchewan::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadArchive"};
-	const size_t UISaskatchewan::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL};
+	const char* UISaskatchewan::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadArchive" };
+	const size_t UISaskatchewan::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL };
 	const UINT UISaskatchewan::ATTRIBUTE_TITLE_ID = IDS_UPDATER_SASKATCHEWAN_P;
 	const UINT UISaskatchewan::DESCRIPTION_TITLE_ID = ID_TASK_SASKATCHEWAN;
 
-	const char* UISaskatchewan::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Saskatchewan";  return THE_CLASS_NAME; }
+	const char* UISaskatchewan::CLASS_NAME() { static const char* THE_CLASS_NAME = "Saskatchewan";  return THE_CLASS_NAME; }
 	CTaskBase::TType UISaskatchewan::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(UISaskatchewan::CLASS_NAME(), (createF)UISaskatchewan::create);
 
@@ -110,7 +104,7 @@ namespace WBSF
 
 	string UISaskatchewan::GetOutputFilePath(size_t network, const string& title, int year, size_t m)const
 	{
-		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m+1).c_str() : "") + title + ".csv";
+		return GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" + ToString(year) + "\\" + (m != NOT_INIT ? FormatA("%02d\\", m + 1).c_str() : "") + title + ".csv";
 	}
 
 
@@ -118,7 +112,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		string workingDir = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\";
 		msg = CreateMultipleDir(workingDir);
 
@@ -139,9 +133,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-	
+
 		m_stations.clear();
-	
+
 		CLocationVector locations;
 		msg = locations.Load(GetStationsListFilePath(FIRE));
 
@@ -153,10 +147,10 @@ namespace WBSF
 			locations[i].SetSSI("Network", NETWORK_NAME[FIRE]);
 
 		m_stations.insert(m_stations.end(), locations.begin(), locations.end());
-				
+
 		for (size_t i = 0; i < locations.size(); i++)
-			stationList.push_back(ToString(FIRE)+"/"+locations[i].m_ID);
-	
+			stationList.push_back(ToString(FIRE) + "/" + locations[i].m_ID);
+
 
 		return msg;
 	}
@@ -165,7 +159,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t n = ToSizeT(NID.substr(0,1));
+		size_t n = ToSizeT(NID.substr(0, 1));
 		string ID = NID.substr(2);
 
 		//Get station information
@@ -207,33 +201,6 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	//TA - air temperature 
-	//UD - wind direction
-	//US - wind speed
-	//UG - wind gust
-	//PC - precipitation
-	//XR - relative humidity
-	//PA - atmospheric pressure
-
-	enum TVariables { H_STATION_ID, H_DATE, H_TIME, H_TEMP, H_DEW, H_RELATIVE_HUMIDITY, H_DDIR, H_CDIR, H_WIND_SPEED, H_WIND_GUST, H_PRECIPITATION, H_WIND_DIR, H_MAX_SPEED, NB_VARS };
-	//ffmc_h	isi_h	fwi_h	
-	//date	time	temp	rh	dir	wspd	mx_spd	rn_1	telem	d_cell
-	static const char* FIRE_VAR_NAME[NB_VARS] = { "fmfp_id", "date", "time", "temp", "dew", "rh", "ddir", "cdir", "wspd", "wgst", "rn_1", "dir", "mx_spd" };
-	static const TVarH FIRE_VAR[NB_VARS] = { H_SKIP, TVarH(-3), TVarH(-2), H_TAIR, H_TDEW, H_RELH, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_PRCP, H_WNDD, H_SKIP};
-	static size_t GetVar(string name)
-	{
-		size_t var = NOT_INIT;
-
-		for (size_t i = 0; i <NB_VARS && var == NOT_INIT; i++)
-		{
-			if (IsEqual(name, FIRE_VAR_NAME[i]) )
-				var = FIRE_VAR[i];
-		}
-
-		return var;
-	}
-
-
 	ERMsg UISaskatchewan::ExecuteFire(CCallback& callback)
 	{
 		ERMsg msg;
@@ -249,10 +216,11 @@ namespace WBSF
 
 			bool bArchive = as<bool>(DOWNLOAD_ARCHIVE);
 
-			callback.PushTask("Update Saskatchewan fire weather data (" + ToString(locations.size()) + " stations)", locations.size() * (bArchive?2:1) );
+			callback.PushTask("Update Saskatchewan fire weather data (" + ToString(locations.size()) + " stations)", locations.size() * (bArchive ? 2 : 1));
 			size_t curI = 0;
 			int nbRun = 0;
-			
+			CTRef today = CTRef::GetCurrentTRef();
+
 			while (curI < locations.size() && nbRun < 5 && msg)
 			{
 				nbRun++;
@@ -263,7 +231,7 @@ namespace WBSF
 				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 				if (msgTmp)
 				{
-					TRY
+					try
 					{
 						for (size_t i = curI; i < locations.size() && msg; i++)
 						{
@@ -271,50 +239,55 @@ namespace WBSF
 
 							if (bArchive)
 							{
-								string remoteFilePath = "exc_hourly_rts.php?station=" + ID + "&nhh=5000";
-								string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\" + ID + "_archive.txt";
-								if (FileExists(outputFilePath))
-									msg += RemoveFile(outputFilePath);
-								
-								msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
-								if (msgTmp && FileExists(outputFilePath))
+								//download the last year
+								for (CTRef TRef = today - 151; TRef <= today&&msg; TRef += 3)
 								{
-									msg += SplitFireData(locations[i].m_ID, outputFilePath, callback);
-									msg += RemoveFile(outputFilePath);
-									msg += callback.StepIt();
+									string URL = FormatA("wfm/table/stn/data?stn=%s&date=%04d-%02d-%02d&typ=today&dtype=hourly&tqx=reqId%%3A0", ID.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+
+									string source;
+									msgTmp += UtilWWW::GetPageText(pConnection, URL, source, false, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
+
+									//split data in separate files
+									if (msgTmp)
+									{
+										msg += SplitFireData(locations[i].m_ID, source, callback);
+										if (msg)
+										{
+											msg += callback.StepIt(0);
+										}
+									}
 								}
-									
+
+								curI++;
+								msg += callback.StepIt();
 							}
-
-							string remoteFilePath = "exc_hourly_stn.php?station=" + ID + "&nhh=10000";
-							string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[FIRE] + "\\" + ID + ".txt";
-
-							if (FileExists(outputFilePath))
-								msg += RemoveFile(outputFilePath);
-
-							msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
-
-							//split data in seperate files
-							if (msgTmp && FileExists(outputFilePath))
+							else
 							{
-								msg += SplitFireData(locations[i].m_ID, outputFilePath, callback);
-								if (msg)
+								string URL = FormatA("wfm/table/stn/data?stn=%s&date=%04d-%02d-%02d&typ=today&dtype=hourly&tqx=reqId%%3A0", ID.c_str(), today.GetYear(), today.GetMonth() + 1, today.GetDay() + 1);
+
+								string source;
+								msgTmp += UtilWWW::GetPageText(pConnection, URL, source, false, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE);
+
+								//split data in separate files
+								if (msgTmp)
 								{
-									curI++;
-									msg += RemoveFile(outputFilePath);
-									msg += callback.StepIt();
+									msg += SplitFireData(locations[i].m_ID, source, callback);
+									if (msg)
+									{
+										curI++;
+										msg += callback.StepIt();
+									}
 								}
 							}
-
 						}//for all station
 					}
-					CATCH_ALL(e)
+					catch (CException* e)
 					{
 						msgTmp = UtilWin::SYGetMessage(*e);
 					}
-					END_CATCH_ALL
 
-						//clean connection
+
+					//clean connection
 					pConnection->Close();
 					pSession->Close();
 				}
@@ -326,7 +299,7 @@ namespace WBSF
 					}
 				}
 			}
-			
+
 
 			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(curI), 1);
 			callback.PopTask();
@@ -334,133 +307,100 @@ namespace WBSF
 
 		return msg;
 	}
-	
 
 
-	static CTRef GetTRef(const vector<size_t>& vars, const CSVIterator& loop)
+	ERMsg UISaskatchewan::SplitFireData(const string& ID, const std::string& sourceIn, CCallback& callback)
 	{
-		CTRef TRef;
-
-		//find -3 (date) and -2 (hour)
-		size_t pos = UNKNOWN_POS;
-		for (size_t i = 0; i < vars.size() && pos == UNKNOWN_POS; i++)
-			if (vars[i] == -3)
-				pos = i;
-
-		ASSERT(pos != UNKNOWN_POS);
-		ASSERT(vars[pos+1] == -2);
-		//21 Mar 2017	19
-
-		StringVector str((*loop)[pos], " ");
-		if (str.size() == 3)//eliminate NULL
-		{
-
-			size_t day = WBSF::as<size_t>(str[0]) - 1;
-			size_t month = WBSF::GetMonthIndex(str[1].c_str());
-			int year = WBSF::as<int>(str[2]);
-			size_t hour = WBSF::as<size_t>((*loop)[pos + 1]);
-			TRef = CTRef(year, month, day, hour);
-		}
-
-
-		return TRef;
-
-	}
-	
-	ERMsg UISaskatchewan::SplitFireData(const string& ID, const std::string& outputFilePath, CCallback& callback)
-	{
-		ASSERT(!outputFilePath.empty());
 		ERMsg msg;
 
-		
+		string source = sourceIn;
+
 		CTM TM(CTM::HOURLY);
 
 		CWeatherYears data(true);
+		vector<size_t> vars;
 
-		
-		ifStream files;
-		msg += files.open(outputFilePath);
+		WBSF::ReplaceString(source, "google.visualization.Query.setResponse(", "");
+		WBSF::ReplaceString(source, ");", "");
 
-		if (msg)
+		string error;
+		Json json_features = Json::parse(source, error);
+
+		if (error.empty())
 		{
-			vector<size_t> vars;
-			CWeatherAccumulator stat(TM);
+			const string& table_str = json_features["table"].string_value();
+			Json json_rows = Json::parse(table_str, error);
+			Json::array rows = json_rows["rows"].array_items();
 
-			for (CSVIterator loop(files,"\t"); loop != CSVIterator() && msg; ++loop)
+			for (Json::array::const_iterator it = rows.begin(); it != rows.end() && msg; it++)
 			{
-				if (vars.empty())
+				Json::object json_c = it->object_items();
+				ASSERT(json_c.size() == 1);
+				Json::array cols = json_c.begin()->second.array_items();
+				ASSERT(cols.size() == 13);
+				if (cols.size() == 13)
 				{
-					vars.resize(loop.Header().size());
-					for (size_t i = 0; i < loop.Header().size(); i++)
-						vars[i] = GetVar(loop.Header()[i]);
-				}
 
-				if (loop->size() == vars.size())
-				{
-					CTRef TRef = GetTRef(vars, loop);
-					if (TRef.IsInit())
+					Json::object json_date = cols.at(0).object_items();
+					ASSERT(json_date.size() == 2);
+					string str_date = json_date["f"].string_value();
+					StringVector date(str_date, "- :");
+					ASSERT(date.size() == 6);
+					CTRef TRef(ToInt(date[0]), ToSizeT(date[1]) - 1, ToSizeT(date[2]) - 1, ToSizeT(date[3]));
+					ASSERT(TRef.IsValid());
+
+					if (!data.IsYearInit(TRef.GetYear()))
 					{
-						if (stat.TRefIsChanging(TRef))
-						{
-							if (!data.IsYearInit(TRef.GetYear()))
-							{
-								//try to load old data before changing it...
-								string filePath = GetOutputFilePath(FIRE, ID, TRef.GetYear());
-								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
-							}
+						//try to load old data before changing it...
+						string filePath = GetOutputFilePath(FIRE, ID, TRef.GetYear());
+						if (!data.LoadData(filePath, -999, false))//don't erase other years when multiple years
+							data.CreateYear(TRef.GetYear());
+					}
 
-							data[stat.GetTRef()].SetData(stat);
-						}
-
-						for (size_t i = 0; i < vars.size(); i++)
+					for (size_t v = 1; v < 9 && msg; v++)
+					{
+						Json::object json_value = cols.at(v).object_items();
+						if (json_value.size() == 1)
 						{
-							if (vars[i] < NB_VAR_H && (*loop)[i] != "NULL")
+							if (!json_value["v"].is_null())
 							{
-								double value = ToDouble((*loop)[i]);
-								ASSERT(value > -99);
-								stat.Add(TRef, vars[i], value);
+								double value = json_value["v"].number_value();
+
+								switch (v)
+								{
+								case 1: data[TRef].SetStat(H_TAIR, value); break;//Temp	
+								case 2: data[TRef].SetStat(H_RELH, value); break;//RH	
+								case 3: data[TRef].SetStat(H_WNDS, value); break;//Wind  speed	
+								case 4: break;//Wind Gusts	
+								case 5: break;//Dir	Wind
+								case 6: data[TRef].SetStat(H_WNDD, value); break;//Wind Az
+								case 7: data[TRef].SetStat(H_PRCP, value); break;//Rain (1 hr)	
+								case 8: data[TRef].SetStat(H_PRES, value); break;//Press
+								};
 							}
 						}
 					}
+
+					if (data[TRef][H_TAIR].IsInit() && data[TRef][H_RELH].IsInit())
+						data[TRef].SetStat(H_TDEW, Hr2Td(data[TRef][H_TAIR], data[TRef][H_RELH]));
 				}
+			}
 
-				msg += callback.StepIt(0);
-			}//for all line 
-				
-			if (stat.GetTRef().IsInit())
-				data[stat.GetTRef()].SetData(stat);
-
-			if (msg)
+			//save all years 
+			for (auto it = data.begin(); it != data.end(); it++)
 			{
-				//Compute Tdew if hourly data
-				CTPeriod p = data.GetEntireTPeriod();
-				for (CTRef h = p.Begin(); h <= p.End(); h++)
-				{
-					CStatistic T = data[h][H_TAIR];
-					CStatistic Hr = data[h][H_RELH];
-					CStatistic Td = data[h][H_TDEW];
-					if (T.IsInit() && Hr.IsInit())
-					{
-						if(!Td.IsInit())
-							data[h].SetStat(H_TDEW, Hr2Td(T[MEAN], Hr[MEAN]));
-					}
-						
-				}
-
-
-				//save all years 
-				for (auto it = data.begin(); it != data.end(); it++)
+				if (it->second->HaveData())
 				{
 					string filePath = GetOutputFilePath(FIRE, ID, it->first);
 					string outputPath = GetPath(filePath);
 					CreateMultipleDir(outputPath);
 					it->second->SaveData(filePath, TM);
 				}
-			}//if msg
-		}//if msg
+			}
+		}
 
 		return msg;
 	}
 
-	
+
 }
