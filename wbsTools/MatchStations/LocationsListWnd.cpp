@@ -218,6 +218,7 @@ void CLocationsListWnd::OnUpdateStatusBar(CCmdUI* pCmdUI)
 		if (pDC)
 		{
 			CSize size = pDC->GetTextExtent(text);
+			size.cx *= 1.1;
 			UINT nStyle = m_statusCtrl.GetPaneStyle(1);
 			m_statusCtrl.SetPaneInfo(1, ID_INDICATOR_NB_STATIONS, nStyle, size.cx);
 			ReleaseDC(pDC);

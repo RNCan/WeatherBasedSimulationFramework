@@ -12,10 +12,10 @@ namespace WBSF
 	{
 	public:
 
-		enum TNEWAStates { NB_NEWA_STATES=23};
+		enum TNEWAStates { NB_NEWA_STATES=25};
 
-		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TAttributes { WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, STATES, UPDATE_UNTIL, UNPDATE_STATION_LIST, NB_ATTRIBUTES };
+//		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, UPDATE_UNTIL, UNPDATE_STATION_LIST, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINEWA); }
 
@@ -28,7 +28,7 @@ namespace WBSF
 		virtual UINT GetTitleStringID()const{ return ATTRIBUTE_TITLE_ID; }
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 		virtual bool IsDatabase()const{ return true; }
-		virtual bool IsHourly()const{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
+		virtual bool IsHourly()const { return true; }//{ return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
 		virtual bool IsDaily()const{ return true; }
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
@@ -45,15 +45,21 @@ namespace WBSF
 
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg DownloadStation(CCallback& callback);
-		ERMsg DownloadStationHourly(CCallback& callback);
+		//ERMsg DownloadStationHourly(CCallback& callback);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
+		
+
+
 
 		std::string GetStationListFilePath()const;
-		std::string GetOutputFilePath(int year, size_t m, const std::string& stationID)const;
+		std::string GetOutputFilePath(const std::string& stationID, int year)const;
+		ERMsg MergeData( const std::string& ID, std::string source, CCallback& callback);
 
+
+		static ERMsg GetText(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& ID, int year, size_t m, std::string& text);
 		static bool IsInclude(size_t state);
 		static std::string GetStatesPossibleValue();
-		
+
 
 
 

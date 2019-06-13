@@ -49,7 +49,7 @@ namespace WBSF
 		
 
 		ERMsg ExecuteFire(CCallback& callback);
-		ERMsg SplitFireData(const std::string& ID, const std::string& outputFilePath, CCallback& callback);
+		ERMsg MergeFireData(const std::string& ID, std::string source3, CCallback& callback);
 
 		CLocationVector m_stations;
 

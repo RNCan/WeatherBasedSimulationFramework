@@ -255,7 +255,6 @@ namespace WBSF
 
 		
 		size_t nbStationsAdded = 0;
-		//std::map<string, CWeatherYears> data;
 
 		ifStream file;
 		msg = file.open(outputFilePath);
@@ -265,20 +264,13 @@ namespace WBSF
 
 		if (msg)
 		{
-			
-
-			
-
 			enum THourlyColumns{ STATION_CODE, OBSDATE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, RAINFALL, WIND_DIRECTION, NB_COLUMNS };
 			static const char* COL_NAME[NB_COLUMNS] = { "WSTNCODE", "Date", "Time", "temp", "RH", "speed", "precip", "WindDir" };
 			static const TVarH  COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDS, H_PRCP, H_WNDD };
 
 			try
 			{
-
-
 				zen::XmlDoc doc = zen::parse(source);
-
 				zen::XmlIn in(doc.root());
 
 				size_t nbStations = std::distance(in.get()->getChildren().first, in.get()->getChildren().second);

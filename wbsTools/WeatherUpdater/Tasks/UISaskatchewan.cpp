@@ -7,7 +7,7 @@
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
-#include "Basic\CSV.h"
+//#include "Basic\CSV.h"
 #include "json\json11.hpp"
 
 #include "TaskFactory.h"
@@ -240,7 +240,7 @@ namespace WBSF
 							if (bArchive)
 							{
 								//download the last year
-								for (CTRef TRef = today - 151; TRef <= today&&msg; TRef += 3)
+								for (CTRef TRef = today - 151; TRef <= today && msg; TRef += 3)
 								{
 									string URL = FormatA("wfm/table/stn/data?stn=%s&date=%04d-%02d-%02d&typ=today&dtype=hourly&tqx=reqId%%3A0", ID.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
 
@@ -250,7 +250,7 @@ namespace WBSF
 									//split data in separate files
 									if (msgTmp)
 									{
-										msg += SplitFireData(locations[i].m_ID, source, callback);
+										msg += MergeFireData(locations[i].m_ID, source, callback);
 										if (msg)
 										{
 											msg += callback.StepIt(0);
@@ -271,7 +271,7 @@ namespace WBSF
 								//split data in separate files
 								if (msgTmp)
 								{
-									msg += SplitFireData(locations[i].m_ID, source, callback);
+									msg += MergeFireData(locations[i].m_ID, source, callback);
 									if (msg)
 									{
 										curI++;
@@ -309,11 +309,10 @@ namespace WBSF
 	}
 
 
-	ERMsg UISaskatchewan::SplitFireData(const string& ID, const std::string& sourceIn, CCallback& callback)
+	ERMsg UISaskatchewan::MergeFireData(const string& ID, std::string source, CCallback& callback)
 	{
 		ERMsg msg;
 
-		string source = sourceIn;
 
 		CTM TM(CTM::HOURLY);
 

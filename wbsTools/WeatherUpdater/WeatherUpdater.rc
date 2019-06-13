@@ -723,7 +723,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_NEWA_P      "Répertoire de travail|Type de de données|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
+    IDS_UPDATER_NEWA_P      "Répertoire de travail|Première année|Dernière année|États|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
     IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
@@ -1207,7 +1207,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATER_NEWA_P      "Working directory|Data Type|First year|Last year|States|Update until x days|Update stations list"
+    IDS_UPDATER_NEWA_P      "Working directory|First year|Last year|States|Update until x days|Update stations list"
     IDS_UPDATER_MISCELLANEOUS_P 
                             "Working directory|Dataset|First year|Last year|Show progression"
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"

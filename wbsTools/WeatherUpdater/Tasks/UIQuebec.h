@@ -63,6 +63,7 @@ namespace WBSF
 		ERMsg GetStationList(size_t n, StringVector& stationList, CCallback& callback);
 		ERMsg Execute(size_t n, CCallback& callback);
 		std::string GetOutputFilePath(size_t n, std::string id, int year)const;
+		ERMsg CreateWeatherStationQuebec(CCallback& callback);
 
 		CSOPFEU m_SOPFEU;
 		CMDDELCC m_MDDELCC;

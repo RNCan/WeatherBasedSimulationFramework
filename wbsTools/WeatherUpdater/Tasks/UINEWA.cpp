@@ -8,42 +8,49 @@
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 #include "StateSelection.h"
+#include "json\json11.hpp"
 
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 #include "basic/units.hpp"
+#include "UI/Common/UtilWin.h"
+#include "Basic/decode_html_entities_utf8.h"
 
-
-//http://www.ncdc.noaa.gov/qclcd/QCLCD?prior=N
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace units::values;
+using namespace json11;
 
 namespace WBSF
 {
 
+	//station coordinate
+	//http://data.rcc-acis.org/StnMeta?county=36001&output=csv
 
 
 	//*********************************************************************
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	const char* CUINEWA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DataType", "FirstYear", "LastYear", "states", "UpdateUntil", "UpdateStationList" };
-	const size_t CUINEWA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_STRING_SELECT, T_STRING, T_BOOL };
+	const char* CUINEWA::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "states", "UpdateUntil", "UpdateStationList" };
+	const size_t CUINEWA::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING, T_BOOL };
 	const UINT CUINEWA::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWA_P;
 	const UINT CUINEWA::DESCRIPTION_TITLE_ID = ID_TASK_NEWA;
 
-	const char* CUINEWA::CLASS_NAME(){ static const char* THE_CLASS_NAME = "NEWA";  return THE_CLASS_NAME; }
+	const char* CUINEWA::CLASS_NAME() { static const char* THE_CLASS_NAME = "NEWA";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINEWA::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINEWA::CLASS_NAME(), (createF)CUINEWA::create);
 
 	const char* CUINEWA::SERVER_NAME1 = "newa.cornell.edu";
-	const char* CUINEWA::SERVER_NAME2 = "newa.nrcc.cornell.edu";
-	
+	//const char* CUINEWA::SERVER_NAME2 = "newa.nrcc.cornell.edu";
+	const char* CUINEWA::SERVER_NAME2 = "data.nrcc.rcc-acis.org";
 
-	
+
+
+
+
 	CUINEWA::CUINEWA(void)
 	{}
 
@@ -59,8 +66,10 @@ namespace WBSF
 			CStateSelection::$DE,
 			CStateSelection::$IA,
 			CStateSelection::$IL,
+			CStateSelection::$KY,
 			CStateSelection::$MA,
 			CStateSelection::$MD,
+			CStateSelection::$ME,
 			CStateSelection::$MI,
 			CStateSelection::$MN,
 			CStateSelection::$MO,
@@ -79,9 +88,9 @@ namespace WBSF
 			CStateSelection::$WI,
 		};
 
- 
+
 		bool bInclude = false;
-		for (size_t i = 0; i < NB_NEWA_STATES&&!bInclude; i++)
+		for (size_t i = 0; i < NB_NEWA_STATES && !bInclude; i++)
 			bInclude = state == NEWA_STATES[i];
 
 		return bInclude;
@@ -106,7 +115,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
+			//		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		case STATES:	str = GetStatesPossibleValue(); break;
 		};
 		return str;
@@ -118,10 +127,10 @@ namespace WBSF
 	{
 		string str;
 
-		switch (i) 
+		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "NEWA\\"; break;
-		case DATA_TYPE: str = "0"; break;
+			//	case DATA_TYPE: str = "0"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case UPDATE_UNTIL: str = "2"; break;
@@ -130,39 +139,39 @@ namespace WBSF
 		return str;
 	}
 
-	
+
 
 	ERMsg CUINEWA::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
-		ERMsg msg; 
+		ERMsg msg;
 
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		
+
 		msg = GetHttpConnection(SERVER_NAME1, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (!msg)
 			return msg;
-		
+
 		string source;
 		msg = GetPageText(pConnection, "index.php?page=station-pages", source);
 		if (msg)
 		{
 			try
 			{
-				size_t pos = source.find(".evenRow"); 
+				size_t pos = source.find(".evenRow");
 				if (pos != string::npos)
-					pos = source.find("<table", pos+8);
+					pos = source.find("<table", pos + 8);
 				if (pos != string::npos)
-					pos = source.find("<table", pos+6); 
+					pos = source.find("<table", pos + 6);
 
-				
+
 				if (pos != string::npos)
 				{
 					size_t pos_begin = pos + 6;
 					size_t pos_end = source.find("</table>", pos_begin);
 					callback.PushTask("Download stations list", pos_end - pos_begin);
-					
+
 
 
 					while (pos < pos_end && msg)
@@ -172,7 +181,7 @@ namespace WBSF
 							line = FindString(line, "<a ", "</a>");
 
 						string ID;
-						if (!line.empty()) 
+						if (!line.empty())
 							ID = TrimConst(FindString(line, "&WeatherStation=", "\">"));
 						if (!line.empty() && !ID.empty())
 						{
@@ -181,7 +190,7 @@ namespace WBSF
 
 							string URL = FindString(line, "\"", "\"");
 							string name = PurgeFileName(line.substr(pos1 + 1, line.length() - pos1 - 5));
-							string state = TrimConst(line.substr(line.length() -2));
+							string state = TrimConst(line.substr(line.length() - 2));
 							if (state == "RI")//replace Rhode Island by pensylvania
 								state = "PA";
 							if (state == "DC")//District of Columbia by Maryland
@@ -189,8 +198,8 @@ namespace WBSF
 
 							size_t s = CStateSelection::GetState(state);
 							ASSERT(IsInclude(s));
-							
-							
+
+
 							string stationPage;
 							msg = GetPageText(pConnection, URL, stationPage);
 							if (msg)
@@ -202,7 +211,7 @@ namespace WBSF
 								StringVector LatLonV(lat_lon, "/");
 								ASSERT(LatLonV.size() == 2);
 
-								
+
 								double lat = ToDouble(LatLonV[0]);
 								double lon = ToDouble(LatLonV[1]);
 								double alt = ToDouble(elev);
@@ -247,9 +256,9 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME2, 1);
+		callback.AddMessage(SERVER_NAME1, 1);
 		callback.AddMessage("");
-		
+
 
 		bool bUpdate = as<bool>(UNPDATE_STATION_LIST);
 
@@ -270,9 +279,9 @@ namespace WBSF
 			return msg;
 
 
-		
+
 		msg = DownloadStation(callback);
-		
+
 		return msg;
 	}
 
@@ -282,11 +291,11 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
-
 		CTRef today = CTRef::GetCurrentTRef();
 		string workingDir = GetDir(WORKING_DIR);
 		int nbFilesToDownload = 0;
+
+		//	size_t type = as<size_t>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -294,12 +303,12 @@ namespace WBSF
 		int nbDays = as<int>(UPDATE_UNTIL);
 		CStateSelection states(Get(STATES));
 
-		
+
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
 			string state = m_stations[i].GetSSI("State");
-			
+
 			if (states.at(state))
 			{
 				bNeedDownload[i].resize(nbYears);
@@ -310,7 +319,7 @@ namespace WBSF
 					size_t nbm = year == today.GetYear() ? today.GetMonth() + 1 : 12;
 					for (size_t m = 0; m < nbm && msg; m++)
 					{
-						string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
+						string filePath = GetOutputFilePath(m_stations[i].m_ID, year);
 						CTimeRef TRef1(GetFileStamp(filePath));
 						CTRef TRef2(year, m, LAST_DAY);
 
@@ -325,7 +334,7 @@ namespace WBSF
 
 		callback.PopTask();
 
-		
+
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -344,17 +353,17 @@ namespace WBSF
 
 		for (size_t i = 0; i < bNeedDownload.size() && msg; i++)
 		{
-			for (size_t y = 0; y < bNeedDownload[i].size()&& msg; y++)
+			for (size_t y = 0; y < bNeedDownload[i].size() && msg; y++)
 			{
 				int year = firstYear + int(y);
 				for (size_t m = 0; m < bNeedDownload[i][y].size() && msg; m++)
 				{
 					if (bNeedDownload[i][y][m])
 					{
-						string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
-						CreateMultipleDir(GetPath(filePath));
+						//string filePath = GetOutputFilePath(type, year, m_stations[i].m_ID);
+						//CreateMultipleDir(GetPath(filePath));
 
-						msg += DownloadMonth(pConnection, year, m, m_stations[i].m_ID, filePath, callback);
+						msg += DownloadMonth(pConnection, year, m, m_stations[i].m_ID, "", callback);
 						if (msg || callback.GetUserCancel())
 						{
 							nbDownload++;
@@ -403,7 +412,7 @@ namespace WBSF
 		CTRef TRef;
 
 		StringVector tmp(str_date, "/ :");
-		
+
 		if (tmp.size() >= 3)
 		{
 			size_t m = ToSizeT(tmp[0]) - 1;
@@ -441,13 +450,13 @@ namespace WBSF
 	{
 		switch (var)
 		{
-		case H_TMIN: 
+		case H_TMIN:
 		case H_TAIR:
 		case H_TMAX:
 		case H_TDEW: value = (float)Celsius(Fahrenheit(value)).get(); break; //F --> °C; 
 		case H_PRCP: value = (float)mm(inch(value)).get(); break; //inch --> mm
 		case H_WNDS: value = kph(mph(value)).get(); break; //miles/h --> km/h
-		case H_SRAD: value *= 697.3/60.0; break;// Langley --> W/m²
+		case H_SRAD: value *= 697.3 / 60.0; break;// Langley --> W/m²
 		case H_RELH:
 		case H_WNDD:
 		case H_ADD1: break;//leaf wetness (minutes)
@@ -458,152 +467,218 @@ namespace WBSF
 		return value;
 	}
 
+
+	ERMsg CUINEWA::GetText(CHttpConnectionPtr& pConnection, const std::string& ID, int year, size_t m, std::string& text)
+	{
+
+		ERMsg msg;
+
+		//
+
+		CString URL = _T("StnData");
+		CString strHeaders = _T("Content-Type: application/json\r\n");
+		CTRef today = CTRef::GetCurrentTRef();
+		CTRef begin(year, m, FIRST_DAY);
+		CTRef end(year, m, LAST_DAY);
+		begin -= 1;
+		end = min(end, today);
+
+		CStringA strParam;
+		strParam.Format("{\"params\":{\"sid\":\"%s\",\"sdate\":\"%04d-%02d-%02d\",\"edate\":\"%04d-%02d-%02d\",\"elems\":[{\"vX\":23,\"prec\":1},{\"vX\":5},{\"vX\":22},{\"vX\":24},{\"vX\":28,\"prec\":1},{\"vX\":27},{\"vX\":132},{\"vX\":128,\"prec\":1},{\"vX\":118}],\"meta\":\"tzo\"}}", ID.c_str(), begin.GetYear(), begin.GetMonth() + 1, begin.GetDay() + 1, end.GetYear(), end.GetMonth() + 1, end.GetDay() + 1);
+
+		DWORD HttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
+		CHttpFile* pURLFile = pConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, URL, NULL, 1, NULL, NULL, HttpRequestFlags);
+
+		bool bRep = false;
+
+		if (pURLFile != NULL)
+		{
+			int nbTry = 0;
+			while (!bRep && msg)
+			{
+				try
+				{
+					nbTry++;
+					pURLFile->AddRequestHeaders(strHeaders);
+
+					CString strContentL;
+					strContentL.Format(_T("Content-Length: %d\r\n"), strParam.GetLength());
+					pURLFile->AddRequestHeaders(strContentL);
+
+					// send request
+					bRep = pURLFile->SendRequest(0, 0, (void*)(const char*)strParam, strParam.GetLength()) != 0;
+				}
+				catch (CException* e)
+				{
+					DWORD errnum = GetLastError();
+					if (errnum == 12002 || errnum == 12029)
+					{
+						if (nbTry >= 10)
+						{
+							msg = UtilWin::SYGetMessage(*e);
+						}
+						//try again
+					}
+					else if (errnum == 12031 || errnum == 12111)
+					{
+						//throw a exception: server reset
+						throw(new CInternetException(errnum));
+					}
+					else if (errnum == 12003)
+					{
+						msg = UtilWin::SYGetMessage(*e);
+
+						DWORD size = 255;
+						TCHAR cause[256] = { 0 };
+						InternetGetLastResponseInfo(&errnum, cause, &size);
+						if (_tcslen(cause) > 0)
+							msg.ajoute(UtilWin::ToUTF8(cause));
+					}
+					else
+					{
+						CInternetException e(errnum);
+						msg += UtilWin::SYGetMessage(e);
+					}
+				}
+
+			}
+		}
+
+
+		if (bRep)
+		{
+			const short MAX_READ_SIZE = 4096;
+			pURLFile->SetReadBufferSize(MAX_READ_SIZE);
+
+			std::string tmp;
+			tmp.resize(MAX_READ_SIZE);
+			UINT charRead = 0;
+			while ((charRead = pURLFile->Read(&(tmp[0]), MAX_READ_SIZE)) > 0)
+				text.append(tmp.c_str(), charRead);
+
+			pURLFile->Close();
+		}
+		else
+		{
+			CString tmp;
+			tmp.FormatMessage(IDS_CMN_UNABLE_LOAD_PAGE, URL);
+			msg.ajoute(UtilWin::ToUTF8(tmp));
+		}
+
+		delete pURLFile;
+		return msg;
+	}
+
 	ERMsg CUINEWA::DownloadMonth(CHttpConnectionPtr& pConnection, int year, size_t m, const string& ID, const string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
 
-		size_t type = as <size_t>(DATA_TYPE);
-		CTRef TRef = CTRef::GetCurrentTRef();
-		CTM TM(type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
-
-
-		CWeatherStation weather_data(TM.IsHourly());
-
-
-		static const char PageDataFormat[] = "newaLister/%s/%s/%d/%d";
-
-		string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "hly" : "dly", ID.c_str(), year, m + 1);
+		//http://data.nrcc.rcc-acis.org/StnData
 
 		string source;
-		msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+		msg = GetText(pConnection, ID, year, m, source);
 
-		size_t begin = source.find("<table");
-		size_t end = source.find("</table>");
-		if (!source.empty() && begin != string::npos && end != string::npos)
+		if (msg)
+			msg = MergeData(ID, source, callback);
+
+		return msg;
+	}
+
+
+	ERMsg CUINEWA::MergeData(const string& ID, std::string source, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CWeatherYears data(true);
+		vector<size_t> vars;
+
+		string error;
+		Json json_features = Json::parse(source, error);
+
+		if (error.empty())
 		{
-			try
+			double zones = json_features["meta"]["tzo"].number_value();
+			Json::array days = json_features["data"].array_items();
+
+			for (Json::array::const_iterator it = days.begin(); it != days.end() && msg; it++)
 			{
-				string tmp = source.substr(begin, end - begin + 8);
-				//convert html to xml
-				ReplaceString(tmp, "Total<br>Rain", "Rain<br>");
-				ReplaceString(tmp, "RH<br>Hrs", "RHHrs<br>");
-				
-				ReplaceString(tmp, "<br>", "|");
-				ReplaceString(tmp, "\t", "");
-				ReplaceString(tmp, "\r", "");
-				ReplaceString(tmp, "\n", "");
+				Json::array cols = it->array_items();
 
-
-
-				static const char* TO_REMOVE[] = { " class=", " colspan=", " height=" };
-				for (size_t i = 0; i < sizeof(TO_REMOVE) / sizeof(char*); i++)
+				ASSERT(cols.size() == 10);
+				if (cols.size() == 10)
 				{
-					size_t pos1 = tmp.find(TO_REMOVE[i]);
-					while (pos1 != string::npos)
-					{
-						size_t pos2 = tmp.find(">", pos1 + sizeof(TO_REMOVE[i]));
-						if (pos2 != string::npos)
-							tmp.erase(pos1, pos2 - pos1);
+					string str_date = cols[0].string_value();
+					StringVector date(str_date, "-");
+					ASSERT(date.size() == 3);
+					CTRef TRef(ToInt(date[0]), ToSizeT(date[1]) - 1, ToSizeT(date[2]) - 1);
+					ASSERT(TRef.IsValid());
 
-						pos1 = tmp.find(TO_REMOVE[i]);
+					if (!data.IsYearInit(TRef.GetYear()))
+					{
+						//try to load old data before changing it...
+						string filePath = GetOutputFilePath(ID, TRef.GetYear());
+						if (!data.LoadData(filePath, -999, false))//don't erase other years when multiple years
+							data.CreateYear(TRef.GetYear());
 					}
-				}
 
-
-				if (type == HOURLY_WEATHER)
-				{
-					//ok seem to have a problem with the header </tr> tag
-					size_t make_cor = tmp.find("<tbody>");
-					if (make_cor != string::npos)
-						make_cor = tmp.find("</th><tr>");
-					if (make_cor != string::npos)
-						tmp.insert(tmp.begin() + make_cor + 6, '/');
-				}
-
-
-				MakeLower(tmp);
-				zen::XmlDoc doc = zen::parse(tmp);
-
-
-				zen::XmlIn xml_in(doc.root());
-				zen::XmlIn header = xml_in["thead"]["tr"];
-
-				StringVector var_names;
-				for (zen::XmlIn child = header["th"]; child&&msg; child.next())
-				{
-					string tmp;
-					if (child.get()->getValue(tmp))
+					static const TVarH VARS[10] = {H_TAIR, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD, H_WND2, H_ADD1};
+					for (size_t v = 1; v < 10 && msg; v++)
 					{
-						StringVector elem(tmp, "|");
-						var_names.push_back(elem[0]);
-					}
-				}
-				ASSERT(!var_names.empty());
-
-				zen::XmlIn data = xml_in["tbody"];
-				for (zen::XmlIn child1 = data["tr"]; child1&&msg; child1.next())
-				{
-
-					StringVector var_values;
-					for (zen::XmlIn child2 = child1["td"]; child2&&msg; child2.next())
-					{
-						string var_str;
-						if (child2.get()->getValue(var_str))
-							var_values.push_back(var_str);
-					}//for all col
-
-					if (var_names.size() == var_values.size())
-					{
-						ASSERT(var_names[0] == "date" || var_names[0] == "date/time");
-
-						CTRef TRef = GetTRef(var_values[0], TM);
-						if (TRef.IsInit())
+						Json::array json_values = cols[v].array_items();
+						if (json_values.size() == 24)
 						{
-							for (size_t v = 1; v < var_names.size(); v++)
+							
+							for (size_t h = 0; h < 24 && msg; h++)
 							{
-								TVarH var = GetVar(var_names[v]);
-								if (var != H_SKIP)
+								CTRef TRefH = TRef.as(CTM::HOURLY) + h + int(zones);
+								string str_value = json_values[h].string_value();
+								if (str_value != "M")
 								{
-									double value = ToDouble(var_values[v]);
-									weather_data[TRef].SetStat(var, Convert(var, value));
+									double value = ToDouble(str_value);
+									data[TRefH].SetStat(VARS[v-1], Convert(VARS[v-1], value));
 								}
 							}
 						}
 					}
-				}//for all line
 
-
-
-			}//try
-			catch (const zen::XmlParsingError& e)
-			{
-				// handle error
-				msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+					for (size_t h = 0; h < 24 && msg; h++)
+					{
+						CTRef TRefH = TRef.as(CTM::HOURLY) + h + int(zones);
+						if (!data[TRefH][H_TDEW].IsInit() && data[TRefH][H_TAIR].IsInit() && data[TRefH][H_RELH].IsInit())
+							data[TRefH].SetStat(H_TDEW, Hr2Td(data[TRefH][H_TAIR], data[TRefH][H_RELH]));
+					}
+				}
 			}
-		}//if is valid
 
-		//msg += callback.StepIt();
-
-		if (msg)//always save the file to avoid to download it again
-		{
-			weather_data.SaveData(filePath);
-		}//if have data
-
-		//callback.PopTask();
+			//save all years 
+			for (auto it = data.begin(); it != data.end(); it++)
+			{
+				//if (it->second->HaveData()) save file anyway to avoid download it again
+				{
+					string filePath = GetOutputFilePath(ID, it->first);
+					string outputPath = GetPath(filePath);
+					CreateMultipleDir(outputPath);
+					it->second->SaveData(filePath);
+				}
+			}
+		}
 
 		return msg;
 	}
-	
+
+
 	std::string CUINEWA::GetStationListFilePath()const
 	{
 		return (std::string)GetDir(WORKING_DIR) + "StationsList.csv";
 	}
 
 
-	string CUINEWA::GetOutputFilePath(int year, size_t m, const string& ID)const
+	string CUINEWA::GetOutputFilePath(const string& ID, int year)const
 	{
-		size_t type = as<size_t>(DATA_TYPE);
-		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
+		//size_t type = as<size_t>(DATA_TYPE);
+		//return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
+		//return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + ID + ".csv";
+		return GetDir(WORKING_DIR) + "Hourly\\" + ToString(year) + "\\" + ID + ".csv";
 	}
 
 
@@ -630,8 +705,8 @@ namespace WBSF
 
 		return msg;
 	}
-	
-	
+
+
 	ERMsg CUINEWA::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
@@ -639,7 +714,7 @@ namespace WBSF
 		/*size_t type = as <size_t>(DATA_TYPE);
 		if ( TM.Type() == CTM::DAILY && type != DAILY_WEATHER)
 		{
-			msg.ajoute("Daily database not supported on the hourly data for the moment..."); 
+			msg.ajoute("Daily database not supported on the hourly data for the moment...");
 			return msg;
 		}*/
 
@@ -655,27 +730,27 @@ namespace WBSF
 
 		station.m_name = WBSF::PurgeFileName(station.m_name);
 
-
+		//		size_t type = as<size_t>(DATA_TYPE);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 		station.CreateYears(firstYear, nbYears);
-		station.SetHourly(TM.Type()==CTM::HOURLY);
+		station.SetHourly(TM.Type() == CTM::HOURLY);
 
 		//now extract data 
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
 
-			for (size_t m = 0; m < 12 && msg; m++)
+			//for (size_t m = 0; m < 12 && msg; m++)
+		//	{
+			string filePath = GetOutputFilePath(ID, year);
+			if (FileExists(filePath))
 			{
-				string filePath = GetOutputFilePath(year, m, ID);
-				if (FileExists(filePath))
-				{
-					msg = station.LoadData(filePath, -999, false);
-					msg += callback.StepIt(0);
-				}
+				msg = station.LoadData(filePath, -999, false);
+				msg += callback.StepIt(0);
 			}
+			//}
 		}
 
 		if (msg)
@@ -692,3 +767,5 @@ namespace WBSF
 
 
 }
+
+
