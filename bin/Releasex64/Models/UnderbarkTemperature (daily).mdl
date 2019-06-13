@@ -57,8 +57,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Tnmax</Name>
-            <Title>Tnmax</Title>
+            <Name>Tbmax</Name>
+            <Title>Tbmax</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
