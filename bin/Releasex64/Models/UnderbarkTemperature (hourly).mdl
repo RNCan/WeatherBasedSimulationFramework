@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>UndebarkTemperature</Title>
+    <Version>1.0</Version>
+    <ID>.ubt</ID>
+    <EXE>UnderbarkTemperature.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 364</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>model</Name>
+            <Caption>model</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 335</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Ash (Vermunt)|Mountain Pine (Régnière)</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>3 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tbark</Name>
+            <Title>Tbark</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Vermunt 2011&#x0D;&#x0A;Temperatures Experienced by Emerald Ash Borer and Other Wood-boring Beetles in the Under-bark Micro-climate&#x0D;&#x0A;Cold temperature and emerald ash borer: Modeling the minimum under-bark temperature of ash trees in Canada&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Régnière 2007&#x0D;&#x0A;Modeling cold tolerance in the mountain pine beetle, Dendroctonus ponderosae&#x0D;&#x0A;&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
