@@ -55,7 +55,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is init ewith random values.
 	//*****************************************************************************
-	CSpruceBudworm::CSpruceBudworm(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CSpruceBudworm::CSpruceBudworm(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage
@@ -305,7 +305,7 @@ namespace WBSF
 				CSBWStand* pStand = GetStand(); ASSERT(pStand);
 
 				double scaleFactor = m_broods * m_scaleFactor;
-				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
+				CIndividualPtr object = make_shared<CSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, RANDOM_SEX, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				pTree->push_front(object);
 			}
 

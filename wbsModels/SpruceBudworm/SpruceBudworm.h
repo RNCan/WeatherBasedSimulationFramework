@@ -35,7 +35,7 @@ namespace WBSF
 	{
 	public:
 
-		CSpruceBudworm(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = SBW::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CSpruceBudworm(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = SBW::EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CSpruceBudworm(const CSpruceBudworm& in) :WBSF::CIndividual(in){ operator=(in); }
 		CSpruceBudworm& operator=(const CSpruceBudworm& in);
 		~CSpruceBudworm(void);
