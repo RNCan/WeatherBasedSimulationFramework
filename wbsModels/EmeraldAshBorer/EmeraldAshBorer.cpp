@@ -13,7 +13,7 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 
 
-namespace WBSF
+namespace WBSFh
 {
 
 	//links this class with the EntryPoint of the DLL
