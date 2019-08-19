@@ -223,24 +223,18 @@ namespace WBSF
 
 		m_period.Inflate(section.GetTPeriod());
 		m_dimension[TIME_REF] = m_period.GetNbRef();//update temporal dimension
-		//if( section.IsTemporalMatrix() )
-		//SetDataTM(section.GetDataTM());
-
 		ASSERT(section.GetFirstTRef().GetTM() == m_period.GetTM());
+
 		m_CS.Leave();
 	}
 
 	void CDBMetadata::AddSection(const CModelStatVector& section)
 	{
 		m_CS.Enter();
+
 		m_period.Inflate(section.GetTPeriod());
 		m_dimension[TIME_REF] = m_period.GetNbRef();//update temporal dimension
 
-		//vector<CTM> dataTM;
-		//for (CModelOutputVariableDefVector::const_iterator it = m_variablesDefinition.begin(); it != m_variablesDefinition.end(); it++)
-		//dataTM.push_back(it->m_TM);
-
-		//SetDataTM(dataTM);
 		m_CS.Leave();
 
 		ASSERT(section.GetFirstTRef().GetTM() == m_period.GetTM());
@@ -249,9 +243,10 @@ namespace WBSF
 	void CDBMetadata::AddSection(const CSimulationPoint& section)
 	{
 		m_CS.Enter();
+
 		m_period.Inflate(section.GetEntireTPeriod());
 		m_dimension[TIME_REF] = m_period.GetNbRef();//update temporal dimension
-		//SetDataTM(vector<CTM>(m_variablesDefinition.size()));//Section added from weather always have TM==-1
+
 		m_CS.Leave();
 
 
@@ -449,7 +444,7 @@ namespace WBSF
 
 	void CDBSectionIndexVector::load(size_t no)const
 	{
-		static CCriticalSection m_CS;
+		//static CCriticalSection m_CS;
 
 		ASSERT(IsOpen());
 		ASSERT(no < size());
@@ -614,10 +609,26 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
+		
 
 		if (!callback.GetUserCancel())
 		{
+			vector<CStatistic> tmp(section.GetRows()*section.GetCols());
+
+
+			for (size_t i = 0; i < section.GetRows() && msg; i++)
+			{
+				ASSERT(i >= section.GetRows() || section[i].size() == section.GetCols());
+				for (size_t j = 0; j < section.GetCols() && msg; j++)
+				{
+					tmp[i*section.GetCols() + j] = section[i][j];
+					msg += callback.StepIt(0);
+				}
+			}
+
+
+			m_CS.Enter();
+
 			m_nbCols = section.GetCols();
 			m_nbRows += section.GetRows();
 			m_type = type;
@@ -625,21 +636,24 @@ namespace WBSF
 			m_metadata.AddSection(section);
 			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
-			for (size_t i = 0; i < section.GetRows() && msg; i++)
-			{
-				for (size_t j = 0; j < section.GetCols() && msg; j++)
-				{
-					//m_file.write((char*)&(section[i][j]), sizeof(CStatistic));
-					m_file.write_value(section[i][j]);
-					msg += callback.StepIt(0);
-				}
-			}
+			//for (size_t i = 0; i < section.GetRows() && msg; i++)
+			//{
+			//	for (size_t j = 0; j < section.GetCols() && msg; j++)
+			//	{
+			//		m_file.write_value(section[i][j]);
+			//		msg += callback.StepIt(0);
+			//	}
+			//}
 
+			//save data
+			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(CStatistic));
 			ASSERT(!msg || m_file.lengthp() == GetDataSize());
+
+			m_CS.Leave();
 		}
 
 
-		m_CS.Leave();
+		
 		return msg;
 	}
 
@@ -787,9 +801,20 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
+		
 		if (!callback.GetUserCancel())
 		{
+			vector<float> tmp(section.GetRows()*section.GetCols());
+			for (size_t i = 0; i < section.GetRows() && msg; i++)
+			{
+				ASSERT(i >= section.size() || section[i].size() == section.GetCols());
+				for (size_t j = 0; j < section.GetCols() && msg; j++)
+				{
+					tmp[i*section.GetCols() + j] = (i < section.GetRows()) ? float(section[i][j]) : float(VMISS);
+				}
+			}
+
+			m_CS.Enter();
 			m_type = type;
 			m_nbCols = section.GetCols();
 			m_nbRows += section.GetRows();
@@ -797,22 +822,22 @@ namespace WBSF
 			m_metadata.AddSection(section);
 			m_index.push_back(CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, section.GetRows(), section.GetFirstTRef(), section.HaveData()));
 
-			for (size_t i = 0; i < section.GetRows() && msg; i++)
-			{
-				ASSERT(section[i].size() == m_nbCols);
-				for (size_t j = 0; j < section.GetCols() && msg; j++)
-				{
-					float value = float(section[i][j]);
-					m_file.write_value(value);// , sizeof(float));
-					msg += callback.StepIt(0);
-				}
-			}
-
+			//for (size_t i = 0; i < section.GetRows() && msg; i++)
+			//{
+			//	ASSERT(section[i].size() == m_nbCols);
+			//	for (size_t j = 0; j < section.GetCols() && msg; j++)
+			//	{
+			//		float value = float(section[i][j]);
+			//		m_file.write_value(value);// , sizeof(float));
+			//		msg += callback.StepIt(0);
+			//	}
+			//}
+			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(float));
 			assert(!msg || m_file.lengthp() == GetDataSize());
-
+			m_CS.Leave();
 		}
 
-		m_CS.Leave();
+		
 
 		return msg;
 	}

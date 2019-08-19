@@ -60,7 +60,7 @@ namespace WBSF
 			Twtr = max(0.0, (α1*Aᵒ / 2) + (α2*sqrt(A¹*A¹ + B¹*B¹) * cosA) + β1*Ra1 + β2*Ra2 + β3*Ra3);
 		}
 
-		ASSERT(Twtr >= 0 && Twtr <= 30);
+		ASSERT(Twtr >= 0 && Twtr <= 35);
 		return Twtr;
 	}
 

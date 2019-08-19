@@ -36,6 +36,7 @@ namespace WBSF
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;
 
 		void Search(CGridPointResultVector& result, const CGridPoint& pt, int iXval = -1)const;
+		bool IsInit() const { return (bool)m_pANNSearch; }
 
 	protected:
 

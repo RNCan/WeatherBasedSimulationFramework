@@ -166,7 +166,7 @@ namespace WBSF
 		if (!WBSF::GetFM().WGInput().Get(WGName, WGInput))
 			WGInput.LoadDefaultParameter();
 
-		bool bDeterminist = WGInput.UseDaily() && (WGInput.m_lastYear < CTRef::GetCurrentTRef().GetYear());
+		bool bDeterminist = (WGInput.UseDaily()|| WGInput.UseHourly()) && (WGInput.m_lastYear < CTRef::GetCurrentTRef().GetYear());
 		m_behaviourCtrl.SetCurSel(bDeterminist ? 0 : 1);
 
 		double time = nbRuns*WGInput.GetNbYears()*CExecutable::GetExecutionTime("WeatherGenerator", WGInput.GetTM(), false);

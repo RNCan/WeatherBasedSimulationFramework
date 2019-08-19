@@ -2147,7 +2147,7 @@ namespace WBSF
 		{
 			if (variables[v])
 			{
-				ASSERT(me[v].IsInit());
+				ASSERT(v==H_TAIR || me[v].IsInit());
 
 				switch (v)
 				{
@@ -2192,7 +2192,7 @@ namespace WBSF
 				default: assert(false);//other variables to do
 				}
 
-				ASSERT(GetStat(v).IsInit());
+				ASSERT(v == H_TAIR || GetStat(v).IsInit());
 			}
 		}
 	}
@@ -2880,6 +2880,7 @@ namespace WBSF
 								{
 									if (TM.Type() == CTM::HOURLY)
 									{
+										ASSERT(itD->IsHourly());
 										for (CWeatherDay::const_iterator itH = itD->begin(); itH != itD->end(); itH++)
 										{
 											if (itH->HaveData())
@@ -3400,16 +3401,18 @@ namespace WBSF
 
 								_ASSERTE(me[y][m][d][v].IsInit());
 								CStatistic oldStat = GetDailyStat(v, copy[y][m][d]);
-								_ASSERTE(oldStat);
+								if (oldStat.IsInit())//only compute ajustement when data is available
+								{
 
-								copy[y][m][d].ComputeHourlyVariables(v, options);
+									copy[y][m][d].ComputeHourlyVariables(v, options);
 
-								_ASSERTE(me[y][m][d][v].IsInit());
-								CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
-								_ASSERTE(newStat);
+									_ASSERTE(me[y][m][d][v].IsInit());
+									CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
+									_ASSERTE(newStat);
 
-								double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
-								copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
+									double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
+									copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
+								}
 							}
 						}//v
 					}//d
@@ -3586,18 +3589,34 @@ namespace WBSF
 		if (IsHourly())
 		{
 			CTPeriod p = GetEntireTPeriod();
+			//bool bTair = variables[H_TMIN] || variables[H_TAIR] || variables[H_TMAX];
 
+			////Fill Tmin, Tair and Tmax
+			//if (bTair)
+			//{
+			//	for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
+			//	{
+			//		CHourlyData& weaᵒ = GetHour(TRef);
+			//		if (!IsMissing(weaᵒ[H_TAIR]))
+			//		{
+			//			if (IsMissing(weaᵒ[H_TMIN]))
+			//				weaᵒ[H_TMIN] = weaᵒ[H_TAIR];
+			//			if (IsMissing(weaᵒ[H_TMAX]))
+			//				weaᵒ[H_TMAX] = weaᵒ[H_TAIR];
+			//		}
+			//		else
+			//		{
+			//			if (!IsMissing(weaᵒ[H_TMIN]) && !IsMissing(weaᵒ[H_TMAX]))
+			//				weaᵒ[H_TAIR] = (weaᵒ[H_TMIN] + weaᵒ[H_TMIN]) / 2.0;
+			//		}
+			//		
+			//	}
+			//}
 
 			for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
 			{
 				CHourlyData& weaᵒ = GetHour(TRef);
-
-				if (TRef == CTRef(2016, JANUARY, DAY_12, 21))
-				{
-					int gg;
-					gg = 0;
-				}
-
+			
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
@@ -3883,13 +3902,10 @@ namespace WBSF
 
 	void CWeatherStationVector::GetInverseDistanceMean(CWVariables variables, const CLocation& target, CWeatherStation& station, bool bTakeElevation, bool bTakeShoreDistance)const
 	{
-		//station.clear();
-
 		((CLocation&)station) = target;
 
 		if (!empty())
 		{
-
 			CWeightVector weight = GetWeight(variables, target, bTakeElevation, bTakeShoreDistance);
 
 			const CWeatherStationVector& me = *this;
@@ -3897,10 +3913,6 @@ namespace WBSF
 			bool bIsHourly = p.GetTM().Type() == CTM::HOURLY;
 			bool bIsDaily = p.GetTM().Type() == CTM::DAILY;
 			station.SetHourly(bIsHourly);
-			//if (bIsHourly)
-			//{
-			//	station.CreateYears(p);
-			//}
 
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)//for all variables
 			{
@@ -3909,63 +3921,15 @@ namespace WBSF
 					assert(p == me[0].GetEntireTPeriod());
 					for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)//for all time reference
 					{
-						//if (v == H_PRCP)
-						//{
-							//CStatistic x;
-
-							//in the case of precipitation, we made inverse distance with 
-							// value = 0 when prcp <0.1 and 1 when prcp>=0.1
-							//when they have prcp, only nearest station with prcp are used.
-							/*for (size_t i = 0; i < size(); i++)
-							{
-								if (me[i][TRef][v].IsInit())
-								{
-									if (me[i][TRef][v][SUM] >= 0.1)
-									{
-										x += weight[v][i][TRef];
-									}
-									else
-									{
-										x += 0;
-									}
-								}
-							}*/
-
-							//
-													//if (x.IsInit())
-													//{
-														//ASSERT(x[SUM] >= 0 && x[SUM] <= 1);
-														//double test = x[SUM];
-													//	
-													//CStatistic prcp;
-													//for (size_t i = 0; i < size(); i++)
-													//	prcp += me[i][TRef][v][SUM] * weight[v][i][TRef];
-
-													//if (prcp[SUM] >= 0.05/* && test >= 0.5*/)
-													//{
-													//	ASSERT(prcp.IsInit());
-													//	station[TRef].SetStat(v, prcp[SUM]);
-													//}
-													//else
-													//{
-													//	assert(v == H_PRCP);//day without precipitation for this station
-													//	station[TRef].SetStat(v, 0);
-													//}
-													//}
-												//}
-												//else //if (prcp)
-												//{
 						CStatistic stat;
 						for (size_t i = 0; i < size(); i++)
 						{
-							//assert(me[i].size() == 1);
 							CStatistic value;
 							if (me[i][TRef].GetStat(v, value))
 							{
 								assert(value[NB_VALUE] == 1);
 								assert(value[SUM] > -999);
 								stat += value[MEAN] * weight[v][i][TRef];
-
 							}
 						}
 

@@ -38,27 +38,17 @@ namespace WBSF
 	{
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
 		
-		//size_t checkSum = m_pPts->GetCheckSum();
-		//if (checkSum != m_lastCheckSum)
 		if(!m_bInit)
 		{
 			//m_lastCheckSum = checkSum;
+			ASSERT(!m_pPts->empty());
+			
 			m_pANNSearch = make_unique<CANNSearch>();
 			m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
+		
+
 			m_bInit = true;
 		}
-
-		//ANN_SEARCH_CACHE.Enter();
-		//CANNSearchCache::iterator it = ANN_SEARCH_CACHE.find(checkSum);
-		//if( it == ANN_SEARCH_CACHE.end() )
-		//{
-		//	ANN_SEARCH_CACHE[checkSum].reset(pANNSearch);
-		//	it = ANN_SEARCH_CACHE.find(checkSum);
-		//}
-
-		//m_pANNSearch = (pANNSearch;// it->second.get();
-		//ANN_SEARCH_CACHE.Leave();
-
 
 		return msg;
 	}

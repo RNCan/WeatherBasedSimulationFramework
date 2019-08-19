@@ -406,7 +406,7 @@ namespace WBSF
 
 			for (size_t v = 0; v < m_bands.size(); v++)
 			{
-				if (m_bands[v] != NOT_INIT)
+				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v))
 				{
 					assert(m_lines[xy.m_y] != nullptr);
 					assert(is_block_inside(xy.m_y));
@@ -602,6 +602,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		m_variables.reset();
 		m_bands.fill(NOT_INIT);
 		m_units.fill("");
 		m_noData.fill(FLT_MIN);
@@ -637,7 +638,7 @@ namespace WBSF
 						string strLevel = tmp[5];
 						size_t var = get_var(strVar);
 
-						if (var < NB_VAR_GRIBS  && m_variables.test(var))
+						if (var < NB_VAR_GRIBS  && m_variables_to_load.test(var))
 						{
 							bool bScf = false;
 							if (strType == "SFC" || strType == "TGL" || strType == "HTGL")
@@ -648,6 +649,7 @@ namespace WBSF
 
 							if (bScf)
 							{
+								m_variables.set(var);
 								m_bands[var] = i;
 								m_units[var] = GetDefaultUnit(var);
 								m_noData[var] = GetNoData(i);
@@ -680,7 +682,7 @@ namespace WBSF
 							//description.empty();
 
 							size_t var = get_var(strVar);
-							if (var < NB_VAR_GRIBS  && m_variables.test(var) && !description.empty())
+							if (var < NB_VAR_GRIBS  && m_variables_to_load.test(var) && !description.empty())
 							{
 								bool bSfc = false;
 
@@ -695,6 +697,7 @@ namespace WBSF
 
 								if (bSfc)
 								{
+									m_variables.set(var);
 									m_bands[var] = i;
 									m_units[var] = strUnit;
 									m_noData[var] = GetNoData(i);
@@ -704,9 +707,20 @@ namespace WBSF
 					}
 				}
 			}
+
+			//Update available variable with needed variable
+			//set_variables(m_variables);
+			/*ASSERT(m_bands.size() == m_variables.size());
+			for (size_t v = 0; v < m_bands.size(); v++)
+			{
+				if (!m_variables.test(v))
+				{
+					m_bands[v] = NOT_INIT;
+				}
+			}*/
 		}
 
-
+		
 		return msg;
 	}
 
@@ -743,7 +757,7 @@ namespace WBSF
 
 			for (size_t v = 0; v < m_bands.size(); v++)
 			{
-				if (m_bands[v] != NOT_INIT)
+				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v) )
 				{
 					size_t b = m_bands[v];
 
@@ -1076,11 +1090,12 @@ namespace WBSF
 		}
 		else
 		{
-			GribVariables variables;
-			variables.set(H_GHGT);
+			//GribVariables variables;
+			//variables.set(H_GHGT);
 
 			CSfcDatasetCached sfcDS;
-			sfcDS.set_variables(variables);
+			sfcDS.m_variables_to_load.set(H_GHGT);
+			//sfcDS.set_variables(variables);
 			vector<CGeoExtents> extents;
 
 
@@ -1281,7 +1296,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CSfcDatasetCached sfcDS;
-		sfcDS.set_variables(m_variables);
+		sfcDS.m_variables_to_load = m_variables;
 
 #pragma omp critical(OPEN_GDAL)
 		msg = sfcDS.open(file_path, true);
@@ -1309,7 +1324,7 @@ namespace WBSF
 				var.reset(H_WNDD);
 			}
 
-			sfcDS.set_variables(var);
+			sfcDS.m_variables_to_load = var;
 
 			CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, sfcDS.GetPrjID());
 			for (size_t i = 0; i < stations.size() && msg; i++)

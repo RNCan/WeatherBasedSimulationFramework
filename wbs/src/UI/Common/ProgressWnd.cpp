@@ -150,11 +150,13 @@ void CProgressWnd::OnTimer(UINT_PTR nIDEvent)
 				if (pCtrl && pCtrl->GetSafeHwnd())
 				{
 					if (m_callback.GetNbStep() > 0)
+					{
 						pCtrl->SetPos((int)m_callback.GetCurrentStepPercent());
 
-					CWnd* pMain = ::AfxGetMainWnd();
-					if (m_pTaskbar && pMain)
-						m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+						CWnd* pMain = ::AfxGetMainWnd();
+						if (m_pTaskbar && pMain)
+							m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)m_callback.GetCurrentStepPercent(), 100);
+					}
 				}
 			}
 		}
@@ -170,19 +172,19 @@ void CProgressWnd::OnTimer(UINT_PTR nIDEvent)
 				CProgressCtrl* pCtrl = (CProgressCtrl*)(pItem);
 				if (pCtrl && pCtrl->GetSafeHwnd() && i < m_callback.GetTasks().c.size())
 				{
-					/*const WBSF::CCallbackTask& t = m_callback.GetTasks().c.at(i);
+					const WBSF::CCallbackTask& t = m_callback.GetTasks().c.at(i);
 					if (t.m_nbSteps > 0)
 					{
 						double pos = t.m_nbSteps != 0 ? std::min(100.0, std::max(0.0, t.m_stepPos*100.0 / t.m_nbSteps)) : 100;
-					*/
-					double pos = m_callback.GetStepPercent(i);
-					pCtrl->SetPos((int)pos);
+					
+					//double pos = m_callback.GetStepPercent(i);
+						pCtrl->SetPos((int)pos);
 
 
-					CWnd* pMain = ::AfxGetMainWnd();
-					if (m_pTaskbar && pMain)
-						m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)pos, 100);
-					//}
+						CWnd* pMain = ::AfxGetMainWnd();
+						if (m_pTaskbar && pMain)
+							m_pTaskbar->SetProgressValue(pMain->GetSafeHwnd(), (int)pos, 100);
+					}
 				}
 			}
 		}
