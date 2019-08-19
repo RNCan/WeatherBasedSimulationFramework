@@ -21,7 +21,7 @@ namespace WBSF
 		typedef std::array<float, CUIISDLite::NB_ISD_FIELD> FieldArray;
 
 
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, PROVINCES, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIISDLite); }
 

@@ -57,7 +57,7 @@ namespace WBSF
 		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
 		enum TBackground { B_WHITE, B_BROWN};
 
-		enum TAttributes { WORKING_DIR, TYPE, PRCP_TYPE, BACKGROUND, RADAR, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, TYPE, PRCP_TYPE, BACKGROUND, RADAR, FIRST_DATE, LAST_DATE, COMPOSITE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanRadar); }
 

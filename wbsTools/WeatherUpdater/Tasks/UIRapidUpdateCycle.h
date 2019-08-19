@@ -18,7 +18,8 @@ namespace WBSF
 
 	public:
 
-		enum TSource { S_NOMADS, S_NCEP, NB_SOURCES };
+		enum TProduct { P_PGRB, P_BGRB, NB_PRODUCT };
+		enum TSource { S_NOMADS, S_NCEP, S_UCAR, NB_SOURCES };
 		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
 		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
 
@@ -83,8 +84,8 @@ namespace WBSF
 		
 		static const char* HTTP_SERVER_NAME[NB_SOURCES];
 		static const char* FTP_SERVER_NAME[NB_SOURCES];
-		static const char* PRODUCT_NAME[NB_SOURCES];
 		static const char* NAME_NET[NB_SOURCES];
+		static const char* PRODUCT_NAME[NB_PRODUCT];
 
 	};
 

@@ -136,6 +136,7 @@ namespace WBSF
 		size_t delay = as<size_t>(FRAME_DELAY);
 		bool bLoop = as<bool>(LOOP);
 		bool bCreateAll = as<bool>(CREATE_ALL);
+		
 
 		callback.AddMessage("Create animation from:");
 		callback.AddMessage(inputDir, 1);
@@ -145,25 +146,38 @@ namespace WBSF
 		
 		msg = CreateMultipleDir(outputDir);
 
-
 		map<string, StringVector> fileList;
-		StringVector tmpList = GetFilesList(inputDir + "*.gif", 2, true);
-		for (size_t i = 0; i<tmpList.size(); i++)
+		
+		StringVector dir = GetDirectoriesList(inputDir+"*");
+		callback.PushTask("Get file list", dir.size());
+		for (size_t d = 0; d < dir.size() && msg; d++)
 		{
-			string ID = GetID(tmpList[i]);
-			CTRef TRef = GetTRef(tmpList[i]);
-			string an_file_path = GetAnimationFilePath(TRef, ID);
-			if (!an_file_path.empty())
+			StringVector tmpList = GetFilesList(inputDir +  dir[d] + "\\*.gif", 2, true);
+			//callback.PopTask();
+			//callback.PushTask("Get file list", tmpList.size());
+			for (size_t i = 0; i < tmpList.size() && msg; i++)
 			{
-				if (!FileExists(an_file_path) || bCreateAll)
-					fileList[an_file_path].push_back(tmpList[i]);
+				string ID = GetID(tmpList[i]);
+				CTRef TRef = GetTRef(tmpList[i]);
+				string an_file_path = GetAnimationFilePath(TRef, ID);
+				if (!an_file_path.empty())
+				{
+					string current_animation = GetAnimationFilePath(CTRef::GetCurrentTRef(CTM::HOURLY), ID);
+					if (!FileExists(an_file_path) || bCreateAll || an_file_path == current_animation)
+						fileList[an_file_path].push_back(tmpList[i]);
+
+					msg += callback.StepIt(0);
+				}
 			}
+
+			msg += callback.StepIt();
 		}
 
+		callback.PopTask();
 		
 		callback.PushTask("Create " + to_string(fileList.size()) + " animations", fileList.size());
 		
-		for (auto it = fileList.begin(); it != fileList.end(); it++)
+		for (auto it = fileList.begin(); it != fileList.end()&&msg; it++)
 		{
 			msg += MakeGIF(it->first, it->second, unsigned short(delay/10), bLoop);
 			msg += callback.StepIt();

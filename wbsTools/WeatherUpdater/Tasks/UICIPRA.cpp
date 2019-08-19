@@ -453,23 +453,7 @@ namespace WBSF
 		int current_year = CTRef::GetCurrentTRef().GetYear();
 		bool bForecast = as<bool>(FORECAST) && lastYear == current_year;
 
-
-
 		station.CreateYears(firstYear, nbYears);
-
-		//size_t filesize = 0;
-		//for (size_t y = 0; y < nbYears&&msg; y++)
-		//{
-		//	int year = firstYear + int(y);
-		//	string filePath = GetOutputFilePath(network, year, fileName+".BRU");
-
-		//	if (FileExists(filePath))
-		//	{
-		//		CFileInfo filesInfo;
-		//		GetFileInfo(filePath, filesInfo);
-		//		filesize += filesInfo.m_size;
-		//	}//if file exists
-		//}//for all years (files)
 
 		if (nbYears>8)
 			callback.PushTask(station.m_name, nbYears);
@@ -514,6 +498,7 @@ namespace WBSF
 
 	ERMsg CUICIPRA::ReadDataFile(const string& filePath, CTM TM, CWeatherStation& station, CCallback& callback)const
 	{
+		
 		ERMsg msg;
 
 		//1.  Année au complet (ex. 2010)
@@ -599,6 +584,7 @@ namespace WBSF
 						double value = ToDouble((*loop)[COL_POS[v]]);
 						if (value > -991 )
 						{
+							ASSERT(station.m_elev>-999);
 							stat.Add(TRef, v, value*FACTOR[v]);
 							if (COL_POS[v] == C_RELH)
 							{

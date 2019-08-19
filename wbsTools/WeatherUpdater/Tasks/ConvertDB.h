@@ -11,8 +11,8 @@ namespace WBSF
 
 		//typedef std::shared_ptr<CConvertDB>   pointer;
 
-		enum TDirection {TO_NEW_VERSION, TO_OLD_VESTION};
-		enum TAttributes { DIRECTION, INPUT_FILEPATH, OUTPUT_FILEPATH, NB_ATTRIBUTES };
+		enum TConvertType {TO_BIOSIM_11, TO_BIOSIM_10, HOURLY_TO_DAILY};
+		enum TAttributes { CONVERT_TYPE, INPUT_FILEPATH, OUTPUT_FILEPATH, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CConvertDB); }

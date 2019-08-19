@@ -244,8 +244,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,7,7,7
- PRODUCTVERSION 5,7,7,7
+ FILEVERSION 5,7,9,11
+ PRODUCTVERSION 5,7,9,11
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -262,21 +262,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.7.7.7"
+            VALUE "FileVersion", "5.7.9.11"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.7.7.7"
+            VALUE "ProductVersion", "5.7.9.11"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.7.7.7"
+            VALUE "FileVersion", "5.7.9.11"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.7.7.7"
+            VALUE "ProductVersion", "5.7.9.11"
         END
     END
     BLOCK "VarFileInfo"
@@ -653,7 +653,7 @@ BEGIN
     IDS_REGION_NAME         "Nouveau-Brunswick, Nouvelle-Écosse, Île-du-Prince-Édouard, Terre-Neuve-et-Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Territoires du Nord-Ouest, Nunavut|Colombie-Britannique, Yukon|Québec"
     IDS_FTP_DIRECTION       "Télécharger|Téléverser"
     IDS_FTP_CONNECTION_TYPE "Utilisez les paramètres pré configurés d'Internet Explorer|Utilisez une connexion directe|Utilisez une connexion par le serveur proxy"
-    IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10"
+    IDS_CONVERT_DIRECTION   "Vers BioSIM 11|Vers BioSIM 10|Horaire à quotidienne"
     IDS_TASK_TYPE_TITLE     "Téléchargement|Outils"
     IDS_PROPERTY_ROOT       "Propriété"
     IDS_EXECUTE_TASK        "Execution des %1 tâches"
@@ -684,14 +684,14 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type|Ignorer erreur"
-    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)"
+    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)|Composite"
     IDS_UPDATER_EC_PRCP_RADAR_P 
                             "Répertoire de travail|Produit|Intervale|Max heures"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)"
+                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Provinces (si Canada)"
     IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
     IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autres pays|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
@@ -728,11 +728,11 @@ BEGIN
                             "Répertoire de travail|Ensemble de données|Première année|Dernière année|Afficher progression"
     IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
     IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Server|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Serveur|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Répertoire de travail|Type|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol (HRDPS)|Isobares (HRDPS)"
+                            "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol HRDPS|Isobares HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
@@ -755,7 +755,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si compresser)|Include sous-répertoires (si compresser)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
-    IDS_TOOL_CONVERT_DB_P   "Direction|Fichier d'entrée|Fichier de sortie"
+    IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
 END
@@ -1126,7 +1126,7 @@ BEGIN
     IDS_REGION_NAME         "New Brunswick, Nova Scotia, Prince Edward Island, Newfoundland and Labrador|Ontario|Alberta, Saskatchewan, Manitoba, Northwest Territories, Nunavut|British Columbia, Yukon|Québec"
     IDS_FTP_DIRECTION       "Download|Upload"
     IDS_FTP_CONNECTION_TYPE "Use Preconfigued Internet Explorer Settings|Use Direct Connection|Use Proxy Server Connection"
-    IDS_CONVERT_DIRECTION   "To BioSIM 11|To BioSIM 10"
+    IDS_CONVERT_DIRECTION   "To BioSIM 11|To BioSIM 10|Hourly to daily"
     IDS_TASK_TYPE_TITLE     "Download|Tools"
     IDS_PROPERTY_ROOT       "Property"
     IDS_EXECUTE_TASK        "Execute %1 tasks"
@@ -1169,13 +1169,13 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_FORECAST_P "Working directory|Type|Ignore error"
-    IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)"
+    IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)|Composite"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Product|Period|Max hours"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
-                            "Working directory|First year|Last year|Country|States (if USA)"
+                            "Working directory|First year|Last year|Country|States (if USA)|Provinces (if Canada)"
     IDS_UPDATER_NOAA_FORECAST_P "Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
     IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other countries|Ignore common stations|Force update station list"
@@ -1212,11 +1212,11 @@ BEGIN
                             "Working directory|Dataset|First year|Last year|Show progression"
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"
     IDS_UPDATER_RAP_P       "Working directory|Sources|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Product|Server|Show WinSCP (if FTP)"
-    IDS_UPDATER_NAM_P       "Working directory|Sources|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Server|Show WinSCP (if FTP)"
+    IDS_UPDATER_NAM_P       "Working directory|Sources|Server|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA"
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Working directory|Type|Max forecast (hours)|Delete after (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|Gound height (HRDPS)|Isobars (HRDPS)"
+                            "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|HRDPS Gound height|HRDPS Isobars"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
@@ -1239,7 +1239,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip filter (if Zip)|Include sub-directory (if zip)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local file|User name|Password|Connection type|Connection timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
-    IDS_TOOL_CONVERT_DB_P   "Direction|Input file|Output file"
+    IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
 END

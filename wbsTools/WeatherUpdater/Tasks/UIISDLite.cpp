@@ -14,11 +14,12 @@
 #include "TaskFactory.h"
 #include "CountrySelection.h"
 #include "StateSelection.h"
+#include "ProvinceSelection.h"
 #include "../Resource.h"
 #include "Geomatic/TimeZones.h"
 #include "cctz/time_zone.h"
 
-using namespace std; 
+using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 
@@ -30,16 +31,16 @@ namespace WBSF
 	const char* CUIISDLite::LIST_PATH = "pub/data/noaa/";
 
 	//*********************************************************************
-	const char* CUIISDLite::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States"};
-	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT};
+	const char* CUIISDLite::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "Province" };
+	const size_t CUIISDLite::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT };
 	const UINT CUIISDLite::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_ISD_LITE_P;
 	const UINT CUIISDLite::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_ISD_LITE;
 
-	const char* CUIISDLite::CLASS_NAME(){ static const char* THE_CLASS_NAME = "ISD-Lite";  return THE_CLASS_NAME; }
+	const char* CUIISDLite::CLASS_NAME() { static const char* THE_CLASS_NAME = "ISD-Lite";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIISDLite::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIISDLite::CLASS_NAME(), (createF)CUIISDLite::create);
 
-	
+
 
 	static const CGeoRect DEFAULT_BOUDINGBOX(-180, -90, 180, 90, PRJ_WGS_84);
 
@@ -58,6 +59,7 @@ namespace WBSF
 		{
 		case COUNTRIES:	str = CCountrySelection::GetAllPossibleValue(); break;
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
+		case PROVINCES:	str = CProvinceSelection::GetAllPossibleValue(); break;
 		};
 		return str;
 	}
@@ -99,7 +101,7 @@ namespace WBSF
 		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
-			
+
 
 			string path = GetHistoryFilePath(false);
 
@@ -149,7 +151,7 @@ namespace WBSF
 			ERMsg msgTmp = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 			if (msgTmp)
 			{
-				
+
 
 				if (toDo[0])
 				{
@@ -229,36 +231,37 @@ namespace WBSF
 		{
 
 			CCountrySelection countries(Get(COUNTRIES));
-			
+
 			CGeoRect boundingBox;
 
 			CIDSLiteStation station;
 			GetStationInformation(fileTitle, station);
 			station.GetFromSSI();
 
-			//CTPeriod p(CTRef(1981,0,0), CTRef(2010,0,0));
-			//p = p.Intersect(station.m_period);
-			//if( p.GetNbYear() >= 25 )
-			//{
-				size_t country = CCountrySelection::GetCountry(station.m_country.c_str());
+			size_t country = CCountrySelection::GetCountry(station.m_country.c_str());
 
-				if (country != -1 && (countries.none() || countries.test(country)))
+			if (country != -1 && (countries.none() || countries.test(country)))
+			{
+				if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(station))
 				{
-					if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(station))
+					if (IsEqualNoCase(station.m_country, "US"))
 					{
-						if (IsEqualNoCase(station.m_country, "US"))
-						{
-							CStateSelection states(Get(STATES));
-							if (states.at(station.m_state))
-								bRep = true;
-						}
-						else
-						{
+						CStateSelection states(Get(STATES));
+						if (states.at(station.m_state))
 							bRep = true;
-						}
+					}
+					else if (IsEqualNoCase(station.m_country, "CA"))
+					{
+						CProvinceSelection provinces(Get(PROVINCES));
+						if (provinces.at(station.m_state))
+							bRep = true;
+					}
+					else
+					{
+						bRep = true;
 					}
 				}
-			//}
+			}
 		}
 
 		return bRep;
@@ -451,7 +454,7 @@ namespace WBSF
 						//unzip 
 						if (msgTmp)
 						{
-							
+
 
 							//if (FileExists(zipFilePath))
 							//{
@@ -485,14 +488,14 @@ namespace WBSF
 						}
 					}
 				}
-				CATCH_ALL(e)
+					CATCH_ALL(e)
 				{
 					msgTmp = UtilWin::SYGetMessage(*e);
 				}
 				END_CATCH_ALL
 
-				//clean connection
-				pConnection->Close();
+					//clean connection
+					pConnection->Close();
 				pSession->Close();
 
 				if (!msgTmp)
@@ -537,7 +540,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_GET_STATION_LIST), nbYears);
-		
+
 
 
 		for (size_t y = 0; y < nbYears&&msg; y++)
@@ -662,7 +665,7 @@ namespace WBSF
 
 		if (msg && station.HaveData())
 			msg = station.IsValid();
-		
+
 		return msg;
 	}
 
@@ -727,7 +730,7 @@ namespace WBSF
 			catch (const boost::iostreams::gzip_error& exception)
 			{
 				int error = exception.error();
-				if (error == boost::iostreams::gzip::zlib_error) 
+				if (error == boost::iostreams::gzip::zlib_error)
 				{
 					//check for all error code    
 					msg.ajoute(exception.what());

@@ -16,7 +16,7 @@
 
 
 using namespace std;
-//using namespace WBSF::WEATHER;
+using namespace WBSF::HOURLY_DATA;
 
 
 namespace WBSF
@@ -48,7 +48,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DIRECTION:		str = GetString(IDS_CONVERT_DIRECTION); break;
+		case CONVERT_TYPE:		str = GetString(IDS_CONVERT_DIRECTION); break;
 		case INPUT_FILEPATH:str = GetString(IDS_STR_FILTER_WEATHER); break;
 		case OUTPUT_FILEPATH:str = GetString(IDS_STR_FILTER_WEATHER); break;
 		};
@@ -58,8 +58,10 @@ namespace WBSF
 	std::string CConvertDB::Default(size_t i)const
 	{
 		std::string str;
-		if (i == DIRECTION)
-			str = ToString(TO_NEW_VERSION);
+		switch (i)
+		{
+		case CONVERT_TYPE: str = ToString(TO_BIOSIM_11); break;
+		}
 
 		return str;
 	}
@@ -69,60 +71,115 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t direction = ToSizeT(Get(DIRECTION));
+		size_t type = ToSizeT(Get(CONVERT_TYPE));
 		string inputFilepath = GetAbsoluteFilePath(Get(INPUT_FILEPATH));
 		string outputFilepath = GetAbsoluteFilePath(Get(OUTPUT_FILEPATH));
-		string extention = GetFileExtension(inputFilepath);
-		string extentionOut = GetFileExtension(extention);
-		if (IsEqual(extention, CNormalsDatabase::DATABASE_EXT) || IsEqual(extention, ".Normals"))
-			extentionOut = (direction == TO_NEW_VERSION) ? CNormalsDatabase::DATABASE_EXT : ".Normals";
-
-		if (IsEqual(extention, CDailyDatabase::DATABASE_EXT) || IsEqual(extention, ".DailyStations"))
-			extentionOut = (direction == TO_NEW_VERSION) ? CDailyDatabase::DATABASE_EXT : ".DailyStations";
-
-		SetFileExtension(outputFilepath, extentionOut);
-
 		
-		if (IsEqual(outputFilepath, inputFilepath))
-		{
-			msg.ajoute(GetString(IDS_BSC_SAME_NAMES));
-			return msg;
-		}
 
-		CreateMultipleDir(GetPath(outputFilepath));
-
-		if (IsEqualNoCase(extention, ".Normals") || IsEqualNoCase(extention, CNormalsDatabase::DATABASE_EXT))
+		if (type == TO_BIOSIM_11 || type == TO_BIOSIM_10)
 		{
-			if (direction == TO_NEW_VERSION)
+			string extentionIn = GetFileExtension(inputFilepath);
+			string extentionOut = GetFileExtension(extentionIn);
+			if (IsEqual(extentionIn, CNormalsDatabase::DATABASE_EXT) || IsEqual(extentionIn, ".Normals"))
+				extentionOut = (type == TO_BIOSIM_11) ? CNormalsDatabase::DATABASE_EXT : ".Normals";
+
+			if (IsEqual(extentionIn, CDailyDatabase::DATABASE_EXT) || IsEqual(extentionIn, ".DailyStations"))
+				extentionOut = (type == TO_BIOSIM_11) ? CDailyDatabase::DATABASE_EXT : ".DailyStations";
+
+			SetFileExtension(outputFilepath, extentionOut);
+
+
+			if (IsEqual(outputFilepath, inputFilepath))
 			{
-				msg = CNormalsDatabase::DeleteDatabase(outputFilepath, callback);
+				msg.ajoute(GetString(IDS_BSC_SAME_NAMES));
+				return msg;
+			}
+
+			CreateMultipleDir(GetPath(outputFilepath));
+
+			if (IsEqualNoCase(extentionIn, ".Normals") || IsEqualNoCase(extentionIn, CNormalsDatabase::DATABASE_EXT))
+			{
+				if (type == TO_BIOSIM_11)
+				{
+					msg = CNormalsDatabase::DeleteDatabase(outputFilepath, callback);
+					if (msg)
+						msg = CNormalsDatabase::v6_to_v7(inputFilepath, outputFilepath, callback);
+				}
+				else
+				{
+					if (FileExists(outputFilepath))
+						msg = WBSF::RemoveFile(outputFilepath);
+
+					if (msg)
+						msg = CNormalsDatabase::v7_to_v6(inputFilepath, outputFilepath, callback);
+				}
+
+			}
+			else if (IsEqualNoCase(extentionIn, ".DailyStations") || IsEqualNoCase(extentionIn, CDailyDatabase::DATABASE_EXT))
+			{
+				msg = CDailyDatabase::DeleteDatabase(outputFilepath, callback);
 				if (msg)
-					msg = CNormalsDatabase::v6_to_v7(inputFilepath, outputFilepath, callback);
+				{
+					if (type == TO_BIOSIM_11)
+						msg = CDailyDatabase::v3_to_v4(inputFilepath.c_str(), outputFilepath.c_str(), callback);
+					else
+						msg = CDailyDatabase::v4_to_v3(inputFilepath.c_str(), outputFilepath.c_str(), callback);
+				}
 			}
 			else
 			{
-				if (FileExists(outputFilepath))
-					msg = WBSF::RemoveFile(outputFilepath);
-
-				if (msg)
-					msg = CNormalsDatabase::v7_to_v6(inputFilepath, outputFilepath, callback);
+				msg.ajoute("Unknown database type. Verify file extension.");
 			}
-
 		}
-		else if (IsEqualNoCase(extention, ".DailyStations") || IsEqualNoCase(extention, CDailyDatabase::DATABASE_EXT) )
+		else if (type == HOURLY_TO_DAILY)
 		{
-			msg = CDailyDatabase::DeleteDatabase(outputFilepath, callback);
-			if (msg)
+			string extentionIn = GetFileExtension(inputFilepath);
+			string extentionOut = GetFileExtension(outputFilepath);
+
+			
+			if (IsEqual(extentionIn, CHourlyDatabase::DATABASE_EXT) && IsEqual(extentionOut, CDailyDatabase::DATABASE_EXT))
 			{
-				if (direction == TO_NEW_VERSION)
-					msg = CDailyDatabase::v3_to_v4(inputFilepath.c_str(), outputFilepath.c_str(), callback);
-				else
-					msg = CDailyDatabase::v4_to_v3(inputFilepath.c_str(), outputFilepath.c_str(), callback);
+				msg = CDailyDatabase::DeleteDatabase(outputFilepath, callback);
+				if (msg)
+				{
+					CHourlyDatabase input;
+					CDailyDatabase output;
+					msg = input.Open(inputFilepath, CHourlyDatabase::modeRead, callback);
+					if(msg)
+						msg = output.Open(outputFilepath, CHourlyDatabase::modeWrite, callback);
+					if (msg)
+					{
+						callback.PushTask("Convert " + to_string(input.size()) + " stations", input.size());
+						for (size_t i = 0; i < input.size()&&msg; i++)
+						{
+							CWeatherStation station;
+							msg += input.Get(station, i);
+							station.GetStat(H_TAIR);//compute daily stat
+							station.SetHourly(false);//remove hourly values
+
+							if (msg)
+								msg +=output.Add(station);
+
+							msg += callback.StepIt();
+						}
+
+						input.Close();
+						msg += output.Close(true, callback);
+						if (msg)
+						{
+							CDailyDatabase test;
+							msg = test.Open(outputFilepath, CHourlyDatabase::modeRead, callback);
+							test.Close();
+						}
+						callback.PopTask();
+					}
+				}
 			}
-		}
-		else
-		{
-			msg.ajoute("Unknown database type. Verify file extension.");
+			else
+			{
+				msg.ajoute("Input file must be hourly database (.HourlyDB) and output file must be daily database (.DailyDB) ");
+			}
+			
 		}
 
 		return msg;

@@ -70,6 +70,9 @@ namespace WBSF
 	//http://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/
 	//http://soostrc.comet.ucar.edu/data/grib/rap/20180614/hybrid/
 
+	//after 2012 at ucar:
+	//http://soostrc.comet.ucar.edu/data/grib/rap/20190620/hybrid/
+
 	//*********************************************************************
 	const char* CUIRapidUpdateCycle::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "Begin", "End", "Product", "ServerType", "ShowWinSCP" };
 	const size_t CUIRapidUpdateCycle::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_DATE, T_DATE, T_COMBO_INDEX, T_COMBO_INDEX, T_BOOL };
@@ -88,10 +91,10 @@ namespace WBSF
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT3 = "/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb";
 	const char* CUIRapidUpdateCycle::INPUT_FORMAT4 = "/data/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb";
 
-	const char* CUIRapidUpdateCycle::HTTP_SERVER_NAME[NB_SOURCES] = { "www.ncei.noaa.gov", "nomads.ncep.noaa.gov" };
-	const char* CUIRapidUpdateCycle::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov" };
-	const char* CUIRapidUpdateCycle::PRODUCT_NAME[NB_SOURCES] = { "pgrb", "bgrb" };
-	const char* CUIRapidUpdateCycle::NAME_NET[NB_SOURCES] = { "NOMADS", "NCEP" };
+	const char* CUIRapidUpdateCycle::HTTP_SERVER_NAME[NB_SOURCES] = { /*"www.ncei.noaa.gov"*/"nomads.ncdc.noaa.gov", "nomads.ncep.noaa.gov", "soostrc.comet.ucar.edu" };
+	const char* CUIRapidUpdateCycle::FTP_SERVER_NAME[NB_SOURCES] = { "nomads.ncdc.noaa.gov", "www.ftp.ncep.noaa.gov", "" };
+	const char* CUIRapidUpdateCycle::PRODUCT_NAME[NB_PRODUCT] = { "pgrb", "bgrb" };
+	const char* CUIRapidUpdateCycle::NAME_NET[NB_SOURCES] = { "NOMADS", "NCEP", "UCAR" };
 
 	CUIRapidUpdateCycle::CUIRapidUpdateCycle(void)
 	{}
@@ -105,7 +108,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case SOURCES: str = "NOMADS=Archived (NOMADS)|NCEP=Current (NCEP)"; break;
+		case SOURCES: str = "NOMADS=Archived (NOMADS)|NCEP=Current (NCEP)|UCAR=Hybrid (UCAR)"; break;
 		case PRODUCT:	str = "pgrb|bgrb"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
@@ -136,8 +139,8 @@ namespace WBSF
 	string CUIRapidUpdateCycle::GetInputFilePath(CTRef TRef)const
 	{
 
-//		if (bForecast)
-		///	TRef--;
+		//		if (bForecast)
+				///	TRef--;
 
 		int y = TRef.GetYear();
 		int m = int(TRef.GetMonth() + 1);
@@ -231,22 +234,11 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 
-		/*CTRef today = CTRef::GetCurrentTRef();
 
-		CTPeriod period = GetPeriod();
-		if (period.IsInit() && period.Begin() <= period.End() && period.Begin() <= today)
-		{*/
 		if (serverType == HTTP_SERVER)
 			msg = ExecuteHTTP(callback);
 		else
 			msg = ExecuteFTP(callback);
-		/*}
-		else
-		{
-			msg.ajoute("Invalid period");
-			return msg;
-		}*/
-
 
 		return msg;
 	}
@@ -260,7 +252,7 @@ namespace WBSF
 
 
 		callback.PushTask("Download RAP gribs from HTTP servers (" + to_string(sources.count()) + " sources)", sources.count());
-		for (size_t s = 0; s < 2 && msg; s++)
+		for (size_t s = 0; s < NB_SOURCES  && msg; s++)
 		{
 			if (sources[s])
 			{
@@ -276,6 +268,12 @@ namespace WBSF
 				else if (s == S_NCEP)
 				{
 					period = CTPeriod(now - 2 * 24, now);
+				}
+				else if (s == S_UCAR)
+				{
+					period = GetPeriod();
+					if (period.End() >= now )
+						period.End() = now;
 				}
 
 				if (period.IsInit())
@@ -324,10 +322,12 @@ namespace WBSF
 										{
 											//download gribs file
 											//string inputPath = GetInputFilePath(curH, true, false);
-											static const char* HTTP_FORMAT[2] =
+											static const char* HTTP_FORMAT[NB_SOURCES] =
 											{
-												"/thredds/fileServer/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
-												"/pub/data/nccf/com/rap/prod/rap.%4d%02d%02d/rap.t%02dz.awp130%sf%02d.grib2"
+												//"/thredds/fileServer/rap130/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
+												"/data/rucanl/%4d%02d/%4d%02d%02d/rap_130_%4d%02d%02d_%02d00_%03d.grb2",
+												"/pub/data/nccf/com/rap/prod/rap.%4d%02d%02d/rap.t%02dz.awp130%sf%02d.grib2",
+												"/data/grib/rap/%4d%02d%02d/hybrid/%2d%02d%02d%02d.rap.t%02dz.awp130%sf%02d.grib2"
 											};
 
 
@@ -337,10 +337,13 @@ namespace WBSF
 											int hs = int(curH.GetHour());
 
 											string inputPath;
-											if (s == 0)
-												inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, 0);
-											else
-												inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], 0);
+											switch (s)
+											{
+											case S_NOMADS:inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, 0); break;
+											case S_NCEP:inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], 0); break;
+											case S_UCAR:inputPath = FormatA(HTTP_FORMAT[s], y, m, d, y - 2000, m, d, hs, hs, PRODUCT_NAME[prod], 0); break;
+											default: ASSERT(false); 
+											}
 
 											string outputPath = GetOutputFilePath(curH);
 											CreateMultipleDir(GetPath(outputPath));
@@ -434,92 +437,157 @@ namespace WBSF
 		callback.PushTask("Download RAP gribs from FTP servers (" + to_string(sources.count()) + " sources)", sources.count());
 		callback.AddMessage("Download NAM gribs from FTP servers  (" + to_string(sources.count()) + " sources)");
 
-		for (size_t s = 0; s < 2 && msg; s++)
+		for (size_t s = 0; s < NB_SOURCES && msg; s++)
 		{
 			if (sources[s])
 			{
 				callback.AddMessage(string("Try to connect to: ") + FTP_SERVER_NAME[s]);
 
-				if (server_available(s))
+				//if (server_available(s))
+				//{
+				CFileInfoVector fileList;
+				msg = GetFilesToDownload(s, fileList, callback);
+				if (msg)
 				{
-					CFileInfoVector fileList;
-					msg = GetFilesToDownload(s, fileList, callback);
-					if (msg)
+					CTPeriod p = CleanList(s, fileList);
+					size_t nbFileToDownload = fileList.size();
+
+					callback.PushTask(string("Download RAP gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p.GetFormatedString("(%1 ---- %2)"), nbFileToDownload);
+					callback.AddMessage(string("Download RAP gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p.GetFormatedString("(%1 ---- %2)"));
+
+
+					string workingDir = GetDir(WORKING_DIR);
+
+
+					size_t nbTry = 0;
+					size_t cur_I = 0;
+					while (nbTry < 5 && cur_I < fileList.size()  && msg)
 					{
-						CTPeriod p = CleanList(s, fileList);
-						size_t nbFileToDownload = fileList.size();
+						nbTry++;
 
-						callback.PushTask(string("Download RAP gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p.GetFormatedString("(%1 ---- %2)"), nbFileToDownload);
-						callback.AddMessage(string("Download RAP gribs from \"") + NAME_NET[s] + "\": " + to_string(nbFileToDownload) + " files " + p.GetFormatedString("(%1 ---- %2)"));
+						CInternetSessionPtr pSession;
+						CFtpConnectionPtr pConnection;
 
-
-						string workingDir = GetDir(WORKING_DIR);
-						string scriptFilePath = workingDir + "script.txt";
-						WBSF::RemoveFile(scriptFilePath + ".log");
-
-
-						for (size_t i = 0; i < fileList.size() && msg; i++)
+						msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@canada.ca", true, 5, callback);
+						if (msg)
 						{
-							ofStream stript;
-							msg = stript.open(scriptFilePath);
-							if (msg)
+
+							for (size_t i = cur_I; i < fileList.size() && msg; i++)
 							{
 								CTRef TRef = GetTRef(s, fileList[i].m_filePath);
-								string outputFilePaht = GetOutputFilePath(TRef);
-								string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
-								CreateMultipleDir(GetPath(outputFilePaht));
+								string outputFilePath = GetOutputFilePath(TRef);
+								//string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
+								CreateMultipleDir(GetPath(outputFilePath));
 
-								stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[s] << endl;
-								stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
-								stript << "lcd " << GetPath(tmpFilePaht) << endl;
-								stript << "get " << GetFileName(tmpFilePaht) << endl;
-								stript << "exit" << endl;
-								stript.close();
-
-								bool bShow = as<bool>(SHOW_WINSCP);
-								//# Execute the script using a command like:
-								string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
-								DWORD exit_code;
-								msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
-								if (msg)
+								try
 								{
-									//verify if the file finish with 7777
-									if (exit_code == 0)
-									{
-										if (GoodGrib(tmpFilePaht))
-										{
-											nbDownloaded++;
-											msg = RenameFile(tmpFilePaht, outputFilePaht);
-										}
-										else
-										{
-											msg = WBSF::RemoveFile(tmpFilePaht);
-										}
+									UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
+									if (GoodGrib(outputFilePath))
+									{
+										nbDownloaded++;
+										nbTry = 0;
 									}
 									else
 									{
-										//msg.ajoute("Error in WinCSV");
-										callback.AddMessage("Error in WinCSV");
+										msg = WBSF::RemoveFile(outputFilePath);
+									}
+
+									cur_I++;
+									msg += callback.StepIt();
+
+								}
+								catch (CException* e)
+								{
+									if (nbTry < 5)
+									{
+										callback.AddMessage(UtilWin::SYGetMessage(*e));
+										msg = WaitServer(10, callback);
+									}
+									else
+									{
+										msg = UtilWin::SYGetMessage(*e);
 									}
 								}
-							}
-							msg += callback.StepIt();
-						}
 
-						callback.PopTask();
-					}
+								
+							}//for all file
+							pConnection->Close();
+							pSession->Close();
+						}//if good connection
+					}//try 5 time
+
+					callback.PopTask();
 
 
-				}//server available
-				else
-				{
-					callback.AddMessage(string("Unable to connect to: ") + FTP_SERVER_NAME[s] + ". Server skipped.");
-				}
+
+					//	}
+						//string scriptFilePath = workingDir + "script.txt";
+						//WBSF::RemoveFile(scriptFilePath + ".log");
+
+
+						//for (size_t i = 0; i < fileList.size() && msg; i++)
+						//{
+						//	ofStream stript;
+						//	msg = stript.open(scriptFilePath);
+						//	if (msg)
+						//	{
+						//		CTRef TRef = GetTRef(s, fileList[i].m_filePath);
+						//		string outputFilePaht = GetOutputFilePath(TRef);
+						//		string tmpFilePaht = GetPath(outputFilePaht) + GetFileName(fileList[i].m_filePath);
+						//		CreateMultipleDir(GetPath(outputFilePaht));
+
+						//		stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[s] << endl;
+						//		stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
+						//		stript << "lcd " << GetPath(tmpFilePaht) << endl;
+						//		stript << "get " << GetFileName(tmpFilePaht) << endl;
+						//		stript << "exit" << endl;
+						//		stript.close();
+
+						//		bool bShow = as<bool>(SHOW_WINSCP);
+						//		//# Execute the script using a command like:
+						//		string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+						//		DWORD exit_code;
+						//		msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+						//		if (msg)
+						//		{
+						//			//verify if the file finish with 7777
+						//			if (exit_code == 0)
+						//			{
+						//				if (GoodGrib(tmpFilePaht))
+						//				{
+						//					nbDownloaded++;
+						//					msg = RenameFile(tmpFilePaht, outputFilePaht);
+						//				}
+						//				else
+						//				{
+						//					msg = WBSF::RemoveFile(tmpFilePaht);
+						//				}
+
+						//			}
+						//			else
+						//			{
+						//				//msg.ajoute("Error in WinCSV");
+						//				callback.AddMessage("Error in WinCSV");
+						//			}
+						//		}
+						//	}
+						//	msg += callback.StepIt();
+						//}
+
+					
+				}//if find file
+
+
+				//}//server available
+				//	else
+				//	{
+				//	callback.AddMessage(string("Unable to connect to: ") + FTP_SERVER_NAME[s] + ". Server skipped.");
+				//	}
 
 
 				msg += callback.StepIt();
-			}
+			}//is source selected
 		}//for 2 sources
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
@@ -608,28 +676,34 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+		msg = GetFtpConnection(FTP_SERVER_NAME[s], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "anonymous", "test@canada.ca", true, 5, callback);
 		if (msg)
 		{
 			if (s == S_NOMADS)
 			{
 				CTPeriod period = GetPeriod();
 				period.Transform(CTM::HOURLY);
-
+				///201906/20190620/
 
 				CFileInfoVector dir1;
-				msg = FindDirectories(pConnection, "/33/ruc13/*", dir1);
+				msg = FindDirectories(pConnection, "/RUC/analysis_only/*", dir1);
 				if (msg)
 				{
 					StringVector paths1;
 					for (size_t d1 = 0; d1 != dir1.size() && msg; d1++)
 					{
 						string name = WBSF::GetLastDirName(dir1[d1].m_filePath);
-						int year = WBSF::as<int>(name.substr(0, 4));
-						size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
-						CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
-						if (period.IsIntersect(p2))
-							paths1.push_back(dir1[d1].m_filePath);
+						if (name.length() == 6)
+						{
+							int year = WBSF::as<int>(name.substr(0, 4));
+							size_t m = WBSF::as<size_t>(name.substr(4, 2)) - 1;
+							if (year >= 2005 && m < 12)
+							{
+								CTPeriod p2(CTRef(year, m, FIRST_DAY, FIRST_HOUR), CTRef(year, m, LAST_DAY, LAST_HOUR));
+								if (period.IsIntersect(p2))
+									paths1.push_back(dir1[d1].m_filePath);
+							}
+						}
 					}
 
 					if (paths1.size() > 1)
@@ -681,7 +755,7 @@ namespace WBSF
 						callback.PopTask();
 				}//if msg
 			}
-			else
+			else if (s == S_NCEP)
 			{
 				CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 
@@ -733,7 +807,10 @@ namespace WBSF
 
 					callback.PopTask();
 				}//if msg
-			//}
+			}
+			else if (s == S_UCAR)
+			{
+				callback.AddMessage("Ucar is not available on FTP");
 			}
 
 			pConnection->Close();

@@ -20,7 +20,7 @@ namespace WBSF
 
 		enum TSource { S_NOMADS, S_NCEP, NB_SOURCES };
 		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
-		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, FIRST_DATE, LAST_DATE, SHOW_WINSCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINAM); }

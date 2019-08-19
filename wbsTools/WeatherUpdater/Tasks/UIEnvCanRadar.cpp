@@ -25,7 +25,7 @@ namespace WBSF
 	//http://www.ncdc.noaa.gov/cdo-web/review
 	//http://gis.ncdc.noaa.gov/map/viewer/#app=cdo&cfg=radar&theme=radar&display=nexrad
 
-	
+
 	const char* CCanadianRadar::DEFAULT_LIST[NB_RADAR][NB_INFO] =
 	{
 		{ "ATL", "Atlantique", "" },
@@ -101,7 +101,7 @@ namespace WBSF
 
 		return str;
 	}
-	
+
 	string CCanadianRadar::GetName(size_t r, size_t t)
 	{
 		ASSERT(r < NB_RADAR);
@@ -156,22 +156,22 @@ namespace WBSF
 		return message;
 	}
 
-//*********************************************************************
-	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "PrcpType", "Background", "Radar", "FirstDate", "LastDate" };
-	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE };
+	//*********************************************************************
+	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "PrcpType", "Background", "Radar", "FirstDate", "LastDate", "Composite" };
+	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE, T_BOOL };
 	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
 	const UINT CUIEnvCanRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_RADAR;
 
-	const char* CUIEnvCanRadar::CLASS_NAME(){ static const char* THE_CLASS_NAME = "EnvCanRadar";  return THE_CLASS_NAME; }
+	const char* CUIEnvCanRadar::CLASS_NAME() { static const char* THE_CLASS_NAME = "EnvCanRadar";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanRadar::CLASS_NAME(), (createF)CUIEnvCanRadar::create);
-	
-	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca"};
+
+	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca" };
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
-	
+
 	const char* CUIEnvCanRadar::TYPE_NAME_OLD[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
 	const char* CUIEnvCanRadar::TYPE_NAME_NEW[NB_TYPE] = { "PRECIPET_SNOW_WEATHEROFFICE", "PRECIPET_RAIN_WEATHEROFFICE" };
-	
+
 
 
 	CUIEnvCanRadar::CUIEnvCanRadar(void)
@@ -187,7 +187,7 @@ namespace WBSF
 		switch (i)
 		{
 
-		//case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
+			//case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
 		case TYPE:		str = "Current|Historical"; break;
 		case PRCP_TYPE:	str = "Snow|Rain"; break;
 		case BACKGROUND:str = "White|Brown"; break;
@@ -208,8 +208,8 @@ namespace WBSF
 		case BACKGROUND:str = ToString(B_BROWN); break;
 		case RADAR:		str = ""; break;
 		case FIRST_DATE:
-		case LAST_DATE:	str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString("%Y-%m-%d-H"); break;
-
+		case LAST_DATE:	str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString("%Y-%m-%d"); break;
+		case COMPOSITE: str = "0"; break;
 		};
 
 		return str;
@@ -265,36 +265,36 @@ namespace WBSF
 		}
 		else if (t == HISTORICAL_RADAR)
 		{
-//			ASSERT(URL.length() == 63);
-			//static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
-			
-			/*string year = "20" + URL.substr(33, 2);
-			size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
-			string month = FormatA("%02d", m + 1);
-			string day = URL.substr(26, 2);
-			string hour = URL.substr(36, 2);
-			string min = URL.substr(39, 2);
-			string region = URL.substr(60, 3);
-			string type = OLD_TYPE_NAME[as<size_t>(PRCP_TYPE)];
-			string pm = URL.substr(52, 2);
+			//			ASSERT(URL.length() == 63);
+						//static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
 
-			if (pm == "PM")
-			{
-				if (hour != "12")
-					hour = ToString(ToInt(hour) + 12);
-			}
-			else if (hour == "12")
-			{
-				hour = "00";
-			}*/
-			
+						/*string year = "20" + URL.substr(33, 2);
+						size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
+						string month = FormatA("%02d", m + 1);
+						string day = URL.substr(26, 2);
+						string hour = URL.substr(36, 2);
+						string min = URL.substr(39, 2);
+						string region = URL.substr(60, 3);
+						string type = OLD_TYPE_NAME[as<size_t>(PRCP_TYPE)];
+						string pm = URL.substr(52, 2);
+
+						if (pm == "PM")
+						{
+							if (hour != "12")
+								hour = ToString(ToInt(hour) + 12);
+						}
+						else if (hour == "12")
+						{
+							hour = "00";
+						}*/
+
 			string year = URL.substr(0, 4);
 			string month = URL.substr(4, 2);
 			string day = URL.substr(6, 2);
 			string hour = URL.substr(8, 2);
 			string min = URL.substr(10, 2);
 			string region = URL.substr(13, 3);
-			string type = URL.substr(17, URL.find("|")-17);
+			string type = URL.substr(17, URL.find("|") - 17);
 
 			path = GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + region + "_" + type + ".gif";
 
@@ -309,7 +309,7 @@ namespace WBSF
 		CTPeriod p;
 		StringVector t1(Get(FIRST_DATE), "-/");
 		StringVector t2(Get(LAST_DATE), "-/");
-		if (t1.size() == 3 && t2.size()==3)
+		if (t1.size() == 3 && t2.size() == 3)
 		{
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, 0), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, 23));
 		}
@@ -333,7 +333,7 @@ namespace WBSF
 		StringVector test1(desc, ">");
 		StringVector test2(test1[0], "&=");
 		StringVector test3(test1[1], " -:,");
-		if (test2.size() == 18 && test3.size()==9)
+		if (test2.size() == 18 && test3.size() == 9)
 		{
 			int year = ToInt(test3[2]);
 			int month = ToInt(test3[3]);
@@ -342,7 +342,7 @@ namespace WBSF
 			int min = ToInt(test3[6]);
 
 			out = WBSF::FormatA("%4d%02d%02d%02d%02d_%s_%s", year, month, day, hour, min, test2[1].c_str(), test2[15].c_str());
-			
+
 		}
 
 		return out;
@@ -404,10 +404,10 @@ namespace WBSF
 
 					string source;
 					UtilWWW::GetPageText(pConnection, URL, source, true);
-				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=5&hour=00&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
-				//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=6&hour=00&minute=00&duration=2&image_type=PRECIP_SNOW_WEATHEROFFICE
-				//http://climat.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
-					//string::size_type posEnd = 0;
+					//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=5&hour=00&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
+					//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=6&hour=00&minute=00&duration=2&image_type=PRECIP_SNOW_WEATHEROFFICE
+					//http://climat.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
+						//string::size_type posEnd = 0;
 					string fileList1 = FindString(source, "blobArray = [", "]");
 					if (!fileList1.empty())
 					{
@@ -427,10 +427,10 @@ namespace WBSF
 							{
 								tmpList.insert(desc + "|" + image);
 							}
-								
+
 							posBegin1 = fileList1.find(",", posBegin1);
 							posBegin2 = fileList2.find("<li><a href=\"/radar/index_e.html?", posBegin2);
-							
+
 						}
 					}
 
@@ -484,7 +484,7 @@ namespace WBSF
 		bool bUseSnow = as<size_t>(PRCP_TYPE) == T_SNOW;
 		bool bUseWhite = as<size_t>(BACKGROUND) == B_WHITE;
 		bool bUseBrown = as<size_t>(BACKGROUND) == B_BROWN;
-		
+		bool bComposite = as<bool>(COMPOSITE);
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
@@ -522,40 +522,45 @@ namespace WBSF
 		callback.AddMessage("Number of images found: " + ToString(fileList.size()));
 		callback.PopTask();
 
-		
+
 		callback.PushTask("Clear list", fileList.size());
 		CFileInfoVector clearedList;
 
 		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 		{
-			//string fileTitle = GetFileTitle(it->m_filePath);
 			string fileName = GetFileName(it->m_filePath);
-			
-			bool bOk1 = bUseRain && bUseWhite && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
-			bool bOk2 = bUseRain && bUseBrown && Find(fileName, "PRECIPET_RAIN.gif");
-			bool bOk3 = bUseSnow && bUseWhite && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
-			bool bOk4 = bUseSnow && bUseBrown && Find(fileName, "PRECIPET_SNOW.gif");
 
-			if (Find(fileName, "_COMP_PRECIPET_SNOW_A11Y.gif") || Find(fileName, "_COMP_PRECIPET_RAIN_A11Y.gif") ||
-				Find(fileName, "_COMP_PRECIPET_SNOW.gif") || Find(fileName, "_COMP_PRECIPET_RAIN.gif"))
+			bool bOk1c = bUseRain && bUseWhite && Find(fileName, "_COMP_PRECIPET_RAIN_A11Y.gif");
+			bool bOk2c = bUseRain && bUseBrown && Find(fileName, "_COMP_PRECIPET_RAIN.gif");
+			bool bOk3c = bUseSnow && bUseWhite && Find(fileName, "_COMP_PRECIPET_SNOW_A11Y.gif");
+			bool bOk4c = bUseSnow && bUseBrown && Find(fileName, "_COMP_PRECIPET_SNOW.gif");
+
+			bool bOk1 = bUseRain && bUseWhite && !bOk1c && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
+			bool bOk2 = bUseRain && bUseBrown && !bOk2c && Find(fileName, "PRECIPET_RAIN.gif");
+			bool bOk3 = bUseSnow && bUseWhite && !bOk3c && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
+			bool bOk4 = bUseSnow && bUseBrown && !bOk4c && Find(fileName, "PRECIPET_SNOW.gif");
+
+
+			if (bComposite && (bOk1c || bOk2c || bOk3c || bOk4c))//
 			{
-				//dont use
-			}
-			else if (bOk1 || bOk2 || bOk3 || bOk4)
-			{
-				
 				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
 				if (NeedDownload(*it, filePath))
 					clearedList.push_back(*it);
 			}
-			
+			else if (!bComposite && (bOk1 || bOk2 || bOk3 || bOk4))
+			{
+				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
+				if (NeedDownload(*it, filePath))
+					clearedList.push_back(*it);
+			}
+
 			msg += callback.StepIt();
 		}
 
 		callback.PopTask();
 
 		callback.AddMessage("Number of images to download after clearing: " + ToString(clearedList.size()));
-		callback.PushTask("Download images " + ToString(clearedList.size() )+ " images", clearedList.size());
+		callback.PushTask("Download images " + ToString(clearedList.size()) + " images", clearedList.size());
 		//callback.SetNbStep(clearedList.size());
 
 		int nbDownload = 0;
@@ -615,14 +620,14 @@ namespace WBSF
 			return msg;
 
 
-		callback.PushTask("Download historical radar images (" + ToString(imageList.size())+ ")", imageList.size());
+		callback.PushTask("Download historical radar images (" + ToString(imageList.size()) + ")", imageList.size());
 		//callback.SetNbStep(imageList.size());
 
 
 		int nbRun = 0;
 		int curI = 0;
 
-		while (curI<imageList.size() && msg)
+		while (curI < imageList.size() && msg)
 		{
 			nbRun++;
 
@@ -635,13 +640,13 @@ namespace WBSF
 			{
 				TRY
 				{
-					for (int i = curI; i<imageList.size() && msg; i++)
+					for (int i = curI; i < imageList.size() && msg; i++)
 					{
 						string filePath = GetOutputFilePath(as<size_t>(TYPE), imageList[i]);
 						msg += CreateMultipleDir(GetPath(filePath));
 						//msg += CopyFile(pConnection, imageList[i], filePath, INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC);
 
-						StringVector name(imageList[i], "|"); ASSERT(name.size()==2);
+						StringVector name(imageList[i], "|"); ASSERT(name.size() == 2);
 						CString URL(name[1].c_str());
 						CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC | INTERNET_FLAG_NEED_FILE);
 
@@ -695,7 +700,7 @@ namespace WBSF
 						}
 					}
 				}
-				CATCH_ALL(e)
+					CATCH_ALL(e)
 				{
 					msg = UtilWin::SYGetMessage(*e);
 				}

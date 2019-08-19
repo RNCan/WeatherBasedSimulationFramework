@@ -14,6 +14,7 @@
 #include "basic/zenXml.h"
 #include "Basic/WeatherStation.h"
 #include "Basic/DailyDatabase.h"
+#include "Basic/HourlyDatabase.h"
 #include "Basic/Utilstd.h"
 
 
@@ -346,212 +347,237 @@ namespace WBSF
 		CLocationVector locations2;
 
 
-		static const char* VAR_DIR[8] = { "Températures minimums journalières", "", "Températures maximales journalières","Précipitations journalières","","Humidité relative journalières","Vitesse du vent 10 mètres horaires","Direction du vent 10 mètres horaires" };
+		static const char* VAR_DIR_H[8] = { "Températures minimales horaires", "", "Températures maximales horaires","Précipitations horaires","","Humidité relative horaires","Vitesse vent horaires","Direction vent horaires" };
+		static const char* VAR_DIR_D[8] = { "Températures minimales journalières", "", "Températures maximales journalières","Précipitations journalières","","","","" };
 
-		string outputFilePath = working_dir + "CoteNord.DailyDB";
+		string outputFilePathD = working_dir + "CoteNord.DailyDB";
+		string outputFilePathH = working_dir + "CoteNord.HourlyDB";
 
-		msg += CDailyDatabase::DeleteDatabase(outputFilePath, callback);
+		msg += CDailyDatabase::DeleteDatabase(outputFilePathD, callback);
+		msg += CHourlyDatabase::DeleteDatabase(outputFilePathH, callback);
 
-		CDailyDatabase db;
-		msg += db.Open(outputFilePath, CDailyDatabase::modeWrite, callback);
+		//CDailyDatabase dbD;
+		//msg += dbD.Open(outputFilePathD, CDailyDatabase::modeWrite, callback);
 
-		CTM TM(CTM::DAILY);
+		CHourlyDatabase dbH;
+		msg += dbH.Open(outputFilePathH, CHourlyDatabase::modeWrite, callback);
+
+
+		CTM TM(CTM::HOURLY);
 		std::map<string, CWeatherStation> data;
 
-		callback.PushTask("Create database", 6);
+		callback.PushTask("Create database", 9);
 
 		for (size_t v = 0; v < 8; v++)
 		{
-			
 
-			if (strlen(VAR_DIR[v]) > 0)
+			//for (size_t t = 0; t < 2; t++)
+			size_t t = 0;
 			{
-				string filter = working_dir + "Donnees_meteo\\" + VAR_DIR[v] + "\\*.csv";
-				StringVector list = WBSF::GetFilesList(filter);
-				callback.PushTask(string("Add var ") + VAR_DIR[v], list.size());
-
-				for (size_t f = 0; f < list.size(); f++)
+				string type = (t == 0) ? VAR_DIR_H[v] : VAR_DIR_D[v];
+				if (!type.empty())
 				{
-					CWeatherAccumulator stat(TM);
+					ASSERT(DirectoryExists(working_dir + "Donnees_meteo\\" + type + "\\"));
+					string filter = working_dir + "Donnees_meteo\\" + type + "\\*.csv";
+					StringVector list = WBSF::GetFilesList(filter);
+					callback.PushTask(string("Add var ") + type, list.size());
 
-					ifStream file;
-					msg = file.open(list[f]);
-					if (msg)
+					for (size_t f = 0; f < list.size(); f++)
 					{
-						string ID;
-						StringVector lines;
-						StringVector columns;
-						CLocation coord;
-						//for (size_t i = 0; i < 27; i++)
-						while (columns.empty()|| columns[0]!="Dateheure")
-						{
-							string line;
-							std::getline(file, line);
+						CWeatherAccumulator stat(TM);
 
-							columns.Tokenize(line, ";", false);
-							
-							if (!columns.empty())
+						ifStream file;
+						msg = file.open(list[f]);
+						if (msg)
+						{
+							string ID;
+							StringVector lines;
+							StringVector columns;
+							CLocation coord;
+							//for (size_t i = 0; i < 27; i++)
+							while (columns.empty() || columns[0] != "Dateheure")
 							{
-								if (columns[0] == "DSHÉ")
-								{
-									ID = columns[1];
-									coord.m_ID = columns[1];
-								}
-								else if (columns[0] == "Nom")
-								{
-									coord.m_name = columns[1];
-								}
-								else if (columns[0].substr(0, 6) == "XCOORD")
-								{
-									coord.m_lon = ToDouble(columns[1]);
-								}
-								else if (columns[0].substr(0, 6) == "YCOORD")
-								{
-									coord.m_lat = ToDouble(columns[1]);
-								}
-								else if (columns[0].substr(0, 6) == "ZCOORD")
-								{
-									if(!columns[1].empty())
-										coord.m_elev = ToDouble(columns[1]);
-								}
-								else if (columns[0] == "Ouverture")
-								{
-									coord.SetSSI("debut", columns[1]);
-								}
-								else if (columns[0] == "Fermeture")
-								{
-									coord.SetSSI("fin", columns[1]);
-								}
-								else if (columns[0] == "Type")
-								{
-									coord.SetSSI("type", columns[1]);
-								}
-								else if (columns[0] == "Proprio")
-								{
-									lines.push_back(line);
-									std::getline(file, line);
-									columns.Tokenize(line, ";", false);
-									coord.SetSSI("proprio", columns[0]);
-								}
-								else if (columns[0] == "SMC")
-								{
-									coord.SetSSI("SMC", columns[1]);
-								}
-								else if (columns[0] == "RMCQ")
-								{
-									coord.SetSSI("RMCQ", columns[1]);
-								}
-								
-							}
-							lines.push_back(line);
-						}
-						
-						if(locations2.FindByID(coord.m_ID)==NOT_INIT)
-							locations2.push_back(coord);
+								string line;
+								std::getline(file, line);
 
-						ASSERT(!ID.empty());
-						size_t loc_pos = locations.FindByID(ID);
-						
-						if (loc_pos == NOT_INIT)
-						{
-							auto it = locations.FindBySSI("SMC", coord.GetSSI("SMC"), false);
-							if(it!=locations.end())
-								loc_pos = std::distance(locations.begin(), it);
-						}
+								columns.Tokenize(line, ";", false);
 
-						if (loc_pos == NOT_INIT)
-						{
-							auto it = locations.FindBySSI("RMCQ", coord.GetSSI("RMCQ"), false);
-							if (it != locations.end())
-								loc_pos = std::distance(locations.begin(), it);
-						}
-
-						ASSERT(loc_pos < locations.size());
-
-						/*if (loc_pos == NOT_INIT)
-						{
-							locations.push_back(coord);
-							loc_pos = locations.FindByID(ID);
-						}
-*/
-						//update ID
-						ID = locations[loc_pos].m_ID;
-						if (ID.empty())
-							callback.AddMessage(list[f]);
-
-						for (CSVIterator loop(file, ";", false); loop != CSVIterator() && msg; ++loop)
-						{
-							if (!loop->empty())
-							{
-								enum TColName { C_DATEHEURE, C_VALEUR, C_QUALITE, C_STATUT, NB_COLUMNS };
-								ASSERT((*loop).size() == NB_COLUMNS);
-
-								StringVector time((*loop)[C_DATEHEURE], "-: T");
-								ASSERT(time.size() == 5);
-
-								int year = ToInt(time[0]);
-								size_t month = ToInt(time[1]) - 1;
-								size_t day = ToInt(time[2]) - 1;
-								size_t hour = ToInt(time[3]);
-
-								
-								ASSERT(month >= 0 && month < 12);
-								ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
-								ASSERT(hour >= 0 && hour < 24);
-
-
-
-								if (data.find(ID) == data.end())
+								if (!columns.empty())
 								{
-									data[ID] = CWeatherStation(TM.Type() == CTM::HOURLY);
-									
-									ASSERT(loc_pos != NOT_INIT);
-									((CLocation&)(data[ID])) = locations[loc_pos];
-								}
-
-								CTM TMtmp = v <= H_PRCP ? CTM::DAILY: CTM::HOURLY;
-								CTRef UTCTRef = CTRef(year, month, day, hour, TMtmp);
-								CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, data[ID]);
-
-								if (stat.TRefIsChanging(TRef))
-								{
-									data[ID][stat.GetTRef()].SetStat((TVarH)v,stat.GetStat(v));
-								}
-
-								string tmp = (*loop)[C_VALEUR];
-								if (!tmp.empty())
-								{
-									double value = ToDouble(tmp);
-									stat.Add(TRef, v, value);
-									/*if (v == H_RELH && data[ID][TRef])
+									if (columns[0] == "DSHÉ")
 									{
-										double T = ToDouble((*loop)[C_TMP]);
-										double Hr = ToDouble((*loop)[C_RH]);
-										stat.Add(TRef, H_TDEW, Hr2Td(T, Hr));
-									}*/
+										ID = columns[1];
+										coord.m_ID = columns[1];
+									}
+									else if (columns[0] == "Nom")
+									{
+										coord.m_name = columns[1];
+									}
+									else if (columns[0].substr(0, 6) == "XCOORD")
+									{
+										coord.m_lon = ToDouble(columns[1]);
+									}
+									else if (columns[0].substr(0, 6) == "YCOORD")
+									{
+										coord.m_lat = ToDouble(columns[1]);
+									}
+									else if (columns[0].substr(0, 6) == "ZCOORD")
+									{
+										if (!columns[1].empty())
+											coord.m_elev = ToDouble(columns[1]);
+									}
+									else if (columns[0] == "Ouverture")
+									{
+										coord.SetSSI("debut", columns[1]);
+									}
+									else if (columns[0] == "Fermeture")
+									{
+										coord.SetSSI("fin", columns[1]);
+									}
+									else if (columns[0] == "Type")
+									{
+										coord.SetSSI("type", columns[1]);
+									}
+									else if (columns[0] == "Proprio")
+									{
+										lines.push_back(line);
+										std::getline(file, line);
+										columns.Tokenize(line, ";", false);
+										coord.SetSSI("proprio", columns[0]);
+									}
+									else if (columns[0] == "SMC")
+									{
+										coord.SetSSI("SMC", columns[1]);
+									}
+									else if (columns[0] == "RMCQ")
+									{
+										coord.SetSSI("RMCQ", columns[1]);
+									}
+
 								}
-							}//empty
+								lines.push_back(line);
+							}
 
-							//msg += callback.StepIt(loop->GetLastLine().length() + 2);
-							msg += callback.StepIt(0);
-						}//for all line (
+							if (locations2.FindByID(coord.m_ID) == NOT_INIT)
+								locations2.push_back(coord);
+
+							ASSERT(!ID.empty());
+							size_t loc_pos = locations.FindByID(ID);
+
+							if (loc_pos == NOT_INIT)
+							{
+								auto it = locations.FindBySSI("SMC", coord.GetSSI("SMC"), false);
+								if (it != locations.end())
+									loc_pos = std::distance(locations.begin(), it);
+							}
+
+							if (loc_pos == NOT_INIT)
+							{
+								auto it = locations.FindBySSI("RMCQ", coord.GetSSI("RMCQ"), false);
+								if (it != locations.end())
+									loc_pos = std::distance(locations.begin(), it);
+							}
+
+							ASSERT(loc_pos < locations.size());
+
+							/*if (loc_pos == NOT_INIT)
+							{
+								locations.push_back(coord);
+								loc_pos = locations.FindByID(ID);
+							}
+	*/
+	//update ID
+							ID = locations[loc_pos].m_ID;
+							if (ID.empty())
+								callback.AddMessage(list[f]);
+
+							for (CSVIterator loop(file, ";", false); loop != CSVIterator() && msg; ++loop)
+							{
+								if (!loop->empty())
+								{
+									enum TColName { C_DATEHEURE, C_VALEUR, C_QUALITE, C_STATUT, NB_COLUMNS };
+									ASSERT((*loop).size() == NB_COLUMNS);
+
+									StringVector time((*loop)[C_DATEHEURE], "-: T");
+									ASSERT(time.size() == 5);
+
+									int year = ToInt(time[0]);
+									size_t month = ToInt(time[1]) - 1;
+									size_t day = ToInt(time[2]) - 1;
+									size_t hour = ToInt(time[3]);
 
 
-						if (stat.GetTRef().IsInit() && data.find(ID) != data.end())
-							data[ID][stat.GetTRef()].SetStat((TVarH)v, stat.GetStat(v));
+									ASSERT(month >= 0 && month < 12);
+									ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
+									ASSERT(hour >= 0 && hour < 24);
+
+
+
+									if (data.find(ID) == data.end())
+									{
+										data[ID] = CWeatherStation(TM.Type() == CTM::HOURLY);
+
+										ASSERT(loc_pos != NOT_INIT);
+										((CLocation&)(data[ID])) = locations[loc_pos];
+									}
+
+									CTM TMtmp = t == 0 ? CTM::HOURLY : CTM::DAILY;
+									CTRef UTCTRef = CTRef(year, month, day, hour, TMtmp);
+									CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, data[ID]);
+
+									if (stat.TRefIsChanging(TRef))
+									{
+										data[ID][stat.GetTRef()].SetStat((TVarH)v, stat.GetStat(v));
+									}
+
+									string tmp = (*loop)[C_VALEUR];
+									if (!tmp.empty())
+									{
+										double value = ToDouble(tmp);
+										stat.Add(TRef, v, value);
+
+										if (TM == CTM::HOURLY)
+										{
+											if (v == H_TMAX)
+											{
+												double Tmin = data[ID].GetHour(TRef).at(H_TMIN);
+												if (Tmin > -999)
+													data[ID][TRef].SetStat(H_TAIR, (Tmin + value) / 2);
+											}
+
+											if (v == H_RELH )
+											{
+												double T = data[ID].GetHour(TRef).at(H_TAIR);
+												if (T > -999)
+												{
+													data[ID][TRef].SetStat( H_TDEW, Hr2Td(T, value));
+												}
+											}
+
+										}
+									}
+								}//empty
+
+								//msg += callback.StepIt(loop->GetLastLine().length() + 2);
+								msg += callback.StepIt(0);
+							}//for all line (
+
+
+							if (stat.GetTRef().IsInit() && data.find(ID) != data.end())
+								data[ID][stat.GetTRef()].SetStat((TVarH)v, stat.GetStat(v));
 							//data[ID][stat.GetTRef()].SetData(stat);
 
 
-					}//if msg
+						}//if msg
 
+						msg += callback.StepIt();
+					}//fo all files
+
+					callback.PopTask();
 					msg += callback.StepIt();
-				}//fo all files
+				}//if valid var
+			}//all type
 
-				callback.PopTask();
-				msg += callback.StepIt();
-			}//if valid var
-
-			
 		}//for all variables
 
 
@@ -562,7 +588,7 @@ namespace WBSF
 			{
 				if (it1->second.m_name.empty())
 				{
-					callback.AddMessage("empty station: "+ ToString(distance(data.begin(),it1)));
+					callback.AddMessage("empty station: " + ToString(distance(data.begin(), it1)));
 				}
 
 				CWVariables vars;
@@ -579,12 +605,14 @@ namespace WBSF
 				it1->second.CleanUnusedVariable(vars);
 
 
-				db.Add(it1->second);
+			///	dbD.Add(it1->second);
+				dbH.Add(it1->second);
 			}
 		}//if msg
 
 
-		db.Close(true, callback);
+		//dbD.Close(true, callback);
+		dbH.Close(true, callback);
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(data.size()), 1);
 		callback.PopTask();
 

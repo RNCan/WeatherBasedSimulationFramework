@@ -53,8 +53,9 @@ namespace WBSF
 
 	const char * CSOPFEU::FIELDS_NAME[NB_FIELDS] =
 	{ "TAI000H", "TAN000H", "TAX000H", "TAM000H", "PC040H", "PT040H", "PC020H", "PT041H", "HAI000H", "HAN000H", "HAX000H", "NSI000H", "VDI300H", "VVI300H", "VVXI500H", "VDM025B", "VVM025B", "TDI000H", "VB000B" };
-	
-	const TVarH CSOPFEU::VARIABLE[NB_FIELDS] = { H_TAIR, H_TMIN, H_TMAX, H_TAIR, H_SKIP, H_PRCP, H_SKIP, H_SWE, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
+
+	//do not use TAI000H nor TAM000H. 
+	const TVarH CSOPFEU::VARIABLE[NB_FIELDS] = { H_SKIP, H_TMIN, H_TMAX, H_SKIP, H_SKIP, H_SKIP, H_ADD1, H_ADD2, H_RELH, H_RELH, H_RELH, H_SNDH, H_WNDD, H_WNDS, H_SKIP, H_SKIP, H_WND2, H_TDEW, H_SKIP };
 
 	TVarH CSOPFEU::GetVariable(std::string str)
 	{
@@ -71,8 +72,8 @@ namespace WBSF
 
 	CSOPFEU::CSOPFEU(void)
 	{
-		m_firstYear=0;
-		m_lastYear=0;
+		m_firstYear = 0;
+		m_lastYear = 0;
 	}
 
 	CSOPFEU::~CSOPFEU(void)
@@ -112,13 +113,13 @@ namespace WBSF
 			CInternetSessionPtr pSession;
 			CFtpConnectionPtr pConnection;
 
-			
+
 			msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, m_userName, m_password, true, 5, callback);
 			if (msg)
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 35000);
 
-			
+
 				try
 				{
 					msg = FindFiles(pConnection, string(SERVER_PATH) + "*.*", fileList, true, callback);
@@ -165,12 +166,12 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 
 	static CTRef GetTRef(string& fileTitle)
 	{
 		int year = 2000 + WBSF::as<int>(fileTitle.substr(1, 2));
-		size_t jDay = WBSF::as<size_t>(fileTitle.substr(3, 3))-1;
+		size_t jDay = WBSF::as<size_t>(fileTitle.substr(3, 3)) - 1;
 		size_t h = WBSF::as<size_t>(fileTitle.substr(6, 2));
 
 		CJDayRef JDay(year, jDay);
@@ -220,7 +221,7 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH , 1);
+		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
 		callback.AddMessage("");
 
 		//load station list
@@ -251,7 +252,7 @@ namespace WBSF
 				{
 					try
 					{
-						while (curI< fileList.size() && msg)
+						while (curI < fileList.size() && msg)
 						{
 							string fileTitle = GetFileTitle(fileList[curI].m_filePath);
 
@@ -262,7 +263,7 @@ namespace WBSF
 							CreateMultipleDir(GetPath(outputFilePath));
 
 							msg += CopyFile(pConnection, fileList[curI].m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true);
-							
+
 							if (msg)
 							{
 								msg += callback.StepIt();
@@ -271,7 +272,7 @@ namespace WBSF
 							}
 						}
 					}
-					catch(CException* e)
+					catch (CException* e)
 					{
 						//if an error occur: try again
 						if (nbTry < 5)
@@ -285,13 +286,13 @@ namespace WBSF
 							msg = UtilWin::SYGetMessage(*e);
 						}
 					}
-					
+
 
 					//clean connection
 					pConnection->Close();
 					pSession->Close();
 				}
-				
+
 			}
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI));
@@ -305,7 +306,7 @@ namespace WBSF
 	ERMsg CSOPFEU::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		//send all available station
 		msg = m_stationsList.Load(GetStationListFilePath());
 		if (msg)
@@ -319,11 +320,11 @@ namespace WBSF
 			}
 		}
 
-		
+
 
 		return msg;
 
-		
+
 	}
 
 	ERMsg CSOPFEU::LoadWeatherInMemory(CCallback& callback)
@@ -331,6 +332,7 @@ namespace WBSF
 		ERMsg msg;
 
 		size_t nbYears = m_lastYear - m_firstYear + 1;
+
 
 		for (size_t y = 0; y < nbYears&& msg; y++)
 		{
@@ -343,10 +345,154 @@ namespace WBSF
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
 				msg += ReadData(fileList[i], m_stations, callback);
+
 				msg += callback.StepIt();
 			}
 
 			callback.PopTask();
+
+
+			//compute hourly temperature and precipitation
+			for (auto it = m_stations.begin(); it != m_stations.end(); it++)
+			{
+				CWeatherStation& station = it->second;
+				CWVariables vars = station.GetVariables();
+
+				if (vars[H_TMIN] && vars[H_TMAX])
+				{
+					CTPeriod p = station.GetEntireTPeriod();
+					for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+					{
+						CHourlyData& data = station.GetHour(TRef);
+						if (data[H_TMIN] > -999 && data[H_TMAX] > -999)
+						{
+							bool bValid = true;
+							float Tmin = data[H_TMIN];
+							float prevTmin = data.GetPrevious()[H_TMIN];
+							float nextTmin = data.GetNext()[H_TMIN];
+							if (prevTmin != -999 || nextTmin != -999)
+							{
+								float diff_prevTmin = prevTmin > -999 ? Tmin - prevTmin : -999;
+								float diff_nextTmin = nextTmin > -999 ? Tmin - nextTmin : -999;
+								if ((diff_prevTmin == -999 || diff_prevTmin > 8) && (diff_nextTmin == -999 || diff_nextTmin > 8) ||
+									(diff_prevTmin == -999 || diff_prevTmin < -8) && (diff_nextTmin == -999 || diff_nextTmin < -8)
+									)
+								{
+									bValid = false;
+								}
+							}
+
+							float Tmax = data[H_TMAX];
+							float prevTmax = data.GetPrevious()[H_TMAX];
+							float nextTmax = data.GetNext()[H_TMAX];
+							if (prevTmax != -999 || nextTmax != -999)
+							{
+								float diff_prevTmax = prevTmax > -999 ? Tmax - prevTmax : -999;
+								float diff_nextTmax = nextTmax > -999 ? Tmax - nextTmax : -999;
+								if ((diff_prevTmax == -999 || diff_prevTmax > 8) && (diff_nextTmax == -999 || diff_nextTmax > 8) ||
+									(diff_prevTmax == -999 || diff_prevTmax < -8) && (diff_nextTmax == -999 || diff_nextTmax < -8)
+									)
+								{
+									bValid = false;
+								}
+							}
+
+							if (!bValid)
+							{
+								data.SetStat(H_TMIN, -999);
+								data.SetStat(H_TAIR, -999);
+								data.SetStat(H_TMAX, -999);
+								data.SetStat(H_TDEW, -999);
+								data.SetStat(H_RELH, -999);
+							}
+						}
+					}
+				}
+
+
+				if (vars[H_ADD1] && vars[H_ADD2])
+				{
+					float lastPrcp1 = -999;
+					float lastPrcp2 = -999;
+
+					CTPeriod p = station.GetEntireTPeriod();
+					for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+					{
+						CHourlyData& data = station.GetHour(TRef);
+						if (data[H_ADD1] > -999 && data[H_ADD2] > -999)
+						{
+							float hourly_prcp1 = -999;
+							float hourly_prcp2 = -999;
+
+							float prcp1 = data[H_ADD1];
+							float prcp2 = data[H_ADD2];
+
+							if (lastPrcp1 == -999)
+								lastPrcp1 = prcp1;
+							
+							if (lastPrcp2 == -999)
+								lastPrcp2 = prcp2;
+
+
+							if (prcp1 > 0)
+							{
+								//verify for speaking
+								if (data.HavePrevious() && data.HaveNext())
+								{
+									float prev1 = data.GetPrevious()[H_ADD1];
+									float next1 = data.GetNext()[H_ADD1];
+									if (prev1 > -999 && next1 > -999)
+									{
+										float diff_prev = prcp1 - prev1;
+										float diff_next = prcp1 - next1;
+										if (!((diff_prev > 2 && diff_next > 2) || (diff_prev < -2 && diff_next < -2)))
+										{
+											if (prcp1 >= lastPrcp1)
+											{
+												hourly_prcp1 = prcp1 - lastPrcp1;
+
+											}
+
+											lastPrcp1 = prcp1;
+										}
+									}
+								}
+							}
+
+							if (prcp2 > 500)
+							{
+								//verify for speaking
+								if (data.HavePrevious() && data.HaveNext())
+								{
+									float prev2 = data.GetPrevious()[H_ADD2];
+									float next2 = data.GetNext()[H_ADD2];
+									if (prev2 > -999 && next2 > -999)
+									{
+										float diff_prev = prcp2 - prev2;
+										float diff_next = prcp2 - next2;
+										if (!(( diff_prev > 2 && diff_next > 2) || (diff_prev <-2 && diff_next < -2)) )
+										{
+											if (prcp2 >= lastPrcp2)
+											{
+												hourly_prcp2 = prcp2 - lastPrcp2;
+											}
+
+											lastPrcp2 = prcp2;
+										}
+									}
+								}
+							}
+
+							//if (hourly_prcp1 >= 0)
+							//	data.SetStat(H_PRCP, hourly_prcp1);
+							if (hourly_prcp2 >= 0)
+								data.SetStat(H_PRCP, hourly_prcp2);
+						}
+					}//for all hours
+				}
+
+				//it->second.CleanUnusedVariable("TN T TX P TD H WS WD W2 R Z SD");
+			}
 
 		}
 
@@ -357,11 +503,11 @@ namespace WBSF
 	ERMsg CSOPFEU::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
-	
+
 		station = m_stations[ID];
 
 		//clean outside period
-		for (CWeatherYears::iterator it = station.begin(); it!= station.end(); )
+		for (CWeatherYears::iterator it = station.begin(); it != station.end(); )
 		{
 			if (it->first >= m_firstYear && it->first <= m_lastYear)
 				it++;
@@ -380,9 +526,9 @@ namespace WBSF
 		bool bValid = true;
 		switch (v)
 		{
-		case H_TMIN: 
+		case H_TMIN:
 		case H_TAIR:
-		case H_TMAX: 
+		case H_TMAX:
 		case H_TDEW: bValid = value >= -45 && value <= 40; break;
 		case H_PRCP:
 		case H_SWE:
@@ -406,19 +552,22 @@ namespace WBSF
 		ASSERT(str[0].size() == 5);
 		str[0].erase(str[0].begin());//remove m
 
-		CTRef UTCRef(ToInt(str[0]), ToSizeT(str[1])-1, ToSizeT(str[2])-1, ToSizeT(str[3]));
+		CTRef UTCRef(ToInt(str[0]), ToSizeT(str[1]) - 1, ToSizeT(str[2]) - 1, ToSizeT(str[3]));
+
 
 		ifStream  file;
 		msg = file.open(filePath);
 		if (msg)
 		{
-			enum {C_NETWORK, STA_ID, DATE, F_TIME, FIRST_FILED};
-			for(CSVIterator loop(file, ";", false); loop!=CSVIterator(); ++loop)
+			enum { C_NETWORK, STA_ID, DATE, F_TIME, FIRST_FILED };
+			for (CSVIterator loop(file, ";", false); loop != CSVIterator(); ++loop)
 			{
 				ASSERT(loop->size() >= FIRST_FILED);
 				string ID = (*loop)[STA_ID];
 				MakeLower(ID);
-				
+				//if (ID != "cqgt")
+					//continue;
+
 				size_t pos = m_stationsList.FindByID(ID);
 				if (pos != NOT_INIT)
 				{
@@ -438,10 +587,27 @@ namespace WBSF
 								((CLocation&)stations[ID]) = m_stationsList[pos];
 								stations[ID].SetHourly(true);
 							}
-							
-							if (IsValid(v, value ))
-								stations[ID][TRef].SetStat(v,value);
+
+							if (IsValid(v, value))
+								stations[ID][TRef].SetStat(v, value);
 						}
+					}//for all coluns
+
+					//verify temperature
+					float Tmin = stations[ID].GetHour(TRef)[H_TMIN];
+					float Tmax = stations[ID].GetHour(TRef)[H_TMAX];
+					ASSERT(Tmax < 35);
+
+					if (Tmin > -999 && Tmax > -999)
+					{
+						float Tair = (Tmin + Tmax) / 2;
+						stations[ID][TRef].SetStat(H_TAIR, Tair);
+					}
+					else
+					{
+						stations[ID][TRef].SetStat(H_TMIN, -999);
+						stations[ID][TRef].SetStat(H_TAIR, -999);
+						stations[ID][TRef].SetStat(H_TMAX, -999);
 					}
 				}
 				else

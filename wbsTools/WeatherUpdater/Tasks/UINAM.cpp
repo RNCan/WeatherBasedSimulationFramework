@@ -24,8 +24,8 @@ namespace WBSF
 
 	//https://nomads.ncdc.noaa.gov/data/
 	//*********************************************************************
-	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "Begin", "End", "ServerType", "ShowWinSCP" };
-	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_DATE, T_DATE, T_COMBO_INDEX, T_BOOL };
+	const char* CUINAM::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "ServerType", "Begin", "End", "ShowWinSCP" };
+	const size_t CUINAM::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING_SELECT, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL };
 	const UINT CUINAM::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NAM_P;
 	const UINT CUINAM::DESCRIPTION_TITLE_ID = ID_TASK_NAM;
 
@@ -63,9 +63,9 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "NAM\\"; break;
+		case SERVER_TYPE: str = "1"; break;
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
-		case SERVER_TYPE: str = "1"; break;
 		case SHOW_WINSCP: str = "0"; break;
 		};
 
@@ -160,8 +160,7 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		size_t serverType = as<size_t>(SERVER_TYPE);
 		CreateMultipleDir(workingDir);
-
-		CTRef today = CTRef::GetCurrentTRef(CTM::HOURLY);
+		
 
 		if (serverType == HTTP_SERVER)
 		{
@@ -191,7 +190,7 @@ namespace WBSF
 		{
 			if (sources[s])
 			{
-				CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+				CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 				CTPeriod period;
 
 				if (s == S_NOMADS)
@@ -226,8 +225,8 @@ namespace WBSF
 						msg += callback.StepIt(0);
 					}
 
-					callback.PushTask(string("Download NAM gribs from \"") + HTTP_SERVER_NAME[s] + "\" (" + HTTP_SERVER_NAME[s] + ") for period " + period.GetFormatedString("%1 to %2") + ": " + to_string(nbFilesToDownload) + " files", nbFilesToDownload);
-					callback.AddMessage(string("Download NAM gribs from \"") + HTTP_SERVER_NAME[s] + "\" (" + HTTP_SERVER_NAME[s] + ") for period " + period.GetFormatedString("%1 to %2") + ": " + to_string(nbFilesToDownload) + " files");
+					callback.PushTask(string("Download NAM gribs from \"") + NAME_NET[s] + "\" (https://" + HTTP_SERVER_NAME[s] + ") for period " + period.GetFormatedString("%1 to %2") + ": " + to_string(nbFilesToDownload) + " files", nbFilesToDownload);
+					callback.AddMessage(string("Download NAM gribs from \"") + NAME_NET[s] + "\" (https://" + HTTP_SERVER_NAME[s] + ") for period " + period.GetFormatedString("%1 to %2") + ": " + to_string(nbFilesToDownload) + " files");
 
 					if (nbFilesToDownload > 0)
 					{
@@ -265,13 +264,21 @@ namespace WBSF
 											int d = int(curH.GetDay() + 1);
 											int h = int(curH.GetHour());
 											int hs = h % 6;
-											h = int(h / 5) * 6;
+											h = int(h / 6) * 6;
+											ASSERT(h == 0 || h == 6 || h == 12 || h == 18);
 
 											string inputPath;
 											if (s == 0)
+											{
 												inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, h, hs);
+												if(curH >= CTRef(2017,APRIL, DAY_10, 0))//add a 2 to the format
+													inputPath += "2";
+											}
 											else
+											{
 												inputPath = FormatA(HTTP_FORMAT[s], y, m, d, h, hs);
+											}
+												
 
 											string outputPath = GetOutputFilePath(curH);
 											CreateMultipleDir(GetPath(outputPath));
@@ -669,7 +676,7 @@ namespace WBSF
 							//}
 						}
 
-						callback.PushTask(string("Get files info from: ") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " files)", paths.size());
+						callback.PushTask(string("Get files info from: ftp://") + FTP_SERVER_NAME[s] + " (" + ToString(paths.size()) + " files)", paths.size());
 						for (size_t d1 = 0; d1 != paths.size() && msg; d1++)
 						{
 							CFileInfoVector fileListTmp;

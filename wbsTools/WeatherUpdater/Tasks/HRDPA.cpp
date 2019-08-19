@@ -102,7 +102,7 @@ namespace WBSF
 
 
 
-	ERMsg CHRDPA::Execute(CCallback& callback)
+	ERMsg CHRDPA::Execute(CCallback& callback, StringVector& HRDPAFiles)
 	{
 		ERMsg msg;
 
@@ -205,7 +205,6 @@ namespace WBSF
 						string argument = "-ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128";
 						argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +k=90 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";
 						argument += " \"" + filePath + "\" \"" + filePathOut + "\"";
-						//CMC_HRDPA_APCP-006-0700cutoff_SFC_0_ps2.5km_2019052106_000.grib2 CMC_HRDPA_APCP-006-0700cutoff_SFC_0_ps2.5km_2019052106_000_warp.tif
 
 						string command = "\"" + GetApplicationPath() + "External\\GDALWarp.exe\" " + argument;
 						msg += WinExecWait(command);
@@ -213,6 +212,7 @@ namespace WBSF
 						{
 							ASSERT(FileExists(filePathOut));
 							msg += RemoveFile(filePath);
+							HRDPAFiles.push_back(filePathOut);
 						}
 
 					}

@@ -20,8 +20,9 @@ namespace WBSF
 
 	public:
 
-		enum TNeytwork{ N_HRDPS, N_HRRR, N_HRRR_SRF, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, MAX_HOUR, DELETE_AFTER, SHOW_WINSCP, HRDPS_VARS_SFC, HRDPS_VARS_TGL, HRDPS_VARS_ISBL, HRDPS_VARS_OTHERS, TGL_HEIGHTS, ISBL_LEVELS, NB_ATTRIBUTES };
+		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
+		enum TNetwork{ N_HRDPS, N_HRRR, N_HRRR_SRF, N_RAP_P, N_RAP_B, N_NAM, NB_SOURCES };
+		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, MAX_HOUR, DELETE_AFTER, SHOW_WINSCP, HRDPS_VARS_SFC, HRDPS_VARS_TGL, HRDPS_VARS_ISBL, HRDPS_VARS_OTHERS, HRDPS_TGL_HEIGHTS, HRDPS_ISBL_LEVELS, NB_ATTRIBUTES };
 
 
 		static const char* CLASS_NAME();
@@ -51,19 +52,21 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+		ERMsg ExecuteFTP(CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg ExecuteHTTP(CCallback& callback = DEFAULT_CALLBACK);
+
 	protected:
 
 		
 		CTRef GetLatestTRef(size_t source, UtilWWW::CFtpConnectionPtr& pConnection)const;
-		//ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, bool bGrib, CCallback& callback)const;
+		CTRef GetLatestTRef(size_t source, UtilWWW::CHttpConnectionPtr& pConnection)const;
+		
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
-		//bool GoodGrib(const std::string& filePath)const;
-		//CTPeriod GetPeriod()const;
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH);
 		
 		ERMsg Clean(size_t source, CCallback& callback);
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList1);
-		ERMsg GetFilesToDownload(size_t source, CFileInfoVector& fileList, CCallback& callback);
+		ERMsg GetFilesToDownload(size_t source, size_t server, CFileInfoVector& fileList, CCallback& callback);
 		std::string GetLocaleFilePath(size_t source, const std::string& remote)const;
 		//std::string GetLocaleFilePath(size_t source, CTRef TRef, size_t HH)const;
 		static size_t GetHH(size_t source, std::string filePath);
@@ -75,7 +78,8 @@ namespace WBSF
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SOURCES_NAME[NB_SOURCES];
-		static const char* SERVER_NAME[NB_SOURCES];
+		static const char* FTP_SERVER_NAME[NB_SOURCES];
+		static const char* HTTP_SERVER_NAME[NB_SOURCES];
 		static const char* SERVER_PATH[NB_SOURCES];
 		
 	};

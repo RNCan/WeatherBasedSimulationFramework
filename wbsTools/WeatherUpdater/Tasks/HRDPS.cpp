@@ -139,7 +139,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
+		set<string> date_to_update;
+		
 		//download HRDPA 
 		if (m_variables.test(APCP_SFC) && m_bHRDPA6h && !m_bForecast)
 		{
@@ -151,11 +152,19 @@ namespace WBSF
 			HRDPA.m_max_hours = 48;
 
 			//only add message in case of error, continue anyway
-			ERMsg msg_tmp = HRDPA.Execute(callback);
+			StringVector HRDPAFiles;
+			ERMsg msg_tmp = HRDPA.Execute(callback, HRDPAFiles);
 			if (!msg_tmp)
 				callback.AddMessage(msg_tmp);
 
 			callback.AddMessage("");
+
+			//rebuild vrt with the new HRDPA
+			for (size_t i = 0; i < HRDPAFiles.size(); i++)
+			{
+				CTRef TRef = CHRDPA::GetTRef(HRDPAFiles[i]) - 6;
+				date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
+			}
 		}
 
 		callback.AddMessage("Updating HRDPS");
@@ -310,7 +319,7 @@ namespace WBSF
 
 		}//if msg
 
-		set<string> outputPath;
+		
 		if (msg)
 		{
 
@@ -351,7 +360,7 @@ namespace WBSF
 								msg += callback.StepIt();
 								string VRT_file_path = GetVRTFilePath(outputFilePath);
 
-								outputPath.insert(GetFileTitle(VRT_file_path).substr(6, 8));
+								date_to_update.insert(GetFileTitle(VRT_file_path).substr(6, 8));
 							}
 						}
 					}
@@ -380,7 +389,7 @@ namespace WBSF
 
 
 
-		if (outputPath.empty())
+		if (date_to_update.empty())
 		{
 			StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
 			for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
@@ -413,11 +422,9 @@ namespace WBSF
 									if (!WBSF::FileExists(VRTFilePath))
 									{
 										string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
-										outputPath.insert(date);
+										date_to_update.insert(date);
 									}
 								}
-
-								
 
 								msg += callback.StepIt(0);
 							}
@@ -428,16 +435,14 @@ namespace WBSF
 		}
 
 		if (msg && m_variables.test(APCP_SFC))
-			msg = CreateHourlyPrcp(outputPath, callback);
+			msg = CreateHourlyPrcp(date_to_update, callback);
 
 		if (msg && m_variables.test(DSWRF_SFC))
-			msg = CreateHourlySRad(outputPath, callback);
-
-
+			msg = CreateHourlySRad(date_to_update, callback);
 
 		//now, create .vrt and index file
 		if (msg && m_bCreateVRT)
-			msg = CreateVRT(outputPath, callback);
+			msg = CreateVRT(date_to_update, callback);
 
 
 		return msg;
@@ -620,28 +625,27 @@ namespace WBSF
 
 							string out_file_path = HRDPS_file_path1;
 							SetFileExtension(out_file_path, ".tif");
-
-							string argument;
-
-							if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
+							
+							if (!FileExists(out_file_path))//create file only if they are already created
 							{
-								argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-								//argument = "-e \"prcp=round( i4b1/" + to_string(nb_hours) + "*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path6 + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-							}
-							else if (FileExists(HRDPS_file_path2) && h2 == 0)
-							{
-								argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-								//argument = "-e \"prcp= i3b1\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path6 + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-							}
+								string argument;
 
-							if (!argument.empty())
-							{
-								string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
-								msg += WinExecWait(command);
-								msg += callback.StepIt();
+								if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
+								{
+									argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+								}
+								else if (FileExists(HRDPS_file_path2) && h2 == 0)
+								{
+									argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
+								}
+
+								if (!argument.empty())
+								{
+									string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+									msg += WinExecWait(command);
+									msg += callback.StepIt();
+								}
 							}
-
-
 						}
 					}
 				}

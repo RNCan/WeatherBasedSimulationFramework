@@ -53,7 +53,7 @@ namespace WBSF
 
 		std::string GetStationListFilePath()const;
 		std::string GetOutputFilePath(const std::string& stationID, int year)const;
-		ERMsg MergeData( const std::string& ID, std::string source, CCallback& callback);
+		ERMsg MergeData( const std::string& ID, int year, std::string source, CCallback& callback);
 
 
 		static ERMsg GetText(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& ID, int year, size_t m, std::string& text);

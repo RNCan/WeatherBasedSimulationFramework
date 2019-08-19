@@ -1,3 +1,8 @@
+//5.7.9 31/07/2019	Rémi Saint-Amant	Update NAM and RAP update. Add RAP UCAR.
+//										Change inanimation RADAR images
+//5.7.8 11/07/2019	Rémi Saint-Amant	Update in SOPFEU validation. Extract precipitation.
+//										Correct problem in HRDPS prcp
+//										Add option to lect Canada province in Isd-Lite
 //5.7.7 11/06/2019	Rémi Saint-Amant	Update Saskatchewan and NEWA
 //										Update of SWOB-ML
 //5.7.6 24/05/2019	Rémi Saint-Amant	Create HRDPS hourly prcp and srad. Clean forecast.

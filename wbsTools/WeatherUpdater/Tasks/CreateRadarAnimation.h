@@ -22,7 +22,7 @@ namespace WBSF
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
 
-		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
+		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK)override;
 
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }

@@ -2,11 +2,10 @@
 
 #include "Basic/UtilTime.h"
 #include "LocationOptimisation.h"
-//#include "UIGHCN.h"
-
 
 namespace WBSF
 {
+	class CShapeFileBase;
 
 	class CIDSLiteStation : public CLocation
 	{
@@ -54,9 +53,7 @@ namespace WBSF
 		enum TColumn { C_USAF, C_WBAN, C_STATION_NAME, C_CTRY, C_STATE, C_ICAO, C_LAT, C_LON, C_ELEV, C_BEGIN, C_END, NB_COLUMNS };
 	};
 
-	//template <> void AFXAPI SerializeElements<CIDSLiteStation> (CArchive& ar, CIDSLiteStation* pElements, INT_PTR nCount);
 
-	//typedef CMap < std::string, const std::string&, long, long > CMapLongToLong;
 	//****************************************************
 	//CIDSLiteStationOptimisation
 
@@ -65,22 +62,21 @@ namespace WBSF
 	public:
 
 		enum TType{ USAF, WBAN, NB_TYPE };
-		//	static const char* GetTypeName(int i){ ASSERT(i>=0&&i<NB_TYPE);return TYPE_NAME[i]; }
-		//const char* GetTypeName()const{return GetTypeName(m_type);}
-
-		CIDSLiteStationOptimisation()
+		
+		CIDSLiteStationOptimisation():
+			m_pShapefile(NULL)
 		{
-			//ASSERT(type>=0&&type<NB_TYPE);
-			//m_type = type;
 		}
 		virtual ERMsg Update(const std::string& referencedFilePath, CCallback& callback = DEFAULT_CALLBACK);
 
 
-		std::string GetID(short product, const std::string& line);
+//		std::string GetID(short product, const std::string& line);
 
+	protected:
 
+		CShapeFileBase* m_pShapefile;
+		std::string GetProvince(double lat, double lon)const;
 
-		//static const char* TYPE_NAME[NB_TYPE];
 	};
 
 

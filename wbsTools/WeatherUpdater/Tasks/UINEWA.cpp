@@ -28,6 +28,8 @@ namespace WBSF
 
 	//station coordinate
 	//http://data.rcc-acis.org/StnMeta?county=36001&output=csv
+	//data
+	//http://data.nrcc.rcc-acis.org/StnData
 
 
 	//*********************************************************************
@@ -573,24 +575,24 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//http://data.nrcc.rcc-acis.org/StnData
-
 		string source;
 		msg = GetText(pConnection, ID, year, m, source);
 
 		if (msg)
-			msg = MergeData(ID, source, callback);
+			msg = MergeData(ID, year, source, callback);
 
 		return msg;
 	}
 
 
-	ERMsg CUINEWA::MergeData(const string& ID, std::string source, CCallback& callback)
+	ERMsg CUINEWA::MergeData(const string& ID, int year, std::string source, CCallback& callback)
 	{
 		ERMsg msg;
 
 		CWeatherYears data(true);
-		vector<size_t> vars;
+		data.CreateYear(year);
+
+		//vector<size_t> vars;
 
 		string error;
 		Json json_features = Json::parse(source, error);
@@ -617,8 +619,7 @@ namespace WBSF
 					{
 						//try to load old data before changing it...
 						string filePath = GetOutputFilePath(ID, TRef.GetYear());
-						if (!data.LoadData(filePath, -999, false))//don't erase other years when multiple years
-							data.CreateYear(TRef.GetYear());
+						data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 					}
 
 					static const TVarH VARS[10] = {H_TAIR, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD, H_WND2, H_ADD1};
@@ -649,18 +650,15 @@ namespace WBSF
 					}
 				}
 			}
+		}
 
-			//save all years 
-			for (auto it = data.begin(); it != data.end(); it++)
-			{
-				//if (it->second->HaveData()) save file anyway to avoid download it again
-				{
-					string filePath = GetOutputFilePath(ID, it->first);
-					string outputPath = GetPath(filePath);
-					CreateMultipleDir(outputPath);
-					it->second->SaveData(filePath);
-				}
-			}
+		//save all years: save empty file to avoid download it again
+		for (auto it = data.begin(); it != data.end(); it++)
+		{
+			string filePath = GetOutputFilePath(ID, it->first);
+			string outputPath = GetPath(filePath);
+			CreateMultipleDir(outputPath);
+			it->second->SaveData(filePath);
 		}
 
 		return msg;

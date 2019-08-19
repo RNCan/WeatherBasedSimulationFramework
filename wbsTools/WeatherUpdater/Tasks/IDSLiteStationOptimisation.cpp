@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "IDSLiteStationOptimisation.h"
 #include "Basic/CSV.h"
-
+#include "Geomatic/ShapeFileBase.h"
 
 
 #include "../Resource.h"
@@ -23,57 +23,7 @@ namespace WBSF
 		return bRep;
 	}
 
-	//****************************************************************
 
-	ERMsg CIDSLiteStationOptimisation::Update(const string& referencedFilePath, CCallback& callback)
-	{
-		ERMsg msg;
-
-		clear();
-
-		CIDSLiteStationOptimisation& me = *this;
-		ifStream file;
-		msg = file.open(referencedFilePath);
-
-		if (msg)
-		{
-			//estimate file size to reserve memory
-			//std::streampos fsize = file.tellg();
-			//file.seekg(0, std::ios::end);
-			//size_t size = file.tellg() - fsize;
-			//reserve(size / 70);
-
-
-			callback.AddMessage(GetString(IDS_GSOD_OPTIMISATION));
-			callback.AddMessage(referencedFilePath, 1);
-			callback.AddMessage("");
-
-			callback.PushTask(GetString(IDS_GSOD_OPTIMISATION), (int)file.length());
-			//callback.SetNbStep((int)file.length());
-
-			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop)
-			{
-				CIDSLiteStation station;
-				bool bValid = false;
-				bValid = station.ReadStation(*loop);
-
-				if (bValid)
-					me[station.m_ID] = station;
-
-				msg += callback.StepIt(double(loop->GetLastLine().length() + 1));
-			}
-
-			callback.AddMessage("station listed in history file: " + to_string(me.size()));
-			callback.PopTask();
-
-		}
-
-		if (msg)
-			m_referenceFileStamp = GetFileInfo(referencedFilePath);
-
-
-		return msg;
-	}
 
 	bool CIDSLiteStation::ReadStation(const StringVector& line)
 	{
@@ -106,7 +56,7 @@ namespace WBSF
 			m_state = TrimConst(line[C_STATE]);
 			if (m_country.empty())
 				m_country = "UN";//Unknown
-			
+
 			ASSERT(!line[C_USAF].empty());
 			ASSERT(!line[C_WBAN].empty());
 			m_USAF = "USAF" + line[C_USAF];
@@ -137,5 +87,113 @@ namespace WBSF
 		}
 
 		return bRep;
+	}
+
+	//****************************************************************
+
+	ERMsg CIDSLiteStationOptimisation::Update(const string& referencedFilePath, CCallback& callback)
+	{
+		ERMsg msg;
+
+		clear();
+
+		CIDSLiteStationOptimisation& me = *this;
+		ifStream file;
+		msg = file.open(referencedFilePath);
+
+		if (msg)
+		{
+
+			std::string provinces_file_path = GetApplicationPath() + "Layers\\Canada.shp";
+
+
+			m_pShapefile = new CShapeFileBase;
+			if (!m_pShapefile->Read(provinces_file_path))
+			{
+				delete m_pShapefile;
+				m_pShapefile = NULL;
+			}
+
+
+
+			callback.AddMessage(GetString(IDS_GSOD_OPTIMISATION));
+			callback.AddMessage(referencedFilePath, 1);
+			callback.AddMessage("");
+
+			callback.PushTask(GetString(IDS_GSOD_OPTIMISATION), (int)file.length());
+			//callback.SetNbStep((int)file.length());
+
+			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator(); ++loop)
+			{
+				CIDSLiteStation station;
+				bool bValid = false;
+				bValid = station.ReadStation(*loop);
+
+				if (bValid)
+				{
+					if (station.m_country == "CA")
+					{
+						if (m_pShapefile && station.m_state.empty())
+						{
+							station.m_state = GetProvince(station.m_lat, station.m_lon);
+							station.SetToSSI();
+						}
+					}
+
+					me[station.m_ID] = station;
+
+				}
+
+
+				msg += callback.StepIt(double(loop->GetLastLine().length() + 1));
+			}
+
+			callback.AddMessage("station listed in history file: " + to_string(me.size()));
+			callback.PopTask();
+
+
+			if (m_pShapefile)
+			{
+				delete m_pShapefile;
+				m_pShapefile = NULL;
+			}
+
+
+		}
+
+		if (msg)
+			m_referenceFileStamp = GetFileInfo(referencedFilePath);
+
+
+		return msg;
+	}
+
+
+	std::string CIDSLiteStationOptimisation::GetProvince(double lat, double lon)const
+	{
+		ASSERT(m_pShapefile);
+
+		std::string prov;
+
+		const CDBF3& DBF = m_pShapefile->GetDBF();
+		int Findex = DBF.GetFieldIndex("STATE_ID");
+		ASSERT(Findex >= 0 && Findex < DBF.GetNbField());
+
+		CGeoPoint pt(lon, lat, PRJ_WGS_84);
+		int shapeNo = -1;
+
+		//m_pShapefile->
+		if (m_pShapefile->IsInside(pt, &shapeNo))//inside a shape
+		{
+			prov = DBF[shapeNo][Findex].GetElement();
+		}
+		else
+		{
+			double d = m_pShapefile->GetMinimumDistance(pt, &shapeNo);
+			ASSERT(shapeNo >= 0 && shapeNo < DBF.GetNbRecord());
+			prov = DBF[shapeNo][Findex].GetElement();
+		}
+
+		return prov;
 	}
 }

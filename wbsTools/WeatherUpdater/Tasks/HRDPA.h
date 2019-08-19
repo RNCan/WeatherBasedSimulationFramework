@@ -17,7 +17,7 @@ namespace WBSF
 		
 		CHRDPA(void);
 
-		ERMsg Execute(CCallback& callback);
+		ERMsg Execute(CCallback& callback, StringVector& HRDPAFiles= StringVector());
 		
 		bool m_bByHRDPS;
 		int m_max_hours;
