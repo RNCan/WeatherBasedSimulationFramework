@@ -2147,7 +2147,7 @@ namespace WBSF
 		{
 			if (variables[v])
 			{
-				ASSERT(v==H_TAIR || me[v].IsInit());
+				ASSERT(me[v].IsInit()||(v==H_TAIR&& me[H_TMIN].IsInit()&& me[H_TMAX].IsInit()));
 
 				switch (v)
 				{
@@ -3404,15 +3404,15 @@ namespace WBSF
 								if (oldStat.IsInit())//only compute ajustement when data is available
 								{
 
-									copy[y][m][d].ComputeHourlyVariables(v, options);
+								copy[y][m][d].ComputeHourlyVariables(v, options);
 
-									_ASSERTE(me[y][m][d][v].IsInit());
-									CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
-									_ASSERTE(newStat);
+								_ASSERTE(me[y][m][d][v].IsInit());
+								CStatistic newStat = GetDailyStat(v, copy[y][m][d]);
+								_ASSERTE(newStat);
 
-									double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
-									copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
-								}
+								double delta = me[y][m][d][v][MEAN] - newStat[MEAN];
+								copy[y][m][d][v] = max(GetLimitH(v, 0), min(GetLimitH(v, 1), oldStat[MEAN] + delta));
+							}
 							}
 						}//v
 					}//d
@@ -3616,7 +3616,7 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef != p.End(); TRef++)
 			{
 				CHourlyData& weaᵒ = GetHour(TRef);
-			
+
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
