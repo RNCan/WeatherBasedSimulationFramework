@@ -730,7 +730,7 @@ BEGIN
     IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Serveur|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA"
-    IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
+    IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol HRDPS|Isobares HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
@@ -1214,7 +1214,7 @@ BEGIN
     IDS_UPDATER_RAP_P       "Working directory|Sources|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Product|Server|Show WinSCP (if FTP)"
     IDS_UPDATER_NAM_P       "Working directory|Sources|Server|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
     IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA"
-    IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
+    IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|HRDPS Gound height|HRDPS Isobars"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"

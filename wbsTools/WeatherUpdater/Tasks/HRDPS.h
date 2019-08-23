@@ -101,8 +101,6 @@ namespace WBSF
 	{
 	public:
 
-		//static bool GoodGrib(const std::string& filePath);
-
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
 
@@ -110,8 +108,6 @@ namespace WBSF
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
-		//bool m_compute_prcp;
-		
 
 		int m_max_hours;
 		bool m_bForecast;
@@ -127,9 +123,6 @@ namespace WBSF
 		ERMsg CreateHourlyPrcp(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg CreateHourlySRad(std::set<std::string> outputPath, CCallback& callback);
 		
-
-
-		//std::string GetVRTFilePath(CTRef TRef);
 		static CTRef GetTRef(std::string title, bool bAddForecast);
 		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);
 		static std::string GetVRTFilePath(std::string workingDir, std::string outputFilePath);

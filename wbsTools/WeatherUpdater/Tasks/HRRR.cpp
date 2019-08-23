@@ -4,11 +4,13 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
+#include "Geomatic/SfcGribsDatabase.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
-
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -22,14 +24,15 @@ namespace WBSF
 
 	//*********************************************************************
 	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"} };
-	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
+	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
 	const char* CHRRR::PRODUCT_ABR[NB_SOURCES][NB_PRODUCT] = { {"prs","sfc"}, {"nat", "sfc"} };
 
 	CHRRR::CHRRR(const std::string& workingDir) :
 		m_workingDir(workingDir),
 		m_product(HRRR_SFC),
 		m_serverType(HTTP_SERVER),
-		m_bShowWINSCP(false)
+		m_bShowWINSCP(false),
+		m_compute_prcp(true)
 	{}
 
 	CHRRR::~CHRRR(void)
@@ -48,6 +51,7 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME[m_source][m_serverType], 1);
 		callback.AddMessage("");
 
+		GDALSetCacheMax64(128 * 1024 * 1024);
 
 		switch (m_source)
 		{
@@ -103,9 +107,7 @@ namespace WBSF
 				msg = stript.open(scriptFilePath);
 				if (msg)
 				{
-
-					string outputFilePath = GetOutputFilePath(fileList[i].m_filePath);
-					//					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
+					string outputFilePath = GetOutputFilePath(fileList[i].m_filePath, false);
 					CreateMultipleDir(GetPath(outputFilePath));
 
 					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[NOMADS][FTP_SERVER] << endl;
@@ -149,6 +151,14 @@ namespace WBSF
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
 			callback.PopTask();
+
+
+
+			if (m_compute_prcp)
+			{
+				//				ComputePrcp(fileListPrcp, callback);
+			}
+
 		}
 
 		return msg;
@@ -179,10 +189,26 @@ namespace WBSF
 			{
 				if (GetFileExtension(it->m_filePath) == ".grib2")
 				{
-					string outputFilePath = GetOutputFilePath(it->m_filePath);
+					string outputFilePath = GetOutputFilePath(it->m_filePath, false);
 					if (!GoodGrib(outputFilePath))
 						fileList.push_back(*it);
 
+				}
+			}
+
+			if (m_compute_prcp)
+			{
+				msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f01.grib2", fileListTmp);
+
+				for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+				{
+					if (GetFileExtension(it->m_filePath) == ".grib2")
+					{
+						string outputFilePath = GetOutputFilePath(it->m_filePath, true);
+						if (!FileExists(outputFilePath))
+							fileList.push_back(*it);
+
+					}
 				}
 			}
 
@@ -216,6 +242,7 @@ namespace WBSF
 
 		callback.PushTask(string("Get files list from: ") + SERVER_PATH[NOMADS][HTTP_SERVER], 2);
 		CFileInfoVector fileList;
+		StringVector fileListPrcp;
 
 
 		CFileInfoVector dir;
@@ -223,13 +250,17 @@ namespace WBSF
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
+			if (m_compute_prcp)
+				msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f01.grib2", fileListTmp);
+
 			msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f00.grib2", fileListTmp);
+
 
 			for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 			{
 				if (GetFileExtension(it->m_filePath) == ".grib2")
 				{
-					string outputFilePath = GetOutputFilePath(it->m_filePath);
+					string outputFilePath = GetOutputFilePath(it->m_filePath, false);
 					if (!GoodGrib(outputFilePath))
 					{
 						fileList.push_back(*it);
@@ -237,12 +268,39 @@ namespace WBSF
 				}
 			}
 
+			//if (m_compute_prcp)
+			//{
+			//	CFileInfoVector fileListTmp;
+			//	msg = FindFiles(pConnection, it1->m_filePath + "conus/hrrr.t??z.wrf" + PRODUCT_ABR[NOMADS][m_product] + "f01.grib2", fileListTmp);
+
+			//	for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+			//	{
+			//		if (GetFileExtension(it->m_filePath) == ".grib2")
+			//		{
+			//			string outputFilePath = GetOutputFilePath(it->m_filePath, false);
+			//			if (!GoodGrib(outputFilePath))
+			//			{
+			//				fileList.push_back(*it);
+			//			}
+
+			//			//string outputFilePath = GetOutputFilePath(it->m_filePath, true);
+			//			//ReplaceString(outputFilePath, "f01", "f00");
+			//			//if (!FileExists(outputFilePath))
+			//			//{
+			//			//	fileList.push_back(*it);
+			//			//	fileListPrcp.push_back(it->m_filePath);
+			//			//}
+			//		}
+			//	}
+			//}
+
 			msg += callback.StepIt();
 		}
 
 
 		callback.PopTask();
 
+		set<string> date_to_update;
 
 
 		callback.PushTask("Download HRRR gribs (" + ToString(fileList.size()) + ")", fileList.size());
@@ -251,8 +309,7 @@ namespace WBSF
 		int nbDownloaded = 0;
 		for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end() && msg; it++)
 		{
-			//string fileName = GetFileName(it->m_filePath);
-			string outputFilePath = GetOutputFilePath(it->m_filePath);
+			string outputFilePath = GetOutputFilePath(it->m_filePath, false);
 
 
 			//callback.PushTask("Download HRRR gribs:" + outputFilePath, NOT_INIT);
@@ -264,6 +321,15 @@ namespace WBSF
 				if (GoodGrib(outputFilePath))
 				{
 					nbDownloaded++;
+					CTRef TRef = GetTRef(it->m_filePath);
+					date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+					//string title = GetFileTitle(outputFilePath);
+					//bool b00 = WBSF::Right(title, 3) == "f00";
+					//TRefs.insert(TRef.GetFormatedString("%Y-%m-%d-%h") + "-" + WBSF::Right(title, 3));
+
+
+
+
 				}
 				else
 				{
@@ -282,9 +348,178 @@ namespace WBSF
 		callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownloaded));
 		callback.PopTask();
 
+		if (m_compute_prcp)
+		{
+			if (date_to_update.empty())
+				date_to_update = GetAll(callback);
+		
+			callback.PushTask("Compute HRRR precipitation (" + ToString(date_to_update.size()) + ")", date_to_update.size());
+			callback.AddMessage("Compute HRRR precipitation : " + ToString(date_to_update.size()));
+
+			for (auto it = date_to_update.begin(); it != date_to_update.end()&&msg; it++)
+			{
+				CTRef TRef;
+				TRef.FromFormatedString(*it);
+				string outputFilePath = GetOutputFilePath(TRef, 0, false);
+				msg += ComputePrcp(outputFilePath, callback);
+				msg += callback.StepIt();
+			}
+
+			callback.PopTask();
+
+		}
+
 
 		return msg;
 	}
+
+
+	ERMsg CHRRR::ComputePrcp(const string& inputFilePath, CCallback& callback)
+	{
+		ERMsg msg;
+
+
+
+
+
+		string inputFilePath2 = inputFilePath;
+		ReplaceString(inputFilePath2, "f00.grib2", "f01.grib2");
+
+		string outputFilePath = inputFilePath;
+		ReplaceString(outputFilePath, "f00.grib2", "f00.tif");
+
+		string VRTFilePath = inputFilePath;
+		ReplaceString(VRTFilePath, "f00.grib2", "f00.vrt");
+
+
+		//CGDALDatasetEx DS1;
+		//msg = DS1.OpenInputImage(inputFilePath);
+		//if (msg)
+
+		if (GoodGrib(inputFilePath) && GoodGrib(inputFilePath2))
+		{
+			CSfcDatasetCached DSin1;
+			DSin1.m_variables_to_load.set();
+			msg += DSin1.open(inputFilePath, true);
+
+			CSfcDatasetCached DSin2;
+			DSin2.m_variables_to_load.set(H_PRCP);
+			msg += DSin2.open(inputFilePath2, true);
+			if (msg)
+			{
+				ASSERT(DSin1.GetRasterXSize() == DSin2.GetRasterXSize());
+				ASSERT(DSin2.get_variables().count() == 1);
+
+				CBaseOptions options;
+				DSin1.UpdateOption(options);
+				options.m_nbBands = DSin1.get_variables().count();
+				options.m_outputType = GDT_Float32;
+				options.m_dstNodata = GetDefaultNoData(GDT_Float32);
+				options.m_bOverwrite = true;
+			
+				CGDALDatasetEx DSout;
+				msg += DSout.CreateImage(outputFilePath, options);
+				if (msg)
+				{
+					vector<float> data(DSin1.GetRasterXSize()*DSin1.GetRasterYSize());
+					for (size_t v = 0, bb = 0; v < DSin1.get_variables().size(); v++)
+					{
+						CSfcDatasetCached&  DSin = (v == H_PRCP) ? DSin2 : DSin1;
+						size_t b = DSin.get_band(v);
+
+						if (b != NOT_INIT)
+						{
+							GDALRasterBand* pBandin = DSin.GetRasterBand(b);
+							GDALRasterBand* pBandout = DSout.GetRasterBand(bb);
+							
+
+							ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
+							ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
+							pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+							pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+							
+							char** pMeta = pBandin->GetMetadata();
+							pBandout->SetMetadata(pMeta);
+							
+							bb++;
+						}
+
+						DSout->FlushCache();
+						
+					}
+					
+					DSout.Close();
+				}
+
+				DSin1.close();
+				DSin2.close();
+				
+			}//if dataset open
+
+
+
+			if (msg)
+			{
+				//copy the file to fully use compression with GDAL_translate
+				msg += RenameFile(outputFilePath, outputFilePath+"2");
+				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+				msg += WinExecWait(command);
+				msg += RemoveFile(outputFilePath + "2");
+				//msg += callback.StepIt();
+
+				
+			}
+		}//good grib
+
+
+		return msg;
+	}
+
+	set<string> CHRRR::GetAll(CCallback& callback)const
+	{
+		ERMsg msg;
+
+		set<string> date_to_update;
+		StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		{
+			string year = *it1;
+			StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+			{
+				string month = *it2;
+				StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+				for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+				{
+					string day = *it3;
+					string filter = FormatA("%s%s\\%s\\%s\\*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
+					StringVector files = WBSF::GetFilesList(filter, 2, true);
+					for (StringVector::const_iterator it4 = files.begin(); it4 != files.end() && msg; it4++)
+					{
+						string title = GetFileTitle(*it4);
+						ASSERT(title.length() == 19);
+						string hour = title.substr(6,2);
+
+						CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToSizeT(hour));
+						string tifFilePath = GetOutputFilePath(TRef, 0, true);
+						if (!WBSF::FileExists(tifFilePath))
+						{
+							//string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
+							//tifFilePath
+							
+							date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+						}
+					}
+
+					msg += callback.StepIt(0);
+				}//for all days
+			}//for all months
+		}//for all years
+
+		return date_to_update;
+	}
+
 
 	ERMsg CHRRR::ExecuteHistorical(CCallback& callback)
 	{
@@ -292,19 +527,21 @@ namespace WBSF
 
 		size_t nbFilesToDownload = 0;
 		size_t nbDownloaded = 0;
+		set<string> date_to_update;
 
-		CArray<bool> bGrbNeedDownload;
-		bGrbNeedDownload.SetSize(m_period.size());
+		vector< array<bool, 2>> bGrbNeedDownload;
+		bGrbNeedDownload.resize(m_period.size());
 
-
+		size_t nb_pass = m_compute_prcp ? 2 : 1;
 
 		for (CTRef h = m_period.Begin(); h <= m_period.End(); h++)
 		{
 			size_t hh = (h - m_period.Begin());
-
-			bGrbNeedDownload[hh] = NeedDownload(GetOutputFilePath(h));
-			nbFilesToDownload += bGrbNeedDownload[hh] ? 1 : 0;
-
+			for (size_t i = 0; i < nb_pass; i++)
+			{
+				bGrbNeedDownload[hh][i] = NeedDownload(GetOutputFilePath(h, i, false));
+				nbFilesToDownload += bGrbNeedDownload[hh][i] ? 1 : 0;
+			}
 			msg += callback.StepIt(0);
 		}
 
@@ -331,57 +568,54 @@ namespace WBSF
 					{
 						while (curH <= m_period.End() && msg)
 						{
+							const char* str_p = PRODUCT_ABR[MESO_WEST][m_product];
+							int y = curH.GetYear();
+							int m = int(curH.GetMonth() + 1);
+							int d = int(curH.GetDay() + 1);
+							int hs = int(curH.GetHour());
 							size_t hh = (curH - m_period.Begin());
-							if (bGrbNeedDownload[hh])
+
+							for (size_t i = 0; i < nb_pass; i++)
 							{
-								//download gribs file
-								//string inputPath = GetInputFilePath(curH, true, false);
-								//
 
-								const char* str_p = PRODUCT_ABR[MESO_WEST][m_product];
-								int y = curH.GetYear();
-								int m = int(curH.GetMonth() + 1);
-								int d = int(curH.GetDay() + 1);
-								int hs = int(curH.GetHour());
-
-
-								//"/hrrr/%s/%04d%02d%02d/hrrr.t%02dz.wrf%sf00.grib2"
-								//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20180724/hrrr.t00z.wrfsfcf00.grib2
-								//https://pando-rgw01.chpc.utah.edu/hrrr/prs/20180724/hrrr.t00z.wrfprsf00.grib2
-								string URL = FormatA(SERVER_PATH[MESO_WEST][HTTP_SERVER], str_p, y, m, d, hs, str_p);
-
-								string outputPath = GetOutputFilePath(curH);
-								CreateMultipleDir(GetPath(outputPath));
-
-								msg += CopyFile(pConnection, URL, outputPath, INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT, true, callback);
-								if (msg)
+								if (bGrbNeedDownload[hh][i])
 								{
-									if (GoodGrib(outputPath))
-									{
-										nbDownloaded++;
-									}
-									else
-									{
-										callback.AddMessage("Invalid HRR: " + outputPath);
-										//remove file
-										msg += RemoveFile(outputPath);
-									}
-								}
+									//download gribs file
 
-								if (msg)
-								{
-									nbTry = 0;
-									msg += callback.StepIt();
-								}
-							}//need download
+									string URL = FormatA(SERVER_PATH[MESO_WEST][HTTP_SERVER], str_p, y, m, d) + FormatA("hrrr.t%02dz.wrf%sf%02d.grib2", hs, str_p, i);
+									string outputPath = GetOutputFilePath(curH, i, false);
+									CreateMultipleDir(GetPath(outputPath));
 
+									msg += CopyFile(pConnection, URL, outputPath, INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT, true, callback);
+									if (msg)
+									{
+										if (GoodGrib(outputPath))
+										{
+											nbDownloaded++;
+											date_to_update.insert(curH.GetFormatedString("%Y-%m-%d-%H"));
+										}
+										else
+										{
+											callback.AddMessage("Invalid HRRR: " + outputPath);
+											//remove file
+											msg += RemoveFile(outputPath);
+										}
+									}
+
+									if (msg)
+									{
+										nbTry = 0;
+										msg += callback.StepIt();
+									}
+								}//need download
+							}
+							
 							if (msg)
 								curH++;
 						}
 					}
 					catch (CException* e)
 					{
-						//msg = UtilWin::SYGetMessage(*e);
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
@@ -402,6 +636,20 @@ namespace WBSF
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownloaded));
 		callback.PopTask();
+
+
+		if (m_compute_prcp)
+		{
+			if (date_to_update.empty())
+				date_to_update = GetAll(callback);
+
+			for (auto it = date_to_update.begin(); it != date_to_update.end()&&msg; it++)
+			{
+				string outputFilePath = GetOutputFilePath(*it, 0, false);
+				msg += ComputePrcp(outputFilePath, callback);
+			}
+
+		}
 
 
 		return msg;
@@ -447,48 +695,20 @@ namespace WBSF
 
 	}
 
-	string CHRRR::GetOutputFilePath(const string& filePath)const
+	string CHRRR::GetOutputFilePath(const string& filePath, bool bPrecp)const
 	{
 		CTRef TRef = GetTRef(filePath);
-		string fileName = GetFileName(filePath);
-		return FormatA("%s%d\\%02d\\%02d\\%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, fileName.c_str());
+		string title = GetFileTitle(filePath);
+		string ext = bPrecp ? ".tif" : ".grib2";
+		return FormatA("%s%d\\%02d\\%02d\\%s%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, title.c_str(), ext.c_str());
 	}
 
-	string CHRRR::GetOutputFilePath(CTRef TRef)const
+	string CHRRR::GetOutputFilePath(CTRef TRef, size_t hh, bool bPrecp)const
 	{
-		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[NOMADS][m_product]);
+		string ext = bPrecp ? ".tif" : ".grib2";
+		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf%02d%s", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[NOMADS][m_product], hh, ext.c_str());
 	}
 
-
-	//ERMsg CHRRR::OpenDatasets(CCallback& callback)
-	//{
-	//	ERMsg msg;
-	//	StringVector filesList = GetFilesList(GetOutputFilePath("*.grib2"));
-
-	//	callback.PushTask("load HRRR gribs files (" + ToString(filesList.size()) + ")", filesList.size());
-	//	for (StringVector::const_iterator it = filesList.begin(); it != filesList.end() && msg; it++)
-	//	{
-	//			//size_t hhh = Gethhh(*it); ASSERT(hhh <= 52);
-	//			//size_t vv = GetVariable(*it);
-	//			//ASSERT(vv != NOT_INIT);
-
-	//		//msg += m_datasets[hhh][vv].OpenInputImage(*it);
-	//		msg += callback.StepIt();
-	//		
-	//	}
-
-	//	//msg += m_datasets[0][0].OpenInputImage("E:/Travaux/Install/DemoBioSIM/Update/EnvCan/Forecast/HRDPS/CMC_hrdps_continental_DPT_TGL_2_ps2.5km_2016050806_P000-00.grib2");
-	//	callback.PopTask();
-
-	//	if (msg)
-	//	{
-	//		m_geo2gribs.Set(PRJ_WGS_84, m_datasets[0][0].GetPrjID());
-	//		msg += m_geo2gribs.Create();
-	//	}
-	//	
-	//	return msg;
-	//}
-	//Extraction section
 
 	ERMsg CHRRR::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
@@ -589,24 +809,7 @@ namespace WBSF
 
 		return msg;
 	}
-	/*
-		bool CHRRR::GoodGrib(const std::string& file_path)
-		{
-			bool bGood = false;
-			ifStream stream;
-			if (stream.open(file_path))
-			{
-				char test[5] = { 0 };
-				stream.seekg(-4, ifstream::end);
-				stream.read(&(test[0]), 4);
-				stream.close();
-				if (string(test) == "7777")
-					bGood = true;
 
-				stream.close();
-			}
 
-			return bGood;
-		}*/
 
 }

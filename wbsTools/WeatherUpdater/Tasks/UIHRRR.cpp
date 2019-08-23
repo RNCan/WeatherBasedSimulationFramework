@@ -30,8 +30,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Source", "ServerType", "Begin", "End", "ShowWINSCP" };
-	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL };
+	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Source", "ServerType", "Begin", "End", "ShowWINSCP", "ComputeHourlyPrcp" };
+	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL, T_BOOL };
 	const UINT CUIHRRR::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRRR_P;
 	const UINT CUIHRRR::DESCRIPTION_TITLE_ID = ID_TASK_HRRR;
 
@@ -80,6 +80,7 @@ namespace WBSF
 		case FIRST_DATE:
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		case SHOW_WINSCP: str = "0"; break;
+		case COMPUTE_HOURLY_PRCP: str = "1"; break;
 		};
 
 		return str;
@@ -119,6 +120,8 @@ namespace WBSF
 		HRRR.m_serverType = as<size_t>(SERVER_TYPE);
 		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
 		HRRR.m_period = GetPeriod();
+		HRRR.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
 		msg = HRRR.Execute(callback);
 
 
