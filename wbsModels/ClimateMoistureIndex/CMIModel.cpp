@@ -1,4 +1,5 @@
 //*********************************************************************
+//19/08/2019	3.2.0	Rémi Saint-Amant    Add limit to zero. False by default.
 //31/01/2018	3.1.3	Rémi Saint-Amant    recompile
 //17/05/2017	3.1.2	Rémi Saint-Amant    Bug correction when more than 2 years
 //27/03/2017	3.1.1	Rémi Saint-Amant    recompile
@@ -28,10 +29,23 @@ namespace WBSF
 
 	CCMIModel::CCMIModel()
 	{
-		NB_INPUT_PARAMETER = 0;
-		VERSION = "3.1.3 (2018)";
+		NB_INPUT_PARAMETER = 1;
+		VERSION = "3.2.0 (2019)";
 	}
 
+	ERMsg CCMIModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ASSERT(m_weather.size() > 0);
+
+		ERMsg msg;
+	
+		int c = 0;
+		m_bLimitToZero = parameters[c++].GetBool();
+		
+		return msg;
+	}
+
+	
 
 	ERMsg CCMIModel::OnExecuteAnnual()
 	{
@@ -70,6 +84,8 @@ namespace WBSF
 			double tminwyr = m_weather.GetStat(H_TMIN, p1)[MEAN];
 
 			double CMIwyr = Pwyr - PETwyr;
+			if (m_bLimitToZero&&CMIwyr < 0)
+				CMIwyr = 0;
 
 			m_output[y - 1][O_GDD_CUM] = gddcum;
 			m_output[y - 1][O_GDD_WYR] = gddwyr;
@@ -107,7 +123,9 @@ namespace WBSF
 
 				double pptSum = m_weather[y][m].GetStat(H_PRCP)[SUM] / 10;//in cm
 				double PETSum = GetSPMPET(m_weather[y][m]) / 10;//in cm
-				double CMI = max(0.0, pptSum - PETSum);
+				double CMI = pptSum - PETSum;
+				if (m_bLimitToZero&&CMI < 0)
+					CMI = 0;
 
 				m_output[y * 12 + m][O_TMAX_MEAN] = TMaxMean;
 				m_output[y * 12 + m][O_TMIN_MEAN] = TMinMean;

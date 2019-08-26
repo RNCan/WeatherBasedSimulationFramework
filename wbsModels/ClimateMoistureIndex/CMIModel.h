@@ -18,12 +18,16 @@ namespace WBSF
 
 		CCMIModel();
 
-		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg OnExecuteMonthly();
+		virtual ERMsg OnExecuteAnnual()override;
+		virtual ERMsg OnExecuteMonthly()override;
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
+		
 
 		static CBioSIMModelBase* CreateObject(){ return new CCMIModel; }
 
-	private:
+	protected:
+
+		bool m_bLimitToZero;
 
 		static double GetSPMPET(const CWeatherMonth& weather);
 		static double GetSPMPET(const CWeatherStation& weather, CTPeriod& p);
