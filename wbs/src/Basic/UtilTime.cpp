@@ -1667,8 +1667,8 @@ CTPeriod CTPeriod::Get(const CTM& TM)
 CTPeriod& CTPeriod::Transform(const CTM& TM)
 {
 	CTM oldTM = GetTM();
-	m_begin.Transform(TM); 
-	m_end.Transform(TM);
+	m_begin.Transform(TM, CTRef::FIRST_TREF);
+	m_end.Transform(TM, CTRef::LAST_TREF);
 
 	if (oldTM.IsInit() && TM.IsInit() && TM.Type() > oldTM.Type())
 	{
@@ -1679,7 +1679,7 @@ CTPeriod& CTPeriod::Transform(const CTM& TM)
 		if (bResetMonth)
 			m_end.m_month = LAST_MONTH;
 		if (bResetDay)
-			m_end.m_day = WBSF::GetNbDayPerMonth(m_end.GetYear(), m_end.GetMonth());
+			m_end.m_day = WBSF::GetNbDayPerMonth(m_end.GetYear(), m_end.GetMonth())-1;
 		if (bResetHour)
 			m_end.m_hour = LAST_HOUR;
 	}

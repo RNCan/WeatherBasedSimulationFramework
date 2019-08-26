@@ -1,3 +1,4 @@
+//22-07-2019	1.1.4	Rémi Saint-Amant	ATM version 1.0.4: new circadian rhythm 
 //25-01-2019	1.1.3	Rémi Saint-Amant	Add completeness in WGInputAnalysis
 //											Add filter by name in weather editors
 //											Simulate next year without error
@@ -13,4 +14,4 @@
 //29-08-2018	1.0.0	Rémi Saint-Amant	first version number of WBSF
 
 #pragma once
-static const char* WBSF_VERSION = "1.1.3";
+static const char* WBSF_VERSION = "1.1.4";

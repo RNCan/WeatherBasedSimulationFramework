@@ -301,7 +301,7 @@ namespace WBSF
 						ASSERT(bandsDef.size() == GetRasterCount());
 
 						//if (!bandsDef.empty())
-						if (bandsDef.size()==1)
+						if (bandsDef.size() == 1)
 						{
 							//LPXNode node = bandsDef.front();
 							//When there is no nodata, vrt with -separate have singleSource
@@ -926,24 +926,23 @@ namespace WBSF
 
 			if (pBand->GetDescription() != NULL
 				&& strlen(pBand->GetDescription()) > 0)
-			{
 				meta_data[b]["description"] = pBand->GetDescription();
 
-				char **papszMetadata = const_cast<GDALRasterBand*>(pBand)->GetMetadata();
-				if (papszMetadata != NULL && *papszMetadata != NULL)
+			char **papszMetadata = const_cast<GDALRasterBand*>(pBand)->GetMetadata();
+			if (papszMetadata != NULL && *papszMetadata != NULL)
+			{
+				for (int i = 0; papszMetadata[i] != NULL; i++)
 				{
-					for (int i = 0; papszMetadata[i] != NULL; i++)
+					char *pszKey = NULL;
+					const char *pszValue = CPLParseNameValue(papszMetadata[i], &pszKey);
+					if (pszKey)
 					{
-						char *pszKey = NULL;
-						const char *pszValue = CPLParseNameValue(papszMetadata[i], &pszKey);
-						if (pszKey)
-						{
-							meta_data[b][pszKey] = pszValue;
-							CPLFree(pszKey);
-						}
+						meta_data[b][pszKey] = pszValue;
+						CPLFree(pszKey);
 					}
 				}
 			}
+
 		}
 
 	}

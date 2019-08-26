@@ -123,27 +123,6 @@ namespace WBSF
 		bool is_cached(size_t y)const { assert(is_block_inside(y));  return m_lines[y] != NULL; }
 		size_t get_band(size_t v)const { return m_bands[v]; }
 		const GribVariables& get_variables()const { return m_variables; }
-		//void set_variables_to_load(GribVariables& in) { m_variables_to_load = in; }
-		//{ 
-		//	if (in != m_variables)
-		//	{
-		//		m_variables = in;
-		//		//if open, reset band that is not selected
-		//		if (IsOpen())
-		//		{
-		//			ASSERT(m_bands.size() == m_variables.size());
-		//			for (size_t v = 0; v < m_bands.size(); v++)
-		//			{
-		//				if (!m_variables.test(v))
-		//				{
-		//					m_bands[v] = NOT_INIT;
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
-		
-
 
 		void get_weather(const CGeoPoint& pt, CHourlyData& data)const;
 		CGeoPointIndex get_ul(const CGeoPoint& ptIn)const;
@@ -172,7 +151,6 @@ namespace WBSF
 		std::array<float, NB_VAR_GRIBS> m_noData;
 		 
 		CSfcWeatherData m_lines;
-		//static std::mutex m_mutex;
 	};
 
 	class CSfcGribDatabase : public CDHDatabaseBase
