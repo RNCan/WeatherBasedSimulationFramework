@@ -35,6 +35,9 @@ namespace WBSF
 		ERMsg ExecuteHistorical(CCallback& callback);
 		ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback);
+		
+
 		static bool NeedDownload(const std::string& filePath) { return !GoodGrib(filePath); }
 		
 
@@ -53,7 +56,9 @@ namespace WBSF
 		std::string GetOutputFilePath(CTRef TRef, size_t hh, bool bPrecp)const;
 
 
-		CTRef GetTRef(const std::string& filePath)const;
+		CTRef GetRemoteTRef(const std::string& filePath)const;
+		CTRef GetLocalTRef(std::string filePath);
+
 		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
 		ERMsg ComputePrcp(const std::string& fileList, CCallback& callback);
 		std::set<std::string> GetAll(CCallback& callback)const;

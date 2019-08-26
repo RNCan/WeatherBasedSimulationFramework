@@ -24,7 +24,7 @@ namespace WBSF
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIHRRR); }
-		static CTRef GetTRef(std::string filePath);
+		//static CTRef GetTRef(std::string filePath);
 
 		CUIHRRR(void);
 		virtual ~CUIHRRR(void);

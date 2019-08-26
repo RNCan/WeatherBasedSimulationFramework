@@ -147,6 +147,21 @@ namespace WBSF
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
+		CreateMultipleDir(workingDir);
+
+		CHRRR HRRR(workingDir);
+		HRRR.m_product = as<size_t>(PRODUCT);
+		HRRR.m_source = as<size_t>(SOURCE);
+		HRRR.m_serverType = as<size_t>(SERVER_TYPE);
+		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
+		HRRR.m_period = GetPeriod();
+		HRRR.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
+
+		msg = HRRR.GetGribsList(p, gribsList, callback);
+		return msg;
+
+
+		/*string workingDir = GetDir(WORKING_DIR);
 		
 		
 		int firstYear = p.Begin().GetYear();
@@ -173,9 +188,9 @@ namespace WBSF
 
 
 
-		return msg;
+		return msg;*/
 	}
-
+/*
 	CTRef CUIHRRR::GetTRef(string filePath)
 	{
 		CTRef TRef;
@@ -199,5 +214,5 @@ namespace WBSF
 		TRef = CTRef(year, m, d, h);
 
 		return TRef;
-	}
+	}*/
 }
