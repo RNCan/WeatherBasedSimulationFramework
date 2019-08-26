@@ -340,15 +340,7 @@ namespace WBSF
 				{
 					nbDownloaded++;
 					CTRef TRef = GetRemoteTRef(it->m_filePath);
-					date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
-					//string title = GetFileTitle(outputFilePath);
-					//bool b00 = WBSF::Right(title, 3) == "f00";
-					//TRefs.insert(TRef.GetFormatedString("%Y-%m-%d-%h") + "-" + WBSF::Right(title, 3));
-
-
-
-
-				}
+}
 				else
 				{
 					msg = WBSF::RemoveFile(outputFilePath);

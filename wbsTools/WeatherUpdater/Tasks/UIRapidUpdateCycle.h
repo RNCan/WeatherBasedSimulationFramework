@@ -21,11 +21,13 @@ namespace WBSF
 		enum TProduct { P_PGRB, P_BGRB, NB_PRODUCT };
 		enum TSource { S_NOMADS, S_NCEP, S_UCAR, NB_SOURCES };
 		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
-		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, FIRST_DATE, LAST_DATE, PRODUCT, SERVER_TYPE, SHOW_WINSCP, COMPUTE_HOURLY_PRCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIRapidUpdateCycle); }
-		static CTRef GetTRef(std::string filePath);
+		static CTRef GetLocalTRef(std::string filePath);
+		static CTRef GetRemoteTRef(size_t s, const std::string& fileList);
+		static size_t GetRemoteHH(size_t s, const std::string& remote);
 
 		CUIRapidUpdateCycle(void);
 		virtual ~CUIRapidUpdateCycle(void);
@@ -56,18 +58,19 @@ namespace WBSF
 
 		
 		ERMsg GetFilesToDownload(size_t s, CFileInfoVector& fileList, CCallback& callback);
-		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, CCallback& callback)const;
+//		ERMsg DownloadGrib(UtilWWW::CHttpConnectionPtr& pConnection, CTRef TRef, CCallback& callback)const;
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath);  }
-		//bool GoodGrib(const std::string& filePath)const;
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList);
-		CTRef GetTRef(size_t s, const std::string& fileList);
+		
 		bool server_available(size_t s)const;
 		std::bitset<NB_SOURCES> GetSources()const;
-
-
-
-		std::string GetInputFilePath(CTRef TRef)const;
-		std::string GetOutputFilePath(CTRef TRef)const;
+		
+		ERMsg ComputePrcp(std::set<std::string> date_to_update, CCallback& callback)const;
+		std::set<std::string> GetAll(CCallback& callback)const;
+		ERMsg CreateGeoTif(const std::string& inputFilePath, CCallback& callback)const;
+		
+		std::string GetInputFilePath(CTRef TRef, size_t HH)const;
+		std::string GetOutputFilePath(CTRef TRef, size_t HH)const;
 	
 		CTPeriod GetPeriod()const;
 
