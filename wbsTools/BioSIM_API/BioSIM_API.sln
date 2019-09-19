@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.779
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BioSIM_API", "BioSIM_API.vcxproj", "{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "CppAndPython", "CppAndPython\CppAndPython.pyproj", "{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Debug|x64.ActiveCfg = Debug|x64
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Debug|x64.Build.0 = Debug|x64
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Debug|x86.ActiveCfg = Debug|Win32
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Debug|x86.Build.0 = Debug|Win32
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Release|Any CPU.ActiveCfg = Release|Win32
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Release|x64.ActiveCfg = Release|x64
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Release|x64.Build.0 = Release|x64
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Release|x86.ActiveCfg = Release|Win32
+		{98D5E983-CE8C-4AE5-9DA2-0374C81BFB86}.Release|x86.Build.0 = Release|Win32
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{2B5C8505-3D84-4E5D-9A30-42D81BE799D5}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {921682A7-E6ED-412F-ADC3-C37409C6B42C}
+	EndGlobalSection
+EndGlobal
