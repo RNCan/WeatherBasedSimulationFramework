@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>Climate Moisture Index (Monthly)</Title>
     <Version>1.0</Version>
-    <ID>.nul</ID>
+    <ID>.CMI</ID>
     <EXE>Climate Moisture Index.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
@@ -13,7 +13,20 @@
     <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
-    <InputVariableArray/>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>LimitToZero</Name>
+            <Caption>Limit CMI to zero</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 10 30 210</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
     <OutputTypeMode>1 0</OutputTypeMode>
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
