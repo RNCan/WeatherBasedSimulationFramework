@@ -65,14 +65,15 @@ namespace WBSF
 		bool server_available(size_t s)const;
 		std::bitset<NB_SOURCES> GetSources()const;
 		
-		ERMsg ComputePrcp(std::set<std::string> date_to_update, CCallback& callback)const;
-		std::set<std::string> GetAll(CCallback& callback)const;
+		ERMsg ComputePrcp(size_t s, std::set<std::string> date_to_update, CCallback& callback)const;
+		std::set<std::string> GetAll(size_t s, CCallback& callback)const;
 		ERMsg CreateGeoTif(const std::string& inputFilePath, CCallback& callback)const;
 		
 		std::string GetInputFilePath(CTRef TRef, size_t HH)const;
 		std::string GetOutputFilePath(CTRef TRef, size_t HH)const;
 	
 		CTPeriod GetPeriod()const;
+		CTPeriod GetPeriod(size_t s)const;
 
 		
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];

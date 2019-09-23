@@ -52,15 +52,16 @@ namespace WBSF
 	protected:
 
 		std::string m_workingDir;
-		std::string GetOutputFilePath(const std::string& filePath, bool bPrecp)const;
-		std::string GetOutputFilePath(CTRef TRef, size_t hh, bool bPrecp)const;
+		std::string GetOutputFilePath(const std::string& filePath)const;
+		std::string GetOutputFilePath(CTRef TRef, size_t HH)const;
 
 
-		CTRef GetRemoteTRef(const std::string& filePath)const;
-		CTRef GetLocalTRef(std::string filePath);
+		static CTRef GetRemoteTRef(const std::string& filePath);
+		static CTRef GetLocalTRef(std::string filePath);
 
 		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
-		ERMsg ComputePrcp(const std::string& fileList, CCallback& callback);
+		ERMsg ComputePrcp(std::set<std::string> date_to_update, CCallback& callback)const;
+		ERMsg CreateGeotiff(const std::string& fileList, CCallback& callback)const;
 		std::set<std::string> GetAll(CCallback& callback)const;
 		//ERMsg CreateVRT(std::set<stdstring> outputPath, CCallback& callback);
 
