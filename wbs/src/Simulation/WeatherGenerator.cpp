@@ -26,7 +26,7 @@
 //05/03/2015	Rémi Saint-Amant	Update with BioSIM11
 //07/12/2014	Rémi Saint-Amant	Change CWeather by CWeatherStation
 //08/11/2013	Rémi Saint-Amant	Add hourly generation; remove MFC, 64 bits
-//10/02/2012	Rémi Saint-Amant	new name, new random genrator, thead safe
+//10/02/2012	Rémi Saint-Amant	new name, new random generator, thread safe
 //15/12/2011	Rémi Saint-Amant	Compute snow with new algorithm
 //14/02/2011	Rémi Saint-Amant	Add forecast switch to avoid use of forecast data
 //12/12/2007	Rémi Saint-Amant	Integration of radiation and MTClim43
@@ -35,8 +35,8 @@
 //15/01/2006	Rémi Saint-Amant	new gradient calculation
 //25/10/2003	Rémi Saint-Amant	new normal
 //05/10/2002	Rémi Saint-Amant	Add Radiation
-//25/01/2001	Jacques Regniere	Month Adjustement to simulate month variation
-//17/01/2001	Rémi Saint-Amant	Use A GIDS algorithme to find termal gradients
+//25/01/2001	Jacques Regniere	Month Adjustment to simulate month variation
+//17/01/2001	Rémi Saint-Amant	Use A GIDS algorithm to find thermal gradients
 //12/01/2001	Rémi Saint-Amant	Take charge of Iteration January 2001 by R.Saint-Amant
 //18/09/1998	Rémi Saint-Amant	Use of fileManager
 //04/04/1998	Rémi Saint-Amant	add in tempgen.cpp
@@ -196,7 +196,7 @@ namespace WBSF
 		m_gradients.m_bUseShore = m_tgi.m_bUseShore;
 		m_gradients.m_target = m_target;
 
-		m_gradients.CreateGradient(callback);
+		msg = m_gradients.CreateGradient(callback);
 		//m_gradients.Save("c:\\tmp\\" + m_target.m_name + ".csv");
 
 

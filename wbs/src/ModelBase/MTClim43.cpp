@@ -329,12 +329,12 @@ int CMTClim43::calc_srad_humidity(const CControl *ctrl, const CParameter *p, CDa
 		// allocate space for DTR and smoothed DTR arrays 
 	if (!(dtr = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for DTR array\n");
+		//printf("Error allocating for DTR array\n");
 		ok = 0;
 	}
 	if (!(sm_dtr = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for smoothed DTR array\n");
+		//printf("Error allocating for smoothed DTR array\n");
 		ok = 0;
 	}
 
@@ -361,7 +361,7 @@ int CMTClim43::calc_srad_humidity(const CControl *ctrl, const CParameter *p, CDa
 	{
 		if (pulled_boxcar(dtr, sm_dtr, ndays, 30, 0))
 		{
-			printf("Error in boxcar smoothing, calc_srad_humidity()\n");
+			//printf("Error in boxcar smoothing, calc_srad_humidity()\n");
 			ok = 0;
 		}
 	}
@@ -369,7 +369,7 @@ int CMTClim43::calc_srad_humidity(const CControl *ctrl, const CParameter *p, CDa
 	{
 		if (pulled_boxcar(dtr, sm_dtr, ndays, ndays, 0))
 		{
-			printf("Error in boxcar smoothing, calc_srad_humidity()\n");
+			//printf("Error in boxcar smoothing, calc_srad_humidity()\n");
 			ok = 0;
 		}
 	}
@@ -678,30 +678,30 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	// allocate space for DTR and smoothed DTR arrays 
 	if (!(dtr = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for DTR array\n");
+		//printf("Error allocating for DTR array\n");
 		ok = 0;
 	}
 	if (!(sm_dtr = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for smoothed DTR array\n");
+		//printf("Error allocating for smoothed DTR array\n");
 		ok = 0;
 	}
 	/* allocate space for effective annual precip array */
 	if (!(parray = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for effective annual precip array\n");
+		//printf("Error allocating for effective annual precip array\n");
 		ok = 0;
 	}
 	/* allocate space for the prcp totaling array */
 	if (!(window = (double*)malloc((ndays + 90) * sizeof(double))))
 	{
-		printf("Error allocating for prcp totaling array\n");
+		//printf("Error allocating for prcp totaling array\n");
 		ok = 0;
 	}
 	/* allocate space for t_fmax */
 	if (!(t_fmax = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for p_tt_max array\n");
+		//printf("Error allocating for p_tt_max array\n");
 		ok = 0;
 	}
 	/* allocate space for Tdew array */
@@ -713,7 +713,7 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	/* allocate space for save_pet array */
 	if (!(save_pet = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for save_pet array\n");
+		//printf("Error allocating for save_pet array\n");
 		ok = 0;
 	}
 
@@ -733,7 +733,7 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	{
 		if (pulled_boxcar(dtr, sm_dtr, ndays, 30, 0))
 		{
-			printf("Error in boxcar smoothing, calc_srad_humidity()\n");
+			//printf("Error in boxcar smoothing, calc_srad_humidity()\n");
 			ok = 0;
 		}
 	}
@@ -741,7 +741,7 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	{
 		if (pulled_boxcar(dtr, sm_dtr, ndays, ndays, 0))
 		{
-			printf("Error in boxcar smoothing, calc_srad_humidity()\n");
+			//printf("Error in boxcar smoothing, calc_srad_humidity()\n");
 			ok = 0;
 		}
 	}
@@ -1095,11 +1095,11 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	/* humidity algorithm decision:
 	PET/prcp >= 2.5 -> arid correction
 	PET/prcp <  2.5 -> use tdew-tmin, which is already finished */
-	printf("PET/PRCP = %.4lf\n", ann_pet / ann_prcp);
+	//printf("PET/PRCP = %.4lf\n", ann_pet / ann_prcp);
 
 	if (ann_pet / ann_prcp >= 2.5)
 	{
-		printf("Using arid-climate humidity algorithm\n");
+		//printf("Using arid-climate humidity algorithm\n");
 		/* Estimate Tdew using the initial estimate of radiation for PET */
 		for (i = 0; i < ndays; i++)
 		{
@@ -1191,7 +1191,7 @@ int CMTClim43::calc_srad_humidity_iterative(const CControl *ctrl,
 	} /* end of arid-correction humidity and radiation estimation */
 	else
 	{
-		printf("Using Tdew=Tmin humidity algorithm\n");
+		//printf("Using Tdew=Tmin humidity algorithm\n");
 	}
 
 	/* now calculate vapor pressure from tdew */
@@ -1316,14 +1316,14 @@ int CMTClim43::pulled_boxcar(double *input, double *output, int n, int w, int w_
 	double total, sum_wt;
 
 	if (w > n) {
-		printf("Boxcar longer than array...\n");
-		printf("Resize boxcar and try again\n");
+		//printf("Boxcar longer than array...\n");
+		//printf("Resize boxcar and try again\n");
 		ok = 0;
 	}
 
 	if (ok && !(wt = (double*)malloc(w * sizeof(double))))
 	{
-		printf("Allocation error in boxcar()\n");
+		//printf("Allocation error in boxcar()\n");
 		ok = 0;
 	}
 
@@ -1403,7 +1403,7 @@ int CData::data_alloc(int ndays)
 	//} 
 	if (ok && !(yday = (int*)malloc(ndays * sizeof(int))))
 	{
-		printf("Error allocating for yearday array\n");
+		//printf("Error allocating for yearday array\n");
 		ok = 0;
 	}
 	/*if (ok && !(tmax = (double*) malloc(ndays * sizeof(double))))
@@ -1430,22 +1430,22 @@ int CData::data_alloc(int ndays)
 
 	if (ok && !(s_tmax = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site Tmax array\n");
+		//printf("Error allocating for site Tmax array\n");
 		ok = 0;
 	}
 	if (ok && !(s_tmin = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site Tmin array\n");
+		//printf("Error allocating for site Tmin array\n");
 		ok = 0;
 	}
 	if (ok && !(s_tday = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site Tday array\n");
+		//printf("Error allocating for site Tday array\n");
 		ok = 0;
 	}
 	if (ok && !(s_prcp = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site prcp array\n");
+		//printf("Error allocating for site prcp array\n");
 		ok = 0;
 	}
 	/*if (ok && !(s_Es = (double*) malloc(ndays * sizeof(double))))
@@ -1461,23 +1461,23 @@ int CData::data_alloc(int ndays)
 
 	if (ok && !(s_srad = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site radiation array\n");
+		//printf("Error allocating for site radiation array\n");
 		ok = 0;
 	}
 	if (ok && !(s_dayl = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site daylength array\n");
+		//printf("Error allocating for site daylength array\n");
 		ok = 0;
 	}
 	if (ok && !(s_swe = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for site snowpack array\n");
+		//printf("Error allocating for site snowpack array\n");
 		ok = 0;
 	}
 	// allocate space for Tdew array 
 	if (ok && !(s_tdew = (double*)malloc(ndays * sizeof(double))))
 	{
-		printf("Error allocating for Tdew array\n");
+		//printf("Error allocating for Tdew array\n");
 		ok = 0;
 	}
 
