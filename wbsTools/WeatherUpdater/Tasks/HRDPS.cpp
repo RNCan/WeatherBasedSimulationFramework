@@ -66,6 +66,8 @@ namespace WBSF
 		{ "0[-] SFC=\"Ground or water surface\"","Snow depth [m]","SNOD","0-SFC","[m]" },
 		{ "0[-] SFC=\"Ground or water surface\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
 		{ "2[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
+		{"", "", "", "", ""},
+		{"", "", "", "", ""},
 		{ "0[-] SFC=\"Ground or water surface\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
 		{ "10[m] HTGL=\"Specified height level above ground\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
 		{ "10[m] HTGL=\"Specified height level above ground\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
@@ -568,11 +570,6 @@ namespace WBSF
 
 								string fileName = GetFileName(it4->second);
 								string title = GetFileTitle(fileName);
-								//StringVector tmp(title, "_");
-
-								//ASSERT(tmp.size() == 9);
-								//ASSERT(tmp[7].size() == 10);
-								//string HH = tmp[7].substr(8,2);
 								string relFileName = GetRelativePath(vrt_path, it4->second);
 
 								oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
@@ -605,7 +602,7 @@ namespace WBSF
 							string file_path_tif = file_path_vrt;
 							SetFileExtension(file_path_tif, ".tif");
 
-							string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+							string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 							string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 							msg += WinExecWait(command);
 
@@ -632,7 +629,7 @@ namespace WBSF
 		ERMsg msg;
 
 		hour_to_update.clear();
-		callback.PushTask("Get hourly precipitation to update", date_to_update.size()*4);
+		callback.PushTask("Get hourly precipitation to update", date_to_update.size() * 4);
 
 		for (set<string>::const_iterator it = date_to_update.begin(); it != date_to_update.end() && msg; it++)
 		{
@@ -666,33 +663,10 @@ namespace WBSF
 						msg += callback.StepIt(0);
 					}
 
-					//size_t h2 = 0;
-					//while(FileExists(HRDPS_file_path))
-					////for (size_t h2 = 0; h2 < 48; h2++)
-					//{
-					//	string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-					//	if (FileExists(HRDPS_file_path))
-					//	{
-					//		nb_hours++;
-					//		last_hour = h2;
-					//		HRDPS_file_path_last = HRDPS_file_path;
-					//		msg += callback.StepIt(0);
-					//	}
-					//}
-
-
 					////create hourly precipitation
-					////
-					////pfp.m_file_path_last = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, pfp.m_last_hour);
-					//ASSERT(FileExists(HRDPS_file_path_last));
 					for (size_t h2 = 1; h2 <= last_hour && msg; h2++)
-						//size_t h2 = 1;
-						//string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-						//while(FileExists(HRDPS_file_path))
 					{
 						string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-						//string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-						//string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
 						string out_file_path = HRDPS_file_path;
 						SetFileExtension(out_file_path, ".tif");
 						if (!FileExists(out_file_path))//create file only if they are not already created
@@ -771,146 +745,11 @@ namespace WBSF
 	}
 
 
-
-	//ERMsg CHRDPS::CreateHourlyPrcp(set<string> outputPath, CCallback& callback)
-	//{
-	//	ERMsg msg;
-	//	size_t total_hours = 0;
-	//	for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
-	//	{
-
-	//		string year = it->substr(0, 4);
-	//		string month = it->substr(4, 2);
-	//		string day = it->substr(6, 2);
-	//		for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
-	//		{
-	//			for (size_t h2 = 0; h2 < 48; h2++)
-	//			{
-	//				string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-	//				if (FileExists(HRDPS_file_path))
-	//					total_hours++;
-	//			}
-	//		}
-	//	}
-
-	//	callback.PushTask("Create hourly precipitation (" + to_string(total_hours) + " hours)", total_hours);
-	//	callback.AddMessage("Create hourly precipitation (" + to_string(total_hours) + " hours)");
-	//	size_t nbTry = 0;
-
-	//	for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
-	//	{
-
-	//		string year = it->substr(0, 4);
-	//		string month = it->substr(4, 2);
-	//		string day = it->substr(6, 2);
-
-	//		for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
-	//		{
-
-	//			CTRef TRef = CTRef(WBSF::as<int>(year), WBSF::as<size_t>(month) - 1, WBSF::as<int>(day) - 1, h1) + 6;
-
-	//			if (m_bHRDPA6h)
-	//			{
-	//				size_t nb_hours = 0;
-	//				size_t last_hour = 0;
-	//				for (size_t h2 = 0; h2 < 48; h2++)
-	//				{
-	//					string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-	//					if (FileExists(HRDPS_file_path))
-	//					{
-	//						nb_hours++;
-	//						last_hour = h2;
-	//					}
-	//				}
-
-	//				//create hourly precipitation
-	//				string HRDPA_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_HRDPA_APCP-006-0700cutoff_SFC_0_ps2.5km_%4d%02d%02d%02d_000.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
-	//				string HRDPS_file_path_last = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, last_hour);
-	//				if (FileExists(HRDPA_file_path) && FileExists(HRDPS_file_path_last))
-	//				{
-	//					for (size_t h2 = 0; h2 < 48 && msg; h2++)
-	//					{
-
-	//						//CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, h1);
-	//						//CTRef TRef2 = (h2 == 0) ? (TRef - 6) : TRef;
-	//						//size_t H2 = (h2 == 0) ? 6 : h2 + 1;
-	//						//string filter1 = FormatA("%s%04d\\%02d\\%02d\\%02d\\*%04d%02d%02d%02d_P%03d-00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), h2);
-
-
-	//						string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-	//						string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
-
-	//						string out_file_path = HRDPS_file_path2;
-	//						SetFileExtension(out_file_path, ".tif");
-
-	//						if (!FileExists(out_file_path))//create file only if they are already created
-	//						{
-	//							string argument;
-
-	//							if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
-	//							{
-	//								argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-	//							}
-	//							else if (FileExists(HRDPS_file_path2) && h2 == 0)
-	//							{
-	//								argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + HRDPS_file_path_last + "\" \"" + HRDPA_file_path + "\" \"" + out_file_path + "\"";
-	//							}
-
-	//							if (!argument.empty())
-	//							{
-	//								string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
-	//								msg += WinExecWait(command);
-	//								msg += callback.StepIt();
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}
-	//			else
-	//			{
-	//				for (size_t h2 = 0; h2 < 48 && msg; h2++)
-	//				{
-	//					string HRDPS_file_path1 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-	//					string HRDPS_file_path2 = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 + 1);
-
-	//					string out_file_path = HRDPS_file_path2;
-	//					SetFileExtension(out_file_path, ".tif");
-
-
-	//					string argument;
-
-	//					if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
-	//					{
-	//						argument = "-e \"prcp=round( (i2b1-i1b1)*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
-	//					}
-	//					else if (FileExists(HRDPS_file_path2) && h2 == 0)
-	//					{
-	//						argument = "-e \"prcp=round( i1b1*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
-	//					}
-
-
-	//					if (!argument.empty())
-	//					{
-	//						string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
-	//						msg += WinExecWait(command);
-	//						msg += callback.StepIt();
-	//					}
-
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//	callback.PopTask();
-
-	//	return msg;
-	//}
-
 	ERMsg CHRDPS::CreateHourlySRad(set<string> date_to_update, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		callback.PushTask("Get solar radiation to update (" + to_string(date_to_update.size()) + " days)", date_to_update.size()*4);
+		callback.PushTask("Get solar radiation to update (" + to_string(date_to_update.size()) + " days)", date_to_update.size() * 4);
 
 
 		size_t total_hours = 0;
@@ -1000,7 +839,7 @@ namespace WBSF
 		ERMsg msg;
 		std::set<std::string> date_to_update;
 
-		
+
 		//date_to_update.insert("20190831");
 		//return  date_to_update;
 
@@ -1083,8 +922,6 @@ namespace WBSF
 		ERMsg msg;
 
 		stationList.clear();
-		//msg.ajoute("Can't extract station from grid");
-		//msg.ajoute("Can be used only as forecast extraction");
 
 		return msg;
 	}
