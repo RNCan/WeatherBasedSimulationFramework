@@ -31,6 +31,73 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
+
+	class CDataBlock
+	{
+	public:
+
+		CDataBlock(size_t size = 0, int dataType = GDT_Float32)
+		{
+			m_size = size;
+			m_ptr = nullptr;
+			m_dataType = dataType;
+
+			if (size > 0)
+			{
+				int dataSize = GDALGetDataTypeSize((GDALDataType)dataType) / sizeof(char);
+				m_ptr = new char[size * dataSize];
+			}
+
+		}
+
+		~CDataBlock()
+		{
+			delete[]m_ptr;
+		}
+
+		size_t size()const { return m_size; }
+
+		double get_value(size_t x)const
+		{
+			double value = 0;
+			switch (m_dataType)
+			{
+			case GDT_Byte:		value = double(((char*)m_ptr)[x]); break;
+			case GDT_UInt16:	value = double(((unsigned __int16*)m_ptr)[x]); break;
+			case GDT_Int16:		value = double(((__int16*)m_ptr)[x]); break;
+			case GDT_UInt32:	value = double(((unsigned __int32*)m_ptr)[x]); break;
+			case GDT_Int32:		value = double(((__int32*)m_ptr)[x]); break;
+			case GDT_Float32:	value = double(((float*)m_ptr)[x]); break;
+			case GDT_Float64:	value = double(((double*)m_ptr)[x]); break;
+			}
+
+			return value;
+		}
+
+		void set_value(size_t x, double value)
+		{
+			switch (m_dataType)
+			{
+			case GDT_Byte:		((char*)m_ptr)[x] = (char)value; break;
+			case GDT_UInt16:	((unsigned __int16*)m_ptr)[x] = (unsigned __int16)value; break;
+			case GDT_Int16:		((__int16*)m_ptr)[x] = (__int16)value; break;
+			case GDT_UInt32:	((unsigned __int32*)m_ptr)[x] = (unsigned __int32)value; break;
+			case GDT_Int32:		((__int32*)m_ptr)[x] = (__int32)value; break;
+			case GDT_Float32:	((float*)m_ptr)[x] = (float)value; break;
+			case GDT_Float64:	((double*)m_ptr)[x] = (double)value; break;
+			}
+		}
+
+		void* data() { return m_ptr; }
+		const void* data()const { return m_ptr; }
+
+	protected:
+
+		void* m_ptr;
+		size_t m_size;
+		int m_dataType;
+	};
+
 	//*********************************************************************
 	ERMsg CGribsMap::load(const std::string& file_path)
 	{
@@ -276,7 +343,7 @@ namespace WBSF
 				msg += info_new.SetFileStamp(it->second);
 				if (msg)
 				{
-				
+
 					if (info_new.m_filePath != info_old.m_filePath ||
 						info_new.m_time != info_old.m_time)
 					{
@@ -341,50 +408,46 @@ namespace WBSF
 	//**************************************************************************************************************
 	//CSfcVariableLine
 
-	CSfcVariableLine::CSfcVariableLine(size_t nXBlockSize, int dataType)
-	{
-		int dataSize = GDALGetDataTypeSize((GDALDataType)dataType) / sizeof(char);
-		m_ptr = new char[nXBlockSize * dataSize];
-		m_xBlockSize = nXBlockSize;
-		m_dataType = dataType;
-	}
-
-	double CSfcVariableLine::get_value(size_t x)const
-	{
-		double value = 0;
-		switch (m_dataType)
-		{
-		case GDT_Byte:		value = double(((char*)m_ptr)[x]); break;
-		case GDT_UInt16:	value = double(((unsigned __int16*)m_ptr)[x]); break;
-		case GDT_Int16:		value = double(((__int16*)m_ptr)[x]); break;
-		case GDT_UInt32:	value = double(((unsigned __int32*)m_ptr)[x]); break;
-		case GDT_Int32:		value = double(((__int32*)m_ptr)[x]); break;
-		case GDT_Float32:	value = double(((float*)m_ptr)[x]); break;
-		case GDT_Float64:	value = double(((double*)m_ptr)[x]); break;
-		}
-
-		return value;
-	}
-
-	//void CSfcVariableLine::SetValue(int x, double value)
+	//CSfcVariableLine::CSfcVariableLine(size_t nXBlockSize, int dataType)
 	//{
-	//	//size_t pos = size_t(y) * m_xBlockSize + x;
-	//	SetValue(x, value);
+	//	int dataSize = GDALGetDataTypeSize((GDALDataType)dataType) / sizeof(char);
+	//	m_ptr = new char[nXBlockSize * dataSize];
+	//	m_xBlockSize = nXBlockSize;
+	//	m_dataType = dataType;
 	//}
 
-	void CSfcVariableLine::set_value(size_t x, double value)
-	{
-		switch (m_dataType)
-		{
-		case GDT_Byte:		((char*)m_ptr)[x] = (char)value; break;
-		case GDT_UInt16:	((unsigned __int16*)m_ptr)[x] = (unsigned __int16)value; break;
-		case GDT_Int16:		((__int16*)m_ptr)[x] = (__int16)value; break;
-		case GDT_UInt32:	((unsigned __int32*)m_ptr)[x] = (unsigned __int32)value; break;
-		case GDT_Int32:		((__int32*)m_ptr)[x] = (__int32)value; break;
-		case GDT_Float32:	((float*)m_ptr)[x] = (float)value; break;
-		case GDT_Float64:	((double*)m_ptr)[x] = (double)value; break;
-		}
-	}
+	//double CSfcVariableLine::get_value(size_t x)const
+	//{
+	//	double value = 0;
+	//	switch (m_dataType)
+	//	{
+	//	case GDT_Byte:		value = double(((char*)m_ptr)[x]); break;
+	//	case GDT_UInt16:	value = double(((unsigned __int16*)m_ptr)[x]); break;
+	//	case GDT_Int16:		value = double(((__int16*)m_ptr)[x]); break;
+	//	case GDT_UInt32:	value = double(((unsigned __int32*)m_ptr)[x]); break;
+	//	case GDT_Int32:		value = double(((__int32*)m_ptr)[x]); break;
+	//	case GDT_Float32:	value = double(((float*)m_ptr)[x]); break;
+	//	case GDT_Float64:	value = double(((double*)m_ptr)[x]); break;
+	//	}
+
+	//	return value;
+	//}
+
+	//void CSfcVariableLine::set_value(size_t x, double value)
+	//{
+	//	switch (m_dataType)
+	//	{
+	//	case GDT_Byte:		((char*)m_ptr)[x] = (char)value; break;
+	//	case GDT_UInt16:	((unsigned __int16*)m_ptr)[x] = (unsigned __int16)value; break;
+	//	case GDT_Int16:		((__int16*)m_ptr)[x] = (__int16)value; break;
+	//	case GDT_UInt32:	((unsigned __int32*)m_ptr)[x] = (unsigned __int32)value; break;
+	//	case GDT_Int32:		((__int32*)m_ptr)[x] = (__int32)value; break;
+	//	case GDT_Float32:	((float*)m_ptr)[x] = (float)value; break;
+	//	case GDT_Float64:	((double*)m_ptr)[x] = (double)value; break;
+	//	}
+	//}
+
+
 
 
 
@@ -396,24 +459,28 @@ namespace WBSF
 		m_bands.fill(UNKNOWN_POS);
 	}
 
-	void CSfcDatasetCached::get_weather(const CGeoPointIndex& xy, CHourlyData& data)const
+	void CSfcDatasetCached::get_weather(const CGeoPointIndex& in_xy, CHourlyData& data)const
 	{
-		if (m_extents.IsInside(xy))
+		if (m_extents.IsInside(in_xy))
 		{
+			CGeoSize block_size = m_extents.GetBlockSize();
+			CGeoBlockIndex block_ij = m_extents.GetBlockIndex(in_xy);
+			CGeoPointIndex xy = in_xy - m_extents.GetBlockRect(block_ij).UpperLeft();
+
 			CSfcDatasetCached& me = const_cast<CSfcDatasetCached&>(*this);
-			if (!is_cached(xy.m_y))
-				me.load_block(xy.m_y);
+			if (!is_cached(block_ij.m_x, block_ij.m_y))
+				me.load_block(block_ij.m_x, block_ij.m_y);
 
 			for (size_t v = 0; v < m_bands.size(); v++)
 			{
 				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v))
 				{
-					assert(m_lines[xy.m_y] != nullptr);
-					assert(is_block_inside(xy.m_y));
+					assert(block(block_ij.m_x, block_ij.m_y) != nullptr);
+					assert(is_block_inside(block_ij.m_x, block_ij.m_y));
 
 					if (v < NB_VAR_H)
 					{
-						float value = m_lines[xy.m_y]->at(v)->get_value(xy.m_x);
+						float value = block(block_ij.m_x, block_ij.m_y)->at(v)->get_value(xy.m_x, xy.m_y);
 						float noData = (float)GetNoData(m_bands[v]);
 						if (fabs(value - m_noData[v]) > 0.1)
 						{
@@ -431,8 +498,10 @@ namespace WBSF
 					{
 						ASSERT(m_bands[H_UWND] != NOT_INIT && m_bands[H_VWND] != NOT_INIT);
 
-						double U = m_lines[xy.m_y]->at(H_UWND)->get_value(xy.m_x);
-						double V = m_lines[xy.m_y]->at(H_VWND)->get_value(xy.m_x);
+						double U = block(block_ij.m_x, block_ij.m_y)->at(H_UWND)->get_value(xy.m_x, xy.m_y);
+						double V = block(block_ij.m_x, block_ij.m_y)->at(H_VWND)->get_value(xy.m_x, xy.m_y);
+						//double U = m_lines[xy.m_y]->at(H_UWND)->get_value(xy.m_x);
+						//double V = m_lines[xy.m_y]->at(H_VWND)->get_value(xy.m_x);
 
 						if (fabs(U - m_noData[v]) > 0.1 && fabs(V - m_noData[v]) > 0.1)
 						{
@@ -469,29 +538,29 @@ namespace WBSF
 		}
 	}
 
-	float CSfcDatasetCached::get_variable(const CGeoPointIndex& xy, size_t v)const
+	float CSfcDatasetCached::get_variable(const CGeoPointIndex& in_xy, size_t v)const
 	{
 		ASSERT(m_extents.m_yBlockSize == 1);
 		ASSERT(v < m_bands.size());
 
 		size_t b = get_band(v);
-		if (!m_extents.IsInside(xy) || b == UNKNOWN_POS)
+		if (!m_extents.IsInside(in_xy) || b == UNKNOWN_POS)
 			return WEATHER::MISSING;
 
-		//CGeoBlockIndex ij = m_extents.GetBlockIndex(xy);
-		ASSERT(m_extents.GetBlockIndex(xy).m_y == xy.m_y);//block y index is data y index
+		CGeoBlockIndex block_ij = m_extents.GetBlockIndex(in_xy);
+		assert(is_block_inside(block_ij.m_x, block_ij.m_y));
+		//ASSERT(m_extents.GetBlockIndex(xy).m_y == xy.m_y);//block y index is data y index
 
-		//CGeoPointIndex xy = xy - m_extents.GetBlockRect(ij.m_x, ij.m_y).UpperLeft();
-		//ASSERT(m_extents.GetBlockExtents(ij.m_x, ij.m_y).GetPosRect().IsInside(xy));
+		CGeoPointIndex xy = in_xy - m_extents.GetBlockRect(block_ij).UpperLeft();
+		ASSERT(m_extents.GetBlockExtents(block_ij).GetPosRect().IsInside(xy));
 
 		CSfcDatasetCached& me = const_cast<CSfcDatasetCached&>(*this);
-		if (!is_cached(xy.m_y))
-			me.load_block(xy.m_y);
+		if (!is_cached(block_ij.m_x, block_ij.m_y))
+			me.load_block(block_ij.m_x, block_ij.m_y);
 
-		assert(m_lines[xy.m_y]);
-		assert(is_block_inside(xy.m_y));
+		assert(block(block_ij.m_x, block_ij.m_y));
 
-		return m_lines[xy.m_y]->at(v)->get_value(xy.m_x);
+		return block(block_ij.m_x, block_ij.m_y)->at(v)->get_value(xy.m_x, xy.m_y);
 
 	}
 
@@ -618,6 +687,7 @@ namespace WBSF
 			//Load band positions (not the same for all images
 			if (bOpenInv)
 			{
+				ASSERT(m_variables_to_load.any());//at least one variable to load
 				string invFilePath(filePath);
 				SetFileExtension(invFilePath, ".inv");
 
@@ -720,7 +790,7 @@ namespace WBSF
 			}*/
 		}
 
-		
+
 		return msg;
 	}
 
@@ -728,7 +798,8 @@ namespace WBSF
 	{
 		if (CGDALDatasetEx::IsOpen())
 		{
-			m_lines.clear();
+			//m_blocks.resize(boost::extents[0][0]);
+			m_blocks.clear();
 			Dataset()->FlushCache();
 			CGDALDatasetEx::Close();
 			m_bands.fill(NOT_INIT);
@@ -743,35 +814,36 @@ namespace WBSF
 		if (!is_cache_init())
 		{
 			CSfcDatasetCached& me = const_cast<CSfcDatasetCached&>(*this);
-			ASSERT(m_extents.XNbBlocks() == 1);
-			me.m_lines.resize(m_extents.YNbBlocks());
+			//ASSERT(m_extents.XNbBlocks() == 1);
+			//me.m_blocks.resize(boost::extents[m_extents.YNbBlocks()][m_extents.XNbBlocks()]);
+			me.m_blocks.resize(m_extents.YNbBlocks());
+			for (size_t i = 0; i < me.m_blocks.size(); i++)
+				me.m_blocks[i].resize(m_extents.XNbBlocks());
 		}
 	}
 
-	void CSfcDatasetCached::load_block(size_t y)
+	void CSfcDatasetCached::load_block(size_t i, size_t j)
 	{
 		//		m_mutex.lock();
-		if (!is_cached(y))
+		if (!is_cached(i, j))
 		{
-			m_lines[y].reset(new CSfcWeatherLine);
-
+			block(i, j).reset(new CSfcWeatherBlock);
 			for (size_t v = 0; v < m_bands.size(); v++)
 			{
-				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v) )
+				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v))
 				{
 					size_t b = m_bands[v];
-
-					assert(m_lines[y]->at(v) == NULL);
+					assert(block(i, j)->at(v) == nullptr);
 
 					//CTimer readTime(TRUE);
 
 					//copy part of the date
-					CGeoExtents ext = GetExtents().GetBlockExtents(0, int(y));
+					CGeoExtents ext = GetExtents().GetBlockExtents(int(i), int(j));
 					//CGeoRectIndex ind = GetExtents().CoordToXYPos(ext);
 
 					GDALRasterBand* poBand = m_poDataset->GetRasterBand(int(b) + 1);//one base in direct load
 
-					if (m_bVRT)
+					/*if (m_bVRT)
 					{
 						int nXBlockSize = m_extents.m_xBlockSize;
 						int nYBlockSize = m_extents.m_yBlockSize;
@@ -789,42 +861,49 @@ namespace WBSF
 						m_lines[y]->at(v).reset(pBlockTmp);
 					}
 					else
-					{
-						int nXBlockSize, nYBlockSize;
-						poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
+					{*/
+					int nXBlockSize, nYBlockSize;
+					poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
 
-						ASSERT(nXBlockSize == m_extents.m_xBlockSize);
-						ASSERT(nYBlockSize == m_extents.m_yBlockSize);
-						GDALDataType type = poBand->GetRasterDataType();
-						CSfcVariableLine* pBlockTmp = new CSfcVariableLine(nXBlockSize, type);
+					ASSERT(nXBlockSize == m_extents.m_xBlockSize);
+					ASSERT(nYBlockSize == m_extents.m_yBlockSize);
+					GDALDataType type = poBand->GetRasterDataType();
+
 #pragma omp critical(READ_BLOCK)
+					{
+						//CSfcBlock* pBlockData = ;
+						block(i, j)->at(v).reset(new CSfcBlock(nXBlockSize, nYBlockSize));
+						if (type == GDT_Float32)
 						{
-							poBand->ReadBlock(0, int(y), pBlockTmp->m_ptr);
-							poBand->FlushBlock(0, int(y));
+							poBand->ReadBlock(int(i), int(j), block(i, j)->at(v)->data());
+							poBand->FlushBlock(int(i), int(j));
 							poBand->FlushCache();
 						}
-
-						if (type == GDT_Float64)
+						else
 						{
-							CSfcVariableLine* pBlockData = new CSfcVariableLine(nXBlockSize, GDT_Float32);
-							for (size_t x = 0; x < nXBlockSize; x++)
-								pBlockData->set_value(x, pBlockTmp->get_value(x));
-
-							delete pBlockTmp;
-							pBlockTmp = pBlockData;
+							CDataBlock block_tmp(nXBlockSize*nYBlockSize, type);
+							poBand->ReadBlock(int(i), int(j), block_tmp.data());
+							poBand->FlushBlock(int(i), int(j));
+							poBand->FlushCache();
+							CSfcBlock* pBlockData = new CSfcBlock(nXBlockSize, nYBlockSize);
+							for (size_t y = 0; y < nYBlockSize; y++)
+								for (size_t x = 0; x < nXBlockSize; x++)
+									block(i, j)->at(v)->set_value(x, y, block_tmp.get_value(y*nXBlockSize + x));
 						}
-
-						m_lines[y]->at(v).reset(pBlockTmp);
-
 					}
 
-					//readTime.Stop();
-					//m_stats[0] += readTime.Elapsed();
+					//if (type == GDT_Float64)
+					//{
+
+				//}
+
+				//readTime.Stop();
+				//m_stats[0] += readTime.Elapsed();
 				}
 			}
 		}
 		//	m_mutex.unlock();
-		ASSERT(is_cached(y));
+		ASSERT(is_cached(i, j));
 	}
 
 
@@ -1008,12 +1087,16 @@ namespace WBSF
 
 					if (m_bands[H_GHGT] != NOT_INIT)
 					{
-						if (!is_cached(ptArray[j].m_y))
-							me.load_block(ptArray[j].m_y);
+						CGeoBlockIndex block_ij = m_extents.GetBlockIndex(ptArray[j]);
+						assert(is_block_inside(block_ij.m_x, block_ij.m_y));
 
-						assert(m_lines[ptArray[j].m_y] != nullptr);
-						assert(is_block_inside(ptArray[j].m_y));
-						float zz = m_lines[ptArray[j].m_y]->at(H_GHGT)->get_value(ptArray[j].m_x);
+						if (!is_cached(block_ij.m_x, block_ij.m_y))
+							me.load_block(block_ij.m_x, block_ij.m_y);
+
+						assert(block(block_ij.m_x, block_ij.m_y) != nullptr);
+
+						CGeoPointIndex xy = ptArray[j] - m_extents.GetBlockRect(block_ij).UpperLeft();
+						float zz = block(block_ij.m_x, block_ij.m_y)->at(H_GHGT)->get_value(xy.m_x, xy.m_y);
 						if (abs(zz - m_noData[H_GHGT]) > 0.1)
 							z = zz;
 					}
@@ -1090,38 +1173,31 @@ namespace WBSF
 		}
 		else
 		{
-			//GribVariables variables;
-			//variables.set(H_GHGT);
-
 			CSfcDatasetCached sfcDS;
 			sfcDS.m_variables_to_load.set(H_GHGT);
-			//sfcDS.set_variables(variables);
 			vector<CGeoExtents> extents;
-
 
 
 			for (CGribsMap::const_iterator it = gribs.begin(); it != gribs.end() && locations.empty() && msg; it++)
 			{
-				//for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end() && locations.empty() && msg; iit++)
+				string file_path = it->second;
+				msg = sfcDS.open(file_path, true);
+				if (msg)
 				{
-					string file_path = it->second;
-					msg = sfcDS.open(file_path, true);
-					if (msg)
+					if (sfcDS.get_band(H_GHGT) != NOT_INIT)
 					{
-						if (sfcDS.get_band(H_GHGT) != NOT_INIT)
-						{
-							locations = sfcDS.get_nearest(locationsIn, m_nb_points);
+						locations = sfcDS.get_nearest(locationsIn, m_nb_points);
 
-							if (std::find(extents.begin(), extents.end(), sfcDS.GetExtents()) == extents.end())
-								extents.push_back(sfcDS.GetExtents());
-						}
-
-
-						sfcDS.close();
+						if (std::find(extents.begin(), extents.end(), sfcDS.GetExtents()) == extents.end())
+							extents.push_back(sfcDS.GetExtents());
 					}
 
-					msg += callback.StepIt(0);
+
+					sfcDS.close();
 				}
+
+				msg += callback.StepIt(0);
+
 			}
 
 			if (msg && locations.empty())
@@ -1155,7 +1231,7 @@ namespace WBSF
 			if (!empty() && size() != locations.size())
 			{
 				msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(size()) + "). Do not use incremental.");
-				return msg; 
+				return msg;
 			}
 
 			if (!empty() && incremental.m_variables != m_variables)
@@ -1208,13 +1284,8 @@ namespace WBSF
 			for (size_t i = 0; i < stations.size(); i++)
 				stations[i].CreateYears(p);
 
-
-			//size_t nbGribs = 0;
-			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-				//nbGribs += gribs.at(*it).size();
-
 			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours)" ;
+			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours)";
 			callback.PushTask(feed, invalid.size());
 			callback.AddMessage(feed);
 
@@ -1230,25 +1301,12 @@ namespace WBSF
 				if (msg)
 				{
 					CTRef TRef = tmp[i];
-					//for (std::vector<string>::const_iterator iit = gribs.at(TRef).begin(); iit != gribs.at(TRef).end() && msg; iit++)
-					{
-						msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
-						msg += callback.StepIt();
+					msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
+					msg += callback.StepIt();
 #pragma omp flush(msg)
-					}
+
 				}
 			}
-
-			//for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-			//{
-
-			//	for (std::vector<string>::const_iterator iit = gribs.at(*it).begin(); iit != gribs.at(*it).end() && msg; iit++)
-			//	{
-			//		msg += ExtractStation(*it, *iit, stations, callback);
-			//		msg += callback.StepIt();
-			//	}
-			//}
-
 
 			callback.PopTask();
 			callback.PushTask("Save weather to disk", stations.size());
@@ -1364,11 +1422,6 @@ namespace WBSF
 			out.set(H_UWND);
 			out.set(H_VWND);
 		}
-		//if (variables.test(H_SRAD))
-		//{
-			//out.set(H_DSWR);
-			//out.set(H_DLWR);
-		//}
 
 
 		return out;

@@ -1510,7 +1510,8 @@ namespace WBSF
 		CGeoBlockIndex GetBlockIndex(CGeoPointIndex pt)const{ assert(IsInside(pt)); return pt / CGeoSize(m_xBlockSize, m_yBlockSize); }
 		CGeoBlock3DIndex GetBlockIndex(CGeoPoint3DIndex pt)const{ assert(IsInside(pt)); return pt / CGeoSize3D(m_xBlockSize, m_yBlockSize, 1); }
 		 
-
+		
+		CGeoExtents GetBlockExtents(CGeoBlockIndex ij)const { return GetBlockExtents(ij.m_x, ij.m_y); }
 		CGeoExtents GetBlockExtents(int i, int j)const
 		{
 			ASSERT( i>=0 && i<XNbBlocks() );
@@ -1529,6 +1530,7 @@ namespace WBSF
 			return extents;
 		}
 
+		CGeoRectIndex GetBlockRect(CGeoBlockIndex ij)const { return GetBlockRect(ij.m_x, ij.m_y); }
 		CGeoRectIndex GetBlockRect(int i, int j)const
 		{
 			CGeoRectIndex rect(i*m_xBlockSize, j*m_yBlockSize, m_xBlockSize, m_yBlockSize);

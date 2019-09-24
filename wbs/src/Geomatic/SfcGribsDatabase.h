@@ -46,7 +46,7 @@ namespace WBSF
 		CTPeriod GetEntireTPeriod()const;
 		std::set<CTRef> GetAllTRef()const;
 
-		std::string get_file_path()const {	return m_file_path;}
+		std::string get_file_path()const { return m_file_path; }
 
 	protected:
 		std::string m_file_path;
@@ -74,39 +74,81 @@ namespace WBSF
 
 
 	//*****************************************************************************************************************
-	class CSfcVariableLine
+
+	class CSfcBlock
 	{
 	public:
 
-		CSfcVariableLine(size_t nXBlockSize, int dataType);
-
-		~CSfcVariableLine()
+		CSfcBlock(size_t xBlockSize = 0, size_t yBlockSize = 0)
 		{
-			delete[] m_ptr;
+			m_ptr = nullptr;
+			m_xBlockSize = 0;
+			m_yBlockSize = 0;
+			resize(xBlockSize, yBlockSize);
 		}
 
+		~CSfcBlock()
+		{
+			clean();
+		}
+
+		void clean()
+		{
+			m_xBlockSize = 0;
+			m_yBlockSize = 0;
+			delete[] m_ptr;
+			m_ptr = nullptr;
+		}
 
 		//double GetValue(int x)const;
 		//void SetValue(int x, double value);
+		void resize(size_t xBlockSize, size_t yBlockSize)
+		{
+			clean();
 
-		double get_value(size_t x)const;
-		void set_value(size_t x, double value);
+			m_xBlockSize = xBlockSize;
+			m_yBlockSize = yBlockSize;
+			if (m_xBlockSize > 0 && m_yBlockSize > 0)
+				m_ptr = new float[m_xBlockSize*m_yBlockSize];
+		}
 
-		void* m_ptr;
+		float get_value(size_t x, size_t y)const
+		{
+			ASSERT(x < m_xBlockSize);
+			ASSERT(y < m_yBlockSize);
+
+			return m_ptr[y*m_yBlockSize + x];
+		}
+
+
+		void set_value(size_t x, size_t y, float value)
+		{
+			ASSERT(x < m_xBlockSize);
+			ASSERT(y < m_yBlockSize);
+
+			m_ptr[y*m_yBlockSize + x] = value;
+		}
+		
+		float* data() { return m_ptr; }
+		const float* data()const { return m_ptr; }
+
+	protected:
+
+		float* m_ptr;
 		size_t m_xBlockSize;
-		int m_dataType;
+		size_t m_yBlockSize;
+		//int m_dataType;
 	};
-	
-	
-	typedef std::shared_ptr<CSfcVariableLine> CSfcVariableLinePtr;
-	typedef std::array < CSfcVariableLinePtr, NB_VAR_GRIBS> CSfcWeatherLine;
-	typedef std::shared_ptr<CSfcWeatherLine> CSfcWeatherLinePtr;
-	
-	//typedef boost::multi_array <CSfcDataLinePtr, 2> CSfcDataCache;
-	//all gribs seem to have one line block
-	//so the number of blocq equl the number of line (y)
 
-	typedef std::deque < CSfcWeatherLinePtr> CSfcWeatherData; //
+
+	typedef std::shared_ptr<CSfcBlock> CSfcBlockPtr;
+	typedef std::array < CSfcBlockPtr, NB_VAR_GRIBS> CSfcWeatherBlock;
+	typedef std::shared_ptr<CSfcWeatherBlock> CSfcWeatherBlockPtr;
+
+	//typedef std::deque < CSfcWeatherBlockPtr> CSfcWeatherData; //
+	//typedef boost::multi_array <CSfcWeatherBlockPtr, 2> CSfcWeatherData;
+	typedef std::vector<std::vector<CSfcWeatherBlockPtr>> CSfcWeatherData;
+
 	class CSfcDatasetCached : public CGDALDatasetEx
 	{
 	public:
@@ -120,7 +162,7 @@ namespace WBSF
 
 		void get_weather(const CGeoPointIndex& index, CHourlyData& data)const;
 		float get_variable(const CGeoPointIndex& index, size_t v)const;
-		bool is_cached(size_t y)const { assert(is_block_inside(y));  return m_lines[y] != NULL; }
+		bool is_cached(size_t i, size_t j)const { assert(is_block_inside(i, j));  return block(i,j) != nullptr; }
 		size_t get_band(size_t v)const { return m_bands[v]; }
 		const GribVariables& get_variables()const { return m_variables; }
 
@@ -130,27 +172,28 @@ namespace WBSF
 		void get_4nearest(const CGeoPoint& pt, CHourlyData4& data4)const;
 
 		CLocationVector get_nearest(const CLocationVector& location, size_t nb_points)const;
-	
+
 		GribVariables m_variables_to_load;
 
 	protected:
 
 
 		void init_cache()const;
-		bool is_cache_init()const { return !m_lines.empty(); }
-		void load_block(size_t y);
-		bool is_block_inside(size_t y)const { return y < m_lines.size(); }
+		bool is_cache_init()const { return !m_blocks.empty(); }
+		void load_block(size_t i, size_t j);
+		bool is_block_inside(size_t i, size_t j)const {return	j < m_blocks.size() && i < m_blocks[j].size();}
+		CSfcWeatherBlockPtr& block(size_t i, size_t j){ return	m_blocks[j][i]; }
+		const CSfcWeatherBlockPtr& block(size_t i, size_t j)const { return	m_blocks[j][i]; }
 
-	
-
-	
+	//	const block(size_t i, size_t j);
 
 		GribVariables m_variables;
 		std::array<size_t, NB_VAR_GRIBS> m_bands;
 		std::array<std::string, NB_VAR_GRIBS> m_units;
 		std::array<float, NB_VAR_GRIBS> m_noData;
-		 
-		CSfcWeatherData m_lines;
+
+		//CSfcWeatherData m_lines;
+		CSfcWeatherData m_blocks;
 	};
 
 	class CSfcGribDatabase : public CDHDatabaseBase
@@ -197,6 +240,6 @@ namespace WBSF
 	};
 
 	typedef std::shared_ptr<CSfcGribDatabase> CSfcGribDatabasePtr;
-	
+
 }
 
