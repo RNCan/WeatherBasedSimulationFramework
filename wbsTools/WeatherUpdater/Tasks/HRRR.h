@@ -47,6 +47,7 @@ namespace WBSF
 		CTPeriod m_period;
 		bool m_bShowWINSCP;
 		bool m_compute_prcp;
+		bool m_createHistiricalGeotiff;
 		
 
 	protected:

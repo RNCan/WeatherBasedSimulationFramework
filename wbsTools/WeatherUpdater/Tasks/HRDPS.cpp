@@ -13,6 +13,8 @@
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
 
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -37,7 +39,7 @@ namespace WBSF
 	CHRDPS::CHRDPS(const std::string& workingDir) :
 		m_workingDir(workingDir),
 		m_bCreateGeotiff(true),
-		m_bLookupHistoric(true),
+		m_createHistiricalGeotiff(true),
 		m_bForecast(false),
 		m_max_hours(24),
 		m_bHRDPA6h(false)
@@ -50,7 +52,8 @@ namespace WBSF
 	CHRDPS::~CHRDPS(void)
 	{}
 
-	const char* CHRDPS::META_DATA[NB_VAR_GRIBS][5] =
+
+	const char* CHRDPS::META_DATA[NB_VAR_GRIBS][NB_META] =
 	{
 		{"", "", "", "", ""},
 		{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
@@ -167,8 +170,152 @@ namespace WBSF
 	}
 
 	//****************************************************************************************************
+	//ERMsg UpdateAll(CCallback& callback)
+	//{
+	//	ERMsg msg;
+
+	//	string working_dir = "Z:/HRG/HRDPS(SFC)/";
+	//	StringVector file_to_update;
+	//	vector<pair<string, string>> year_month;
+	//	StringVector years = WBSF::GetDirectoriesList(working_dir + "*");
+
+	//	for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+	//	{
+	//		string year = *it1;
+	//		if (ToInt(year) > 1900 && ToInt(year) < 2100)
+	//		{
+	//			StringVector months = WBSF::GetDirectoriesList(working_dir + *it1 + "\\*");
+	//			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+	//				year_month.push_back(make_pair(*it1, *it2));
+	//		}
+	//	}
+
+	//	callback.PushTask("Get all file to update (" + to_string(year_month.size()) + " months)", year_month.size());
+	//	callback.AddMessage("Get all file to update (" + to_string(year_month.size()) + " months)");
+
+
+	//	for (auto it = year_month.begin(); it != year_month.end() && msg; it++)
+	//	{
+	//		string year = it->first;
+	//		string month = it->second;
+	//		if (month != "06")
+	//		{
+	//			StringVector days = WBSF::GetDirectoriesList(working_dir + year + "\\" + month + "\\*");
+	//			for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+	//			{
+	//				string day = *it3;
+
+	//				string filter = working_dir + year + "\\" + month + "\\" + day + "\\HRDPS_*.tif";
+	//				StringVector file = WBSF::GetFilesList(filter, 2);
+	//				file_to_update.insert(file_to_update.end(), file.begin(), file.end());
+	//				msg += callback.StepIt(0);
+	//			}//for all days
+	//		}
+	//		msg += callback.StepIt();
+	//	}//for all months
+
+	//	callback.PopTask();
+
+	//	callback.PushTask("Convert files(" + to_string(year_month.size()) + " months)", file_to_update.size());
+	//	
+
+	//	for (size_t i = 0; i != file_to_update.size() && msg; i++)
+	//	{
+	//		//string outputFilePath = file_to_update[i] + "2";
+
+	//		//if (GoodGrib(file_to_update[i]))
+	//		//{
+	//		CSfcDatasetCached DSin;
+	//		DSin.m_variables_to_load.set();
+	//		msg += DSin.open(file_to_update[i], true);
+
+	//		if (msg)
+	//		{
+	//			CBaseOptions options;
+	//			DSin.UpdateOption(options);
+	//			//options.m_nbBands = nbBands;
+	//			//options.m_outputType = GDT_Float32;
+	//			//options.m_dstNodata = GetDefaultNoData(GDT_Float32);
+	//			options.m_bOverwrite = true;
+
+	//			CGDALDatasetEx DSout;
+	//			msg += DSout.CreateImage(file_to_update[i] + "2", options);
+	//			if (msg)
+	//			{
+
+	//				for (size_t v = 0; v < DSin.get_variables().size(); v++)
+	//				{
+	//					size_t b = DSin.get_band(v);
+
+	//					if (b != NOT_INIT)
+	//					{
+	//						GDALRasterBand* pBandin = DSin.GetRasterBand(b);
+	//						GDALRasterBand* pBandout = DSout.GetRasterBand(b);
+
+	//						ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
+	//						ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
+
+	//						vector<float> data(DSin.GetRasterXSize()*DSin.GetRasterYSize());
+	//						pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+	//						pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+
+	//						if (v == H_VWND)
+	//						{
+	//							//change v wind by geopot
+	//							
+	//							pBandout->SetDescription(CHRDPS::META_DATA[H_GHGT][CHRDPS::M_DESC]);
+	//							pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_COMMENT]);
+	//							pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_ELEMENT]);
+	//							pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_SHORT_NAME]);
+	//							pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_UNIT]);
+
+	//						}
+	//						else
+	//						{
+	//							string test1 = pBandin->GetDescription();
+	//							if (pBandin->GetDescription())
+	//								pBandout->SetDescription(pBandin->GetDescription());
+
+	//							string test2 = *pBandin->GetMetadata();
+	//							if (pBandin->GetMetadata())
+	//								pBandout->SetMetadata(pBandin->GetMetadata());
+	//						}
+	//					}
+
+	//					//							DSout->FlushCache();
+
+	//				}
+
+	//				DSout.Close();
+	//			}//out open
+
+	//			DSin.close();
+
+	//			if (msg)
+	//			{
+	//				//do not support block
+	//				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_to_update[i] + "2" + "\" \"" + file_to_update[i] + "\"";
+	//				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+	//				msg += WinExecWait(command);
+	//				msg += RemoveFile(file_to_update[i] + "2");
+	//			}
+	//		}//in open
+
+	//		msg += callback.StepIt();
+	//	}// for all files
+
+	//	callback.PopTask();
+
+	//	return msg;
+	//}
+
+
 	ERMsg CHRDPS::Execute(CCallback& callback)
 	{
+		//return UpdateAll(callback);
+
+
+
 		ERMsg msg;
 
 		set<string> date_to_update;
@@ -434,7 +581,7 @@ namespace WBSF
 
 
 
-		if (date_to_update.empty() && m_bLookupHistoric)
+		if (date_to_update.empty() && m_createHistiricalGeotiff)
 			date_to_update = GetAll(callback);
 
 		if (!date_to_update.empty())
@@ -574,12 +721,12 @@ namespace WBSF
 
 								oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
 
-								oFile << "    <Description>" << META_DATA[var][0] << "</Description>" << endl;
+								oFile << "    <Description>" << META_DATA[var][M_DESC] << "</Description>" << endl;
 								oFile << "    <Metadata>" << endl;
-								oFile << "      <MDI key=\"GRIB_COMMENT\">" << META_DATA[var][1] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_ELEMENT\">" << META_DATA[var][2] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << META_DATA[var][3] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_UNIT\">" << META_DATA[var][4] << "</MDI>" << endl;
+								oFile << "      <MDI key=\"GRIB_COMMENT\">" << META_DATA[var][M_COMMENT] << "</MDI>" << endl;
+								oFile << "      <MDI key=\"GRIB_ELEMENT\">" << META_DATA[var][M_ELEMENT] << "</MDI>" << endl;
+								oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << META_DATA[var][M_SHORT_NAME] << "</MDI>" << endl;
+								oFile << "      <MDI key=\"GRIB_UNIT\">" << META_DATA[var][M_UNIT] << "</MDI>" << endl;
 								oFile << "    </Metadata>" << endl;
 
 								oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
@@ -602,7 +749,7 @@ namespace WBSF
 							string file_path_tif = file_path_vrt;
 							SetFileExtension(file_path_tif, ".tif");
 
-							string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+							string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 							string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 							msg += WinExecWait(command);
 
@@ -718,18 +865,18 @@ namespace WBSF
 			if (!it->m_HRDPS_file_path1.empty() && !it->m_HRDPS_file_path2.empty())
 			{
 				if (m_bHRDPA6h)
-					argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
 				else
-					argument = "-e \"prcp=round( (i2b1-i1b1)*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=round( (i2b1-i1b1)*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
 			}
 			else
 			{
 				ASSERT(!it->m_HRDPS_file_path2.empty());
 
 				if (m_bHRDPA6h)
-					argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
 				else
-					argument = "-e \"prcp=round( i1b1*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=round( i1b1*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
 			}
 
 			ASSERT(!argument.empty());
@@ -810,11 +957,11 @@ namespace WBSF
 						//j/m² (sum of one hour) -> watt/m²
 						if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 						{
-							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 						}
 						else if (FileExists(HRDPS_file_path2) && h2 == 0)
 						{
-							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 						}
 
 						if (!argument.empty())
@@ -838,15 +985,9 @@ namespace WBSF
 	{
 		ERMsg msg;
 		std::set<std::string> date_to_update;
-
-
-		//date_to_update.insert("20190831");
-		//return  date_to_update;
-
-
-
 		vector<pair<string, string>> year_month;
 		StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+
 		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
 		{
 			string year = *it1;

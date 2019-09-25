@@ -126,11 +126,14 @@ namespace WBSF
 	{
 	public:
 
+		enum TMetaField { M_DESC, M_COMMENT, M_ELEMENT, M_SHORT_NAME, M_UNIT, NB_META };
+		static const char* META_DATA[NB_VAR_GRIBS][NB_META];
+
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
 
 		bool m_bCreateGeotiff;
-		bool m_bLookupHistoric;
+		bool m_createHistiricalGeotiff;
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
@@ -180,7 +183,8 @@ namespace WBSF
 		static const char* SERVER_NAME;
 		static const char* SERVER_PATH;
 
-		static const char* META_DATA[NB_VAR_GRIBS][5];
+		
+		
 	};
 
 }

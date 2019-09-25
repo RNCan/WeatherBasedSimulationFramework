@@ -32,7 +32,8 @@ namespace WBSF
 		m_product(HRRR_SFC),
 		m_serverType(HTTP_SERVER),
 		m_bShowWINSCP(false),
-		m_compute_prcp(true)
+		m_compute_prcp(true),
+		m_createHistiricalGeotiff(false)
 	{}
 
 	CHRRR::~CHRRR(void)
@@ -313,7 +314,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (date_to_update.empty())
+		if (date_to_update.empty() && m_createHistiricalGeotiff)
 			date_to_update = GetAll(callback);
 
 		callback.PushTask("Compute HRRR precipitation (" + ToString(date_to_update.size()) + ")", date_to_update.size());
@@ -341,19 +342,8 @@ namespace WBSF
 		CTRef TRef = GetLocalTRef(inputFilePath);
 		string inputFilePath2 = GetOutputFilePath(TRef - 1, 1);
 
-		//string inputFilePath2 = inputFilePath;
-		//ReplaceString(inputFilePath2, "f00.grib2", "f01.grib2");
-
 		string outputFilePath = inputFilePath;
 		ReplaceString(outputFilePath, "f00.grib2", "f00.tif");
-
-		string VRTFilePath = inputFilePath;
-		ReplaceString(VRTFilePath, "f00.grib2", "f00.vrt");
-
-
-		//CGDALDatasetEx DS1;
-		//msg = DS1.OpenInputImage(inputFilePath);
-		//if (msg)
 
 		if (GoodGrib(inputFilePath) || GoodGrib(inputFilePath2))
 		{
@@ -438,9 +428,9 @@ namespace WBSF
 			{
 				//copy the file to fully use compression with GDAL_translate
 				msg += RenameFile(outputFilePath, outputFilePath + "2");
-				//string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				//string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 				//do not support block
-				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 				msg += WinExecWait(command);
 				msg += RemoveFile(outputFilePath + "2");
