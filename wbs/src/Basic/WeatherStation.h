@@ -1134,6 +1134,7 @@ public:
 
 	ERMsg SaveData(const std::string& filePath, CTM TM=CTM(), char separator = ',')const;
 	ERMsg SaveData(std::ostream& file, CTM TM, char separator)const;
+	ERMsg SaveData(std::ostream& file, CTM TM, const CWeatherFormat& format, char separator)const;
 	ERMsg LoadData(const std::string& filePath, double nodata = -999.0, bool bResetContent = true, const CWeatherYearSectionMap& sectionToLoad = CWeatherYearSectionMap());
 	ERMsg Parse(const std::string& str,  double nodata=-999.0);
 	CDailyWaveVector& GetHourlyGeneration(CDailyWaveVector& t, size_t method = HG_DOUBLE_SINE, size_t step = 4, double PolarDayLength = 3, const COverheat& overheat = COverheat()) const;
