@@ -9,12 +9,25 @@
 #include "FileManager/FileManager.h"
 #include "WeatherBasedSimulationString.h"
 #include "Basic/Shore.h"
+
 //#include "json\json11.hpp"
 //using namespace json11;
 //#pragma warning(disable: 4275 4251)
 //#include "GDAL_priv.h"
 //#include "ogr_srs_api.h"
 #include "Geomatic/UtilGDAL.h"
+
+//#define _REMOVE_FPOS_SEEKPOS
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+//#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/copy.hpp>
+
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
+
+
 
 //using namespace boost;
 using namespace std;
@@ -28,6 +41,7 @@ extern HMODULE g_hDLL;
 
 namespace WBSF
 {
+
 
 	static std::string get_string(ERMsg msg)
 	{
@@ -46,15 +60,81 @@ namespace WBSF
 
 		return str;
 	}
+	//******************************************************************************************************************************
+
+	ERMsg CSfcGribExtractor::open(const std::string& gribsList)
+	{
+		ERMsg msg;
+
+		msg = m_gribsList.load(gribsList);
+		for (auto it = m_gribsList.begin(); it != m_gribsList.end(); it++)
+		{
+			if (m_sfcDS.find(it->first) == m_sfcDS.end())
+			{
+				m_sfcDS[it->first].reset(new CSfcDatasetCached);
+				msg += m_sfcDS[it->first]->open(it->second, true);
+			}
+		}
+
+		if (!m_sfcDS.empty())
+		{
+			GEO_2_WEA = CProjectionTransformation(PRJ_WGS_84, m_sfcDS.begin()->second->GetPrjID());
+			m_extents = m_sfcDS.begin()->second->GetExtents();
+		}
+
+		return msg;
+	}
+
+	void CSfcGribExtractor::load_all()
+	{
+	}
+
+	void CSfcGribExtractor::extract(CGeoPoint pt, CWeatherYears& data)
+	{
+		//for optimization, we select only 2 wind variables
+		//if (var.test(H_WNDS) && var.test(H_WNDD))
+		//{
+		//	var.reset(H_UWND);
+		//	var.reset(H_VWND);
+		//}
+		//else if (var.test(H_UWND) && var.test(H_VWND))
+		//{
+		//	var.reset(H_WNDS);
+		//	var.reset(H_WNDD);
+		//}
+		//else
+		//{
+		//	var.reset(H_UWND);
+		//	var.reset(H_VWND);
+		//	var.reset(H_WNDS);
+		//	var.reset(H_WNDD);
+		//}
+		//sfcDS.m_variables_to_load = var;
+
+		pt.Reproject(GEO_2_WEA);
+		if (m_extents.IsInside(pt))
+		{
+			for (auto it = m_sfcDS.begin(); it != m_sfcDS.end(); it++)
+			{
+				//CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, stations[i]);
+				CWeatherDay& day = data.GetDay(it->first);
+				//it->second->get_weather(pt, data);//estimate weather at location
+				it->second->get_nearest(pt, day);
+			}
+		}
+	}
+
+
 
 	//******************************************************************************************************************************
 
 
 	const char* WeatherGeneratorOptions::NAME[NB_PAPAMS] =
 	{
-		"VARIABLES", "SOURCE", "GENERATION", "NB_REPLICATIONS",
+		"VARIABLES", "SOURCE", "GENERATION", "REPLICATIONS",
 		"LATITUDE", "LONGITUDE", "ELEVATION", "SLOPE", "ORIENTATION",
-		"NB_NEAREST_NEIGHBOR", "FIRST_YEAR", "LAST_YEAR","NB_YEARS", "SEED", "NORMALS_INFO"
+		"NB_NEAREST_NEIGHBOR", "FIRST_YEAR", "LAST_YEAR","NB_YEARS",
+		"SEED", "NORMALS_INFO", "COMPRESS"
 	};
 
 	WeatherGeneratorOptions::WeatherGeneratorOptions()
@@ -71,11 +151,12 @@ namespace WBSF
 		m_slope = -999;
 		m_orientation = -999;
 		m_nb_nearest_neighbor = 4;
-		m_nb_replications = 1;
-		m_nb_years =1;
+		m_replications = 1;
+		m_nb_years = 1;
 		m_first_year = CTRef::GetCurrentTRef().GetYear();
 		m_last_year = CTRef::GetCurrentTRef().GetYear();
 		m_seed = 0;
+		m_compress = true;
 	}
 
 	ERMsg WeatherGeneratorOptions::parse(const string& str_options)
@@ -117,21 +198,21 @@ namespace WBSF
 
 						break;
 					}
-					case LATITUDE:				
+					case LATITUDE:
 					{
 						m_latitude = ToDouble(option[1]);
-						if(m_latitude<-90 || m_latitude>90)
+						if (m_latitude < -90 || m_latitude>90)
 							msg.ajoute(option[1] + " is not a valid latitude. Latitude must between -90 and 90.");
 						break;
 					}
-					case LONGITUDE:				
+					case LONGITUDE:
 					{
 						m_longitude = ToDouble(option[1]);
 						if (m_longitude < -180 || m_longitude >180)
 							msg.ajoute(option[1] + " is not a valid longitude. Longitude must between -180 and 180.");
 						break;
 					}
-					case ELEVATION:				
+					case ELEVATION:
 					{
 						m_elevation = ToDouble(option[1]);
 						if (m_elevation < -100 || m_elevation >8000)
@@ -140,23 +221,23 @@ namespace WBSF
 					}
 					case SLOPE:					m_slope = ToDouble(option[1]); break;
 					case ORIENTATION:			m_orientation = ToDouble(option[1]); break;
-					case NB_NEAREST_NEIGHBOR:	
+					case NB_NEAREST_NEIGHBOR:
 					{
 						m_nb_nearest_neighbor = ToSizeT(option[1]);
 						if (m_nb_nearest_neighbor == 0)
 							msg.ajoute(option[1] + " is not a valid nearest neighbor. nearest neighbor.");
-						
+
 						break;
 					}
-					case FIRST_YEAR:		
+					case FIRST_YEAR:
 					{
 						m_first_year = ToInt(option[1]);
-						if (m_first_year < 1900|| m_first_year>GetCurrentYear())
+						if (m_first_year < 1900 || m_first_year>GetCurrentYear())
 							msg.ajoute(option[1] + " is not a valid year. First year must between 1900 and current year.");
 
 						break;
 					}
-					case LAST_YEAR:	
+					case LAST_YEAR:
 					{
 						m_last_year = ToInt(option[1]);
 						if (m_last_year < 1900 || m_last_year>GetCurrentYear())
@@ -164,7 +245,9 @@ namespace WBSF
 
 						break;
 					}
-					case SEED:				    m_seed = ToInt(option[1]); break;
+					case SEED:				   m_seed = ToInt(option[1]); break;
+					case COMPRESS:			m_compress = ToBool(option[1]); break;
+					case REPLICATIONS:		   m_replications = ToInt(option[1]); break;
 					default: ASSERT(false);
 					}
 				}
@@ -180,7 +263,7 @@ namespace WBSF
 		}
 
 		if (m_first_year > m_last_year)
-			msg.ajoute("First year must be lower than last year.");
+			msg.ajoute("Last year (" + to_string(m_last_year) + ") must be greater or equal to first year (" + to_string(m_first_year) + ") .");
 
 
 		return msg;
@@ -203,7 +286,7 @@ namespace WBSF
 
 		try
 		{
-			//CPLSetConfigOption("GDAL_CACHEMAX", "2048");
+			GDALSetCacheMax64(128 * 1024 * 1024);
 			RegisterGDAL();
 
 
@@ -258,10 +341,10 @@ namespace WBSF
 
 						case GRIBS:
 						{
-							m_pGribsDB.reset(new CSfcGribDatabase);
-							msg += m_pGribsDB->Open(option[1]);
+							m_pGribsDB.reset(new CSfcGribExtractor);
+							msg += m_pGribsDB->open(option[1]);
 							if (msg)
-								msg += m_pGribsDB->OpenSearchOptimization(CCallback());//open here to be thread safe
+								m_pGribsDB->load_all();
 
 							break;
 						}
@@ -293,7 +376,7 @@ namespace WBSF
 			m_pWeatherGenerator->SetNormalDB(m_pNormalDB);
 			m_pWeatherGenerator->SetDailyDB(m_pDailyDB);
 			m_pWeatherGenerator->SetHourlyDB(m_pHourlyDB);
-			m_pWeatherGenerator->SetGribsDB(m_pGribsDB);
+			//m_pWeatherGenerator->SetGribsDB(m_pGribsDB);
 		}
 		catch (...)
 		{
@@ -305,11 +388,43 @@ namespace WBSF
 	}
 
 
-	std::string WeatherGenerator::Generate(const std::string& str_options)
+	ERMsg WeatherGenerator::ComputeElevation(double latitude, double longitude, double& elevation)
+	{
+		ERMsg msg;
+
+		if (m_pDEM && m_pDEM->IsOpen())
+		{
+			CGeoPoint pt(longitude, latitude, PRJ_WGS_84);
+
+			CGeoPointIndex xy = m_pDEM->GetExtents().CoordToXYPos(pt);
+			if (m_pDEM->GetExtents().IsInside(xy))
+			{
+				elevation = m_pDEM->ReadPixel(0, xy);
+
+				if (fabs(elevation - m_pDEM->GetNoData(0)) < 0.1)
+				{
+					msg.ajoute("DEM is not available for the lat/lon coordinate.");
+				}
+			}
+			else
+			{
+				msg.ajoute("Lat/lon outside DEM extents.");
+			}
+		}
+		else
+		{
+			msg.ajoute("Elevation and DEM is not provided. Invalid elevation.");
+		}
+
+		return msg;
+	}
+
+	Output WeatherGenerator::Generate(const std::string& str_options)
 	{
 		ERMsg msg;
 		CCallback callback;
-		string output;
+		Output output;
+		//string output;
 
 		try
 		{
@@ -321,31 +436,7 @@ namespace WBSF
 			{
 
 				if (options.m_elevation < -100)
-				{
-					if (m_pDEM && m_pDEM->IsOpen())
-					{
-						CGeoPoint pt(options.m_longitude, options.m_latitude, PRJ_WGS_84);
-
-						CGeoPointIndex xy = m_pDEM->GetExtents().CoordToXYPos(pt);
-						if (m_pDEM->GetExtents().IsInside(xy))
-						{
-							options.m_elevation = m_pDEM->ReadPixel(0, xy);
-
-							if (fabs(options.m_elevation - m_pDEM->GetNoData(0)) < 0.1)
-							{
-								msg.ajoute("DEM is not available for the lat/lon coordinate.");
-							}
-						}
-						else
-						{
-							msg.ajoute("Lat/lon outside DEM extents.");
-						}
-					}
-					else
-					{
-						msg.ajoute("Elevation and DEM is not provided. Invalid elevation.");
-					}
-				}
+					msg = ComputeElevation(options.m_latitude, options.m_longitude, options.m_elevation);
 
 				if (msg)
 				{
@@ -380,7 +471,7 @@ namespace WBSF
 					unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
 
 					m_pWeatherGenerator->SetSeed(seed);
-					m_pWeatherGenerator->SetNbReplications(options.m_nb_replications);
+					m_pWeatherGenerator->SetNbReplications(options.m_replications);
 					m_pWeatherGenerator->SetWGInput(WGInput);
 					m_pWeatherGenerator->SetTarget(location);
 
@@ -390,28 +481,53 @@ namespace WBSF
 					{
 						std::bitset<CWeatherGenerator::NB_WARNING> warning = m_pWeatherGenerator->GetWarningBits();
 
-						ostringstream stream;
+						// Compress
+						std::stringstream sender;
+						CStatistic::SetVMiss(-999);
+
+						boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+						if (options.m_compress)
+						{
+							boost::iostreams::gzip_params p;
+							p.file_name = "data.csv";
+							out.push(boost::iostreams::gzip_compressor(p));
+						}
+						out.push(sender);
 
 						for (size_t r = 0; r < m_pWeatherGenerator->GetNbReplications() && msg; r++)
 						{
 							//write info and weather to the stream
 							const CSimulationPoint& weather = m_pWeatherGenerator->GetWeather(r);
-
-
-							CStatistic::SetVMiss(-999);
 							CTM TM = weather.GetTM();
-							//CWVariables variable(weather.GetVariables());
 
-							//CWeatherFormat format(TM, variable);//get default format
+							//							sender << "Replication" + to_string(r + 1) << endl;
+							msg = ((CWeatherYears&)weather).SaveData(sender, TM, ',');
 
-							//string header = format.GetHeader() + "\n";
-							//stream.write(header.c_str(), header.length());
 
-							msg = ((CWeatherYears&)weather).SaveData(stream, TM, ',');
-
-							output = stream.str();
 						}   // for replication
 
+
+
+						std::stringstream compressed;
+						boost::iostreams::copy(out, compressed);
+
+						if (options.m_compress)
+							output.m_data = py::bytes(compressed.str());
+						else
+							output.m_text = compressed.str();
+
+
+						//catch (const boost::iostreams::gzip_error& exception)
+						//{
+						//	int error = exception.error();
+						//	if (error == boost::iostreams::gzip::zlib_error)
+						//	{
+						//		//check for all error code    
+						//		msg.ajoute(exception.what());
+						//	}
+						//}
+
+						//file.close();
 
 
 						CWeatherGenerator::OutputWarning(warning, callback);
@@ -428,11 +544,96 @@ namespace WBSF
 			i = 0;
 		}
 
-		if (!msg)
-			output = get_string(msg);
+		output.m_msg = get_string(msg);
+		output.m_comment = ANSI_UTF8(callback.GetMessages());
 
-		return output;// get_string(msg, callback, output);
+		return output;
 	}
+
+
+	Output WeatherGenerator::GenerateGribs(const std::string& str_options)
+	{
+		ERMsg msg;
+		CCallback callback;
+		Output output;
+
+		try
+		{
+			//GDALSetCacheMax64(128 * 1024 * 1024);
+
+			CTimer timer(TRUE);
+			WeatherGeneratorOptions options;
+			msg = options.parse(str_options);
+
+			if (msg)
+			{
+
+				if (options.m_elevation < -100)
+					msg = ComputeElevation(options.m_latitude, options.m_longitude, options.m_elevation);
+
+				if (msg)
+				{
+					CLocation location("", "", options.m_latitude, options.m_longitude, options.m_elevation);
+					
+
+					CWeatherYears data;
+					m_pGribsDB->extract(location, data);
+
+					std::stringstream sender;
+					CStatistic::SetVMiss(-999);
+
+					boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+					if (options.m_compress)
+					{
+						boost::iostreams::gzip_params p;
+						p.file_name = "data.csv";
+						out.push(boost::iostreams::gzip_compressor(p));
+					}
+					out.push(sender);
+
+					//for (size_t r = 0; r < m_pWeatherGenerator->GetNbReplications() && msg; r++)
+					//{
+						//write info and weather to the stream
+//					const CSimulationPoint& weather = m_pWeatherGenerator->GetWeather(r);
+					CTM TM = data.GetTM();
+
+					CWeatherFormat format(TM, options.m_variables);//get default format
+					msg = data.SaveData(sender, TM, format, ',');
+
+					//}   // for replication
+
+
+
+					std::stringstream compressed;
+					boost::iostreams::copy(out, compressed);
+
+					if (options.m_compress)
+						output.m_data = py::bytes(compressed.str());
+					else
+						output.m_text = compressed.str();
+
+
+
+
+				}
+			}
+
+			timer.Stop();
+
+		}
+		catch (...)
+		{
+			int i;
+			i = 0;
+		}
+
+		output.m_msg = get_string(msg);
+		output.m_comment = ANSI_UTF8(callback.GetMessages());
+
+
+		return output;
+	}
+
 
 }
 
@@ -443,11 +644,20 @@ namespace WBSF
 
 	PYBIND11_MODULE(BioSIM_API, m)
 	{
+		py::class_<Output>(m, "Output")
+			.def_readonly("compress", &Output::m_compress)
+			.def_readonly("msg", &Output::m_msg)
+			.def_readonly("comment", &Output::m_comment)
+			.def_readonly("text", &Output::m_text)
+			.def_readonly("data", &Output::m_data)
+			//.def("__repr__",[](const Output&a) {return a.m_msg + a.m_data;})
+			;
 
 		py::class_<WeatherGenerator>(m, "WeatherGenerator")
 			.def(py::init<const std::string &>())
 			.def("Initialize", &WeatherGenerator::Initialize)
 			.def("Generate", &WeatherGenerator::Generate)
+			.def("GenerateGribs", &WeatherGenerator::GenerateGribs)
 			;
 
 

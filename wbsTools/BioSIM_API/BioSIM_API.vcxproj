@@ -139,7 +139,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary Condition="$(PythonCoreDVersion) == ''">MultithreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(PythonHome)/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PythonHome)/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include;_REMOVE_FPOS_SEEKPOS</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -159,11 +159,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary Condition="$(PythonCoreDVersion) == ''">MultithreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Python37/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Python37/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include;../../external/GDAL/Include;</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_FPOS_SEEKPOS_DEPRECATION_WARNING;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -174,7 +176,7 @@
       <AdditionalIncludeDirectories>;..\..\wbs\src;</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "G:\Travaux\BioSIM_API\lib\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "CppAndPython\lib\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -184,7 +186,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <RuntimeLibrary>Multithreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(PythonHome)/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PythonHome)/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include;</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -209,8 +211,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <RuntimeLibrary>Multithreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Python37/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Python37/Include;..\..\External;..\..\wbs\src;..\..\External\pybind11\include;../../external/GDAL/Include;</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SILENCE_FPOS_SEEKPOS_DEPRECATION_WARNING;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -233,11 +237,9 @@
   <ItemGroup>
     <ClCompile Include="BioSIM_API.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="ExampleOne.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BioSIM_API.h" />
-    <ClInclude Include="ExampleOne.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
