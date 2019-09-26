@@ -372,11 +372,12 @@ namespace WBSF
 
 			if (msg)
 			{
+				float no_data = GetDefaultNoData(GDT_Int16);
 				CBaseOptions options;
 				DSin1.UpdateOption(options);
 				options.m_nbBands = nbBands;
 				options.m_outputType = GDT_Float32;
-				options.m_dstNodata = GetDefaultNoData(GDT_Float32);
+				options.m_dstNodata = no_data;
 				options.m_bOverwrite = true;
 
 				CGDALDatasetEx DSout;
@@ -394,11 +395,19 @@ namespace WBSF
 							GDALRasterBand* pBandin = DSin.GetRasterBand(b);
 							GDALRasterBand* pBandout = DSout.GetRasterBand(bb);
 
+
 							ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
 							ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
 
+							float no_data_in = DSin.GetNoData(b);
 							vector<float> data(DSin.GetRasterXSize()*DSin.GetRasterYSize());
 							pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+							//replace no data
+							for (size_t xy = 0; xy < data.size(); xy++)
+							{
+								if (fabs(data[xy] -no_data_in) < 0.1)
+									data[xy] = no_data;
+							}
 							pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 
 							if (pBandin->GetDescription())
@@ -428,9 +437,7 @@ namespace WBSF
 			{
 				//copy the file to fully use compression with GDAL_translate
 				msg += RenameFile(outputFilePath, outputFilePath + "2");
-				//string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
-				//do not support block
-				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 				msg += WinExecWait(command);
 				msg += RemoveFile(outputFilePath + "2");

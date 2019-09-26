@@ -16,25 +16,25 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateGribsDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
-	const size_t CCreateGribsDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
-	const UINT CCreateGribsDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
-	const UINT CCreateGribsDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
+	const char* CCreateGribsList::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
+	const size_t CCreateGribsList::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
+	const UINT CCreateGribsList::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
+	const UINT CCreateGribsList::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
 
-	const char* CCreateGribsDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateGribs";  return THE_CLASS_NAME; }
-	CTaskBase::TType CCreateGribsDB::ClassType()const { return CTaskBase::TOOLS; }
-	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateGribsDB::CLASS_NAME(), (createF)CCreateGribsDB::create);
+	const char* CCreateGribsList::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateGribs";  return THE_CLASS_NAME; }
+	CTaskBase::TType CCreateGribsList::ClassType()const { return CTaskBase::TOOLS; }
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateGribsList::CLASS_NAME(), (createF)CCreateGribsList::create);
 
 
-	CCreateGribsDB::CCreateGribsDB(void)
+	CCreateGribsList::CCreateGribsList(void)
 	{}
 
 
-	CCreateGribsDB::~CCreateGribsDB(void)
+	CCreateGribsList::~CCreateGribsList(void)
 	{}
 
 
-	std::string CCreateGribsDB::Option(size_t i)const
+	std::string CCreateGribsList::Option(size_t i)const
 	{
 		string str;
 
@@ -52,7 +52,7 @@ namespace WBSF
 		return str;
 	}
 
-	std::string CCreateGribsDB::Default(size_t i)const
+	std::string CCreateGribsList::Default(size_t i)const
 	{
 		string str;
 
@@ -66,7 +66,7 @@ namespace WBSF
 		return str;
 	}
 
-	CTPeriod CCreateGribsDB::GetPeriod()const
+	CTPeriod CCreateGribsList::GetPeriod()const
 	{
 		CTPeriod p;
 		StringVector t1(Get(FIRST_DATE), "-/");
@@ -78,7 +78,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CCreateGribsDB::Execute(CCallback& callback)
+	ERMsg CCreateGribsList::Execute(CCallback& callback)
 	{
 		ASSERT(m_pProject);//parent must be set for creator
 		

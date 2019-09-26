@@ -691,7 +691,7 @@ namespace WBSF
 		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
-			callback.PushTask("Load Russia in memmory", file.length());
+			callback.PushTask("Load Russia in memory", file.length());
 
 			boost::iostreams::filtering_istreambuf in;
 			in.push(boost::iostreams::gzip_decompressor());
@@ -700,7 +700,6 @@ namespace WBSF
 
 			string line;
 
-			//std::getline(incoming, line);
 			while (std::getline(incoming, line) && msg)
 			{
 				ASSERT(line.length() == 52);
@@ -763,7 +762,7 @@ namespace WBSF
 		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
-			callback.PushTask("Load SOPFEU in memmory", file.length());
+			callback.PushTask("Load SOPFEU in memory", file.length());
 
 			enum { C_NO_STATION, C_DATE, C_HEURE, C_PLUIE, C_PLUIE_HOR, C_CC, C_TSEC, C_THUM, C_DV, C_VV, C_VVR, C_PRO, C_HR, OTHER_FIELDS };
 			TVarH VAR_TYPE[OTHER_FIELDS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_TAIR, H_SKIP, H_WNDD, H_WNDS, H_SKIP, H_TDEW, H_RELH };

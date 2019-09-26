@@ -9,6 +9,8 @@
 #include "Geomatic/SfcGribsDatabase.h"
 
 //#include "cctz\time_zone.h"
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
@@ -38,7 +40,7 @@ namespace WBSF
 
 	CHRDPS::CHRDPS(const std::string& workingDir) :
 		m_workingDir(workingDir),
-		m_bCreateGeotiff(true),
+		m_bCreateDailyGeotiff(true),
 		m_createHistiricalGeotiff(true),
 		m_bForecast(false),
 		m_max_hours(24),
@@ -55,9 +57,9 @@ namespace WBSF
 
 	const char* CHRDPS::META_DATA[NB_VAR_GRIBS][NB_META] =
 	{
-		{"", "", "", "", ""},
+		{"2[m] HTGL=\"Specified height level above ground\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
 		{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
-		{"", "", "", "", ""},
+		{"2[m] HTGL=\"Specified height level above ground\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
 		{ "0[-] SFC=\"Ground or water surface\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
 		{ "2[m] HTGL=\"Specified height level above ground\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
 		{ "2[m] HTGL=\"Specified height level above ground\"","Relative humidity [%]","RH","2-HTGL","[%]" },
@@ -225,7 +227,7 @@ namespace WBSF
 
 	//		//if (GoodGrib(file_to_update[i]))
 	//		//{
-	//		CSfcDatasetCached DSin;
+	//		CSfcData1d DSin;
 	//		DSin.m_variables_to_load.set();
 	//		msg += DSin.open(file_to_update[i], true);
 
@@ -314,6 +316,7 @@ namespace WBSF
 	{
 		//return UpdateAll(callback);
 
+		GDALSetCacheMax64(128 * 1024 * 1024);
 
 
 		ERMsg msg;
@@ -338,7 +341,7 @@ namespace WBSF
 
 			callback.AddMessage("");
 
-			//rebuild geotiff with the new HRDPA
+			//rebuild GeoTiff with the new HRDPA
 			for (size_t i = 0; i < HRDPAFiles.size(); i++)
 			{
 				CTRef TRef = CHRDPA::GetTRef(HRDPAFiles[i]) - 6;
@@ -579,11 +582,14 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-
+		//for (int d = 1; d <= 24; d++)
+		//	date_to_update.insert(FormatA("201909%02d", d));
+		//msg = CreateDailyGrib(date_to_update, callback);
+		//return msg;
 
 		if (date_to_update.empty() && m_createHistiricalGeotiff)
 			date_to_update = GetAll(callback);
-
+		
 		if (!date_to_update.empty())
 		{
 			if (msg && m_variables.test(APCP_SFC))
@@ -592,9 +598,13 @@ namespace WBSF
 			if (msg && m_variables.test(DSWRF_SFC))
 				msg = CreateHourlySRad(date_to_update, callback);
 
-			//now, create geotiff
-			if (msg && m_bCreateGeotiff)
+			//now, create GeoTiff
+			if (msg )
 				msg = CreateGeotiff(date_to_update, callback);
+
+			//now, create daily GeoTiff
+			if (msg && m_bCreateDailyGeotiff)
+				msg = CreateDailyGrib(date_to_update, callback);
 		}
 
 		return msg;
@@ -625,8 +635,8 @@ namespace WBSF
 
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		callback.PushTask("Create Geotiff: " + ToString(outputPath.size()) + " days", outputPath.size());
-		callback.AddMessage("Create Geotiff: " + ToString(outputPath.size()) + " days");
+		callback.PushTask("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days", outputPath.size());
+		callback.AddMessage("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days");
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
@@ -636,7 +646,7 @@ namespace WBSF
 
 			string nbHours_test = FormatA("%s%s\\%s\\%s\\CMC_hrdps_continental_TMP_TGL_2_ps2.5km_*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
 			StringVector nbHours = WBSF::GetFilesList(nbHours_test, 2, true);
-			callback.PushTask("Create Geotiff for " + year + "-" + month + "-" + day + ": " + ToString(nbHours.size()) + " hours", nbHours.size());
+			callback.PushTask("Create hourly GeoTiff for " + year + "-" + month + "-" + day + ": " + ToString(nbHours.size()) + " hours", nbHours.size());
 			//callback.AddMessage("Create Geotiff for " + year + "-" + month + "-" + day + ": " + ToString(nbHours.size()) + " hours");
 
 
@@ -745,11 +755,11 @@ namespace WBSF
 							oFile << "</VRTDataset>" << endl;
 							oFile.close();
 
-							//Create Geotiff from vrt
+							//Create GeoTiff from vrt
 							string file_path_tif = file_path_vrt;
 							SetFileExtension(file_path_tif, ".tif");
 
-							string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+							string argument = "-stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 							string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 							msg += WinExecWait(command);
 
@@ -865,18 +875,18 @@ namespace WBSF
 			if (!it->m_HRDPS_file_path1.empty() && !it->m_HRDPS_file_path2.empty())
 			{
 				if (m_bHRDPA6h)
-					argument = "-e \"prcp=round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=max(0,round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
 				else
-					argument = "-e \"prcp=round( (i2b1-i1b1)*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=max(0,round( (i2b1-i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path1 + "\" \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
 			}
 			else
 			{
 				ASSERT(!it->m_HRDPS_file_path2.empty());
 
 				if (m_bHRDPA6h)
-					argument = "-e \"prcp=round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=max(0,round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_HRDPS_file_path_last + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
 				else
-					argument = "-e \"prcp=round( i1b1*100)/100\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
+					argument = "-e \"prcp=max(0,round( i1b1*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + it->m_HRDPS_file_path2 + "\" \"" + it->m_out_file_path + "\"";
 			}
 
 			ASSERT(!argument.empty());
@@ -957,11 +967,11 @@ namespace WBSF
 						//j/m² (sum of one hour) -> watt/m²
 						if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 						{
-							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 						}
 						else if (FileExists(HRDPS_file_path2) && h2 == 0)
 						{
-							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
+							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path2 + "\" \"" + out_file_path + "\"";
 						}
 
 						if (!argument.empty())
@@ -974,6 +984,202 @@ namespace WBSF
 				}
 			}
 		}
+
+		callback.PopTask();
+
+		return msg;
+	}
+
+	//****************************************************************************************************
+	ERMsg CHRDPS::CreateDailyGrib(set<string> date_to_update, CCallback& callback)const
+	{
+		ERMsg msg;
+
+
+		callback.PushTask("Create daily GeoTiff (" + to_string(date_to_update.size()) + " days)", date_to_update.size());
+		callback.AddMessage("Create daily GeoTiff  (" + to_string(date_to_update.size()) + " days)");
+
+		for (auto it = date_to_update.begin(); it != date_to_update.end() && msg; it++)
+		{
+			string year = it->substr(0, 4);
+			string month = it->substr(4, 2);
+			string day = it->substr(6, 2);
+
+			string filter = m_workingDir + year + "\\" + month + "\\" + day + "\\HRDPS_*.tif";
+			StringVector filesList = WBSF::GetFilesList(filter, 2);
+
+			if (filesList.size() == 24)
+			{
+				
+				string file_path_out = FormatA("%s%s\\%s\\%s\\HRDPSD_%s%s%s.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str());
+
+				GribVariables var_in;
+				vector<CSfcDatasetCached> DSin(filesList.size());
+				for (size_t i = 0; i < filesList.size(); i++)
+				{
+					msg += DSin[i].open(filesList[i], true);
+					if (msg)
+						var_in = var_in | DSin[i].get_variables();
+				}
+
+				if (msg)
+				{
+					GribVariables var_out=var_in;
+					
+					if (var_out[H_TAIR])
+					{
+						//if temperature present, add min and max
+						var_out.set(H_TMIN);
+						var_out.set(H_TMAX);
+					}
+
+					callback.PushTask("Create daily GeoTiff for " + year + "-" + month + "-" + day + ": " + ToString(filesList.size()) + " hours", var_in.count()*filesList.size());
+
+					float no_data_out = 9999;
+
+					CBaseOptions options;
+					DSin[0].UpdateOption(options);
+					options.m_nbBands = var_out.count();
+					options.m_outputType = GDT_Float32;
+					options.m_dstNodata = no_data_out;
+					options.m_bOverwrite = true;
+					options.m_bComputeStats = true;
+
+
+					CGDALDatasetEx DSout;
+					msg += DSout.CreateImage(file_path_out + "2", options);
+					if (msg)
+					{
+						size_t b_out = 0;
+						for (size_t v = 0; v < var_out.size()&&msg; v++)
+						{
+							if (var_in.test(v)&& var_out.test(v))
+							{
+								vector<CStatistic> stat(options.m_extents.GetNbPixels());
+
+								for (size_t i = 0; i < DSin.size() && msg; i++)
+								{
+									size_t b = DSin[i].get_band(v);
+									if (b != NOT_INIT)
+									{
+										float no_data_in = DSin[i].GetNoData(b);
+										GDALRasterBand* pBandin = DSin[i].GetRasterBand(b);
+
+										vector<float> data(DSin[i].GetRasterXSize()*DSin[i].GetRasterYSize());
+										pBandin->RasterIO(GF_Read, 0, 0, DSin[i].GetRasterXSize(), DSin[i].GetRasterYSize(), &(data[0]), DSin[i].GetRasterXSize(), DSin[i].GetRasterYSize(), GDT_Float32, 0, 0);
+										pBandin->FlushCache();
+
+										ASSERT(data.size() == stat.size());
+										for (size_t xy = 0; xy < data.size(); xy++)
+										{
+											//strange bug with low value near zero
+											//if (data[xy] > -1E-10 &&data[xy] < 1E-10)
+												//data[xy] = 0;
+
+											if(data[xy] > -1E10 && fabs(data[xy]- no_data_in)>0.1)
+												stat[xy] += data[xy];
+										}
+											
+									}
+
+									msg += callback.StepIt();
+								}
+								
+								if (v == H_TAIR)
+								{
+									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									ASSERT(data.size() == stat.size());
+
+									//add min and max
+									for (size_t xy = 0; xy < data.size(); xy++)
+									{
+										if(stat[xy].IsInit())
+											data[xy] = stat[xy][LOWEST];
+									}
+										
+
+
+									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
+									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
+									pBandout->SetDescription(CHRDPS::META_DATA[H_TMIN][CHRDPS::M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_UNIT]);
+
+									b_out++;
+								}
+
+								{
+									size_t stat_type = (v == H_PRCP/* || v == H_SRAD*/) ? SUM : MEAN;
+									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									ASSERT(data.size() == stat.size());
+
+									for (size_t xy = 0; xy < data.size(); xy++)
+									{
+										if (stat[xy].IsInit())
+											data[xy] = stat[xy][stat_type];
+									}
+
+									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
+									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
+									pBandout->SetDescription(CHRDPS::META_DATA[v][CHRDPS::M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[v][CHRDPS::M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[v][CHRDPS::M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[v][CHRDPS::M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[v][CHRDPS::M_UNIT]);
+									b_out++;
+								}
+
+								if (v == H_TAIR)
+								{
+									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									ASSERT(data.size() == stat.size());
+
+									for (size_t xy = 0; xy < data.size(); xy++)
+									{
+										if (stat[xy].IsInit())
+											data[xy] = stat[xy][HIGHEST];
+									}
+
+									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
+									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
+									pBandout->SetDescription(CHRDPS::META_DATA[H_TMAX][CHRDPS::M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_UNIT]);
+
+									b_out++;
+								}
+
+								
+							}//if var used
+						}//for all variable
+
+						DSout.Close(options);
+					}//out open
+
+					for (size_t i = 0; i < filesList.size(); i++)
+						DSin[i].close();
+
+					if (msg)
+					{
+						//convert with gdal_translate to optimize size
+						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
+						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+						msg += WinExecWait(command);
+						msg += RemoveFile(file_path_out + "2");
+					}
+
+				}//if msg
+
+				
+			}//if 24 hours
+
+			callback.PopTask();
+			msg += callback.StepIt();
+		}// for all dates
 
 		callback.PopTask();
 

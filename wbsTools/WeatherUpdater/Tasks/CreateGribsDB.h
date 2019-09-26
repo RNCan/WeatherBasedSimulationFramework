@@ -7,7 +7,7 @@ namespace WBSF
 	class CClimaticChange;
 
 	//**************************************************************
-	class CCreateGribsDB : public CTaskBase
+	class CCreateGribsList : public CTaskBase
 	{
 	public:
 
@@ -15,10 +15,10 @@ namespace WBSF
 		enum TATTRIBUTE { INPUT1, INPUT2, INPUT3, FORECAST1, FORECAST2, FORECAST3, OUTPUT, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
 		
 		static const char* CLASS_NAME();
-		static CTaskPtr create(){ return CTaskPtr(new CCreateGribsDB); }
+		static CTaskPtr create(){ return CTaskPtr(new CCreateGribsList); }
 
-		CCreateGribsDB(void);
-		virtual ~CCreateGribsDB(void);
+		CCreateGribsList(void);
+		virtual ~CCreateGribsList(void);
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 

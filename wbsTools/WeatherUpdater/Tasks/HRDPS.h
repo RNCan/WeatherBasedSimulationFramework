@@ -132,7 +132,7 @@ namespace WBSF
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
 
-		bool m_bCreateGeotiff;
+		bool m_bCreateDailyGeotiff;
 		bool m_createHistiricalGeotiff;
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
@@ -154,6 +154,7 @@ namespace WBSF
 		ERMsg GetPrcpHourToUpdate(std::set<std::string> date_to_update, std::vector < CPrcpHourToUpdate>& hour_to_update, CCallback& callback)const;
 		ERMsg CreateHourlyPrcp(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg CreateHourlySRad(std::set<std::string> outputPath, CCallback& callback)const;
+		ERMsg CreateDailyGrib(std::set<std::string> date_to_update, CCallback& callback)const;
 		
 		static CTRef GetTRef(std::string title, bool bAddForecast);
 		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);

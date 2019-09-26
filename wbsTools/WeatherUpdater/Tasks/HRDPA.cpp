@@ -202,7 +202,7 @@ namespace WBSF
 						nbDownload++;
 						posI++;
 						//convert grib into tif and use the same projection as HRDPS
-						string argument = "-ot Float32 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128";
+						string argument = "-ot Float32 -dstnodata 9999 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +k=90 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";
 						argument += " \"" + filePath + "\" \"" + filePathOut + "\"";
 
