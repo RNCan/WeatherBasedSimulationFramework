@@ -457,6 +457,7 @@ namespace WBSF
 	CSfcDatasetCached::CSfcDatasetCached()
 	{
 		m_bands.fill(UNKNOWN_POS);
+		m_variables_to_load.set();//load all variables by default
 	}
 
 	void CSfcDatasetCached::get_weather(const CGeoPointIndex& in_xy, CHourlyData& data)const
@@ -538,6 +539,66 @@ namespace WBSF
 		}
 	}
 
+	void CSfcDatasetCached::get_weather(const CGeoPointIndex& in_xy, CWeatherDay& data)const
+	{
+		if (m_extents.IsInside(in_xy))
+		{
+			CGeoSize block_size = m_extents.GetBlockSize();
+			CGeoBlockIndex block_ij = m_extents.GetBlockIndex(in_xy);
+			CGeoPointIndex xy = in_xy - m_extents.GetBlockRect(block_ij).UpperLeft();
+
+			CSfcDatasetCached& me = const_cast<CSfcDatasetCached&>(*this);
+			if (!is_cached(block_ij.m_x, block_ij.m_y))
+				me.load_block(block_ij.m_x, block_ij.m_y);
+
+			for (size_t v = 0; v < m_bands.size(); v++)
+			{
+				if (m_bands[v] != NOT_INIT && m_variables_to_load.test(v))
+				{
+					assert(block(block_ij.m_x, block_ij.m_y) != nullptr);
+					assert(is_block_inside(block_ij.m_x, block_ij.m_y));
+
+					if (v < NB_VAR_H)
+					{
+						float value = block(block_ij.m_x, block_ij.m_y)->at(v)->get_value(xy.m_x, xy.m_y);
+						float noData = (float)GetNoData(m_bands[v]);
+						if (fabs(value - m_noData[v]) > 0.1)
+						{
+							switch (v)
+							{
+								//case H_PRCP:	ASSERT(m_units[v]=="kg/(m^2)"); data[v] = float(data[v]*3600.0); break; //[kg/(m²s)] --> [mm/hour]
+							case H_WNDS:	ASSERT(m_units[v] == "[m/s]"); value = float(value * 3600.0 / 1000.0); break; //[m/s] --> [km/h]
+							case H_PRES:	ASSERT(m_units[v] == "[Pa]"); value = float(value / 100.0); break; //[Pa] --> [hPa]
+							case H_SNDH:	ASSERT(m_units[v] == "[m]"); value = float(value / 100.0); break; //[m] --> [cm]	
+							}
+							data.SetStat((TVarH)v, value);
+						}
+					}
+					else if (v == H_UWND)
+					{
+						ASSERT(m_bands[H_UWND] != NOT_INIT && m_bands[H_VWND] != NOT_INIT);
+
+						double U = block(block_ij.m_x, block_ij.m_y)->at(H_UWND)->get_value(xy.m_x, xy.m_y);
+						double V = block(block_ij.m_x, block_ij.m_y)->at(H_VWND)->get_value(xy.m_x, xy.m_y);
+
+						if (fabs(U - m_noData[v]) > 0.1 && fabs(V - m_noData[v]) > 0.1)
+						{
+							//data[H_WNDS] = (float)sqrt(U*U + V * V) * 3600.0 / 1000.0;
+							//data[H_WNDD] = (float)GetWindDirection(U, V, true);
+							data.SetStat(H_WNDS, (float)sqrt(U*U + V * V) * 3600.0 / 1000.0);
+							data.SetStat(H_WNDD, (float)GetWindDirection(U, V, true));
+						}
+
+					}
+					else if (v == H_VWND)
+					{
+						//do nothing
+					}
+				}
+			}
+		}
+	}
+
 	float CSfcDatasetCached::get_variable(const CGeoPointIndex& in_xy, size_t v)const
 	{
 		ASSERT(m_extents.m_yBlockSize == 1);
@@ -573,8 +634,12 @@ namespace WBSF
 
 		if (strVar == "HGT")//geopotentiel height [m]
 			var = H_GHGT;
+		else if (strVar == "TMIN")//temperature [C]
+			var = H_TMIN;
 		else if (strVar == "TMP")//temperature [C]
 			var = H_TAIR;
+		else if (strVar == "TMAX")//temperature [C]
+			var = H_TMAX;
 		//else if (strVar == "PRATE")//Actual precipitation rate [kg/(m^2 s)]
 		else if (strVar == "APCP" || strVar == "APCP01")//Total precipitation [kg/(m^2)]
 			var = H_PRCP;
@@ -992,6 +1057,92 @@ namespace WBSF
 
 	}
 
+	void CSfcDatasetCached::get_weather(const CGeoPoint& pt, CWeatherDay& data)const
+	{
+		static const double POWER = 1;
+
+		//always compute from the 4 nearest points
+		CDailyData4 data4;
+		get_4nearest(pt, data4);
+
+		//compute weight
+		array<CStatistic, NB_VAR_H> sumV;
+		array<CStatistic, NB_VAR_H> sumP;
+		//array<array<array<double, NB_VAR_H>, 2>, 2> weight = { 0 };
+
+		const CGeoExtents& extents = GetExtents();
+		ASSERT(extents.IsInside(pt));
+
+		CGeoPointIndex xy1 = get_ul(pt);
+
+		double nearestD = DBL_MAX;
+
+		CGeoPointIndex nearest;
+		for (size_t y = 0; y < 2; y++)
+		{
+			for (size_t x = 0; x < 2; x++)
+			{
+				CGeoPointIndex xy2 = xy1 + CGeoPointIndex((int)x, (int)y);
+				CGeoPoint pt2 = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
+
+				if (pt2.IsInit())
+				{
+					double d_xy = max(1.0, pt2.GetDistance(pt));//limit to 1 meters to avoid division by zero
+					double p1 = 1 / pow(d_xy, POWER);
+
+					if (d_xy < nearestD)
+					{
+						nearestD = d_xy; nearest = xy2;
+					}
+
+					for (size_t v = 0; v < NB_VAR_H; v++)
+					{
+						if (data4[y][x][TVarH(v)].IsInit())
+						{
+							sumV[v] += data4[y][x][TVarH(v)][MEAN] * p1;
+							sumP[v] += p1;
+							//weight[x][y][v] = p1;
+						}
+					}
+				}//is init
+			}//x
+		}//y
+
+
+		if (nearest.m_x >= 0 && nearest.m_y >= 0)
+		{
+			//if (!bSpaceInterpol)
+			//{
+			//	//take the nearest point
+			//	for (size_t v = 0; v < NB_ATM_VARIABLES; v++)
+			//	{
+			//		if (me[nearest.m_z][nearest.m_y][nearest.m_x][v] > -999)
+			//		{
+			//			sumV[v] = me[nearest.m_z][nearest.m_y][nearest.m_x][v];
+			//			sumP[v] = 1;
+			//		}
+			//	}
+			//}
+
+
+
+			//mean of 
+			for (size_t v = 0; v < NB_VAR_H; v++)
+			{
+				if (!data[TVarH(v)].IsInit())//keep the value of the first grib
+				{
+					if (sumP[v].IsInit())
+					{
+						double value = sumV[v][SUM] / sumP[v][SUM];
+						ASSERT(!_isnan(value) && _finite(value));
+						data.SetStat(TVarH(v), value);
+					}
+				}
+			}
+		}
+
+	}
+
 
 	//bool Verif(sumP)
 	//{
@@ -1038,6 +1189,20 @@ namespace WBSF
 
 	}
 
+	void CSfcDatasetCached::get_nearest(const CGeoPoint& pt, CWeatherDay& data)const
+	{
+		ASSERT(IsOpen());
+
+
+		const CGeoExtents& extents = GetExtents();
+		CGeoPointIndex xy = extents.CoordToXYPos(pt);
+		if (xy.m_x < extents.m_xSize && xy.m_y < extents.m_ySize)
+		{
+			get_weather(xy, data);
+		}//if valid position
+
+	}
+
 
 	void CSfcDatasetCached::get_4nearest(const CGeoPoint& pt, CHourlyData4& data4)const
 	{
@@ -1055,6 +1220,27 @@ namespace WBSF
 				if (xy2.m_x < extents.m_xSize && xy2.m_y < extents.m_ySize)
 				{
 
+					CGeoPoint pt2 = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
+					get_weather(xy2, data4[y][x]);
+				}//if valid position
+			}//x
+		}//y
+	}
+
+	void CSfcDatasetCached::get_4nearest(const CGeoPoint& pt, CDailyData4& data4)const
+	{
+		ASSERT(IsOpen());
+
+		const CGeoExtents& extents = GetExtents();
+		CGeoPointIndex xy1 = get_ul(pt);
+
+		for (size_t y = 0; y < 2; y++)
+		{
+			for (size_t x = 0; x < 2; x++)
+			{
+				CGeoPointIndex xy2 = xy1 + CGeoPointIndex((int)x, (int)y);
+				if (xy2.m_x < extents.m_xSize && xy2.m_y < extents.m_ySize)
+				{
 					CGeoPoint pt2 = extents.GetPixelExtents(xy2).GetCentroid();//Get the center of the cell
 					get_weather(xy2, data4[y][x]);
 				}//if valid position

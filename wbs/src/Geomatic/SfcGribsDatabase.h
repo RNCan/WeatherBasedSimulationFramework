@@ -31,6 +31,8 @@ namespace WBSF
 
 	enum TGribsVariables { H_GHGT = HOURLY_DATA::NB_VAR_H, H_UWND, H_VWND, H_DSWR, H_DLWR, NB_VAR_GRIBS };
 	typedef std::array<std::array< CHourlyData, 2>, 2> CHourlyData4;
+	typedef std::array<std::array< CWeatherDay, 2>, 2> CDailyData4;
+	
 	typedef std::bitset< NB_VAR_GRIBS> GribVariables;
 
 
@@ -161,15 +163,21 @@ namespace WBSF
 		void close();
 
 		void get_weather(const CGeoPointIndex& index, CHourlyData& data)const;
+		void get_weather(const CGeoPointIndex& index, CWeatherDay& data)const;
+		
 		float get_variable(const CGeoPointIndex& index, size_t v)const;
 		bool is_cached(size_t i, size_t j)const { assert(is_block_inside(i, j));  return block(i,j) != nullptr; }
 		size_t get_band(size_t v)const { return m_bands[v]; }
 		const GribVariables& get_variables()const { return m_variables; }
 
 		void get_weather(const CGeoPoint& pt, CHourlyData& data)const;
+		void get_weather(const CGeoPoint& pt, CWeatherDay& data)const;
 		CGeoPointIndex get_ul(const CGeoPoint& ptIn)const;
 		void get_nearest(const CGeoPoint& pt, CHourlyData& data)const;
+		void get_nearest(const CGeoPoint& pt, CWeatherDay& data)const;
 		void get_4nearest(const CGeoPoint& pt, CHourlyData4& data4)const;
+		void get_4nearest(const CGeoPoint& pt, CDailyData4& data4)const;
+		
 
 		CLocationVector get_nearest(const CLocationVector& location, size_t nb_points)const;
 
@@ -195,6 +203,8 @@ namespace WBSF
 		//CSfcWeatherData m_lines;
 		CSfcWeatherData m_blocks;
 	};
+
+	typedef std::shared_ptr<CSfcDatasetCached> CSfcDatasetCachedPtr;
 
 	class CSfcGribDatabase : public CDHDatabaseBase
 	{
