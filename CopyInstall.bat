@@ -36,8 +36,10 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-
 
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
-copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
-copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
+copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.dll" "..\Install\NRCan\Models\SiteIndexClimate.dll"
+copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.mdl" "..\Install\NRCan\Models\SiteIndexClimate.mdl"
+::copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
+::copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
 
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"

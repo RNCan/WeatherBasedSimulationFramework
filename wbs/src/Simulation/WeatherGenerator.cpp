@@ -66,6 +66,237 @@ using namespace WBSF::WEATHER;
 using namespace WBSF::NORMALS_DATA;
 namespace WBSF
 {
+	//old version
+
+
+
+	int old_Sol9(float inlatit, float inelev, float inslope, float inazimuth, float *expin)
+	{
+		static const float midpnt[12] = { 15.5,  45.0,  74.5, 105.0, 135.5, 166.0,
+			196.5, 227.5, 258.0, 288.5, 319.0, 349.5 };
+
+		//  Provided by Paul Bolstad. Modified (efficiency and
+		//	index itself by Regniere 
+		double latit, elev, slope, azimuth;
+
+		//		All angles should be in radians for trig functions, all latitudes,
+		//	longitudes in decimal degrees, and converted to radians for trig 
+
+		//      Solar trajectory formulae taken mostly from Paltridge and Platt, "Radiative
+		//	processes in meteorology and climatology", Elsevier.  Most of the transmittance
+		//	taken from Hoyt, Solar Energy, 1976 
+
+		float   ct1, ct2, st1, st2, sin_declin, cos_declin, sin_sol_zen,
+			cos_sol_zen, sin_latit, cos_latit,
+			sol_zen,               // solar zenith angle
+			sol_alt,               // solar altitude angle
+			sol_azim,              // solar azimuth angle
+			lap_time,              // local apparent time, for hour angle calc.
+			eq_time,               // equation of time, correction for earth orbit velocity non-linearities
+			long_cor = 0.0,          // longitude time correction, 4 minutes for each degree away from t. zone cen. mer
+			declin;                // maximum solar declination for given julian day
+
+		double  flux_exo_atm = 1373.0,   // exo-atmospheric flux, watts/m2
+			trans = 0,                 // transmittance through atmosphere
+			beam,                  // beam irradiance in free air
+			ground_beam,           // beam radiance at ground
+			opt_path,              // optical path, zenith units = 1
+			dif_irrad,             // diffuse irradiance
+			temp1,                 // temporary variables
+			time,
+			time_start = 11.0,       // time values in hours, and are
+			interim,
+			time_stop = 15.0,        // converted to radians for some calcs.
+			time_step = 0.2,         // timestep, in hours, for calculations
+			cosi,                  // cosine of incidence angle      
+			beam_en_flat,          // incident beam on level surface 
+			beam_en;               // incident beam energy for each slope/aspect combination, in watt-hours 
+			//midpnt[12]={ 16.5,  45.5,  75.0, 105.5, 136.0, 166.5,
+			//			197.0, 228.0, 258.5, 289.0, 319.5, 350.};
+			// mid-month day array 
+
+		float   julian_day,        // current day (mid month)
+			Rmax = 250;              // Standard max solar radiation difference between sloped and flat surfaces
+
+		int     vis_fact = 0,        // visibility, 0 for high (clear), 1 for low (hazy)
+			month;                 // current month
+
+
+		elev = inelev;
+		slope = inslope / RAD2DEG;
+		azimuth = inazimuth / RAD2DEG;
+		latit = inlatit / RAD2DEG;
+
+		// compute sin(latit) & cos(latit) 
+		sin_latit = (float)sin(latit);
+		cos_latit = (float)cos(latit);
+
+		// loop over times of year: mid month
+
+		for (month = 0; month < 12; ++month)
+		{
+			//julian_day = (float)midpnt[month];
+			julian_day = (float)(midpnt[month] + 1);//avec le code 0 base
+			temp1 = julian_day * 0.0172141f;
+			ct1 = (float)cos(temp1);
+			st1 = (float)sin(temp1);
+			st2 = (float)(2 * temp1);
+			ct2 = (float)cos(st2);
+			st2 = (float)sin(st2);
+			declin = 0.006918f - 0.399912f*ct1 + 0.070257f*st1 -
+				0.006758f*ct2 + 0.000907f*st2 -
+				(float)(0.002697*cos(3 * temp1) + 0.001480f*sin(3 * temp1));
+
+			// earth axis declination, varies by time of year, can be approximated
+			//using the above formula, based on julian day 
+
+			eq_time = (float)(0.000075 + 0.001868*ct1 - 0.032077*st1 -
+				0.014615*ct2 - 0.040849*st2);
+			// eq_time is in radians, used for calculating solar altitude, azimuth
+
+			// compute sin(declin) and cos(declin)
+			sin_declin = (float)sin(declin);
+			cos_declin = (float)cos(declin);
+
+			beam_en_flat = 0.0;
+			beam_en = 0.0;
+
+			for (time = time_start; time <= time_stop + time_step / 2.; time += time_step) {
+				lap_time = (float)(time*0.261799388);
+				// time by pi/12 = time in radians (2pi rads/24 hours)
+
+				if (lap_time > 3.141592654)
+					lap_time = (float)(lap_time - 3.141592654);
+				else
+					lap_time = (float)(lap_time + 3.141592654);
+
+				lap_time = lap_time + long_cor + eq_time;
+				sol_alt = (float)(asin(sin_declin *sin_latit +
+					cos_declin * cos_latit *cos(lap_time)));
+				if (sol_alt > 0) {
+					sol_zen = (float)(1.570795 - sol_alt);
+					sin_sol_zen = (float)sin(sol_zen);
+					cos_sol_zen = (float)cos(sol_zen);
+					interim = (float)((sin_declin *
+						cos_latit -
+						cos_declin * sin_latit
+						*cos(lap_time))
+						/ cos(sol_alt));
+					if (interim > 1.) interim = 1.;
+					if (interim < -1.) interim = -1.;
+					sol_azim = (float)(6.28318 - acos(interim));
+					opt_path = (float)(1 / (sin(sol_alt) +
+						0.15*pow((sol_alt*RAD2DEG
+							+ 3.885), -1.253)));
+					//  optical path length, longer for lower horizon angles 
+
+					if (vis_fact == 0)            // clear sky, 23 km viz 
+						trans = 0.4237 - 0.00821*
+						pow((6.0 - elev / 1000.), 2) +
+						(0.5055 + 0.00595*
+							pow((6.5 - elev / 1000.), 2))*
+						exp(-(0.2711 + 0.01858*
+							pow((2.5 - elev / 1000.), 2))
+							/ cos_sol_zen);
+
+					beam = flux_exo_atm * exp(-trans * opt_path);
+
+					dif_irrad = beam * 0.136*pow(cos(slope), 2);
+					//				there are a number of ways to calculate diffuse/direct ratios,
+					//				basically different empirical models under different sky
+					//				conditions.  Note, this is only clear sky, and is a value
+					//				for an average elevation of 1200 m, with clear skies.
+					//				I checked three citations, there was not much difference in
+					//				the predictions, and this was the simplest.  Will check two more
+					//				for which I have citations, one of which looks at tropical vs
+					//				temperate vs. boreal diffuse radiation 
+
+					cosi = (cos_sol_zen*cos(slope) +
+						sin_sol_zen * sin(slope)*
+						cos(sol_azim - azimuth));
+
+					//				i is the incidence angle between surface normal and incoming
+					//				beam.  As it approaches 1, full beam energy, as it approaches
+					//				90 deg, beam energy approaches 0, hence, cos function 
+
+					if (cosi < 0.0) cosi = 0.0;
+					ground_beam = beam * cosi;
+					// above adjusts incident ground beam energy for surface normal angles
+
+					beam_en = beam_en + ground_beam + dif_irrad;
+					beam_en_flat = beam_en_flat
+						+ beam * (cos_sol_zen + 0.136);
+
+				} // end if for solar altitude > 0 
+			}  // end of time loop 
+			expin[month] = (float)((beam_en - beam_en_flat) / (Rmax / time_step *
+				(time_stop - time_start)));
+
+		} // end of month loop 
+		return(0);
+	}
+
+	int old_ExposureIndices(float exposure_index[12], float latit, float elev, float psi)
+	{
+		float expin[12];
+		float cos2lat, sin2lat;
+		float slope;
+		float aspect[8] = { 15,    60, 285,   330, 105,    150, 195,    240 };
+		float cos_asp[8] = { 1.f,0.7071f,  0.f,0.7071f,  0.f,-0.7071f, -1.f,-0.7071f };
+		float phi[8] = { 1.,    1.,  1.,    1.,  1.,    -1., -1.,    -1. };
+		float maxt_elev = 4.0f, range95 = 28.1f;
+		int month, ni, i;
+
+		cos2lat = (float)cos(TWO_PI*latit / 360.f);
+		cos2lat = cos2lat * cos2lat;
+		sin2lat = (float)sin(TWO_PI*latit / 360.f);
+		sin2lat = sin2lat * sin2lat;
+
+		for (month = 0; month < 12; ++month)
+			exposure_index[month] = 0;
+
+		ni = 0;
+		for (i = 0; i < 8; ++i) {
+			//compute the slope corresponding to each aspect 
+			slope = psi / (cos2lat*phi[i] + sin2lat * cos_asp[i]);
+
+			if (slope <= 47. && slope >= 0.) {
+				ni = ni + 1;
+				old_Sol9(latit, elev, slope, aspect[i], expin);
+				for (month = 0; month < 12; ++month)
+					exposure_index[month] = exposure_index[month] + expin[month];
+			}
+		}
+		for (month = 0; month < 12; ++month) {
+			//Equation from Paul Bolstad's nstemp8.c program. 
+			if (ni > 0)
+				exposure_index[month] = exposure_index[month] / ni * maxt_elev / range95;
+		}
+		return(0);
+	}
+
+
+	double old_CalculExposition(float fLat, float fPentePourcent, float fOrientation)
+	{
+		static const double DEG_PER_RAD = 57.29577951308;
+		ASSERT(fOrientation >= 0 && fOrientation <= 360);
+
+		//Sin et cos carré
+		double fCosLat2 = cos(fLat / DEG_PER_RAD); fCosLat2 *= fCosLat2;
+		double fSinLat2 = sin(fLat / DEG_PER_RAD); fSinLat2 *= fSinLat2;
+
+		//    double fPente = DEG_PER_RAD * asin( fPentePourcent / 100 );
+		double fPente = DEG_PER_RAD * atan(fPentePourcent / 100);
+
+		ASSERT(fPente >= 0 && fPente <= 90);
+
+
+		int nPhi = ((fOrientation < 135) || (fOrientation >= 255)) ? 1 : -1;
+
+		return fPente * (fCosLat2*nPhi + fSinLat2 * cos((fOrientation - 15) / DEG_PER_RAD));
+
+	}
+
 
 	//mbar	m
 	//1013	0
@@ -215,7 +446,7 @@ namespace WBSF
 				ASSERT(variables1 == variables2);
 				bRep = variables1 == variables2;
 
-				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&bRep; v++)
 				{
 					if (variables1[v])
 					{
@@ -335,7 +566,9 @@ namespace WBSF
 		m_simulationPoints.resize(m_nbReplications);
 
 		for (size_t i = 0; i < m_nbReplications; i++)
+		{
 			((CLocation&)m_simulationPoints[i]) = m_target;
+		}
 
 		//******************************************************************
 		if (m_tgi.IsHourly())
@@ -381,18 +614,18 @@ namespace WBSF
 					bool bPrcomplet = bPr && m_simulationPoints[0].IsComplete("Pres", m_tgi.GetTPeriod());
 					bool bWDcomplet = bWD && m_simulationPoints[0].IsComplete("WndD", m_tgi.GetTPeriod());
 
-					if (msg && bHR && bTPcomplet && bHRcomplet)
+					if (msg && bHR && bTPcomplet && bHRcomplet)//if T and H is complete, compute SRAD here, if not compute it later...
 						msg = ComputeHumidityRadiation(m_simulationPoints[0], m_tgi.m_variables);
 
 					if (msg && bSN && bTPcomplet)
 						msg = ComputeSnow(m_simulationPoints[0], m_tgi.m_variables);
 
 					//fill pressure because not integrated yet into the kernel generator
-					if (msg && bPr && bPrcomplet && !m_tgi.m_bNoFillMissing)
+					if (msg && bPr && !bPrcomplet && !m_tgi.m_bNoFillMissing)
 						msg = ComputePressure(m_simulationPoints[0]);
 
 					//fill wind direction because not integrated yet into the kernel generator
-					if (msg && bWD)
+					if (msg && bWD && !bWDcomplet  && !m_tgi.m_bNoFillMissing)
 						msg = ComputeWindDirection(m_simulationPoints[0]);
 
 					//3- if they are missing mandatory variables, complete with normals 
@@ -458,15 +691,21 @@ namespace WBSF
 		//******************************************************************
 		// compute exposition
 
-		if ((m_tgi.m_variables[H_TMIN] || m_tgi.m_variables[H_TMAX]))
+		if ((m_tgi.m_variables[H_TMIN] || m_tgi.m_variables[H_TAIR] || m_tgi.m_variables[H_TMAX]))
 		{
 
 
 			// Apply exposure overheating on Tmax
 			if (UseExpo())
 			{
-				double exposureIndex[12] = { 0 };
-				ExposureIndices(exposureIndex, m_target.m_lat, m_target.m_elev, m_target.GetSlopeInDegree(), m_target.GetAspect(), (short)m_tgi.m_albedo);
+				//double exposureIndex[12] = { 0 };
+				//ExposureIndices(exposureIndex, m_target.m_lat, m_target.m_elev, m_target.GetSlopeInDegree(), m_target.GetAspect(), (short)m_tgi.m_albedo);
+
+				float exp = old_CalculExposition(m_target.m_lat, m_target.GetSlopeInDegree(), m_target.GetAspect());
+				float exposureIndex[12] = { 0 };
+				int rep = old_ExposureIndices(exposureIndex, m_target.m_lat, m_target.m_elev, exp);
+
+
 
 				for (CSimulationPointVector::iterator itR = m_simulationPoints.begin(); itR != m_simulationPoints.end() && msg; itR++)//for all replication
 				{
@@ -479,8 +718,19 @@ namespace WBSF
 							{
 								if (itD->IsHourly())
 								{
-									//Todo
-									ASSERT(false);
+									double Tmin = (*itD)[H_TMIN][MEAN];
+									//
+									for (size_t h = 0; h < itD->size(); h++)
+									{
+										if (!IsMissing(((*itD)[h][H_TMIN])))
+											(*itD)[h].SetStat(H_TMIN, (*itD)[h][H_TMIN] + float(exposureIndex[m] * ((*itD)[h][H_TMIN] - Tmin)));
+
+										if(!IsMissing(((*itD)[h][H_TAIR])))
+											(*itD)[h].SetStat(H_TAIR, (*itD)[h][H_TAIR] + float(exposureIndex[m] * ((*itD)[h][H_TAIR] - Tmin)));
+
+										if (!IsMissing(((*itD)[h][H_TMAX])))
+											(*itD)[h].SetStat(H_TMAX, (*itD)[h][H_TMAX] + float(exposureIndex[m] * ((*itD)[h][H_TMAX] - Tmin)));
+									}
 								}
 								else
 								{
@@ -537,7 +787,7 @@ namespace WBSF
 			}
 		}
 
-		ASSERT(!msg || VerifyData(m_simulationPoints, m_tgi.m_variables));
+		ASSERT(!msg || m_tgi.m_bNoFillMissing || VerifyData(m_simulationPoints, m_tgi.m_variables));
 
 		return msg;
 
@@ -921,7 +1171,7 @@ namespace WBSF
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
 			CDataInterface& data = simulationPoint[TRef];
-
+			
 			if (!data[H_PRES].IsInit())
 			{
 				data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
@@ -970,20 +1220,28 @@ namespace WBSF
 		assert(m_tgi.m_nbHourlyStations > 0);
 		assert(m_tgi.m_variables.any());
 		assert(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+		ASSERT(((CLocation&)simulationPoint) == m_target);
 
 		ERMsg msg;
+		
+		if (m_tgi.m_searchRadius[H_TAIR] == 0)
+		{
+			msg.ajoute("Search radius of temperature can't be zero for hourly simulation. Defautl is no maximum (-999)");
+			return msg;
+		}
+
+		simulationPoint.SetHourly(true);
 		int currentYear = CTRef::GetCurrentTRef().GetYear();
-		((CLocation&)simulationPoint) = m_target;
+		bool bTair = m_tgi.m_variables[H_TMIN] || m_tgi.m_variables[H_TAIR] || m_tgi.m_variables[H_TMAX];
 
 		for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
 		{
 			int year = m_tgi.GetFirstYear() + int(y);
 
-
 			//first step: get direct observations variables
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (m_tgi.m_variables[v] && (v != H_TMIN && v != H_TMAX))
+				if (((bTair&&v == H_TAIR) || m_tgi.m_variables[v]) && (v != H_TMIN && v != H_TMAX))
 				{
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
@@ -1044,8 +1302,7 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}
 			}//for all category
-
-
+			
 			//second step: get extra observation variables to compute derivable variables
 			if (msg)
 			{
@@ -1167,11 +1424,12 @@ namespace WBSF
 		ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_variables.any());
 		ASSERT(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+		ASSERT(((CLocation&)simulationPoint) == m_target);
 
 		ERMsg msg;
 
 		int currentYear = CTRef::GetCurrentTRef().GetYear();
-		((CLocation&)simulationPoint) = m_target;
+		
 		//CWVariables mVariables = m_tgi.GetMandatoryVariables();
 
 		for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
@@ -1558,6 +1816,13 @@ namespace WBSF
 
 	//*******************************************************************************
 	//exposition 
+
+
+	
+
+
+
+
 
 	void CWeatherGenerator::ExposureIndices(double exposure_index[12], double latit, double elev, float slope, float aspect, short albedoType)
 	{

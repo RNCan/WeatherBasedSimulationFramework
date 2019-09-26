@@ -1,5 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.0:21/08/2019	Rémi Saint-Amant	Correction in generation of hourly Tair when radius is zero
+//											Add exposition factor on hourly values
+//											Update of Circadian cycle in ATM, add maicmum longevity and attrition
+//											Correction in the exposition computation. Old problem since 2007
 // 11.5.10:09/05/2019	Rémi Saint-Amant	Add save model input after model calibration
 // 11.5.9: 16/04/2019	Rémi Saint-Amant	replace stoi by ToInt to avoid exception when empty string. Add message when error in load of parent.
 // 11.5.8: 26/03/2019	Rémi Saint-Amant	Add "if (omp_get_thread_num() == 0)" to avoid slow performance in WeatherGenerator

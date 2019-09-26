@@ -1,9 +1,3 @@
-//********************* JR 9 Jan 1995 ***********************
-//   This program takes as argument the current project path
-//   and set file name from which it should read its set 
-//   parameters. If not provided, current.cfs in the current
-//   directory is used
-//***********************************************************
 #include "ModelBase/BioSIMModelBase.h"
 #include "LaricobiusNigrinus.h"
 namespace WBSF

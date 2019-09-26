@@ -18,6 +18,7 @@ cgah,La Grande IV,53.75,-73.6833,306.3,73015,EC
 cgbc,Baie-Comeau,49.1339,-68.2006,22,821,EC
 cgcl,Causapscal,48.3,-67.25,123,7051201,EC
 cgkl,Schefferville,54.8027,-66.8045,517,995,EC
+cgkm,Schefferville,54.8027,-66.8045,517,749,
 cgln,Lac Albanel,51.1186,-73.1256,389.97,73012,
 cgmd,Dumoine Nord,47.33389,-77.95639,374,211,SOPFEU
 cgmg,Matagami,49.7578,-77.7931,279,73006,EC
@@ -228,7 +229,7 @@ cmwx,Saint-Grégoire,45.348321,-73.156437,49,7027301,SM
 cmwy,Saint-Hilaire,45.532873,-73.160893,96,7027501,SM
 cmwz,Saint-Joseph-du-Lac,45.543389,-74.022502,93,7017420,SM
 cmxb,Saint-Laurent,46.872021,-70.992406,34,7027441,SM
-cmxc,Arundel F,45.967666626,-74.6160736084,184,8000077,FADQ
+cmxc,Arundel F,45.96766663,-74.61607361,184,8000077,FADQ
 cmxd,Saint-Paul-d'Abbotsford,45.449529,-72.887286,99,7027650,SM
 cmxe,LG4  Est,53.9597,-73.0017,378,947,HYDRO
 cmxg,Victoriaville,46.036756,-71.918919,149,7028725,SM
@@ -465,6 +466,7 @@ cwuk,Chapais,49.8222,-74.975,381,524,EC
 cwux,La Baie,48.2978,-70.9192,135,316,EC
 cwuy,Rouyn,48.2461,-79.0342,317,419,EC
 cwvq,Sainte-Anne-de-Bellevue,45.4272,-73.9292,38,11,EC
+cmlu,Lemieux,46.3222,-72.0561,97,189,
 cwvy,Lemieux,46.3222,-72.0561,97,189,EC
 cwxc,Onatchiway,48.8942,-71.0317,303,468,EC
 cwxs,Bas Caraquet,47.8,-64.8333,5,975,EC

@@ -408,46 +408,6 @@ namespace WBSF
 	//**************************************************************************************************************
 	//CSfcVariableLine
 
-	//CSfcVariableLine::CSfcVariableLine(size_t nXBlockSize, int dataType)
-	//{
-	//	int dataSize = GDALGetDataTypeSize((GDALDataType)dataType) / sizeof(char);
-	//	m_ptr = new char[nXBlockSize * dataSize];
-	//	m_xBlockSize = nXBlockSize;
-	//	m_dataType = dataType;
-	//}
-
-	//double CSfcVariableLine::get_value(size_t x)const
-	//{
-	//	double value = 0;
-	//	switch (m_dataType)
-	//	{
-	//	case GDT_Byte:		value = double(((char*)m_ptr)[x]); break;
-	//	case GDT_UInt16:	value = double(((unsigned __int16*)m_ptr)[x]); break;
-	//	case GDT_Int16:		value = double(((__int16*)m_ptr)[x]); break;
-	//	case GDT_UInt32:	value = double(((unsigned __int32*)m_ptr)[x]); break;
-	//	case GDT_Int32:		value = double(((__int32*)m_ptr)[x]); break;
-	//	case GDT_Float32:	value = double(((float*)m_ptr)[x]); break;
-	//	case GDT_Float64:	value = double(((double*)m_ptr)[x]); break;
-	//	}
-
-	//	return value;
-	//}
-
-	//void CSfcVariableLine::set_value(size_t x, double value)
-	//{
-	//	switch (m_dataType)
-	//	{
-	//	case GDT_Byte:		((char*)m_ptr)[x] = (char)value; break;
-	//	case GDT_UInt16:	((unsigned __int16*)m_ptr)[x] = (unsigned __int16)value; break;
-	//	case GDT_Int16:		((__int16*)m_ptr)[x] = (__int16)value; break;
-	//	case GDT_UInt32:	((unsigned __int32*)m_ptr)[x] = (unsigned __int32)value; break;
-	//	case GDT_Int32:		((__int32*)m_ptr)[x] = (__int32)value; break;
-	//	case GDT_Float32:	((float*)m_ptr)[x] = (float)value; break;
-	//	case GDT_Float64:	((double*)m_ptr)[x] = (double)value; break;
-	//	}
-	//}
-
-
 
 
 
