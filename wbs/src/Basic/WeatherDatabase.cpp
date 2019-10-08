@@ -879,11 +879,11 @@ ERMsg CWeatherDatabase::GetStationList(CSearchResultVector& searchResultArray, C
 void CWeatherDatabase::SearchD(CSearchResultVector& searchResultArray, const CLocation& location, double d, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation)const
 {
 	const size_t NB_MATCH_MAX = 3;
-	Search(searchResultArray, location, NB_MATCH_MAX, -1, filter, year, bExcludeUnused, bUseElevation);
+	Search(searchResultArray, location, NB_MATCH_MAX, d, filter, year, bExcludeUnused, bUseElevation);
 
 	//if no stations is farther than the distance with try to fin more stations
 	for (size_t f = 2; f<20 && !searchResultArray.empty() && searchResultArray.back().m_distance < d && searchResultArray.size() < size(); f *= 2)
-		Search(searchResultArray, location, f*NB_MATCH_MAX, -1, filter, year, bExcludeUnused, bUseElevation);
+		Search(searchResultArray, location, f*NB_MATCH_MAX, d, filter, year, bExcludeUnused, bUseElevation);
 
 }
 

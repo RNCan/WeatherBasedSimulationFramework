@@ -7,6 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
+// 07-10-2019	Rémi Saint-Amant	bug correction clean up years
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 #include "StdAfx.h"
@@ -1010,19 +1011,19 @@ namespace WBSF
 		return msg;
 	}
 
-	void CNormalFromDaily::CleanUpYears(CWeatherStation& dailyStation, short firstYear, short lastYear)
+	void CNormalFromDaily::CleanUpYears(CWeatherStation& dailyStation, int firstYear, int lastYear)
 	{
-		//for (size_t y = 0; y < dailyStation.size(); y++)
+		
 		for (auto it = dailyStation.begin(); it != dailyStation.end();)
 		{
 			int year = it->first;
-			if (year >= firstYear || year <= lastYear)
+		
+			if (year >= firstYear && year <= lastYear)//bug correction by RSA 2019-10-07
 			{
-				//CTRef TRef = dailyStation[y].GetTRef();
-				if (!it->second->HaveData())
-					it = dailyStation.erase(it);
-				else
+				if (it->second->HaveData())
 					it++;
+				else
+					it = dailyStation.erase(it);
 			}
 			else
 			{

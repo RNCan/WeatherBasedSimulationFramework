@@ -148,9 +148,10 @@ namespace WBSF
 				double distance = as<double>(DISTANCE);
 				double deltaElev = as<double>(DELTA_ELEV);
 				size_t mergeType = as<size_t>(MERGE_TYPE);
-				
+				size_t priorityRule = as<size_t>(PRIORITY_RULE);
 
-				msg = outputDB.CreateFromMerge(inputFilePath1, inputFilePath2, distance, deltaElev, mergeType, callback);
+				std::string log;
+				msg = outputDB.CreateFromMerge(inputFilePath1, inputFilePath2, distance, deltaElev, mergeType, priorityRule, log, callback);
 				outputDB.Close();
 
 				if (msg)

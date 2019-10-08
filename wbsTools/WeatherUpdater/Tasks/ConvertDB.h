@@ -11,7 +11,7 @@ namespace WBSF
 
 		//typedef std::shared_ptr<CConvertDB>   pointer;
 
-		enum TConvertType {TO_BIOSIM_11, TO_BIOSIM_10, HOURLY_TO_DAILY};
+		enum TConvertType {TO_BIOSIM_11, TO_BIOSIM_10, HOURLY_TO_DAILY, NB_TYPES};
 		enum TAttributes { CONVERT_TYPE, INPUT_FILEPATH, OUTPUT_FILEPATH, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();

@@ -88,7 +88,6 @@ namespace WBSF
 
 
 		ERMsg GetStations(CNormalsStationVector& stationArray, const CSearchResultVector& results)const;
-		ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, CCallback& callback);
 		ERMsg SaveAsV6(const std::string& filePath, CCallback& callback);
 
 

@@ -105,7 +105,7 @@ namespace WBSF
 
 		ERMsg CreateNormalDatabase(CCallback& callback);
 		ERMsg ApplyClimaticChange(CWeatherStation& dailyStation, CMonthlyMeanGrid& cc, size_t p, CCallback& callback);
-		void CleanUpYears(CWeatherStation& dailyStation, short firstYear, short lastYear);
+		void CleanUpYears(CWeatherStation& dailyStation, int firstYear, int lastYear);
 		
 		size_t GetNbDBCreate();
 		size_t GetCCPeriod(size_t i);

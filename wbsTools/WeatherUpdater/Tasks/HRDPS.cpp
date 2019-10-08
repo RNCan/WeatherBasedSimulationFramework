@@ -582,10 +582,19 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-		//for (int d = 1; d <= 24; d++)
-		//	date_to_update.insert(FormatA("201909%02d", d));
-		//msg = CreateDailyGrib(date_to_update, callback);
-		//return msg;
+		/*for (int m = 1; m <= 9; m++)
+		{
+			for (int d = 1; d <= GetNbDayPerMonth(m - 1); d++)
+			{
+				string file_path_out = FormatA("%s2019\\%02d\\%02d\\HRDPSD_2019%02d%02d.tif", m_workingDir.c_str(), m, d, m, d);
+				if (!WBSF::FileExists(file_path_out))
+					date_to_update.insert(FormatA("2019%02d%02d", m, d));
+			}
+		}
+				
+		
+		msg = CreateDailyGeotiff(date_to_update, callback);
+		return msg;*/
 
 		if (date_to_update.empty() && m_createHistiricalGeotiff)
 			date_to_update = GetAll(callback);
@@ -600,11 +609,11 @@ namespace WBSF
 
 			//now, create GeoTiff
 			if (msg )
-				msg = CreateGeotiff(date_to_update, callback);
+				msg = CreateHourlyGeotiff(date_to_update, callback);
 
 			//now, create daily GeoTiff
 			if (msg && m_bCreateDailyGeotiff)
-				msg = CreateDailyGrib(date_to_update, callback);
+				msg = CreateDailyGeotiff(date_to_update, callback);
 		}
 
 		return msg;
@@ -629,7 +638,7 @@ namespace WBSF
 
 
 
-	ERMsg CHRDPS::CreateGeotiff(set<string> outputPath, CCallback& callback)
+	ERMsg CHRDPS::CreateHourlyGeotiff(set<string> outputPath, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -991,7 +1000,7 @@ namespace WBSF
 	}
 
 	//****************************************************************************************************
-	ERMsg CHRDPS::CreateDailyGrib(set<string> date_to_update, CCallback& callback)const
+	ERMsg CHRDPS::CreateDailyGeotiff(set<string> date_to_update, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -1044,6 +1053,11 @@ namespace WBSF
 					options.m_dstNodata = no_data_out;
 					options.m_bOverwrite = true;
 					options.m_bComputeStats = true;
+					options.m_createOptions.push_back("COMPRESS=LZW");
+					options.m_createOptions.push_back("PREDICTOR=3");
+					options.m_createOptions.push_back("TILED=YES");
+					options.m_createOptions.push_back("BLOCKXSIZE=256");
+					options.m_createOptions.push_back("BLOCKYSIZE=256");
 
 
 					CGDALDatasetEx DSout;
@@ -1072,9 +1086,9 @@ namespace WBSF
 										ASSERT(data.size() == stat.size());
 										for (size_t xy = 0; xy < data.size(); xy++)
 										{
-											//strange bug with low value near zero
-											//if (data[xy] > -1E-10 &&data[xy] < 1E-10)
-												//data[xy] = 0;
+											//remove negative precipitation
+											if (v==H_PRCP && data[xy] < 0.01)
+												data[xy] = 0;
 
 											if(data[xy] > -1E10 && fabs(data[xy]- no_data_in)>0.1)
 												stat[xy] += data[xy];

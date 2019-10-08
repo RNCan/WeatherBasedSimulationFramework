@@ -1026,223 +1026,6 @@ namespace WBSF
 	}
 
 
-	ERMsg CNormalsDatabase::CreateFromMerge(const string& filePath1, const string& filePath2, double distance, double deltaElev, size_t mergeType, CCallback& callback)
-	{
-		ASSERT(m_openMode == modeEdit);
-
-		ERMsg msg;
-		//	/*
-		//	string comment;
-		//	comment.FormatMessage(IDS_CMN_MERGE_DATABASE, m_filePath, filePath1, filePath2);
-		//	callback.AddMessage( comment );
-		//	callback.AddMessage("");
-		//
-		//	CNormalsDatabase inputDB1;
-		//	CNormalsDatabase inputDB2;
-		//
-		//	msg += inputDB1.Open( filePath1, CNormalsDatabase::modeReadOnly);
-		//	msg += inputDB2.Open( filePath2, CNormalsDatabase::modeReadOnly);
-		//	
-		//	if( !msg)
-		//		return msg;
-		//
-		//	int nbStationAdded=0;
-		//
-		//	CIntArray DB1Order;
-		//	CIntArray DB2Order;
-		//	inputDB1.GetStationOrder(DB1Order);
-		//	inputDB2.GetStationOrder(DB2Order);
-		//
-		//
-		//	CSortedArray<int,int> addedIndex1;
-		//	CSortedArray<int,int> addedIndex2;
-		//
-		//	callback.SetCurrentDescription( comment );
-		//	callback.SetCurrentStepRange(0, inputDB1.size()+inputDB2.size(), 1);
-		//	callback.SetStartNewStep();
-		//
-		//	for(int _i=0; _i<DB1Order.size()&&msg; _i++)
-		//	{
-		//		int i = DB1Order[_i];
-		//		if( addedIndex1.Lookup(i) != -1 )
-		//			continue;
-		//		
-		//
-		//		CSearchResultVector result1;
-		//		CSearchResultVector result2;
-		//		inputDB1.Match(inputDB1.GetStationHead(i), 6, result1);
-		//		inputDB2.Match(inputDB1.GetStationHead(i), 6, result2);
-		//		
-		//		for(int j=result1.size()-1; j>=0; j--)
-		//		{
-		//			if( result1[j].m_distance > distance || result1[j].m_deltaElev > deltaElev )
-		//			{
-		//				result1.RemoveAt(j);
-		//			}
-		//			else
-		//			{
-		//				//this station was already add with a another station: By RSA 27/05/2008
-		//				if( addedIndex1.Lookup(result1[j].m_index) != -1 )
-		//					result1.RemoveAt(j);
-		//			}
-		//		}
-		//		
-		//		for(int j=result2.size()-1; j>=0; j--)
-		//		{
-		//			if( result2[j].m_distance > distance || result2[j].m_deltaElev > deltaElev )
-		//			{
-		//				result2.RemoveAt(j);
-		//			}
-		//			else
-		//			{
-		//				//this station was already add with a another station
-		//				if( addedIndex2.Lookup(result2[j].m_index) != -1 )
-		//					result2.RemoveAt(j);
-		//			}
-		//		}
-		//
-		//		//there are at least the station itself
-		//		ASSERT( result1.size() > 0);
-		//
-		//		CNormalsStationVector stations1;
-		//		CNormalsStationVector stations2;
-		//		msg += inputDB1.GetStations( result1, stations1);
-		//		msg += inputDB2.GetStations( result2, stations2);
-		//		
-		//		//merge station from DB1 and DB2
-		//		CNormalsStation station;
-		//		msg = MergeStation(stations1, stations2, station, mergeType);
-		//
-		//
-		//		//add index of station merged from DB1		
-		//		for(int j=0; j<result1.size(); j++)
-		//		{
-		//			addedIndex1.AddSorted(result1[j].m_index);
-		//		}
-		//
-		//		//add index of station merged from DB2
-		//		for(int j=0; j<result2.size(); j++)
-		//		{
-		//			addedIndex2.AddSorted(result2[j].m_index);
-		//		}
-		//	
-		//
-		//		VERIFY( Add( station) );
-		//		nbStationAdded++;
-		//		msg += callback.StepIt();
-		//	}
-		//
-		//	//add station only in the DB2
-		//	for(int _i=0; _i<DB2Order.size()&&msg; _i++)
-		//	{
-		//		int i= DB2Order[_i];
-		//		if( addedIndex2.Lookup(i) != -1 )
-		//			continue;
-		//		
-		//
-		//		CSearchResultVector result;
-		//		inputDB2.Match(inputDB2.GetStationHead(i), 6, result);
-		//		
-		//		for(int j=result.size()-1; j>=0; j--)
-		//		{
-		//			if( result[j].m_distance > distance || result[j].m_deltaElev > deltaElev )
-		//				result.RemoveAt(j);
-		//			else
-		//			{
-		//				//this station was already merge
-		//				if( addedIndex2.Lookup(result[j].m_index) != -1 )
-		//					result.RemoveAt(j);
-		//			}
-		//		}
-		//		//there are at least the station itself
-		//		ASSERT( result.size() > 0);
-		//
-		//		
-		//		//msg = MergeStation(inputDB2, inputDB1, result, CSearchResultVector(), station, CDailyStationVector::FROM_MEAN);
-		//		
-		//		CNormalsStationVector stations;
-		//		msg += inputDB2.GetStations( result, stations);
-		//		
-		//		//merge station from DB1 and DB2
-		//		CNormalsStation station;
-		//		msg = MergeStation(stations, CNormalsStationVector(), station, mergeType);
-		//
-		//
-		//		for(int j=0; j<result.size(); j++)
-		//		{
-		//			addedIndex2.AddSorted(result[j].m_index);
-		//		}
-		//		
-		//		
-		//		VERIFY( Add( station) );
-		//		nbStationAdded++;
-		//
-		//		msg += callback.StepIt();
-		//	}
-		//	
-		//	comment.FormatMessage( IDS_CMN_NB_STATIONS_ADDED, IntToString( nbStationAdded )  );
-		//	callback.AddMessage( comment, 1);
-		//	*/
-		return msg;
-	}
-	//
-	//ERMsg CNormalsDatabase::MergeStation( const CNormalsStationVector& stations1, const CNormalsStationVector & stations2, CNormalsStation& station, short mergeType)
-	//{
-	//	ASSERT( stations1.size() > 0);
-	//
-	//	ERMsg msg;
-	//	/*
-	//	
-	//	station.Reset();
-	//
-	//	if( mergeType == MERGE_FROM_MEAN)
-	//	{
-	//		CNormalsStationVector stations;
-	//		stations.Append(stations1);
-	//		stations.Append(stations2);
-	//		//stations.resize(results1.size()+results2.size());
-	//
-	//		//for(int i=0; i<stations.size(); i++)
-	//		//if( stations[i].GetID().Isclear() )
-	//		//{
-	//		//	string name = stations[i].GetName();
-	//		//	int pos = name.Find('-');
-	//		//	if( pos >= 0)
-	//		//		stations[i].SetID(name.Mid(pos+1));
-	//		//}
-	//		//int index = 0;
-	//
-	//
-	//		//if( msg )
-	//		stations.MergeStation( station, mergeType);
-	//		
-	//	}
-	//	else
-	//	{
-	//		//CDailyStationVector stations1;
-	//		//stations1.resize(results1.size());
-	//		//for(int i=0; i<results1.size(); i++)
-	//		//	msg += inputDB1.at( results1[i].m_index, stations1[i] );
-	//
-	//		//CDailyStationVector stations2;
-	//		//stations2.resize(results2.size());
-	//		//for(int i=0; i<results2.size(); i++)
-	//		//	msg += inputDB2.at( results2[i].m_index, stations2[i] );
-	//
-	//		//if( msg )
-	//		//{
-	//		CNormalsStationVector stations;
-	//		stations.resize(2);
-	//
-	//		stations1.MergeStation( stations[0], MERGE_FROM_MEAN);
-	//		stations2.MergeStation( stations[1], MERGE_FROM_MEAN);
-	//		stations.MergeStation( station, mergeType);
-	//		//}
-	//	}
-	//	*/
-	//	return msg;
-	//}
-
 	ERMsg CNormalsDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback)
 	{
 		ERMsg msg;
@@ -1300,7 +1083,82 @@ namespace WBSF
 
 	ERMsg CNormalsDatabase::CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double d, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback)
 	{
+		ASSERT(m_openMode == modeEdit);
+
 		ERMsg msg;
+
+		if (mergeType == MERGE_FROM_MEAN)
+		{
+			msg.ajoute("Merge from mean is not supported for Normals database");
+			return msg;
+		}
+
+
+
+		CNormalsDatabase inputDB1;
+		CNormalsDatabase inputDB2;
+
+		msg += inputDB1.Open(filePath1, CNormalsDatabase::modeRead, callback);
+		msg += inputDB2.Open(filePath2, CNormalsDatabase::modeRead, callback);
+
+		if (!msg)
+			return msg;
+
+
+		string comment = FormatMsg(IDS_CMN_MERGE_DATABASE, m_filePath, filePath1, filePath2);
+		callback.PushTask(comment, inputDB1.size() + inputDB2.size());
+		callback.AddMessage(comment);
+		callback.AddMessage(GetFileTitle(filePath1) + ": " + to_string(inputDB1.size()) + " stations");
+		callback.AddMessage(GetFileTitle(filePath2) + ": " + to_string(inputDB2.size()) + " stations");
+
+
+		CNormalsDatabase& DB1 = (mergeType == MERGE_FROM_DB1) ? inputDB1 : inputDB2;
+		CNormalsDatabase& DB2 = (mergeType == MERGE_FROM_DB1) ? inputDB2 : inputDB1;
+
+		size_t nbStationAdded = 0;
+		for (size_t i = 0; i < DB1.size() && msg; i++)
+		{
+			CNormalsStation station;
+			msg += DB1.Get(station, i);
+
+			Add(station);
+			nbStationAdded++;
+			msg += callback.StepIt();
+		}
+
+		for (size_t i = 0; i < DB2.size() && msg; i++)
+		{
+			CLocation target = DB2[i];
+
+			//add only station not in the radius of the first DB
+			CSearchResultVector result;
+			DB1.SearchD(result, target, d, CWVariables(), -999, true, false);
+
+			bool bAdd = true;
+			for (size_t j = 0; j < result.size() && bAdd; j++)
+			{
+				if (fabs( result[j].m_deltaElev) < deltaElev)
+					bAdd = false;
+			}
+
+			
+			if (bAdd)
+			{
+				CNormalsStation station;
+				msg += DB2.Get(station, i);
+				Add(station);
+				nbStationAdded++;
+			}
+
+
+			
+			msg += callback.StepIt();
+		}
+
+		comment = FormatMsg(IDS_CMN_NB_STATIONS_ADDED, ToString(nbStationAdded));
+		callback.AddMessage(comment, 1);
+		callback.PopTask();
+
 
 		return msg;
 	}

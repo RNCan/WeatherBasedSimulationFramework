@@ -61,8 +61,10 @@ namespace WBSF
 		static CTRef GetLocalTRef(std::string filePath);
 
 		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
-		ERMsg ComputePrcp(std::set<std::string> date_to_update, CCallback& callback)const;
-		ERMsg CreateGeotiff(const std::string& fileList, CCallback& callback)const;
+		ERMsg CreateHourlyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
+		ERMsg CreateHourlyGeotiff(const std::string& fileList, CCallback& callback)const;
+		ERMsg CreateDailyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
+		ERMsg CreateDailyGeotiff(StringVector& filesList, const std::string& file_path_out, CCallback& callback)const;
 		std::set<std::string> GetAll(CCallback& callback)const;
 		//ERMsg CreateVRT(std::set<stdstring> outputPath, CCallback& callback);
 

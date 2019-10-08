@@ -149,12 +149,12 @@ namespace WBSF
 		std::string GetGeotiffFilePath(std::string outputFilePath) { return GetGeotiffFilePath(m_workingDir, outputFilePath); }
 		
 		std::set<std::string> GetAll(CCallback& callback);
-		ERMsg CreateGeotiff(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg CreateHourlyGeotiff(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg CreateDailyGeotiff(std::set<std::string> outputPath, CCallback& callback)const;
 		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetPrcpHourToUpdate(std::set<std::string> date_to_update, std::vector < CPrcpHourToUpdate>& hour_to_update, CCallback& callback)const;
 		ERMsg CreateHourlyPrcp(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg CreateHourlySRad(std::set<std::string> outputPath, CCallback& callback)const;
-		ERMsg CreateDailyGrib(std::set<std::string> date_to_update, CCallback& callback)const;
 		
 		static CTRef GetTRef(std::string title, bool bAddForecast);
 		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);
@@ -175,7 +175,7 @@ namespace WBSF
 
 		ERMsg OpenDatasets(CCallback& callback);
 
-		//ERMsg CreateGeotiff(const std::string& inputFilePath, CCallback& callback)const;
+		
 
 		static size_t GetHRDPSVariable(std::string fileTitle);
 		static size_t GetLevel(std::string fileName);
