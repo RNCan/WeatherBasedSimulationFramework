@@ -11,9 +11,10 @@ namespace WBSF
 
 	namespace LNF
 	{
-		enum TStages{ EGG, LARVAE, PREPUPAE, PUPAE, NB_STAGES, ADULT = NB_STAGES };
-		enum { Ϙ, к, NB_RDR_PARAMS };
-		enum { μ, ѕ, Τᴴ, NB_OVIP_PARAMS };
+		enum TStages{ EGG, LARVAE, PREPUPAE, PUPAE, AESTIVAL_DIAPAUSE_ADULT, ACTIVE_ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT};
+		enum TRDR { Ϙ, к, NB_RDR_PARAMS }; //relative development parameter
+		enum TOvip{ μ, ѕ, Τᴴ, NB_OVP_PARAMS };//oviposition parameters
+		enum TAAD{ ʎ0, ʎ1, ʎ2, NB_AAD_PARAMS };//AdultAestivalDiapause
 	}
 
 
@@ -23,11 +24,13 @@ namespace WBSF
 	{
 	public:
 
-		static const double D[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //development parameter
-		static const double O[LNF::NB_OVIP_PARAMS];//oviposition parameters
+		static const double RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //relative development parameter
+		static const double OVP[LNF::NB_OVP_PARAMS];//oviposition parameters
+		static const double AAD[LNF::NB_AAD_PARAMS];//AdultAestivalDiapause parameters
 		
-		double m_D[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
-		double m_O[LNF::NB_OVIP_PARAMS];
+		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //relative development parameter
+		double m_OVP[LNF::NB_OVP_PARAMS];//oviposition parameters
+		double m_AAD[LNF::NB_AAD_PARAMS];//AdultAestivalDiapause parameters
 		
 		CLaricobiusNigrinusEquations(const CRandomGenerator& RG);
 		
@@ -35,10 +38,12 @@ namespace WBSF
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
-		double GetAdultLongevity()const;
+		double GetAdultLongevity(size_t sex)const;
 		double GetFecondity(double l)const;
 		double GetOvipositionDD()const;
-
+		double GetAdultAestivalDiapauseRate(double T, double dayLength);
+		double GetAdultAbundance(double T, size_t j_day_since_jan);
+		
 	protected:
 		
 		static double Eq7(size_t s, double T);

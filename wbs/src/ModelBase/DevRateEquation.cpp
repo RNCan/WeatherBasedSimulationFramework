@@ -79,7 +79,7 @@ namespace WBSF
 		{"Ratkowsky_1982(Square)","b*(T-Tb)^2","b=0.0002[1E-5,1000]|Tb=10[0,50]"},
 		{"Ratkowsky_1983","pmax(0, a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[0,50]|Tmax=35[0,50]"},
 		{"Regniere_1987","b1*((1/(1+exp(b2-b3*(T-Tb)/(Tm-Tb))))-(exp(((T-Tb)/(Tm-Tb)-1)/b4)))","b1=0.2[1E-6,1]|b2=2[1E-6,10]|b3=6[1E-6,10]|b4=0.15[1E-6,1]|Tb=15[-10,50]|Tm=35[0,50]"},
-		{"Regniere_2012","phi*(exp(bb*pmax(0,T-Tb))-(pmax(0,Tm-T)/(Tm-Tb))*exp(-bb*pmax(0,T-Tb)/deltab)-(pmax(0,T-Tb)/(Tm-Tb))*exp(bb*(Tm-Tb)-pmax(0,Tm-T)/deltam))","phi=0.01[1E-5,1]|bb=-0.01[-10,10]|Tb=7[0,50]|Tm=35[0,50]|deltab=4[1,10]|deltam=5[1,10]"},
+		{"Regniere_2012","ifelse(T>Tb&T<Tm,phi*(exp(bb*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-bb*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(bb*(Tm-Tb)-(Tm-T)/deltam)),0)","phi=0.01[1E-5,1]|bb=-0.01[-10,10]|Tb=7[0,50]|Tm=35[0,50]|deltab=4[1,10]|deltam=5[1,10]"},
 		{"SchoolfieldHigh_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|dd=-0.1[-1E5,1E5]|ee=280[250,350]"},
 		{"SchoolfieldLow_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(bb/1.987*(1/cc-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|bb=-0.1[-1E5,1E5]|cc=280[250,350]"},
 		{"Schoolfield_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(bb/1.987*(1/cc-1/(T+273.16)))+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,1E4]|aa=0.02[-1E5,1E5]|bb=-0.1[-1E5,1E5]|cc=300[250,350]|dd=0.2[-1E5,1E5]|ee=300[200,400]"},
@@ -125,7 +125,7 @@ namespace WBSF
 		return bValid;
 	}
 
-	double CDevRateEquation::GetFValue(CDevRateEquation::TDevRateEquation model, const std::vector<double>& P, double T)
+	double CDevRateEquation::GetRate(CDevRateEquation::TDevRateEquation model, const std::vector<double>& P, double T)
 	{
 
 		double rT = 0;

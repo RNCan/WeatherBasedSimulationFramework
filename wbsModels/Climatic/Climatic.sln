@@ -40,6 +40,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SnowMelt", "SnowMelt.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoilTemperature", "SoilTemperatrue.vcxproj", "{A5A2DB3A-DDE5-4997-B07F-4C990E158596}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LAI", "LAI.vcxproj", "{54241E7D-7867-48E5-95D8-6348A4FCCDA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -198,6 +200,14 @@ Global
 		{A5A2DB3A-DDE5-4997-B07F-4C990E158596}.Release|Win32.Build.0 = Release|Win32
 		{A5A2DB3A-DDE5-4997-B07F-4C990E158596}.Release|x64.ActiveCfg = Release|x64
 		{A5A2DB3A-DDE5-4997-B07F-4C990E158596}.Release|x64.Build.0 = Release|x64
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Debug|Win32.Build.0 = Debug|Win32
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Debug|x64.ActiveCfg = Debug|x64
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Debug|x64.Build.0 = Debug|x64
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Release|Win32.ActiveCfg = Release|Win32
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Release|Win32.Build.0 = Release|Win32
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Release|x64.ActiveCfg = Release|x64
+		{54241E7D-7867-48E5-95D8-6348A4FCCDA5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -23,7 +23,7 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_ADULT, S_AVERAGE_INSTAR, NB_STATS
+			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT, S_DEAD_FROST, NB_STATS
 		};
 	}
 
@@ -67,7 +67,8 @@ namespace WBSF
 		double m_creationCDD;//CDD need to create individual
 		double m_CDD;//actual CDD
 		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
-//		double m_AL; //adult longevity [days]
+		CTRef m_adultDate;
+		double m_adult_longevity; //adult longevity [days]
 		double m_F; //fecundity
 	};
 
@@ -86,8 +87,6 @@ namespace WBSF
 
 	protected:
 
-		//CDegreeDays m_DD;
-		//double m_sumDD;
 	};
 
 	typedef std::shared_ptr<CLNFHost> CLNFHostPtr;

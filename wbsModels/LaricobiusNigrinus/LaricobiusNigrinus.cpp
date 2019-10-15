@@ -4,7 +4,7 @@
 //
 // Description: the CLaricobiusNigrinus represents a group of LNF insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 05/03/2019   Rémi Saint-Amant    Creation
+// 15/10/2019   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
 #include "LaricobiusNigrinusEquations.h"
@@ -39,9 +39,8 @@ namespace WBSF
 
 		m_CDD = 0;
 		m_creationCDD = Equations().GetOvipositionDD();
-		//m_AL = ;
-		//m_AL = 172;//pour calibration seulement
-		m_F = Equations().GetFecondity(Equations().GetAdultLongevity());
+		m_adult_longevity = Equations().GetAdultLongevity(m_sex);
+		m_F = (m_sex == FEMALE)?Equations().GetFecondity(m_adult_longevity) :0;
 	}
 
 
@@ -56,6 +55,10 @@ namespace WBSF
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_RDR[s] = Equations().GetRelativeDevRate(s);
 
+			m_CDD = in.m_CDD;
+			m_creationCDD = in.m_creationCDD;
+			m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
+			m_F = in.m_F;
 		}
 
 		return *this;
@@ -85,36 +88,92 @@ namespace WBSF
 	//*****************************************************************************
 	void CLaricobiusNigrinus::Live(const CHourlyData& weather, size_t timeStep)
 	{
-		assert(IsAlive());
+		assert(IsAlive()); 
 		assert(m_status == HEALTHY);
 
 		CLNFHost* pHost = GetHost();
 		CLNFStand* pStand = GetStand();
-
 		
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
 		double T = weather[H_TAIR];
-		if (GetStage() == PREPUPAE || GetStage() == PUPAE)
+		double nb_steps = (24.0 / timeStep);
+
+		if (s >= PREPUPAE && s<= AESTIVAL_DIAPAUSE_ADULT)
 		{
+			//take air temperature
 			//estimate of soil temperature : need a real model
-			T = T * 0.7 + 1.5;
+			//T = m_Tsoil;
+
+			if (pStand->GetModel()->m_info.m_loc.m_name == "BlacksburgLab")
+			{
+				//lab rearing: change temperature
+				if (s == PREPUPAE)
+					T = 13;
+				else if (s == PUPAE)
+					T = 15;
+				else if (s == AESTIVAL_DIAPAUSE_ADULT && weather.GetTRef().GetYear() == 2003)
+					T = 15;
+				else if (s == AESTIVAL_DIAPAUSE_ADULT && weather.GetTRef().GetYear() == 2004)
+					T = 19;
+			}
+
+
 		}
 		
-		
-		//Time step development rate
-		double r = Equations().GetRate(s, T) / (24.0 / timeStep);
+		if (s < AESTIVAL_DIAPAUSE_ADULT)
+		{
+			//Time step development rate
+			double r = Equations().GetRate(s, T) / nb_steps;
 
-		//Relative development rate for this individual
-		double rr = m_RDR[s];
+			//Relative development rate for this individual
+			double rr = m_RDR[s];
 
-		//Time step development rate for this individual
-		r *= rr;
+			//Time step development rate for this individual
+			r *= rr;
+			ASSERT(r >= 0 && r < 1);
 
-		//Adjust age
-		m_age = min(double(ADULT), m_age + r);
-		
+			//Adjust age
+			//m_age = min(double(ACTIVE_ADULT), m_age + r);
+			m_age += r;
+		}
+		else if(s==AESTIVAL_DIAPAUSE_ADULT)
+		{
 
+			if( !m_adultDate.IsInit())
+				m_adultDate = weather.GetTRef().as(CTM::DAILY);
+
+			double day_length = weather.GetLocation().GetDayLength(weather.GetTRef())/3600.0;//[h]
+			if (pStand->GetModel()->m_info.m_loc.m_name == "BlacksburgLab")
+				day_length = 12;
+
+
+			double r = Equations().GetAdultAestivalDiapauseRate(T, day_length) / nb_steps;
+			//Relative development rate for this individual
+			double rr = m_RDR[s];
+
+			//Time step development rate for this individual
+			r *= rr;
+			ASSERT(r >= 0 && r < 1);
+			
+			m_age += r;
+		}
+		else//ACTIVE_ADULT
+		{
+			//double a = Equations().GetAdultAbundance(weather[H_TAIR], weather.GetTRef().as(CTM::DAILY) - m_creationDate) / nb_steps;
+			double r = (1.0 / m_adult_longevity) / nb_steps;
+			ASSERT(r >= 0 && r < 1);
+
+			//m_age = min( (double)DEAD_ADULT, m_age + r);
+			m_age += r;
+			//m_adult_abundance += a;
+		}
+
+		if (m_age >= DEAD_ADULT)
+		{
+			int g;
+			g = 0;
+		}
 		//adjust overwintering energy
 		//if (s == EGG)
 			//m_OWEnergy -= GetEnergyLost(weather[H_TAIR]) / (24.0 / timeStep);
@@ -129,12 +188,21 @@ namespace WBSF
 	//*****************************************************************************
 	void CLaricobiusNigrinus::Live(const CWeatherDay& weather)
 	{
+		ASSERT(IsCreated(weather.GetTRef()));
 		//For optimization, nothing happens when temperature is under 0
-		if (weather[H_TMIN][MEAN] < 0)
+		if (!IsCreated(weather.GetTRef()))
 			return;
 
+		//after Chapter 13: Defining pc/qc standards for mass - rearing HWA predators
+		//Allen C.Cohen(2011)
+		//double soil_depth = 4.5; //[cm] Equations().m_D[PREPUPAE][0];
+		//double quatile = Equations().m_D[PREPUPAE][1];
+		//double LAI = 2.5;// CLeafAreaIndex::ComputeLAI(weather.GetTRef().GetJDay(), LeafAreaIndex::WHITE_SPRUCE, quatile);
+		//double LAI = 2.5;// Equations().m_D[PREPUPAE][1];
+		//m_Tsoil = CSoilTemperatureModel::GetSoilTemperature(4.5, weather[H_TAIR][MEAN], m_Tsoil, 2.5, 0);
+
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps&&m_age < ADULT; step++)
+		for (size_t step = 0; step < nbSteps&&m_age< DEAD_ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -148,7 +216,7 @@ namespace WBSF
 		assert(IsAlive() && m_sex == FEMALE);
 
 
-		if (GetStage() == ADULT )
+		if (GetStage() == ACTIVE_ADULT)
 		{
 			//assert(m_F > 0);
 
@@ -164,18 +232,26 @@ namespace WBSF
 	void CLaricobiusNigrinus::Die(const CWeatherDay& weather)
 	{
 		//attrition mortality. Killed at the end of time step 
-		//if (GetStage() == DEAD_ADULT)
-		//{
-		//	//Old age
-		//	m_status = DEAD;
-		//	m_death = OLD_AGE;
-		//}
-		//else if (GetStage() != EGG && weather[H_TMIN][MEAN] < -12)
-		//{
-		//	//all non EGG are kill by frost under -10ºC
-		//	//m_status = DEAD;
-		//	//m_death = FROZEN;
-		//}
+		if (GetStage() == DEAD_ADULT)
+		{
+			//Old age
+			m_status = DEAD;
+			m_death = OLD_AGE;
+		}
+		else
+		{
+			size_t s = GetStage();
+			
+			//Preliminary assessment of the cold tolerance of Laricobius nigrinus, a winter - active predator of the hemlock woolly adelgid from western canada
+			//Leland M.Humble
+			static const double COLD_TOLERENCE_T[NB_STAGES] = { -27.5,-22.1, -99.0,-99.0,-19.0,-19.0 };
+			
+			if(weather[H_TMIN][MEAN] < COLD_TOLERENCE_T[s])
+			{
+				m_status = DEAD;
+				m_death = FROZEN;
+			}
+		}
 		
 
 	}
@@ -188,68 +264,25 @@ namespace WBSF
 	//*****************************************************************************
 	void CLaricobiusNigrinus::GetStat(CTRef d, CModelStat& stat)
 	{
-		size_t stage = GetStage();
-
+		size_t s = GetStage();
+		ASSERT(s <= DEAD_ADULT);
 //		stat[S_BROOD] += m_broods * m_scaleFactor;
 
-		if (IsCreated(d) && IsAlive() /*|| stage == DEAD_ADULT*/)
+		if (IsCreated(d) )
 		{
-			stat[S_EGG + stage] += m_scaleFactor;
-//			if(stage>=L1 && stage<=L4)
-				//stat[S_LARVAE] += m_scaleFactor;
+			if( IsAlive() || (s == DEAD_ADULT))
+				stat[S_EGG + s] += m_scaleFactor;
+
 			
-	//		if (stage == ADULT && m_sex == FEMALE && HasChangedStage())
-		//		stat[S_EMERGING_FEMALE] += m_scaleFactor;
+			if(m_status == DEAD && m_death == FROZEN)
+				stat[S_DEAD_FROST] += m_scaleFactor;
+			
+			//if (s == ACTIVE_ADULT)
+			//{
+			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;
+			//}
 		}
 	}
-
-	//Get relative dev rate as function of stage and rate
-	//NOTE: for L2o, special computation is done
-	//double CLaricobiusNigrinus::GetRelativeDevRate(double T, double r)const
-	//{
-	//	size_t s = GetStage();
-	//	double RR = m_relativeDevRate[s] * r;
-	//	if (s == L2o && r > 0)
-	//	{
-	//		//Equation [5] in Régniere 1990
-	//		//Relative dev rate of L2o depend of the age of L2o
-	//		//Adjust Relative dev rate
-	//		double dprime = min(1.0, max(0.25, m_age - L2o));
-	//		double tairp = max(T, 5.0);
-	//		double fat = .091*tairp*pow(dprime, (1.0 - 1.0 / (.091*tairp)));
-	//		RR *= fat;
-	//	}
-
-	//	return RR;
-	//}
-
-	
-
-	//*****************************************************************************
-	// IsDeadByAttrition is for one time step development
-	//
-	// Input: double RR: development (0..1) for this stage
-	//
-	// Output: TRUE if the insect dies, FALSE otherwise
-	//*****************************************************************************
-	//bool CLaricobiusNigrinus::IsDeadByAttrition(double RR)const
-	//{
-	//	bool bDeath = false;
-
-	//	bool bAdultAttrition = GetStage() == ADULT && GetStand()->m_bApplyAdultAttrition;
-	//	if (GetStand()->m_bApplyAttrition || bAdultAttrition)
-	//	{
-	//		if (SURVIVAL_RATE[GetStage()] < 1)
-	//		{
-	//			//Computes attrition (probability of survival in a given time step, based on development rate)
-	//			double probabSurvival = pow(SURVIVAL_RATE[GetStage()], RR);
-	//			if (RandomGenerator().Randu() > probabSurvival)
-	//				bDeath = true;
-	//		}
-	//	}
-
-	//	return bDeath;
-	//}
 
 
 	void CLaricobiusNigrinus::Pack(const CIndividualPtr& pBug)
@@ -272,8 +305,6 @@ namespace WBSF
 
 	CLNFHost::CLNFHost(CStand* pStand) : 
 		CHost(pStand)
-//		m_DD(CDegreeDays::SINGLE_TRIANGLE, 6.8),
-	//	m_sumDD(0)
 	{
 	}
 
@@ -281,15 +312,11 @@ namespace WBSF
 	void CLNFHost::Live(const CWeatherDay& weather)
 	{
 		CHost::Live(weather);
-	//	m_sumDD += m_DD.GetDD(weather);
 	}
 
 	void CLNFHost::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CHost::GetStat(d, stat, generation);
-
-		stat[S_AVERAGE_INSTAR] = GetAI(true);
-		//stat[S_DD68] = m_sumDD;
 	}
 
 //*************************************************

@@ -212,7 +212,7 @@ namespace WBSF
 			}
 		}
 
-		_ASSERTE(firstDay >= -1 && firstDay < size());
+		_ASSERTE(firstDay >= -1 && firstDay < (int)size());
 
 		return firstDay;
 	}

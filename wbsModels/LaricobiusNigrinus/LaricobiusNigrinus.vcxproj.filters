@@ -16,6 +16,12 @@
     <ClCompile Include="LaricobiusNigrinus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Climatic\SoilTemperature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Climatic\LAI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LaricobiusNigrinusModel.h">
@@ -25,6 +31,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="LaricobiusNigrinus.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Climatic\SoilTemperature.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Climatic\LAI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

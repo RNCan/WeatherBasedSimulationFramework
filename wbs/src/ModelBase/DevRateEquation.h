@@ -31,7 +31,7 @@ namespace WBSF
 		};
 
 		static TDevRateEquation e(size_t e) { _ASSERTE(e < NB_EQUATIONS); return (TDevRateEquation)e; }
-		static double GetFValue(TDevRateEquation model, const std::vector<double>& P, double T);
+		static double GetRate(TDevRateEquation model, const std::vector<double>& P, double T);
 		static const char* GetEquationName(TDevRateEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_NAME]; }
 		static const char* GetEquationR(TDevRateEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_R]; }
 
