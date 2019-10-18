@@ -33,7 +33,7 @@ namespace WBSF
 	typedef CWeatherStation CSimulationPoint;
 	typedef CWeatherStationVector CSimulationPointVector;
 
-	class CWeather;
+	//class CWeather;
 	class CWeatherYears;
 
 
