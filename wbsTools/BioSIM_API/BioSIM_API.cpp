@@ -6,9 +6,11 @@
 #include "Basic/DynamicRessource.h"
 #include "Simulation/WeatherGradient.h"
 #include "Simulation/WeatherGenerator.h"
+#include "ModelBase/CommunicationStream.h"
 #include "FileManager/FileManager.h"
 #include "WeatherBasedSimulationString.h"
 #include "Basic/Shore.h"
+
 
 //#include "json\json11.hpp"
 //using namespace json11;
@@ -24,7 +26,8 @@
 //#include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/copy.hpp>
 
-#pragma warning(disable: 4275 4251)
+#pragma warning(disable: 4275 4251 4005)
+
 #include "gdal_priv.h"
 
 
@@ -35,8 +38,9 @@ using namespace std;
 namespace py = pybind11;
 
 using namespace WBSF;
-using namespace HOURLY_DATA;
-using namespace NORMALS_DATA;
+using namespace WBSF::WEATHER;
+using namespace WBSF::HOURLY_DATA;
+using namespace WBSF::NORMALS_DATA;
 extern HMODULE g_hDLL;
 
 namespace WBSF
@@ -60,6 +64,31 @@ namespace WBSF
 
 		return str;
 	}
+
+
+	static std::string serialize_xml(const zen::XmlElement& xml)
+	{
+		std::string stream;
+		zen::implementation::serialize(xml, stream, "\n", "    ", 0);
+
+		return stream;
+
+	}
+
+	static CLocation GetLocation(const std::string& metadata)
+	{
+		CLocation location;
+
+
+		zen::XmlDoc doc = zen::parse(metadata);
+		zen::XmlElement* pLoc = doc.root().getChild(CLocation::GetXMLFlag());
+		ASSERT(pLoc);
+		if (pLoc)
+			readStruc(*pLoc, location);
+
+		return location;
+	}
+
 	//******************************************************************************************************************************
 
 	ERMsg CSfcGribExtractor::open(const std::string& gribsList)
@@ -129,18 +158,16 @@ namespace WBSF
 	//******************************************************************************************************************************
 
 
-	const char* WeatherGeneratorOptions::NAME[NB_PAPAMS] =
+	const char* WeatherGeneratorOptions::PARAM_NAME[NB_PAPAMS] =
 	{
 		"VARIABLES", "SOURCE", "GENERATION", "REPLICATIONS",
-		"LATITUDE", "LONGITUDE", "ELEVATION", "SLOPE", "ORIENTATION",
+		"ID", "NAME", "LATITUDE", "LONGITUDE", "ELEVATION", "SLOPE", "ORIENTATION",
 		"NB_NEAREST_NEIGHBOR", "FIRST_YEAR", "LAST_YEAR","NB_YEARS",
 		"SEED", "NORMALS_INFO", "COMPRESS"
 	};
 
 	WeatherGeneratorOptions::WeatherGeneratorOptions()
 	{
-
-
 		m_sourceType = 1;
 		m_generationType = 1;
 		m_variables = "TN T TX P";
@@ -169,10 +196,10 @@ namespace WBSF
 			StringVector option(args[i], "=");
 			if (option.size() == 2)
 			{
-				auto it = std::find(begin(NAME), end(NAME), MakeUpper(option[0]));
-				if (it != end(NAME))
+				auto it = std::find(begin(PARAM_NAME), end(PARAM_NAME), MakeUpper(option[0]));
+				if (it != end(PARAM_NAME))
 				{
-					size_t o = distance(begin(NAME), it);
+					size_t o = distance(begin(PARAM_NAME), it);
 					switch (o)
 					{
 					case VARIABLES:				m_variables = option[1]; break;
@@ -198,6 +225,8 @@ namespace WBSF
 
 						break;
 					}
+					case KEY_ID: m_ID = option[1]; break;
+					case NAME:m_name = option[1]; break;
 					case LATITUDE:
 					{
 						m_latitude = ToDouble(option[1]);
@@ -245,6 +274,7 @@ namespace WBSF
 
 						break;
 					}
+					case NB_YEARS:			m_nb_years = ToInt(option[1]); break;
 					case SEED:				   m_seed = ToInt(option[1]); break;
 					case COMPRESS:			m_compress = ToBool(option[1]); break;
 					case REPLICATIONS:		   m_replications = ToInt(option[1]); break;
@@ -265,6 +295,126 @@ namespace WBSF
 		if (m_first_year > m_last_year)
 			msg.ajoute("Last year (" + to_string(m_last_year) + ") must be greater or equal to first year (" + to_string(m_first_year) + ") .");
 
+
+		return msg;
+	}
+
+	//Load WGInput 
+	CWGInput WeatherGeneratorOptions::GetWGInput()const
+	{
+		//Load WGInput 
+		CWGInput WGInput;
+
+
+		WGInput.m_variables = m_variables;
+		WGInput.m_sourceType = m_sourceType;
+		WGInput.m_generationType = m_generationType;
+		WGInput.m_nbNormalsYears = m_nb_years;
+		WGInput.m_firstYear = m_first_year;
+		WGInput.m_lastYear = m_last_year;
+		WGInput.m_bUseForecast = true;
+		WGInput.m_bUseGribs = false;
+
+		WGInput.m_nbNormalsStations = m_nb_nearest_neighbor;
+		WGInput.m_nbDailyStations = m_nb_nearest_neighbor;
+		WGInput.m_nbHourlyStations = m_nb_nearest_neighbor;
+		WGInput.m_nbGribPoints = m_nb_nearest_neighbor;
+		//WGInput.m_albedo;
+		WGInput.m_seed = m_seed;
+		WGInput.m_bXValidation = false;
+		WGInput.m_bSkipVerify = true;
+		WGInput.m_bNoFillMissing = false;
+		WGInput.m_bUseShore = true;
+		//CWVariables m_allowedDerivedVariables;
+		//CSearchRadius m_searchRadius;
+
+		return WGInput;
+	}
+	//******************************************************************************************************************************
+
+
+
+
+	const char* ModelExecutionOptions::PARAM_NAME[NB_PAPAMS] =
+	{
+		"PARAMETERS", "REPLICATIONS", "SEED", "COMPRESS"
+	};
+
+	ModelExecutionOptions::ModelExecutionOptions()
+	{
+		m_replications = 1;
+		m_seed = 0;
+		m_compress = true;
+	}
+
+	ERMsg ModelExecutionOptions::parse(const string& str_options)
+	{
+		ERMsg msg;
+
+		StringVector args(str_options, "&");
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			StringVector option(args[i], "=");
+			if (option.size() == 2)
+			{
+				auto it = std::find(begin(PARAM_NAME), end(PARAM_NAME), MakeUpper(option[0]));
+				if (it != end(PARAM_NAME))
+				{
+					size_t o = distance(begin(PARAM_NAME), it);
+					switch (o)
+					{
+					case PARAMETERS:	m_parameters = option[1]; break;
+					case SEED:			m_seed = ToInt(option[1]); break;
+					case COMPRESS:		m_compress = ToBool(option[1]); break;
+					case REPLICATIONS:	m_replications = ToInt(option[1]); break;
+					default: ASSERT(false);
+					}
+				}
+				else
+				{
+					msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
+
+		return msg;
+	}
+
+	//Load WGInput 
+	ERMsg ModelExecutionOptions::GetModelInput(const CModel& model, CModelInput& modelInput)const
+	{
+		ERMsg msg;
+
+		//Get default parameters
+		model.GetDefaultParameter(modelInput);
+
+		//update parameters		
+		StringVector args(m_parameters, " ");//parameters separate by space, must not have space in name
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			StringVector option(args[i], ":");
+			if (option.size() == 2)
+			{
+				string name = option[0];
+				auto it = find_if(modelInput.begin(), modelInput.end(), [name](const CModelInputParam& m) -> bool { return WBSF::IsEqual(m.m_name, name); });
+				if (it != modelInput.end())
+				{
+					it->m_value = option[1];
+				}
+				else
+				{
+					msg.ajoute("Invalid model input parameters " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in  model input parameters  " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
 
 		return msg;
 	}
@@ -419,11 +569,12 @@ namespace WBSF
 		return msg;
 	}
 
-	Output WeatherGenerator::Generate(const std::string& str_options)
+
+	teleIO WeatherGenerator::Generate(const std::string& str_options)
 	{
 		ERMsg msg;
 		CCallback callback;
-		Output output;
+		teleIO output;
 		//string output;
 
 		try
@@ -440,33 +591,12 @@ namespace WBSF
 
 				if (msg)
 				{
-					CLocation location("", "", options.m_latitude, options.m_longitude, options.m_elevation);
+					CLocation location(options.m_name, options.m_ID, options.m_latitude, options.m_longitude, options.m_elevation);
 
 					//Load WGInput 
-					CWGInput WGInput;
+					CWGInput WGInput = options.GetWGInput();
 
-					WGInput.m_variables = options.m_variables;
-					WGInput.m_sourceType = options.m_sourceType;
-					WGInput.m_generationType = options.m_generationType;
-					WGInput.m_nbNormalsYears = options.m_nb_years;
-					WGInput.m_firstYear = options.m_first_year;
-					WGInput.m_lastYear = options.m_last_year;
-					WGInput.m_bUseForecast = true;
-					WGInput.m_bUseGribs = false;
-
-					WGInput.m_nbNormalsStations = options.m_nb_nearest_neighbor;
-					WGInput.m_nbDailyStations = options.m_nb_nearest_neighbor;
-					WGInput.m_nbHourlyStations = options.m_nb_nearest_neighbor;
-					WGInput.m_nbGribPoints = options.m_nb_nearest_neighbor;
-					//WGInput.m_albedo;
-					WGInput.m_seed = options.m_seed;
-					WGInput.m_bXValidation = false;
-					WGInput.m_bSkipVerify = true;
-					WGInput.m_bNoFillMissing = false;
-					WGInput.m_bUseShore = true;
-					//CWVariables m_allowedDerivedVariables;
-					//CSearchRadius m_searchRadius;
-
+					//init random generator
 					CRandomGenerator rand(WGInput.m_seed);
 					unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
 
@@ -494,23 +624,25 @@ namespace WBSF
 						}
 						out.push(sender);
 
+
 						for (size_t r = 0; r < m_pWeatherGenerator->GetNbReplications() && msg; r++)
 						{
 							//write info and weather to the stream
 							const CSimulationPoint& weather = m_pWeatherGenerator->GetWeather(r);
 							CTM TM = weather.GetTM();
-
-							//							sender << "Replication" + to_string(r + 1) << endl;
 							msg = ((CWeatherYears&)weather).SaveData(sender, TM, ',');
-
 
 						}   // for replication
 
 
+						zen::XmlElement root("Metadata");
+						zen::writeStruc(location, root.addChild(CLocation::GetXMLFlag()));
+						output.m_metadata = serialize_xml(root);
 
 						std::stringstream compressed;
 						boost::iostreams::copy(out, compressed);
 
+						output.m_compress = options.m_compress;
 						if (options.m_compress)
 							output.m_data = py::bytes(compressed.str());
 						else
@@ -551,11 +683,11 @@ namespace WBSF
 	}
 
 
-	Output WeatherGenerator::GenerateGribs(const std::string& str_options)
+	teleIO WeatherGenerator::GenerateGribs(const std::string& str_options)
 	{
 		ERMsg msg;
 		CCallback callback;
-		Output output;
+		teleIO output;
 
 		try
 		{
@@ -573,13 +705,13 @@ namespace WBSF
 
 				if (msg)
 				{
-					CLocation location("", "", options.m_latitude, options.m_longitude, options.m_elevation);
-					
+					CLocation location(options.m_name, options.m_ID, options.m_latitude, options.m_longitude, options.m_elevation);
+
 
 					CWeatherYears data;
 					m_pGribsDB->extract(location, data);
 
-					std::stringstream sender;
+					std::stringstream stream;
 					CStatistic::SetVMiss(-999);
 
 					boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
@@ -589,34 +721,117 @@ namespace WBSF
 						p.file_name = "data.csv";
 						out.push(boost::iostreams::gzip_compressor(p));
 					}
-					out.push(sender);
+					out.push(stream);
 
-					//for (size_t r = 0; r < m_pWeatherGenerator->GetNbReplications() && msg; r++)
-					//{
-						//write info and weather to the stream
-//					const CSimulationPoint& weather = m_pWeatherGenerator->GetWeather(r);
+
 					CTM TM = data.GetTM();
-
 					CWeatherFormat format(TM, options.m_variables);//get default format
-					msg = data.SaveData(sender, TM, format, ',');
+					msg = data.SaveData(stream, TM, format, ',');
 
-					//}   // for replication
+					zen::XmlElement root("Metadata");
+					zen::writeStruc(location, root.addChild(CLocation::GetXMLFlag()));
+					output.m_metadata = serialize_xml(root);
 
 
 
 					std::stringstream compressed;
 					boost::iostreams::copy(out, compressed);
 
+					output.m_compress = options.m_compress;
 					if (options.m_compress)
 						output.m_data = py::bytes(compressed.str());
 					else
 						output.m_text = compressed.str();
-
-
-
-
 				}
 			}
+
+			timer.Stop();
+
+		}
+		catch (...)
+		{
+			int i;
+			i = 0;
+		}
+
+
+		output.m_msg = get_string(msg);
+		output.m_comment = ANSI_UTF8(callback.GetMessages());
+
+
+		return output;
+	}
+
+	teleIO WeatherGenerator::GetNormals(const std::string& str_options)
+	{
+		ERMsg msg;
+		CCallback callback;
+		teleIO output;
+
+		try
+		{
+			CTimer timer(TRUE);
+			WeatherGeneratorOptions options;
+			msg = options.parse(str_options);
+
+			if (msg)
+			{
+
+				if (options.m_elevation < -100)
+					msg = ComputeElevation(options.m_latitude, options.m_longitude, options.m_elevation);
+
+				if (msg)
+				{
+					CLocation location(options.m_name, options.m_ID, options.m_latitude, options.m_longitude, options.m_elevation);
+
+					//Load WGInput 
+					CWGInput WGInput = options.GetWGInput();
+
+					CRandomGenerator rand(WGInput.m_seed);
+					unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+
+					m_pWeatherGenerator->SetSeed(seed);
+					m_pWeatherGenerator->SetNbReplications(options.m_replications);
+					m_pWeatherGenerator->SetWGInput(WGInput);
+					m_pWeatherGenerator->SetTarget(location);
+
+					CNormalsStation normals;
+					msg = m_pWeatherGenerator->GetNormals(normals, callback);
+
+
+					if (msg)
+					{
+						// Compress
+						std::stringstream stream;
+						//CStatistic::SetVMiss(-999);
+
+						boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+						if (options.m_compress)
+						{
+							boost::iostreams::gzip_params p;
+							p.file_name = "data.csv";
+							out.push(boost::iostreams::gzip_compressor(p));
+						}
+						out.push(stream);
+
+						SaveNormals(stream, normals);
+						zen::XmlElement root("Metadata");
+						zen::writeStruc(location, root.addChild(CLocation::GetXMLFlag()));
+						output.m_metadata = serialize_xml(root);
+
+
+						std::stringstream compressed;
+						boost::iostreams::copy(out, compressed);
+
+						output.m_compress = options.m_compress;
+						if (options.m_compress)
+							output.m_data = py::bytes(compressed.str());
+						else
+							output.m_text = compressed.str();
+
+					}
+				}
+			}	// if (msg)
 
 			timer.Stop();
 
@@ -630,13 +845,358 @@ namespace WBSF
 		output.m_msg = get_string(msg);
 		output.m_comment = ANSI_UTF8(callback.GetMessages());
 
+		return output;
+
+	}
+
+	void WeatherGenerator::SaveNormals(std::ostream& out, const CNormalsStation& normals)
+	{
+		//write header
+		out << "Month";
+		for (size_t f = 0; f != NB_FIELDS; f++)
+			out << ',' << GetFieldHeader(f);
+
+		out << endl;
+
+		for (size_t m = 0; m != normals.size(); m++)
+		{
+			string line = FormatA("%02d", int(m + 1));
+
+			for (size_t f = 0; f != normals[m].size(); f++)
+			{
+				if (!IsMissing(normals[m][f]))
+				{
+					string format = "%7." + to_string(GetNormalDataPrecision((int)f)) + "f";
+					string value = FormatA(format.c_str(), normals[m][f]);
+					line += "," + value;
+				}
+				else
+				{
+					line += ", -999.0";
+				}
+
+			}
+
+			out << line << endl;
+		}
+	}
+
+
+	//******************************************************************************************************************************
+
+
+	const char* ModelExecution::NAME[NB_PAPAMS] = { "MODEL" };
+
+
+	ModelExecution::ModelExecution(const std::string &)
+	{
+
+	}
+
+	std::string ModelExecution::Initialize(const std::string& str_options)
+	{
+		ERMsg msg;
+
+		try
+		{
+			CDynamicResources::set(g_hDLL);
+			CCallback callback;
+
+			StringVector args(str_options, "&");
+			for (size_t i = 0; i < args.size(); i++)
+			{
+				StringVector option(args[i], "=");
+				if (option.size() == 2)
+				{
+					auto it = std::find(begin(NAME), end(NAME), MakeUpper(option[0]));
+					if (it != end(NAME))
+					{
+						size_t o = distance(begin(NAME), it);
+						switch (o)
+						{
+						case MODEL:
+						{
+
+							m_pModel.reset(new CModel);
+							msg += m_pModel->Load(option[1]);
+							if (msg)
+								msg += m_pModel->LoadDLL();
+
+							break;
+						}
+
+						default: ASSERT(false);
+						}
+					}
+					else
+					{
+						msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+					}
+				}
+				else
+				{
+					msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+		}
+		catch (...)
+		{
+			int i;
+			i = 0;
+		}
+
+		return get_string(msg);
+	}
+
+
+	teleIO ModelExecution::Execute(const std::string& str_options, const teleIO& input)
+	{
+		teleIO output;
+
+		ERMsg msg;
+		CCallback callback;
+
+		ModelExecutionOptions options;
+		msg += options.parse(str_options);
+		if (msg)
+		{
+
+			CSimulationPointVector simulationPoints;
+			msg += LoadWeather(input, simulationPoints);
+
+
+
+			CModelInput modelInput;
+			msg += options.GetModelInput(*m_pModel, modelInput);
+			CParameterVector pOut = m_pModel->GetOutputDefinition().GetParametersVector();
+			string header;
+			for (size_t i = 0; i < pOut.size(); i++)
+				header += (i==0?"":",") + pOut[i].m_name;
+			//load files in memory for stream transfer
+	//		stringstream staticDataStream;
+			//msg = LoadStaticData(fileManager, model, modelInputVector.m_pioneer, staticDataStream);
+			//if (msg)
+			//	msg = model.SetStaticData(staticDataStream);
+
+	//		staticDataStream.clear();//clear any bits set
+		//	staticDataStream.str(std::string());
+
+			//if (!msg)
+				//return msg;
+
+			if (msg)
+			{
+				// Compress
+				std::stringstream stream;
+				//CStatistic::SetVMiss(-999);
+
+				boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+				if (options.m_compress)
+				{
+					boost::iostreams::gzip_params p;
+					p.file_name = "data.csv";
+					out.push(boost::iostreams::gzip_compressor(p));
+				}
+				out.push(stream);
+
+
+				CRandomGenerator rand(options.m_seed);
+				vector<unsigned long> seeds(options.m_replications);
+				for (vector<unsigned long>::iterator it = seeds.begin(); it != seeds.end(); it++)
+					*it = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+
+
+				for (size_t s = 0; s < simulationPoints.size() && msg; s++)
+				{
+					//write info and weather to the stream
+					const CSimulationPoint& simulationPoint = simulationPoints[s];
+					ASSERT(!simulationPoint.empty());
+
+					for (size_t r = 0; r < seeds.size() && msg; r++)
+					{
+						stringstream inStream;
+						stringstream outStream;
+
+						//get transfer info
+						CTransferInfoIn info = FillTransferInfo(*m_pModel, simulationPoint, modelInput, seeds[r], s*seeds.size() + r, seeds.size()*simulationPoints.size());
+						CCommunicationStream::WriteInputStream(info, simulationPoint, inStream);
+
+						msg += m_pModel->RunModel(inStream, outStream);	// call DLL
+						if (msg)
+						{
+							//get output from stream
+							CTransferInfoOut infoOut;
+							CModelStatVector result;
+							msg += CCommunicationStream::ReadOutputStream(outStream, infoOut, result);
+							//section.SetMissing(model.GetMissValue());
+							if (msg)
+							{
+								result.SetHeader(header);
+								result.Save(stream);
+								//msg.ajoute(FormatMsg(IDS_SIM_SIMULATION_ERROR, ToString(1), location.m_name, location.m_ID));
+							}
+
+						}// if (msg)
+					}//for all model replications
+				}//for all weather replications
+
+
+
+
+				std::stringstream compressed;
+				boost::iostreams::copy(out, compressed);
+
+				zen::XmlElement root("Metadata");
+				zen::writeStruc(modelInput, root.addChild(CModelInput::GetXMLFlag()));
+				output.m_metadata = serialize_xml(root);
+
+
+				output.m_compress = options.m_compress;
+				if (options.m_compress)
+					output.m_data = py::bytes(compressed.str());
+				else
+					output.m_text = compressed.str();
+
+			}
+		}
+
+		output.m_msg = get_string(msg);
+		output.m_comment = ANSI_UTF8(callback.GetMessages());
 
 		return output;
 	}
 
 
-}
 
+
+	CTransferInfoIn ModelExecution::FillTransferInfo(const CModel& model, const CLocation& locations, const CModelInput& modelInput, size_t seed, size_t r, size_t n_r)
+	{
+		ASSERT(model.GetTransferFileVersion() == CModel::VERSION_STREAM);
+
+		CTransferInfoIn info;
+		info.m_transferTypeVersion = CModel::VERSION_STREAM;
+		info.m_modelName = model.GetName();
+
+		info.m_locCounter = CCounter(0, 1);
+		info.m_paramCounter = CCounter(0, 1);
+		info.m_repCounter = CCounter(r, n_r);
+
+
+		info.m_loc = locations;
+		info.m_inputParameters = modelInput.GetParametersVector();
+		info.m_outputVariables = model.GetOutputDefinition().GetParametersVector();
+		info.m_seed = seed;
+		info.m_TM = model.m_outputTM;
+		info.m_language = CRegistry::ENGLISH;
+
+		return info;
+	}
+
+
+	ERMsg SaveWeather(const CSimulationPointVector& simulationPoints, teleIO& IO)
+	{
+		ERMsg msg;
+
+		CLocation loc = simulationPoints.front();
+		string test = zen::to_string(loc, "Location", "1");
+
+		// Compress
+		std::stringstream sender;
+		CStatistic::SetVMiss(-999);
+
+		boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+		if (IO.m_compress)
+		{
+			boost::iostreams::gzip_params p;
+			p.file_name = "data.csv";
+			out.push(boost::iostreams::gzip_compressor(p));
+		}
+		out.push(sender);
+
+
+		for (size_t r = 0; r < simulationPoints.size() && msg; r++)
+		{
+			//write info and weather to the stream
+			const CSimulationPoint& weather = simulationPoints[r];
+			CTM TM = weather.GetTM();
+			msg = ((CWeatherYears&)weather).SaveData(sender, TM, ',');
+
+		}   // for replication
+
+
+		std::stringstream compressed;
+		boost::iostreams::copy(out, compressed);
+
+		if (IO.m_compress)
+			IO.m_data = py::bytes(compressed.str());
+		else
+			IO.m_text = compressed.str();
+
+
+		return msg;
+	}
+
+	ERMsg LoadWeather(const teleIO& IO, CSimulationPointVector& simulationPoints)
+	{
+		ERMsg msg;
+
+		CLocation location = GetLocation(IO.m_metadata);
+		//zen::from_string(loc, IO.m_metadata);
+
+		try
+		{
+			boost::iostreams::filtering_istreambuf in;
+			if (IO.m_compress)
+				in.push(boost::iostreams::gzip_decompressor());
+
+			std::string s = py::cast<std::string>(IO.m_data);
+			stringstream stream(IO.m_compress ? s : IO.m_text);
+			in.push(stream);
+
+			std::istream incoming(&in);
+
+			StringVector replications;
+			string line;
+			while (std::getline(incoming, line) && msg)
+			{
+				if (!line.empty())
+				{
+					bool bNewReplication = WBSF::Find(line.substr(0, 4), "Year");
+					if (bNewReplication)
+					{
+						replications.push_back(line + "\r\n");
+					}
+					else
+					{
+						replications.back() += line + "\r\n";
+					}//good number of column
+				}//line not empty
+			}//for all lines
+
+
+			simulationPoints.resize(replications.size());
+			for (size_t i = 0; i < replications.size(); i++)
+			{
+				((CLocation&)simulationPoints[i]) = location;
+				simulationPoints[i].m_ID = to_string(i + 1);
+				simulationPoints[i].m_name = "Replication" + to_string(i + 1);
+				simulationPoints[i].Parse(replications[i]);
+			}
+
+		}//try
+		catch (const boost::iostreams::gzip_error& exception)
+		{
+			int error = exception.error();
+			if (error == boost::iostreams::gzip::zlib_error)
+			{
+				//check for all error code    
+				msg.ajoute(exception.what());
+			}
+		}
+
+		return msg;
+	}
+}
 
 
 namespace WBSF
@@ -644,13 +1204,13 @@ namespace WBSF
 
 	PYBIND11_MODULE(BioSIM_API, m)
 	{
-		py::class_<Output>(m, "Output")
-			.def_readonly("compress", &Output::m_compress)
-			.def_readonly("msg", &Output::m_msg)
-			.def_readonly("comment", &Output::m_comment)
-			.def_readonly("text", &Output::m_text)
-			.def_readonly("data", &Output::m_data)
-			//.def("__repr__",[](const Output&a) {return a.m_msg + a.m_data;})
+		py::class_<teleIO>(m, "teleIO")
+			.def_readonly("compress", &teleIO::m_compress)
+			.def_readonly("msg", &teleIO::m_msg)
+			.def_readonly("comment", &teleIO::m_comment)
+			.def_readonly("metadata", &teleIO::m_metadata)
+			.def_readonly("text", &teleIO::m_text)
+			.def_readonly("data", &teleIO::m_data)
 			;
 
 		py::class_<WeatherGenerator>(m, "WeatherGenerator")
@@ -658,6 +1218,13 @@ namespace WBSF
 			.def("Initialize", &WeatherGenerator::Initialize)
 			.def("Generate", &WeatherGenerator::Generate)
 			.def("GenerateGribs", &WeatherGenerator::GenerateGribs)
+			.def("GetNormals", &WeatherGenerator::GetNormals)
+			;
+
+		py::class_<ModelExecution>(m, "Model")
+			.def(py::init<const std::string &>())
+			.def("Initialize", &ModelExecution::Initialize)
+			.def("Execute", &ModelExecution::Execute)
 			;
 
 
