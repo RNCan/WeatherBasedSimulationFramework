@@ -47,7 +47,7 @@ namespace WBSF
 
 			for (CTRef TRef = peakDay - int(3 * sigma); TRef <= peakDay + int(3 * sigma) && nbCreated < nbObjects; TRef++)
 			{
-				cumulCreated += sigma>0 ? nbObjects / (sigma*pow((2 * PI), 0.5)) * exp(-0.5*Square((TRef - peakDay) / sigma)) : nbObjects;
+				cumulCreated += sigma > 0 ? nbObjects / (sigma*pow((2 * PI), 0.5)) * exp(-0.5*Square((TRef - peakDay) / sigma)) : nbObjects;
 
 				size_t nbObjectToCreate = size_t(max(0, Round<int>(cumulCreated - nbCreated)));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
@@ -56,7 +56,7 @@ namespace WBSF
 				nbCreated += nbObjectToCreate;
 			}
 
-			ASSERT( abs( int(size()) - int(nbObjects) ) <= 1);
+			ASSERT(abs(int(size()) - int(nbObjects)) <= 1);
 
 			while (size() < nbObjects)
 				push_back(CIndividualInfo(peakDay, age, sex, bFertil, generation, scaleFactor));
@@ -65,7 +65,7 @@ namespace WBSF
 			ASSERT(size() == nbObjects);
 		}
 	}
-	
+
 	void CInitialPopulation::Initialize(size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation)
 	{
 		ASSERT(nbObjects > 0);
@@ -74,17 +74,17 @@ namespace WBSF
 		clear();
 		double scaleFactor = initialPopulation / nbObjects;
 
-		for (size_t i=0; i < nbObjects; i++)
+		for (size_t i = 0; i < nbObjects; i++)
 			push_back(CIndividualInfo(CTRef(), age, sex, bFertil, generation, scaleFactor));
 
 	}
 
 	//**********************************************************************************************
-	
+
 
 	CModelStatVector::CModelStatVector(const CModelStatVector& in, CTM TM, size_t s)
 	{
-		Init(in,TM,s);
+		Init(in, TM, s);
 	}
 
 	CModelStatVector::CModelStatVector(const CModelStatVector& in, const CTTransformation& TT, size_t s)
@@ -110,7 +110,7 @@ namespace WBSF
 		Transform(TT, s);
 	}
 
-	
+
 
 	void CModelStatVector::Init(const CTStatMatrix& in, size_t s)
 	{
@@ -161,7 +161,7 @@ namespace WBSF
 		bool bHaveData = false;
 		for (size_t i = 0; i < size() && !bHaveData; i++)
 			for (size_t j = 0; j < at(i).size() && !bHaveData; j++)
-				bHaveData = at(i).at(j)>m_missingValue;
+				bHaveData = at(i).at(j) > m_missingValue;
 
 
 		return bHaveData;
@@ -184,7 +184,7 @@ namespace WBSF
 			bOp = (value > threshold);
 		else
 			ASSERT(false);
-		
+
 		return bOp;
 
 	}
@@ -205,7 +205,7 @@ namespace WBSF
 		int firstDay = -1;
 		for (int i = fd; i <= ld; i++)
 		{
-			if (test_op(me[i][s], op,  threshold))
+			if (test_op(me[i][s], op, threshold))
 			{
 				firstDay = max(0, i - nbDayBefore);
 				break;
@@ -231,7 +231,7 @@ namespace WBSF
 
 		int fd = p.Begin() - m_firstTRef;
 		int ld = p.End() - m_firstTRef;
-		for (int i = ld; i >= fd&&lastDay == -1; i--)
+		for (int i = ld; i >= fd && lastDay == -1; i--)
 		{
 			if (test_op(me[i][s], op, threshold))
 				lastDay = std::min(int(size() - 1), i + nbDayAfter);
@@ -262,8 +262,8 @@ namespace WBSF
 
 		__int64 version = 1;
 		__int64 nbRows = (__int64)size();//GetNbUsed();
-		__int64 nbCols = (nbRows>0) ? m_nbStat + 1 : 0;
-		__int64 rawSize = nbRows*nbCols*sizeof(float);
+		__int64 nbCols = (nbRows > 0) ? m_nbStat + 1 : 0;
+		__int64 rawSize = nbRows * nbCols * sizeof(float);
 		__int64 realSize = (__int64)size();
 		__int64 nbStat = m_nbStat;
 		__int64 Tref = GetFirstTRef().Get__int32();
@@ -326,7 +326,7 @@ namespace WBSF
 
 
 		_ASSERTE(version == 1);
-		_ASSERTE(rawSize == nbRows*nbCols*sizeof(float));
+		_ASSERTE(rawSize == nbRows * nbCols * sizeof(float));
 		_ASSERTE(m_firstTRef.IsValid());
 
 		return msg;
@@ -342,53 +342,60 @@ namespace WBSF
 		ifStream file;
 		msg = file.open(filePath);
 
-		//bool bHaveHeader
-		//They have header or not????
-		//	if (line.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == string::npos)
-		//	file.SeekToBegin();
-
 		if (msg)
 		{
-			CSVIterator loop(file);
-			m_header = loop.Header().to_string();
-			assert(m_header.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") != string::npos);
-
-			CWeatherFormat format(m_header.c_str());
-			size_t nbReference = format.GetTM().GetNbTimeReferences();
-			m_nbStat = loop.Header().size() - nbReference;
-			assert(m_nbStat > 0 && m_nbStat <= loop.Header().size());
-
-			size_t line = 1;
-			for (; loop != CSVIterator(); ++loop, line++)
-			{
-				//resize(size() + 1);
-				if (!(*loop).empty())
-				{
-					CTRef TRef = format.GetTRef(*loop);
-					if (msg)
-					{
-						if ((*loop).size() == nbReference + m_nbStat)
-						{
-							CModelStat row(m_nbStat);
-							for (size_t j = nbReference; j < (*loop).size(); j++)
-							{
-								row[j - nbReference] = ToDouble((*loop)[j]);
-							}
-
-							Insert(TRef, row);
-						}
-						else
-						{
-							//msg.ajoute(FormatMsg(IDS_SIM_BAD_OUTPUTFILE_FORMAT, filePath, size()));
-							msg.ajoute("Problem reading result file " + filePath + " at line " + ToString(line));
-							msg.ajoute((*loop).GetLastLine());
-						}
-					}
-				}//no empty
-			}//for all lines
+			msg += Load(file);
+			if(!msg)
+				msg.ajoute("Problem reading result file " + filePath);
 
 			file.close();
 		}
+
+		return msg;
+	}
+
+	ERMsg CModelStatVector::Load(std::istream& stream)
+	{
+		ERMsg msg;
+
+		CSVIterator loop(stream);
+		m_header = loop.Header().to_string();
+		assert(m_header.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") != string::npos);
+
+		CWeatherFormat format(m_header.c_str());
+		size_t nbReference = format.GetTM().GetNbTimeReferences();
+		m_nbStat = loop.Header().size() - nbReference;
+		assert(m_nbStat > 0 && m_nbStat <= loop.Header().size());
+
+		size_t line = 1;
+		for (; loop != CSVIterator(); ++loop, line++)
+		{
+			//resize(size() + 1);
+			if (!(*loop).empty())
+			{
+				CTRef TRef = format.GetTRef(*loop);
+				if (msg)
+				{
+					if ((*loop).size() == nbReference + m_nbStat)
+					{
+						CModelStat row(m_nbStat);
+						for (size_t j = nbReference; j < (*loop).size(); j++)
+						{
+							row[j - nbReference] = ToDouble((*loop)[j]);
+						}
+
+						Insert(TRef, row);
+					}
+					else
+					{
+						msg.ajoute("Problem reading line " + ToString(line));
+						msg.ajoute((*loop).GetLastLine());
+					}
+				}
+			}//no empty
+		}//for all lines
+
+
 		return msg;
 	}
 
@@ -399,48 +406,57 @@ namespace WBSF
 		msg = file.open(filePath);
 		if (msg)
 		{
-			//save header if any
-			if (!m_header.empty())
-			{
-				assert(StringVector(m_header, ",").size() == m_nbStat);
-				assert(GetFirstTRef().IsInit());
-
-				CTemporal temporalRef(GetFirstTRef().GetTM());
-				file << temporalRef.GetHeader(",");
-				file << "," << m_header;
-				file << std::endl;
-			}
-
-
-			CTRef d = GetFirstTRef();
-			for (const_iterator it = begin(); it != end(); it++, d++)
-			{
-				if (d.GetTM().Mode() == CTM::FOR_EACH_YEAR)
-				{
-					if (d.GetTM().Type() != CTM::ATEMPORAL)
-						file << d.GetYear();
-					else
-						file << d.m_ref;
-				}
-
-				switch (d.GetTM().Type())
-				{
-				case CTM::HOURLY: file << ',' << d.GetMonth() + 1 << ',' << d.GetDay() + 1 << ',' << d.GetHour(); break;
-				case CTM::DAILY: file << ',' << d.GetMonth() + 1 << ',' << d.GetDay() + 1; break;
-				case CTM::MONTHLY: file << ',' << d.GetMonth() + 1; break;
-				case CTM::ANNUAL: break;
-				case CTM::ATEMPORAL: break;
-				default: _ASSERTE(false);
-				}
-
-				for (CModelStat::const_iterator it2 = it->begin(); it2 != it->end(); it2++)
-					file << ',' << *it2;
-
-				file << std::endl;
-			}
-
+			msg += Save(file);
 			file.close();
 		}
+
+		return msg;
+	}
+
+	ERMsg CModelStatVector::Save(std::ostream& stream)const
+	{
+		ERMsg msg;
+
+		//save header if any
+		if (!m_header.empty())
+		{
+			assert(StringVector(m_header, ",").size() == m_nbStat);
+			assert(GetFirstTRef().IsInit());
+
+			CTemporal temporalRef(GetFirstTRef().GetTM());
+			stream << temporalRef.GetHeader(",");
+			stream << "," << m_header;
+			stream << std::endl;
+		}
+
+
+		CTRef d = GetFirstTRef();
+		for (const_iterator it = begin(); it != end(); it++, d++)
+		{
+			if (d.GetTM().Mode() == CTM::FOR_EACH_YEAR)
+			{
+				if (d.GetTM().Type() != CTM::ATEMPORAL)
+					stream << d.GetYear();
+				else
+					stream << d.m_ref;
+			}
+
+			switch (d.GetTM().Type())
+			{
+			case CTM::HOURLY: stream << ',' << d.GetMonth() + 1 << ',' << d.GetDay() + 1 << ',' << d.GetHour(); break;
+			case CTM::DAILY: stream << ',' << d.GetMonth() + 1 << ',' << d.GetDay() + 1; break;
+			case CTM::MONTHLY: stream << ',' << d.GetMonth() + 1; break;
+			case CTM::ANNUAL: break;
+			case CTM::ATEMPORAL: break;
+			default: _ASSERTE(false);
+			}
+
+			for (CModelStat::const_iterator it2 = it->begin(); it2 != it->end(); it2++)
+				stream << ',' << *it2;
+
+			stream << std::endl;
+		}
+
 
 		return msg;
 	}
@@ -534,7 +550,7 @@ namespace WBSF
 					me[d][v] = value2;
 			}
 		}
-		
+
 	}
 
 	CInitialPopulation CModelStatVector::GetInitialPopulation(size_t var, size_t nbObjects, double initialPopulation, double age, TSex sex, bool bFertil, size_t generation, CTPeriod p)const
@@ -558,7 +574,7 @@ namespace WBSF
 
 			for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 			{
-				cumulCreated += nbObjects*at(TRef).at(var) / stat[SUM];
+				cumulCreated += nbObjects * at(TRef).at(var) / stat[SUM];
 
 				size_t nbObjectToCreate = size_t(max(0, Round<int>(cumulCreated - nbCreated)));
 				for (size_t i = 0; i < nbObjectToCreate; i++)
@@ -604,7 +620,7 @@ namespace WBSF
 		//		}
 		//	}
 		//}
-	
+
 
 
 		//CModelStatVector& me = *this;
@@ -633,7 +649,7 @@ namespace WBSF
 		if (TM != GetTM())
 		{
 			CTTransformation TT(GetTPeriod(), TM);
-			Transform(TT,s);
+			Transform(TT, s);
 		}
 	}
 
@@ -704,9 +720,9 @@ namespace WBSF
 	void CTStatMatrix::Init(const CModelStatVector& in, const CTTransformation& TTin)
 	{
 		CTStatMatrix& me = *this;
-		CTPeriod pIn = TTin.GetPeriodIn().IsInit() ? TTin.GetPeriodIn(): in.GetTPeriod();
-		CTPeriod pOut = TTin.GetPeriodOut().IsInit() ? TTin.GetPeriodOut(): pIn;
-		
+		CTPeriod pIn = TTin.GetPeriodIn().IsInit() ? TTin.GetPeriodIn() : in.GetTPeriod();
+		CTPeriod pOut = TTin.GetPeriodOut().IsInit() ? TTin.GetPeriodOut() : pIn;
+
 		CTTransformation TT(pIn, pOut);
 		CTStatMatrixBase::Init(pOut, in.GetNbStat());
 
@@ -721,7 +737,7 @@ namespace WBSF
 					if (var != -999)
 					{
 						CTRef TRefOut = TT.GetClusterTRef(c);
-						
+
 						me[TRefOut][v] += var;
 					}
 				}
@@ -770,17 +786,17 @@ namespace WBSF
 	{
 		CTStatMatrix tmp;
 		Transform(TT, in, tmp);
-		out.Init(tmp,s);
+		out.Init(tmp, s);
 	}
 
 	void ModelInterface::Transform(const CTTransformation& TT, const CModelStatVector& in, CTStatMatrix& out)
 	{
 		out.Init(in, TT);
-		
+
 
 		//CTPeriod pIn = TT.GetPeriodIn().IsInit() ? TT.GetPeriodIn():in.GetTPeriod();
 		//CTPeriod pOut = TT.GetPeriodOut().IsInit()? TT.GetPeriodOut():pIn;
-		
+
 		//out.Init(pOut, NB_OUTPUT);
 
 		//for (CTRef TRefIn = pIn.Begin(); TRefIn <= pIn.End(); TRefIn++)

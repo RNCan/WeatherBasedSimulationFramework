@@ -997,7 +997,7 @@ namespace WBSF
 			{
 				if (WBSF::IsEqualNoCase(m_data[i].m_variable, s))
 				{
-					double sim = CDevRateEquation::GetFValue(e, computation.m_XP, m_data[i].m_T);
+					double sim = CDevRateEquation::GetRate(e, computation.m_XP, m_data[i].m_T);
 
 					if (bConverge01)
 					{

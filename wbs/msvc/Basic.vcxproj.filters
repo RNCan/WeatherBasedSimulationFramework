@@ -218,6 +218,9 @@
     <ClCompile Include="..\src\Basic\SimulatedAnnealing.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\gzip.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -476,6 +479,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\SimulatedAnnealing.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\gzip.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

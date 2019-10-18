@@ -273,6 +273,7 @@
     <ClCompile Include="..\src\Basic\FrequencyTable.cpp" />
     <ClCompile Include="..\src\Basic\GeoBasic.cpp" />
     <ClCompile Include="..\src\Basic\GrowingSeason.cpp" />
+    <ClCompile Include="..\src\Basic\gzip.cpp" />
     <ClCompile Include="..\src\Basic\HourlyDatabase.cpp" />
     <ClCompile Include="..\src\Basic\hxGrid.cpp" />
     <ClCompile Include="..\src\Basic\Location.cpp" />
@@ -352,6 +353,7 @@
     <ClInclude Include="..\src\Basic\FrequencyTable.h" />
     <ClInclude Include="..\src\Basic\GeoBasic.h" />
     <ClInclude Include="..\src\Basic\GrowingSeason.h" />
+    <ClInclude Include="..\src\Basic\gzip.h" />
     <ClInclude Include="..\src\Basic\HourlyDatabase.h" />
     <ClInclude Include="..\src\Basic\hxGrid.h" />
     <ClInclude Include="..\src\Basic\Location.h" />

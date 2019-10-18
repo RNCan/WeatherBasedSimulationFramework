@@ -190,12 +190,16 @@ namespace WBSF
 		
 
 		ERMsg Load(const std::string& filePath);
+		ERMsg Load(std::istream& stream);
+		
 		ERMsg Save(const std::string& filePath)const;
+		ERMsg Save(std::ostream& stream)const;
 
 		double GetMissing()const{ return m_missingValue; }
 		void SetMissing(double missing){ m_missingValue = missing; }
 
 		static bool test_op(double value, const std::string& op, double threshold);
+		void SetHeader(const std::string& header) {	m_header= header;}
 
 	protected:
 
