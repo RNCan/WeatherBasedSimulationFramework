@@ -134,7 +134,7 @@ namespace WBSF
 		ERMsg parse(const std::string& options);
 		ERMsg GetModelInput(const CModel& model, CModelInput& modelInput)const;
 
-		std::string m_parameters; //input param [coma format]
+		std::string m_parameters; //input param [space format]
 
 		size_t m_replications;
 		int m_seed;//0 for random seed else fixed seed 
@@ -153,13 +153,15 @@ namespace WBSF
 		ModelExecution(const std::string &);
 		std::string Initialize(const std::string& str_options);
 		teleIO Execute(const std::string& str_options, const teleIO& input);
-
+		std::string GetWeatherVariablesNeeded();
+		std::string GetDefaultParameters()const;
+		std::string Help()const;
+		std::string Test()const;
 
 	protected:
 		
 		CModelPtr m_pModel;
 		
-		//ERMsg RunModel(const ModelExecutionOptions& options, const CSimulationPointVector& simulationPoints, CModelStatVector& output, CCallback& callback);
 		static CTransferInfoIn FillTransferInfo(const CModel& model, const CLocation& locations, const CModelInput& modelInput, size_t seed, size_t r, size_t n_r);
 	};
 

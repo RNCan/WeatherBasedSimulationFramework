@@ -11,8 +11,8 @@
 #include "WeatherBasedSimulationString.h"
 #include "Basic/Shore.h"
 
-
-//#include "json\json11.hpp"
+ 
+//#include "json\json11.hpp" 
 //using namespace json11;
 //#pragma warning(disable: 4275 4251)
 //#include "GDAL_priv.h"
@@ -330,95 +330,7 @@ namespace WBSF
 
 		return WGInput;
 	}
-	//******************************************************************************************************************************
-
-
-
-
-	const char* ModelExecutionOptions::PARAM_NAME[NB_PAPAMS] =
-	{
-		"PARAMETERS", "REPLICATIONS", "SEED", "COMPRESS"
-	};
-
-	ModelExecutionOptions::ModelExecutionOptions()
-	{
-		m_replications = 1;
-		m_seed = 0;
-		m_compress = true;
-	}
-
-	ERMsg ModelExecutionOptions::parse(const string& str_options)
-	{
-		ERMsg msg;
-
-		StringVector args(str_options, "&");
-		for (size_t i = 0; i < args.size(); i++)
-		{
-			StringVector option(args[i], "=");
-			if (option.size() == 2)
-			{
-				auto it = std::find(begin(PARAM_NAME), end(PARAM_NAME), MakeUpper(option[0]));
-				if (it != end(PARAM_NAME))
-				{
-					size_t o = distance(begin(PARAM_NAME), it);
-					switch (o)
-					{
-					case PARAMETERS:	m_parameters = option[1]; break;
-					case SEED:			m_seed = ToInt(option[1]); break;
-					case COMPRESS:		m_compress = ToBool(option[1]); break;
-					case REPLICATIONS:	m_replications = ToInt(option[1]); break;
-					default: ASSERT(false);
-					}
-				}
-				else
-				{
-					msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
-				}
-			}
-			else
-			{
-				msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
-			}
-		}
-
-		return msg;
-	}
-
-	//Load WGInput 
-	ERMsg ModelExecutionOptions::GetModelInput(const CModel& model, CModelInput& modelInput)const
-	{
-		ERMsg msg;
-
-		//Get default parameters
-		model.GetDefaultParameter(modelInput);
-
-		//update parameters		
-		StringVector args(m_parameters, " ");//parameters separate by space, must not have space in name
-		for (size_t i = 0; i < args.size(); i++)
-		{
-			StringVector option(args[i], ":");
-			if (option.size() == 2)
-			{
-				string name = option[0];
-				auto it = find_if(modelInput.begin(), modelInput.end(), [name](const CModelInputParam& m) -> bool { return WBSF::IsEqual(m.m_name, name); });
-				if (it != modelInput.end())
-				{
-					it->m_value = option[1];
-				}
-				else
-				{
-					msg.ajoute("Invalid model input parameters " + to_string(i + 1) + "( " + args[i] + ")");
-				}
-			}
-			else
-			{
-				msg.ajoute("error in  model input parameters  " + to_string(i + 1) + "( " + args[i] + ")");
-			}
-		}
-
-		return msg;
-	}
-
+	
 	//******************************************************************************************************************************
 
 
@@ -881,6 +793,94 @@ namespace WBSF
 		}
 	}
 
+	//******************************************************************************************************************************
+
+
+
+
+	const char* ModelExecutionOptions::PARAM_NAME[NB_PAPAMS] =
+	{
+		"PARAMETERS", "REPLICATIONS", "SEED", "COMPRESS"
+	};
+
+	ModelExecutionOptions::ModelExecutionOptions()
+	{
+		m_replications = 1;
+		m_seed = 0;
+		m_compress = true;
+	}
+
+	ERMsg ModelExecutionOptions::parse(const string& str_options)
+	{
+		ERMsg msg;
+
+		StringVector args(str_options, "&");
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			StringVector option(args[i], "=");
+			if (option.size() == 2)
+			{
+				auto it = std::find(begin(PARAM_NAME), end(PARAM_NAME), MakeUpper(option[0]));
+				if (it != end(PARAM_NAME))
+				{
+					size_t o = distance(begin(PARAM_NAME), it);
+					switch (o)
+					{
+					case PARAMETERS:	m_parameters = option[1]; break;
+					case SEED:			m_seed = ToInt(option[1]); break;
+					case COMPRESS:		m_compress = ToBool(option[1]); break;
+					case REPLICATIONS:	m_replications = ToInt(option[1]); break;
+					default: ASSERT(false);
+					}
+				}
+				else
+				{
+					msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
+
+		return msg;
+	}
+
+	//Load WGInput 
+	ERMsg ModelExecutionOptions::GetModelInput(const CModel& model, CModelInput& modelInput)const
+	{
+		ERMsg msg;
+
+		//Get default parameters
+		model.GetDefaultParameter(modelInput);
+
+		//update parameters		
+		StringVector args(m_parameters, "+");//parameters separate by space, must not have space in name
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			StringVector option(args[i], ":");
+			if (option.size() == 2)
+			{
+				string name = option[0];
+				auto it = find_if(modelInput.begin(), modelInput.end(), [name](const CModelInputParam& m) -> bool { return WBSF::IsEqual(m.m_name, name); });
+				if (it != modelInput.end())
+				{
+					it->m_value = option[1];
+				}
+				else
+				{
+					msg.ajoute("Invalid model input parameters " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in  model input parameters  " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
+
+		return msg;
+	}
 
 	//******************************************************************************************************************************
 
@@ -951,7 +951,17 @@ namespace WBSF
 
 	teleIO ModelExecution::Execute(const std::string& str_options, const teleIO& input)
 	{
+		ASSERT(m_pModel);
+
 		teleIO output;
+
+		if (m_pModel.get() == nullptr)
+		{
+			output.m_msg = "Model is not define yet. Call Initialize first";
+			return output;
+		}
+
+		
 
 		ERMsg msg;
 		CCallback callback;
@@ -1066,9 +1076,7 @@ namespace WBSF
 		return output;
 	}
 
-
-
-
+	
 	CTransferInfoIn ModelExecution::FillTransferInfo(const CModel& model, const CLocation& locations, const CModelInput& modelInput, size_t seed, size_t r, size_t n_r)
 	{
 		ASSERT(model.GetTransferFileVersion() == CModel::VERSION_STREAM);
@@ -1092,7 +1100,56 @@ namespace WBSF
 		return info;
 	}
 
+	std::string ModelExecution::GetWeatherVariablesNeeded()
+	{
+		ASSERT(m_pModel);
+		if (m_pModel.get() == nullptr)
+			return "Model is not define yet. Call Initialize first";
 
+		return ANSI_UTF8(m_pModel->m_variables.to_string());
+	}
+
+
+	std::string ModelExecution::GetDefaultParameters()const
+	{
+		ASSERT(m_pModel);
+		if (m_pModel.get() == nullptr)
+		{
+			return "Model is not define yet. Call Initialize first";
+		}
+
+		string params;
+		CModelInput modelInput;
+		m_pModel->GetDefaultParameter(modelInput);
+
+		//update parameters		
+		for (size_t i = 0; i < modelInput.size(); i++)
+		{
+			params+=(i>0?"+":"") + modelInput[i].m_name + ":"+ modelInput[i].m_value;
+		}
+
+
+		return ANSI_UTF8(params);
+	}
+
+	std::string ModelExecution::Help()const
+	{ 
+		ASSERT(m_pModel);
+		if (m_pModel.get() == nullptr)
+		{
+			return "Model is not define yet. Call Initialize first";
+		}
+
+		return ANSI_UTF8(m_pModel->GetDocumentation());
+	}
+
+	
+	std::string ModelExecution::Test()const
+	{
+		return "123";
+	}
+
+	//**********************************************************************************************************************
 	ERMsg SaveWeather(const CSimulationPointVector& simulationPoints, teleIO& IO)
 	{
 		ERMsg msg;
@@ -1111,7 +1168,7 @@ namespace WBSF
 			p.file_name = "data.csv";
 			out.push(boost::iostreams::gzip_compressor(p));
 		}
-		out.push(sender);
+		out.push(sender); 
 
 
 		for (size_t r = 0; r < simulationPoints.size() && msg; r++)
@@ -1220,11 +1277,15 @@ namespace WBSF
 			.def("GenerateGribs", &WeatherGenerator::GenerateGribs)
 			.def("GetNormals", &WeatherGenerator::GetNormals)
 			;
-
+		 
 		py::class_<ModelExecution>(m, "Model")
 			.def(py::init<const std::string &>())
 			.def("Initialize", &ModelExecution::Initialize)
 			.def("Execute", &ModelExecution::Execute)
+			.def("GetWeatherVariablesNeeded", &ModelExecution::GetWeatherVariablesNeeded)
+			.def("GetDefaultParameters", &ModelExecution::GetDefaultParameters)
+			.def("Help", &ModelExecution::Help)
+			.def("Test", &ModelExecution::Test)
 			;
 
 
