@@ -215,6 +215,9 @@
     <ClInclude Include="HRDPA.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="RCM4_25km.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -419,6 +422,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HRDPA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RCM4_25km.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

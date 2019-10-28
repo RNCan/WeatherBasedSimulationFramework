@@ -16,6 +16,7 @@
 #include "CountrySelection.h"
 #include "StateSelection.h"
 #include "Geomatic/TimeZones.h"
+#include "RCM4_25km.h"
 //#include "cctz\time_zone.h"
 
 
@@ -49,9 +50,10 @@ namespace WBSF
 
 
 
-	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca" };
-	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/" };
+	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca", " ftp.cccma.ec.gc.ca" };
+	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/", "/data/cordex/output/CCCma/CanRCM4" };
 
+	
 	//*********************************************************************
 	const char* CUIMiscellaneous::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Dataset", "FirstYear", "LastYear", "ShowProgress" };
 	const size_t CUIMiscellaneous::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
@@ -85,6 +87,7 @@ namespace WBSF
 		case SOPFEU_2013:	filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : ""; break;
 		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
 		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
+		case RCM4_22:		filePath = GetDir(WORKING_DIR) + "orog.csv"; break;
 		}
 
 		return filePath;
@@ -95,7 +98,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS"; break;
+		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS|CCCma RCM4_22"; break;
 		};
 		return str;
 	}
@@ -109,7 +112,7 @@ namespace WBSF
 			dataset = 0;
 
 
-		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec", "Miscellaneous\\CWEEDS\\" };
+		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec", "Miscellaneous\\CWEEDS\\", "Miscellaneous\\RCM4_22\\" };
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + DEFAULT_DIR[dataset]; break;
@@ -186,6 +189,7 @@ namespace WBSF
 							case SOPFEU_2013: break;
 							case QUEBEC_HOURLY:break;
 							case CWEEDS: break;
+							case RCM4_22: break;
 							}
 						}
 					}
@@ -264,6 +268,11 @@ namespace WBSF
 					case SOPFEU_2013:break;
 					case QUEBEC_HOURLY:break;
 					case CWEEDS: break;
+					case RCM4_22: 
+					{
+						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "*.tif", fileList, false, callback);
+						break;
+					}
 					default:;
 
 						//	callback.PushTask(GetString(IDS_LOAD_FILE_LIST), NOT_INIT);
@@ -429,6 +438,7 @@ namespace WBSF
 			case SOPFEU_2013: break;
 			case QUEBEC_HOURLY:break;
 			case CWEEDS: break;
+			case RCM4_22:break;
 			}
 
 			//unzip 
@@ -467,6 +477,7 @@ namespace WBSF
 		case SOPFEU_2013:   filePath = GetDir(WORKING_DIR) + "MeteoOBS2013.csv"; break;
 		case QUEBEC_HOURLY: filePath = GetDir(WORKING_DIR) + stationName.substr(4, 2) + "/" + stationName + ".WY3"; break;
 		case CWEEDS: break;
+		case RCM4_22:break;
 		}
 
 
@@ -488,6 +499,7 @@ namespace WBSF
 		case SOPFEU_2013:   break;
 		case QUEBEC_HOURLY:break;
 		case CWEEDS: break;
+		case RCM4_22:break;
 		}
 
 
@@ -584,6 +596,15 @@ namespace WBSF
 				break;
 			}
 
+			case RCM4_22:
+			{
+				if (m_weatherStations.empty())
+				{
+
+					//msg = LoadRCM4_22InMemory(callback);
+					
+				}
+			}
 			}//switch
 		}//ifm
 
@@ -664,6 +685,19 @@ namespace WBSF
 				ASSERT(FileExists(ID));
 				msg = ReadCWEEDSData(ID, station);
 
+			}
+			case RCM4_22:
+			{
+				station.SetHourly(false);
+
+				CRCM4_ESM2_NAM_25km RCM4_25km;
+				RCM4_25km.m_path = GetDir(WORKING_DIR);
+
+
+				msg += RCM4_25km.ExportPoint(station, CRCM4_ESM2_NAM_25km::RCP45, station.GetLocation(), callback);
+				
+				string filePath = GetOutputFilePath(ID, -999);
+				ASSERT(FileExists(ID));
 			}
 			}
 

@@ -175,6 +175,7 @@
     <ClInclude Include="IrelandCounty.h" />
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
+    <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
     <ClInclude Include="UICMIP5.h" />
     <ClInclude Include="stdafx.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="IrelandCounty.cpp" />
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
+    <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />
     <ClCompile Include="UICMIP5.cpp" />
     <ClCompile Include="stdafx.cpp">
