@@ -241,15 +241,11 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Climatic\LAI.cpp" />
-    <ClCompile Include="..\Climatic\SoilTemperature.cpp" />
     <ClCompile Include="LaricobiusNigrinus.cpp" />
     <ClCompile Include="LaricobiusNigrinusEquations.cpp" />
     <ClCompile Include="LaricobiusNigrinusModel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Climatic\LAI.h" />
-    <ClInclude Include="..\Climatic\SoilTemperature.h" />
     <ClInclude Include="LaricobiusNigrinus.h" />
     <ClInclude Include="LaricobiusNigrinusEquations.h" />
     <ClInclude Include="LaricobiusNigrinusModel.h" />

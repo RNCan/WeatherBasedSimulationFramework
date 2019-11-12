@@ -1,4 +1,5 @@
 //**************************************************************************************************************
+// 10/10/2019	1.0.2	Rémi Saint-Amant	New compile
 // 13/04/2018	1.0.1	Rémi Saint-Amant	Compile with VS 2017
 // 08/05/2017	1.0.0	Rémi Saint-Amant	Create from articles
 //												Lyons and Jones 2006
@@ -13,7 +14,7 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 
 
-namespace WBSFh
+namespace WBSF
 {
 
 	//links this class with the EntryPoint of the DLL
@@ -48,7 +49,7 @@ namespace WBSFh
 	CEmeraldAshBorerModel::CEmeraldAshBorerModel()
 	{
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2018)";
+		VERSION = "1.0.2 (2019)";
 	}
 
 	CEmeraldAshBorerModel::~CEmeraldAshBorerModel()

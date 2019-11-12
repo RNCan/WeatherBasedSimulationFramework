@@ -130,6 +130,7 @@ namespace WBSF
 
 
 
+
 	size_t CBlueStainVariables::GetExtremMonth(const CWeatherStation& weather, TExtrem e)
 	{
 		array <pair<double, size_t>, 12> normals;

@@ -36,8 +36,9 @@ namespace WBSF
 	{
 	public:
 
+		enum TProfile { P_BLUE_STANE, P_IPS_TYPOGRAPHUS, NB_PROFILES};
 		enum TLimit{ L_LO, L_10, L_90, L_HI, NB_LIMITS };
-		static const double PERCENTILS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS];
+		static const double PERCENTILS[NB_PROFILES][CBlueStainVariables::NB_VARIABLES][NB_LIMITS];
 
 		CBlueStainIndexModel();
 		virtual ~CBlueStainIndexModel();
@@ -48,5 +49,9 @@ namespace WBSF
 		
 		static CLimits GetF(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, size_t v, double f);
 		static CLimits GetBSI(const double LIMITS[CBlueStainVariables::NB_VARIABLES][NB_LIMITS], VariablesMask mask, const CModelStatVector& values);
+
+	protected:
+
+		size_t m_profile;
 	};
 }
