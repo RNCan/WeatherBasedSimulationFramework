@@ -1,10 +1,8 @@
 if __name__ == "__main__":
     import lib.BioSIM_API as BioSIM_API
 
-     #create and initialize Model
-    model = BioSIM_API.Model('Context Name')
 
-
+    
 
     #create and initialize WeatherGenerator
     WG = BioSIM_API.WeatherGenerator('Context Name')
@@ -13,7 +11,7 @@ if __name__ == "__main__":
     print(msg)
 
     
-     #create and initialize Model
+      #create and initialize Model
     model = BioSIM_API.Model('Context Name')
 
     #we use Degree Day model as example
@@ -69,13 +67,15 @@ if __name__ == "__main__":
     
     f.close()
 
-
+    
     #example of model execution
     #now call model with weather
-    
+
+    #example how to create TeleIO from string and bytes
+    TeleIO = BioSIM_API.teleIO(WGout.compress, WGout.msg, WGout.comment, WGout.metadata, WGout.text, WGout.data)
 
     print("Execute DegreeDay Model")
-    modelOut = model.Execute("Compress=" + compress_str + "&Replications=1&Parameters=+Method:6+LowerThreshold:4", WGout)
+    modelOut = model.Execute("Compress=" + compress_str + "&Replications=1&Parameters=+Method:6+LowerThreshold:4", TeleIO)
     print(modelOut.msg)
     print(modelOut.metadata)
     

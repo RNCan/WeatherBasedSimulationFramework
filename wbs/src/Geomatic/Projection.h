@@ -120,7 +120,7 @@ namespace WBSF
 		static CProjectionPtr GetUnknownPrj();
 		static CProjectionPtr GetPrj(size_t prjID);
 		static ERMsg Load(const std::string& filePath, CProjectionPtr& pPrj);
-
+		static void clear();
 	private:
 
 		CProjectionManager();

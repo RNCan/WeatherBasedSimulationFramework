@@ -175,7 +175,13 @@ namespace WBSF
 				return EMPTY_STR;
 			}
 		
-		
+			static void clear()
+			{
+				GetInstance().m_links.clear();
+				GetInstance().m_equivalentPrj.clear();
+				GetInstance().m_links.insert(Link(PRJ_WGS_84_WKT, PRJ_WGS_84));
+			}
+
 		private:
 
 			CProjectionNameManager() 

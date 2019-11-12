@@ -344,6 +344,13 @@ namespace WBSF
 		m_links.insert(Link(PRJ_WGS_84, CProjectionPtr(new CProjection(true))));
 	};
 
+	void CProjectionManager::clear()
+	{
+		CProjectionNameManager::clear();
+		GetInstance().m_links.clear();
+		GetInstance().m_links.insert(Link(PRJ_WGS_84, CProjectionPtr(new CProjection(true))));
+	}
+
 	ERMsg CProjectionManager::CreateProjection(const char* prjStr)
 	{
 		ERMsg msg;
@@ -393,7 +400,7 @@ namespace WBSF
 						}
 						else
 						{
-							msg.ajoute("Unable to creating projection withn: " + string(prjStr));
+							msg.ajoute("Unable to creating projection with: " + string(prjStr));
 						}
 					}
 				}

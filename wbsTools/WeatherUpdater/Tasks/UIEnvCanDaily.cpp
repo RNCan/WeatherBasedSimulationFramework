@@ -505,31 +505,31 @@ namespace WBSF
 		};
 
 		string URL = FormatA(pageDataFormat, ID, year);
+		UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+		//string source;
+		//msg = GetPageText(pConnection, URL, source);
+		//if (msg)
+		//{
+		//	string::size_type posBegin = source.find("\"Date/Time\"", 0);
+		//	ASSERT(posBegin != string::npos);
 
-		string source;
-		msg = GetPageText(pConnection, URL, source);
-		if (msg)
-		{
-			string::size_type posBegin = source.find("\"Date/Time\"", 0);
-			ASSERT(posBegin != string::npos);
+		//	if (posBegin != string::npos)
+		//	{
+		//		ofStream file;
+		//		msg = file.open(filePath);
 
-			if (posBegin != string::npos)
-			{
-				ofStream file;
-				msg = file.open(filePath);
-
-				if (msg)
-				{
-					file << source.substr(posBegin);
-					file.close();
-				}
-			}
-			else
-			{
-				callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
-				msg = WaitServer(10, callback);
-			}
-		}
+		//		if (msg)
+		//		{
+		//			file << source.substr(posBegin);
+		//			file.close();
+		//		}
+		//	}
+		//	else
+		//	{
+		//		callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
+		//		msg = WaitServer(10, callback);
+		//	}
+		//}
 
 
 		return msg;
@@ -891,7 +891,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		enum { DATE_TIME, YEAR, MONTH, DAY, DATA_QUALITY, MAX_TEMP, MAX_TEMP_FLAG, MIN_TEMP, MIN_TEMP_FLAG, MEAN_TEMP, MEAN_TEMP_FLAG, HEAT_DEG_DAYS, HEAT_DEG_DAYS_FLAG, COOL_DEG_DAYS, COOL_DEG_DAYS_FLAG, TOTAL_RAIN, TOTAL_RAIN_FLAG, TOTAL_SNOW, TOTAL_SNOW_FLAG, TOTAL_PRECIP, TOTAL_PRECIP_FLAG, SNOW_ON_GRND, SNOW_ON_GRND_FLAG, DIR_OF_MAX_GUST, DIR_OF_MAX_GUST_FLAG, SPD_OF_MAX_GUST, SPD_OF_MAX_GUST_FLAG, NB_DAILY_COLUMN };
+		enum { LONGITUDE_X,LATITUDE_Y,STATION_NAME,CLIMATE_ID, DATE_TIME, YEAR, MONTH, DAY, DATA_QUALITY, MAX_TEMP, MAX_TEMP_FLAG, MIN_TEMP, MIN_TEMP_FLAG, MEAN_TEMP, MEAN_TEMP_FLAG, HEAT_DEG_DAYS, HEAT_DEG_DAYS_FLAG, COOL_DEG_DAYS, COOL_DEG_DAYS_FLAG, TOTAL_RAIN, TOTAL_RAIN_FLAG, TOTAL_SNOW, TOTAL_SNOW_FLAG, TOTAL_PRECIP, TOTAL_PRECIP_FLAG, SNOW_ON_GRND, SNOW_ON_GRND_FLAG, DIR_OF_MAX_GUST, DIR_OF_MAX_GUST_FLAG, SPD_OF_MAX_GUST, SPD_OF_MAX_GUST_FLAG, NB_DAILY_COLUMN };
 
 		//open file
 		ifStream file;
@@ -910,8 +910,9 @@ namespace WBSF
 					return msg;
 				}
 
-
-				if (loop->size() == NB_DAILY_COLUMN)
+				size_t test1 = loop->size();
+				size_t test2 = (*loop).size();
+				if ((*loop).size() == NB_DAILY_COLUMN)
 				{
 					int year = ToInt((*loop)[YEAR]);
 					int month = ToInt((*loop)[MONTH]) - 1;

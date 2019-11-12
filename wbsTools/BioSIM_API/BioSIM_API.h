@@ -15,10 +15,24 @@ namespace WBSF
 	{
 	public:
 
+		teleIO(bool compress=false, const std::string& msg="", const std::string& comment = "", const std::string& metadata = "", const std::string& text = "", const pybind11::bytes& data = "")
+		{
+
+			m_compress = compress;		//if output is compress or not
+			m_msg = msg;		//error message
+			m_comment = comment;	//comments
+			m_metadata = metadata;	//output metadatan in XML
+			m_text= text;		//output data if not compress
+			m_data= data;	//output data if compress
+
+		}
+
+
+
 		bool m_compress;		//if output is compress or not
 		std::string m_msg;		//error message
 		std::string m_comment;	//comments
-		std::string m_metadata;	//output metadata
+		std::string m_metadata;	//output metadatan in XML
 		std::string m_text;		//output data if not compress
 		pybind11::bytes m_data;	//output data if compress
 

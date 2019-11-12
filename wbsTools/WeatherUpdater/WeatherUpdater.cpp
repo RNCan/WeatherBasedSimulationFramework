@@ -1,3 +1,4 @@
+//5.8.1 12/11/2019	Rémi Saint-Amant	Update of historical daily and hourly Env Can download
 //5.8.0	07/10/2019	Rémi Saint-Amant	Bug correction in clean up years when create normals 
 //5.7.9 29/08/2019	Rémi Saint-Amant	Update NAM and RAP update. Add RAP UCAR.
 //										Change inanimation RADAR images

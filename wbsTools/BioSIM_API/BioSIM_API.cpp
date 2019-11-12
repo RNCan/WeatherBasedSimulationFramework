@@ -170,7 +170,7 @@ namespace WBSF
 	{
 		m_sourceType = 1;
 		m_generationType = 1;
-		m_variables = "TN T TX P";
+		m_variables = "TN+T+TX+P";
 		m_normals_info = "1981-2010";
 		m_latitude = -999;
 		m_longitude = -999;
@@ -202,7 +202,7 @@ namespace WBSF
 					size_t o = distance(begin(PARAM_NAME), it);
 					switch (o)
 					{
-					case VARIABLES:				m_variables = option[1]; break;
+					case VARIABLES:				m_variables = option[1]; ReplaceString(m_variables, "+", " ");  break;
 					case SOURCE_TYPE:
 					{
 						if (IsEqual(option[1], "FromNormals"))
@@ -1105,8 +1105,10 @@ namespace WBSF
 		ASSERT(m_pModel);
 		if (m_pModel.get() == nullptr)
 			return "Model is not define yet. Call Initialize first";
+		string variable = m_pModel->m_variables.to_string();
+		ReplaceString(variable, " ", "+");
 
-		return ANSI_UTF8(m_pModel->m_variables.to_string());
+		return ANSI_UTF8(variable);
 	}
 
 
@@ -1261,13 +1263,16 @@ namespace WBSF
 
 	PYBIND11_MODULE(BioSIM_API, m)
 	{
+		
 		py::class_<teleIO>(m, "teleIO")
+			.def(py::init<bool, const std::string&, const std::string&, const std::string&, const std::string&, const pybind11::bytes&>())
 			.def_readonly("compress", &teleIO::m_compress)
 			.def_readonly("msg", &teleIO::m_msg)
 			.def_readonly("comment", &teleIO::m_comment)
 			.def_readonly("metadata", &teleIO::m_metadata)
 			.def_readonly("text", &teleIO::m_text)
 			.def_readonly("data", &teleIO::m_data)
+			.def("__repr__",[](const teleIO &IO) {return "compress= " + to_string(IO.m_compress) + ",msg="+IO.m_msg + ",comment="+IO.m_comment+",metadata="+IO.m_metadata+",Length of data=" + to_string(IO.m_compress?((std::string)IO.m_data).length():IO.m_text.length());})
 			;
 
 		py::class_<WeatherGenerator>(m, "WeatherGenerator")

@@ -520,30 +520,31 @@ namespace WBSF
 		};
 
 		string URL = FormatA(pageDataFormat, ID, year, m + 1);
+		UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
-		string source;
-		msg = GetPageText(pConnection, URL, source);
-		if (msg)
-		{
-			string::size_type posBegin = source.find("\"Date/Time\"", 0);
+		//string source;
+		//msg = GetPageText(pConnection, URL, source);
+		//if (msg)
+		//{
+		//	string::size_type posBegin = source.find("\"Date/Time\"", 0);
 
-			if (posBegin != string::npos)
-			{
-				ofStream file;
-				msg = file.open(filePath);
+		//	if (posBegin != string::npos)
+		//	{
+		//		ofStream file;
+		//		msg = file.open(filePath);
 
-				if (msg)
-				{
-					file << source.substr(posBegin);
-					file.close();
-				}
-			}
-			else
-			{
-				callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
-				msg = WaitServer(10, callback);
-			}
-		}
+		//		if (msg)
+		//		{
+		//			file << source.substr(posBegin);
+		//			file.close();
+		//		}
+		//	}
+		//	else
+		//	{
+		//		callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
+		//		msg = WaitServer(10, callback);
+		//	}
+		//}
 
 		return msg;
 	}
@@ -1108,7 +1109,9 @@ namespace WBSF
 
 		//int nbYear = m_lastYear-m_firstYear+1;
 
-		enum { DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, DATA_QUALITY, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
+		enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
+		//Longitude (x)	Latitude (y)	Station Name	Climate ID	Date/Time	Year	Month	Day	Time	Temp (°C)	Temp Flag	Dew Point Temp (°C)	Dew Point Temp Flag	Rel Hum (%)	Rel Hum Flag	Wind Dir (10s deg)	Wind Dir Flag	Wind Spd (km/h)	Wind Spd Flag	Visibility (km)	Visibility Flag	Stn Press (kPa)	Stn Press Flag	Hmdx	Hmdx Flag	Wind Chill	Wind Chill Flag	Weather
+
 
 		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, -1, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
 		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 0, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
@@ -1124,15 +1127,15 @@ namespace WBSF
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
 			{
 				//new file don't have the DATA_QUALITY flag
-				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
-				if (loop.Header().size() != (NB_INPUT_HOURLY_COLUMN + fix))
+//				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
+				if (loop.Header().size() != NB_INPUT_HOURLY_COLUMN )
 				{
-					msg.ajoute("Numbers of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN + fix));
+					msg.ajoute("Numbers of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN));
 					msg.ajoute(filePath);
 					return msg;
 				}
 
-				if (loop->size() == (NB_INPUT_HOURLY_COLUMN + fix))
+				if (loop->size() == NB_INPUT_HOURLY_COLUMN )
 				{
 					int year = ToInt((*loop)[H_YEAR]);
 					int month = ToInt((*loop)[H_MONTH]) - 1;
@@ -1146,12 +1149,12 @@ namespace WBSF
 					CTRef TRef(year, month, day, hour);
 
 					bool bValid[NB_VAR_H] = { 0 };
-					bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG + fix].empty() || (*loop)[TEMPERATURE_FLAG + fix] == "E") && !(*loop)[TEMPERATURE + fix].empty();
-					bValid[H_PRES] = (*loop)[PRESSURE_FLAG + fix].empty() && !(*loop)[PRESSURE + fix].empty();
-					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG + fix].empty() || (*loop)[DEWPOINT_FLAG + fix] != "M") && !(*loop)[DEWPOINT + fix].empty();
-					bValid[H_RELH] = ((*loop)[RELHUM_FLAG + fix].empty() || (*loop)[RELHUM_FLAG + fix] != "M") && !(*loop)[RELHUM + fix].empty();
-					bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG + fix].empty() || (*loop)[WIND_SPEED_FLAG + fix] != "E") && !(*loop)[WIND_SPEED + fix].empty();
-					bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG + fix].empty() || (*loop)[WIND_DIR_FLAG + fix] == "E") && !(*loop)[WIND_DIR + fix].empty();
+					bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
+					bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
+					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
+					bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M") && !(*loop)[RELHUM].empty();
+					bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
+					bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
 
 					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					{
@@ -1159,7 +1162,7 @@ namespace WBSF
 						{
 							if (COL_POS[v] >= 0)
 							{
-								double value = ToDouble((*loop)[COL_POS[v] + fix])*FACTOR[v];
+								double value = ToDouble((*loop)[COL_POS[v]])*FACTOR[v];
 								data[TRef].SetStat(v, value);
 							}
 						}
@@ -1697,9 +1700,9 @@ namespace WBSF
 							missingLoc.push_back(location);
 						}
 					}
-				}
 
-				ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
+					ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
+				}
 
 				msg += callback.StepIt();
 			}
