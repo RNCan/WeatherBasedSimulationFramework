@@ -7,6 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
+// 12-11-2019	Rémi Saint-Amant	Bug correction in MostComplete
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //****************************************************************************
 #include "stdafx.h"
@@ -392,7 +393,7 @@ ERMsg CWeatherDatabase::Get(CLocation& station, size_t index, int year)const
 
 	if (year > YEAR_NOT_INIT)
 	{
-		ASSERT(year > 1700 && year < 2100);
+		ASSERT(year > 1700 && year <= 2100);
 		years.insert(year);
 	}
 
@@ -961,7 +962,7 @@ ERMsg CWeatherDatabase::GetStationOrder(vector<size_t>& DBOrder, CWVariables fil
 		CStatistic stat;
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 		{
-			if (filter[v])
+			if (!filter.any() || filter[v])
 				stat += counter[v].first;
 		}
 		

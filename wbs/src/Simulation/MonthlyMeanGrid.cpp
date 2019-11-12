@@ -911,12 +911,11 @@ namespace WBSF
 		callback.PushTask("Create all Normals Database", GetNbDBCreate());
 		for (size_t pp = 0; pp < GetNbDBCreate() && msg; pp++)
 		{
-			//int firstYear = GetFirstYear(p);
-			//int lastYear = GetLastYear(p);
-
 			size_t p = GetCCPeriod(pp);
 			std::string outputDBFilePath = GetOutputFilePath(p);
 
+			//delete old database
+			msg += CNormalsDatabase::DeleteDatabase(outputDBFilePath);
 
 			//normal(write) database
 			CNormalsDatabase outputDB;
@@ -1036,8 +1035,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-
-		//CleanUpYears(dailyStation, m_firstYear, m_lastYear);
 		if (dailyStation.size() >= m_nbYearMin)
 		{
 			//coord of the station

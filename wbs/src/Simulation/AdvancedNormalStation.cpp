@@ -303,14 +303,22 @@ namespace WBSF
 				data[m][PRCP_SD] = float(m_monthStat[H_PRCP][m][COEF_VAR]);
 			}
 
-			if (bValid[H_TDEW])
+			//if (bValid[H_TDEW])
+			//{
+			//	data[m][TDEW_MN] = float(m_dailyStat[H_TDEW][m][MEAN]);
+			//}
+
+			//if (bValid[H_RELH])
+			//{
+			//	//data[m][TDEW_MN] = float(m_dailyStat[H_TDEW][m][MEAN]);
+			//	data[m][RELH_MN] = float(m_dailyStat[H_RELH][m][MEAN]);
+			//	data[m][RELH_SD] = float(m_dailyStat[H_RELH][m][STD_DEV]);
+			//}
+
+			//can cause some problem in gradient if not all set or reset
+			if (bValid[H_TDEW]&& bValid[H_RELH])
 			{
 				data[m][TDEW_MN] = float(m_dailyStat[H_TDEW][m][MEAN]);
-			}
-
-			if (bValid[H_RELH])
-			{
-				//data[m][TDEW_MN] = float(m_dailyStat[H_TDEW][m][MEAN]);
 				data[m][RELH_MN] = float(m_dailyStat[H_RELH][m][MEAN]);
 				data[m][RELH_SD] = float(m_dailyStat[H_RELH][m][STD_DEV]);
 			}

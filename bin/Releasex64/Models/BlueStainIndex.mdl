@@ -6,7 +6,7 @@
     <EXE>BlueStainIndex.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute Pathogenic Ceratocystis Polonica (blue-stain fungus) Index from bio-climatic variables.</Description>
-    <WindowRect>0 0 143 250</WindowRect>
+    <WindowRect>0 0 143 500</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -15,16 +15,16 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>No input</Name>
-            <Caption>No input</Caption>
+            <Name>Profile</Name>
+            <Caption>Profile</Caption>
             <Description/>
-            <Type>10</Type>
-            <Rect>10 10 32 160</Rect>
+            <Type>5</Type>
+            <Rect>10 10 30 360</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue>-999</MinValue>
             <MaxValue>999</MaxValue>
-            <TextValue/>
+            <TextValue>BlueStain|IPStypographus</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>0 1</OutputTypeMode>

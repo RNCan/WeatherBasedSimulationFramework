@@ -14,7 +14,7 @@
     <NbYearMax>30</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray/>
-    <OutputTypeMode>0 0</OutputTypeMode>
+    <OutputTypeMode>0 1</OutputTypeMode>
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>

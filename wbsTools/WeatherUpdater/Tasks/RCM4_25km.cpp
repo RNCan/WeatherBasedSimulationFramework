@@ -38,7 +38,8 @@ namespace WBSF
 	typedef std::auto_ptr<NcFile> NcFilePtr;
 	typedef vector<NcFilePtr> NcFilePtrVector;
 
-	const char* CRCM4_ESM2_NAM_25km::VARIABLES_NAMES[NB_VARIABLES] = { "tasmin", "tas", "tasmax", "pr", "huss", "sfcWind", "", "ps" };
+	const char* CRCM4_ESM2_NAM_25km::VARIABLES_NAMES[NB_VARIABLES] = { "tasmin", "tas", "tasmax", "pr", "huss", "sfcWind", "rsds", "ps" };
+	const TVarH CRCM4_ESM2_NAM_25km::VARIABLES[NB_VARIABLES] ={ H_TMIN, H_TAIR, H_TMAX, H_PRCP, H_ADD1, H_WNDS, H_SRAD, H_PRES};
 	const char* CRCM4_ESM2_NAM_25km::RCP_NAME[NB_RCP] = { "RCP45", "RCP85" };
 
 	enum TPeriod { HISTORICAL1, FIRST_PERIOD = HISTORICAL1, HISTORICAL2, FUTURE, LAST_PERIOD = FUTURE, NB_PERIOD_TYPE };
@@ -223,8 +224,8 @@ namespace WBSF
 			ASSERT(m_extents.IsInside(pt));
 			//X = 17.25   Y = 2.10 
 
-			callback.AddMessage(string("X = ") + to_string(pt.m_x));
-			callback.AddMessage(string("Y = ") + to_string(pt.m_y));
+			//callback.AddMessage(string("X = ") + to_string(pt.m_x));
+			//callback.AddMessage(string("Y = ") + to_string(pt.m_y));
 			CGeoPointIndex xy = m_extents.CoordToXYPos(pt);
 			xy.m_y = m_extents.m_ySize - xy.m_y - 1;//reverse lat
 
@@ -360,24 +361,25 @@ namespace WBSF
 		ASSERT(m_extents.IsInside(pt));
 		//X = 17.25   Y = 2.10 
 
-		callback.AddMessage(string("X = ") + to_string(pt.m_x));
-		callback.AddMessage(string("Y = ") + to_string(pt.m_y));
+		//callback.AddMessage(string("X = ") + to_string(pt.m_x));
+		//callback.AddMessage(string("Y = ") + to_string(pt.m_y));
 		CGeoPointIndex xy = m_extents.CoordToXYPos(pt);
 		xy.m_y = m_extents.m_ySize - xy.m_y - 1;//reverse lat
 
 		//array< vector<float>, NB_VARIABLES>  data;
 		for (size_t v = 0; v < NB_VARIABLES && msg; v++)
 		{
+			vector<string> filesList = GetFileList(VARIABLES_NAMES[v], rcp);
+			callback.PushTask(string("Extract ") + VARIABLES_NAMES[v] + " from " + to_string(filesList.size()) + " files", filesList.size());
+
 			try
 			{
-				vector<string> filesList = GetFileList(VARIABLES_NAMES[v], rcp);
-				callback.PushTask(string("Extract ") + VARIABLES_NAMES[v] + " from " + to_string(filesList.size()) + "file", filesList.size());
-
 				vector<float>  data;
 				//open files
 				for (vector<string>::const_iterator it = filesList.begin(); it != filesList.end() && msg; it++)
 				{
 					string filePath = GetFilePath(*it);
+					ASSERT(FileExists(filePath));
 					NcFile ncFile(filePath, NcFile::read);
 
 					string fileTile = GetFileTitle(filePath);
@@ -389,6 +391,9 @@ namespace WBSF
 				
 
 					data.resize(var.getDims().at(0).getSize());
+					ASSERT(data.size() == p.GetNbYears()*365);
+
+
 
 					vector<size_t> startp(var.getDimCount());
 					startp[1] = xy.m_y;//lat
@@ -398,11 +403,9 @@ namespace WBSF
 					countp[1] = 1;
 					countp[2] = 1;
 
-
-
 					var.getVar(startp, countp, &(data[0]));
 
-					msg += callback.StepIt();
+					
 
 					CTRef TRef(p.Begin().GetYear(), JANUARY, DAY_01);
 					for (size_t d = 0; d < data.size(); d++, TRef++)
@@ -410,43 +413,57 @@ namespace WBSF
 						int year = p.Begin().GetYear() + int(d / 365);
 						CJDayRef JD(0, d % 365);
 						CTRef TRef2(year, JD.GetMonth(), JD.GetDay());
+						//ASSERT(TRef== TRef2);
 
 						if (data[d] < 1.0E20)
 						{
-							if (v == V_SPCH)
-							{
-								double Tair = ConvertData(V_TAIR, data[d]);
-								double Hs = ConvertData(v, data[d]);
-								double Pv = Hs2Pv(Hs);
-								double Hr = Pv2Hr(Tair, Pv);
-								double Td = Hr2Td(Tair, Hr);
-								station.GetDay(TRef2).SetStat(H_TDEW, Td);
-								station.GetDay(TRef2).SetStat(H_RELH, Hr);
-							}
-							else
-							{
-								station.GetDay(TRef2).SetStat((TVarH)v, ConvertData(v, data[d]));
-							}
 							
+							station[TRef2].SetStat(VARIABLES[v], ConvertData(v, data[d]));
+							const CWeatherDay& wDay = station.GetDay(TRef2);
+							int h = 0;
+							h++;
 						}
-						/*else
-						{
-							data[i] = -999;
-						}*/
+						
 					}
 
-
-					int h;
-					h++;
-				}
+					msg += callback.StepIt();
+					
+				}//for all files
 			}
 			catch (exceptions::NcException& e)
 			{
 				msg.ajoute(e.what());
-				return msg;
+				
 			}
+
+			callback.PopTask();
+			callback.StepIt();
+		}//for all variable
+
+		if (msg)
+		{
+			CTPeriod p = station.GetEntireTPeriod();
+			for (CTRef d = p.Begin(); d <= p.End(); d++)
+			{
+				const CWeatherDay& wDay = station.GetDay(d);
+				if (wDay.HaveData())
+				{
+					//compute humidity
+					double Tair = wDay[H_TAIR][MEAN];
+					double Hs = wDay[H_ADD1][MEAN];
+					double Pv = Hs2Pv(Hs);
+					double Hr = Pv2Hr(Tair, Pv);
+					double Td = Hr2Td(Tair, Hr);
+					station[d].SetStat(H_TDEW, Td);
+					station[d].SetStat(H_RELH, Hr);
+					//wDay.SetStat(H_TDEW, Td);
+					//wDay.SetStat(H_RELH, Hr);
+				}
+			}
+
 		}
 
+		callback.PopTask();
 
 		return msg;
 	}
@@ -611,8 +628,8 @@ namespace WBSF
 			{
 				int firstYear = PERIOD_BEGIN[i] + PERIOD_LENGTH[i] * j;
 				int lastYear = PERIOD_BEGIN[i] + PERIOD_LENGTH[i] * (j + 1) - 1;
-
-				fileList.push_back(GetFileName(varName, m_regionName, GetPeriodName(i, rcp), firstYear, lastYear));
+				string sundirt = i < 2 ? "hist": RCP_NAME[rcp];
+				fileList.push_back(sundirt +"/" + GetFileName(varName, m_regionName, GetPeriodName(i, rcp), firstYear, lastYear));
 			}
 		}
 

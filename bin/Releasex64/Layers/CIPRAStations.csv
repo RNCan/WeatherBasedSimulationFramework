@@ -3,7 +3,7 @@ ab15,Alan Briggs,46.98139954,-67.43049622,158,atlantic,NBP,
 ad32,Andre Daigle,47.11360168,-67.87529755,0,atlantic,NBP,
 al17,Andre Long,47.26520157,-68.59980011,0,atlantic,NBP,
 anfi,Anfield NB,46.9075,-67.4569,250,atlantic,MRNF-NB,
-cmxc,Arundel F,45.967666626,-74.6160736084,184,quebec,FADQ,Laurentides
+cmxc,Arundel F,45.96766663,-74.61607361,184,quebec,FADQ,Laurentides
 ba09,Bon Accord,46.65280151,-67.58029938,0,atlantic,NBP,
 bayl,Bayles Lake,47.0817,-66.355,518,atlantic,MRNF-NB,
 bb16,Bert Blaauw,47.11119843,-67.75800323,0,atlantic,NBP,
@@ -389,7 +389,7 @@ mcra,McRae Lake,47.6852,-66.2436,404,atlantic,MRNF-NB,
 mead,Meadow Brook,46.4483,-65.8033,199,atlantic,MRNF-NB,
 mg06,Mike Givskud,46.99980164,-67.64620209,0,atlantic,NBP,
 mull,Mulligan Gulch,47.5933,-66.6386,432,atlantic,MRNF-NB,
-qfnv,Napierville,45.160906,-73.384642,86,quebec,FADQ
+qfnv,Napierville,45.160906,-73.384642,86,quebec,FADQ,
 nm36,Randy McLean,46.11569977,-67.65499878,108,atlantic,NBP,
 oxbm,Oxbow ME,46.423,-68.553,213,atlantic,US-MADIS,
 patm,Patten ME,46.0259,-68.4977,247,atlantic,US-MADIS,
@@ -401,7 +401,7 @@ rm22,Roger Mc Graw,47.67020035,-64.82949829,0,atlantic,NBP,
 robi,Robinson Tower,47.6963,-67.1875,467,atlantic,MRNF-NB,
 rp08,Ronnie Piper,46.49010086,-67.75209808,0,atlantic,NBP,
 rs19,Robert Seeley,46.29510117,-67.52339935,0,atlantic,NBP,
-qfsc,Saint-Célestin,46.232996,-72.375892,58,quebec,FADQ
+qfsc,Saint-Célestin,46.232996,-72.375892,58,quebec,FADQ,
 qfse,Saint-Éphrem,46.036433,-70.871317,332,quebec,FADQ,Chaudière-Appalaches
 cmkq,Saint-Godefroi,48.12464,-65.124406,122,quebec,FADQ,Gaspésie-Iles-de-la-Madeleine
 stpl,St-Paul,46.36,-64.9733,76,atlantic,MRNF-NB,
@@ -420,32 +420,32 @@ wa31,Wayne Albright,46.22200012,-67.59200287,0,atlantic,NBP,
 ww05,Wicklow Wireless,46.4856987,-67.58540344,86,atlantic,NBP,
 ww07,WW07,46.29999924,-67.40000153,87,atlantic,NBP,
 nthp,North Point,47.0581,-63.9986,8,atlantic,PEI,
-7050388,Auclair,47.7333335876,-68.7072219849,320,quebec,MDDELCC
-7080452,Barrage Angliers,47.552028656,-79.2356262207,265,quebec,MDDELCC
-7090580,Bell,48.4324989319,-77.19972229,305,quebec,MDDELCC
-7011190,Catherine,46.8369445801,-71.6227798462,130,quebec,MDDELCC
-7011307,Charette,46.4411125183,-72.8927764893,116,quebec,MDDELCC
-7051942,Côte-Ouimet,48.2941665649,-68.113609314,423,quebec,MDDELCC,
-7051970,Dépot John,48.6347503662,-67.2701416016,92,quebec,MDDELCC
-7022010,Ditton,45.3738899231,-71.25,480,quebec,MDDELCC
-7032362,Faustin,46.0349998474,-74.4808349609,411,quebec,MDDELCC
-7042557,François,47.0147209167,-70.864440918,61,quebec,MDDELCC
-7023130,Hilaire,45.82472229,-70.8558349609,511,quebec,MDDELCC
-7034085,La Pêche MDDEFP,45.6222229004,-76.0177764893,206,quebec,MDDELCC
-7054626,Marguerite,48.317779541,-67.0683364868,472,quebec,MDDELCC
-7035334,Mont St-Michel,46.768611908,-75.4319458008,260,quebec,MDDELCC
-7055405,Notre-Dame-du-Rosaire,46.8508338928,-70.4527740479,419,quebec,MDDELCC
-7065900,Pemonca,48.8097229004,-72.7388916016,260,quebec,MDDELCC
-7027736,Saint-Simon,45.7158317566,-72.8402786255,40,quebec,MDDELCC
-7028B81,Standstead-EST,45.0500335693,-72.0648117065,381,quebec,MDDELCC
-7028284,Stukely,45.3658332825,-72.2649993896,358,quebec,MDDELCC
-7028284,Stukely,45.3658332825,-72.2649993896,358,quebec,MDDELCC
-7028502,Tingwick,45.9075012207,-71.9491653442,262,quebec,MDDELCC
-7029230,Zéphirin,46.0424995422,-72.6600036621,45,quebec,MDDELCC
-YamaskaNord,Yamaska Nord,47.995,-72.923,7,quebec,MDDELCC
-7020M48,Barrage Jules-Allard,45.9509162903,-71.274055481,290,quebec,MDDELCC
-7050455,Barrage Morin,47.649723053,-69.5097198486,192,quebec,MDDELCC
-7020572,Bécancour (Aréna),46.3499984741,-72.4333343506,18,quebec,MDDELCC
+7050388,Auclair,47.73333359,-68.70722198,320,quebec,MDDELCC,
+7080452,Barrage Angliers,47.55202866,-79.23562622,265,quebec,MDDELCC,
+7090580,Bell,48.43249893,-77.19972229,305,quebec,MDDELCC,
+7011190,Catherine,46.83694458,-71.62277985,130,quebec,MDDELCC,
+7011307,Charette,46.44111252,-72.89277649,116,quebec,MDDELCC,
+7051942,Côte-Ouimet,48.29416656,-68.11360931,423,quebec,MDDELCC,
+7051970,Dépot John,48.63475037,-67.2701416,92,quebec,MDDELCC,
+7022010,Ditton,45.37388992,-71.25,480,quebec,MDDELCC,
+7032362,Faustin,46.03499985,-74.48083496,411,quebec,MDDELCC,
+7042557,François,47.01472092,-70.86444092,61,quebec,MDDELCC,
+7023130,Hilaire,45.82472229,-70.85583496,511,quebec,MDDELCC,
+7034085,La Pêche MDDEFP,45.6222229,-76.01777649,206,quebec,MDDELCC,
+7054626,Marguerite,48.31777954,-67.06833649,472,quebec,MDDELCC,
+7035334,Mont St-Michel,46.76861191,-75.4319458,260,quebec,MDDELCC,
+7055405,Notre-Dame-du-Rosaire,46.85083389,-70.45277405,419,quebec,MDDELCC,
+7065900,Pemonca,48.8097229,-72.7388916,260,quebec,MDDELCC,
+7027736,Saint-Simon,45.71583176,-72.84027863,40,quebec,MDDELCC,
+7028B81,Standstead-EST,45.05003357,-72.06481171,381,quebec,MDDELCC,
+7028284,Stukely,45.36583328,-72.26499939,358,quebec,MDDELCC,
+7028284,Stukely,45.36583328,-72.26499939,358,quebec,MDDELCC,
+7028502,Tingwick,45.90750122,-71.94916534,262,quebec,MDDELCC,
+7029230,Zéphirin,46.04249954,-72.66000366,45,quebec,MDDELCC,
+YamaskaNord,Yamaska Nord,47.995,-72.923,7,quebec,MDDELCC,
+7020M48,Barrage Jules-Allard,45.95091629,-71.27405548,290,quebec,MDDELCC,
+7050455,Barrage Morin,47.64972305,-69.50971985,192,quebec,MDDELCC,
+7020572,Bécancour (Aréna),46.34999847,-72.43333435,18,quebec,MDDELCC,
 cmtd,Sainte-Jeanne-d'Arc,48.837317,-72.0566,114,quebec,FADQ,Saguenay-Lac-Saint-Jean
 cmwu,Cloutier,48.016167,-79.13505,273,quebec,FADQ,Abitibi-Témiscamingue
 cgcl,Causapscal,48.3,-67.25,123,quebec,EnvCan,
@@ -527,10 +527,21 @@ cwls,Mount_Forest_(aut),43.98333,-80.75,415,ontario,EnvCan,
 cyyb,North-Bay,46.35,-79.43333,358,ontario,EnvCan,
 cmgz,Grandes-Bergeronnes,48.266667,-69.533333,59,quebec,EnvCan,
 qflm,Lac Matapedia,48.509365,-67.441902,184,quebec,FADQ,
-qflp,La Patrie,45.405163,-71.23093,388,quebec,FADQ
-cmzc,Mont-Laurier_F,46.52355,-75.490133,221,quebec,FADQ
+qflp,La Patrie,45.405163,-71.23093,388,quebec,FADQ,
+cmzc,Mont-Laurier_F,46.52355,-75.490133,221,quebec,FADQ,
 cwoc,New Carlisle,48.017,-65.333,46,quebec,EnvCan,
 cmjn,New Richmond_East,48.15,-65.8333,2,quebec,EnvCan,
 qfpo,Potton,45.045951,-72.403337,185,quebec,EnvCan,
 qfsg,Saint-Gedeon de Grandmont,48.505177,-71.742467,121,quebec,EnvCan,
-Kuu2,Kuujjuarapik,55.3694,-77.6289,31,722,quebec,SOPFEU
+Kuu2,Kuujjuarapik,55.3694,-77.6289,31,quebec,SOPFEU,
+21013,Esprit-Saint,48.0703,-68.60689,253,quebec,FADQ,
+53005,Princeville,46.1244,-71.89651,151,quebec,FADQ,
+26013,Normandin_F,48.86534,-72.51332,193,quebec,FADQ,Saguenay-Lac-Saint-Jean
+26014,Saint-Augustin_(Dalmas),48.8066,-71.9757,208,quebec,FADQ,Saguenay-Lac-Saint-Jean
+28020,Saint-Charles-de-Bellechasse,46.7401,-70.9538,10,quebec,FADQ,
+Toronto,Aeroport_du_centre-ville_de_Toronto,43.628829,-79.39457,10,ontario,,
+Waterloo,Aeroport_int._de_la_Region_de_Waterloo,43.460906,-80.377161,316,ontario,,
+ctsb,Sudbury Climate,46.6333,-80.8,348,ontario,EC,
+ctxr,Earlton Climate,47.7,-79.85,243.4,ontario,EC,
+orle,ORLEAN,46.9716,-70.9571,109,pommes,SM,Capitale-Nationale
+Saint-Hyacinthe,STHYAC,45.607098,-73.014048,36,pommes,SM,

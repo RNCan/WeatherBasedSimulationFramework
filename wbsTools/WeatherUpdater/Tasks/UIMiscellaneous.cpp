@@ -87,7 +87,10 @@ namespace WBSF
 		case SOPFEU_2013:	filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : ""; break;
 		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
 		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
-		case RCM4_22:		filePath = GetDir(WORKING_DIR) + "orog.csv"; break;
+		case RCM4_22:		
+			filePath = "H:/Travaux/ClimateChange/Loc/orog_4nearest_24stations.csv"; break;
+			//filePath = GetDir(WORKING_DIR) + "NAM/orog_Hydro-Québec.csv"; break;
+			//filePath = GetDir(WORKING_DIR) + "orog.csv"; break;
 		}
 
 		return filePath;
@@ -598,11 +601,12 @@ namespace WBSF
 
 			case RCM4_22:
 			{
-				if (m_weatherStations.empty())
-				{
-
-					//msg = LoadRCM4_22InMemory(callback);
 					
+				if (msg)
+				{
+					stationList.resize(m_stations.size());
+					for (size_t i = 0; i < m_stations.size(); i++)
+						stationList[i] = m_stations[i].m_ID;
 				}
 			}
 			}//switch
@@ -686,21 +690,19 @@ namespace WBSF
 				msg = ReadCWEEDSData(ID, station);
 
 			}
-			case RCM4_22:
-			{
-				station.SetHourly(false);
-
-				CRCM4_ESM2_NAM_25km RCM4_25km;
-				RCM4_25km.m_path = GetDir(WORKING_DIR);
-
-
-				msg += RCM4_25km.ExportPoint(station, CRCM4_ESM2_NAM_25km::RCP45, station.GetLocation(), callback);
-				
-				string filePath = GetOutputFilePath(ID, -999);
-				ASSERT(FileExists(ID));
-			}
+			case RCM4_22: break;
 			}
 
+		}
+
+		if(dataset==RCM4_22)
+		{
+			station.SetHourly(false);
+
+			CRCM4_ESM2_NAM_25km RCM4_25km;
+			RCM4_25km.m_path = GetDir(WORKING_DIR);
+
+			msg += RCM4_25km.ExportPoint(station, CRCM4_ESM2_NAM_25km::RCP45, station.GetLocation(), callback);
 		}
 
 		//verify station is valid

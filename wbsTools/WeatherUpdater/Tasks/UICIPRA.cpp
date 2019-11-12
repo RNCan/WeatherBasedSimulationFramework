@@ -360,7 +360,7 @@ namespace WBSF
 
 		StringVector networks = as<StringVector>(NETWORKS);
 		if (networks.empty())
-			networks = StringVector("Atantic|Ontario|Pommes|Quebec", "|");
+			networks = StringVector("Atlantic|Ontario|Pommes|Quebec", "|");
 
 
 
@@ -409,7 +409,7 @@ namespace WBSF
 			std::replace(name.begin(), name.end(), ' ', '_');
 			name = RemoveAccented(name);
 
-			return name == m_name;
+			return IsEqual(name,m_name);
 		}
 
 
@@ -579,7 +579,7 @@ namespace WBSF
 
 				for (size_t v = 0; v < NB_VAR_H; v++)
 				{
-					if (COL_POS[v] >= 0)
+					if (COL_POS[v] >= 0 && COL_POS[v]< (*loop).size())
 					{
 						double value = ToDouble((*loop)[COL_POS[v]]);
 						if (value > -991 )

@@ -28,6 +28,7 @@ namespace WBSF
 
 		enum TRCP { RCP45, RCP85, NB_RCP };
 		static const char* VARIABLES_NAMES[NB_VARIABLES];
+		static const HOURLY_DATA::TVarH VARIABLES[NB_VARIABLES];
 		static const char* RCP_NAME[NB_RCP];
 		//enum TVariable { V_TMIN, V_TAIR, V_TMAX, V_PRCP, V_SPCH, V_WIND_SPEED, V_SRAD, V_PRES, NB_VAR };
 		//enum TATTRIBUTE { RCM_PATH, REGION, OUTPUT_FILEPATH, NB_ATTRIBUTE };
