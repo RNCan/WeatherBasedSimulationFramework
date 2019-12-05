@@ -32,7 +32,7 @@ namespace WBSF
 			{-2.3   ,  3.9  ,  9.6  , 11.7	   }, //Mean annual temperature(°C)
 			{4.0    , 6.9   ,13.9   ,16.3	   }, //Maximum annual temperature(°C)
 			{279.7  , 464.9 ,1410.1 ,1846.3	   }, //Total annual precipitation(mm)
-			{11.2   , 13.0  , 19.1  , 20.8	   }, //Warmest *quarter* total precipitation(mm)
+			{11.2   , 13.0  , 19.1  , 20.8	   }, //Warmest quarter total precipitation(mm)
 			{-21.1  ,  -8.0 ,   2.0 ,   3.8	   }, //Warmest quarter mean temperature(°C)
 			{-2.7   ,  7.4  , 18.9  , 20.8	   }, //Coldest quarter total precipitation(mm)
 			{-10.4  ,  -6.2 ,  10.7 ,  13.6	   }, //Coldest quarter mean temperature(°C)
@@ -169,15 +169,16 @@ namespace WBSF
 		VariablesMask full;
 		full.set();
 		array<VariablesMask,2> limited;
-		limited[0].set(CBlueStainVariables::V_TMEAN);
-		limited[0].set(CBlueStainVariables::V_PRCP);
-		limited[0].set(CBlueStainVariables::V_WARMQ_TMEAN);
-		limited[0].set(CBlueStainVariables::V_DRYQ_AI);
+		limited[0].set(CBlueStainVariables::V_TMEAN);// Annual mean of daily mean temperature
+		limited[0].set(CBlueStainVariables::V_PRCP);//Total annual precipitation
+		limited[0].set(CBlueStainVariables::V_DRYQ_TMEAN);//Driest quarter mean temperature
+		limited[0].set(CBlueStainVariables::V_DRYQ_AI);//Driest quarter water deficit
+		limited[0].set(CBlueStainVariables::V_SUMMER_DD5);//Degree day accumulation >5°C between 1 April and 31 August
 
-		limited[1].set(CBlueStainVariables::V_TMEAN);
-		limited[1].set(CBlueStainVariables::V_PRCP);
-		limited[1].set(CBlueStainVariables::V_WARMQ_TMEAN);
-		limited[1].set(CBlueStainVariables::V_DRYQ_AI);
+		limited[1].set(CBlueStainVariables::V_WARMQ_TMEAN);//Warmest quarter mean temperature (°C)
+		limited[1].set(CBlueStainVariables::V_COLDQ_TMEAN);//Coldest quarter mean temperature (°C)
+		limited[1].set(CBlueStainVariables::V_WARMQ_AI);//Warmest quarter water deficit (mm)
+		limited[1].set(CBlueStainVariables::V_DRYQ_AI);// Driest quarter water deficit (mm)
 
 
 		CBlueStainVariables blueStainVariables;
