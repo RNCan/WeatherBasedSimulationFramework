@@ -750,9 +750,7 @@ namespace WBSF
 			{
 				string inputFilePath = DBFilePath + ".tmp";
 				string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
-
-				//a faire...
-				//msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
+				msg = world.CreateEggDepositionMap(inputFilePath, outputFilePath, savedPeriod, callback);
 			}
 
 			WBSF::RemoveFile(DBFilePath + ".tmp");
@@ -766,69 +764,72 @@ namespace WBSF
 	ERMsg CDispersal::copy_result(const string& file_path, const std::vector<std::array<size_t, 3>>& IDmap, CTPeriod savedPeriod, CResult& result, CCallback& callback)
 	{
 		ERMsg msg;
+		
 		ifStream input_file;
-		input_file.open(file_path, ios_base::in | ios_base::binary);
-
-		const size_t size_struct = sizeof(size_t) + savedPeriod.size()*(sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT);
-		size_t length = input_file.length();
-		ASSERT(length == IDmap.size()*size_struct);
-
-		callback.PushTask("Save result", result.GetNbSection());
-
-		for (size_t l = 0; l < result.GetDimension()[LOCATION] && msg; l++)
+		msg = input_file.open(file_path, ios_base::in | ios_base::binary);
+		if (msg)
 		{
-			for (size_t p = 0; p < result.GetDimension()[PARAMETER] && msg; p++)
+			const size_t size_struct = sizeof(size_t) + savedPeriod.size()*(sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT);
+			size_t length = input_file.length();
+			ASSERT(length == IDmap.size()*size_struct);
+
+			callback.PushTask("Save result", result.GetNbSection());
+
+			for (size_t l = 0; l < result.GetDimension()[LOCATION] && msg; l++)
 			{
-				for (size_t r = 0; r < result.GetDimension()[REPLICATION] && msg; r++)
+				for (size_t p = 0; p < result.GetDimension()[PARAMETER] && msg; p++)
 				{
-					ATMOutput output;
-					output.Init(savedPeriod, VMISS);
-
-					std::array<size_t, 3> lpr = { { l,p,r } };
-					auto it = find(IDmap.begin(), IDmap.end(), lpr);
-					if (it != IDmap.end())
+					for (size_t r = 0; r < result.GetDimension()[REPLICATION] && msg; r++)
 					{
-						CTRef trefTest = savedPeriod.Begin();
-						size_t no = input_file.read_value<size_t>();
-						ASSERT(no < result.GetNbSection());
+						ATMOutput output;
+						output.Init(savedPeriod, VMISS);
 
-						for (size_t t = 0; t < savedPeriod.size() && msg; t++)
+						std::array<size_t, 3> lpr = { { l,p,r } };
+						auto it = find(IDmap.begin(), IDmap.end(), lpr);
+						if (it != IDmap.end())
 						{
-							__int32 tmp = input_file.read_value<__int32 >();
-							ASSERT(!input_file.eof());
+							CTRef trefTest = savedPeriod.Begin();
+							size_t no = input_file.read_value<size_t>();
+							ASSERT(no < result.GetNbSection());
 
-							CTRef TRef;
-							TRef.Set__int32(tmp);
-							ASSERT(output.IsInside(TRef));
-							ASSERT(TRef == trefTest);
-							trefTest++;
-
-
-							for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+							for (size_t t = 0; t < savedPeriod.size() && msg; t++)
 							{
-								float value = input_file.read_value<float>();
+								__int32 tmp = input_file.read_value<__int32 >();
 								ASSERT(!input_file.eof());
 
-								if (value > -999)
-									output[TRef][v] = value;
+								CTRef TRef;
+								TRef.Set__int32(tmp);
+								ASSERT(output.IsInside(TRef));
+								ASSERT(TRef == trefTest);
+								trefTest++;
 
-								ASSERT(output[TRef][ATM_DEFOLIATION] != 0);
+
+								for (size_t v = 0; v < NB_ATM_OUTPUT; v++)
+								{
+									float value = input_file.read_value<float>();
+									ASSERT(!input_file.eof());
+
+									if (value > -999)
+										output[TRef][v] = value;
+
+									ASSERT(output[TRef][ATM_DEFOLIATION] != 0);
+								}
+
 							}
-
 						}
-					}
 
 
-					size_t section = result.GetSectionNo(l, p, r);
-					msg += result.SetSection(section, output);
+						size_t section = result.GetSectionNo(l, p, r);
+						msg += result.SetSection(section, output);
 
-					msg += callback.StepIt();
-				}//r
-			}//p
-		}//l
+						msg += callback.StepIt();
+					}//r
+				}//p
+			}//l
 
-		input_file.close();
-		callback.PopTask();
+			input_file.close();
+			callback.PopTask();
+		}
 
 		return msg;
 	}

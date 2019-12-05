@@ -38,7 +38,7 @@ namespace WBSF
 	{
 		WEATHER_TYPE, SIMULATION_PERIOD, TIME_STEP, SEED_TYPE, USE_SPATIAL_INTERPOL, USE_TIME_INTERPOL, USE_PREDICTOR_CORRECTOR_METHOD, MAXIMUM_FLYERS, MAX_MISS_WEATHER, FORCE_FIRST_FLIGHT, T_BROOD, P_TYPE,
 		DEM, GRIBS, HOURLY_DB, DEFOLIATION, WATER,
-		P_MAX, W_MIN, WING_BEAT_SCALE, REDUCTION_FACTOR, REDUCTION_HEIGHT, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, MAXIMUM_FLIGHTS, FLIGHT_AFTER_SUNRIZE, READY_SHIFT0, READY_SHIFT1,
+		P_MAX, W_MIN, WING_BEAT_SCALE, REDUCTION_FACTOR, REDUCTION_HEIGHT, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, MAXIMUM_FLIGHTS, FLIGHT_AFTER_SUNRIZE, APPPLY_ATTRITION, MAX_ADULT_LONGEVITY, READY_SHIFT0, READY_SHIFT1,
 		OUTPUT_SUB_HOURLY, OUTPUT_FILE_TITLE, CREATE_EGG_MAPS, EGG_MAP_TITLE, CREATE_EGG_RES, NB_PROPERTIES
 	};
 
@@ -124,6 +124,9 @@ namespace WBSF
 		pMoth->AddSubItem(new CStdGridProperty(name[W_DESCENT_SD], "", description[W_DESCENT_SD], W_DESCENT_SD));
 		pMoth->AddSubItem(new CStdGridProperty(name[MAXIMUM_FLIGHTS], "", description[MAXIMUM_FLIGHTS], MAXIMUM_FLIGHTS));
 		pMoth->AddSubItem(new CStdGridProperty(name[FLIGHT_AFTER_SUNRIZE], "", description[FLIGHT_AFTER_SUNRIZE], FLIGHT_AFTER_SUNRIZE));
+		pMoth->AddSubItem(new CStdBoolGridProperty(name[APPPLY_ATTRITION], true, description[APPPLY_ATTRITION], APPPLY_ATTRITION));
+		pMoth->AddSubItem(new CStdGridProperty(name[MAX_ADULT_LONGEVITY], "", description[MAX_ADULT_LONGEVITY], MAX_ADULT_LONGEVITY));
+
 		CMFCPropertyGridProperty* pShift = new CMFCPropertyGridProperty( CString(name[READY_SHIFT0].c_str()), -1);
 		pShift->AddSubItem(new CStdGridProperty(sex[CSBWMothParameters::MALE], "", description[READY_SHIFT0], READY_SHIFT0));
 		pShift->AddSubItem(new CStdGridProperty(sex[CSBWMothParameters::FEMALE], "", description[READY_SHIFT1], READY_SHIFT1));
@@ -187,7 +190,9 @@ namespace WBSF
 			case W_DESCENT:			str = WBSF::ToString(in.m_moths.m_w_descent); break;
 			case W_DESCENT_SD:		str = WBSF::ToString(in.m_moths.m_w_descent_σ); break;
 			case MAXIMUM_FLIGHTS:		str = WBSF::ToString(in.m_moths.m_maxFlights); break;
-			case FLIGHT_AFTER_SUNRIZE:		str = WBSF::ToString(in.m_moths.m_flight_after_sunrise, 2); break;
+			case FLIGHT_AFTER_SUNRIZE:	str = WBSF::ToString(in.m_moths.m_flight_after_sunrise, 2); break;
+			case APPPLY_ATTRITION:		str = WBSF::ToString(in.m_moths.m_bAppplyAttrition); break;
+			case MAX_ADULT_LONGEVITY:	str = WBSF::ToString(in.m_moths.m_max_adult_longevity); break;
 			case READY_SHIFT0:		str = WBSF::ToString(in.m_moths.m_ready_to_fly[0]); break;
 			case READY_SHIFT1:		str = WBSF::ToString(in.m_moths.m_ready_to_fly[1]); break;
 
@@ -256,6 +261,8 @@ namespace WBSF
 		case W_DESCENT_SD:		me.m_parameters.m_moths.m_w_descent_σ = WBSF::ToDouble(str); break;
 		case MAXIMUM_FLIGHTS:	me.m_parameters.m_moths.m_maxFlights = WBSF::ToSizeT(str); break;
 		case FLIGHT_AFTER_SUNRIZE:	me.m_parameters.m_moths.m_flight_after_sunrise = WBSF::ToDouble(str); break;
+		case APPPLY_ATTRITION:		me.m_parameters.m_moths.m_bAppplyAttrition = WBSF::ToBool(str); break;
+		case MAX_ADULT_LONGEVITY:	me.m_parameters.m_moths.m_max_adult_longevity = WBSF::ToSizeT(str); break;
 		case READY_SHIFT0:		me.m_parameters.m_moths.m_ready_to_fly[0] = WBSF::as<double>(str); break;
 		case READY_SHIFT1:		me.m_parameters.m_moths.m_ready_to_fly[1] = WBSF::as<double>(str); break;
 

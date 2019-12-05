@@ -131,7 +131,7 @@ namespace WBSF
 		
 		enum TSex{ MALE, FEMALE, NB_SEX};
 
-		enum TMember{ P_MAX, W_MIN, WING_BEAT_SCALE, REDUCTION_FACTORE, REDUCTION_HEIGHT, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, FLIGHT_AFTER_SUNRISE, MAXIMUM_FLIGHTS, READY_SHIFT0,  READY_SHIFT1, NB_ATM_MEMBERS };
+		enum TMember{ P_MAX, W_MIN, WING_BEAT_SCALE, REDUCTION_FACTORE, REDUCTION_HEIGHT, W_HORZ, W_HORZ_SD, W_DESCENT, W_DESCENT_SD, FLIGHT_AFTER_SUNRISE, MAXIMUM_FLIGHTS, APPPLY_ATTRITION, MAX_ADULT_LONGEVITY, READY_SHIFT0,  READY_SHIFT1, NB_ATM_MEMBERS };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_ATM_MEMBERS); return MEMBERS_NAME[i]; }
 
 		double m_Pmax;				//maximum precipitation for flight [mm/h]
@@ -143,9 +143,12 @@ namespace WBSF
 		double m_w_horizontal_σ;	//horizontal velocity standard deviation [km/h]
 		double m_w_descent;			//terminal velocity [km/h]
 		double m_w_descent_σ;		//terminal velocity standard deviation [km/h]
-
+		
 		double m_flight_after_sunrise;	//let moths to flight after sunrise [h]
 		size_t m_maxFlights;			//macimum number of flight for moths
+		bool   m_bAppplyAttrition;  //apply attrition on adult
+		size_t m_max_adult_longevity; //maximum adult longivity [days]
+
 		std::array<double, NB_SEX> m_ready_to_fly;	//minimum age to fly. Usefull to delay male
 		
 		CSBWMothParameters()
@@ -168,6 +171,9 @@ namespace WBSF
 
 			m_flight_after_sunrise = 0;		//let moths to flight after sunrize [h]
 			m_maxFlights = 1;
+			m_bAppplyAttrition = true;  //apply attrition on adult
+			m_max_adult_longevity = 12; //maximum adult longivity [days]
+
 			m_ready_to_fly = { {0.15,0} };
 
 		}
@@ -188,6 +194,9 @@ namespace WBSF
 
 				m_flight_after_sunrise = in.m_flight_after_sunrise;
 				m_maxFlights = in.m_maxFlights;
+				m_bAppplyAttrition = in.m_bAppplyAttrition;  
+				m_max_adult_longevity = in.m_max_adult_longevity;
+
 				m_ready_to_fly = in.m_ready_to_fly;
 								
 			}
@@ -211,6 +220,8 @@ namespace WBSF
 			if(m_flight_after_sunrise != in.m_flight_after_sunrise)bEqual = false;
 			if (m_maxFlights != in.m_maxFlights)bEqual = false;
 			if (m_ready_to_fly != in.m_ready_to_fly)bEqual = false;
+			if (m_bAppplyAttrition != in.m_bAppplyAttrition)bEqual = false;
+			if (m_max_adult_longevity != in.m_max_adult_longevity)bEqual = false;
 
 			
 			
@@ -428,7 +439,10 @@ namespace WBSF
 			ASSERT(is_init());
 			ASSERT(in.is_init());
 			for (size_t i = 0; i < size(); i++)
-				at(i) += in.at(i);
+			{
+				if (at(i) != -999 && in.at(i) != -999)
+					at(i) += in.at(i);
+			}
 
 			return *this;
 		}
@@ -437,7 +451,11 @@ namespace WBSF
 		{
 			ASSERT(is_init());
 			for (size_t i = 0; i < size(); i++)
-				at(i) *= in;
+			{
+				if (at(i) != -999)
+					at(i) *= in;
+			}
+
 
 			return *this;
 		}
@@ -446,7 +464,10 @@ namespace WBSF
 		{
 			ASSERT(is_init());
 			for (size_t i = 0; i < size(); i++)
-				at(i) /= in;
+			{
+				if (at(i) != -999)
+					at(i) /= in;
+			}
 
 			return *this;
 		}
@@ -458,7 +479,10 @@ namespace WBSF
 
 			CATMVariables out;
 			for (size_t i = 0; i < in1.size(); i++)
-				out[i] = in1[i] + in2[i];
+			{
+				if (in1[i] != -999 && in2[i] != -999)
+					out[i] = in1[i] + in2[i];
+			}
 
 			return out;
 		}
@@ -468,7 +492,10 @@ namespace WBSF
 			ASSERT(in1.is_init());
 			CATMVariables out;
 			for (size_t i = 0; i < in1.size(); i++)
-				out[i] = in1[i] * f;
+			{
+				if (in1[i] != -999)
+					out[i] = in1[i] * f;
+			}
 
 			return out;
 		}
@@ -477,7 +504,10 @@ namespace WBSF
 		{
 			CATMVariables out;
 			for (size_t i = 0; i < in1.size(); i++)
+			{
+				if(in1[i] != -999)
 				out[i] = in1[i] / f;
+			}
 
 			return out;
 		}
@@ -799,12 +829,13 @@ namespace WBSF
 		void Brood(double T);
 		bool ComputeExodus(double T, double P, double W, double tau);
 		bool GetLiftoff(__int64 UTCTimeº, __int64 sunset, __int64& liftoff);
-		void get_t(__int64 UTCTimeº, __int64 tᶳ, __int64 &tº, __int64 &tᴹ)const;
+		bool get_t(__int64 UTCTimeº, __int64 tᶳ, __int64 &tº, __int64 &tᶜ, __int64 &tᴹ)const;
 		void FillOutput(size_t type, CTRef localTRef, CATMOutputMatrix& output);
 		bool IsLanded() const { return m_logTime[T_LANDING_END] > -999; }
 		bool CanFly()const;
 		bool ForceFirst()const; 
 		bool IsOverWater()const;
+		bool IsOverDefoliation()const;
 		void KillByWater();
 		double z_AGL()const;
 
@@ -897,7 +928,7 @@ namespace WBSF
 		ERMsg Execute(CATMOutputMatrix& output, ofStream& output_file, CCallback& callback);
 		ERMsg ExecuteOneNight(CTRef TRef, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
 		ERMsg SimulateOneNight(CTRef TRef, std::vector<CSBWMothsIt>& fls, CATMOutputMatrix& output, CATMOutputMatrix& sub_output, CCallback& callback);
-		ERMsg CreateEggDepositionMap(const std::string& outputFilePath, CATMOutputMatrix& output, CCallback& callback);
+		ERMsg CreateEggDepositionMap(const std::string& inputFilePath, const std::string& outputFilePath, CTPeriod savedPeriod, CCallback& callback);
 		void FinalizedOutput(CATMOutputMatrix& output);
 
 
@@ -967,6 +998,8 @@ namespace zen
 		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT_SD)](in.m_w_descent_σ);
 		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::FLIGHT_AFTER_SUNRISE)](in.m_flight_after_sunrise);
 		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAXIMUM_FLIGHTS)](in.m_maxFlights);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::APPPLY_ATTRITION)](in.m_bAppplyAttrition);
+		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAX_ADULT_LONGEVITY)](in.m_max_adult_longevity);
 		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT0)](in.m_ready_to_fly[0]);
 		out[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT1)](in.m_ready_to_fly[1]);
 		
@@ -990,6 +1023,8 @@ namespace zen
 		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::W_DESCENT_SD)](out.m_w_descent_σ);
 		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::FLIGHT_AFTER_SUNRISE)](out.m_flight_after_sunrise);
 		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAXIMUM_FLIGHTS)](out.m_maxFlights);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::APPPLY_ATTRITION)](out.m_bAppplyAttrition);
+		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::MAX_ADULT_LONGEVITY)](out.m_max_adult_longevity);
 		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT0)](out.m_ready_to_fly[0]);
 		in[WBSF::CSBWMothParameters::GetMemberName(WBSF::CSBWMothParameters::READY_SHIFT1)](out.m_ready_to_fly[1]);
 
