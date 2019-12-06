@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormDispersal is a BioSIM model for Spruce budworm dispersal
 //*****************************************************************************
+// 12/07/2019	1.1.2	Rémi Saint-Amant	Add sex as enum and not size_t
 // 28/02/2019	1.1.1	Rémi Saint-Amant	Add adult longevity max parameters
 // 02/05/2018   1.1.0   Rémi Saint-Amant	Transfer liftoff from model to dispersal
 // 04/05/2017   1.0.1   Rémi Saint-Amant	Update with new hourly generation
@@ -70,7 +71,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 3;
-		VERSION = "1.1.1 (2019)";
+		VERSION = "1.1.2 (2019)";
 
 		m_nbMoths = 10;
 		m_defoliation = 0;

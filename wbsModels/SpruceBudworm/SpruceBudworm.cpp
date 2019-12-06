@@ -4,6 +4,7 @@
 //
 // Description: the CSpruceBudworm represents a group of SBW insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 12-07-2019	Rémi Saint-Amant	Add sex as enum and not size_t
 // 01-02-2019	Rémi Saint-Amant	Bug correction when sunset is before noon 
 // 19-12-2018	Rémi Saint-Amant	Add option of adult attrition.
 // 03-08-2018	Rémi Saint-Amant	Remove the reduction factor for defoliation. 
@@ -176,6 +177,32 @@ namespace WBSF
 		if (NeedOverheating())
 			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
 
+
+		//{
+		//	double OH = 0;
+		//	//if (m_overheat != 0 && weather[H_TMIN].IsInit() && weather[H_TMAX].IsInit())
+		//	
+		//	const CWeatherDay& day = *((const CWeatherDay*)weather.GetParent());
+		//	const CWeatherDay& dp = day.GetPrevious();
+		//	//const CWeatherDay& me = day;
+		//	const CWeatherDay& dn = day.GetNext();
+
+		//	//if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
+		//		//&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
+		//	double Tmin[3] = { dp[H_TMIN][MEAN], day[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+		//	double Tmax[3] = { dp[H_TMAX][MEAN], day[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
+
+		//	double Fo = 0.5*(1 + cos((double(16) - h) / 12.0*PI));
+		//	
+		//	double TRange = max(0.0, (h <= 4) ? dp[H_TMAX][MEAN] - day[H_TMIN][MEAN] : (h <= 16) ? day[H_TMAX][MEAN] - day[H_TMIN][MEAN] : day[H_TMAX][MEAN] - dn[H_TMIN][MEAN]);
+		//	double maxOverheat = TRange * OVERHEAT_FACTOR;
+		//	OH = maxOverheat * Fo;
+
+		//	T += OH;
+		//	//T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
+		//}
+
+
 		//Time step development rate
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
@@ -221,6 +248,16 @@ namespace WBSF
 		if (s == L2o)
 			m_OWEnergy -= GetEnergyLost(weather[H_TAIR]) / (24.0 / timeStep);
 
+		//verify adult longevity
+		if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
+		{
+			ASSERT(m_emergingPupaeDate.IsInit());
+			if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
+			{
+				//adult reach maximum longevity. Kill it.
+				m_age = DEAD_ADULT;
+			}
+		}
 		//Compute defoliation on tree
 		m_eatenFoliage += GetEatenFoliage(RR);
 
@@ -354,17 +391,18 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		else if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
-		{
-			ASSERT(m_emergingPupaeDate.IsInit());
-			if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
-			{
-				//adult reach maximum longevity. Kill it.
-				m_status = DEAD;
-				m_death = OLD_AGE;
-			}
-			
-		}
+		//else if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
+		//{
+		//	ASSERT(m_emergingPupaeDate.IsInit());
+		//	if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
+		//	{
+		//		//adult reach maximum longevity. Kill it.
+		//		m_age = DEAD_ADULT;
+		//		m_status = DEAD;
+		//		m_death = OLD_AGE;
+		//	}
+		//	
+		//}
 		/*else if (m_bRemoveExodus)
 		{
 			m_status = DEAD;

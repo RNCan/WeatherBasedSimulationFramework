@@ -9,6 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 01/01/2019	Rémi Saint-Amant	Limit adult devlopement temperatrue between 8 and 35
 // 03/03/2017	Rémi Saint-Amant	Add eggs laid proportion
 // 23/12/2016   Rémi Saint-Amant	Add flight activity equations
 // 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict

@@ -3,6 +3,8 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 06/12/2019	3.2.0	Rémi Saint-Amant	Bug correction when adult reach max adult longevity 
+// 12/07/2019	3.1.9	Rémi Saint-Amant	Add sex as enum and not size_t
 // 28/02/2019	3.1.8	Rémi Saint-Amant	Add adult longevity max parameters
 // 19/12/2018   3.1.7   Rémi Saint-Amant	Add option of adult attrition
 // 02/05/2018   3.1.6   Rémi Saint-Amant	Compile with VS 2017
@@ -52,7 +54,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 8;
-		VERSION = "3.1.8 (2019)";
+		VERSION = "3.2.0 (2019)";
 
 		// initialize your variables here (optional)
 		m_bApplyAttrition = true;
