@@ -1048,7 +1048,7 @@ namespace WBSF
 		double m_sumStdDev;
 	};
 
-	ERMsg CGDALDatasetEx::GetRegularCoord(int nbPointLat, int nbPointLon, bool bExp, const CGeoRect& rect, CGridPointVector& points, CCallback& callback)
+	ERMsg CGDALDatasetEx::GetRegularCoord(int nbPointLat, int nbPointLon, bool bExpo, const CGeoRect& rect, CGridPointVector& points, CCallback& callback)
 	{
 		ASSERT(IsOpen());
 		ASSERT(nbPointLat > 0 && nbPointLon > 0);
@@ -1056,89 +1056,102 @@ namespace WBSF
 		ERMsg msg;
 
 		points.clear();
-		/*
-		string comment;
-		comment.FormatMessage( IDS_MAP_GENERATEREGULAR, GetFilePath() );
-		callback.SetCurrentDescription(comment);
-		callback.SetNbStep(m_nRows*m_nCols);
 
-
-		double intervaleInP = 0;
-		double intervaleP = 0;
-
-		if( GetProfileDirection() == PD_EAST)
+		CGeoExtents extents = GetExtents();
+		CGeoExtents sub_extents = extents;
+		if (rect.IsInit())
 		{
-			intervaleInP = m_nCols/nbPointLon;
-			intervaleP = m_nRows/nbPointLat;
+			((CGeoRect&)sub_extents) = rect;
+			//if (GetPrjID() != rect.GetPrjID())
+				//sub_extents.Reproject(GetReProjection(rect.GetPrjID(), GetPrjID()));
 
+			sub_extents.IntersectExtents(extents);
 		}
-		else if( GetProfileDirection() == PD_NORTH )
+
+
+		double x_inc = sub_extents.m_xSize / nbPointLon;
+		double y_inc = sub_extents.m_ySize / nbPointLat;
+
+		std::set<pair<int, int>> indexes;
+
+		for (size_t i = 0; i < nbPointLat; i++)
 		{
-			intervaleInP = m_nRows/nbPointLat;
-			intervaleP = m_nCols/nbPointLon;
-		}
-		else ASSERT( false);
-
-
-		int curProfile =0;
-		int curCellInProfile =0;
-
-		SeekBegin();
-
-
-		string tmp;
-		for(int y=0; y<GetNbProfile(); y++)
-		{
-			for(int x=0; x<GetNbCellByProfile(); x++)
+			for (size_t j = 0; j < nbPointLon; j++)
 			{
-				CGeoMapPoint point;
-
-				message = ReadCell(point);
-
-
-				if( !message )
-					return message;
-
-				callback.StepIt();
-				if( callback.GetUserCancel() )
-				{
-					message.asgType(ERMsg::ERREUR);
-					message.ajoute(UtilWin::GetCString(IDS_CMN_USER_BREAK));
-
-					return message;
-				}
-
-
-
-
-				if( (int)(intervaleInP*curCellInProfile)== x &&
-					(int)(intervaleP*curProfile)== y )
-				{
-					if( point.m_z > m_noData )
-					{
-
-						if(!bExp)
-						{
-							point.SetSlopeAndAspect(45,0,0);
-						}
-
-
-						locArray.Add(point);
-					}
-
-					curCellInProfile++;
-
-				}
-
-				if( y == ((int)(intervaleP*curProfile)) &&
-					x == GetNbCellByProfile()-1)
-				{
-					curCellInProfile=0;
-					curProfile++;
-				}
+				CGeoPointIndex xy(int(x_inc*j), int(y_inc*i));
+				CGeoPoint pt = sub_extents.XYPosToCoord(xy);
+				xy = extents.CoordToXYPos(pt);
+				indexes.insert(make_pair(xy.m_x, xy.m_y));
 			}
 		}
-		*/
+
+		CProjectionPtr pPrj = GetPrj();
+		CProjectionTransformation PT(pPrj, CProjectionManager::GetPrj(PRJ_WGS_84));
+
+		Randomize();//init the first time
+
+		CBandsHolderMT bandHolder(3);
+		msg += bandHolder.Load(*this);
+
+		if (!msg)
+			return msg;
+
+		vector<pair<int, int>> XYindex = extents.GetBlockList();
+
+		string comment = FormatMsg(IDS_MAP_GENERATEREGULAR, m_filePath);
+		callback.PushTask(comment, XYindex.size());
+
+
+
+		for (size_t xy = 0; xy < XYindex.size() && msg; xy++)//for all blocks
+		{
+			int xBlock = XYindex[xy].first;
+			int yBlock = XYindex[xy].second;
+			CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
+			bandHolder.LoadBlock(blockExtents);
+
+			CDataWindowPtr window = bandHolder.GetWindow(0);
+
+			//#pragma omp parallel for schedule(static, 100) num_threads( m_optionss.m_CPU ) if (m_optionss.m_bMulti)
+			for (int y = 0; y < blockExtents.m_ySize&&msg; y++)
+			{
+				for (int x = 0; x < blockExtents.m_xSize&&msg; x++)
+				{
+					if (window->IsValid(x, y))
+					{
+						CGeoPointIndex xy(x, y);
+						CGeoPoint pt = blockExtents.XYPosToCoord(xy);
+						xy = extents.CoordToXYPos(pt);
+
+						auto it = indexes.find(make_pair(xy.m_x, xy.m_y));
+
+						if (it != indexes.end())
+						{
+							CGridPoint pt;
+							((CGeoPoint&)pt) = blockExtents.XYPosToCoord(CGeoPointIndex(x, y));
+							pt.m_z = window->at(x, y);
+							if (bExpo)
+								window->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
+
+							if (pPrj->IsProjected())
+							{
+								CGeoPoint ptGeo(pt);
+								ptGeo.Reproject(PT);
+								pt.m_latitudeDeg = ptGeo.m_y;
+							}
+
+							points.push_back(pt);
+							msg += callback.StepIt(0);
+						}
+
+					}
+				}
+			}
+
+			msg += callback.StepIt();
+		}
+
+		callback.PopTask();
 
 		return msg;
 	}
@@ -1219,19 +1232,12 @@ namespace WBSF
 			//m_extents = GetExtents();
 			string comment = FormatMsg(IDS_MAP_GENERATERANDOM, m_filePath);
 			callback.PushTask(comment, nbPixels);
-			//callback.SetNbStep(nbPixels);
-
 
 			CBandsHolderMT bandHolder(3);
 			msg += bandHolder.Load(*this);
 
 			if (!msg)
 				return msg;
-
-
-
-			//callback.SetCurrentDescription(GetString(IDS_STR_EXTRACT_INFO));
-			//callback.SetNbStep(m_extents.GetNbPixels());
 
 			vector<pair<int, int>> XYindex = extents.GetBlockList();
 
@@ -1240,11 +1246,6 @@ namespace WBSF
 				int xBlock = XYindex[xy].first;
 				int yBlock = XYindex[xy].second;
 				CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
-
-
-
-
-
 				bandHolder.LoadBlock(blockExtents);
 
 				CDataWindowPtr window = bandHolder.GetWindow(0);
@@ -1254,7 +1255,6 @@ namespace WBSF
 				{
 					for (int x = 0; x < blockExtents.m_xSize; x++)
 					{
-						//int pos_xy = y*blockExtents.m_xSize + x;
 						if (window->IsValid(x, y))
 						{
 							CGridPoint pt;

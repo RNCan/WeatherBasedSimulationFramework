@@ -1251,7 +1251,7 @@ namespace WBSF
 						results.erase(results.begin());
 
 					//if future year, we continue anyway
-					if (year > currentYear)
+					if (!msg && year > currentYear)
 						msg = ERMsg();
 
 					if (m_tgi.UseGribs())
@@ -1328,7 +1328,7 @@ namespace WBSF
 							results.erase(results.begin());
 
 						//if future year, we continue anyway
-						if (year > currentYear)
+						if (!msg && year > currentYear)
 							msg = ERMsg();
 
 						if (m_tgi.UseGribs())
@@ -1449,7 +1449,7 @@ namespace WBSF
 						results.erase(results.begin());
 
 					//if int the future, we continue anyway
-					if (year > currentYear)
+					if (!msg && year > currentYear)
 						msg = ERMsg();
 
 					//if (!msg && v == H_TAIR)//Tair = (Tmin + Tmax)/2 in daily data
@@ -1504,7 +1504,7 @@ namespace WBSF
 							results.erase(results.begin());
 
 						//if future year, we continue anyway
-						if (year > currentYear)
+						if (!msg && year > currentYear)
 							msg = ERMsg();
 
 
@@ -1800,15 +1800,17 @@ namespace WBSF
 
 	void CWeatherGenerator::RemoveForecast(CSimulationPoint& simulationPoint)
 	{
-
+		//remove forecast only for the next 60 days
+		//do not let forecast taffect simulation with CC database 
 		CTRef today = CTRef::GetCurrentTRef(simulationPoint.GetTM());
-		CTRef end = simulationPoint.GetEntireTPeriod().End();
+		CTRef end = today + (60*(simulationPoint.IsHourly()?24:1));// simulationPoint.GetEntireTPeriod().End();
 
 		if (today < end)
 		{
 			for (CTRef Tref = today + 1; Tref <= end; Tref++)
 			{
-				simulationPoint[Tref].Reset();
+				if( simulationPoint.IsYearInit(Tref.GetYear()) )
+					simulationPoint[Tref].Reset();
 			}
 		}
 	}

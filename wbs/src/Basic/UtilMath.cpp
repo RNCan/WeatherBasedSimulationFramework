@@ -305,7 +305,10 @@ namespace WBSF
 		else if (nbVal >= 2 && nbVal <= 3)
 		{
 			//degree minute
-			coord = GetDecimalDegree((long)a, (long)b, c);
+			if (a >= -360 && a <= 360 &&
+				b >= 0 && b <= 60 &&
+				c >= 0 && c <= 60)
+				coord = GetDecimalDegree((long)a, (long)b, c);
 		}
 
 		return coord;
