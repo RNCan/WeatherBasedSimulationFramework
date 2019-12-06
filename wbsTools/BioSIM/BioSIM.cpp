@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////   
 // version de BioSIM
+// 11.6.1:03/12/2019	Rémi Saint-Amant	Add XY generate location from DEM 
+//											Update Eggs deposition map
 // 11.6.0:21/08/2019	Rémi Saint-Amant	Correction in generation of hourly Tair when radius is zero
 //											Add exposition factor on hourly values
 //											Update of Circadian cycle in ATM, add adult longevity and attrition
