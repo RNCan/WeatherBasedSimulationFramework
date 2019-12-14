@@ -1,6 +1,7 @@
 // Program accepts 1 argument: full path and name of the parameter-set file
 //************** M O D I F I C A T I O N S   L O G ********************
-//RSA 16/11/2016: Compile for BioSIM 11
+//13/12/2019	2.2.2	RSA	Bug correction
+//16/11/2016	2.2.1	RSA	Compile for BioSIM 11
 //RSA 08/03/2012: Recompilation with new model
 //RSA 17/11/2008: Recompilation with new gray egg equation
 //RSA 17/03/2006: Output each viability flags
@@ -40,7 +41,7 @@ namespace WBSF
 	CGypsyMothStability::CGypsyMothStability()
 	{
 		NB_INPUT_PARAMETER = 4;
-		VERSION = "2.2.1 (2016)";
+		VERSION = "2.2.2 (2019)";
 
 		// initialise your variable here (optionnal)
 
@@ -52,47 +53,31 @@ namespace WBSF
 	{
 	}
 
-	//This method is called to compute solution
-	//ERMsg CGypsyMothStability::Execute() 
-	//{
-	//    ERMsg message;
-	//
-	//
-	//	CGypsyMothVector gypsyMothVector;
-	//	gypsyMothVector.resize(m_nbGenerations);
-	//	
-	//	//bool stabilityFlag = false;
-	//	CGMEggInputParam paramTmp = m_param;
-	//
-	//	for(int g=0; g<m_nbGenerations; g++) 
-	//	{
-	//		//simulate developement
-	//		gypsyMothVector[g].SimulateDeveloppement(paramTmp, m_weather);
-	//
-	//		int newOvipDate = gypsyMothVector[g].GetNewOvipDate();
-	//		int firstHatch = gypsyMothVector[g].GetFirstHatch();
-	//
-	//		int flags = 0;
-	//		bool viabilityFlag = gypsyMothVector[g].GetViabilityFlag(paramTmp, flags);
-	//	
-	//		bool bStability =	viabilityFlag && ( g==m_nbGenerations-1 || newOvipDate%365 == paramTmp.GetOvipDate());
-	//
-	//		m_outputFile << g+1 << paramTmp.GetOvipDate()+1 << firstHatch+1 << newOvipDate+1;
-	//		
-	//		m_outputFile << (flags&CGypsyMoth::DIAPAUSE_BEFORE_WINTER?1:0) << (flags&CGypsyMoth::POSDIAPAUSE_BEFORE_SUMMER?1:0) << (flags&CGypsyMoth::FIRST_WINTER_EGG?1:0) << (flags&CGypsyMoth::ADULT_BEFORE_WINTER?1:0) << (viabilityFlag?1:0);
-	//		m_outputFile <<( bStability?1:0);
-	//		m_outputFile.EndLine();
-	//
-	//		if( bStability || !viabilityFlag)
-	//			g=m_nbGenerations; //end output
-	//		else paramTmp.SetOvipDate(newOvipDate%365);
-	//	}
-	//
-	//	return message;
-	//}
+	//****************************************************************************************************************
 
+	//this method is call to load your parameter in your variable
+	ERMsg CGypsyMothStability::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg message;
+
+		CTPeriod period = m_weather.GetEntireTPeriod(CTM::DAILY);
+
+		int c = 0;
+		m_hatchModelType = parameters[c++].GetInt();
+		m_eggParam.m_ovipDate = period.Begin() + parameters[c++].GetInt();
+		m_eggParam.m_sawyerModel = parameters[c++].GetInt();
+		m_nbGenerations = parameters[c++].GetInt();
+
+		return message;
+	}
+	
+	//****************************************************************************************************************
+	
 	ERMsg CGypsyMothStability::OnExecuteAnnual()
 	{
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
 		if (m_nbGenerations == 0)
 			ExecuteWithoutGeneration();
 		else ExecuteWithGeneration();
@@ -172,7 +157,7 @@ namespace WBSF
 			gypsyMoth.SimulateDeveloppement(m_weather, p);
 
 			bViability = gypsyMoth.GetViabilityFlag();
-			eggParamTmp.m_ovipDate = gypsyMoth.GetNewOvipDate();;
+			eggParamTmp.m_ovipDate = gypsyMoth.GetNewOvipDate();
 		}
 
 		//Output data
@@ -262,23 +247,44 @@ namespace WBSF
 	return message;
 	}
 	*/
-	/****************************************************************************************************************/
-
-	//this method is call to load your parameter in your variable
-	ERMsg CGypsyMothStability::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg message;
-
-		CTPeriod period = m_weather.GetEntireTPeriod(CTM::DAILY);
-
-		int c = 0;
-		m_hatchModelType = parameters[c++].GetInt();
-		m_eggParam.m_ovipDate = period.Begin() + parameters[c++].GetInt();
-		m_eggParam.m_sawyerModel = parameters[c++].GetInt();
-		m_nbGenerations = parameters[c++].GetInt();
-
-		return message;
-	}
+	//This method is called to compute solution
+		//ERMsg CGypsyMothStability::Execute() 
+		//{
+		//    ERMsg message;
+		//
+		//
+		//	CGypsyMothVector gypsyMothVector;
+		//	gypsyMothVector.resize(m_nbGenerations);
+		//	
+		//	//bool stabilityFlag = false;
+		//	CGMEggInputParam paramTmp = m_param;
+		//
+		//	for(int g=0; g<m_nbGenerations; g++) 
+		//	{
+		//		//simulate developement
+		//		gypsyMothVector[g].SimulateDeveloppement(paramTmp, m_weather);
+		//
+		//		int newOvipDate = gypsyMothVector[g].GetNewOvipDate();
+		//		int firstHatch = gypsyMothVector[g].GetFirstHatch();
+		//
+		//		int flags = 0;
+		//		bool viabilityFlag = gypsyMothVector[g].GetViabilityFlag(paramTmp, flags);
+		//	
+		//		bool bStability =	viabilityFlag && ( g==m_nbGenerations-1 || newOvipDate%365 == paramTmp.GetOvipDate());
+		//
+		//		m_outputFile << g+1 << paramTmp.GetOvipDate()+1 << firstHatch+1 << newOvipDate+1;
+		//		
+		//		m_outputFile << (flags&CGypsyMoth::DIAPAUSE_BEFORE_WINTER?1:0) << (flags&CGypsyMoth::POSDIAPAUSE_BEFORE_SUMMER?1:0) << (flags&CGypsyMoth::FIRST_WINTER_EGG?1:0) << (flags&CGypsyMoth::ADULT_BEFORE_WINTER?1:0) << (viabilityFlag?1:0);
+		//		m_outputFile <<( bStability?1:0);
+		//		m_outputFile.EndLine();
+		//
+		//		if( bStability || !viabilityFlag)
+		//			g=m_nbGenerations; //end output
+		//		else paramTmp.SetOvipDate(newOvipDate%365);
+		//	}
+		//
+		//	return message;
+		//}
 
 
 }

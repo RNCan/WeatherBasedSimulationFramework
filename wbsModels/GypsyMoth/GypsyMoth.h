@@ -10,7 +10,7 @@ namespace WBSF
 {
 
 
-	enum Stage{ EGG, L1, L2, L3, L4, L5, L6, PUPAE, ADULT, DEAD_ADULT, MALE, FEMALE, TOT_POP, AVR_INS, MALE_EMERGED, FEMALE_EMERGED, NB_STAGE };
+	enum Stage{ EGG, L1, L2, L3, L4, L5, L6, PUPAE, ADULT, DEAD_ADULT, MALE_ADULT, FEMALE_ADULT, TOT_POP, AVR_INS, MALE_EMERGED, FEMALE_EMERGED, NB_STAGE };
 	typedef CModelStatVectorTemplate<NB_STAGE> CGMOutputVector;
 
 	//********************************************************

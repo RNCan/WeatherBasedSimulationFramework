@@ -23,7 +23,7 @@ namespace WBSF
 		void ExecuteWithGeneration();
 		void ExecuteWithoutGeneration();
 
-		void Reset();
+		//void Reset();
 
 		int m_hatchModelType;
 		CGMEggParam m_eggParam;

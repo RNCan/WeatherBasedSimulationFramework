@@ -198,8 +198,8 @@ namespace WBSF
 				tot_pop += m_stageFreq[day][L1 + stage];
 				ai += m_stageFreq[day][L1 + stage] * stage;
 			}
-			_ASSERTE(m_stageFreq[day][MALE] == 0);
-			_ASSERTE(m_stageFreq[day][FEMALE] == 0);
+			_ASSERTE(m_stageFreq[day][MALE_ADULT] == 0);
+			_ASSERTE(m_stageFreq[day][FEMALE_ADULT] == 0);
 
 			m_stageFreq[day][DEAD_ADULT] = recruits[0][8] + recruits[1][8];
 
@@ -209,14 +209,14 @@ namespace WBSF
 			// Male and female moths separately 
 			for (int cohort = first_cohort[0][7]; cohort < n_cohorts[0][7]; ++cohort)
 			{
-				m_stageFreq[day][MALE] += den_cohort[0][7][cohort] *
+				m_stageFreq[day][MALE_ADULT] += den_cohort[0][7][cohort] *
 					(1 - eme_cohort[0][7][cohort]);
 			}
 
 
 			for (int cohort = first_cohort[1][7]; cohort < n_cohorts[1][7]; ++cohort)
 			{
-				m_stageFreq[day][FEMALE] += den_cohort[1][7][cohort] *
+				m_stageFreq[day][FEMALE_ADULT] += den_cohort[1][7][cohort] *
 					(1 - eme_cohort[1][7][cohort]);
 			}
 
@@ -256,7 +256,7 @@ namespace WBSF
 		//Look for mid-point of Female flight period
 		for (int i = 366; i < m_stageFreq.size(); i++)
 		{
-			sum_arr += m_stageFreq[i][FEMALE];
+			sum_arr += m_stageFreq[i][FEMALE_ADULT];
 		}
 		max_arr = sum_arr;
 		sum_arr = 0;
@@ -264,7 +264,7 @@ namespace WBSF
 		{
 			for (int i = 366; i < m_stageFreq.size(); i++)
 			{
-				sum_arr += m_stageFreq[i][FEMALE];
+				sum_arr += m_stageFreq[i][FEMALE_ADULT];
 				if (sum_arr >= max_arr / 2.0f)
 				{
 					newOvipDate = m_stageFreq.GetFirstTRef() + i;

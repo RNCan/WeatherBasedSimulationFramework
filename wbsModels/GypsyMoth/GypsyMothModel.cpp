@@ -1,5 +1,6 @@
 //************************************************************************************
-//RSA 16/11/2016:	Compile for BioSIM 11
+//13/12/2019	2.3.2	RSA	Code cleaning
+//16/11/2016	2.3.1	RSA	Compile for BioSIM 11
 //RSA 25/01/2012:	New model with multi generation
 //					Add deadAdult
 //					use double instead of float
@@ -44,7 +45,7 @@ namespace WBSF
 	{
 		// initialize your variables here (optional)
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "2.3.1 (2016)";
+		VERSION = "2.3.2 (2019)";
 
 		m_hatchModelType = CGypsyMoth::GRAY_MODEL;
 		m_bHaveAttrition = false;
@@ -55,6 +56,26 @@ namespace WBSF
 
 	CGypsyMothModel::~CGypsyMothModel()
 	{
+	}
+
+	//this method is called to load your parameters in your variables
+	ERMsg CGypsyMothModel::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg msg;
+
+		CTPeriod period = m_weather.GetEntireTPeriod(CTM::DAILY);
+
+		//transfer your parameters here
+		int c = 0;
+		m_hatchModelType = parameters[c++].GetInt();
+		m_eggParam.m_ovipDate = period.Begin() + parameters[c++].GetInt();
+		m_eggParam.m_sawyerModel = parameters[c++].GetInt();
+		m_bHaveAttrition = parameters[c++].GetBool();
+		m_outputStyle = parameters[c++].GetInt();
+		m_takePreviousOvipDate = parameters[c++].GetBool();
+
+
+		return msg;
 	}
 
 	//This method is called to compute solution
@@ -136,111 +157,8 @@ namespace WBSF
 					eggParamTmp.m_ovipDate.m_year = m_weather[y + 1].GetTRef().GetYear();//update year
 				}
 			}
-
-			//update intial date to the current year
-			//m_eggParam.m_ovipDate.m_year++;
 		}
-
 	}
-
-	//void CGypsyMothModel::ExecuteDaily(CGMOutputVector& stat)
-	//{
-	//	//Set global class variables
-	//	CGypsyMoth::SetApplyMortality(m_bHaveAttrition);
-	//	
-	//	stat.Init(m_weather.GetNbDay()-m_weather[0].GetNbDay(), m_weather[1].GetFirstTRef());
-	//
-	//	CGMEggParam eggParamTmp = m_eggParam;
-	//	
-	//	int nbGenerations = 10;
-	//	CTRef lastOvipDate;
-	//	//CStatistic ovipJD;
-	//	for(int g=0; g<nbGenerations&&eggParamTmp.m_ovipDate.GetJDay()!=lastOvipDate.GetJDay(); g++ ) 
-	//	{
-	//		//int y = yy%(m_weather.GetNbYear()-1);
-	//
-	//		CTPeriod p( m_weather[0].GetFirstTRef(), m_weather[1].GetLastTRef() );
-	//		//simulate developement
-	//		CGypsyMoth gypsyMoth(m_hatchModelType, eggParamTmp);
-	//		gypsyMoth.SimulateDeveloppement(m_weather, p);
-	//		gypsyMoth.GetOutputStat(stat);
-	//
-	//		if(gypsyMoth.GetViabilityFlag())
-	//		{
-	//			//take new computed value
-	//			//ovipJD += gypsyMoth.GetNewOvipDate().GetJDay();
-	//			lastOvipDate = eggParamTmp.m_ovipDate;
-	//			eggParamTmp.m_ovipDate.SetJDay( gypsyMoth.GetNewOvipDate().GetJDay() );
-	//		}
-	//		else
-	//		{
-	//			//take original value		
-	//			//int nextY = (yy+1)%(m_weather.GetNbYear()-1);
-	//			//eggParamTmp.m_ovipDate = m_eggParam.m_ovipDate;
-	//			//eggParamTmp.m_ovipDate.m_year = m_weather[nextY].GetYear();//update year to the next year
-	////			for(CTRef d=m_weather[y+1].GetFirstTRef(); d<=stat.GetLastTRef(); d++)
-	//	//			stat[d][EGG] = 100;
-	//			//for(int d=0; d<stat.size(); d++)
-	//				//stat[d][EGG] = 100;
-	//
-	//			g = 10; 
-	//		}
-	//		
-	//		//gypsyMoth.SetEggParam(eggParamTmp);
-	//		//
-	//		
-	//	}
-	//
-	//	//CTRef newOvipDate;
-	//	//if(ovipJD[NB_VALUE] )
-	//		//newOvipDate = m_weather.GetFirstTRef() + Round(ovipJD[MEAN]);
-	//
-	//	
-	//	//return newOvipDate;
-	//}
-
-	//CTRef CGypsyMothModel::GetInitialOvipDate()
-	//{
-	//	CGMEggParam eggParamTmp = m_eggParam;
-	//	
-	//	int nbGenerations = 10;
-	//	CStatistic ovipJD;
-	//	for(int g=0, yy=0; g<nbGenerations&&ovipJD[NB_VALUE]<5; g++, yy++)//newOvipDate.GetJDay()!=eggParamTmp.m_ovipDate.GetJDay(); g++ ) 
-	//	{
-	//		int y = yy%(m_weather.GetNbYear()-1);
-	//
-	//		CTPeriod p( m_weather[y].GetFirstTRef(), m_weather[y+1].GetLastTRef() );
-	//		//simulate developement
-	//		CGypsyMoth gypsyMoth(m_hatchModelType, eggParamTmp);
-	//		gypsyMoth.SimulateDeveloppement(m_weather, p);
-	//
-	//		if(gypsyMoth.GetViabilityFlag())
-	//		{
-	//			//take new computed value
-	//			ovipJD += gypsyMoth.GetNewOvipDate().GetJDay();
-	//			eggParamTmp.m_ovipDate = gypsyMoth.GetNewOvipDate();
-	//		}
-	//		else
-	//		{
-	//			//take original value		
-	//			int nextY = (yy+1)%(m_weather.GetNbYear()-1);
-	//			eggParamTmp.m_ovipDate = m_eggParam.m_ovipDate;
-	//			eggParamTmp.m_ovipDate.m_year = m_weather[nextY].GetYear();//update year to the next year
-	//		}
-	//		
-	//		//gypsyMoth.SetEggParam(eggParamTmp);
-	//		//
-	//		
-	//	}
-	//
-	//	CTRef newOvipDate;
-	//	if(ovipJD[NB_VALUE] )
-	//		newOvipDate = m_weather.GetFirstTRef() + Round(ovipJD[MEAN]);
-	//
-	//	
-	//	return newOvipDate;
-	//}
-
 
 	void CGypsyMothModel::ComputeRegularValue(const CGMOutputVector& stat, COutputVector& output)
 	{
@@ -258,8 +176,8 @@ namespace WBSF
 			output[d][O_PUPAE] = stat[d][PUPAE];
 			output[d][O_ADULT] = stat[d][ADULT];
 			output[d][O_DEAD_ADULT] = stat[d][DEAD_ADULT];
-			output[d][O_MALE_MOTH] = stat[d][MALE];
-			output[d][O_FEMALE_MOTH] = stat[d][FEMALE];
+			output[d][O_MALE_MOTH] = stat[d][MALE_ADULT];
+			output[d][O_FEMALE_MOTH] = stat[d][FEMALE_ADULT];
 			//		output[d][O_MALE_EMERGED]=stat[d][MALE_EMERGED];
 			//	output[d][O_FEMALE_EMERGED]=stat[d][FEMALE_EMERGED];
 			//if(d.m_month == DECEMBER && d.m_day == 30)
@@ -283,8 +201,8 @@ namespace WBSF
 		for (size_t y = 0; y < p.GetNbYears(); y++)
 		{
 			CTPeriod p2 = p.GetAnnualPeriodByIndex(y);
-			double sumMale = stat.GetStat(MALE, p2)[SUM];
-			double sumFemale = stat.GetStat(FEMALE, p2)[SUM];
+			double sumMale = stat.GetStat(MALE_ADULT, p2)[SUM];
+			double sumFemale = stat.GetStat(FEMALE_ADULT, p2)[SUM];
 			//double sumMale2 = stat.GetStat(MALE_EMERGED, p2)[SUM];
 			//double sumFemale2 = stat.GetStat(FEMALE_EMERGED, p2)[SUM];
 
@@ -302,8 +220,8 @@ namespace WBSF
 				double totPop = stat[d][EGG];
 				//double sumMale = 0;
 				//double sumFemale = 0;
-				//sumMale+=stat[d][MALE];
-				//sumFemale+=stat[d][FEMALE];
+				//sumMale+=stat[d][MALE_ADULT];
+				//sumFemale+=stat[d][FEMALE_ADULT];
 
 				for (int j = L1; j <= DEAD_ADULT; j++)
 				{
@@ -325,10 +243,10 @@ namespace WBSF
 				if (!firstDay)//assume we don't have male and female the first day
 				{
 					if (sumMale > 0.0001)
-						output[d][O_MALE_MOTH] = output[d - 1][O_MALE_MOTH] + 100 * stat[d][MALE] / sumMale;
+						output[d][O_MALE_MOTH] = output[d - 1][O_MALE_MOTH] + 100 * stat[d][MALE_ADULT] / sumMale;
 
 					if (sumFemale > 0.0001)
-						output[d][O_FEMALE_MOTH] = output[d - 1][O_FEMALE_MOTH] + 100 * stat[d][FEMALE] / sumFemale;
+						output[d][O_FEMALE_MOTH] = output[d - 1][O_FEMALE_MOTH] + 100 * stat[d][FEMALE_ADULT] / sumFemale;
 
 					//if(sumMale2>0) 
 					//output[d][O_MALE_EMERGED]=output[d-1][O_MALE_EMERGED] + (100*stat[d][MALE_EMERGED])/sumMale2;
@@ -403,8 +321,8 @@ namespace WBSF
 
 	double eggs_left=(double)100;
 	double tot_pop=0;
-	double tot_males = gypsyMoth.GetTotal(CStage::MALE);
-	double tot_females = gypsyMoth.GetTotal(CStage::FEMALE);
+	double tot_males = gypsyMoth.GetTotal(CStage::MALE_ADULT);
+	double tot_females = gypsyMoth.GetTotal(CStage::FEMALE_ADULT);
 
 	double cum_freq[10]={0};
 	for (int i=0; i<m_weather[1].GetNbDay(); i++)
@@ -588,26 +506,5 @@ namespace WBSF
 	}
 	*/
 
-	//this method is called to load your parameters in your variables
-	ERMsg CGypsyMothModel::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg msg;
-
-		CTPeriod period = m_weather.GetEntireTPeriod(CTM::DAILY);
-		
-
-
-		//transfer your parameters here
-		int c = 0;
-		m_hatchModelType = parameters[c++].GetInt();
-		m_eggParam.m_ovipDate = period.Begin() + parameters[c++].GetInt();
-		m_eggParam.m_sawyerModel = parameters[c++].GetInt();
-		m_bHaveAttrition = parameters[c++].GetBool();
-		m_outputStyle = parameters[c++].GetInt();
-		m_takePreviousOvipDate = parameters[c++].GetBool();
-
-
-		return msg;
-	}
 
 }

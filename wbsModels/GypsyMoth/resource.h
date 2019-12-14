@@ -1,6 +1,7 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Gypsy Moth Seasonality(2012).rc
+// Used by Gypsy Moth.rc
+//
 
 // Next default values for new objects
 // 
