@@ -11,15 +11,21 @@ namespace WBSF
 	{
 	public:
 
+		enum TCountry { C_CANADA, C_USA, NB_COUNTRY };
 
 		CPlantHardinessModel();
 		virtual ~CPlantHardinessModel();
 
 		virtual ERMsg OnExecuteAnnual();
-		//virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 
 		static CBioSIMModelBase* CreateObject() { return new CPlantHardinessModel; }
-	private:
+
+
+	protected:
+
+		size_t m_country;
+	
 	};
 
 }

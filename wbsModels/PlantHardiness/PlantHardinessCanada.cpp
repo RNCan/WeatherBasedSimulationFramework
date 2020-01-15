@@ -2,7 +2,7 @@
 // 26/06/2018	Rémi Saint-Amant	Compile with VS2017
 // 27/01/2010 	Rémi Saint-Amant	Incorporate in BioSIMModelBase
 //**********************************************************************
-#include "PlantHardiness.h"
+#include "PlantHardinessCanada.h"
 #include "Basic/WeatherDefine.h"
 #include "Basic/UtilMath.h"
 #include "Basic/GrowingSeason.h"
@@ -25,7 +25,7 @@ namespace WBSF
 	}
 
 
-	size_t GetColdestMonth(const CWeatherStation& weather)
+	size_t CPlantHardinessCanada::GetColdestMonth(const CWeatherStation& weather)
 	{
 		size_t index = -1;
 		double T = 999;
@@ -43,7 +43,7 @@ namespace WBSF
 		return index;
 	}
 
-	size_t GetWarmerMonth(const CWeatherStation& weather)
+	size_t CPlantHardinessCanada::GetWarmerMonth(const CWeatherStation& weather)
 	{
 		size_t index = -1;
 		double T = -999;
@@ -62,7 +62,7 @@ namespace WBSF
 		return index;
 	}
 
-	double GetMeanFrosFreePeriod(const CWeatherStation& weather)
+	double CPlantHardinessCanada::GetMeanFrosFreePeriod(const CWeatherStation& weather)
 	{
 		CGrowingSeason gs(CGSInfo::TT_TMIN, 1, 0, CGSInfo::TT_TMIN, 1, 0);
 
@@ -76,7 +76,7 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
-	double GetMeanMaximumSnowDepth(const CWeatherStation& weather)
+	double CPlantHardinessCanada::GetMeanMaximumSnowDepth(const CWeatherStation& weather)
 	{
 		CStatistic stat;
 		for (size_t y = 0; y < weather.size(); y++)
@@ -85,7 +85,7 @@ namespace WBSF
 		return stat[MEAN];
 	}
 
-	double GetJuneNovemberRain(const CWeatherStation& weather)
+	double CPlantHardinessCanada::GetJuneNovemberRain(const CWeatherStation& weather)
 	{
 		CTPeriod JuneNovember(weather.GetFirstYear(), JUNE, FIRST_DAY, weather.GetLastYear(), NOVEMBER, LAST_DAY, CTPeriod::YEAR_BY_YEAR);
 		double prcp = weather.GetStat(H_PRCP, JuneNovember)[SUM];
@@ -94,7 +94,7 @@ namespace WBSF
 		return (prcp - snow) / weather.size();
 	}
 	//it's the rainfall and not snowfall
-	double GetJanuaryRainfall(const CWeatherStation& weather)
+	double CPlantHardinessCanada::GetJanuaryRainfall(const CWeatherStation& weather)
 	{
 		double prcp = GetNormalStat(weather, JANUARY, H_PRCP)[MEAN];
 		double snow = GetNormalStat(weather, JANUARY, H_SNOW)[MEAN];
@@ -117,7 +117,7 @@ namespace WBSF
 	//X5 = winter factor expressed in terms of (0°C - X1)Rjan where Rjan represents the rainfall in January expressed in mm
 	//X6 = mean maximum snow depth in terms of S/(S+a) where a=25.4 if S is in millimeters and a=1 if S is in inches
 	//X7 = maximum wind gust in (km/hr) in 30 years
-	double GetSuitabilityIndex(const CWeatherStation& weather)
+	double CPlantHardinessCanada::GetSuitabilityIndex(const CWeatherStation& weather)
 	{
 		//cm = coldest month
 		size_t cm = GetColdestMonth(weather);
@@ -141,7 +141,7 @@ namespace WBSF
 		return std::max(0.0, Y);
 	}
 
-	void CPlantHardiness::Compute(const CWeatherStation& weather, CModelStatVector& result)
+	void CPlantHardinessCanada::Compute(const CWeatherStation& weather, CModelStatVector& result)
 	{
 		ASSERT(weather.size() > 20);
 

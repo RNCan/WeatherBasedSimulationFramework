@@ -7,15 +7,17 @@
 namespace WBSF
 {
 
-	class CPlantHardiness
+	class CPlantHardinessUSA
 	{
 	public:
 
-		CPlantHardiness()
+		CPlantHardinessUSA()
 		{}
 
 		void Compute(const CWeatherStation& weather, CModelStatVector& result);
 
+
+		static double GetSuitabilityIndex(const CWeatherStation& weather);
 	};
 
 }

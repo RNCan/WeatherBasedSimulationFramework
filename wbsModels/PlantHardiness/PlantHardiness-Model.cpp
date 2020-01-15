@@ -1,9 +1,11 @@
 //*********************************************************************
-//27/01/2010	1.2.0	Rémi Saint-Amant	Integrate into BioSIM 11
+//27/01/2020	1.3.0	Rémi Saint-Amant	Add USA Plant Hardiness
+//27/01/2018	1.2.0	Rémi Saint-Amant	Integrate into BioSIM 11
 //27/01/2010			Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "PlantHardiness-Model.h"
-#include "PlantHardiness.h"
+#include "PlantHardinessCanada.h"
+#include "PlantHardinessUSA.h"
 #include "Basic/WeatherDefine.h"
 #include "ModelBase/EntryPoint.h"
 
@@ -21,8 +23,8 @@ namespace WBSF
 	CPlantHardinessModel::CPlantHardinessModel()
 	{
 		// initialise your variable here (optionnal)
-		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.2.0 (2018)";
+		NB_INPUT_PARAMETER = 1;
+		VERSION = "1.3.0 (2020)";
 	}
 
 	CPlantHardinessModel::~CPlantHardinessModel()
@@ -34,26 +36,33 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CPlantHardiness model;
-		model.Compute(m_weather, m_output);
+		if (m_country == C_CANADA)
+		{
+			CPlantHardinessCanada model;
+			model.Compute(m_weather, m_output);
+		}
+		else if(m_country == C_USA)
+		{
+			CPlantHardinessUSA model;
+			model.Compute(m_weather, m_output);
+		}
 
 		return msg;
 	}
 
 	//this method is call to load your parameter in your variable
-	/*ERMsg CPlantHardinessModel::ProcessParameter(const CParameterVector& parameters)
+	ERMsg CPlantHardinessModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
 
 		//transfer your parameter here
-		short c=0;
-		m_firstDay = parameters[c++].GetInt()-1;
-		m_ffmc = parameters[c++].GetReal();
-		m_dmc = parameters[c++].GetReal();
-		m_dc = parameters[c++].GetReal();
-		m_lastDay = parameters[c++].GetInt()-1;
+		size_t c=0;
+		m_country = parameters[c++].GetInt();
+		if (m_country >= NB_COUNTRY)
+			msg.ajoute("Bad input parameter, Country model is not valid");
 
+		
 		return msg;
 	}
-	*/
+	
 }

@@ -189,11 +189,13 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="PlantHardiness-Model.cpp" />
-    <ClCompile Include="PlantHardiness.cpp" />
+    <ClCompile Include="PlantHardinessCanada.cpp" />
+    <ClCompile Include="PlantHardinessUSA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlantHardiness-Model.h" />
-    <ClInclude Include="PlantHardiness.h" />
+    <ClInclude Include="PlantHardinessCanada.h" />
+    <ClInclude Include="PlantHardinessUSA.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">

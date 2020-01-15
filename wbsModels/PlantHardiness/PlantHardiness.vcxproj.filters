@@ -10,7 +10,10 @@
     <ClCompile Include="PlantHardiness-Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlantHardiness.cpp">
+    <ClCompile Include="PlantHardinessUSA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlantHardinessCanada.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -18,7 +21,10 @@
     <ClInclude Include="PlantHardiness-Model.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="PlantHardiness.h">
+    <ClInclude Include="PlantHardinessUSA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlantHardinessCanada.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
