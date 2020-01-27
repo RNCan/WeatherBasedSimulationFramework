@@ -33,13 +33,6 @@ namespace WBSF
 	CTaskBase::TType CUIHRDPA::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIHRDPA::CLASS_NAME(), (createF)CUIHRDPA::create);
 	static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("EnvCanRadarPrcp", (createF)CUIHRDPA::create);
-	
-
-	
-	//const char* CUIHRDPA::SERVER_NAME = "dd.weather.gc.ca";
-	//const char* CUIHRDPA::SERVER_PATH = "analysis/precip/%1/grib2/polar_stereographic/";
-
-
 
 	CUIHRDPA::CUIHRDPA(void)
 	{}
@@ -73,30 +66,6 @@ namespace WBSF
 		return str;
 	}
 
-/*
-	bool CUIHRDPA::NeedDownload(const CFileInfo& info, const string& filePath)const
-	{
-		bool bDownload = true;
-		if (GoodGrib(filePath))
-		{
-			CFileStamp fileStamp(filePath);
-			__time64_t lastUpdate = fileStamp.m_time;
-			if (lastUpdate > 0 && info.m_time < lastUpdate)
-				bDownload = false;
-		}
-
-		return bDownload;
-	}
-
-	string CUIHRDPA::GetOutputFilePath(const string& fileName)const
-	{
-
-		string year = Right(fileName, 20).substr(0, 4);
-		string type = as<size_t>(TYPE) == 0 ? "06" : "24";
-
-		return GetDir(WORKING_DIR) + type + "\\" + year + "\\" + fileName;
-	}
-*/
 
 	ERMsg CUIHRDPA::Execute(CCallback& callback)
 	{
@@ -107,82 +76,7 @@ namespace WBSF
 		HRDPA.m_product = (CHRDPA::TProduct)as<size_t>(PRODUCT);
 		HRDPA.m_max_hours = as<int>(MAX_HOUR);
 
-		//size_t product = 
-//string type = == TYPE_06HOURS ? "06" : "24";
-
-
 		return HRDPA.Execute(callback);
-//		ERMsg msg;
-		
-		//string workingDir = GetDir(WORKING_DIR);
-
-		//CInternetSessionPtr pSession;
-		//CHttpConnectionPtr pConnection;
-
-		//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		//if (!msg)
-		//	return msg;
-
-		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		//callback.AddMessage(workingDir, 1);
-		//callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		//callback.AddMessage(SERVER_NAME, 1);
-		//callback.AddMessage("");
-
-		//size_t product = as<size_t>(PRODUCT);
-		//string type = as<size_t>(TYPE) == TYPE_06HOURS ? "06" : "24";
-		//string path = SERVER_PATH + type + "/*.grib2";
-		//ReplaceString(path, "%1", product == RDPA ? "rdpa":"hrdpa");
-
-
-		//CFileInfoVector fileList;
-		//msg = UtilWWW::FindFiles(pConnection, path, fileList);
-
-		//callback.AddMessage("Number of images found: " + ToString(fileList.size()));
-		////keep only 10km grid
-		//for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end();)
-		//{
-		//	string fileName = GetFileName(it->m_filePath);
-		//	string filePath = GetOutputFilePath(fileName);
-
-		//	if (!CHRDPA::NeedDownload(*it, filePath))
-		//		it = fileList.erase(it);
-		//	else
-		//		it++;
-
-		//	msg += callback.StepIt(0);
-		//}
-
-		//callback.AddMessage("Number of images to download after clearing: " + ToString(fileList.size()));
-		//callback.PushTask("Download RDPA/HRDPA precipitation images (" + ToString(fileList.size() )+ ")", fileList.size());
-
-		//int nbDownload = 0;
-		//for (size_t i = 0; i < fileList.size() && msg; i++)
-		//{
-		//	string filePath = GetOutputFilePath(GetFileName(fileList[i].m_filePath));
-		//	CreateMultipleDir(GetPath(filePath));
-		//	msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-		//	if (msg&&GoodGrib(filePath))
-		//	{
-		//		nbDownload++;
-		//	}
-		//	else
-		//	{
-		//		callback.AddMessage("corrupt file, remove: " + filePath);
-		//		msg = WBSF::RemoveFile(filePath);
-		//	}
-
-		//	msg += callback.StepIt();
-		//}
-
-		//pConnection->Close();
-		//pSession->Close();
-
-
-		//callback.AddMessage("Number of images downloaded: " + ToString(nbDownload));
-		//callback.PopTask();
-
-	//	return msg;
 	}
 
 

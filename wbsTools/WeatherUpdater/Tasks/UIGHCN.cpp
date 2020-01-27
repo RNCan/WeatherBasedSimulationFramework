@@ -21,6 +21,8 @@ using namespace WBSF::HOURLY_DATA;
 using namespace std;
 using namespace UtilWWW;
 
+//HTTPS
+//https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/
 
 namespace WBSF
 {
@@ -429,8 +431,6 @@ ERMsg CUIGHCND::LoadOptimisation()
 {
 	//load station list in memory for optimization
 	ERMsg msg;
-	string filePath = GetStationFilePath();
-	
 	msg = m_optFile.Load(GetOptFilePath());
 	return msg;
 }	

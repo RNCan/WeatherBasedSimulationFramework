@@ -348,7 +348,14 @@ namespace WBSF
 												string inputPath;
 												switch (s)
 												{
-												case S_NOMADS:inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, HH); break;
+												case S_NOMADS:
+												{
+													inputPath = FormatA(HTTP_FORMAT[s], y, m, y, m, d, y, m, d, hs, HH);
+													//if 
+													if (curH < CTRef(2012, MAY, DAY_09,0)  )
+														ReplaceString(inputPath, "rap_130", "ruc2anl_130");
+													break;
+												}
 												case S_NCEP:inputPath = FormatA(HTTP_FORMAT[s], y, m, d, hs, PRODUCT_NAME[prod], HH); break;
 												case S_UCAR:inputPath = FormatA(HTTP_FORMAT[s], y, m, d, y - 2000, m, d, hs, hs, PRODUCT_NAME[prod], HH); break;
 												default: ASSERT(false);
@@ -627,10 +634,12 @@ namespace WBSF
 		if (s == S_NOMADS)
 		{
 			string name = GetFileTitle(remote);
-			int year = WBSF::as<int>(name.substr(8, 4));
-			size_t m = WBSF::as<size_t >(name.substr(12, 2)) - 1;
-			size_t d = WBSF::as<size_t >(name.substr(14, 2)) - 1;
-			size_t h = WBSF::as<size_t >(name.substr(17, 2));
+			StringVector tmp(name, "_");
+			ASSERT(tmp.size()==5);
+			int year = WBSF::as<int>(tmp[2].substr(0, 4));
+			size_t m = WBSF::as<size_t >(tmp[2].substr(4, 2)) - 1;
+			size_t d = WBSF::as<size_t >(tmp[2].substr(6, 2)) - 1;
+			size_t h = WBSF::as<size_t >(tmp[3].substr(0, 2));
 
 			TRef = CTRef(year, m, d, h);
 		}
@@ -782,9 +791,12 @@ namespace WBSF
 								for (size_t HH = 0; HH < nb_pass; HH++)
 								{
 
-									string URL = paths2[d2].first + "/";
+									string URL = paths2[d2].first /*+ "/"*/;
 									CTRef TRef = paths2[d2].second;
 									URL += FormatA("rap_130_%d%02d%02d_??00_%03d.grb2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH);
+									if (TRef < CTRef(2012, MAY, DAY_09, 0))
+										ReplaceString(URL, "rap_130", "ruc2anl_130");
+
 									CFileInfoVector fileListTmp;
 									msg = FindFiles(pConnection, URL, fileListTmp);
 									fileList.insert(fileList.end(), fileListTmp.begin(), fileListTmp.end());
@@ -910,8 +922,8 @@ namespace WBSF
 		string outputFilePath = inputFilePath;
 		ReplaceString(outputFilePath, "_000.grb2", "_000.tif");
 
-		string VRTFilePath = inputFilePath;
-		ReplaceString(VRTFilePath, "_000.grb2", "_000.vrt");
+		//string VRTFilePath = inputFilePath;
+		//ReplaceString(VRTFilePath, "_000.grb2", "_000.vrt");
 
 		if (GoodGrib(inputFilePath) || GoodGrib(inputFilePath2))
 		{
@@ -929,6 +941,7 @@ namespace WBSF
 			CSfcDatasetCached DSin2;
 			if (GoodGrib(inputFilePath2))
 			{
+				DSin2.m_variables_to_load.reset();
 				DSin2.m_variables_to_load.set(H_PRCP);
 				msg += DSin2.open(inputFilePath2, true);
 				if (msg)

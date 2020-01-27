@@ -45,7 +45,11 @@ namespace WBSF
 		bool at(const std::string& in)const
 		{
 			if (none())
+				return false;
+
+			if (all())
 				return true;
+
 
 			size_t p = GetCountry(in);
 			return p < size() ? test(p) : false;

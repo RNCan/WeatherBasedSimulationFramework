@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "CreateGribsDB.h"
+#include "CreateGribsList.h"
 #include "UIRapidUpdateCycle.h"
 
 #include "TaskFactory.h"
@@ -19,7 +19,7 @@ namespace WBSF
 	const char* CCreateGribsList::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
 	const size_t CCreateGribsList::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
 	const UINT CCreateGribsList::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
-	const UINT CCreateGribsList::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS;
+	const UINT CCreateGribsList::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS_LIST;
 
 	const char* CCreateGribsList::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateGribs";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateGribsList::ClassType()const { return CTaskBase::TOOLS; }

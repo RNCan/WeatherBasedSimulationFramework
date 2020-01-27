@@ -41,7 +41,8 @@ namespace WBSF
 	CHRDPS::CHRDPS(const std::string& workingDir) :
 		m_workingDir(workingDir),
 		m_bCreateDailyGeotiff(true),
-		m_createHistiricalGeotiff(true),
+		//m_createHistiricalGeotiff(true),
+		m_update_last_n_days(7),
 		m_bForecast(false),
 		m_max_hours(24),
 		m_bHRDPA6h(false)
@@ -314,7 +315,9 @@ namespace WBSF
 
 	ERMsg CHRDPS::Execute(CCallback& callback)
 	{
-		//return UpdateAll(callback);
+		//set<string> t;
+		//t.insert("20200101");
+		//return CreateHourlyGeotiff(t, callback);
 
 		GDALSetCacheMax64(128 * 1024 * 1024);
 
@@ -591,14 +594,17 @@ namespace WBSF
 					date_to_update.insert(FormatA("2019%02d%02d", m, d));
 			}
 		}
-				
-		
+
+
 		msg = CreateDailyGeotiff(date_to_update, callback);
 		return msg;*/
 
-		if (date_to_update.empty() && m_createHistiricalGeotiff)
-			date_to_update = GetAll(callback);
-		
+		if (/*date_to_update.empty() &&*/ m_update_last_n_days > 0)
+		{
+			set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
+			date_to_update.insert(last_n_days.begin(), last_n_days.end());
+		}
+
 		if (!date_to_update.empty())
 		{
 			if (msg && m_variables.test(APCP_SFC))
@@ -608,8 +614,10 @@ namespace WBSF
 				msg = CreateHourlySRad(date_to_update, callback);
 
 			//now, create GeoTiff
-			if (msg )
-				msg = CreateHourlyGeotiff(date_to_update, callback);
+			if (msg)
+			{
+				msg += CreateHourlyGeotiff(date_to_update, callback);
+			}
 
 			//now, create daily GeoTiff
 			if (msg && m_bCreateDailyGeotiff)
@@ -642,10 +650,14 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		size_t nbHours = m_bForecast ? 48 : 6;
 
-		callback.PushTask("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days", outputPath.size());
-		callback.AddMessage("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days");
+		//Compute the number of hours to update
+		std::map< string, StringVector>  to_update_map;
+
+		callback.PushTask("Find HRDPS hourly GeoTiff to update: " + ToString(outputPath.size()) + " days", outputPath.size() * 4 * nbHours);
+		//callback.AddMessage("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days");
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
@@ -653,38 +665,33 @@ namespace WBSF
 			string month = it->substr(4, 2);
 			string day = it->substr(6, 2);
 
-			string nbHours_test = FormatA("%s%s\\%s\\%s\\CMC_hrdps_continental_TMP_TGL_2_ps2.5km_*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
-			StringVector nbHours = WBSF::GetFilesList(nbHours_test, 2, true);
-			callback.PushTask("Create hourly GeoTiff for " + year + "-" + month + "-" + day + ": " + ToString(nbHours.size()) + " hours", nbHours.size());
-			//callback.AddMessage("Create Geotiff for " + year + "-" + month + "-" + day + ": " + ToString(nbHours.size()) + " hours");
 
 
 			for (size_t h1 = 0; h1 < 24 && msg; h1 += 6)
 			{
-				size_t nbHours = m_bForecast ? 48 : 6;
+
 				for (size_t h2 = 0; h2 < nbHours && msg; h2++)
 				{
 					CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, h1);
 					CTRef TRef2 = (h2 == 0) ? (TRef - 6) : TRef;
 					size_t H2 = (h2 == 0) ? 6 : h2;
 
-					//create VRT
-					//string filter1 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
 					string filter1 = FormatA("%s%04d\\%02d\\%02d\\%02d\\*%04d%02d%02d%02d_P%03d-00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), h2);
 					string filter2 = FormatA("%s%04d\\%02d\\%02d\\%02d\\*%04d%02d%02d%02d_P%03d-00.tif", m_workingDir.c_str(), TRef2.GetYear(), TRef2.GetMonth() + 1, TRef2.GetDay() + 1, TRef2.GetHour(), TRef2.GetYear(), TRef2.GetMonth() + 1, TRef2.GetDay() + 1, TRef2.GetHour(), H2);
 
-					StringVector fileList = WBSF::GetFilesList(filter1, 2, true);
+					StringVector fileList1 = WBSF::GetFilesList(filter1, 2, true);
 					StringVector fileList2 = WBSF::GetFilesList(filter2, 2, true);
+					__time64_t lastUpdate = -1;
 
-
-					//remove prcp
-					for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; )
+					//remove prcp and invalid file
+					for (StringVector::iterator it4 = fileList1.begin(); it4 != fileList1.end() && msg; )
 					{
-						string fileName = GetFileName(*it4);
 						if (GoodGrib(*it4))
 						{
+							lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
+							string fileName = GetFileName(*it4);
 							if (WBSF::Find(fileName, "APCP_SFC") || WBSF::Find(fileName, "DSWRF_SFC"))
-								it4 = fileList.erase(it4);
+								it4 = fileList1.erase(it4);
 							else
 								it4++;
 						}
@@ -692,101 +699,159 @@ namespace WBSF
 						{
 							callback.AddMessage("Remove invalid grib " + *it4);
 							msg += RemoveFile(*it4);
-							it4 = fileList.erase(it4);
+							it4 = fileList1.erase(it4);
 						}
 					}
 
-					fileList.insert(fileList.end(), fileList2.begin(), fileList2.end());
-					sort(fileList.begin(), fileList.end());
-
-					if (!fileList.empty())
+					//remove prcp and invalid file
+					for (StringVector::iterator it4 = fileList2.begin(); it4 != fileList2.end() && msg; )
 					{
-						string file_path_vrt = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
-
-						map< size_t, string> pos;
-						for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
+						CGDALDatasetEx DS;
+						if (DS.OpenInputImage(*it4))
 						{
-							string fileName = GetFileName(*it4);
-							string title = GetFileTitle(fileName);
-							StringVector tmp(title, "_");
-							ASSERT(tmp.size() == 9);
-
-							string strVar = tmp[3];
-							size_t var = CSfcDatasetCached::get_var(strVar);
-
-							if (var != NOT_INIT)
-								pos[var] = *it4;
+							DS.Close();
+							lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
+							it4++;
 						}
-
-						string vrt_path = GetPath(file_path_vrt);
-
-						ofStream oFile;
-						msg = oFile.open(file_path_vrt);
-						if (msg)
+						else
 						{
-							oFile << "<VRTDataset rasterXSize=\"2576\" rasterYSize=\"1456\">" << endl;
-							oFile << "  <SRS>PROJCS[\"unnamed\",GEOGCS[\"Coordinate System imported from GRIB file\",DATUM[\"unknown\",SPHEROID[\"Sphere\",6371229,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",60],PARAMETER[\"central_meridian\",252],PARAMETER[\"scale_factor\",90],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0]]</SRS>" << endl;
-							oFile << "  <GeoTransform>-2.0991274944969425e+006, 2.5000000000000000e+003, 0.0000000000000000e+000,-2.0993885214996245e+006, 0.0000000000000000e+000,-2.5000000000000000e+003</GeoTransform>" << endl;
+							callback.AddMessage("Remove invalid GeoTiff " + *it4);
+							msg += RemoveFile(*it4);
+							it4 = fileList2.erase(it4);
+						}
+					}
 
-							int b = 1;
-							//for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
-							for (auto it4 = pos.begin(); it4 != pos.end() && msg; it4++, b++)
-							{
-								size_t var = it4->first;
 
-								string fileName = GetFileName(it4->second);
-								string title = GetFileTitle(fileName);
-								string relFileName = GetRelativePath(vrt_path, it4->second);
+					string file_path_tif = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+					//string file_path_tif_new = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
+					//if (FileExists(file_path_tif_old))
+					//	RenameFile(file_path_tif_old, file_path_tif_new);
 
-								oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
-
-								oFile << "    <Description>" << META_DATA[var][M_DESC] << "</Description>" << endl;
-								oFile << "    <Metadata>" << endl;
-								oFile << "      <MDI key=\"GRIB_COMMENT\">" << META_DATA[var][M_COMMENT] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_ELEMENT\">" << META_DATA[var][M_ELEMENT] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << META_DATA[var][M_SHORT_NAME] << "</MDI>" << endl;
-								oFile << "      <MDI key=\"GRIB_UNIT\">" << META_DATA[var][M_UNIT] << "</MDI>" << endl;
-								oFile << "    </Metadata>" << endl;
-
-								oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
-								oFile << "    <ComplexSource>" << endl;
-								oFile << "      <SourceFilename relativeToVRT=\"1\">" << relFileName << "</SourceFilename>" << endl;
-								oFile << "      <SourceBand>1</SourceBand>" << endl;
-								oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
-								oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-								oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
-								oFile << "      <NODATA>9999</NODATA>" << endl;
-								oFile << "    </ComplexSource>" << endl;
-								oFile << "  </VRTRasterBand>" << endl;
-
-							}
-
-							oFile << "</VRTDataset>" << endl;
-							oFile.close();
-
-							//Create GeoTiff from vrt
-							string file_path_tif = file_path_vrt;
-							SetFileExtension(file_path_tif, ".tif");
-
-							string argument = "-stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
-							string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
-							msg += WinExecWait(command);
-
-							//remove vrt
-							msg += RemoveFile(file_path_vrt);
-						}//if msg
-					}//if not empty
+					//verify that the file is to update
+					if ((!fileList1.empty() || !fileList2.empty()) &&
+						GetFileInfo(file_path_tif).m_time < lastUpdate)
+					{
+						size_t h = h1 + h2;
+						string key = FormatA("%s%02d", it->c_str(), h);
+						to_update_map[key] = fileList1;
+						to_update_map[key].insert(to_update_map[key].end(), fileList2.begin(), fileList2.end());
+						sort(to_update_map[key].begin(), to_update_map[key].end());
+					}
 
 					msg += callback.StepIt();
 				}//h2
 			}//h1
 
-			callback.PopTask();
-			msg += callback.StepIt();
-
 		}//for all days
 
 		callback.PopTask();
+
+
+		//string nbHours_test = FormatA("%s%s\\%s\\%s\\CMC_hrdps_continental_TMP_TGL_2_ps2.5km_*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
+		//StringVector nbHours = WBSF::GetFilesList(nbHours_test, 2, true);
+		callback.PushTask("Create HRDPS hourly GeoTiff: " + ToString(to_update_map.size()) + " hours", to_update_map.size());
+		callback.AddMessage("Create HRDPS hourly GeoTiff: " + ToString(to_update_map.size()) + " hours");
+
+
+		for (auto it = to_update_map.begin(); it != to_update_map.end() && msg; it++)
+		{
+
+			string date = it->first;
+			string year = date.substr(0, 4);
+			string month = date.substr(4, 2);
+			string day = date.substr(6, 2);
+			string hour = date.substr(8, 2);
+
+			size_t h = ToSizeT(hour);
+			size_t h1 = size_t(h / 6) * 6;
+			size_t h2 = h % 6;
+
+
+			StringVector fileList = it->second;
+
+			//string file_path_vrt = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h);
+			string file_path_vrt = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
+			string file_path_tif = file_path_vrt; SetFileExtension(file_path_tif, ".tif");
+
+			//verify that the file is to update
+			map< size_t, string> pos;
+			for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
+			{
+				string fileName = GetFileName(*it4);
+				string title = GetFileTitle(fileName);
+				StringVector tmp(title, "_");
+				ASSERT(tmp.size() == 9);
+
+				string strVar = tmp[3];
+				size_t var = CSfcDatasetCached::get_var(strVar);
+
+				if (var != NOT_INIT)
+					pos[var] = *it4;
+			}
+
+			string vrt_path = GetPath(file_path_vrt);
+
+			ofStream oFile;
+			msg = oFile.open(file_path_vrt);
+			if (msg)
+			{
+				oFile << "<VRTDataset rasterXSize=\"2576\" rasterYSize=\"1456\">" << endl;
+				oFile << "  <SRS>PROJCS[\"unnamed\",GEOGCS[\"Coordinate System imported from GRIB file\",DATUM[\"unknown\",SPHEROID[\"Sphere\",6371229,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",60],PARAMETER[\"central_meridian\",252],PARAMETER[\"scale_factor\",90],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0]]</SRS>" << endl;
+				oFile << "  <GeoTransform>-2.0991274944969425e+006, 2.5000000000000000e+003, 0.0000000000000000e+000,-2.0993885214996245e+006, 0.0000000000000000e+000,-2.5000000000000000e+003</GeoTransform>" << endl;
+
+				int b = 1;
+				//for (StringVector::iterator it4 = fileList.begin(); it4 != fileList.end() && msg; it4++)
+				for (auto it4 = pos.begin(); it4 != pos.end() && msg; it4++, b++)
+				{
+					size_t var = it4->first;
+
+					string fileName = GetFileName(it4->second);
+					string title = GetFileTitle(fileName);
+					string relFileName = GetRelativePath(vrt_path, it4->second);
+
+					oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
+
+					oFile << "    <Description>" << META_DATA[var][M_DESC] << "</Description>" << endl;
+					oFile << "    <Metadata>" << endl;
+					oFile << "      <MDI key=\"GRIB_COMMENT\">" << META_DATA[var][M_COMMENT] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << META_DATA[var][M_ELEMENT] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << META_DATA[var][M_SHORT_NAME] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_UNIT\">" << META_DATA[var][M_UNIT] << "</MDI>" << endl;
+					oFile << "    </Metadata>" << endl;
+
+					oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
+					oFile << "    <ComplexSource>" << endl;
+					oFile << "      <SourceFilename relativeToVRT=\"1\">" << relFileName << "</SourceFilename>" << endl;
+					oFile << "      <SourceBand>1</SourceBand>" << endl;
+					oFile << "      <SourceProperties RasterXSize=\"2576\" RasterYSize=\"1456\" DataType=\"Float64\" BlockXSize=\"2576\" BlockYSize=\"1\" />" << endl;
+					oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+					oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"2576\" ySize=\"1456\" />" << endl;
+					oFile << "      <NODATA>9999</NODATA>" << endl;
+					oFile << "    </ComplexSource>" << endl;
+					oFile << "  </VRTRasterBand>" << endl;
+
+				}
+
+				oFile << "</VRTDataset>" << endl;
+				oFile.close();
+
+				//Create GeoTiff from vrt
+
+
+				string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
+				string argument = "-stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\"";
+				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+				msg += WinExecWait(command);
+
+				//remove vrt
+				msg += RemoveFile(file_path_vrt);
+			}//if msg
+
+			msg += callback.StepIt();
+		}//for all hours
+
+		callback.PopTask();
+
 		return msg;
 	}
 
@@ -835,8 +900,20 @@ namespace WBSF
 						string HRDPS_file_path = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
 						string out_file_path = HRDPS_file_path;
 						SetFileExtension(out_file_path, ".tif");
-						if (!FileExists(out_file_path))//create file only if they are not already created
+						//if (!FileExists(out_file_path))//create file only if they are not already created
+						CGDALDatasetEx DS;
+						if (DS.OpenInputImage(out_file_path))
 						{
+							DS.Close();
+						}
+						else
+						{
+							if (FileExists(out_file_path))
+							{
+								callback.AddMessage("Remove invalid HRDPS GeoTiff " + out_file_path);
+								msg += RemoveFile(out_file_path);
+							}
+
 							string HRDPS_file_path_prev = FormatA("%s%s\\%s\\%s\\%02d\\CMC_hrdps_continental_APCP_SFC_0_ps2.5km_%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2 - 1);
 
 							CPrcpHourToUpdate pfp;
@@ -969,8 +1046,20 @@ namespace WBSF
 					string out_file_path = HRDPS_file_path2;
 					SetFileExtension(out_file_path, ".tif");
 
-					if (!FileExists(out_file_path))
+					//if (!FileExists(out_file_path))
+					CGDALDatasetEx DS;
+					if (DS.OpenInputImage(out_file_path))
 					{
+						DS.Close();
+						//lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
+					}
+					else
+					{
+						if (FileExists(out_file_path))
+						{
+							callback.AddMessage("Remove invalid HRDPS GeoTiff " + out_file_path);
+							msg += RemoveFile(out_file_path);
+						}
 						string argument;
 
 						//j/m² (sum of one hour) -> watt/m²
@@ -1019,7 +1108,7 @@ namespace WBSF
 
 			if (filesList.size() == 24)
 			{
-				
+
 				string file_path_out = FormatA("%s%s\\%s\\%s\\HRDPSD_%s%s%s.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str());
 
 				GribVariables var_in;
@@ -1033,8 +1122,8 @@ namespace WBSF
 
 				if (msg)
 				{
-					GribVariables var_out=var_in;
-					
+					GribVariables var_out = var_in;
+
 					if (var_out[H_TAIR])
 					{
 						//if temperature present, add min and max
@@ -1065,9 +1154,9 @@ namespace WBSF
 					if (msg)
 					{
 						size_t b_out = 0;
-						for (size_t v = 0; v < var_out.size()&&msg; v++)
+						for (size_t v = 0; v < var_out.size() && msg; v++)
 						{
-							if (var_in.test(v)&& var_out.test(v))
+							if (var_in.test(v) && var_out.test(v))
 							{
 								vector<CStatistic> stat(options.m_extents.GetNbPixels());
 
@@ -1087,18 +1176,18 @@ namespace WBSF
 										for (size_t xy = 0; xy < data.size(); xy++)
 										{
 											//remove negative precipitation
-											if (v==H_PRCP && data[xy] < 0.01)
+											if (v == H_PRCP && data[xy] < 0.01)
 												data[xy] = 0;
 
-											if(data[xy] > -1E10 && fabs(data[xy]- no_data_in)>0.1)
+											if (data[xy] > -1E10 && fabs(data[xy] - no_data_in) > 0.1)
 												stat[xy] += data[xy];
 										}
-											
+
 									}
 
 									msg += callback.StepIt();
 								}
-								
+
 								if (v == H_TAIR)
 								{
 									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
@@ -1107,10 +1196,10 @@ namespace WBSF
 									//add min and max
 									for (size_t xy = 0; xy < data.size(); xy++)
 									{
-										if(stat[xy].IsInit())
+										if (stat[xy].IsInit())
 											data[xy] = stat[xy][LOWEST];
 									}
-										
+
 
 
 									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
@@ -1167,7 +1256,7 @@ namespace WBSF
 									b_out++;
 								}
 
-								
+
 							}//if var used
 						}//for all variable
 
@@ -1180,7 +1269,8 @@ namespace WBSF
 					if (msg)
 					{
 						//convert with gdal_translate to optimize size
-						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
+						string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
+						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 						msg += WinExecWait(command);
 						msg += RemoveFile(file_path_out + "2");
@@ -1188,7 +1278,7 @@ namespace WBSF
 
 				}//if msg
 
-				
+
 			}//if 24 hours
 
 			callback.PopTask();
@@ -1201,70 +1291,101 @@ namespace WBSF
 	}
 
 
-	std::set<std::string> CHRDPS::GetAll(CCallback& callback)
+	std::set<std::string> CHRDPS::Getlast_n_days(size_t nb_days, CCallback& callback)
 	{
 		ERMsg msg;
+
 		std::set<std::string> date_to_update;
-		vector<pair<string, string>> year_month;
-		StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
 
-		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		//vector<pair<string, string>> year_month;
+		//StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+
+		//for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		//{
+		//	string year = *it1;
+		//	if (ToInt(year) > 1900 && ToInt(year) < 2100)
+		//	{
+		//		StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+		//		for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+		//		{
+		//			//year_month.push_back(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+		//			year_month.push_back(make_pair(*it1, *it2));
+		//		}
+		//	}
+		//}
+
+		callback.PushTask("Get historical HRDPS to update (" + to_string(m_update_last_n_days) + " days)", m_update_last_n_days);
+		callback.AddMessage("Get historical HRDPS files to update (" + to_string(m_update_last_n_days) + " days)");
+
+
+		//for (auto it = year_month.begin(); it != year_month.end() && msg; it++)
+		CTRef TRef = CTRef::GetCurrentTRef(CTM::DAILY);
+		for (size_t d = 0; d < nb_days; d++)
 		{
-			string year = *it1;
-			if (ToInt(year) > 1900 && ToInt(year) < 2100)
+			//date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
+
+			//}
+
+			//{
+				//string year = it->first;
+				//string month = it->second;
+				//StringVector days = WBSF::GetDirectoriesList(m_workingDir + year + "\\" + month + "\\*");
+	//			for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+				//{
+			//string day = *it3;
+			string filter0 = FormatA("%s%04d\\%02d\\%02d\\*", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1 );
+			StringVector hours = WBSF::GetDirectoriesList(filter0);
+			for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
 			{
-				StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-				for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+				string hour = *it4;
+				size_t h1 = WBSF::as<size_t>(hour);
+
+				for (size_t h2 = 0; h2 < 6; h2++)
 				{
-					//year_month.push_back(m_workingDir + *it1 + "\\" + *it2 + "\\*");
-					year_month.push_back(make_pair(*it1, *it2));
-				}
-			}
-		}
+					string filter1 = FormatA("%s%04d\\%02d\\%02d\\%02d\\*%04d%02d%02d%02d_P%03d-00.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, h2);
+					string filter2 = FormatA("%s%04d\\%02d\\%02d\\%02d\\*%04d%02d%02d%02d_P%03d-00.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, h2);
 
-		callback.PushTask("Get all file to update (" + to_string(year_month.size()) + " months)", year_month.size());
-		callback.AddMessage("Get all file to update (" + to_string(year_month.size()) + " months)");
-
-
-		for (auto it = year_month.begin(); it != year_month.end() && msg; it++)
-		{
-			string year = it->first;
-			string month = it->second;
-			StringVector days = WBSF::GetDirectoriesList(m_workingDir + year + "\\" + month + "\\*");
-			for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-			{
-				string day = *it3;
-
-				StringVector hours = WBSF::GetDirectoriesList(m_workingDir + year + "\\" + month + "\\" + day + "\\*");
-				for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
-				{
-					string hour = *it4;
-					size_t h1 = WBSF::as<size_t>(hour);
-
-					for (size_t h2 = 0; h2 < 6; h2++)
+					if (!WBSF::GetFilesList(filter1, 2, true).empty() || !WBSF::GetFilesList(filter2, 2, true).empty())
 					{
-						string filter1 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
-						string filter2 = FormatA("%s%s\\%s\\%s\\%02d\\*%s%s%s%02d_P%03d-00.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, year.c_str(), month.c_str(), day.c_str(), h1, h2);
+						string tifFilePath = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02d%02d-%03d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, h2);
 
-						if (!WBSF::GetFilesList(filter1, 2, true).empty() || !WBSF::GetFilesList(filter2, 2, true).empty())
+						/*if (!WBSF::FileExists(tifFilePath))
 						{
-							string tifFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.tif", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
-							//string tifFilePath = FormatA("%s%s\\%s\\%s\\HRDPS_%s%s%s%02d-%03d.vrt", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str(), year.c_str(), month.c_str(), day.c_str(), h1, h2);
-
-							if (!WBSF::FileExists(tifFilePath))
-							{
-								string date = FormatA("%s%s%s", year.c_str(), month.c_str(), day.c_str());
-								date_to_update.insert(date);
-							}
+							string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+							date_to_update.insert(date);
+						}*/
+						CGDALDatasetEx DS;
+						if (DS.OpenInputImage(tifFilePath))
+						{
+							DS.Close();
+							//lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
 						}
-
-						msg += callback.StepIt(0);
+						else
+						{
+							if (FileExists(tifFilePath))
+							{
+								callback.AddMessage("Remove invalid HRDPS GeoTiff " + tifFilePath);
+								msg += RemoveFile(tifFilePath);
+							}
+								
+							//TRef.GetFormatedString();
+							//string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+							date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
+							//date_to_update.insert(date);
+						}
 					}
-				}//for all hours
-			}//for all days
+
+					msg += callback.StepIt(0);
+				}
+			}//for all hours
+
+			TRef--;
 
 			msg += callback.StepIt();
-		}//for all months
+		}//for all days
+
+
+	//}//for all months
 
 		callback.PopTask();
 

@@ -96,9 +96,12 @@ namespace WBSF
 		ERMsg msg;
 
 		clear();
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
+
 
 		CIDSLiteStationOptimisation& me = *this;
 		ifStream file;
+		file.imbue(utf8_locale);
 		msg = file.open(referencedFilePath);
 
 		if (msg)

@@ -133,7 +133,8 @@ namespace WBSF
 		virtual ~CHRDPS(void);
 
 		bool m_bCreateDailyGeotiff;
-		bool m_createHistiricalGeotiff;
+		//bool m_createHistiricalGeotiff;
+		size_t m_update_last_n_days;
 		CHRDPSVariables m_variables;
 		CHRDPSHeight m_heights;
 		CHRDPSLevels m_levels;
@@ -148,7 +149,7 @@ namespace WBSF
 		ERMsg GetVirtuelStation(const CLocationVector& stations, CWVariables variables, CTPeriod p, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 		std::string GetGeotiffFilePath(std::string outputFilePath) { return GetGeotiffFilePath(m_workingDir, outputFilePath); }
 		
-		std::set<std::string> GetAll(CCallback& callback);
+		std::set<std::string> Getlast_n_days(size_t nb_days, CCallback& callback);
 		ERMsg CreateHourlyGeotiff(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg CreateDailyGeotiff(std::set<std::string> outputPath, CCallback& callback)const;
 		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK);
@@ -160,6 +161,7 @@ namespace WBSF
 		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);
 		static std::string GetGeotiffFilePath(std::string workingDir, std::string outputFilePath);
 
+		
 	protected:
 
 		std::string m_workingDir;
@@ -174,8 +176,6 @@ namespace WBSF
 		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
 
 		ERMsg OpenDatasets(CCallback& callback);
-
-		
 
 		static size_t GetHRDPSVariable(std::string fileTitle);
 		static size_t GetLevel(std::string fileName);

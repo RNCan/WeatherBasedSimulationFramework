@@ -54,6 +54,8 @@ IDR_TASK_TOOLBAR3       PNG                     "res\\TaskToolbar3.png"
 
 IDR_TASK_TOOLBAR4       PNG                     "res\\TaskToolbar4.png"
 
+IDR_TASK_TOOLBAR5       PNG                     "res\\TaskToolbar5.png"
+
 IDR_TASK                PNG                     "res\\Task.png"
 
 IDR_TASK_TYPE           PNG                     "res\\TaskType.png"
@@ -156,13 +158,19 @@ BEGIN
     BUTTON      ID_TASK_CREATE_HOURLY
     BUTTON      ID_TASK_CREATE_DAILY
     BUTTON      ID_TASK_CREATE_NORMALS
-    BUTTON      ID_TASK_CREATE_GRIBS
+    BUTTON      ID_TASK_CREATE_GRIBS_LIST
     BUTTON      ID_TASK_CREATE_MMG
     SEPARATOR
-    BUTTON      ID_TASK_CREATE_WEAGRID
     BUTTON      ID_TASK_MERGE_DB
     BUTTON      ID_TASK_APPEND_DB
     BUTTON      ID_TASK_CROP_DB
+END
+
+IDR_TASK_TOOLBAR5 TOOLBAR 32, 32
+BEGIN
+    BUTTON      ID_TASK_CREATE_CANUS
+    BUTTON      ID_TASK_CREATE_WEAGRID
+    SEPARATOR
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
     BUTTON      ID_TASK_CONVERT_DB
@@ -217,12 +225,13 @@ BEGIN
     BUTTON      ID_TASK_CREATE_HOURLY
     BUTTON      ID_TASK_CREATE_DAILY
     BUTTON      ID_TASK_CREATE_NORMALS
-    BUTTON      ID_TASK_CREATE_GRIBS
+    BUTTON      ID_TASK_CREATE_GRIBS_LIST
     BUTTON      ID_TASK_CREATE_MMG
-    BUTTON      ID_TASK_CREATE_WEAGRID
     BUTTON      ID_TASK_MERGE_DB
     BUTTON      ID_TASK_APPEND_DB
     BUTTON      ID_TASK_CROP_DB
+    BUTTON      ID_TASK_CREATE_CANUS
+    BUTTON      ID_TASK_CREATE_WEAGRID
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
     BUTTON      ID_TASK_CONVERT_DB
@@ -244,8 +253,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,8,1,1
- PRODUCTVERSION 5,8,1,1
+ FILEVERSION 5,8,4,9
+ PRODUCTVERSION 5,8,4,9
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -262,21 +271,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.8.1.1"
+            VALUE "FileVersion", "5.8.4.9"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.8.1.1"
+            VALUE "ProductVersion", "5.8.4.9"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.8.1.1"
+            VALUE "FileVersion", "5.8.4.9"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.8.1.1"
+            VALUE "ProductVersion", "5.8.4.9"
         END
     END
     BLOCK "VarFileInfo"
@@ -673,6 +682,7 @@ BEGIN
     IDS_HRDPS_VAR_DBLY      "Soil temperature W"
     IDS_HRDPS_VAR_DBLL      "Soil temperature L|Soil temperature W"
     IDS_HRDPS_VAR_NTAT      "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
+    IDS_MESOWEST_API_TYPE   "Actuel|Historique"
 END
 
 STRINGTABLE
@@ -694,7 +704,7 @@ BEGIN
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Provinces (si Canada)"
     IDS_UPDATER_NOAA_FORECAST_P "Répertoire de travail"
     IDS_UPDATER_SNOTEL_P    "Répertoire de travail|Type|États|Première année|Dernière année|Télécharger pendant x jours|Mettre à jour la liste des stations"
-    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Première année|Dernière année|États (États-Unis)|Province (Canada)|Autres pays|Ignorer les stations communes|Forcé la mise à jour de la liste des stations"
+    IDS_UPDATER_MESOWEST_P  "Répertoire de travail|Jeton (token)|Type API|Première année (si historique)|Dernière année (si historique)|Réseau|États Americains|Provinces Canadiennes|Autres pays|IDs du sous-ensemble|Forcé la mise à jour de la liste des stations|Seulement station avec tmp|Utiliser prcp"
     IDS_UPDATER_WEATHER_FARM_P 
                             "Nom de membre|Mot de passe|Répertoire de travail|Province (Canada)|Type de période|Forcé la mise à jour de la liste des stations"
 END
@@ -729,8 +739,8 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
     IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)|Télécharger précipitation"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Serveur|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA|Créer Geotiff historique"
-    IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Créer Geotiff historique"
+    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA|Mise à jour historique (jours)"
+    IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Mise à jour historique (jours)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol HRDPS|Isobares HRDPS"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
@@ -758,6 +768,7 @@ BEGIN
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
+    IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour historique (jours)"
 END
 
 STRINGTABLE
@@ -813,17 +824,19 @@ BEGIN
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nCréer BD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nCréer BD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nCréer DB normales"
-    ID_TASK_CREATE_GRIBS    "Créer une liste de fichier Gribs\nCréer Liste de Gribs"
+    ID_TASK_CREATE_GRIBS_LIST 
+                            "Créer une liste de fichier Gribs\nCréer Liste de Gribs"
     ID_TASK_CREATE_MMG      "Créer une grille moyenne mensuelle\nCréer MMG"
-    ID_TASK_CREATE_WEAGRID  "Créer une base de données grille à partir d'un fichier Gribs\nCréer BD grille"
     ID_TASK_MERGE_DB        "Fusionner deux bases de données météorologiques\nFusionner"
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
-    ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
+    ID_TASK_CREATE_CANUS    "Créer une grille Canada/USA à partir de HRDPS and HRRR\nCréer grille CanUS"
+    ID_TASK_CREATE_WEAGRID  "Créer une base de données météo (horaire/quotidien) à partir d'un fichier Gribs\nCréer BD météo"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
     ID_TASK_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP\nFTP"
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
     ID_TASK_CREATE_ANIMATION 
@@ -1146,6 +1159,7 @@ BEGIN
     IDS_HRDPS_VAR_DBLY      "Soil temperature W"
     IDS_HRDPS_VAR_DBLL      "Soil temperature L|Soil temperature W"
     IDS_HRDPS_VAR_NTAT      "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
+    IDS_MESOWEST_API_TYPE   "Current|Historique"
 END
 
 STRINGTABLE
@@ -1178,7 +1192,7 @@ BEGIN
                             "Working directory|First year|Last year|Country|States (if USA)|Provinces (if Canada)"
     IDS_UPDATER_NOAA_FORECAST_P "Working directory"
     IDS_UPDATER_SNOTEL_P    "Working directory|Type|States|First year|Last year|Update until x days|Update station list"
-    IDS_UPDATER_MESOWEST_P  "Working directory|First year|Last year|States (USA)|Province (Canada)|Other countries|Ignore common stations|Force update station list"
+    IDS_UPDATER_MESOWEST_P  "Working directory|Token|API Type|First year (if historical)|Last year (if historical)|Network|USA's states|Canadian's provinces|Other countries|Subset's IDs|Force update station list|Only station with tmp|Use prcp"
     IDS_UPDATER_WEATHER_FARM_P 
                             "Member Name|Password|Working directory|Province (Canada)|Date range type|Force update station list"
 END
@@ -1213,8 +1227,8 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"
     IDS_UPDATER_RAP_P       "Working directory|Sources|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Product|Server|Show WinSCP (if FTP)|Download precipitation"
     IDS_UPDATER_NAM_P       "Working directory|Sources|Server|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
-    IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA|Create historical Geotiff"
-    IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Create historical Geotiff"
+    IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA|Update historical (days)"
+    IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Update historical (days)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|HRDPS Gound height|HRDPS Isobars"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"
@@ -1242,6 +1256,7 @@ BEGIN
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
+    IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical (days)"
 END
 
 STRINGTABLE
@@ -1297,17 +1312,18 @@ BEGIN
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normals DB"
-    ID_TASK_CREATE_GRIBS    "Create Gribs list\nCreate Gribs List"
+    ID_TASK_CREATE_GRIBS_LIST "Create Gribs list\nCreate Gribs List"
     ID_TASK_CREATE_MMG      "Create Monthly Mean Grid\nCreate MMG"
-    ID_TASK_CREATE_WEAGRID  "Create grid database from Gribs file\nGrid DB"
     ID_TASK_MERGE_DB        "Merge two weather databases\nMerge"
     ID_TASK_APPEND_DB       "Append one databases into an other database (move files)\nAppend"
     ID_TASK_CROP_DB         "Crop weather database\nCrop"
-    ID_TASK_ZIP_UNZIP       "Zip/Unzip files\nZip/Unzip"
+    ID_TASK_CREATE_CANUS    "Create Canada/USA grib from HRDPS and HRRR\nCreate CanUS Grid"
+    ID_TASK_CREATE_WEAGRID  "Create weather database (hourly/daily) from Gribs file\nWeather DB"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_ZIP_UNZIP       "Zip/Unzip files\nZip/Unzip"
     ID_TASK_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site\nFTP"
     ID_TASK_CONVERT_DB      "Convert weather database\nConvert"
     ID_TASK_CREATE_ANIMATION "Create animation from radar images\nAnimation"

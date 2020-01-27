@@ -47,7 +47,8 @@ namespace WBSF
 		CTPeriod m_period;
 		bool m_bShowWINSCP;
 		bool m_compute_prcp;
-		bool m_createHistiricalGeotiff;
+		size_t m_update_last_n_days;
+		bool m_createDailyGeotiff;
 		
 
 	protected:
@@ -65,7 +66,8 @@ namespace WBSF
 		ERMsg CreateHourlyGeotiff(const std::string& fileList, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(StringVector& filesList, const std::string& file_path_out, CCallback& callback)const;
-		std::set<std::string> GetAll(CCallback& callback)const;
+		//std::set<std::string> GetAll(CCallback& callback)const;
+		std::set<std::string> Getlast_n_days(size_t nb_days, CCallback& callback);
 		//ERMsg CreateVRT(std::set<stdstring> outputPath, CCallback& callback);
 
 		static const char* SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE];

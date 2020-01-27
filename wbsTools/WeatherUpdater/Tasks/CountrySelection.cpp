@@ -341,8 +341,8 @@ namespace WBSF
 			{
 				if (test(i))
 				{
+					str += !str.empty() ? "|" : "";
 					str += DEFAULT_LIST[i].m_abrv;
-					str += '|';
 				}
 			}
 		}

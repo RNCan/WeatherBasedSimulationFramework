@@ -157,6 +157,9 @@
     <Image Include="res\TaskToolbar4.png">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="res\TaskToolbar5.png">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WeatherUpdater.rc">

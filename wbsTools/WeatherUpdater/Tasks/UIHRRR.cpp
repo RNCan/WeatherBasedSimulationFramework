@@ -28,10 +28,12 @@ namespace WBSF
 	//http://home.chpc.utah.edu/~u0553130/Brian_Blaylock/cgi-bin/hrrr_download.cgi?model=hrrr&field=sfc&date=2018-10-28&link2=sample
 	//https://pando-rgw01.chpc.utah.edu/hrrrX/sfc/20181028/hrrrX.t20z.wrfsfcf00.grib2
 
+	//amazone
+	//http://awsopendata.s3-website-us-west-2.amazonaws.com/noaa-hrrr/
 
 	//*********************************************************************
-	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Source", "ServerType", "Begin", "End", "ShowWINSCP", "ComputeHourlyPrcp", "CreateHistoricalGeotiff" };
-	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL, T_BOOL, T_BOOL };
+	const char* CUIHRRR::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Source", "ServerType", "Begin", "End", "ShowWINSCP", "ComputeHourlyPrcp", "UpdateLastNDays" };
+	const size_t CUIHRRR::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE, T_BOOL, T_BOOL, T_STRING };
 	const UINT CUIHRRR::ATTRIBUTE_TITLE_ID = IDS_UPDATER_HRRR_P;
 	const UINT CUIHRRR::DESCRIPTION_TITLE_ID = ID_TASK_HRRR;
 
@@ -81,7 +83,7 @@ namespace WBSF
 		case LAST_DATE:   str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break;
 		case SHOW_WINSCP: str = "0"; break;
 		case COMPUTE_HOURLY_PRCP: str = "1"; break;
-		case CREATE_HISTORICAL_GEOTIFF: str = "0"; break;
+		case UPDATE_LAST_N_DAYS: str = "0"; break;
 		};
 
 		return str;
@@ -122,7 +124,8 @@ namespace WBSF
 		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
 		HRRR.m_period = GetPeriod();
 		HRRR.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
-		HRRR.m_createHistiricalGeotiff = as<bool>(CREATE_HISTORICAL_GEOTIFF);
+		HRRR.m_update_last_n_days = as<size_t>(UPDATE_LAST_N_DAYS);
+		HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
 		
 		msg = HRRR.Execute(callback);
 
@@ -158,7 +161,8 @@ namespace WBSF
 		HRRR.m_bShowWINSCP = as<bool>(SHOW_WINSCP);
 		HRRR.m_period = GetPeriod();
 		HRRR.m_compute_prcp = as<bool>(COMPUTE_HOURLY_PRCP);
-		HRRR.m_createHistiricalGeotiff = as<bool>(CREATE_HISTORICAL_GEOTIFF);
+		HRRR.m_update_last_n_days = as<bool>(UPDATE_LAST_N_DAYS);
+		HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
 
 		msg = HRRR.GetGribsList(p, gribsList, callback);
 		return msg;

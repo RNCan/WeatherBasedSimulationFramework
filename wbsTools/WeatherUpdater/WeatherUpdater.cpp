@@ -1,3 +1,7 @@
+//5.8.4 21/01/2020	Rémi Saint-Amant	Update MesoWest 
+//5.8.3 03/01/2020	Rémi Saint-Amant	Add CanUS grib,a merge from HRDPS and HRRR
+//					Rémi Saint-Amant	Bug correction in RAP before May 2012
+//5.8.2 11/12/2019	Rémi Saint-Amant	Add projection information into the HRDPS hourly and daily file
 //5.8.1 12/11/2019	Rémi Saint-Amant	Update of historical daily and hourly Env Can download
 //5.8.0	07/10/2019	Rémi Saint-Amant	Bug correction in clean up years when create normals 
 //5.7.9 29/08/2019	Rémi Saint-Amant	Update NAM and RAP update. Add RAP UCAR.

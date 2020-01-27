@@ -18,8 +18,10 @@ namespace WBSF
 
 		clear();
 		m_nbEmptyName = 0;
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
 
 		ifStream file;
+		file.imbue(utf8_locale);
 		msg = file.open(referencedFilePath);
 		if (msg)
 		{

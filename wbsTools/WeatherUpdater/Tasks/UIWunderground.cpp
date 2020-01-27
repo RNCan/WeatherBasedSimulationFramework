@@ -647,11 +647,7 @@ namespace WBSF
 
 					if (type == HOURLY_WEATHER)
 					{
-						//https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=IQUEBECS44&day=1&month=1&year=2015&graphspan=day&format=1
-
-
-							//CWeatherYear data;
-							//ReadHourlyData(ouputFilePath, data, callback);
+						//Get actual file period
 						double last_hms = 0;
 						CTPeriod p = GetHourlyPeriod(ouputFilePath, last_hms).as(CTM::DAILY);
 						inc = 1.0 / (year == currentYear ? today.GetJDay():GetNbDaysPerYear(year));

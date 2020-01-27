@@ -11,12 +11,19 @@
 namespace WBSF
 {
 
+	class CShapeFileBase;
+
+	enum TNetwork { NETWORK_ID, NETWORK_NAME, NETWORK_SHORT_NAME, NETWORK_TYPE, NETWORK_ACTIVE_STATIONS, NB_NETWORK_COLUMN };
+	typedef std::map < std::string, std::array<std::string, NB_NETWORK_COLUMN>> NetworkMap;
+
 	//**************************************************************
 	class CUIMesoWest : public CTaskBase
 	{
 	public:
 
-		enum Tattributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, STATES, PROVINCES, ADD_OTHER, IGNORE_COMMON_STATIONS, FORCE_UPDATE_STATIONS_LIST, NB_ATTRIBUTES };
+		enum TAPI { LATEST, HISTORICAL, NB_API};
+		
+		enum Tattributes { WORKING_DIR, API_TOKEN, API_TYPE, FIRST_YEAR, LAST_YEAR, NETWORKS, STATES, PROVINCES, OTHER_COUNTRIES, SUBSET_ID, FORCE_UPDATE_STATIONS_LIST, WITH_TEMP, USE_PRCP, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMesoWest); }
@@ -45,21 +52,36 @@ namespace WBSF
 
 	protected:
 
+		ERMsg ExecuteHistorical(CCallback& callback);
+		ERMsg ExecuteLatest(CCallback& callback);
+		ERMsg DownloadNetwork(NetworkMap& networks, CCallback& callback)const;
+
 		std::string GetStationListFilePath()const;
-		std::string GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year, size_t m);
+		std::string GetOutputFilePath(std::string country, std::string states, const std::string& ID, int year);
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback)const;
+		CLocationVector GetStationList(CCallback& callback);
 		
-		ERMsg ReadData(const std::string& filePath, CTM TM, int year, CWeatherAccumulator& accumulator, CWeatherStation& data, CCallback& callback)const;
+		ERMsg ReadJSONData(const std::string& filePath, CTM TM, int year, CWeatherAccumulator& accumulator, CWeatherStation& data, CCallback& callback)const;
+
+		
+		ERMsg MergeJsonData(std::string request, const std::string& source, size_t& nbDownload, size_t& SUs, CCallback& callback);
+		ERMsg MergeData(const std::string& country, const std::string& state, const std::string& ID, const std::string& source, size_t& SUs, CCallback& callback);
+		
+		CTPeriod GetActualState(const std::string& filePath/*, double& last_hms*/);
+		StringVector GetSubsetIds();
 
 		CLocationVector m_stations;
+		NetworkMap m_networks;
+		
 
 		static HOURLY_DATA::TVarH GetVar(const std::string& str);
 		static std::vector<HOURLY_DATA::TVarH > GetVariables(const StringVector& header);
 		static bool IsUnknownVar(const std::string& str);
 		static CTRef GetTRef(const std::string& str);
 		static bool IsValid(HOURLY_DATA::TVarH v, double value);
-		static CLocationVector GetCommonStations(const CLocationVector& stationListTmp);
-		static bool IsCommonStation(const std::string& network);
+	
+		static ERMsg LoadNetwork(std::string file_path, NetworkMap& map);
+		static double GetCountryState(CShapeFileBase& shapefile, double lat, double lon, const std::string& country, const std::string& state, std::string& countryII, std::string& stateII);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

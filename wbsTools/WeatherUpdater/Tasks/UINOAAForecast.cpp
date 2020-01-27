@@ -77,7 +77,7 @@ namespace WBSF
 
 	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 
-	const char* CUINOAAForecast::CLASS_NAME(){ static const char* THE_CLASS_NAME = "NOAAForecast";  return THE_CLASS_NAME; }
+	const char* CUINOAAForecast::CLASS_NAME() { static const char* THE_CLASS_NAME = "NOAAForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINOAAForecast::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINOAAForecast::CLASS_NAME(), (createF)CUINOAAForecast::create);
 
@@ -111,7 +111,7 @@ namespace WBSF
 	{
 		m_bOpen = false;
 	}
-	
+
 
 	CUINOAAForecast::~CUINOAAForecast(void)
 	{
@@ -151,7 +151,7 @@ namespace WBSF
 		if (t == 1 && f == 1 && v == V_PRCP)
 			return "";
 
-		return string("SL.us008001/ST.opnl/DF.gr2/DC.ndfd/AR.conus/") + FORECAST_TYPE[f]  + "/" + VAR_FILE_NAME[t][v];
+		return string("SL.us008001/ST.opnl/DF.gr2/DC.ndfd/AR.conus/") + FORECAST_TYPE[f] + "/" + VAR_FILE_NAME[t][v];
 	}
 
 
@@ -173,7 +173,7 @@ namespace WBSF
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
-		
+
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
@@ -182,14 +182,14 @@ namespace WBSF
 		callback.AddMessage("");
 
 		size_t nbDownload = 0;
-	
-	
-		callback.PushTask("Downlaod NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2-1);
+
+
+		callback.PushTask("Downlaod NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1);
 
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS,"","",true, 5, callback);
+		msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
 			for (size_t t = 0; t < NB_DATA_TYPE&&msg; t++)
@@ -201,10 +201,27 @@ namespace WBSF
 						if (t == 1 && f == 1 && v == V_PRCP)
 							continue;
 
+
+
 						string inputFilePath = GetInputFilePath(t, f, v);
 						string outputFilePath = GetOutputFilePath(t, f, v);
 						msg = CreateMultipleDir(GetPath(outputFilePath));
 
+						//keep the 2 last forecast to fill void between the latest data and forecast
+						/*for (size_t i = 0; i < 2; i++)
+						{
+							string p;
+							for (size_t ii = 1 - i; ii < 2; ii++)
+								p += "-";
+
+							string outputFilePath1 = outputFilePath;
+							SetFileName(outputFilePath1, p + GetFileName(outputFilePath));
+							string outputFilePath2 = outputFilePath;
+							SetFileName(outputFilePath1, "_" + p + GetFileName(outputFilePath));
+
+							if (FileExists(outputFilePath1))
+								WBSF::CopyOneFile(outputFilePath1, outputFilePath2, false);
+						}*/
 
 						msg += UtilWWW::CopyFile(pConnection, inputFilePath, outputFilePath);
 						if (msg)
@@ -227,29 +244,29 @@ namespace WBSF
 		return msg;
 	}
 
-	
+
 	ERMsg CUINOAAForecast::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
 		stationList.clear();
 
-	
-		
+
+
 		return msg;
 	}
 
-//	static std::array<std::array<std::array<CRasterWindow, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_window;
+	//	static std::array<std::array<std::array<CRasterWindow, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> m_window;
 
 	ERMsg CUINOAAForecast::OpenDatasets(CCallback& callback)
 	{
 		ERMsg msg;
-		
-		
+
+
 		if (!m_bOpen)
 		{
-			GDALSetCacheMax64( GIntBig(1024) * 1024 * 1024 * 6);
-			callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2) + " gribs files )", ((NB_HOURLY_VARS + NB_DAILY_VARS) * 2-1) * 5);
+			GDALSetCacheMax64(GIntBig(1024) * 1024 * 1024 * 6);
+			callback.PushTask("load NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2) + " gribs files )", ((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) * 5);
 			for (size_t t = 0; t < NB_DATA_TYPE&&msg; t++)
 			{
 				for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
@@ -262,7 +279,7 @@ namespace WBSF
 						CBaseOptions options;
 						options.m_bMulti = false;
 						options.m_IOCPU = 1;
-						string outputFilePath = GetOutputFilePath(t,f,v);
+						string outputFilePath = GetOutputFilePath(t, f, v);
 						msg = m_datasets[t][f][v].OpenInputImage(outputFilePath, options);
 						msg += callback.StepIt();
 
@@ -270,7 +287,7 @@ namespace WBSF
 						{
 							msg = m_bandHolder[t][f][v].Load(m_datasets[t][f][v], true);
 							msg += callback.StepIt();
-						
+
 							if (msg)
 							{
 								CGeoExtents extents = m_bandHolder[t][f][v].GetExtents();
@@ -305,7 +322,7 @@ namespace WBSF
 
 						//ignore error : sometime gribs is not valid
 						msg = ERMsg();
-						if (callback.GetUserCancel() )
+						if (callback.GetUserCancel())
 						{
 							msg += callback.StepIt(0);
 						}
@@ -366,91 +383,89 @@ namespace WBSF
 
 			if (msg)
 			{
-//				cctz::time_zone zone;
-//				if (CTimeZones::GetZone(station, zone))
+
+				CGeoPoint3D pt(station);
+				pt.Reproject(m_geo2gribs);
+
+
+				if (m_extents.IsInside(pt))
 				{
-					CGeoPoint3D pt(station);
-					pt.Reproject(m_geo2gribs);
 
+					CGeoPointIndex xy = m_extents.CoordToXYPos(pt);
 
-					if (m_extents.IsInside(pt))
+					array<array<array<CTRef, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> lastTRef;
+
+					size_t t = station.IsHourly() ? DATA_HOURLY : DATA_DAILY;
+					std::array<std::array<std::array<std::vector<CTRef>, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> TRefs;
+
+					for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
 					{
-
-						CGeoPointIndex xy = m_extents.CoordToXYPos(pt);
-
-						array<array<array<CTRef, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> lastTRef;
-
-						size_t t = station.IsHourly() ? DATA_HOURLY : DATA_DAILY;
-						std::array<std::array<std::array<std::vector<CTRef>, NB_VARS_MAX>, NB_FORECAST_TYPE>, NB_DATA_TYPE> TRefs;
-
-						for (size_t f = 0; f < NB_FORECAST_TYPE&&msg; f++)
+						for (size_t v = 0; v < NB_VARS_MAX && msg; v++)
 						{
-							for (size_t v = 0; v < NB_VARS_MAX && msg; v++)
+							if (t == 1 && f == 1 && v == V_PRCP)
+								continue;
+
+							if (!bAddForecast[FORECAST_VARIABLES[t][v]])
+								continue;
+
+							if (!m_datasets[t][f][v].IsOpen())
+								continue;
+
+							if (TRefs[t][f][v].empty())
+								TRefs[t][f][v].resize(m_bandHolder[t][f][v].GetRasterCount());
+
+							for (size_t b = 0; b < m_bandHolder[t][f][v].GetRasterCount() && msg; b++)
 							{
-								if (t == 1 && f == 1 && v == V_PRCP)
-									continue;
-
-								if (!bAddForecast[FORECAST_VARIABLES[t][v]])
-									continue;
-								
-								if (!m_datasets[t][f][v].IsOpen())
-									continue;
-								
-								if (TRefs[t][f][v].empty())
-									TRefs[t][f][v].resize(m_bandHolder[t][f][v].GetRasterCount());
-
-								for (size_t b = 0; b < m_bandHolder[t][f][v].GetRasterCount() && msg; b++)
+								if (!TRefs[t][f][v][b].IsInit())
 								{
-									if (!TRefs[t][f][v][b].IsInit())
-									{
-										TRefs[t][f][v][b] = CTimeZones::UTCTRef2LocalTRef(m_UTCTRef[t][f][v][b], station);
+									TRefs[t][f][v][b] = CTimeZones::UTCTRef2LocalTRef(m_UTCTRef[t][f][v][b], station);
 
-										if (t == DATA_DAILY)
-											TRefs[t][f][v][b].Transform(CTM(CTM::DAILY));
-									}
-									
-									double value = m_bandHolder[t][f][v].GetPixel(b, xy.m_x, xy.m_y);
-									if (m_bandHolder[t][f][v].IsValid(b, value))
-									{
-
-										TVarH var = FORECAST_VARIABLES[t][v];
-										if (var == H_WNDS)
-										{
-											value *= 3600 / 1000;//m/s --> km/h
-										}
-
-										if (!lastTRef[t][f][v].IsInit())
-											lastTRef[t][f][v] = TRefs[t][f][v][b] - 1;
-
-										for (CTRef h = lastTRef[t][f][v] + 1; h <= TRefs[t][f][v][b]; h++)
-										{
-											if (!station[TRefs[t][f][v][b]][var].IsInit())
-											{
-												double lastValue = value;
-												if (station[lastTRef[t][f][v]][var].IsInit())
-													lastValue = station[lastTRef[t][f][v]][var][MEAN];
-
-												double newValue = ((h - lastTRef[t][f][v])*value + (TRefs[t][f][v][b] - h)*lastValue) / (TRefs[t][f][v][b] - lastTRef[t][f][v]);
-												station[TRefs[t][f][v][b]].SetStat(var, newValue);
-											}
-
-										}
-
-										lastTRef[t][f][v] = TRefs[t][f][v][b];
-											
-										msg += callback.StepIt(0);
-									}
+									if (t == DATA_DAILY)
+										TRefs[t][f][v][b].Transform(CTM(CTM::DAILY));
 								}
 
-								//if (accumulator.TRefIsChanging(TRef) || b == nbLayers - 1)
-								//{
-								//	if (station[accumulator.GetTRef()].GetVariables().none())//don't override observation
-								//		station[accumulator.GetTRef()].SetData(accumulator);
-								//}
-							}//for all variable
-						}//for all forecast
-					}//if is inside
-				}//if is in zone
+								double value = m_bandHolder[t][f][v].GetPixel(b, xy.m_x, xy.m_y);
+								if (m_bandHolder[t][f][v].IsValid(b, value))
+								{
+
+									TVarH var = FORECAST_VARIABLES[t][v];
+									if (var == H_WNDS)
+									{
+										value *= 3600 / 1000;//m/s --> km/h
+									}
+
+									if (!lastTRef[t][f][v].IsInit())
+										lastTRef[t][f][v] = TRefs[t][f][v][b] - 1;
+
+									for (CTRef h = lastTRef[t][f][v] + 1; h <= TRefs[t][f][v][b]; h++)
+									{
+										if (!station[TRefs[t][f][v][b]][var].IsInit())
+										{
+											double lastValue = value;
+											if (station[lastTRef[t][f][v]][var].IsInit())
+												lastValue = station[lastTRef[t][f][v]][var][MEAN];
+
+											double newValue = ((h - lastTRef[t][f][v])*value + (TRefs[t][f][v][b] - h)*lastValue) / (TRefs[t][f][v][b] - lastTRef[t][f][v]);
+											station[TRefs[t][f][v][b]].SetStat(var, newValue);
+										}
+
+									}
+
+									lastTRef[t][f][v] = TRefs[t][f][v][b];
+
+									msg += callback.StepIt(0);
+								}
+							}
+
+							//if (accumulator.TRefIsChanging(TRef) || b == nbLayers - 1)
+							//{
+							//	if (station[accumulator.GetTRef()].GetVariables().none())//don't override observation
+							//		station[accumulator.GetTRef()].SetData(accumulator);
+							//}
+						}//for all variable
+					}//for all forecast
+				}//if is inside
+
 			}//if msg
 		}//if there is data for the current year
 
@@ -468,15 +483,15 @@ namespace WBSF
 
 	void CUINOAAForecast::CloseDataset()
 	{
-		
-		
+
+
 		for (size_t t = 0; t < NB_DATA_TYPE; t++)
 		{
 			for (size_t f = 0; f < NB_FORECAST_TYPE; f++)
 			{
 				for (size_t v = 0; v < NB_VARS_MAX; v++)
 				{
-					
+
 					if (m_datasets[t][f][v].IsOpen())
 					{
 						m_bandHolder[t][f][v].clear();

@@ -95,9 +95,6 @@
     <ClInclude Include="ZipUnzip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateGribsDB.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -218,6 +215,15 @@
     <ClInclude Include="RCM4_25km.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="CreateGribsList.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HRCanUS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateCanUSGrib.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -302,9 +308,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ZipUnzip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CreateGribsDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -425,6 +428,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RCM4_25km.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateGribsList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HRCanUS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateCanUSGrib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

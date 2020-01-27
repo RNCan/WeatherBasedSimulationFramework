@@ -33,7 +33,8 @@ namespace WBSF
 		m_serverType(HTTP_SERVER),
 		m_bShowWINSCP(false),
 		m_compute_prcp(true),
-		m_createHistiricalGeotiff(false)
+		m_update_last_n_days(0),
+		m_createDailyGeotiff(false)
 	{}
 
 	CHRRR::~CHRRR(void)
@@ -156,12 +157,17 @@ namespace WBSF
 			callback.PopTask();
 
 
-			if (date_to_update.empty() && m_createHistiricalGeotiff)
-				date_to_update = GetAll(callback);
+			//if (date_to_update.empty() && m_createHistoricalGeotiff)
+				//date_to_update = GetAll(callback);
+			if (m_update_last_n_days > 0)
+			{
+				set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
+				date_to_update.insert(last_n_days.begin(), last_n_days.end());
+			}
 
 			msg = CreateHourlyGeotiff(date_to_update, callback);
 
-			if (msg)
+			if (msg && m_createDailyGeotiff)
 				msg = CreateDailyGeotiff(date_to_update, callback);
 
 
@@ -308,17 +314,22 @@ namespace WBSF
 		callback.AddMessage("Number of HRRR gribs downloaded: " + ToString(nbDownloaded));
 		callback.PopTask();
 
-		if (date_to_update.empty() && m_createHistiricalGeotiff)
-			date_to_update = GetAll(callback);
+		//if (date_to_update.empty() && m_createHistoricalGeotiff)
+			//date_to_update = GetAll(callback);
+		if (m_update_last_n_days > 0)
+		{
+			set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
+			date_to_update.insert(last_n_days.begin(), last_n_days.end());
+		}
 
 		/*for(int d=1; d<26; d++)
 			for (int h = 0; h < 24; h++)
 				date_to_update.insert(FormatA("2019-09-%02d-%02d", d, h));
 */
-		
+
 		msg = CreateHourlyGeotiff(date_to_update, callback);
 
-		if (msg)
+		if (msg && m_createDailyGeotiff)
 			msg = CreateDailyGeotiff(date_to_update, callback);
 
 
@@ -360,14 +371,26 @@ namespace WBSF
 
 		if (GoodGrib(inputFilePath) || GoodGrib(inputFilePath2))
 		{
+			//bool bComputeWind = false;
+
 			int nbBands = 0;
 			CSfcDatasetCached DSin1;
 			if (GoodGrib(inputFilePath))
 			{
 				DSin1.m_variables_to_load.reset(H_PRCP);
+				DSin1.m_variables_to_load.reset(H_WNDS);//use computed wind speed and direction frpom U and V
+				DSin1.m_variables_to_load.reset(H_SNOW);//no data available
+				DSin1.m_variables_to_load.reset(H_SWE);//no data available
 				msg += DSin1.open(inputFilePath, true);
 				if (msg)
 					nbBands += (int)DSin1.get_variables().count();
+
+
+				//size_t bS = DSin1.get_band(H_WNDS);
+				size_t bU = DSin1.get_band(H_UWND);
+				size_t bV = DSin1.get_band(H_VWND);
+				if (bU != NOT_INIT && bV != NOT_INIT)
+					nbBands += 2;
 			}
 
 			CSfcDatasetCached DSin2;
@@ -399,10 +422,9 @@ namespace WBSF
 				options.m_createOptions.push_back("BLOCKYSIZE=256");
 
 				CGDALDatasetEx DSout;
-				msg += DSout.CreateImage(outputFilePath+"2", options);
+				msg += DSout.CreateImage(outputFilePath + "2", options);
 				if (msg)
 				{
-
 					for (size_t v = 0, bb = 0; v < DSin1.get_variables().size(); v++)
 					{
 						CSfcDatasetCached&  DSin = (v == H_PRCP) ? DSin2 : DSin1;
@@ -428,6 +450,7 @@ namespace WBSF
 							}
 							pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 
+
 							if (pBandin->GetDescription())
 								pBandout->SetDescription(pBandin->GetDescription());
 
@@ -439,6 +462,62 @@ namespace WBSF
 
 						DSout->FlushCache();
 
+						if (v == H_WNDS)
+						{
+							ASSERT(b == NOT_INIT);//wind speed ignored here
+							//add wind direction from U and V
+							size_t bU = DSin1.get_band(H_UWND);
+							size_t bV = DSin1.get_band(H_VWND);
+
+
+							if (bU != NOT_INIT && bV != NOT_INIT)
+							{
+								GDALRasterBand* pBandinU = DSin.GetRasterBand(bU);
+								GDALRasterBand* pBandinV = DSin.GetRasterBand(bV);
+								GDALRasterBand* pBandoutS = DSout.GetRasterBand(bb);
+								GDALRasterBand* pBandoutD = DSout.GetRasterBand(bb + 1);
+
+
+								ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
+								ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
+
+								float no_data_inU = DSin.GetNoData(bU);
+								float no_data_inV = DSin.GetNoData(bV);
+								vector<float> dataU(DSin.GetRasterXSize()*DSin.GetRasterYSize());
+								vector<float> dataV(DSin.GetRasterXSize()*DSin.GetRasterYSize());
+								pBandinU->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataU[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+								pBandinV->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataV[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+
+								vector<float> dataS(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
+								vector<float> dataD(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
+								//replace no data
+								for (size_t xy = 0; xy < dataU.size(); xy++)
+								{
+									if (fabs(dataU[xy] - no_data_inU) > 0.1 &&
+										fabs(dataV[xy] - no_data_inV) > 0.1)
+									{
+										dataS[xy] = sqrt(dataU[xy] * dataU[xy] + dataV[xy] * dataV[xy]);
+										dataD[xy] = (float)GetWindDirection(dataU[xy], dataV[xy], true);//approximation of wind direction
+									}
+								}
+
+								pBandoutS->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataS[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+								pBandoutS->SetDescription("10[m] HTGL=\"Specified height level above ground\"");
+								pBandoutS->SetMetadataItem("GRIB_COMMENT", "Wind speed [m/s]");
+								pBandoutS->SetMetadataItem("GRIB_ELEMENT", "WIND");
+								pBandoutS->SetMetadataItem("GRIB_SHORT_NAME", "10-HTGL");
+								pBandoutS->SetMetadataItem("GRIB_UNIT", "[m/s]");
+
+								pBandoutD->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataD[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
+								pBandoutD->SetDescription("10[m] HTGL=\"Specified height level above ground\"");
+								pBandoutD->SetMetadataItem("GRIB_COMMENT", "Wind direction (from which blowing) [deg true]");
+								pBandoutD->SetMetadataItem("GRIB_ELEMENT", "WDIR");
+								pBandoutD->SetMetadataItem("GRIB_SHORT_NAME", "10-HTGL");
+								pBandoutD->SetMetadataItem("GRIB_UNIT", "[deg true]");
+
+								bb += 2;
+							}
+						}
 					}
 
 					DSout.Close();
@@ -465,64 +544,100 @@ namespace WBSF
 		return msg;
 	}
 
-	set<string> CHRRR::GetAll(CCallback& callback)const
+	std::set<std::string> CHRRR::Getlast_n_days(size_t nb_days, CCallback& callback)
 	{
 		ERMsg msg;
 
-		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		std::set<std::string> date_to_update;
+		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
-		CTPeriod p;
+		/*CTPeriod p;
 		switch (m_source)
 		{
 		case MESO_WEST: p = m_period; break;
 		case NOMADS: p = CTPeriod(now - 24 * 3, now); break;
 		default: ASSERT(false);
-		}
+		}*/
 
 
-		set<string> date_to_update;
-		StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
-		for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		//set<string> date_to_update;
+		//StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
+		//for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
+		//{
+			//string year = *it1;
+
+			//if (p.IsIntersect(CTPeriod(ToInt(year), ToInt(year)).as(CTM::HOURLY)))
+			//{
+		//
+				//StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
+				//for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+				//{
+					//string month = *it2;
+					//if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToInt(year), ToSizeT(month) - 1, 0).as(CTM::HOURLY)))
+					//{
+		//StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+		CTRef TRef = CTRef::GetCurrentTRef(CTM::HOURLY);
+		for (size_t d = 0; d < nb_days * 24; d++)
 		{
-			string year = *it1;
+			//for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
+			//{
+				//string day = *it3;
+				//if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1).as(CTM::HOURLY)))
+				//{
+			////string filter = FormatA("%s%04d\\%02d\\%02d\\*.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+			//StringVector files = WBSF::GetFilesList(filter, 2, true);
+			//for (StringVector::const_iterator it4 = files.begin(); it4 != files.end() && msg; it4++)
+			//{
+			//string title = GetFileTitle(*it4);
+			//ASSERT(title.length() == 19);
+			//string hour = title.substr(6, 2);
 
-			if (p.IsIntersect(CTPeriod(ToInt(year), ToInt(year)).as(CTM::HOURLY)))
+			//CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToSizeT(hour));
+			string file_path = GetOutputFilePath(TRef, 0);
+			if (GoodGrib(file_path))
 			{
-
-				StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-				for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
+				string tifFilePath = file_path;
+				ReplaceString(tifFilePath, "f00.grib2", "f00.tif");
+				//if (!WBSF::FileExists(tifFilePath))
+					//date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+				CGDALDatasetEx DS;
+				if (DS.OpenInputImage(tifFilePath))
 				{
-					string month = *it2;
-					if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToInt(year), ToSizeT(month) - 1, 0).as(CTM::HOURLY)))
+					DS.Close();
+					//lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
+				}
+				else
+				{
+					if (FileExists(tifFilePath))
 					{
-						StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
-						for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-						{
-							string day = *it3;
-							if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1).as(CTM::HOURLY)))
-							{
-								string filter = FormatA("%s%s\\%s\\%s\\*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
-								StringVector files = WBSF::GetFilesList(filter, 2, true);
-								for (StringVector::const_iterator it4 = files.begin(); it4 != files.end() && msg; it4++)
-								{
-									string title = GetFileTitle(*it4);
-									ASSERT(title.length() == 19);
-									string hour = title.substr(6, 2);
+						callback.AddMessage("Remove invalid HRRR GeoTiff " + tifFilePath);
+						msg += RemoveFile(tifFilePath);
+					}
 
-									CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToSizeT(hour));
-									string tifFilePath = GetOutputFilePath(TRef, 0);
-									ReplaceString(tifFilePath, "f00.grib2", "f00.tif");
-									if (!WBSF::FileExists(tifFilePath))
-										date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
-								}
+					//TRef.GetFormatedString();
+					//string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+					date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+					//date_to_update.insert(date);
+				}
+			}
+			else
+			{
+				if (FileExists(file_path))
+				{
+					callback.AddMessage("Remove invalid HRRR gribs " + file_path);
+					msg += RemoveFile(file_path);
+				}
+			}
+			//}
 
-								msg += callback.StepIt(0);
-							}//for all days
-						}//if intersect day
-					}//if intersect month
-				}//for all months
-			}//if iontersect year
-		}//for all years
+			msg += callback.StepIt(0);
+			TRef--;
+		}//for all days
+	//}//if intersect day
+//}//if intersect month
+//}//for all months
+//}//if iontersect year
+//}//for all years
 
 		return date_to_update;
 	}
@@ -645,12 +760,17 @@ namespace WBSF
 		callback.PopTask();
 
 
-		if (date_to_update.empty() && m_createHistiricalGeotiff)
-			date_to_update = GetAll(callback);
+		//if (date_to_update.empty() && m_createHistoricalGeotiff)
+			//date_to_update = GetAll(callback);
+		if (m_update_last_n_days > 0)
+		{
+			set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
+			date_to_update.insert(last_n_days.begin(), last_n_days.end());
+		}
 
 		msg = CreateHourlyGeotiff(date_to_update, callback);
 
-		if (msg)
+		if (msg && m_createDailyGeotiff)
 			msg = CreateDailyGeotiff(date_to_update, callback);
 
 
@@ -716,7 +836,7 @@ namespace WBSF
 		{
 			CTRef TRef;
 			TRef.FromFormatedString(*it);
-			date_to_update_day.insert( TRef.as(CTM::DAILY).GetFormatedString("%Y-%m-%d") );
+			date_to_update_day.insert(TRef.as(CTM::DAILY).GetFormatedString("%Y-%m-%d"));
 		}
 
 		callback.PushTask("Create HRRR daily Geotiff (" + to_string(date_to_update_day.size()) + " days)", date_to_update_day.size());
@@ -752,7 +872,7 @@ namespace WBSF
 		vector<CSfcDatasetCached> DSin(filesList.size());
 		map<size_t, const char*> description;
 		map<size_t, char**> meta_data;
-		
+
 
 		for (size_t i = 0; i < filesList.size(); i++)
 		{
@@ -808,7 +928,7 @@ namespace WBSF
 			options.m_createOptions.push_back("TILED=YES");
 			options.m_createOptions.push_back("BLOCKXSIZE=256");
 			options.m_createOptions.push_back("BLOCKYSIZE=256");
-			
+
 			CGDALDatasetEx DSout;
 			msg += DSout.CreateImage(file_path_out + "2", options);
 
@@ -861,9 +981,9 @@ namespace WBSF
 										}//
 										else//if not the same block size or type
 										{
-											CGeoExtents blockExtent = extents.GetBlockExtents(int(bx),int(by));
+											CGeoExtents blockExtent = extents.GetBlockExtents(int(bx), int(by));
 											data.resize(DSout.GetRasterXSize()*DSout.GetRasterYSize());
-											
+
 											poBand->RasterIO(GF_Read, blockExtent.m_xMin, blockExtent.m_yMin, blockExtent.m_xBlockSize, blockExtent.m_yBlockSize, &(data[0]), blockExtent.m_xBlockSize, blockExtent.m_yBlockSize, GDT_Float32, 0, 0);
 											ASSERT(data.size() == stat.size());
 										}
@@ -874,7 +994,7 @@ namespace WBSF
 												stat[xy] += data[xy];
 										}
 
-										
+
 									}//if valid band
 								}//for all input band
 
@@ -898,7 +1018,7 @@ namespace WBSF
 
 
 
-									
+
 									pBandout->WriteBlock(int(bx), int(by), &(data[0]));
 
 
@@ -928,7 +1048,7 @@ namespace WBSF
 											data[xy] = stat[xy][stat_type];
 									}
 
-									
+
 									pBandout->WriteBlock(int(bx), int(by), &(data[0]));
 									pBandout->SetDescription(description[v]);
 									pBandout->SetMetadata(meta_data[v]);
@@ -950,9 +1070,9 @@ namespace WBSF
 										if (stat[xy].IsInit())
 											data[xy] = stat[xy][HIGHEST];
 									}
-									
+
 									pBandout->WriteBlock(int(bx), int(by), &(data[0]));
-									
+
 									pBandout->SetDescription("2[m] HTGL=\"Specified height level above ground\"");
 									pBandout->SetMetadataItem("GRIB_COMMENT", "Maximum Temperature [C]");
 									pBandout->SetMetadataItem("GRIB_ELEMENT", "TMAX");
@@ -986,7 +1106,7 @@ namespace WBSF
 				msg += RemoveFile(file_path_out + "2");
 			}
 
-			
+
 		}//if msg
 
 

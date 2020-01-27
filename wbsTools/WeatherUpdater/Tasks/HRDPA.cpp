@@ -1,12 +1,10 @@
 #include "StdAfx.h"
 #include "HRDPA.h"
 #include "Basic/FileStamp.h"
+#include "Geomatic/gdalbasic.h"
 #include "UI/Common/SYShowMessage.h"
-//#include "Basic/HourlyDatabase.h"
-//#include "Basic/CSV.h"
-//#include "UI/Common/SYShowMessage.h"
+
 #include "../Resource.h"
-//##include "TaskFactory.h"
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -50,6 +48,7 @@ namespace WBSF
 		return CTRef(year, m, d, h);
 	}
 
+
 	bool CHRDPA::NeedDownload(const CFileInfo& info, const string& filePathIn)const
 	{
 		bool bDownload = true;
@@ -58,22 +57,20 @@ namespace WBSF
 		string filePath = filePathIn;
 		SetFileExtension(filePath, ".tif");
 
-
-		//		if (GoodGrib(filePath))
-			//	{
-		//CFileStamp fileStamp(filePath);
-		//__time64_t lastUpdate = fileStamp.m_time;
-		//if (lastUpdate > 0 && info.m_time < lastUpdate)
-			//bDownload = false;
-		//}
-
-		if (FileExists(filePath))
+		//is it a valid GeoTIFF
+		CGDALDatasetEx DS;
+		if (DS.OpenInputImage(filePath))
+		{
+			DS.Close();
 			bDownload = false;
-
-		CTRef TRef = GetTRef(filePath);
-		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		if (now - TRef > m_max_hours)
-			bDownload = false;
+		}
+		else
+		{
+			CTRef TRef = GetTRef(filePath);
+			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+			if (now - TRef > m_max_hours)
+				bDownload = false;
+		}
 
 
 		return bDownload;
@@ -113,8 +110,6 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		//msg = UtilWWW::CopyFile(pConnection, "analysis/precip/hrdpa/grib2/polar_stereographic/06/CMC_HRDPA_APCP-006-0700cutoff_SFC_0_ps2.5km_2019052206_000.grib2", "E:/test.grib2", INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-
 		callback.AddMessage("Updating HRDPA/RDPA");
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(m_workingDir, 1);
@@ -129,7 +124,7 @@ namespace WBSF
 		ReplaceString(URL, "%1", product);
 		WBSF::MakeLower(URL);
 
-		CFileInfoVector fileListTmp;				//"analysis/precip/HRDPA/grib2/polar_stereographic/06/*.grib2"
+		CFileInfoVector fileListTmp;
 		msg = UtilWWW::FindFiles(pConnection, URL, fileListTmp);
 
 		pConnection->Close();
@@ -145,7 +140,6 @@ namespace WBSF
 					CTRef TRef = CHRDPA::GetTRef(it->m_filePath);
 					if (TRef.GetHour() == 12)//download prcp at noon only
 						fileList.push_back(*it);
-
 				}
 				else if (m_type == TYPE_06HOURS)
 				{

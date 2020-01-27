@@ -224,7 +224,12 @@ namespace WBSF
 
 		clear();
 
+		
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
+		
+
 		ifStream file;
+		file.imbue(utf8_locale);
 		msg = file.open(refFilePath);
 
 		string excludeFilePath(refFilePath);
@@ -344,6 +349,7 @@ namespace WBSF
 
 			location.m_ID = Trim(line.substr(0, 11));
 			location.m_name = UppercaseFirstLetter(Trim(line.substr(41, 29)));
+			
 
 			tmp = Trim(line.substr(12, 8));
 			if (!tmp.empty())
