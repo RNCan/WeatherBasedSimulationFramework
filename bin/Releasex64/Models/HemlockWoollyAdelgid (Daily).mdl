@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>CHemlockWoollyAdelgidCMModel</Title>
     <Version>1.0</Version>
-    <ID/>
+    <ID>.null</ID>
     <EXE>HemlockWoollyAdelgid.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
