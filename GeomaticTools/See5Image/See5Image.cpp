@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.0.4    06/12/2019	Rémi Saint-Amant	Add process of no data
 // 2.0.3    29/01/2019	Rémi Saint-Amant	Remove option -wm that cause strange result
 // 2.0.2    25/12/2018	Rémi Saint-Amant	Eliminate the verification of independent variables
 // 2.0.l	21/12/2018	Rémi Saint-Amant	Use Entry to evaluate the number of input variables
@@ -37,7 +38,7 @@ using namespace WBSF::Landsat;
 
 
 
-static const char* version = "2.0.3";
+static const char* version = "2.0.4";
 
 
 enum TFilePath { SEE5_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
@@ -341,29 +342,41 @@ void CSee5::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& bandHolder,
 				DVal(block, c++) = DT.MaxClass + 1;
 				DVal(block, c++) = Continuous(DT, 1) ? DT_UNKNOWN : 0;
 				
+				
+				bool bValid = true;
 				for (size_t z = 0; z < bandHolder.size(); z++)
 				{
 					DataType pixel = bandHolder.GetPixel(z, x, y);
 					CVal(block, c++) = (ContValue)(pixel);
+					bValid = bValid & bandHolder.IsValid(z, pixel);
 				}
 
 				ASSERT(c == (bandHolder.size() + 2));
 
-				//fill virtual bands 
-				//assuming virtual band never return no data
-				for (; c <= DT.MaxAtt; c++)
+				if (bValid)
 				{
-					ASSERT(DT.AttDef[c]);
-					block[c] = DT.EvaluateDef(DT.AttDef[c], block.data());
+					//fill virtual bands 
+					//assuming virtual band never return no data
+					for (; c <= DT.MaxAtt; c++)
+					{
+						ASSERT(DT.AttDef[c]);
+						block[c] = DT.EvaluateDef(DT.AttDef[c], block.data());
+					}
+
+				
+					ASSERT(!block.empty());
+					int predict = (int)DT.Classify(block.data());
+
+
+					ASSERT(predict >= 1 && predict <= DT.MaxClass);
+					int DTCode = atoi(DT.ClassName[predict]);
+					data[xy] = (float)DTCode;
 				}
-
-				ASSERT(!block.empty());
-				int predict = (int)DT.Classify(block.data());
-
-
-				ASSERT(predict >= 1 && predict <= DT.MaxClass);
-				int DTCode = atoi(DT.ClassName[predict]);
-				data[xy] = (float)DTCode;
+				else
+				{
+					data[xy] = (float)m_options.m_dstNodata;
+				}
+		
 
 #pragma omp atomic	
 				m_options.m_xx++;

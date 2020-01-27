@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>PlantHardiness</Title>
+    <Version>1.0</Version>
+    <ID>.PH</ID>
+    <EXE>PlantHardiness.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 74 345</WindowRect>
+    <SimulatedCategory>TN T TX P WS S SD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>30</NbYearMin>
+    <NbYearMax>31</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>CountryModel</Name>
+            <Caption>Country Model</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>50 10 70 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Canada|USA</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 1</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>PlantHardiness</Name>
+            <Title>PlantHardiness</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PlantHardinessZones</Name>
+            <Title>PlantHardinessZones</Title>
+            <Units/>
+            <Description>Canada's Plant Hardiness Zones. Decimsl .0 = a and .5 = b</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>More info:&#x0D;&#x0A;     http://www.planthardiness.gc.ca/?m=15&#x0D;&#x0A;&#x0D;&#x0A;The most recent Plant Hardiness zones map (McKenney et al, 2001) was developed by mapping a plant hardiness or suitability index. This index comes from a formula originally developed by Oullet and Sherk, (1967a,b,c). Their formula is:&#x0D;&#x0A;&#x0D;&#x0A;Y = -67.62 + 1.734X1 + 0.1868X2 + 69.77X3 + 1.256X4 + 0.006119X5 + 22.37X6 - 0.01832X7&#x0D;&#x0A;&#x0D;&#x0A;where:&#x0D;&#x0A;&#x0D;&#x0A;Y = estimated index of suitability&#x0D;&#x0A;X1 = monthly mean of the daily minimum temperatures (°C) of the coldest month&#x0D;&#x0A;X2 = mean frost free period above 0°C in days&#x0D;&#x0A;X3 = amount of rainfall (R) from June to November, inclusive, in terms of R/(R+a) where a=25.4 if R is in millimeters and a=1 if R is in inches&#x0D;&#x0A;X4 = monthly mean of the daily maximum temperatures (°C) of the warmest month&#x0D;&#x0A;X5 = winter factor expressed in terms of (0°C - X1)Rjan where Rjan represents the rainfall in January expressed in mm&#x0D;&#x0A;X6 = mean maximum snow depth in terms of S/(S+a) where a=25.4 if S is in millimeters and a=1 if S is in inches&#x0D;&#x0A;X7 = maximum wind gust in (km/hr) in 30 years&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;We have provided all the climate variables (X1 to X7 and the variables that make these up) and the hardiness index (Y) on our interactive mapper. Index values of 40 to 44 corresponds to zone 4a and index values of 45 to 49 corresponds to zone 4b, 50 to 54 is zone 5a and so on</Credit>
+    <HelpFileName/>
+</Model>

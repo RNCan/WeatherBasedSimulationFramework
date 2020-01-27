@@ -106,6 +106,8 @@ copy /Y ".\bin\Releasex64\Models\GrowingSeason.mdl" "..\Install\NRCan\Models\Gro
 copy /Y ".\bin\Releasex64\Models\GrowingSeason.dll" "..\Install\NRCan\Models\GrowingSeason.dll"
 copy /Y ".\bin\Releasex64\Models\Gypsy Moth Seasonality.dll" "..\Install\NRCan\Models\Gypsy Moth Seasonality.dll"
 copy /Y ".\bin\Releasex64\Models\Gypsy Moth Seasonality.mdl" "..\Install\NRCan\Models\Gypsy Moth Seasonality.mdl"
+copy /Y ".\bin\Releasex64\Models\Gypsy Moth Stability.dll" "..\Install\NRCan\Models\Gypsy Moth Stability.dll"
+copy /Y ".\bin\Releasex64\Models\Gypsy Moth Stability.mdl" "..\Install\NRCan\Models\Gypsy Moth Stability.mdl"
 
 copy /Y ".\bin\Releasex64\Models\HemlockLooper.dll" "..\Install\NRCan\Models\HemlockLooper.dll"
 copy /Y ".\bin\Releasex64\Models\HemlockLooper.mdl" "..\Install\NRCan\Models\HemlockLooper.mdl"
@@ -133,8 +135,10 @@ copy /Y ".\bin\Releasex64\Models\MPB-ColdTolerance.dll" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\MPB-SLR.dll" "..\Install\NRCan\Models\MPB-SLR.dll"
 copy /Y ".\bin\Releasex64\Models\MPB-SLR.mdl" "..\Install\NRCan\Models\MPB-SLR.mdl"
 
-copy /Y ".\bin\Releasex64\Models\PlantHardiness.mdl" "..\Install\NRCan\Models\PlantHardiness.mdl"
 copy /Y ".\bin\Releasex64\Models\PlantHardiness.dll" "..\Install\NRCan\Models\PlantHardiness.dll"
+copy /Y ".\bin\Releasex64\Models\PlantHardinessCanada.mdl" "..\Install\NRCan\Models\PlantHardinessCanada.mdl"
+copy /Y ".\bin\Releasex64\Models\PlantHardinessUSA.mdl" "..\Install\NRCan\Models\PlantHardinessUSA.mdl"
+
 
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Annual).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Potential Evapotranspiration (Monthly).mdl" "..\Install\NRCan\Models\Potential Evapotranspiration (Monthly).mdl"
