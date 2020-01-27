@@ -22,7 +22,7 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CMDDELCC::SERVER_NAME = "www.mddelcc.gouv.qc.ca";
+	const char* CMDDELCC::SERVER_NAME = "www.environnement.gouv.qc.ca";
 
 	CMDDELCC::CMDDELCC(void)
 	{
@@ -59,17 +59,17 @@ namespace WBSF
 		if (msg)
 		{
 
-			string::size_type posBegin = source.find("helpOver");
+			string::size_type posBegin = source.find("<div class=\"lienClim\">");
 
 			while (posBegin != string::npos)
 			{
-
+				string ID = FindString(source, ">", "<", posBegin); Trim(ID);
 				string name = FindString(source, "<b>", "</b>", posBegin); Trim(name);
 				string period = FindString(source, "ouverture :", "<br />", posBegin); Trim(period);
 				string latitude = FindString(source, "Latitude :", "°", posBegin); Trim(latitude); std::replace(latitude.begin(), latitude.end(), ',', '.');
 				string longitude = FindString(source, "Longitude :", "°", posBegin); Trim(longitude); std::replace(longitude.begin(), longitude.end(), ',', '.');
 				string altitude = FindString(source, "Altitude :", "m", posBegin); Trim(altitude); std::replace(altitude.begin(), altitude.end(), ',', '.');
-				string ID = FindString(source, ">", "<", posBegin); Trim(ID);
+				
 				if (altitude.empty())
 					altitude = "-999";
 
@@ -77,7 +77,7 @@ namespace WBSF
 				stationInfo.SetSSI("Begin", period);
 				stationList.push_back(stationInfo);
 
-				posBegin = source.find("helpOver", posBegin);
+				posBegin = source.find("<div class=\"lienClim\">", posBegin);
 			}
 		}
 
