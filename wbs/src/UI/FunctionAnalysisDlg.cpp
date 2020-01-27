@@ -250,7 +250,9 @@ namespace WBSF
 	{
 		MTParser parser;
 		parser.defineFunc(CreateGetJDayFct());
+		parser.defineFunc(CreateJDay2DateFct());
 		parser.defineFunc(CreateDropYearFct());
+		parser.defineFunc(CreateGetMonthFct());
 		
 		parser.defineConst(_T("VMISS"), VMISS);
 

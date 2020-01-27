@@ -27,7 +27,10 @@ namespace WBSF
 	class CAnalysisDB;
 	
 	MTFunctionI* CreateGetJDayFct();
+	MTFunctionI* CreateJDay2DateFct();
 	MTFunctionI* CreateDropYearFct();
+	MTFunctionI* CreateGetMonthFct();
+	
 
 	typedef CModelOutputVariableDef CFunctionDef;
 	typedef CModelOutputVariableDefVector CFunctionDefArray;
@@ -55,6 +58,8 @@ namespace WBSF
 	{
 	public:
 
+		enum TDim {/* DEX_LAT, DEX_LON, DEX_ELEV, */DEX_TREF, NB_DIM_EXTRA };
+
 		CFunctionContext();
 		~CFunctionContext();
 		ERMsg Compile(const CModelOutputVariableDefVector& varDef, std::string equation);
@@ -63,9 +68,12 @@ namespace WBSF
 
 	protected:
 
+		
 		MTParser* m_pParser;
 		CParserVariableVector m_vars;
+		std::array<CParserVariable, NB_DIM_EXTRA> m_dim;
 
+		static const char* DIM_NAME[NB_DIM_EXTRA];
 		static CParserVariable GetParserVariable(const CModelOutputVariableDefVector& varDef, std::string name);
 	};
 

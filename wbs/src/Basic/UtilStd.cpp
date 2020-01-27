@@ -1403,14 +1403,15 @@ namespace WBSF
 		{
 			static const char*
 				//   "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-				tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnooooo/0uuuuypy";
+				//tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnooooo/0uuuuypy";
+				tr = "AAAAAAECEEEEIIIIDNOOOOOx0UUUUYPsaaaaaaeceeeeiiiiOnoooooouuuuypy";
 			unsigned char ch = *it;
 			if (ch >= 192)
 				*it = tr[ch - 192];
 
 			//++p; // http://stackoverflow.com/questions/14094621/
 		}
-
+		//ÿ
 		return str;
 	}
 

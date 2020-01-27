@@ -122,7 +122,7 @@ namespace WBSF
 			if (!str_zone.empty())
 			{
 				float zone = ToFloat(str_zone);
-				ASSERT(zone >= -12 && zone <= 12);
+				ASSERT(zone >= -15 && zone <= 15);
 				time_zone = zone * 3600;
 			}
 			else
@@ -132,7 +132,13 @@ namespace WBSF
 			}
 			
 		}
-		ASSERT(poly != -1);
+		else
+		{
+			//take default from longitude
+			time_zone = __int64(pt.m_lon / 15 * 3600);
+		}
+
+		//ASSERT(poly != -1);
 
 
 		return time_zone;

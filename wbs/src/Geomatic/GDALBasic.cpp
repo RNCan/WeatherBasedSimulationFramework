@@ -15,6 +15,7 @@
 #include <share.h>
 #include <iostream>
 #include <wtypes.h>
+#include <chrono>
 
 #include "MTParser/MTParser.h"
 #include "Basic/OpenMP.h"
@@ -1225,6 +1226,9 @@ namespace WBSF
 		CProjectionPtr pPrj = GetPrj();
 		CProjectionTransformation PT(pPrj, CProjectionManager::GetPrj(PRJ_WGS_84));
 
+		const auto& start = std::chrono::high_resolution_clock::now();
+		//	high_resolution_clock::now();
+
 		Randomize();//init the first time
 		// loop until the good number of points
 		while ((locations.size() + locArrayTmp.size() + info.GetNbExtremPoint()) < nbPoint && msg)
@@ -1296,8 +1300,14 @@ namespace WBSF
 					}
 				}
 			}
+			 
+			const auto& now = std::chrono::high_resolution_clock::now();
+			//const auto& stop = high_resolution_clock::now();
+			auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
 
-			if (nbRun++ > 10)
+
+			//if (nbRun++ > 10)
+			if(duration>600)
 			{   // si le nombre de tour est > 10, on à un problème
 				//unable to found points
 				msg.ajoute(GetString(IDS_MAP_UNABLE_CREATE_LOC));
@@ -1306,6 +1316,8 @@ namespace WBSF
 
 			callback.AddMessage("NbPoint = " + ToString(locations.size() + locArrayTmp.size()));
 			callback.PopTask();
+
+
 		}//while
 
 		if (msg)

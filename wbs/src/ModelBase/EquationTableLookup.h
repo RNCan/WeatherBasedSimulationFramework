@@ -18,8 +18,6 @@ namespace WBSF
 	{
 	public:
 
-		//enum TSex{ MALE, FEMALE, NB_SEX };
-
 		//constructor : init rates
 		CEquationTableLookup(const CRandomGenerator& RG, size_t nbEquation, double Tmin = -40, double Tmax = 40, double deltaT = 0.25) :
 			m_randomGenerator(RG)

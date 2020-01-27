@@ -39,8 +39,6 @@ namespace WBSF
 
 		GetJDayFct(){}
 
-		//void SetTM( CTM TM){ m_TM = TM; };
-
 	protected:
 
 		GetJDayFct(const GetJDayFct& obj){	/*m_TM = obj.m_TM;*/ }
@@ -51,37 +49,65 @@ namespace WBSF
 		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
 		{
 			ASSERT(nbArgs == 1);
-			//int iArg = (int)pArg[0];
 
 			MTDOUBLE val = -DBL_MAX;
 
-
-			//if (iArg < 0 || iArg>365)
-			//{
-				//we assume that JDay is call only on daily values
+			//we assume that JDay is call only on daily values
 			CTRef ref(pArg[0]);
-				//ref.SetRef(iArg, CTM(CTM::DAILY, CTM::FOR_EACH_YEAR));
+
 			if (ref.IsInit())
 				val = MTDOUBLE(ref.GetJDay() + 1);
-			//}
-			//else
-			//{
-				//we assume daily value in OVERALL_YEAR mode
-				//val = iArg;
-			//}
 
 			return val;
 		}
 
 	
 		virtual MTFunctionI* spawn(){ return new GetJDayFct; }
-
-
-
 	};
 	
 	MTFunctionI* CreateGetJDayFct(){ return new GetJDayFct; }
 
+	class JDay2DateFct : public MTFunctionI
+	{
+
+	public:
+
+		JDay2DateFct() {}
+
+	protected:
+
+		JDay2DateFct(const JDay2DateFct& obj) {	/*m_TM = obj.m_TM;*/ }
+		virtual const MTCHAR* getSymbol() { return _T("JDay2Date"); }
+		virtual const MTCHAR* getHelpString() { return _T("JDay2Date(Julian day)"); }
+		virtual const MTCHAR* getDescription() { return _T("Return the time reference from Julian day"); }
+		virtual int getNbArgs() { return 1; }
+		virtual void doLateInitialization(class MTCompilerI *pCompiler, class MTRegistrarI *pRegistrar) throw(MTParserException) 
+		{
+
+			int i;
+			i = 0;
+		}
+
+		virtual MTDOUBLE evaluate(unsigned int nbArgs, const MTDOUBLE *pArg)
+		{
+			ASSERT(nbArgs == 1);
+
+			MTDOUBLE val = -DBL_MAX;
+
+			//we assume that JDay is call only on daily values
+			CJDayRef ref(pArg[0]-1);
+
+			if (ref.IsInit())
+				val = MTDOUBLE(ref.Get__int32());
+
+			return val;
+		}
+
+
+		virtual MTFunctionI* spawn() { return new JDay2DateFct; }
+	};
+
+	MTFunctionI* CreateJDay2DateFct() { return new JDay2DateFct; }
 
 	class DropYearFct : public MTFunctionI
 	{
@@ -232,6 +258,8 @@ namespace WBSF
 	//************************************************************************
 	//CFunctionContext
 
+	
+	const char* CFunctionContext::DIM_NAME[NB_DIM_EXTRA] = { "TRef" };
 	CFunctionContext::CFunctionContext()
 	{
 		m_pParser = new MTParser;
@@ -248,7 +276,11 @@ namespace WBSF
 		ERMsg msg;
 		m_pParser->enableAutoVarDefinition(true);
 		m_pParser->defineFunc(new GetJDayFct);
+		m_pParser->defineFunc(new JDay2DateFct);
 		m_pParser->defineFunc(new DropYearFct);
+		m_pParser->defineFunc(new GetMonthFct);
+		
+		
 		m_pParser->defineConst(_T("VMISS"), VMISS);
 
 		try
@@ -263,6 +295,7 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
+		
 		m_vars.resize(m_pParser->getNbUsedVars());
 
 		for (unsigned int t = 0; t < m_pParser->getNbUsedVars(); t++)
@@ -271,13 +304,25 @@ namespace WBSF
 			m_pParser->redefineVar(m_pParser->getUsedVar(t).c_str(), &(m_vars[t].m_value));
 
 
-			std::string test = UTF8(m_pParser->getExpression());
+			//std::string test = UTF8(m_pParser->getExpression());
 			if (m_vars[t].m_field == -1)
 			{
 				string error = FormatMsg(IDS_SIM_UNRESOLVE_VARIABLE, UTF8(m_pParser->getUsedVar(t)), UTF8(m_pParser->getExpression()));
 				msg.ajoute(error);
 			}
 		}
+
+		
+		if (msg)
+		{
+			//for (size_t i = 0; i < m_dim.size(); i++)
+			wstring name(convert(DIM_NAME[DEX_TREF]));
+			m_dim[DEX_TREF].m_dim = TIME_REF, 0;
+			m_dim[DEX_TREF].m_field = 0;
+			m_pParser->defineVar(name.c_str(), &(m_dim[DEX_TREF].m_value));
+		}
+		
+
 
 		return msg;
 	}
@@ -294,6 +339,10 @@ namespace WBSF
 			if (m_vars[t].m_value <= VMISS)
 				bMissingValue = true;
 		}
+		
+		//last position for time reference
+		for (size_t i = 0; i < m_dim.size(); i++)
+			m_dim[i].m_value = pResult->GetDataValue(s, r, m_dim[i].m_dim, m_dim[i].m_field, MEAN);
 
 
 		if (!bMissingValue)
