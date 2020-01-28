@@ -515,9 +515,12 @@ public:
 
 		AllowEdit(FALSE);
 		int index = WBSF::ToInt(value);
-		CString strValue = GetOptionText(index);
-		SetValue(strValue);
-		SetOriginalValue(strValue);
+		if (index>=0&&index< GetOptionCount())
+		{
+			CString strValue = GetOptionText(index);
+			SetValue(strValue);
+			SetOriginalValue(strValue);
+		}
 	}
 
 
