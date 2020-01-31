@@ -1,6 +1,6 @@
 ﻿//**********************************************************************
-//
-// 06/08/2013 Rémi Saint-Amant	Create from excel file 
+// 31/01/2020	1.1.3	Rémi Saint-Amant	Bug correction to manage multiple years
+// 06/08/2013			Rémi Saint-Amant	Create from excel file 
 //**********************************************************************
 #include <math.h>
 #include <crtdbg.h>
@@ -40,21 +40,12 @@ namespace WBSF
 
 			if (msg)
 			{
-				//INSECTS_DEVELOPMENT_DATABASE.reserve(50);
-
-//				int s = 0;
-
 				enum TInput{ I_NAME, I_SCIENTIFIC_NAME, I_COMMON_NAME, I_BASE_DEVEL, I_UPPER_DEVEL, I_EGG_DD, I_L1_DD, I_L2_DD, I_L3_DD, I_L4_DD, I_L5_DD, I_PUPAE_DD, I_ADULT_DD, I_MATURE_ADULT_DD, NB_INPUT_COLUMNS };
 
-				//RowReader row;
-				//stream >> row; //read header
 				for (CSVIterator loop(stream); loop != CSVIterator(); ++loop)
 				{
-					//stream >> row;
-
 					if ((*loop).size() == NB_INPUT_COLUMNS)
 					{
-						//INSECTS_DEVELOPMENT_DATABASE.resize(INSECTS_DEVELOPMENT_DATABASE.size() + 1);
 						string name = (*loop)[I_NAME];
 						INSECTS_DEVELOPMENT_DATABASE[name].m_name = (*loop)[I_NAME];
 
@@ -72,8 +63,6 @@ namespace WBSF
 								INSECTS_DEVELOPMENT_DATABASE[name].m_DDThreshold[i] = ToDouble(tmp);
 							}
 						}
-
-						//s++;
 					}
 				}
 			}
@@ -95,7 +84,7 @@ namespace WBSF
 	CIDDModel::CIDDModel()
 	{
 		NB_INPUT_PARAMETER = 3;
-		VERSION = "1.1.2 (2018)";
+		VERSION = "1.1.3 (2020)";
 
 	}
 
@@ -135,26 +124,12 @@ namespace WBSF
 		return msg;
 	}
 
-/*
-	ERMsg CIDDModel::OnExecuteHourly()
-	{
-		ERMsg msg;
-
-		CIDDIIIStatVector output(m_weather.GetEntireTPeriod(CTM(CTM::HOURLY)));
-		Execute(output);
-		SetOutput(output);
-
-		return msg;
-	}
-*/
 	ERMsg CIDDModel::OnExecuteDaily()
 	{
 		ERMsg msg;
 
-		//CIDDIIIStatVector output(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)));
 		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)), NB_IDDIII_OUTPUTS, 0.0, IDDIII_HEADER);
 		Execute(m_output);
-	//	SetOutput(output);
 
 		return msg;
 	}
@@ -170,7 +145,7 @@ namespace WBSF
 			size_t firstStage = m_insectInfo.GetStage(DDsum);
 			size_t stage = firstStage;
 
-			CTPeriod p = m_weather.GetEntireTPeriod();
+			CTPeriod p = m_weather[y].GetEntireTPeriod();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				if (m_insectInfo.m_haveStage[stage])
@@ -180,8 +155,6 @@ namespace WBSF
 					DDsum += DD.GetDD(m_weather.GetDay(TRef));
 				}
 
-				//CTRef d = TRef;
-				//d.Transform(output.GetTM());
 				output[TRef][O_DD] = DDsum;
 
 				stage = m_insectInfo.GetStage(DDsum);
