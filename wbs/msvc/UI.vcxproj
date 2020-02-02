@@ -89,6 +89,7 @@
     <ClCompile Include="..\src\UI\ExtractSSIDlg.cpp" />
     <ClCompile Include="..\src\UI\FunctionAnalysisDlg.cpp" />
     <ClCompile Include="..\src\UI\FunctionAnalysisTestDlg.cpp" />
+    <ClCompile Include="..\src\UI\GenerateWUDlg.cpp" />
     <ClCompile Include="..\src\UI\GraphDefineDlg.cpp" />
     <ClCompile Include="..\src\UI\GraphPropertyDlg.cpp" />
     <ClCompile Include="..\src\UI\ImportDataDlg.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="..\src\UI\ExtractSSIDlg.h" />
     <ClInclude Include="..\src\UI\FunctionAnalysisDlg.h" />
     <ClInclude Include="..\src\UI\FunctionAnalysisTestDlg.h" />
+    <ClInclude Include="..\src\UI\GenerateWUDlg.h" />
     <ClInclude Include="..\src\UI\GraphDefineDlg.h" />
     <ClInclude Include="..\src\UI\GraphPropertyDlg.h" />
     <ClInclude Include="..\src\UI\ImportDataDlg.h" />

@@ -47,9 +47,8 @@ namespace WBSF
 	const char* CWeatherUpdateDirectoryManager::SUB_DIR_NAME = "Update\\";
 
 	CWeatherUpdateDirectoryManager::CWeatherUpdateDirectoryManager(const std::string& projectPath, const std::string& globalPaths) :
-		CDirectoryManager(true, true, SUB_DIR_NAME, FILE_TITLE, ".Update", true)
+		CDirectoryManager(true, true, SUB_DIR_NAME, FILE_NAME, ".Update", true)
 	{
-
 		SetLocalBasePath(projectPath);
 		SetGlobalPaths(globalPaths);
 	}

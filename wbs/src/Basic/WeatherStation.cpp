@@ -3437,7 +3437,12 @@ namespace WBSF
 						for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 						{
 							if (variables[v] && IsMissing(me[y][m][d][h][v]))
+							{
 								me[y][m][d][h][v] = copy[y][m][d][h][v];
+								//if H_TMIN or H_TMAX is required, use H_TAIR: RSA 2020/01/31
+								if(IsMissing(me[y][m][d][h][v]) && (v==H_TMIN||v==H_TMAX) )
+									me[y][m][d][h][v] = copy[y][m][d][h][H_TAIR];
+							}
 						}
 					}
 				}

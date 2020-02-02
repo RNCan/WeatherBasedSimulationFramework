@@ -18,8 +18,9 @@
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/NewNameDlg.h"
 #include "UI/Common/SYShowMessage.h"
+#include "UI/GenerateWUDlg.h"
 
-#include "WeatherUpdateDlg.h"
+#include "UI/WeatherUpdateDlg.h"
 
 using namespace std;
 
@@ -38,15 +39,17 @@ namespace WBSF
 	//*************************************************************************************************
 	// CWeatherUpdateDlg dialog
 
-	BEGIN_MESSAGE_MAP(CWeatherUpdateDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CWeatherUpdateDlg, CDialogEx)
 		ON_BN_CLICKED(IDC_WEATHER_UPDATER_MANAGER, &CWeatherUpdateDlg::OnWeatherUpdaterManager)
+		ON_BN_CLICKED(IDC_WU_GENERATE, &CWeatherUpdateDlg::OnGenerateWeatherUpdater)
+		ON_CBN_SELCHANGE(IDC_WU_PROJECT, &UpdateCtrl)
 	END_MESSAGE_MAP()
 
 
 	CWeatherUpdateDlg::CWeatherUpdateDlg(const CExecutablePtr& pParent, CWnd* pParentWnd) :
-		CDialog(CWeatherUpdateDlg::IDD, pParentWnd),
+		CDialogEx(CWeatherUpdateDlg::IDD, pParentWnd),
 		m_pParent(pParent),
-		m_listCtrl(_T(""))
+		m_projectNameCtrl(_T(""))
 	{
 	}
 
@@ -54,39 +57,60 @@ namespace WBSF
 
 	void CWeatherUpdateDlg::DoDataExchange(CDataExchange* pDX)
 	{
-		CDialog::DoDataExchange(pDX);
+		CDialogEx::DoDataExchange(pDX);
 
 		if (!pDX->m_bSaveAndValidate)
 		{
-			DDX_Control(pDX, IDC_KIND, m_listCtrl);
+			DDX_Control(pDX, IDC_WU_PROJECT, m_projectNameCtrl);
 			WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
-			m_listCtrl.FillList(list, m_weatherUpdate.m_fileTitle);
+			m_projectNameCtrl.FillList(list, m_weatherUpdate.m_fileTitle);
 		}
 
 		DDX_Text(pDX, IDC_NAME, m_weatherUpdate.m_name);
 		DDX_Text(pDX, IDC_DESCRIPTION, m_weatherUpdate.m_description);
-		DDX_Text(pDX, IDC_INTERNAL_NAME, m_weatherUpdate.m_internalName);
-		DDX_Text(pDX, IDC_KIND, m_weatherUpdate.m_fileTitle);
+		//DDX_Control(pDX, IDC_DIRECT_FILE_NAME, m_filePathCtrl1);
+		
+
+		DDX_Text(pDX, IDC_WU_PROJECT, m_weatherUpdate.m_fileTitle);
+		
+		DDX_Control(pDX, IDC_WU_FILEPATH, m_filePathCtrl);
+
+		//DDX_Control(pDX, IDC_WU_FILEPATH2, m_filePathCtrl2);
 		DDX_Check(pDX, IDC_SHOW_APP, m_weatherUpdate.m_bShowApp);
+		DDX_Text(pDX, IDC_INTERNAL_NAME, m_weatherUpdate.m_internalName);
+	}
+
+	
+	void CWeatherUpdateDlg::OnGenerateWeatherUpdater()
+	{
+		CGenerateWUProjectDlg generateWUProjectDlg(true, this);
+		if (generateWUProjectDlg.DoModal() == IDOK)
+		{
+			WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
+			m_projectNameCtrl.FillList(list, generateWUProjectDlg.m_project_name);
+			UpdateCtrl();
+		}
+
 	}
 
 	void CWeatherUpdateDlg::OnWeatherUpdaterManager()
 	{
 		ERMsg msg;
-		
-		std::string updater = m_listCtrl.GetString();
 
-		while(updater.empty())
+		std::string WU_project_name = m_projectNameCtrl.GetString();
+
+		while (WU_project_name.empty())
 		{
 			CNewNameDlg dlg(this);
 			if (dlg.DoModal() != IDOK)
 				return;
 
-			
+			SetFileExtension(dlg.m_name, WBSF::GetFM().WeatherUpdate().GetExtensions());
+
 			if (!WBSF::GetFM().WeatherUpdate().FileExists(dlg.m_name))
 			{
 				ofStream f;
-				string filePath = WBSF::GetFM().WeatherUpdate().GetLocalPath() + dlg.m_name + WBSF::GetFM().WeatherUpdate().GetExtensions();
+				string filePath = WBSF::GetFM().WeatherUpdate().GetLocalPath() + dlg.m_name;
 				msg = f.open(filePath);
 				if (msg)
 				{
@@ -96,26 +120,35 @@ namespace WBSF
 					f.close();
 
 
-					updater = dlg.m_name;
-					m_listCtrl.AddString(dlg.m_name);
-					m_listCtrl.SelectStringExact(0, dlg.m_name);
+					WU_project_name = dlg.m_name;
+					m_projectNameCtrl.AddString(dlg.m_name);
+					m_projectNameCtrl.SelectStringExact(0, dlg.m_name);
 
 				}
 			}
-			
-			if(!msg)
+
+			if (!msg)
 				UtilWin::SYShowMessage(msg, this);
 		}
 
-		ENSURE(!updater.empty());
+		ENSURE(!WU_project_name.empty());
 
 		string filePath;
-		msg = WBSF::GetFM().WeatherUpdate().GetFilePath(updater, filePath);
+		msg = WBSF::GetFM().WeatherUpdate().GetFilePath(WU_project_name, filePath);
 		if (msg)
 			msg = CallApplication(CRegistry::WEATHER_UPDATER, filePath, NULL, SW_SHOW);
 
 		if (!msg)
 			UtilWin::SYShowMessage(msg, this);
+	}
+
+
+	void CWeatherUpdateDlg::UpdateCtrl()
+	{
+		string project_name = m_projectNameCtrl.GetString();
+		string filePath = WBSF::GetFM().WeatherUpdate().GetFilePath(project_name);
+		m_filePathCtrl.SetWindowText(filePath);
+
 	}
 
 
@@ -126,4 +159,3 @@ namespace WBSF
 
 
 
-	

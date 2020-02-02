@@ -10,6 +10,7 @@
 #define IDD_SEARCH_RADIUS               207
 #define IDR_MENU_REFORMAT               210
 #define IDD_SIM_FIT_EQUATION            217
+#define IDD_GENERATE_WU                 223
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -525,8 +526,16 @@
 #define IDC_MAP_OUTPUT_VARIOGRAM_INFO   1255
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT     1256
 #define IDC_MAP_USE_SHORE_DISTANCE      1257
+#define IDC_WU_PROJECT                  1257
 #define IDC_MAP_USE_ELEVATION           1258
+#define IDC_WU_FILEPATH                 1258
 #define IDC_MAP_USE_EXPOSITION          1259
+#define IDC_WU_GENERATE                 1259
+#define IDC_DATABASE_TYPE               1260
+#define IDC_WU_PROJECT_TITLE            1261
+#define IDC_FTP_FILE_NAME               1262
+#define IDC_FTP_FILEPATH                1263
+#define IDC_WG_DOWNLOAD_WEATHER         1264
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -883,9 +892,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        221
+#define _APS_NEXT_RESOURCE_VALUE        226
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1253
+#define _APS_NEXT_CONTROL_VALUE         1265
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

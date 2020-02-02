@@ -17,6 +17,7 @@
 #include "UI/WGInputDlg.h"
 #include "UI/SearchRadiusDlg.h"
 #include "WeatherBasedSimulationString.h"
+#include "UI/GenerateWUDlg.h"
 
 
 #ifdef _DEBUG
@@ -34,8 +35,8 @@ using namespace std;
 
 namespace WBSF
 {
-	CWGInputDlg::CWGInputDlg(CWnd* pParent /*=NULL*/):
-		CDialogEx(IDD_WG_INPUT,pParent)
+	CWGInputDlg::CWGInputDlg(CWnd* pParent /*=NULL*/) :
+		CDialogEx(IDD_WG_INPUT, pParent)
 	{
 		//m_bDefaultModel = true;
 	}
@@ -62,19 +63,19 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_HOURLY_LINK, m_hourlyLinkCtrl);
 		DDX_Control(pDX, IDC_WG_HOURLY_NB_STATIONS, m_hourlyNbStationsCtrl);
 		DDX_Control(pDX, IDC_WG_GRIBS_NB_POINTS, m_gribNbPointsCtrl);
-		
+
 
 		DDX_Control(pDX, IDC_WG_GRIBS_DBNAME, m_gribsDBNameCtrl);
 		DDX_Control(pDX, IDC_WG_GRIBS_LINK, m_gribsLinkCtrl);
 		DDX_Control(pDX, IDC_WG_USE_GRIBS, m_useGribCtrl);
 		//DDX_Control(pDX, IDC_WG_AT_SURFACE, m_atSurfaceCtrl); 
-		
-		
+
+
 		DDX_Control(pDX, IDC_WG_NB_YEARS, m_nbYearsCtrl);
 		DDX_Control(pDX, IDC_WG_FIRST_YEAR, m_firstYearCtrl);
 		DDX_Control(pDX, IDC_WG_LAST_YEAR, m_lastYearCtrl);
 
-		DDX_Control(pDX, IDC_WG_USE_FORECASTS, m_useForecastCtrl); 
+		DDX_Control(pDX, IDC_WG_USE_FORECASTS, m_useForecastCtrl);
 		DDX_Control(pDX, IDC_WG_USE_RADARS_PRCP, m_useRadarPrcpCtrl);
 		DDX_Control(pDX, IDC_WG_ALBEDO, m_albedoTypeCtrl);
 		DDX_Control(pDX, IDC_WG_SEED, m_seedTypeCtrl);
@@ -83,7 +84,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WG_SKIP_VERIFY, m_skipVerifyCtrl);
 		DDX_Control(pDX, IDC_WG_NO_FILL_MISSING, m_noFillMissingCtrl);
 		DDX_Control(pDX, IDC_WG_USE_SHORE, m_useShoreCtrl);
-		
+
 
 		if (!pDX->m_bSaveAndValidate)
 		{
@@ -107,6 +108,7 @@ namespace WBSF
 		ON_BN_CLICKED(IDC_WG_SEARCH_RADIUS, &OnSearchRadiusClick)
 		ON_WM_DESTROY()
 		ON_WM_ENABLE()
+		ON_BN_CLICKED(IDC_WG_DOWNLOAD_WEATHER, &CWGInputDlg::OnDownloadWeather)
 	END_MESSAGE_MAP()
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -145,7 +147,7 @@ namespace WBSF
 		m_testToolTips.AddWindowTool(&m_dailyNbStationsCtrl, nbStationStr);
 		m_testToolTips.AddWindowTool(&m_hourlyNbStationsCtrl, nbStationStr);
 		//m_testToolTips.AddWindowTool(&m_gribsNbPointsCtrl, nbStationStr);
-		
+
 		m_testToolTips.AddWindowTool(&m_normalLinkCtrl, linkStr);
 		m_testToolTips.AddWindowTool(&m_dailyLinkCtrl, linkStr);
 		m_testToolTips.AddWindowTool(&m_hourlyLinkCtrl, linkStr);
@@ -158,7 +160,7 @@ namespace WBSF
 	{
 		m_variablesCtrl.SetVariables(WGInput.m_variables);
 		m_searchRadius = WGInput.m_searchRadius;
-		
+
 		m_sourceTypeCtrl.SetCurSel(WGInput.m_sourceType);
 		m_generationTypeCtrl.SetCurSel(WGInput.m_generationType);
 
@@ -270,7 +272,7 @@ namespace WBSF
 		WGInput.m_nbGribPoints = stoi(m_gribNbPointsCtrl.GetString());
 		WGInput.m_gribsDBName = m_gribsDBNameCtrl.GetString();
 		WGInput.m_bUseGribs = m_useGribCtrl.GetCheck();
-//		WGInput.m_bAtSurfaceOnly = m_atSurfaceCtrl.GetCheck();
+		//		WGInput.m_bAtSurfaceOnly = m_atSurfaceCtrl.GetCheck();
 
 		WGInput.m_nbNormalsYears = stoi(m_nbYearsCtrl.GetString());
 		WGInput.m_firstYear = stoi(m_firstYearCtrl.GetString());
@@ -285,10 +287,10 @@ namespace WBSF
 		WGInput.m_bSkipVerify = m_skipVerifyCtrl.GetCheck();
 		WGInput.m_bNoFillMissing = m_noFillMissingCtrl.GetCheck();
 		WGInput.m_bUseShore = m_useShoreCtrl.GetCheck();
-		
+
 	}
 
-	
+
 	void CWGInputDlg::UpdateCtrl()
 	{
 		UpdateCtrl(true);
@@ -323,7 +325,7 @@ namespace WBSF
 			m_hourlyDBNameCtrl.EnableWindow(bGenerateHourly);
 			m_hourlyLinkCtrl.EnableWindow(bGenerateHourly);
 			m_hourlyNbStationsCtrl.EnableWindow(bGenerateHourly);
-			
+
 			bool bUseGribs = bFromObservations && m_useGribCtrl.GetCheck();
 			m_useGribCtrl.EnableWindow(bFromObservations && bGenerateHourly);
 			m_gribsDBNameCtrl.EnableWindow(bUseGribs && bGenerateHourly);
@@ -332,7 +334,7 @@ namespace WBSF
 		}
 	}
 
-	
+
 	BOOL CWGInputDlg::Create(const CModel& model, CWnd* pParentWnd)
 	{
 		BOOL bRep = CDialogEx::Create(IDD, pParentWnd);
@@ -582,4 +584,127 @@ namespace WBSF
 		}
 	}
 
+	/*int WinExecWait2(const std::string& command, std::string inputDir, UINT uCmdShow, LPDWORD pExitCode, CCallback& callback)
+	{
+		SECURITY_ATTRIBUTES sa;
+		sa.nLength = sizeof(sa);
+		sa.lpSecurityDescriptor = NULL;
+		sa.bInheritHandle = TRUE;
+
+		int t = rand();
+		CString tmp = GetTempPath() + CString::Format( _T("tmp_File%06d"), t);
+			
+
+		HANDLE h = CreateFile(tmp,
+			FILE_APPEND_DATA,
+			FILE_SHARE_WRITE | FILE_SHARE_READ|
+			FILE_ATTRIBUTE_TEMPORARY| FILE_FLAG_DELETE_ON_CLOSE,
+			&sa,
+			OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+
+		PROCESS_INFORMATION pi;
+		STARTUPINFO si;
+		BOOL ret = FALSE;
+		DWORD flags = CREATE_NO_WINDOW;
+
+		ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+		ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.dwFlags |= STARTF_USESTDHANDLES;
+		si.hStdInput = NULL;
+		si.hStdError = h;
+		si.hStdOutput = h;
+
+		TCHAR cmd[] = TEXT("Test.exe 30");
+		ret = CreateProcess(NULL, cmd, NULL, NULL, TRUE, flags, NULL, NULL, &si, &pi);
+
+		if (ret)
+		{
+			CloseHandle(pi.hProcess);
+			CloseHandle(pi.hThread);
+			return 0;
+		}
+
+		return -1;
+	}
+*/
+	void CWGInputDlg::OnDownloadWeather()
+	{
+		CGenerateWUProjectDlg generateWUProjectDlg(false, this);
+		if (generateWUProjectDlg.DoModal() == IDOK)
+		{
+			ERMsg msg;
+
+			//WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
+			//m_projectNameCtrl.FillList(list, generateWUProjectDlg.m_project_name);
+
+			//CTRef TRef = GetTRef(s, fileList[i].m_filePath);
+
+			string junk = WBSF::GetFM().WeatherUpdate().GetLocalPath();
+			string tmp_path = GetPath(junk) + "tmp\\";
+			string wea_path = GetPath(junk) + "..\\Weather\\";
+			string scriptFilePath = tmp_path + "script.txt";
+			CreateMultipleDir(tmp_path);
+			CreateMultipleDir(wea_path);
+
+
+			ofStream stript;
+			msg = stript.open(scriptFilePath);
+			if (msg)
+			{
+				//string input_file_path = generateWUProjectDlg.m_FTP_file_path;
+				string file_path_zip = tmp_path + generateWUProjectDlg.m_FTP_file_name;
+				//string tmpFilePaht = path + GetFileName(fileList[i].m_filePath);
+								//CreateMultipleDir(GetPath(outputFilePaht));
+
+				stript << "open ftp://anonymous:anonymous%40example.com@ftp.cfl.scf.rncan.gc.ca" << endl;
+
+				stript << "cd " << generateWUProjectDlg.m_FTP_path << endl;
+				stript << "lcd " << tmp_path << endl;
+				stript << "get " << generateWUProjectDlg.m_FTP_file_name << endl;
+				stript << "exit" << endl;
+				stript.close();
+
+				//call WinSCP
+				bool bShow = true;
+				string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+				DWORD exit_code = 0;
+				msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
+				if (msg)
+				{
+					if (msg && exit_code != 0)
+						msg.ajoute("WinSCP.exe was unable to download file: " + generateWUProjectDlg.m_FTP_file_path);
+
+					if (exit_code == 0 && FileExists(file_path_zip))
+					{
+						//call 7z
+
+						//unzip only .csv file because they are smaller than the zip file
+						string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
+
+						//string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
+						msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
+
+						if (msg && exit_code == 0)
+						{
+							//verify database
+						}
+						else
+						{
+							msg.ajoute("7za.exe was unable to unzip file: " + file_path_zip);
+						}
+					}
+				}//if msg
+
+
+			}//if msg
+
+			if (!msg)
+				SYShowMessage(msg, this);
+
+		}//do modal
+	}
 }
+

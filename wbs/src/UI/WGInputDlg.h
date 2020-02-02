@@ -58,7 +58,7 @@ namespace WBSF
 		afx_msg void OnSearchRadiusClick();
 		afx_msg void OnEnable(BOOL bEnable);
 		afx_msg void UpdateCtrl();
-		
+		afx_msg void OnDownloadWeather();
 
 
 		void FillNormalsDBNameList();

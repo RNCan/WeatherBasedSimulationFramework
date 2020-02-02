@@ -8,9 +8,6 @@
 //	
 //******************************************************************************
 #pragma once
-// DBEditorPages.h : header file
-//
-
 
 
 #include "basic/ERMsg.h"
@@ -52,7 +49,7 @@ namespace WBSF
 		virtual const WBSF::CDirectoryManager& GetManager()const=0;
 		virtual CBioSIMListBoxPtr GetList() = 0;
 
-		//void SetInitRect(bool bInit){ m_bInit = bInit; }
+
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -62,10 +59,7 @@ namespace WBSF
 		afx_msg void OnSize(UINT nType, int cx, int cy);
 		
 		CBioSIMListBoxPtr m_pList;
-		//CNormalMListBox m_list;
 		COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 
@@ -81,22 +75,8 @@ namespace WBSF
 
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
-		//virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-		//enum { IDD = IDD_NORMAL_PAGE };
-
 		
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		//afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-
-		//CNormalMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
-		//CSize m_size;
 	};
 
 
@@ -127,8 +107,6 @@ namespace WBSF
 	{
 	public:
 		CDailyMPage();
-		//~CDailyMPage();
-
 
 	protected:
 
@@ -136,21 +114,7 @@ namespace WBSF
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
 
-
-		//enum { IDD = IDD_DAILY_PAGE };
-
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-
-
-		//CDailyMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 
@@ -180,26 +144,14 @@ namespace WBSF
 	{
 	public:
 		CHourlyMPage();
-		//~CHourlyMPage();
-
 
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
-		//enum { IDD = IDD_HOURLY_PAGE };
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-
-
-		//CHourlyMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -227,28 +179,14 @@ namespace WBSF
 	{
 	public:
 		CGribMPage();
-		//~CGribMPage();
-
 
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
-		//enum { IDD = IDD_GRIB_PAGE };
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-
-
-		//CGribMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 
@@ -276,7 +214,6 @@ namespace WBSF
 	{
 	public:
 		CMapInputMPage();
-		//~CMapInputMPage();
 
 		CString m_lastDEMName;
 
@@ -286,22 +223,7 @@ namespace WBSF
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
 
-
-		//enum { IDD = IDD_MAP_PAGE };
-
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-
-
-		//CMapInputMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
-
 	};
 
 
@@ -329,28 +251,14 @@ namespace WBSF
 	{
 	public:
 		CModelMPage();
-		//~CModelMPage();
-
 
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
-		//enum { IDD = IDD_MODEL_PAGE };
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-
-
-		//CModelMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 
@@ -378,28 +286,14 @@ namespace WBSF
 	{
 	public:
 		CWeatherUpdateMPage();
-		//~CWeatherUpdateMPage();
-
 
 	protected:
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
-		//enum { IDD = IDD_WEATHER_UPDATE_PAGE };
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-
-
-		//CWeatherUpdateMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 
@@ -426,8 +320,6 @@ namespace WBSF
 	{
 	public:
 		CScriptMPage();
-		//~CScriptMPage();
-
 
 	protected:
 
@@ -435,18 +327,8 @@ namespace WBSF
 		virtual const WBSF::CDirectoryManager& GetManager()const;
 		virtual CBioSIMListBoxPtr GetList();
 
-		//enum { IDD = IDD_SCRIPT_PAGE };
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg void OnCopy();
-		//afx_msg void OnSelChange(NMHDR * pNotifyStruct, LRESULT * result);
-		//afx_msg void OnSize(UINT nType, int cx, int cy);
-		
-
-		//CScriptMListBox m_list;
-		//COpenDirEditCtrl m_filePathCtrl;
-		//bool m_bInit;
-		//CRect m_rect;
 	};
 
 

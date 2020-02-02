@@ -20,7 +20,7 @@ namespace WBSF
 	/////////////////////////////////////////////////////////////////////////////
 	// CWeatherUpdateDlg dialog
 
-	class CWeatherUpdateDlg : public CDialog
+	class CWeatherUpdateDlg : public CDialogEx
 	{
 		// Construction
 	public:
@@ -37,15 +37,17 @@ namespace WBSF
 
 		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-		// Generated message map functions
-		DECLARE_MESSAGE_MAP()
-		afx_msg void OnWeatherUpdaterManager();
-
-
 		CWeatherUpdate m_weatherUpdate;
 		CExecutablePtr m_pParent;
 
-		CDefaultComboBox m_listCtrl;
+		// Generated message map functions
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnWeatherUpdaterManager();
+		afx_msg void OnGenerateWeatherUpdater();
+		afx_msg void UpdateCtrl();
+		
+		CDefaultComboBox m_projectNameCtrl;
+		COpenDirEditCtrl m_filePathCtrl;
 
 	};
 

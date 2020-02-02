@@ -352,6 +352,9 @@
     <ClCompile Include="..\src\UI\DevRateParameterizationDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\GenerateWUDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -715,6 +718,9 @@
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\DevRateParameterizationDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\GenerateWUDlg.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

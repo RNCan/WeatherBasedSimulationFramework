@@ -52,6 +52,7 @@ namespace WBSF
 		virtual int GetDatabaseType()const{ return CBioSIMDatabase::DATA_STATISTIC; }
 		virtual ERMsg Execute(const CFileManager& fileManager, CCallback& callBack = DEFAULT_CALLBACK);
 
+		static ERMsg GenerateWUProject(const std::string& project_title, const std::string& server, const std::string& file_path);
 
 
 	protected:

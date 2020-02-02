@@ -151,34 +151,7 @@ namespace WBSF
 		if (GetSafeHwnd() == NULL || m_filePathCtrl.GetSafeHwnd() == NULL)
 			return;
 
-		//if(!m_bInit)//the property sheet will init the page
-			//
-
-		/*CRect rect;
-		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
-		rect.right = cx - 2*5 - 100;
-
-
-
-		m_pList->SetWindowPos(NULL, 5, 5, cx - 2 * 5 - 100, cy - rect.Height() - 3 * 5, SWP_NOZORDER | SWP_NOACTIVATE);
-		m_filePathCtrl.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);*/
-		//if (!m_bInit)
-		//{
-		////	GetClientRect(m_rect);
-		//	//GetWindowRect(m_rect); ScreenToClient(m_rect);
-		//	
-		//	((CMFCPropertySheet*)GetParent())->GetTabControl()->GetClientRect(m_rect);
-		//}
-
-		//CRect rect;
-		////GetClientRect(rect);
-		//GetWindowRect(rect); ScreenToClient(rect);
-		//int dx = rect.Width() - m_rect.Width();
-		//int dy = rect.Height() - m_rect.Height();
-		//m_rect = rect;
-
 		CRect rect;
-		//m_pList->GetClientRect(rect); ScreenToClient(rect);
 		m_filePathCtrl.GetWindowRect(rect); ScreenToClient(rect);
 
 		m_pList->SetWindowPos(NULL, 10, 10, cx - 2*10, cy - 3*10 - rect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
@@ -688,10 +661,7 @@ namespace WBSF
 	void CModelMListBox::OnEditItem(int iItem)
 	{
 		string name = CStringA(GetItemText(iItem));
-		/*
-		string filePath = WBSF::GetFM().WeatherUpdate().GetFilePath(name);
-		CallApplication(CRegistry::MODEL_EDITOR, filePath, GetSafeHwnd(), SW_SHOW);
-*/
+
 		CModelDlg dlg(this);
 		ENSURE(WBSF::GetFM().Model().Get(name, dlg.m_model));
 		ASSERT(dlg.m_model.GetName() == name);
@@ -714,22 +684,12 @@ namespace WBSF
 
 	CModelMPage::CModelMPage() :
 		CCommonMPage(IDD_NORMAL_PAGE, IDS_CMN_MODEL_PAGE)
-		//m_bInit(false)
 	{
-		//m_psp.dwFlags &= ~(PSP_HASHELP);
 	}
-
-	//CModelMPage::~CModelMPage()
-	//{}
 
 	void CModelMPage::DoDataExchange(CDataExchange* pDX)
 	{
 		CCommonMPage::DoDataExchange(pDX);
-
-		//DDX_Control(pDX, IDC_DB_LIST, m_list);
-		//DDX_Control(pDX, IDC_DB_FILEPATH, m_filePathCtrl);
-		//m_list.SetFocus();
-
 	}
 
 
@@ -802,10 +762,6 @@ namespace WBSF
 	void CWeatherUpdateMPage::DoDataExchange(CDataExchange* pDX)
 	{
 		CCommonMPage::DoDataExchange(pDX);
-
-		//DDX_Control(pDX, IDC_DB_LIST, m_list);
-		//DDX_Control(pDX, IDC_DB_FILEPATH, m_filePathCtrl);
-		//m_list.SetFocus();
 	}
 
 	CBioSIMListBoxPtr CWeatherUpdateMPage::GetList() { return std::make_shared<CWeatherUpdateMListBox>(); }

@@ -104,7 +104,7 @@ namespace WBSF
 		zen::XmlOut out(output);
 		out[GetMemberName(SCRIPT_TITLE)](m_fileTitle);
 		out[GetMemberName(SHOW_APP)](m_bShowApp);
-		
+
 	}
 
 	bool CWeatherUpdate::readStruc(const zen::XmlElement& input)
@@ -142,8 +142,59 @@ namespace WBSF
 
 			callback.PopTask();
 		}
-			
+
 
 		return msg;
 	}
+
+
+	ERMsg CWeatherUpdate::GenerateWUProject(const string& WU_file_path, const string& server, const string& file_path)
+	{
+		ERMsg msg;
+
+		
+		string file_name = GetFileName(file_path);
+
+
+		ofStream file;
+		msg = file.open(WU_file_path);
+		if (msg)
+		{
+			//if (bNormals)
+			//{
+			file << "<?xml version=\"1.0\" encoding=\"Windows - 1252\"?>" << endl;
+			file << "<WeatherUpdater version=\"2\">" << endl;
+			file << "<Tasks type=\"Tools\">" << endl;
+			file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+			file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+			file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+			file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+			file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+			file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+			file << "<Parameters name=\"Local\">tmp\\" << file_name << "</Parameters>" << endl;
+			file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+			file << "<Parameters name=\"Password\"/>" << endl;
+			file << "<Parameters name=\"Proxy\"/>" << endl;
+			file << "<Parameters name=\"Remote\">" << file_path << "</Parameters>" << endl;
+			file << "<Parameters name=\"Server\">" << server << "</Parameters>" << endl;
+			file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+			file << "<Parameters name=\"UserName\"/>" << endl;
+			file << "</Task>" << endl;
+			file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+			file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+			file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+			file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+			file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+			file << "<Parameters name=\"ZipFilepath\">tmp\\" << file_name << "</Parameters>" << endl;
+			file << "</Task>" << endl;
+			file << "</Tasks>" << endl;
+			file << "</WeatherUpdater>" << endl;
+
+			file.close();
+		}
+		
+		return msg;
+}
+
+
 }
