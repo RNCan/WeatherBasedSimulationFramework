@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F92AC9AA-1D36-4BDD-A71C-CA227F403BCB}</ProjectGuid>
-    <RootNamespace>PierreBelleau</RootNamespace>
+    <RootNamespace>DailyvsHourly</RootNamespace>
     <ProjectName>Daily vs Hourly</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{71F4D143-E5B6-4BF6-9D69-A8D5FEF01DE0}</ProjectGuid>
-    <RootNamespace>PierreBelleau</RootNamespace>
+    <RootNamespace>CCBio</RootNamespace>
     <ProjectName>CCBio</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

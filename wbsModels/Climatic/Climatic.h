@@ -14,45 +14,27 @@ namespace WBSF
 		CClimaticModel();
 		virtual ~CClimaticModel();
 
-		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 
-		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg OnExecuteMonthly();
-		virtual ERMsg OnExecuteDaily();
-		virtual ERMsg OnExecuteHourly();
-		
-		virtual void AddSAResult(const StringVector& header, const StringVector& data);
-		virtual void GetFValueHourly(CStatisticXY& stat);
-		virtual void GetFValueDaily(CStatisticXY& stat);
-		virtual void GetFValueMonthly(CStatisticXY& stat);
+		virtual ERMsg OnExecuteAnnual()override;
+		virtual ERMsg OnExecuteMonthly()override;
+		virtual ERMsg OnExecuteDaily()override;
+		virtual ERMsg OnExecuteHourly()override;
 
-		static CBioSIMModelBase* CreateObject(){ return new CClimaticModel; }
+		static CBioSIMModelBase* CreateObject() { return new CClimaticModel; }
 
-	private:
+	protected:
 
-		double GetSh(int n, int h)const;
-		double GetH(int h)const;
-		double GetVarH(const CDay& day, int hour, int var)const;
-		double GetTd(const CDay& day, int hour)const;
+		bool m_bEx;//extended model
+		double m_prcp_thres;
 
-		bool m_bInit;
-		double GetSn(int n, int t);
-		double GetS(int h);
-		double GetHourlyWS(const CDay& day, int hour);
+		static size_t GetNbDayWithPrcp(const CWeatherYear& weather, double prcp_thres=0.2);
+		static size_t GetNbDayWithPrcp(const CWeatherMonth& weather, double prcp_thres = 0.2);
+		static size_t GetNbFrostDay(const CWeatherYear& weather);
+		static size_t GetNbFrostDay(const CWeatherMonth& weather);
 
-		//variable to optimized;
-		int m_varType;
-
-		//wind
-		std::array<double, 2> m_a;
-		std::array<double, 2> m_b;
-
-		//TDew
-		double m_x0;
-		double m_x1;
-		double m_x2;
-		double m_x3;
-
-		int GetFrostDay(int year, const double& th);
 	};
+
+
+
 }

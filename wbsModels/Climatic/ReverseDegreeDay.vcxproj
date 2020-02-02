@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6488FCDF-5898-42BC-B518-41E10B91BD54}</ProjectGuid>
-    <RootNamespace>DegreDayDll</RootNamespace>
+    <RootNamespace>ReverseDegreDay</RootNamespace>
     <ProjectName>ReverseDegreeDay</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

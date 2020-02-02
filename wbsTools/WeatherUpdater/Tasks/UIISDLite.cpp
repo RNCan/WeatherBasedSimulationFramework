@@ -458,7 +458,7 @@ namespace WBSF
 
 							//if (FileExists(zipFilePath))
 							//{
-							//	string command = "External\\7z.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
+							//	string command = "External\\7za.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
 							//	msg += WinExecWait(command.c_str());
 							//	RemoveFile(zipFilePath);
 							//}

@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectName>DegreeDay</ProjectName>
     <ProjectGuid>{D37BD410-199B-4589-851E-369E4905455B}</ProjectGuid>
-    <RootNamespace>DegreDayDll</RootNamespace>
+    <RootNamespace>DegreDay</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

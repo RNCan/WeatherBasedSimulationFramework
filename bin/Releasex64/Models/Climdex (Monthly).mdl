@@ -272,6 +272,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit> Version                Date                           Note&#x0A;2.3 (2013)        05/07/2013          Remove GDD and ET&#x0A;</Credit>
+    <Credit>More information about output variables can be found here:&#x0D;&#x0A;http://etccdi.pacificclimate.org/list_27_indices.shtml&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>

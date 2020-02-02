@@ -2,12 +2,12 @@
 <Model version="3">
     <Title>Climatic Annual</Title>
     <Version>2.0</Version>
-    <ID>.null</ID>
+    <ID>.cmt</ID>
     <EXE>Climatic.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model computes annual climatic variables</Description>
-    <WindowRect>0 0 82 330</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS R</SimulatedCategory>
+    <WindowRect>0 0 107 330</WindowRect>
+    <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -15,15 +15,15 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>Head</Name>
-            <Caption>No input</Caption>
-            <Description/>
-            <Type>10</Type>
-            <Rect>10 10 32 160</Rect>
+            <Name>PrcpThreshold</Name>
+            <Caption>PrcpThreshold</Caption>
+            <Description>Precipitation threshold to determine if it's a wet or dry day. 0.2 mm by default. Annual and monthly only</Description>
+            <Type>2</Type>
+            <Rect>20 10 40 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <DefaultValue>0.2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -31,80 +31,80 @@
     <MissingValue>-9999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>LowestTMin</Name>
-            <Title>Lowest TMin</Title>
+            <Name>LowestTmin</Name>
+            <Title>LowestTmin</Title>
             <Units>°C</Units>
             <Description>Lowest daily minimum temperature of the year</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MeanTMin</Name>
-            <Title>Mean TMin</Title>
+            <Name>MeanTmin</Name>
+            <Title>MeanTmin</Title>
             <Units>°C</Units>
             <Description>Annual mean of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MeanTMean</Name>
-            <Title>Mean TMean</Title>
+            <Name>MeanTair</Name>
+            <Title>MeanTair</Title>
             <Units>°C</Units>
             <Description>Annual mean of daily mean temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MeanTMax</Name>
-            <Title>Mean TMax</Title>
+            <Name>MeanTmax</Name>
+            <Title>MeanTmax</Title>
             <Units>°C</Units>
             <Description>Annual mean of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>HitghestTMax</Name>
-            <Title>HitghestTMax</Title>
+            <Name>HitghestTmax</Name>
+            <Title>HitghestTmax</Title>
             <Units>°C</Units>
             <Description>Highest daily maximum temperature of the year</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>TotalPrecipitation</Name>
-            <Title>Total Precipitation</Title>
+            <Name>TotalPrcp</Name>
+            <Title>TotalPrcp</Title>
             <Units>mm</Units>
             <Description>Annual total precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>TDew</Name>
-            <Title>DewPoint</Title>
+            <Name>MeanTdew</Name>
+            <Title>MeanTdew</Title>
             <Units>°C</Units>
             <Description>Annual mean of daily mean dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>RelativeHumidity</Name>
-            <Title>Relative Humidity</Title>
+            <Name>MeanRelH</Name>
+            <Title>MeanRelH</Title>
             <Units>%</Units>
             <Description>Annual mean of daily mean relative humidity</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>WindSpeed</Name>
-            <Title>Wind Speed</Title>
-            <Units>km/h</Units>
-            <Description>Mean wind speed at 10 meters (km/h)</Description>
+            <Name>TotalRadiation</Name>
+            <Title>TotalRadiation</Title>
+            <Units>MJ/m²</Units>
+            <Description>Annual total radiation computes by MTCLIM. See documentation of MTCLIM 4.3</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>FrostDay</Name>
-            <Title>Frost Days</Title>
+            <Title>FrostDays</Title>
             <Units>days</Units>
             <Description>Number of days in the year when the daily minimum temperature is &lt; 0 °C</Description>
             <TimeMode>4 0</TimeMode>
@@ -131,14 +131,6 @@
             <Title>DryDay</Title>
             <Units>days</Units>
             <Description>Number of days in the year when the daily precipitation is &lt; 0.2 mm</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>1</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>TotalRadiation</Name>
-            <Title>Total Radiation</Title>
-            <Units>MJ/m²</Units>
-            <Description>Annual total radiation computes by MTCLIM. See documentation of MTCLIM 4.3</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>

@@ -87,7 +87,7 @@ namespace WBSF
 		if (FileExists(filepath))
 			RemoveFile(filepath);
 
-		string command = GetApplicationPath() + "External\\7z.exe a ";
+		string command = GetApplicationPath() + "External\\7za.exe a ";
 		if (as<bool>(COPY_SUB_DIRECTORY) )
 			command += "-r ";
 
@@ -129,7 +129,7 @@ namespace WBSF
 			msg = CreateMultipleDir(dir);
 			if (msg)
 			{
-				string command = GetApplicationPath() + "External\\7z.exe x \"" + filepath + "\" -aoa -o\"" + dir + "\"";
+				string command = GetApplicationPath() + "External\\7za.exe x \"" + filepath + "\" -aoa -o\"" + dir + "\"";
 
 				callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 				callback.AddMessage(GetString(IDS_UNZIP_FILE));

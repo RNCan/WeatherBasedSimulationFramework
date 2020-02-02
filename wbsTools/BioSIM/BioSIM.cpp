@@ -1,5 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.2:31/01/2020	Rémi Saint-Amant	Add Tmin and Tmax in the hourly generation frpm daily values
+//											Add generate WeatherUpdaterPorject
+//											Add Download database in WGinput dialog
 // 11.6.1:03/12/2019	Rémi Saint-Amant	Add XY generate location from DEM 
 //											Update Eggs deposition map
 // 11.6.0:21/08/2019	Rémi Saint-Amant	Correction in generation of hourly Tair when radius is zero

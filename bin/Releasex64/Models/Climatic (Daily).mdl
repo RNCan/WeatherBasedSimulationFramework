@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>Climatic Monthly</Title>
+    <Title>Climatic Daily</Title>
     <Version>2.0</Version>
-    <ID>.null</ID>
+    <ID>.nul</ID>
     <EXE>Climatic.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model compute climatic variable by month</Description>
-    <WindowRect>0 0 83 386</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS R</SimulatedCategory>
+    <WindowRect>0 0 99 386</WindowRect>
+    <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -32,7 +32,7 @@
     <OutputVariableArray>
         <OutputVariable>
             <Name>Tmin</Name>
-            <Title>Diurnal minimum temperature</Title>
+            <Title>Tmin</Title>
             <Units>°C</Units>
             <Description>Daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
@@ -41,7 +41,7 @@
         </OutputVariable>
         <OutputVariable>
             <Name>Tair</Name>
-            <Title>Mean TMean</Title>
+            <Title>Tair</Title>
             <Units>°C</Units>
             <Description>Mean air temperature. Can be an approximation from (Tmin + Tmax)/2</Description>
             <TimeMode>4 0</TimeMode>
@@ -50,7 +50,7 @@
         </OutputVariable>
         <OutputVariable>
             <Name>Tmax</Name>
-            <Title>Diurnal maximum temperature</Title>
+            <Title>Tmax</Title>
             <Units>°C</Units>
             <Description>daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
@@ -59,7 +59,7 @@
         </OutputVariable>
         <OutputVariable>
             <Name>Prcp</Name>
-            <Title>Total Precipitation</Title>
+            <Title>Prcp</Title>
             <Units>mm</Units>
             <Description>Daily total precipitation</Description>
             <TimeMode>4 0</TimeMode>
@@ -68,7 +68,7 @@
         </OutputVariable>
         <OutputVariable>
             <Name>Tdew</Name>
-            <Title>DewPoint</Title>
+            <Title>Tdew</Title>
             <Units>°C</Units>
             <Description>Mean daily dew point temperature</Description>
             <TimeMode>4 0</TimeMode>
@@ -77,7 +77,7 @@
         </OutputVariable>
         <OutputVariable>
             <Name>RelH</Name>
-            <Title>RelativeHumidity</Title>
+            <Title>RelH</Title>
             <Units>%</Units>
             <Description>Mean daily relative humidity</Description>
             <TimeMode>4 0</TimeMode>
@@ -85,19 +85,10 @@
             <Climatic>5</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>WndS</Name>
-            <Title>WindSpeed</Title>
-            <Units>km/h</Units>
-            <Description>Mean wind speed at 10 meters</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>1</Precision>
-            <Climatic>6</Climatic>
-        </OutputVariable>
-        <OutputVariable>
             <Name>SRad</Name>
-            <Title>TotalRadiation</Title>
-            <Units>MJ/m²</Units>
-            <Description>Cumulative solar radiation</Description>
+            <Title>SRad</Title>
+            <Units>W/m²</Units>
+            <Description>Daily solar radiation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
             <Climatic>8</Climatic>

@@ -138,7 +138,7 @@ namespace WBSF
 							if (msg)
 							{
 								ASSERT(FileExists(filePathZip));
-								string app = GetApplicationPath() + "External\\7z.exe";
+								string app = GetApplicationPath() + "External\\7za.exe";
 								string param = " e \"" + filePathZip + "\" -y -o\"" + outputPath + "\""; ReplaceString(param, "\\", "/");
 								string command = app + param;
 								msg += WinExecWait(command.c_str());

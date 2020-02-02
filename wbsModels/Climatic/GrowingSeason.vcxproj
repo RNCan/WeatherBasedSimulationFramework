@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D52E044C-8655-4D44-8229-0B02AA81AF00}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>NiclasFauvart</RootNamespace>
+    <RootNamespace>GrowingSeason</RootNamespace>
     <ProjectName>GrowingSeason</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

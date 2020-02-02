@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A5A2DB3A-DDE5-4997-B07F-4C990E158596}</ProjectGuid>
-    <RootNamespace>PierreBelleau</RootNamespace>
+    <RootNamespace>SoilTemperature</RootNamespace>
     <ProjectName>SoilTemperature</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

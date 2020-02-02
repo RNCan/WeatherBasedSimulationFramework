@@ -374,11 +374,11 @@ namespace WBSF
 
 
 		DWORD exitCode = 0;
-		string command = GetApplicationPath() + "External\\7z.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
+		string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
 		msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 		if (msg && exitCode != 0)
-			msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
+			msg.ajoute("7za.exe as exit with error code " + ToString(int(exitCode)));
 
 
 		callback.PopTask();

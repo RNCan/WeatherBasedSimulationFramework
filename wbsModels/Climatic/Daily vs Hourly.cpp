@@ -99,7 +99,7 @@ namespace WBSF
 			CWVariables vars = m_weather.GetVariables();
 			ASSERT(vars.count() == m_info.m_outputVariables.size());
 
-			m_weather.ComputeHourlyVariables();
+			m_weather.ComputeHourlyVariables(); 
 
 
 			CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::HOURLY));

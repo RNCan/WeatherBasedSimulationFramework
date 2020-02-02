@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Climatic Annual</Title>
+    <Version>2.0</Version>
+    <ID>.null</ID>
+    <EXE>ClimaticWind.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model computes annual climatic wind speed and direction</Description>
+    <WindowRect>0 0 82 330</WindowRect>
+    <SimulatedCategory>WS WD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Head</Name>
+            <Caption>No input</Caption>
+            <Description/>
+            <Type>10</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>WindSpeed</Name>
+            <Title>WindSpeed</Title>
+            <Units>km/h</Units>
+            <Description>Mean wind speed at 10 meters (km/h)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W0</Name>
+            <Title>W0</Title>
+            <Units>%</Units>
+            <Description>Cluster 0 (355..5°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W10</Name>
+            <Title>W10</Title>
+            <Units>%</Units>
+            <Description>Cluster 1 (5..15°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W20</Name>
+            <Title>W20</Title>
+            <Units>%</Units>
+            <Description>Cluster 2 (15..25°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W30</Name>
+            <Title>W30</Title>
+            <Units>%</Units>
+            <Description>Cluster 3 (25..35°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W40</Name>
+            <Title>W40</Title>
+            <Units>%</Units>
+            <Description>Cluster 4 (35..45°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W50</Name>
+            <Title>W50</Title>
+            <Units>%</Units>
+            <Description>Cluster 5 (45..55°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W60</Name>
+            <Title>W60</Title>
+            <Units>%</Units>
+            <Description>Cluster 6 (55..65°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W70</Name>
+            <Title>W70</Title>
+            <Units>%</Units>
+            <Description>Cluster 7 (65..75°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W80</Name>
+            <Title>W80</Title>
+            <Units>%</Units>
+            <Description>Cluster 8 (75..85°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W90</Name>
+            <Title>W90</Title>
+            <Units>%</Units>
+            <Description>Cluster 9 (85..95°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W100</Name>
+            <Title>W100</Title>
+            <Units>%</Units>
+            <Description>Cluster 1 (95..105°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W110</Name>
+            <Title>W110</Title>
+            <Units>%</Units>
+            <Description>Cluster 11 (105..115°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W120</Name>
+            <Title>W120</Title>
+            <Units>%</Units>
+            <Description>Cluster 21 (115..125°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W130</Name>
+            <Title>W130</Title>
+            <Units>%</Units>
+            <Description>Cluster 13 (125..135°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W140</Name>
+            <Title>W140</Title>
+            <Units>%</Units>
+            <Description>Cluster 14 (135..145°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W150</Name>
+            <Title>W150</Title>
+            <Units>%</Units>
+            <Description>Cluster 15 (145..155°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W160</Name>
+            <Title>W160</Title>
+            <Units>%</Units>
+            <Description>Cluster 16 (155..165°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W170</Name>
+            <Title>W170</Title>
+            <Units>%</Units>
+            <Description>Cluster 17 (165..175°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W180</Name>
+            <Title>W180</Title>
+            <Units>%</Units>
+            <Description>Cluster 18 (175..185°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W190</Name>
+            <Title>W190</Title>
+            <Units>%</Units>
+            <Description>Cluster 19 (185..195°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W200</Name>
+            <Title>W200</Title>
+            <Units>%</Units>
+            <Description>Cluster 20 (195..205°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W210</Name>
+            <Title>W210</Title>
+            <Units>%</Units>
+            <Description>Cluster 21 (205..215°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W220</Name>
+            <Title>W220</Title>
+            <Units>%</Units>
+            <Description>Cluster 22 (215..225°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W230</Name>
+            <Title>W230</Title>
+            <Units>%</Units>
+            <Description>Cluster 23 (225..235°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W240</Name>
+            <Title>W240</Title>
+            <Units>%</Units>
+            <Description>Cluster 24 (235..245°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W250</Name>
+            <Title>W250</Title>
+            <Units>%</Units>
+            <Description>Cluster 25 (245..255°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W260</Name>
+            <Title>W260</Title>
+            <Units>%</Units>
+            <Description>Cluster 26 (255..265°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W270</Name>
+            <Title>W270</Title>
+            <Units>%</Units>
+            <Description>Cluster 27 (265..275°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W280</Name>
+            <Title>W280</Title>
+            <Units>%</Units>
+            <Description>Cluster 28 (275..285°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W290</Name>
+            <Title>W290</Title>
+            <Units>%</Units>
+            <Description>Cluster 29 (285..295°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W300</Name>
+            <Title>W300</Title>
+            <Units>%</Units>
+            <Description>Cluster 30 (295..305°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W310</Name>
+            <Title>W310</Title>
+            <Units>%</Units>
+            <Description>Cluster 31 (305..315°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W320</Name>
+            <Title>W320</Title>
+            <Units>%</Units>
+            <Description>Cluster 32 (315..325°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W330</Name>
+            <Title>W330</Title>
+            <Units>%</Units>
+            <Description>Cluster 33 (325..335°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W340</Name>
+            <Title>W340</Title>
+            <Units>%</Units>
+            <Description>Cluster 34 (335..345°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>W350</Name>
+            <Title>W350</Title>
+            <Units>%</Units>
+            <Description>Cluster 35 (345..355°) percent</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit> </Credit>
+    <HelpFileName/>
+</Model>

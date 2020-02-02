@@ -1,4 +1,5 @@
 //*********************************************************************
+//31/01/2020	2.1.3	Rémi Saint-Amant    recompile with VS 2017
 // 04/05/2017	2.1.2	Rémi Saint-Amant    New hourly generation
 // 27/03/2017	2.1.1	Rémi Saint-Amant    recompile
 // 20/09/2016	2.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -27,7 +28,7 @@ namespace WBSF
 	CSMIModel::CSMIModel()
 	{
 		NB_INPUT_PARAMETER = 3;
-		VERSION = "2.1.2 (2017)";
+		VERSION = "2.1.3 (2020)";
 
 		//The initial SMIstart is default to m_SMIcrit and then after the first calculation SMIstart is set to the previous day's SMI
 		m_SMIcrit = 200.0; //Critical soil moisture (mm)

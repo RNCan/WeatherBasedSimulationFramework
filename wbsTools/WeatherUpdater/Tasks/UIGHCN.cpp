@@ -220,13 +220,13 @@ ERMsg CUIGHCND::sevenZ(const string& filePathZip, const string& workingDir, CCal
 	
 	callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 
-	string command = GetApplicationPath() + "External\\7z.exe x \"" + filePathZip+ "\" -y";
+	string command = GetApplicationPath() + "External\\7za.exe x \"" + filePathZip+ "\" -y";
 	//UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
 
 	DWORD exitCode=0;
 	msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);
 	if( msg && exitCode!=0)
-		msg.ajoute("7z.exe as exit with error code " + ToString(int(exitCode)));
+		msg.ajoute("7za.exe as exit with error code " + ToString(int(exitCode)));
 	
 
 	callback.PopTask();

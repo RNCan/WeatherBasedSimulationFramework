@@ -412,21 +412,21 @@ namespace WBSF
 			{
 				//unzip only .csv file because they are smaller than the zip file
 				DWORD exitCode = 0;
-				string command = GetApplicationPath() + "External\\7z.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
+				string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
 				msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 				if (msg && exitCode != 0)
-					callback.AddMessage("7z.exe was unable to unzip station iwth ID" + ID);
+					callback.AddMessage("7za.exe was unable to unzip station with ID" + ID);
 
 				msg += WBSF::RemoveFile(filePathZip);
 				if (msg)
 				{
 					//now rezip the file
-					command = GetApplicationPath() + "External\\7z.exe a -tgzip \"" + outputFilePath + "\" \"" + filePathData + "\"";
+					command = GetApplicationPath() + "External\\7za.exe a -tgzip \"" + outputFilePath + "\" \"" + filePathData + "\"";
 					msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 					if (msg && exitCode != 0)
-						callback.AddMessage("7z.exe was unable to zip file " + filePathData);
+						callback.AddMessage("7za.exe was unable to zip file " + filePathData);
 
 					msg += WBSF::RemoveFile(filePathData);
 				}
