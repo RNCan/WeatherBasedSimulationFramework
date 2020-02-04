@@ -35,7 +35,7 @@ namespace WBSF
 		operator=(in);
 	}
 
-	CWeatherUpdate::~CWeatherUpdate()
+	CWeatherUpdate::~CWeatherUbpdate()
 	{}
 
 	void CWeatherUpdate::Reset()

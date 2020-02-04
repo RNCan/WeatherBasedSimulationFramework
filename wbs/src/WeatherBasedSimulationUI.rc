@@ -4763,12 +4763,12 @@ BEGIN
     LTEXT           "Hourly:",IDC_CMN_STATIC6,14,149,23,8
     LTEXT           "Generated variables:",-1,7,49,72,10
     CONTROL         "",IDC_WG_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,108,46,183,14
-    LTEXT           "Variable that can be derivated:",-1,7,284,101,10
+    LTEXT           "Variable that can be derived:",-1,7,284,101,10
     CONTROL         "",IDC_WG_ALLOWED_DERIVED_VARIABLES,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,120,282,293,14
     CONTROL         "Use radars precipitation",IDC_WG_USE_RADARS_PRCP,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,319,49,94,12
     COMBOBOX        IDC_WG_GRIBS_DBNAME,79,164,251,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,336,164,17,14
-    CONTROL         "Skip database verification (when the database is never updated)",IDC_WG_SKIP_VERIFY,
+    CONTROL         "Skip database verification (when the database is never updated). Not recommended.",IDC_WG_SKIP_VERIFY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,314,406,10
     CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,357,50,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,207,62,12
