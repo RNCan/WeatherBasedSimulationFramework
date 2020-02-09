@@ -8,11 +8,12 @@ namespace WBSF
 
 	public:
 
+		enum TInput { I_EGGS, I_LARVAE, I_EMERGED_ADULT, NB_INPUTS };
 		CLaricobiusNigrinusModel();
 		virtual ~CLaricobiusNigrinusModel();
 
 		virtual ERMsg OnExecuteDaily()override;
-		virtual ERMsg OnExecuteAnnual()override;
+		//virtual ERMsg OnExecuteAnnual()override;
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 
 		static CBioSIMModelBase* CreateObject(){ return new CLaricobiusNigrinusModel; }
@@ -20,26 +21,23 @@ namespace WBSF
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
 		virtual void GetFValueDaily(CStatisticXY& stat)override;
 
-		virtual void AddAnnualResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueAnnual(CStatisticXY& stat)override;
-
 		protected:
-
-		CTRef m_start;
-		double m_threshold;
-		double m_sumDD;
 
 		bool m_bCumul;
 		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
 		double m_OVP[LNF::NB_OVP_PARAMS];
-		double m_AAD[LNF::NB_AAD_PARAMS];
+		double m_ADE[LNF::NB_ADE_PARAMS];
 
 
-		std::set<int> m_years;
-		std::array<CStatistic, 4> m_nb_days;
-
+		std::array < std::set<int>, NB_INPUTS> m_years;
+		std::array<CStatistic, NB_INPUTS> m_nb_days;
+		std::map<std::string, CStatistic> m_egg_creation_date;
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
+		void CalibrateDiapauseEnd(CStatisticXY& stat);
+		void CalibrateDiapauseEndTh(CStatisticXY& stat);
+		void CalibrateOviposition(CStatisticXY& stat);
+		CTRef GetEmergingBegin(const CWeatherYear& weather);
 
 		bool IsParamValid()const;
 	};
