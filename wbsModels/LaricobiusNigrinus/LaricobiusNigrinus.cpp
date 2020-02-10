@@ -34,13 +34,13 @@ namespace WBSF
 	//
 	// Note: m_RDR (relative Development Rate)  member is init with random values.
 	//*****************************************************************************
-	CLaricobiusNigrinus::CLaricobiusNigrinus(CHost* pHost, CTRef cd, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
-		CIndividual(pHost, cd, age, sex, bFertil, generation, scaleFactor)
+	CLaricobiusNigrinus::CLaricobiusNigrinus(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
+		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage
 		//These are independent in successive life stages
-		for (size_t s = 0; s < NB_STAGES; s++)
-			m_RDR[s] = Equations().GetRelativeDevRate(s);
+		//for (size_t s = 0; s < NB_STAGES; s++)
+		//	m_RDR[s] = 1;// no relative dev rate
 
 		//reset creation date
 		//m_creationDate.clear();
@@ -48,60 +48,61 @@ namespace WBSF
 		//m_ii = 0;
 		//m_CDD = 0;
 
-		m_adultEmergingCDD = Equations().GetAdultEmergingCDD();
+		//m_adult_emerging_CDD = Equations().GetAdultEmergingCDD();
+		
 
-		m_parentAdultEmergence = GetParentAdultEmergence();
-		m_creationDate = GetCreationDate(m_parentAdultEmergence);
+		//m_parentAdultEmergence = GetParentAdultEmergence();
+		int year = creationDate.GetYear();
+		m_creationDate = GetCreationDate(year);
+		m_adult_emergence = GetAdultEmergence(year);
 
 		m_adult_longevity = Equations().GetAdultLongevity(m_sex);
 		m_F = (m_sex == FEMALE) ? Equations().GetFecondity(m_adult_longevity) : 0;
 	}
 
-	CTRef CLaricobiusNigrinus::GetAdultEmergenceBegin(size_t y)const
+	/*CTRef CLaricobiusNigrinus::GetAdultEmergenceBegin(size_t y)const
 	{
 		return GetStand()->m_adultEmergenceBegin[y];
 	}
-	
-	CTRef CLaricobiusNigrinus::GetParentAdultEmergence()const
+	*/
+	//CTRef CLaricobiusNigrinus::GetParentAdultEmergence()const
+	//{
+	//	const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
+	//	ASSERT(weather_station.GetEntireTPeriod().GetNbYears() >= 2);
+	//	ASSERT(GetStand()->m_adultEmergenceBegin.size() == 2);
+
+
+	//	CTRef parentAdultEmergence;
+	//	double adultEmergingCDD = Equations().GetAdultEmergingCDD();
+
+	//	CTRef begin = GetStand()->m_adultEmergenceBegin[0];
+	//	CTRef end = CTRef(begin.GetYear() + 1, JUNE, DAY_30);
+
+	//	double CDD = 0;
+	//	for (CTRef TRef = begin; TRef <= end && !parentAdultEmergence.IsInit(); TRef++)
+	//	{
+	//		const CWeatherDay& wDay = weather_station.GetDay(TRef);
+	//		double DD4 = GetStand()->m_DD4.GetDD(wDay);//use 4° as threshold
+	//		CDD += DD4;
+	//		if (CDD >= adultEmergingCDD)
+	//		{
+	//			parentAdultEmergence = wDay.GetTRef();
+	//		}
+	//	}
+
+	//	return parentAdultEmergence;
+	//}
+
+	CTRef CLaricobiusNigrinus::GetCreationDate(int year)const
 	{
-		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		ASSERT(weather_station.GetEntireTPeriod().GetNbYears() >= 2);
-		ASSERT(GetStand()->m_adultEmergenceBegin.size() == 2);
-
-
-		CTRef parentAdultEmergence;
-		double adultEmergingCDD = Equations().GetAdultEmergingCDD();
-
-		CTRef begin = GetStand()->m_adultEmergenceBegin[0];
-		CTRef end = CTRef(begin.GetYear() + 1, JUNE, DAY_30);
-
-		double CDD = 0;
-		for (CTRef TRef = begin; TRef <= end && !parentAdultEmergence.IsInit(); TRef++)
-		{
-			const CWeatherDay& wDay = weather_station.GetDay(TRef);
-			double DD4 = GetStand()->m_DD4.GetDD(wDay);//use 4° as threshold
-			CDD += DD4;
-			if (CDD >= adultEmergingCDD)
-			{
-				parentAdultEmergence = wDay.GetTRef();
-			}
-		}
-
-		return parentAdultEmergence;
-	}
-
-	CTRef CLaricobiusNigrinus::GetCreationDate(CTRef parentAdultEmergence)const
-	{
-		ASSERT(!m_creationDate.IsInit());
+		//ASSERT(!m_creationDate.IsInit());
 
 		CTRef creationDate;
 		double creationCDD = Equations().GetCreationCDD();
 
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		ASSERT(weather_station.GetEntireTPeriod().GetNbYears() >= 2);
-		ASSERT(GetStand()->m_adultEmergenceBegin.size() == 2);
 		
-		int year = GetStand()->m_adultEmergenceBegin[1].GetYear();
+		//int year = GetStand()->m_adultEmergenceBegin[1].GetYear();
 		//CTRef begin = parentAdultEmergence;
 		//CTRef begin = GetStand()->m_adultEmergenceBegin[0];
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
@@ -124,6 +125,38 @@ namespace WBSF
 
 		return creationDate;
 	}
+	
+	CTRef CLaricobiusNigrinus::GetAdultEmergence(int year)const
+	{
+		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
+		CTPeriod p = weather_station.GetEntireTPeriod(CTM::DAILY);
+
+		CTRef adult_emergence;
+		double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
+
+		CTRef begin = GetStand()->m_adult_emergence_begin;
+		CTRef end = p.End();
+		if(weather_station[year].HaveNext())
+			end = min(p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
+			//end = min( p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
+
+		double CDD = 0;
+		for (CTRef TRef = begin; TRef <= end && !adult_emergence.IsInit(); TRef++)
+		{
+			const CWeatherDay& wday = weather_station.GetDay(TRef);
+			double T = wday[H_TNTX][MEAN];
+			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+
+			double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);// GetStand()->m_DD.GetDD(wDay);//use same threshold as egg creation
+			CDD += DD;
+			if (CDD >= adult_emerging_CDD)
+			{
+				adult_emergence = wday.GetTRef();
+			}
+		}
+
+		return adult_emergence;
+	}
 
 	CLaricobiusNigrinus& CLaricobiusNigrinus::operator=(const CLaricobiusNigrinus& in)
 	{
@@ -132,14 +165,15 @@ namespace WBSF
 			CIndividual::operator=(in);
 
 			//regenerate relative development rate
-			for (size_t s = 0; s < NB_STAGES; s++)
-				m_RDR[s] = Equations().GetRelativeDevRate(s);
+			//for (size_t s = 0; s < NB_STAGES; s++)
+				//m_RDR[s] = Equations().GetRelativeDevRate(s);
 
 			//			m_CDD = in.m_CDD;
 					//	m_creationCDD = in.m_creationCDD;
 						//			m_CDD_ADE = in.m_CDD_ADE;
 									//m_aestivalDiapauseEndCDD = in.m_aestivalDiapauseEndCDD;
-			m_adultEmergingCDD = in.m_adultEmergingCDD;
+			//m_adult_emerging_CDD = in.m_adult_emerging_CDD;
+			m_adult_emergence = in.m_adult_emergence;
 			m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
 			m_F = in.m_F;
 		}
@@ -391,13 +425,13 @@ namespace WBSF
 			//Time step development rate
 			double r = Equations().GetRate(s, T) / nb_steps;
 			
-			double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[5][s] : 1;
+			double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[s][0] : 1;
 
 			//Relative development rate for this individual
-			double rr = (s == EGG || s == LARVAE) ? m_RDR[s] : 1;
+			//double rr = (s == EGG || s == LARVAE) ? m_RDR[s] : 1;
 
 			//Time step development rate for this individual
-			r *= (corr_r*rr);
+			r *= corr_r;
 			ASSERT(r >= 0 && r < 1);
 			//if (s == EGG || s == LARVAE)
 				//r *= Equations().m_RDR[PREPUPAE][s];
@@ -412,8 +446,8 @@ namespace WBSF
 		}
 		else if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
-			if (!m_adultDate.IsInit())
-				m_adultDate = weather.GetTRef().as(CTM::DAILY);
+			//if (!m_adultDate.IsInit())
+				//m_adultDate = weather.GetTRef().as(CTM::DAILY);
 
 
 			//double pupationTime = m_adultDate - m_dropToGroundDate;//pupation time [days]
@@ -430,12 +464,19 @@ namespace WBSF
 			//if(weather.GetTRef() >= m_dropToGroundDate)
 			//m_age += r;
 
+			//CTRef TRef = weather.GetTRef().as(CTM::DAILY);
+			//if (TRef >= pStand->m_adult_emergence_begin)
+			//{
+			//	double DD = max(0.0, T - 4.0);//we used same temperature for emerging adult and individual creation
+			//	m_age += min(1.0 / 6.0, (DD / m_adult_emerging_CDD) / nb_steps);
+			//}
+
+			
 			CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			if (TRef >= GetAdultEmergenceBegin())
-			{
-				double DD = max(0.0, T - 4.0);//we used same temperature for emerging adult and individual creation
-				m_age += min(1.0 / 6.0, (DD / m_adultEmergingCDD) / nb_steps);
-			}
+			if (TRef == m_adult_emergence)
+				m_age = ACTIVE_ADULT;
+			
+
 			//if (m_CDD_AE >= m_adultEmergingCDD)
 				//m_age = ACTIVE_ADULT;
 
@@ -623,8 +664,8 @@ namespace WBSF
 
 	void CLNFStand::init(int year, const CWeatherYears& weather)
 	{
-		CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
-		p += weather[year + 1].GetEntireTPeriod(CTM::DAILY);
+		//CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
+		//p += weather[year + 1].GetEntireTPeriod(CTM::DAILY);
 
 
 		//m_cumDD.Init(p, 1);
@@ -632,7 +673,7 @@ namespace WBSF
 		//m_adultEmegenceBegin.res
 
 
-		for (size_t y = 0; y < 2; y++, year++)
+		//for (size_t y = 0; y < 2; y++, year++)
 		{
 			//CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
 
@@ -644,7 +685,9 @@ namespace WBSF
 				m_cumDD[TRef][0] = sumDD;
 			}*/
 
-			m_adultEmergenceBegin[y] = ComputeAdultEmergenceBegin(weather[year]);
+		//	m_adultEmergenceBegin[y] = ComputeAdultEmergenceBegin(weather[year]);
+
+			m_adult_emergence_begin = ComputeAdultEmergenceBegin(weather[year]);
 		}
 
 	}
@@ -674,51 +717,13 @@ namespace WBSF
 		return p.Begin() + begin;
 	}
 
-	void CLNFStand::ComputeTavg30(int year, const CWeatherYears& weather)
-	{
-		CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
-		if (weather[year].HaveNext())
-			p.End() = CTRef(year + 1, JULY, DAY_01);
-
-
-
-		m_Tavg30.Init(p, 1);
-
-		int lam_b = int(m_equations.m_ADE[ʎb]);
-		for (CTRef TRef = p.Begin() + lam_b; TRef <= p.End(); TRef++)
-		{
-			CStatistic Tavg30;
-			for (CTRef TRef2 = TRef - lam_b; TRef2 <= TRef; TRef2++)
-			{
-				const CWeatherDay & wday = weather.GetDay(TRef2);
-
-				double T = wday[H_TMIN][MEAN];
-				Tavg30 += T;
-			}
-
-			size_t ii = TRef - p.Begin();
-
-			if (ii == lam_b)
-			{
-				for (size_t iii = 0; iii <= size_t(lam_b); iii++)//fill all value before July first
-					m_Tavg30[iii][0] = Tavg30[MEAN];
-			}
-			else
-			{
-				if (ii < 182)
-					m_Tavg30[ii][0] = max(m_Tavg30[ii - 1][0], Tavg30[MEAN]);
-				else
-					m_Tavg30[ii][0] = min(m_Tavg30[ii - 1][0], Tavg30[MEAN]);
-			}
-
-		}
-	}
 
 	void CLNFStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CStand::GetStat(d, stat, generation);
 
-		int year = m_adultEmergenceBegin[1].GetYear();
+		//int year = d.GetYear();
+		int year = m_adult_emergence_begin.GetYear();
 		//CTRef begin = m_adultEmergenceBegin[0];
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
 		CTRef end = CTRef(year, JUNE, DAY_30);

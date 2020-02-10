@@ -36,7 +36,8 @@ namespace WBSF
 	//EggCreation:	535.9    30.3   4.4              75    -1.184    5.60     8.195    0.957     0.960
 	//Larvae:       439.5    43.8   6.0    15.9     110     0.960   12.149   20.25     0.714     0.773
 	//
-	//we don't be able to get good result from the beginning of adult emergence. we used January first instead 
+	//we don't be able to get good result from the beginning of adult emergence to evaluate larvae. 
+	//we used January first instead 
 
 
 	//Parameters for logistic distribution
@@ -47,87 +48,69 @@ namespace WBSF
 
 
 	//parameters estimated with simulated annealing
-	//individual creation, egg and larval relative development rate
-	//with non-linear version
+	//individual creation of egg
+	//with non-linear version of egg and larval development
 	
 	//Egg creation and larval development 
+	//NbVal = 173	Bias = -1.32543	MAE = 5.05145	RMSE = 8.34658	CD = 0.95920	R² = 0.96166
+	//mu = 170.0
+	//s = 37.8
+	//Th1 = 3.0
+	//Th2 = 14.1
 
-	//NbVal = 316	Bias = 1.57809	MAE = 5.93900	RMSE = 9.69681	CD = 0.92217	R² = 0.92628 (2 ways)
-	//a6 = 0.63858 (egg development factor correction)
-	//b6 = 1.59243 (larvae development factor correction)
-	//mu = 226.367
-	//s = 49.80759
-	//Th1 = 1.6636
-	//Th2 = 20.685
-	
-	//NbVal = 173	Bias = -0.52445	MAE = 4.80838	RMSE = 8.15235	CD = 0.96166	R² = 0.96270 (1 way)
-	//a6 = 0.97207 {   0.97194, 0.97222}	VM = { 0.00008,   0.00017 }
-	//b6 = 1.04341 {   1.04316, 1.04367}	VM = { 0.00012,   0.00032 }
-	//mu = 235.45986 { 235.45737, 235.46248}	VM = { 0.00095,   0.00254 }
-	//s = 49.45781 {  49.45488, 49.45994}	VM = { 0.00049,   0.00222 }
-	//Th1 = 1.73649 {   1.73633, 1.73666}	VM = { 0.00005,   0.00020 }
-	//Th2 = 20.28993 {  20.28083, 20.29647}	VM = { 0.00316,   0.00948 }
+	//Egg creation and larval development (with correction)
+	//NbVal = 173	Bias = -0.99017	MAE = 5.03757	RMSE = 8.31326	CD = 0.95879	R² = 0.96159
+	//a1 = 0.813
+	//a2 = 1.197
+	//mu = 199.4
+	//s = 47.86
+	//Th1 = 2.4
+	//Th2 = 18.2
 
-	
-	//Adult emergence from soil (with BalcksburgLab)
-	//NbVal = 143	Bias = -0.84353	MAE = 5.94677	RMSE = 8.52876	CD = 0.93151	R² = 0.93617 (2 ways)
-	//mu_ADE = 1.97941
-	//s_ADE = 252.2679
-	//lam0 = 268.17112
-	//lam1 = 14.12983 
-	//lam2 = -1458.296
-	//lam_a = 19.17623
-	//lam_b = 24.82122
-
-	//NbVal = 82	Bias = 0.78171	MAE = 4.18902	RMSE = 5.58778	CD = 0.97990	R² = 0.98032 (1 way)
-	//mu_ADE = 2.12744
-	//s_ADE = 230.4847
-	//lam0 = 269.21088
-	//lam1 = 13.07374 
-	//lam2 = -1585.933
-	//lam_a = 15.41537
-	//lam_b = 23.02092
-
+	//Beginning of adult emergence from soil (with BalcksburgLab)
+	//NbVal = 82	Bias = 1.60488	MAE = 4.30976	RMSE = 5.87483	CD = 0.97767	R² = 0.97934
+	//lam0 = 269.0
+	//lam1 = 12.8
+	//lam2 = -1581.6
+	//lam3 = 10.0
+	//lam_a = 15.4
+	//lam_b = 23.0
+	//mu_ADE = 2.277
+	//s_ADE = 201.2
+	//Th_ADE = 5.1
 
 	//parameters estimated with simulated annealing
 	//With linear version
-	//NbVal = 353	Bias = 0.70292	MAE = 8.84120	RMSE = 13.77512	CD = 0.84453	R² = 0.85222
-	//a1 = 9.10753
-	//b1 = 6.04934
-	//a2 = 2.17652
-	//b2 = 23.6698
-	//mu = 133.020
-	//s = 19.38961
-	//Th= 3.97096
+	
 
 
 
-
-
+	
 	const double CLaricobiusNigrinusEquations::RDR[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
-		//{ 2.67, 15.8 },//Egg
-		{ 9.11, 6.05 },//Egg
-		//{ 0.233, 11.2 },//Larvae
-		{ 2.18, 23.67 },//Larvae
+		{ 1.00, 0.00 },//Egg (correction factor)
+		{ 1.00, 0.00 },//Larvae (correction factor)
 		{ 0.00, 0.00 },//PrePupae
 		{ 0.00, 0.00 },//Pupae
 		{ 0.00, 0.00 },//Aestival diapause adult
 		{ 0.00, 0.00 },//Active adult
 	};
 
+	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 170.0, 37.8, 3.0, 14.1};
+	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 269.0, 12.8, -1581.6, 10.0, 15.4, 23.0 };
+	
+	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 270.0, 13.1, -1583.1, 15.0, 15.4, 23.0 };
 
 
-	//	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 130.5, 22.7, 3.7 };
-		//const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 133.0, 19.4, 4.0 };
-		//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 1327.3,95.0,-6.0,26.0,10.7,0.7,167.0,9.47 };
-		//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 1353.4, 109.8, -4.5, 23.3, 11.0, 0.7, 167.0, 9.66 };
 
 
-	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 997.7, 66.4, 0.9 , 50.0};
-	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 1.984, 225.1,266.5,18.81,-786.2,20.0,11.1,18.1 };
+//	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.127, 230.5, 4.8};
 
+//	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 270.0, 13.1, -1589.6, 15.0, 18.4, 24.6 };
+	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.104, 198.3, 4.8};
+	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.277, 201.2, 5.1 };
+	
 
 
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
@@ -147,6 +130,9 @@ namespace WBSF
 
 		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
 			m_ADE[p] = ADE[p];
+
+		for (size_t p = 0; p < NB_EAS_PARAMS; p++)
+			m_EAS[p] = m_EAS[p];
 	}
 
 
@@ -256,7 +242,7 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetAestivalDiapauseEndCDD()const
 	{
-		boost::math::logistic_distribution<double> rldist(m_ADE[μ], m_ADE[ѕ]);
+		boost::math::logistic_distribution<double> rldist(m_EAS[μ], m_EAS[ѕ]);
 
 		double CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
 		while (CDD < 0 || CDD>15000)
@@ -271,7 +257,7 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetAdultEmergingCDD()const
 	{
-		boost::math::weibull_distribution<double> emerging_dist(m_ADE[μ], m_ADE[ѕ]);
+		boost::math::weibull_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
 
 
 		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
@@ -348,16 +334,6 @@ namespace WBSF
 	}
 
 
-	double CLaricobiusNigrinusEquations::GetAestivalDiapauseEndTavg30()const
-	{
-		boost::math::logistic_distribution<double> rldist(m_ADE[μ], m_ADE[ѕ]);
-
-		double Tavg30 = boost::math::quantile(rldist, m_randomGenerator.Randu());
-		while (Tavg30 < -10 || Tavg30>25)
-			Tavg30 = boost::math::quantile(rldist, m_randomGenerator.Randu());
-
-		return Tavg30;
-	}
 
 	//T : temperature [°C]
 	//day_length  : day length  [h]

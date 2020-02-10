@@ -27,14 +27,14 @@ namespace WBSF
 		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
 		double m_OVP[LNF::NB_OVP_PARAMS];
 		double m_ADE[LNF::NB_ADE_PARAMS];
-
+		double m_EAS[LNF::NB_EAS_PARAMS];
 
 		std::array < std::set<int>, NB_INPUTS> m_years;
 		std::array<CStatistic, NB_INPUTS> m_nb_days;
 		std::map<std::string, CStatistic> m_egg_creation_date;
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
-		void CalibrateDiapauseEnd(CStatisticXY& stat);
+		void CalibrateDiapauseEnd(const std::bitset<3>& test, CStatisticXY& stat);
 		void CalibrateDiapauseEndTh(CStatisticXY& stat);
 		void CalibrateOviposition(CStatisticXY& stat);
 		CTRef GetEmergingBegin(const CWeatherYear& weather);

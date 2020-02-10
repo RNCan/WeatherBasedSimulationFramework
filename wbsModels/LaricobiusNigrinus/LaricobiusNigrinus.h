@@ -65,10 +65,10 @@ namespace WBSF
 		inline const CLNFStand* GetStand()const;
 		inline const CLaricobiusNigrinusEquations& Equations()const;
 
-		inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
-		CTRef GetParentAdultEmergence()const;
-		CTRef GetCreationDate(CTRef parentAdultEmergence)const;
-
+		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
+		//CTRef GetParentAdultEmergence()const;
+		CTRef GetCreationDate(int year)const;
+		CTRef GetAdultEmergence(int year)const;
 
 	protected:
 
@@ -76,9 +76,11 @@ namespace WBSF
 		
 		//double m_creationCDD;//CDD need to create individual
 		//double m_CDD;//actual CDD
-		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
+		//double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_dropToGroundDate;
-		CTRef m_adultDate;
+		//CTRef m_adult_emergence;
+		//CTRef m_adultDate;
+		CTRef m_adult_emergence;
 		CTRef m_reachDate[LNF::NB_STAGES+1];
 		//double m_CDD_ADE;//cumulative negative CDD for aestival diapause end
 		//double m_aestivalDiapauseEndCDD;//CDD need to create individual
@@ -86,8 +88,8 @@ namespace WBSF
 		
 		//double m_CDD_AE;//adult emerging CDD
 		//CTRef m_adultEmegenceBegin;
-		CTRef m_parentAdultEmergence;
-		double m_adultEmergingCDD;
+		//CTRef m_parentAdultEmergence;
+		//double m_adult_emerging_CDD;
 
 		//size_t m_ii;
 
@@ -129,11 +131,11 @@ namespace WBSF
 		//global variables of all bugs
 		bool m_bApplyAttrition;
 
-		CLNFStand(WBSF::CBioSIMModelBase* pModel, double DDThresholdLo, double DDThresholdHi) :
+		CLNFStand(WBSF::CBioSIMModelBase* pModel, double Th1, double Th2) :
 			WBSF::CStand(pModel),
 			m_equations(pModel->RandomGenerator()),
-			m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, DDThresholdLo, DDThresholdHi),
-			m_DD4(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0)
+			m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, Th1, Th2)
+//			m_DD4(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0)
 		{
 			m_bApplyAttrition = false;
 			m_egg_creation_CDD = 0;
@@ -144,17 +146,16 @@ namespace WBSF
 
 		void init(int year, const CWeatherYears& weather);
 		
-
-		void ComputeTavg30(int year, const CWeatherYears& weather);
 		CTRef ComputeAdultEmergenceBegin(const CWeatherYear& weather)const;
 		
 		CModelStatVector m_Tavg30;
 		CLaricobiusNigrinusEquations m_equations;
 		CDegreeDays m_DD;
-		CDegreeDays m_DD4;
+		//CDegreeDays m_DD4;
 
 		double m_egg_creation_CDD;
-		std::array<CTRef, 2>  m_adultEmergenceBegin;
+		//std::array<CTRef, 2>  m_adultEmergenceBegin;
+		CTRef m_adult_emergence_begin;
 		
 	};
 
