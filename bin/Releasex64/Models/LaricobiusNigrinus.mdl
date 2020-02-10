@@ -63,8 +63,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>AestivalDiapauseAdult</Name>
-            <Title>AestivalDiapauseAdult</Title>
+            <Name>AestivatingAdult</Name>
+            <Title>AestivatingAdult</Title>
             <Units>%</Units>
             <Description>Aestivating adults (in soil).</Description>
             <TimeMode>4 0</TimeMode>
@@ -89,6 +89,22 @@
         <OutputVariable>
             <Name>DeadFrozen</Name>
             <Title>DeadFrozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AdultEmerged</Name>
+            <Title>AdultEmerged</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggCreationCDD</Name>
+            <Title>EggCreationCDD</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
