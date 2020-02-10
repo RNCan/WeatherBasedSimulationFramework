@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>LaricobiusNigrinus</Title>
+    <Version>1.0</Version>
+    <ID>.LNF</ID>
+    <EXE>LaricobiusNigrinus.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 629 439</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 10 30 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a1</Name>
+            <Caption>a1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>40 10 60 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>9.7</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b1</Name>
+            <Caption>b1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>35 170 55 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>13.6</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a2</Name>
+            <Caption>a2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>65 10 85 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>2.13</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b2</Name>
+            <Caption>b2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>60 170 80 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>47.1</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a3</Name>
+            <Caption>depth</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>90 10 110 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b3</Name>
+            <Caption>LAI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>85 170 110 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a4</Name>
+            <Caption>a4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 10 135 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b4</Name>
+            <Caption>b4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 170 135 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a5</Name>
+            <Caption>a5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>140 10 165 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b5</Name>
+            <Caption>b5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>140 170 160 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a6</Name>
+            <Caption>a6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>170 10 195 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b6</Name>
+            <Caption>b6</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>170 170 190 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu</Name>
+            <Caption>mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>230 10 255 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>130.5</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>s</Name>
+            <Caption>s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 170 250 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>19.4</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th1</Name>
+            <Caption>Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>265 10 290 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>4.0</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th2</Name>
+            <Caption>Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>265 170 290 320</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam0</Name>
+            <Caption>lam0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>305 10 330 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>-6</DefaultValue>
+            <MinValue>-365</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam1</Name>
+            <Caption>lam1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>335 10 355 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>26</DefaultValue>
+            <MinValue>-5000</MinValue>
+            <MaxValue>5000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam2</Name>
+            <Caption>lam2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>360 10 380 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>10.7</DefaultValue>
+            <MinValue>-4000</MinValue>
+            <MaxValue>4000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam3</Name>
+            <Caption>lam3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>385 10 410 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0.7</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam_a</Name>
+            <Caption>lam_a</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>425 10 445 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>167</DefaultValue>
+            <MinValue>-365</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam_b</Name>
+            <Caption>lam_b</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>450 10 470 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>9.47</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu_ADE</Name>
+            <Caption>mu_ADE</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>494 10 516 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>1327.3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>s_ADE</Name>
+            <Caption>s_ADE</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>495 175 515 325</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>95</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th_ADE</Name>
+            <Caption>Th_ADE</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>560 10 582 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Egg</Name>
+            <Title>Egg</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Larvae</Name>
+            <Title>Larvae</Title>
+            <Units/>
+            <Description>L1 to L4</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PrePupa</Name>
+            <Title>PrePupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AestivatingAdult</Name>
+            <Title>AestivatingAdult</Title>
+            <Units/>
+            <Description>Aestivating Adults</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ActiveAdult</Name>
+            <Title>ActiveAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrost</Name>
+            <Title>DeadFrost</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AdultEmerged</Name>
+            <Title>AdultEmerged</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggCreationCDD</Name>
+            <Title>EggCreationCDD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
