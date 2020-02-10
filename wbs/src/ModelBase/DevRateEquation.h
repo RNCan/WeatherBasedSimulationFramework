@@ -25,7 +25,7 @@ namespace WBSF
 			Poly1, Poly2, Poly3, Poly4, Pradham, RatkowskySquare, Ratkowsky_1983,
 			Regniere_1987, Regniere_2012, SchoolfieldHigh_1981, SchoolfieldLow_1981,
 			Schoolfield_1981, SharpeDeMichele3, SharpeDeMichele_1977,
-			Shi_2011, Shi_beta_2016, StAmant_2019, /*Stinner1, Stinner2, */Stinner_1974, /*Stinner4,*/
+			Shi_2011, Shi_beta_2016, SaintAmant_2019, /*Stinner1, Stinner2, */Stinner_1974, /*Stinner4,*/
 			Taylor_1981, Wagner_1988, Wang_1982, Wangengel_1998, Yin_beta_1995,
 			NB_EQUATIONS
 		};
