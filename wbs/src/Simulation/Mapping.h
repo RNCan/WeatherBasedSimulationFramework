@@ -11,6 +11,7 @@
 
 
 #include "Basic/GeoBasic.h"
+#include "Basic/QGISPalette.h"
 #include "Simulation/Executable.h"
 
 
@@ -30,7 +31,7 @@ namespace WBSF
 
 
 		enum TMember{
-			METHOD = CExecutable::NB_MEMBERS, DEM_NAME, TEM_NAME, PREPOST_TRANSFO, XVAL_ONLY, USE_HXGRID, SI_PARAMETER, NB_MEMBERS,
+			METHOD = CExecutable::NB_MEMBERS, DEM_NAME, TEM_NAME, PREPOST_TRANSFO, XVAL_ONLY, USE_HXGRID, SI_PARAMETER, QGIS_OPTIONS, NB_MEMBERS,
 			NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -46,6 +47,7 @@ namespace WBSF
 		std::unique_ptr<CGridInterpolParam> m_pParam;
 		bool m_XValOnly;
 		bool m_bUseHxGrid;
+		CCreateStyleOptions m_createStyleFile;
 
 
 
@@ -98,7 +100,7 @@ namespace WBSF
 		void SetUseHxGrid(bool in){ m_bUseHxGrid = in; }
 
 
-
+		ERMsg CreateStyleFile(const std::string& TEMFilePath, CTM TM)const;
 	protected:
 
 		void GetInputDBInfo(CResultPtr& pResult, CDBMetadata& info)const;

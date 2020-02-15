@@ -221,6 +221,9 @@
     <ClCompile Include="..\src\Basic\gzip.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\QGISPalette.cpp">
+      <Filter>stdafx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -483,6 +486,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Basic\gzip.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\QGISPalette.h">
+      <Filter>stdafx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

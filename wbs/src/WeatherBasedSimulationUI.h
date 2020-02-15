@@ -11,6 +11,7 @@
 #define IDR_MENU_REFORMAT               210
 #define IDD_SIM_FIT_EQUATION            217
 #define IDD_GENERATE_WU                 223
+#define IDD_CREATE_STYLE                226
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -205,6 +206,7 @@
 #define IDC_USER_NAME                   1047
 #define IDC_MAP_TRANFORM                1047
 #define IDC_PASSWORD                    1048
+#define IDC_MAP_CREATE_STYLE            1048
 #define IDC_CT_TYPE                     1049
 #define IDC_CT_MODE                     1050
 #define IDC_SHOW_GRAPH                  1054
@@ -503,13 +505,20 @@
 #define IDC_MAP_EXTRACT_FROM_DEM        1241
 #define IDC_MAP_EXTRACT_FROM_GOOGLE     1242
 #define IDC_STATIC2                     1243
+#define IDC_MAP_CLASSES_SIZE            1243
 #define IDC_STATIC3                     1244
+#define IDC_MAP_CLASSES_SIZE4           1244
+#define IDC_MAP_DATE_FORMAT             1244
 #define IDC_MAP_TPS_TYPE                1245
 #define IDC_STATIC4                     1245
 #define IDC_MAP_REGIONAL_LIMIT_TO_BOUND 1246
 #define IDC_STATIC5                     1246
+#define IDC_MAP_CLASSES_SIZE2           1246
+#define IDC_MAP_USER_MIN                1246
 #define IDC_MAP_GLOBAL_LIMIT_TO_BOUND   1247
 #define IDC_EXPORT_MATCH                1247
+#define IDC_MAP_CLASSES_SIZE3           1247
+#define IDC_MAP_USER_MAX                1247
 #define IDC_MAP_REGIONAL_LIMIT_SD       1248
 #define IDC_MATCH_NAME                  1248
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
@@ -536,6 +545,25 @@
 #define IDC_FTP_FILE_NAME               1262
 #define IDC_FTP_FILEPATH                1263
 #define IDC_WG_DOWNLOAD_WEATHER         1264
+#define IDC_MAP_CREATE_STYLE_FILE       1266
+#define IDC_MAP_CREATE_STYLE_FILE2      1266
+#define IDC_MAP_INVERT_PALETTE          1267
+#define IDC_MAP_NB_CLASSES              1268
+#define IDC_MAP_NB_CLASSES2             1269
+#define IDC_MAP_VAR_FACTOR              1269
+#define IDC_MAP_BY_NB_CLASSES           1270
+#define IDC_MAP_BY_CLASSES_SIZE         1271
+#define IDC_MAP_BY_MINMAX               1272
+#define IDC_MAP_BY_STDDEV               1273
+#define IDC_MAP_BY_USER                 1274
+#define IDC_TIME_FORMAT_WEB             1274
+#define IDC_MAP_NUMBER_FORMAT           1275
+#define IDC_MAP_CREATE_QGIS_STYLE       1276
+#define IDC_MAP_PALETTE_NAME            1277
+#define IDC_MAP_PALETTE_NAME2           1278
+#define IDC_MAP_COLOR_RAMP_TYPE         1278
+#define IDC_MAP_NUMBER_FORMAT_LABLE     1279
+#define IDC_MAP_DATE_FORMAT_LABLE       1280
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -574,6 +602,7 @@
 #define IDC_CMN_OPTION_MAX_DISTANCE2    1630
 #define IDC_CMN_OPTION_MAX_THREADS      1631
 #define IDC_MAP_TRANSFO_INFO            1633
+#define IDC_MAP_STYLE_INFO              1634
 #define IDC_GENLOC_UNIFORM              1635
 #define IDC_GENLOC_NORMAL               1636
 #define IDC_GENLOC_EXTREM               1645
@@ -892,9 +921,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        226
+#define _APS_NEXT_RESOURCE_VALUE        230
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1265
+#define _APS_NEXT_CONTROL_VALUE         1280
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

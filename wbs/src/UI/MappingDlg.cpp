@@ -18,7 +18,7 @@
 #include "UI/FileManagerPropSheet.h"
 #include "UI/TransfoDlg.h"
 #include "UI/MappingAdvancedDlg.h"
-
+#include "UI/Common/CreateQGISStyleDlg.h"
 
 using namespace WBSF::DIMENSION;
 
@@ -37,7 +37,7 @@ namespace WBSF
 
 
 	CMappingDlg::CMappingDlg(const CExecutablePtr& pParent, CWnd* pParentWnd/*=NULL*/) :
-		CDialog(CMappingDlg::IDD, pParentWnd),
+		CDialogEx(CMappingDlg::IDD, pParentWnd),
 		m_pParent(pParent)
 	{
 		//{{AFX_DATA_INIT(CMappingDlg)
@@ -47,7 +47,7 @@ namespace WBSF
 
 	void CMappingDlg::DoDataExchange(CDataExchange* pDX)
 	{
-		CDialog::DoDataExchange(pDX);
+		CDialogEx::DoDataExchange(pDX);
 
 		DDX_Control(pDX, IDC_MAP_NAME, m_nameCtrl);
 		DDX_Control(pDX, IDC_MAP_DESCRIPTION, m_descriptionCtrl);
@@ -55,11 +55,12 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_DEM_FILENAME, m_DEMCtrl);
 		DDX_Control(pDX, IDC_MAP_TEM_FILENAME, m_TEMCtrl);
 		DDX_Control(pDX, IDC_MAP_TRANSFO_INFO, m_tranfoInfoCtrl);
+		DDX_Control(pDX, IDC_MAP_STYLE_INFO, m_createStyleCtrl);
 
 		DDX_Control(pDX, IDC_MAP_DEFAULT_DIR, m_defaultDirCtrl);
 		DDX_Control(pDX, IDC_MAP_NB_CREATED, m_dimensionCtrl);
 		DDX_Control(pDX, IDC_MAP_XVAL_ONLY, m_XValOnlyCtrl);
-		DDX_Control(pDX, IDC_MAP_USE_HXGRID, m_useHxGridCtrl);
+//		DDX_Control(pDX, IDC_MAP_USE_HXGRID, m_useHxGridCtrl);
 
 
 
@@ -88,11 +89,12 @@ namespace WBSF
 
 
 
-	BEGIN_MESSAGE_MAP(CMappingDlg, CDialog)
+	BEGIN_MESSAGE_MAP(CMappingDlg, CDialogEx)
 		ON_BN_CLICKED(IDC_MAP_EDITOR, OnMapEditor)
 		ON_BN_CLICKED(IDC_MAP_TRANFORM, OnEditTransfo)
 		ON_BN_CLICKED(IDC_MAP_ADVANCED, OnEditAdvanced)
 
+		ON_BN_CLICKED(IDC_MAP_CREATE_STYLE, &CMappingDlg::OnBnClickedMapCreateStyle)
 	END_MESSAGE_MAP()
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -103,11 +105,11 @@ namespace WBSF
 
 	BOOL CMappingDlg::OnInitDialog()
 	{
-		CDialog::OnInitDialog();
+		CDialogEx::OnInitDialog();
 
 		CAppOption option(_T("ExecuteCtrl"));
-		bool bEnableHxGrid = option.GetProfileInt(_T("UseHxGrid"), FALSE);
-		m_useHxGridCtrl.EnableWindow(bEnableHxGrid);
+//		bool bEnableHxGrid = option.GetProfileInt(_T("UseHxGrid"), FALSE);
+		//m_useHxGridCtrl.EnableWindow(bEnableHxGrid);
 		UpdateCtrl();
 
 		return TRUE;  // return TRUE unless you set the focus to a control
@@ -201,7 +203,7 @@ namespace WBSF
 		m_mapping.SetDEMName(m_DEMCtrl.GetString());
 		m_mapping.SetTEMName(m_TEMCtrl.GetString());
 		m_mapping.SetXValOnly(m_XValOnlyCtrl.GetCheck());
-		m_mapping.SetUseHxGrid(m_useHxGridCtrl.GetCheck());
+//		m_mapping.SetUseHxGrid(m_useHxGridCtrl.GetCheck());
 	}
 
 	void CMappingDlg::SetMappingToInterface()
@@ -212,8 +214,22 @@ namespace WBSF
 		m_DEMCtrl.SelectString(-1, m_mapping.GetDEMName());
 		m_TEMCtrl.SetWindowText(m_mapping.GetTEMName());
 		m_tranfoInfoCtrl.SetWindowText(m_mapping.GetPrePostTransfo().GetDescription());
+		m_createStyleCtrl.SetWindowText(m_mapping.m_createStyleFile.GetDescription());
 		m_XValOnlyCtrl.SetCheck(m_mapping.GetXValOnly());
-		m_useHxGridCtrl.SetCheck(m_mapping.GetUseHxGrid());
+//		m_useHxGridCtrl.SetCheck(m_mapping.GetUseHxGrid());
 	}
 
+}
+
+void WBSF::CMappingDlg::OnBnClickedMapCreateStyle()
+{
+	// TODO: Add your control notification handler code here
+	CCreateQGISStyleDlg dlg(this);
+	dlg.m_options = m_mapping.m_createStyleFile;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_mapping.m_createStyleFile = dlg.m_options;
+		m_mapping.m_createStyleFile.SaveToRegistry();
+		m_createStyleCtrl.SetWindowText(m_mapping.m_createStyleFile.GetDescription());
+	}
 }

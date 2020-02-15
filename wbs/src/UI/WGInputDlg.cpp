@@ -683,13 +683,15 @@ namespace WBSF
 
 						//unzip only .csv file because they are smaller than the zip file
 						string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
-
-						//string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
 						msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
 
 						if (msg && exit_code == 0)
 						{
-							//verify database
+							//reload database
+							FillNormalsDBNameList();
+							FillDailyDBNameList();
+							FillHourlyDBNameList();
+							FillGribsDBNameList();
 						}
 						else
 						{

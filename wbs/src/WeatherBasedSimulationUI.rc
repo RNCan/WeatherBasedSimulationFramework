@@ -329,6 +329,43 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 // Dialog
 //
 
+IDD_CREATE_STYLE DIALOGEX 0, 0, 391, 271
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Création d'un fichier de style QGIS"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "Palette",IDC_CMN_STATIC1,14,35,24,8
+    COMBOBOX        IDC_MAP_PALETTE_NAME,67,32,229,231,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Inverser la palette",IDC_MAP_INVERT_PALETTE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,303,34,72,10
+    GROUPBOX        "Classes",IDC_STATIC,14,78,175,61,WS_GROUP
+    CONTROL         "Nombre de classes fixe : ",IDC_MAP_BY_NB_CLASSES,"Button",BS_AUTORADIOBUTTON,27,97,91,10
+    EDITTEXT        IDC_MAP_NB_CLASSES,125,95,55,14,ES_AUTOHSCROLL
+    CONTROL         "Grosseur de classe fixe :",IDC_MAP_BY_CLASSES_SIZE,
+                    "Button",BS_AUTORADIOBUTTON,27,116,92,10
+    EDITTEXT        IDC_MAP_CLASSES_SIZE,125,113,55,14,ES_AUTOHSCROLL
+    GROUPBOX        "Min/Max",IDC_STATIC,14,148,362,84,WS_GROUP
+    CONTROL         "Utiliser le minimum et maximum",IDC_MAP_BY_MINMAX,
+                    "Button",BS_AUTORADIOBUTTON,27,170,113,10
+    CONTROL         "Utiliser la moyenne ± ",IDC_MAP_BY_STDDEV,"Button",BS_AUTORADIOBUTTON,27,188,81,10
+    EDITTEXT        IDC_MAP_VAR_FACTOR,112,186,56,14,ES_AUTOHSCROLL
+    LTEXT           "* variance",IDC_STATIC,175,189,34,8,NOT WS_GROUP
+    CONTROL         "Autre :",IDC_MAP_BY_USER,"Button",BS_AUTORADIOBUTTON,27,208,39,10
+    EDITTEXT        IDC_MAP_USER_MIN,112,205,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_USER_MAX,173,205,55,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Ok",IDOK,273,249,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,334,249,50,14
+    GROUPBOX        "Créer un fichier de style QGIS",IDC_MAP_CREATE_QGIS_STYLE,7,11,377,229,BS_ICON
+    COMBOBOX        IDC_MAP_COLOR_RAMP_TYPE,67,53,229,231,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Couleur",IDC_CMN_STATIC2,14,56,26,8
+    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
+    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Format pour les nombres</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,94,90,11
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Format pour les dates</a>",IDC_MAP_DATE_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,113,90,11
+END
+
 IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Éditeur de paramétrisation du taux de dévelopement"
@@ -850,12 +887,14 @@ BEGIN
     GROUPBOX        "Format temporel",IDC_STATIC,7,65,385,178
     LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,142,372,93,SS_SUNKEN
     LTEXT           "Séparateur de liste :",IDC_STATIC,14,39,66,8
-    EDITTEXT        IDC_CMN_OPTION_LIST_DELIMITER,80,36,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_LIST_DELIMITER,83,36,24,14,ES_AUTOHSCROLL
     LTEXT           "Symbole décimal :",IDC_STATIC,14,20,58,8
-    EDITTEXT        IDC_CMN_OPTION_DECIMAL_DELIMITER,80,17,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_DECIMAL_DELIMITER,83,17,24,14,ES_AUTOHSCROLL
     LTEXT           "Pour séparer les champs (colonnes) dans les fichers exportés. ",IDC_STATIC,119,39,201,8
-    LTEXT           "Les codes de formats temporel permettent de modifier la façon d'afficher et d'exporter les dates. Pour plus d'information, ce référer au manuel.",IDC_STATIC,201,82,185,32
+    LTEXT           "Les codes de formats temporel permettent de modifier la façon d'afficher et d'exporter les dates. Pour plus d'information, ce référer au manuel. (%Y,%m,%d au lieu de %Y/%m/%d)",IDC_STATIC,192,79,189,32
     CONTROL         "Réinitialiser",IDC_CMN_REFORMAT,"MfcMenuButton",WS_TABSTOP,306,124,80,14
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">All format available</a>",IDC_TIME_FORMAT_WEB,
+                    "SysLink",WS_TABSTOP,192,117,74,14
 END
 
 IDD_CMN_PALETTE_EDITOR DIALOG 0, 0, 256, 247
@@ -1642,20 +1681,20 @@ BEGIN
     PUSHBUTTON      "Annuler",IDCANCEL,213,159,50,14
 END
 
-IDD_SIM_MAPPING DIALOGEX 0, 0, 419, 276
+IDD_SIM_MAPPING DIALOGEX 0, 0, 449, 277
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Cartographie"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "L’élément cartographie permet de créer des surfaces à partir de valeurs ponctuelles. Les points simulés doivent être à l’intérieur ou proches de la région définie par la carte d’entrée (élévations).",IDC_STATIC,7,7,405,17
-    LTEXT           "Pour chaque combinaison paramètres/réplications/temps/variables, une carte distincte sera créée. Pour réduire le nombre de cartes créées, faire un sous-ensemble à l'aide d'une analyse.",IDC_STATIC,7,26,405,17
+    LTEXT           "L’élément cartographie permet de créer des surfaces à partir de valeurs ponctuelles. Les points simulés doivent être à l’intérieur ou proches de la région définie par la carte d’entrée (élévations).",IDC_STATIC,7,7,435,17
+    LTEXT           "Pour chaque combinaison paramètres/réplications/temps/variables, une carte distincte sera créée. Pour réduire le nombre de cartes créées, faire un sous-ensemble à l'aide d'une analyse.",IDC_STATIC,7,26,435,17
     LTEXT           "Nb. cartes créées :",IDC_STATIC,7,64,62,8
     EDITTEXT        IDC_MAP_NB_CREATED,106,63,176,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,293,255,50,14
-    PUSHBUTTON      "Annuler",IDCANCEL,362,255,50,14
-    CONTROL         "Utiliser hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,352,66,60,10
+    DEFPUSHBUTTON   "OK",IDOK,331,256,50,14
+    PUSHBUTTON      "Annuler",IDCANCEL,392,256,50,14
+    CONTROL         "Utiliser hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,382,66,60,10
     CONTROL         "Faire uniquement la validation croisée",IDC_MAP_XVAL_ONLY,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,220,136,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,240,136,10
     EDITTEXT        IDC_MAP_DESCRIPTION,106,94,176,14,ES_AUTOHSCROLL
     LTEXT           "Description :",IDC_STATIC,7,97,41,8
     LTEXT           "Méthode d'interpolation :",IDC_STATIC,7,115,85,8
@@ -1665,21 +1704,25 @@ BEGIN
     COMBOBOX        IDC_MAP_DEM_FILENAME,106,128,146,67,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "···",IDC_MAP_EDITOR,257,128,25,12
     EDITTEXT        IDC_MAP_TEM_FILENAME,106,146,176,12,ES_AUTOHSCROLL
-    LTEXT           "%c =\tnom de l'élément\n%v =\tnom de la variable\n%t =\tréférence temporelle\n%p =\tnom des paramètres\n%r = \treplication\n%d =\tdate de création",IDC_STATIC,293,109,119,50
+    LTEXT           "%c =\tnom de l'élément\n%v =\tnom de la variable\n%t =\tréférence temporelle\n%p =\tnom des paramètres\n%r = \treplication\n%d =\tdate de création",IDC_STATIC,293,106,149,50
     LTEXT           "Nom de la carte de sortie :",IDC_STATIC,7,148,96,8
     EDITTEXT        IDC_MAP_TRANSFO_INFO,106,165,146,12,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "···",IDC_MAP_TRANFORM,257,165,25,12
-    LTEXT           "La transformation pré/post permet de faire des manipulations avant et après l'interpolation.",IDC_STATIC,293,162,119,24
-    LTEXT           "Répertoire de sortie:",IDC_STATIC,7,203,81,8
-    EDITTEXT        IDC_MAP_DEFAULT_DIR,106,200,306,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    LTEXT           "Transformation pré/post:",IDC_CMN_STATIC8,7,163,53,16
+    LTEXT           "La transformation pré/post permet de faire des manipulations avant et après l'interpolation.",IDC_STATIC,293,161,149,24
+    LTEXT           "Répertoire de sortie:",IDC_STATIC,7,222,81,8
+    EDITTEXT        IDC_MAP_DEFAULT_DIR,106,219,336,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Transformation pré/post:",IDC_STATIC,7,166,87,9
     LTEXT           "Nom :",IDC_STATIC,7,80,42,8
     EDITTEXT        IDC_MAP_NAME,106,78,176,12,ES_AUTOHSCROLL
     LTEXT           "( params x réplications x temps x variables = total)",IDC_STATIC,106,50,176,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Nom interne :",IDC_STATIC,7,259,50,8
-    EDITTEXT        IDC_MAP_INTERNAL_NAME,106,257,90,12,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_MAP_OPTIONS,106,182,176,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
-    LTEXT           "Options de création :",IDC_STATIC,7,185,82,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_MAP_INTERNAL_NAME,106,258,90,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_MAP_OPTIONS,106,201,176,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    LTEXT           "Options de création :",IDC_STATIC,7,204,82,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_MAP_STYLE_INFO,106,182,146,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,257,182,25,12
+    LTEXT           "Creer un fichier de style",IDC_STATIC,7,183,89,11
+    LTEXT           "Le fichier de style permet de créer des couleurs avec texte pour les carte qui représente des évènements temporels",IDC_STATIC,293,189,149,24
 END
 
 IDD_SIM_MERGE_EXECUTABLE DIALOGEX 0, 0, 291, 271
@@ -2088,6 +2131,18 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_CREATE_STYLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 384
+        VERTGUIDE, 14
+        VERTGUIDE, 27
+        VERTGUIDE, 67
+        VERTGUIDE, 376
+        BOTTOMMARGIN, 263
+        HORZGUIDE, 11
+    END
+
     IDD_SIM_FIT_EQUATION, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -2724,13 +2779,13 @@ BEGIN
     IDD_SIM_MAPPING, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 412
+        RIGHTMARGIN, 442
         VERTGUIDE, 106
         VERTGUIDE, 252
         VERTGUIDE, 282
         VERTGUIDE, 293
         TOPMARGIN, 7
-        BOTTOMMARGIN, 269
+        BOTTOMMARGIN, 270
     END
 
     IDD_SIM_MERGE_EXECUTABLE, DIALOG
@@ -2882,6 +2937,11 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
+IDD_CREATE_STYLE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 IDD_SIM_FIT_EQUATION AFX_DIALOG_LAYOUT
 BEGIN
     0
@@ -2937,11 +2997,25 @@ BEGIN
     0
 END
 
+IDD_CMN_OPTION_TIME_FORMAT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog Info
 //
+
+IDD_CREATE_STYLE DLGINIT
+BEGIN
+    IDC_MAP_COLOR_RAMP_TYPE, 0x403, 9, 0
+0x6944, 0x6373, 0x6572, 0x6574, "\000" 
+    IDC_MAP_COLOR_RAMP_TYPE, 0x403, 13, 0
+0x6e49, 0x6574, 0x7072, 0x6c6f, 0x7461, 0x6465, "\000" 
+    0
+END
 
 IDD_WG_INPUT DLGINIT
 BEGIN
@@ -4991,8 +5065,10 @@ BEGIN
     GROUPBOX        "Delimiters",IDC_STATIC,7,7,385,47
     GROUPBOX        "Time format",IDC_STATIC,7,59,385,184
     LTEXT           "Static",IDC_CMN_OPTION_TIME_FORMAT,14,139,372,104,SS_SUNKEN
-    LTEXT           "Different time format codes can be used to modify the format of dates in export files. The date field delimiters can also be changed (e.g. %y,%m,%d instead of %y/%m,%d).",IDC_STATIC,241,73,145,38
+    LTEXT           "Different time format codes can be used to modify the format of dates in export files. The date field delimiters can also be changed (e.g. %y,%m,%d instead of %y/%m/%d).",IDC_STATIC,212,72,174,38
     CONTROL         "Reset",IDC_CMN_REFORMAT,"MfcMenuButton",WS_TABSTOP,306,121,80,14
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">All format available</a>",IDC_TIME_FORMAT_WEB,
+                    "SysLink",WS_TABSTOP,211,108,74,14
 END
 
 IDD_CMN_PALETTE_EDITOR DIALOG 0, 0, 256, 247
@@ -5832,7 +5908,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,240,187,50,14
 END
 
-IDD_SIM_MAPPING DIALOGEX 0, 0, 395, 269
+IDD_SIM_MAPPING DIALOGEX 0, 0, 419, 269
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Mapping"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -5840,33 +5916,36 @@ BEGIN
     LTEXT           "Mapping creates surface grids from data points. Simulation points must be within or near the region defined by the input map (elevations). One map is created for each variable/time/replication/parameter combination.",IDC_STATIC,7,7,320,26
     LTEXT           "To limit the number of maps created, select a subset through an analysis.",IDC_STATIC,7,33,262,12,NOT WS_VISIBLE
     LTEXT           "Nb of maps created:",IDC_STATIC,7,60,66,8
-    EDITTEXT        IDC_MAP_NB_CREATED,86,58,302,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,283,248,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,338,248,50,14
-    CONTROL         "Cross-validation only",IDC_MAP_XVAL_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,222,83,10
+    EDITTEXT        IDC_MAP_NB_CREATED,91,58,192,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,304,248,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,362,248,50,14
+    CONTROL         "Cross-validation only",IDC_MAP_XVAL_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,235,83,10
     LTEXT           "Description:",IDC_STATIC,7,93,39,8
-    EDITTEXT        IDC_MAP_DESCRIPTION,86,90,170,14,ES_AUTOHSCROLL
-    LTEXT           "Interpolation method:",IDC_STATIC,7,112,79,8
-    COMBOBOX        IDC_MAP_METHOD,86,109,141,78,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "···",IDC_MAP_ADVANCED,231,109,25,12
-    LTEXT           "Input DEM:",IDC_STATIC,7,128,79,8
-    COMBOBOX        IDC_MAP_DEM_FILENAME,86,125,141,67,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_MAP_DESCRIPTION,91,90,178,14,ES_AUTOHSCROLL
+    LTEXT           "Interpolation method:",IDC_STATIC,7,112,84,8
+    COMBOBOX        IDC_MAP_METHOD,91,109,145,78,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "···",IDC_MAP_ADVANCED,244,109,25,12
+    LTEXT           "Input DEM:",IDC_STATIC,7,128,84,8
+    COMBOBOX        IDC_MAP_DEM_FILENAME,91,125,145,67,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Output map name:",IDC_STATIC,7,152,63,8
-    EDITTEXT        IDC_MAP_TEM_FILENAME,86,150,170,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "···",IDC_MAP_EDITOR,231,125,25,12
-    LTEXT           "Pre/post transformation:",IDC_CMN_STATIC8,7,181,53,16
-    EDITTEXT        IDC_MAP_TRANSFO_INFO,86,183,141,12,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "%c =\tcomponent name\n%v =\tvariable name\n%t =\ttime reference\n%p =\tparameter name\n%r = \treplication\n%d =\tcreation date",IDC_STATIC,263,126,125,49
-    PUSHBUTTON      "···",IDC_MAP_TRANFORM,231,182,25,12
-    LTEXT           "Output directory:",IDC_STATIC,7,207,71,8
-    EDITTEXT        IDC_MAP_DEFAULT_DIR,86,204,302,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    CONTROL         "Use hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,337,7,51,10
-    LTEXT           "Pre/post transformation offers the possibility to transform data before and after interpolation.",IDC_STATIC,263,177,125,23
+    EDITTEXT        IDC_MAP_TEM_FILENAME,91,150,178,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "···",IDC_MAP_EDITOR,244,125,25,12
+    LTEXT           "Pre/post transformation:",IDC_CMN_STATIC8,7,170,84,8
+    EDITTEXT        IDC_MAP_TRANSFO_INFO,91,169,145,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "%c =\tcomponent name\n%v =\tvariable name\n%t =\ttime reference\n%p =\tparameter name\n%r = \treplication\n%d =\tcreation date",IDC_STATIC,283,110,129,49
+    PUSHBUTTON      "···",IDC_MAP_TRANFORM,244,168,25,12
+    LTEXT           "Output directory:",IDC_STATIC,7,220,71,8
+    EDITTEXT        IDC_MAP_DEFAULT_DIR,91,217,192,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "Use hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,361,7,51,10
+    LTEXT           "Pre/post transformation offers the possibility to transform data before and after interpolation.",IDC_STATIC,283,164,129,23
     LTEXT           "Name:",IDC_STATIC,7,75,27,8
-    EDITTEXT        IDC_MAP_NAME,86,74,170,12,ES_AUTOHSCROLL
-    LTEXT           "(parameters  x replications x times x variables = total)",IDC_STATIC,86,47,217,8,0,WS_EX_ACCEPTFILES
+    EDITTEXT        IDC_MAP_NAME,91,74,178,12,ES_AUTOHSCROLL
+    LTEXT           "(parameters  x replications x times x variables = total)",IDC_STATIC,91,47,217,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Internal name:",IDC_STATIC,7,252,50,8
-    EDITTEXT        IDC_MAP_INTERNAL_NAME,86,250,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    EDITTEXT        IDC_MAP_INTERNAL_NAME,91,250,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    EDITTEXT        IDC_MAP_STYLE_INFO,91,195,146,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,244,194,25,12
+    LTEXT           "Creer un fichier de style",IDC_STATIC,7,197,84,11
 END
 
 IDD_SIM_MERGE_EXECUTABLE DIALOGEX 0, 0, 293, 272
@@ -6264,6 +6343,41 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,396,70,50,14
     LTEXT           "Download",IDC_STATIC2,363,66,32,8,NOT WS_VISIBLE
     LTEXT           "Download a weather database",IDC_STATIC1,347,66,99,8,NOT WS_VISIBLE
+END
+
+IDD_CREATE_STYLE DIALOGEX 0, 0, 391, 271
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Style file creation"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "Palette",IDC_CMN_STATIC1,14,35,24,8
+    COMBOBOX        IDC_MAP_PALETTE_NAME,67,32,229,231,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Reverse palette",IDC_MAP_INVERT_PALETTE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,303,34,72,10
+    GROUPBOX        "Classes",IDC_STATIC,14,78,175,61,WS_GROUP
+    CONTROL         "Fixed number of classes: ",IDC_MAP_BY_NB_CLASSES,"Button",BS_AUTORADIOBUTTON,27,97,91,10
+    EDITTEXT        IDC_MAP_NB_CLASSES,125,95,55,14,ES_AUTOHSCROLL
+    CONTROL         "Fixed class size:",IDC_MAP_BY_CLASSES_SIZE,"Button",BS_AUTORADIOBUTTON,27,116,92,10
+    EDITTEXT        IDC_MAP_CLASSES_SIZE,125,113,55,14,ES_AUTOHSCROLL
+    GROUPBOX        "Min/Max",IDC_STATIC,14,148,362,84,WS_GROUP
+    CONTROL         "Use minimum and maximum",IDC_MAP_BY_MINMAX,"Button",BS_AUTORADIOBUTTON,27,170,102,10
+    CONTROL         "Use mean ± ",IDC_MAP_BY_STDDEV,"Button",BS_AUTORADIOBUTTON,27,188,53,10
+    EDITTEXT        IDC_MAP_VAR_FACTOR,85,186,56,14,ES_AUTOHSCROLL
+    LTEXT           "* variance",IDC_STATIC,148,189,34,8,NOT WS_GROUP
+    CONTROL         "Other :",IDC_MAP_BY_USER,"Button",BS_AUTORADIOBUTTON,27,208,39,10
+    EDITTEXT        IDC_MAP_USER_MIN,85,205,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_USER_MAX,146,205,55,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Ok",IDOK,273,249,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,334,249,50,14
+    GROUPBOX        "Create QGIS style file",IDC_MAP_CREATE_QGIS_STYLE,7,11,377,229,BS_ICON
+    COMBOBOX        IDC_MAP_COLOR_RAMP_TYPE,67,53,229,231,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Color",IDC_CMN_STATIC2,14,56,18,8
+    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
+    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Number formats</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,94,90,11
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Date formats</a>",IDC_MAP_DATE_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,113,90,11
 END
 
 
@@ -6915,11 +7029,11 @@ BEGIN
     IDD_SIM_MAPPING, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 388
-        VERTGUIDE, 86
-        VERTGUIDE, 227
-        VERTGUIDE, 256
-        VERTGUIDE, 263
+        RIGHTMARGIN, 412
+        VERTGUIDE, 91
+        VERTGUIDE, 236
+        VERTGUIDE, 269
+        VERTGUIDE, 283
         TOPMARGIN, 7
         BOTTOMMARGIN, 262
     END
@@ -7075,6 +7189,18 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 84
     END
+
+    IDD_CREATE_STYLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 384
+        VERTGUIDE, 14
+        VERTGUIDE, 27
+        VERTGUIDE, 67
+        VERTGUIDE, 376
+        BOTTOMMARGIN, 263
+        HORZGUIDE, 11
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -7140,6 +7266,16 @@ BEGIN
 END
 
 IDD_GENERATE_WU AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_CMN_OPTION_TIME_FORMAT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_CREATE_STYLE AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -8567,6 +8703,15 @@ BEGIN
 0x6e61, 0x6567, 0x0029, 
     IDC_DATABASE_TYPE, 0x403, 6, 0
 0x7247, 0x6269, 0x0073, 
+    0
+END
+
+IDD_CREATE_STYLE DLGINIT
+BEGIN
+    IDC_MAP_COLOR_RAMP_TYPE, 0x403, 9, 0
+0x6944, 0x6373, 0x6572, 0x6574, "\000" 
+    IDC_MAP_COLOR_RAMP_TYPE, 0x403, 13, 0
+0x6e49, 0x6574, 0x7072, 0x6c6f, 0x7461, 0x6465, "\000" 
     0
 END
 

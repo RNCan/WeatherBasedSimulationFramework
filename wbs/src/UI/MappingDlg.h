@@ -24,7 +24,7 @@ namespace WBSF
 	/////////////////////////////////////////////////////////////////////////////
 	// CMappingDlg dialog
 
-	class CMappingDlg : public CDialog
+	class CMappingDlg : public CDialogEx
 	{
 		// Construction
 	public:
@@ -42,10 +42,11 @@ namespace WBSF
 		CCFLComboBox	m_DEMCtrl;
 		CCFLEdit		m_TEMCtrl;
 		CCFLEdit		m_tranfoInfoCtrl;
+		CCFLEdit		m_createStyleCtrl;
 		COpenDirEditCtrl	m_defaultDirCtrl;
 		CEdit			m_dimensionCtrl;
 		CButton			m_XValOnlyCtrl;
-		CButton			m_useHxGridCtrl;
+		//CButton			m_useHxGridCtrl;
 
 
 		CMapping m_mapping;
@@ -75,9 +76,11 @@ namespace WBSF
 		DECLARE_MESSAGE_MAP()
 
 		void InitDEMList(void);
-		void InitDefaultDir(void);
+		//void InitDefaultDir(void);
 		
 		CParentInfo m_parentInfo;
 
+	public:
+		afx_msg void OnBnClickedMapCreateStyle();
 	};
 }

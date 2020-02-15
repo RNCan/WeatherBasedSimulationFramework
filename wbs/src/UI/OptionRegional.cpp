@@ -173,6 +173,7 @@ namespace WBSF
 
 	BEGIN_MESSAGE_MAP(COptionRegional, CMFCPropertyPage)
 		ON_BN_CLICKED(IDC_CMN_REFORMAT, &COptionRegional::OnBnClickedCmnReformat)
+		ON_NOTIFY(NM_CLICK, IDC_TIME_FORMAT_WEB, &COptionRegional::OnNMClickTimeFormatWeb)
 	END_MESSAGE_MAP()
 
 	
@@ -305,4 +306,13 @@ namespace WBSF
 		m_formatCtrl.Invalidate();
 
 	}
+}
+
+void WBSF::COptionRegional::OnNMClickTimeFormatWeb(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	PNMLINK pNMLink = (PNMLINK)pNMHDR;
+	
+	ShellExecuteW(NULL, L"open", pNMLink->item.szUrl, NULL, NULL, SW_SHOWNORMAL);
+
+	*pResult = 0;
 }

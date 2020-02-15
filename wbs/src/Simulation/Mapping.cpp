@@ -17,8 +17,11 @@
 #include "FileManager/FileManager.h"
 #include "Simulation/ExecutableFactory.h"
 #include "Simulation/Mapping.h"
+#pragma warning(disable: 4275 4251)
+#include "gdal_priv.h"
 
 #include "WeatherBasedSimulationString.h"
+#include "Basic/QGISPalette.h"
 
 using namespace WBSF::DIMENSION;
 using namespace std;
@@ -35,7 +38,7 @@ namespace WBSF
 	// Construction/Destruction
 	//**********************************************************************
 	const char* CMapping::XML_FLAG = "Mapping";
-	const char* CMapping::MEMBERS_NAME[NB_MEMBERS_EX] = { "Method", "DEMName", "TEMName", "PrePostTransfo", "XValOnly", "UseHxGrid", CGridInterpolParam::GetXMLFlag() };
+	const char* CMapping::MEMBERS_NAME[NB_MEMBERS_EX] = { "Method", "DEMName", "TEMName", "PrePostTransfo", "XValOnly", "UseHxGrid", CGridInterpolParam::GetXMLFlag(), "QGISOptions" };
 	const int CMapping::CLASS_NUMBER = CExecutableFactory::RegisterClass(CMapping::GetXMLFlag(), &CMapping::CreateObject);
 
 	CMapping::CMapping()
@@ -62,7 +65,7 @@ namespace WBSF
 
 		m_XValOnly = false;
 		m_bUseHxGrid = false;
-
+		m_createStyleFile.LoadFromRegistry();
 	}
 
 	CMapping::CMapping(const CMapping& in)
@@ -88,6 +91,7 @@ namespace WBSF
 			*m_pPrePostTransfo = *in.m_pPrePostTransfo;
 			m_XValOnly = in.m_XValOnly;
 			m_bUseHxGrid = in.m_bUseHxGrid;
+			m_createStyleFile = in.m_createStyleFile;
 		}
 
 		ASSERT(*this == in);
@@ -106,16 +110,17 @@ namespace WBSF
 		if (*m_pPrePostTransfo != *in.m_pPrePostTransfo)bEqual = false;
 		if (m_XValOnly != in.m_XValOnly)bEqual = false;
 		if (m_bUseHxGrid != in.m_bUseHxGrid)bEqual = false;
+		if (m_createStyleFile != in.m_createStyleFile)bEqual = false;
 
 		return bEqual;
 	}
-	
+
 	ERMsg CMapping::GetParentInfo(const CFileManager& fileManager, CParentInfo& info, CParentInfoFilter filter)const
 	{
 		ERMsg msg;
 
 		msg = m_pParent->GetParentInfo(fileManager, info, filter);
-	
+
 		if (filter[VARIABLE])
 		{
 			info.m_variables = CleanVariables(info.m_variables);
@@ -139,6 +144,73 @@ namespace WBSF
 
 		return outputVarOut;
 	}
+
+	ERMsg CMapping::CreateStyleFile(const std::string& TEMFilePath, CTM TM)const
+	{
+		ERMsg msg;
+
+		CCreateStyleOptions options = m_createStyleFile;
+		
+
+		string pal_file_path = GetApplicationPath() + "Palette\\Palettes.xml";
+		CQGISPalettes palettes;
+		msg = palettes.load(pal_file_path);
+		if (!msg)
+			return msg;
+
+		if (palettes.find(options.m_palette_name) == palettes.end())
+		{
+			msg.ajoute("Create QGIS style file, palette not found: " + options.m_palette_name);
+			return msg;
+		}
+
+		//open rater to get statistic
+		CGDALDatasetEx dataset;
+		msg = dataset.OpenInputImage(TEMFilePath);
+		if (msg)
+		{
+			//dataset.ComputeStats(TRUE);
+
+			GDALRasterBand* pBand = dataset.GetRasterBand(0);
+
+			double dfMin, dfMax, dfMean, dfStdDev;
+			pBand->ComputeStatistics(false, &dfMin, &dfMax, &dfMean, &dfStdDev, GDALDummyProgress, NULL);
+
+			if (options.m_min_max_type == CCreateStyleOptions::BY_MINMAX)
+			{
+				options.m_min = dfMin;
+				options.m_max = dfMax;
+			}
+			else if (options.m_min_max_type == CCreateStyleOptions::BY_STDDEV)
+			{
+				options.m_min = dfMean - options.m_var_factor * dfStdDev;
+				options.m_max = dfMean + options.m_var_factor * dfStdDev;
+			}
+			else if (options.m_min_max_type == CCreateStyleOptions::BY_USER)
+			{
+				if (options.m_min >= options.m_max)
+				{
+					msg.ajoute("Create QGIS style file: Invalid user min/max. minimum must be smaller than maximum" + options.m_palette_name);
+					return msg;
+				}
+
+			}
+
+			size_t nb_classes = options.m_nb_classes;
+			if (options.m_breaks_type == CCreateStyleOptions::BY_CLASS_SIZE)
+			{
+				size_t nb = (size_t)(options.m_max - options.m_min) / options.m_class_size;
+				nb_classes = (size_t)max(2.0, (options.m_max - options.m_min) / options.m_class_size);
+			}
+
+
+			string file_path = TEMFilePath + ".qml";
+			palettes[options.m_palette_name].CreateStyleFile(file_path, options, TM);
+		}
+
+		return msg;
+	}
+
 
 	void CMapping::GetInputDBInfo(CResultPtr& pResult, CDBMetadata& info)const
 	{
@@ -189,6 +261,8 @@ namespace WBSF
 			size_t vSize = GetNbMapVariableIndex(outputDef);
 			size_t pSize = GetNbMapParameterIndex(parameterSet);
 			size_t rSize = GetNbReplicationIndex(pResult);
+			std::vector<CTM> TM = pResult->GetMetadata().GetDataTM();
+			ASSERT(TM.size() == vSize);
 
 			//Xvalidation of all maps 
 			std::vector<CXValidationVector> XValVector(pSize*tSize*vSize*rSize);
@@ -203,7 +277,7 @@ namespace WBSF
 						for (size_t v = 0; v < vSize&&msg; v++)
 						{
 							callback.AddMessage("*********************************************************************");
-							size_t index = p*(tSize*vSize) + (t*vSize) + v;
+							size_t index = p * (tSize*vSize) + (t*vSize) + v;
 
 							CGridInterpol gridInterpol;
 							msg = InitGridInterpol(fileManager, pResult, p, r, t, v, gridInterpol, callback);
@@ -219,10 +293,14 @@ namespace WBSF
 										msg += gridInterpol.OptimizeParameter(callback);
 
 									if (msg && !m_XValOnly)
+									{
+
 										msg += gridInterpol.CreateSurface(callback);
+										if (msg && m_createStyleFile.m_create_style_file)
+											msg += CreateStyleFile(gridInterpol.m_TEMFilePath, TM[v]);
+									}
 
 									XValVector[index] = gridInterpol.GetOutput();
-									
 								}
 								else
 								{
@@ -256,9 +334,9 @@ namespace WBSF
 						{
 							for (size_t t = 0; t < tSize; t++)
 							{
-								for (size_t v = 0; v<vSize; v++)
+								for (size_t v = 0; v < vSize; v++)
 								{
-									size_t index = p*(tSize*vSize) + (t*vSize) + v;
+									size_t index = p * (tSize*vSize) + (t*vSize) + v;
 
 									//ASSERT( XValVector[index].size() == loc.size() );
 									if (i < XValVector[index].size())
@@ -414,7 +492,7 @@ namespace WBSF
 		return fileManager.GetOutputMapFilePath(GetFileName(TEMName), mapExt);
 	}
 
-	
+
 	ERMsg CMapping::InitGridInterpol(const CFileManager& fileManager, CResultPtr& pResult, size_t p, size_t r, size_t t, size_t v, CGridInterpol& mapInput, CCallback& callback)
 	{
 		ERMsg msg;
@@ -440,7 +518,7 @@ namespace WBSF
 			if (section[t][v][MEAN] > VMISS)
 				bHaveData = true;
 
-			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt,locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetShoreDistance(), locArray[i].GetPrjID());
+			CGridPoint pt(locArray[i].m_lon, locArray[i].m_lat, locArray[i].m_alt, locArray[i].GetSlope(), locArray[i].GetAspect(), section[t][v][MEAN], locArray[i].m_lat, locArray[i].GetShoreDistance(), locArray[i].GetPrjID());
 			pts->push_back(pt);
 
 			msg += callback.StepIt();
@@ -450,7 +528,7 @@ namespace WBSF
 		{
 			if (bHaveData)
 				mapInput.m_pts = pts;
-			else 
+			else
 				mapInput.m_pts.reset(new CGridPointVector);
 
 			string TEMName = GetTEMName(pResult, p, r, t, v);
@@ -476,11 +554,11 @@ namespace WBSF
 			if (msg)
 			{
 				string fileExt = GetFileExtension(TEMName);
-				
+
 				if (fileExt.empty())
 					fileExt += GetDriverExtension(mapInput.m_options.m_format);
 			}
-			
+
 			mapInput.m_TEMFilePath = GetTEMFilePath(fileManager, TEMName);
 
 			callback.AddMessage("");
@@ -513,52 +591,7 @@ namespace WBSF
 		return int(nbTask*d[VARIABLE] * d[TIME_REF] * d[PARAMETER]);
 	}
 
-	void CMapping::SetPrePostTransfo(const CPrePostTransfo & in){ *m_pPrePostTransfo = in; }
-
-
-	//
-	//namespace zen
-	//{
-	//
-	//
-	//	template <> inline
-	//		void writeStruc(const CMapping& in, XmlElement& output)
-	//	{
-	//		writeStruc((const CExecutable&)in, output);
-	//
-	//		XmlOut out(output);
-	//
-	//		out[CMapping::GetMemberName(CMapping::METHOD)](in.m_method);
-	//		out[CMapping::GetMemberName(CMapping::DEM_NAME)](in.m_DEMName);
-	//		out[CMapping::GetMemberName(CMapping::TEM_NAME)](in.m_TEMName);
-	//		out[CMapping::GetMemberName(CMapping::PREPOST_TRANSFO)](*in.m_pPrePostTransfo);
-	//		out[CMapping::GetMemberName(CMapping::XVAL_ONLY)](in.m_XValOnly);
-	//		out[CMapping::GetMemberName(CMapping::USE_HXGRID)](in.m_bUseHxGrid);
-	//		out[CMapping::GetMemberName(CMapping::SI_PARAMETER)](*in.m_pParam);
-	//	}
-	//
-	//	template <> inline
-	//		bool readStruc(const XmlElement& input, CMapping& out)
-	//	{
-	//		readStruc(input, (CExecutable&)out);
-	//
-	//		XmlIn in(input);
-	//
-	//		in[CMapping::GetMemberName(CMapping::METHOD)](out.m_method);
-	//		in[CMapping::GetMemberName(CMapping::DEM_NAME)](out.m_DEMName);
-	//		in[CMapping::GetMemberName(CMapping::TEM_NAME)](out.m_TEMName);
-	//		in[CMapping::GetMemberName(CMapping::PREPOST_TRANSFO)](*out.m_pPrePostTransfo);
-	//		in[CMapping::GetMemberName(CMapping::XVAL_ONLY)](out.m_XValOnly);
-	//		in[CMapping::GetMemberName(CMapping::USE_HXGRID)](out.m_bUseHxGrid);
-	//		in[CMapping::GetMemberName(CMapping::SI_PARAMETER)](*out.m_pParam);
-	//
-	//
-	//		return true;
-	//	}
-	//}
-	//
-	//
-
+	void CMapping::SetPrePostTransfo(const CPrePostTransfo & in) { *m_pPrePostTransfo = in; }
 
 	void CMapping::writeStruc(zen::XmlElement& output)const
 	{
@@ -571,6 +604,7 @@ namespace WBSF
 		out[GetMemberName(XVAL_ONLY)](m_XValOnly);
 		out[GetMemberName(USE_HXGRID)](m_bUseHxGrid);
 		out[GetMemberName(SI_PARAMETER)](*m_pParam);
+		out[GetMemberName(QGIS_OPTIONS)](m_createStyleFile);
 	}
 
 	bool CMapping::readStruc(const zen::XmlElement& input)
@@ -586,6 +620,7 @@ namespace WBSF
 		in[GetMemberName(XVAL_ONLY)](m_XValOnly);
 		in[GetMemberName(USE_HXGRID)](m_bUseHxGrid);
 		in[GetMemberName(SI_PARAMETER)](*m_pParam);
+		in[GetMemberName(QGIS_OPTIONS)](m_createStyleFile);
 
 		return true;
 	}

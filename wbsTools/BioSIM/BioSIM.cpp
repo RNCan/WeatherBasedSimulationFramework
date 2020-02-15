@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.6.2:31/01/2020	Rémi Saint-Amant	Add Tmin and Tmax in the hourly generation frpm daily values
+// 11.6.3:15/02/2020	Rémi Saint-Amant	Add creation of style file for event mapping
+// 11.6.2:31/01/2020	Rémi Saint-Amant	Add Tmin and Tmax in the hourly generation from daily values
 //											Add generate WeatherUpdaterPorject
 //											Add Download database in WGinput dialog
 // 11.6.1:03/12/2019	Rémi Saint-Amant	Add XY generate location from DEM 

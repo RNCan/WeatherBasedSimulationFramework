@@ -68,6 +68,8 @@ namespace WBSF
 		CEdit m_decimalDelimiterCtrl;
 		CMFCMenuButton m_reformatCtrl;
 		CMenu m_menu;
+	public:
+		afx_msg void OnNMClickTimeFormatWeb(NMHDR *pNMHDR, LRESULT *pResult);
 	};
 
 }

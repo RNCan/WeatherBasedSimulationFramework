@@ -76,6 +76,9 @@ namespace WBSF
 		std::string GetProfileString(const std::string& itemName, std::string defaultValue = "", bool localMachine = false)const;
 		void WriteProfileString(const std::string& itemName, const std::string& value, bool localMachine = false)const;
 
+		std::string GetString(const std::string& itemName, std::string defaultValue = "", bool localMachine = false)const { return GetProfileString(itemName, defaultValue); }
+		void SetString(const std::string& itemName, const std::string& value, bool localMachine = false)const { WriteProfileString(itemName, value, localMachine); }
+
 		int GetProfileInt(const std::string& itemName, int defaultValue = 0)const;
 		void WriteProfileInt(const std::string& itemName, int value);
 

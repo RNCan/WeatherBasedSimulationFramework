@@ -62,20 +62,17 @@ namespace WBSF
 		if (!pDX->m_bSaveAndValidate)
 		{
 			DDX_Control(pDX, IDC_WU_PROJECT, m_projectNameCtrl);
+			DDX_Control(pDX, IDC_WU_FILEPATH, m_filePathCtrl);
+
 			WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
 			m_projectNameCtrl.FillList(list, m_weatherUpdate.m_fileTitle);
+			
+			UpdateCtrl();
 		}
 
 		DDX_Text(pDX, IDC_NAME, m_weatherUpdate.m_name);
 		DDX_Text(pDX, IDC_DESCRIPTION, m_weatherUpdate.m_description);
-		//DDX_Control(pDX, IDC_DIRECT_FILE_NAME, m_filePathCtrl1);
-		
-
 		DDX_Text(pDX, IDC_WU_PROJECT, m_weatherUpdate.m_fileTitle);
-		
-		DDX_Control(pDX, IDC_WU_FILEPATH, m_filePathCtrl);
-
-		//DDX_Control(pDX, IDC_WU_FILEPATH2, m_filePathCtrl2);
 		DDX_Check(pDX, IDC_SHOW_APP, m_weatherUpdate.m_bShowApp);
 		DDX_Text(pDX, IDC_INTERNAL_NAME, m_weatherUpdate.m_internalName);
 	}

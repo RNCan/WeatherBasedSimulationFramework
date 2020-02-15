@@ -29,8 +29,10 @@
     <ClCompile Include="..\src\UI\Common\CalenderDlg.cpp" />
     <ClCompile Include="..\src\UI\Common\CDib.cpp" />
     <ClCompile Include="..\src\UI\Common\ChartTRefAxis.cpp" />
+    <ClCompile Include="..\src\UI\Common\CheckableGroupBox.cpp" />
     <ClCompile Include="..\src\UI\Common\ColorListBox.cpp" />
     <ClCompile Include="..\src\UI\Common\CommonCtrl.cpp" />
+    <ClCompile Include="..\src\UI\Common\CreateQGISStyleDlg.cpp" />
     <ClCompile Include="..\src\UI\Common\CustomDDX.cpp" />
     <ClCompile Include="..\src\UI\Common\DiskObject.cpp" />
     <ClCompile Include="..\src\UI\Common\EnableGroupboxControls.cpp" />
@@ -147,8 +149,10 @@
     <ClInclude Include="..\src\UI\Common\CalenderDlg.h" />
     <ClInclude Include="..\src\UI\Common\CDib.h" />
     <ClInclude Include="..\src\UI\Common\ChartTRefAxis.h" />
+    <ClInclude Include="..\src\UI\Common\CheckableGroupBox.h" />
     <ClInclude Include="..\src\UI\Common\ColorListBox.h" />
     <ClInclude Include="..\src\UI\Common\CommonCtrl.h" />
+    <ClInclude Include="..\src\UI\Common\CreateQGISStyleDlg.h" />
     <ClInclude Include="..\src\UI\Common\CustomDDX.h" />
     <ClInclude Include="..\src\UI\Common\DiskObject.h" />
     <ClInclude Include="..\src\UI\Common\EnableGroupboxControls.h" />

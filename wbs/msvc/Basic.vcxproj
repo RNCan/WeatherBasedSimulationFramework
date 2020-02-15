@@ -283,6 +283,7 @@
     <ClCompile Include="..\src\Basic\NormalsDatabase.cpp" />
     <ClCompile Include="..\src\Basic\NormalsStation.cpp" />
     <ClCompile Include="..\src\Basic\Psychrometrics_SI.cpp" />
+    <ClCompile Include="..\src\Basic\QGISPalette.cpp" />
     <ClCompile Include="..\src\Basic\Registry.cpp" />
     <ClCompile Include="..\src\Basic\Rijndael.cpp" />
     <ClCompile Include="..\src\Basic\SearchResult.cpp" />
@@ -365,6 +366,7 @@
     <ClInclude Include="..\src\Basic\NormalsStation.h" />
     <ClInclude Include="..\src\Basic\OpenMP.h" />
     <ClInclude Include="..\src\Basic\Psychrometrics_SI.h" />
+    <ClInclude Include="..\src\Basic\QGISPalette.h" />
     <ClInclude Include="..\src\Basic\Registry.h" />
     <ClInclude Include="..\src\Basic\Rijndael.h" />
     <ClInclude Include="..\src\Basic\SearchResult.h" />
