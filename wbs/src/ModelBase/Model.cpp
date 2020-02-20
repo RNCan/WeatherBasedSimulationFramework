@@ -126,19 +126,19 @@ namespace WBSF
 
 		if (version < 3)
 		{
-			msg.ajoute("Unsupport old model version. Ask convertion to delveloper");
+			msg.ajoute("Unsupported old model version. Ask conversion to developer");
 		}
 		else
 		{
 			ERMsg msg;
 
-			zen::XmlDoc doc;
-			msg = load(filePath, doc);
+			//zen::XmlDoc doc;
+			//msg = load(filePath, doc);
 
-			if (msg)
-			{
-				msg = zen::LoadXML(filePath, "Model", "3", *this);
-			}
+			//if (msg)
+			//{
+			msg = zen::LoadXML(filePath, "Model", "3", *this);
+			//}
 		}
 
 		return msg;

@@ -194,9 +194,9 @@ namespace WBSF
 
 	ERMsg CQGISColorRamp::CreateStyleFile(const std::string& file_path, CCreateStyleOptions& options, CTM TM)
 	{
-		ASSERT(ramp_type < CCreateStyleOptions::NB_COLORRAMP_TYPE);
-		ASSERT(Dmin< Dmax);
-		ASSERT(nb_classes <2000);
+		ASSERT(options.m_color_ramp_type< CCreateStyleOptions::NB_COLORRAMP_TYPE);
+		ASSERT(options.m_min< options.m_max);
+		ASSERT(options.m_nb_classes <2000);
 
 		string format = "%.2lf";
 

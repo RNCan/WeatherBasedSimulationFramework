@@ -58,8 +58,8 @@ namespace WBSF
 		{"Damos_2011","aa/(1+bb*T+cc*T^2)","aa=0.01[-1E4,1E4]|bb=-0.1[-1E4,1E4]|cc=0.01[-1E4,1E4]"},
 		{"Deva&Higgis","b1*10^(-((((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))+exp(b4*((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))))/((1+b4)/(1+1.5*b4+0.39*b4^2)))^2)*(1-b5+b5*((((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))+exp(b4*((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))))/((1+b4)/(1+1.5*b4+0.39*b4^2)))^2)","b1=0.3[0.0001,10]|b2=0[-50,50]|b3=25[0,50]|b4=2[0.0001,10]|b5=0.8[0.0001,10]"},
 		{"Exponential","b1*exp(b2*T)","b1=0.2[0.0001,1000]|b2=-5[-1000,1000]"},
-		{"Hilber&Logan_1983","phi*((pmax(0,T-Tb)^2/(pmax(0.001,T-Tb)^2+aa^2))-exp(-(Tmax-(T-Tb))/deltaT))","phi=0.005[1E-5,10]|aa=10[0.001,1000]|Tb=5[0.01,50]|Tmax=35[1,50]|deltaT=6[0.001,100]"},
-		{"Hilber&LoganIII","ifelse(T>=0,phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT)),0)","phi=6.6[0.0001,1000]|d=144[0.001,1000]|Tmax=46[0,50]|deltaT=3[1,100]"},
+		{"Hilbert&Logan_1983","phi*((pmax(0,T-Tb)^2/(pmax(0.001,T-Tb)^2+aa^2))-exp(-(Tmax-(T-Tb))/deltaT))","phi=0.005[1E-5,10]|aa=10[0.001,1000]|Tb=5[0.01,50]|Tmax=35[1,50]|deltaT=6[0.001,100]"},
+		{"Hilbert&LoganIII","ifelse(T>=0,phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT)),0)","phi=6.6[0.0001,1000]|d=144[0.001,1000]|Tmax=46[0,50]|deltaT=3[1,100]"},
 		{"Huey&Stevenson_1979","cc*(T-Tmin)*(1-exp(k*(T-Tmax)))","cc=0.002[1E-10,1]|k=42423[0,1E5]|Tmin=8[0,30]|Tmax=43[0,100]"},
 		{"Janisch1_1932","2/(Dmin*(exp(K*(T-Topt))+exp((-K)*(T-Topt))))","Dmin=28[-50,50]|Topt=33[-50,50]|K=0.2[0.0001,10]"},
 		{"Janisch2","2*cc/(aa^(T-Tm)+bb^(Tm-T))","cc=0.2[1E-5,1E5]|aa=0.5[1E-5,10]|bb=1.0[1E-5,10]|Tm=36[-50,50]"},
@@ -109,7 +109,7 @@ namespace WBSF
 		case Bieri_1983:bValid = P[P2] < P[P3]; break;
 		case Briere1_1999:bValid = P[P1] < P[P2]; break;
 		case Briere2_1999:bValid = P[P2] < P[P3]; break;
-		case HilberLogan_1983:bValid = P[P2] < P[P3]; break;
+		case HilbertLogan_1983:bValid = P[P2] < P[P3]; break;
 		case Kontodimas_2004:bValid = P[P1] < P[P2]; break;
 		case Ratkowsky_1983:bValid = P[P2] < P[P3]; break;
 		case Regniere_1987:  bValid = P[P4] < P[P5]; break;
@@ -230,7 +230,7 @@ namespace WBSF
 
 			rT = b1 * exp(b2*T);
 		}
-		else if (model == HilberLogan_1983)
+		else if (model == HilbertLogan_1983)
 		{
 			//f < -function(x, trid, D, Tmax, Dt) 
 			double phi = P[P0];
@@ -242,7 +242,7 @@ namespace WBSF
 			T = max(Tb, T);
 			rT = phi * ((pow(T - Tb, 2.0) / (pow(T - Tb, 2.0) + aa * aa)) - exp(-(Tmax - (T - Tb)) / deltaT));
 		}
-		else if (model == HilberLoganIII)
+		else if (model == HilbertLoganIII)
 		{
 			//f < -function(x, d, Y, Tmax, deltaT)
 			double phi = P[P0];

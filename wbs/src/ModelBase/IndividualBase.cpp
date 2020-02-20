@@ -5,8 +5,6 @@ using namespace std;
 
 namespace WBSF
 {
-	//bool CIndividual::m_bUseAttrition = false;
-
 	//*****************************************************************************
 	// Object creator 
 	//
@@ -32,7 +30,7 @@ namespace WBSF
 		m_lastAge = -1;
 
 		m_status = HEALTHY;
-		m_lastStatus = size_t(-1);//undifine for the moment
+		m_lastStatus = size_t(-1);//undefined for the moment
 		m_death = NOT_DEATH;
 
 		if (sex == NOT_INIT)
@@ -159,34 +157,12 @@ namespace WBSF
 			return m_host.empty() ? CHostPtr() : m_host.front();
 
 
-		ASSERT(false);//"todo"
+		ASSERT(false);//todo
 
 		return NULL;
 	}
 
-	//*****************************************************************************
-	// IsDeadByAttrition is for one time step development
-	//
-	// Input: double RR: developement (0..1) for this stage
-	//
-	// Output: TRUE if the insect dies, FALSE auterwise
-	//*****************************************************************************
-	/*bool CIndividual::IsDeadByAttrition(double RR)const
-	{
-	bool bDeath=false;
-
-	int s = GetStage();
-	if( (HAVE_ATTRITION && SURVIVAL_RATE[s] < 1) )
-	{
-	//Computes attrition (probability of survival in a given time step, based on development rate)
-	double probabSurvival = pow(SURVIVAL_RATE[s], RR);
-	if(Randu()>probabSurvival)
-	bDeath=true;
-	}
-
-	return bDeath;
-	}
-	*/
+	
 
 	//***************************************************************************
 	CHost& CHost::operator = (const CHost& in)
@@ -380,7 +356,7 @@ namespace WBSF
 		for (size_t i = 0; i < 10; i++)
 		{
 			//CModelStat statTmp;
-			double AI = GetAI(false);//nerver include the last stage in AI
+			double AI = GetAI(false);//never include the last stage in AI
 			//a fix is supply: adjust mean age
 			//double simAI = statTmp[CSBStat::AVERAGE_INSTAR];
 			double delta = fixeAI - AI;
@@ -442,7 +418,6 @@ namespace WBSF
 				StringVector elem(line, " \t,;");
 				assert(elem.size() == 5);
 
-				//int pos =0;
 				int year = ToInt(elem[0]);
 				int month = ToInt(elem[1]);
 				int day = ToInt(elem[2]) - 1;
