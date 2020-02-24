@@ -1,6 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.6.3:15/02/2020	Rémi Saint-Amant	Add creation of style file for event mapping
+// 11.6.4:24/02/2020	Rémi Saint-Amant	Add create legend only in mapping
+// 11.6.3:21/02/2020	Rémi Saint-Amant	Add creation of style file for event mapping
+//											Bug correction with crash after extracting SSI
+//											New elevation/SSI extraction 
 // 11.6.2:31/01/2020	Rémi Saint-Amant	Add Tmin and Tmax in the hourly generation from daily values
 //											Add generate WeatherUpdaterPorject
 //											Add Download database in WGinput dialog

@@ -278,6 +278,7 @@
 #define IDC_MODELS_OUTPUT_TYPE          1120
 #define IDC_MODELS_OUTPUT_MODE          1121
 #define IDC_GRAPH_POINT_SYMBOL          1121
+#define IDC_MAP_LEGEND_ONLY             1121
 #define IDC_GRAPH_LINE_STYLE            1122
 #define IDC_GRAPH_POINT_SIZE            1123
 #define IDC_MODEL_LIST                  1124
@@ -493,17 +494,17 @@
 #define IDC_SHOW_PROGRESS               1234
 #define IDC_MAP_EXTRACT_SHORE_DISTANCE  1234
 #define IDC_MAP_EXTRACT_MISSING         1235
-#define IDC_MAP_EXTRACT_GOOGLE_NAME     1236
+#define IDC_MAP_EXTRACT_WEB_NAME        1236
 #define IDC_CRF_TYPE_OUT                1237
 #define IDC_MAP_EXTRACT_GEOCODE_KEY     1237
+#define IDC_MAP_EXTRACT_WEB_NAME2       1237
 #define IDC_CRF_LONG_NAME_OUT           1238
-#define IDC_MAP_EXTRACT_GOOGLE_ELEVATION 1238
+#define IDC_MAP_EXTRACT_WEB_ELEVATION   1238
 #define IDC_CRF_OVERWRITE_NODATA        1239
 #define IDC_MAP_EXTRACT_GEOCODE_KEY2    1239
-#define IDC_MAP_EXTRACT_ELEVATION_KEY   1239
-#define IDC_MAP_EXTRACT_GOOGLE_KEY      1240
+#define IDC_MAP_EXTRACT_WEB_NAME3       1239
 #define IDC_MAP_EXTRACT_FROM_DEM        1241
-#define IDC_MAP_EXTRACT_FROM_GOOGLE     1242
+#define IDC_MAP_EXTRACT_FROM_WEB        1242
 #define IDC_STATIC2                     1243
 #define IDC_MAP_CLASSES_SIZE            1243
 #define IDC_STATIC3                     1244
@@ -564,6 +565,8 @@
 #define IDC_MAP_COLOR_RAMP_TYPE         1278
 #define IDC_MAP_NUMBER_FORMAT_LABLE     1279
 #define IDC_MAP_DATE_FORMAT_LABLE       1280
+#define IDC_COMBO1                      1280
+#define IDC_MAP_EXTRACT_PRODUCT         1280
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -923,7 +926,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        230
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1280
+#define _APS_NEXT_CONTROL_VALUE         1281
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -38,7 +38,7 @@ namespace WBSF
 	// Construction/Destruction
 	//**********************************************************************
 	const char* CMapping::XML_FLAG = "Mapping";
-	const char* CMapping::MEMBERS_NAME[NB_MEMBERS_EX] = { "Method", "DEMName", "TEMName", "PrePostTransfo", "XValOnly", "UseHxGrid", CGridInterpolParam::GetXMLFlag(), "QGISOptions" };
+	const char* CMapping::MEMBERS_NAME[NB_MEMBERS_EX] = { "Method", "DEMName", "TEMName", "PrePostTransfo", "XValOnly", "CreateLegendOnly", CGridInterpolParam::GetXMLFlag(), "QGISOptions" };
 	const int CMapping::CLASS_NUMBER = CExecutableFactory::RegisterClass(CMapping::GetXMLFlag(), &CMapping::CreateObject);
 
 	CMapping::CMapping()
@@ -64,7 +64,7 @@ namespace WBSF
 		m_pPrePostTransfo->Reset();
 
 		m_XValOnly = false;
-		m_bUseHxGrid = false;
+		m_createLengendOnly = false;
 		m_createStyleFile.LoadFromRegistry();
 	}
 
@@ -90,7 +90,7 @@ namespace WBSF
 			*m_pParam = *in.m_pParam;
 			*m_pPrePostTransfo = *in.m_pPrePostTransfo;
 			m_XValOnly = in.m_XValOnly;
-			m_bUseHxGrid = in.m_bUseHxGrid;
+			m_createLengendOnly = in.m_createLengendOnly;
 			m_createStyleFile = in.m_createStyleFile;
 		}
 
@@ -109,7 +109,7 @@ namespace WBSF
 		if (*m_pParam != *in.m_pParam)bEqual = false;
 		if (*m_pPrePostTransfo != *in.m_pPrePostTransfo)bEqual = false;
 		if (m_XValOnly != in.m_XValOnly)bEqual = false;
-		if (m_bUseHxGrid != in.m_bUseHxGrid)bEqual = false;
+		if (m_createLengendOnly != in.m_createLengendOnly)bEqual = false;
 		if (m_createStyleFile != in.m_createStyleFile)bEqual = false;
 
 		return bEqual;
@@ -289,18 +289,17 @@ namespace WBSF
 									if (msg)
 										msg += gridInterpol.Initialise(callback);
 
-									if (msg)
+									if (msg && (m_XValOnly||!m_createLengendOnly))
 										msg += gridInterpol.OptimizeParameter(callback);
 
-									if (msg && !m_XValOnly)
-									{
-
+									if (msg && !m_XValOnly && !m_createLengendOnly)
 										msg += gridInterpol.CreateSurface(callback);
-										if (msg && m_createStyleFile.m_create_style_file)
-											msg += CreateStyleFile(gridInterpol.m_TEMFilePath, TM[v]);
-									}
 
-									XValVector[index] = gridInterpol.GetOutput();
+									if (msg && (!m_XValOnly|| m_createLengendOnly) && m_createStyleFile.m_create_style_file)
+										msg += CreateStyleFile(gridInterpol.m_TEMFilePath, TM[v]);
+
+									if (msg && (m_XValOnly || !m_createLengendOnly))
+										XValVector[index] = gridInterpol.GetOutput();
 								}
 								else
 								{
@@ -538,7 +537,6 @@ namespace WBSF
 			mapInput.m_method = m_method;
 			mapInput.m_param = *m_pParam;
 			mapInput.m_prePostTransfo = *m_pPrePostTransfo;
-			mapInput.m_bUseHxGrid = CTRL.m_bUseHxGrid && m_bUseHxGrid;
 			mapInput.m_options.m_format = "GTiff";
 			mapInput.m_options.m_bOverwrite = true;
 			mapInput.m_options.m_outputType = 6; // GDT_Float32;
@@ -602,7 +600,7 @@ namespace WBSF
 		out[GetMemberName(TEM_NAME)](m_TEMName);
 		out[GetMemberName(PREPOST_TRANSFO)](*m_pPrePostTransfo);
 		out[GetMemberName(XVAL_ONLY)](m_XValOnly);
-		out[GetMemberName(USE_HXGRID)](m_bUseHxGrid);
+		out[GetMemberName(CREATE_LEGEND_ONLY)](m_createLengendOnly);
 		out[GetMemberName(SI_PARAMETER)](*m_pParam);
 		out[GetMemberName(QGIS_OPTIONS)](m_createStyleFile);
 	}
@@ -618,7 +616,7 @@ namespace WBSF
 		in[GetMemberName(TEM_NAME)](m_TEMName);
 		in[GetMemberName(PREPOST_TRANSFO)](*m_pPrePostTransfo);
 		in[GetMemberName(XVAL_ONLY)](m_XValOnly);
-		in[GetMemberName(USE_HXGRID)](m_bUseHxGrid);
+		in[GetMemberName(CREATE_LEGEND_ONLY)](m_createLengendOnly);
 		in[GetMemberName(SI_PARAMETER)](*m_pParam);
 		in[GetMemberName(QGIS_OPTIONS)](m_createStyleFile);
 

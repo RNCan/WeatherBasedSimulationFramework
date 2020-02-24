@@ -240,8 +240,8 @@ namespace WBSF
 				size_t ii = options.m_reverse_palette? options.m_nb_classes - i - 1 : i;
 				string color = GetColor(ii, options.m_nb_classes);
 				string value = (i < options.m_nb_classes - 1) ? ToString(options.m_min + (i + 1) * classes_size) : "inf";
-				string lable1 = WBSF::FormatA(options.m_number_format.c_str(), float(i*classes_size));
-				string lable2 = WBSF::FormatA(options.m_number_format.c_str(), float((i + 1) * classes_size));
+				string lable1 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + i*classes_size));
+				string lable2 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + (i + 1) * classes_size));
 
 				if (TM.IsInit()&&TM.Type()!=CTM::ATEMPORAL)
 				{

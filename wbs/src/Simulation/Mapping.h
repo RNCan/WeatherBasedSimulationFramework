@@ -31,7 +31,7 @@ namespace WBSF
 
 
 		enum TMember{
-			METHOD = CExecutable::NB_MEMBERS, DEM_NAME, TEM_NAME, PREPOST_TRANSFO, XVAL_ONLY, USE_HXGRID, SI_PARAMETER, QGIS_OPTIONS, NB_MEMBERS,
+			METHOD = CExecutable::NB_MEMBERS, DEM_NAME, TEM_NAME, PREPOST_TRANSFO, XVAL_ONLY, CREATE_LEGEND_ONLY, SI_PARAMETER, QGIS_OPTIONS, NB_MEMBERS,
 			NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -46,7 +46,7 @@ namespace WBSF
 		std::unique_ptr<CPrePostTransfo> m_pPrePostTransfo;
 		std::unique_ptr<CGridInterpolParam> m_pParam;
 		bool m_XValOnly;
-		bool m_bUseHxGrid;
+		bool m_createLengendOnly;
 		CCreateStyleOptions m_createStyleFile;
 
 
@@ -96,8 +96,6 @@ namespace WBSF
 
 		bool GetXValOnly()const{ return m_XValOnly; }
 		void SetXValOnly(bool in){ m_XValOnly = in; }
-		bool GetUseHxGrid()const{ return m_bUseHxGrid; }
-		void SetUseHxGrid(bool in){ m_bUseHxGrid = in; }
 
 
 		ERMsg CreateStyleFile(const std::string& TEMFilePath, CTM TM)const;

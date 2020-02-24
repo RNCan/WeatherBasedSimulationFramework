@@ -46,8 +46,7 @@ namespace WBSF
 		COpenDirEditCtrl	m_defaultDirCtrl;
 		CEdit			m_dimensionCtrl;
 		CButton			m_XValOnlyCtrl;
-		//CButton			m_useHxGridCtrl;
-
+		CButton			m_createLengendOnlyCtrl;
 
 		CMapping m_mapping;
 		CExecutablePtr m_pParent;

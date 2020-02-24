@@ -12,7 +12,7 @@
 #include "UI/Common/CommonCtrl.h"
 #include "WeatherBasedSimulationUI.h"
 
-class CExtractSSIDlg : public CDialog
+class CExtractSSIDlg : public CDialogEx
 {
 	DECLARE_DYNCREATE(CExtractSSIDlg)
 
@@ -20,7 +20,7 @@ class CExtractSSIDlg : public CDialog
 public:
 
 
-	enum TExtractFrom { FROM_DEM, FROM_GOOGLE };
+	enum TExtractFrom { FROM_DEM, FROM_WEB };
 	CExtractSSIDlg(CWnd* pParent = NULL);
 	~CExtractSSIDlg();
 
@@ -32,13 +32,12 @@ public:
 	BOOL m_bExtractSlopeAspect;
 	BOOL m_bMissingOnly;
 	BOOL m_bExtractShoreDistance;
-	BOOL m_bExtractGoogleName;
-	BOOL m_bExtractGoogleElvation;
-	
-	CString m_googleMapsAPIKey;
-
-
+	BOOL m_bExtractWebElevation;
+	int m_webElevProduct;
 	int m_interpolationType;
+	BOOL m_bExtractWebName;
+	BOOL m_bExtractWebState;
+	BOOL m_bExtractWebCountry;
 
 protected:
 

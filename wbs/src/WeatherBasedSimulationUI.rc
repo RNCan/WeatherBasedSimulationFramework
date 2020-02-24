@@ -1692,9 +1692,8 @@ BEGIN
     EDITTEXT        IDC_MAP_NB_CREATED,106,63,176,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,331,256,50,14
     PUSHBUTTON      "Annuler",IDCANCEL,392,256,50,14
-    CONTROL         "Utiliser hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,382,66,60,10
     CONTROL         "Faire uniquement la validation croisée",IDC_MAP_XVAL_ONLY,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,240,136,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,211,136,10
     EDITTEXT        IDC_MAP_DESCRIPTION,106,94,176,14,ES_AUTOHSCROLL
     LTEXT           "Description :",IDC_STATIC,7,97,41,8
     LTEXT           "Méthode d'interpolation :",IDC_STATIC,7,115,85,8
@@ -1703,26 +1702,25 @@ BEGIN
     LTEXT           "Carte d'entrée (élévations) :",IDC_STATIC,7,131,92,8
     COMBOBOX        IDC_MAP_DEM_FILENAME,106,128,146,67,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "···",IDC_MAP_EDITOR,257,128,25,12
-    EDITTEXT        IDC_MAP_TEM_FILENAME,106,146,176,12,ES_AUTOHSCROLL
-    LTEXT           "%c =\tnom de l'élément\n%v =\tnom de la variable\n%t =\tréférence temporelle\n%p =\tnom des paramètres\n%r = \treplication\n%d =\tdate de création",IDC_STATIC,293,106,149,50
-    LTEXT           "Nom de la carte de sortie :",IDC_STATIC,7,148,96,8
-    EDITTEXT        IDC_MAP_TRANSFO_INFO,106,165,146,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "···",IDC_MAP_TRANFORM,257,165,25,12
-    LTEXT           "La transformation pré/post permet de faire des manipulations avant et après l'interpolation.",IDC_STATIC,293,161,149,24
-    LTEXT           "Répertoire de sortie:",IDC_STATIC,7,222,81,8
-    EDITTEXT        IDC_MAP_DEFAULT_DIR,106,219,336,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    LTEXT           "Transformation pré/post:",IDC_STATIC,7,166,87,9
+    EDITTEXT        IDC_MAP_TEM_FILENAME,106,151,176,12,ES_AUTOHSCROLL
+    LTEXT           "%c =\tnom de l'élément\n%v =\tnom de la variable\n%t =\tréférence temporelle\n%p =\tnom des paramètres\n%r = \treplication\n%d =\tdate de création",IDC_STATIC,293,71,149,50
+    LTEXT           "Nom de la carte de sortie :",IDC_STATIC,7,153,96,8
+    EDITTEXT        IDC_MAP_TRANSFO_INFO,106,169,146,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "···",IDC_MAP_TRANFORM,257,169,25,12
+    LTEXT           "La transformation pré/post permet de faire des manipulations avant et après l'interpolation.",IDC_STATIC,293,157,149,24
+    LTEXT           "Répertoire de sortie:",IDC_STATIC,7,244,81,8
+    EDITTEXT        IDC_MAP_DEFAULT_DIR,106,241,336,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Transformation pré/post:",IDC_STATIC,7,170,87,9
     LTEXT           "Nom :",IDC_STATIC,7,80,42,8
     EDITTEXT        IDC_MAP_NAME,106,78,176,12,ES_AUTOHSCROLL
     LTEXT           "( params x réplications x temps x variables = total)",IDC_STATIC,106,50,176,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Nom interne :",IDC_STATIC,7,259,50,8
     EDITTEXT        IDC_MAP_INTERNAL_NAME,106,258,90,12,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_MAP_OPTIONS,106,201,176,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
-    LTEXT           "Options de création :",IDC_STATIC,7,204,82,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_MAP_STYLE_INFO,106,182,146,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,257,182,25,12
-    LTEXT           "Creer un fichier de style",IDC_STATIC,7,183,89,11
-    LTEXT           "Le fichier de style permet de créer des couleurs avec texte pour les carte qui représente des évènements temporels",IDC_STATIC,293,189,149,24
+    EDITTEXT        IDC_MAP_STYLE_INFO,106,187,146,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,257,187,25,12
+    LTEXT           "Creer un fichier de style",IDC_STATIC,7,188,89,11
+    LTEXT           "Le fichier de style permet de créer une légende avec texte et couleurs pour les carte d'évènements",IDC_STATIC,293,186,149,24
+    CONTROL         "Créer la légende seulement",IDC_MAP_LEGEND_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,226,103,10
 END
 
 IDD_SIM_MERGE_EXECUTABLE DIALOGEX 0, 0, 291, 271
@@ -2075,33 +2073,35 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPT
 CAPTION "Extraction d'information spécifique au site"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",IDC_STATIC,7,11,447,80
-    GROUPBOX        "",IDC_STATIC,7,98,447,92
-    CONTROL         "Extraire à partir d'un fichier DEM",IDC_MAP_EXTRACT_FROM_DEM,
-                    "Button",BS_AUTORADIOBUTTON,16,11,119,10
-    CONTROL         "Extraire à partir de Google Maps API",IDC_MAP_EXTRACT_FROM_GOOGLE,
-                    "Button",BS_AUTORADIOBUTTON,16,98,133,10
+    GROUPBOX        "",IDC_STATIC,7,11,447,73
+    GROUPBOX        "",IDC_STATIC,7,96,447,111
+    CONTROL         "Extraire à partir d'un fichier DEM Model d'Élévation Digitale)",IDC_MAP_EXTRACT_FROM_DEM,
+                    "Button",BS_AUTORADIOBUTTON,16,11,205,10
+    CONTROL         "Extraire à partir de l'internet",IDC_MAP_EXTRACT_FROM_WEB,
+                    "Button",BS_AUTORADIOBUTTON,16,96,107,10
     CONTROL         "Extraire l'élévation à partir du DEM",IDC_MAP_EXTRACT_ELEV,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,30,127,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,49,127,10
     CONTROL         "Extraire la pente et l'orientation à partir du DEM",IDC_MAP_EXTRACT_EXPOSITION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,44,176,10
-    LTEXT           "Chemin du DEM :",IDC_CMN_STATIC1,23,68,55,8
-    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,82,66,364,14
-    CONTROL         "Extraire l'élévation à partir de google Maps Elevation API.",IDC_MAP_EXTRACT_GOOGLE_ELEVATION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,116,269,10
-    CONTROL         "Extraire le nom du lieux à partir de google Maps GeoCoding API. ",IDC_MAP_EXTRACT_GOOGLE_NAME,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,130,223,10
-    LTEXT           "Clé Goole Map API* :",IDC_CMN_STATIC2,83,149,68,8
-    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,161,146,285,14,ES_AUTOHSCROLL
-    LTEXT           "* une clé peut être obtenue gratuitement sur le site google :  developers.google.com",IDC_CMN_STATIC3,83,165,273,8
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,63,176,10
+    LTEXT           "Chemin du DEM :",IDC_CMN_STATIC1,23,28,55,8
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,82,25,364,14
+    CONTROL         "Extraire l'élévation à partir de Open Topo Data",IDC_MAP_EXTRACT_WEB_ELEVATION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,120,163,10
+    CONTROL         "Extraire le nom du lieux à partir de Nominatim (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,161,223,10
     CONTROL         "Extraire la distance au litoral",IDC_MAP_EXTRACT_SHORE_DISTANCE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,213,110,10
     CONTROL         "Remplacer seulement les valeurs vide ou à -999 ",IDC_MAP_EXTRACT_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,229,171,10
     PUSHBUTTON      "Ok",IDOK,340,249,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,404,249,50,14
-    COMBOBOX        IDC_SSI_METHOD,7,251,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,15,255,106,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_SSI_METHOD,191,136,154,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Méthod d'interpolation :",IDC_CMN_STATIC2,109,138,77,8
+    COMBOBOX        IDC_MAP_EXTRACT_PRODUCT,191,118,254,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Extraire le nom de la province/état à partir de Nominatim (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,175,259,10
+    CONTROL         "Extraire le nom du pays à partir de Nominatim (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,189,223,10
 END
 
 IDD_GENERATE_WU DIALOGEX 0, 0, 465, 108
@@ -2914,7 +2914,9 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 454
+        VERTGUIDE, 23
         VERTGUIDE, 68
+        VERTGUIDE, 186
         VERTGUIDE, 446
         BOTTOMMARGIN, 263
         HORZGUIDE, 11
@@ -4317,11 +4319,33 @@ BEGIN
 0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
 0x4d5f, 0x646f, 0x3e65, 
     IDC_SSI_METHOD, 0x403, 8, 0
-0x654e, 0x7261, 0x7365, 0x0074, 
+0x656e, 0x7261, 0x7365, 0x0074, 
     IDC_SSI_METHOD, 0x403, 9, 0
-0x6942, 0x696c, 0x656e, 0x7261, "\000" 
+0x6962, 0x696c, 0x656e, 0x7261, "\000" 
     IDC_SSI_METHOD, 0x403, 6, 0
-0x7543, 0x6962, 0x0063, 
+0x7563, 0x6962, 0x0063, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 28, 0
+0x4f4e, 0x4141, 0x6520, 0x6f74, 0x6f70, 0x2031, 0x2e31, 0x2038, 0x6d6b, 
+0x2820, 0x6c47, 0x626f, 0x6c61, 0x0029, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 37, 0
+0x414e, 0x4153, 0x7320, 0x7472, 0x096d, 0x3039, 0x6d20, 0x2820, 0x614c, 
+0x6974, 0x7574, 0x6564, 0x2073, 0x362d, 0x2030, 0x6f74, 0x3620, 0x2930, 
+"\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 37, 0
+0x414e, 0x4153, 0x7320, 0x7472, 0x206d, 0x3033, 0x6d20, 0x2820, 0x614c, 
+0x6974, 0x7574, 0x6564, 0x2073, 0x362d, 0x2030, 0x6f74, 0x3620, 0x2930, 
+"\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 24, 0
+0x4545, 0x2041, 0x7565, 0x6564, 0x206d, 0x3532, 0x6d20, 0x2820, 0x7545, 
+0x6f72, 0x6570, 0x0029, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 25, 0
+0x414e, 0x4153, 0x6120, 0x7473, 0x7265, 0x3320, 0x2030, 0x206d, 0x4728, 
+0x6f6c, 0x6162, 0x296c, "\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 57, 0
+0x5355, 0x5347, 0x6e20, 0x6465, 0x3120, 0x2030, 0x206d, 0x4328, 0x6e6f, 
+0x6974, 0x656e, 0x746e, 0x6c61, 0x5520, 0x4153, 0x202c, 0x6148, 0x6177, 
+0x6969, 0x202c, 0x6170, 0x7472, 0x2073, 0x666f, 0x4120, 0x616c, 0x6b73, 
+0x2961, "\000" 
     0
 END
 
@@ -4540,31 +4564,32 @@ CAPTION "Site Specific Extraction"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",IDC_STATIC,7,9,437,80
-    GROUPBOX        "",IDC_STATIC,7,98,437,105
-    CONTROL         "Extraire à partir d'un fichier DEM",IDC_MAP_EXTRACT_FROM_DEM,
-                    "Button",BS_AUTORADIOBUTTON,16,9,119,10
-    CONTROL         "Extraire à partir de Google Maps API",IDC_MAP_EXTRACT_FROM_GOOGLE,
-                    "Button",BS_AUTORADIOBUTTON,16,98,133,10
-    CONTROL         "Extract elevation from DEM",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,35,103,10
-    CONTROL         "Extract slope and aspect from DEM",IDC_MAP_EXTRACT_EXPOSITION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,48,132,10
-    LTEXT           "DEM file path:",IDC_CMN_STATIC1,38,66,46,8
-    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,94,63,340,14
-    CONTROL         "Extract elevation from Google Maps Elevation API.",IDC_MAP_EXTRACT_GOOGLE_ELEVATION,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,121,251,10
-    CONTROL         "Extract location name from Google Maps GeoCode API.",IDC_MAP_EXTRACT_GOOGLE_NAME,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,135,217,10
-    LTEXT           "Goole Map API Key* :",IDC_CMN_STATIC2,58,156,70,8
-    EDITTEXT        IDC_MAP_EXTRACT_GOOGLE_KEY,146,154,288,14,ES_AUTOHSCROLL
-    LTEXT           "* Key ID can be obtained freely from Google site:  developers.google.com",IDC_CMN_STATIC3,58,176,238,8
+    GROUPBOX        "",IDC_STATIC,7,98,437,118
+    CONTROL         "Extract from DEM (Digital Elevation Model)",IDC_MAP_EXTRACT_FROM_DEM,
+                    "Button",BS_AUTORADIOBUTTON,16,9,151,10
+    CONTROL         "Extract from web API",IDC_MAP_EXTRACT_FROM_WEB,"Button",BS_AUTORADIOBUTTON,16,98,88,10
+    CONTROL         "Extract elevation",IDC_MAP_EXTRACT_ELEV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,52,71,10
+    CONTROL         "Extract slope and aspect",IDC_MAP_EXTRACT_EXPOSITION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,68,132,10
+    LTEXT           "DEM file path:",IDC_CMN_STATIC1,25,28,46,8
+    CONTROL         "",IDC_GRID_FILE_PATH,"MfcEditBrowse",WS_BORDER | WS_TABSTOP | 0x80,78,26,356,14
+    CONTROL         "Extract elevation from Open Topo Data API",IDC_MAP_EXTRACT_WEB_ELEVATION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,121,153,10
+    CONTROL         "Extract location name from Nominatim API (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,169,212,10
     CONTROL         "Extract shore distance",IDC_MAP_EXTRACT_SHORE_DISTANCE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,223,113,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,227,113,10
     CONTROL         "Replace only -999 or empty values",IDC_MAP_EXTRACT_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,240,170,10
     PUSHBUTTON      "Cancel",IDCANCEL,394,255,50,14
     PUSHBUTTON      "Ok",IDOK,329,255,50,14
-    COMBOBOX        IDC_SSI_METHOD,168,257,154,30,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Extraction Interpolation Method:",IDC_STATIC,204,233,106,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_SSI_METHOD,179,140,154,30,CBS_DROPDOWNLIST | CBS_OEMCONVERT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Interpolation method:",IDC_CMN_STATIC2,101,144,71,8
+    COMBOBOX        IDC_MAP_EXTRACT_PRODUCT,180,120,254,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Extarct province/state from Nominatim (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,184,201,10
+    CONTROL         "Extarct country from Nominatim (Open Street Map)",IDC_MAP_EXTRACT_WEB_NAME3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,199,179,10
 END
 
 IDD_LINKED_WEA DIALOGEX 0, 0, 261, 130
@@ -5916,10 +5941,10 @@ BEGIN
     LTEXT           "Mapping creates surface grids from data points. Simulation points must be within or near the region defined by the input map (elevations). One map is created for each variable/time/replication/parameter combination.",IDC_STATIC,7,7,320,26
     LTEXT           "To limit the number of maps created, select a subset through an analysis.",IDC_STATIC,7,33,262,12,NOT WS_VISIBLE
     LTEXT           "Nb of maps created:",IDC_STATIC,7,60,66,8
-    EDITTEXT        IDC_MAP_NB_CREATED,91,58,192,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    EDITTEXT        IDC_MAP_NB_CREATED,91,58,178,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,304,248,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,362,248,50,14
-    CONTROL         "Cross-validation only",IDC_MAP_XVAL_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,235,83,10
+    CONTROL         "Cross-validation only",IDC_MAP_XVAL_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,206,83,10
     LTEXT           "Description:",IDC_STATIC,7,93,39,8
     EDITTEXT        IDC_MAP_DESCRIPTION,91,90,178,14,ES_AUTOHSCROLL
     LTEXT           "Interpolation method:",IDC_STATIC,7,112,84,8
@@ -5932,20 +5957,21 @@ BEGIN
     PUSHBUTTON      "···",IDC_MAP_EDITOR,244,125,25,12
     LTEXT           "Pre/post transformation:",IDC_CMN_STATIC8,7,170,84,8
     EDITTEXT        IDC_MAP_TRANSFO_INFO,91,169,145,12,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "%c =\tcomponent name\n%v =\tvariable name\n%t =\ttime reference\n%p =\tparameter name\n%r = \treplication\n%d =\tcreation date",IDC_STATIC,283,110,129,49
+    LTEXT           "%c =\tcomponent name\n%v =\tvariable name\n%t =\ttime reference\n%p =\tparameter name\n%r = \treplication\n%d =\tcreation date",IDC_STATIC,283,57,129,49
     PUSHBUTTON      "···",IDC_MAP_TRANFORM,244,168,25,12
-    LTEXT           "Output directory:",IDC_STATIC,7,220,71,8
-    EDITTEXT        IDC_MAP_DEFAULT_DIR,91,217,192,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    CONTROL         "Use hxGrid",IDC_MAP_USE_HXGRID,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,361,7,51,10
-    LTEXT           "Pre/post transformation offers the possibility to transform data before and after interpolation.",IDC_STATIC,283,164,129,23
+    LTEXT           "Output directory:",IDC_STATIC,7,236,71,8
+    EDITTEXT        IDC_MAP_DEFAULT_DIR,91,233,321,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Pre/post transformation offers the possibility to transform data before and after interpolation.",IDC_STATIC,283,156,129,23
     LTEXT           "Name:",IDC_STATIC,7,75,27,8
     EDITTEXT        IDC_MAP_NAME,91,74,178,12,ES_AUTOHSCROLL
-    LTEXT           "(parameters  x replications x times x variables = total)",IDC_STATIC,91,47,217,8,0,WS_EX_ACCEPTFILES
+    LTEXT           "(parameters  x replications x times x variables = total)",IDC_STATIC,91,47,178,8,0,WS_EX_ACCEPTFILES
     LTEXT           "Internal name:",IDC_STATIC,7,252,50,8
     EDITTEXT        IDC_MAP_INTERNAL_NAME,91,250,90,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    EDITTEXT        IDC_MAP_STYLE_INFO,91,195,146,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,244,194,25,12
-    LTEXT           "Creer un fichier de style",IDC_STATIC,7,197,84,11
+    EDITTEXT        IDC_MAP_STYLE_INFO,91,188,146,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "···",IDC_MAP_CREATE_STYLE,244,188,25,12
+    LTEXT           "Create a legend file",IDC_STATIC,7,190,66,8
+    LTEXT           "Style file let the possibility to create legend with text and color for event mapping",IDC_STATIC,283,187,129,24
+    CONTROL         "Create legend only",IDC_MAP_LEGEND_ONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,220,77,10
 END
 
 IDD_SIM_MERGE_EXECUTABLE DIALOGEX 0, 0, 293, 272
@@ -6395,6 +6421,7 @@ BEGIN
         RIGHTMARGIN, 444
         VERTGUIDE, 25
         VERTGUIDE, 58
+        VERTGUIDE, 78
         VERTGUIDE, 276
         VERTGUIDE, 434
         TOPMARGIN, 9
@@ -7293,11 +7320,33 @@ BEGIN
 0x3e65, 0x3c31, 0x4d2f, 0x4346, 0x6445, 0x7469, 0x7242, 0x776f, 0x6573, 
 0x4d5f, 0x646f, 0x3e65, 
     IDC_SSI_METHOD, 0x403, 8, 0
-0x654e, 0x7261, 0x7365, 0x0074, 
+0x656e, 0x7261, 0x7365, 0x0074, 
     IDC_SSI_METHOD, 0x403, 9, 0
-0x6942, 0x696c, 0x656e, 0x7261, "\000" 
+0x6962, 0x696c, 0x656e, 0x7261, "\000" 
     IDC_SSI_METHOD, 0x403, 6, 0
-0x7543, 0x6962, 0x0063, 
+0x7563, 0x6962, 0x0063, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 28, 0
+0x4f4e, 0x4141, 0x6520, 0x6f74, 0x6f70, 0x2031, 0x2e31, 0x2038, 0x6d6b, 
+0x2820, 0x6c47, 0x626f, 0x6c61, 0x0029, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 37, 0
+0x414e, 0x4153, 0x7320, 0x7472, 0x096d, 0x3039, 0x6d20, 0x2820, 0x614c, 
+0x6974, 0x7574, 0x6564, 0x2073, 0x362d, 0x2030, 0x6f74, 0x3620, 0x2930, 
+"\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 37, 0
+0x414e, 0x4153, 0x7320, 0x7472, 0x206d, 0x3033, 0x6d20, 0x2820, 0x614c, 
+0x6974, 0x7574, 0x6564, 0x2073, 0x362d, 0x2030, 0x6f74, 0x3620, 0x2930, 
+"\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 24, 0
+0x4545, 0x2041, 0x7565, 0x6564, 0x206d, 0x3532, 0x6d20, 0x2820, 0x7545, 
+0x6f72, 0x6570, 0x0029, 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 25, 0
+0x414e, 0x4153, 0x6120, 0x7473, 0x7265, 0x3320, 0x2030, 0x206d, 0x4728, 
+0x6f6c, 0x6162, 0x296c, "\000" 
+    IDC_MAP_EXTRACT_PRODUCT, 0x403, 57, 0
+0x5355, 0x5347, 0x6e20, 0x6465, 0x3120, 0x2030, 0x206d, 0x4328, 0x6e6f, 
+0x6974, 0x656e, 0x746e, 0x6c61, 0x5520, 0x4153, 0x202c, 0x6148, 0x6177, 
+0x6969, 0x202c, 0x6170, 0x7472, 0x2073, 0x666f, 0x4120, 0x616c, 0x6b73, 
+0x2961, "\000" 
     0
 END
 

@@ -60,10 +60,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_DEFAULT_DIR, m_defaultDirCtrl);
 		DDX_Control(pDX, IDC_MAP_NB_CREATED, m_dimensionCtrl);
 		DDX_Control(pDX, IDC_MAP_XVAL_ONLY, m_XValOnlyCtrl);
-//		DDX_Control(pDX, IDC_MAP_USE_HXGRID, m_useHxGridCtrl);
-
-
-
+		DDX_Control(pDX, IDC_MAP_LEGEND_ONLY, m_createLengendOnlyCtrl);
 
 		if (!pDX->m_bSaveAndValidate)
 		{
@@ -203,7 +200,7 @@ namespace WBSF
 		m_mapping.SetDEMName(m_DEMCtrl.GetString());
 		m_mapping.SetTEMName(m_TEMCtrl.GetString());
 		m_mapping.SetXValOnly(m_XValOnlyCtrl.GetCheck());
-//		m_mapping.SetUseHxGrid(m_useHxGridCtrl.GetCheck());
+		m_mapping.m_createLengendOnly = m_createLengendOnlyCtrl.GetCheck();
 	}
 
 	void CMappingDlg::SetMappingToInterface()
@@ -216,7 +213,7 @@ namespace WBSF
 		m_tranfoInfoCtrl.SetWindowText(m_mapping.GetPrePostTransfo().GetDescription());
 		m_createStyleCtrl.SetWindowText(m_mapping.m_createStyleFile.GetDescription());
 		m_XValOnlyCtrl.SetCheck(m_mapping.GetXValOnly());
-//		m_useHxGridCtrl.SetCheck(m_mapping.GetUseHxGrid());
+		m_createLengendOnlyCtrl.SetCheck(m_mapping.m_createLengendOnly);
 	}
 
 }

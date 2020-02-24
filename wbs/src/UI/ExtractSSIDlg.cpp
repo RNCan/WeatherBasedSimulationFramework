@@ -22,18 +22,25 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
  
-BEGIN_MESSAGE_MAP(CExtractSSIDlg, CDialog)
+BEGIN_MESSAGE_MAP(CExtractSSIDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MAP_EXTRACT_FROM_DEM, &UpdateCtrl)
-	ON_BN_CLICKED(IDC_MAP_EXTRACT_FROM_GOOGLE, &UpdateCtrl)
+	ON_BN_CLICKED(IDC_MAP_EXTRACT_FROM_WEB, &UpdateCtrl)
+	ON_BN_CLICKED(IDC_MAP_EXTRACT_WEB_ELEVATION, &UpdateCtrl)
 
 END_MESSAGE_MAP()
 
 
-IMPLEMENT_DYNCREATE(CExtractSSIDlg, CDialog)
+IMPLEMENT_DYNCREATE(CExtractSSIDlg, CDialogEx)
 /////////////////////////////////////////////////////////////////////////////
+//https://api.opentopodata.org/v1/srtm90m?locations=-43.5,172.5|27.6,1.98&interpolation=cubic
+//au canada seulement:
+//http://geogratis.gc.ca/services/elevation/cdem/altitude?lat=45.5&lon=-71.5
+//reverse geocode
+//https://nominatim.openstreetmap.org/reverse?format=json&lat=46.736497&lon=-71.450790
+
 
 CExtractSSIDlg::CExtractSSIDlg(CWnd* pParent): 
-CDialog(CExtractSSIDlg::IDD, pParent)
+CDialogEx(CExtractSSIDlg::IDD, pParent)
 {
 	CAppOption option(_T("ExtractSSI"));
 
@@ -43,11 +50,13 @@ CDialog(CExtractSSIDlg::IDD, pParent)
 	m_bExtractSlopeAspect = option.GetProfileBool(_T("ExtractSlopeAspect"), false);
 	m_bMissingOnly = option.GetProfileBool(_T("OnlyMissing"), true);
 	m_bExtractShoreDistance = option.GetProfileBool(_T("ExtractShoreDistance"), false);
-	m_bExtractGoogleName = option.GetProfileBool(_T("ExtractGoogleName"), false);
-	m_bExtractGoogleElvation = option.GetProfileBool(_T("ExtractGoogleElevation"), false);
-	m_googleMapsAPIKey = option.GetProfileString(_T("GoogleMapsAPIKey"));
+	m_bExtractWebElevation = option.GetProfileBool(_T("ExtractWebElevation"), false);
+	m_webElevProduct = option.GetProfileInt(_T("WebElevProduct"), 1);
 	m_interpolationType = option.GetProfileInt(_T("InterpMethod"), 0);
 
+	m_bExtractWebName = option.GetProfileBool(_T("ExtractWebName"), false);
+	m_bExtractWebState = option.GetProfileBool(_T("ExtractWebName2"), false);
+	m_bExtractWebCountry = option.GetProfileBool(_T("ExtractWebName3"), false);
 }
 
 CExtractSSIDlg::~CExtractSSIDlg()
@@ -60,16 +69,20 @@ CExtractSSIDlg::~CExtractSSIDlg()
 	option.WriteProfileBool(_T("ExtractSlopeAspect"), m_bExtractSlopeAspect);
 	option.WriteProfileBool(_T("OnlyMissing"), m_bMissingOnly);
 	option.WriteProfileBool(_T("ExtractShoreDistance"), m_bExtractShoreDistance);
-	option.WriteProfileBool(_T("ExtractGoogleName"), m_bExtractGoogleName);
-	option.WriteProfileBool(_T("ExtractGoogleElevation"), m_bExtractGoogleElvation);
-	option.WriteProfileString(_T("GoogleMapsAPIKey"), m_googleMapsAPIKey);
+	
+	option.WriteProfileBool(_T("ExtractWebElevation"), m_bExtractWebElevation);
+	option.WriteProfileBool(_T("WebElevProduct"), m_webElevProduct);
 	option.WriteProfileInt(_T("InterpMethod"), m_interpolationType);
+
+	option.WriteProfileBool(_T("ExtractWebName"), m_bExtractWebName);
+	option.WriteProfileBool(_T("ExtractWebName2"), m_bExtractWebState);
+	option.WriteProfileBool(_T("ExtractWebName3"), m_bExtractWebCountry);
 }
 
 
 void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CDialogEx::DoDataExchange(pDX);
 
 	DDX_Control(pDX, IDC_GRID_FILE_PATH, m_gridFilePathCtrl);
 	
@@ -79,10 +92,12 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_MAP_EXTRACT_EXPOSITION, m_bExtractSlopeAspect);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_MISSING, m_bMissingOnly);
 	DDX_Check(pDX, IDC_MAP_EXTRACT_SHORE_DISTANCE, m_bExtractShoreDistance);
-	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_NAME, m_bExtractGoogleName);
-	DDX_Check(pDX, IDC_MAP_EXTRACT_GOOGLE_ELEVATION, m_bExtractGoogleElvation);
-	DDX_Text(pDX, IDC_MAP_EXTRACT_GOOGLE_KEY, m_googleMapsAPIKey);
-	//DDX_Radio(pDX, IDC_MAP_EXTRACT_FROM_DEM, )
+	DDX_Check(pDX, IDC_MAP_EXTRACT_WEB_ELEVATION, m_bExtractWebElevation);
+	DDX_CBIndex(pDX, IDC_MAP_EXTRACT_PRODUCT, m_webElevProduct);
+	DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
+	DDX_Check(pDX, IDC_MAP_EXTRACT_WEB_NAME, m_bExtractWebName);
+	DDX_Check(pDX, IDC_MAP_EXTRACT_WEB_NAME2, m_bExtractWebState);
+	DDX_Check(pDX, IDC_MAP_EXTRACT_WEB_NAME3, m_bExtractWebCountry);
 	
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -93,7 +108,7 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 		CString fileFilter = UtilWin::GetCString(IDS_STR_FILTER_RASTER);
 		m_gridFilePathCtrl.EnableFileBrowseButton(_T(".tif"), fileFilter);
 
-		DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
+		//DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
 		SetExtractFrom(m_extractFrom);
 		UpdateCtrl();
 	}
@@ -103,29 +118,36 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 
 CExtractSSIDlg::TExtractFrom  CExtractSSIDlg::GetExtractFrom()const
 {
-	return (TExtractFrom) (GetCheckedRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_GOOGLE)- IDC_MAP_EXTRACT_FROM_DEM);
+	return (TExtractFrom) (GetCheckedRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_WEB)- IDC_MAP_EXTRACT_FROM_DEM);
 }
 
 
 void CExtractSSIDlg::SetExtractFrom(TExtractFrom  no)
 {
-	CheckRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_GOOGLE, IDC_MAP_EXTRACT_FROM_DEM + no);
+	CheckRadioButton(IDC_MAP_EXTRACT_FROM_DEM, IDC_MAP_EXTRACT_FROM_WEB, IDC_MAP_EXTRACT_FROM_DEM + no);
 }
 
 void CExtractSSIDlg::UpdateCtrl()
 {
 	CExtractSSIDlg::TExtractFrom  from = GetExtractFrom();
 	
-	GetDlgItem(IDC_MAP_EXTRACT_ELEV)->EnableWindow(from == FROM_DEM);
-	GetDlgItem(IDC_MAP_EXTRACT_EXPOSITION)->EnableWindow(from == FROM_DEM);
-	GetDlgItem(IDC_GRID_FILE_PATH)->EnableWindow(from == FROM_DEM);
-	GetDlgItem(IDC_CMN_STATIC1)->EnableWindow(from == FROM_DEM);
+	bool bFromDEM = from == FROM_DEM;
+	bool bWebElev = IsDlgButtonChecked(IDC_MAP_EXTRACT_WEB_ELEVATION);
+	GetDlgItem(IDC_MAP_EXTRACT_ELEV)->EnableWindow(bFromDEM);
+	GetDlgItem(IDC_MAP_EXTRACT_EXPOSITION)->EnableWindow(bFromDEM);
+	GetDlgItem(IDC_GRID_FILE_PATH)->EnableWindow(bFromDEM);
+	GetDlgItem(IDC_CMN_STATIC1)->EnableWindow(bFromDEM);
 
-	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_NAME)->EnableWindow(from == FROM_GOOGLE);
-	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_ELEVATION)->EnableWindow(from == FROM_GOOGLE);
-	GetDlgItem(IDC_MAP_EXTRACT_GOOGLE_KEY)->EnableWindow(from == FROM_GOOGLE);
-	GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(from == FROM_GOOGLE);
-	GetDlgItem(IDC_CMN_STATIC3)->EnableWindow(from == FROM_GOOGLE);
+	
+	GetDlgItem(IDC_MAP_EXTRACT_WEB_ELEVATION)->EnableWindow(!bFromDEM);
+	GetDlgItem(IDC_MAP_EXTRACT_PRODUCT)->EnableWindow(!bFromDEM && bWebElev);
+	GetDlgItem(IDC_SSI_METHOD)->EnableWindow(!bFromDEM && bWebElev);
+	GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(!bFromDEM);
+	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME)->EnableWindow(!bFromDEM);
+	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME2)->EnableWindow(!bFromDEM);
+	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME3)->EnableWindow(!bFromDEM);
+	
+	//GetDlgItem(IDC_CMN_STATIC3)->EnableWindow(!bFromDEM);
 	
 
 

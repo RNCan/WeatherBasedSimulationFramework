@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 21-02-2020	Rémi Saint-Amant	replace Google Elevation by OpenTopoData and Geocode by nominatim
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //****************************************************************************
 #include "stdafx.h"
@@ -27,7 +28,6 @@
 #include "UI/ExtractSSIDlg.h"
 #include "json\json11.hpp"
 #include "WeatherBasedSimulationString.h"
-
 
 
 #ifdef _DEBUG
@@ -600,11 +600,10 @@ namespace WBSF
 		//modal on the parent and not on this windows
 		ASSERT(m_pLocEditDlg);
 
+		m_pLocEditDlg->EnableWindow(false);
 
 		CExtractSSIDlg dlg(this);
 
-
-		m_pLocEditDlg->EnableWindow(false);
 		if (dlg.DoModal() == IDOK)
 		{
 			ERMsg msg;
@@ -616,9 +615,11 @@ namespace WBSF
 
 			CProgressStepDlg progressDlg;
 			progressDlg.Create(this);
+			//progressDlg.Create(dlg.GetTopLevelOwner());
 
 			CProgressStepDlgParam param(&dlg, "", &locations);
 			msg = progressDlg.Execute(ExtractSSI, &param);
+			progressDlg.DestroyWindow();
 
 
 			if (!msg)
@@ -631,6 +632,7 @@ namespace WBSF
 			UpdateCtrl();
 		}
 
+		dlg.DestroyWindow();
 		m_pLocEditDlg->EnableWindow(true);
 	}
 
@@ -663,17 +665,15 @@ namespace WBSF
 		}
 		else
 		{
-			ASSERT(pDlg->m_extractFrom == CExtractSSIDlg::FROM_GOOGLE);
-			if (*pMsg && pDlg->m_bExtractGoogleElvation)
+			ASSERT(pDlg->m_extractFrom == CExtractSSIDlg::FROM_WEB);
+			if (*pMsg && pDlg->m_bExtractWebElevation)
 			{
-				string key = CStringA(pDlg->m_googleMapsAPIKey);
-				*pMsg = ExtractGoogleElevation(*pLocations, key, !pDlg->m_bMissingOnly, *pCallback);
+				*pMsg = ExtractOpenTopoDataElevation(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_webElevProduct, pDlg->m_interpolationType, *pCallback);
 			}
 
-			if (*pMsg && pDlg->m_bExtractGoogleName)
+			if (*pMsg && pDlg->m_bExtractWebName)
 			{
-				string key = CStringA(pDlg->m_googleMapsAPIKey);
-				*pMsg = ExtractGoogleName(*pLocations, key, !pDlg->m_bMissingOnly, *pCallback);
+				*pMsg = ExtractNominatimName(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
 			}
 		}
 
@@ -711,10 +711,10 @@ namespace WBSF
 
 			for (std::set<int>::reverse_iterator it = lines.rbegin(); it != lines.rend(); ++it)
 			{
-				if(*it >= 0 && *it < m_grid.GetNumberRows())//selection is sometime pass the last row
+				if (*it >= 0 && *it < m_grid.GetNumberRows())//selection is sometime pass the last row
 					m_grid.DeleteRow(*it);
 			}
-			
+
 			m_grid.SetHaveChange(true);
 
 			UpdateCtrl();
@@ -854,15 +854,19 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLocDlg::ExtractGoogleName(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
+	ERMsg CLocDlg::ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bState, bool bCountry, CCallback& callback)
 	{
 		ERMsg msg;
 
-		callback.PushTask("Extract location name from Google", locations.size());
 
-		CInternetSessionPtr pGoogleSession;
-		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+		//http://nominatim.openstreetmap.org/reverse?format=json&lat=46.736497&lon=-71.450790
+
+		callback.PushTask("Extract location name from nominatim", locations.size());
+
+
+		CHttpConnectionPtr pConnection;
+		CInternetSessionPtr pSession;
+		msg += GetHttpConnection("nominatim.openstreetmap.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
 
 		if (msg)
@@ -874,51 +878,69 @@ namespace WBSF
 				{
 
 					string strGeo;
-					string URL = "/maps/api/geocode/json?latlng=" + ToString(locations[i].m_lat) + "," + ToString(locations[i].m_lon);
-				
-					if (!googleAPIKey.empty())
-						URL += "&key=" + googleAPIKey;
+					string URL = "/reverse?zoom=18&format=geojson&lat=" + ToString(locations[i].m_lat) + "&lon=" + ToString(locations[i].m_lon);
 
-					msg = UtilWWW::GetPageText(pGoogleConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+					msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
 					if (msg)
 					{
 						//extract elevation from google
 						string error;
-						Json jsonGeo = Json::parse(strGeo, error);
-						ASSERT(jsonGeo.is_object());
+						Json geojson = Json::parse(strGeo, error);
 
-						if (error.empty() && jsonGeo["status"] == "OK")
+						if (error.empty())
 						{
-							ASSERT(jsonGeo["results"].is_array());
-							Json::array result1 = jsonGeo["results"].array_items();
-							if (!result1.empty())
+							ASSERT(geojson.is_object());
+							ASSERT(geojson["features"].is_array());
+							Json::array features = geojson["features"].array_items();
+							if (features.size() == 1)
 							{
-								string name1;
-								string name2;
-								Json::array result2 = result1[0]["address_components"].array_items();
-								for (int j = 0; j < result2.size(); j++)
-								{
-									Json::array result3 = result2[j]["types"].array_items();
-									if (result3.size() == 2 && result3[0] == "locality")
-									{
-										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
-										WBSF::ReplaceString(str, ",", " ");
-										name1 = WBSF::TrimConst(str);
-									}
-									if (result3.size() == 2 && result3[0] == "administrative_area_level_3")
-									{
-										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
-										WBSF::ReplaceString(str, ",", " ");
-										name2 = str;
-									}
-								}
+								ASSERT(features[0].is_object());
 
-								locations[i].m_name = !name1.empty() ? name1 : name2;
+								Json::object feature0 = features[0].object_items();
+								Json::object properties = feature0["properties"].object_items();
+								Json::object address = properties["address"].object_items();
+									
+								string village = ANSI_2_ASCII(address["village"].string_value());
+								string town = ANSI_2_ASCII(address["town"].string_value());
+								string suburb = ANSI_2_ASCII(address["suburb"].string_value());
+								string city = ANSI_2_ASCII(address["city"].string_value());
+								string county = ANSI_2_ASCII(address["county"].string_value());
+								string region = ANSI_2_ASCII(address["region"].string_value());
+									
+								string state = ANSI_2_ASCII(address["state"].string_value());
+								string country = ANSI_2_ASCII(address["country"].string_value());
+
+								if (!village.empty())
+									locations[i].m_name = village;
+								else if (!town.empty())
+									locations[i].m_name = town;
+								else if (!suburb.empty())
+									locations[i].m_name = suburb;
+								else if (!city.empty())
+									locations[i].m_name = city;
+								else if (!county.empty())
+									locations[i].m_name = county;
+								else if (!region.empty())
+									locations[i].m_name = region;
+									
+									
+								if(bState&&!state.empty()&&(bReplaceAll|| locations[i].GetSSI("State").empty()))
+									locations[i].SetSSI("State", state);
+									
+								if (bCountry && !country.empty() && (bReplaceAll || locations[i].GetSSI("Country").empty()))
+									locations[i].SetSSI("Country", country);
 							}
 							else
 							{
 								miss++;
 							}
+						}
+						else
+						{
+							if (error.empty())
+								error = geojson["error"]["message"].string_value();
+
+							msg.ajoute(error);
 						}
 					}//if msg
 				}//if empty name
@@ -926,8 +948,8 @@ namespace WBSF
 				msg += callback.StepIt();
 			}//for all locations
 
-			pGoogleConnection->Close();
-			pGoogleSession->Close();
+			pConnection->Close();
+			pSession->Close();
 		}//if msg
 
 		callback.PopTask();
@@ -939,31 +961,67 @@ namespace WBSF
 
 
 
-	ERMsg CLocDlg::ExtractGoogleElevation(CLocationVector& locations, const std::string& googleAPIKey, bool bReplaceAll, CCallback& callback)
+	ERMsg CLocDlg::ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eInterpol, CCallback& callback)
 	{
 		ERMsg msg;
 
-		callback.PushTask("Extract elevation from Google", locations.size());
+		//http://api.opentopodata.org/v1/test-dataset?locations=56.35,123.90
+		callback.PushTask("Extract elevation from Open Topo Data", locations.size());
 
-		CInternetSessionPtr pGoogleSession;
-		CHttpConnectionPtr pGoogleConnection;
-		msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-		
+		CHttpConnectionPtr pConnection;
+		CInternetSessionPtr pSession;
+		msg += GetHttpConnection("api.opentopodata.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+
+		//NOAA etopo1 1.8 km (Global, including bathymetry and ice surface elevation near poles)
+		//NASA srtm	90 m (Latitudes -60 to 60)
+		//NASA srtm 30 m (Latitudes -60 to 60)
+		//EEA eudem 25 m (Europe)
+		//NASA aster 30 m (Global)
+		//USGS ned 10 m (Continental USA, Hawaii, parts of Alaska)
+
+
+		enum TProduct { NOAA_ETOPO1, NASA_SRTM90M, NASA_SRTM30M, EEQ_UDEM25M, NASA_ASTER30M, USGS_NED10M, NB_PRODUCTS };
+		enum TInterpol { I_NEAREST, I_BILINEAR, I_CUBIC, NB_INTERPOL };
+		static const char* PROPDUCT_NAME[NB_PRODUCTS] = { "etopo1", "srtm90m", "srtm30m", "udem25m", "aster30m", "ned10m" };
+		static const char* INTERPOL_NAME[NB_INTERPOL] = { "nearest", "bilinear", "cubic" };;
+
+		ASSERT(eProduct < NB_PRODUCTS);
+		ASSERT(eInterpol < NB_INTERPOL);
+		string product = PROPDUCT_NAME[eProduct];
+		string interpol = INTERPOL_NAME[eInterpol];
 
 		if (msg)
 		{
-			size_t miss = 0;
+			string URL;// = "/v1/" + product + "?&interpolation=" + interpol + "&locations=";
+
+			vector<size_t> loc_to_update;
+			//select locations to uptade
 			for (size_t i = 0; i < locations.size() && msg; i++)
 			{
 				if (locations[i].m_elev == -999 || bReplaceAll)
 				{
-					string strGeo;
-					string URL = "/maps/api/elevation/json?locations=" + ToString(locations[i].m_lat) + "," + ToString(locations[i].m_lon);
-					
-					if (!googleAPIKey.empty())
-						URL += "&key=" + googleAPIKey;
+					loc_to_update.push_back(i);
+				}
+			}
 
-					msg = UtilWWW::GetPageText(pGoogleConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+			size_t ii = 0;
+			size_t iii = 0;
+			for (size_t i = 0; i < loc_to_update.size() && msg; i++)
+			{
+				if (ii == 0)
+					URL = "/v1/" + product + "?&interpolation=" + interpol + "&locations=";
+				else
+					URL += "|";
+
+				size_t index = loc_to_update[i];
+				URL += ToString(locations[index].m_lat) + "," + ToString(locations[index].m_lon);
+				ii++;
+
+				if (ii == 100 || i == loc_to_update.size() - 1)
+				{
+					ii = 0;
+					string strGeo;
+					msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
 					if (msg)
 					{
 						//extract elevation from google
@@ -974,23 +1032,32 @@ namespace WBSF
 						if (error.empty() && json["status"] == "OK")
 						{
 							ASSERT(json["results"].is_array());
+							
 							Json::array result = json["results"].array_items();
-							ASSERT(result.size() == 1);
-
-							locations[i].m_elev = result[0]["elevation"].number_value();
+							for (size_t i = 0; i < result.size(); i++, iii++)
+							{
+								locations[iii].m_elev = result[i]["elevation"].number_value();
+								msg += callback.StepIt();
+							}
+							
+							if(i == loc_to_update.size() - 1)
+								Sleep(1000);//sleep one second (API limits)
 						}
 						else
 						{
-							miss++;
+							if(error.empty())
+								error = json["error"].string_value();
+
+							msg.ajoute(error);
 						}
 					}
 				}//if no elev
 
-				msg += callback.StepIt();
+
 			}//for all locations
 
-			pGoogleConnection->Close();
-			pGoogleSession->Close();
+			pConnection->Close();
+			pSession->Close();
 
 
 			//if (miss)
@@ -1156,9 +1223,9 @@ namespace WBSF
 
 	LRESULT CLocationsFileManagerDlg::OnKickIdle(WPARAM w, LPARAM l)
 	{
-		if(m_fileListCtrl.m_pLocDlg->GetSafeHwnd())
+		if (m_fileListCtrl.m_pLocDlg->GetSafeHwnd())
 			return m_fileListCtrl.m_pLocDlg->SendMessage(WM_KICKIDLE, w, l);
-		
+
 		return 0;
 	}
 
