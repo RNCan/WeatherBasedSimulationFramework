@@ -31,9 +31,9 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Egg</Name>
-            <Title>Egg</Title>
-            <Units>%</Units>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
+            <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -41,7 +41,7 @@
         <OutputVariable>
             <Name>Larvae</Name>
             <Title>Larvae</Title>
-            <Units>%</Units>
+            <Units/>
             <Description>L1 to L4</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -49,32 +49,32 @@
         <OutputVariable>
             <Name>PrePupa</Name>
             <Title>PrePupa</Title>
-            <Units>%</Units>
-            <Description>Pre-pupa (in soil)</Description>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Pupa</Name>
             <Title>Pupa</Title>
-            <Units>%</Units>
-            <Description>Pupa (in soil)</Description>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>AestivatingAdult</Name>
             <Title>AestivatingAdult</Title>
-            <Units>%</Units>
-            <Description>Aestivating adults (in soil).</Description>
+            <Units/>
+            <Description>Aestivating Adults</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>ActiveAdult</Name>
             <Title>ActiveAdult</Title>
-            <Units>%</Units>
-            <Description>Active adult amege from soil after period of dormancy</Description>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -82,13 +82,45 @@
             <Name>DeadAdult</Name>
             <Title>DeadAdult</Title>
             <Units/>
-            <Description>Old age dead adult</Description>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DeadFrozen</Name>
-            <Title>DeadFrozen</Title>
+            <Name>EggCreated</Name>
+            <Title>EggCreated</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MoultLarvae</Name>
+            <Title>MoultLarvae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MoultPrePupae</Name>
+            <Title>MoultPrePupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MoultPupae</Name>
+            <Title>MoultPupae</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EnteringDiapause</Name>
+            <Title>EnteringDiapause</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -103,10 +135,42 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>Death</Name>
+            <Title>Death</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrost</Name>
+            <Title>DeadFrost</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>EggCreationCDD</Name>
             <Title>EggCreationCDD</Title>
             <Units/>
             <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEndNCDD</Name>
+            <Title>DiapauseEndNCDD</Title>
+            <Units/>
+            <Description>Cumulative negative degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AdultEmergenceGDD</Name>
+            <Title>AdultEmergenceGDD</Title>
+            <Units/>
+            <Description>Adult emergence growing degree day</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

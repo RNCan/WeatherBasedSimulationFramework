@@ -10,10 +10,7 @@
 #include "LaricobiusNigrinusEquations.h"
 #include "LaricobiusNigrinus.h"
 #include <boost/math/distributions/weibull.hpp>
-//#include <boost/math/distributions/beta.hpp>
-//#include <boost/math/distributions/Rayleigh.hpp>
 #include <boost/math/distributions/logistic.hpp>
-//#include <boost/math/distributions/exponential.hpp>
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -37,21 +34,7 @@ namespace WBSF
 	CLaricobiusNigrinus::CLaricobiusNigrinus(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
-		//Individual's "relative" development rate for each life stage
-		//These are independent in successive life stages
-		//for (size_t s = 0; s < NB_STAGES; s++)
-		//	m_RDR[s] = 1;// no relative dev rate
-
 		//reset creation date
-		//m_creationDate.clear();
-		//m_creationCDD = Equations().GetCreationCDD();
-		//m_ii = 0;
-		//m_CDD = 0;
-
-		//m_adult_emerging_CDD = Equations().GetAdultEmergingCDD();
-		
-
-		//m_parentAdultEmergence = GetParentAdultEmergence();
 		int year = creationDate.GetYear();
 		m_creationDate = GetCreationDate(year);
 		m_adult_emergence = GetAdultEmergence(year);
@@ -60,54 +43,14 @@ namespace WBSF
 		m_F = (m_sex == FEMALE) ? Equations().GetFecondity(m_adult_longevity) : 0;
 	}
 
-	/*CTRef CLaricobiusNigrinus::GetAdultEmergenceBegin(size_t y)const
-	{
-		return GetStand()->m_adultEmergenceBegin[y];
-	}
-	*/
-	//CTRef CLaricobiusNigrinus::GetParentAdultEmergence()const
-	//{
-	//	const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-	//	ASSERT(weather_station.GetEntireTPeriod().GetNbYears() >= 2);
-	//	ASSERT(GetStand()->m_adultEmergenceBegin.size() == 2);
-
-
-	//	CTRef parentAdultEmergence;
-	//	double adultEmergingCDD = Equations().GetAdultEmergingCDD();
-
-	//	CTRef begin = GetStand()->m_adultEmergenceBegin[0];
-	//	CTRef end = CTRef(begin.GetYear() + 1, JUNE, DAY_30);
-
-	//	double CDD = 0;
-	//	for (CTRef TRef = begin; TRef <= end && !parentAdultEmergence.IsInit(); TRef++)
-	//	{
-	//		const CWeatherDay& wDay = weather_station.GetDay(TRef);
-	//		double DD4 = GetStand()->m_DD4.GetDD(wDay);//use 4° as threshold
-	//		CDD += DD4;
-	//		if (CDD >= adultEmergingCDD)
-	//		{
-	//			parentAdultEmergence = wDay.GetTRef();
-	//		}
-	//	}
-
-	//	return parentAdultEmergence;
-	//}
-
 	CTRef CLaricobiusNigrinus::GetCreationDate(int year)const
 	{
-		//ASSERT(!m_creationDate.IsInit());
-
 		CTRef creationDate;
 		double creationCDD = Equations().GetCreationCDD();
 
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		
-		//int year = GetStand()->m_adultEmergenceBegin[1].GetYear();
-		//CTRef begin = parentAdultEmergence;
-		//CTRef begin = GetStand()->m_adultEmergenceBegin[0];
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
 		CTRef end = CTRef(year, JUNE, DAY_30);
-
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !creationDate.IsInit(); TRef++)
@@ -134,11 +77,10 @@ namespace WBSF
 		CTRef adult_emergence;
 		double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
 
-		CTRef begin = GetStand()->m_adult_emergence_begin;
+		CTRef begin = GetStand()->m_diapause_end;
 		CTRef end = p.End();
 		if(weather_station[year].HaveNext())
 			end = min(p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
-			//end = min( p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !adult_emergence.IsInit(); TRef++)
@@ -147,7 +89,7 @@ namespace WBSF
 			double T = wday[H_TNTX][MEAN];
 			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 
-			double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);// GetStand()->m_DD.GetDD(wDay);//use same threshold as egg creation
+			double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);
 			CDD += DD;
 			if (CDD >= adult_emerging_CDD)
 			{
@@ -163,16 +105,7 @@ namespace WBSF
 		if (&in != this)
 		{
 			CIndividual::operator=(in);
-
-			//regenerate relative development rate
-			//for (size_t s = 0; s < NB_STAGES; s++)
-				//m_RDR[s] = Equations().GetRelativeDevRate(s);
-
-			//			m_CDD = in.m_CDD;
-					//	m_creationCDD = in.m_creationCDD;
-						//			m_CDD_ADE = in.m_CDD_ADE;
-									//m_aestivalDiapauseEndCDD = in.m_aestivalDiapauseEndCDD;
-			//m_adult_emerging_CDD = in.m_adult_emerging_CDD;
+			
 			m_adult_emergence = in.m_adult_emergence;
 			m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
 			m_F = in.m_F;
@@ -180,27 +113,14 @@ namespace WBSF
 
 		return *this;
 	}
-	// Object destructor
+	
+	//destructor
 	CLaricobiusNigrinus::~CLaricobiusNigrinus(void)
 	{}
 
 
 	double CLaricobiusNigrinus::AdjustTLab(const string& name, size_t s, CTRef TRef, double T)
 	{
-		//	size_t s = GetStage();
-
-
-			/*if (name == "VictoriaLab")
-			{
-				if (s == -1)
-				{
-
-				}
-
-				if (s >= LARVAE)
-					T = 13;
-			}
-			else */
 		if (name == "BlacksburgLab")
 		{
 			if (s == -1)
@@ -258,140 +178,14 @@ namespace WBSF
 	}
 
 
-	//sans lab adjust
-	//NbVal = 47	Bias = -2.15890	MAE = 6.48341	RMSE = 9.40934	CD = 0.94188	R² = 0.94691
-	//	a5 = 920.13275 { 919.62096, 920.69584}	VM = { 0.05738,   0.18442 }
-	//	b5 = 58.03780 {  57.86170, 58.24332}	VM = { 0.06575,   0.17611 }
-	//	a6 = 153.32574 { 151.44158, 155.37724}	VM = { 0.63950,   1.79858 }
-	//	b6 = 6.06014 {   6.05634, 6.06402}	VM = { 0.00035,   0.00117 }
-
-
 	void CLaricobiusNigrinus::OnNewDay(const CWeatherDay& weather)
 	{
 		CIndividual::OnNewDay(weather);
 
-		//if (!m_creationDate.IsInit())
-		//{
-		//	//CTRef TRef = weather.GetTRef();
-
-		//	//compute creation date
-		//		//at the first day, 
-		//	CTRef year = weather.GetTRef().as(CTM::ANNUAL);
-		//	//CTRef TRefBegin = CJDayRef(year.GetYear() - 1, GetStand()->m_adultEmegenceBegin[year - 1][0]);
-		//	CTRef TRefBegin = CTRef(year.GetYear(), JANUARY, DAY_01);
-		//	CTRef TRefEnd = CTRef(year.GetYear(), JUNE, DAY_30);
-
-		//	double CDD = 0;
-		//	const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		//	for (CTRef TRef = TRefBegin; TRef < TRefEnd && !m_creationDate.IsInit(); TRef++)
-		//	{
-		//		const CWeatherDay& wDay = weather_station.GetDay(TRef);
-		//		double DD = GetStand()->m_DD.GetDD(wDay);
-		//		CDD += DD;
-		//		if (CDD >= m_creationCDD)
-		//		{
-		//			m_creationDate = weather.GetTRef();
-		//		}
-		//	}
-		//}
-
-
-
-	//if (!IsCreated(weather.GetTRef()))
-	//{
-	//	m_CDD += GetStand()->m_DD.GetDD(weather);
-	//	//GetStand()->m_cumDD[m_ii];
-	//	if (m_CDD >= m_creationCDD)
-	//	{
-	//		m_creationDate = weather.GetTRef();
-	//		m_reachDate[EGG] = weather.GetTRef();
-	//	}
-	//}
-
-	//const CLaricobiusNigrinusEquations& e = GetStand()->m_equations;
-
-
-	//compute emergence begin
-	//if (weather.GetTRef().GetJDay())
-	/*
-			CTRef TRef = weather.GetTRef();
-			if(m_ii >= GetStand()->m_adultEmegenceBegin[TRef.GetYear()][0])
-			{
-				double T = weather[H_TNTX][MEAN];
-				T = AdjustTLab(weather.GetWeatherStation()->m_name, TRef, T);
-				double DD = max(0.0, T - e.m_OVP[Τᴴ]);
-
-				m_CDD_AE += DD;
-			}
-	*/
-
-
-
-	//double T = weather[H_TNTX][MEAN];
-	//T = AdjustTLab(weather.GetTRef(), T);
-
-	//double day_length = weather.GetDayLength() / 3600.0;
-	//day_length = AdjustDLLab(weather.GetTRef(), day_length);
-	//double threshold = Round(e.m_ADE[ʎ0] + e.m_ADE[ʎ1] * 1 / (1 + exp(-(day_length - e.m_ADE[ʎ2]) / e.m_ADE[ʎ3])), 1);
-
-	//double DD = max(0.0, threshold - T);//DD can be negative
-	//ASSERT(DD >= 0);
-	//if (m_ii >= e.m_ADE[ʎa])
-	//	m_CDD_ADE += Round(e.m_ADE[ʎb] + DD,1);
-
-
-
-	//if (!IsCreated(weather.GetTRef()))
-	//{
-	//	double day_length = weather.GetDayLength() / 3600.0;
-	//	double threshold = e.m_ADE[ʎ0] + e.m_ADE[ʎ1] * 1 / (1 + exp(-(day_length - e.m_ADE[ʎ2]) / e.m_ADE[ʎ3]));
-	//	double T = weather[H_TNTX][MEAN];
-	//	double DD = max(0.0, threshold - T);//DD can be negative
-	//	ASSERT(DD >= 0);
-
-	//	if (m_ii >= e.m_ADE[ʎa])
-	//		m_CDD_ADE += e.m_ADE[ʎb] + DD;
-
-	//	m_CDD_ADE += GetStand()->m_DD.GetDD(weather);
-	//	if (m_CDD_ADE >= m_aestivalDiapauseEndCDD)
-	//	{
-	//		m_creationDate = weather.GetTRef();
-	//		m_reachDate[ACTIVE_ADULT] = weather.GetTRef();
-	//	}
-	//}
-
-
-	/*
-	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-	{
-
-		if (m_ii >= e.m_ADE[ʎa])
+		if (weather.GetTRef() == m_creationDate)
 		{
-			const CWeatherStation* pWeather = weather.GetWeatherStation();
-
-
-			CStatistic Tmean;
-			CTRef TRef = weather.GetTRef();
-
-			CWeatherDay const & wday = weather;
-			for (CTRef TRef2 = TRef - int(m_ADE[ʎb]); TRef2 <= TRef; TRef2++)
-			{
-				double T = wday[H_TNTX][MEAN];
-				Tmean += T;
-
-				wday = wday.GetPrevious();
-			}
-
-			if (m_ii == e.m_ADE[ʎa])
-				CDD[m_ii] = Tmean[MEAN];
-			else
-				CDD[m_ii] = min(CDD[m_ii - 1], Tmean[MEAN]);
-
+			m_age = EGG;
 		}
-	}*/
-
-
-	//	m_ii++;
 	}
 
 	//*****************************************************************************
@@ -412,9 +206,6 @@ namespace WBSF
 		size_t s = GetStage();
 
 		double T = weather[H_TAIR];
-		//if (weather.GetTRef() >= m_dropToGroundDate && s < ACTIVE_ADULT)
-			//T = 4.27 + 0.825 *T; //Data from Mausel 2007, correction air/soil temperature from April to September
-
 		T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
 
 		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
@@ -433,12 +224,8 @@ namespace WBSF
 			//Time step development rate for this individual
 			r *= corr_r;
 			ASSERT(r >= 0 && r < 1);
-			//if (s == EGG || s == LARVAE)
-				//r *= Equations().m_RDR[PREPUPAE][s];
-
 
 			//Adjust age
-			//m_age = min(double(ACTIVE_ADULT), m_age + r);
 			m_age += r;
 
 			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.9)//drop to the soil when 90% competed (guess)
@@ -446,58 +233,9 @@ namespace WBSF
 		}
 		else if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
-			//if (!m_adultDate.IsInit())
-				//m_adultDate = weather.GetTRef().as(CTM::DAILY);
-
-
-			//double pupationTime = m_adultDate - m_dropToGroundDate;//pupation time [days]
-			//double r = Equations().GetAdultAestivalDiapauseRate(T, day_length, m_creationDate.GetJDay(), pupationTime) / nb_steps;
-
-			//Relative development rate for this individual
-			//double rr = m_RDR[s];
-			//Time step development rate for this individual
-			//r *= rr;
-			//ASSERT(r >= 0 && r < 1);
-
-
-			//start accumulating rate after a fixed date
-			//if(weather.GetTRef() >= m_dropToGroundDate)
-			//m_age += r;
-
-			//CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			//if (TRef >= pStand->m_adult_emergence_begin)
-			//{
-			//	double DD = max(0.0, T - 4.0);//we used same temperature for emerging adult and individual creation
-			//	m_age += min(1.0 / 6.0, (DD / m_adult_emerging_CDD) / nb_steps);
-			//}
-
-			
 			CTRef TRef = weather.GetTRef().as(CTM::DAILY);
 			if (TRef == m_adult_emergence)
 				m_age = ACTIVE_ADULT;
-			
-
-			//if (m_CDD_AE >= m_adultEmergingCDD)
-				//m_age = ACTIVE_ADULT;
-
-
-			//if (m_ii >= Equations().m_ADE[ʎa])
-			//{
-			//	CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			//	double day_length = GetDayLength(pStand->GetModel()->GetInfo().m_loc.m_lat, TRef.GetJDay()) / 3600.0;
-			//	//double f = exp(-1 + 2 * 1.0 / (1.0 + exp(-(day_length - Equations().m_ADE[ʎ2]) / Equations().m_ADE[ʎ3])));//day length factor
-			//	//double f = exp(Equations().m_ADE[ʎ0] + Equations().m_ADE[ʎ1] * 1.0 / (1.0 + exp(-(m_ii - Equations().m_ADE[ʎ2]) / Equations().m_ADE[ʎ3])));//day length factor
-			//	//double f = day_length * (1 - 2 * 1.0 / (1.0 + exp(-(m_ii - Equations().m_ADE[ʎ2]) / Equations().m_ADE[ʎ3])));//day length factor
-			//	double f = day_length * (1 - 2 * 1.0 / (1.0 + exp(-(m_ii - Equations().m_ADE[ʎ2]) / Equations().m_ADE[ʎ3])));//day length factor
-
-
-			//	//double f = exp((-1.0 + 2.0 / (1.0 + exp(-(day_length - Equations().m_ADE[ʎ0]) / Equations().m_ADE[ʎ1])))) * exp((1.0 - 2.0 / (1.0 + exp(-(m_ii - Equations().m_ADE[ʎ2]) / Equations().m_ADE[ʎ3]))));//day factor
-			//	double Tavg30 = f + pStand->m_Tavg30[TRef][0];
-
-
-			//	if (Tavg30 < m_aestivalDiapauseEndTavg30)
-			//		m_age = ACTIVE_ADULT;
-			//}
 		}
 		else//ACTIVE_ADULT
 		{
@@ -505,7 +243,6 @@ namespace WBSF
 			ASSERT(r >= 0 && r < 1);
 
 			m_age += r;
-
 		}
 	}
 
@@ -521,17 +258,9 @@ namespace WBSF
 		CIndividual::Live(weather);
 
 		ASSERT(IsCreated(weather.GetTRef()));
-		//For optimization, nothing happens when temperature is under 0
+		
 		if (!IsCreated(weather.GetTRef()))
 			return;
-
-		//after Chapter 13: Defining pc/qc standards for mass - rearing HWA predators
-		//Allen C.Cohen(2011)
-		//double soil_depth = 4.5; //[cm] Equations().m_D[PREPUPAE][0];
-		//double quatile = Equations().m_D[PREPUPAE][1];
-		//double LAI = 2.5;// CLeafAreaIndex::ComputeLAI(weather.GetTRef().GetJDay(), LeafAreaIndex::WHITE_SPRUCE, quatile);
-		//double LAI = 2.5;// Equations().m_D[PREPUPAE][1];
-		//m_Tsoil = CSoilTemperatureModel::GetSoilTemperature(4.5, weather[H_TAIR][MEAN], m_Tsoil, 2.5, 0);
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
@@ -542,8 +271,6 @@ namespace WBSF
 
 		if (weather.GetTRef() == m_creationDate || HasChangedStage())
 			m_reachDate[GetStage()] = weather.GetTRef();
-
-
 	}
 
 
@@ -554,7 +281,7 @@ namespace WBSF
 
 		if (GetStage() == ACTIVE_ADULT)
 		{
-			//assert(m_F > 0);
+			//no brood process done
 
 			//brooding
 			//m_broods = m_F;
@@ -600,13 +327,11 @@ namespace WBSF
 	//*****************************************************************************
 	void CLaricobiusNigrinus::GetStat(CTRef d, CModelStat& stat)
 	{
-		size_t s = GetStage();
-		ASSERT(s <= DEAD_ADULT);
-		//		stat[S_BROOD] += m_broods * m_scaleFactor;
-
-
 		if (IsCreated(d))
 		{
+			size_t s = GetStage();
+			ASSERT(s <= DEAD_ADULT);
+
 			if (IsAlive() || (s == DEAD_ADULT))
 				stat[S_EGG + s] += m_scaleFactor;
 
@@ -614,8 +339,8 @@ namespace WBSF
 			if (m_status == DEAD && m_death == FROZEN)
 				stat[S_DEAD_FROST] += m_scaleFactor;
 
-			if (s == ACTIVE_ADULT && HasChangedStage())
-				stat[S_ADULT_EMERGENCE] += m_scaleFactor;
+			if (HasChangedStage())
+				stat[S_M_EGG + s] += m_scaleFactor;
 
 			//if (s == ACTIVE_ADULT)
 			//{
@@ -664,40 +389,16 @@ namespace WBSF
 
 	void CLNFStand::init(int year, const CWeatherYears& weather)
 	{
-		//CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
-		//p += weather[year + 1].GetEntireTPeriod(CTM::DAILY);
-
-
-		//m_cumDD.Init(p, 1);
-		//m_adultEmegenceBegin.Init(p.as(CTM::ANNUAL), 1);
-		//m_adultEmegenceBegin.res
-
-
-		//for (size_t y = 0; y < 2; y++, year++)
-		{
-			//CTPeriod p = weather[year].GetEntireTPeriod(CTM::DAILY);
-
-		/*	double sumDD = 0;
-			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-			{
-				const CWeatherDay& wday = weather[year].GetDay(TRef);
-				sumDD += m_DD.GetDD(wday);
-				m_cumDD[TRef][0] = sumDD;
-			}*/
-
-		//	m_adultEmergenceBegin[y] = ComputeAdultEmergenceBegin(weather[year]);
-
-			m_adult_emergence_begin = ComputeAdultEmergenceBegin(weather[year]);
-		}
-
+		m_diapause_end = ComputeDiapauseEnd(weather[year]);
 	}
-	//return ordinal date
-	CTRef CLNFStand::ComputeAdultEmergenceBegin(const CWeatherYear& weather)const
+
+	CTRef CLNFStand::ComputeDiapauseEnd(const CWeatherYear& weather)const
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 
 		double sumDD = 0;
-		for (size_t ii = 0; ii < m_equations.m_ADE[ʎ0]; ii++)
+		
+		for (size_t ii = (172-1); ii <= (m_equations.m_ADE[ʎ0]-1); ii++)
 		{
 			CTRef TRef = p.Begin() + ii;
 			const CWeatherDay& wday = weather.GetDay(TRef);
@@ -711,28 +412,57 @@ namespace WBSF
 		}
 
 		boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
-		int begin = (int)Round(m_equations.m_ADE[ʎ0] + m_equations.m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
+		int begin = (int)Round((m_equations.m_ADE[ʎ0]-1) + m_equations.m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
 
 
 		return p.Begin() + begin;
 	}
 
 
+
 	void CLNFStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CStand::GetStat(d, stat, generation);
 
-		//int year = d.GetYear();
-		int year = m_adult_emergence_begin.GetYear();
-		//CTRef begin = m_adultEmergenceBegin[0];
+		const CWeatherStation& weather_station = GetModel()->m_weather;
+		const CWeatherDay& wday = weather_station.GetDay(d);
+		
+		//use year of diapause to compute correctly the adult emergence cdd
+		int year = m_diapause_end.GetYear();
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
-		CTRef end = CTRef(year, JUNE, DAY_30);
+		CTRef end = CTRef(year, DECEMBER, DAY_31);
+
 		if (d >= begin && d<= end)
 		{
-			const CWeatherStation& weather_station = GetModel()->m_weather;
-			const CWeatherDay& wday = weather_station.GetDay(d);
+			//Egg creation DD (allen 1976)
 			m_egg_creation_CDD += m_DD.GetDD(wday);
 			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
+
+			//diapause end negative DD
+			double T = wday[H_TNTX][MEAN];
+			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			T = max(m_equations.m_ADE[ʎa], T);
+			double NDD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
+
+			int ii = d-begin;
+			if( ii>=(172-1) && ii<=int(m_equations.m_ADE[ʎ0]-1))
+				m_diapause_end_NCDD += NDD;
+
+			stat[S_DIAPAUSE_END_NCDD] = m_diapause_end_NCDD;
+		}
+
+
+		begin = m_diapause_end;
+		end = CTRef(m_diapause_end.GetYear()+1, MARCH, DAY_01);
+		if (d >= begin && d <= end)
+		{
+			//adult emergence (growing DD)
+			double T = wday[H_TNTX][MEAN];
+			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+
+			double GDD = max(0.0, T - m_equations.m_EAS[Τᴴ]);
+			m_adult_emergence_CDD += GDD;
+			stat[S_ADULT_EMERGENCE_CDD] = m_adult_emergence_CDD;
 		}
 	}
 

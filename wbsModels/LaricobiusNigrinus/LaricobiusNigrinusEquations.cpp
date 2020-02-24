@@ -29,34 +29,23 @@ namespace WBSF
 	//minimum developmental temperatures, respectively.
 
 
-
 	//Parameters for logistic distribution
-	//here is calibrated directly from beginning of adult emergence
-	//               mu       s     Th1    Th2		 N      Bias     MAE      RMSE      CD         R²
-	//EggCreation:	535.9    30.3   4.4              75    -1.184    5.60     8.195    0.957     0.960
-	//Larvae:       439.5    43.8   6.0    15.9     110     0.960   12.149   20.25     0.714     0.773
-	//
-	//we don't be able to get good result from the beginning of adult emergence to evaluate larvae. 
-	//we used January first instead 
-
-
-	//Parameters for logistic distribution
+	//WARNING: logistic describe cumul of egg abundance (cumul under the curve)
 	//here is calibrated directly from January first with 
-	//				  mu     s    ThLo    ThHi		 N    Bias    MAE      RMSE      CD        R²
-	//EggCreation:	229.3   50.5   2.4    17.5      75   -0.888   5.656   10.80     0.922    0.929
-	//Larvae:       198.5   33.9   5.4    15.0     110	 -0.732   4.543    8.06     0.962    0.964
-
+	//				  mu     s     ThLo   ThHi	   N     Bias     MAE      RMSE     CD       R²
+	//EggCreation:	327.2   60.9   0.8    21.7     71   -0.720   3.501    5.232    0.982    0.983
+	//Larvae:       117.0   20.8   6.6    11.9    103   -0.911   5.011    8.385    0.958    0.961
 
 	//parameters estimated with simulated annealing
 	//individual creation of egg
-	//with non-linear version of egg and larval development
-	
-	//Egg creation and larval development 
-	//NbVal = 173	Bias = -1.32543	MAE = 5.05145	RMSE = 8.34658	CD = 0.95920	R² = 0.96166
-	//mu = 170.0
-	//s = 37.8
-	//Th1 = 3.0
-	//Th2 = 14.1
+
+	//parameters with egg and larval observation ( non-linear development equation)
+	//WARNING: logistic describe cumul of egg creation
+	//NbVal = 174	Bias = -0.31065	MAE = 5.09708	RMSE = 8.51067	CD = 0.95783	R² = 0.95910
+	//mu = 220.3
+	//s = 47.5 
+	//Th1 = 2.1
+	//Th2 = 20.2
 
 	//Egg creation and larval development (with correction)
 	//NbVal = 173	Bias = -0.99017	MAE = 5.03757	RMSE = 8.31326	CD = 0.95879	R² = 0.96159
@@ -68,24 +57,25 @@ namespace WBSF
 	//Th2 = 18.2
 
 	//Beginning of adult emergence from soil (with BalcksburgLab)
-	//NbVal = 82	Bias = 1.60488	MAE = 4.30976	RMSE = 5.87483	CD = 0.97767	R² = 0.97934
-	//lam0 = 269.0
-	//lam1 = 12.8
-	//lam2 = -1581.6
-	//lam3 = 10.0
-	//lam_a = 15.4
-	//lam_b = 23.0
-	//mu_ADE = 2.277
-	//s_ADE = 201.2
-	//Th_ADE = 5.1
+	//NbVal = 82	Bias = 0.83598	MAE = 3.73598	RMSE = 4.98284	CD = 0.98399	R² = 0.98449
+	//lam0 = 264
+	//lam1 = 18.9
+	//lam2 = -191.9
+	//lam3 = 100
+	//lam_a = -30
+	//lam_b = 22.0
+	//mu_ADE = 2.832
+	//s_ADE = 247.0
+	//Th_ADE = 5.0
+
 
 	//parameters estimated with simulated annealing
 	//With linear version
-	
 
 
 
-	
+
+
 	const double CLaricobiusNigrinusEquations::RDR[NB_STAGES][NB_RDR_PARAMS] =
 	{
 		//  a1      a2
@@ -97,20 +87,15 @@ namespace WBSF
 		{ 0.00, 0.00 },//Active adult
 	};
 
-	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 170.0, 37.8, 3.0, 14.1};
-	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 269.0, 12.8, -1581.6, 10.0, 15.4, 23.0 };
 	
-	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 270.0, 13.1, -1583.1, 15.0, 15.4, 23.0 };
+	//const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 240.9, 52.0, 1.5, 21.5 };
+	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 269.0, 12.8, -1581.6, 10.0, 15.4, 23.0 };
+	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.277, 201.2, 5.1 };
 
+	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 220.3, 47.5, 2.1, 20.2 };
+	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };
+	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.832, 247.0, 5.0 };
 
-
-
-//	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.127, 230.5, 4.8};
-
-//	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 270.0, 13.1, -1589.6, 15.0, 18.4, 24.6 };
-	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.104, 198.3, 4.8};
-	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.277, 201.2, 5.1 };
-	
 
 
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
@@ -145,14 +130,14 @@ namespace WBSF
 		double r = 0;
 
 #if 0
-		static const CDevRateEquation::TDevRateEquation P_EQ[4] = 
-		{ 
+		static const CDevRateEquation::TDevRateEquation P_EQ[4] =
+		{
 			CDevRateEquation::Poly1,
 			CDevRateEquation::Poly1,
 			CDevRateEquation::Poly1,
 			CDevRateEquation::Poly1
 		};
-		
+
 		static const double P_DEV[4][6] =
 		{
 			{-0.0907, 0.0165,0,0,0,0},
@@ -165,7 +150,7 @@ namespace WBSF
 		{
 			CDevRateEquation::Logan6_1976,
 			CDevRateEquation::Ratkowsky_1983,
-			CDevRateEquation::HilberLoganIII,
+			CDevRateEquation::HilbertLoganIII,
 			CDevRateEquation::Bieri_1983,
 		};
 
@@ -254,6 +239,7 @@ namespace WBSF
 
 	//*****************************************************************************
 	//
+
 
 	double CLaricobiusNigrinusEquations::GetAdultEmergingCDD()const
 	{
@@ -372,5 +358,6 @@ namespace WBSF
 		static const double P[3] = { -2.815284, 0.088449, 0.008683 };
 		return max(0.0, P[0] + P[1] * T + P[2] * j_day_since_jan);
 	}
+
 
 }

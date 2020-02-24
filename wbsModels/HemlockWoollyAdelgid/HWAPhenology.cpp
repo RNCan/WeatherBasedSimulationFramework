@@ -32,14 +32,14 @@ namespace WBSF
 
 	//Defining a simple continuing ratio model
 	//
-	enum TDaily { O_CDD, O_P_EGG, O_P_HATCH, O_S_HATCH, O_S_L1, NB_OUTPUTS_D };
+	enum TDaily { O_CDD, O_P_EGG, O_P_BROOD, O_P_HATCH, O_S_HATCH, O_S_L1, O_P_BROOD_CUMUL, O_P_HATCH_CUMUL, O_S_HATCH_CUMUL, O_S_L1_CUMUL, NB_OUTPUTS_D };
 
-	extern const char HEADER_D[] = "DD,ProgrediensEGG,ProgrediensHacth,SistensHatchSistensL1";
+	extern const char HEADER_D[] = "DD,ProgrediensEgg,ProgrediensBrood,ProgrediensHacth,SistensHatch,SistensL1,ProgrediensBroodCumul,ProgrediensHacthCumul,SistensHatchCumul,SistensL1Cumul";
 
 	CHWAPhenologyModel::CHWAPhenologyModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.0.0 (2019)";
+		VERSION = "1.1.0 (2020)";
 
 	}
 
@@ -111,6 +111,10 @@ namespace WBSF
 		int year = weather.GetTRef().GetYear();
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
 		
+		output[p.Begin()][O_P_EGG] = 0;
+		for (size_t e = 0; e < 4; e++)
+			output[p.Begin()][O_P_BROOD + e] = 0;
+
 		CDegreeDays DD(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0);
 		double CDD = 0;
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -119,7 +123,15 @@ namespace WBSF
 
 			output[TRef][O_CDD] = CDD;
 			for (size_t e = 0; e < 4; e++)
-				output[TRef][O_P_EGG + e] = Eq1(e, CDD);
+				output[TRef][O_P_BROOD_CUMUL + e] = Round(Eq1(e, CDD),1);
+
+			if (TRef > p.Begin())
+			{
+				for (size_t e = 0; e < 4; e++)
+					output[TRef][O_P_BROOD + e] = output[TRef][O_P_BROOD_CUMUL + e] - output[TRef - 1][O_P_BROOD_CUMUL + e];
+
+				output[TRef][O_P_EGG] = max(0.0, output[TRef-1][O_P_EGG] + output[TRef][O_P_BROOD] - output[TRef][O_P_HATCH]);
+			}
 		}
 
 	}

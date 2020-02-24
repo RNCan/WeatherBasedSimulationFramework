@@ -209,7 +209,7 @@ namespace WBSF
 		pHost->m_nbMaxObjects = 1000;
 
 
-		pHost->Initialize<CLaricobiusNigrinus>(CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0, 400, 100, EGG));
+		pHost->Initialize<CLaricobiusNigrinus>(CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0, 400, 100, -1));
 
 		//add host to stand			
 		stand.m_host.push_front(pHost);
@@ -235,6 +235,12 @@ namespace WBSF
 
 		for (CTRef d = p.Begin(); d <= p.End(); d++)
 		{
+			/*if (d == CTRef(year + 1, JANUARY, DAY_01))
+			{
+				int gg;
+					gg=0;
+			}*/
+
 			stand.Live(weather.GetDay(d));
 			if (output.IsInside(d))
 				stand.GetStat(d, output[d]);
@@ -249,7 +255,7 @@ namespace WBSF
 		if (m_bCumul)
 		{
 			//cumulative result
-			for (size_t s = S_EGG; s < S_AESTIVAL_DIAPAUSE_ADULT; s++)
+			for (size_t s = S_EGG; s < S_ACTIVE_ADULT; s++)
 			{
 				CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 
@@ -262,6 +268,29 @@ namespace WBSF
 						_ASSERTE(!_isnan(output[d][s]));
 					}
 				}
+			}
+
+			for (size_t s = S_M_EGG; s <= S_M_DEAD_ADULT; s++)
+			{
+				CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+				if (s >= S_M_ACTIVE_ADULT)
+				{
+					p.Begin() = CTRef(year, JULY, DAY_01);
+					if (weather[year].HaveNext())
+						p.End() = CTRef(year + 1, JUNE, DAY_30);
+				}
+
+				CStatistic stat = output.GetStat(s, p);
+				if (stat.IsInit() && stat[SUM] > 0)
+				{
+					for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
+					{
+						if(output.IsInside(d))
+							output[d][s] = output[d - 1][s] + output[d][s] * 100 / stat[SUM];
+						_ASSERTE(!_isnan(output[d][s]));
+					}
+				}
+
 			}
 
 		}
@@ -425,14 +454,14 @@ namespace WBSF
 
 
 	static const int ROUND_VAL = 4;
-	CTRef CLaricobiusNigrinusModel::GetEmergingBegin(const CWeatherYear& weather)
+	CTRef CLaricobiusNigrinusModel::GetDiapauseEnd(const CWeatherYear& weather)
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
 
 		double sumDD = 0;
-		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		for (CTRef TRef = p.Begin()+172; TRef <= p.End()&& TRef<= p.Begin() + int(m_ADE[ʎ0]); TRef++)
 		{
-			size_t ii = TRef - p.Begin();
+			//size_t ii = TRef - p.Begin();
 			const CWeatherDay& wday = m_weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
@@ -441,7 +470,7 @@ namespace WBSF
 
 			double DD = min(0.0, T - m_ADE[ʎb]);//DD is negative
 
-			if (ii < m_ADE[ʎ0])
+			//if (ii < m_ADE[ʎ0])
 				sumDD += DD;
 		}
 
@@ -493,8 +522,8 @@ namespace WBSF
 						p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 						CDD.resize(p.size(), 0);
 
-						CTRef emergingBegin = GetEmergingBegin(m_weather[year]);
-						for (CTRef TRef = emergingBegin; TRef <= p.End(); TRef++)
+						CTRef diapauseEnd = GetDiapauseEnd(m_weather[year]);
+						for (CTRef TRef = diapauseEnd; TRef <= p.End(); TRef++)
 						{
 							const CWeatherDay& wday = m_weather.GetDay(TRef);
 							double T = wday[H_TNTX][MEAN];
@@ -516,7 +545,7 @@ namespace WBSF
 					else
 					{
 						p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-						//p.Begin() = GetEmergingBegin(m_weather[year - 1]);
+						//p.Begin() = GetDiapauseEnd(m_weather[year - 1]);
 
 						CDD.resize(p.size(), 0);
 
@@ -549,14 +578,14 @@ namespace WBSF
 								{
 									//boost::math::logistic_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
 									boost::math::weibull_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
-									sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, 1);
+									sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, ROUND_VAL);
 
 								}
 								else
 								{
 									boost::math::logistic_distribution<double> create_dist(m_OVP[μ], m_OVP[ѕ]);
 									//boost::math::weibull_distribution<double> create_dist(m_OVP[μ], m_OVP[ѕ]);
-									sim_y = Round(cdf(create_dist, CDD[ii]) * 100, 1);
+									sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
 
 								}
 
@@ -591,7 +620,7 @@ namespace WBSF
 			if (m_egg_creation_date.find(key) == m_egg_creation_date.end())
 				continue;
 
-			//CTRef emergingBegin = GetEmergingBegin(m_weather[year-1]);
+			//CTRef emergingBegin = GetDiapauseEnd(m_weather[year-1]);
 
 
 			ASSERT(m_weather[year].HavePrevious());
@@ -683,8 +712,8 @@ namespace WBSF
 							{
 								if (test[j])
 								{
-									double obs_y = Round(m_SAResult[i].m_obs[j], 1);
-									double sim_y = Round(output[m_SAResult[i].m_ref][STAT_STAGE[j]], 1);
+									double obs_y = Round(m_SAResult[i].m_obs[j], ROUND_VAL);
+									double sim_y = Round(output[m_SAResult[i].m_ref][STAT_STAGE[j]], ROUND_VAL);
 
 									if (obs_y > -999)
 									{
@@ -693,12 +722,12 @@ namespace WBSF
 										double obs_x = m_SAResult[i].m_ref.GetJDay();
 										double sim_x = GetSimX(STAT_STAGE[j], m_SAResult[i].m_ref, obs_y, output);
 
-										if (sim_x > -999)
+										/*if (sim_x > -999)
 										{
-											obs_x = Round(100 * (obs_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],2);
-											sim_x = Round(100 * (sim_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],2);
+											obs_x = Round(100 * (obs_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
+											sim_x = Round(100 * (sim_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
 											stat.Add(obs_x, sim_x);
-										}
+										}*/
 									}
 								}
 							}

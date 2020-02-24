@@ -37,7 +37,7 @@ namespace WBSF
 		void CalibrateDiapauseEnd(const std::bitset<3>& test, CStatisticXY& stat);
 		void CalibrateDiapauseEndTh(CStatisticXY& stat);
 		void CalibrateOviposition(CStatisticXY& stat);
-		CTRef GetEmergingBegin(const CWeatherYear& weather);
+		CTRef GetDiapauseEnd(const CWeatherYear& weather);
 
 		bool IsParamValid()const;
 	};

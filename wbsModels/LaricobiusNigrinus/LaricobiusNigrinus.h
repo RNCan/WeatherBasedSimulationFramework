@@ -23,7 +23,10 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT, S_DEAD_FROST, S_ADULT_EMERGENCE, S_EGG_CREATION_CDD, NB_STATS
+			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT,  
+			S_M_EGG, S_M_LARVAE, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
+			S_DEAD_FROST, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, NB_STATS
+			//S_ADULT_EMERGENCE = S_M_ACTIVE_ADULT
 		};
 	}
 
@@ -139,6 +142,8 @@ namespace WBSF
 		{
 			m_bApplyAttrition = false;
 			m_egg_creation_CDD = 0;
+			m_diapause_end_NCDD = 0;
+			m_adult_emergence_CDD = 0;
 		}
 
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT)override;
@@ -146,7 +151,7 @@ namespace WBSF
 
 		void init(int year, const CWeatherYears& weather);
 		
-		CTRef ComputeAdultEmergenceBegin(const CWeatherYear& weather)const;
+		CTRef ComputeDiapauseEnd(const CWeatherYear& weather)const;
 		
 		CModelStatVector m_Tavg30;
 		CLaricobiusNigrinusEquations m_equations;
@@ -154,8 +159,10 @@ namespace WBSF
 		//CDegreeDays m_DD4;
 
 		double m_egg_creation_CDD;
+		double m_diapause_end_NCDD;
+		double m_adult_emergence_CDD;
 		//std::array<CTRef, 2>  m_adultEmergenceBegin;
-		CTRef m_adult_emergence_begin;
+		CTRef m_diapause_end; // or adult emergence begin;
 		
 	};
 
