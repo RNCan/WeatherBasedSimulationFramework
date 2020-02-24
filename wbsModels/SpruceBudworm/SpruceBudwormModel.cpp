@@ -88,6 +88,71 @@ namespace WBSF
 		m_bApplyAdultAttrition = parameters[c++].GetBool();
 		m_adult_longivity_max = parameters[c++].GetInt();
 
+		//overwrite fixe if availble in the locations file
+		std::string fixeAI = m_info.m_loc.GetSSI("FixeAI");
+		std::string fixeDate = m_info.m_loc.GetSSI("FixeDate");
+		if (!fixeAI.empty() ||
+			!fixeDate.empty())
+		{
+			if (!fixeAI.empty() &&
+				!fixeDate.empty())
+			{
+				
+				CTRef TRef;
+				TRef.FromFormatedString(fixeDate, "", "-/\\ ");
+				
+				//try day first
+				if (TRef.GetYear() != m_weather.GetFirstYear())
+				{
+					CTRef TRef2;
+					TRef2.FromFormatedString(fixeDate, "%d-%m-%Y", "-/\\ ");
+					if (TRef2.GetYear() == m_weather.GetFirstYear())
+						TRef = TRef2;
+					else
+						TRef.clear();
+				}
+
+				if (TRef.IsValid() )
+				{
+					m_fixDate = TRef;
+					m_fixAI = as<double>(fixeAI);
+				}
+				else
+				{
+					msg.ajoute("Invalid date. Format is YYYY-MM-DD.");
+				}
+				
+			}
+			else
+			{
+				//if only one is present, need to send an error
+				msg.ajoute("Both field (FixeDate, FixeAI) in location file need to be present to set a valid AI fixe");
+				msg.ajoute(std::string(fixeAI.empty()?"FixeAI":"FixeDate") + " is missing");
+			}
+
+		}
+
+		if (msg&&m_fixDate.IsInit())
+		{
+			if ( m_weather.GetNbYears() == 1)
+			{
+				if (m_fixDate.GetYear() != m_weather.GetFirstYear())
+				{
+					msg.ajoute("Invalid AI fixe date. Fixe year ("+to_string(m_fixDate.GetYear() )+") must be the same as simulation year(" + to_string(m_weather.GetFirstYear()) + ")");
+				}
+
+			}
+			else
+			{
+				msg.ajoute("AI fixe can only be use with one year simulation");
+			}
+
+			/*if (m_fixAI < 2 || m_fixAI>9)
+			{
+				msg.ajoute("Invalid AI"+to_string(m_fixAI)+". AI must be between 2 and 9");
+			}*/
+		}
+
 		return msg;
 	}
 
