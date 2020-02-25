@@ -196,14 +196,6 @@ namespace WBSF
 
 			}
 
-			size_t nb_classes = options.m_nb_classes;
-			if (options.m_breaks_type == CCreateStyleOptions::BY_CLASS_SIZE)
-			{
-				size_t nb = (size_t)(options.m_max - options.m_min) / options.m_class_size;
-				nb_classes = (size_t)max(2.0, (options.m_max - options.m_min) / options.m_class_size);
-			}
-
-
 			string file_path = TEMFilePath + ".qml";
 			palettes[options.m_palette_name].CreateStyleFile(file_path, options, TM);
 		}

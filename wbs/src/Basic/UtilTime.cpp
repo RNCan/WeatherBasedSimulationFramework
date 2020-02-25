@@ -1173,7 +1173,7 @@ namespace WBSF
 					{
 						size_t n = std::count(format.begin(), format.end(), '%');
 						if(n>=1 && n<=4)
-							type = ANNUAL+(n-1);
+							type = short(ANNUAL+(n-1));
 
 						y_or_r = ptime.date().year();
 						m = ptime.date().month();

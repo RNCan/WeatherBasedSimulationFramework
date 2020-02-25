@@ -10,9 +10,19 @@
 //****************************************************************************
 #include "stdafx.h"
 
+#include <locale>
+#include <codecvt>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <locale>
+#include <iomanip>
+#include <codecvt>
+
 #include "QGISPalette.h"
 #include "WeatherBasedSimulationString.h"
 #include "Basic/Registry.h"
+
 
 using namespace std;
 
@@ -203,10 +213,20 @@ namespace WBSF
 		ERMsg msg;
 
 
+		
+		if (options.m_breaks_type == CCreateStyleOptions::BY_CLASS_SIZE)
+		{
+			size_t nb_class = (size_t)max(1.0, min(255.0, (options.m_max - options.m_min) / options.m_class_size));
+			options.m_nb_classes = nb_class;
+		}
+
 		double classes_size = (options.m_max - options.m_min) / options.m_nb_classes;
 
-		//string file_path = TEMFilePath + ".qml";
 		ofStream file;
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+
+
+		file.imbue(utf8_locale);
 		msg = file.open(file_path);
 		if (msg)
 		{
@@ -253,8 +273,8 @@ namespace WBSF
 
 					
 					
-					lable1 = TRef1.GetFormatedString(options.m_date_format);
-					lable2 = TRef2.GetFormatedString(options.m_date_format);
+					lable1 = ANSI_UTF8(TRef1.GetFormatedString(options.m_date_format));
+					lable2 = ANSI_UTF8(TRef2.GetFormatedString(options.m_date_format));
 				}
 
 				string lable;
