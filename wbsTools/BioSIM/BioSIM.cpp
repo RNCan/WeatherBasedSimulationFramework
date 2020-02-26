@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.6.4:24/02/2020	Rémi Saint-Amant	Add create legend only in mapping
+// 11.6.4:26/02/2020	Rémi Saint-Amant	Add "Create legend only" in mapping
+//											Bug correction in FileManager in Wind10
 // 11.6.3:21/02/2020	Rémi Saint-Amant	Add creation of style file for event mapping
 //											Bug correction with crash after extracting SSI
 //											New elevation/SSI extraction 

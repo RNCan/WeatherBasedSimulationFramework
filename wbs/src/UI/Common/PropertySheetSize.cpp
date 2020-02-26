@@ -68,6 +68,7 @@ BOOL CResizablePropertySheet::OnInitDialog()
 	BOOL bResult = CMFCPropertySheet::OnInitDialog();
 
 //	GetClientRect(&m_rCrt);
+	AdjustControlsLayout(0,0);
 	m_bInitialized = TRUE;
 
 	return bResult;
