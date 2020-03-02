@@ -428,7 +428,7 @@ namespace WBSF
 		}
 
 		//rand log normal take mean and standard deviation
-		double RandLogNormal(double x, double s)const
+		double RandUnbiasedLogNormal(double x, double s)const
 		{
 			std::lognormal_distribution<double> uniformLogNormal(x - WBSF::Square(s) / 2.0, s);
 			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);

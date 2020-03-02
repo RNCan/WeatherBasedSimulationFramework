@@ -150,6 +150,10 @@ namespace WBSF
 	{
 	}
 
+	std::string CIndividual::get_property(const std::string& name)
+	{
+		return std::string();
+	}
 	//***********************************************************************************
 	CHostPtr CStand::GetNearestHost(CHost* pHost)
 	{
@@ -283,6 +287,10 @@ namespace WBSF
 		return bPopAdjusted;
 	}
 
+	std::string CHost::get_property(const std::string& name)
+	{ 
+		return std::string(); 
+	}
 
 	void CHost::PackPopulation()
 	{
