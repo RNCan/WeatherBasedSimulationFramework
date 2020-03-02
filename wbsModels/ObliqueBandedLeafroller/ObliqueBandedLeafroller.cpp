@@ -32,7 +32,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is initialized with random values.
 	//*****************************************************************************
-	CObliqueBandedLeafroller::CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CObliqueBandedLeafroller::CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		// Each individual created gets the » attributes

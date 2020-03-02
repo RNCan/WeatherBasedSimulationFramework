@@ -63,10 +63,10 @@ namespace WBSF
 		inline const CSBWStand* GetStand()const;
 		inline CSpruceBudwormEquations& Equations();
 
-		bool get_t(const CWeatherDay& weather, __int64 &tº, __int64 &tᴹ)const;
-		double get_Tair(const CWeatherDay& weather, double h)const;
-		double get_Prcp(const CWeatherDay& weather, double h)const;
-		double get_WndS(const CWeatherDay& weather, double h)const;
+		static bool get_t(const CWeatherDay& weather, __int64 &tº, __int64 &tᶜ, __int64 &tᴹ);
+		static double get_Tair(const CWeatherDay& weather, double h);
+		static double get_Prcp(const CWeatherDay& weather, double h);
+		static double get_WndS(const CWeatherDay& weather, double h);
 //		double GetFlightActivity(const CHourlyData& weather, double tau);
 		bool ComputeExodus(double T, double P, double W, double tau);
 		bool ComputeExodus(const CWeatherDay& weather);

@@ -39,7 +39,7 @@ namespace WBSF
 	{
 	public:
 
-		CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate = CTRef(), double age = OBL::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CObliqueBandedLeafroller(CHost* pHost, CTRef creationDate = CTRef(), double age = OBL::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CObliqueBandedLeafroller(const CObliqueBandedLeafroller& in) :CIndividual(in){ operator=(in); }
 		CObliqueBandedLeafroller& operator=(const CObliqueBandedLeafroller& in);
 		~CObliqueBandedLeafroller(void);

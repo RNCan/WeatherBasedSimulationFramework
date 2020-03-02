@@ -64,7 +64,7 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_relativeDevRate[s] = Equations().RelativeDevRate(s);
 
-		//Compute defoliation at shool level from defoliation at stand level
+		//Compute defoliation at shoot level from defoliation at stand level
 		m_D = Equations().get_defoliation(GetStand()->m_defoliation);
 
 		m_Fº = CBioSIMModelBase::VMISS;
@@ -485,12 +485,10 @@ namespace WBSF
 		if (GetStageAge() >= MINIMUM_AGE_LIFTOFF[m_sex])
 		{
 			__int64 tº = 0;
+			__int64 tᶜ = 0;
 			__int64 tᴹ = 0;
-			if (get_t(wº, tº, tᴹ))
+			if (get_t(wº, tº, tᶜ, tᴹ))
 			{
-				//calculate tᶜ
-				__int64 tᶜ = (tº + tᴹ) / 2;
-
 				//now compute tau, p and flight
 				static const __int64 Δt = 60;
 				for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
@@ -534,35 +532,25 @@ namespace WBSF
 		if (W == -999)
 			W = 10;
 
-
-		//double Pmating = GetMatingProbability(GetStageAge());
-		//m_sex == MALE || 
-
-		//static const double EXODUS_AGE[2] = { 0.15, 0 };// Changed by JR 2017/03/13, was { 0.5, 0 } 
-
-		if (/*GetStageAge() > EXODUS_AGE[m_sex] &&*/ T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
+		if (T > 0 && P < 2.5 && W > 2.5)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
-			//double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
 			double p = (C + tau - (2 * pow(tau, 3) / 3) + (pow(tau, 5) / 5)) / (2 * C);
 			ASSERT(p >= 0 && p <= 1);
 
-			//Compute wingbeat
-			double Vᴸ = K * sqrt(m_M) / m_A;//compute liftoff wingbeat to fly with actual weight (Vᴸ)
-			//double Vᵀ = Vmax*(1 - exp(-pow((T + deltaT[m_sex]) / b[m_sex], c[m_sex])));//compute potential wingbeat for the current temperature (Vᵀ)
-			double Vᵀ = Vmax / (1 + exp(-(T - a) / b));//compute potential wingbeat for the current temperature (Vᵀ)
+			//Compute wing-beat
+			double Vᴸ = K * sqrt(m_M) / m_A;//compute liftoff wing-beat to fly with actual weight (Vᴸ)
+			double Vᵀ = Vmax / (1 + exp(-(T - a) / b));//compute potential wing-beat for the current temperature (Vᵀ)
 
-			//potential wingbeat is greather than liftoff wingbeat, then exodus 
+			//potential wing-beat is greater than liftoff wing-beat, then exodus 
 			if (Vᵀ > Vᴸ && p > m_p_exodus)
 				bExodus = true;		//this insect is exodus
-
-
 		}
 
 		return bExodus;
 	}
 
 
-	double CSpruceBudworm::get_Tair(const CWeatherDay& weather, double h)const
+	double CSpruceBudworm::get_Tair(const CWeatherDay& weather, double h)
 	{
 		ASSERT(h >= 0 && h < 24);
 
@@ -581,7 +569,7 @@ namespace WBSF
 		return Tair;
 	}
 
-	double CSpruceBudworm::get_Prcp(const CWeatherDay& weather, double h)const
+	double CSpruceBudworm::get_Prcp(const CWeatherDay& weather, double h)
 	{
 		ASSERT(h >= 0 && h < 24);
 
@@ -594,7 +582,7 @@ namespace WBSF
 		return prcp;
 	}
 
-	double CSpruceBudworm::get_WndS(const CWeatherDay& weather, double h)const
+	double CSpruceBudworm::get_WndS(const CWeatherDay& weather, double h)
 	{
 		ASSERT(h >= 0 && h < 24);
 
@@ -621,51 +609,95 @@ namespace WBSF
 
 
 
-	bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᴹ)const
+	//bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᴹ)const
+	//{
+	//	static const __int64 Δtᶠ = 5 * 3600;//s
+	//	static const __int64 Δtᶳ = 3600;//s
+	//	static const __int64 Δt = 60;//s
+	//	static const double Tº = 25.4;//°C
+
+	//	__int64 tᵀº = 0;
+
+
+	//	CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
+	//	__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
+	//	if (tᶳ > 12 * 3600)//if sunset is after noon (avoid problem in north)
+	//	{
+
+	//		//first estimate of exodus info
+	//		tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
+	//		tᴹ = tᶳ + 4 * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
+
+
+	//		ASSERT(tº > 0);
+	//		for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
+	//		{
+	//			//sunset hour shifted by t
+	//			double h = t / 3600.0;
+	//			const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
+
+	//			//temperature interpolation between 2 hours
+	//			double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
+	//			if (Tair <= Tº)
+	//				tᵀº = t;
+	//		}
+
+	//		ASSERT(tᵀº != 0);
+	//		if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
+	//			tᵀº = 22 * 3600;
+
+	//		//now calculate the real tº, tᶬ and tᶜ
+	//		tº = max(tº, tᵀº);
+	//		tᴹ = min(tº + Δtᶠ, tᴹ);
+	//	}
+
+	//	return tᵀº != 0;
+	//}
+
+	//tᶳ [in]: sunset [s] (since the begginning of the day)
+	//tº [out]: start of liftoff [s] (since the begginning of the day)
+	//tᴹ [out]: end of liftoff [s] (since the begginning of the day)
+	//Base on: Modeling the circadian rhythm of migratory flight in spruce budworm
+	//Jacques Régnière, Matthew Garcia and Rémi St-Amant
+	bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᶜ, __int64 &tᴹ)
 	{
-		static const __int64 Δtᶠ = 5 * 3600;//s
-		static const __int64 Δtᶳ = 3600;//s
-		static const __int64 Δt = 60;//s
-		static const double Tº = 25.4;//°C
-
-		__int64 tᵀº = 0;
-
-
+		bool bRep = false;
+		
 		CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
-		__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
-		if (tᶳ > 12 * 3600)//if sunset is after noon (avoid problem in north)
+		__int64 tᶳ = sun.GetSunset(wº.GetTRef())*3600;
+		if (tᶳ > 12*3600)//if sunset is after noon (avoid problem in north)
 		{
+			static const __int64 H19h30 = 18.5;//s at 18:30 normal time (=19:30 Daylight Saving Time)
 
-			//first estimate of exodus info
-			tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
-			tᴹ = tᶳ + 4 * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
-
-
-			ASSERT(tº > 0);
-			for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
+			//sunset hour shifted by t
+			//temperature interpolation between 2 hours
+			double T19h30 = get_Tair(wº, H19h30);
+			if (T19h30 > 15)
 			{
-				//sunset hour shifted by t
-				double h = t / 3600.0;
-				const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
+				static const double p1 = -3.8;//h
+				static const double p2 = 0.145;//h/°C
+				static const double p3 = -1.267;//h
+				static const double p4 = -0.397;
+				static const double p5 = -2.465;
+				static const double Kf = 1.35;//°C
 
-				//temperature interpolation between 2 hours
-				double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
-				if (Tair <= Tº)
-					tᵀº = t;
+				double Δs = p1 + p2 * T19h30;//h
+				double Δo = p3 + p4 * Δs;//h
+				double Δf = Kf * p5 * Δo;//h
+
+				//now calculate the real tº, tᶬ 
+				tᶜ = tᶳ + (Δs * 3600);
+				tº = tᶜ + (Δo * 3600);
+				tᴹ = tº + (Δf * 3600);
+				ASSERT(tᶜ >= tº && tᶜ <= tᴹ);
+				ASSERT(tᶜ >= 0 && tᶜ < 24 * 3600);//tᶳ is sunset [s] since the beginning of the day
+
+				bRep = true;
 			}
-
-			ASSERT(tᵀº != 0);
-			if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
-				tᵀº = 22 * 3600;
-
-			//now calculate the real tº, tᶬ and tᶜ
-			tº = max(tº, tᵀº);
-			tᴹ = min(tº + Δtᶠ, tᴹ);
 		}
 
-		return tᵀº != 0;
+		return bRep;
 	}
-
 
 
 

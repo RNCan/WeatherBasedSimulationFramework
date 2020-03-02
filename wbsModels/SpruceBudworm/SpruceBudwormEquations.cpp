@@ -274,9 +274,9 @@ namespace WBSF
 		double Mfull = get_M(sex, A, 1);
 
 		//find error term that will be good for male or for full or empty female 
-		double ξ = m_randomGenerator.RandLogNormal(log(1), M_ξ[sex]);
+		double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), M_ξ[sex]);
 		while (Mfull*ξ<M_L[sex] || Mfull*ξ >M_H[sex])
-			ξ = m_randomGenerator.RandLogNormal(log(1), M_ξ[sex]);
+			ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), M_ξ[sex]);
 
 		return ξ;
 	}
@@ -297,7 +297,7 @@ namespace WBSF
 		double Fº = 0;
 		do
 		{
-			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.222);
+			double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), 0.222);
 			ASSERT(ξ >= 0.33 && ξ < 3.33);
 
 			double F = α*pow(A, β);
@@ -324,7 +324,7 @@ namespace WBSF
 		double P = 0;
 		do
 		{
-			double ξ = m_randomGenerator.RandLogNormal(log(1), 0.1);
+			double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), 0.1);
 			double p = α/(1+exp(-(T-β)/c));
 			P = p*ξ;
 

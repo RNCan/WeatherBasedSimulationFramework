@@ -94,7 +94,7 @@ namespace WBSF
 
 	double CObliqueBandedLeafrollerEquations::Equation2()const
 	{
-		double 	r = m_randomGenerator.RandLogNormal(1.0, 0.4); //Was 0.25
+		double 	r = m_randomGenerator.RandUnbiasedLogNormal(1.0, 0.4); //Was 0.25
 
 		_ASSERTE(!_isnan(r) && _finite(r));
 		if (_isnan(r) || !_finite(r))//just in case
