@@ -74,11 +74,11 @@ namespace WBSF
 			m_Pmax = in.m_Pmax;
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
-
+			m_diapauseTRef = in.m_diapauseTRef;
 			/*
 			
 			m_luck = in.m_luck;
-			m_diapauseTRef = in.m_diapauseTRef;
+			
 			m_badluck = in.m_badluck;*/
 		}
 
@@ -147,8 +147,8 @@ namespace WBSF
 			//	}
 			//}
 			
-			if (s == ADULT) //Set maximum longevitys to 150 days
-				r = max(0.00667, r);
+			if (s == ADULT) //Set maximum longevity to 150 days
+				r = max(1.0 / (150.0*nbSteps), r);
 
 			/*if (GetStand()->m_bApplyAttrition)
 			{
@@ -159,13 +159,27 @@ namespace WBSF
 			}
 */
 
+			if (m_age >= ADULT)
+			{
+				double l = 1.0 / (nbSteps*r);
+				int g;
+				g++;
+			}
+
+
 			//Adjust age
 			//if(!m_bDiapause)
-			//if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
+			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
 				m_age += r;
 
+
+			
+
+			if (!m_adultDate.IsInit() && m_age >= ADULT )
+				m_adultDate = TRef;
 			//compute brooding
-			if (m_sex == FEMALE && m_age >= ADULT)
+			
+			if (m_sex == FEMALE/* && m_age >= ADULT*/ && TRef>= m_adultDate+5)
 			{
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
@@ -176,6 +190,9 @@ namespace WBSF
 				double th = 0.8;
 				double Nh = m_Nh;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
 				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
+
+				double longevity = m_δ[s];
+				double Na2 = 135 / m_δ[s];
 	//			//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
 				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
 				ASSERT(m_broods < m_Pmax);
@@ -200,13 +217,7 @@ namespace WBSF
 		if (m_bFertil && m_broods > 0)
 		{
 			ASSERT(m_age >= ADULT);
-			/*CActiaInterruptaStand* pStand = GetStand(); ASSERT(pStand);
-			pStand->
-			for (auto it = pStand->m_host.begin(); it != pStand->m_host.end(); it++)
-			{
-
-			}*/
-
+			
 			double attRate = 1;// GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
@@ -274,23 +285,24 @@ namespace WBSF
 
 				if (s == ADULT)
 				{
-					if (m_sex == FEMALE)
+					if (m_sex == FEMALE && d >= m_adultDate + 5)
 					{
 						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 					}
 				}
 				
-				/*if (m_diapauseTRef.IsInit())
-					stat[S_DIAPAUSE] += m_scaleFactor;*/
+				if (m_diapauseTRef.IsInit())
+					stat[S_DIAPAUSE] += m_scaleFactor;
 
 				//because attrition is affected when the object change stage,
 				//we need to take only insect alive
 				if (GetStage() != GetLastStage())
 				{
 					stat[M_EGG + s] += m_scaleFactor;
-					if (s == ADULT && m_sex == FEMALE)
-						stat[M_OVIPOSITING_ADULT] += m_scaleFactor;
 				}
+
+				if (s == ADULT && m_sex == FEMALE && d == m_adultDate + 5)
+					stat[M_OVIPOSITING_ADULT] += m_scaleFactor;
 			}
 			else
 			{
@@ -310,17 +322,17 @@ namespace WBSF
 
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
 					stat[E_FROZEN] += m_scaleFactor;
-
+					*/
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == OTHERS)
-					stat[E_OTHERS] += m_scaleFactor;*/
+					stat[M_OTHERS] += m_scaleFactor;
 			}
 
 			//if (m_lastAge < GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
-			/*if (d == m_diapauseTRef)
+			if (d == m_diapauseTRef)
 			{
-				stat[E_DIAPAUSE] += m_scaleFactor;
-				stat[E_DIAPAUSE_AGE] += m_scaleFactor*m_age;
-			}*/
+				stat[M_DIAPAUSE] += m_scaleFactor;
+				stat[M_DIAPAUSE_AGE] += m_scaleFactor*m_age;
+			}
 		}
 	}
 

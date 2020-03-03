@@ -4,6 +4,10 @@
 //
 // Description: Biology of Tranosema rostrale
 //*****************************************************************************
+// 03/03/2020	Rémi Saint-Amant	bug correction in maximum adult longevity, was 25, now 150
+//*****************************************************************************
+
+
 #include "TranosemaEquations.h"
 #include "Tranosema.h"
 
@@ -27,7 +31,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is initialized with random values.
 	//*****************************************************************************
-	CTranosema::CTranosema(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CTranosema::CTranosema(CHost* pHost, CTRef creationDate, double age, WBSF::TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		// Each individual created gets the » attributes
@@ -126,8 +130,9 @@ namespace WBSF
 				}
 			}
 			
-			if (s == ADULT) //Set maximum longevitys to 150 days
-				r = max(0.00667, r);
+			if (s == ADULT) //Set maximum longevity's to 150 days
+				r = max(1.0 / (150 * nbSteps), r);//By RSA 03/03/2020
+				//r = max(0.00667, r);
 
 			if (GetStand()->m_bApplyAttrition)
 			{
@@ -192,8 +197,6 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CTranosema::Die(const CWeatherDay& weather)
 	{
-		//ASSERT(!m_diapauseTRef.IsInit() || fabs(m_age - GetStand()->m_diapauseAge)<0.0001);
-
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
@@ -257,7 +260,7 @@ namespace WBSF
 				if (m_diapauseTRef.IsInit())
 					stat[S_DIAPAUSE] += m_scaleFactor;
 
-				//because attrition is affected when the object chnage stage,
+				//because attrition is affected when the object change stage,
 				//we need to take only insect alive
 				if (GetStage() != GetLastStage())
 				{

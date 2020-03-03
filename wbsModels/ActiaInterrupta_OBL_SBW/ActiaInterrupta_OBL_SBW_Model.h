@@ -24,12 +24,12 @@ namespace WBSF
 		void ExecuteDailyAllGenerations(std::vector<CModelStatVector>& stat);
 
 
-		bool m_bHaveAttrition;
-		double m_generationAttrition;
+		//bool m_bHaveAttrition;
+		//double m_generationAttrition;
 		double m_diapauseAge;
-		double m_lethalTemp;
+		//double m_lethalTemp;
 		double m_criticalDaylength;
-		bool m_bOnGround;
+		//bool m_bOnGround;
 
 	};
 

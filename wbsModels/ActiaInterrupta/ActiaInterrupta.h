@@ -66,6 +66,7 @@ namespace WBSF
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
 
+		CTRef	m_adultDate;
 		CTRef	m_diapauseTRef;
 		double	m_Nh;			//Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
 

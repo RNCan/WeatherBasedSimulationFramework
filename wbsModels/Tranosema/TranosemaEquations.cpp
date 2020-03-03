@@ -20,7 +20,7 @@ namespace WBSF
 {
 
 	//*****************************************************************************
-	//Tranosema daily devlopment rates
+	//Tranosema daily development rates
 
 	CTranosemaEquations::CTranosemaEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
@@ -31,7 +31,7 @@ namespace WBSF
 	{
 		ASSERT(s >= EGG && s <= PUPA);
 
-		//development rate parameters (2 variables (Eg, Pupa), 6 parameters)
+		//development rate parameters (2 variables (Egg, Pupa), 6 parameters)
 		enum TParameters{ RHO25, HA, HL, TL, HH, TH, NB_PARAMETERS };
 		static const double P[2][NB_PARAMETERS] =
 		{
@@ -68,7 +68,7 @@ namespace WBSF
 	{
 		ASSERT(s >= 0 && s < NB_STAGES);
 
-		//reltive developement
+		//relative development
 		double Rt = 0;
 
 		switch (s)
@@ -97,11 +97,11 @@ namespace WBSF
 			//  x      s
 			{ 0.000, 0.082050 },	//Egg
 			{ 0.000, 0.090180 },	//Pupa
-			{ 0.000, 0.268500 }		//Adult (-.5385/2, half variablity JR 2016/03/14)
+			{ 0.000, 0.268500 }		//Adult (-.5385/2, half variability JR 2016/03/14)
 		};
 
 
-		double 	r = m_randomGenerator.RandLogNormal(P[s][0], P[s][1]);
+		double 	r = m_randomGenerator.RandUnbiasedLogNormal(P[s][0], P[s][1]);
 
 		_ASSERTE(!_isnan(r) && _finite(r));
 		if (_isnan(r) || !_finite(r))//just in case
@@ -121,7 +121,7 @@ namespace WBSF
 	}
 
 	//*****************************************************************************
-	//fecondity
+	//fecundity
 
 	double CTranosemaEquations::GetPmax()const
 	{
@@ -141,9 +141,9 @@ namespace WBSF
 	{
 		//							  x      s
 		static const double P[2] = { 2.28, 0.0800 };
-		double Eo = m_randomGenerator.RandLogNormal(P[0], P[1]);
+		double Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
 		while (Eo < 0 || Eo>50)
-			Eo = m_randomGenerator.RandLogNormal(P[0], P[1]);
+			Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
 
 		return Eo;
 	}

@@ -39,7 +39,7 @@ namespace WBSF
 	{
 	public:
 
-		CTranosema(CHost* pHost, CTRef creationDate = CTRef(), double age = Tranosema::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CTranosema(CHost* pHost, CTRef creationDate = CTRef(), double age = Tranosema::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CTranosema(const CTranosema& in) :CIndividual(in){ operator=(in); }
 		CTranosema& operator=(const CTranosema& in);
 		~CTranosema(void);

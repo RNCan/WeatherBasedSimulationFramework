@@ -46,12 +46,12 @@ namespace WBSF
 		VERSION = "1.0.0 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
-		m_bHaveAttrition = true;
-		m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
+		//m_bHaveAttrition = true;
+		//m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
 		m_diapauseAge = EGG + 0.1;
-		m_lethalTemp = -5.0;
+		//m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5; 
-		m_bOnGround = false;
+		//m_bOnGround = false;
 	}
 
 	CActiaInterrupta_OBL_SBW_Model::~CActiaInterrupta_OBL_SBW_Model()
@@ -66,12 +66,12 @@ namespace WBSF
 		ERMsg msg;
 
 		int c = 0;
-		m_bHaveAttrition = parameters[c++].GetBool();
-		m_generationAttrition = parameters[c++].GetReal();
+		/*m_bHaveAttrition = */parameters[c++].GetBool();
+		/*m_generationAttrition = */parameters[c++].GetReal();
 		m_diapauseAge = parameters[c++].GetReal();
-		m_lethalTemp = parameters[c++].GetReal();
+		/*m_lethalTemp = */parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
-		m_bOnGround = parameters[c++].GetBool();
+		/*m_bOnGround = */parameters[c++].GetBool();
 		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
@@ -124,8 +124,8 @@ namespace WBSF
 				for (size_t s = 0; s < NB_DAILY_OUTPUT; s++)
 					m_output[TRef][g*NB_DAILY_OUTPUT + s] = ActiaInterruptaStat[g][TRef][s];
 
-				//if (ActiaInterruptaStat[g][TRef][E_DIAPAUSE] > 0)
-					//diapauseAge += ActiaInterruptaStat[g][TRef][E_DIAPAUSE_AGE] / ActiaInterruptaStat[g][TRef][E_DIAPAUSE];
+				if (ActiaInterruptaStat[g][TRef][M_DIAPAUSE] > 0)
+					diapauseAge += ActiaInterruptaStat[g][TRef][M_DIAPAUSE_AGE] / ActiaInterruptaStat[g][TRef][M_DIAPAUSE];
 			}
 			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
 			m_output[TRef][O_D_NB_OBL] = ActiaInterruptaStat[0][TRef][S_NB_OBL];
@@ -149,9 +149,9 @@ namespace WBSF
 		{
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]).as(CTM::DAILY);
-			if (!TRef.IsInit() || !m_bOnGround)
-				TRef = p.Begin(); //no snow 
+//			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]).as(CTM::DAILY);
+			//if (!TRef.IsInit() || !m_bOnGround)
+				//TRef = p.Begin(); //no snow 
 
 
 			//Create stand
@@ -182,23 +182,12 @@ namespace WBSF
 			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, m_diapauseAge, FEMALE, true, 0));
 			stand.m_host.push_front(pHostActiaInterrupta);
 
-
-			
-			//std::shared_ptr<CActiaInterrupta_OBL_SBW_Host> pHostActiaInterrupta2 = make_shared<CActiaInterrupta_OBL_SBW_Host>(&stand, H_SBW);
-
-			////Init host
-			//pHostActiaInterrupta2->m_nbMinObjects = 100;
-			//pHostActiaInterrupta2->m_nbMaxObjects = 1250;
-			//stand.m_host.push_front(pHostActiaInterrupta2);//no population on SBW
-			//pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, m_diapauseAge, FEMALE, true, 0));
-
-
 			//Init stand
 			//stand.m_bApplyAttrition = m_bHaveAttrition;
 			//stand.m_generationAttrition = m_generationAttrition;
 			//stand.m_bAutoComputeDiapause = false;
 			//stand.m_diapauseAge = m_diapauseAge;
-			//stand.m_criticalDaylength = m_criticalDaylength;
+			stand.m_criticalDaylength = m_criticalDaylength;
 			//stand.m_lethalTemp = m_lethalTemp;
 			stand.m_host.push_front(pHostActiaInterrupta);
 

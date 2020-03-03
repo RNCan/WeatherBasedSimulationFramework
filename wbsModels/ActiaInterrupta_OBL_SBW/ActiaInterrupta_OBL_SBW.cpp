@@ -132,7 +132,7 @@ namespace WBSF
 					switch (Hypothesis)
 					{
 						//case 1: //test only once when ActiaInterrupta reach diapause age
-						//	//if Jday greather than 173 and the ActiaInterrupta age pass through diapause age this day
+						//	//if Jday greater than 173 and the ActiaInterrupta age pass through diapause age this day
 						//	if (m_lastAge <= GetStand()->m_diapauseAge && m_age >= GetStand()->m_diapauseAge)
 						//		//if the host is in diapause, ActiaInterrupta will enter in diapause. If not, this insect will develop until die. 
 						//		if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))

@@ -34,7 +34,7 @@ namespace WBSF
 		{0.0000081,1.0 / 1.1308,0.000,40},
 		{0.0001,1.0 / 0.3778,4.5379,31.7286},
 		{0.000174,1.0 / 0.1648,0.3073,30.5749},
-		{22,0,0,0},
+		{1.0/22.0,0,0,0},
 	};
 
 
@@ -79,9 +79,14 @@ namespace WBSF
 			r = m_randomGenerator.RandUnbiasedLogNormal(P[e][0], P[e][1]);
 
 
+
 		_ASSERTE(!_isnan(r) && _finite(r));
 		if (_isnan(r) || !_finite(r))//just in case
 			r = 1;
+
+		if (e == EQ_ADULT)
+			r = 22.0 / (22.0+r);//transform relative longevity into relative rate
+
 
 		return r;
 

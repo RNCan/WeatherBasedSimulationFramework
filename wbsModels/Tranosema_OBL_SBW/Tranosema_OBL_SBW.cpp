@@ -20,7 +20,7 @@ namespace WBSF
 
 	//*********************************************************************************
 	//CTranosema_OBL_SBW class
-	CTranosema_OBL_SBW::CTranosema_OBL_SBW(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor, CIndividualPtr& pAssociateHost) :
+	CTranosema_OBL_SBW::CTranosema_OBL_SBW(CHost* pHost, CTRef creationDate, double age, WBSF::TSex sex, bool bFertil, size_t generation, double scaleFactor, CIndividualPtr& pAssociateHost) :
 		CTranosema(pHost, creationDate, age, sex, bFertil, generation, scaleFactor) 
 	{
 		m_pAssociateHost = pAssociateHost;
