@@ -6,8 +6,9 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 03-03-2020	Rémi Saint-Amant	Add Download Weather
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
-// 02/08/2011	Rémi Saint-Amant	Update with new interface
+// 02-08-2011	Rémi Saint-Amant	Update with new interface
 //****************************************************************************
 #include "stdafx.h"
 
@@ -687,7 +688,7 @@ namespace WBSF
 
 						if (msg && exit_code == 0)
 						{
-							//reload database
+							//reload all database
 							FillNormalsDBNameList();
 							FillDailyDBNameList();
 							FillHourlyDBNameList();
@@ -705,8 +706,8 @@ namespace WBSF
 
 			if (!msg)
 				SYShowMessage(msg, this);
-
 		}//do modal
+
 	}
 }
 
