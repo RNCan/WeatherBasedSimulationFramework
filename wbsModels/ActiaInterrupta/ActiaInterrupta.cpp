@@ -159,14 +159,6 @@ namespace WBSF
 			}
 */
 
-			if (m_age >= ADULT)
-			{
-				double l = 1.0 / (nbSteps*r);
-				int g;
-				g++;
-			}
-
-
 			//Adjust age
 			//if(!m_bDiapause)
 			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
@@ -218,7 +210,7 @@ namespace WBSF
 		{
 			ASSERT(m_age >= ADULT);
 			
-			double attRate = 1;// GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
+			double attRate = GetStand()->m_bApplyAttrition ? GetStand()->m_generationAttrition : 1;//1% of survival by default
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);

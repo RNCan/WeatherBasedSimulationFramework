@@ -173,7 +173,7 @@ CString CMFCPropertyGridDateTimeProperty::FormatProperty()
 	CString strVal;
 	if (m_format.IsEmpty())
 	{
-		setlocale(LC_ALL, "");
+		//setlocale(LC_ALL, "");must be set by application RSA 04/03/2020
 		strVal = COleDateTime(m_varValue).Format(m_style ? _T("%x") : _T("%X"));
 	}
 	else
@@ -187,7 +187,7 @@ CString CMFCPropertyGridDateTimeProperty::FormatOriginalProperty()
 	CString strVal;
 	if (m_format.IsEmpty())
 	{
-		setlocale(LC_ALL, "");
+		//setlocale(LC_ALL, ""); must be set by application
 		strVal = COleDateTime(m_varValueOrig).Format(m_style ? _T("%x") : _T("%X"));
 	}
 	else

@@ -1,5 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.5:04/03/2020	Rémi Saint-Amant	Bug correction Download Weather in French
+//											Add legend with ordinal date
+//											Legend in selected language
 // 11.6.4:26/02/2020	Rémi Saint-Amant	Add "Create legend only" in mapping
 //											Bug correction in FileManager in Wind10
 // 11.6.3:21/02/2020	Rémi Saint-Amant	Add creation of style file for event mapping
@@ -279,7 +282,7 @@
 //					   Correction d'un bug dans la precision du modèle output
 //					   Correction d'un bug dansla creation des BD forecasts
 //					   Correction d'un bug dans l'extraction d'un LOC a partir d'un Grid ESRI
-//					   Accept les fichier .Wea qui ont des lignes vides
+//					   Accept les fichier.Wea qui ont des lignes vides
 // 8.06: 23/03/2004	   Ajout d'un message pour les LOC > 58333 lignes.
 //					   Creation de répertoire sur un import
 //					   Correction d'un bug dans la sauvegarde des projets
@@ -421,6 +424,7 @@ BOOL CBioSIMApp::InitInstance()
     short language = registre.GetLanguage();
     HINSTANCE hInst = NULL;
 
+	
 	if( language == CRegistry::FRENCH )
 	{
         hInst = LoadLibrary(_T("BioSIM11Frc.dll"));
@@ -436,7 +440,12 @@ BOOL CBioSIMApp::InitInstance()
 	static std::locale THE_LOCALE(std::locale(".ACP"), std::locale::classic(), std::locale::numeric);
 	std::locale::global(THE_LOCALE);
 
-	setlocale(LC_ALL, ".ACP");
+	setlocale(LC_ALL, "en-CA");
+	//setlocale(LC_ALL, ".ACP");
+	if (language == CRegistry::FRENCH)
+		setlocale(LC_ALL, "fr-CA");
+
+
 	setlocale(LC_NUMERIC, "English");
 	
 

@@ -60,6 +60,7 @@ namespace WBSF
 
 				m_number_format="%.2f";
 				m_date_format = "%d %B";
+				m_ordinal_date=false;
 			}
 
 			bool operator == (const CCreateStyleOptions& in)const;
@@ -83,6 +84,7 @@ namespace WBSF
 			double m_var_factor;
 			double m_min;
 			double m_max;
+			bool m_ordinal_date;
 			std::string m_number_format;
 			std::string m_date_format;
 			
@@ -154,6 +156,8 @@ namespace zen
 		out["color_ramp_type"](in.m_color_ramp_type);
 		out["number_format"](in.m_number_format);
 		out["date_format"](in.m_date_format);
+		out["ordinal_date"](in.m_ordinal_date);
+		
 		
 	}
 
@@ -174,6 +178,7 @@ namespace zen
 		in["color_ramp_type"](out.m_color_ramp_type);
 		in["number_format"](out.m_number_format);
 		in["date_format"](out.m_date_format);
+		in["ordinal_date"](out.m_ordinal_date);
 
 		return true;
 	}

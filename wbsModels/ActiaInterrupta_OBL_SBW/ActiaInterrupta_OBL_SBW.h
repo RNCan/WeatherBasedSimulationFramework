@@ -146,9 +146,6 @@ namespace WBSF
 		virtual CHostPtr GetNearestHost(CHost* pHost);
 		
 		CIndividualPtr SelectRandomHost(bool bUseSBW);
-		//CActiaInterruptaEquations m_equationsActiaInterrupta;
-		//CObliqueBandedLeafrollerEquations m_equationsOBL;
-		//CSpruceBudwormEquations m_equationsSBW;
 	};
 
 	//WARNING: cast must be defined here to avoid bug
@@ -160,23 +157,4 @@ namespace WBSF
 	inline const CActiaInterrupta_OBL_SBW_Stand* CActiaInterrupta_OBL_SBW_Host::GetStand()const{ ASSERT(m_pStand); return static_cast<const CActiaInterrupta_OBL_SBW_Stand*>(m_pStand); }
 
 	inline CActiaInterruptaEquations& CActiaInterrupta_OBL_SBW::Equations(){ return GetStand()->m_equations; }
-
-
-
-	//typedef std::shared_ptr<CActiaInterruptaStand> CActiaInterruptaStandPtr;
-
-	////WARNING: cast must be defined here to avoid bug
-	////inline CIndividualPtrContainer* CActiaInterrupta::GetHost(){ return dynamic_cast<CIndividualPtrContainer*>(m_pHost); }
-	////inline const CIndividualPtrContainer* CActiaInterrupta::GetHost()const{ return dynamic_cast<const CIndividualPtrContainer*>(m_pHost); }
-	
-//	inline CActiaInterruptaEquations& CActiaInterrupta::Equations(){ return GetStand()->m_equations; }
-
-	//inline CActiaInterrupta_OBL_SBW_Stand* CObliqueBandedLeafrollerEx::GetStand(){ ASSERT(m_pHost); return static_cast<CActiaInterrupta_OBL_SBW_Stand*>(m_pHost->GetStand()); }
-	//inline const CActiaInterrupta_OBL_SBW_Stand* CObliqueBandedLeafrollerEx::GetStand()const{ ASSERT(m_pHost); return static_cast<const CActiaInterrupta_OBL_SBW_Stand*>(m_pHost->GetStand()); }
-	//inline CObliqueBandedLeafrollerEquations& CObliqueBandedLeafrollerEx::Equations(){ return GetStand()->m_equationsOBL; }
-
-
-	//inline CActiaInterrupta_OBL_SBW_Stand* CSpruceBudwormEx::GetStand(){ ASSERT(m_pHost); return static_cast<CActiaInterrupta_OBL_SBW_Stand*>(m_pHost->GetStand()); }
-	//inline const CActiaInterrupta_OBL_SBW_Stand* CSpruceBudwormEx::GetStand()const{ ASSERT(m_pHost); return static_cast<const CActiaInterrupta_OBL_SBW_Stand*>(m_pHost->GetStand()); }
-	//inline CSpruceBudwormEquations& CSpruceBudwormEx::Equations(){ return GetStand()->m_equationsSBW; }
 }

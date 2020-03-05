@@ -36,7 +36,7 @@ namespace WBSF
 	//
 	// Note: m_RDR (relative Development Rate)  member is init with random values.
 	//*****************************************************************************
-	CForestTentCaterpillar::CForestTentCaterpillar(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CForestTentCaterpillar::CForestTentCaterpillar(CHost* pHost, CTRef creationDate, double age, WBSF::TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage

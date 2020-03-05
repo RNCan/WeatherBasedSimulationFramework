@@ -529,6 +529,7 @@
 #define IDC_MAP_GLOBAL_LIMIT            1251
 #define IDC_CHECK1                      1251
 #define IDC_SIM_LIMIT_DEVRATE           1251
+#define IDC_MAP_ORDINAL_DATE            1251
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND 1252
 #define IDC_SIM_INPUT_NAME              1252
 #define IDC_MAP_GLOBAL_LIMIT_MIN        1253

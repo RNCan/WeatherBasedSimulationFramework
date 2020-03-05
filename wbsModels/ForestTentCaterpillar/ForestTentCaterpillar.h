@@ -37,7 +37,7 @@ namespace WBSF
 	{
 	public:
 
-		CForestTentCaterpillar(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = FTC::EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CForestTentCaterpillar(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = FTC::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CForestTentCaterpillar(const CForestTentCaterpillar& in) :WBSF::CIndividual(in){ operator=(in); }
 		CForestTentCaterpillar& operator=(const CForestTentCaterpillar& in);
 		~CForestTentCaterpillar(void);

@@ -57,7 +57,9 @@ namespace WBSF
 
 		DDX_Control(pDX, IDC_MAP_NUMBER_FORMAT, m_numberFormatCtrl);
 		DDX_Control(pDX, IDC_MAP_DATE_FORMAT, m_dateFormatCtrl);
-
+		DDX_Control(pDX, IDC_MAP_ORDINAL_DATE, m_ordinalDateCtrl);
+		
+			
 
 		if (pDX->m_bSaveAndValidate)
 		{
@@ -75,6 +77,8 @@ namespace WBSF
 			m_options.m_color_ramp_type = m_colorRampCtrl.GetCurSel();
 			m_options.m_number_format = m_numberFormatCtrl.GetString();
 			m_options.m_date_format = m_dateFormatCtrl.GetString();
+			m_options.m_ordinal_date = m_ordinalDateCtrl.GetCheck();
+			
 		}
 		else
 		{
@@ -94,6 +98,7 @@ namespace WBSF
 			m_colorRampCtrl.SetCurSel((int)m_options.m_color_ramp_type);
 			m_numberFormatCtrl.SetString(m_options.m_number_format);
 			m_dateFormatCtrl.SetString(m_options.m_date_format);
+			m_ordinalDateCtrl.SetCheck(m_options.m_ordinal_date);
 
 			CheckRadioButton(IDC_MAP_BY_NB_CLASSES, IDC_MAP_BY_CLASSES_SIZE, IDC_MAP_BY_NB_CLASSES + (int)m_options.m_breaks_type);
 			CheckRadioButton(IDC_MAP_BY_MINMAX, IDC_MAP_BY_USER, IDC_MAP_BY_MINMAX + (int)m_options.m_min_max_type);

@@ -343,6 +343,14 @@ BEGIN
     CONTROL         "Grosseur de classe fixe :",IDC_MAP_BY_CLASSES_SIZE,
                     "Button",BS_AUTORADIOBUTTON,27,116,92,10
     EDITTEXT        IDC_MAP_CLASSES_SIZE,125,113,55,14,ES_AUTOHSCROLL
+    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Format pour les nombres</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,94,90,11
+    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Format pour les dates</a>",IDC_MAP_DATE_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,113,90,11
+    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
+    CONTROL         "Jour de l'année (1..366)",IDC_MAP_ORDINAL_DATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,126,93,10
     GROUPBOX        "Min/Max",IDC_STATIC,14,148,362,84,WS_GROUP
     CONTROL         "Utiliser le minimum et maximum",IDC_MAP_BY_MINMAX,
                     "Button",BS_AUTORADIOBUTTON,27,170,113,10
@@ -357,13 +365,6 @@ BEGIN
     GROUPBOX        "Créer un fichier de style QGIS",IDC_MAP_CREATE_QGIS_STYLE,7,11,377,229,BS_ICON
     COMBOBOX        IDC_MAP_COLOR_RAMP_TYPE,67,53,229,231,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Couleur",IDC_CMN_STATIC2,14,56,26,8
-    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
-    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
-    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Format pour les nombres</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
-                    "SysLink",WS_TABSTOP,205,94,90,11
-    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Format pour les dates</a>",IDC_MAP_DATE_FORMAT_LABLE,
-                    "SysLink",WS_TABSTOP,205,113,90,11
 END
 
 IDD_SIM_FIT_EQUATION DIALOGEX 0, 0, 301, 306
@@ -6383,6 +6384,14 @@ BEGIN
     EDITTEXT        IDC_MAP_NB_CLASSES,125,95,55,14,ES_AUTOHSCROLL
     CONTROL         "Fixed class size:",IDC_MAP_BY_CLASSES_SIZE,"Button",BS_AUTORADIOBUTTON,27,116,92,10
     EDITTEXT        IDC_MAP_CLASSES_SIZE,125,113,55,14,ES_AUTOHSCROLL
+    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Number formats</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,94,90,11
+    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
+    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Date formats</a>",IDC_MAP_DATE_FORMAT_LABLE,
+                    "SysLink",WS_TABSTOP,205,113,90,11
+    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
+    CONTROL         "Ordinale date (1..366)",IDC_MAP_ORDINAL_DATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,126,88,10
     GROUPBOX        "Min/Max",IDC_STATIC,14,148,362,84,WS_GROUP
     CONTROL         "Use minimum and maximum",IDC_MAP_BY_MINMAX,"Button",BS_AUTORADIOBUTTON,27,170,102,10
     CONTROL         "Use mean ± ",IDC_MAP_BY_STDDEV,"Button",BS_AUTORADIOBUTTON,27,188,53,10
@@ -6396,13 +6405,6 @@ BEGIN
     GROUPBOX        "Create QGIS style file",IDC_MAP_CREATE_QGIS_STYLE,7,11,377,229,BS_ICON
     COMBOBOX        IDC_MAP_COLOR_RAMP_TYPE,67,53,229,231,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Color",IDC_CMN_STATIC2,14,56,18,8
-    GROUPBOX        "Format",IDC_STATIC,198,79,178,61,WS_GROUP
-    EDITTEXT        IDC_MAP_NUMBER_FORMAT,302,93,55,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_MAP_DATE_FORMAT,302,111,55,14,ES_AUTOHSCROLL
-    CONTROL         "<a href=""http://www.cplusplus.com/reference/cstdio/printf/"">Number formats</a>",IDC_MAP_NUMBER_FORMAT_LABLE,
-                    "SysLink",WS_TABSTOP,205,94,90,11
-    CONTROL         "<a href=""http://www.cplusplus.com/reference/ctime/strftime/"">Date formats</a>",IDC_MAP_DATE_FORMAT_LABLE,
-                    "SysLink",WS_TABSTOP,205,113,90,11
 END
 
 

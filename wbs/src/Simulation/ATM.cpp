@@ -963,7 +963,7 @@ namespace WBSF
 
 		do
 		{
-			double ξ = m_world.random().RandLogNormal(log(1), 0.1);
+			double ξ = m_world.random().RandUnbiasedLogNormal(log(1), 0.1);
 			double p = α / (1 + exp(-(T - β) / c));
 			P = p * ξ;
 

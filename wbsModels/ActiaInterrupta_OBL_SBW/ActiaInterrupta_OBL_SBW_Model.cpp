@@ -46,8 +46,8 @@ namespace WBSF
 		VERSION = "1.0.0 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
-		//m_bHaveAttrition = true;
-		//m_generationAttrition = 0.025;//Attrition survival (cull in the egg stage, before creation)
+		m_bHaveAttrition = true;
+		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
 		m_diapauseAge = EGG + 0.1;
 		//m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5; 
@@ -66,8 +66,8 @@ namespace WBSF
 		ERMsg msg;
 
 		int c = 0;
-		/*m_bHaveAttrition = */parameters[c++].GetBool();
-		/*m_generationAttrition = */parameters[c++].GetReal();
+		m_bHaveAttrition = parameters[c++].GetBool();
+		m_generationAttrition = parameters[c++].GetReal();
 		m_diapauseAge = parameters[c++].GetReal();
 		/*m_lethalTemp = */parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
@@ -183,8 +183,8 @@ namespace WBSF
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand
-			//stand.m_bApplyAttrition = m_bHaveAttrition;
-			//stand.m_generationAttrition = m_generationAttrition;
+			stand.m_bApplyAttrition = m_bHaveAttrition;
+			stand.m_generationAttrition = m_generationAttrition;
 			//stand.m_bAutoComputeDiapause = false;
 			//stand.m_diapauseAge = m_diapauseAge;
 			stand.m_criticalDaylength = m_criticalDaylength;

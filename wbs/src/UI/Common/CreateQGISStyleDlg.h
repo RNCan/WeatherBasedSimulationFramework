@@ -46,6 +46,9 @@ namespace WBSF
 		CButton			m_reversePaletteCtrl;
 		CCFLEdit		m_numberFormatCtrl;
 		CCFLEdit		m_dateFormatCtrl;
+		CButton			m_ordinalDateCtrl;
+
+		
 		
 		void InitPaletteNameList();
 

@@ -49,6 +49,8 @@ namespace WBSF
 		if (fabs(m_max - in.m_max) > 0.001)bEqual = false;
 		if (m_number_format != in.m_number_format)bEqual = false;
 		if (m_date_format != in.m_date_format)bEqual = false;
+		if (m_ordinal_date != in.m_ordinal_date)bEqual = false;
+		
 
 
 		return bEqual;
@@ -70,6 +72,8 @@ namespace WBSF
 		option.SetValue("user_max",m_max);
 		option.SetString("number_format",m_number_format);
 		option.SetString("date_format",m_date_format);
+		option.SetValue("ordinal_date", m_ordinal_date);
+		
 	}
 
 	void CCreateStyleOptions::LoadFromRegistry()
@@ -88,6 +92,7 @@ namespace WBSF
 		m_max=option.GetValue<double>("user_max", m_max);
 		m_number_format=option.GetString("number_format", m_number_format);
 		m_date_format=option.GetString("date_format", m_date_format);
+		m_ordinal_date = option.GetValue<bool>("ordinal_date", m_ordinal_date);
 	}
 
 	//*****************************************************************************
@@ -263,15 +268,21 @@ namespace WBSF
 				string lable1 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + i*classes_size));
 				string lable2 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + (i + 1) * classes_size));
 
-				if (TM.IsInit()&&TM.Type()!=CTM::ATEMPORAL)
+				if (options.m_ordinal_date || (TM.IsInit()&&TM.Type()!=CTM::ATEMPORAL) )
 				{
 					CTRef TRef1;
 					CTRef TRef2;
 
-					TRef1.SetRef(options.m_min + int(i) * classes_size + 1, TM);
-					TRef2.SetRef(options.m_min + int(i + 1) * classes_size, TM);
-
-					
+					if (options.m_ordinal_date)
+					{
+						TRef1 = CJDayRef(options.m_min + int(i) * classes_size + 1);
+						TRef2 = CJDayRef(options.m_min + int(i + 1) * classes_size);
+					}
+					else
+					{
+						TRef1.SetRef(options.m_min + int(i) * classes_size + 1, TM);
+						TRef2.SetRef(options.m_min + int(i + 1) * classes_size, TM);
+					}
 					
 					lable1 = ANSI_UTF8(TRef1.GetFormatedString(options.m_date_format));
 					lable2 = ANSI_UTF8(TRef2.GetFormatedString(options.m_date_format));
