@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 28/11/2017	1.2.0	Rémi Saint-Amant    New compilation
 // 28/11/2017	1.1.9	Rémi Saint-Amant    Add Cumul Adult
 // 14/11/2017	1.1.8	Rémi Saint-Amant    Change in annual behavior
 // 04/05/2017	1.1.7	Rémi Saint-Amant    New hourly generation
@@ -36,15 +37,15 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CTranosemaModel::CreateObject);
 
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, NB_DAILY_OUTPUT_EX };
+	enum TDailyOutput{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, NB_DAILY_OUTPUT_EX };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Attrition,CumulAdult";
 
 	//	
-	enum{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
+	enum TAnnualOutput{ O_A_NB_GENERATION, O_A_MEAN_GENERATION, O_A_GROWTH_RATE, O_A_ALIVE1, NB_ANNUAL_OUTPUT = O_A_ALIVE1 + NB_GENERATIONS-1 };
 	extern char ANNUAL_HEADER[] = "Gmax,MeanGeneration, GrowthRate,Alive1,Alive2,Alive3,Alive4,Alive5,Alive6";
 
-	enum{ O_G_YEAR, O_G_DIAPAUSE, O_G_GROWTH_RATE, NB_GENERATION_OUTPUT};
-	extern char GENERATION_HEADER[] = "Year, Diapause, GrowthRate";
+	enum  TGenerationOutput { O_G_YEAR, O_G_GENERATION, O_G_DIAPAUSE, O_G_GROWTH_RATE, NB_GENERATION_OUTPUT};
+	extern char GENERATION_HEADER[] = "Year,Generation,Diapause,GrowthRate";
 
 	
 
@@ -53,7 +54,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.1.9 (2017)";
+		VERSION = "1.2.0 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -304,7 +305,7 @@ namespace WBSF
 		
 
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		m_output.Init(p.size()*(NB_GENERATIONS - 1), CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT, 0, GENERATION_HEADER);
+		m_output.Init(p.size()*(NB_GENERATIONS - 1), CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT,-999, GENERATION_HEADER);
 
 
 		//now compute generation growth rates
@@ -323,6 +324,8 @@ namespace WBSF
 					{
 						size_t y = TRef - p.Begin();
 						size_t gg = y*(NB_GENERATIONS-1) + (g - 1);
+						m_output[gg][O_G_YEAR] = TRef.GetYear();
+						m_output[gg][O_G_GENERATION] = g;
 						m_output[gg][O_G_DIAPAUSE] = diapauseStat[SUM];
 						m_output[gg][O_G_GROWTH_RATE] = diapauseStat[SUM] / diapauseBegin;
 
@@ -337,87 +340,5 @@ namespace WBSF
 	}
 	//************************************************************************************************
 
-	//simulated annaling 
-	//void CTranosemaModel::AddDailyResult(const StringVector& header, const StringVector& data)
-	//{
-	//	//transform value to date/stage
-	//	ASSERT( header[3] == "Year");
-	//	ASSERT( header[4] == "Month");
-	//	ASSERT( header[5] == "Day");
-	//	ASSERT( header[12] == "NbInds");
-	//	ASSERT( header[13] == "AI");
-	//
-	//	CTRef ref(ToShort(data[3]), ToShort(data[4]) - 1, ToShort(data[5]) - 1);
-	//	std::vector<double> obs;
-	//	obs.push_back(ToDouble(data[13]));
-	//	obs.push_back(ToDouble(data[12]));
-	//	m_SAResult.push_back( CSAResult(ref, obs ) );
-	//}
-	//
-	//void CTranosemaModel::GetFValueDaily(CStatisticXY& stat)
-	//{
-	//	ERMsg msg;
-	//	CModelStatVector statSim;
-	//
-	//	if( m_SAResult.size() > 0)
-	//	{ 
-	//		CStatistic years;
-	//		for(CSAResultVector::const_iterator p= m_SAResult.begin(); p<m_SAResult.end(); p++)
-	//			years += p->m_ref.GetYear();
-	// 
-	//		int m_firstYear = (int)years[LOWEST];
-	//		int m_lastYear = (int)years[HIGHEST];
-	//
-	//		ASSERT( m_weather.GetFirstYear() == m_firstYear );
-	//		ASSERT( m_weather.GetLastYear() == m_lastYear );
-	//		ExecuteDaily(statSim);
-	// 
-	//
-	//		for(int i=0; i<(int)m_SAResult.size(); i++)
-	//		{
-	//			if( statSim.IsInside(m_SAResult[i].m_ref) )
-	//			{
-	//				double AISim = statSim[ m_SAResult[i].m_ref ][S_AVERAGE_INSTAR];
-	//				//_ASSERTE( AISim >= 2&&AISim<=8);
-	//				//when all bug die, a value of -9999 can be compute
-	//				if( AISim>=2 && AISim<=8)
-	//				{
-	//					for(int j=0; j<m_SAResult[i].m_obs[1]; j++)
-	//					stat.Add(AISim, m_SAResult[i].m_obs[0]);
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-
-	//
-	//ERMsg CTranosemaModel::OnExecuteAnnual()
-	//{
-	//	_ASSERTE(m_weather.size() > 1);
-	//
-	//	ERMsg msg;
-	//
-	//	//In annual model stop developing of the L22 to get cumulative L22
-	//	CModelStatVector stat;
-	//	ExecuteDaily(stat, true);
-	//
-	//	
-	//	CAnnualOutput stateA(m_weather.size() - 1, CTRef(m_weather.GetFirstYear()));
-	//
-	//	for(size_t y=0; y<m_weather.size()-1; y++)
-	//	{
-	//		CStatistic statL22;
-	//		CTPeriod p = m_weather[y + 1].GetEntireTPeriod();
-	//		for (CTRef d = p.Begin(); d <= p.End(); d++)
-	//			statL22 += stat[d][S_L22];
-	//		
-	//		double gr = statL22[CFL::HIGHEST];
-	//		stateA[y][O_GROWTH_RATE] = gr/100; //initial population is 100 insect
-	//	}
-	//
-	//	SetOutput(stateA);
-	//
-	//	return msg;
-	//}
 
 }

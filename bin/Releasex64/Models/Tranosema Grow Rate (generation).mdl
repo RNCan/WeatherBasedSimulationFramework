@@ -91,6 +91,24 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
+            <Name>Year</Name>
+            <Title>Year</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+		<OutputVariable>
+            <Name>Generation</Name>
+            <Title>Generation</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
             <Name>NbDiapause</Name>
             <Title>NbDiapause</Title>
             <Units/>

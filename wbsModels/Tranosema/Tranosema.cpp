@@ -162,7 +162,7 @@ namespace WBSF
 				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
 				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
 				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
-				ASSERT(m_broods < m_Pmax);
+				ASSERT(m_totalBroods + m_broods < m_Pmax*1.5);
 
 				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
 				m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
@@ -176,7 +176,7 @@ namespace WBSF
 	void CTranosema::Brood(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax+1);
+		ASSERT(m_totalBroods <= m_Pmax*1.5);
 
 		m_totalBroods += m_broods;
 
