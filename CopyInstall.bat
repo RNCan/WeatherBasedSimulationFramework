@@ -81,7 +81,6 @@ copy /Y ".\bin\Releasex64\Models\DegreeHour.dll"            "..\Install\NRCan\Mo
 
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.mdl"  "..\Install\NRCan\Models\EmeraldAshBorer.mdl"
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorer.dll"  "..\Install\NRCan\Models\EmeraldAshBorer.dll"
-copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness (Daily).mdl"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness (Annual).mdl"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\EmeraldAshBorerColdHardiness.dll"  "..\Install\NRCan\Models\EmeraldAshBorerColdHardiness.dll"
 copy /Y ".\bin\Releasex64\Models\EuropeanElmScale.mdl" "..\Install\NRCan\Models\EuropeanElmScale.mdl"
@@ -202,10 +201,8 @@ copy /Y ".\bin\Releasex64\Models\TminTairTmax (Hourly).mdl" "..\Install\NRCan\Mo
 copy /Y ".\bin\Releasex64\Models\TminTairTmax (Daily).mdl" "..\Install\NRCan\Models\TminTairTmax (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\TminTairTmax.dll" "..\Install\NRCan\Models\TminTairTmax.dll"
 
-copy /Y ".\bin\Releasex64\Models\Tranosema Biology (daily).mdl" "..\Install\NRCan\Models\Tranosema Biology (daily).mdl"
-copy /Y ".\bin\Releasex64\Models\Tranosema Biology.dll" "..\Install\NRCan\Models\Tranosema Biology.dll"
-copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (annual).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (annual).mdl"
-copy /Y ".\bin\Releasex64\Models\Tranosema Grow Rate (generation).mdl" "..\Install\NRCan\Models\Tranosema Grow Rate (generation).mdl"
+copy /Y ".\bin\Releasex64\Models\Tranosema-OBL-SBW (daily).mdl" "..\Install\NRCan\Models\Tranosema-OBL-SBW (daily).mdl"
+copy /Y ".\bin\Releasex64\Models\Tranosema-OBL-SBW.dll" "..\Install\NRCan\Models\Tranosema-OBL-SBW.dll"
 
 copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Annual).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Monthly).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Monthly).mdl"

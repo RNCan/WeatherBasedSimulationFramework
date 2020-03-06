@@ -1,4 +1,5 @@
 ﻿//***********************************************************
+// 06/03/20202	3.0.1	Rémi Saint-Amant   recompile
 // 20/09/2016	1.2.0	Rémi Saint-Amant   WBSF
 //***********************************************************
 #include "ForestTentCaterpillarModel.h"
@@ -27,7 +28,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "3.0.0 (2019)";
+		VERSION = "3.0.1 (2020)";
 	}
 
 	CForestTentCaterpillarModel::~CForestTentCaterpillarModel()
