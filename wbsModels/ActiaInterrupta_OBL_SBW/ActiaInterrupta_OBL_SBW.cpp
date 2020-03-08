@@ -4,7 +4,7 @@
 //
 // Description: Biology of ActiaInterrupta in relation with OBL and SBW
 //*****************************************************************************
-// 21/11/2017   Rémi Saint-Amant    Creation
+// 03/03/2020   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
 
@@ -87,38 +87,12 @@ namespace WBSF
 			}
 
 
-			/*for (auto it = pStand->m_host.begin(); it != pStand->m_host.end(); it++)
-			{
-				const std::shared_ptr<WBSF::CHost>& pHost = *it;
-
-				for (auto iit = pHost->begin(); iit != pHost->end(); iit++)
-				{
-					CIndividualPtr pIndividual = *iit;
-
-					if (pIndividual->IsAlive())
-					{
-						size_t stage = pIndividual->GetStage();
-
-						if (pIndividual->get_property("Name") == "OBL")
-						{
-							if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
-								nbAttackable += pIndividual->GetScaleFactor();
-						}
-						else
-						{
-							if (stage >= SBW::L2 && stage <= SBW::L6)
-								nbAttackable += pIndividual->GetScaleFactor();
-						}
-					}
-				}
-			}*/
-
 			m_Nh = nbAttackable;
 		}
 
 		CActiaInterrupta::Live(weather);
 
-		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit())
+		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetStage()==EGG)
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
@@ -146,6 +120,7 @@ namespace WBSF
 						if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
 						{
 							m_diapauseTRef = weather.GetTRef();
+							m_age = EGG;//reset age to zero
 						}
 						break;
 						////case 3:
@@ -213,12 +188,8 @@ namespace WBSF
 
 		if (IsCreated(d))
 		{
-
-
 			if (m_death == HOST_DIE)
 				stat[S_HOST_DIE] += m_scaleFactor;
-
-
 
 			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == HOST_DIE)
 				stat[M_HOST_DIE] += m_scaleFactor;

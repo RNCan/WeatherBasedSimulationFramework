@@ -48,7 +48,7 @@ namespace WBSF
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
-		m_diapauseAge = EGG + 0.1;
+		m_diapauseAge = EGG;// +0.1;
 		//m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5; 
 		//m_bOnGround = false;
@@ -179,7 +179,7 @@ namespace WBSF
 			//Init host
 			pHostActiaInterrupta->m_nbMinObjects = 100;
 			pHostActiaInterrupta->m_nbMaxObjects = 1250;
-			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, m_diapauseAge, FEMALE, true, 0));
+			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, EGG/*m_diapauseAge*/, FEMALE, true, 0));
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand

@@ -100,9 +100,16 @@ namespace WBSF
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 
+		/*WBSF::ofStream file;
+		if (JDay == 0)
+		{
+			file.open("g:/Tranosema.csv");
+			file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
+			file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
+			file.close();
+		}*/
 
-		//if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
-			//m_bDiapause = false;
+		
 		
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
@@ -151,6 +158,9 @@ namespace WBSF
 			//compute brooding
 			if (m_sex == FEMALE && m_age >= ADULT)
 			{
+				//if (!file.is_open())
+				//	file.open("g:/Tranosema.csv", ios::out | ios::app);
+
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
 				
@@ -166,8 +176,13 @@ namespace WBSF
 
 				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
 				m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
+
+				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
+				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods + m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
 			}
 		}
+
+		//file.close();
 
 		m_age = min(m_age, (double)DEAD_ADULT);
 	}
