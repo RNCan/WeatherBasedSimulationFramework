@@ -50,7 +50,8 @@ namespace WBSF
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
 		m_diapauseAge = EGG;// +0.1;
 		m_lethalTemp = -5.0;
-		m_criticalDaylength = 13.5; 
+		m_criticalDaylength = 13.5;
+		m_preOvip = 5;
 		//m_bOnGround = false;
 	}
 

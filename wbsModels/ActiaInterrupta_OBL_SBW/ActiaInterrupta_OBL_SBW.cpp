@@ -152,7 +152,7 @@ namespace WBSF
 			CActiaInterrupta_OBL_SBW_Stand* pStand = GetStand(); ASSERT(pStand);
 			CIndividualPtr pAssociateHost = pStand->SelectRandomHost(true);
 
-			double attRate = pStand->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//1% of survival by default
+			double attRate = pStand->m_generationAttrition;//1% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta_OBL_SBW>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);

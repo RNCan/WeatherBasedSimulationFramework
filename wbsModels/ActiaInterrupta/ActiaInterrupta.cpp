@@ -173,7 +173,7 @@ namespace WBSF
 				m_adultDate = TRef;
 			//compute brooding
 			
-			if (m_sex == FEMALE/* && m_age >= ADULT*/ && TRef >= m_adultDate+5)
+			if (m_sex == FEMALE/* && m_age >= ADULT*/ && TRef >= m_adultDate+GetStand()->m_preOvip)
 			{
 				ASSERT(m_age >= ADULT);
 
@@ -220,7 +220,7 @@ namespace WBSF
 		{
 			ASSERT(m_age >= ADULT);
 			
-			double attRate = GetStand()->m_bApplyAttrition ? GetStand()->m_generationAttrition : 1;//1% of survival by default
+			double attRate = GetStand()->m_generationAttrition;
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);

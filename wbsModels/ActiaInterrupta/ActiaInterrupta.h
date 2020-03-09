@@ -144,8 +144,9 @@ namespace WBSF
 			/*
 			
 			m_bAutoComputeDiapause = true;
-			m_diapauseAge = 0.1;
-			m_lethalTemp = -5.0;*/
+			m_diapauseAge = 0.1;*/
+			m_lethalTemp = -5.0;
+			m_preOvip = 5;
 			m_criticalDaylength = 13.5;
 		}
 
