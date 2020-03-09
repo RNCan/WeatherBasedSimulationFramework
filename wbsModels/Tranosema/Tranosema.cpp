@@ -105,10 +105,10 @@ namespace WBSF
 		{
 			file.open("g:/Tranosema.csv");
 			file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
-			file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
+			file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ,Bust" << endl;
 			file.close();
-		}*/
-
+		}
+*/
 		
 		
 		
@@ -158,27 +158,32 @@ namespace WBSF
 			//compute brooding
 			if (m_sex == FEMALE && m_age >= ADULT)
 			{
-				//if (!file.is_open())
+			//	if (!file.is_open())
 				//	file.open("g:/Tranosema.csv", ios::out | ios::app);
 
+				//Ot: rate of oogenesis
+				//Rᵗ: rate of resorption
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
-				
 
 	//			Possible host attack module here
 				double as = 0.05;
 				double th = 0.8;
 				double Nh = m_Nh;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
 				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
+				
+				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
+				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods + m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << "," << ((m_totalBroods + m_broods) > m_Pmax ? "1" : "0") << endl;
+				
 				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
-				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
+				double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
+				m_broods += broods;
 				ASSERT(m_totalBroods + m_broods < m_Pmax*1.5);
 
+				//m_Pᵗ: egg production
+				//m_Eᵗ: eggs in the oviducts
 				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
-
-				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
-				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods + m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
+				m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);//correction 09/03/2020
 			}
 		}
 
@@ -344,9 +349,10 @@ namespace WBSF
 	{
 		CTranosema* in = (CTranosema*)pBug.get();
 
-		m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		//do not make the mean. take the first
+		//m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		//m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		//m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
 		CIndividual::Pack(pBug);
 	}

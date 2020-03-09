@@ -132,30 +132,39 @@ namespace WBSF
 	//survival rate 
 
 
-	//double CActiaInterruptaEquations::GetSurvivalRate(size_t s, double T)
-	//{
-	//	static const double P[NB_STAGES][2] =
-	//	{
-	//		//  x      s
-	//		{ 7.0251, -0.1735 },	//Egg
-	//		{ 9.6200, -0.2389 },	//Pupa
-	//		{ 1.000, 0.0000 }		//Adult
-	//	};
+	double CActiaInterruptaEquations::GetSurvivalRate(size_t s, double T)
+	{
+		static const double P[NB_STAGES][2] =
+		{
+			//  x      s
+			{ 7.0251, -0.1735 },	//Egg
+			{ 9.6200, -0.2389 },	//Pupa
+			{ 1.000, 0.0000 }		//Adult
+		};
 
-	//	double r = 0;
-	//	switch (s)
-	//	{
-	//	case EGG:
-	//	case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
-	//	case ADULT:	r = 1; break;
-	//	default: _ASSERTE(false);
-	//	}
+		double r = 0;
+		switch (s)
+		{
+		case EGG:
+		case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
+		case ADULT:	r = 1; break;
+		default: _ASSERTE(false);
+		}
 
-	//	_ASSERTE(!_isnan(r) && _finite(r));
-	//	if (_isnan(r) || !_finite(r))//just in case
-	//		r = 1;
+		_ASSERTE(!_isnan(r) && _finite(r));
+		if (_isnan(r) || !_finite(r))//just in case
+			r = 1;
 
-	//	return r;
-	//}
+		return r;
+	}
+
+
+	double CActiaInterruptaEquations::GetLuck(size_t s)const
+	{
+		if (s == ADULT)
+			return 1;
+
+		return m_randomGenerator.Rand(0.0, 1.0);
+	}
 	
 }

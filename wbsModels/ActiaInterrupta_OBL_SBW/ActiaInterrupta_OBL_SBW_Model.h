@@ -27,8 +27,9 @@ namespace WBSF
 		bool m_bHaveAttrition;
 		double m_generationAttrition;
 		double m_diapauseAge;
-		//double m_lethalTemp;
+		double m_lethalTemp;
 		double m_criticalDaylength;
+		size_t m_preOvip; //[days]
 		//bool m_bOnGround;
 
 	};

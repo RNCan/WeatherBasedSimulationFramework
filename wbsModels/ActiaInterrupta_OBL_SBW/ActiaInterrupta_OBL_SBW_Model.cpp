@@ -49,7 +49,7 @@ namespace WBSF
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
 		m_diapauseAge = EGG;// +0.1;
-		//m_lethalTemp = -5.0;
+		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5; 
 		//m_bOnGround = false;
 	}
@@ -69,9 +69,9 @@ namespace WBSF
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
 		m_diapauseAge = parameters[c++].GetReal();
-		/*m_lethalTemp = */parameters[c++].GetReal();
+		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
-		/*m_bOnGround = */parameters[c++].GetBool();
+		m_preOvip = parameters[c++].GetInt();
 		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
@@ -188,7 +188,8 @@ namespace WBSF
 			//stand.m_bAutoComputeDiapause = false;
 			//stand.m_diapauseAge = m_diapauseAge;
 			stand.m_criticalDaylength = m_criticalDaylength;
-			//stand.m_lethalTemp = m_lethalTemp;
+			stand.m_lethalTemp = m_lethalTemp;
+			stand.m_preOvip = m_preOvip;
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 

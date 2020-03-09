@@ -45,7 +45,7 @@ namespace WBSF
 			
 			m_δ[s] = 0;// Equations().Getδ(s, GetHost()->m_hostType);
 			//Stage-specific survival random draws
-			//m_luck[s] = Equations().GetLuck(s);
+			m_luck[s] = Equations().GetLuck(s);
 		}
 
 		//oviposition
@@ -57,8 +57,7 @@ namespace WBSF
 		m_Eᵗ = Eº;
 
 		//Individuals are created as non-diapause individuals
-		//m_bDiapause = false;
-		//m_badluck = false;
+		m_badluck = false;
 		m_Nh = 0;
 	}
 
@@ -75,11 +74,9 @@ namespace WBSF
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
 			m_diapauseTRef = in.m_diapauseTRef;
-			/*
 			
 			m_luck = in.m_luck;
-			
-			m_badluck = in.m_badluck;*/
+			m_badluck = in.m_badluck;
 		}
 
 		return *this;
@@ -115,18 +112,17 @@ namespace WBSF
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 
-		/*WBSF::ofStream file;
-		if (JDay == 0)
-		{
-			file.open("g:/Actia.csv");
-			file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
-			file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
-			file.close();
-		}*/
+		//WBSF::ofStream file;
+		//if (JDay == 0)
+		//{
+		//	file.open("g:/Actia.csv");
+		//	file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
+		//	file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
+		//	file.close();
+		//}
+
 		//if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
 			//m_bDiapause = false;
-		
-		//size_t hostType = (get_property("HostType") == "OBL") ? H_OBL : H_SBW;
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{
@@ -157,17 +153,16 @@ namespace WBSF
 			if (s == ADULT) //Set maximum longevity to 150 days
 				r = max(1.0 / (150.0*nbSteps), r);
 
-			/*if (GetStand()->m_bApplyAttrition)
+			if (GetStand()->m_bApplyAttrition)
 			{
 				if (IsChangingStage(r))
 					m_badluck = RandomGenerator().Randu() > m_luck[s];
 				else
 					m_badluck = IsDeadByAttrition(s, T);
 			}
-*/
+
 
 			//Adjust age
-			//if(!m_bDiapause)
 			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
 				m_age += r;
 
@@ -183,30 +178,28 @@ namespace WBSF
 				ASSERT(m_age >= ADULT);
 
 				//if(!file.is_open())
-				//	file.open("g:/Actia.csv", ios::out | ios::app);
-
-
+					//file.open("g:/Actia.csv", ios::out | ios::app);
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
-	//			
-
-	////			Possible host attack module here
+				
+				//Possible host attack module here
 				double as = 0.05;
 				double th = 0.8;
 				double Nh = m_Nh;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
 				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
 
-				//double longevity = m_δ[s];
-				//double Na2 = 135 / m_δ[s];
-	//			//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
-				m_broods += max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
-				ASSERT(m_broods < m_Pmax);
-
-				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				m_Eᵗ = max(0.0, m_Eᵗ - m_broods);
-
 				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
 				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
+
+				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
+				double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
+
+				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
+				m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
+
+				m_broods += broods;
+				ASSERT(m_totalBroods + m_broods < m_Pmax);
+				
 			}									  
 		}//for all time steps
 
@@ -247,17 +240,17 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = OLD_AGE;
 		}
-		//else if (m_badluck)
-		//{
-		//	//kill by attrition
-		//	m_status = DEAD;
-		//	m_death = ATTRITION;
-		//}
-		/*else if (m_generation>0 && weather[H_TMIN][MEAN] < GetStand()->m_lethalTemp && !m_diapauseTRef.IsInit())
+		else if (m_badluck)
+		{
+			//kill by attrition
+			m_status = DEAD;
+			m_death = ATTRITION;
+		}
+		else if (m_generation>0 && weather[H_TMIN][MEAN] < GetStand()->m_lethalTemp && !m_diapauseTRef.IsInit())
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
-		}*/
+		}
 		else if (!m_diapauseTRef.IsInit() && weather.GetTRef().GetMonth() == DECEMBER && weather.GetTRef().GetDay() == DAY_31)
 		{
 			//all individual not in diapause are kill at the end of the season
@@ -326,12 +319,12 @@ namespace WBSF
 				if (m_death == ATTRITION)
 					stat[S_ATTRITION] += m_scaleFactor;
 
-				/*if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == ATTRITION)
-					stat[E_ATTRITION] += m_scaleFactor;
+				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == ATTRITION)
+					stat[M_ATTRITION] += m_scaleFactor;
 
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
-					stat[E_FROZEN] += m_scaleFactor;
-					*/
+					stat[M_FROZEN] += m_scaleFactor;
+				
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == OTHERS)
 					stat[M_OTHERS] += m_scaleFactor;
 			}
@@ -355,9 +348,9 @@ namespace WBSF
 
 
 		//Computes attrition (probability of survival in a given time step, based on daily rate)
-		//double survival = pow(Equations().GetSurvivalRate(s, T), 1.0 / GetTimeStep().NbSteps());
-		//if (RandomGenerator().Randu() > survival)
-		//	bDeath = true;
+		double survival = pow(Equations().GetSurvivalRate(s, T), 1.0 / GetTimeStep().NbSteps());
+		if (RandomGenerator().Randu() > survival)
+			bDeath = true;
 
 		return bDeath;
 	}
@@ -372,7 +365,7 @@ namespace WBSF
 	{
 		CActiaInterrupta* in = (CActiaInterrupta*)pBug.get();
 
-		m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
+		//m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 	//	m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 	//	m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 

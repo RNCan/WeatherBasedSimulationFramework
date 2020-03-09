@@ -60,8 +60,8 @@ namespace WBSF
 
 		//member
 		ActiaInterruptaArray m_δ;		//Individual's relative development rates
-		//ActiaInterruptaArray m_luck;	//survival between stage
-		//bool	m_badluck;		//killed by attrition
+		ActiaInterruptaArray m_luck;	//survival between stage
+		bool	m_badluck;		//killed by attrition
 		double	m_Pmax;			//Potential fecundity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
@@ -128,11 +128,11 @@ namespace WBSF
 		bool	m_bApplyAttrition;
 		double	m_generationAttrition;
 		/*
-		
 		bool	m_bAutoComputeDiapause;*/
 		//double	m_diapauseAge;
-		//double	m_lethalTemp;
+		double	m_lethalTemp;
 		double	m_criticalDaylength;
+		size_t m_preOvip; //[days]
 
 
 		CActiaInterruptaStand(CBioSIMModelBase* pModel) :

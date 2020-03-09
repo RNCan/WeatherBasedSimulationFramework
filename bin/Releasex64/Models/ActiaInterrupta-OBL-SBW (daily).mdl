@@ -75,15 +75,15 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>DiapauseOnGround</Name>
-            <Caption>Winter on ground</Caption>
-            <Description/>
-            <Type>0</Type>
+            <Name>PreOvipPeriod</Name>
+            <Caption>PreOvipPeriod</Caption>
+            <Description>PreOvipPeriod [days]</Description>
+            <Type>1</Type>
             <Rect>165 10 185 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
+            <DefaultValue>5</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
+            <MaxValue>50</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

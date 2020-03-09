@@ -62,15 +62,12 @@ namespace WBSF
 		TranosemaArray m_δ;		//Individual's relative development rates
 		TranosemaArray m_luck;	//survival between stage
 		bool	m_badluck;		//killed by attrition
-		double	m_Pmax;			//Potential fecondity
+		double	m_Pmax;			//Potential fecundity
 		double	m_Pᵗ;			//Energy
 		double	m_Eᵗ;			//Actual number of eggs
-		//bool	m_bDiapause;
+
 		CTRef	m_diapauseTRef;
 		double	m_Nh;			//Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-
-		//process var
-		//bool	m_bLastDiapaused;
 
 		inline CTranosemaStand* GetStand();
 		inline const CTranosemaStand* GetStand()const;
