@@ -52,7 +52,7 @@ namespace WBSF
 		virtual WBSF::CIndividualPtr CreateCopy()const{ return std::make_shared<CSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return !(GetStage() == SBW::L2o || GetStage() == SBW::ADULT); }
 		virtual bool IsInDiapause(CTRef TRef)const{ return GetStage() == SBW::L2o && (TRef.GetYear() == m_overwinteringDate.GetYear()); }
-		virtual bool IsInDiapause2(CTRef TRef)const{ return GetStage() == SBW::L2o && (TRef.GetYear() == m_overwinteringDate.GetYear()); }
+		//virtual bool IsInDiapause2(CTRef TRef)const{ return GetStage() == SBW::L2o && (TRef.GetYear() == m_overwinteringDate.GetYear()); }
 
 		double GetRelativeDevRate(size_t s)const { _ASSERTE(s >= 0 && s < SBW::NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 
 		void ResetRelativeDevRate();

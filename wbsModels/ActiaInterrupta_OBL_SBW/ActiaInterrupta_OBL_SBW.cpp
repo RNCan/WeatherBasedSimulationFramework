@@ -90,9 +90,11 @@ namespace WBSF
 			m_Nh = nbAttackable;
 		}
 
+
+
 		CActiaInterrupta::Live(weather);
 
-		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetStage()==EGG)
+		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetStage()==MAGGOT)
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
@@ -101,7 +103,7 @@ namespace WBSF
 				//Tests indicate that the best hypothesis is 2 (parasitoid enters diapause as soon as its host is induced): 
 				int Hypothesis = 2;
 
-				if (GetStage() == EGG)
+				if (GetStage() == MAGGOT)
 				{
 					switch (Hypothesis)
 					{
@@ -120,7 +122,7 @@ namespace WBSF
 						if (m_pAssociateHost.lock()->IsInDiapause(weather.GetTRef()))
 						{
 							m_diapauseTRef = weather.GetTRef();
-							m_age = EGG;//reset age to zero
+							m_age = MAGGOT;//reset age to zero
 						}
 						break;
 						////case 3:
@@ -154,7 +156,7 @@ namespace WBSF
 
 			double attRate = pStand->m_generationAttrition;//1% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CActiaInterrupta_OBL_SBW>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
+			CIndividualPtr object = make_shared<CActiaInterrupta_OBL_SBW>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);
 		}
 	}
@@ -167,7 +169,7 @@ namespace WBSF
 		if (!m_pAssociateHost.expired())
 		{
 			//if the associate host die, the parasite also die
-			if (GetStage() == EGG && !m_pAssociateHost.lock()->IsAlive())
+			if (GetStage() == MAGGOT && !m_pAssociateHost.lock()->IsAlive())
 			{
 				m_status = DEAD;
 				m_death = HOST_DIE;

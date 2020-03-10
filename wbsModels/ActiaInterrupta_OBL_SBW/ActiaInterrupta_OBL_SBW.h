@@ -36,7 +36,7 @@ namespace WBSF
 	{
 	public:
 
-		CActiaInterrupta_OBL_SBW(CHost* pHost, CTRef creationDate = CTRef(), double age = ActiaInterrupta::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1, CIndividualPtr& pAssociateHost = CIndividualPtr());
+		CActiaInterrupta_OBL_SBW(CHost* pHost, CTRef creationDate = CTRef(), double age = ActiaInterrupta::MAGGOT, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1, CIndividualPtr& pAssociateHost = CIndividualPtr());
 		CActiaInterrupta_OBL_SBW(const CActiaInterrupta_OBL_SBW& in) :CActiaInterrupta(in){ operator=(in); }
 		CActiaInterrupta_OBL_SBW& operator=(const CActiaInterrupta_OBL_SBW& in);
 

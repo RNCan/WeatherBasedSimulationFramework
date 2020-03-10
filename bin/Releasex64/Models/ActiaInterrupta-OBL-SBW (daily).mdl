@@ -91,8 +91,8 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Egg_g0</Name>
-            <Title>Egg_g0</Title>
+            <Name>Maggot_g0</Name>
+            <Title>Maggot_g0</Title>
             <Units/>
             <Description>Not used</Description>
             <TimeMode>4 0</TimeMode>
@@ -175,8 +175,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g1</Name>
-            <Title>Egg_g1</Title>
+            <Name>Maggot_g1</Name>
+            <Title>Maggot_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -255,8 +255,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g2</Name>
-            <Title>Egg_g2</Title>
+            <Name>Maggot_g2</Name>
+            <Title>Maggot_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

@@ -24,24 +24,16 @@ namespace WBSF
 		CObliqueBandedLeafrollerEquations(const CRandomGenerator& RG);
 
 
-		//reltive developement
+		//relative development
 		double Getδ(size_t s)const;
 
-		//fecondity
-		//double GetE°()const;
-		//double GetPmax()const;
-		//static double GetOᵗ(double T);
-		//static double GetRᵗ(double T);
+		//fecundity
 		double GetEᵗ(double A0, double A1);
 
 		double GetRate(size_t s, size_t sex, double t)const
 		{
 			return CEquationTableLookup::GetRate(sex*OBL::NB_STAGES + s, t);
 		}
-		//survival rate
-		//static double GetSurvivalRate(size_t s, double T);
-		//double GetRelativeSurvivalRate()const;
-		//double GetLuck(size_t s);
 
 	protected:
 

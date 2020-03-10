@@ -23,18 +23,20 @@ namespace WBSF
 
 	const CDevRateEquation::TDevRateEquation CActiaInterruptaEquations::EQ_TYPE[NB_EQUATIONS]
 	{
-		TDevRateEquation::Briere2_1999,
-		TDevRateEquation::Briere2_1999,
-		TDevRateEquation::Briere2_1999,
-		TDevRateEquation::Poly1
+		TDevRateEquation::Briere2_1999, //OBL post diapause
+		TDevRateEquation::Briere2_1999, //Maggot OBL
+		TDevRateEquation::Briere2_1999, //Maggot SBW
+		TDevRateEquation::Briere2_1999, //Pupa
+		TDevRateEquation::Poly1		    //Adult
 	};
 
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
 	{
-		{0.0000081,1.0 / 1.1308,0.000,40},
-		{0.0001,1.0 / 0.3778,4.5379,31.7286},
-		{0.000174,1.0 / 0.1648,0.3073,30.5749},
-		{1.0/22.0,0,0,0},
+		{0.00000824, 1.0 / 1.1276, 5.6055, 40},	//OBL post diapause
+		{0.0000081,1.0 / 1.1308,0.000,40},      //Maggot OBL
+		{0.0001,1.0 / 0.3778,4.5379,31.7286},	//Maggot SBW
+		{0.000174,1.0 / 0.1648,0.3073,30.5749},	//Pupa
+		{1.0 / 22.0,0,0,0},						//Adult
 	};
 
 
@@ -67,9 +69,10 @@ namespace WBSF
 		static const double P[NB_EQUATIONS][4] =
 		{
 			//  x      s
-			{ 0.0000, 0.3488, 0.4, 2.0 },//Egg Obl
-			{ 0.0000, 0.2135, 0.5, 2.0 },//Egg SBW
-			{ 0.0000, 0.4695, 0.3, 2.5 },//Pupa
+			{ 0.0000, 0.3488, 0.4, 2.0 },//OBL post diapause
+			{ 0.0000, 0.4695, 0.3, 2.5 },//Maggot OBL
+			{ 0.0000, 0.2135, 0.5, 2.0 },//Maggot SBW
+			{ 0.0000, 0.1246, 0.7, 1.5 },//Pupa
 			{ 2.8207, 0.5517, 0.0, 9.9 },//Adult
 		};
 
@@ -98,7 +101,7 @@ namespace WBSF
 
 	double CActiaInterruptaEquations::GetPmax()const
 	{
-//		Preopiposition period : 5 days
+//		Pre-oviposition period : 5 days
 	//	Total fecundity : 135 (all the same)
 		//Maximum daily fecundity : 135 / (Longevity - 5)
 		return 135;
@@ -107,7 +110,6 @@ namespace WBSF
 
 	double CActiaInterruptaEquations::GetEº()const
 	{
-		//est-ce correcte d'utilise la version Unbiased?????
 		//							  x      s
 		static const double P[2] = { 2.28, 0.0800 };
 		double Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
@@ -132,12 +134,13 @@ namespace WBSF
 	//survival rate 
 
 
+
 	double CActiaInterruptaEquations::GetSurvivalRate(size_t s, double T)
 	{
 		static const double P[NB_STAGES][2] =
 		{
 			//  x      s
-			{ 7.0251, -0.1735 },	//Egg
+			{ 7.0251, -0.1735 },	//Maggot
 			{ 9.6200, -0.2389 },	//Pupa
 			{ 1.000, 0.0000 }		//Adult
 		};
@@ -145,7 +148,7 @@ namespace WBSF
 		double r = 0;
 		switch (s)
 		{
-		case EGG:
+		case MAGGOT:
 		case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
 		case ADULT:	r = 1; break;
 		default: _ASSERTE(false);
@@ -167,4 +170,5 @@ namespace WBSF
 		return m_randomGenerator.Rand(0.0, 1.0);
 	}
 	
+
 }

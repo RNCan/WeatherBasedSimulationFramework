@@ -28,10 +28,7 @@ namespace WBSF
 			NB_STATS
 		};
 	}
-
-
-
-	//typedef std::array<double, NB_STAGES> TranosemaArray;
+	
 	//ObliqueBandedLeafroller
 	class CObliqueBandedLeafrollerHost;
 	class CObliqueBandedLeafrollerStand;
@@ -53,21 +50,16 @@ namespace WBSF
 		virtual size_t GetNbStages()const{ return OBL::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CObliqueBandedLeafroller>(*this); }
 		virtual bool IsInDiapause(CTRef TRef)const{ return m_bRequireDiapause || (GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear()); }
-		virtual bool IsInDiapause2(CTRef TRef)const{ return (GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear()); }
+		//virtual bool IsInDiapause2(CTRef TRef)const{ return (GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear()); }
 
 	protected:
 
-		//bool IsDeadByAttrition(size_t s, double T);
-
+		
 		//member
 		std::array<double, OBL::NB_STAGES> m_δ;		//Individual's relative development rates
 		CTRef	m_diapauseTRef;
 		bool	m_bRequireDiapause;
 		double  m_ovipAge;
-		
-
-		//process var
-		//bool	m_bLastDiapaused;
 
 		inline CObliqueBandedLeafrollerStand* GetStand();
 		inline const CObliqueBandedLeafrollerStand* GetStand()const;

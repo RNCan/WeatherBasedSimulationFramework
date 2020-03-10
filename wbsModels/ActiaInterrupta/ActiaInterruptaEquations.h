@@ -13,8 +13,8 @@ namespace WBSF
 
 	namespace ActiaInterrupta
 	{
-		enum TStages{ EGG, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
-		enum TEquation { EQ_EGG_OBL, EQ_EGG_SBW, EQ_PUPA, EQ_ADULT, NB_EQUATIONS };
+		enum TStages{ MAGGOT, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		enum TEquation { EQ_OBL_POST_DIAPAUSE, EQ_MAGGOT_OBL, EQ_MAGGOT_SBW, EQ_PUPA, EQ_ADULT, NB_EQUATIONS };
 		enum THost { H_OBL, H_SBW, NB_HOSTS };
 	}
 
@@ -31,11 +31,15 @@ namespace WBSF
 
 		CActiaInterruptaEquations(const CRandomGenerator& RG);
 		
-		static size_t s2e(size_t s, size_t host){return (s == ActiaInterrupta::EGG) ? host : s + 1;}
+		static size_t s2e(size_t s, size_t host){return ActiaInterrupta::EQ_MAGGOT_OBL + ((s == ActiaInterrupta::MAGGOT) ? host : s + 1);}
+
+		using CEquationTableLookup::GetRate;
 		double GetRate(size_t s, size_t host, double t)const
 		{
 			return CEquationTableLookup::GetRate(s2e(s, host), t);
 		}
+		
+		
 
 		double Getδ(size_t s, size_t host)const { return Getδ(s2e(s, host)); }
 		double Getδ(size_t e)const;

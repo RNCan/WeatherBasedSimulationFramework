@@ -30,19 +30,14 @@ namespace WBSF
 	CActiaInterrupta::CActiaInterrupta(CHost* pHost, CTRef creationDate, double age, WBSF::TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
-		// Each individual created gets the » attributes
 
-		//m_hostType = (pHost->get_property("HostType") == "OBL") ? H_OBL: H_SBW;
-		
-		//Individual's "relative" development rate for each life stage
-		//These are independent in successive life stages
-		//size_t hostType = (get_property("HostType") == "OBL") ? H_OBL : H_SBW;
-		
+		m_OBLPostDiapause=0; //actual state of overwintering post diapause host
+		m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
 
 		//host is actually unknowns, will be set later
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
-			
+			//will be int later when host type will be known
 			m_δ[s] = 0;// Equations().Getδ(s, GetHost()->m_hostType);
 			//Stage-specific survival random draws
 			m_luck[s] = Equations().GetLuck(s);
@@ -68,6 +63,9 @@ namespace WBSF
 		if (&in != this)
 		{
 			CIndividual::operator=(in);
+
+			m_OBLPostDiapause = in.m_OBLPostDiapause; 
+			m_OBLPostDiapause_δ = in.m_OBLPostDiapause_δ;
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
@@ -106,105 +104,104 @@ namespace WBSF
 
 
 		CIndividual::Live(weather);
-
 		double dayLength = weather.GetDayLength() / 3600.; //in hours
 		CTRef TRef = weather.GetTRef();
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 
-		//WBSF::ofStream file;
-		//if (JDay == 0)
-		//{
-		//	file.open("g:/Actia.csv");
-		//	file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
-		//	file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
-		//	file.close();
-		//}
 
-		//if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
-			//m_bDiapause = false;
-		
-		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
+		if (m_creationDate.GetJDay() == 0 && m_OBLPostDiapause < 1)//for insect create the first of January
 		{
-			size_t h = step*GetTimeStep();
-			size_t s = GetStage();
-			double T = weather[h][H_TAIR];
-
-			//Relative development rate for time step
-			
-			double r = m_δ[s] * Equations().GetRate(s, hostType, T) / nbSteps;
-			
-			//Check if individual enters diapause this time step
-			
-			//if (GetStand()->m_bAutoComputeDiapause)
-			//{
-			//	if (m_age < GetStand()->m_diapauseAge && (m_age + r) > GetStand()->m_diapauseAge)
-			//	{
-			//		//Individual crosses the m_diapauseAge threshold this time step, and post-solstice day length is shorter than critical daylength
-			//		if (JDay > 173 && dayLength < GetStand()->m_criticalDaylength)
-			//		{
-			//			m_diapauseTRef = weather.GetTRef();
-			//			//m_bDiapause = true;
-			//			m_age = GetStand()->m_diapauseAge; //Set age exactly to diapause age (development stops precisely there until spring...
-			//		}
-			//	}
-			//}
-			
-			if (s == ADULT) //Set maximum longevity to 150 days
-				r = max(1.0 / (150.0*nbSteps), r);
-
-			if (GetStand()->m_bApplyAttrition)
+			//wait for end of host(OBL) post-diapause
+			for (size_t step = 0; step < nbSteps; step++)
 			{
-				if (IsChangingStage(r))
-					m_badluck = RandomGenerator().Randu() > m_luck[s];
-				else
-					m_badluck = IsDeadByAttrition(s, T);
+				size_t h = step * GetTimeStep();
+				double T = weather[h][H_TAIR];
+
+				//Relative development rate for time step
+				double r = m_OBLPostDiapause_δ * Equations().GetRate(EQ_OBL_POST_DIAPAUSE, T) / nbSteps;
+				m_OBLPostDiapause += r;
 			}
+		}
+		else
+		{
 
+			//WBSF::ofStream file;
+			//if (JDay == 0)
+			//{
+			//	file.open("g:/Actia.csv");
+			//	file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
+			//	file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ" << endl;
+			//	file.close();
+			//}
 
-			//Adjust age
-			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
-				m_age += r;
+			//if (GetStand()->m_bAutoComputeDiapause && TRef.GetJDay() == 0)
+				//m_bDiapause = false;
 
-
-			
-
-			if (!m_adultDate.IsInit() && m_age >= ADULT )
-				m_adultDate = TRef;
-			//compute brooding
-			
-			if (m_sex == FEMALE/* && m_age >= ADULT*/ && TRef >= m_adultDate+GetStand()->m_preOvip)
+			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
-				ASSERT(m_age >= ADULT);
+				size_t h = step * GetTimeStep();
+				size_t s = GetStage();
+				double T = weather[h][H_TAIR];
 
-				//if(!file.is_open())
-					//file.open("g:/Actia.csv", ios::out | ios::app);
-				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
-				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
+				//Relative development rate for time step
+
+				double r = m_δ[s] * Equations().GetRate(s, hostType, T) / nbSteps;
+			
+				if (s == ADULT) //Set maximum longevity to 150 days
+					r = max(1.0 / (150.0*nbSteps), r);
+
+				if (GetStand()->m_bApplyAttrition)
+				{
+					if (IsChangingStage(r))
+						m_badluck = RandomGenerator().Randu() > m_luck[s];
+					else
+						m_badluck = IsDeadByAttrition(s, T);
+				}
+
+
+				//Adjust age
+				if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
+					m_age += r;
+
+
+				if (!m_adultDate.IsInit() && m_age >= ADULT)
+					m_adultDate = TRef;
 				
-				//Possible host attack module here
-				double as = 0.05;
-				double th = 0.8;
-				double Nh = m_Nh;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-				double Na=as*Nh*(Equations().GetOᵗ(T)/nbSteps)/(1+as*th*Nh);
+				//compute brooding
+				if (m_sex == FEMALE && TRef >= m_adultDate + GetStand()->m_preOvip)
+				{
+					ASSERT(m_age >= ADULT);
 
-				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
-				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
+					//if(!file.is_open())
+						//file.open("g:/Actia.csv", ios::out | ios::app);
+					double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
+					double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
 
-				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
-				double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
+					//Possible host attack module here
+					double as = 0.05;
+					double th = 0.8;
+					double Nh = m_Nh / nbSteps;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
+					double Na = as * Nh*(Equations().GetOᵗ(T)/*/nbSteps*/) / (1 + as * th*Nh);//est-ce que c'est correcte?????
 
-				m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
+					//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
+					//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
 
-				m_broods += broods;
-				ASSERT(m_totalBroods + m_broods < m_Pmax);
-				
-			}									  
-		}//for all time steps
+					//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
+					double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
 
-		//file.close();
-		m_age = min(m_age, (double)DEAD_ADULT);
+					m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
+					m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
+
+					m_broods += broods;
+					ASSERT(m_totalBroods + m_broods < m_Pmax);
+
+				}
+			}//for all time steps
+
+			//file.close();
+			m_age = min(m_age, (double)DEAD_ADULT);
+		}
 	}
 
 
@@ -222,7 +219,7 @@ namespace WBSF
 			
 			double attRate = GetStand()->m_generationAttrition;
 			double scaleFactor = m_broods*m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
+			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 		}
 	}
@@ -281,7 +278,7 @@ namespace WBSF
 
 			if (IsAlive())
 			{
-				if (s >= EGG && s < DEAD_ADULT)
+				if (s >= MAGGOT && s < DEAD_ADULT)
 					stat[S_EGG+s] += m_scaleFactor;
 
 

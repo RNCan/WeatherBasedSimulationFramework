@@ -43,12 +43,12 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.0 (2020)";
+		VERSION = "1.0.1 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
-		m_diapauseAge = EGG;// +0.1;
+//		m_diapauseAge = MAGGOT;// +0.1;
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5;
 		m_preOvip = 5;
@@ -69,11 +69,11 @@ namespace WBSF
 		int c = 0;
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
-		m_diapauseAge = parameters[c++].GetReal();
+		/*m_diapauseAge =*/ parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_preOvip = parameters[c++].GetInt();
-		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
+		//ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
 	}
@@ -180,7 +180,7 @@ namespace WBSF
 			//Init host
 			pHostActiaInterrupta->m_nbMinObjects = 100;
 			pHostActiaInterrupta->m_nbMaxObjects = 1250;
-			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, EGG/*m_diapauseAge*/, FEMALE, true, 0));
+			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, MAGGOT/*m_diapauseAge*/, FEMALE, true, 0));
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand

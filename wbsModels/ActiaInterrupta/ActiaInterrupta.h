@@ -39,7 +39,7 @@ namespace WBSF
 	{
 	public:
 
-		CActiaInterrupta(CHost* pHost, CTRef creationDate = CTRef(), double age = ActiaInterrupta::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CActiaInterrupta(CHost* pHost, CTRef creationDate = CTRef(), double age = ActiaInterrupta::MAGGOT, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CActiaInterrupta(const CActiaInterrupta& in) :CIndividual(in){ operator=(in); }
 		CActiaInterrupta& operator=(const CActiaInterrupta& in);
 		~CActiaInterrupta(void);
@@ -59,6 +59,8 @@ namespace WBSF
 		bool IsDeadByAttrition(size_t s, double T);
 
 		//member
+		double m_OBLPostDiapause; //actual state of overwintering post diapause host
+		double m_OBLPostDiapause_δ;//Individual's relative overwintering post diapause host
 		ActiaInterruptaArray m_δ;		//Individual's relative development rates
 		ActiaInterruptaArray m_luck;	//survival between stage
 		bool	m_badluck;		//killed by attrition
