@@ -148,8 +148,8 @@ namespace WBSF
 
 				double r = m_δ[s] * Equations().GetRate(s, hostType, T) / nbSteps;
 			
-				if (s == ADULT) //Set maximum longevity to 150 days
-					r = max(1.0 / (150.0*nbSteps), r);
+				if (s == ADULT) //Set maximum longevity to 100 days
+					r = max(1.0 / (100.0*nbSteps), r);
 
 				if (GetStand()->m_bApplyAttrition)
 				{
@@ -167,37 +167,62 @@ namespace WBSF
 
 				if (!m_adultDate.IsInit() && m_age >= ADULT)
 					m_adultDate = TRef;
-				
+
 				//compute brooding
-				if (m_sex == FEMALE && TRef >= m_adultDate + GetStand()->m_preOvip)
+				static const double pre_ovip_age = 5.0 / 22.0;
+				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
 				{
 					ASSERT(m_age >= ADULT);
 
-					//if(!file.is_open())
-						//file.open("g:/Actia.csv", ios::out | ios::app);
-					double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
-					double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
+					double fec = m_Pmax * r / (1.0 - pre_ovip_age);
 
 					//Possible host attack module here
-					double as = 0.05;
-					double th = 0.8;
-					double Nh = m_Nh / nbSteps;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-					double Na = as * Nh*(Equations().GetOᵗ(T)/*/nbSteps*/) / (1 + as * th*Nh);//est-ce que c'est correcte?????
-
-					//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
-					//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
-
-					//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
-					double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
-
-					m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-					m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
+					double as = 0.05;//5% of host available???
+					//double th = 0.8;//????
+					double Nh = m_Nh / nbSteps; //???? ???  // Number of hosts to attack
+					double Na = as * Nh;// / (1 + as * th*Nh);//?????
+					
+					//eggs laid with successful attack is, at most, host find
+					double broods = max(0.0, min(fec, Na));
 
 					m_broods += broods;
 					ASSERT(m_totalBroods + m_broods < m_Pmax);
-
 				}
+
+				//if (s== ADULT && m_sex == FEMALE && GetStageAge()>= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
+				//{
+				//	ASSERT(m_age >= ADULT);
+
+				//	//if(!file.is_open())
+				//		//file.open("g:/Actia.csv", ios::out | ios::app);
+				//	//double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
+				//	//double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
+
+				//	//Possible host attack module here
+				//	double as = 0.05;
+				//	double th = 0.8;
+				//	double Nh = m_Nh / nbSteps; //???? ???  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
+				//	double Na = as * Nh*(Equations().GetOᵗ(T)/*/nbSteps*/) / (1 + as * th*Nh);//est-ce que c'est correcte?????
+
+				//	double longevity = 1.0 / m_δ[ADULT];
+				//	double daily_fec = m_Pmax / (longevity*(1.0 - pre_ovip_age));
+
+
+				//	//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
+				//	//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
+
+				//	//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
+				//	//double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
+
+				//	//m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
+				//	//m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
+
+				//	m_broods += broods;
+				//	ASSERT(m_totalBroods + m_broods < m_Pmax);
+
+				//}
 			}//for all time steps
+
 
 			//file.close();
 			m_age = min(m_age, (double)DEAD_ADULT);

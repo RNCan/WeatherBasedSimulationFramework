@@ -27,7 +27,7 @@ namespace WBSF
 		TDevRateEquation::Briere2_1999, //Maggot OBL
 		TDevRateEquation::Briere2_1999, //Maggot SBW
 		TDevRateEquation::Briere2_1999, //Pupa
-		TDevRateEquation::Poly1		    //Adult
+		TDevRateEquation::Unknown	    //Adult
 	};
 
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
@@ -36,7 +36,7 @@ namespace WBSF
 		{0.0000081,1.0 / 1.1308,0.000,40},      //Maggot OBL
 		{0.0001,1.0 / 0.3778,4.5379,31.7286},	//Maggot SBW
 		{0.000174,1.0 / 0.1648,0.3073,30.5749},	//Pupa
-		{1.0 / 22.0,0,0,0},						//Adult
+		{0,0,0,0},						        //Adult
 	};
 
 
@@ -51,7 +51,16 @@ namespace WBSF
 		ASSERT(e >= 0 && e < NB_EQUATIONS);
 
 		vector<double> p(begin(EQ_P[e]), end(EQ_P[e]));
-		double Rt = max(0.0, min(1.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T)));
+		double Rt = 0;
+		
+
+		if (e < EQ_ADULT)
+			Rt = max(0.0, min(1.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T)));
+		else
+			Rt = 1.0/exp(log(44) - log(max(10.0, min(30.0, T)) / 10));
+			
+
+
 
 		_ASSERTE(!_isnan(Rt) && _finite(Rt));
 		ASSERT(Rt >= 0);
@@ -73,7 +82,7 @@ namespace WBSF
 			{ 0.0000, 0.4695, 0.3, 2.5 },//Maggot OBL
 			{ 0.0000, 0.2135, 0.5, 2.0 },//Maggot SBW
 			{ 0.0000, 0.1246, 0.7, 1.5 },//Pupa
-			{ 2.8207, 0.5517, 0.0, 9.9 },//Adult
+			{ /*2.8207*/2.9729, 0.5517, 1.0, 100 },//Adult 
 		};
 
 
@@ -101,12 +110,17 @@ namespace WBSF
 
 	double CActiaInterruptaEquations::GetPmax()const
 	{
-//		Pre-oviposition period : 5 days
-	//	Total fecundity : 135 (all the same)
-		//Maximum daily fecundity : 135 / (Longevity - 5)
-		return 135;
-	}
+		//maggots / femelle
+		double fec = m_randomGenerator.RandNormal(132.3, 40.0);
+		
+		//limit between 1% and 99%
+		while (fec < 39 || fec>225)
+			fec=m_randomGenerator.RandNormal(132.3, 40.0);
 
+		return fec;
+	}
+	
+	
 
 	double CActiaInterruptaEquations::GetEº()const
 	{
