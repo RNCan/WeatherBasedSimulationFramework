@@ -30,14 +30,29 @@ namespace WBSF
 		TDevRateEquation::Unknown	    //Adult
 	};
 
+
+
+
+
+
+	//const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
+	//{
+	//	{0.00000824, 0.8868, 5.6055, 40.0},	//OBL post diapause
+	//	{0.0000081 , 0.8843, 0.0000, 40.0},      //Maggot OBL
+	//	{0.0001    , 2.6459, 4.5379, 31.7286},	//Maggot SBW
+	//	{0.000174  , 6.0678, 0.3073, 30.5749},	//Pupa
+	//	{0,0,0,0},						        //Adult
+	//};
+
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
 	{
-		{0.00000824, 1.0 / 1.1276, 5.6055, 40},	//OBL post diapause
-		{0.0000081,1.0 / 1.1308,0.000,40},      //Maggot OBL
-		{0.0001,1.0 / 0.3778,4.5379,31.7286},	//Maggot SBW
-		{0.000174,1.0 / 0.1648,0.3073,30.5749},	//Pupa
-		{0,0,0,0},						        //Adult
+		{8.24e-06, 0.8868, 5.6, 40.0}, //OBL post diapause
+		{8.10e-06, 0.8843, 0.0, 40.0}, //Maggot OBL
+		{1.00e-04, 2.6459, 4.5, 31.7}, //Maggot SBW
+		{1.74e-04, 6.0678, 0.3, 30.6}, //Pupa
+		{0,0,0,0},					   //Adult
 	};
+
 
 
 	CActiaInterruptaEquations::CActiaInterruptaEquations(const CRandomGenerator& RG) :
@@ -110,7 +125,7 @@ namespace WBSF
 
 	double CActiaInterruptaEquations::GetPmax()const
 	{
-		//maggots / femelle
+		//maggots / female
 		double fec = m_randomGenerator.RandNormal(132.3, 40.0);
 		
 		//limit between 1% and 99%

@@ -110,20 +110,20 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 
 
-		if (m_creationDate.GetJDay() == 0 && m_OBLPostDiapause < 1)//for insect create the first of January
-		{
-			//wait for end of host(OBL) post-diapause
-			for (size_t step = 0; step < nbSteps; step++)
-			{
-				size_t h = step * GetTimeStep();
-				double T = weather[h][H_TAIR];
+		//if (m_creationDate.GetJDay() == 0 && m_OBLPostDiapause < 1)//for insect create the first of January
+		//{
+		//	//wait for end of host(OBL) post-diapause
+		//	for (size_t step = 0; step < nbSteps; step++)
+		//	{
+		//		size_t h = step * GetTimeStep();
+		//		double T = weather[h][H_TAIR];
 
-				//Relative development rate for time step
-				double r = m_OBLPostDiapause_δ * Equations().GetRate(EQ_OBL_POST_DIAPAUSE, T) / nbSteps;
-				m_OBLPostDiapause += r;
-			}
-		}
-		else
+		//		//Relative development rate for time step
+		//		double r = m_OBLPostDiapause_δ * Equations().GetRate(EQ_OBL_POST_DIAPAUSE, T) / nbSteps;
+		//		m_OBLPostDiapause += r;
+		//	}
+		//}
+		//else
 		{
 
 			//WBSF::ofStream file;
@@ -170,57 +170,24 @@ namespace WBSF
 
 				//compute brooding
 				static const double pre_ovip_age = 5.0 / 22.0;
+
 				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
 				{
 					ASSERT(m_age >= ADULT);
-
 					double fec = m_Pmax * r / (1.0 - pre_ovip_age);
 
-					//Possible host attack module here
-					double as = 0.05;//5% of host available???
-					//double th = 0.8;//????
-					double Nh = m_Nh / nbSteps; //???? ???  // Number of hosts to attack
-					double Na = as * Nh;// / (1 + as * th*Nh);//?????
-					
+					//This is Holling's disk equation, with parameters as=0.05 and th=0.8, values guessed at 
+					//in Régnière et al Tranosema model (submitted)
+					double as = 0.05;
+					double th = 0.8;
+					double Na = as * m_Nh / (1 + as * th*m_Nh) / nbSteps; //Number of attacks per time step
+
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(fec, Na));
 
 					m_broods += broods;
 					ASSERT(m_totalBroods + m_broods < m_Pmax);
 				}
-
-				//if (s== ADULT && m_sex == FEMALE && GetStageAge()>= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
-				//{
-				//	ASSERT(m_age >= ADULT);
-
-				//	//if(!file.is_open())
-				//		//file.open("g:/Actia.csv", ios::out | ios::app);
-				//	//double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
-				//	//double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
-
-				//	//Possible host attack module here
-				//	double as = 0.05;
-				//	double th = 0.8;
-				//	double Nh = m_Nh / nbSteps; //???? ???  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-				//	double Na = as * Nh*(Equations().GetOᵗ(T)/*/nbSteps*/) / (1 + as * th*Nh);//est-ce que c'est correcte?????
-
-				//	double longevity = 1.0 / m_δ[ADULT];
-				//	double daily_fec = m_Pmax / (longevity*(1.0 - pre_ovip_age));
-
-
-				//	//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
-				//	//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods+ m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << endl;
-
-				//	//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
-				//	//double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
-
-				//	//m_Pᵗ = max(0.0, m_Pᵗ + Oᵗ - 0.8904*Rᵗ);
-				//	//m_Eᵗ = max(0.0, m_Eᵗ + Oᵗ - Rᵗ - broods);
-
-				//	m_broods += broods;
-				//	ASSERT(m_totalBroods + m_broods < m_Pmax);
-
-				//}
 			}//for all time steps
 
 
