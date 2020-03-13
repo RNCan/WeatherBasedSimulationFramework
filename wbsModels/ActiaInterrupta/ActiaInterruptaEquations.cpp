@@ -63,7 +63,7 @@ namespace WBSF
 		if (e < EQ_ADULT)
 			Rt = max(0.0, min(1.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T)));
 		else
-			Rt = 1.0/exp(log(44) - log(max(10.0, min(30.0, T)) / 10));
+			Rt = 1.0 / 22.0; //Rt = 1.0/exp(log(44) - log(max(10.0, min(30.0, T)) / 10));
 			
 
 
