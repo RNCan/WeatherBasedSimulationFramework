@@ -35,21 +35,12 @@ namespace WBSF
 
 
 
-	//const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
-	//{
-	//	{0.00000824, 0.8868, 5.6055, 40.0},	//OBL post diapause
-	//	{0.0000081 , 0.8843, 0.0000, 40.0},      //Maggot OBL
-	//	{0.0001    , 2.6459, 4.5379, 31.7286},	//Maggot SBW
-	//	{0.000174  , 6.0678, 0.3073, 30.5749},	//Pupa
-	//	{0,0,0,0},						        //Adult
-	//};
-
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
 	{
-		{8.24e-06, 0.8868, 5.6, 40.0}, //OBL post diapause
-		{8.10e-06, 0.8843, 0.0, 40.0}, //Maggot OBL
-		{1.00e-04, 2.6459, 4.5, 31.7}, //Maggot SBW
-		{1.74e-04, 6.0678, 0.3, 30.6}, //Pupa
+		{8.24e-06  , 0.8868, 5.6, 40.0}, //OBL post diapause
+		{7.8840e-06, 1.4111, -10.0, 37.0}, //Maggot OBL
+		{6.965e-05 , 3.0690,  -7.9, 31.7}, //Maggot SBW
+		{1.0095e-04, 5.3966, -13.2, 32.0}, //Pupa
 		{0,0,0,0},					   //Adult
 	};
 
@@ -94,9 +85,9 @@ namespace WBSF
 		{
 			//  x      s
 			{ 0.0000, 0.3488, 0.4, 2.0 },//OBL post diapause
-			{ 0.0000, 0.4695, 0.3, 2.5 },//Maggot OBL
-			{ 0.0000, 0.2135, 0.5, 2.0 },//Maggot SBW
-			{ 0.0000, 0.1246, 0.7, 1.5 },//Pupa
+			{ 0.0000, 0.3018, 0.5, 2.0 },//Maggot OBL
+			{ 0.0000, 0.1661, 0.5, 2.0 },//Maggot SBW
+			{ 0.0000, 0.1243, 0.7, 1.5 },//Pupa
 			{ /*2.8207*/2.9729, 0.5517, 1.0, 100 },//Adult 
 		};
 
@@ -112,7 +103,7 @@ namespace WBSF
 			r = 1;
 
 		if (e == EQ_ADULT)
-			r = 22.0 / (22.0+r);//transform relative longevity into relative rate
+			r = 22.0 / r ;//transform relative longevity into relative rate
 
 
 		return r;
@@ -166,6 +157,7 @@ namespace WBSF
 
 	double CActiaInterruptaEquations::GetSurvivalRate(size_t s, double T)
 	{
+		//This is code for Tranosema rostrale, not applicable to Actia interrupta.
 		static const double P[NB_STAGES][2] =
 		{
 			//  x      s
