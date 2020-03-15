@@ -135,8 +135,16 @@
             <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>Broods_g0</Name>
-            <Title>Broods_g0</Title>
+            <Name>BroodsOBL_g0</Name>
+            <Title>BroodsOBL_g0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BroodsSBW_g0</Name>
+            <Title>BroodsSBW_g0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -215,8 +223,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Broods_g1</Name>
-            <Title>Broods_g1</Title>
+            <Name>BroodsOBL_g1</Name>
+            <Title>BroodsOBL_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BroodsSBW_g1</Name>
+            <Title>BroodsSBW_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -295,8 +311,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Broods_g2</Name>
-            <Title>Broods_g2</Title>
+            <Name>BroodsOBL_g2</Name>
+            <Title>BroodsOBL_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BroodsSBW_g2</Name>
+            <Title>BroodsSBW_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
