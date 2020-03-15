@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <algorithm>
+#include <array>
 
 #include "MiniTab2CSV.h"
 #include "MiniTab2CSVDlg.h"
@@ -19,6 +20,7 @@
 //#include "UI/Common/SelectDirectory.h"
 //#include "UI/Common/CustomDDX.h"
 
+using namespace std;
 using namespace UtilWin;
 
 #ifdef _DEBUG
@@ -294,7 +296,7 @@ void CMiniTab2CSVDlg::MTW2CSV(const CString& filePathIn, const CString& filePath
 
 
 	CFileException e;
-	if (mtw.Open(filePathIn, CFile::modeRead|CFile::typeBinary, &e) && csv.Open(filePathOut, CFile::modeWrite | CFile::modeCreate, &e))
+	if (mtw.Open(filePathIn, CFile::modeRead|CFile::typeBinary| CFile::shareDenyNone, &e) && csv.Open(filePathOut, CFile::modeWrite | CFile::modeCreate, &e))
 	{
 		CMTWColomnArray colArray;
 
@@ -395,7 +397,8 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 		long firstRec[8] = { 0 };
 		int rel = 72;
 		short size = 6;
-		if (head.Find("release 7.2") >= 0)
+		if (head.Find("release 7.2") >= 0 ||
+			(head.Find("release 8.2") >= 0 && head.Find("version 5.1") >= 0 && head.Find("1994")>=0))
 		{
 			rel = 72;
 			size = 8;
@@ -459,7 +462,9 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 			for (int i = 0; i < firstRec[2]; i++)
 			{
 				if (firstRec[0] == 2 || firstRec[0] == 3)
+				{
 					VERIFY(mtw.Read(&(col.m_data.GetData()[i]), 4) == 4);
+				}
 				else if (firstRec[0] == 127)
 				{
 					long tmp;
@@ -490,6 +495,19 @@ ReadLong( long*, nbLong)
 {
 }
 */
+
+array<unsigned char,4> IntToByteArray(long value)
+{
+	array<unsigned char, 4> bytes;
+	for (int i = 0; i < 4; i++)
+	{
+		bytes[i] = ((value >> (8 * i)) & 0XFF);
+	}
+
+	return bytes;
+}
+
+
 
 bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 {
@@ -591,6 +609,7 @@ bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 					{
 						int i;
 						i = 0;
+						mtw.Seek(-1, CFile::current);//have to determine when rewind and not???
 					}
 					else
 					{
@@ -598,7 +617,7 @@ bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 						VERIFY(mtw.Read(&test2, 1));
 						if (test1 == '\r' && test2 == '\n')
 						{
-							//probably a /r added in convertion between vax and windows...
+							//probably a /r added in conversion between vax and windows...
 							mtw.Seek(-1, CFile::current);//rewind
 						}
 						else
@@ -620,13 +639,19 @@ bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 
 					long tmp;
 					VERIFY(mtw.Read(&tmp, 4) == 4);
+					ULONGLONG test_pos = mtw.GetPosition();
 
+					array<unsigned char,4> test_tmp = IntToByteArray(tmp);
 					
+					
+
 
 					float f1 = 0;
 					vaxfloat(&tmp, &f1, 1);
-					ASSERT((f1>-10000 && f1<-0.000001) || f1==0 || (f1 > 0.0001 && f1 < 100000));
+					ASSERT((f1>-10000 && f1<-0.000001) || f1==0 || (f1 > 0.0001 && f1 < 100000) );
 					col.m_data[i] = f1;
+
+
 				}
 			}
 			else
@@ -635,7 +660,7 @@ bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 				AfxMessageBox(_T("type de données non supporter"));
 			}
 
-			
+			ULONGLONG test_pos = mtw.GetPosition();
 
 			//read cariage return
 			VERIFY(mtw.Read(&CRLF, CRLFSize) == CRLFSize);
@@ -916,7 +941,7 @@ void CMiniTab2CSVDlg::OnBnClickedInputBrowse()
 	CString lastDir;
 	GetDlgItem(IDC_INPUT)->GetWindowText(lastDir);
 
-	CFileDialog openDlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("old Minitab workspace(*.min)|*.min|Minitab workspace(*.mtw)|*.mtw||"), this);
+	CFileDialog openDlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("Minitab workspace(*.min,*.mtw,*.mtb)|*.min;*.mtw;*.mtb||"), this);
 	//openDlg.m_ofn.lpstrInitialDir = CString::GetLocation(lastDir);
 	openDlg.m_ofn.nFilterIndex = m_nFilterIndex;
 

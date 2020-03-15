@@ -150,7 +150,7 @@ namespace WBSF
 	{
 	}
 
-	std::string CIndividual::get_property(const std::string& name)
+	std::string CIndividual::get_property(const std::string& name)const
 	{
 		return std::string();
 	}
@@ -287,7 +287,7 @@ namespace WBSF
 		return bPopAdjusted;
 	}
 
-	std::string CHost::get_property(const std::string& name)
+	std::string CHost::get_property(const std::string& name)const
 	{ 
 		return std::string(); 
 	}

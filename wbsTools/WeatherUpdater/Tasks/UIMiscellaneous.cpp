@@ -48,12 +48,13 @@ namespace WBSF
 	//Ireland data
 	//https://cli.fusio.net/cli/climate_data/webdatac/dly1928.zip
 
+	//cwfis_fwi
+	//https://cwfis.cfs.nrcan.gc.ca/downloads/fwi_obs/
+
+	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca", " ftp.cccma.ec.gc.ca", "cwfis.cfs.nrcan.gc.ca" };
+	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/", "/data/cordex/output/CCCma/CanRCM4", "/downloads/fwi_obs/" };
 
 
-	const char* CUIMiscellaneous::SERVER_NAME[NB_DATASETS] = { "cdiac.ornl.gov", "", "", "ftp.tor.ec.gc.ca", " ftp.cccma.ec.gc.ca" };
-	const char* CUIMiscellaneous::SERVER_PATH[NB_DATASETS] = { "pub12/russia_daily/", "", "", "/Pub/Engineering_Climate_Dataset/Canadian_Weather_Energy_Engineering_Dataset_CWEEDS_2005/ZIPPED%20FILES/ENGLISH/CWEEDS_v_2016/", "/data/cordex/output/CCCma/CanRCM4" };
-
-	
 	//*********************************************************************
 	const char* CUIMiscellaneous::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Dataset", "FirstYear", "LastYear", "ShowProgress" };
 	const size_t CUIMiscellaneous::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
@@ -87,10 +88,8 @@ namespace WBSF
 		case SOPFEU_2013:	filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : ""; break;
 		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
 		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
-		case RCM4_22:		
-			filePath = "H:/Travaux/ClimateChange/Loc/orog_4nearest_24stations.csv"; break;
-			//filePath = GetDir(WORKING_DIR) + "NAM/orog_Hydro-Québec.csv"; break;
-			//filePath = GetDir(WORKING_DIR) + "orog.csv"; break;
+		case RCM4_22:		filePath = GetDir(WORKING_DIR) + "orog_4nearest_24stations.csv"; break;
+		case CWFIS:			filePath = (bLocal ? GetDir(WORKING_DIR)  : string(SERVER_PATH[dataset])) + "cwfis_allstn.csv"; break;
 		}
 
 		return filePath;
@@ -101,7 +100,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS|CCCma RCM4_22"; break;
+		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS|CCCma RCM4_22|CWFIS"; break;
 		};
 		return str;
 	}
@@ -115,7 +114,7 @@ namespace WBSF
 			dataset = 0;
 
 
-		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec", "Miscellaneous\\CWEEDS\\", "Miscellaneous\\RCM4_22\\" };
+		static const char* DEFAULT_DIR[NB_DATASETS] = { "Miscellaneous\\Russia\\", "Miscellaneous\\SOPFEU", "Miscellaneous\\Quebec", "Miscellaneous\\CWEEDS\\", "Miscellaneous\\RCM4_22\\", "Miscellaneous\\CWFIS\\" };
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + DEFAULT_DIR[dataset]; break;
@@ -193,6 +192,7 @@ namespace WBSF
 							case QUEBEC_HOURLY:break;
 							case CWEEDS: break;
 							case RCM4_22: break;
+							case CWFIS: break;
 							}
 						}
 					}
@@ -271,10 +271,16 @@ namespace WBSF
 					case SOPFEU_2013:break;
 					case QUEBEC_HOURLY:break;
 					case CWEEDS: break;
-					case RCM4_22: 
+					case RCM4_22:
 					{
 						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "*.tif", fileList, false, callback);
 						break;
+					}
+					case CWFIS:
+					{
+						msgTmp = FindFiles(pConnection, string(SERVER_PATH[dataset]) + "cwfis_fwi*.bz2", fileList, false, callback);
+						break;
+
 					}
 					default:;
 
@@ -442,6 +448,7 @@ namespace WBSF
 			case QUEBEC_HOURLY:break;
 			case CWEEDS: break;
 			case RCM4_22:break;
+			case CWFIS: break;
 			}
 
 			//unzip 
@@ -481,6 +488,7 @@ namespace WBSF
 		case QUEBEC_HOURLY: filePath = GetDir(WORKING_DIR) + stationName.substr(4, 2) + "/" + stationName + ".WY3"; break;
 		case CWEEDS: break;
 		case RCM4_22:break;
+		case CWFIS: break;
 		}
 
 
@@ -503,6 +511,7 @@ namespace WBSF
 		case QUEBEC_HOURLY:break;
 		case CWEEDS: break;
 		case RCM4_22:break;
+		case CWFIS: break;
 		}
 
 
@@ -565,6 +574,7 @@ namespace WBSF
 
 			case SOPFEU_2013:
 			case QUEBEC_HOURLY:
+			case CWFIS:
 			{
 				if (m_weatherStations.empty())
 				{
@@ -572,6 +582,8 @@ namespace WBSF
 						msg = LoadSOPFEUInMemory(callback);
 					else if (dataset == QUEBEC_HOURLY)
 						msg = LoadQuebecInMemory(callback);
+					else if (dataset == CWFIS)
+						msg = LoadCWFISInMemory(callback);
 				}
 
 
@@ -601,7 +613,7 @@ namespace WBSF
 
 			case RCM4_22:
 			{
-					
+
 				if (msg)
 				{
 					stationList.resize(m_stations.size());
@@ -609,8 +621,10 @@ namespace WBSF
 						stationList[i] = m_stations[i].m_ID;
 				}
 			}
+
+
 			}//switch
-		}//ifm
+		}//if
 
 		return msg;
 	}
@@ -691,11 +705,23 @@ namespace WBSF
 
 			}
 			case RCM4_22: break;
+			case CWFIS:
+			{
+				station.SetHourly(true);
+				CMiWeatherStationMap::const_iterator it = m_weatherStations.find(ID);
+				if (msg && it != m_weatherStations.end() && (*it).second.IsYearInit(year))
+				{
+					station[year] = (*it).second[year];
+				}
+
+
+				break;
+			}
 			}
 
 		}
 
-		if(dataset==RCM4_22)
+		if (dataset == RCM4_22)
 		{
 			station.SetHourly(false);
 
@@ -967,6 +993,118 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CUIMiscellaneous::LoadCWFISInMemory(CCallback& callback)
+	{
+		ERMsg msg;
+
+		m_weatherStations.clear();
+
+
+		string workingDir = GetDir(WORKING_DIR);
+
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+
+
+		//		static const char* FILE_NAME[6] = { "cwfis_fwi2000sv3.0opEC_2015.csv","cwfis_fwi2010sopEC_2015.csv","cwfis_fwi2016.csv","cwfis_fwi2017.csv","cwfis_fwi2018.csv","cwfis_fwi2019.csv" };
+
+		string filePath = workingDir + "cwfis_fwi*.csv";
+		StringVector fileList = WBSF::GetFilesList(filePath);
+
+		callback.PushTask("Load CWFIS hourly weather files (" + to_string(fileList.size()) + " files)", fileList.size());
+
+		for (size_t i = 0; i < fileList.size() && msg; i++)
+		{
+			//CTPeriod p;
+			//int year = firstYear + int(y);
+//			string title = GetFileTitle(fileList[i]);
+
+			//
+			//aes","wmo","rep_date, temp, td, rh, ws, wg, wdir, pres, vis, precip, rndays, sog, ffmc, dmc, dc, bui, isi, fwi, dsr, opts, calcstatus
+			enum { C_AES, C_WMO, C_REP_DATE, C_TEMP, C_TD, C_RH, C_WS, C_WG, C_WDIR, C_PRES, C_VIS, C_PRECIP, C_RNDAYS, C_SOG, C_FFMC, C_DMC, C_DC, C_BUI, C_ISI, C_FWI, C_DSR, C_OPTS, C_CALCSTATUS, NB_INPUT_HOURLY_COLUMN };
+			const TVarH COL_VAR[NB_INPUT_HOURLY_COLUMN] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_TDEW, H_RELH, H_WNDS, H_SKIP, H_WNDD, H_PRES, H_SKIP, H_PRCP,  H_SKIP, H_SNDH, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+			static const char* COL_NAME[NB_INPUT_HOURLY_COLUMN] = { "aes","wmo","rep_date","temp","td","rh","ws","wg","wdir","pres","vis","precip","rndays","sog","ffmc","dmc","dc","bui","isi","fwi","dsr","opts","calcstatus" };
+
+
+			//now extract data 
+			ifStream file;
+			msg = file.open(fileList[i]);
+
+			if (msg)
+			{
+				callback.PushTask("Load CWFIS "+GetFileName(fileList[i]), (size_t)file.length());
+				for (CSVIterator loop(file, ",", true); loop != CSVIterator()&&msg; ++loop)
+				{
+					ASSERT(loop->size() == NB_INPUT_HOURLY_COLUMN);
+
+					string ID = (*loop)[C_AES];
+					StringVector dateTime((*loop)[C_REP_DATE], "- :");
+					ASSERT(dateTime.size() == 6);
+
+					//if (dateTime.size() == 6)
+
+					int year = stoi(dateTime[0]);
+					int month = stoi(dateTime[1])-1;
+					int day = stoi(dateTime[2])-1;
+					int hour = stoi(dateTime[3]);
+
+					//bool bInvalidLeap = !IsLeap(year) && (day == DAY_29) && (month == FEBRUARY);
+					ASSERT(month >= 0 && month < 12);
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month) );
+					ASSERT(hour >= 0 && hour < 24);
+
+					
+					if (year >= firstYear && year <= lastYear )
+					{
+						CTRef TRef(year, month, day, hour);
+
+						//string header;
+						//getline(file, header);
+						//StringVector headers = Tokenize(header, " ", true);
+						//vector<TVarH> variables(headers.size(), H_SKIP);
+						//for (size_t c = 0; c < headers.size(); c++)
+						//{
+						//	auto it = std::find(std::begin(COL_NAME), std::end(COL_NAME), headers[c]);
+						//	if (it != std::end(COL_NAME))
+						//	{
+						//		size_t v1 = it - COL_NAME;
+						//		size_t v = std::distance(std::begin(COL_NAME), it);
+						//		ASSERT(v < NB_INPUT_HOURLY_COLUMN);
+						//		variables[c] = COL_POS[v];
+						//	}
+						//}
+						for (size_t c = 0; c < NB_INPUT_HOURLY_COLUMN; c++)
+						{
+							if (COL_VAR[c] != H_SKIP && !(*loop)[c].empty())
+							{
+								if (!m_weatherStations[ID].IsHourly())
+									m_weatherStations[ID].SetHourly(true);
+
+
+								double value = stod((*loop)[c]);
+								//value = ConvertMTSData(variables[c], value);
+
+								//if (IsMTSValid(variables[c], value))
+								m_weatherStations[ID].GetHour(TRef)[COL_VAR[c]] = value;
+							}
+						}
+					}//valid year
+
+					msg += callback.StepIt(double(loop->GetLastLine().length() + 1));
+				}//for all lines
+
+				callback.PopTask();
+			}//if file open
+
+			msg += callback.StepIt();
+		}//for all file
+
+		callback.PopTask();
+
+		return msg;
+	}
+
 
 	double CUIMiscellaneous::ConvertMTSData(size_t v, double value)
 	{
@@ -1192,7 +1330,7 @@ T Value is interpolated with the specific procedure for gaps 3 hours or shorter.
 					size_t h = stoi(line.substr(16, 2)) - 1;
 
 					//que faire pour le NB
-					
+
 					ASSERT(m < 12);
 					ASSERT(d < GetNbDayPerMonth(year, m));
 					ASSERT(h < 24);

@@ -15,7 +15,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, QUEBEC_HOURLY, CWEEDS, RCM4_22, NB_DATASETS };
+		enum TDataset{ CDIAC_RUSSIA, SOPFEU_2013, QUEBEC_HOURLY, CWEEDS, RCM4_22, CWFIS, NB_DATASETS };
 		enum TAttributes { WORKING_DIR, DATASET, FIRST_YEAR, LAST_YEAR, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIMiscellaneous); }
@@ -64,6 +64,7 @@ namespace WBSF
 		ERMsg LoadRussiaInMemory(CCallback& callback);
 		ERMsg LoadSOPFEUInMemory(CCallback& callback);
 		ERMsg LoadQuebecInMemory(CCallback& callback);
+		ERMsg LoadCWFISInMemory(CCallback& callback);
 		
 
 		static double ConvertMTSData(size_t v, double value);
