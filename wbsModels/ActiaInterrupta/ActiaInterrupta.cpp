@@ -94,12 +94,14 @@ namespace WBSF
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-		assert(get_property("HostType") == "0" || get_property("HostType") == "1");
-		size_t hostType = stoi(get_property("HostType"));
+		//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
+		//size_t hostType = stoi(get_property("HostType"));
+		
+		size_t first_generation = m_generation == 0 ? 0 : 1;
 		if (m_δ[0]==0)//not init yet
 		{
 			for (size_t s = 0; s < NB_STAGES; s++)
-				m_δ[s] = Equations().Getδ(s, hostType);
+				m_δ[s] = Equations().Getδ(s, first_generation);
 		}
 
 
@@ -146,7 +148,7 @@ namespace WBSF
 
 				//Relative development rate for time step
 
-				double r = m_δ[s] * Equations().GetRate(s, hostType, T) / nbSteps;
+				double r = m_δ[s] * Equations().GetRate(s, first_generation, T) / nbSteps;
 			
 				if (s == ADULT) //Set maximum longevity to 100 days
 					r = max(1.0 / (100.0*nbSteps), r);

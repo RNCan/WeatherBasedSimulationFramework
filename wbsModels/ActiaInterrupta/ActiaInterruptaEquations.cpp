@@ -37,9 +37,9 @@ namespace WBSF
 
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
 	{
-		{8.24e-06  , 0.8868, 5.6, 40.0}, //OBL post diapause
-		{2.07e-06  , 0.8024,  -1.0, 40.0}, //Maggot OBL
-		{7.393e-05 , 4.4770, -14.0, 30.8}, //Maggot SBW
+		{8.240e-06,  0.8868,   5.6, 40.0}, //OBL post diapause
+		{2.070e-06,  0.8024,  -1.0, 40.0}, //Maggot OBL
+		{7.393e-05,  4.4770, -14.0, 30.8}, //Maggot SBW
 		{1.188e-04, 15.8019, -17.3, 30.1}, //Pupa
 		{0,0,0,0},					   //Adult
 	};
