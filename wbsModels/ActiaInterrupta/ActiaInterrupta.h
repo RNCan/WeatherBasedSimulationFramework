@@ -23,8 +23,8 @@ namespace WBSF
 	{
 		enum TActiaInterruptaStats
 		{
-			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE, 
-			M_EGG, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_BROOD, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
+			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD_OBL, S_BROOD_SBW, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE,
+			M_EGG, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_BROOD_OBL, M_BROOD_SBW, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
 			NB_STATS
 		};
 
@@ -52,7 +52,6 @@ namespace WBSF
 		virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return ActiaInterrupta::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CActiaInterrupta>(*this); }
-		virtual std::string get_property(const std::string& name)override;
 
 	protected:
 

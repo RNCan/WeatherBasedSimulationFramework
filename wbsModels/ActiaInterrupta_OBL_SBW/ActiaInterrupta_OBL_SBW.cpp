@@ -24,6 +24,7 @@ namespace WBSF
 		CActiaInterrupta(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		m_pAssociateHost = pAssociateHost;
+		m_broods_by_host.fill(0);
 	}
 
 	//*********************************************************************************
@@ -94,7 +95,7 @@ namespace WBSF
 
 		CActiaInterrupta::Live(weather);
 
-		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetStage()==MAGGOT)
+		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetStage() == MAGGOT)
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
@@ -145,19 +146,25 @@ namespace WBSF
 		ASSERT(IsAlive() && m_sex == FEMALE);
 		ASSERT(m_totalBroods <= m_Pmax + 1);
 
+		m_broods_by_host.fill(0);
 		m_totalBroods += m_broods;
 
 		//Oviposition module after Régniere 1983
 		if (m_bFertil && m_broods > 0)
 		{
 			ASSERT(m_age >= ADULT);
+			
 			CActiaInterrupta_OBL_SBW_Stand* pStand = GetStand(); ASSERT(pStand);
 			CIndividualPtr pAssociateHost = pStand->SelectRandomHost(true);
-
+			
 			double attRate = pStand->m_generationAttrition;//1% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta_OBL_SBW>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);
+
+			assert(object->get_property("HostType") == "0" || object->get_property("HostType") == "1");
+			size_t hostType = stoi(object->get_property("HostType"));
+			m_broods_by_host[hostType] += m_broods;
 		}
 	}
 
@@ -190,6 +197,12 @@ namespace WBSF
 
 		if (IsCreated(d))
 		{
+			//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
+			//size_t hostType = stoi(get_property("HostType"));
+
+			stat[S_BROOD_OBL] += m_broods_by_host[H_OBL] * m_scaleFactor;
+			stat[S_BROOD_SBW] += m_broods_by_host[H_SBW] * m_scaleFactor;
+
 			if (m_death == HOST_DIE)
 				stat[S_HOST_DIE] += m_scaleFactor;
 
@@ -199,7 +212,7 @@ namespace WBSF
 
 	}
 
-	std::string CActiaInterrupta_OBL_SBW::get_property(const std::string& name)
+	std::string CActiaInterrupta_OBL_SBW::get_property(const std::string& name)const
 	{
 		std::string prop;
 		if (!m_pAssociateHost.expired())
@@ -213,9 +226,9 @@ namespace WBSF
 					prop = to_string(H_SBW);
 				//prop = m_pAssociateHost.lock()->get_property(name);
 			}
-			
+
 		}
-		
+
 		return prop;
 	}
 

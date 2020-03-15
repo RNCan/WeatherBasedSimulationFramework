@@ -261,7 +261,11 @@ namespace WBSF
 		if (IsCreated(d))
 		{
 			size_t s = GetStage();
-			stat[S_BROOD] += m_broods*m_scaleFactor;
+
+			//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
+			//size_t hostType = stoi(get_property("HostType"));
+
+			//stat[S_BROOD_OBL+hostType] += m_broods*m_scaleFactor;
 			//stat[E_BROOD] += m_broods*m_scaleFactor; //E_BROOD is the same as S_BROOD
 			
 			
@@ -363,15 +367,7 @@ namespace WBSF
 		CIndividual::Pack(pBug);
 	}
 
-	std::string CActiaInterrupta::get_property(const std::string& name)
-	{
-		std::string prop;
-		if (name == "HostType")
-			prop = to_string(H_OBL);//OBL by default, need override to change that
-
-		return prop;
-	}
-
+	
 
 	//*********************************************************************************************************************
 

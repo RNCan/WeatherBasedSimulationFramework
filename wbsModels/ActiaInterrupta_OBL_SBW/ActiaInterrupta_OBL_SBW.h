@@ -48,7 +48,7 @@ namespace WBSF
 		//virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return ActiaInterrupta::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CActiaInterrupta_OBL_SBW>(*this); }
-		virtual std::string get_property(const std::string& name)override;
+		virtual std::string get_property(const std::string& name)const override;
 
 
 
@@ -59,14 +59,10 @@ namespace WBSF
 		inline const CActiaInterrupta_OBL_SBW_Stand* GetStand()const;
 
 		inline CActiaInterruptaEquations & Equations();
-
-//		void SetHost(CIndividualPtr pHost){ m_pHost = pHost; }
-	//	CIndividualPtr GetHost(){ return m_pHost; }
 		std::weak_ptr<CIndividual> m_pAssociateHost;
 
 
-		
-		//CIndividualPtr m_pAssociateHost;
+		std::array< double, ActiaInterrupta::NB_HOSTS> m_broods_by_host;
 	};
 
 	//class CObliqueBandedLeafrollerEx : public CObliqueBandedLeafroller
