@@ -78,12 +78,12 @@
             <Name>PreOvipPeriod</Name>
             <Caption>PreOvipPeriod</Caption>
             <Description>PreOvipPeriod [days]</Description>
-            <Type>1</Type>
+            <Type>2</Type>
             <Rect>165 10 185 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>5</DefaultValue>
+            <DefaultValue>0.2272</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>50</MaxValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
