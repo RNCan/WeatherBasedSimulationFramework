@@ -51,7 +51,7 @@ namespace WBSF
 //		m_diapauseAge = MAGGOT;// +0.1;
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5;
-		m_preOvip = 5;
+		m_preOvip = 5.0/22.0;
 		//m_bOnGround = false;
 	}
 
@@ -72,7 +72,7 @@ namespace WBSF
 		/*m_diapauseAge =*/ parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
-		m_preOvip = parameters[c++].GetInt();
+		m_preOvip = parameters[c++].GetReal();
 		//ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;

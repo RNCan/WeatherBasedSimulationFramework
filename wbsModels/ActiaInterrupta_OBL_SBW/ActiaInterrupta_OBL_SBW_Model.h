@@ -29,7 +29,7 @@ namespace WBSF
 		//double m_diapauseAge;
 		double m_lethalTemp;
 		double m_criticalDaylength;
-		size_t m_preOvip; //[days]
+		double m_preOvip;
 		//bool m_bOnGround;
 
 	};

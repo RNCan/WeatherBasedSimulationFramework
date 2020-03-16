@@ -31,7 +31,7 @@ namespace WBSF
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 
-		m_OBLPostDiapause=0; //actual state of overwintering post diapause host
+		m_OBLPostDiapause = 0; //actual state of overwintering post diapause host
 		m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
 
 		//host is actually unknowns, will be set later
@@ -64,7 +64,7 @@ namespace WBSF
 		{
 			CIndividual::operator=(in);
 
-			m_OBLPostDiapause = in.m_OBLPostDiapause; 
+			m_OBLPostDiapause = in.m_OBLPostDiapause;
 			m_OBLPostDiapause_δ = in.m_OBLPostDiapause_δ;
 
 			m_δ = in.m_δ;
@@ -72,7 +72,7 @@ namespace WBSF
 			m_Pᵗ = in.m_Pᵗ;
 			m_Eᵗ = in.m_Eᵗ;
 			m_diapauseTRef = in.m_diapauseTRef;
-			
+
 			m_luck = in.m_luck;
 			m_badluck = in.m_badluck;
 		}
@@ -96,9 +96,9 @@ namespace WBSF
 
 		//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
 		//size_t hostType = stoi(get_property("HostType"));
-		
+
 		size_t first_generation = m_generation == 0 ? 0 : 1;
-		if (m_δ[0]==0)//not init yet
+		if (m_δ[0] == 0)//not init yet
 		{
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_δ[s] = Equations().Getδ(s, first_generation);
@@ -149,7 +149,7 @@ namespace WBSF
 				//Relative development rate for time step
 
 				double r = m_δ[s] * Equations().GetRate(s, first_generation, T) / nbSteps;
-			
+
 				if (s == ADULT) //Set maximum longevity to 100 days
 					r = max(1.0 / (100.0*nbSteps), r);
 
@@ -171,7 +171,8 @@ namespace WBSF
 					m_adultDate = TRef;
 
 				//compute brooding
-				static const double pre_ovip_age = 5.0 / 22.0;
+				static const double pre_ovip_age = GetStand()->m_preOvip;
+				
 
 				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
 				{
@@ -202,7 +203,7 @@ namespace WBSF
 	void CActiaInterrupta::Brood(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax+1);
+		ASSERT(m_totalBroods <= m_Pmax + 1);
 
 		m_totalBroods += m_broods;
 
@@ -210,9 +211,9 @@ namespace WBSF
 		if (m_bFertil && m_broods > 0)
 		{
 			ASSERT(m_age >= ADULT);
-			
+
 			double attRate = GetStand()->m_generationAttrition;
-			double scaleFactor = m_broods*m_scaleFactor*attRate;
+			double scaleFactor = m_broods * m_scaleFactor*attRate;
 			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 		}
@@ -237,7 +238,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (m_generation>0 && weather[H_TMIN][MEAN] < GetStand()->m_lethalTemp && !m_diapauseTRef.IsInit())
+		else if (m_generation > 0 && weather[H_TMIN][MEAN] < GetStand()->m_lethalTemp && !m_diapauseTRef.IsInit())
 		{
 			m_status = DEAD;
 			m_death = FROZEN;
@@ -267,8 +268,8 @@ namespace WBSF
 
 			//stat[S_BROOD_OBL+hostType] += m_broods*m_scaleFactor;
 			//stat[E_BROOD] += m_broods*m_scaleFactor; //E_BROOD is the same as S_BROOD
-			
-			
+
+
 
 
 			if (s >= ADULT)//individuals that reach adult stage (alive or dead)
@@ -277,7 +278,7 @@ namespace WBSF
 			if (IsAlive())
 			{
 				if (s >= MAGGOT && s < DEAD_ADULT)
-					stat[S_EGG+s] += m_scaleFactor;
+					stat[S_EGG + s] += m_scaleFactor;
 
 
 				if (s == ADULT)
@@ -287,7 +288,7 @@ namespace WBSF
 						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 					}
 				}
-				
+
 				if (m_diapauseTRef.IsInit())
 					stat[S_DIAPAUSE] += m_scaleFactor;
 
@@ -319,7 +320,7 @@ namespace WBSF
 
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == FROZEN)
 					stat[M_FROZEN] += m_scaleFactor;
-				
+
 				if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == OTHERS)
 					stat[M_OTHERS] += m_scaleFactor;
 			}
@@ -328,7 +329,7 @@ namespace WBSF
 			if (d == m_diapauseTRef)
 			{
 				stat[M_DIAPAUSE] += m_scaleFactor;
-				stat[M_DIAPAUSE_AGE] += m_scaleFactor*m_age;
+				stat[M_DIAPAUSE_AGE] += m_scaleFactor * m_age;
 			}
 		}
 	}
@@ -367,19 +368,19 @@ namespace WBSF
 		CIndividual::Pack(pBug);
 	}
 
-	
+
 
 	//*********************************************************************************************************************
 
-	
 
-	CActiaInterruptaHost::CActiaInterruptaHost(WBSF::CStand* pStand/*, size_t hostType*/):WBSF::CHost(pStand)
+
+	CActiaInterruptaHost::CActiaInterruptaHost(WBSF::CStand* pStand/*, size_t hostType*/) :WBSF::CHost(pStand)
 	{
-	//	m_hostType = hostType;
+		//	m_hostType = hostType;
 	}
 
 
-	
+
 	//std::string CActiaInterruptaHost::get_property(const std::string& name)
 	//{
 	//	std::string prop;

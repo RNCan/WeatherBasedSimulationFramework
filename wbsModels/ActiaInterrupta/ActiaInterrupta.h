@@ -131,9 +131,9 @@ namespace WBSF
 		/*
 		bool	m_bAutoComputeDiapause;*/
 		//double	m_diapauseAge;
-		double	m_lethalTemp;
-		double	m_criticalDaylength;
-		size_t m_preOvip; //[days]
+		double m_lethalTemp;
+		double m_criticalDaylength;
+		double m_preOvip;
 
 
 		CActiaInterruptaStand(CBioSIMModelBase* pModel) :
@@ -147,7 +147,7 @@ namespace WBSF
 			m_bAutoComputeDiapause = true;
 			m_diapauseAge = 0.1;*/
 			m_lethalTemp = -5.0;
-			m_preOvip = 5;
+			m_preOvip = 5.0 /22.0;
 			m_criticalDaylength = 13.5;
 		}
 
