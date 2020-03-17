@@ -1,4 +1,6 @@
 //*********************************************************************
+//16/03/2020	3.2.0	Rémi Saint-Amant    precipitation compute from hourly oon to noon
+//											Add initial valuues from files
 //23/03/2018	3.1.2	Rémi Saint-Amant    Compile with VS 2017
 //10/05/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -12,6 +14,7 @@
 //12/12/2007	----	Rémi Saint-Amant	Creation
 //*********************************************************************
 
+#include <string>
 #include "Basic/WeatherDefine.h"
 #include "Basic/GrowingSeason.h"
 #include "Basic/SnowAnalysis.h"
@@ -32,11 +35,15 @@ namespace WBSF
 		CModelFactory::RegisterModel(CFWIModel::CreateObject);
 
 
+
+//**************************************************************************************************
+//CFWIModel
+
 	CFWIModel::CFWIModel() 
 	{
 		// initialise your variable here (optionnal)
-		//	NB_INPUT_PARAMETER=8;//7 or 8 param
-		VERSION = "3.1.2 (2018)";
+		NB_INPUT_PARAMETER=8;
+		VERSION = "3.2.0 (2020)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;
@@ -63,8 +70,27 @@ namespace WBSF
 	ERMsg CFWIModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
+		
+		
+		if (WBSF::Find(m_info.m_modelName, "fixed"))
+		{
+			m_bAutoSelect = false;
 
-		if (parameters.size() == 8)
+			//transfer your parameter here
+			size_t c = 0;
+			m_firstDay = CMonthDay(parameters[c++].GetString());
+			m_lastDay = CMonthDay(parameters[c++].GetString());
+			m_FFMC = parameters[c++].GetReal();
+			m_DMC = parameters[c++].GetReal();
+			m_DC = parameters[c++].GetReal();
+			m_carryOverFraction = parameters[c++].GetReal();
+			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+
+			if(!GetFileData(0).empty())
+				msg = m_init_values.Load(GetFileData(0));
+
+		}
+		else //if (parameters.size() == 8)
 		{
 			m_bAutoSelect = true;
 
@@ -79,26 +105,7 @@ namespace WBSF
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
 			//m_method = parameters[c++].GetInt();
 		}
-		else if (parameters.size() == 7)
-		{
-			m_bAutoSelect = false;
-
-			//transfer your parameter here
-			size_t c = 0;
-			m_firstDay = CMonthDay(parameters[c++].GetString());
-			m_lastDay = CMonthDay(parameters[c++].GetString());
-			m_FFMC = parameters[c++].GetReal();
-			m_DMC = parameters[c++].GetReal();
-			m_DC = parameters[c++].GetReal();
-			m_carryOverFraction = parameters[c++].GetReal();
-			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
-			//m_method = parameters[c++].GetInt();
-		}
-		else
-		{
-			msg = GetErrorMessage(ERROR_BAD_NUMBER_PARAMETER);
-		}
-
+		
 		return msg;
 	}
 
@@ -125,12 +132,13 @@ namespace WBSF
 		FWI.m_FFMC = m_FFMC;
 		FWI.m_DMC = m_DMC;
 		FWI.m_DC = m_DC;
+		FWI.m_init_values = m_init_values;
 
 		//common setting
 		FWI.m_carryOverFraction = m_carryOverFraction;
 		FWI.m_effectivenessOfWinterPrcp = m_effectivenessOfWinterPrcp;
 	
-		FWI.Execute(m_weather, output);
+		msg = FWI.Execute(m_weather, output);
 
 
 		return msg;

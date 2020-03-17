@@ -6,6 +6,10 @@
 
 namespace WBSF
 {
+
+
+
+
 	class CFWIModel : public CBioSIMModelBase
 	{
 	public:
@@ -22,7 +26,7 @@ namespace WBSF
 
 		static CBioSIMModelBase* CreateObject(){ return new CFWIModel; }
 
-	private:
+	protected:
 
 		ERMsg ExecuteDaily(CModelStatVector& output);
 
@@ -37,12 +41,15 @@ namespace WBSF
 		double m_thresholdEnd;
 
 		//manual parameters
+		//default value
 		CMonthDay m_firstDay;//0
 		CMonthDay m_lastDay;//0
 		double m_FFMC;	//85.0
 		double m_DMC;	//6.0
 		double m_DC;	//15.0
-		//double m_startThreshold;//12 C°
+		//value for each location/years
+		CInitialValues m_init_values;
+		
 
 		//common parameters
 		double m_carryOverFraction;//1.0

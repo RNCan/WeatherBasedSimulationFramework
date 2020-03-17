@@ -10,6 +10,13 @@
 namespace WBSF
 {
 
+	enum TFWIInitValue{ FWI_START_DATE, FWI_FFMC, FWI_DMC, FWI_DC, FWI_END_DATE, NB_FWI_INPUT };
+	class CInitialValues : public std::map<std::string, std::array<double, NB_FWI_INPUT> >
+	{
+	public:
+		ERMsg Load(const std::string& data);
+	};
+
 	class CFWIStat : public CModelStat
 	{
 	public:
@@ -43,7 +50,7 @@ namespace WBSF
 
 		void Reset();
 
-		void Execute(const CWeatherStation& weather, CModelStatVector& output);
+		ERMsg Execute(const CWeatherStation& weather, CModelStatVector& output);
 		//const CFWIDStatVector& GetResult()const{ return m_dailyResult; }
 
 		static double GetFFMC(double oldDMC, const CWeatherDay& data);
@@ -91,6 +98,7 @@ namespace WBSF
 		double m_FFMC;
 		double m_DMC;
 		double m_DC;
+		CInitialValues m_init_values;
 
 		//
 		double m_carryOverFraction;//Carry over fraction (a)

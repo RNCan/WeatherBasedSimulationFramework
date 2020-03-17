@@ -16,8 +16,10 @@
 //									Add of m_carryOverFraction and EFFECTIVENESS_OF_WINTER as static parameters
 // 06/02/2012	Rémi Saint-Amant	Correction of a bug in the first date. The first date must start 3 days after the snow melt 
 // 05/09/2016	Rémi Saint-Amant	Many modifications to support hourly inputs
+// 16/03/2020   Rémi Saint-Amant	Add initial values from file
 //**********************************************************************
 #include <math.h>
+#include "Basic/CSV.h"
 #include "Basic/GrowingSeason.h"
 #include "Basic/SnowAnalysis.h"
 #include "Basic/WeatherDefine.h"
@@ -34,6 +36,59 @@ namespace WBSF
 {
 
 
+	//**************************************************************************************************
+	//CInitialValues
+
+	ERMsg CInitialValues::Load(const std::string& data)
+	{
+		ASSERT(!data.empty());
+
+		ERMsg msg;
+
+		std::stringstream stream(data);
+
+
+		for (CSVIterator loop(stream); loop != CSVIterator() && msg; ++loop)
+		{
+			enum TInput { I_KEYID, I_START_DATE, I_FFMC, I_DMC, I_DC, I_END_DATE/*Optionnal*/, NB_INPUT_COLUMNS };
+
+			if (loop->size() == NB_INPUT_COLUMNS -1 ||
+				loop->size() == NB_INPUT_COLUMNS )
+			{
+				CTRef TRef;
+				TRef.FromFormatedString((*loop)[I_START_DATE]);
+
+				if (TRef.IsValid())
+				{
+					double begin_DOY = TRef.GetJDay();
+					double end_DOY = -1;
+					if (loop->size() == NB_INPUT_COLUMNS)
+					{
+						CTRef TRef;
+						TRef.FromFormatedString((*loop)[I_END_DATE]);
+						if (TRef.IsValid())
+							end_DOY = TRef.GetJDay();
+						else
+							msg.ajoute("Invalid end date " + (*loop)[I_END_DATE]);
+					}
+						
+
+					string name = (*loop)[I_KEYID] + "_" + to_string(TRef.GetYear());
+					(*this)[name] = { {begin_DOY, stod((*loop)[I_FFMC]), stod((*loop)[I_DMC]), stod((*loop)[I_DC]), end_DOY } };
+				}
+				else
+				{
+					msg.ajoute("Invalid start date " + (*loop)[I_START_DATE]);
+				}
+			}
+		}
+
+		return msg;
+
+	}
+
+	//**************************************************************************************************
+	//CFWI
 
 	CFWI::CFWI()
 	{
@@ -103,13 +158,13 @@ namespace WBSF
 		if (wm < ed && wm < ew)
 		{
 			double z = 0.424*(1.0 - pow(((100.0 - Hr) / 100.0), 1.7)) + 0.0694*sqrt(Ws)*(1.0 - pow((100.0 - Hr) / 100.0, 8.0));
-			double x = z*0.581*exp(0.0365*temp);
+			double x = z * 0.581*exp(0.0365*temp);
 			wm = ew - (ew - wmo) / pow(10.0, x);
 		}
 		else if (wm > ed)
 		{
 			double z = 0.424*(1.0 - pow((Hr / 100.), 1.7)) + 0.0694*sqrt(Ws)*(1 - pow(Hr / 100, 8.0));
-			double x = z*0.581*exp(0.0365*temp);
+			double x = z * 0.581*exp(0.0365*temp);
 			wm = ed + (wmo - ed) / pow(10.0, x);
 		}
 
@@ -156,7 +211,7 @@ namespace WBSF
 			else if (oldDMC <= 65)
 				b = 14.0 - 1.3*log(oldDMC);
 
-			double wmr = wmi + 1000.0*rw / (48.77 + b*rw);
+			double wmr = wmi + 1000.0*rw / (48.77 + b * rw);
 			pr = max(0.0, 43.43*(5.6348 - log(wmr - 20.0)));
 		}
 
@@ -214,7 +269,7 @@ namespace WBSF
 	{
 		double fm = 147.2*(101.0 - FFMC) / (59.5 + FFMC);
 		double sf = 19.115*exp(-0.1386*fm)*(1.0 + pow(fm, 5.31) / 4.93e07);
-		double isi = sf*exp(0.05039*Ws);
+		double isi = sf * exp(0.05039*Ws);
 
 		return isi;
 	}
@@ -230,7 +285,7 @@ namespace WBSF
 		{
 			double p = (dmc - bui) / dmc;
 			double cc = 0.92 + pow((0.0114*dmc), 1.7);
-			bui = max(0.0, dmc - cc*p);
+			bui = max(0.0, dmc - cc * p);
 		}
 
 		return bui;
@@ -386,7 +441,7 @@ namespace WBSF
 				const double b = m_effectivenessOfWinterPrcp;
 
 				double Qf = 800 * exp(-lastDC / 400);
-				double Qs = a*Qf + b*3.94*Rw;
+				double Qs = a * Qf + b * 3.94*Rw;
 				DC = max(0.0, 400 * log(800 / Qs));
 			}
 		}
@@ -395,13 +450,13 @@ namespace WBSF
 	}
 
 
-	void CFWI::Execute(const CWeatherStation& weather, CModelStatVector& output)
+	ERMsg CFWI::Execute(const CWeatherStation& weather, CModelStatVector& output)
 	{
 		ASSERT(weather.IsHourly());
 
-
+		ERMsg msg;
 		output.clear();
-		output.Init(weather.GetEntireTPeriod(CTM(m_method == ALL_HOURS_CALCULATION?CTM::HOURLY:CTM::DAILY)), CFWIStat::NB_D_STAT, MISSING);
+		output.Init(weather.GetEntireTPeriod(CTM(m_method == ALL_HOURS_CALCULATION ? CTM::HOURLY : CTM::DAILY)), CFWIStat::NB_D_STAT, MISSING);
 
 
 		bool bContinueMode = false;
@@ -411,7 +466,7 @@ namespace WBSF
 		double oldDMC = m_DMC;
 		double oldDC = m_DC;
 
-		for (size_t y = 0; y < weather.size(); y++)//for all years
+		for (size_t y = 0; y < weather.size() && msg; y++)//for all years
 		{
 			int year = weather.GetFirstYear() + int(y);
 
@@ -427,11 +482,44 @@ namespace WBSF
 			}
 			else
 			{
-				firstDay = m_firstDay.GetTRef(year).GetJDay();
-				lastDay = m_lastDay.GetTRef(year).GetJDay();
-				oldFFMC = m_FFMC;
-				oldDMC = m_DMC;
-				oldDC = m_DC;
+				if (m_init_values.empty())
+				{
+					//take default values
+					firstDay = m_firstDay.GetTRef(year).GetJDay();
+					lastDay = m_lastDay.GetTRef(year).GetJDay();
+					oldFFMC = m_FFMC;
+					oldDMC = m_DMC;
+					oldDC = m_DC;
+				}
+				else
+				{
+					string ID = weather.GetLocation().m_ID + "_" + to_string(year);
+
+					if (m_init_values.find(ID) != m_init_values.end())
+					{
+						ASSERT(size_t(m_init_values[ID][FWI_START_DATE]) < 366);
+						ASSERT(size_t(m_init_values[ID][FWI_END_DATE])==NOT_INIT || size_t(m_init_values[ID][FWI_END_DATE]) < 366);
+
+						//set first day
+						firstDay = CJDayRef(year, size_t(m_init_values[ID][FWI_START_DATE])).GetJDay();
+
+						//set last day
+						if( m_init_values[ID][FWI_END_DATE] != NOT_INIT )
+							lastDay = CJDayRef(year, size_t(m_init_values[ID][FWI_END_DATE])).GetJDay();
+						else //take default value
+							lastDay = m_lastDay.GetTRef(year).GetJDay();
+						
+						oldFFMC = m_init_values[ID][FWI_FFMC];
+						oldDMC = m_init_values[ID][FWI_DMC];
+						oldDC = m_init_values[ID][FWI_DC];
+					}
+					else
+					{
+						msg.ajoute("location/year not found in initial values: " + ID);
+						return msg;
+					}
+
+				}
 			}
 
 			if (m_method == ALL_HOURS_CALCULATION)
@@ -492,6 +580,9 @@ namespace WBSF
 				CTPeriod p = weather[y].GetEntireTPeriod(CTM::DAILY);
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)//for all day
 				{
+					const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
+
+
 					const CWeatherDay& day = weather.GetDay(TRef);
 					size_t jd = TRef.GetJDay();
 
@@ -501,6 +592,13 @@ namespace WBSF
 						double Tnoon = day[12][H_TAIR];
 						double HRnoon = day[12][H_RELH];
 						double WSnoon = day[12][H_WNDS];
+						double Prcp = 0;// day[H_PRCP][SUM];
+						for (size_t h = 13; h < 24; h++)
+							if (!WEATHER::IsMissing(pday[h][H_PRCP]))
+								Prcp += pday[h][H_PRCP];
+						for (size_t h = 0; h <= 12; h++)
+							if (!WEATHER::IsMissing(day[h][H_PRCP]))
+								Prcp += day[h][H_PRCP];
 
 						// compute FFMC
 						double FFMC = GetFFMC(oldFFMC, day);
@@ -529,7 +627,7 @@ namespace WBSF
 						output[TRef][CFWIStat::TMEAN_NOON] = Tnoon;
 						output[TRef][CFWIStat::RELH_NOON] = HRnoon;
 						output[TRef][CFWIStat::WNDS_NOON] = WSnoon;
-						output[TRef][CFWIStat::PRCP] = day[H_PRCP][SUM];
+						output[TRef][CFWIStat::PRCP] = Prcp;
 						output[TRef][CFWIStat::FFMC] = FFMC;
 						output[TRef][CFWIStat::DMC] = DMC;
 						output[TRef][CFWIStat::DC] = DC;
@@ -545,10 +643,13 @@ namespace WBSF
 				}
 			}//for all day
 		}//for all year 
+
+
+		return msg;
 	}
 
 
-//**************************************************************
+	//**************************************************************
 	void CFWIStat::Covert2D(const CModelStatVector& result, CModelStatVector& resultD)
 	{
 		_ASSERTE(result.GetNbStat() == CFWIStat::NB_D_STAT);
@@ -564,131 +665,131 @@ namespace WBSF
 			CTStatMatrix tmp(result, CTM::DAILY);
 			resultD.Init(tmp.m_period, CFWIStat::NB_D_STAT, CFWI::MISSING);
 
-			
+
 			for (CTRef d = tmp.m_period.Begin(); d <= tmp.m_period.End(); d++)
 			{
-				for (size_t v = 0; v<resultD.GetNbStat(); v++)
-					resultD[d][v] = tmp[d][v][v == PRCP?SUM:MEAN];
+				for (size_t v = 0; v < resultD.GetNbStat(); v++)
+					resultD[d][v] = tmp[d][v][v == PRCP ? SUM : MEAN];
 			}
 		}
 	}
 
-void CFWIStat::Covert2M(const CModelStatVector& resultD, CModelStatVector& resultM)
-{
-	_ASSERTE( resultD.GetNbStat() == CFWIStat::NB_D_STAT);
-	CStatistic::SetVMiss(CFWI::MISSING);
-
-	CTRef firstDate = resultD.GetFirstTRef();
-	CTRef lastDate = resultD.GetLastTRef();
-	
-	int nbYear = lastDate.GetYear()-firstDate.GetYear()+1;
-	resultM.SetFirstTRef( CTRef(firstDate.GetYear(), 0) );
-	resultM.resize(nbYear*12);
-
-	for(CTRef d=firstDate; d<=lastDate; )
+	void CFWIStat::Covert2M(const CModelStatVector& resultD, CModelStatVector& resultM)
 	{
-		int year = d.GetYear();//firstDate.GetYear() + y;
+		_ASSERTE(resultD.GetNbStat() == CFWIStat::NB_D_STAT);
+		CStatistic::SetVMiss(CFWI::MISSING);
 
-		for(size_t m=0; m<12; m++)
+		CTRef firstDate = resultD.GetFirstTRef();
+		CTRef lastDate = resultD.GetLastTRef();
+
+		int nbYear = lastDate.GetYear() - firstDate.GetYear() + 1;
+		resultM.SetFirstTRef(CTRef(firstDate.GetYear(), 0));
+		resultM.resize(nbYear * 12);
+
+		for (CTRef d = firstDate; d <= lastDate; )
 		{
-			CStatistic stat[CFWIStat::NB_D_STAT];
-			while(d<=lastDate && 
-				  d.GetYear() == year &&
-				  d.GetMonth() ==  m )
+			int year = d.GetYear();//firstDate.GetYear() + y;
+
+			for (size_t m = 0; m < 12; m++)
 			{
-				if( resultD[d][FWI] > CFWI::MISSING ) 
+				CStatistic stat[CFWIStat::NB_D_STAT];
+				while (d <= lastDate &&
+					d.GetYear() == year &&
+					d.GetMonth() == m)
 				{
-					for(int v=0; v<resultD.GetNbStat(); v++)
+					if (resultD[d][FWI] > CFWI::MISSING)
+					{
+						for (int v = 0; v < resultD.GetNbStat(); v++)
+							stat[v] += resultD[d][v];
+					}
+
+					d++;
+				}
+
+				CTRef ref(year, m);
+
+				resultM[ref][CFWIStat::NUM_VALUES] = stat[0][NB_VALUE];
+				for (int v = 0; v < resultD.GetNbStat(); v++)
+				{
+					//short s = (v==CFWIStat::PRCP)?SUM:MEAN;
+					if (v == CFWIStat::PRCP)
+					{
+						CTPeriod p(CTRef(year, m, FIRST_DAY), CTRef(year, m, LAST_DAY));
+						resultM[ref][CFWIStat::TMEAN_NOON + v] = stat[v][SUM];
+						resultM[ref][CFWIStat::TMEAN_MIN + v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, true);
+						resultM[ref][CFWIStat::TMEAN_MAX + v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, false);
+					}
+					else
+					{
+						resultM[ref][CFWIStat::TMEAN_NOON + v] = stat[v][MEAN];
+						resultM[ref][CFWIStat::TMEAN_MIN + v] = stat[v][LOWEST];
+						resultM[ref][CFWIStat::TMEAN_MAX + v] = stat[v][HIGHEST];
+					}
+				}
+			}
+		}
+	}
+
+	void CFWIStat::Covert2A(const CModelStatVector& resultD, CModelStatVector& resultA)
+	{
+		_ASSERTE(resultD.GetNbStat() == CFWIStat::NB_D_STAT);
+
+		CTRef firstDate = resultD.GetFirstTRef();
+		CTRef lastDate = resultD.GetLastTRef();
+
+		int nbYear = lastDate.GetYear() - firstDate.GetYear() + 1;
+		resultA.SetFirstTRef(CTRef((short)firstDate.GetYear()));
+		resultA.resize(nbYear, CFWI::MISSING);
+
+		for (CTRef d = firstDate; d <= lastDate; )
+		{
+			short year = d.GetYear();
+			CTRef firstDay;
+			CTRef lastDay;
+
+			CStatistic stat[CFWIStat::NB_D_STAT];
+			while (d <= lastDate &&
+				d.GetYear() == year)
+			{
+				//_ASSERTE( resultD[d][FWI] > -9999 );
+				if (resultD[d][FWI] > CFWI::MISSING)
+				{
+					if (!firstDay.IsInit())
+						firstDay = d;
+
+					for (int v = 0; v < resultD.GetNbStat(); v++)
 						stat[v] += resultD[d][v];
+
+					lastDay = d;
 				}
 
 				d++;
 			}
 
-			CTRef ref(year, m);
-				
-			resultM[ref][CFWIStat::NUM_VALUES] = stat[0][NB_VALUE];
-			for(int v=0; v<resultD.GetNbStat(); v++)
+
+			CTRef ref((short)year);
+			resultA[ref][CFWIStat::NUM_VALUES] = stat[0][NB_VALUE];
+			resultA[ref][CFWIStat::FIRST_FWI_DAY] = firstDay.GetJDay() + 1;
+			resultA[ref][CFWIStat::LAST_FWI_DAY] = lastDay.GetJDay() + 1;
+
+			for (size_t v = 0; v < resultD.GetNbStat(); v++)
 			{
-				//short s = (v==CFWIStat::PRCP)?SUM:MEAN;
-				if( v==CFWIStat::PRCP )
+				if (v == CFWIStat::PRCP)
 				{
-					CTPeriod p(CTRef(year, m, FIRST_DAY), CTRef(year, m, LAST_DAY) );
-					resultM[ref][CFWIStat::TMEAN_NOON+v] = stat[v][SUM];
-					resultM[ref][CFWIStat::TMEAN_MIN+v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, true);
-					resultM[ref][CFWIStat::TMEAN_MAX+v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, false);
+					CTPeriod p(CTRef(year, FIRST_MONTH, FIRST_DAY), CTRef(year, LAST_MONTH, LAST_DAY));
+					resultA[ref][CFWIStat::TMEAN_NOON + v] = stat[v][SUM];
+					resultA[ref][CFWIStat::TMEAN_MIN + v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, true);
+					resultA[ref][CFWIStat::TMEAN_MAX + v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, false);
 				}
 				else
 				{
-					resultM[ref][CFWIStat::TMEAN_NOON+v] = stat[v][MEAN];
-					resultM[ref][CFWIStat::TMEAN_MIN+v] = stat[v][LOWEST];
-					resultM[ref][CFWIStat::TMEAN_MAX+v] = stat[v][HIGHEST];
+					resultA[ref][CFWIStat::TMEAN_NOON + v] = stat[v][MEAN];
+					resultA[ref][CFWIStat::TMEAN_MIN + v] = stat[v][LOWEST];
+					resultA[ref][CFWIStat::TMEAN_MAX + v] = stat[v][HIGHEST];
 				}
 			}
 		}
 	}
-}
-
-void CFWIStat::Covert2A(const CModelStatVector& resultD, CModelStatVector& resultA)
-{
-	_ASSERTE( resultD.GetNbStat() == CFWIStat::NB_D_STAT);
-
-	CTRef firstDate = resultD.GetFirstTRef();
-	CTRef lastDate = resultD.GetLastTRef();
-	
-	int nbYear = lastDate.GetYear()-firstDate.GetYear()+1;
-	resultA.SetFirstTRef( CTRef((short)firstDate.GetYear()) );
-	resultA.resize(nbYear, CFWI::MISSING);
-
-	for(CTRef d=firstDate; d<=lastDate; )
-	{
-		short year = d.GetYear();
-		CTRef firstDay;
-		CTRef lastDay;
-
-		CStatistic stat[CFWIStat::NB_D_STAT];
-		while(d<=lastDate && 
-			  d.GetYear() == year )
-		{
-			//_ASSERTE( resultD[d][FWI] > -9999 );
-			if( resultD[d][FWI] > CFWI::MISSING ) 
-			{
-				if( !firstDay.IsInit() )
-					firstDay = d;
-
-				for(int v=0; v<resultD.GetNbStat(); v++)
-					stat[v] += resultD[d][v];
-
-				lastDay = d;
-			}
-
-			d++;
-		}
-
-			
-		CTRef ref((short)year);
-		resultA[ref][CFWIStat::NUM_VALUES] = stat[0][NB_VALUE];
-		resultA[ref][CFWIStat::FIRST_FWI_DAY] = firstDay.GetJDay()+1;	
-		resultA[ref][CFWIStat::LAST_FWI_DAY] = lastDay.GetJDay()+1;
-			
-		for(size_t v=0; v<resultD.GetNbStat(); v++)
-		{
-			if( v==CFWIStat::PRCP )
-			{
-				CTPeriod p(CTRef(year, FIRST_MONTH, FIRST_DAY), CTRef(year, LAST_MONTH, LAST_DAY) );
-				resultA[ref][CFWIStat::TMEAN_NOON+v] = stat[v][SUM];
-				resultA[ref][CFWIStat::TMEAN_MIN+v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, true);
-				resultA[ref][CFWIStat::TMEAN_MAX+v] = resultD.GetNbDay(CFWIStat::PRCP, "<=1", p, false);
-			}
-			else
-			{
-				resultA[ref][CFWIStat::TMEAN_NOON+v] = stat[v][MEAN];
-				resultA[ref][CFWIStat::TMEAN_MIN+v] = stat[v][LOWEST];
-				resultA[ref][CFWIStat::TMEAN_MAX+v] = stat[v][HIGHEST];
-			}
-		}
-	}
-}
 
 }//WBSF
 
