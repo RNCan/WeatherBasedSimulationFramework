@@ -386,22 +386,24 @@ namespace WBSF
 
 			for (size_t i = 0; i < filePath.size() && msg; i++)
 			{
-
-				std::ifstream in(filePath[i], std::ios::in | std::ios::binary);
-
-				if (in)
+				if (!filePath[i].empty())
 				{
-					at(i).m_filePath = filePath[i];
-					//std::string contents;
-					in.seekg(0, std::ios::end);
-					at(i).m_data.resize((size_t)in.tellg());
-					in.seekg(0, std::ios::beg);
-					in.read(&at(i).m_data[0], at(i).m_data.size());
-					in.close();
-				}
-				else
-				{
-					msg.ajoute("Unable to load file: " + filePath[i]);
+					std::ifstream in(filePath[i], std::ios::in | std::ios::binary);
+
+					if (in)
+					{
+						at(i).m_filePath = filePath[i];
+						//std::string contents;
+						in.seekg(0, std::ios::end);
+						at(i).m_data.resize((size_t)in.tellg());
+						in.seekg(0, std::ios::beg);
+						in.read(&at(i).m_data[0], at(i).m_data.size());
+						in.close();
+					}
+					else
+					{
+						msg.ajoute("Unable to load file: " + filePath[i]);
+					}
 				}
 			}
 		}

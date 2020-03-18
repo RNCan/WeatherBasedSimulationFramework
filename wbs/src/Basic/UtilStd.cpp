@@ -485,75 +485,31 @@ namespace WBSF
 	string FilePath2SpecialPath(const std::string& filePath, const string& appPath, const string& projectPath)
 	{
 		string special_path = filePath;
-
-		string::size_type pos = upperCase(filePath).find(upperCase(projectPath));
-		if (pos != string::npos)
+		if (!filePath.empty())
 		{
-			special_path.replace(pos, projectPath.length(), "[Project Path]\\");
-		}
-		else
-		{
-			//pos = upperCase(filePath).find(upperCase(appPath + "Models\\"));
-			//if (pos != -1)
-			//{
-			//	special_path.replace(pos, projectPath.length(), (appPath + "Models\\").c_str(), "[Models Path]\\");
-			//}
-			//else
-			//{
-			pos = upperCase(filePath).find(upperCase(appPath));
-			if (pos != -1)
+			string::size_type pos = upperCase(filePath).find(upperCase(projectPath));
+			if (pos != string::npos)
 			{
-				special_path.replace(pos, appPath.length(), "[BioSIM Path]\\");
+				special_path.replace(pos, projectPath.length(), "[Project Path]\\");
 			}
-			//}
+			else
+			{
+				//pos = upperCase(filePath).find(upperCase(appPath + "Models\\"));
+				//if (pos != -1)
+				//{
+				//	special_path.replace(pos, projectPath.length(), (appPath + "Models\\").c_str(), "[Models Path]\\");
+				//}
+				//else
+				//{
+				pos = upperCase(filePath).find(upperCase(appPath));
+				if (pos != -1)
+				{
+					special_path.replace(pos, appPath.length(), "[BioSIM Path]\\");
+				}
+				//}
+			}
+
 		}
-
-
-
-
-		//string special_path = GetRelativePath(projectPath, filePath);
-
-		//if (!WBSF::IsEqualNoCase(filePath, relativPath) )
-		//{
-		//	relativPath = "[Project Path]\\" + relativPath;
-		//	//if (relativPath.find("..\\") == string::npos)
-		//		//ReplaceString(relativPath, ".\\", "[Project Path]\\");
-		//	//else
-		//		//relativPath.clear();
-		//}
-		//else
-		//	//if (relativPath.empty())
-		//{
-		//	relativPath = GetRelativePath(appPath + "Models\\", filePath);
-		//	//if (!relativPath.empty())
-		//	if (!WBSF::IsEqualNoCase(filePath, relativPath))
-		//	{
-		//		relativPath = "[Models Path]\\" + relativPath;
-		//		//if (relativPath.find("..\\") == string::npos)
-		//			//ReplaceString(relativPath, ".\\", "[Models Path]\\");
-		//		//else
-		//			//relativPath.clear();
-		//	}
-		//	else
-		//		//}
-
-		//		//if (relativPath.empty())
-		//	{
-		//		relativPath = GetRelativePath(appPath, filePath);
-		//		if (!relativPath.empty())
-		//		{
-		//			relativPath = "[BioSIM Path]\\" + relativPath;
-
-		//			//if (relativPath.find("..\\") == string::npos)
-		//				//ReplaceString(relativPath, ".\\", "[BioSIM Path]\\");
-		//			//else
-		//				//relativPath.clear();
-		//		}
-		//	}
-		//}
-		////if (relativPath.empty())
-		//	//relativPath = filePath; //absolute path
-
 
 		return special_path;
 	}
@@ -562,22 +518,25 @@ namespace WBSF
 	{
 		string filePath = specialPath;
 
-		string::size_type pos = filePath.find("[Project Path]\\");
-		if (pos != string::npos)
+		if (!filePath.empty())
 		{
-			ReplaceString(filePath, "[Project Path]\\", projectPath.c_str());
-		}
+			string::size_type pos = filePath.find("[Project Path]\\");
+			if (pos != string::npos)
+			{
+				ReplaceString(filePath, "[Project Path]\\", projectPath.c_str());
+			}
 
-		pos = filePath.find("[BioSIM Path]\\");
-		if (pos != -1)
-		{
-			ReplaceString(filePath, "[BioSIM Path]\\", appPath.c_str());
-		}
+			pos = filePath.find("[BioSIM Path]\\");
+			if (pos != -1)
+			{
+				ReplaceString(filePath, "[BioSIM Path]\\", appPath.c_str());
+			}
 
-		pos = filePath.find("[Models Path]\\");
-		if (pos != -1)
-		{
-			ReplaceString(filePath, "[Models Path]\\", (appPath + "Models\\").c_str());
+			pos = filePath.find("[Models Path]\\");
+			if (pos != -1)
+			{
+				ReplaceString(filePath, "[Models Path]\\", (appPath + "Models\\").c_str());
+			}
 		}
 
 		return filePath;
