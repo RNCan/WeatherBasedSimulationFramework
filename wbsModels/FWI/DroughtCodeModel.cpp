@@ -8,7 +8,6 @@
 //17/05/2011	1.0		Rémi Saint-Amant	Creation
 //*********************************************************************
 #include "DroughtCodeModel.h"
-#include "FWI.h"
 #include "Basic/WeatherDefine.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic/GrowingSeason.h"
@@ -28,7 +27,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		
-		VERSION = "2.2.0 (2018)";
+		VERSION = "2.3.0 (2020)";
 
 		m_bAutoSelect = true;
 		m_FFMC = 85.0;
@@ -58,12 +57,29 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (parameters.size() == 8)
+		if (WBSF::Find(m_info.m_modelName, "fixed"))
+		{
+			m_bAutoSelect = false;
+
+			//transfer your parameter here
+			size_t c = 0;
+			m_firstDay = CMonthDay(parameters[c++].GetString());
+			m_lastDay = CMonthDay(parameters[c++].GetString());
+			m_FFMC = parameters[c++].GetReal();
+			m_DMC = parameters[c++].GetReal();
+			m_DC = parameters[c++].GetReal();
+			m_carryOverFraction = parameters[c++].GetReal();
+			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+
+			if (!GetFileData(0).empty())
+				msg = m_init_values.Load(GetFileData(0));
+
+		}
+		else //if (parameters.size() == 8)
 		{
 			m_bAutoSelect = true;
 
-			short c = 0;
-
+			size_t c = 0;
 			m_nbDaysStart = parameters[c++].GetInt();
 			m_TtypeStart = parameters[c++].GetInt();
 			m_thresholdStart = parameters[c++].GetReal();
@@ -74,23 +90,7 @@ namespace WBSF
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
 			//m_method = parameters[c++].GetInt();
 		}
-		else if (parameters.size() == 7)
-		{
-			m_bAutoSelect = false;
 
-			short c = 0;
-			m_firstDay = parameters[c++].GetString();
-			m_lastDay = parameters[c++].GetString();
-			m_FFMC = parameters[c++].GetReal();
-			m_DMC = parameters[c++].GetReal();
-			m_DC = parameters[c++].GetReal();
-			m_carryOverFraction = parameters[c++].GetReal();
-			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
-		}
-		else
-		{
-			msg = GetErrorMessage(ERROR_BAD_NUMBER_PARAMETER);
-		}
 
 		return msg;
 	}
@@ -110,6 +110,8 @@ namespace WBSF
 		FWI.m_FFMC = m_FFMC;
 		FWI.m_DMC = m_DMC;
 		FWI.m_DC = m_DC;
+		FWI.m_init_values = m_init_values;
+
 		//automatic setting
 		FWI.m_bAutoSelect = m_bAutoSelect;
 		FWI.m_nbDaysStart = m_nbDaysStart;
@@ -118,12 +120,13 @@ namespace WBSF
 		FWI.m_nbDaysEnd = m_nbDaysEnd;
 		FWI.m_TtypeEnd = m_TtypeEnd;
 		FWI.m_thresholdEnd = m_thresholdEnd;
+
 		//common setting
 		FWI.m_carryOverFraction = m_carryOverFraction;
 		FWI.m_effectivenessOfWinterPrcp = m_effectivenessOfWinterPrcp;
 
 
-		FWI.Execute(m_weather, output);
+		msg = FWI.Execute(m_weather, output);
 
 		return msg;
 	}
@@ -136,7 +139,7 @@ namespace WBSF
 		
 		//Compute FWI
 		CModelStatVector output;
-		ExecuteDaily(output);
+		msg = ExecuteDaily(output);
 		
 		//Create output from result
 		m_output.Init(output.GetTPeriod(), 1, -9999);
@@ -153,7 +156,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CFWIDStatVector resultD;
-		ExecuteDaily(resultD);
+		msg = ExecuteDaily(resultD);
 
 		CFWIMStatVector resultM;
 		CFWIStat::Covert2M(resultD, resultM);
@@ -180,7 +183,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CFWIDStatVector resultD;
-		ExecuteDaily(resultD);
+		msg = ExecuteDaily(resultD);
 
 
 		CFWIAStatVector resultA;
@@ -196,39 +199,6 @@ namespace WBSF
 		return msg;
 	}
 
-
-	//double CDroughtCode::ComputeIndice(int year, size_t m, double& DCMo, double Rm, double Tm)
-	//{
-	//	double Lf[12] = { -1.6, -1.6, -1.6, 0.9, 3.8, 5.8, 6.4, 5.0, 2.4, 0.4, -1.6, -1.6 };
-
-	//	if (Tm < -2.8)
-	//		Tm = -2.8;
-
-
-	//	size_t N = GetNbDayPerMonth(year, m);
-	//	double Vm = max(0.0, N*(0.36*Tm + Lf[m])) / 2;
-
-	//	double DChalf = DCMo + 0.5*Vm; // add in only half of drying before the rain influence
-
-	//	double MDR = DChalf;
-	//	if (Rm > 2.8)
-	//	{
-	//		double RMeff = 0.83*Rm;
-	//		double smi = 800.0*exp(-1.0*DCMo / 400);
-	//		MDR = DChalf - 400.0*log(1.0 + 3.937*RMeff / smi);
-
-	//		if (MDR < 0)
-	//			MDR = 0;
-	//	}
-
-	//	double MDC = MDR + 0.5*Vm;   // this adds the other half of the drying influence
-
-	//	double MDCavg = (DCMo + MDC) / 2;
-
-	//	DCMo = MDC;
-
-	//	return MDCavg;
-	//}
 
 
 

@@ -165,8 +165,6 @@ namespace WBSF
 
 		//Init class member
 		CFWIMStatVector resultD;
-		ExecuteDaily(resultD);
-
 		msg = ExecuteDaily(resultD);
 		CFWIStat::Covert2D(resultD, m_output);
 
@@ -180,7 +178,7 @@ namespace WBSF
 
 		//Init class member
 		CFWIMStatVector resultD;
-		ExecuteDaily(resultD);
+		msg = ExecuteDaily(resultD);
 
 
 		CFWIMStatVector resultM;
@@ -200,7 +198,7 @@ namespace WBSF
 		CSnowAnalysis snow;
 
 		CFWIDStatVector resultD;
-		ExecuteDaily(resultD);
+		msg = ExecuteDaily(resultD);
 
 		CFWIAStatVector resultA;
 		CFWIStat::Covert2A(resultD, resultA);

@@ -2,6 +2,7 @@
 
 #include "ModelBase/BioSIMModelBase.h"
 #include "Basic/ModelStat.h"
+#include "FWI.h"
 
 namespace WBSF
 {
@@ -32,7 +33,8 @@ namespace WBSF
 		double m_FFMC;	//85.0
 		double m_DMC;	//6.0
 		double m_DC;	//15.0
-		//float m_startThreshold;//12 C°
+		CInitialValues m_init_values;
+		
 
 		//Automatic season computation
 		short m_nbDaysStart;

@@ -6,7 +6,7 @@
     <EXE>FWI.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
-    <WindowRect>0 0 298 501</WindowRect>
+    <WindowRect>0 0 287 495</WindowRect>
     <SimulatedCategory>TN T TX P TD H WS SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -79,7 +79,7 @@
             <Caption>Carry over fraction (a)</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>200 10 220 270</Rect>
+            <Rect>185 20 205 280</Rect>
             <SeparatorPos>205</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0.5</MinValue>
@@ -91,7 +91,7 @@
             <Caption>Effectiveness of winter precipitation (b)</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>225 10 245 270</Rect>
+            <Rect>210 20 230 280</Rect>
             <SeparatorPos>205</SeparatorPos>
             <DefaultValue>0.75</DefaultValue>
             <MinValue>0.5</MinValue>
@@ -100,10 +100,10 @@
         </InputVariable>
         <InputVariable>
             <Name>InitialValue</Name>
-            <Caption>InitialValue</Caption>
+            <Caption>Initial values file</Caption>
             <Description/>
             <Type>4</Type>
-            <Rect>145 10 165 460</Rect>
+            <Rect>130 10 150 460</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue/>
             <MinValue>-999</MinValue>
@@ -115,8 +115,8 @@
             <Caption>Line1</Caption>
             <Description/>
             <Type>9</Type>
-            <Rect>175 10 195 465</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>160 10 180 270</Rect>
+            <SeparatorPos>95</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>-999</MinValue>
             <MaxValue>999</MaxValue>
