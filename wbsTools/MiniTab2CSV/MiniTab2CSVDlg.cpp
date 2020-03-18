@@ -520,7 +520,7 @@ bool CMiniTab2CSVDlg::ReadVersionVAX(CFile& mtw, CMTWColomnArray& colArray)
 	VERIFY(mtw.Read(head.GetBufferSetLength(80), 80) == 80);
 	head.MakeLower();
 
-	short maxSize = 514;
+	short maxSize = 514; 
 	if (head.Find("release  5.1") >= 0 || head.Find("release 82.1") >= 0)
 	{
 		maxSize = 161;
