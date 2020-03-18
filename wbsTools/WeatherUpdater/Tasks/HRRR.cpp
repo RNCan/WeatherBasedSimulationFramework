@@ -114,7 +114,7 @@ namespace WBSF
 
 					stript << "open ftp://anonymous:anonymous%40example.com@" << SERVER_NAME[NOMADS][FTP_SERVER] << endl;
 					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
-					stript << "lcd " << GetPath(outputFilePath) << endl;
+					stript << "lcd \"" << GetPath(outputFilePath) << "\"" << endl;
 					stript << "get " << GetFileName(outputFilePath) << endl;
 					stript << "exit" << endl;
 					stript.close();

@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.6:18/03/2020	Rémi Saint-Amant	Bug correction with ftp download
+//											Bug correction with special path in input paramters
 // 11.6.5:04/03/2020	Rémi Saint-Amant	Bug correction Download Weather in French
 //											Add legend with ordinal date
 //											Legend in selected language

@@ -643,9 +643,9 @@ namespace WBSF
 
 			//CTRef TRef = GetTRef(s, fileList[i].m_filePath);
 
-			string junk = WBSF::GetFM().WeatherUpdate().GetLocalPath();
-			string tmp_path = GetPath(junk) + "tmp\\";
-			string wea_path = GetPath(junk) + "..\\Weather\\";
+			string update_path = WBSF::GetFM().WeatherUpdate().GetLocalPath();
+			string tmp_path = GetPath(update_path) + "tmp\\";
+			string wea_path = GetPath(update_path) + "..\\Weather\\";
 			string scriptFilePath = tmp_path + "script.txt";
 			CreateMultipleDir(tmp_path);
 			CreateMultipleDir(wea_path);
@@ -663,7 +663,7 @@ namespace WBSF
 				stript << "open ftp://anonymous:anonymous%40example.com@ftp.cfl.scf.rncan.gc.ca" << endl;
 
 				stript << "cd " << generateWUProjectDlg.m_FTP_path << endl;
-				stript << "lcd " << tmp_path << endl;
+				stript << "lcd \"" << tmp_path << "\"" << endl;
 				stript << "get " << generateWUProjectDlg.m_FTP_file_name << endl;
 				stript << "exit" << endl;
 				stript.close();
