@@ -120,13 +120,13 @@ namespace WBSF
 							m_diapauseTRef = weather.GetTRef();
 						}
 						break;
-					case 3:
-						//if the host is in diapause, tranosema enters in diapause. 
-						if (m_pAssociateHost.lock()->IsInDiapause2(weather.GetTRef()))
-						{
-							m_diapauseTRef = weather.GetTRef();
-						}
-						break;
+					//case 3:
+					//	//if the host is in diapause, tranosema enters in diapause. 
+					//	if (m_pAssociateHost.lock()->IsInDiapause2(weather.GetTRef()))
+					//	{
+					//		m_diapauseTRef = weather.GetTRef();
+					//	}
+					//	break;
 					}
 				}
 			}

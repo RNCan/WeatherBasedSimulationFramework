@@ -166,11 +166,16 @@ namespace WBSF
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
 				double Rᵗ = max(0.0, (m_Pᵗ / m_Pmax)*Equations().GetRᵗ(T)) / nbSteps;
 
-	//			Possible host attack module here
+				//This is Holling's disk equation, with parameters as=0.05 and th=0.8, values guessed at 
+				//in Régnière et al Tranosema model (submitted)
 				double as = 0.05;
 				double th = 0.8;
-				double Nh = m_Nh / nbSteps;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-				double Na=as*Nh*Equations().GetOᵗ(T)/(1+as*th*Nh);
+				double Na = as * m_Nh*Equations().GetOᵗ(T) / (1 + as * th*m_Nh) / nbSteps; //Number of attacks per time step
+
+				//double as = 0.05;
+				//double th = 0.8;
+				//double Nh = m_Nh / nbSteps;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
+				//double Na=as*Nh*Equations().GetOᵗ(T)/(1+as*th*Nh);
 				
 				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
 				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods + m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << "," << ((m_totalBroods + m_broods) > m_Pmax ? "1" : "0") << endl;
