@@ -63,7 +63,7 @@ namespace WBSF
 		if (e < EQ_ADULT)
 			Rt = max(0.0, min(1.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T)));
 		else
-			Rt = 1.0 / 22.0; //Rt = 1.0/exp(log(44) - log(max(10.0, min(30.0, T)) / 10));
+			Rt = 1.0 / 22.4; //Rt = 1.0/exp(log(44) - log(max(10.0, min(30.0, T)) / 10));
 			
 
 
@@ -103,7 +103,7 @@ namespace WBSF
 			r = 1;
 
 		if (e == EQ_ADULT)
-			r = 22.0 / r ;//transform relative longevity into relative rate
+			r = 22.4 / r ;//transform relative longevity into relative rate
 
 
 		return r;
@@ -117,11 +117,11 @@ namespace WBSF
 	double CActiaInterruptaEquations::GetPmax()const
 	{
 		//maggots / female
-		double fec = m_randomGenerator.RandNormal(132.3, 40.0);
+		double fec = m_randomGenerator.RandNormal(129.43, 47.2);
 		
 		//limit between 1% and 99%
 		while (fec < 39 || fec>225)
-			fec=m_randomGenerator.RandNormal(132.3, 40.0);
+			fec=m_randomGenerator.RandNormal(129.43, 47.2);
 
 		return fec;
 	}
@@ -166,8 +166,7 @@ namespace WBSF
 			{ 1.000, 0.0000 }		//Adult
 		};
 
-		double r = 0;
-		switch (s)
+		double r = 0;switch (s)
 		{
 		case MAGGOT:
 		case PUPA:	r = 1 / (1 + exp(-(P[s][0] + P[s][1] * T))); break;
