@@ -45,6 +45,11 @@ namespace WBSF
 		return *this;
 	}
 
+	void CActiaInterrupta_OBL_SBW::OnNewDay(const CWeatherDay& weather)
+	{
+		m_broods_by_host.fill(0);
+	}
+
 	//*****************************************************************************
 	// Develops all stages, including adults
 	// Input:	weather: the weather of the day
@@ -145,8 +150,7 @@ namespace WBSF
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
 		ASSERT(m_totalBroods <= m_Pmax + 1);
-
-		m_broods_by_host.fill(0);
+		
 		m_totalBroods += m_broods;
 
 		//Oviposition module after Régniere 1983

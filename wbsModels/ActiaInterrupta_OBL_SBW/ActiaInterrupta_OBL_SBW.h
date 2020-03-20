@@ -40,6 +40,7 @@ namespace WBSF
 		CActiaInterrupta_OBL_SBW(const CActiaInterrupta_OBL_SBW& in) :CActiaInterrupta(in){ operator=(in); }
 		CActiaInterrupta_OBL_SBW& operator=(const CActiaInterrupta_OBL_SBW& in);
 
+		virtual void OnNewDay(const CWeatherDay& weather);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
