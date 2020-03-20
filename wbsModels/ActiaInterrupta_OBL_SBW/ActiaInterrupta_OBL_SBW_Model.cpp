@@ -19,7 +19,7 @@ using namespace WBSF::ActiaInterrupta;
 namespace WBSF
 {
 	static const bool ACTIVATE_PARAMETRIZATION = false;
-	static const size_t NB_GENERATIONS = 3;
+	static const size_t NB_GENERATIONS = 4;
 
 
 
@@ -43,7 +43,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.1 (2020)";
+		VERSION = "1.0.2 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
