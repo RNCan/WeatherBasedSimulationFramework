@@ -103,7 +103,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//Excute model on a daily basis
+		//Execute model on a daily basis
 		
 		CModelStatVector output;
 		ExecuteDaily(output);

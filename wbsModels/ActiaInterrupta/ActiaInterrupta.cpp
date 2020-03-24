@@ -44,12 +44,17 @@ namespace WBSF
 		}
 
 		//oviposition
+		//CStatistic test;
+		//for(size_t i=0; i<100000; i++)
+			//test += Equations().GetPmax();
+
+		//double mean = test[MEAN];
 		//Random values of Pmax and Eº
 		m_Pmax = Equations().GetPmax();
-		double Eº = Equations().GetEº();
+		//double Eº = Equations().GetEº();
 		//Initial values
-		m_Pᵗ = Eº;
-		m_Eᵗ = Eº;
+		//m_Pᵗ = Eº;
+		//m_Eᵗ = Eº;
 
 		//Individuals are created as non-diapause individuals
 		m_badluck = false;
@@ -69,8 +74,8 @@ namespace WBSF
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
-			m_Pᵗ = in.m_Pᵗ;
-			m_Eᵗ = in.m_Eᵗ;
+			//m_Pᵗ = in.m_Pᵗ;
+			//m_Eᵗ = in.m_Eᵗ;
 			m_diapauseTRef = in.m_diapauseTRef;
 
 			m_luck = in.m_luck;
@@ -186,10 +191,9 @@ namespace WBSF
 					double as = 0.05;
 					double th = 0.8;
 					double Na = as * m_Nh / (1 + as * th*m_Nh) / nbSteps; //Number of attacks per time step
-
+					
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(fec, Na));
-					//double broods = max(0.0, min( min(fec, m_Pmax- m_totalBroods- m_broods), Na));
 
 					m_broods += broods;
 					ASSERT(m_totalBroods + m_broods < m_Pmax);

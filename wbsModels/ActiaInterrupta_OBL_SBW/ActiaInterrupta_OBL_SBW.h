@@ -63,6 +63,7 @@ namespace WBSF
 		std::weak_ptr<CIndividual> m_pAssociateHost;
 
 
+		std::array< double, ActiaInterrupta::NB_HOSTS> m_nb_attacks_by_host;
 		std::array< double, ActiaInterrupta::NB_HOSTS> m_broods_by_host;
 	};
 

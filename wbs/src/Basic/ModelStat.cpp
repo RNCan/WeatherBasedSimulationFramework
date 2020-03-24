@@ -562,7 +562,7 @@ namespace WBSF
 
 		CStatistic stat = GetStat(var, p);
 
-		if (stat[SUM] > 100)//nead at least 100 eggs, if there is not enought eggs, the period of lais is not longer enought to hafe to objects
+		if (stat[SUM] > 100)//need at least 100 eggs
 		{
 			//Get nbDay with activity
 			double scaleFactor = initialPopulation / nbObjects;

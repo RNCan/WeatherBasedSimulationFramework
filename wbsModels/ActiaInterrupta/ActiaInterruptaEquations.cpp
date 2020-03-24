@@ -128,25 +128,25 @@ namespace WBSF
 	
 	
 
-	double CActiaInterruptaEquations::GetEº()const
-	{
-		//							  x      s
-		static const double P[2] = { 2.28, 0.0800 };
-		double Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
-		while (Eo < 0 || Eo>50)
-			Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
+	//double CActiaInterruptaEquations::GetEº()const
+	//{
+	//	//							  x      s
+	//	static const double P[2] = { 2.28, 0.0800 };
+	//	double Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
+	//	while (Eo < 0 || Eo>50)
+	//		Eo = m_randomGenerator.RandUnbiasedLogNormal(P[0], P[1]);
 
-		return Eo;
-	}
+	//	return Eo;
+	//}
 
-	double CActiaInterruptaEquations::GetOᵗ(double T)
-	{
-		return std::max(0.0, -2.7355 + 0.9555*T);
-	}
-	double CActiaInterruptaEquations::GetRᵗ(double T)
-	{
-		return std::max(0.0, -26.9709 + 2.55415*T);
-	}
+	//double CActiaInterruptaEquations::GetOᵗ(double T)
+	//{
+	//	return std::max(0.0, -2.7355 + 0.9555*T);
+	//}
+	//double CActiaInterruptaEquations::GetRᵗ(double T)
+	//{
+	//	return std::max(0.0, -26.9709 + 2.55415*T);
+	//}
 
 
 

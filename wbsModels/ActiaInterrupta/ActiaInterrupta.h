@@ -23,8 +23,8 @@ namespace WBSF
 	{
 		enum TActiaInterruptaStats
 		{
-			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROOD_OBL, S_BROOD_SBW, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE,
-			M_EGG, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_BROOD_OBL, M_BROOD_SBW, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
+			S_EGG, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROODS_OBL, S_BROODS_SBW, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE,
+			M_EGG, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
 			NB_STATS
 		};
 
@@ -64,8 +64,8 @@ namespace WBSF
 		ActiaInterruptaArray m_luck;	//survival between stage
 		bool	m_badluck;		//killed by attrition
 		double	m_Pmax;			//Potential fecundity
-		double	m_Pᵗ;			//Energy
-		double	m_Eᵗ;			//Actual number of eggs
+		//double	m_Pᵗ;			//Energy
+		//double	m_Eᵗ;			//Actual number of eggs
 
 		CTRef	m_adultDate;
 		CTRef	m_diapauseTRef;

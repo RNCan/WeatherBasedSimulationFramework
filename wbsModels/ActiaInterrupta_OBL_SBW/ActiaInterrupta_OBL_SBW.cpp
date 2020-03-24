@@ -24,6 +24,8 @@ namespace WBSF
 		CActiaInterrupta(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		m_pAssociateHost = pAssociateHost;
+		m_Nh = 0;
+		m_nb_attacks_by_host.fill(0);
 		m_broods_by_host.fill(0);
 	}
 
@@ -49,6 +51,8 @@ namespace WBSF
 	{
 		CActiaInterrupta::OnNewDay(weather);
 
+		m_Nh = 0;
+		m_nb_attacks_by_host.fill(0);
 		m_broods_by_host.fill(0);
 	}
 
@@ -65,11 +69,11 @@ namespace WBSF
 		ASSERT(pStand->m_SBWStand.m_host.size() == 1);
 
 
-		if (m_sex == FEMALE && m_age >= ADULT)
+		if (m_sex == FEMALE && m_age >= ADULT && GetStageAge() >= GetStand()->m_preOvip)
 		{
 			//m_Nh is only update for female
 
-			double nbAttackable = 0;
+			//double nbAttackable = 0;
 
 			const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
 			for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
@@ -78,7 +82,7 @@ namespace WBSF
 				if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
 				{
 					if ((*it)->IsAlive())
-						nbAttackable += (*it)->GetScaleFactor();
+						m_nb_attacks_by_host[H_OBL] += (*it)->GetScaleFactor();
 				}
 			}
 
@@ -89,13 +93,13 @@ namespace WBSF
 				if (stage >= SBW::L2 && stage <= SBW::L6)
 				{
 					if ((*it)->IsAlive())
-						nbAttackable += (*it)->GetScaleFactor();
+						m_nb_attacks_by_host[H_SBW] += (*it)->GetScaleFactor();
 				}
 
 			}
 
 
-			m_Nh = nbAttackable;
+			m_Nh = m_nb_attacks_by_host[H_OBL] + m_nb_attacks_by_host[H_SBW];
 		}
 
 
@@ -206,10 +210,12 @@ namespace WBSF
 			//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
 			//size_t hostType = stoi(get_property("HostType"));
 
-			stat[S_BROOD_OBL] += m_broods_by_host[H_OBL] * m_scaleFactor;
-			stat[M_BROOD_OBL] = stat[S_BROOD_OBL];
-			stat[S_BROOD_SBW] += m_broods_by_host[H_SBW] * m_scaleFactor;
-			stat[M_BROOD_SBW] = stat[S_BROOD_SBW];
+			stat[S_BROODS_OBL] += m_broods_by_host[H_OBL] * m_scaleFactor;
+			stat[S_BROODS_SBW] += m_broods_by_host[H_SBW] * m_scaleFactor;
+
+//			stat[S_ATTACKS_OBL] += m_nb_attacks_by_host[H_OBL] * m_scaleFactor;
+	//		stat[S_ATTACKS_SBW] += m_nb_attacks_by_host[H_SBW] * m_scaleFactor;
+
 
 			if (m_death == HOST_DIE)
 				stat[S_HOST_DIE] += m_scaleFactor;

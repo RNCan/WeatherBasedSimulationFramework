@@ -51,7 +51,7 @@ namespace WBSF
 //		m_diapauseAge = MAGGOT;// +0.1;
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5;
-		m_preOvip = 5.0/22.0;
+		m_preOvip = 3.0 / 22.4;
 		//m_bOnGround = false;
 	}
 
@@ -230,8 +230,8 @@ namespace WBSF
 				
 				for (size_t g = 0; g < maxG; g++)
 				{
-					static const size_t VAR_IN[7] = { M_ADULT,  M_BROOD_OBL,  M_BROOD_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN };
-					static const size_t VAR_OUT[7] = { O_A_ADULTS, O_A_BROODS_OBL, O_A_BROODS_SBW, O_A_DIAPAUSE, O_A_DEAD_ADULT, O_A_HOST_DIE, O_A_FROZEN };
+					static const size_t VAR_IN[7] = { M_ADULT,  S_BROODS_OBL,  S_BROODS_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN};
+					static const size_t VAR_OUT[7] = { O_A_ADULTS, O_A_BROODS_OBL, O_A_BROODS_SBW, O_A_DIAPAUSE, O_A_DEAD_ADULT, O_A_HOST_DIE, O_A_FROZEN};
 					for (size_t i = 0; i < 7; i++)
 					{
 						CStatistic stat = ActiaInterruptaStat[g].GetStat(VAR_IN[i], season);
@@ -244,6 +244,10 @@ namespace WBSF
 					m_output[TRef][O_A_FECONDITY] = (m_output[TRef][O_A_BROODS_OBL] + m_output[TRef][O_A_BROODS_SBW]) / m_output[TRef][O_A_ADULTS];
 
 				m_output[TRef][O_A_GROWTH_RATE] = m_output[TRef][O_A_DIAPAUSE] / 100;
+				
+				//m_output[TRef][O_A_HOST_OBL] = m_output[TRef][S_NB_OBL];
+				//m_output[TRef][O_A_DIAPAUSED_OBL] = m_output[TRef][S_NB_OBL_L3D];
+				//m_output[TRef][O_A_HOST_SBW] = m_output[TRef][S_NB_SBW];
 			}
 		}
 
@@ -286,7 +290,7 @@ namespace WBSF
 					m_output[gg][O_G_YEAR] = TRef.GetYear();
 					m_output[gg][O_G_GENERATION] = g;
 
-					static const size_t VAR_IN[7] = { M_ADULT,  M_BROOD_OBL,  M_BROOD_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN };
+					static const size_t VAR_IN[7] = { M_ADULT,  S_BROODS_OBL,  S_BROODS_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN};
 					static const size_t VAR_OUT[7] = { O_G_ADULTS, O_G_BROODS_OBL, O_G_BROODS_SBW, O_G_DIAPAUSE, O_G_DEAD_ADULT, O_G_HOST_DIE, O_G_FROZEN };
 					for (size_t i = 0; i < 7; i++)
 					{
@@ -299,7 +303,10 @@ namespace WBSF
 						m_output[gg][O_G_FECONDITY] = (m_output[gg][O_G_BROODS_OBL]+ m_output[gg][O_G_BROODS_SBW]) / m_output[gg][O_G_ADULTS];
 					
 					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100;
-
+					//m_output[gg][O_G_HOST_OBL] = m_output[gg][S_NB_OBL];
+					//m_output[gg][O_G_DIAPAUSED_OBL] = m_output[gg][S_NB_OBL_L3D];
+					//m_output[gg][O_G_HOST_SBW] = m_output[gg][S_NB_SBW];
+					
 					//m_output[gg][O_G_EGG_GROWTH] = (eggsBegin>0)?m_output[gg][O_G_BROOD] / eggsBegin : -999;
 					//m_output[gg][O_G_ADULT_GROW] = (adultBegin>0)?m_output[gg][O_G_ADULT] / adultBegin : -999;
 					
