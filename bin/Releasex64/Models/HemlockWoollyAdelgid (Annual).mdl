@@ -81,7 +81,7 @@
         <OutputVariable>
             <Name>Tmin</Name>
             <Title>Tmin</Title>
-            <Units/>
+            <Units>°C</Units>
             <Description>lowest minimum temperature of the winter</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -89,7 +89,7 @@
         <OutputVariable>
             <Name>N</Name>
             <Title>N</Title>
-            <Units/>
+            <Units>days</Units>
             <Description>Number of days prior to the extreme minimum where Tmean &lt; -1</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -137,7 +137,7 @@
         <OutputVariable>
             <Name>R</Name>
             <Title>R</Title>
-            <Units/>
+            <Units>unitless</Units>
             <Description>growth population (P/Z)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
