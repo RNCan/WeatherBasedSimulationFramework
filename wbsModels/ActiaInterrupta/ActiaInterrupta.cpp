@@ -93,6 +93,8 @@ namespace WBSF
 	{
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
+		assert(m_totalBroods + m_broods < m_Pmax);
+		assert(m_broods == 0);//daily brood must be rest
 
 		//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
 		//size_t hostType = stoi(get_property("HostType"));
@@ -174,7 +176,7 @@ namespace WBSF
 				static const double pre_ovip_age = GetStand()->m_preOvip;
 				
 
-				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)//TRef >= m_adultDate + GetStand()->m_preOvip
+				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)
 				{
 					ASSERT(m_age >= ADULT);
 					double fec = m_Pmax * r / (1.0 - pre_ovip_age);
@@ -187,6 +189,7 @@ namespace WBSF
 
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(fec, Na));
+					//double broods = max(0.0, min( min(fec, m_Pmax- m_totalBroods- m_broods), Na));
 
 					m_broods += broods;
 					ASSERT(m_totalBroods + m_broods < m_Pmax);
@@ -281,12 +284,9 @@ namespace WBSF
 					stat[S_EGG + s] += m_scaleFactor;
 
 
-				if (s == ADULT)
+				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= GetStand()->m_preOvip)
 				{
-					if (m_sex == FEMALE && d >= m_adultDate + 5)
-					{
-						stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
-					}
+					stat[S_OVIPOSITING_ADULT] += m_scaleFactor;
 				}
 
 				if (m_diapauseTRef.IsInit())
@@ -299,7 +299,7 @@ namespace WBSF
 					stat[M_EGG + s] += m_scaleFactor;
 				}
 
-				if (s == ADULT && m_sex == FEMALE && d == m_adultDate + 5)
+				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= GetStand()->m_preOvip)
 					stat[M_OVIPOSITING_ADULT] += m_scaleFactor;
 			}
 			else

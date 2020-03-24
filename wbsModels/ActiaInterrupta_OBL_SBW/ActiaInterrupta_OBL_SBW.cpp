@@ -47,6 +47,8 @@ namespace WBSF
 
 	void CActiaInterrupta_OBL_SBW::OnNewDay(const CWeatherDay& weather)
 	{
+		CActiaInterrupta::OnNewDay(weather);
+
 		m_broods_by_host.fill(0);
 	}
 
@@ -149,7 +151,7 @@ namespace WBSF
 	void CActiaInterrupta_OBL_SBW::Brood(const CWeatherDay& weather)
 	{
 		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax + 1);
+		ASSERT(m_totalBroods <= m_Pmax+1);
 		
 		m_totalBroods += m_broods;
 
@@ -205,7 +207,9 @@ namespace WBSF
 			//size_t hostType = stoi(get_property("HostType"));
 
 			stat[S_BROOD_OBL] += m_broods_by_host[H_OBL] * m_scaleFactor;
+			stat[M_BROOD_OBL] = stat[S_BROOD_OBL];
 			stat[S_BROOD_SBW] += m_broods_by_host[H_SBW] * m_scaleFactor;
+			stat[M_BROOD_SBW] = stat[S_BROOD_SBW];
 
 			if (m_death == HOST_DIE)
 				stat[S_HOST_DIE] += m_scaleFactor;

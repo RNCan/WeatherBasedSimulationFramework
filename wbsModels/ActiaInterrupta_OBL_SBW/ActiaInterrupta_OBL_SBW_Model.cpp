@@ -28,13 +28,13 @@ namespace WBSF
 		CModelFactory::RegisterModel(CActiaInterrupta_OBL_SBW_Model::CreateObject);
 
 	
-	enum{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
+	enum TDailyOutput{ O_D_EGG, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
 	extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,BroodOBL,BroodSBW,Attrition,CumulAdult,CumulDiapause";
 	
-	//enum{ O_G_YEAR, O_G_GENERATION, O_G_EGG, O_G_PUPA, O_G_ADULT, O_G_DEAD_ADULT, O_G_BROOD, O_G_ATTRITION, O_G_FROZEN, O_G_HOST_DIE, O_G_DIAPAUSE, O_G_FECONDITY, O_G_EGG_GROWTH, O_G_ADULT_GROW, NB_GENERATION_OUTPUT };
+	enum TGenerationOutput{ O_G_YEAR, O_G_GENERATION, O_G_ADULTS, O_G_BROODS_OBL, O_G_BROODS_SBW, O_G_DIAPAUSE, O_G_FECONDITY, O_G_GROWTH_RATE, O_G_DEAD_ADULT, O_G_HOST_DIE, O_G_FROZEN, NB_GENERATION_OUTPUT };
 	//extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frozen,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
 
-	//enum{ O_A_NB_GENERATION, O_A_BROOD, O_A_DIAPAUSE, O_A_FECONDITY, O_A_GROWTH_RATE, O_A_DEAD_ADULT, O_A_ATTRITION, O_A_FROZEN, O_A_HOST_DIE, O_A_OTHER, NB_ANNUAL_OUTPUT };
+	enum TAnnualOutput{ O_A_NB_GENERATION, O_A_ADULTS, O_A_BROODS_OBL, O_A_BROODS_SBW, O_A_DIAPAUSE, O_A_FECONDITY, O_A_GROWTH_RATE, O_A_DEAD_ADULT, O_A_HOST_DIE, O_A_FROZEN, NB_ANNUAL_OUTPUT };
 	//extern char ANNUAL_HEADER[] = "Gmax,Broods,Diapause,Fecondity,GrowthRate,DeadAdults,Attrition,Frozen,HostDie,DeadOthers";
 
 
@@ -43,7 +43,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.2 (2020)";
+		VERSION = "1.0.3 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -150,10 +150,6 @@ namespace WBSF
 		{
 			//get the annual period 
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-//			CTRef TRef = snowA.GetLastSnowTRef(m_weather[y]).as(CTM::DAILY);
-			//if (!TRef.IsInit() || !m_bOnGround)
-				//TRef = p.Begin(); //no snow 
-
 
 			//Create stand
 			CActiaInterrupta_OBL_SBW_Stand stand(this);
@@ -164,30 +160,22 @@ namespace WBSF
 			stand.m_OBLStand.m_host.push_front(pHostOBL);
 
 			//SBW init
-			//stand.m_SBWStand.m_bFertilEgg = false;
-			//stand.m_SBWStand.m_bApplyAttrition = false;
-			//stand.m_SBWStand.m_defoliation = 0;
-			//stand.m_SBWStand.m_bStopL22 = true;
 			std::shared_ptr<CSBWTree> pHostSBW = make_shared<CSBWTree>(&stand.m_SBWStand);
 			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 250, 100, SBW::L2o, RANDOM_SEX, false, 0));
 			stand.m_SBWStand.m_host.push_front(pHostSBW);
 
 			//init ActiaInterrupta
-
-			//Create host
 			std::shared_ptr<CActiaInterrupta_OBL_SBW_Host> pHostActiaInterrupta = make_shared<CActiaInterrupta_OBL_SBW_Host>(&stand);
 
 			//Init host
 			pHostActiaInterrupta->m_nbMinObjects = 100;
 			pHostActiaInterrupta->m_nbMaxObjects = 1250;
-			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, MAGGOT/*m_diapauseAge*/, FEMALE, true, 0));
+			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, MAGGOT, FEMALE, true, 0));
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand
 			stand.m_bApplyAttrition = m_bHaveAttrition;
 			stand.m_generationAttrition = m_generationAttrition;
-			//stand.m_bAutoComputeDiapause = false;
-			//stand.m_diapauseAge = m_diapauseAge;
 			stand.m_criticalDaylength = m_criticalDaylength;
 			stand.m_lethalTemp = m_lethalTemp;
 			stand.m_preOvip = m_preOvip;
@@ -219,59 +207,45 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//if (m_weather.IsDaily())//if daily data, compute sub-daily data
-		//	m_weather.ComputeHourlyVariables();
+		if (m_weather.IsDaily())//if daily data, compute sub-daily data
+			m_weather.ComputeHourlyVariables();
 
-		//
-		//vector<CModelStatVector> ActiaInterruptaStat;
-		//ExecuteDailyAllGenerations(ActiaInterruptaStat);
+		
+		vector<CModelStatVector> ActiaInterruptaStat;
+		ExecuteDailyAllGenerations(ActiaInterruptaStat);
 
-		//CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		//m_output.Init(p, NB_ANNUAL_OUTPUT, 0, ANNUAL_HEADER);
-		//
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+		m_output.Init(p, NB_ANNUAL_OUTPUT, 0);
+		
 
-		////now compute annual growth rates
-		////Get last complete generation
-		//size_t maxG = min(NB_GENERATIONS, ActiaInterruptaStat.size());
-		//if (maxG > 0)
-		//{
-		//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-		//	{
-		//		CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
+		//now compute annual growth rates
+		//Get last complete generation
+		size_t maxG = min(NB_GENERATIONS, ActiaInterruptaStat.size());
+		if (maxG > 0)
+		{
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
+				m_output[TRef][O_A_NB_GENERATION] = maxG;
+				
+				for (size_t g = 0; g < maxG; g++)
+				{
+					static const size_t VAR_IN[7] = { M_ADULT,  M_BROOD_OBL,  M_BROOD_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN };
+					static const size_t VAR_OUT[7] = { O_A_ADULTS, O_A_BROODS_OBL, O_A_BROODS_SBW, O_A_DIAPAUSE, O_A_DEAD_ADULT, O_A_HOST_DIE, O_A_FROZEN };
+					for (size_t i = 0; i < 7; i++)
+					{
+						CStatistic stat = ActiaInterruptaStat[g].GetStat(VAR_IN[i], season);
+						ASSERT(stat.IsInit());
+						m_output[TRef][VAR_OUT[i]] += stat[SUM];
+					}
+				}
+				
+				if (m_output[TRef][O_A_ADULTS] > 0)
+					m_output[TRef][O_A_FECONDITY] = (m_output[TRef][O_A_BROODS_OBL] + m_output[TRef][O_A_BROODS_SBW]) / m_output[TRef][O_A_ADULTS];
 
-		//		m_output[TRef][O_A_NB_GENERATION] = maxG;
-
-		//		
-		//		double adult = 0;
-		//		for (size_t g = 0; g < maxG; g++)
-		//		{
-		//			static const size_t VAR_IN[7] = { M_BROOD, M_DIAPAUSE, M_DEAD_ADULT, M_ATTRITION, E_FROZEN, D_HOST_DIE, E_OTHERS };
-		//			static const size_t VAR_OUT[7] = { O_A_BROOD, O_A_DIAPAUSE, O_A_DEAD_ADULT, O_A_ATTRITION, O_A_FROZEN, O_A_HOST_DIE, O_A_OTHER };
-		//			for (size_t i = 0; i < 7; i++)
-		//			{
-		//				CStatistic stat = ActiaInterruptaStat[g].GetStat(VAR_IN[i], season);
-		//				ASSERT(stat.IsInit());
-		//				m_output[TRef][VAR_OUT[i]] += stat[SUM];
-		//			}
-
-		//			CStatistic statAdult = ActiaInterruptaStat[g].GetStat(E_ADULT, season);
-		//			adult += statAdult[SUM];
-		//		}
-		//		/*
-		//		double sumDead = 0;
-		//		for (size_t i = O_A_DEAD_ADULT; i <= O_A_OTHER; i++)
-		//			sumDead += m_output[TRef][i];
-		//		
-		//		if (sumDead > 0)
-		//		{
-		//			for (size_t i = O_A_DEAD_ADULT; i <= O_A_OTHER; i++)
-		//				m_output[TRef] = m_output[TRef] * 100 / sumDead;
-		//		}
-		//			*/
-		//		m_output[TRef][O_A_FECONDITY] = (adult>0)? m_output[TRef][O_A_BROOD] / adult : -999;
-		//		m_output[TRef][O_A_GROWTH_RATE] = m_output[TRef][O_A_DIAPAUSE] / 100;
-		//	}
-		//}
+				m_output[TRef][O_A_GROWTH_RATE] = m_output[TRef][O_A_DIAPAUSE] / 100;
+			}
+		}
 
 			
 
@@ -282,81 +256,59 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//if (m_weather.IsDaily())//if daily data, compute sub-daily data
-		//	m_weather.ComputeHourlyVariables();
+		if (m_weather.IsDaily())//if daily data, compute sub-daily data
+			m_weather.ComputeHourlyVariables();
 
-		//
-		//vector<CModelStatVector> ActiaInterruptaStat;
-		//ExecuteDailyAllGenerations(ActiaInterruptaStat);
-		//
+		
+		vector<CModelStatVector> ActiaInterruptaStat;
+		ExecuteDailyAllGenerations(ActiaInterruptaStat);
+		
 
-		//CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		//m_output.Init(p.size()*NB_GENERATIONS, CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT, -999, GENERATION_HEADER);
-
-
-		////now compute generation growth rates
-		//size_t maxG = min(NB_GENERATIONS, ActiaInterruptaStat.size());
-		//if (maxG > 0)
-		//{
-		//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-		//	{
-		//		size_t y = TRef - p.Begin();
-		//		CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+		m_output.Init(p.size()*NB_GENERATIONS, CTRef(0,0,0,0,CTM(CTM::ATEMPORAL)), NB_GENERATION_OUTPUT, -999, "");
 
 
-		//		double eggsBegin = 100;
-		//		double adultBegin = 0;
-		//		for (size_t g = 0; g < maxG; g++)
-		//		{
-		//			size_t gg = y*NB_GENERATIONS + g;
-		//			m_output[gg][O_G_YEAR] = TRef.GetYear();
-		//			m_output[gg][O_G_GENERATION] = g;
-		//			for (size_t i = 0; i < 4; i++)
-		//			{
-		//				if (g == 0 && i == 0)
-		//				{
-		//					m_output[gg][O_G_EGG] = 100;
-		//				}
-		//				else
-		//				{
-		//					CStatistic stat = ActiaInterruptaStat[g].GetStat(E_EGG + i, season);
-		//					m_output[gg][O_G_EGG + i] = stat[SUM];
-		//				}
-		//			}
+		//now compute generation growth rates
+		size_t maxG = min(NB_GENERATIONS, ActiaInterruptaStat.size());
+		if (maxG > 0)
+		{
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				size_t y = TRef - p.Begin();
+				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
 
-		//			CStatistic broodStat = ActiaInterruptaStat[g].GetStat(E_BROOD, season);
-		//			ASSERT(broodStat.IsInit());
-		//			m_output[gg][O_G_BROOD] = broodStat[SUM];
-		//			
-		//				
-		//			CStatistic diapauseStat = ActiaInterruptaStat[g].GetStat(E_DIAPAUSE, season);
-		//			ASSERT(diapauseStat.IsInit());
-		//			m_output[gg][O_G_DIAPAUSE] = diapauseStat[SUM];
 
-		//			CStatistic attritionStat = ActiaInterruptaStat[g].GetStat(E_ATTRITION, season);
-		//			ASSERT(attritionStat.IsInit());
-		//			m_output[gg][O_G_ATTRITION] = attritionStat[SUM];
+				//double eggsBegin = 100;
+				//double adultBegin = 0;
+				for (size_t g = 0; g < maxG; g++)
+				{
+					size_t gg = y*NB_GENERATIONS + g;
+					m_output[gg][O_G_YEAR] = TRef.GetYear();
+					m_output[gg][O_G_GENERATION] = g;
 
-		//			CStatistic frozenStat = ActiaInterruptaStat[g].GetStat(E_FROZEN, season);
-		//			ASSERT(frozenStat.IsInit());
-		//			m_output[gg][O_G_FROZEN] = frozenStat[SUM];
+					static const size_t VAR_IN[7] = { M_ADULT,  M_BROOD_OBL,  M_BROOD_SBW, M_DIAPAUSE, M_DEAD_ADULT, M_HOST_DIE, M_FROZEN };
+					static const size_t VAR_OUT[7] = { O_G_ADULTS, O_G_BROODS_OBL, O_G_BROODS_SBW, O_G_DIAPAUSE, O_G_DEAD_ADULT, O_G_HOST_DIE, O_G_FROZEN };
+					for (size_t i = 0; i < 7; i++)
+					{
+						CStatistic stat = ActiaInterruptaStat[g].GetStat(VAR_IN[i], season);
+						ASSERT(stat.IsInit());
+						m_output[gg][VAR_OUT[i]] = stat[SUM];
+					}
 
-		//			CStatistic hostDieStat = ActiaInterruptaStat[g].GetStat(E_HOST_DIE, season);
-		//			ASSERT(hostDieStat.IsInit());
-		//			m_output[gg][O_G_HOST_DIE] = hostDieStat[SUM];
+					if (m_output[gg][O_G_ADULTS]>0)
+						m_output[gg][O_G_FECONDITY] = (m_output[gg][O_G_BROODS_OBL]+ m_output[gg][O_G_BROODS_SBW]) / m_output[gg][O_G_ADULTS];
+					
+					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100;
 
-		//			if (m_output[gg][O_G_ADULT]>0)
-		//				m_output[gg][O_G_FECONDITY] = m_output[gg][O_G_BROOD] / m_output[gg][O_G_ADULT];
-		//			 
-		//			m_output[gg][O_G_EGG_GROWTH] = (eggsBegin>0)?m_output[gg][O_G_BROOD] / eggsBegin : -999;
-		//			m_output[gg][O_G_ADULT_GROW] = (adultBegin>0)?m_output[gg][O_G_ADULT] / adultBegin : -999;
-		//			
-		//			eggsBegin = m_output[gg][O_G_BROOD];
-		//			adultBegin = m_output[gg][O_G_ADULT];
+					//m_output[gg][O_G_EGG_GROWTH] = (eggsBegin>0)?m_output[gg][O_G_BROOD] / eggsBegin : -999;
+					//m_output[gg][O_G_ADULT_GROW] = (adultBegin>0)?m_output[gg][O_G_ADULT] / adultBegin : -999;
+					
+					//eggsBegin = m_output[gg][O_G_BROOD];
+					//adultBegin = m_output[gg][O_G_ADULT];
 
-		//		}
-		//	}
-		//}
+				}
+			}
+		}
 
 
 		return msg;
