@@ -170,7 +170,7 @@ namespace WBSF
 				//in Régnière et al Tranosema model (submitted)
 				double as = 0.05;
 				double th = 0.8;
-				double Na = as * m_Nh*Equations().GetOᵗ(T) / (1 + as * th*m_Nh) / nbSteps; //Number of attacks per time step
+				double Na = as * m_Nh*Equations().GetOᵗ(T) / (1 + as * th*m_Nh); //Number of attacks per time step
 
 				//double as = 0.05;
 				//double th = 0.8;
