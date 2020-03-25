@@ -723,7 +723,7 @@ BEGIN
     IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_QUEBEC_P    "Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations|Nom d'usager SOPFEU|Mot de passe SOPFEU|Nom d'usager MFFP|Mot de passe MFFP"
     IDS_UPDATER_NEWBRUNSWICK_P 
-                            "Nom d'usager (réseau feux)|Mot de passe (réseau feux)|Répertoire de travail|Première année|Dernière année|Réseau"
+                            "Nom d'usager (réseau feux privé)|Mot de passe (réseau feux privé)|Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_NOVASCOTIA_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_NEWFOUNDLAND_P 
@@ -1211,7 +1211,7 @@ BEGIN
     IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
     IDS_UPDATER_QUEBEC_P    "Working directory|First year|Last year|Network|Data type|Update until x days|Update stations list|SOPFEU User Name|SOPFEU Password|MFFP User Name|MFFP Password"
     IDS_UPDATER_NEWBRUNSWICK_P 
-                            "User Name (fire network)|Password (fire network)|Working directory|First year|Last year|Network"
+                            "User Name (private fire network)|Password (private fire network)|Working directory|First year|Last year|Network"
     IDS_UPDATER_NOVASCOTIA_P 
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 

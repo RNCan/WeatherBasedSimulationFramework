@@ -23,13 +23,13 @@ using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
 
-//donner disponiblke pour le 2 dernier jour ici:
-//http://www1.gnb.ca/0079/FireWeather/FireWeatherHourly-e.asp?stn=Anfield
+//public fire available here:
+//https://www1.gnb.ca/0079/FireWeather/FireWeatherHourly-e.asp?stn=Alward
 
 namespace WBSF
 {
 
-	const char* CUINewBrunswick::SERVER_NAME[NB_NETWORKS] = { "ftp.gnb.ca", "ftp.gnb.ca", "daafmaapextweb.gnb.ca" };
+	const char* CUINewBrunswick::SERVER_NAME[NB_NETWORKS] = { "ftp.gnb.ca", "ftp.gnb.ca", "www1.gnb.ca", "daafmaapextweb.gnb.ca" };
 
 
 	//*********************************************************************
@@ -42,7 +42,7 @@ namespace WBSF
 	CTaskBase::TType CUINewBrunswick::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewBrunswick::CLASS_NAME(), (createF)CUINewBrunswick::create);
 
-	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS]{ "FireHistorical", "Fire", "Agriculture" };
+	const char* CUINewBrunswick::NETWORK_NAME[NB_NETWORKS]{ "FireHistorical", "PrivateFire", "PublicFire", "Agriculture" };
 
 	size_t CUINewBrunswick::GetNetworkFromName(string name)
 	{
@@ -144,8 +144,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "0=Fire(Historical)|1=Fire(current)|2=Agriculture"; break;//|1=Agriculture
-			//case DATA_TYPE: str = GetString(IDS_STR_DATA_TYPE); break;
+		case NETWORK:	str = "HistoricalFire=Fire (Historical)|PrivateFire=Private fire (current)|PublicFire=Public fire (current)|Agriculture=Agriculture"; break;
 		};
 		return str;
 	}
@@ -177,7 +176,7 @@ namespace WBSF
 		CTRef currentTRef = CTRef::GetCurrentTRef();
 
 
-		if (n == FIRE_HISTORICAL || n == FIRE)
+		if (n == FIRE_HISTORICAL || n == PRIVATE_FIRE)
 		{
 			//open a connection on the server
 			string str;
@@ -195,7 +194,7 @@ namespace WBSF
 					if (msg)
 					{
 						callback.PushTask("Find files from directories (nb directories = " + ToString(dir.size()) + ")", dir.size());
-						//downlaod all file *.txt
+						//download all file *.txt
 						for (size_t d = 0; d < dir.size() && msg; d++)
 						{
 							CFileInfoVector tmp;
@@ -216,7 +215,7 @@ namespace WBSF
 						callback.PopTask();
 					}
 				}
-				else if (n == FIRE)
+				else if (n == PRIVATE_FIRE)
 				{
 					//current data
 
@@ -227,6 +226,10 @@ namespace WBSF
 				pConnection->Close();
 				pSession->Close();
 			}
+		}
+		else if (n == PUBLIC_FIRE)
+		{
+			ASSERT(false);
 		}
 		else if (n == AGRI)
 		{
@@ -246,9 +249,40 @@ namespace WBSF
 		if (msg)
 		{
 
-			if (n == FIRE_HISTORICAL || n == FIRE)
+			if (n == FIRE_HISTORICAL || n == PRIVATE_FIRE)
 			{
 				ASSERT(false);
+			}
+			else if (n == PUBLIC_FIRE)
+			{
+				//https://www1.gnb.ca/0079/FireWeather/FireWeatherHourly-e.asp?Stn=all
+				CInternetSessionPtr pSession;
+				CHttpConnectionPtr pConnection;
+
+				msg = GetHttpConnection(SERVER_NAME[PUBLIC_FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				if (msg)
+				{
+					string str;
+					msg = UtilWWW::GetPageText(pConnection, "0079/FireWeather/FireWeatherHourly-e.asp?Stn=all", str);
+					if (msg)
+					{
+						string::size_type posBegin = str.find("</THEAD>");
+						string::size_type posEnd = str.find("</TABLE>");
+
+						while (posBegin != string::npos && posEnd != string::npos && posBegin < posEnd)
+						{
+							string str1 = FindString(str, "<TD>", "</TD>", posBegin);
+							string str2 = FindString(str1, "stn=", "'");
+							fileList.push_back(str2);
+
+							posBegin = str.find("<TD>", posBegin);
+						}
+					}
+
+					//clean connection
+					pConnection->Close();
+					pSession->Close();
+				}
 			}
 			else if (n == AGRI)
 			{
@@ -426,9 +460,9 @@ namespace WBSF
 
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				size_t n = ToSizeT(str[i]);
-				if (n < network.size())
-					network.set(n);
+				size_t n = GetNetworkFromName(str[i]);
+				ASSERT(n<NB_NETWORKS);
+				network.set(n);
 			}
 		}
 
@@ -448,7 +482,8 @@ namespace WBSF
 				switch (n)
 				{
 				case FIRE_HISTORICAL: msg += ExecuteFire(n, callback); break;
-				case FIRE: msg += ExecuteFire(n, callback); break;
+				case PRIVATE_FIRE: msg += ExecuteFire(n, callback); break;
+				case PUBLIC_FIRE: msg += ExecutePublicFire(callback); break;
 				case AGRI: msg += ExecuteAgriculture(callback); break;
 				}
 			}
@@ -487,6 +522,7 @@ namespace WBSF
 		ERMsg msg;
 
 		string VIEWSTATE;
+		string VIEWSTATEGENERATOR;
 		string EVENTVALIDATION;
 
 
@@ -496,37 +532,29 @@ namespace WBSF
 		{
 
 			VIEWSTATE = url_encode(WBSF::FindString(str, "id=\"__VIEWSTATE\" value=\"", "\""));
+			VIEWSTATEGENERATOR = url_encode(WBSF::FindString(str, "id=\"__VIEWSTATEGENERATOR\" value=\"", "\""));
 			EVENTVALIDATION = url_encode(WBSF::FindString(str, "id=\"__EVENTVALIDATION\" value=\"", "\""));
 		}
 
 		//
 		//
 		CString URL = _T("010-001/archive.aspx");
-		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");//\r\nUser-Agent: HttpCall\r\n
-
-		//%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%2BgbUTtVlvsHoG8rRj&
-		//__VIEWSTATEGENERATOR=7FE89812&
-		//__EVENTVALIDATION=%2FwEWhAECrMXD2AcCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtWk%2B6ACAtCkz6ACAtGky6ACAtWky6ACAtekn6MCAtak16ACAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAv%2Fo%2BKAJAv%2Fo1McBAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQLF7or1AgLF7qaSCgL0x6SlAQKA3uC2AzLphg5B2A%2B31QJwWG6aPox1pemV&
-		//ctl00%24hfLang=fr-CA&ctl00%24Content1%24ddlWS=36&ctl00%24Content1%24ddlFromDay=1&ctl00%24Content1%24ddlFromMonth=1&ctl00%24Content1%24ddlFromYear=2017&ctl00%24Content1%24hdnFromDate=&ctl00%24Content1%24ddlToDay=31&ctl00%24Content1%24ddlToMonth=12&ctl00%24Content1%24ddlToYear=2017&ctl00%24Content1%24hdnToDate=&ctl00%24Content1%24btnGetData=Submit
-
-
+		CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded\r\n");
 		CStringA strParam = "__EVENTTARGET=&__EVENTARGUMENT=&";
-		//strParam += "__VIEWSTATE=%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%2BgbUTtVlvsHoG8rRj&";
-		strParam += "__VIEWSTATE=" + CStringA (VIEWSTATE.c_str() )+"&";
-		strParam += "__VIEWSTATEGENERATOR=7FE89812&";
-		//strParam += "__EVENTVALIDATION=%2FwEWhAECrMXD2AcCjPGn3gECkN%2Fz0AcC7Of0OwL3wr3hAgLmha0BAtCk16ACAtCkn6MCAtak%2B6ACAtWk%2B6ACAtCkz6ACAtGky6ACAtWky6ACAtekn6MCAtak16ACAtWk86ACAtaky6ACAtakz6ACAtekx6ACAtWkx6ACAtakn6MCAuLr9sIDAuPr9sIDAuDr9sIDAuHr9sIDAubr9sIDAufr9sIDAuTr9sIDAvXr9sIDAvrr9sIDAuLrtsEDAuLrusEDAuLrvsEDAuLrgsEDAuLrhsEDAuLrisEDAuLrjsEDAuLrksEDAuLr1sIDAuLr2sIDAuPrtsEDAuPrusEDAuPrvsEDAuPrgsEDAuPrhsEDAuPrisEDAuPrjsEDAuPrksEDAuPr1sIDAuPr2sIDAuDrtsEDAuDrusEDAtXQoYkBAtTQoYkBAtfQoYkBAtbQoYkBAtHQoYkBAtDQoYkBAtPQoYkBAsLQoYkBAs3QoYkBAtXQ4YoBAtXQ7YoBAtXQ6YoBApTRytAPApTR5rkJApTR0twBAv%2Fo4MUGAv%2Fo3JgNAv%2FoyL8EAv%2FopNIMAv%2FokOkLAv%2FojIwCAv%2Fo%2BKAJAv%2Fo1McBAvKEiO4EAvS6t0wC9bq3TAL2urdMAve6t0wC8Lq3TALxurdMAvK6t0wC47q3TALsurdMAvS6908C9Lr7TwL0uv9PAvS6w08C9LrHTwL0ustPAvS6z08C9LrTTwL0updMAvS6m0wC9br3TwL1uvtPAvW6%2F08C9brDTwL1usdPAvW6y08C9brPTwL1utNPAvW6l0wC9bqbTAL2uvdPAva6%2B08C14iy%2BgQC1oiy%2BgQC1Yiy%2BgQC1Iiy%2BgQC04iy%2BgQC0oiy%2BgQC0Yiy%2BgQCwIiy%2BgQCz4iy%2BgQC14jy%2BQQC14j%2B%2BQQC14j6%2BQQCrte4hQQCrteU7AICrtegiQoCxe6SkA0Cxe6uzQYCxe666g8Cxe7WhwcCxe7iPALF7v7ZCQLF7or1AgLF7qaSCgL0x6SlAQKA3uC2AzLphg5B2A%2B31QJwWG6aPox1pemV&";
-		strParam += "__EVENTVALIDATION=" + CStringA(EVENTVALIDATION.c_str())+ "&";
-		strParam += "ctl00%24hfLang=fr-CA&";
-		strParam += ("ctl00%24Content1%24ddlWS=" + ID + "&").c_str();
-		strParam += "ctl00%24Content1%24ddlFromDay=1&";
-		strParam += "ctl00%24Content1%24ddlFromMonth=1&";
-		strParam += ("ctl00%24Content1%24ddlFromYear=" + ToString(year) + "&").c_str();
-		strParam += "ctl00%24Content1%24hdnFromDate=&";
-		strParam += "ctl00%24Content1%24ddlToDay=31&";
-		strParam += "ctl00%24Content1%24ddlToMonth=12&";
-		strParam += ("ctl00%24Content1%24ddlToYear=" + ToString(year) + "&").c_str();
-		strParam += "ctl00%24Content1%24hdnToDate=&";
-		strParam += "ctl00%24Content1%24btnGetData=Submit";
+		strParam += "__VIEWSTATE=" + CStringA(VIEWSTATE.c_str()) + "&";
+		strParam += "__VIEWSTATEGENERATOR=" + CStringA(VIEWSTATEGENERATOR.c_str()) + "&";
+		strParam += "__EVENTVALIDATION=" + CStringA(EVENTVALIDATION.c_str()) + "&";
+		strParam += "ctl00%hfLang=fr-CA&";
+		strParam += ("ctl00%Content1%ddlWS=" + ID + "&").c_str();
+		strParam += "ctl00%Content1%ddlFromDay=1&";
+		strParam += "ctl00%Content1%ddlFromMonth=1&";
+		strParam += ("ctl00%Content1%ddlFromYear=" + ToString(year) + "&").c_str();
+		strParam += "ctl00%Content1%hdnFromDate=&";
+		strParam += "ctl00%Content1%ddlToDay=31&";
+		strParam += "ctl00%Content1%ddlToMonth=12&";
+		strParam += ("ctl00%Content1%ddlToYear=" + ToString(year) + "&").c_str();
+		strParam += "ctl00%Content1%hdnToDate=&";
+		strParam += "ctl00%Content1%btnGetData=Submit";
 
 
 		DWORD HttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE;
@@ -613,6 +641,148 @@ namespace WBSF
 		return msg;
 	}
 
+
+	ERMsg CUINewBrunswick::ExecutePublicFire(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string workingDir = GetDir(WORKING_DIR);
+		msg = CreateMultipleDir(workingDir);
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(string(SERVER_NAME[PUBLIC_FIRE]), 1);
+		callback.AddMessage("");
+
+		//		int firstYear = as<int>(FIRST_YEAR);
+			//	int lastYear = as<int>(LAST_YEAR);
+				//size_t nbYears = lastYear - firstYear + 1;
+				//CTRef currentTRef = CTRef::GetCurrentTRef();
+
+
+		StringVector fileList;
+		GetFileList(PUBLIC_FIRE, fileList, callback);
+
+		callback.PushTask("Download New-Brunswick public fire data (" + ToString(fileList.size()) + " stations)", fileList.size());
+
+		size_t nbFiles = 0;
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection(SERVER_NAME[PUBLIC_FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		if (msg)
+		{
+			for (size_t i = 0; i < fileList.size() && msg; i++)
+			{
+				CWeatherYears data(true);
+
+				string str;
+				msg = UtilWWW::GetPageText(pConnection, "0079/FireWeather/FireWeatherHourly-e.asp?Stn=" + fileList[i], str);
+				if (msg)
+				{
+					string::size_type pos1 = str.find("</THEAD></TR>");
+					string::size_type pos2 = str.find("</TABLE>", pos1);
+
+					if (pos1 != string::npos && pos2 != string::npos)
+					{
+						pos1 += 13;
+						string xml_str = "<?xml version=\"1.0\" encoding=\"Windows-1252\"?><data>" + str.substr(pos1, pos2 - pos1) + "</data>";
+						//clean HTML string
+						ReplaceString(xml_str, "\t", "");
+						ReplaceString(xml_str, "\r", "");
+						ReplaceString(xml_str, "\n", "");
+						ReplaceString(xml_str, " nowrap", "");
+						ReplaceString(xml_str, " align=center", "");
+						ReplaceString(xml_str, " align=right", "");
+
+						//load as XML
+						zen::XmlDoc doc = zen::parse(xml_str);
+						zen::XmlIn in(doc.root());
+						zen::XmlIn test = in["TR"];
+						
+						for (zen::XmlIn itTR = in["TR"]; itTR; itTR.next())
+						{
+							StringVector values;
+							string value;
+							for (zen::XmlIn itTD = itTR["TD"]; itTD; itTD.next())
+							{
+								string value;
+								itTD.get()->getValue(value);
+								values.push_back(value);
+							}
+
+							enum TColums { C_DATE, C_TIME, C_TEMP, C_RH, C_DIR, C_WSPD, C_WIND_GUST, C_RAIN, C_RAIN24H, NB_COLUMS };
+							TVarH VAR[NB_COLUMS] = { H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDD, H_WNDS, H_SKIP, H_PRCP, H_SKIP };
+							ASSERT(values.size() == NB_COLUMS);
+
+
+							if (values.size() == NB_COLUMS)
+							{
+								CTRef TRef;
+								TRef.FromFormatedString(values[C_DATE] + "-" + values[C_TIME].substr(0, 2));
+								ASSERT(TRef.IsValid());
+								
+								if (TRef.IsValid())
+								{
+									if (!data.IsYearInit(TRef.GetYear()))
+									{
+										//try to load old data before changing it...
+										string filePath = GetOutputFilePath(PUBLIC_FIRE, fileList[i], TRef.GetYear());
+										data.LoadData(filePath, -999, false);//don't erase other years when multiple years
+									}
+
+									for (size_t c=0; c< NB_COLUMS; c++)
+									{
+										if (VAR[c] != H_SKIP)
+										{
+											data.GetHour(TRef).SetStat(VAR[c], ToFloat(values[c]));
+										}
+									}
+								}
+							}
+						}//for all station
+
+						nbFiles++;
+					}
+
+				}//if msg
+
+
+				if (data.HaveData())
+				{
+					
+					for (auto it = data.begin(); it != data.end(); it++)
+					{
+						string outputPath = GetOutputFilePath(PUBLIC_FIRE, fileList[i], it->first);
+						CreateMultipleDir(GetPath(outputPath));
+						it->second->SaveData(outputPath);
+					}
+				}
+				else
+				{
+					callback.AddMessage(fileList[i] + " don't have data");
+				}
+
+
+				msg += callback.StepIt();
+			}//for all files
+
+
+
+			//clean connection
+			pConnection->Close();
+			pSession->Close();
+		}//if msg
+
+
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
+		callback.PopTask();
+
+		return msg;
+	}
+
 	ERMsg CUINewBrunswick::ExecuteAgriculture(CCallback& callback)
 	{
 		ERMsg msg;
@@ -657,7 +827,7 @@ namespace WBSF
 						string str;
 						msg = DownloadAgriStation(pConnection, fileList[i], year, str);
 
-						//split data in seperate files
+						//split data in separate files
 						if (msg)
 						{
 							string::size_type pos1 = str.find("<table class=\"gridviewBorder\"");
@@ -669,15 +839,7 @@ namespace WBSF
 								msg += SaveStation(filePath, tmp);
 								nbFiles++;
 							}
-							/*else
-							{
-								ofStream file;
-								file.open(filePath);
-								file << "Year,Month,Day,Hour" << endl;
-								file.close();
-							}*/
 						}
-
 
 						msg += callback.StepIt();
 					}//update only this years
@@ -728,7 +890,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
+		msg = GetFtpConnection(SERVER_NAME[PRIVATE_FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 		if (msg)
 		{
 			for (size_t i = 0; i < fileList.size() && msg; i++)
@@ -739,10 +901,10 @@ namespace WBSF
 				{
 					outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
 				}
-				else if (n == FIRE)
+				else if (n == PRIVATE_FIRE)
 				{
 					string ID = GetFileTitle(fileList[i].m_filePath);
-					outputFilePath = GetOutputFilePath(FIRE, ID, year);
+					outputFilePath = GetOutputFilePath(PRIVATE_FIRE, ID, year);
 				}
 
 				WBSF::CreateMultipleDir(GetPath(outputFilePath));
@@ -769,7 +931,7 @@ namespace WBSF
 			CLocationVector locations;
 			//load all station coordinates
 
-			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\*.txt";
+			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\Historical\\*.txt";
 			CFileInfoVector filesInfo;
 			WBSF::GetFilesInfo(path, false, filesInfo);
 			for (size_t i = 0; i < filesInfo.size() && msg; i++)
@@ -842,6 +1004,7 @@ namespace WBSF
 
 	string CUINewBrunswick::GetOutputFilePath(size_t n, const string& name, int year)const
 	{
+		string m_output_path;
 		if (n == FIRE_HISTORICAL)
 		{
 			string dir = GetLastDirName(GetPath(name));
@@ -905,21 +1068,31 @@ namespace WBSF
 			stationName = PurgeFileName(stationName);
 			string p = bData ? " " + ToString(firstYear) + "-" + ToString(lastYear) : "";
 
-			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\" + ID + " " + stationName + p + ".txt";
+			m_output_path = GetDir(WORKING_DIR) + "Fire\\Historical\\" + ID + " " + stationName + p + ".txt";
+		}
+		else if (n == PRIVATE_FIRE)
+		{
+			m_output_path = GetDir(WORKING_DIR) + "Fire\\Private\\" + ToString(year) + "\\" + name + ".csv";
+		}
+		else if (n == PUBLIC_FIRE)
+		{
+			m_output_path = GetDir(WORKING_DIR) + "Fire\\" + ToString(year) + "\\" + name + ".csv";
+		}
+		else if (n == AGRI)
+		{
+			m_output_path = GetDir(WORKING_DIR) + NETWORK_NAME[n] + "\\" + ToString(year) + "\\" + name + ".csv";
 		}
 
-
-
-		return GetDir(WORKING_DIR) + NETWORK_NAME[n] + "\\" + ToString(year) + "\\" + name + ".csv";
+		return m_output_path;
 	}
 
 	std::string CUINewBrunswick::GetStationListFilePath(size_t n)const
 	{
 		ASSERT(n < NETWORK);
 
-		static const char* FILE_NAME[NETWORK] = { "HistoricalStations.csv",  "NBFireStations.csv", "NBAgStations.csv" };
+		static const char* FILE_NAME[NETWORK] = { "HistoricalStations.csv",  "NBFireStations.csv", "NBFireStations.csv", "NBAgStations.csv" };
 		if (n == FIRE_HISTORICAL)
-			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\" + FILE_NAME[n];
+			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\" + FILE_NAME[n];
 
 		return WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[n];
 	}
@@ -952,7 +1125,10 @@ namespace WBSF
 		if (msg)
 		{
 			for (size_t i = 0; i < m_stations.size(); i++)
-				stationList.push_back(m_stations[i].m_ID);
+			{
+				if (stationList.Find(m_stations[i].m_ID) != -1)
+					stationList.push_back(m_stations[i].m_ID);
+			}
 		}
 
 		return msg;
@@ -985,7 +1161,7 @@ namespace WBSF
 
 		if (n == FIRE_HISTORICAL)
 		{
-			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\Historical\\" + ID + "*.txt";
+			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\Historical\\" + ID + "*.txt";
 			CFileInfoVector filesInfo;
 			WBSF::GetFilesInfo(path, false, filesInfo);
 			for (size_t i = 0; i < filesInfo.size() && msg; i++)
@@ -1031,9 +1207,9 @@ namespace WBSF
 				string filePath = GetOutputFilePath(n, ID, year);
 				if (FileExists(filePath))
 				{
-					if (n == FIRE)
+					if (n == PRIVATE_FIRE)
 						msg = ReadData(filePath, TM, station[year], callback);
-					else  if (n == AGRI)
+					else if (n == PUBLIC_FIRE || n == AGRI)
 						msg = station.LoadData(filePath, -999, false);
 				}
 
@@ -1065,7 +1241,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//now extact data 
+		//now extract data 
 		ifStream file;
 		msg = file.open(filePath);
 
@@ -1200,7 +1376,7 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		//size_t nbYears = lastYear - firstYear + 1;
 
-		//now extact data 
+		//now extract data 
 		ifStream file;
 		msg = file.open(filePath);
 

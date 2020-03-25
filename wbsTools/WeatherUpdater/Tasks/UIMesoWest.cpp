@@ -378,11 +378,13 @@ namespace WBSF
 					for (size_t i = 0; i < provinces.size(); i++)
 					{
 						if (provinces[i])
+						{
 							request.push_back(make_pair("CA", provinces.GetName(i, CProvinceSelection::ABVR)));
-						if (i == CProvinceSelection::NFLD)
-							request.push_back(make_pair("CA", "NF"));//add also NF
-						if (i == CProvinceSelection::YT)
-							request.push_back(make_pair("CA", "YK"));//add also YK
+							if (i == CProvinceSelection::NFLD)
+								request.push_back(make_pair("CA", "NF"));//add also NF
+							if (i == CProvinceSelection::YT)
+								request.push_back(make_pair("CA", "YK"));//add also YK
+						}
 					}
 				}
 			}
@@ -1347,11 +1349,14 @@ namespace WBSF
 									DEM_alt_str = to_string(DEM_alt);
 								}
 
-								if (location.m_alt == -999 && DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
+								if (location.m_alt == -999 && DEM_alt != -999 )
 									location.m_alt = DEM_alt;
 
 								if (location.m_alt == 0 && DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
+								{
 									location.m_alt = DEM_alt;
+									location.m_name += " (suspicious elev at 0)";
+								}
 
 								//remove ID from the name
 								string ID = location.m_ID;
