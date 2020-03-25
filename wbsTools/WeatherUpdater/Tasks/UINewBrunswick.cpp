@@ -144,7 +144,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case NETWORK:	str = "HistoricalFire=Fire (Historical)|PrivateFire=Private fire (current)|PublicFire=Public fire (current)|Agriculture=Agriculture"; break;
+		case NETWORK:	str = "FireHistorical=Fire (historical)|PrivateFire=Private fire (current)|PublicFire=Public fire (current)|Agriculture=Agriculture"; break;
 		};
 		return str;
 	}
@@ -217,9 +217,24 @@ namespace WBSF
 				}
 				else if (n == PRIVATE_FIRE)
 				{
+					
 					//current data
+					msg = UtilWWW::FindFiles(pConnection, "*.csv", fileList, false, callback);
 
-					msg = UtilWWW::FindFiles(pConnection, "yr*.csv", fileList, false, callback);
+					//CLean List
+					for (CFileInfoVector::iterator it = fileList.begin(); it != fileList.end(); )
+					{
+
+						string title = GetFileTitle(it->m_filePath);
+						ReplaceString(title, "Yr ", "");
+						
+						if (find_if(m_stations.begin(), m_stations.end(), FindLocationByName(title)) != m_stations.end())
+							it++;
+						else
+							it = fileList.erase(it);
+						
+						
+					}
 				}
 
 
@@ -461,7 +476,7 @@ namespace WBSF
 			for (size_t i = 0; i < str.size(); i++)
 			{
 				size_t n = GetNetworkFromName(str[i]);
-				ASSERT(n<NB_NETWORKS);
+				ASSERT(n < NB_NETWORKS);
 				network.set(n);
 			}
 		}
@@ -473,6 +488,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
 		std::bitset<NB_NETWORKS> network = GetNetWork();
 
 		for (size_t n = 0; n < network.size() && msg; n++)
@@ -481,8 +497,11 @@ namespace WBSF
 			{
 				switch (n)
 				{
-				case FIRE_HISTORICAL: msg += ExecuteFire(n, callback); break;
-				case PRIVATE_FIRE: msg += ExecuteFire(n, callback); break;
+				case FIRE_HISTORICAL: msg += ExecutePrivateFire(n, callback); break;
+				case PRIVATE_FIRE: 
+					if (m_stations.empty())
+						msg = m_stations.Load(GetStationListFilePath());
+					msg += ExecutePrivateFire(n, callback); break;
 				case PUBLIC_FIRE: msg += ExecutePublicFire(callback); break;
 				case AGRI: msg += ExecuteAgriculture(callback); break;
 				}
@@ -675,6 +694,9 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
+				string title = GetFileTitle(fileList[i]);
+				ReplaceString(title, "+", " ");
+
 				CWeatherYears data(true);
 
 				string str;
@@ -700,7 +722,7 @@ namespace WBSF
 						zen::XmlDoc doc = zen::parse(xml_str);
 						zen::XmlIn in(doc.root());
 						zen::XmlIn test = in["TR"];
-						
+
 						for (zen::XmlIn itTR = in["TR"]; itTR; itTR.next())
 						{
 							StringVector values;
@@ -722,17 +744,17 @@ namespace WBSF
 								CTRef TRef;
 								TRef.FromFormatedString(values[C_DATE] + "-" + values[C_TIME].substr(0, 2));
 								ASSERT(TRef.IsValid());
-								
+
 								if (TRef.IsValid())
 								{
 									if (!data.IsYearInit(TRef.GetYear()))
 									{
 										//try to load old data before changing it...
-										string filePath = GetOutputFilePath(PUBLIC_FIRE, fileList[i], TRef.GetYear());
+										string filePath = GetOutputFilePath(PUBLIC_FIRE, title, TRef.GetYear());
 										data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 									}
 
-									for (size_t c=0; c< NB_COLUMS; c++)
+									for (size_t c = 0; c < NB_COLUMS; c++)
 									{
 										if (VAR[c] != H_SKIP)
 										{
@@ -751,17 +773,17 @@ namespace WBSF
 
 				if (data.HaveData())
 				{
-					
+
 					for (auto it = data.begin(); it != data.end(); it++)
 					{
-						string outputPath = GetOutputFilePath(PUBLIC_FIRE, fileList[i], it->first);
+						string outputPath = GetOutputFilePath(PUBLIC_FIRE, title, it->first);
 						CreateMultipleDir(GetPath(outputPath));
 						it->second->SaveData(outputPath);
 					}
 				}
 				else
 				{
-					callback.AddMessage(fileList[i] + " don't have data");
+					callback.AddMessage(title + " don't have data");
 				}
 
 
@@ -805,7 +827,7 @@ namespace WBSF
 		StringVector fileList;
 		GetFileList(AGRI, fileList, callback);
 
-		callback.PushTask("Download New Brunswick agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
+		callback.PushTask("Download New-Brunswick agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
 
 		int nbFiles = 0;
 		CInternetSessionPtr pSession;
@@ -859,7 +881,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUINewBrunswick::ExecuteFire(size_t n, CCallback& callback)
+	ERMsg CUINewBrunswick::ExecutePrivateFire(size_t n, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -876,8 +898,10 @@ namespace WBSF
 
 		CFileInfoVector fileList;
 		GetFileList(n, fileList, callback);
+		
+		//clean list
 
-		callback.PushTask("Download New Brunswick data (" + ToString(fileList.size()) + " files)", fileList.size());
+		callback.PushTask("Download New-Brunswick private fire data (" + ToString(fileList.size()) + " files)", fileList.size());
 
 
 		size_t nbFiles = 0;
@@ -890,25 +914,33 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[PRIVATE_FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
+		msg = GetFtpConnection(SERVER_NAME[n], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 		if (msg)
 		{
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-				string outputFilePath;
+				
 
 				if (n == FIRE_HISTORICAL)
 				{
-					outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
+					string outputFilePath = GetOutputFilePath(FIRE_HISTORICAL, fileList[i].m_filePath, -1);
+					WBSF::CreateMultipleDir(GetPath(outputFilePath));
+					msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath);
 				}
 				else if (n == PRIVATE_FIRE)
 				{
-					string ID = GetFileTitle(fileList[i].m_filePath);
-					outputFilePath = GetOutputFilePath(PRIVATE_FIRE, ID, year);
+					string title = GetFileTitle(fileList[i].m_filePath);
+					ReplaceString(title, "Yr ", "");
+					
+					string tmpFilePath = GetOutputFilePath(PRIVATE_FIRE, title, year) + ".tmp";
+
+					WBSF::CreateMultipleDir(GetPath(tmpFilePath));
+					msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, tmpFilePath);
+					msg = MergeData(title, tmpFilePath, callback);
+					WBSF::RemoveFile(tmpFilePath);
 				}
 
-				WBSF::CreateMultipleDir(GetPath(outputFilePath));
-				msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, outputFilePath);
+				
 
 				if (msg)
 				{
@@ -926,72 +958,72 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 
 
-		if (n == FIRE_HISTORICAL)
-		{
-			CLocationVector locations;
-			//load all station coordinates
+		//if (n == FIRE_HISTORICAL)
+		//{
+		//	CLocationVector locations;
+		//	//load all station coordinates
 
-			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\Historical\\*.txt";
-			CFileInfoVector filesInfo;
-			WBSF::GetFilesInfo(path, false, filesInfo);
-			for (size_t i = 0; i < filesInfo.size() && msg; i++)
-			{
-				if (filesInfo[i].m_size < 100)
-				{
-					ifStream file;
-					msg += file.open(filesInfo[i].m_filePath);
-					if (msg)
-					{
-						string txt1;
-						std::getline(file, txt1);
-						Trim(txt1);
-						string::size_type pos = txt1.find_last_of("(");
-						if (pos != string::npos)
-							txt1 = txt1.substr(0, pos - 1);
+		//	string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\Historical\\*.txt";
+		//	CFileInfoVector filesInfo;
+		//	WBSF::GetFilesInfo(path, false, filesInfo);
+		//	for (size_t i = 0; i < filesInfo.size() && msg; i++)
+		//	{
+		//		if (filesInfo[i].m_size < 100)
+		//		{
+		//			ifStream file;
+		//			msg += file.open(filesInfo[i].m_filePath);
+		//			if (msg)
+		//			{
+		//				string txt1;
+		//				std::getline(file, txt1);
+		//				Trim(txt1);
+		//				string::size_type pos = txt1.find_last_of("(");
+		//				if (pos != string::npos)
+		//					txt1 = txt1.substr(0, pos - 1);
 
-						string ID = TrimConst(txt1.substr(txt1.length() - 5));
-						string name = TrimConst(txt1.substr(0, txt1.length() - 5));
-						name = PurgeFileName(name);
+		//				string ID = TrimConst(txt1.substr(txt1.length() - 5));
+		//				string name = TrimConst(txt1.substr(0, txt1.length() - 5));
+		//				name = PurgeFileName(name);
 
-						string txt2;
-						std::getline(file, txt2);
-						StringVector info2(txt2, ",; m");
+		//				string txt2;
+		//				std::getline(file, txt2);
+		//				StringVector info2(txt2, ",; m");
 
-						if (!ID.empty() && !name.empty() && (info2.size() == 8 || info2.size() == 6))
-						{
-							if (info2.size() == 8)
-							{
-								double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 + ToDouble(info2[2]) / 3600.0;
-								double lon = -(-ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
-								double alt = ToDouble(info2[6]);
+		//				if (!ID.empty() && !name.empty() && (info2.size() == 8 || info2.size() == 6))
+		//				{
+		//					if (info2.size() == 8)
+		//					{
+		//						double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0 + ToDouble(info2[2]) / 3600.0;
+		//						double lon = -(-ToDouble(info2[3]) + ToDouble(info2[4]) / 60.0 + ToDouble(info2[5]) / 3600.0);
+		//						double alt = ToDouble(info2[6]);
 
-								CLocation loc(name, ID, lat, lon, alt);
-								loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
-								locations.push_back(loc);
-							}
-							else if (info2.size() == 6)
-							{
-								double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0;
-								double lon = -(-ToDouble(info2[2]) + ToDouble(info2[3]) / 60.0);
-								double alt = ToDouble(info2[4]);
+		//						CLocation loc(name, ID, lat, lon, alt);
+		//						loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
+		//						locations.push_back(loc);
+		//					}
+		//					else if (info2.size() == 6)
+		//					{
+		//						double lat = ToDouble(info2[0]) + ToDouble(info2[1]) / 60.0;
+		//						double lon = -(-ToDouble(info2[2]) + ToDouble(info2[3]) / 60.0);
+		//						double alt = ToDouble(info2[4]);
 
-								CLocation loc(name, ID, lat, lon, alt);
-								loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
-								locations.push_back(loc);
-							}
+		//						CLocation loc(name, ID, lat, lon, alt);
+		//						loc.SetSSI("Network", NETWORK_NAME[FIRE_HISTORICAL]);
+		//						locations.push_back(loc);
+		//					}
 
-						}
-						else
-						{
-							callback.AddMessage("WARNING : invalid station info : " + txt1 + txt2);
-						}
-					}//if msg
-				}//if it's a header file
-			}//for all file
+		//				}
+		//				else
+		//				{
+		//					callback.AddMessage("WARNING : invalid station info : " + txt1 + txt2);
+		//				}
+		//			}//if msg
+		//		}//if it's a header file
+		//	}//for all file
 
-			string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
-			msg += locations.Save(filePaht);
-		}
+		//	string filePaht = GetStationListFilePath(FIRE_HISTORICAL);
+		//	msg += locations.Save(filePaht);
+		//}
 
 
 
@@ -1086,15 +1118,13 @@ namespace WBSF
 		return m_output_path;
 	}
 
-	std::string CUINewBrunswick::GetStationListFilePath(size_t n)const
+	std::string CUINewBrunswick::GetStationListFilePath()const
 	{
-		ASSERT(n < NETWORK);
+		//static const char* FILE_NAME[NETWORK] = { "HistoricalStations.csv",  "NBFireStations.csv", "NBFireStations.csv", "NBAgStations.csv" };
+		//if (n == FIRE_HISTORICAL)
+			//return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\" + FILE_NAME[n];
 
-		static const char* FILE_NAME[NETWORK] = { "HistoricalStations.csv",  "NBFireStations.csv", "NBFireStations.csv", "NBAgStations.csv" };
-		if (n == FIRE_HISTORICAL)
-			return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\" + FILE_NAME[n];
-
-		return WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[n];
+		return WBSF::GetApplicationPath() + "Layers\\NBStations.csv";
 	}
 
 	ERMsg CUINewBrunswick::GetStationList(StringVector& stationList, CCallback& callback)
@@ -1106,17 +1136,8 @@ namespace WBSF
 
 
 		std::bitset<NB_NETWORKS> network = GetNetWork();
-
-		for (size_t n = 0; n < network.size() && msg; n++)
-		{
-			if (network[n])
-			{
-				CLocationVector stations;
-				msg = stations.Load(GetStationListFilePath(n));
-				if (msg)
-					m_stations.insert(m_stations.end(), stations.begin(), stations.end());
-			}
-		}
+		
+		msg = m_stations.Load(GetStationListFilePath());
 
 		if (msg)
 			msg += m_stations.IsValid();
@@ -1126,19 +1147,29 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < m_stations.size(); i++)
 			{
-				if (stationList.Find(m_stations[i].m_ID) != -1)
-					stationList.push_back(m_stations[i].m_ID);
+				size_t n = GetNetworkFromName(m_stations[i].GetSSI("Network"));
+				ASSERT(n < network.size());
+
+				if (network[n])
+				{
+					//if (stationList.Find(m_stations[i].m_ID) == -1)
+					stationList.push_back(to_string(n) + "/" + m_stations[i].m_ID);
+				}
 			}
 		}
 
 		return msg;
 	}
 
-	ERMsg CUINewBrunswick::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUINewBrunswick::GetWeatherStation(const std::string& IDin, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
 		//Get station information
+		StringVector tmp(IDin, "/");
+		ASSERT(tmp.size() == 2);
+		size_t n = ToSizeT(tmp[0]);
+		string ID = tmp[1];
 		size_t it = m_stations.FindByID(ID);
 		if (it == NOT_INIT)
 		{
@@ -1149,19 +1180,19 @@ namespace WBSF
 		((CLocation&)station) = m_stations[it];
 		station.SetHourly(TM.Type() == CTM::HOURLY);
 
-		size_t n = GetNetworkFromName(station.GetSSI("Network"));
+		//size_t n = GetNetworkFromName(station.GetSSI("Network"));
 		//station.m_name = TraitFileName(station.m_name);
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
 		station.CreateYears(firstYear, nbYears);
-		station.m_name = PurgeFileName(station.m_name);
+		//station.m_name = PurgeFileName(station.m_name);
 
 
 		if (n == FIRE_HISTORICAL)
 		{
-			string path = GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\Historical\\" + ID + "*.txt";
+			string path = GetDir(WORKING_DIR) + "Fire\\Historical\\" + ID + "*.txt";
 			CFileInfoVector filesInfo;
 			WBSF::GetFilesInfo(path, false, filesInfo);
 			for (size_t i = 0; i < filesInfo.size() && msg; i++)
@@ -1204,13 +1235,11 @@ namespace WBSF
 			{
 				int year = firstYear + int(y);
 
-				string filePath = GetOutputFilePath(n, ID, year);
+				string filePath = GetOutputFilePath(n, station.m_name, year);
+				
 				if (FileExists(filePath))
 				{
-					if (n == PRIVATE_FIRE)
-						msg = ReadData(filePath, TM, station[year], callback);
-					else if (n == PUBLIC_FIRE || n == AGRI)
-						msg = station.LoadData(filePath, -999, false);
+					msg = station.LoadData(filePath, -999, false);
 				}
 
 				msg += callback.StepIt(0);
@@ -1237,9 +1266,11 @@ namespace WBSF
 	}
 
 
-	ERMsg CUINewBrunswick::ReadData(const string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const
+	ERMsg CUINewBrunswick::MergeData(const string& ID, const string& filePath, CCallback& callback)const
 	{
 		ERMsg msg;
+
+		
 
 		//now extract data 
 		ifStream file;
@@ -1247,9 +1278,10 @@ namespace WBSF
 
 		if (msg)
 		{
-			CWeatherAccumulator accumulator(TM);
+			CWeatherAccumulator accumulator(CTM::HOURLY);
 			vector<size_t> variables;
-			bool bHourly = true;// IsHourly();
+			bool bHourly = true;
+			CWeatherYears data(bHourly);
 
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
@@ -1278,6 +1310,13 @@ namespace WBSF
 
 					if (accumulator.TRefIsChanging(TRef))
 					{
+						if (!data.IsYearInit(TRef.GetYear()))
+						{
+							//try to load old data before changing it...
+							string filePath = GetOutputFilePath(PRIVATE_FIRE, ID, TRef.GetYear());
+							data.LoadData(filePath, -999, false);//don't erase other years when multiple years
+						}
+
 						data[accumulator.GetTRef()].SetData(accumulator);
 					}
 
@@ -1291,7 +1330,13 @@ namespace WBSF
 							{
 								double value = ToDouble(str);
 								if (value > -999 && value < 999)
+								{
+									if (variables[c] == H_RELH && value > 100)
+										value = 100;
+
 									accumulator.Add(TRef, variables[c], value);
+								}
+									
 
 
 								if (variables[c] == H_RELH)
@@ -1324,7 +1369,19 @@ namespace WBSF
 			if (accumulator.GetTRef().IsInit())
 				data[accumulator.GetTRef()].SetData(accumulator);
 
+			for (auto it = data.begin(); it != data.end(); it++)
+			{
+				CWeatherYear station;
+				string outputPath = GetOutputFilePath(PRIVATE_FIRE, ID, it->first);
+				//load old data
+				CreateMultipleDir(GetPath(outputPath));
+				it->second->SaveData(outputPath);
+			}
 		}//if load 
+
+
+		
+
 
 		return msg;
 	}

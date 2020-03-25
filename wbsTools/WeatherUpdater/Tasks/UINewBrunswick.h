@@ -45,21 +45,21 @@ namespace WBSF
 
 	protected:
 		
-		ERMsg ExecuteFire(size_t n, CCallback& callback);
+		ERMsg ExecutePrivateFire(size_t n, CCallback& callback);
 		ERMsg ExecutePublicFire(CCallback& callback);
 		ERMsg ExecuteAgriculture(CCallback& callback);
 		
 
 		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
 		//ERMsg LoadStationList(CCallback& callback);
-		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
+		ERMsg MergeData(const std::string& ID, const std::string& filePath, CCallback& callback)const;
 		ERMsg ReadDataHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
 		ERMsg DownloadAgriStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& ID, int year, std::string& text);
 
 
 		std::bitset<NB_NETWORKS> GetNetWork()const;
 
-		std::string GetStationListFilePath(size_t network)const;
+		std::string GetStationListFilePath()const;
 
 		ERMsg GetFileList(size_t n, CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg GetFileList(size_t n, StringVector& fileList, CCallback& callback)const;
