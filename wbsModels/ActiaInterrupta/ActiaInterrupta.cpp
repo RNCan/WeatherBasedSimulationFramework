@@ -44,12 +44,7 @@ namespace WBSF
 		}
 
 		//oviposition
-		//Random values of Pmax and Eº
 		m_Pmax = Equations().GetPmax();
-		double Eº = Equations().GetEº();
-		//Initial values
-		m_Pᵗ = Eº;
-		m_Eᵗ = Eº;
 
 		//Individuals are created as non-diapause individuals
 		m_badluck = false;
@@ -69,8 +64,6 @@ namespace WBSF
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
-			m_Pᵗ = in.m_Pᵗ;
-			m_Eᵗ = in.m_Eᵗ;
 			m_diapauseTRef = in.m_diapauseTRef;
 
 			m_luck = in.m_luck;
