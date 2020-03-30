@@ -46,11 +46,6 @@ namespace WBSF
 
 
 		double GetPmax()const;
-		//double GetEº()const;
-
-
-		//static double GetOᵗ(double T);
-		//static double GetRᵗ(double T);
 
 		double GetLuck(size_t s)const;
 		double GetSurvivalRate(size_t s, double T);
