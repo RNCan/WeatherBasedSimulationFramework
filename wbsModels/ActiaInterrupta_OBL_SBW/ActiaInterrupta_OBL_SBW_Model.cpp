@@ -19,7 +19,7 @@ using namespace WBSF::ActiaInterrupta;
 namespace WBSF
 {
 	static const bool ACTIVATE_PARAMETRIZATION = false;
-	static const size_t NB_GENERATIONS = 4;
+	static const size_t NB_GENERATIONS = 5;
 
 
 
@@ -302,6 +302,8 @@ namespace WBSF
 					if (m_output[gg][O_G_ADULTS]>0)
 						m_output[gg][O_G_FECONDITY] = (m_output[gg][O_G_BROODS_OBL]+ m_output[gg][O_G_BROODS_SBW]) / m_output[gg][O_G_ADULTS];
 					
+					
+//					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100 + (gg > 0? m_output[gg - 1][O_G_GROWTH_RATE]:0);
 					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100;
 					//m_output[gg][O_G_HOST_OBL] = m_output[gg][S_NB_OBL];
 					//m_output[gg][O_G_DIAPAUSED_OBL] = m_output[gg][S_NB_OBL_L3D];
