@@ -100,17 +100,6 @@ namespace WBSF
 		size_t JDay = TRef.GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 
-		/*WBSF::ofStream file;
-		if (JDay == 0)
-		{
-			file.open("g:/Tranosema.csv");
-			file.imbue(std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>()));
-			file << u8"Year,Month,Day,Hour,Pmax,broods,Total,Oᵗ,Rᵗ,Nh,Na,Pᵗ,Eᵗ,Bust" << endl;
-			file.close();
-		}*/
-
-		
-		
 		
 		for (size_t step = 0; step < nbSteps&&m_age<DEAD_ADULT; step++)
 		{
@@ -139,7 +128,6 @@ namespace WBSF
 			
 			if (s == ADULT) //Set maximum longevity's to 150 days
 				r = max(1.0 / (150 * nbSteps), r);//By RSA 03/03/2020
-				//r = max(0.00667, r);
 
 			if (GetStand()->m_bApplyAttrition)
 			{
@@ -149,7 +137,6 @@ namespace WBSF
 					m_badluck = IsDeadByAttrition(s, T);
 			}
 
-
 			//Adjust age
 			//if(!m_bDiapause)
 			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
@@ -158,9 +145,6 @@ namespace WBSF
 			//compute brooding
 			if (m_sex == FEMALE && m_age >= ADULT)
 			{
-				//if (!file.is_open())
-					//file.open("g:/Tranosema.csv", ios::out | ios::app);
-
 				//Ot: rate of oogenesis
 				//Rᵗ: rate of resorption
 				double Oᵗ = max(0.0, ((m_Pmax - m_Pᵗ) / m_Pmax)*Equations().GetOᵗ(T)) / nbSteps;
@@ -172,14 +156,6 @@ namespace WBSF
 				double th = 0.8;
 				double Na = as * m_Nh*Equations().GetOᵗ(T) / (1 + as * th*m_Nh); //Number of attacks per time step
 
-				//double as = 0.05;
-				//double th = 0.8;
-				//double Nh = m_Nh / nbSteps;  // Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
-				//double Na=as*Nh*Equations().GetOᵗ(T)/(1+as*th*Nh);
-				
-				//CTRef TRef2 = TRef.as(CTM::HOURLY) + h;
-				//file << TRef2.GetFormatedString() << "," << m_Pmax << "," << m_broods << "," << (m_totalBroods + m_broods) << "," << Oᵗ << "," << Rᵗ << "," << Nh << "," << Na << "," << m_Pᵗ << "," << m_Eᵗ << "," << ((m_totalBroods + m_broods) > m_Pmax ? "1" : "0") << endl;
-				
 				//the actual number of eggs laid is, at most, Attacks, at least m_Eᵗ + Oᵗ - Rᵗ:
 				double broods = max(0.0, min(m_Eᵗ + Oᵗ - Rᵗ, Na));
 
@@ -193,8 +169,6 @@ namespace WBSF
 				ASSERT(m_totalBroods + m_broods < m_Pmax*1.5);
 			}
 		}
-
-		//file.close();
 
 		m_age = min(m_age, (double)DEAD_ADULT);
 	}

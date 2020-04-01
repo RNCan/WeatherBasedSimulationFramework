@@ -44,14 +44,14 @@ namespace WBSF
 		CTranosema& operator=(const CTranosema& in);
 		~CTranosema(void);
 
-		virtual void Live(const CWeatherDay& weather);
-		virtual void Brood(const CWeatherDay& weather);
-		virtual void Die(const CWeatherDay& weather);
-		virtual void GetStat(CTRef d, CModelStat& stat);
-		virtual bool CanPack(const CIndividualPtr& in)const;
-		virtual void Pack(const CIndividualPtr& in);
-		virtual size_t GetNbStages()const{ return Tranosema::NB_STAGES; }
-		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CTranosema>(*this); }
+		virtual void Live(const CWeatherDay& weather)override;
+		virtual void Brood(const CWeatherDay& weather)override;
+		virtual void Die(const CWeatherDay& weather)override;
+		virtual void GetStat(CTRef d, CModelStat& stat)override;
+		virtual bool CanPack(const CIndividualPtr& in)const override;
+		virtual void Pack(const CIndividualPtr& in)override;
+		virtual size_t GetNbStages()const override { return Tranosema::NB_STAGES; }
+		virtual CIndividualPtr CreateCopy()const override { return std::make_shared<CTranosema>(*this); }
 
 
 	protected:
