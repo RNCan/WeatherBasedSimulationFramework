@@ -3,6 +3,7 @@
 //
 // Description: CTranosemaModel is a BioSIM model of Tranosema
 //*****************************************************************************
+// 01/04/2020	1.2.1	Rémi Saint-Amant    New compilation VS 2017
 // 28/11/2017	1.2.0	Rémi Saint-Amant    New compilation
 // 28/11/2017	1.1.9	Rémi Saint-Amant    Add Cumul Adult
 // 14/11/2017	1.1.8	Rémi Saint-Amant    Change in annual behavior
@@ -54,7 +55,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.2.0 (2020)";
+		VERSION = "1.2.1 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;

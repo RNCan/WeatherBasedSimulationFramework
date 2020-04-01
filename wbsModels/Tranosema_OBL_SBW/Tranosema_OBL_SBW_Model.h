@@ -30,6 +30,8 @@ namespace WBSF
 		double m_lethalTemp;
 		double m_criticalDaylength;
 		bool m_bOnGround;
+		bool m_bOBLAttrition;
+		bool m_bSBWAttrition;
 
 	};
 

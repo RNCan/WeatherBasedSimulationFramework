@@ -6,7 +6,7 @@
     <EXE>Tranosema-OBL-SBW.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Tranosema</Description>
-    <WindowRect>0 0 241 229</WindowRect>
+    <WindowRect>0 0 296 235</WindowRect>
     <SimulatedCategory>TN T TX SD SWE</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -19,8 +19,8 @@
             <Caption>ApplyAttrition</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>25 10 45 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>25 10 45 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
@@ -31,8 +31,8 @@
             <Caption>Generation Attrition</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>50 10 75 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>50 10 75 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>0.019</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
@@ -43,8 +43,8 @@
             <Caption>Age of diapause</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>80 10 105 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>80 10 105 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>0.1</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
@@ -55,8 +55,8 @@
             <Caption>Lethal temperature</Caption>
             <Description>Temperature killing all non-diapause stages</Description>
             <Type>2</Type>
-            <Rect>110 10 130 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>110 10 130 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>-5</DefaultValue>
             <MinValue>-60</MinValue>
             <MaxValue>30</MaxValue>
@@ -67,8 +67,8 @@
             <Caption>Critical daylength</Caption>
             <Description>Daylength for entry into diapause</Description>
             <Type>2</Type>
-            <Rect>135 10 160 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>135 10 160 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>13.5</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>24</MaxValue>
@@ -79,8 +79,32 @@
             <Caption>Winter on ground</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>165 10 185 160</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Rect>165 10 185 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>OBLAttrition</Name>
+            <Caption>OBL Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>190 10 210 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SBWAttrition</Name>
+            <Caption>SBW Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>215 10 235 205</Rect>
+            <SeparatorPos>130</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>

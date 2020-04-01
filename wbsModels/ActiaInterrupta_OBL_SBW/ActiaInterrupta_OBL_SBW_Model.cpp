@@ -42,16 +42,18 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.3 (2020)";
+		NB_INPUT_PARAMETER = 7;
+		VERSION = "1.0.4 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
-		m_bHaveAttrition = true;
+		m_bHaveAttrition = false;
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
 //		m_diapauseAge = MAGGOT;// +0.1;
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5;
 		m_preOvip = 3.0 / 22.4;
+		m_bOBLAttition = false;
+		m_bSBWAttition = false;
 		//m_bOnGround = false;
 	}
 
@@ -69,30 +71,18 @@ namespace WBSF
 		int c = 0;
 		m_bHaveAttrition = parameters[c++].GetBool();
 		m_generationAttrition = parameters[c++].GetReal();
-		/*m_diapauseAge =*/ parameters[c++].GetReal();
+		///*m_diapauseAge =*/ parameters[c++].GetReal();
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_preOvip = parameters[c++].GetReal();
+		m_bOBLAttition = parameters[c++].GetBool();;
+		m_bSBWAttition = parameters[c++].GetBool();;
 		//ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
 	}
 
-	class CTest
-	{
-	public:
-
-		CTest(double var)
-		{
-			m_var = var;
-		}
-		~CTest()
-		{
-			m_var = -1;
-		}
-
-		double m_var;
-	};
+	
 	//************************************************************************************************
 	// Daily method
 	
@@ -157,11 +147,13 @@ namespace WBSF
 			//OBL init
 			std::shared_ptr<CHost> pHostOBL = make_shared<CHost>(&stand.m_OBLStand);
 			pHostOBL->Initialize<CObliqueBandedLeafroller>(CInitialPopulation(p.Begin(), 0, 250, 100, OBL::L3D, RANDOM_SEX, true, 0));
+			stand.m_OBLStand.m_bApplyAttrition = m_bOBLAttition;
 			stand.m_OBLStand.m_host.push_front(pHostOBL);
 
 			//SBW init
 			std::shared_ptr<CSBWTree> pHostSBW = make_shared<CSBWTree>(&stand.m_SBWStand);
 			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 250, 100, SBW::L2o, RANDOM_SEX, false, 0));
+			stand.m_SBWStand.m_bApplyAttrition = m_bSBWAttition;
 			stand.m_SBWStand.m_host.push_front(pHostSBW);
 
 			//init ActiaInterrupta
@@ -174,7 +166,7 @@ namespace WBSF
 			stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand
-			stand.m_bApplyAttrition = m_bHaveAttrition;
+			stand.m_bApplyAttrition = false;
 			stand.m_generationAttrition = m_generationAttrition;
 			stand.m_criticalDaylength = m_criticalDaylength;
 			stand.m_lethalTemp = m_lethalTemp;

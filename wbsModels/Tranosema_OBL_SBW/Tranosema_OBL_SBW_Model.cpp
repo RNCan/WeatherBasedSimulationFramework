@@ -3,6 +3,7 @@
 //
 // Description: CTranosema_OBL_SBW_Model is a BioSIM model of Tranosema and ObliqueBandedLeafroller model
 //*****************************************************************************
+// 01/04/2020	1.0.4	Rémi Saint-Amant    Add OBL and SBW attrition
 // 25/01/2018	1.0.3	Rémi Saint-Amant	Add annual model
 // 17/01/2018	1.0.2	Rémi Saint-Amant	Add generation model
 // 29/11/2017	1.0.1	Rémi Saint-Amant	Add CulmulAdult
@@ -45,8 +46,8 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.3 (2018)";
+		NB_INPUT_PARAMETER = 8;
+		VERSION = "1.0.4 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = true;
@@ -55,6 +56,8 @@ namespace WBSF
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5; 
 		m_bOnGround = false;
+		m_bOBLAttrition = false;
+		m_bSBWAttrition = false;
 	}
 
 	CTranosema_OBL_SBW_Model::~CTranosema_OBL_SBW_Model()
@@ -75,26 +78,13 @@ namespace WBSF
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_bOnGround = parameters[c++].GetBool();
+		m_bOBLAttrition = parameters[c++].GetBool();
+		m_bSBWAttrition = parameters[c++].GetBool();
 		ASSERT(m_diapauseAge >= 0. && m_diapauseAge <= 1.);
 
 		return msg;
 	}
 
-	class CTest
-	{
-	public:
-
-		CTest(double var)
-		{
-			m_var = var;
-		}
-		~CTest()
-		{
-			m_var = -1;
-		}
-
-		double m_var;
-	};
 	//************************************************************************************************
 	// Daily method
 	
@@ -163,15 +153,17 @@ namespace WBSF
 			//OBL init
 			std::shared_ptr<CHost> pHostOBL = make_shared<CHost>(&stand.m_OBLStand);
 			pHostOBL->Initialize<CObliqueBandedLeafroller>(CInitialPopulation(p.Begin(), 0, 250, 100, OBL::L3D, RANDOM_SEX, true, 0));
+			stand.m_SBWStand.m_bApplyAttrition = m_bOBLAttrition;
 			stand.m_OBLStand.m_host.push_front(pHostOBL);
 
 			//SBW init
-			stand.m_SBWStand.m_bFertilEgg = false;
-			stand.m_SBWStand.m_bApplyAttrition = false;
-			stand.m_SBWStand.m_defoliation = 0;
-			stand.m_SBWStand.m_bStopL22 = true;
+
 			std::shared_ptr<CSBWTree> pHostSBW = make_shared<CSBWTree>(&stand.m_SBWStand);
 			pHostSBW->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 250, 100, SBW::L2o, RANDOM_SEX, false, 0));
+			stand.m_SBWStand.m_bFertilEgg = false;
+			stand.m_SBWStand.m_bApplyAttrition = m_bSBWAttrition;
+			stand.m_SBWStand.m_defoliation = 0;
+			stand.m_SBWStand.m_bStopL22 = true;
 			stand.m_SBWStand.m_host.push_front(pHostSBW);
 
 			//init tranosema

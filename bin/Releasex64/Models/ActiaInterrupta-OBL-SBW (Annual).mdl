@@ -6,7 +6,7 @@
     <EXE>ActiaInterrupta-OBL-SBW.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Actia interrupta</Description>
-    <WindowRect>0 0 241 229</WindowRect>
+    <WindowRect>0 0 267 229</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -39,23 +39,11 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>AgeOfDiapause</Name>
-            <Caption>Age of diapause</Caption>
-            <Description/>
-            <Type>2</Type>
-            <Rect>80 10 105 200</Rect>
-            <SeparatorPos>130</SeparatorPos>
-            <DefaultValue>0.1</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
             <Name>LethalTemperature</Name>
             <Caption>Lethal temperature</Caption>
             <Description>Temperature killing all non-diapause stages</Description>
             <Type>2</Type>
-            <Rect>110 10 130 200</Rect>
+            <Rect>80 10 100 200</Rect>
             <SeparatorPos>130</SeparatorPos>
             <DefaultValue>-5</DefaultValue>
             <MinValue>-60</MinValue>
@@ -67,7 +55,7 @@
             <Caption>Critical daylength</Caption>
             <Description>Daylength for entry into diapause</Description>
             <Type>2</Type>
-            <Rect>135 10 160 200</Rect>
+            <Rect>105 10 130 200</Rect>
             <SeparatorPos>130</SeparatorPos>
             <DefaultValue>13.5</DefaultValue>
             <MinValue>0</MinValue>
@@ -79,9 +67,33 @@
             <Caption>Preoviposition age (0..1)</Caption>
             <Description>Preoviposition age (0..1)</Description>
             <Type>2</Type>
-            <Rect>165 10 185 200</Rect>
+            <Rect>135 10 155 200</Rect>
             <SeparatorPos>130</SeparatorPos>
             <DefaultValue>0.2272</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>OBLAttrition</Name>
+            <Caption>OBL Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>160 10 180 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SBWAttrition</Name>
+            <Caption>SBW Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>185 10 205 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>

@@ -31,6 +31,8 @@ namespace WBSF
 		double m_criticalDaylength;
 		double m_preOvip;
 		//bool m_bOnGround;
+		bool m_bOBLAttition;
+		bool m_bSBWAttition;
 
 	};
 
