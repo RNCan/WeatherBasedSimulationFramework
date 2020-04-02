@@ -15,12 +15,15 @@
 using namespace std;
 using namespace WBSF::ActiaInterrupta;
 
+#define VERSION_JACQUES 0
+
+
 namespace WBSF
 {
 
 	//*****************************************************************************
 	//ActiaInterrupta daily development rates
-
+#if (VERSION_JACQUES)
 	const CDevRateEquation::TDevRateEquation CActiaInterruptaEquations::EQ_TYPE[NB_EQUATIONS]
 	{
 		TDevRateEquation::Briere2_1999, //OBL post diapause
@@ -30,19 +33,35 @@ namespace WBSF
 		TDevRateEquation::Unknown	    //Adult
 	};
 
-
-
-
-
-
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
 	{
 		{8.240e-06,  0.8868,   5.6, 40.0}, //OBL post diapause
 		{2.234e-08,  0.4017,   2.6, 52.2}, //Post-Diapause Maggot in OBL 
 		{7.393e-05,  4.4770, -14.0, 30.8}, //Summer Maggot SBW and OBL
 		{1.188e-04, 15.8019, -17.3, 30.1}, //Pupa
-		{0,0,0,0},					   //Adult
+		{0,0,0,0},                         //Adult
 	};
+#else
+	const CDevRateEquation::TDevRateEquation CActiaInterruptaEquations::EQ_TYPE[NB_EQUATIONS]
+	{
+		TDevRateEquation::Briere2_1999,    //OBL post diapause
+		TDevRateEquation::Briere2_1999,    //Maggot OBL
+		TDevRateEquation::HilbertLoganIII, //Maggot SBW
+		TDevRateEquation::Bieri_1983,      //Pupa
+		TDevRateEquation::Unknown	       //Adult
+	};
+
+
+
+	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][4]
+	{
+		{8.240e-06,  0.8868,   5.6, 40.0}, //OBL post diapause
+		{5.659e-06, 1.00000e+00, 5.087746e-05, 3.631084e+01}, //Post-Diapause Maggot in OBL 
+		{1.561e-01, 1.80421e+01, 3.216430e+01, 1.077189e+00}, //Summer Maggot SBW and OBL
+		{6.415e-03, 4.88506e+01, 3.548414e+00, 3.747761e+01}, //Pupa
+		{0,0,0,0},                         //Adult
+	};
+#endif
 
 
 
@@ -81,6 +100,8 @@ namespace WBSF
 	double CActiaInterruptaEquations::Getδ(size_t e)const
 	{
 		ASSERT(e <= NB_EQUATIONS);
+
+#if (VERSION_JACQUES)
 		static const double P[NB_EQUATIONS][4] =
 		{
 			//  x      s
@@ -90,6 +111,19 @@ namespace WBSF
 			{ 0.0000, 0.1254, 0.7, 1.5 },//Pupa
 			{ /*2.8207*/2.9729, 0.5517, 1.0, 100 },//Adult longevity
 		};
+#else
+		static const double P[NB_EQUATIONS][4] =
+		{
+			//  x      s
+			{ 0.0000, 0.3488, 0.4, 2.0 },//OBL post diapause
+			{ 0.0000, 0.302606, 0.5, 2.0 },//PostDiapause Maggot in OBL
+			{ 0.0000, 0.167864, 0.5, 2.0 },//Summer Maggot SBW or OBL
+			{ 0.0000, 0.128711, 0.7, 1.5 },//Pupa
+			{ /*2.8207*/2.9729, 0.5517, 1.0, 100 },//Adult longevity
+		};
+
+#endif
+
 
 
 		double 	r = m_randomGenerator.RandUnbiasedLogNormal(P[e][0], P[e][1]);
