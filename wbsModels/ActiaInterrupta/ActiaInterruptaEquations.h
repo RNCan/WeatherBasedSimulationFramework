@@ -26,7 +26,7 @@ namespace WBSF
 	public:
 
 		static const CDevRateEquation::TDevRateEquation EQ_TYPE[ActiaInterrupta::NB_EQUATIONS];
-		static const double  EQ_P[ActiaInterrupta::NB_EQUATIONS][4];
+		static const double  EQ_P[ActiaInterrupta::NB_EQUATIONS][6];
 
 
 		CActiaInterruptaEquations(const CRandomGenerator& RG);
