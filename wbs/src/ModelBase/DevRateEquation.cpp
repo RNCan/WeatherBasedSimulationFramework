@@ -48,50 +48,47 @@ namespace WBSF
 {
 	const char* CDevRateEquation::EQUATION[NB_EQUATIONS][3] =
 	{
-		{"Allahyari","p*((pmax(0,T-Tmin)/(Tmax-Tmin))^n)*(1-(pmax(0,T-Tmin)/(Tmax-Tmin))^m)","p=0.02[1E-5,1E4]|Tmin=1[0,50]|Tmax=40[0,100]|n=1[0.1,4]|m=1[0.1,4]"},
+		{"Allahyari","p*((pmax(0,T-Tmin)/(Tmax-Tmin))^n)*(1-(pmax(0,T-Tmin)/(Tmax-Tmin))^m)","p=0.02[1E-5,1E4]|Tmin=1[-50,50]|Tmax=40[0,100]|n=1[0.1,4]|m=1[0.1,4]"},
 		{"Analytis_1977","aa*pmax(0,T-Tmin)^bb*pmax(0,Tmax-T)^cc","aa=5E-4[1.0E-10,0.1]|bb=0.5[1E-5,4]|cc=0.35[0.001,4]|Tmin=2.3[-50,50]|Tmax=35[0,50]"},
 		{"Angilletta_2006","k1*exp(-0.5*(abs(T-To)/k2)^k3)","k1=1[-1E5,1E5]|k2=1[-1E5,1E5]|k3=3.8[1,4]|To=27[0,50]"},
-		{"Bieri_1983","aa*(T-Tmin)-(bb*exp(T-Tmax))","aa=0.015[1E-5,10]|bb=3.6[1E-6,100]|Tmin=10[0,15]|Tmax=42[0,50]"},
-		{"Briere1_1999","aa*T*pmax(0,T-Tmin)*pmax(0,Tmax-T)^(1/2)","aa=1E-4[1E-7,1]|Tmin=9.1[0,50]|Tmax=37.3[0,50]"},
-		{"Briere2_1999","aa*T*pmax(0,T-Tmin)*pmax(0,Tmax-T)^(1/bb)","aa=1E-4[1E-7,1]|bb=2.8[1,10]|Tmin=7.0[0,50]|Tmax=35[0,50]"},
+		{"Bieri_1983","aa*(T-Tmin)-(bb*exp(T-Tmax))","aa=0.015[1E-5,10]|bb=3.6[1E-6,100]|Tmin=10[-50,15]|Tmax=42[0,50]"},
+		{"Briere1_1999","aa*T*pmax(0,T-Tmin)*pmax(0,Tmax-T)^(1/2)","aa=1E-4[1E-7,1]|Tmin=9.1[-50,50]|Tmax=37.3[0,50]"},
+		{"Briere2_1999","aa*T*pmax(0,T-Tmin)*pmax(0,Tmax-T)^(1/bb)","aa=1E-4[1E-7,1]|bb=2.8[1,10]|Tmin=7.0[-50,50]|Tmax=35[0,50]"},
 		{"Damos_2008","aa*(bb-T/10)*(T/10)^cc","aa=7.5E-4[1E-10,0.1]|bb=3.8[0.01,100]|cc=5.0[0.01,100]"},
 		{"Damos_2011","aa/(1+bb*T+cc*T^2)","aa=0.01[-1E4,1E4]|bb=-0.1[-1E4,1E4]|cc=0.01[-1E4,1E4]"},
 		{"Deva&Higgis","b1*10^(-((((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))+exp(b4*((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))))/((1+b4)/(1+1.5*b4+0.39*b4^2)))^2)*(1-b5+b5*((((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))+exp(b4*((T-b3)/(b3-b2)-(1/(1+0.28*b4+0.72*log(1+b4))))))/((1+b4)/(1+1.5*b4+0.39*b4^2)))^2)","b1=0.3[0.0001,10]|b2=0[-50,50]|b3=25[0,50]|b4=2[0.0001,10]|b5=0.8[0.0001,10]"},
 		{"Exponential","b1*exp(b2*T)","b1=0.2[0.0001,1000]|b2=-5[-1000,1000]"},
 		{"Hilbert&Logan_1983","phi*((pmax(0,T-Tb)^2/(pmax(0.001,T-Tb)^2+aa^2))-exp(-(Tmax-(T-Tb))/deltaT))","phi=0.005[1E-5,10]|aa=10[0.001,1000]|Tb=5[0.01,50]|Tmax=35[1,50]|deltaT=6[0.001,100]"},
 		{"Hilbert&LoganIII","ifelse(T>=0,phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT)),0)","phi=6.6[0.0001,1000]|d=144[0.001,1000]|Tmax=46[0,50]|deltaT=3[1,100]"},
-		{"Huey&Stevenson_1979","cc*(T-Tmin)*(1-exp(k*(T-Tmax)))","cc=0.002[1E-10,1]|k=42423[0,1E5]|Tmin=8[0,30]|Tmax=43[0,100]"},
+		{"Huey&Stevenson_1979","cc*(T-Tmin)*(1-exp(k*(T-Tmax)))","cc=0.002[1E-10,1]|k=42423[0,1E5]|Tmin=8[-50,50]|Tmax=43[0,100]"},
 		{"Janisch1_1932","2/(Dmin*(exp(K*(T-Topt))+exp((-K)*(T-Topt))))","Dmin=28[-50,50]|Topt=33[-50,50]|K=0.2[0.0001,10]"},
 		{"Janisch2","2*cc/(aa^(T-Tm)+bb^(Tm-T))","cc=0.2[1E-5,1E5]|aa=0.5[1E-5,10]|bb=1.0[1E-5,10]|Tm=36[-50,50]"},
-		{"Kontodimas_2004","aa*(pmax(0,T-Tmin)^2)*(Tmax-T)","aa=1.6e-5,1e-7,1]|Tmin=8[1,50]|Tmax=42[1,50]"},
+		{"Kontodimas_2004","aa*(pmax(0,T-Tmin)^2)*(Tmax-T)","aa=1.6e-5,1e-7,1]|Tmin=0[-50,50]|Tmax=42[0,100]"},
 		{"Lactin1_1995","exp(aa*T)-exp(aa*Tmax-(Tmax-T)/deltaT)","aa=-0.016[-1,1]|Tmax=40[0,50]|deltaT=8[1,100]"},
 		{"Lactin2_1995","exp(aa*T)-exp(aa*Tmax-(Tmax-T)/deltaT)+bb","aa=-0.03[-10,10]|bb=0[-100,100]|Tmax=1[-100,100]|deltaT=100[1,1000]"},
 		{"Lamb_1992","c(Rm*exp(-1/2*((T[T<Tmax]-Tmax)/T0)^2),Rm*exp(-1/2*((T[T>=Tmax]-Tmax)/T1)^2))","Rm=0.004[0.0001,10]|Tmax=35[0,50]|T0=11[0.1,50]|T1=4[0.1,50]"},
 		{"Logan6_1976","phi*(exp(bb*T)-exp(bb*Tmax-(Tmax-T)/deltaT))","phi=0.012[0.0001,1]|bb=0.14[0.0001,1]|Tmax=33[20,50]|deltaT=5[1,10]"},
 		{"Logan10_1976","phi*(1/(1+cc*exp(-bb*T))-exp(-((Tmax-T)/deltaT)))","phi=0.03[0.0001,1]|bb=0.23[0,100]|cc=110[10,1000]|Tmax=33[20,50]|deltaT=5[1,10]"},
-		{"LoganExponential","phi*exp(b*(T-Tb))","phi=0.02[0.0001,1]|b=0.2[0.0001,1]|Tb=40[0,100]"},
-		{"LoganTb","phi*exp(b*(T-Tb)-exp(b*(T-Tb)/deltaT))","phi=0.02[1E-4,1]|b=0.2[-1E4,1]|Tb=30[0,100]|deltaT=2[1,100]"},
+		{"LoganExponential","phi*exp(b*(T-Tb))","phi=0.02[0.0001,1]|b=0.2[0.0001,1]|Tb=40[-50,100]"},
+		{"LoganTb","phi*exp(b*(T-Tb)-exp(b*(T-Tb)/deltaT))","phi=0.02[1E-4,1]|b=0.2[-1E4,1]|Tb=30[-50,100]|deltaT=2[1,100]"},
 		{"Poly1","a0+a1*T","a0=0[-1,0.1]|a1=0.02[1E-5,0.1]"},
 		{"Poly2","a0+a1*T+a2*T^2","a0=0[-1E5,1E5]|a1=-0.003[-1E4,1E4]|a2=0.0004[-1E3,1E3]"},
 		{"Poly3","a0+a1*T+a2*T^2+a3*T^3","a0=0.2[-1E5,1E5]|a1=0.01[-1E4,1E4]|a2=0[-1E3,1E3]|a3=0[-1E2,1E2]"},
 		{"Poly4","a0+a1*T+a2*T^2+a3*T^3+a4*T^4","a0=0.2[-1E5,1E5]|a1=0.02[-1E4,1E4]|a2=0[-1E3,1E3]|a3=0[-1E2,1E2]|a4=0[-10,10]"},
 		{"Pradham","R*exp(-1/2*((T-Tm)/To))^2","R=4.2[1E-5,10]|Tm=84[1,200]|To=-18[-100,0]"},
 		{"Ratkowsky_1982(Square)","b*(T-Tb)^2","b=0.0002[1E-5,1000]|Tb=10[0,50]"},
-		{"Ratkowsky_1983","pmax(0, a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[0,50]|Tmax=35[0,50]"},
-		{"Regniere_1987","b1*((1/(1+exp(b2-b3*(T-Tb)/(Tm-Tb))))-(exp(((T-Tb)/(Tm-Tb)-1)/b4)))","b1=0.2[1E-6,1]|b2=2[1E-6,10]|b3=6[1E-6,10]|b4=0.15[1E-6,1]|Tb=15[-10,50]|Tm=35[0,50]"},
-		{"Regniere_2012","ifelse(T>Tb&T<Tm,phi*(exp(bb*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-bb*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(bb*(Tm-Tb)-(Tm-T)/deltam)),0)","phi=0.01[1E-5,1]|bb=-0.01[-10,10]|Tb=7[0,50]|Tm=35[0,50]|deltab=4[1,10]|deltam=5[1,10]"},
+		{"Ratkowsky_1983","pmax(0, a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[-50,50]|Tmax=35[0,50]"},
+		{"Regniere_1987","b1*((1/(1+exp(b2-b3*(T-Tb)/(Tm-Tb))))-(exp(((T-Tb)/(Tm-Tb)-1)/b4)))","b1=0.2[1E-6,1]|b2=2[1E-6,10]|b3=6[1E-6,10]|b4=0.15[1E-6,1]|Tb=15[-50,50]|Tm=35[0,50]"},
+		{"Regniere_2012","ifelse(T>Tb&T<Tm,psi*(exp(omega*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-omega*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(omega*(Tm-Tb)-(Tm-T)/deltam)),0)","psi=0.01[1E-5,1]|omega=0.1[0.001,10]|Tb=7[0,50]|deltab=4[0.01,50]|Tm=35[0,100]|deltam=5[0.01,50]"},
 		{"SchoolfieldHigh_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|dd=-0.1[-1E5,1E5]|ee=280[250,350]"},
 		{"SchoolfieldLow_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(bb/1.987*(1/cc-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|bb=-0.1[-1E5,1E5]|cc=280[250,350]"},
 		{"Schoolfield_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(bb/1.987*(1/cc-1/(T+273.16)))+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,1E4]|aa=0.02[-1E5,1E5]|bb=-0.1[-1E5,1E5]|cc=300[250,350]|dd=0.2[-1E5,1E5]|ee=300[200,400]"},
 		{"Sharpe&DeMichele3","(p*((T+273.16)/(To+273.16))*exp((Ha/1.987)*((1/(To+273.16))-(1/(T+273.16)))))/(1+exp((Hl/1.987)*((1/(Tl+273.16))-(1/(T+273.16))))+exp((Hh/1.987)*((1/(Th+273.16))-(1/(T+273.16)))))","p=1E-4[1E-5,1E5]|To=0.2[0.001,50]|Ha=0.2[-1000,1E5]|Hl=2[0.001,50]|Tl=5[0.001,50]|Hh=0.15[0.001,1E5]|Th=4[1,50]"},
 		{"Sharpe&DeMichele_1977","((T+273.16)*exp((aa-bb/(T+273.16))/1.987))/(1+exp((cc-dd/(T+273.16))/1.987)+exp((ff-gg/(T+273.16))/1.987))","aa=-11[-1E3,0]|bb=1E4[1E-5,1E5]|cc=-243[-1E3,0]|dd= 69[1E-5,1E5]|ff=-678[-1E3,0]|gg=894[1E-5,1E5]"},
-		{"Shi_2011","cc*(1-exp(-k1*(T-T1)))*(1-exp(k2*(T-T2)))","cc=0.2[0.001,1000]|k1=0.2[0.001,1000]|k2=0.2[0.001,1000]|T1=10[0,50]|T2=30[0,50]"},
-		{"Shi_beta_2016","rm*(T2-T)/(T2-Tm)*((T-T1)/(Tm-T1))^((Tm-T1)/(T2-Tm))","rm=0.02[0.001,10]|Tm=15[0,50]|T1=5[0,50]|T2=30[0,50]"},
-		{"Saint-Amant_2019","aa*exp(bb*(T-T1)+1/(cc*pmin(-0.001,T-T2)))","aa=0.5[1E-4,1]|bb=0.5[1E-4,1]|cc=0.5[1E-4,1]|T1=35[0,50]|T2=35[0,100]"},
-		//{"Stinner1","Rm*(1+exp(k1+k2*To))/(1+exp(k1+k2*T))","Rm=0.2[1E-5,1]|k1=3.7[-10,10]|k2=-0.08[-10,10]|To=25[0,50]"},
-		//{"Stinner2","Rm*(exp(k1+k2*To))/(1+exp(k1+k2*T))","Rm=0.7[1E-5,1]|k1=3.7[-10,10]|k2=-0.08[-10,10]|To=39[0,50]"},
-		{"Stinner_1974","c(Rm/(1+exp(k1 + k2*T[T<To])),Rm/(1+exp(k1 + k2*(2*To-T[T>=To]))))","Rm=0.2101[0.0001,1]|k1=4.0102[-10,10]|k2=-0.2227[-10,10]|To=26[0,50]"},
-		//{"Stinner4","c1/(1+exp(k1+k2*T))+c2/(1+exp(k1+k2*(2*To-T)))","c1=0.2[-1E5,1]|c2=0.2[-1E5,1]|k1=0.2[-10,10]|k2=0.2[-10,10]|To=35[0,50]"},
+		{"Shi_2011","cc*(1-exp(-k1*(T-T1)))*(1-exp(k2*(T-T2)))","cc=0.2[0.001,1000]|k1=0.2[0.001,1000]|k2=0.2[0.001,1000]|T1=10[-50,50]|T2=30[0,50]"},
+		{"Shi_beta_2016","rm*(T2-T)/(T2-Tm)*((T-T1)/(Tm-T1))^((Tm-T1)/(T2-Tm))","rm=0.02[0.001,10]|Tm=15[0,50]|T1=5[0,50]|T2=30[-50,50]"},
+		{"Saint-Amant_2019","aa*exp(bb*(T-T1)+1/(cc*pmin(-0.001,T-T2)))","aa=0.5[1E-4,1]|bb=0.5[1E-4,1]|cc=0.5[1E-4,1]|T1=35[-50,50]|T2=35[-50,100]"},
+		{"Stinner_1974","c(Rm/(1+exp(k1 + k2*T[T<To])),Rm/(1+exp(k1 + k2*(2*To-T[T>=To]))))","Rm=0.2101[0.0001,1]|k1=4.0102[-10,10]|k2=-0.2227[-50,50]|To=26[0,50]"},
 		{"Taylor_1981","Rm*exp(-1/2*((T-Topt)/Troh)^2)","Rm=0.08[0.0001,1.0]|Topt=32[1,50]|Troh=9.4[1,50]"},
 		{"Wagner_1988","1/((1+exp((cc/1.987)*((1/dd)-(1/(T+273.16)))))/(aa*(T+273.16)/298.15*exp((bb/1.987)*((1/298.15)-1/(T+273.16)))))","aa=0.1[0.0001,10]|bb=28500[1,1E6]|cc=130000[1,2E6]|dd=305[250,350]"},
 		{"Wang_1982","(K/(1+exp(-r*(T-To))))*(1-exp(-pmax(0,T-Tl)/aa))*(1-exp(-pmax(0,Th-T)/aa))","K=0.04[0.0001,10]|r=0.23[0.0001,10]|aa=2.3[1,10]|Tl=10[0,50]|Th=35[0,50]|To=15[0,50]"},
@@ -113,7 +110,7 @@ namespace WBSF
 		case Kontodimas_2004:bValid = P[P1] < P[P2]; break;
 		case Ratkowsky_1983:bValid = P[P2] < P[P3]; break;
 		case Regniere_1987:  bValid = P[P4] < P[P5]; break;
-		case Regniere_2012:bValid = P[P2] < P[P3]; break;
+		case Regniere_2012:bValid = P[P2] < P[P4]; break;
 		case Shi_2011: bValid = P[P3] < P[P4]; break;
 		case HueyStevenson_1979: bValid = P[P2] < P[P3]; break;
 		case Shi_beta_2016:bValid = (P[P2] < P[P1]) && (P[P1] < P[P3]); break;
@@ -132,7 +129,6 @@ namespace WBSF
 
 		if (model == Allahyari)
 		{
-			//f < -function(x, P, Tmax, Tmin, n, m)
 			double p = P[P0];
 			double Tmin = P[P1];
 			double Tmax = P[P2];
@@ -173,7 +169,6 @@ namespace WBSF
 		}
 		else if (model == Briere1_1999)
 		{
-			//f < -function(x, aa, To, Tmax)
 			double aa = P[P0];
 			double Tmin = P[P1];
 			double Tmax = P[P2];
@@ -208,7 +203,6 @@ namespace WBSF
 		}
 		else if (model == DevaHiggis)
 		{
-			//		f < -function(x, b1, b2, b3, b4, b5)
 			double b1 = P[P0];
 			double b2 = P[P1];
 			double b3 = P[P2];
@@ -224,7 +218,6 @@ namespace WBSF
 		}
 		else if (model == Exponential)
 		{
-			//f < -function(x, b1, b2)
 			double b1 = P[P0];
 			double b2 = P[P1];
 
@@ -232,7 +225,6 @@ namespace WBSF
 		}
 		else if (model == HilbertLogan_1983)
 		{
-			//f < -function(x, trid, D, Tmax, Dt) 
 			double phi = P[P0];
 			double aa = P[P1];
 			double Tb = P[P2];
@@ -244,7 +236,6 @@ namespace WBSF
 		}
 		else if (model == HilbertLoganIII)
 		{
-			//f < -function(x, d, Y, Tmax, deltaT)
 			double phi = P[P0];
 			double d = P[P1];
 			double Tmax = P[P2];
@@ -252,8 +243,6 @@ namespace WBSF
 
 			T = max(0.0, T);
 			rT = phi * ((T*T) / (T*T + d * d) - exp(-(Tmax - T) / deltaT));
-			//phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT))
-			//phi*(T^2/(T^2+d^2)-exp(-(Tmax-T)/deltaT))
 		}
 		else if (model == HueyStevenson_1979)
 		{
@@ -267,7 +256,6 @@ namespace WBSF
 		}
 		else if (model == Janisch1_1932)
 		{
-			//f < -function(x, Dmin, Topt, K) 
 			double Dmin = P[P0];
 			double Topt = P[P1];
 			double K = P[P2];
@@ -276,7 +264,6 @@ namespace WBSF
 		}
 		else if (model == Janisch2)
 		{
-			//f < -function(x, c, a, b, Tm)
 			double cc = P[P0];
 			double aa = P[P1];
 			double bb = P[P2];
@@ -286,7 +273,6 @@ namespace WBSF
 		}
 		else if (model == Kontodimas_2004)
 		{
-			//f < -function(x, aa, Tmin, Tmax)
 			double aa = P[P0];
 			double Tmin = P[P1];
 			double Tmax = P[P2];
@@ -296,13 +282,11 @@ namespace WBSF
 		}
 		else if (model == Logan6_1976)//Logan6 1976
 		{
-			//f < -function(x, phi, bb, Tmax, deltaT)
 			double phi = P[P0];
 			double bb = P[P1];
 			double Tmax = P[P2];
 			double deltaT = P[P3];
 
-			//T = min(Tmax, T);
 			rT = phi * (exp(bb * T) - exp(bb * Tmax - (Tmax - T) / deltaT));
 		}
 		else if (model == Logan10_1976)//Logan10 1976
@@ -313,12 +297,10 @@ namespace WBSF
 			double Tmax = P[P3];
 			double deltaT = P[P4];
 
-			//T = min(Tmax, T);
 			rT = phi * (1.0 / (1.0 + cc * exp(-bb * T)) - exp(-((Tmax - T) / deltaT)));
 		}
 		else if (model == LoganTb)//  Tb Model (Logan)
 		{
-			//f < -function(x, sy, b, Tb, DTb)
 			double phi = P[P0];
 			double b = P[P1];
 			double Tb = P[P2];
@@ -329,7 +311,6 @@ namespace WBSF
 		//  Exponential Model (Logan)
 		else if (model == LoganExponential)
 		{
-			//f < -function(x, sy, b, Tb)
 			double phi = P[P0];
 			double b = P[P1];
 			double Tb = P[P2];
@@ -338,7 +319,6 @@ namespace WBSF
 		}
 		else if (model == Poly1)
 		{
-			//f < -function(x, a, b)
 			double a0 = P[P0];
 			double a1 = P[P1];
 
@@ -354,7 +334,6 @@ namespace WBSF
 		}
 		else if (model == Poly3)//Tanigoshi
 		{
-			//f < -function(x, a0, a1, a2, a3)
 			double a0 = P[P0];
 			double a1 = P[P1];
 			double a2 = P[P2];
@@ -374,7 +353,6 @@ namespace WBSF
 		}
 		else if (model == RatkowskySquare)
 		{
-			//f < -function(x, b, Tb)
 			double b = P[P0];
 			double Tb = P[P1];
 
@@ -382,45 +360,21 @@ namespace WBSF
 		}
 		else if (model == Ratkowsky_1983)
 		{
-			//f < -function(x, aa, b, Tmin, Tmax)
 			double aa = P[P0];
 			double b = P[P1];
 			double Tmin = P[P2];
 			double Tmax = P[P3];
 
-			//T = max(Tmin, min(Tmax, T));
-			//T = min(Tmax, T);
-			rT = pow(max(0.0, aa*(T - Tmin)*(1.0 - exp((b*(T- Tmax))))), 2.0);
+			rT = pow(max(0.0, aa*(T - Tmin)*(1.0 - exp((b*(T - Tmax))))), 2.0);
 		}
 		else if (model == Pradham)
 		{
-			//f < -function(x, R, Tm, To)
 			double R = P[P0];
 			double Tm = P[P1];
 			double To = P[P2];
 
 			rT = R * pow(exp((-1.0 / 2.0)*((T - Tm) / To)), 2.0);
 		}
-		//else if (model == Stinner1)
-		//{
-		//	//f < -function(xp, Rm, To, k1, k2) 
-		//	double Rm = P[P0];
-		//	double k1 = P[P1];
-		//	double k2 = P[P2];
-		//	double To = P[P3];
-
-		//	rT = Rm * (1.0 + exp(k1 + k2 * To)) / (1.0 + exp(k1 + k2 * T));
-		//}
-		//else if (model == Stinner2)
-		//{
-		//	//f < -function(x, Rm, k1, k2, To)
-		//	double Rm = P[P0];
-		//	double k1 = P[P1];
-		//	double k2 = P[P2];
-		//	double To = P[P3];
-
-		//	rT = Rm * exp(k1 + k2 * To) / (1.0 + exp(k1 + k2 * T));
-		//}
 		else if (model == Stinner_1974)
 		{
 			double Rm = P[P0];
@@ -431,21 +385,9 @@ namespace WBSF
 			T = T < To ? T : (2 * To - T);
 			rT = Rm / (1.0 + exp(k1 + k2 * T));
 		}
-		//else if (model == Stinner4)
-		//{
-		//	//f < -function(x, c1, c2, k1, k2, To)
-		//	double c1 = P[P0];
-		//	double c2 = P[P1];
-		//	double k1 = P[P2];
-		//	double k2 = P[P3];
-		//	double To = P[P4];
-
-		//	rT = c1 / (1.0 + exp(k1 + k2 * T)) + c2 / (1.0 + exp(k1 + k2 * (2 * To - T)));
-		//}
 		//Taylor
 		else if (model == Taylor_1981)
 		{
-			//f < -function(x, rm, Topt, Troh)
 			double rm = P[P0];
 			double Topt = P[P1];
 			double Troh = P[P2];
@@ -482,17 +424,16 @@ namespace WBSF
 		}
 		else if (model == Regniere_2012)
 		{
-			double phi = P[P0];
-			double bb = P[P1];
+			double psi = P[P0];
+			double omega = P[P1];
 			double Tb = P[P2];
-			double Tm = P[P3];
-			double deltab = P[P4];
+			double deltab = P[P3];
+			double Tm = P[P4];
 			double deltam = P[P5];
 
-			if (T>=Tb&&T<=Tm)
+			if (T >= Tb && T <= Tm)
 			{
-				//T = max(Tb, min(Tm, T));
-				rT = phi * (exp(bb * (T - Tb)) - ((Tm - T) / (Tm - Tb)) * exp(-bb * (T - Tb) / deltab) - ((T - Tb) / (Tm - Tb)) * exp(bb * (Tm - Tb) - (Tm - T) / deltam));
+				rT = psi * (exp(omega * (T - Tb)) - ((Tm - T) / (Tm - Tb)) * exp(-omega * (T - Tb) / deltab) - ((T - Tb) / (Tm - Tb)) * exp(omega * (Tm - Tb) - (Tm - T) / deltam));
 			}
 
 		}
@@ -548,7 +489,6 @@ namespace WBSF
 		}
 		else if (model == SharpeDeMichele3)
 		{
-			//f < -function(x, p, To, Ha, Hl, Tl, Hh, Th)
 			double p = P[P0];
 			double To = P[P1];
 			double Ha = P[P2];
@@ -656,7 +596,7 @@ namespace WBSF
 	CSAParameterVector CDevRateEquation::GetParameters(TDevRateEquation model, const vector<double>& X)
 	{
 		CSAParameterVector p = GetParameters(model);
-		ASSERT(X.size() == p.size());
+		ASSERT(X.size() >= p.size());
 		for (size_t i = 0; i < p.size(); i++)
 		{
 			p[i].m_initialValue = X[i];
