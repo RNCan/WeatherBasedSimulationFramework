@@ -25,45 +25,44 @@ namespace WBSF
 	//http://www.ncdc.noaa.gov/cdo-web/review
 	//http://gis.ncdc.noaa.gov/map/viewer/#app=cdo&cfg=radar&theme=radar&display=nexrad
 
-
-	const char* CCanadianRadar::DEFAULT_LIST[NB_RADAR][NB_INFO] =
+	const char* CCanadianRadar::DEFAULT_LIST[NB_RADARS][NB_INFO] =
 	{
-		{ "ATL", "Atlantique", "" },
-		{ "ONT", "Ontario", "" },
-		{ "PNR", "Prairies", "" },
-		{ "PYR", "Pacifique", "" },
-		{ "QUE", "Québec", "" },
-		{ "WBI", "Britt (Sudbury)", "-83.6373658665 47.8026521191 -77.4570436502 43.6539154098" },
-		{ "WGJ", "Montreal River (Sault Ste. Marie)", "-87.7639114726 49.2568691017 -81.4584394308 45.099335919" },
-		{ "WHK", "Carvel (Edmonton)", "-117.771880828 55.5695382581 -110.533182931 51.4120050754" },
-		{ "WHN", "Jimmy Lake (Cold Lake)", "-113.711924973 56.9286079503 -106.239864469 52.7805952563" },
-		{ "WKR", "King City (Toronto)", "" },
-		{ "WMB", "Lac Castor (Saguenay)", "-73.9371157616 50.5745075074 -67.4182258339 46.438482943" },
-		{ "WMN", "McGill (Montréal)", "-77.0121013446 47.4253803845 - 70.8752490569 43.2885607365" },
-		{ "WSO", "Exeter (London)", "" },
-		{ "WTP", "Holyrood (St. John's)", "-56.348300196 49.324926196 -50.0023250342, 45.1729382328" },
-		{ "WUJ", "Aldergrove (Vancouver)", "" },
-		{ "WVY", "Villeroy (Trois-Rivières)", "-75.0347285857 48.4508393775 -68.8006773355 44.299509455" },
-		{ "WWW", "Spirit River (Grande Prairie)" },
-		{ "XAM", "Val d'Irène (Mont-Joli)", "-70.8421322368 50.483980897 -64.3696725512 46.333428227" },
-		{ "XBE", "Bethune (Regina)", "-108.603437034 52.5769462466 -101.801364087 48.4346069724" },
-		{ "XBU", "Schuler (Medicine Hat)", "" },
-		{ "XDR", "Dryden", "-96.1458510275 51.8657231731 -89.4801234175 47.7097893492" },
-		{ "XFT", "Franktown (près d'Ottawa)", "-79.1701568375 47.0576542482 -73.0774316862 42.8890312587" },
-		{ "XFW", "Foxwarren (Brandon)", "-104.479010139 52.5571459713 -97.7033266122 48.4148066972" },
-		{ "XGO", "Halifax", "-66.7628782277 47.0966133415 -60.6403374437 42.9586010682" },
-		{ "XLA", "Landrienne (Rouyn-Noranda)", "-81.0739843691 50.5393250609 -74.5533055035 46.4323210456" },
-		{ "XMB", "Marion Bridge (Sydney)", "" },
-		{ "XME", "Marble Mountain (Corner Brook)", "-61.1134121488 50.9354754337 -54.5607311707 46.7759959048" },
-		{ "XNC", "Chipman (Fredericton)", "-68.8209519657 48.2272221325 -62.5795461928 44.0828491909" },
-		{ "XNI", "Supérieur Ouest (Thunder Bay)", "-92.4118480452 50.8658240476 -85.8344850086 46.709490384" },
-		{ "XPG", "Prince George", "" },
-		{ "XRA", "Radisson (Saskatoon)", "" },
-		{ "XSI", "Victoria", "" },
-		{ "XSM", "Strathmore (Calgary)", "" },
-		{ "XSS", "Silver Star Mountain (Vernon)", "" },
-		{ "XTI", "Nord-est de l'Ontario (Timmins)", "-85.0798140042 51.2865048157 -78.5076534795 47.14570975" },
-		{ "XWL", "Woodlands (Winnipeg)", "-101.1382495 52.1588556519 -94.439735035 48.0025219883" },
+		{ "ATL", "ATL", "Atlantique", "" },
+		{ "ONT", "ONT", "Ontario", "" },
+		{ "PNR", "PNR", "Prairies", "" },
+		{ "PYR", "PYR", "Pacifique", "" },
+		{ "QUE", "QUE", "Québec", "" },
+		{ "WUJ", "CASAG", "Aldergrove (Vancouver)", "" },
+		{ "XBE", "CASBE", "Bethune (Regina)", "-108.603437034 52.5769462466 -101.801364087 48.4346069724" },
+		{ "WBI", "CASBI", "Britt (Sudbury)", "-83.6373658665 47.8026521191 -77.4570436502 43.6539154098" },
+		{ "WHK", "CASCV", "Carvel (Edmonton)", "-117.771880828 55.5695382581 -110.533182931 51.4120050754" },
+		{ "XNC", "CASCM", "Chipman (Fredericton)", "-68.8209519657 48.2272221325 -62.5795461928 44.0828491909" },
+		{ "XDR", "CASDR", "Dryden", "-96.1458510275 51.8657231731 -89.4801234175 47.7097893492" },
+		{ "WSO", "CASET", "Exeter (London)", "" },
+		{ "XFW", "CASFW", "Foxwarren (Brandon)", "-104.479010139 52.5571459713 -97.7033266122 48.4148066972" },
+		{ "XFT", "CASFT", "Franktown (près d'Ottawa)", "-79.1701568375 47.0576542482 -73.0774316862 42.8890312587" },
+		{ "XGO", "CASGO", "Halifax", "-66.7628782277 47.0966133415 -60.6403374437 42.9586010682" },
+		{ "WTP", "CASHR", "Holyrood (St. John's)", "-56.348300196 49.324926196 -50.0023250342, 45.1729382328" },
+		{ "WHN", "CASJL", "Jimmy Lake (Cold Lake)", "-113.711924973 56.9286079503 -106.239864469 52.7805952563" },
+		{ "WKR", "CASKR", "King City (Toronto)", "" },
+		{ "WMB", "CASLC", "Lac Castor (Saguenay)", "-73.9371157616 50.5745075074 -67.4182258339 46.438482943" },
+		{ "XLA", "CASLA", "Landrienne (Rouyn-Noranda)", "-81.0739843691 50.5393250609 -74.5533055035 46.4323210456" },
+		{ "XME", "CASMM", "Marble Mountain (Corner Brook)", "-61.1134121488 50.9354754337 -54.5607311707 46.7759959048" },
+		{ "XMB", "CASMB", "Marion Bridge (Sydney)", "" },
+		{ "WMN", "CASBV", "McGill (Montréal)", "-77.0121013446 47.4253803845 - 70.8752490569 43.2885607365" },
+		{ "WGJ", "CASMR", "Montreal River (Sault Ste. Marie)", "-87.7639114726 49.2568691017 -81.4584394308 45.099335919" },
+		{ "XTI", "CASRF", "Nord-est de l'Ontario (Timmins)", "-85.0798140042 51.2865048157 -78.5076534795 47.14570975" },
+		{ "XPG", "CASPG", "Prince George", "" },
+		{ "XRA", "CASRA", "Radisson (Saskatoon)", "" },
+		{ "XBU", "CASSU", "Schuler (Medicine Hat)", "" },
+		{ "XSS", "CASSS", "Silver Star Mountain (Vernon)", "" },
+		{ "WWW", "CASSR", "Spirit River (Grande Prairie)" },
+		{ "XSM", "CASSM", "Strathmore (Calgary)", "" },
+		{ "XNI", "CASLL", "Supérieur Ouest (Thunder Bay)", "-92.4118480452 50.8658240476 -85.8344850086 46.709490384" },
+		{ "XAM", "CASVD", "Val d'Irène (Mont-Joli)", "-70.8421322368 50.483980897 -64.3696725512 46.333428227" },
+		{ "XSI", "CASSI", "Victoria", "" },
+		{ "WVY", "CASVY", "Villeroy (Trois-Rivières)", "-75.0347285857 48.4508393775 -68.8006773355 44.299509455" },
+		{ "XWL", "CASWL", "Woodlands (Winnipeg)", "-101.1382495 52.1588556519 -94.439735035 48.0025219883" },
 	};
 
 	size_t CCanadianRadar::GetRadar(const std::string& in, size_t t)
@@ -72,7 +71,7 @@ namespace WBSF
 		std::string tmp(in);
 		Trim(tmp);
 		MakeUpper(tmp);
-		for (size_t i = 0; i < NB_RADAR; i++)
+		for (size_t i = 0; i < NB_RADARS; i++)
 		{
 			if (tmp == DEFAULT_LIST[i][t])
 			{
@@ -88,11 +87,11 @@ namespace WBSF
 	std::string CCanadianRadar::GetAllPossibleValue(bool bAbvr, bool bName)
 	{
 		string str;
-		for (size_t i = 0; i < NB_RADAR; i++)
+		for (size_t i = 0; i < NB_RADARS; i++)
 		{
 			str += i != 0 ? "|" : "";
 			if (bAbvr)
-				str += DEFAULT_LIST[i][ABVR];
+				str += DEFAULT_LIST[i][ABRV1];
 			if (bAbvr && bName)
 				str += "=";
 			if (bName)
@@ -104,7 +103,7 @@ namespace WBSF
 
 	string CCanadianRadar::GetName(size_t r, size_t t)
 	{
-		ASSERT(r < NB_RADAR);
+		ASSERT(r < NB_RADARS);
 		ASSERT(t >= 0 && t < NB_INFO);
 		return DEFAULT_LIST[r][t];
 	}
@@ -114,11 +113,11 @@ namespace WBSF
 		string str;
 		if (!none() && !all())
 		{
-			for (size_t i = 0; i < NB_RADAR; i++)
+			for (size_t i = 0; i < NB_RADARS; i++)
 			{
 				if (test(i))
 				{
-					str += DEFAULT_LIST[i][ABVR];
+					str += DEFAULT_LIST[i][ABRV1];
 					str += '|';
 				}
 			}
@@ -143,7 +142,7 @@ namespace WBSF
 	ERMsg CCanadianRadar::set(const std::string& in)
 	{
 		ERMsg message;
-		size_t p = GetRadar(in);
+		size_t p = GetRadar(in, ABRV1);
 		if (p < size())
 		{
 			set(p);
@@ -166,7 +165,7 @@ namespace WBSF
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanRadar::CLASS_NAME(), (createF)CUIEnvCanRadar::create);
 
-	const char* CUIEnvCanRadar::SERVER_NAME[2] = { "dd.weather.gc.ca", "climate.weather.gc.ca" };
+	const char* CUIEnvCanRadar::SERVER_NAME[NB_TEMPORAL_TYPE] = { "dd.weather.gc.ca", "climate.weather.gc.ca" };
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 
 	const char* CUIEnvCanRadar::TYPE_NAME_OLD[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
@@ -186,8 +185,6 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-
-			//case TYPE:	str = "06|24"; break;// GetString(IDS_PROPERTIES_ENV_CAN_PRCP_RADAR); break;
 		case TYPE:		str = "Current|Historical"; break;
 		case PRCP_TYPE:	str = "Snow|Rain"; break;
 		case BACKGROUND:str = "White|Brown"; break;
@@ -265,38 +262,28 @@ namespace WBSF
 		}
 		else if (t == HISTORICAL_RADAR)
 		{
-			//			ASSERT(URL.length() == 63);
-						//static const char* OLD_TYPE_NAME[NB_TYPE] = { "PRECIP_SNOW", "PRECIP_RAIN" };
+			size_t pos = URL.find("|");
+			ASSERT(pos != string::npos);
 
-						/*string year = "20" + URL.substr(33, 2);
-						size_t m = GetMonthIndex(URL.substr(29, 3).c_str()); ASSERT(m < 12);
-						string month = FormatA("%02d", m + 1);
-						string day = URL.substr(26, 2);
-						string hour = URL.substr(36, 2);
-						string min = URL.substr(39, 2);
-						string region = URL.substr(60, 3);
-						string type = OLD_TYPE_NAME[as<size_t>(PRCP_TYPE)];
-						string pm = URL.substr(52, 2);
+			StringVector tmp(URL.substr(0, pos), "_");
+			ASSERT(tmp.size() == 5);
 
-						if (pm == "PM")
-						{
-							if (hour != "12")
-								hour = ToString(ToInt(hour) + 12);
-						}
-						else if (hour == "12")
-						{
-							hour = "00";
-						}*/
+			string year = tmp[0].substr(0, 4);
+			string month = tmp[0].substr(4, 2);
+			string day = tmp[0].substr(6, 2);
+			string hour = tmp[0].substr(8, 2);
+			string min = tmp[0].substr(10, 2);
+			string radar_id = tmp[1];
+			if (radar_id.length() == 5)
+			{
+				size_t id = CCanadianRadar::GetRadar(radar_id, CCanadianRadar::ABRV2);
+				radar_id = CCanadianRadar::GetName(id, CCanadianRadar::ABRV1);
+			}
 
-			string year = URL.substr(0, 4);
-			string month = URL.substr(4, 2);
-			string day = URL.substr(6, 2);
-			string hour = URL.substr(8, 2);
-			string min = URL.substr(10, 2);
-			string region = URL.substr(13, 3);
-			string type = URL.substr(17, URL.find("|") - 17);
 
-			path = GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + region + "_" + type + ".gif";
+			string type = tmp[2] + "_" + tmp[3];
+
+			path = GetDir(WORKING_DIR) + radar_id + "\\" + year + "\\" + month + "\\" + day + "\\" + year + month + day + hour + min + "_" + radar_id + "_" + type + ".gif";
 
 		}
 
@@ -398,17 +385,16 @@ namespace WBSF
 			{
 				for (CTRef TRef = period.Begin(); TRef <= period.End() && msg; TRef += 2)
 				{
+					string radar_id = CCanadianRadar::GetName(i, CCanadianRadar::ABRV2);
 					string typeName = TRef.GetYear() < 2014 ? TYPE_NAME_OLD[prcpType] : TYPE_NAME_NEW[prcpType];
-					string URL = FormatA(pageFormat, CCanadianRadar::GetName(i, 0).c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), typeName.c_str());
+					string URL = FormatA(pageFormat, radar_id.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), typeName.c_str());
 					URL.resize(strlen(URL.c_str()));
 
 					string source;
 					UtilWWW::GetPageText(pConnection, URL, source, true);
-					//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=5&hour=00&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
-					//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2013&month=7&day=6&hour=00&minute=00&duration=2&image_type=PRECIP_SNOW_WEATHEROFFICE
-					//http://climat.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=00&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
-						//string::size_type posEnd = 0;
-					string fileList1 = FindString(source, "blobArray = [", "]");
+
+					size_t begin = source.find("blobArray = [") + 13;//skip the first
+					string fileList1 = FindString(source, "blobArray = [", "]", begin);
 					if (!fileList1.empty())
 					{
 
@@ -508,8 +494,8 @@ namespace WBSF
 		CFileInfoVector fileList;
 		for (size_t i = 0; i < dirList.size() && msg; i++)
 		{
-			string ID = GetLastDirName(dirList[i].m_filePath); //GetRadarID(CURRENT_RADAR, dirList[i].m_filePath);
-			if (radar.at(ID))
+			string radar_id = GetLastDirName(dirList[i].m_filePath);
+			if (radar.at(radar_id))
 			{
 				CFileInfoVector fileListTmp;
 				msg = UtilWWW::FindFiles(pConnection, dirList[i].m_filePath + "/*.gif", fileListTmp);

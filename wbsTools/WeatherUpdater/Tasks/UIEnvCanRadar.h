@@ -10,16 +10,23 @@ namespace WBSF
 {
 
 
-	enum TRadar{ R_ATL, R_ONT, R_PNR, R_PYR, R_QUE, R_WBI, R_WGJ, R_WHK, R_WHN, R_WKR, R_WMB, R_WMN, R_WSO, R_WTP, R_WUJ, R_WVY, R_WWW, R_XAM, R_XBE, R_XBU, R_XDR, R_XFT, R_XFW, R_XGO, R_XLA, R_XMB, R_XME, R_XNC, R_XNI, R_XPG, R_XRA, R_XSI, R_XSM, R_XSS, R_XTI, R_XWL, NB_RADAR };
-	class CCanadianRadar : public std::bitset<NB_RADAR>
+	enum TRadar
+	{ 
+		R_ATL, R_ONT, R_PNR, R_PYR, R_QUE, 
+		R_WUJ, R_XBE, R_WBI, R_WHK, R_XNC, R_XDR, R_WSO, R_XFW, R_XFT, R_XGO, R_WTP, 
+		R_WHN, R_WKR, R_WMB, R_XLA, R_XME, R_XMB, R_WMN, R_WGJ, R_XTI, R_XPG, R_XRA, 
+		R_XBU, R_XSS, R_WWW, R_XSM, R_XNI, R_XAM, R_XSI, R_WVY, R_XWL, NB_RADARS
+	};
+		
+	class CCanadianRadar : public std::bitset<NB_RADARS>
 	{
 	public:
 
-		enum TInfo{ ABVR, NAME, COORD, NB_INFO };
+		enum TInfo{ ABRV1, ABRV2, NAME, COORD, NB_INFO };
 
 		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true);
-		static size_t GetRadar(const std::string& in, size_t t = ABVR);
-		static std::string GetName(size_t r, size_t t = ABVR);
+		static size_t GetRadar(const std::string& in, size_t t );
+		static std::string GetName(size_t r, size_t t );
 		
 
 		CCanadianRadar(const std::string& sel = "")
@@ -36,16 +43,18 @@ namespace WBSF
 			if (none())
 				return true;
 			
-			size_t p = GetRadar(in);
-			return p < size() ? test(p) : false;
+			size_t p1 = GetRadar(in, ABRV1);
+			size_t p2 = GetRadar(in, ABRV2);
+
+			return p1 < size() ? test(p1) : p2 < size() ? test(p2) : false;
 		}
 
-		using std::bitset<NB_RADAR>::set;
+		using std::bitset<NB_RADARS>::set;
 		ERMsg set(const std::string& in);
 
 	protected:
 
-		static const char* DEFAULT_LIST[NB_RADAR][NB_INFO];
+		static const char* DEFAULT_LIST[NB_RADARS][NB_INFO];
 	};
 
 
@@ -53,7 +62,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR };
+		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR, NB_TEMPORAL_TYPE };
 		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
 		enum TBackground { B_WHITE, B_BROWN};
 
@@ -94,7 +103,7 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* SERVER_NAME[2];
+		static const char* SERVER_NAME[NB_TEMPORAL_TYPE];
 		static const char* SERVER_PATH;
 		static const char* TYPE_NAME_OLD[NB_TYPE];
 		static const char* TYPE_NAME_NEW[NB_TYPE];
