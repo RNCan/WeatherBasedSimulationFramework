@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="OBL">
+      <UniqueIdentifier>{98ce7f20-d729-491d-b4d6-f88d3010dfa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{81a5fc40-89ff-4d98-9a0e-af8ae733cd72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SBW">
+      <UniqueIdentifier>{ef49bf98-cb72-45a0-93da-a2c677eafd2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Meteorus">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.cpp">
+      <Filter>OBL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafrollerEquations.cpp">
+      <Filter>OBL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpruceBudworm\SpruceBudworm.cpp">
+      <Filter>SBW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpruceBudworm\SpruceBudwormEquations.cpp">
+      <Filter>SBW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MeteorusTrachynotus\MeteorusTrachynotus.cpp">
+      <Filter>Meteorus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MeteorusTrachynotus\MeteorusTrachynotusEquations.cpp">
+      <Filter>Meteorus</Filter>
+    </ClCompile>
+    <ClCompile Include="MeteorusTrachynotus_OBL_SBW.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MeteorusTrachynotus_OBL_SBW_Model.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafroller.h">
+      <Filter>OBL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ObliqueBandedLeafroller\ObliqueBandedLeafrollerEquations.h">
+      <Filter>OBL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpruceBudworm\SpruceBudworm.h">
+      <Filter>SBW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpruceBudworm\SpruceBudwormEquations.h">
+      <Filter>SBW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MeteorusTrachynotus\MeteorusTrachynotus.h">
+      <Filter>Meteorus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MeteorusTrachynotus\MeteorusTrachynotusEquations.h">
+      <Filter>Meteorus</Filter>
+    </ClInclude>
+    <ClInclude Include="MeteorusTrachynotus_OBL_SBW.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="MeteorusTrachynotus_OBL_SBW_Model.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
