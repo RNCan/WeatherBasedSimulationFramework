@@ -24,14 +24,16 @@ namespace WBSF
 			Janisch1_1932, Janisch2, Kontodimas_2004, Lactin1_1995, Lactin2_1995,
 			Lamb_1992, Logan6_1976, Logan10_1976, LoganExponential, LoganTb,
 			Poly1, Poly2, Poly3, Poly4, Pradham, RatkowskySquare, Ratkowsky_1983,
-			Regniere_1987, Regniere_2012, SchoolfieldHigh_1981, SchoolfieldLow_1981,
+			Regniere_1982, Regniere_1987, Regniere_2012, SchoolfieldHigh_1981, SchoolfieldLow_1981,
 			Schoolfield_1981, SharpeDeMichele3, SharpeDeMichele_1977,
 			Shi_2011, Shi_beta_2016, SaintAmant_2019, Stinner_1974, 
 			Taylor_1981, Wagner_1988, Wang_1982, Wangengel_1998, Yin_beta_1995,
 			NB_EQUATIONS
 		};
+		
 
-		static TDevRateEquation e(size_t e) { _ASSERTE(e < NB_EQUATIONS); return (TDevRateEquation)e; }
+
+		static TDevRateEquation eq(size_t e) { _ASSERTE(e < NB_EQUATIONS); return (TDevRateEquation)e; }
 		static double GetRate(TDevRateEquation model, const std::vector<double>& P, double T);
 		static const char* GetEquationName(TDevRateEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_NAME]; }
 		static const char* GetEquationR(TDevRateEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_R]; }
@@ -47,14 +49,14 @@ namespace WBSF
 		static const char* EQUATION[NB_EQUATIONS][NB_INFO];
 	};
 
-	class EquationBitset : public std::bitset<CDevRateEquation::NB_EQUATIONS>
+	class CDevRateEqSelected : public std::bitset<CDevRateEquation::NB_EQUATIONS>
 	{
 	public:
 
 		using std::bitset<CDevRateEquation::NB_EQUATIONS>::operator=;
 
-		bool operator==(const EquationBitset& in)const { return std::bitset<CDevRateEquation::NB_EQUATIONS>::operator==(in); }
-		bool operator!=(const EquationBitset& in)const { return std::bitset<CDevRateEquation::NB_EQUATIONS>::operator!=(in); }
+		bool operator==(const CDevRateEqSelected& in)const { return std::bitset<CDevRateEquation::NB_EQUATIONS>::operator==(in); }
+		bool operator!=(const CDevRateEqSelected& in)const { return std::bitset<CDevRateEquation::NB_EQUATIONS>::operator!=(in); }
 
 		std::string GetSelection()const { return std::bitset<CDevRateEquation::NB_EQUATIONS>::to_string(); }
 		void SetSelection(const std::string& in) { std::bitset<CDevRateEquation::NB_EQUATIONS>::operator = (std::bitset<CDevRateEquation::NB_EQUATIONS>(in)); }
@@ -68,13 +70,13 @@ namespace WBSF
 namespace zen
 {
 	template <> inline
-		void writeStruc(const WBSF::EquationBitset& in, XmlElement& output)
+		void writeStruc(const WBSF::CDevRateEqSelected& in, XmlElement& output)
 	{
 		output.setValue(in.GetSelection());
 	}
 
 	template <> inline
-		bool readStruc(const XmlElement& input, WBSF::EquationBitset& out)
+		bool readStruc(const XmlElement& input, WBSF::CDevRateEqSelected& out)
 	{
 		std::string str;
 		try

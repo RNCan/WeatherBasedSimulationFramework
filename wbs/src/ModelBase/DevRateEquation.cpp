@@ -78,6 +78,7 @@ namespace WBSF
 		{"Pradham","R*exp(-1/2*((T-Tm)/To))^2","R=4.2[1E-5,10]|Tm=84[1,200]|To=-18[-100,0]"},
 		{"Ratkowsky_1982(Square)","b*(T-Tb)^2","b=0.0002[1E-5,1000]|Tb=10[0,50]"},
 		{"Ratkowsky_1983","pmax(0, a*(T-Tmin)*(1-exp((b*(T-Tmax)))))^2","a=0.002[1E-5,10]|b=0.02[1E-5,1]|Tmin=5[-50,50]|Tmax=35[0,50]"},
+		{"Regniere_1982","ifelse(T>Tb&T<Tm, p1*( exp(p2*(T-Tb)/(Tm-Tb)) - exp(p2-(1-(T-Tb)/(Tm-Tb)) / p3 )), 0)","p1=0.2[1E-6,1]|p2=2[1E-6,20]|p3=6[1E-6,20]|Tb=15[-50,50]|Tm=35[0,50]"},
 		{"Regniere_1987","b1*((1/(1+exp(b2-b3*(T-Tb)/(Tm-Tb))))-(exp(((T-Tb)/(Tm-Tb)-1)/b4)))","b1=0.2[1E-6,1]|b2=2[1E-6,10]|b3=6[1E-6,10]|b4=0.15[1E-6,1]|Tb=15[-50,50]|Tm=35[0,50]"},
 		{"Regniere_2012","ifelse(T>Tb&T<Tm,psi*(exp(omega*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-omega*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(omega*(Tm-Tb)-(Tm-T)/deltam)),0)","psi=0.01[1E-5,1]|omega=0.1[0.001,10]|Tb=7[0,50]|deltab=4[0.01,50]|Tm=35[0,100]|deltam=5[0.01,50]"},
 		{"SchoolfieldHigh_1981","(p25*(T+273.16)/298*exp(aa/1.987*(1/298-1/(T+273.16))))/(1+exp(dd/1.987*(1/ee-1/(T+273.16))))","p25=0.01[1E-4,10]|aa=0.2[-1E5,1E5]|dd=-0.1[-1E5,1E5]|ee=280[250,350]"},
@@ -109,6 +110,7 @@ namespace WBSF
 		case HilbertLogan_1983:bValid = P[P2] < P[P3]; break;
 		case Kontodimas_2004:bValid = P[P1] < P[P2]; break;
 		case Ratkowsky_1983:bValid = P[P2] < P[P3]; break;
+		case Regniere_1982:  bValid = P[P3] < P[P4]; break;
 		case Regniere_1987:  bValid = P[P4] < P[P5]; break;
 		case Regniere_2012:bValid = P[P2] < P[P4]; break;
 		case Shi_2011: bValid = P[P3] < P[P4]; break;
@@ -413,6 +415,20 @@ namespace WBSF
 			double deltaT = P[P3];
 
 			rT = exp(aa * T) - exp(aa * Tmax - (Tmax - T) / deltaT) + bb;
+		}
+		else if (model == Regniere_1982)
+		{
+			double p1 = P[P0];
+			double p2 = P[P1];
+			double p3 = P[P2];
+			double Tb = P[P3];
+			double Tm = P[P4];
+
+			if (T >= Tb && T <= Tm)
+			{
+				double t = (T - Tb) / (Tm - Tb);
+				rT = p1 * (exp(p2*t) - exp(p2 - ((1.0 - t) / p3)) );
+			}
 		}
 		else if (model == Regniere_1987)
 		{
