@@ -107,7 +107,7 @@ namespace WBSF
 		if (!m_pAssociateHost.expired() && 
 			!m_diapauseTRef.IsInit() && 
 			GetGeneration()!=0 &&
-			( GetStage() == EGG) )//unclear what ot do here???
+			( GetStage() == IMMATURE) )
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
@@ -144,7 +144,7 @@ namespace WBSF
 
 			double attRate = pStand->m_generationAttrition;//1% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CMeteorusTrachynotus_OBL_SBW>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
+			CIndividualPtr object = make_shared<CMeteorusTrachynotus_OBL_SBW>(m_pHost, weather.GetTRef(), IMMATURE, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);
 
 			assert(object->get_property("HostType") == "0" || object->get_property("HostType") == "1");
@@ -161,7 +161,7 @@ namespace WBSF
 		if (!m_pAssociateHost.expired())
 		{
 			//if the associate host die, the parasite also die
-			if ((GetStage() == EGG || GetStage() == LARVA) &&
+			if ((GetStage() == IMMATURE ) &&
 				!m_pAssociateHost.lock()->IsAlive())
 			{
 				m_status = DEAD;

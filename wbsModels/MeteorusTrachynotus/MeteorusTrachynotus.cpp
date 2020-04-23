@@ -214,7 +214,7 @@ namespace WBSF
 			if (IsAlive())
 			{
 				if (s < DEAD_ADULT)
-					stat[S_EGG + s] += m_scaleFactor;
+					stat[S_IMMATURE + s] += m_scaleFactor;
 
 
 				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= GetStand()->m_preOvip)
@@ -229,7 +229,7 @@ namespace WBSF
 				//we need to take only insect alive
 				if (GetStage() != GetLastStage())
 				{
-					stat[M_EGG + s] += m_scaleFactor;
+					stat[M_IMMATURE + s] += m_scaleFactor;
 				}
 
 				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= GetStand()->m_preOvip)

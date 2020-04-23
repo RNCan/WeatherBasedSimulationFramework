@@ -23,8 +23,8 @@ namespace WBSF
 	{
 		enum TMeteorusTrachynotusStats
 		{
-			S_EGG, S_LARVA, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROODS_OBL, S_BROODS_SBW, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE,
-			M_EGG, M_LARVA, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
+			S_IMMATURE, S_PUPA, S_ADULT, S_DEAD_ADULT, S_OVIPOSITING_ADULT, S_BROODS_OBL, S_BROODS_SBW, S_ATTRITION, S_HOST_DIE, S_CUMUL_REATCH_ADULT, S_DIAPAUSE,
+			M_IMMATURE, M_PUPA, M_ADULT, M_DEAD_ADULT, M_OVIPOSITING_ADULT, M_ATTRITION, M_FROZEN, M_HOST_DIE, M_OTHERS, M_DIAPAUSE, M_DIAPAUSE_AGE,
 			NB_STATS
 		};
 
@@ -39,7 +39,7 @@ namespace WBSF
 	{
 	public:
 
-		CMeteorusTrachynotus(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CMeteorusTrachynotus(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::IMMATURE, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CMeteorusTrachynotus(const CMeteorusTrachynotus& in) :CIndividual(in){ operator=(in); }
 		CMeteorusTrachynotus& operator=(const CMeteorusTrachynotus& in);
 		~CMeteorusTrachynotus(void);

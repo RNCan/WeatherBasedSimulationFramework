@@ -14,7 +14,8 @@ namespace WBSF
 	namespace MeteorusTrachynotus
 	{
 		enum TOBLStages { OBL_POST_DIAPAUSE, NB_OBL_STAGES};
-		enum TStages{ EGG, LARVA, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		enum TStages { IMMATURE, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
+		//enum TStages{ EGG, LARVA, PUPA, ADULT, NB_STAGES, DEAD_ADULT = NB_STAGES };
 		//enum TEquation { EQ_OBL_POST_DIAPAUSE, EQ_IMMATURE, EQ_PUPA, EQ_ADULT, NB_EQUATIONS };
 		enum THost { H_OBL, H_SBW, NB_HOSTS };
 	}

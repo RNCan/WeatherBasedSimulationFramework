@@ -28,7 +28,8 @@ namespace WBSF
 		CModelFactory::RegisterModel(CMeteorusTrachynotus_OBL_SBW_Model::CreateObject);
 
 	
-	enum TDailyOutput{ O_D_EGG, O_D_LARVA, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
+	enum TDailyOutput { O_D_IMMATURE, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT * NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
+	//enum TDailyOutput{ O_D_EGG, O_D_LARVA, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
 	//extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,BroodOBL,BroodSBW,Attrition,CumulAdult,CumulDiapause";
 	
 	enum TGenerationOutput{ O_G_YEAR, O_G_GENERATION, O_G_ADULTS, O_G_BROODS_OBL, O_G_BROODS_SBW, O_G_DIAPAUSE, O_G_FECONDITY, O_G_GROWTH_RATE, O_G_DEAD_ADULT, O_G_HOST_DIE, O_G_FROZEN, NB_GENERATION_OUTPUT };
@@ -156,7 +157,7 @@ namespace WBSF
 			//Init host
 			pHostMeteorusTrachynotus->m_nbMinObjects = 100;
 			pHostMeteorusTrachynotus->m_nbMaxObjects = 1250;
-			pHostMeteorusTrachynotus->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, EGG, FEMALE, true, 0));
+			pHostMeteorusTrachynotus->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, IMMATURE, FEMALE, true, 0));
 			stand.m_host.push_front(pHostMeteorusTrachynotus);
 
 			//Init stand
