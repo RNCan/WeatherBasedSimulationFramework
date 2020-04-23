@@ -39,13 +39,13 @@ namespace WBSF
 	{
 	public:
 
-		CMeteorusTrachynotus(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::IMMATURE_PRE_E, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CMeteorusTrachynotus(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CMeteorusTrachynotus(const CMeteorusTrachynotus& in) :CIndividual(in){ operator=(in); }
 		CMeteorusTrachynotus& operator=(const CMeteorusTrachynotus& in);
 		~CMeteorusTrachynotus(void);
 
 		virtual void Live(const CWeatherDay& weather);
-		virtual void Brood(const CWeatherDay& weather);
+		//virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual bool CanPack(const CIndividualPtr& in)const;
@@ -55,18 +55,9 @@ namespace WBSF
 
 	protected:
 
-		//bool IsDeadByAttrition(size_t s, double T);
-
 		//member
-		//double m_OBLPostDiapause; //actual state of overwintering post diapause host
-		//double m_OBLPostDiapause_δ;//Individual's relative overwintering post diapause host
 		MeteorusTrachynotusArray m_δ;		//Individual's relative development rates
-		//MeteorusTrachynotusArray m_luck;	//survival between stage
-		//bool	m_badluck;		//killed by attrition
 		double	m_Pmax;			//Potential fecundity
-		//double	m_Pᵗ;			//Energy
-		//double	m_Eᵗ;			//Actual number of eggs
-
 		CTRef	m_adultDate;
 		CTRef	m_diapauseTRef;
 		double	m_Nh;			//Number of hosts (C. rosaceana) that are in larval stages, excluding L3D;
@@ -78,6 +69,7 @@ namespace WBSF
 		inline CMeteorusTrachynotusStand* GetStand();
 		inline const CMeteorusTrachynotusStand* GetStand()const;
 		inline CMeteorusTrachynotusEquations& Equations();
+		//inline COBLPostDiapauseEquations& OBL_Equations();
 	};
 	
 	
@@ -89,30 +81,13 @@ namespace WBSF
 	public:
 		//public members
 		
-		//size_t m_hostType;//kind of host
-
 		CMeteorusTrachynotusHost(WBSF::CStand* pStand);
 
-		//virtual void Live(const CWeatherDay& weaDay)override;
-		//virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT)override;
-		
+		double m_diapause_age; //actual state of overwintering post diapause host
+		double m_δ;//Individual's relative overwintering post diapause host
 
-
-		//void CleanUp();
-		//bool GetHatchDate(CTRef& ref, double& d)const;
-
-		//bool m_bAutumnCleaned;
-		//Defoliation
-		//	double m_budDensity;//number of bud by branche
-		//	double GetDefoliation()const{ return 1-m_foliageRatio; }
-		//	void Eated(double feding){ m_bugsFeeding += feding;}
-		//	void UpdateDefoliation();
-
-		//	static double GetHU(CDailyWaveVector& T);
-		//	int m_initialNumInd;
-		//	double m_bugsFeeding;
-		//	double m_foliageRatio;
-		//	double m_hu;
+		virtual void Live(const CWeatherDay& weaDay)override;
+		inline COBLPostDiapauseEquations& OBL_Equations();
 	};
 
 	typedef std::shared_ptr<CMeteorusTrachynotusHost> CMeteorusTrachynotusHostPtr;
@@ -126,11 +101,7 @@ namespace WBSF
 	public:
 
 		//global variables of all bugs
-		//bool	m_bApplyAttrition;
 		double	m_generationAttrition;
-		/*
-		bool	m_bAutoComputeDiapause;*/
-		//double	m_diapauseAge;
 		double m_lethalTemp;
 		double m_criticalDaylength;
 		double m_preOvip;
@@ -138,20 +109,19 @@ namespace WBSF
 
 		CMeteorusTrachynotusStand(CBioSIMModelBase* pModel) :
 			CStand(pModel),
-			m_equations(pModel->RandomGenerator())
+			m_equations(pModel->RandomGenerator()),
+			m_OBL_equations(pModel->RandomGenerator())
 		{
 			m_generationAttrition = 0.01;
-			//m_bApplyAttrition = true;
-			
 			m_lethalTemp = -5.0;
 			m_preOvip = 3.0 /22.4;
 			m_criticalDaylength = 13.5;
 		}
 
 		CMeteorusTrachynotusEquations m_equations;
+		COBLPostDiapauseEquations m_OBL_equations;
 	};
 
-	//typedef std::shared_ptr<CMeteorusTrachynotusStand> CMeteorusTrachynotusStandPtr;
 
 	//WARNING: cast must be defined here to avoid bug
 	inline CMeteorusTrachynotusHost* CMeteorusTrachynotus::GetHost(){ return dynamic_cast<CMeteorusTrachynotusHost*>(m_pHost); }
@@ -159,4 +129,5 @@ namespace WBSF
 	inline CMeteorusTrachynotusStand* CMeteorusTrachynotus::GetStand(){ ASSERT(m_pHost); return static_cast<CMeteorusTrachynotusStand*>(m_pHost->GetStand()); }
 	inline const CMeteorusTrachynotusStand* CMeteorusTrachynotus::GetStand()const{ ASSERT(m_pHost); return static_cast<const CMeteorusTrachynotusStand*>(m_pHost->GetStand()); }
 	inline CMeteorusTrachynotusEquations& CMeteorusTrachynotus::Equations(){ return GetStand()->m_equations; }
+	inline COBLPostDiapauseEquations& CMeteorusTrachynotusHost::OBL_Equations() { return ((CMeteorusTrachynotusStand*)m_pStand)->m_OBL_equations; }
 }

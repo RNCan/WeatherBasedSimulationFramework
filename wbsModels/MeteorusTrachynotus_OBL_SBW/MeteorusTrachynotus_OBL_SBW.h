@@ -36,7 +36,7 @@ namespace WBSF
 	{
 	public:
 
-		CMeteorusTrachynotus_OBL_SBW(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::IMMATURE_PRE_E, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1, CIndividualPtr& pAssociateHost = CIndividualPtr());
+		CMeteorusTrachynotus_OBL_SBW(CHost* pHost, CTRef creationDate = CTRef(), double age = MeteorusTrachynotus::EGG, WBSF::TSex sex = WBSF::RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1, CIndividualPtr& pAssociateHost = CIndividualPtr());
 		CMeteorusTrachynotus_OBL_SBW(const CMeteorusTrachynotus_OBL_SBW& in) :CMeteorusTrachynotus(in){ operator=(in); }
 		CMeteorusTrachynotus_OBL_SBW& operator=(const CMeteorusTrachynotus_OBL_SBW& in);
 

@@ -46,15 +46,12 @@ namespace WBSF
 		VERSION = "1.0.0 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
-//		m_bHaveAttrition = false;
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
-//		m_diapauseAge = MAGGOT;// +0.1;
 		m_lethalTemp = -5.0;
 		m_criticalDaylength = 13.5;
 		m_preOvip = 3.0 / 22.4;
 		m_bOBLAttition = false;
 		m_bSBWAttition = false;
-		//m_bOnGround = false;
 	}
 
 	CMeteorusTrachynotus_OBL_SBW_Model::~CMeteorusTrachynotus_OBL_SBW_Model()
@@ -73,8 +70,8 @@ namespace WBSF
 		m_lethalTemp = parameters[c++].GetReal();
 		m_criticalDaylength = parameters[c++].GetReal();
 		m_preOvip = parameters[c++].GetReal();
-		m_bOBLAttition = parameters[c++].GetBool();;
-		m_bSBWAttition = parameters[c++].GetBool();;
+		m_bOBLAttition = parameters[c++].GetBool();
+		m_bSBWAttition = parameters[c++].GetBool();
 
 		return msg;
 	}
@@ -159,16 +156,15 @@ namespace WBSF
 			//Init host
 			pHostMeteorusTrachynotus->m_nbMinObjects = 100;
 			pHostMeteorusTrachynotus->m_nbMaxObjects = 1250;
-			pHostMeteorusTrachynotus->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, IMMATURE_PRE_E, FEMALE, true, 0));
+			pHostMeteorusTrachynotus->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, EGG, FEMALE, true, 0));
 			stand.m_host.push_front(pHostMeteorusTrachynotus);
 
 			//Init stand
-			//stand.m_bApplyAttrition = false;
 			stand.m_generationAttrition = m_generationAttrition;
 			stand.m_criticalDaylength = m_criticalDaylength;
 			stand.m_lethalTemp = m_lethalTemp;
 			stand.m_preOvip = m_preOvip;
-			stand.m_host.push_front(pHostMeteorusTrachynotus);
+			//stand.m_host.push_front(pHostMeteorusTrachynotus);
 
 
 			

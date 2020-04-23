@@ -72,9 +72,6 @@ namespace WBSF
 		if (m_sex == FEMALE && m_age >= ADULT && GetStageAge() >= GetStand()->m_preOvip)
 		{
 			//m_Nh is only update for female
-
-			//double nbAttackable = 0;
-
 			const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
 			for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 			{
@@ -107,8 +104,10 @@ namespace WBSF
 		CMeteorusTrachynotus::Live(weather);
 
 
-		if (!m_pAssociateHost.expired() && !m_diapauseTRef.IsInit() && GetGeneration()!=0 &&
-			( GetStage() == IMMATURE_PRE_E || GetStage() == IMMATURE_POST_E) )//unclear what ot do here??
+		if (!m_pAssociateHost.expired() && 
+			!m_diapauseTRef.IsInit() && 
+			GetGeneration()!=0 &&
+			( GetStage() == EGG) )//unclear what ot do here???
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			if (weather.GetTRef().GetJDay() > 173 && dayLength < GetStand()->m_criticalDaylength)
@@ -130,6 +129,9 @@ namespace WBSF
 		ASSERT(IsAlive() && m_sex == FEMALE);
 		ASSERT(m_totalBroods <= m_Pmax + 1);
 
+		CMeteorusTrachynotus::Brood(weather);
+
+
 		m_totalBroods += m_broods;
 
 		//Oviposition module after Régniere 1983
@@ -142,7 +144,7 @@ namespace WBSF
 
 			double attRate = pStand->m_generationAttrition;//1% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CMeteorusTrachynotus_OBL_SBW>(m_pHost, weather.GetTRef(), IMMATURE_PRE_E, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
+			CIndividualPtr object = make_shared<CMeteorusTrachynotus_OBL_SBW>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor, pAssociateHost);
 			m_pHost->push_front(object);
 
 			assert(object->get_property("HostType") == "0" || object->get_property("HostType") == "1");
@@ -159,7 +161,7 @@ namespace WBSF
 		if (!m_pAssociateHost.expired())
 		{
 			//if the associate host die, the parasite also die
-			if ((GetStage() == IMMATURE_PRE_E || GetStage() == IMMATURE_POST_E) &&//unclear here what to do???
+			if ((GetStage() == EGG || GetStage() == LARVA) &&
 				!m_pAssociateHost.lock()->IsAlive())
 			{
 				m_status = DEAD;

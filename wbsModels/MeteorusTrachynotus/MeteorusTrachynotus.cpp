@@ -30,10 +30,6 @@ namespace WBSF
 	CMeteorusTrachynotus::CMeteorusTrachynotus(CHost* pHost, CTRef creationDate, double age, WBSF::TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
-
-		//m_OBLPostDiapause = 0; //actual state of overwintering post diapause host
-		//m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
-
 		//host is actually unknowns, will be set later
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
@@ -82,84 +78,88 @@ namespace WBSF
 		assert(m_status == HEALTHY);
 		assert(m_totalBroods + m_broods < m_Pmax);
 		assert(m_broods == 0);//daily brood must be rest
-
-
+		assert(m_creationDate.GetJDay() == 0 || GetHost()->m_diapause_age >= 1);
+		
 		CIndividual::Live(weather);
-		double dayLength = weather.GetDayLength() / 3600.; //in hours
-		CTRef TRef = weather.GetTRef();
-		size_t JDay = TRef.GetJDay();
-		size_t nbSteps = GetTimeStep().NbSteps();
 
-		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
+		//wait the end of host diapause before begginning Meteorus development
+		if (GetHost()->m_diapause_age>=1)
 		{
-			size_t h = step * GetTimeStep();
-			size_t s = GetStage();
-			double T = weather[h][H_TAIR];
+			double dayLength = weather.GetDayLength() / 3600.; //in hours
+			CTRef TRef = weather.GetTRef();
+			size_t JDay = TRef.GetJDay();
+			size_t nbSteps = GetTimeStep().NbSteps();
 
-			//Relative development rate for time step
-
-			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
-
-			//if (s == ADULT) //Set maximum longevity to 100 days
-				//r = max(1.0 / (100.0*nbSteps), r);
-
-			//Adjust age
-			if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
-				m_age += r;
-
-
-			if (!m_adultDate.IsInit() && m_age >= ADULT)
-				m_adultDate = TRef;
-
-			//compute brooding
-			static const double pre_ovip_age = GetStand()->m_preOvip;
-
-
-			if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)
+			for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
 			{
-				ASSERT(m_age >= ADULT);
+				size_t h = step * GetTimeStep();
+				size_t s = GetStage();
+				double T = weather[h][H_TAIR];
 
-				double Emax = 4.97;
-				double wmax = 13.81 / nbSteps;
-				double dtOnd20 = Equations().GetRate(ADULT, T) / Equations().GetRate(ADULT, 20.);
-				double as = 0.047;
-				double th = 0.01;
+				//Relative development rate for time step
 
-				double w = Emax * as*m_Nh / (1 + as * th*m_Nh) * (1 - m_broods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
+				double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
 
-				//eggs laid with successful attack is, at most, host find
-				double broods = max(0.0, min(wmax, w));
-				m_broods += broods;
+				//if (s == ADULT) //Set maximum longevity to 100 days
+					//r = max(1.0 / (100.0*nbSteps), r);
 
-				ASSERT(m_totalBroods + m_broods < m_Pmax);
-			}
-		}//for all time steps
+				//Adjust age
+				if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
+					m_age += r;
 
 
-		//file.close();
-		m_age = min(m_age, (double)DEAD_ADULT);
+				if (!m_adultDate.IsInit() && m_age >= ADULT)
+					m_adultDate = TRef;
 
-	}
+				//compute brooding
+				static const double pre_ovip_age = GetStand()->m_preOvip;
 
 
-	void CMeteorusTrachynotus::Brood(const CWeatherDay& weather)
-	{
-		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax + 1);
+				if (s == ADULT && m_sex == FEMALE && GetStageAge() >= pre_ovip_age)
+				{
+					ASSERT(m_age >= ADULT);
 
-		m_totalBroods += m_broods;
+					double Emax = 4.97;
+					double wmax = 13.81 / nbSteps;
+					double dtOnd20 = Equations().GetRate(ADULT, T) / Equations().GetRate(ADULT, 20.);
+					double as = 0.047;
+					double th = 0.01;
 
-		//Oviposition module after Régniere 1983
-		if (m_bFertil && m_broods > 0)
-		{
-			ASSERT(m_age >= ADULT);
+					double w = Emax * as*m_Nh / (1 + as * th*m_Nh) * (1 - m_broods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
 
-			double attRate = GetStand()->m_generationAttrition;
-			double scaleFactor = m_broods * m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CMeteorusTrachynotus>(m_pHost, weather.GetTRef(), IMMATURE_PRE_E, FEMALE, true, m_generation + 1, scaleFactor);
-			m_pHost->push_front(object);
+					//eggs laid with successful attack is, at most, host find
+					double broods = max(0.0, min(wmax, w));
+					m_broods += broods;
+
+					ASSERT(m_totalBroods + m_broods < m_Pmax);
+				}
+			}//for all time steps
+
+
+			//file.close();
+			m_age = min(m_age, (double)DEAD_ADULT);
 		}
 	}
+
+
+	//void CMeteorusTrachynotus::Brood(const CWeatherDay& weather)
+	//{
+	//	ASSERT(IsAlive() && m_sex == FEMALE);
+	//	ASSERT(m_totalBroods <= m_Pmax + 1);
+
+	//	m_totalBroods += m_broods;
+
+	//	//Oviposition module after Régniere 1983
+	//	if (m_bFertil && m_broods > 0)
+	//	{
+	//		ASSERT(m_age >= ADULT);
+
+	//		double attRate = GetStand()->m_generationAttrition;
+	//		double scaleFactor = m_broods * m_scaleFactor*attRate;
+	//		CIndividualPtr object = make_shared<CMeteorusTrachynotus>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
+	//		m_pHost->push_front(object);
+	//	}
+	//}
 
 	// kills by attrition, old age and end of season
 	// Output:  Individual's state is updated to follow update
@@ -309,10 +309,34 @@ namespace WBSF
 
 	CMeteorusTrachynotusHost::CMeteorusTrachynotusHost(WBSF::CStand* pStand/*, size_t hostType*/) :WBSF::CHost(pStand)
 	{
-		//	m_hostType = hostType;
+		m_diapause_age = 0; //actual state of overwintering post diapause host
+		m_δ = OBL_Equations().Getδ(OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
 	}
 
+	void CMeteorusTrachynotusHost::Live(const CWeatherDay& weather)
+	{
+		if (m_diapause_age < 1)
+		{
+			CTRef TRef = weather.GetTRef();
+			size_t JDay = TRef.GetJDay();
+			size_t nbSteps = GetTimeStep().NbSteps();
 
+			for (size_t step = 0; step < nbSteps; step++)
+			{
+
+				size_t h = step * GetTimeStep();
+				double T = weather[h][H_TAIR];
+
+				//Relative development rate for time step
+				double r = OBL_Equations().GetRate(OBL_POST_DIAPAUSE, T) / nbSteps;
+				ASSERT(r >= 0);
+
+				m_diapause_age += r * m_δ;
+			}//for all time steps
+		}
+
+		CHost::Live(weather);
+	}
 
 	//std::string CMeteorusTrachynotusHost::get_property(const std::string& name)
 	//{
