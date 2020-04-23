@@ -207,7 +207,12 @@ namespace WBSF
 		std::string prop;
 		if (!m_pAssociateHost.expired())
 		{
-			if (name == "HostType")
+			if (name == "HostName")
+			{
+				if (!m_pAssociateHost.expired())
+					prop = typeid(*m_pAssociateHost.lock()).name();
+			}
+			else if (name == "HostType")
 			{
 				string test = typeid(*m_pAssociateHost.lock()).name();
 				if (test == typeid(CObliqueBandedLeafroller).name())

@@ -83,7 +83,7 @@ namespace WBSF
 		CIndividual::Live(weather);
 
 		//wait the end of host diapause before begginning Meteorus development
-		if (GetHost()->m_diapause_age>=1)
+		if (m_creationDate.GetJDay() > 0 || GetHost()->m_diapause_age>=1)
 		{
 			double dayLength = weather.GetDayLength() / 3600.; //in hours
 			CTRef TRef = weather.GetTRef();
