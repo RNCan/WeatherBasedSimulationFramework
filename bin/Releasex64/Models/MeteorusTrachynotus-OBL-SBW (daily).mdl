@@ -91,21 +91,13 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Egg_g0</Name>
-            <Title>Egg_g0</Title>
+            <Name>Immature_g0</Name>
+            <Title>Immature_g0</Title>
             <Units/>
             <Description>Not used</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
             <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Larva_g0</Name>
-            <Title>Larva_g0</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>Pupa_g0</Name>
@@ -114,7 +106,6 @@
             <Description>Not used</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
-            <Climatic>9223372036854775807</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Adult_g0</Name>
@@ -191,16 +182,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g1</Name>
-            <Title>Egg_g1</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Larva_g1</Name>
-            <Title>Larva_g1</Title>
+            <Name>Immature_g1</Name>
+            <Title>Immature_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -287,16 +270,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g2</Name>
-            <Title>Egg_g2</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Larva_g2</Name>
-            <Title>Larva_g2</Title>
+            <Name>Immature_g2</Name>
+            <Title>Immature_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -384,16 +359,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g3</Name>
-            <Title>Egg_g3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Larva_g3</Name>
-            <Title>Larva_g3</Title>
+            <Name>Immature_g3</Name>
+            <Title>Immature_g3</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -480,16 +447,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Egg_g4</Name>
-            <Title>Egg_g4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Larva_g4</Name>
-            <Title>Larva_g4</Title>
+            <Name>Immature_g4</Name>
+            <Title>Immature_g4</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
