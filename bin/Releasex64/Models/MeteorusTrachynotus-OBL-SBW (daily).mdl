@@ -91,8 +91,8 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>PreEmerge_g0</Name>
-            <Title>PreEmerge_g0</Title>
+            <Name>Egg_g0</Name>
+            <Title>Egg_g0</Title>
             <Units/>
             <Description>Not used</Description>
             <TimeMode>4 0</TimeMode>
@@ -100,8 +100,8 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
-            <Name>PostEmerge_g0</Name>
-            <Title>PostEmerge_g0</Title>
+            <Name>Larva_g0</Name>
+            <Title>Larva_g0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -191,16 +191,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PreEmerge_g1</Name>
-            <Title>PreEmerge_g1</Title>
+            <Name>Egg_g1</Name>
+            <Title>Egg_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PostEmerge_g1</Name>
-            <Title>PostEmerge_g1</Title>
+            <Name>Larva_g1</Name>
+            <Title>Larva_g1</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -287,16 +287,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PreEmerge_g2</Name>
-            <Title>PreEmerge_g2</Title>
+            <Name>Egg_g2</Name>
+            <Title>Egg_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PostEmerge_g2</Name>
-            <Title>PostEmerge_g2</Title>
+            <Name>Larva_g2</Name>
+            <Title>Larva_g2</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -384,16 +384,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PreEmerge_g3</Name>
-            <Title>PreEmerge_g3</Title>
+            <Name>Egg_g3</Name>
+            <Title>Egg_g3</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PostEmerge_g3</Name>
-            <Title>PostEmerge_g3</Title>
+            <Name>Larva_g3</Name>
+            <Title>Larva_g3</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -480,16 +480,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PreEmerge_g4</Name>
-            <Title>PreEmerge_g4</Title>
+            <Name>Egg_g4</Name>
+            <Title>Egg_g4</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PostEmerge_g4</Name>
-            <Title>PostEmerge_g4</Title>
+            <Name>Larva_g4</Name>
+            <Title>Larva_g4</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
