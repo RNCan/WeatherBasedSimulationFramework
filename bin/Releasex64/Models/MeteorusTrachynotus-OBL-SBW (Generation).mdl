@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Tranosema Biology</Title>
+    <Version>1.0</Version>
+    <ID>.MTrac</ID>
+    <EXE>MeteorusTrachynotus-OBL-SBW.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Development, fecondity and attrition of Actia interrupta</Description>
+    <WindowRect>0 0 266 229</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>GenerationAttrition</Name>
+            <Caption>Generation Attrition</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0.019</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>LethalTemperature</Name>
+            <Caption>Lethal temperature</Caption>
+            <Description>Temperature killing all non-diapause stages</Description>
+            <Type>2</Type>
+            <Rect>80 10 100 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-60</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CriticalDaylength</Name>
+            <Caption>Critical daylength</Caption>
+            <Description>Daylength for entry into diapause</Description>
+            <Type>2</Type>
+            <Rect>105 10 130 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>13.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>24</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PreOvipAge</Name>
+            <Caption>Preoviposition age (0..1)</Caption>
+            <Description>Preoviposition age (0..1)</Description>
+            <Type>2</Type>
+            <Rect>135 10 155 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0.2272</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>OBLAttrition</Name>
+            <Caption>OBL Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>160 10 180 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SBWAttrition</Name>
+            <Caption>SBW Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>185 10 205 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>4 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Year</Name>
+            <Title>Year</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Generation</Name>
+            <Title>Generation</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult</Name>
+            <Title>Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BroodsOBL</Name>
+            <Title>BroodsOBL</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BroodsSBW</Name>
+            <Title>BroodsSBW</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Diapause</Name>
+            <Title>Diapause</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Fecondity</Name>
+            <Title>Fecondity</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Growth_Rate</Name>
+            <Title>GrowthRate</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>HostDie</Name>
+            <Title>HostDie</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frozen</Name>
+            <Title>Frozen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
