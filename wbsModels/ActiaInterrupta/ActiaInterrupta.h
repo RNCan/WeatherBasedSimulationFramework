@@ -45,7 +45,7 @@ namespace WBSF
 		~CActiaInterrupta(void);
 
 		virtual void Live(const CWeatherDay& weather);
-		virtual void Brood(const CWeatherDay& weather);
+		//virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
 		virtual bool CanPack(const CIndividualPtr& in)const;
@@ -58,8 +58,8 @@ namespace WBSF
 		bool IsDeadByAttrition(size_t s, double T);
 
 		//member
-		double m_OBLPostDiapause; //actual state of overwintering post diapause host
-		double m_OBLPostDiapause_δ;//Individual's relative overwintering post diapause host
+		//double m_OBLPostDiapause; //actual state of overwintering post diapause host
+		//double m_OBLPostDiapause_δ;//Individual's relative overwintering post diapause host
 		ActiaInterruptaArray m_δ;		//Individual's relative development rates
 		ActiaInterruptaArray m_luck;	//survival between stage
 		bool	m_badluck;		//killed by attrition

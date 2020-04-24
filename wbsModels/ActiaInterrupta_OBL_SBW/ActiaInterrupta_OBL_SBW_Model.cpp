@@ -43,7 +43,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 7;
-		VERSION = "1.0.4 (2020)";
+		VERSION = "1.0.5 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_bHaveAttrition = false;
@@ -163,7 +163,7 @@ namespace WBSF
 			pHostActiaInterrupta->m_nbMinObjects = 100;
 			pHostActiaInterrupta->m_nbMaxObjects = 1250;
 			pHostActiaInterrupta->Initialize(CInitialPopulation(p.Begin(), 0, 500, 100, MAGGOT, FEMALE, true, 0));
-			stand.m_host.push_front(pHostActiaInterrupta);
+			//stand.m_host.push_front(pHostActiaInterrupta);
 
 			//Init stand
 			stand.m_bApplyAttrition = false;

@@ -31,8 +31,8 @@ namespace WBSF
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 
-		m_OBLPostDiapause = 0; //actual state of overwintering post diapause host
-		m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
+		//m_OBLPostDiapause = 0; //actual state of overwintering post diapause host
+		//m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
 
 		//host is actually unknowns, will be set later
 		for (size_t s = 0; s < NB_STAGES; s++)
@@ -59,8 +59,8 @@ namespace WBSF
 		{
 			CIndividual::operator=(in);
 
-			m_OBLPostDiapause = in.m_OBLPostDiapause;
-			m_OBLPostDiapause_δ = in.m_OBLPostDiapause_δ;
+			//m_OBLPostDiapause = in.m_OBLPostDiapause;
+			//m_OBLPostDiapause_δ = in.m_OBLPostDiapause_δ;
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
@@ -196,24 +196,24 @@ namespace WBSF
 	}
 
 
-	void CActiaInterrupta::Brood(const CWeatherDay& weather)
-	{
-		ASSERT(IsAlive() && m_sex == FEMALE);
-		ASSERT(m_totalBroods <= m_Pmax + 1);
+	//void CActiaInterrupta::Brood(const CWeatherDay& weather)
+	//{
+	//	ASSERT(IsAlive() && m_sex == FEMALE);
+	//	ASSERT(m_totalBroods <= m_Pmax + 1);
 
-		m_totalBroods += m_broods;
+	//	m_totalBroods += m_broods;
 
-		//Oviposition module after Régniere 1983
-		if (m_bFertil && m_broods > 0)
-		{
-			ASSERT(m_age >= ADULT);
+	//	//Oviposition module after Régniere 1983
+	//	if (m_bFertil && m_broods > 0)
+	//	{
+	//		ASSERT(m_age >= ADULT);
 
-			double attRate = GetStand()->m_generationAttrition;
-			double scaleFactor = m_broods * m_scaleFactor*attRate;
-			CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor);
-			m_pHost->push_front(object);
-		}
-	}
+	//		double attRate = GetStand()->m_generationAttrition;
+	//		double scaleFactor = m_broods * m_scaleFactor*attRate;
+	//		CIndividualPtr object = make_shared<CActiaInterrupta>(m_pHost, weather.GetTRef(), MAGGOT, FEMALE, true, m_generation + 1, scaleFactor);
+	//		m_pHost->push_front(object);
+	//	}
+	//}
 
 	// kills by attrition, old age and end of season
 	// Output:  Individual's state is updated to follow update
