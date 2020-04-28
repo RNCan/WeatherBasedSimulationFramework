@@ -95,8 +95,6 @@ namespace WBSF
 	const double  CMeteorusTrachynotusEquations::EQ_P[NB_STAGES][5]
 	{  //   p1       p2      p3      Tb      Tm
 		{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
-		//{0.09424, 5.074519, 0.1745, -3.7953, 48.70}, //Egg in OBL or SBW
-		//{0.14496, 2.898649, 0.0225,  6.9910, 47.59}, //Larva in OBL or SBW
 		{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
 		{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
 	};

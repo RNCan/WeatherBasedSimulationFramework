@@ -125,7 +125,7 @@ namespace WBSF
 					double as = 0.047;
 					double th = 0.01;
 
-					double w = Emax * as*m_Nh / (1 + as * th*m_Nh) * (1 - m_broods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
+					double w = Emax * as*m_Nh / (1 + as * th*m_Nh) * (1 - m_totalBroods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
 
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(wmax, w));
