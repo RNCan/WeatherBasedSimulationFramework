@@ -170,37 +170,48 @@ namespace WBSF
 		return profile;
 	}
 
-	std::string CQGISColorRamp::GetColor(size_t i, size_t nb_class)const
+	std::string CQGISColorRamp::GetColor(size_t i, size_t nb_class, size_t type)const
 	{
 		ASSERT(i < nb_class);
 		ASSERT(nb_class >= 2);
+		ASSERT(type< CCreateStyleOptions::NB_COLORRAMP_TYPE);
 		
 		
 		CCQGISColorProfile profile = GetColorProfile();
 
 		std::string color;
-		double f = double(i) / (nb_class - 1);
-		for (size_t ii = 0; ii < profile.size() - 1 && color.empty(); ii++)
+		if (type == CCreateStyleOptions::CR_DISCRETE)
 		{
-			CCQGISColorStop& a = profile [ii];
-			CCQGISColorStop& b = profile [ii + 1];
+			CCQGISColorStop& a = profile[min(i, profile.size()-1)];
 
-			if (f >= a.m_f&&f <= b.m_f)
+			char tmp[10] = { 0 };
+			snprintf(tmp, 10, "#%02x%02x%02x", a.m_RGBA[0], a.m_RGBA[1], a.m_RGBA[2]);
+			color = tmp;
+		}
+		else if (type == CCreateStyleOptions::CR_INTERPOLATED)
+		{
+			double f = double(i) / (nb_class - 1);
+			for (size_t ii = 0; ii < profile.size() - 1 && color.empty(); ii++)
 			{
-				double f2 = (f - a.m_f) / (b.m_f - a.m_f);
-				double f1 = 1.0 - f2;
-				ASSERT(f1 + f2 == 1);
+				CCQGISColorStop& a = profile[ii];
+				CCQGISColorStop& b = profile[ii + 1];
 
-				unsigned char R = unsigned char(f1*a.m_RGBA[0] + f2 * b.m_RGBA[0]);
-				unsigned char G = unsigned char(f1*a.m_RGBA[1] + f2 * b.m_RGBA[1]);
-				unsigned char B = unsigned char(f1*a.m_RGBA[2] + f2 * b.m_RGBA[2]);
+				if (f >= a.m_f&&f <= b.m_f)
+				{
+					double f2 = (f - a.m_f) / (b.m_f - a.m_f);
+					double f1 = 1.0 - f2;
+					ASSERT(f1 + f2 == 1);
 
-				char tmp[10] = { 0 };
-				snprintf(tmp, 10, "#%02x%02x%02x", R, G, B);
-				color = tmp;
+					unsigned char R = unsigned char(f1*a.m_RGBA[0] + f2 * b.m_RGBA[0]);
+					unsigned char G = unsigned char(f1*a.m_RGBA[1] + f2 * b.m_RGBA[1]);
+					unsigned char B = unsigned char(f1*a.m_RGBA[2] + f2 * b.m_RGBA[2]);
+
+					char tmp[10] = { 0 };
+					snprintf(tmp, 10, "#%02x%02x%02x", R, G, B);
+					color = tmp;
+				}
 			}
 		}
-
 		//#2b83ba
 		return color;
 	}
@@ -263,7 +274,7 @@ namespace WBSF
 			for (size_t i = 0; i < options.m_nb_classes; i++)
 			{
 				size_t ii = options.m_reverse_palette? options.m_nb_classes - i - 1 : i;
-				string color = GetColor(ii, options.m_nb_classes);
+				string color = GetColor(ii, options.m_nb_classes, options.m_color_ramp_type);
 				string value = (i < options.m_nb_classes - 1) ? ToString(options.m_min + (i + 1) * classes_size) : "inf";
 				string lable1 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + i*classes_size));
 				string lable2 = WBSF::FormatA(options.m_number_format.c_str(), float(options.m_min + (i + 1) * classes_size));

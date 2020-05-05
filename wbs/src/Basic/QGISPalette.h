@@ -104,7 +104,7 @@ namespace WBSF
 		CQGISColorRamp(const CQGISColorRamp& in) { operator=(in); }
 		CQGISColorRamp& operator =(const CQGISColorRamp& in);
 
-		std::string GetColor(size_t i, size_t nb_class)const;
+		std::string GetColor(size_t i, size_t nb_class, size_t type)const;
 		CCQGISColorProfile GetColorProfile()const;
 		ERMsg CreateStyleFile(const std::string& file_path, CCreateStyleOptions& options, CTM TM);
 
