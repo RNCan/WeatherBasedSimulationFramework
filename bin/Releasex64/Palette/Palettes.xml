@@ -56,4 +56,11 @@
 		<prop v="gradient" k="rampType"/>
 		<prop v="0.25;253,174,97,255:0.5;255,255,191,255:0.826307;171,221,164,255" k="stops"/>
 	</colorramp>
+	<colorramp name="BioForest" type="gradient">
+		<prop v="255,0,0,255" k="color1"/>
+		<prop v="132,0,168,255" k="color2"/>
+		<prop v="1" k="discrete"/>
+		<prop v="gradient" k="rampType"/>
+		<prop v="0.1;168,0,0,255:0.2;237,168,19,255:0.3;255,255,0,255:0.4;170,255,0,255:0.5;38,115,0,255:0.6;204,204,204,255:0.7;0,197,255,255:0.8;0,112,255,255:0.9;132,0,168,255" k="stops"/>
+	</colorramp>
 </palettes> 
