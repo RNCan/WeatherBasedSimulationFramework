@@ -77,10 +77,12 @@ int main(int argc, char **argv) {
 		*verbose_out << "Starting Ranger." << std::endl;
 		if (arg_handler.predict.empty())
 		{
+			
 			if (arg_handler.treetype == TREE_CLASSIFICATION && arg_handler.probability)
 				arg_handler.treetype = TREE_PROBABILITY;
 
 			forest = CreateForest(arg_handler.treetype);
+			
 
 			Data* training = forest->initCpp_grow(arg_handler.depvarname, arg_handler.memmode, arg_handler.file, arg_handler.mtry,
 				arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
@@ -90,12 +92,12 @@ int main(int argc, char **argv) {
 				arg_handler.alpha, arg_handler.minprop, arg_handler.holdout, arg_handler.randomsplits, arg_handler.virtual_cols);
 
 			
+			std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);
 			forest->run_grow(training);
 			if (arg_handler.write) {
-				std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);
 				forest->saveToFile(arg_handler.outprefix + "." + tree_type_str + ".forest");
 			}
-			forest->writeOutput(training, arg_handler.outprefix);
+			forest->writeOutput(training, arg_handler.outprefix + "." + tree_type_str);
 			*verbose_out << "Finished Ranger." << std::endl;
 
 			delete training;
@@ -109,14 +111,14 @@ int main(int argc, char **argv) {
 				verbose_out, arg_handler.seed, arg_handler.nthreads,
 				arg_handler.predict, arg_handler.predall, arg_handler.predictiontype);
 
-			if (verbose_out) {
+			if (verbose_out) { 
 				*verbose_out << "Predicting .." << std::endl;
 			}
 
 			
 			forest->run_predict(data);
 
-			std::string filename = arg_handler.outprefix + ".prediction";
+			std::string filename = arg_handler.outprefix /*+ ".prediction"*/;
 			forest->writePredictionFile(filename);
 
 			delete data;

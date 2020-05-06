@@ -324,9 +324,16 @@ ERMsg CRangerImage::Execute()
 	if( msg)
 	{
 		size_t iv = forest->getNumIndependentVariables() - forest->get_virtual_cols_name().size();
-		if (inputDS.GetRasterCount() != iv)
+		if (inputDS.GetRasterCount() == iv)
 		{
-			msg.ajoute("The number of raster bands (" + ToString(inputDS.GetRasterCount()) + ") in the input image is not equal to the number of the input variables (" + ToString(iv) + ") in the forest model. Virtual varialbes ("+ to_string(forest->get_virtual_cols_name().size()) +") are excluded");
+			//verify that band ane are identical to csv col name
+			//the variable name semm to not be available in the model
+			//m_options.m_cols_name;
+			//forest->>data().getVariableNames();
+		}
+		else
+		{
+			msg.ajoute("The number of raster bands (" + ToString(inputDS.GetRasterCount()) + ") in the input image is not equal to the number of the input variables (" + ToString(iv) + ") in the forest model. Virtual variables ("+ to_string(forest->get_virtual_cols_name().size()) +") are excluded");
 			return msg;
 		}
 
@@ -484,10 +491,10 @@ void CRangerImage::ProcessBlock(int xBlock, int yBlock, const CBandsHolder& band
 					if (validPixel.test(xy))
 					{
 						if (!output.empty())
-							output[0][xy] = (float)(forest->getPredictions().at(0).at(0).at(cur_xy));
+							output[0][xy] = (float)(forest->getPredictions(cur_xy));
 						
 						if (!uncertainty.empty())
-							uncertainty[xy] = (float)(forest->getUncertainty().at(cur_xy));
+							uncertainty[xy] = (float)(forest->getUncertainty(cur_xy));
 
 						cur_xy++;
 					}
