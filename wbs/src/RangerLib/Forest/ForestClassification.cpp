@@ -157,8 +157,10 @@ void ForestClassification::predictInternal(size_t sample_idx, const Data* data) 
 			uncertainty[sample_idx] = 100 - (((double)result[1] / result[0]) * 100);
 		}
 	}
-
 }
+
+double ForestClassification::getPredictions(size_t sample_idx, size_t time_point) const { return predictions[0][0][sample_idx]; }
+double ForestClassification::getUncertainty(size_t sample_idx) const { return uncertainty[sample_idx]; }
 
 void ForestClassification::computePredictionErrorInternal(Data* data) {
 

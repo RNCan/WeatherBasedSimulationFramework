@@ -145,13 +145,19 @@ public:
   double getOverallPredictionError() const {
     return overall_prediction_error;
   }
+  
   const std::vector<std::vector<std::vector<double>> >& getPredictions() const {
     return predictions;
   }
+  
   const std::vector<double>& getUncertainty() const {
 	  return uncertainty;
   }
   
+  virtual double getPredictions(size_t sample_idx, size_t time_point=-1) const = 0;
+  virtual double getProbability(size_t sample_idx, size_t the_class) const { return 0; }
+  virtual double getUncertainty(size_t sample_idx) const = 0;
+
   size_t getDependentVarId() const {
     return dependent_varID;
   }

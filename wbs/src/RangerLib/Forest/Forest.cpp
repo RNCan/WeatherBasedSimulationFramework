@@ -1165,6 +1165,7 @@ void Forest::setAlwaysSplitVariables(Data* training, std::vector<std::string>& a
 	}
 }
 
+
 #ifdef OLD_WIN_R_BUILD
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 

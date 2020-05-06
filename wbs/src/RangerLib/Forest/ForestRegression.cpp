@@ -137,6 +137,10 @@ void ForestRegression::predictInternal(size_t sample_idx, const Data* data) {
 	//}
 }
 
+double ForestRegression::getPredictions(size_t sample_idx, size_t time_point) const { return predictions[0][0][sample_idx]; }
+double ForestRegression::getUncertainty(size_t sample_idx) const {return uncertainty[sample_idx];}
+
+
 void ForestRegression::computePredictionErrorInternal(Data* data) {
 
 	// For each sample sum over trees where sample is OOB

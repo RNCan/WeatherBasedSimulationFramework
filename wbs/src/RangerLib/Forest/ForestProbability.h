@@ -74,10 +74,14 @@ protected:
 	virtual void saveToFileInternal(std::ofstream& outfile);
 	virtual void loadFromFileInternal(std::ifstream& infile);
 	
+	virtual double getPredictions(size_t sample_idx, size_t time_point=-1) const override;
+	virtual double getProbability(size_t sample_idx, size_t the_class) const override;
+	virtual double getUncertainty(size_t sample_idx) const override;
 
 	// Classes of the dependent variable and classIDs for responses
 	std::vector<double> class_values;
 	std::vector<uint> response_classIDs;
+	std::vector<double> classification;
 
 	// Table with classifications and true classes
 	std::map<std::pair<double, double>, size_t> classification_table;

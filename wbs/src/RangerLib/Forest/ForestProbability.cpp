@@ -114,6 +114,7 @@ void ForestProbability::allocatePredictMemory(const Data* data) {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(class_values.size(), 0)));
 	}
 
+	classification = std::vector<double>(std::vector<double>(num_prediction_samples));
 	uncertainty = std::vector<double>(std::vector<double>(num_prediction_samples));
 }
 
@@ -154,12 +155,34 @@ void ForestProbability::predictInternal(size_t sample_idx, const  Data* data) {
 
 	// Average over trees
 	if (!predict_all && prediction_type != TERMINALNODES) {
+		
+		uncertainty[sample_idx] = 0;
 		for (size_t class_idx = 0; class_idx < predictions[0][sample_idx].size(); ++class_idx) {
 			predictions[0][sample_idx][class_idx] /= num_trees;
+			if(predictions[0][sample_idx][class_idx] > uncertainty[sample_idx])
+			{
+				classification[sample_idx] = class_values[class_idx];
+				uncertainty[sample_idx] = predictions[0][sample_idx][class_idx];
+			}
 		}
 	}
 	//}
+}
 
+double ForestProbability::getPredictions(size_t sample_idx, size_t time_point) const
+{
+	return classification[sample_idx];
+}
+
+double ForestProbability::getProbability(size_t sample_idx, size_t the_class) const
+{
+	uint class_index = (uint)(find(class_values.begin(), class_values.end(), the_class) - class_values.begin());
+	return predictions[0][sample_idx][class_index];
+}
+
+double ForestProbability::getUncertainty(size_t sample_idx) const
+{
+	return uncertainty[sample_idx];
 }
 
 void ForestProbability::computePredictionErrorInternal(Data* data) {

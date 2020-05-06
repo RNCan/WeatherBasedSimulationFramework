@@ -77,6 +77,9 @@ private:
 	virtual void saveToFileInternal(std::ofstream& outfile);
 	virtual void loadFromFileInternal(std::ifstream& infile);
 	
+	virtual double getPredictions(size_t sample_idx, size_t time_point=-1) const override;
+	virtual double getUncertainty(size_t sample_idx) const override;
+
 
 	size_t status_varID;
 	std::string status_var_name;

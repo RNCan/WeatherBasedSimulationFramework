@@ -178,6 +178,8 @@ void ForestSurvival::predictInternal(size_t i, const Data* data) {
 	// }
 
 }
+double ForestSurvival::getPredictions(size_t sample_idx, size_t time_point) const { return predictions[0][sample_idx][0]; }
+double ForestSurvival::getUncertainty(size_t sample_idx) const { return uncertainty[sample_idx]; }
 
 void ForestSurvival::computePredictionErrorInternal(Data* data) {
 
