@@ -6,6 +6,7 @@
 //
 // Descrition: the CHemlockLooper represents one hemlock looper. 
 //*****************************************************************************
+// 30/04/2020	Remi Saint-Amant	Update with VS 2017
 // 25/02/2015	Remi Saint-Amant	Update with new BioSIMModelBase
 // 17/04/2014   Jacques Régnière    Creation from wsb model
 //*****************************************************************************
@@ -38,7 +39,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
-	CHemlockLooper::CHemlockLooper(CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CHemlockLooper::CHemlockLooper(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		m_adultAge = 0;
@@ -184,7 +185,7 @@ namespace WBSF
 				double scaleFactor = m_broods*m_scaleFactor;
 				ASSERT(scaleFactor > 0);
 
-				m_pHost->push_front(make_shared<CHemlockLooper>(m_pHost, weather.GetTRef(), EGGS, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor));
+				m_pHost->push_front(make_shared<CHemlockLooper>(m_pHost, weather.GetTRef(), EGGS, RANDOM_SEX, pStand->m_bFertilEgg, m_generation + 1, scaleFactor));
 			}
 		}
 	}

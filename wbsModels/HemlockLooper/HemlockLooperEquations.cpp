@@ -170,7 +170,7 @@ namespace WBSF
 			{ 0, 0, 0, 0, 0, 0, 0 },//no adjustement for male
 			{ 0, -0.008, -0.016, -0.018, -0.020, 0.005, 0 } //Adjust development rate of females
 		};
-		return (1 + Δρ[sex][s])*m_randomGenerator.RandLogNormal(0, σᵋ[s]);
+		return (1 + Δρ[sex][s])*m_randomGenerator.RandUnbiasedLogNormal(0, σᵋ[s]);
 	}
 
 	//T:	temperature [ºC]
@@ -188,7 +188,7 @@ namespace WBSF
 	//out:	pre-diapause relative development rate
 	double HemlockLooperEquations::GetPreDiapauseRelativeRate()const
 	{
-		return m_randomGenerator.RandLogNormal(0, 0.285);
+		return m_randomGenerator.RandUnbiasedLogNormal(0, 0.285);
 	}
 
 	//L:	latitude [º]

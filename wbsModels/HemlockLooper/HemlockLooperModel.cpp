@@ -506,8 +506,8 @@ namespace WBSF
 					statLH.Add(sim, obs);
 
 				}
-
-				double NLL = statLH[NEGATIVE_LOG_LIKELIHOOD];
+				assert(false); //todo
+				double NLL = 0;// statLH[NEGATIVE_LOG_LIKELIHOOD];
 				//Try to maximize MAE of log(LH)
 				if (NLL > -999 && !_isnan(NLL) && _finite(NLL))
 					stat.Add(NLL, 0);

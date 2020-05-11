@@ -37,7 +37,7 @@ namespace WBSF
 	{
 	public:
 
-		CHemlockLooper(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = HemlockLooper::EGGS, size_t sex = NOT_INIT, bool bFertil = false, size_t generation = 0, double scaleFactor = 1);
+		CHemlockLooper(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = HemlockLooper::EGGS, TSex sex = RANDOM_SEX, bool bFertil = false, size_t generation = 0, double scaleFactor = 1);
 		virtual ~CHemlockLooper(void){}
 
 		virtual void Live(const CWeatherDay& weather);
