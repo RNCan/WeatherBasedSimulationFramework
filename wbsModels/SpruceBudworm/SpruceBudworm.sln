@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1082
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Dispersal", "SpruceBudworm.vcxproj", "{2119DF6E-9E4E-496E-ABFD-BAEBEFAFCD06}"
 EndProject
@@ -9,6 +9,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Biology", "SpruceBudwormDispersal.vcxproj", "{BC9E743D-27F2-416A-92C5-B6FC109464C6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Laboratory", "SpruceBudworm Laboratory.vcxproj", "{826DF057-2D60-433D-BEBC-65A7006E032A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,8 +52,19 @@ Global
 		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|Win32.Build.0 = Release|Win32
 		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|x64.ActiveCfg = Release|x64
 		{BC9E743D-27F2-416A-92C5-B6FC109464C6}.Release|x64.Build.0 = Release|x64
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Debug|Win32.Build.0 = Debug|Win32
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Debug|x64.ActiveCfg = Debug|x64
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Debug|x64.Build.0 = Debug|x64
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Release|Win32.ActiveCfg = Release|Win32
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Release|Win32.Build.0 = Release|Win32
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Release|x64.ActiveCfg = Release|x64
+		{826DF057-2D60-433D-BEBC-65A7006E032A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AFF5E0A4-A28B-4FF6-A0C2-EDB42A7CB6CF}
 	EndGlobalSection
 EndGlobal
