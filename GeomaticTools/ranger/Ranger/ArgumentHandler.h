@@ -81,6 +81,7 @@ public:
 	std::vector<std::string> catvars;
 	std::string file;
 	std::string virtual_cols;
+	std::string ignore_cols;
 	ImportanceMode impmeasure;
 	uint targetpartitionsize;
 	uint mtry;

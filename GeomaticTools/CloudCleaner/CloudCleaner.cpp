@@ -1292,7 +1292,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 			if (suspectPixel.count() > 0)
 			{
 				DataShort input;
-				input.set_virtual_cols(forests[m]->get_virtual_cols_txt(), forests[m]->get_virtual_cols_name());
+				//input.set_virtual_cols(forests[m]->get_virtual_cols_txt(), forests[m]->get_virtual_cols_name());
 				input.resize(suspectPixel.count(), vars);
 
 				size_t cur_xy = 0;
@@ -1345,7 +1345,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 					}//x
 				}//y
 
-				input.update_virtual_cols();
+				input.update_virtual_cols(forests[m]->get_virtual_cols_txt(), forests[m]->get_virtual_cols_name());
 #pragma omp critical(ProcessBlock)
 				{
 					forests[m]->run_predict(&input);

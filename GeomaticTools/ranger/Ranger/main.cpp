@@ -32,8 +32,14 @@
 #include <string>
 
 #include "ArgumentHandler.h"
+#include "version.h"
 #include "RangerLib/globals.h"
 #include "RangerLib/RangerLib.h"
+
+
+//--ntree 100 --file "G:\Travaux\Ranger\training_folds.csv" -o "G:\Travaux\Ranger\folds" --write --depvarname folds --impmeasure 1 --treetype 1 --probability --memmode 0 --seed 415 --verbose --virtual "G:\Travaux\Ranger\VirtualBands.txt" --ignore "MAT,slope,TWI,B1,B3,B7"
+//--predict "G:\Travaux\Ranger\folds.probability.forest" --file "G:\Travaux\Ranger\test_folds.csv" -o "G:\Travaux\Ranger\test_probability.txt"
+
 
 
 //--file "D:\Travaux\Ranger\Training\exemple_train_remi.csv" -o "D:\Travaux\Ranger\Training\exemple_train_remi" --write --depvarname pcover_L --impmeasure 1 --treetype 3 --memmode 2 --seed 1 --verbose 
@@ -74,7 +80,7 @@ int main(int argc, char **argv) {
 
 		
 		// Call Ranger
-		*verbose_out << "Starting Ranger." << std::endl;
+		*verbose_out << "Starting Ranger version " << RANGER_VERSION << std::endl;
 		if (arg_handler.predict.empty())
 		{
 			
@@ -89,7 +95,7 @@ int main(int argc, char **argv) {
 				arg_handler.impmeasure, arg_handler.targetpartitionsize, arg_handler.splitweights,
 				arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace, arg_handler.catvars,
 				arg_handler.savemem, arg_handler.splitrule, arg_handler.caseweights, arg_handler.fraction,
-				arg_handler.alpha, arg_handler.minprop, arg_handler.holdout, arg_handler.randomsplits, arg_handler.virtual_cols);
+				arg_handler.alpha, arg_handler.minprop, arg_handler.holdout, arg_handler.randomsplits, arg_handler.virtual_cols, arg_handler.ignore_cols);
 
 			
 			std::string tree_type_str = GetTreeTypeStr(arg_handler.treetype);

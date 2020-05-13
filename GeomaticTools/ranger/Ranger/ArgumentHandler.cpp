@@ -40,7 +40,7 @@ DEFAULT_PREDICTIONTYPE), randomsplits(DEFAULT_NUM_RANDOM_SPLITS), splitweights("
 DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
 DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
 DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION),
-seed(0), virtual_cols("") {
+seed(0), virtual_cols(""), ignore_cols("") {
 	this->argc = argc;
 	this->argv = argv;
 }
@@ -51,7 +51,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
 	// short options
-	char const *short_options = "A:C:D:F:HM:NP:Q:R:S:U:XZa:b:c:e:f:hi:l::m:o:pr:s:t:uvwy:z:";
+	char const *short_options = "A:C:D:F:HM:NP:Q:R:S:U:XZa:b:c:de:f:hi:l::m:o:pr:s:t:uvwy:z:";
 
 	// long options: longname, no/optional/required argument?, flag(not used!), shortname
 	const struct option long_options[] = {
@@ -74,6 +74,7 @@ int ArgumentHandler::processArguments() {
 		{ "alpha", required_argument, 0, 'a' },
 		{ "minprop", required_argument, 0, 'b' },
 		{ "catvars", required_argument, 0, 'c' },
+		{ "ignore", required_argument, 0, 'd' },
 	    { "virtual", required_argument, 0, 'e' },
 		{ "file", required_argument, 0, 'f' },
 		{ "help", no_argument, 0, 'h' },
@@ -256,6 +257,10 @@ int ArgumentHandler::processArguments() {
 
 		case 'c':
 			splitString(catvars, optarg, ',');
+			break;
+
+		case 'd':
+			ignore_cols = optarg;
 			break;
 
 		case 'e':
@@ -594,6 +599,8 @@ void ArgumentHandler::displayHelp() {
 	std::cout << "    " << "                              MODE = 3: char." << std::endl;
 	std::cout << "    " << "                              (Default: 0)" << std::endl;
 	std::cout << "    " << "--savemem                     Use memory saving (but slower) splitting mode." << std::endl;
+	std::cout << "    " << "--ignore COLS_NAME            Comma separated input columns name to ignore." << std::endl;
+	std::cout << "    " << "--virtual FILE                Filename of virtual variables. Format:  VAR_NAME := formulas. Formulas is mathematic equation supporte by exprtk." << std::endl;
 	std::cout << std::endl;
 
 	std::cout << "See README file for details and examples." << std::endl;
