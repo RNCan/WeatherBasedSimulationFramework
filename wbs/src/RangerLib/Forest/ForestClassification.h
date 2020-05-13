@@ -40,9 +40,7 @@
 class ForestClassification : public Forest {
 public:
 	ForestClassification();
-	//ForestClassification(const ForestClassification& in);
 	virtual ~ForestClassification();
-	//Forest* clone()const{ return new ForestClassification(*this);  }
 
 	void loadForest(size_t dependent_varID, size_t num_trees,
 		std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
@@ -56,10 +54,12 @@ public:
 	void writePredictionFile(std::string filename);
 
 protected:
-	virtual void initInternal(Data* data, std::string status_variable_name);
+	virtual void init_internal_grow(Data* training)override;
+	virtual void init_internal_predict(const Data* data)override;
+
 	virtual void growInternal(Data* data);
 	virtual void predictInternal(size_t sample_idx, const Data* data);
-	virtual void allocatePredictMemory(const Data* data);
+	
 	virtual void computePredictionErrorInternal(Data* data);
 	virtual void writeOutputInternal();
 	virtual void writeConfusionFile(std::string filename);

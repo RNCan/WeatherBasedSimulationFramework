@@ -63,6 +63,7 @@ class Forest {
 public:
 
 	static Data* Forest::CreateMemory(MemoryMode memory_mode);
+	static const size_t FOREST_FILE_VERSION;
 
   Forest();
   virtual ~Forest();
@@ -75,7 +76,7 @@ public:
       std::string status_variable_name, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
       std::string case_weights_file, double sample_fraction, double alpha, double minprop,
-      bool holdout, uint num_random_splits, std::string file_virtual_cols);
+      bool holdout, uint num_random_splits, std::string file_virtual_cols, std::string ignore_cols);
   //void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
   //    std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
   //    std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
@@ -94,7 +95,8 @@ public:
 	  std::string load_forest_filename, bool predict_all, PredictionType prediction_type);
   void init_predict(uint seed, uint num_threads, bool predict_all, PredictionType prediction_type);
 
-  virtual void initInternal(Data* data, std::string status_variable_name) = 0;
+  virtual void init_internal_grow(Data* training) = 0;
+  virtual void init_internal_predict(const Data* data) = 0;
   //virtual void initInternalData(Data* data, std::string status_variable_name) = 0;
   
   //void init_data(Data* data, std::string dependent_variable_name, std::string status_variable_name, std::vector<std::string>& unordered_variable_names);
@@ -190,7 +192,18 @@ public:
   std::string get_virtual_cols_txt()const { return virtual_cols_txt; }
   const std::vector<std::string>& get_virtual_cols_name()const { return virtual_cols_name; }
 
+  const std::string& get_dependent_variable_name()const { return  dependent_variable_name; }
+  const std::string& get_status_var_name()const { return  status_var_name; }
+  
+
+  const std::vector<std::string>& get_independent_variable_names()const { return  independent_variable_names; }
+  const std::vector<std::string>& get_ignore_cols()const { return ignore_cols; }
+
+
   void clear() { predictions.clear(); predictions.shrink_to_fit(); }
+
+  const std::vector<std::string>& getinitial_input_cols_name()const { return initial_input_cols_name; }
+
 protected:
 	
 	void grow(Data* data);
@@ -200,7 +213,8 @@ protected:
 	virtual void growInternal(Data* training) = 0;
   // Predict using existing tree from file and data as prediction data
 	virtual void predictInternal(size_t sample_idx, const Data* data) = 0;
-	virtual void allocatePredictMemory(const Data* data)=0;
+	//virtual void allocatePredictMemory(const Data* data)=0;
+	
 	virtual void computePredictionError(Data* data);
 	virtual void computePredictionErrorInternal(Data* data) = 0;
 
@@ -233,11 +247,21 @@ protected:
   size_t num_trees;
   uint mtry;
   uint min_node_size;
+
+  std::vector<std::string> initial_input_cols_name;
   //size_t num_variables;
   size_t num_independent_variables;
+  std::vector<std::string> independent_variable_names;
+  std::vector<std::string> ignore_cols;
+
   //size_t status_varID;//for survival
   uint seed;
   size_t dependent_varID;
+  std::string dependent_variable_name;
+  
+  size_t status_varID;
+  std::string status_var_name;
+
   //size_t num_samples;
   bool prediction_mode;
  // MemoryMode memory_mode;

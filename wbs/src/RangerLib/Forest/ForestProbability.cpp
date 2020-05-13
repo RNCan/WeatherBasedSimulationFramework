@@ -27,6 +27,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <stdexcept>
+#include <string>
 
 #include "RangerLib/utility/utility.h"
 #include "RangerLib/Forest/ForestProbability.h"
@@ -61,7 +62,7 @@ void ForestProbability::loadForest(size_t dependent_varID, size_t num_trees,
 	equalSplit(thread_ranges, 0, uint(num_trees - 1), num_threads);
 }
 
-void ForestProbability::initInternal(Data* data, std::string status_variable_name) {
+void ForestProbability::init_internal_grow(Data* data) {
 
 	// If mtry not set, use floored square root of number of independent variables.
 	if (mtry == 0) {
@@ -102,7 +103,7 @@ void ForestProbability::growInternal(Data* data) {
 	}
 }
 
-void ForestProbability::allocatePredictMemory(const Data* data) {
+void ForestProbability::init_internal_predict(const Data* data) {
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all) {
 		predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
@@ -119,18 +120,6 @@ void ForestProbability::allocatePredictMemory(const Data* data) {
 }
 
 void ForestProbability::predictInternal(size_t sample_idx, const  Data* data) {
-
-	//size_t num_prediction_samples = data->getNumRows();
-	//if (predict_all) {
-	//  predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(class_values.size(), std::vector<double>(num_trees, 0)));
-	//} else if (prediction_type == TERMINALNODES) {
-	//  predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees, 0)));
-	//} else {
-	//  predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(class_values.size(), 0)));
-	//}
-
-	// For all samples average proportions of trees
-	//  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
 	// For each sample compute proportions in each tree
 	for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
@@ -228,7 +217,14 @@ void ForestProbability::computePredictionErrorInternal(Data* data) {
 // #nocov start
 void ForestProbability::writeOutputInternal() {
 	if (verbose_out)
-		*verbose_out << "Tree type:                         " << "Probability estimation" << std::endl;
+	{
+		std::string str;
+		for (const auto &piece : class_values)
+			str += std::to_string(int(piece)) + " ";
+
+		*verbose_out << "Classes:                           " << str << std::endl;
+	}
+		//*verbose_out << "Tree type:                         " << "Probability estimation" << std::endl;
 }
 
 void ForestProbability::writeConfusionFile(std::string filename) {
@@ -312,7 +308,7 @@ void ForestProbability::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	num_independent_variables = num_variables_saved - 1; //add by RSA
+	//num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));
@@ -346,15 +342,12 @@ void ForestProbability::loadFromFileInternal(std::ifstream& infile) {
 			terminal_class_counts[terminal_nodes[j]] = terminal_class_counts_vector[j];
 		}
 
-		// If dependent variable not in test data, change variable IDs accordingly
-		//always assume that input file don't have dependent variable
-		// if (num_variables_saved > num_variables) {
+		// If dependent variable in test data, change variable IDs accordingly
 		for (auto& varID : split_varIDs) {
 			if (varID >= dependent_varID) {
 				--varID;
 			}
 		}
-		//}
 
 		// Create tree
 		Tree* tree = new TreeProbability(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs,

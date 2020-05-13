@@ -37,7 +37,7 @@
 #include "RangerLib/utility/Data.h"
 
 ForestSurvival::ForestSurvival() :
-	status_varID(-1), response_timepointIDs(0) {
+	response_timepointIDs(0) {
 }
 
 ForestSurvival::~ForestSurvival() {
@@ -69,15 +69,23 @@ void ForestSurvival::loadForest(size_t dependent_varID, size_t num_trees,
 	equalSplit(thread_ranges, 0, (uint)(num_trees - 1), num_threads);
 }
 
-void ForestSurvival::initInternal(Data* data, std::string status_variable_name) {
+void ForestSurvival::init_internal_grow(Data* data) {
 
-	status_var_name = status_variable_name;
+	//status_var_name = status_variable_name;
 	// Convert status variable name to ID
-	if (!prediction_mode && !status_variable_name.empty()) {
-		status_varID = data->getVariableID(status_variable_name);
+	if (!prediction_mode && !status_var_name.empty()) {
+		status_varID = data->getVariableID(status_var_name);
+		if (status_varID >= data->getNumCols())
+		{
+			throw std::runtime_error("Status variable " + status_var_name + " not found.");
+		}
+		
+		independent_variable_names.erase(independent_variable_names.begin()+ status_varID);
 	}
 
 	data->addNoSplitVariable(status_varID);
+	
+
 
 	// If mtry not set, use floored square root of number of independent variables.
 	if (mtry == 0) {
@@ -124,9 +132,12 @@ void ForestSurvival::growInternal(Data* data) {
 	}
 }
 
-void ForestSurvival::allocatePredictMemory(const Data* data) {
+void ForestSurvival::init_internal_predict(const Data* data) {
 	size_t num_prediction_samples = data->getNumRows();
 	size_t num_timepoints = unique_timepoints.size();
+	if (!status_var_name.empty())
+		status_varID = data->getVariableID(status_var_name);
+
 	if (predict_all) {
 		predictions = std::vector<std::vector<std::vector<double>>>(num_prediction_samples, std::vector<std::vector<double>>(num_timepoints, std::vector<double>(num_trees, 0)));
 	}
@@ -225,7 +236,7 @@ void ForestSurvival::computePredictionErrorInternal(Data* data) {
 void ForestSurvival::writeOutputInternal() {
 	if (verbose_out)
 	{
-		*verbose_out << "Tree type:                         " << "Survival" << std::endl;
+		//*verbose_out << "Tree type:                         " << "Survival" << std::endl;
 		*verbose_out << "Status variable name:              " << status_var_name << std::endl;
 		*verbose_out << "Status variable ID:                " << status_varID << std::endl;
 	}
@@ -317,7 +328,7 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	num_independent_variables = num_variables_saved - 1; //add by RSA
+	//num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));
@@ -327,8 +338,8 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 
 	// Read status_varID
 	infile.read((char*)&status_varID, sizeof(status_varID));
-	if (status_varID < num_independent_variables)
-		num_independent_variables = num_independent_variables - 1; //add by RSA
+	//if (status_varID < num_independent_variables)
+		//num_independent_variables = num_independent_variables - 1; //add by RSA
 
 	// Read unique timepoints
 	unique_timepoints.clear();
@@ -360,15 +371,13 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 			chf[terminal_nodes[j]] = chf_vector[j];
 		}
 
-		// If dependent variable not in test data, change variable IDs accordingly
-		//always assume that input file don't have dependent variable
-		//if (num_variables_saved > num_variables) {
+		// If dependent variable in test data, change variable IDs accordingly
 		for (auto& varID : split_varIDs) {
 			if (varID >= dependent_varID) {
 				--varID;
 			}
 		}
-		//}
+
 		//if (num_variables_saved > num_variables + 1) {
 		for (auto& varID : split_varIDs) {
 			if (varID >= status_varID) {

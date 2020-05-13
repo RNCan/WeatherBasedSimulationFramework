@@ -44,18 +44,18 @@ public:
 
 	void resize(size_t nb_row, std::vector<std::string> names)
 	{
-		num_cols = names.size() + m_virtual_cols_name.size();
+		num_cols = names.size()/* + m_virtual_cols_name.size()*/;
 		num_rows = nb_row;
 		num_cols_no_snp = num_cols;
 		variable_names = names;
-		variable_names.insert(variable_names.end(), m_virtual_cols_name.begin(), m_virtual_cols_name.end());
+		//variable_names.insert(variable_names.end(), m_virtual_cols_name.begin(), m_virtual_cols_name.end());
 
 		reserveMemory();
 	}
 
 	void resize(size_t nb_row, size_t nb_col)
 	{
-		num_cols = nb_col + m_virtual_cols_name.size();
+		num_cols = nb_col/* + m_virtual_cols_name.size()*/;
 		num_rows = nb_row;
 		num_cols_no_snp = num_cols;
 		reserveMemory();
@@ -64,9 +64,10 @@ public:
 	virtual double get(size_t row, size_t col) const;
 	virtual double get_data(size_t row, size_t col) const = 0;
 
-	size_t getVariableID(std::string variable_name);
+	size_t getVariableID(std::string variable_name)const;
 
 	virtual void reserveMemory() = 0;
+	virtual void reshape(const std::vector<std::string>& names) = 0;
 	virtual void set(size_t col, size_t row, double value, bool& error) = 0;
 	virtual MemoryMode memory_mode()const = 0;
 
@@ -180,6 +181,10 @@ public:
 		is_ordered_variable.resize(getNumCols(), true);
 		for (auto& variable_name : unordered_variable_names) {
 			size_t varID = getVariableID(variable_name);
+			if (varID >= getNumCols())
+			{
+				throw std::runtime_error("Unordered variable " + variable_name + " not found.");
+			}
 			is_ordered_variable[varID] = false;
 		}
 	}
@@ -219,13 +224,17 @@ public:
 		return varID;
 	}
 
-	void set_virtual_cols(const std::string& virtual_cols, const std::vector<std::string>& cols_name) {
-		m_virtual_cols_txt = virtual_cols;
-		m_virtual_cols_name = cols_name;
-	}
+	//void set_virtual_cols(const std::string& virtual_cols, const std::vector<std::string>& cols_name) {
+	//	m_virtual_cols_txt = virtual_cols;
+	//	m_virtual_cols_name = cols_name;
+	//}
 
-	bool update_virtual_cols();
+	bool update_virtual_cols(const std::string& virtual_cols, const std::vector<std::string>& cols_name);
 	static bool load_expression_file(const std::string& file_name, std::string& virtual_cols_txt, std::vector<std::string>& virtual_cols_name);
+
+
+	const std::vector<std::string>& get_initial_input_cols_name()const {return initial_input_cols_name; 	}
+
 
 protected:
 
@@ -233,9 +242,10 @@ protected:
 	size_t num_rows;
 	size_t num_rows_rounded;
 	size_t num_cols;
+	std::vector<std::string> initial_input_cols_name;
 
-	std::string m_virtual_cols_txt;
-	std::vector<std::string> m_virtual_cols_name;
+	//std::string m_virtual_cols_txt;
+	//std::vector<std::string> m_virtual_cols_name;
 
 
 	unsigned char* snp_data;

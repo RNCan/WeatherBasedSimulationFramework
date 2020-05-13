@@ -67,7 +67,7 @@ void ForestClassification::loadForest(size_t dependent_varID, size_t num_trees,
 	equalSplit(thread_ranges, 0, uint(num_trees - 1), num_threads);
 }
 
-void ForestClassification::initInternal(Data* data, std::string status_variable_name) {
+void ForestClassification::init_internal_grow(Data* data) {
 
 	// If mtry not set, use floored square root of number of independent variables.
 	if (mtry == 0) {
@@ -108,7 +108,7 @@ void ForestClassification::growInternal(Data* data) {
 	}
 }
 
-void ForestClassification::allocatePredictMemory(const Data* data) {
+void ForestClassification::init_internal_predict(const Data* data) {
 	size_t num_prediction_samples = data->getNumRows();
 	if (predict_all || prediction_type == TERMINALNODES) {
 		predictions = std::vector<std::vector<std::vector<double>>>(1, std::vector<std::vector<double>>(num_prediction_samples, std::vector<double>(num_trees)));
@@ -211,7 +211,14 @@ void ForestClassification::computePredictionErrorInternal(Data* data) {
 // #nocov start
 void ForestClassification::writeOutputInternal() {
 	if (verbose_out)
-		*verbose_out << "Tree type:                         " << "Classification" << std::endl;
+	{
+		//*verbose_out << "Tree type:                         " << "Classification" << std::endl;
+		std::string str;
+		for (const auto &piece : class_values) 
+			str += std::to_string(int(piece)) + " ";
+
+		*verbose_out << "Classes:                           " << str << std::endl;
+	}
 }
 
 void ForestClassification::writeConfusionFile(std::string filename) {
@@ -318,7 +325,7 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
 	// Read number of variables
 	size_t num_variables_saved;
 	infile.read((char*)&num_variables_saved, sizeof(num_variables_saved));
-	num_independent_variables = num_variables_saved - 1; //add by RSA
+	//num_independent_variables = num_variables_saved - 1; //add by RSA
 	// Read treetype
 	TreeType treetype;
 	infile.read((char*)&treetype, sizeof(treetype));
@@ -339,16 +346,13 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
 		std::vector<double> split_values;
 		readVector1D(split_values, infile);
 
-		// If dependent variable not in test data, change variable IDs accordingly
-
-		//always assume that input file don't have dependent variable
-		//if (num_variables_saved > num_variables) {
+		// If dependent variable in test data, change variable IDs accordingly
 		for (auto& varID : split_varIDs) {
 			if (varID >= dependent_varID) {
 				--varID;
 			}
 		}
-		//}
+		
 
 		// Create tree
 		Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs);

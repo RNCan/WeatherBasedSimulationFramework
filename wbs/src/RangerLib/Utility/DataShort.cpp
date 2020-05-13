@@ -72,4 +72,31 @@ DataShort::~DataShort() {
 	}
 }
 
+void DataShort::reshape(const std::vector<std::string>& names)
+{
+	assert(data != nullptr);
+
+	//cols to remove
+	short* p_new = new short[names.size() * num_rows];
+
+	size_t i = 0;
+	for (auto name : names)
+	{
+		auto it = find(variable_names.begin(), variable_names.end(), name);
+		if (it != variable_names.end())
+		{
+			size_t col = std::distance(variable_names.begin(), it);
+			memcpy(&(p_new[i * num_rows]), &(data[col * num_rows]), num_rows * sizeof(short));
+		}
+		i++;
+	}
+
+	delete[] data;
+	data = p_new;
+
+	num_cols = names.size();
+	num_cols_no_snp = num_cols;
+	variable_names = names;
+}
+
 // #nocov end

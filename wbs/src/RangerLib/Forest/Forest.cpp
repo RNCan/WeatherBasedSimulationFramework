@@ -31,7 +31,8 @@
 #include <stdexcept>
 #include <string>
 #include <ctime>
-#include <math.h>
+#include <assert.h>
+ //#include <math.h>
 #ifndef OLD_WIN_R_BUILD
 #include <thread>
 #include <chrono>
@@ -44,13 +45,16 @@
 #include "RangerLib/Utility/DataFloat.h"
 #include "RangerLib/Utility/DataDouble.h"
 
+const size_t Forest::FOREST_FILE_VERSION = 1;
+
+
 Forest::Forest() :
-verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), /*num_variables(0),*/ num_independent_variables(
-0), seed(0), dependent_varID(0), /*num_samples(0),*/ prediction_mode(false), sample_with_replacement(
-true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), keep_inbag(false), sample_fraction(
-1), holdout(false), prediction_type(DEFAULT_PREDICTIONTYPE), num_random_splits(DEFAULT_NUM_RANDOM_SPLITS), alpha(
-DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), num_threads(DEFAULT_NUM_THREADS), /*data(0),*/ overall_prediction_error(
-0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(0) {
+	verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), /*num_variables(0),*/ num_independent_variables(
+		0), seed(0), dependent_varID(0), /*num_samples(0),*/ prediction_mode(false), sample_with_replacement(
+			true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), keep_inbag(false), sample_fraction(
+				1), holdout(false), prediction_type(DEFAULT_PREDICTIONTYPE), num_random_splits(DEFAULT_NUM_RANDOM_SPLITS), alpha(
+					DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), num_threads(DEFAULT_NUM_THREADS), /*data(0),*/ overall_prediction_error(
+						0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(0), status_varID(-1) {
 }
 
 Forest::~Forest() {
@@ -59,51 +63,96 @@ Forest::~Forest() {
 	}
 }
 
+
+
+
+
 // #nocov start
-Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memory_mode,std::string input_file, uint mtry,
+Data* Forest::initCpp_grow(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
 	uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
 	/*std::string load_forest_filename,*/ ImportanceMode importance_mode, uint min_node_size,
 	std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
 	std::string status_variable_name, bool sample_with_replacement, std::vector<std::string>& unordered_variable_names,
 	bool memory_saving_splitting, SplitRule splitrule, std::string case_weights_file,
-	double sample_fraction, double alpha, double minprop, bool holdout, uint num_random_splits, std::string file_virtual_cols ) {
+	double sample_fraction, double alpha, double minprop, bool holdout, uint num_random_splits,
+	std::string file_virtual_cols, std::string ignore_cols_str) {
 
+	this->dependent_variable_name = dependent_variable_name;
 	this->verbose_out = verbose_out;
-	
 
+	//allocate space
 	Data* training = CreateMemory(memory_mode);
 
-	//set virtual columns
+	// Load data
+	if (verbose_out)
+		*verbose_out << "Loading input file: " << input_file << "." << std::endl;
+
+	bool rounding_error = training->loadFromFile(input_file);
+	if (rounding_error) {
+		if (verbose_out)
+			*verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this." << std::endl;
+	}
+	
+	initial_input_cols_name = training->get_initial_input_cols_name();
+
+	//add virtual cols
 	if (!file_virtual_cols.empty())
 	{
 		if (verbose_out)
 			*verbose_out << "Loading virtual columns : " << file_virtual_cols << "." << std::endl;
 
 		if (Data::load_expression_file(file_virtual_cols, virtual_cols_txt, virtual_cols_name) == 0)
-			std::cout << "Failed to load virtual columns from: " << file_virtual_cols << std::endl;
+			throw std::runtime_error("Failed to load virtual columns from: " + file_virtual_cols);
 
 		if (!virtual_cols_name.empty())
 		{
-			training->set_virtual_cols(virtual_cols_txt, virtual_cols_name);
-			//throw std::runtime_error("Invalid virtual columns equation");
+			bool rounding_error = training->update_virtual_cols(virtual_cols_txt, virtual_cols_name);
+			if (rounding_error) {
+				if (verbose_out)
+					*verbose_out << "Warning: Rounding or Integer overflow occurred on virtual variables. Use FLOAT or DOUBLE precision to avoid this." << std::endl;
+			}
+
 		}
 	}
 
-	// Load data
-	if (verbose_out)
-		*verbose_out << "Loading input file: " << input_file << "." << std::endl;
 	
-	bool rounding_error = training->loadFromFile(input_file);
-	if (rounding_error) {
-		if (verbose_out)
-			*verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this." << std::endl;
-	}
 
+	
+
+	//remove ignore columns
+	if (!ignore_cols_str.empty())
+	{
+		std::vector<std::string> cols_name = training->getVariableNames();
+
+		assert(!cols_name.empty());
+		ignore_cols = tokenize_string(ignore_cols_str.c_str(), ',');
+
+		//verify that name exists
+		for (auto& col_name : ignore_cols)
+		{
+			if (col_name == dependent_variable_name)
+				throw std::runtime_error("Dependant variable can't be ignore: " + col_name);
+
+			auto it = find(cols_name.begin(), cols_name.end(), col_name);
+			if (it == cols_name.end())
+				throw std::runtime_error("Invalid column to ignore: " + col_name);
+
+			cols_name.erase(it);
+		}
+
+		training->reshape(cols_name);
+	}
 
 	init_grow(dependent_variable_name, training, mtry, num_trees, seed, num_threads, importance_mode,
 		min_node_size, status_variable_name, sample_with_replacement, unordered_variable_names,
 		memory_saving_splitting, splitrule, sample_fraction, alpha, minprop, holdout, num_random_splits);
 
+	
+	assert(dependent_varID < training->getVariableNames().size() );
+	independent_variable_names = training->getVariableNames();
+	independent_variable_names.erase(independent_variable_names.begin() + dependent_varID);
+
+	assert(independent_variable_names.size() == num_independent_variables);
 
 	// Set variables to be always considered for splitting
 	if (!always_split_variable_names.empty()) {
@@ -161,25 +210,109 @@ Data* Forest::initCpp_predict(MemoryMode memory_mode, std::string input_file,
 
 	init_predict(seed, num_threads, predict_all, prediction_type);
 
-	// Call other init function
-	loadFromFile(load_forest_filename);
-
+	
 	Data* data = CreateMemory(memory_mode);
 
-	//set virtual columns
-	if (!virtual_cols_name.empty())
-	{
-		data->set_virtual_cols(virtual_cols_txt, virtual_cols_name);
-	}
 
 	// Load data
 	if (verbose_out)
 		*verbose_out << "Loading input file: " << input_file << "." << std::endl;
+
+	// Load tree after the data to remove dependant variable if present
+	loadFromFile(load_forest_filename);
+	
+
 	bool rounding_error = data->loadFromFile(input_file);
 	if (rounding_error) {
 		if (verbose_out)
 			*verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this." << std::endl;
 	}
+
+	//remove dependant and status columns
+	/*if (data->getVariableID(dependent_variable_name) != -1 ||
+		data->getVariableID(status_var_name) != -1)
+	{
+		std::vector<std::string> cols_name = data->getVariableNames();
+		
+		auto it = std::find(cols_name.begin(), cols_name.end(), dependent_variable_name);
+		if(it!= cols_name.end())
+			cols_name.erase(it) ;
+
+		it = std::find(cols_name.begin(), cols_name.end(), status_var_name);
+		if (it != cols_name.end())
+			cols_name.erase(it);
+
+	}
+*/
+
+
+
+	if (!virtual_cols_name.empty())
+	{
+		data->update_virtual_cols(virtual_cols_txt, virtual_cols_name);
+	}
+
+
+	//independent_variable_names = data->getVariableNames();
+	std::vector<std::string> cols_name = data->getVariableNames();
+
+	if (data->getVariableID(dependent_variable_name) != -1)
+		ignore_cols.push_back(dependent_variable_name);
+	if (data->getVariableID(status_var_name) != -1)
+		ignore_cols.push_back(status_var_name);
+
+	//remove ignore columns
+	if (!ignore_cols.empty())
+	{
+		//verify tha name exists
+		for (auto& col_name : ignore_cols)
+		{
+			auto it = find(cols_name.begin(), cols_name.end(), col_name);
+			if (it == cols_name.end())
+			{
+				throw std::runtime_error("Invalid independant variable column selection: " + col_name);
+			}
+			cols_name.erase(it);
+		}
+
+		data->reshape(cols_name);
+	}
+
+
+	//verify data
+	//data->verify_data(independent_variable_names);
+	for (size_t i=0, ii = 0;  i < independent_variable_names.size(); i++)
+	{
+		std::string col_name = independent_variable_names[i];
+			
+		if (ii >= cols_name.size() || col_name != cols_name[ii])
+		{
+			if (col_name == dependent_variable_name ||
+				col_name == status_var_name)
+			{
+				ii--;//skip this cols, not in predic data
+			}
+			else
+			{
+				if (find(cols_name.begin(), cols_name.end(), col_name) == cols_name.end())
+					throw std::runtime_error("Missing independant column: " + col_name);
+				else
+					throw std::runtime_error("Bad independant column order at: " + col_name);
+			}
+		}
+
+		ii++;
+		
+	}
+
+	//	throw std::runtime_error("Invalid prediction input: " + col_name);
+
+
+	assert(cols_name.size() - independent_variable_names.size() <= 2);//one for predited and status
+
+
+	
+
 
 	return data;
 }
@@ -247,63 +380,14 @@ void Forest::init_predict(uint seed, uint num_threads, bool predict_all, Predict
 	}
 
 	// Set member variables
-	//this->num_trees = num_trees;
-	//this->mtry = mtry;
 	this->seed = seed;
-	//this->output_prefix = output_prefix;
-	//this->importance_mode = importance_mode;
-	//this->min_node_size = min_node_size;
-	//this->memory_mode = memory_mode;
 	this->prediction_mode = true;
-	//this->sample_with_replacement = sample_with_replacement;
-	//this->memory_saving_splitting = memory_saving_splitting;
-	//this->splitrule = splitrule;
 	this->predict_all = predict_all;
-	//this->sample_fraction = sample_fraction;
-	//this->holdout = holdout;
-	//this->alpha = alpha;
-	//this->minprop = minprop;
 	this->prediction_type = prediction_type;
-	//this->num_random_splits = num_random_splits;
 
-	// Set number of samples and variables
-	//num_samples = data->getNumRows();
-	//num_variables = data->getNumCols();
-
-	// Convert dependent variable name to ID
-	//if (!prediction_mode && !dependent_variable_name.empty()) {
-	//dependent_varID = data->getVariableID(dependent_variable_name);
-	//}
-
-	// Set unordered factor variables
-	//if (!prediction_mode) {
-	//data->setIsOrderedVariable(unordered_variable_names);
-	//}
-
-	//data->addNoSplitVariable(dependent_varID);
-
-	//initInternal(/*status_variable_name*/);
-
-	//num_independent_variables = num_variables - data->getNoSplitVariables().size();
 
 	// Init split select weights
 	split_select_weights.push_back(std::vector<double>());
-
-	// Check if mtry is in valid range
-	//if (this->mtry > num_variables - 1) {
-	//	throw std::runtime_error("mtry can not be larger than number of variables in data.");
-	//}
-
-	// Check if any observations samples
-	//if ((size_t)num_samples * sample_fraction < 1) {
-	//	throw std::runtime_error("sample_fraction too small, no observations sampled.");
-	//}
-
-	// Permute samples for corrected Gini importance
-	//if (importance_mode == IMP_GINI_CORRECTED) {
-	//	data->permuteSampleIDs(random_number_generator);
-	//}
-
 }
 
 void Forest::init_grow(std::string dependent_variable_name, Data* training, uint mtry,
@@ -313,7 +397,7 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	/*bool predict_all,*/ double sample_fraction, double alpha, double minprop, bool holdout,
 	/*PredictionType prediction_type,*/ uint num_random_splits)
 {
-	
+
 
 	// Initialize data with memmode
 	//this->training = training;
@@ -356,19 +440,25 @@ void Forest::init_grow(std::string dependent_variable_name, Data* training, uint
 	this->minprop = minprop;
 	this->prediction_type = prediction_type;
 	this->num_random_splits = num_random_splits;
+	this->status_var_name = status_variable_name;
 
 	// Convert dependent variable name to ID
 	if (!dependent_variable_name.empty()) {
 		dependent_varID = training->getVariableID(dependent_variable_name);
+		if (dependent_varID >= training->getNumCols())
+		{
+			throw std::runtime_error("Dependant variable " + dependent_variable_name + " not found.");
+		}
 	}
 
 	// Set unordered factor variables
 	training->setIsOrderedVariable(unordered_variable_names);
 	this->training_is_ordered_variable = training->getIsOrderedVariable();
-	
+
 	training->addNoSplitVariable(dependent_varID);
 
-	initInternal(training, status_variable_name);
+	
+	init_internal_grow(training);
 
 	num_independent_variables = training->getNumCols() - training->getNoSplitVariables().size();
 
@@ -454,6 +544,11 @@ void Forest::run_predict(Data* data) {
 	}
 
 	data->setIsOrderedVariable(training_is_ordered_variable);
+	dependent_varID = data->getVariableID(dependent_variable_name);
+
+
+
+
 	//Check if mtry is in valid range
 	//if (this->mtry > data->getNumCols() - 1) {
 	//throw std::runtime_error("mtry can not be larger than number of variables in data.");
@@ -470,7 +565,7 @@ void Forest::run_predict(Data* data) {
 	}
 
 	//allocate memory
-	allocatePredictMemory(data);
+	init_internal_predict(data);
 
 	if (num_threads == -1)
 		predict_no_thread(data);
@@ -483,14 +578,16 @@ void Forest::writeOutput(Data* training, std::string output_prefix) {
 	if (verbose_out)
 	{
 		*verbose_out << std::endl;
+		*verbose_out << "Tree type:                         " << std::string(typeid(*this).name()).substr(6) << std::endl;
 		writeOutputInternal();
-		*verbose_out << "Dependent variable name:           " << training->getVariableNames()[dependent_varID] << std::endl;
-		*verbose_out << "Dependent variable ID:             " << dependent_varID + 1 << std::endl;
+		*verbose_out << "Dependent variable name:           " << dependent_variable_name << std::endl;
+		*verbose_out << "Dependent column:                  " << dependent_varID + 1 << std::endl;
 		*verbose_out << "Number of trees:                   " << num_trees << std::endl;
 		*verbose_out << "Sample size:                       " << training->getNumRows() << std::endl;
-		*verbose_out << "Number of input variables:         " << num_independent_variables - virtual_cols_name.size() << std::endl;
-		*verbose_out << "Number of virtual variables:       " << virtual_cols_name.size() << std::endl;
-		*verbose_out << "Number of independent variables:   " << num_independent_variables << std::endl;
+		*verbose_out << "Number of input columns:           " << training->get_initial_input_cols_name().size() << std::endl;
+		*verbose_out << "Number of virtual columns:         " << virtual_cols_name.size() << std::endl;
+		*verbose_out << "Number of ignore columns:          " << ignore_cols.size() << " (" << (ignore_cols.empty() ? "none" : to_string(ignore_cols)) << ")" << std::endl;
+		*verbose_out << "Number of independent variables:   " << independent_variable_names.size() << std::endl;
 		*verbose_out << "Mtry:                              " << mtry << std::endl;
 		*verbose_out << "Target node size:                  " << min_node_size << std::endl;
 		*verbose_out << "Variable importance mode:          " << importance_mode << std::endl;
@@ -560,35 +657,33 @@ void Forest::saveToFile(std::string filename) {
 	}
 
 	// Write dependent_varID
+	outfile.write((char*)&FOREST_FILE_VERSION, sizeof(FOREST_FILE_VERSION));
+	saveVector1D(initial_input_cols_name, outfile);
+
 	outfile.write((char*)&dependent_varID, sizeof(dependent_varID));
+	saveString(dependent_variable_name, outfile);
+	saveString(status_var_name, outfile);
+	
+	outfile.write((char*)&num_independent_variables, sizeof(num_independent_variables));
+	saveVector1D(independent_variable_names, outfile);
+
+	// Write is_ordered_variable
+	saveString(virtual_cols_txt, outfile);
+	saveVector1D(virtual_cols_name, outfile);
+
+	saveVector1D(ignore_cols, outfile);
+	saveVector1D(training_is_ordered_variable, outfile);
+
 
 	// Write num_trees
 	outfile.write((char*)&num_trees, sizeof(num_trees));
-
-	// Write is_ordered_variable
-	saveVector1D(training_is_ordered_variable, outfile);
-
-	size_t size = virtual_cols_txt.length();
-	outfile.write((char*)&size, sizeof(size));
-	outfile.write(virtual_cols_txt.c_str(), size);
-
-	//Write virtual columns 
-	size = virtual_cols_name.size();
-	outfile.write((char*)&size, sizeof(size));
-	for (size_t i = 0; i < virtual_cols_name.size(); i++)
-	{
-		size = virtual_cols_name[i].length();
-		outfile.write((char*)&size, sizeof(size));
-		outfile.write(virtual_cols_name[i].c_str(), size);
-	}
-
 	saveToFileInternal(outfile);
 
 	// Write tree data for each tree
 	for (auto& tree : trees) {
 		tree->appendToFile(outfile);
 	}
-	
+
 	// Close file
 	outfile.close();
 	if (verbose_out)
@@ -779,26 +874,26 @@ void Forest::predict(Data* data)
 }
 
 void Forest::predictInternalInThread(const std::pair<uint, uint>& range, const Data* data) {
-	
+
 	for (size_t i = range.first; i < range.second; ++i) {
 		predictInternal(i, data);
 
-			// Check for user interrupt
+		// Check for user interrupt
 #ifdef R_BUILD
-			if (aborted) {
-				std::unique_lock<std::mutex> lock(mutex);
-				++aborted_threads;
-				condition_variable.notify_one();
-				return;
-			}
+		if (aborted) {
+			std::unique_lock<std::mutex> lock(mutex);
+			++aborted_threads;
+			condition_variable.notify_one();
+			return;
+		}
 #endif
 
-			// Increase progress by 1 tree
-			std::unique_lock<std::mutex> lock(mutex);
-			++progress;
-			condition_variable.notify_one();
-		}
-	
+		// Increase progress by 1 tree
+		std::unique_lock<std::mutex> lock(mutex);
+		++progress;
+		condition_variable.notify_one();
+	}
+
 }
 //void Forest::predictInternalInThread(uint thread_idx) {
 //	// Create thread ranges
@@ -850,7 +945,7 @@ void Forest::computePredictionError(Data* data) {
 		trees[i]->predict(data, true);
 		progress++;
 		showProgress("Predicting..", start_time, lap_time);
-}
+	}
 #else
 	std::vector<std::thread> threads;
 	threads.reserve(num_threads);
@@ -893,7 +988,7 @@ void Forest::computePermutationImportance() {
 		trees[i]->computePermutationImportance(&variable_importance, &variance);
 		progress++;
 		showProgress("Computing permutation importance..", start_time, lap_time);
-}
+	}
 #else
 	progress = 0;
 #ifdef R_BUILD
@@ -916,7 +1011,7 @@ void Forest::computePermutationImportance() {
 		}
 		threads.push_back(
 			std::thread(&Forest::computeTreePermutationImportanceInThread, this, i, &(variable_importance_threads[i]),
-			&(variance_threads[i])));
+				&(variance_threads[i])));
 	}
 	showProgress("Computing permutation importance..", num_trees);
 	for (auto &thread : threads) {
@@ -961,7 +1056,7 @@ void Forest::computePermutationImportance() {
 			}
 		}
 	}
-	}
+}
 
 #ifndef OLD_WIN_R_BUILD
 void Forest::growTreesInThread(uint thread_idx, std::vector<double>* variable_importance) {
@@ -976,15 +1071,15 @@ void Forest::growTreesInThread(uint thread_idx, std::vector<double>* variable_im
 				++aborted_threads;
 				condition_variable.notify_one();
 				return;
-		}
+			}
 #endif
 
 			// Increase progress by 1 tree
 			std::unique_lock<std::mutex> lock(mutex);
 			++progress;
 			condition_variable.notify_one();
+		}
 	}
-}
 }
 
 void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction) {
@@ -999,15 +1094,15 @@ void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, 
 				++aborted_threads;
 				condition_variable.notify_one();
 				return;
-		}
+			}
 #endif
 
 			// Increase progress by 1 tree
 			std::unique_lock<std::mutex> lock(mutex);
 			++progress;
 			condition_variable.notify_one();
+		}
 	}
-}
 }
 
 void Forest::computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance,
@@ -1023,15 +1118,15 @@ void Forest::computeTreePermutationImportanceInThread(uint thread_idx, std::vect
 				++aborted_threads;
 				condition_variable.notify_one();
 				return;
-		}
+			}
 #endif
 
 			// Increase progress by 1 tree
 			std::unique_lock<std::mutex> lock(mutex);
 			++progress;
 			condition_variable.notify_one();
+		}
 	}
-}
 }
 #endif
 
@@ -1047,28 +1142,35 @@ void Forest::loadFromFile(std::string filename) {
 		throw std::runtime_error("Could not read from input file: " + filename + ".");
 	}
 
-	// Read dependent_varID and num_trees
-	infile.read((char*)&dependent_varID, sizeof(dependent_varID));
-	infile.read((char*)&num_trees, sizeof(num_trees));
-
-	// Read is_ordered_variable
-	readVector1D(training_is_ordered_variable, infile);
-
-	//Write virtual columns 
-	size_t size;
-	infile.read((char*)&size, sizeof(size));
-	virtual_cols_txt.resize(size);
-	infile.read((char*)(&virtual_cols_txt[0]), size);
-
-	infile.read((char*)&size, sizeof(size));
-	virtual_cols_name.resize(size);
-	for (size_t i = 0; i < virtual_cols_name.size(); i++)
-	{
-		infile.read((char*)&size, sizeof(size));
-		virtual_cols_name[i].resize(size);
-		infile.read((char*)(&virtual_cols_name[i][0]), size);
+	//read version
+	size_t version = 0;
+	infile.read((char*)&version, sizeof(version));
+	if (version != FOREST_FILE_VERSION) {
+		throw std::runtime_error("Forest was not create with the same version: " + filename + ".");
 	}
 
+	//read input columns
+	readVector1D(initial_input_cols_name, infile);
+
+	// Read dependent and status vars 
+	infile.read((char*)&dependent_varID, sizeof(dependent_varID));
+	readString(dependent_variable_name, infile);
+	readString(status_var_name, infile);
+
+	//read independant
+	infile.read((char*)&num_independent_variables, sizeof(num_independent_variables));
+	readVector1D(independent_variable_names, infile);
+
+	//Read virtual columns 
+	readString(virtual_cols_txt, infile);
+	readVector1D(virtual_cols_name, infile);
+
+	//read ignore and ordered
+	readVector1D(ignore_cols, infile);
+	readVector1D(training_is_ordered_variable, infile);
+
+	// Read num_trees
+	infile.read((char*)&num_trees, sizeof(num_trees));
 	// Read tree data. This is different for tree types -> virtual function
 	loadFromFileInternal(infile);
 
@@ -1077,7 +1179,7 @@ void Forest::loadFromFile(std::string filename) {
 	// Create thread ranges
 	equalSplit(thread_ranges, 0, uint(num_trees - 1), num_threads);
 
-
+	assert(!dependent_variable_name.empty());
 }
 // #nocov end
 
@@ -1156,6 +1258,10 @@ void Forest::setAlwaysSplitVariables(Data* training, std::vector<std::string>& a
 
 	for (auto& variable_name : always_split_variable_names) {
 		size_t varID = training->getVariableID(variable_name);
+		if (varID >= training->getNumCols())
+		{
+			throw std::runtime_error("Split variable " + variable_name + " not found.");
+		}
 		deterministic_varIDs.push_back(varID);
 	}
 
@@ -1176,7 +1282,7 @@ void Forest::showProgress(std::string operation, clock_t start_time, clock_t& la
 
 	double elapsed_time = (clock() - lap_time) / CLOCKS_PER_SEC;
 	if (elapsed_time > STATUS_INTERVAL) {
-		double relative_progress = (double) progress / (double) num_trees;
+		double relative_progress = (double)progress / (double)num_trees;
 		double time_from_start = (clock() - start_time) / CLOCKS_PER_SEC;
 		uint remaining_time = (1 / relative_progress - 1) * time_from_start;
 		if (verbose_out)
@@ -1206,7 +1312,7 @@ void Forest::showProgress(std::string operation, size_t maxProgress) {
 		}
 		if (aborted && aborted_threads >= num_threads) {
 			return;
-	}
+		}
 #endif
 
 		if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
@@ -1217,6 +1323,6 @@ void Forest::showProgress(std::string operation, size_t maxProgress) {
 				*verbose_out << operation << " Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: " << beautifyTime(remaining_time) << "." << std::endl;
 			last_time = steady_clock::now();
 		}
-}
+	}
 }
 #endif

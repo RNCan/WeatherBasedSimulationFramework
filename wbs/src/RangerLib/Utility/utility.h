@@ -73,6 +73,28 @@ inline void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
   file.write((char*) vector.data(), length * sizeof(T));
 }
 
+inline void saveString(std::string& str, std::ofstream& file) {
+	// Save length
+	size_t length = str.length();
+	file.write((char*)&length, sizeof(length));
+
+	// Save string
+	file.write((char*)&(str[0]), length);
+}
+
+
+inline void saveVector1D(std::vector<std::string>& str_vector, std::ofstream& file) {
+	// Save length
+	size_t length = str_vector.size();
+	file.write((char*)&length, sizeof(length));
+
+	// Save vector
+	for (size_t i = 0; i < str_vector.size(); ++i) {
+		saveString(str_vector[i], file);
+	}
+}
+
+
 template<>
 inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
   // Save length
@@ -84,6 +106,54 @@ inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
     bool v = vector[i];
     file.write((char*) &v, sizeof(v));
   }
+}
+
+inline std::vector<std::string> tokenize_string(const char *str, char sep = ',')
+{
+	std::vector<std::string> result;
+
+	do
+	{
+		const char *begin = str;
+
+		while (*str != sep && *str)
+			str++;
+
+		result.push_back(std::string(begin, str));
+	} while (0 != *str++);
+
+	return result;
+}
+
+
+template<typename T>
+inline std::string to_string(std::vector<T>& vec, char sep = ',')
+{
+	std::string s;
+	for (const auto &piece : vec) s += std::to_string(piece) + sep;
+	return s;
+}
+
+inline std::string to_string(std::vector<std::string>& vec, char sep=',')
+{
+	std::string s;
+	for (const auto &piece : vec) s+=(s.empty()?"":&sep),  s += piece;
+	return s;
+}
+
+
+inline std::vector<std::string>::const_iterator find_no_case(const std::vector<std::string>& vec, const std::string& toSearch)
+{
+	return std::find_if(vec.begin(), vec.end(),
+		[&](auto &s) {
+		if (s.size() != toSearch.size())
+			return false;
+		for (size_t i = 0; i < s.size(); ++i)
+			if (::tolower(s[i]) != ::tolower(toSearch[i]))
+				return false;
+		return true;
+	}
+	);
 }
 
 /**
@@ -99,6 +169,23 @@ inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
   result.resize(length);
   file.read((char*) result.data(), length * sizeof(T));
 }
+
+inline void readString(std::string& str, std::ifstream& file) {
+	size_t size=0;
+	file.read((char*)&size, sizeof(size));
+	str.resize(size);
+	file.read((char*)(&str[0]), size);
+}
+
+inline void readVector1D(std::vector<std::string>& result, std::ifstream& file) {
+	// Read length
+	size_t size = 0;
+	file.read((char*)&size, sizeof(size));
+	result.resize(size);
+	for (size_t i = 0; i < result.size(); i++)
+		readString(result[i], file);
+}
+
 
 template<>
 inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {

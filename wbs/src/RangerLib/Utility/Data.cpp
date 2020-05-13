@@ -25,7 +25,7 @@
 
  http://www.imbs-luebeck.de
  #-------------------------------------------------------------------------------*/
-
+#include <assert.h>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -77,11 +77,15 @@ Data::~Data() {
 	}
 }
 
-size_t Data::getVariableID(std::string variable_name) {
-	std::vector<std::string>::iterator it = std::find(variable_names.begin(), variable_names.end(), variable_name);
-	if (it == variable_names.end()) {
-		throw std::runtime_error("Variable " + variable_name + " not found.");
-	}
+size_t Data::getVariableID(std::string variable_name)const {
+	std::vector<std::string>::const_iterator it = std::find(variable_names.begin(), variable_names.end(), variable_name);
+	if (it == variable_names.end())
+		return size_t(-1);
+
+	//if (it == variable_names.end()) {
+	//	throw std::runtime_error("Variable " + variable_name + " not found.");
+	//}
+
 	return (std::distance(variable_names.begin(), it));
 }
 
@@ -94,7 +98,7 @@ void Data::addSnpData(unsigned char* snp_data, size_t num_cols_snp) {
 // #nocov start
 bool Data::loadFromFile(std::string filename) {
 
-	bool result;
+	bool rounding_error=false;
 
 	// Open input file
 	std::ifstream input_file;
@@ -119,21 +123,25 @@ bool Data::loadFromFile(std::string filename) {
 
 	// Find out if comma, semicolon or whitespace seperated and call appropriate method
 	if (header_line.find(",") != std::string::npos) {
-		result = loadFromFileOther(input_file, header_line, ',');
+		rounding_error = loadFromFileOther(input_file, header_line, ',');
 	}
 	else if (header_line.find(";") != std::string::npos) {
-		result = loadFromFileOther(input_file, header_line, ';');
+		rounding_error = loadFromFileOther(input_file, header_line, ';');
 	}
 	else {
-		result = loadFromFileWhitespace(input_file, header_line);
+		rounding_error = loadFromFileWhitespace(input_file, header_line);
 	}
 
 	externalData = false;
+	initial_input_cols_name = variable_names;//kept the number of initial column for output
+
 	input_file.close();
-	return result;
+	return rounding_error;
 }
 
 bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_line) {
+
+	bool rounding_error = false;
 
 	// Read header
 	std::string header_token;
@@ -145,15 +153,16 @@ bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_
 	size_t data_cols = variable_names.size();
 
 	//add virtual columns
-	for (size_t i = 0; i < m_virtual_cols_name.size(); i++)
-		variable_names.push_back(m_virtual_cols_name[i]);
+	//for (size_t i = 0; i < m_virtual_cols_name.size(); i++)
+		//variable_names.push_back(m_virtual_cols_name[i]);
 
 	num_cols = variable_names.size();
 	num_cols_no_snp = num_cols;
-	
+
+
 	// Read body
 	reserveMemory();
-	bool error = false;
+	
 	std::string line;
 	size_t row = 0;
 	while (getline(input_file, line)) {
@@ -161,7 +170,7 @@ bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_
 		std::stringstream line_stream(line);
 		size_t column = 0;
 		while (line_stream >> token) {
-			set(column, row, token, error);
+			set(column, row, token, rounding_error);
 			++column;
 		}
 		if (column > data_cols) {
@@ -174,13 +183,17 @@ bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_
 	}
 	num_rows = row;
 
-	if (!update_virtual_cols())
-		throw std::runtime_error("Invalid virtual columns equation");
+	//if (!update_virtual_cols())
+		//throw std::runtime_error("Invalid virtual columns equation");
 
-	return error;
+
+
+	return rounding_error;
 }
 
 bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator) {
+
+	bool rounding_error = false;
 
 	// Read header
 	std::string header_token;
@@ -191,15 +204,15 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
 	size_t data_cols = variable_names.size();
 
 	//add virtual columns
-	for (size_t i = 0; i < m_virtual_cols_name.size(); i++)
-		variable_names.push_back(m_virtual_cols_name[i]);
+	//for (size_t i = 0; i < m_virtual_cols_name.size(); i++)
+		//variable_names.push_back(m_virtual_cols_name[i]);
 
 	num_cols = variable_names.size();
 	num_cols_no_snp = num_cols;
 
 	// Read body
 	reserveMemory();
-	bool error = false;
+	
 	std::string line;
 	size_t row = 0;
 	while (getline(input_file, line)) {
@@ -210,7 +223,7 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
 		while (getline(line_stream, token_string, seperator)) {
 			std::stringstream token_stream(token_string);
 			token_stream >> token;
-			set(column, row, token, error);
+			set(column, row, token, rounding_error);
 			++column;
 		}
 		++row;
@@ -218,10 +231,10 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
 	num_rows = row;
 
 
-	if( !update_virtual_cols() )
-		throw std::runtime_error("Invalid virtual columns equation");
+	//if( !update_virtual_cols() )
+		//throw std::runtime_error("Invalid virtual columns equation");
 
-	return error;
+	return rounding_error;
 }
 // #nocov end
 
@@ -305,7 +318,7 @@ bool Data::load_expression_file(const std::string& file_name, std::string& txt, 
 		buffer.erase(std::find_if(buffer.rbegin(), buffer.rend(), [](int ch) {
 			return !std::isspace(ch);
 		}).base(), buffer.end());
-		
+
 		if (buffer.empty())
 			continue;
 		else if ('#' == buffer[0])
@@ -316,11 +329,11 @@ bool Data::load_expression_file(const std::string& file_name, std::string& txt, 
 		if (pos_col1 != std::string::npos)
 		{
 			buffer.replace(pos_col1, 4, "");
-			
+
 			std::string::size_type pos_col2 = buffer.find_first_of(" \t:=", pos_col1);
 			if (pos_col2 != std::string::npos)
 			{
-				cols_name.push_back(buffer.substr(pos_col1, pos_col2- pos_col1));
+				cols_name.push_back(buffer.substr(pos_col1, pos_col2 - pos_col1));
 			}
 		}
 
@@ -333,36 +346,38 @@ bool Data::load_expression_file(const std::string& file_name, std::string& txt, 
 
 
 
-bool Data::update_virtual_cols()
+bool Data::update_virtual_cols(const std::string& virtual_cols_txt, const std::vector<std::string>& virtual_cols_name)
 {
+	assert(!virtual_cols_txt.empty());
+
+	bool data_thruncked = false;
+
+	std::vector<std::string> names = variable_names;
+
+	//reshape data
+	names.insert(names.end(), virtual_cols_name.begin(), virtual_cols_name.end());
+	reshape(names);
+
 	//assert(num_cols == num_cols_no_snp);
-	if (!m_virtual_cols_txt.empty())
+
+	symbol_table_t symbol_table;
+	symbol_table.add_constants();
+
+	//add all column as variable
+	std::vector<double> m_vars(num_cols);
+	for (std::size_t c = 0; c < variable_names.size(); ++c)
+		symbol_table.add_variable(variable_names[c], m_vars[c]);
+
+	parser_t parser;
+	parser.dec().collect_variables() = true;
+	parser.dec().collect_functions() = true;
+
+	expression_t expression;
+	expression.register_symbol_table(symbol_table);
+
+	if (parser.compile(virtual_cols_txt, expression))
 	{
-		symbol_table_t symbol_table;
-		symbol_table.add_constants();
 
-		//add all column as variable
-		std::vector<double> m_vars(num_cols);
-		for (std::size_t c = 0; c < variable_names.size(); ++c)
-			symbol_table.add_variable(variable_names[c], m_vars[c]);
-
-		parser_t parser;
-		parser.dec().collect_variables() = true;
-		parser.dec().collect_functions() = true;
-
-		expression_t expression;
-		expression.register_symbol_table(symbol_table);
-
-		if (!parser.compile(m_virtual_cols_txt, expression))
-		{
-			printf("[perform_file_based_benchmark] - Parser Error: %s\tExpression: %s\n",
-				parser.error().c_str(),
-				m_virtual_cols_txt.c_str());
-
-			return false;
-		}
-
-		bool error = false;
 		for (std::size_t r = 0; r < num_rows; ++r)
 		{
 			for (std::size_t c = 0; c < num_cols; ++c)
@@ -371,15 +386,21 @@ bool Data::update_virtual_cols()
 			expression.value();
 
 			for (std::size_t c = 0; c < num_cols; ++c)
-				set(c, r, m_vars[c], error);
+				set(c, r, m_vars[c], data_thruncked);
 		}
 	}
+	else
+	{
+		throw std::runtime_error("Virtual Parser Error: " + parser.error() + "\tExpression: " + virtual_cols_txt);
+	}
 
-	return true;
+
+	return data_thruncked;
 }
 
-double Data::get(size_t row, size_t col) const {
 
+double Data::get(size_t row, size_t col) const {
+	assert(col != -1);
 	// Use permuted data for corrected impurity importance
 	if (col >= getNumCols()) {
 
