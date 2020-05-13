@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Spruce Budworm Biology</Title>
+    <Version>1.0</Version>
+    <ID>.sbw</ID>
+    <EXE>Spruce Budworm Laboratory.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 384 315</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>ApplyMortality</Name>
+            <Caption>Apply mortality</Caption>
+            <Description>Apply natural mortality over population</Description>
+            <Type>0</Type>
+            <Rect>10 5 30 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CreateEggs</Name>
+            <Caption>Females create eggs</Caption>
+            <Description>Give the possibility to simulate more than one generation</Description>
+            <Type>0</Type>
+            <Rect>65 5 85 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>TreeKind</Name>
+            <Caption>Tree species:</Caption>
+            <Description>The tree on witch the insect develop</Description>
+            <Type>5</Type>
+            <Rect>90 5 110 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Balsam Fir;White Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>LastSampleDate</Name>
+            <Caption>Last sample date (dd/mm/yyyy):</Caption>
+            <Description>The date (dd/mm/yyyy) of the last field observation</Description>
+            <Type>3</Type>
+            <Rect>250 10 270 280</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ObservedAI</Name>
+            <Caption>Observed AI:</Caption>
+            <Description>Last field observed average instar</Description>
+            <Type>2</Type>
+            <Rect>275 10 295 280</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 5 140 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ApplyAdultMortality</Name>
+            <Caption>Apply Adult Mortality</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>35 5 55 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>AdultLongevity</Name>
+            <Caption>Adult Longevity Max (days)</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>145 5 170 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue>No maximum|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line1</Name>
+            <Caption>Line1</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>200 5 220 275</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>title1</Name>
+            <Caption>Fixe Average Instar</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>225 5 245 155</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>L2o</Name>
+            <Title>L2o</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in over wintering second larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in feeding second larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in third larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in fourth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L5</Name>
+            <Title>L5</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in fifth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L6</Name>
+            <Title>L6</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in sixth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
+            <Units>%</Units>
+            <Description>Percentage of pupae</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
+            <Units>%</Units>
+            <Description>Percentage of adults </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeathAdult</Name>
+            <Title>DeathAdult</Title>
+            <Units>%</Units>
+            <Description>Percentage of naturel dead adult</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>OvipositingAdult</Name>
+            <Title>OvipositingAdult</Title>
+            <Units>%</Units>
+            <Description>Percentage of ovipositing adult (female)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Brood</Name>
+            <Title>Brood</Title>
+            <Units>Eggs</Units>
+            <Description>Number of eggs brood by day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eggs_g2</Name>
+            <Title>Eggs+</Title>
+            <Units>%</Units>
+            <Description>Percentage of eggs of the new generation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1_g2</Name>
+            <Title>L1+</Title>
+            <Units>%</Units>
+            <Description>Percentage of first stage of the new generation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2o_g2</Name>
+            <Title>L2o+</Title>
+            <Units>%</Units>
+            <Description>Percentage of overwintering second stage of the new generation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2_g2</Name>
+            <Title>L2+</Title>
+            <Units>%</Units>
+            <Description>Percentage of feeding second stage of the new generation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AverageInstar</Name>
+            <Title>Average instar</Title>
+            <Units/>
+            <Description>Average instar of the current (L2o..adults) year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MalePupae</Name>
+            <Title>MalePupae</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemalePupae</Name>
+            <Title>FemalePupae</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleAdult</Name>
+            <Title>MaleAdult</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleAdult</Name>
+            <Title>FemaleAdult</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleEmergence</Name>
+            <Title>MaleEmergence</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleEmergence</Name>
+            <Title>FemaleEmergence</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MaleFlight</Name>
+            <Title>MaleFlight</Title>
+            <Units>%</Units>
+            <Description>Flight activity of male</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FemaleFlight</Name>
+            <Title>FemaleFlight</Title>
+            <Units>%</Units>
+            <Description>Flight activity of female</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Régnière's process-oriented model of spruce budworm seasonal biology&#x0A;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;This process-oriented model was developed by Régnière (1982). &#x0D;&#x0A;Variability in development rates is handled by the method of Régnière (1984). &#x0D;&#x0A;Oviposition is simulated accoding to Régnière (1983). &#x0D;&#x0A;Additional refinements were made by Régnière (1987, 1990). &#x0D;&#x0A;The feeding and defoliation components were described by Régnière &amp; You (1991). &#x0D;&#x0A;To provide for better fit beween predicted and observed development in the early larval stages, development rates were adjusted (Régnière, unpublished).&#x0A;&#x0A;                                                    &#x0D;&#x0A;&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Régnière, J. 1982. A process-oriented model of spruce budworm phenology (Lepidoptera: Tortricidae). Can. Ent. 114:811-825.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1983. An oviposition model for the spruce budworm, Choristoneura fumiferana (Lepidoptera: Tortricidae). Can. Ent. 115:1371-1382.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1984. A method of describing and using variability in development rates for the simulation of insect phenology. Can. Ent. 116:1367-1376.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1987. Temperature-dependent development of eggs and larvae of Choristoneura fumiferana (Clem.) (Lepidoptera: Tortricidae) and simulation of its seasonal history. Can. Ent. 119: 717-728.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1990. Diapause termination and changes in thermal responses during postdiapause development in larvae of the spruce budworm, Choristoneura fumiferana.. J. Insect Physiol. 36: 727-735.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. and You, M. 1991. A simulation model of spruce budworm (Lepidoptera: Tortricidae) feeding on balsam fir and white spruce.. Ecol. Modelling 54: 277-297.&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
