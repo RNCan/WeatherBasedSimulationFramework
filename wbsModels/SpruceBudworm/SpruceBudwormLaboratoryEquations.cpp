@@ -1,7 +1,7 @@
 ﻿//*****************************************************************************
 //WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
 //*****************************************************************************
-// 01/01/2020	Rémi Saint-Amant	ORIGINIAL LABORATORY PARAMETERS
+// 15/05/2020	Rémi Saint-Amant	ORIGINIAL LABORATORY PARAMETERS
 //*****************************************************************************
 #include "SpruceBudwormEquations.h"
 
