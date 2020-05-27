@@ -199,6 +199,12 @@
     <ClCompile Include="..\src\ModelBase\ModelInput.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelInputParameter.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelOutputVariable.cpp" />
+    <ClCompile Include="..\src\ModelBase\MortalityEquation.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\ModelBase\MTClim43.cpp" />
     <ClCompile Include="..\src\ModelBase\OutputFile.cpp" />
     <ClCompile Include="..\src\ModelBase\ParametersVariations.cpp" />
@@ -231,6 +237,7 @@
     <ClInclude Include="..\src\ModelBase\ModelInput.h" />
     <ClInclude Include="..\src\ModelBase\ModelInputParameter.h" />
     <ClInclude Include="..\src\ModelBase\ModelOutputVariable.h" />
+    <ClInclude Include="..\src\ModelBase\MortalityEquation.h" />
     <ClInclude Include="..\src\ModelBase\MTClim43.h" />
     <ClInclude Include="..\src\ModelBase\OutputFile.h" />
     <ClInclude Include="..\src\ModelBase\ParametersVariations.h" />

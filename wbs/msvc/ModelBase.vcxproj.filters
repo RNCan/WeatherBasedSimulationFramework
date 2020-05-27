@@ -85,6 +85,9 @@
     <ClCompile Include="..\src\ModelBase\DevRateEquation.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ModelBase\MortalityEquation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -169,6 +172,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ModelBase\DevRateEquation.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ModelBase\MortalityEquation.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

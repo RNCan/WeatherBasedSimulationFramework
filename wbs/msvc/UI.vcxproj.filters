@@ -361,6 +361,9 @@
     <ClCompile Include="..\src\UI\Common\CheckableGroupBox.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UI\FitEquationOptionDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafxUI\stdafx.h">
@@ -734,6 +737,9 @@
     </ClInclude>
     <ClInclude Include="..\src\UI\Common\CheckableGroupBox.h">
       <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\FitEquationOptionDlg.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

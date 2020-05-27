@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by WeatherBasedSimulationUI.rc
 //
+#define ID_RESET_DEFAULT                3
 #define IDB_TEST_PNG                    196
 #define IDB_UI_MODEL_ICONS              197
 #define IDD_SIM_LOC_EXTRACT             200
@@ -12,6 +13,7 @@
 #define IDD_SIM_FIT_EQUATION            217
 #define IDD_GENERATE_WU                 223
 #define IDD_CREATE_STYLE                226
+#define IDD_SIM_FIT_EQUATION_OPTIONS    234
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -222,6 +224,7 @@
 #define IDC_SIM_SA                      1067
 #define IDC_PT_CHANGE_PROJECTION_OUT    1068
 #define IDC_SIM_USE_HXGRID              1068
+#define IDC_FIT_EQ_OPTIONS              1068
 #define IDC_MODELS_VERSION              1069
 #define IDC_MERGE_FILEPATH_IN           1070
 #define IDC_RT_UNLINKED                 1071
@@ -530,10 +533,13 @@
 #define IDC_CHECK1                      1251
 #define IDC_SIM_LIMIT_DEVRATE           1251
 #define IDC_MAP_ORDINAL_DATE            1251
+#define IDC_FIT_EQ_MORTALITY            1251
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND 1252
 #define IDC_SIM_INPUT_NAME              1252
 #define IDC_MAP_GLOBAL_LIMIT_MIN        1253
+#define IDC_SIM_CALIB_RDR               1253
 #define IDC_MAP_GLOBAL_LIMIT_MAX        1254
+#define IDC_SIM_CALIB_ON                1254
 #define IDC_MAP_OUTPUT_VARIOGRAM_INFO   1255
 #define IDC_MAP_GLOBAL_MINMAX_LIMIT     1256
 #define IDC_MAP_USE_SHORE_DISTANCE      1257
@@ -568,6 +574,15 @@
 #define IDC_MAP_DATE_FORMAT_LABLE       1280
 #define IDC_COMBO1                      1280
 #define IDC_MAP_EXTRACT_PRODUCT         1280
+#define IDC_FIT_OBS_TEMPERATURE         1281
+#define IDC_FIT_EQ_DEV_RATE             1283
+#define IDC_FIT_INPUT_NAME              1284
+#define IDC_FIT_CALIB_RDR               1285
+#define IDC_FIT_TYPE                    1286
+#define IDC_FIT_OUTPUT_NAME             1287
+#define IDC_FIT_SA                      1288
+#define IDC_FIT_FIXED_SIGMA             1289
+#define IDC_FIT_CALIB_SIGMA             1290
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -925,9 +940,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        230
+#define _APS_NEXT_RESOURCE_VALUE        236
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1281
+#define _APS_NEXT_CONTROL_VALUE         1291
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
