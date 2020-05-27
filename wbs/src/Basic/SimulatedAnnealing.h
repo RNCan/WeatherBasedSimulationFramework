@@ -186,7 +186,7 @@ namespace WBSF
 	class CSAParameter
 	{
 	public:
-		enum TMember { VALUE, BOUND, NB_MEMBER };
+		enum TMember { NAME, VALUE, BOUND, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -199,6 +199,16 @@ namespace WBSF
 		CSAParameter& operator =(const CSAParameter& in);
 		bool operator == (const CSAParameter& in)const;
 		bool operator != (const CSAParameter& in)const { return !operator==(in); }
+		std::string to_string()const { return m_name + "=" + FormatA("%.7g", m_initialValue) + m_bounds.ToString(); }
+		CSAParameter& from_string(const std::string& in) { return operator=(FROM_STRING(in)); }
+		CSAParameter FROM_STRING(const std::string& in)
+		{
+			StringVector tmp(in, "=[,]|");
+			if (tmp.size() == 4)
+				return CSAParameter(tmp[0], stod(tmp[1]), stod(tmp[2]), stod(tmp[3]));
+
+			return CSAParameter();
+		}
 
 		std::string m_name;
 		double m_initialValue;
@@ -214,6 +224,7 @@ namespace WBSF
 
 
 	typedef std::vector< CSAParameter > CSAParameterVector;
+	typedef std::map<std::string, CSAParameterVector> CSAParametersMap;
 
 
 
@@ -238,7 +249,7 @@ namespace WBSF
 			m_S = m_Sopt;
 			m_F = m_Fopt;
 			m_X = m_Xopt;
-			m_AIC = m_AICopt;
+			m_AICC = m_AICCopt;
 			
 			
 
@@ -257,9 +268,8 @@ namespace WBSF
 			m_F = missingValue;
 			m_FP = missingValue;
 			m_Fopt = missingValue;
-			m_AIC = m_AICopt = m_AICP = missingValue;
-
-
+			m_AICC = m_AICCopt = m_AICCP = missingValue;
+			m_MLH = m_MLHP = m_MLHopt = missingValue;
 
 			m_NACC = 0;
 			m_NOBDS = 0;
@@ -291,9 +301,13 @@ namespace WBSF
 		double m_Fopt;
 
 		//output                
-		double m_AIC;
-		double m_AICP;
-		double m_AICopt;
+		double m_AICC;
+		double m_AICCP;
+		double m_AICCopt;
+
+		double m_MLH;
+		double m_MLHP;
+		double m_MLHopt;
 
 		//statistic
 		CStatisticXY m_S;
@@ -381,6 +395,7 @@ namespace zen
 	{
 		XmlOut out(output);
 
+		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::NAME)](in.m_name);
 		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::VALUE)](in.m_initialValue);
 		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::BOUND)](in.m_bounds);
 
@@ -390,6 +405,7 @@ namespace zen
 		bool readStruc(const XmlElement& input, WBSF::CSAParameter& out)
 	{
 		XmlIn in(input);
+		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::NAME)](out.m_name);
 		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::VALUE)](out.m_initialValue);
 		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::BOUND)](out.m_bounds);
 

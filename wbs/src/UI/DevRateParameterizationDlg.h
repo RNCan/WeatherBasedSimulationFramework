@@ -43,9 +43,18 @@ namespace WBSF
 		CCFLEdit	m_descriptionCtrl;
 		
 		CCFLComboBox	m_inputFileNameCtrl;
+		CDefaultComboBox	m_TobsFileNameCtrl;
 		CCFLEdit		m_ouputFileNameCtrl;
-		CSelectionCtrl 	m_equationsCtrl;
-		CButton			m_converge01Ctrl;
+		
+		CButton			m_calibSigmaCtrl;
+		CButton			m_fixeSigmaCtrl;
+
+		CCFLComboBox	m_fitTypeCtrl;
+		CSelectionCtrl 	m_eqDevRateCtrl;
+		CSelectionCtrl 	m_eqMortalityCtrl;
+		
+		//CButton			m_converge01Ctrl;
+		
 
 		// Overrides
 
@@ -56,6 +65,8 @@ namespace WBSF
 
 		// Generated message map functions
 		afx_msg void OnEditSACtrl();
+		afx_msg void OnEditEqOptions();
+		afx_msg void OnFitTypeChange();
 		void FillInputFile();
 
 
@@ -65,11 +76,9 @@ namespace WBSF
 
 		void UpdateCtrl(void);
 
-		void GetSimulationFromInterface();
-		void SetSimulationToInterface();
-
 		CDevRateParameterization m_sa;
 		CDevRateParameterization& GetSA(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CDevRateParameterization&>(*pItem); }
+
 
 
 	};

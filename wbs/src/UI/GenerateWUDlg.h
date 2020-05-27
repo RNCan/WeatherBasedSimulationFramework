@@ -26,7 +26,7 @@ namespace WBSF
 		// Construction
 	public:
 
-		enum { T_HOURLY, T_DAILY, T_NORMALS, T_NORMALS_CC, T_GRIBS, NB_DATABASE_TYPE };
+		enum { T_HOURLY, T_DAILY, T_NORMALS, T_NORMALS_PAST, T_NORMALS_CC, T_GRIBS, NB_DATABASE_TYPE };
 
 
 		CGenerateWUProjectDlg(bool bGenerate, CWnd* pParent = NULL);   // standard constructor

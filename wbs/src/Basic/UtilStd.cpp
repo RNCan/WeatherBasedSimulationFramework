@@ -2027,9 +2027,24 @@ namespace WBSF
 		return str;
 	}
 
+	//*************************************************************************
 
+	template<typename T, size_t N>
+	T * my_end(T(&ra)[N]) {
+		return ra + N;
+	}
 
-
+	StringVector::StringVector(const char* str_array[])
+	{
+		
+		size_t size = sizeof(str_array) / sizeof(const char*);
+		resize(size);
+		for (size_t i = 0; i < size; i++)
+			at(i) = str_array[i];
+		//std::vector<std::string> tmp( str_array );
+		//std::vector<std::string> tmp(str_array, my_end(str_array));
+		//operator=();
+	}
 
 	void StringVector::LoadString(UINT ID, const std::string& delimiters)
 	{

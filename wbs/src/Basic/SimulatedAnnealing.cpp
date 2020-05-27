@@ -149,7 +149,7 @@ namespace WBSF
 	//*****************************************************************
 
 	const char* CSAParameter::XML_FLAG = "Parameter";
-	const char* CSAParameter::MEMBER_NAME[NB_MEMBER] = { "Value", "Bound" };
+	const char* CSAParameter::MEMBER_NAME[NB_MEMBER] = { "Name", "Value", "Bound" };
 	CSAParameter::CSAParameter(string name, double value, double low, double hi)
 	{
 		m_name = name;

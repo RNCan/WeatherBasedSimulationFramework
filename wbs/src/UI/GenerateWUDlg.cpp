@@ -70,7 +70,7 @@ namespace WBSF
 			GetDlgItemText(IDC_STATIC2, title);
 			pOKCtrl->SetWindowText(title);
 
-			
+
 			GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);
 			m_WeatherUpdaterProjectTitleCtrl.ShowWindow(SW_HIDE);
 		}
@@ -78,10 +78,10 @@ namespace WBSF
 
 
 	BEGIN_MESSAGE_MAP(CGenerateWUProjectDlg, CDialogEx)
-		
+
 		ON_CBN_SELCHANGE(IDC_DATABASE_TYPE, &OnTypeChange)
 		ON_CBN_SELCHANGE(IDC_FTP_FILE_NAME, &UpdateCtrl)
-		
+
 	END_MESSAGE_MAP()
 
 	static const char* SERVER_NAME = "ftp.cfl.scf.rncan.gc.ca";
@@ -111,7 +111,7 @@ namespace WBSF
 	void CGenerateWUProjectDlg::UpdateCtrl()
 	{
 
-		BOOL bEnable = m_FTPFileNameCtrl.GetCurSel()!= CB_ERR;
+		BOOL bEnable = m_FTPFileNameCtrl.GetCurSel() != CB_ERR;
 
 		CWnd* pOKCtrl = GetDlgItem(IDOK);
 		ASSERT(pOKCtrl);
@@ -119,7 +119,7 @@ namespace WBSF
 		pOKCtrl->EnableWindow(bEnable);
 
 
-		
+
 		string FTP_path = CGenerateWUProjectDlg::GetFTPPath();
 		string file_name = m_FTPFileNameCtrl.GetString();
 
@@ -132,7 +132,7 @@ namespace WBSF
 
 	string CGenerateWUProjectDlg::GetFTPPath()
 	{
-		
+
 
 		//Fill FTP database available
 		int type = m_databaseTypeCtrl.GetCurSel();
@@ -143,6 +143,7 @@ namespace WBSF
 		case T_HOURLY: FTP_path = "/regniere/Data11/Weather/Hourly/"; break;
 		case T_DAILY: FTP_path = "/regniere/Data11/Weather/Daily/"; break;
 		case T_NORMALS: FTP_path = "/regniere/Data11/Weather/Normals/"; break;
+		case T_NORMALS_PAST: FTP_path = "/regniere/Data11/Weather/Normals/past/"; break;
 		case T_NORMALS_CC: FTP_path = "/regniere/Data11/Weather/Normals/ClimateChange/"; break;
 		case T_GRIBS: FTP_path = "/regniere/Data11/Weather/Gribs/"; break;
 		default: ASSERT(false);
@@ -174,7 +175,7 @@ namespace WBSF
 
 	ERMsg CGenerateWUProjectDlg::GetFTPFileList(const string& FTP_path, CFileInfoVector& fileList)
 	{
-		
+
 		ERMsg msg;
 
 		CFtpConnectionPtr pConnection;
@@ -188,7 +189,7 @@ namespace WBSF
 			pConnection->Close();
 			pSession->Close();
 		}
-	
+
 		return msg;
 	}
 
@@ -262,9 +263,9 @@ namespace WBSF
 		CPoint pt = rect.TopLeft();
 		option.WriteProfilePoint(_T("GenerateWUDlg"), pt);
 
-		int curType = m_databaseTypeCtrl.GetCurSel(); 
+		int curType = m_databaseTypeCtrl.GetCurSel();
 		option.WriteProfileInt(_T("WUGenerateDBType"), curType);
-		
+
 
 
 

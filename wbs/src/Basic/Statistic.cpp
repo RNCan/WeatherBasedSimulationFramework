@@ -35,7 +35,7 @@ namespace WBSF
 {
 
 	 
-	//this static varaible is share by CStatistic and CStatisticXY
+	//this static variable is share by CStatistic and CStatisticXY
 	double STAT_VMISS = -9999999.0;
 
 
