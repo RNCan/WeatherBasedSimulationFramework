@@ -205,26 +205,26 @@ namespace WBSF
 	}
 
 	//
-	BOOL CParametersVariationsProperties::ValidateItemData(CMFCPropertyGridProperty* pPropIn)
-	{
-		BOOL bValid = TRUE;
+	//BOOL CParametersVariationsProperties::ValidateItemData(CMFCPropertyGridProperty* pPropIn)
+	//{
+	//	BOOL bValid = TRUE;
 
-		CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
-		const CParametersVariationsProperties& me = const_cast<CParametersVariationsProperties&>(*this);
+	//	CStdGridProperty* pProp = static_cast<CStdGridProperty*>(pPropIn);
+	//	const CParametersVariationsProperties& me = const_cast<CParametersVariationsProperties&>(*this);
 
-		int i = (int)pProp->GetData();
+	//	int i = (int)pProp->GetData();
 
-		if (i != PV_STEP)
-		{
-			std::string str = pProp->get_string();
-			double val = WBSF::ToDouble(str);
-			double Vmin = WBSF::ToDouble(m_parametersDefinition[m_curP].m_min);
-			double Vmax = WBSF::ToDouble(m_parametersDefinition[m_curP].m_max);
-			bValid = val >= Vmin && val <= Vmax;
-		}
+	//	if (i != PV_STEP)
+	//	{
+	//		std::string str = pProp->get_string();
+	//		double val = WBSF::ToDouble(str);
+	//		double Vmin = WBSF::ToDouble(m_parametersDefinition[m_curP].m_min);
+	//		double Vmax = WBSF::ToDouble(m_parametersDefinition[m_curP].m_max);
+	//		bValid = val >= Vmin && val <= Vmax;
+	//	}
 
-		return bValid;
-	}
+	//	return bValid;
+	//}
 
 	void CParametersVariationsProperties::OnEnable(BOOL bEnable)
 	{
