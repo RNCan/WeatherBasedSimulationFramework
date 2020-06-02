@@ -472,11 +472,15 @@ namespace WBSF
 		const CTPeriod period = weather.GetMetadata().GetTPeriod();
 		size_t WGNbReplications = weather.GetMetadata().GetNbReplications();
 
-		CRandomGenerator rand(m_seedType);
-		vector<unsigned long> seeds(m_nbReplications);
-		for (vector<unsigned long>::iterator it = seeds.begin(); it != seeds.end(); it++)
-			*it = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+		size_t total_runs = locations.size()*WGNbReplications*modelInputVector.size()*m_nbReplications;
+		size_t total_seeds = (m_seedType < 2) ? total_runs : m_nbReplications;
 
+		CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
+		vector<unsigned long> seeds;
+		for (size_t i=0; i< total_seeds; i++)
+			seeds.push_back( rand.Rand(1, CRandomGenerator::RAND_MAX_INT) );
+		
+		
 		// for all loc station in the loc array
 		int totalExec = 0;
 
@@ -549,7 +553,9 @@ namespace WBSF
 										stringstream outStream;
 
 										//get transfer info
-										CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seeds[r], l, WGr, p, r);
+										size_t seed_pos = m_seedType < 2 ? l*(WGNbReplications*modelInputVector.size()*m_nbReplications)+ WGr *(modelInputVector.size()*m_nbReplications) +p*m_nbReplications +r:r;
+										size_t seed = seeds[seed_pos];
+										CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seed, l, WGr, p, r);
 										CCommunicationStream::WriteInputStream(info, simulationPoint, inStream);
 
 										ERMsg msgTmp = model.RunModel(inStream, outStream);	// call DLL
@@ -651,10 +657,15 @@ namespace WBSF
 		const CLocationVector& locations = metadata.GetLocations();
 		size_t WGNbReplications = metadata.GetNbReplications();
 
-		CRandomGenerator rand(m_seedType);
-		vector<unsigned long> seeds(m_nbReplications);
-		for (vector<unsigned long>::iterator it = seeds.begin(); it != seeds.end(); it++)
-			*it = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+		size_t total_runs = locations.size()*WGNbReplications*modelInputVector.size()*m_nbReplications;
+		size_t total_seeds = (m_seedType < 2) ? total_runs : m_nbReplications;
+
+		CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
+		vector<unsigned long> seeds;
+		for (size_t i = 0; i < total_seeds; i++)
+			seeds.push_back(rand.Rand(1, CRandomGenerator::RAND_MAX_INT));
+
+
 
 
 		// for all locations
@@ -676,7 +687,9 @@ namespace WBSF
 					{
 						std::string modelOuputFP = GetModelOutputFilePath(outputPath, l, 0, WGr, p, r);
 
-						CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seeds[r], l, WGr, p, r);
+						size_t seed_pos = m_seedType < 2 ? l * (WGNbReplications*modelInputVector.size()*m_nbReplications) + WGr * (modelInputVector.size()*m_nbReplications) + p * m_nbReplications + r : r;
+						size_t seed = seeds[seed_pos];
+						CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seed, l, WGr, p, r);
 						std::string IDsFilePath = outputPath + "IDS.txt";
 						msg = info.Save(IDsFilePath);
 

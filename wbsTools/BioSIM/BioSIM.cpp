@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generade new random seed for each location/WGreplications
+//											Change defaut random seed for ModelsExecution by Random/Random
 // 11.6.6:18/03/2020	Rémi Saint-Amant	Bug correction with ftp download
 //											Bug correction with special path in input paramters
 // 11.6.5:04/03/2020	Rémi Saint-Amant	Bug correction Download Weather in French
