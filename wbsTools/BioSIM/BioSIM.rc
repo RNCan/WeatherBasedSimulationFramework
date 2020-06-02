@@ -9,7 +9,8 @@
 //
 #include "afxres.h"
 #include "WeatherBasedSimulationUI.h"
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
