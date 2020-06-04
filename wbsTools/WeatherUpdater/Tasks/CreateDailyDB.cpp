@@ -17,17 +17,17 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness" };
-	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING };
+	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast1", "Forecast2","OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness" };
+	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING };
 	const UINT CCreateDailyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_DAILY_P;
 	const UINT CCreateDailyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_DAILY;
 
 
-	const char* CCreateDailyDB::CLASS_NAME(){ static const char* THE_CLASS_NAME = "CreateDaily";  return THE_CLASS_NAME; }
+	const char* CCreateDailyDB::CLASS_NAME() { static const char* THE_CLASS_NAME = "CreateDaily";  return THE_CLASS_NAME; }
 	CTaskBase::TType CCreateDailyDB::ClassType()const { return CTaskBase::TOOLS; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CCreateDailyDB::CLASS_NAME(), CCreateDailyDB::create);
 	//static size_t OLD_CLASS_ID = CTaskFactory::RegisterTask("DailyDatabase", (createF)CCreateDailyDB::create);
-	
+
 
 	CCreateDailyDB::CCreateDailyDB(void)
 	{}
@@ -41,8 +41,9 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT:				str = GetUpdaterList(CUpdaterTypeMask(false,true,false,true)); break;
-		case FORECAST:			str = GetUpdaterList(CUpdaterTypeMask(false,true,true,true)); break;
+		case INPUT:				str = GetUpdaterList(CUpdaterTypeMask(false, true, false, true)); break;
+		case FORECAST1:			str = GetUpdaterList(CUpdaterTypeMask(false, true, true, true)); break;
+		case FORECAST2:			str = GetUpdaterList(CUpdaterTypeMask(false, true, true, true)); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_DAILY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
@@ -72,7 +73,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-	
+
 		string outputFilePath = Get(OUTPUT_FILEPATH);
 		if (outputFilePath.empty())
 		{
@@ -93,25 +94,39 @@ namespace WBSF
 			if (pTask.get() != NULL)
 			{
 				//Get forecast if any
-				CTaskPtr pForecastTask;
-				if (!Get(FORECAST).empty())
-					pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
+				CTaskPtr pForecastTask1;
+				CTaskPtr pForecastTask2;
+				if (!Get(FORECAST1).empty())
+				{
+					pForecastTask1 = m_pProject->GetTask(UPDATER, Get(FORECAST1));
+					if (pForecastTask1.get())
+						pForecastTask1->Initialize(TOOLS, callback);
+				}
+				if (!Get(FORECAST2).empty())
+				{
+					pForecastTask2 = m_pProject->GetTask(UPDATER, Get(FORECAST2));
+					if (pForecastTask2.get())
+						pForecastTask2->Initialize(TOOLS, callback);
+				}
 
-				
+
 				string firstYear = pTask->Get("FirstYear");
 				string lastYear = pTask->Get("LastYear");
 
 				pTask->Set("FirstYear", Get("FirstYear"));
 				pTask->Set("LastYear", Get("LastYear"));
-			
-				msg = CreateDatabase(outputFilePath, pTask, pForecastTask, callback);
-				
-				
+
+				msg = CreateDatabase(outputFilePath, pTask, pForecastTask1, pForecastTask2, callback);
+
+
 				pTask->Set("FirstYear", firstYear);
 				pTask->Set("LastYear", lastYear);
-				
-				if (pForecastTask.get())
-					pForecastTask->Finalize(callback);
+
+				if (pForecastTask1.get())
+					pForecastTask1->Finalize(TOOLS, callback);
+
+				if (pForecastTask2.get())
+					pForecastTask2->Finalize(TOOLS, callback);
 			}
 			else
 			{
@@ -119,12 +134,12 @@ namespace WBSF
 			}
 
 		}
-		
+
 		return msg;
 	}
 
 
-	ERMsg CCreateDailyDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
+	ERMsg CCreateDailyDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask1, CTaskPtr& pForecastTask2, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -132,7 +147,8 @@ namespace WBSF
 		CTimer timerRead;
 		CTimer timerWrite;
 
-		
+		pTask->Initialize(TOOLS, callback);
+
 		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
 
@@ -176,7 +192,7 @@ namespace WBSF
 					{
 						//remove the added number "2" at the end of the name
 						if (!station.m_name.empty() && station.m_name.back() == 2)
-							station.m_name = station.m_name.substr(0, station.m_name.length()-1);
+							station.m_name = station.m_name.substr(0, station.m_name.length() - 1);
 
 						string newName = dailyDB.GetUniqueName(station.m_ID, station.m_name);
 						if (newName != station.m_name)
@@ -190,9 +206,12 @@ namespace WBSF
 						station.UseIt(true);
 
 						//Get forecast
-						if (pForecastTask)
-							msg += pForecastTask->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
-						
+						if (pForecastTask1)
+							msg += pForecastTask1->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
+
+						if (pForecastTask2)
+							msg += pForecastTask2->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
+
 
 						timerWrite.Start();
 						messageTmp = dailyDB.Add(station);
@@ -235,7 +254,7 @@ namespace WBSF
 			}
 		}
 
-		pTask->Finalize(callback);
+		pTask->Finalize(TOOLS, callback);
 
 		return msg;
 	}
@@ -274,7 +293,7 @@ namespace WBSF
 			if (p.End() >= now)
 				p.End() = now - 1;
 
-		
+
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CWVariablesCounter count = station[TRef].GetVariablesCount(true);
@@ -335,6 +354,6 @@ namespace WBSF
 			}
 		}
 	}
-	
+
 
 }

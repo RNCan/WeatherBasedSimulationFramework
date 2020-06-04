@@ -224,6 +224,9 @@
     <ClInclude Include="CreateCanUSGrib.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIGrib16daysForecast.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -437,6 +440,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateCanUSGrib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGrib16daysForecast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

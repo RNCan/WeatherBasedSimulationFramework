@@ -762,7 +762,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CEnvCanHourlyForecast::Finalize(CCallback& callback)
+	ERMsg CEnvCanHourlyForecast::Finalize(size_t type, CCallback& callback)
 	{
 		ERMsg msg;
 

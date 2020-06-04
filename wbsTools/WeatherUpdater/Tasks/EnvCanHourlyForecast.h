@@ -88,9 +88,9 @@ namespace WBSF
 		virtual ~CEnvCanHourlyForecast(void);
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
-		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
-		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
-		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
+		ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
+		ERMsg Finalize(size_t type, CCallback& callback = DEFAULT_CALLBACK);
 
 	protected:
 

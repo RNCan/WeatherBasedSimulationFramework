@@ -248,11 +248,11 @@ namespace WBSF
 
 								GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
 								pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-								pBandout->SetDescription(CHRDPS::META_DATA[v][CHRDPS::M_DESC]);
-								pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[v][CHRDPS::M_COMMENT]);
-								pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[v][CHRDPS::M_ELEMENT]);
-								pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[v][CHRDPS::M_SHORT_NAME]);
-								pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[v][CHRDPS::M_UNIT]);
+								pBandout->SetDescription(CSfcGribDatabase::META_DATA[v][M_DESC]);
+								pBandout->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[v][M_COMMENT]);
+								pBandout->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[v][M_ELEMENT]);
+								pBandout->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[v][M_SHORT_NAME]);
+								pBandout->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[v][M_UNIT]);
 								b_out++;
 
 
@@ -465,11 +465,11 @@ namespace WBSF
 
 								GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
 								pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-								pBandout->SetDescription(CHRDPS::META_DATA[v][CHRDPS::M_DESC]);
-								pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[v][CHRDPS::M_COMMENT]);
-								pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[v][CHRDPS::M_ELEMENT]);
-								pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[v][CHRDPS::M_SHORT_NAME]);
-								pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[v][CHRDPS::M_UNIT]);
+								pBandout->SetDescription(CSfcGribDatabase::META_DATA[v][M_DESC]);
+								pBandout->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[v][M_COMMENT]);
+								pBandout->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[v][M_ELEMENT]);
+								pBandout->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[v][M_SHORT_NAME]);
+								pBandout->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[v][M_UNIT]);
 
 								msg += callback.StepIt();
 								b_out++;

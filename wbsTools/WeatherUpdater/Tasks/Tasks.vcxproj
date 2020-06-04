@@ -186,6 +186,7 @@
     <ClInclude Include="UICIPRA.h" />
     <ClInclude Include="UIEnvCanForecast.h" />
     <ClInclude Include="EnvCanGribForecast.h" />
+    <ClInclude Include="UIGrib16daysForecast.h" />
     <ClInclude Include="UIHRDPA.h" />
     <ClInclude Include="UIEnvCanRadar.h" />
     <ClInclude Include="UIGPCP.h" />
@@ -264,6 +265,7 @@
     <ClCompile Include="UICIPRA.cpp" />
     <ClCompile Include="UIEnvCanForecast.cpp" />
     <ClCompile Include="EnvCanGribForecast.cpp" />
+    <ClCompile Include="UIGrib16daysForecast.cpp" />
     <ClCompile Include="UIHRDPA.cpp" />
     <ClCompile Include="UIEnvCanRadar.cpp" />
     <ClCompile Include="UIGPCP.cpp" />

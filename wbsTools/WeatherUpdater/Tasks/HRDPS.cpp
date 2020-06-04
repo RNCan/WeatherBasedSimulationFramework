@@ -56,31 +56,7 @@ namespace WBSF
 	{}
 
 
-	const char* CHRDPS::META_DATA[NB_VAR_GRIBS][NB_META] =
-	{
-		{"2[m] HTGL=\"Specified height level above ground\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
-		{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
-		{"2[m] HTGL=\"Specified height level above ground\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
-		{ "0[-] SFC=\"Ground or water surface\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Relative humidity [%]","RH","2-HTGL","[%]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","10-HTGL","[m/s]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Total snowfall [m]","ASNOW","0-SFC","[m]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Snow depth [m]","SNOD","0-SFC","[m]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
-		{"", "", "", "", ""},
-		{"", "", "", "", ""},
-		{ "0[-] SFC=\"Ground or water surface\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
-		{"", "", "", "", ""},
-		{"", "", "", "", ""},
-	};
-
+	
 	//*********************************************************************
 
 
@@ -266,11 +242,11 @@ namespace WBSF
 	//						{
 	//							//change v wind by geopot
 	//							
-	//							pBandout->SetDescription(CHRDPS::META_DATA[H_GHGT][CHRDPS::M_DESC]);
-	//							pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_COMMENT]);
-	//							pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_ELEMENT]);
-	//							pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_SHORT_NAME]);
-	//							pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_GHGT][CHRDPS::M_UNIT]);
+	//							pBandout->SetDescription(CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_DESC]);
+	//							pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_COMMENT]);
+	//							pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_ELEMENT]);
+	//							pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_SHORT_NAME]);
+	//							pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_UNIT]);
 
 	//						}
 	//						else
@@ -811,12 +787,12 @@ namespace WBSF
 
 					oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b) << "\">" << endl;
 
-					oFile << "    <Description>" << META_DATA[var][M_DESC] << "</Description>" << endl;
+					oFile << "    <Description>" << CSfcGribDatabase::META_DATA[var][M_DESC] << "</Description>" << endl;
 					oFile << "    <Metadata>" << endl;
-					oFile << "      <MDI key=\"GRIB_COMMENT\">" << META_DATA[var][M_COMMENT] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << META_DATA[var][M_ELEMENT] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << META_DATA[var][M_SHORT_NAME] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_UNIT\">" << META_DATA[var][M_UNIT] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_COMMENT\">" << CSfcGribDatabase::META_DATA[var][M_COMMENT] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << CSfcGribDatabase::META_DATA[var][M_ELEMENT] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << CSfcGribDatabase::META_DATA[var][M_SHORT_NAME] << "</MDI>" << endl;
+					oFile << "      <MDI key=\"GRIB_UNIT\">" << CSfcGribDatabase::META_DATA[var][M_UNIT] << "</MDI>" << endl;
 					oFile << "    </Metadata>" << endl;
 
 					oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
@@ -1204,11 +1180,11 @@ namespace WBSF
 
 									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
 									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-									pBandout->SetDescription(CHRDPS::META_DATA[H_TMIN][CHRDPS::M_DESC]);
-									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_COMMENT]);
-									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_ELEMENT]);
-									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_SHORT_NAME]);
-									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_TMIN][CHRDPS::M_UNIT]);
+									pBandout->SetDescription(CSfcGribDatabase::META_DATA[H_TMIN][M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_TMIN][M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_TMIN][M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_TMIN][M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_TMIN][M_UNIT]);
 
 									b_out++;
 								}
@@ -1226,11 +1202,11 @@ namespace WBSF
 
 									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
 									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-									pBandout->SetDescription(CHRDPS::META_DATA[v][CHRDPS::M_DESC]);
-									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[v][CHRDPS::M_COMMENT]);
-									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[v][CHRDPS::M_ELEMENT]);
-									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[v][CHRDPS::M_SHORT_NAME]);
-									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[v][CHRDPS::M_UNIT]);
+									pBandout->SetDescription(CSfcGribDatabase::META_DATA[v][M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[v][M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[v][M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[v][M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[v][M_UNIT]);
 									b_out++;
 								}
 
@@ -1247,11 +1223,11 @@ namespace WBSF
 
 									GDALRasterBand* pBandout = DSout.GetRasterBand(b_out);
 									pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-									pBandout->SetDescription(CHRDPS::META_DATA[H_TMAX][CHRDPS::M_DESC]);
-									pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_COMMENT]);
-									pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_ELEMENT]);
-									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_SHORT_NAME]);
-									pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::META_DATA[H_TMAX][CHRDPS::M_UNIT]);
+									pBandout->SetDescription(CSfcGribDatabase::META_DATA[H_TMAX][M_DESC]);
+									pBandout->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_TMAX][M_COMMENT]);
+									pBandout->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_TMAX][M_ELEMENT]);
+									pBandout->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_TMAX][M_SHORT_NAME]);
+									pBandout->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_TMAX][M_UNIT]);
 
 									b_out++;
 								}

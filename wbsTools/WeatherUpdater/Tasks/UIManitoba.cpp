@@ -346,7 +346,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIManitoba::Finalize(CCallback& callback)
+	ERMsg CUIManitoba::Finalize(TType type, CCallback& callback)
 	{
 
 		m_stations.clear();

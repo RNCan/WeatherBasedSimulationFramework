@@ -536,7 +536,7 @@ ERMsg CUIGHCND::GetStationList(StringVector& list, CCallback& callback)
 	return msg;
 }
 
-ERMsg CUIGHCND::Finalize(CCallback& callback)
+ERMsg CUIGHCND::Finalize(TType type, CCallback& callback)
 {
 	m_loadedData.clear();
 

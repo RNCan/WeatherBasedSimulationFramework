@@ -473,7 +473,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUINOAAForecast::Finalize(CCallback& callback)
+	ERMsg CUINOAAForecast::Finalize(TType type, CCallback& callback)
 	{
 		if (m_bOpen)
 			CloseDataset();

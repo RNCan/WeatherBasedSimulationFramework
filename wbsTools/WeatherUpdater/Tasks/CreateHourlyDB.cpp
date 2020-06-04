@@ -20,8 +20,8 @@ namespace WBSF
 	const int DEW_HOUR = 9;
 	//*********************************************************************
 
-	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
-	const size_t CCreateHourlyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_STRING };
+	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast1", "Forecast2", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
+	const size_t CCreateHourlyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_STRING };
 	const UINT CCreateHourlyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_HOURLY_P;
 	const UINT CCreateHourlyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_HOURLY;
 
@@ -47,7 +47,8 @@ namespace WBSF
 		switch (i)
 		{
 		case INPUT:				str = GetUpdaterList(CUpdaterTypeMask(true, false, false, true)); break;
-		case FORECAST:			str = GetUpdaterList(CUpdaterTypeMask(true, false, true, true)); break;
+		case FORECAST1:			str = GetUpdaterList(CUpdaterTypeMask(true, false, true, true)); break;
+		case FORECAST2:			str = GetUpdaterList(CUpdaterTypeMask(true, false, true, true)); break;
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_HOURLY); break;
 		case FIRST_YEAR:
 		case LAST_YEAR:			str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
@@ -97,9 +98,21 @@ namespace WBSF
 
 			if (pTask.get() != NULL)
 			{
-				CTaskPtr pForecastTask;
-				if (!Get(FORECAST).empty())
-					pForecastTask = m_pProject->GetTask(UPDATER, Get(FORECAST));
+				CTaskPtr pForecastTask1;
+				CTaskPtr pForecastTask2;
+				
+				if (!Get(FORECAST1).empty())
+				{
+					pForecastTask1 = m_pProject->GetTask(UPDATER, Get(FORECAST1));
+					if (pForecastTask1.get())
+						pForecastTask1->Initialize(TOOLS, callback);
+				}
+				if (!Get(FORECAST2).empty())
+				{
+					pForecastTask2 = m_pProject->GetTask(UPDATER, Get(FORECAST2));
+					if (pForecastTask2.get())
+						pForecastTask2->Initialize(TOOLS, callback);
+				}
 
 
 				string firstYear = pTask->Get("FirstYear"); ASSERT(!firstYear.empty());
@@ -108,13 +121,16 @@ namespace WBSF
 				pTask->Set("FirstYear", Get("FirstYear"));
 				pTask->Set("LastYear", Get("LastYear"));
 
-				msg = CreateDatabase(outputFilePath, pTask, pForecastTask, callback);
+				msg = CreateDatabase(outputFilePath, pTask, pForecastTask1, pForecastTask2, callback);
 
 				pTask->Set("FirstYear", firstYear);
 				pTask->Set("LastYear", lastYear);
 
-				if (pForecastTask.get())
-					pForecastTask->Finalize(callback);
+				if (pForecastTask1.get())
+					pForecastTask1->Finalize(TOOLS, callback);
+
+				if (pForecastTask2.get())
+					pForecastTask2->Finalize(TOOLS, callback);
 			}
 			else
 			{
@@ -267,13 +283,16 @@ namespace WBSF
 		return filePath;
 	}
 
-	ERMsg CCreateHourlyDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
+	ERMsg CCreateHourlyDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask1, CTaskPtr& pForecastTask2, CCallback& callback)const
 	{
 		ERMsg msg;
 
 		CTimer timer(true);
 		CTimer timerRead;
 		CTimer timerWrite;
+
+
+		pTask->Initialize(TOOLS, callback);
 
 		string hourlyDBFilePath = GetOutputFilePath(Get(OUTPUT_FILEPATH), CHourlyDatabase::DATABASE_EXT);
 		msg += CHourlyDatabase::DeleteDatabase(hourlyDBFilePath, callback);
@@ -337,8 +356,11 @@ namespace WBSF
 						station.UseIt(true);
 
 						//Get forecast
-						if (pForecastTask)
-							pForecastTask->GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
+						if (pForecastTask1)
+							pForecastTask1->GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
+
+						if (pForecastTask2)
+							pForecastTask2->GetWeatherStation("", CTM(CTM::HOURLY), station, callback);
 
 						timerWrite.Start();
 						messageTmp += DB.Add(station);
@@ -377,7 +399,7 @@ namespace WBSF
 			}
 		}
 
-		pTask->Finalize(callback);
+		pTask->Finalize(TOOLS, callback);
 
 		return msg;
 	}

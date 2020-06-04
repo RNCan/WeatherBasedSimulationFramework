@@ -580,7 +580,7 @@ namespace WBSF
 			
 			bool bTime = (types[IS_HOURLY] == bHourlyTask) || (types[IS_DAILY] == bDailyTask);
 			bool bForecast = types[IS_FORECAST] == bForecastTask;
-			bool bType = types[IS_DATABASE] == bDatabaseTask && types[IS_GRIBS] == bGribsTask && types[IS_MMG] == bMMGTask;
+			bool bType = types[IS_DATABASE] == bDatabaseTask || types[IS_GRIBS] == bGribsTask || types[IS_MMG] == bMMGTask;
 			if (bTime && bForecast && bType)
 			{
 				str += str.empty() ? "" : "|";

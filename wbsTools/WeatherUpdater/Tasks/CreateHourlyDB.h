@@ -10,7 +10,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TATTRIBUTE { INPUT, FORECAST, OUTPUT_FILEPATH, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, DAILY_COMPLETENESS, MONTHLY_COMPLETENESS, ANNUAL_COMPLETENESS, NB_ATTRIBUTES };
+		enum TATTRIBUTE { INPUT, FORECAST1, FORECAST2, OUTPUT_FILEPATH, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, DAILY_COMPLETENESS, MONTHLY_COMPLETENESS, ANNUAL_COMPLETENESS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CCreateHourlyDB); }
@@ -45,7 +45,7 @@ namespace WBSF
 
 
 		void CleanSparse(CWeatherStation& station)const;
-		ERMsg CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const;
+		ERMsg CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask1, CTaskPtr& pForecastTask2, CCallback& callback)const;
 	};
 
 }

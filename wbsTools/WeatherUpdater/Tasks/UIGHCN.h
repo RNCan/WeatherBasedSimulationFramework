@@ -57,7 +57,7 @@ namespace WBSF
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback);
-		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK);
+		virtual ERMsg Finalize(TType type, CCallback& callback = DEFAULT_CALLBACK);
 
 		virtual size_t GetNbAttributes()const{ return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }

@@ -145,6 +145,7 @@ namespace WBSF
 
 
 		//attribute
+		virtual ERMsg Init(CTasksProject* pProject, CCallback& callback = DEFAULT_CALLBACK);
 		virtual size_t GetNbAttributes()const{ return 0; }
 		void GetAttributes(CTaskAttributes& info)const;
 		size_t GetAttributeIDFromName(const std::string& name)const;
@@ -153,12 +154,13 @@ namespace WBSF
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK) = 0;
 
 		//Tools
-		virtual ERMsg Init(CTasksProject* pProject, CCallback& callback = DEFAULT_CALLBACK);
+		
+		virtual ERMsg Initialize(TType type, CCallback& callback = DEFAULT_CALLBACK) { return ERMsg(); }
 		virtual ERMsg GetStationList(StringVector& stationList, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback);
 		virtual ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK) { return ERMsg(); }
-		virtual ERMsg Finalize(CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
+		virtual ERMsg Finalize(TType type, CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
 
 		void writeStruc(zen::XmlElement& output)const;
 		bool readStruc(const zen::XmlElement& input);

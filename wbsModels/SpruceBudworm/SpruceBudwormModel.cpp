@@ -160,7 +160,7 @@ namespace WBSF
 	{
 		_ASSERTE(m_weather.size() > 1);
 
-		ERMsg msg;
+		ERMsg msg; 
 
 		//In annual model stop developing of the L22 to get cumulative L22
 		CModelStatVector stat;

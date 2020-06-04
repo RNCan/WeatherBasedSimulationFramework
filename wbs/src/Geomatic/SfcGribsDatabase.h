@@ -28,8 +28,8 @@
 
 namespace WBSF
 {
-
-	enum TGribsVariables { H_GHGT = HOURLY_DATA::NB_VAR_H, H_UWND, H_VWND, H_DSWR, H_DLWR, NB_VAR_GRIBS };
+	enum TMetaField { M_DESC, M_COMMENT, M_ELEMENT, M_SHORT_NAME, M_UNIT, NB_META };
+	enum TGribsVariables { H_GHGT = HOURLY_DATA::NB_VAR_H, H_UWND, H_VWND, H_DSWR, H_DLWR, H_SPFH, H_PRATE, NB_VAR_GRIBS };
 	typedef std::array<std::array< CHourlyData, 2>, 2> CHourlyData4;
 	typedef std::array<std::array< CWeatherDay, 2>, 2> CDailyData4;
 	
@@ -225,6 +225,11 @@ namespace WBSF
 		virtual const char* GetHeaderExtension()const { return META_EXT; }
 		virtual const CTM	GetDataTM()const { return DATA_TM; }
 		virtual const char	GetDBType()const { return 'H'; }
+
+
+		static const char* META_DATA[NB_VAR_GRIBS][NB_META];
+
+
 
 		size_t m_nb_points;
 		bool m_bIncremental;

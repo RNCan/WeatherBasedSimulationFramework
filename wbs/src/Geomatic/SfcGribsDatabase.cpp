@@ -31,6 +31,33 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
+	const char* CSfcGribDatabase::META_DATA[NB_VAR_GRIBS][NB_META] =
+	{
+		{"2[m] HTGL=\"Specified height level above ground\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
+		{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
+		{"2[m] HTGL=\"Specified height level above ground\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
+		{ "0[-] SFC=\"Ground or water surface\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL=\"Specified height level above ground\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
+		{ "2[m] HTGL=\"Specified height level above ground\"","Relative humidity [%]","RH","2-HTGL","[%]" },
+		{ "10[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","10-HTGL","[m/s]" },
+		{ "10[m] HTGL=\"Specified height level above ground\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
+		{ "0[-] SFC=\"Ground or water surface\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
+		{ "0[-] SFC=\"Ground or water surface\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
+		{ "0[-] SFC=\"Ground or water surface\"","Total snowfall [m]","ASNOW","0-SFC","[m]" },
+		{ "0[-] SFC=\"Ground or water surface\"","Snow depth [m]","SNOD","0-SFC","[m]" },
+		{ "0[-] SFC=\"Ground or water surface\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
+		{"", "", "", "", ""},
+		{"", "", "", "", ""},
+		{ "0[-] SFC=\"Ground or water surface\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
+		{ "10[m] HTGL=\"Specified height level above ground\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
+		{ "10[m] HTGL=\"Specified height level above ground\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
+		{"", "", "", "", ""},
+		{"", "", "", "", ""},
+		{ "0[-] SFC=\"Ground or water surface\"","Precipitation rate [kg/(m^2)]","PRATE","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL=\"Specified height level above ground\"","Specific humidity [kg/kg]","SPFH","2-HTGL","[kg/kg]" },
+	};
+
 
 	class CDataBlock
 	{
@@ -475,12 +502,28 @@ namespace WBSF
 					{
 						//do nothing
 					}
-					//else if (v == H_DSWR)
-					//{
-					//	double s = m_lines[xy.m_y]->at(H_DSWR)->get_value(xy.m_x);
-					//	if (fabs(s - m_noData[v]) > 0.1)
-					//		data[H_SRAD] = float(s);
-					//}
+					else if (v == H_SPFH)
+					{
+						ASSERT(m_units[v] == "[kg/kg]");
+						ASSERT(m_bands[H_TAIR] != NOT_INIT && m_bands[H_SPFH] != NOT_INIT);
+
+						double Tair = block(block_ij.m_x, block_ij.m_y)->at(H_TAIR)->get_value(xy.m_x, xy.m_y);
+						double Hs = block(block_ij.m_x, block_ij.m_y)->at(H_SPFH)->get_value(xy.m_x, xy.m_y);
+
+						if (fabs(Tair - m_noData[v]) > 0.1 && fabs(Hs - m_noData[v]) > 0.1)
+						{
+							data[H_TDEW] = (float)Hs2Td(Tair, 1000 * Hs); //kg/kg -> g/kg
+							data[H_RELH] = (float)Hs2Hr(Tair, 1000 * Hs); //kg/kg -> g/kg
+						}
+
+					}
+					else if (v == H_PRATE)
+					{
+						ASSERT(m_units[v] == "[kg/(m^2 s)]");
+						double prcp = block(block_ij.m_x, block_ij.m_y)->at(H_PRATE)->get_value(xy.m_x, xy.m_y);
+						if (fabs(prcp - m_noData[v]) > 0.1)
+							data[H_PRCP] = float(3600*prcp);
+					}
 
 
 					//switch (v)
@@ -644,10 +687,11 @@ namespace WBSF
 		else if (strVar == "WEASD")//Water equivalent of accumulated snow depth [kg/(m^2)]
 			var = H_SWE;
 
+		else if (strVar == "SPFH")//Specific humidity [kg/kg]
+			var = H_SPFH;
+		else if (strVar == "PRATE")//Precipitation rate [kg/(m^2 s)]
+			var = H_PRATE;
 		//GRDPS: WE AFR, WE APE, WE ARN, WE ASN
-
-
-
 
 		return var;
 	}
@@ -687,6 +731,8 @@ namespace WBSF
 		case H_PRES: unit = "[Pa]";  break;
 		case H_SNDH: unit = "[m]";  break;
 		case H_GHGT: unit = "[m]";  break;
+		case H_SPFH: unit = "[kg/kg]";  break;
+		case H_PRATE: unit = "[kg/(m^2)]";  break;
 		}
 
 		return unit;

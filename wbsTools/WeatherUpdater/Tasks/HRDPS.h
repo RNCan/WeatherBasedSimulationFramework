@@ -126,9 +126,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TMetaField { M_DESC, M_COMMENT, M_ELEMENT, M_SHORT_NAME, M_UNIT, NB_META };
-		static const char* META_DATA[NB_VAR_GRIBS][NB_META];
-
+		
 		CHRDPS(const std::string& workingDir);
 		virtual ~CHRDPS(void);
 

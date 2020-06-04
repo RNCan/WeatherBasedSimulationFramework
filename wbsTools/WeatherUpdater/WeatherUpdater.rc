@@ -108,6 +108,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
     BUTTON      ID_TASK_NOAA_FORECAST
+    BUTTON      ID_TASK_LONG_FORECAST
     BUTTON      ID_TASK_SNOTEL
     SEPARATOR
     BUTTON      ID_TASK_MESOWEST
@@ -193,6 +194,7 @@ BEGIN
     BUTTON      ID_TASK_NOAA_GSOD
     BUTTON      ID_TASK_NOAA_ISD_LITE
     BUTTON      ID_TASK_NOAA_FORECAST
+    BUTTON      ID_TASK_LONG_FORECAST
     BUTTON      ID_TASK_SNOTEL
     BUTTON      ID_TASK_MESOWEST
     BUTTON      ID_TASK_WEATHER_FARM
@@ -253,8 +255,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,8,5,1
- PRODUCTVERSION 5,8,5,1
+ FILEVERSION 5,8,6,2
+ PRODUCTVERSION 5,8,6,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -271,21 +273,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.8.5.1"
+            VALUE "FileVersion", "5.8.6.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.8.5.1"
+            VALUE "ProductVersion", "5.8.6.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.8.5.1"
+            VALUE "FileVersion", "5.8.6.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.8.5.1"
+            VALUE "ProductVersion", "5.8.6.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -747,8 +749,8 @@ BEGIN
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
     IDS_TOOL_CREATE_HOURLY_P 
-                            "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
-    IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
+                            "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
+    IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
 END
 
 STRINGTABLE
@@ -769,6 +771,8 @@ BEGIN
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
     IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour historique (jours)"
+    IDS_UPDATER_LONG_FORECAST_P 
+                            "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP"
 END
 
 STRINGTABLE
@@ -780,6 +784,7 @@ BEGIN
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
     ID_TASK_NOAA_FORECAST   "Télécharger les prévisions NOAA\nPrévision NOAA"
+    ID_TASK_LONG_FORECAST   "Télécharger les prévisions mondiale longue durée\nPrévision GFS"
     ID_TASK_SNOTEL          "Télécharger les données quotidiennes ""Snow Telemetry (SnoTel)"" via MRCS\nSnotel quotidien"
     ID_TASK_MESOWEST        "Télécharger les données MesoWest\nMesoWest"
     ID_TASK_WEATHER_FARM    "Télécharger les données WeatherFarm\nMétéo WeatherFarm"
@@ -1235,8 +1240,8 @@ BEGIN
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
     IDS_TOOL_CREATE_HOURLY_P 
-                            "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
-    IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
+                            "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
+	IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
 END
 
 STRINGTABLE
@@ -1257,6 +1262,8 @@ BEGIN
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
     IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical (days)"
+    IDS_UPDATER_LONG_FORECAST_P 
+                            "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP"
 END
 
 STRINGTABLE
@@ -1268,6 +1275,7 @@ BEGIN
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
     ID_TASK_NOAA_FORECAST   "Download NOAA forecast\nNOAA Forecast"
+    ID_TASK_LONG_FORECAST   "Download world long forecast\nGFS Forecast"
     ID_TASK_SNOTEL          "Download Snow Telemetry (SnoTel)  daily data via NRCS\nSnotel Daily"
     ID_TASK_MESOWEST        "Download MesoWest weather data\nMesoWest weather"
     ID_TASK_WEATHER_FARM    "Download WeatherFarm data\nWeatherFarm"

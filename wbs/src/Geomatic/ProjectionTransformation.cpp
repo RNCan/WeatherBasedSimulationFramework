@@ -18,6 +18,7 @@
 
 
 static std::mutex MUTEX;
+static std::mutex MUTEX2;
 
 using namespace std;
 
@@ -130,24 +131,39 @@ namespace WBSF
 	//*******************************************************************************
 	bool CProjectionTransformationManager::Create(size_t src, size_t dst)
 	{
+		
 		PTMap::const_iterator it = GetInstance().m_links.find(PTKey(src, dst));
 		bool bCreate = (it == GetInstance().m_links.end());
 		if (bCreate)
+		{
+			MUTEX2.lock();
 			GetInstance().m_links[PTKey(src, dst)].Set(src, dst);
+			MUTEX2.unlock();
+		}
+			
 
 		ASSERT(GetInstance().m_links.find(PTKey(src, dst)) != GetInstance().m_links.end());
+		
 
 		return bCreate;
 	}
 
 	bool CProjectionTransformationManager::Create(CProjectionPtr const& src, CProjectionPtr const& dst)
 	{
+		
 		PTMap::const_iterator it = GetInstance().m_links.find(PTKey(src->GetPrjID(), dst->GetPrjID()));
 		bool bCreate = (it == GetInstance().m_links.end());
 		if (bCreate)
+		{
+			MUTEX2.lock();
 			GetInstance().m_links[PTKey(src->GetPrjID(), dst->GetPrjID())].Set(src, dst);
+			MUTEX2.unlock();
+		}
+			
 
 		ASSERT(GetInstance().m_links.find(PTKey(src->GetPrjID(), dst->GetPrjID())) != GetInstance().m_links.end());
+
+		
 
 		return bCreate;
 	}

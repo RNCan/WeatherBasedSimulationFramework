@@ -1,3 +1,4 @@
+//5.8.6	02/06/2020	Rémi Saint-Amant	Add GFS long forecast 
 //5.8.5 16/04/2020	Rémi Saint-Amant	Update Env Can Radar to work with new radar ID
 //5.8.4 21/01/2020	Rémi Saint-Amant	Update MesoWest 
 //										Update MDDELCC

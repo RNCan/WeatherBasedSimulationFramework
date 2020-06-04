@@ -502,18 +502,20 @@ namespace WBSF
 								}
 
 								pBandoutS->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataS[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-								pBandoutS->SetDescription("10[m] HTGL=\"Specified height level above ground\"");
-								pBandoutS->SetMetadataItem("GRIB_COMMENT", "Wind speed [m/s]");
-								pBandoutS->SetMetadataItem("GRIB_ELEMENT", "WIND");
-								pBandoutS->SetMetadataItem("GRIB_SHORT_NAME", "10-HTGL");
-								pBandoutS->SetMetadataItem("GRIB_UNIT", "[m/s]");
+								pBandoutS->SetDescription(CSfcGribDatabase::META_DATA[H_WNDS][M_DESC]);
+								pBandoutS->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_WNDS][M_COMMENT]);
+								pBandoutS->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_WNDS][M_ELEMENT]);
+								pBandoutS->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_WNDS][M_SHORT_NAME]);
+								pBandoutS->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_WNDS][M_UNIT]);
+
 
 								pBandoutD->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataD[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-								pBandoutD->SetDescription("10[m] HTGL=\"Specified height level above ground\"");
-								pBandoutD->SetMetadataItem("GRIB_COMMENT", "Wind direction (from which blowing) [deg true]");
-								pBandoutD->SetMetadataItem("GRIB_ELEMENT", "WDIR");
-								pBandoutD->SetMetadataItem("GRIB_SHORT_NAME", "10-HTGL");
-								pBandoutD->SetMetadataItem("GRIB_UNIT", "[deg true]");
+								pBandoutD->SetDescription(CSfcGribDatabase::META_DATA[H_WNDD][M_DESC]);
+								pBandoutD->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_COMMENT]);
+								pBandoutD->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_ELEMENT]);
+								pBandoutD->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_WNDD][M_SHORT_NAME]);
+								pBandoutD->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_WNDS][H_WNDD]);
+
 
 								bb += 2;
 							}
