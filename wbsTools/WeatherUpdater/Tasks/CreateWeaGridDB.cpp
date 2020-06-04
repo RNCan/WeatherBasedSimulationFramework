@@ -50,7 +50,7 @@ namespace WBSF
 		case OUTPUT_FILEPATH:	str = GetString(IDS_STR_FILTER_OBSERVATION); break;
 		case LOCATIONS_FILEPATH:str = GetString(IDS_STR_FILTER_LOC); break;
 		case VARIABLES:			str = "Tmin|Tair|Tmax|Prcp|Tdew|RelH|WndS|WndD|SRad|Pres|Snow|SnDh|SWE|Wnd2"; break;
-		case NB_POINTS:			str = "4"; break;//at the point itself
+		case NB_POINTS:			str = "0"; break;//at the point itself
 		};
 		
 		return str;
@@ -62,7 +62,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		case NB_POINTS:		str = "4"; break;//at the point itself
+		case NB_POINTS:		str = "4"; break;
 		};
 
 		return str;

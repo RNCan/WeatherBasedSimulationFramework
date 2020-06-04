@@ -64,7 +64,7 @@ namespace WBSF
 		ERMsg GetFileList(size_t n, CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg GetFileList(size_t n, StringVector& fileList, CCallback& callback)const;
 		std::string GetOutputFilePath(size_t n, const std::string& stationName, int year)const;
-
+		ERMsg UpdateOldFile(CCallback& callback);
 		
 		CLocationVector m_stations;
 

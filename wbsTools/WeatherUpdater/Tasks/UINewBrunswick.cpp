@@ -26,6 +26,11 @@ using namespace boost;
 //public fire available here:
 //https://www1.gnb.ca/0079/FireWeather/FireWeatherHourly-e.asp?stn=Alward
 
+//public agriculture data available here:
+//https://agri.gnb.ca/010-001/WebServiceData.aspx
+
+
+
 namespace WBSF
 {
 
@@ -484,10 +489,36 @@ namespace WBSF
 		return network;
 	}
 
-	ERMsg CUINewBrunswick::Execute(CCallback& callback)
+	ERMsg  CUINewBrunswick::UpdateOldFile(CCallback& callback)
 	{
 		ERMsg msg;
+		StringVector fileList = GetFilesList("G:\\NewBrunswick\\Fire\\old\\*.csv", 2, true);
+		callback.PushTask("update", fileList.size());
+		for (size_t i = 0; i < fileList.size()&&msg; i++)
+		{
+			string title = GetFileTitle(fileList[i]);
+			ReplaceString(title, "Yr ", "");
+			ReplaceString(title, "yr ", "");
+			ReplaceString(title, "St.", "Saint ");
+			ReplaceString(title, "St", "Saint");
+			ReplaceString(title, " 2016", "");
+			ReplaceString(title, " 2017", "");
+			ReplaceString(title, " 2018", "");
+			ReplaceString(title, " 2019", "");
+			msg +=MergeData(title, fileList[i], callback);
+			msg += callback.StepIt();
+		}
 
+		callback.PopTask();
+		return msg;
+	}
+
+	ERMsg CUINewBrunswick::Execute(CCallback& callback)
+	{
+		//return UpdateOldFile(callback);
+
+
+		ERMsg msg;
 
 		std::bitset<NB_NETWORKS> network = GetNetWork();
 

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Project:  GDAL
+ * Project:  GDAL 
  * Purpose:  Implementation of a set of GDALDerivedPixelFunc(s) to be used
  *           with source raster band of virtual GDAL datasets.
  * Author:   Rémi Saint-Amant from Antonio Valentino code

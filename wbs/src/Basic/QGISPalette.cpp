@@ -295,8 +295,16 @@ namespace WBSF
 						TRef2.SetRef(options.m_min + int(i + 1) * classes_size, TM);
 					}
 					
-					lable1 = ANSI_UTF8(TRef1.GetFormatedString(options.m_date_format));
-					lable2 = ANSI_UTF8(TRef2.GetFormatedString(options.m_date_format));
+					if (TRef1.IsValid() && TRef2.IsValid())
+					{
+						lable1 = ANSI_UTF8(TRef1.GetFormatedString(options.m_date_format));
+						lable2 = ANSI_UTF8(TRef2.GetFormatedString(options.m_date_format));
+					}
+					else
+					{
+						msg.ajoute("Invalid time reference in palette style creation");
+					}
+					
 				}
 
 				string lable;
