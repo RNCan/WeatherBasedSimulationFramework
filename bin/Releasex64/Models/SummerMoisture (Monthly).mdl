@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>FWI(monthly)</Title>
+    <Version>1.0</Version>
+    <ID>.SMoist</ID>
+    <EXE>SummerMoisture.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 169 387</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Overwintering</Name>
+            <Caption>Overwintering</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>15 20 35 315</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a</Name>
+            <Caption>Carry over fraction (a)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 20 70 315</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b</Name>
+            <Caption>Effectiveness of winter precipitation (b)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 20 95 315</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0.75</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>0.9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Total monthly precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units>°C</Units>
+            <Description>Monthly mean maximum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>5</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MDC</Name>
+            <Title>MDC</Title>
+            <Units/>
+            <Description>Monthly Drought Code</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SummerMoisture</Name>
+            <Title>SummerMoisture</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Will climate change drive 21st century burn rates in Canadian boreal forest outside of its natural variability: collating global climate model experiments with sedimentary charcoal data&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Yves Bergeron, Dominic Cyr, Martin P. Girardin and Christopher Carcaillet&#x0D;&#x0A;International Journal of Wildland Fire 2010, 19, 1–13</Credit>
+    <HelpFileName/>
+</Model>
