@@ -485,7 +485,7 @@ namespace WBSF
 			CTRef TRefEnd = counter.GetTPeriod().End();
 			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
 
-			static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+			static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 			//station must have data in the last week
 			if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
 			{

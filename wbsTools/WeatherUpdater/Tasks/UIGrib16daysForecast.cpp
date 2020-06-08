@@ -2,7 +2,6 @@
 #include "HRDPS.h"
 #include "UIGrib16daysForecast.h"
 #include "Basic/FileStamp.h"
-#include "Simulation/WeatherGenerator.h"
 
 #include "UI/Common/SYShowMessage.h"
 #include "Geomatic/TimeZones.h"
@@ -755,7 +754,7 @@ namespace WBSF
 
 			//station must have data in the last week
 			//clean up varaibles that are not up to date
-			static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+			static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 
 			CWVariables vars = station.GetVariables();
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)

@@ -75,7 +75,7 @@ namespace WBSF
 	const UINT CUINOAAForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_FORECAST_P;
 	const UINT CUINOAAForecast::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_FORECAST;
 
-	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+	static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 
 	const char* CUINOAAForecast::CLASS_NAME() { static const char* THE_CLASS_NAME = "NOAAForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINOAAForecast::ClassType()const { return CTaskBase::UPDATER; }

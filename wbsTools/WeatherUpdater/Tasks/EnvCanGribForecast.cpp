@@ -22,7 +22,7 @@ namespace WBSF
 
 	const char* CEnvCanGribForecast::FORECAST_VAR_NAME[NB_FORECAST_VAR] = { "PRES_SFC_0", "TMP_TGL_2", "DPT_TGL_2", "PRATE_SFC_0", "WIND_TGL_10", "WDIR_TGL_10", "DLWRF_SFC_0" };
 	const TVarH CEnvCanGribForecast::FORECAST_VARIABLES[NB_FORECAST_VAR] = {H_PRES, H_TAIR, H_TDEW, H_PRCP, H_WNDS, H_WNDD, H_SRAD};
-	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+	static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
 
 	//TSOIL_SFC_0 : soil temperaturte
 	//TSOIL_DBLL_100 : deep soil temperature
