@@ -20,7 +20,7 @@ namespace WBSF
 	const int DEW_HOUR = 9;
 	//*********************************************************************
 
-	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast1", "Forecast2", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
+	const char* CCreateHourlyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "LongForecast", "OutputFilepath", "FirstYear", "LastYear", "BoundingBox", "DailyCompleteness", "MonthlyCompleteness", "AnnualCompleteness" };
 	const size_t CCreateHourlyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_STRING };
 	const UINT CCreateHourlyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_HOURLY_P;
 	const UINT CCreateHourlyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_HOURLY;

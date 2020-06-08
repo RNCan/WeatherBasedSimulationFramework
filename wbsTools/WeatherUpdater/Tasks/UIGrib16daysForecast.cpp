@@ -748,9 +748,6 @@ namespace WBSF
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 			CWVariablesCounter counter = station.GetVariablesCount();
-			//CTRef TRefEnd = counter.GetTPeriod().End();
-			//ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
-
 
 			//station must have data in the last week
 			//clean up varaibles that are not up to date
@@ -776,7 +773,7 @@ namespace WBSF
 				size_t nbStationAdded = 0;
 				string feed = "Update GFS forecast for \"" + forecast_station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
 				callback.PushTask(feed, m_psfcDS.size());
-				callback.AddMessage(feed);
+				//callback.AddMessage(feed);
 
 				//convert set into vector for multi-thread
 				vector<CTRef> tmp;
@@ -833,17 +830,8 @@ namespace WBSF
 		if (m_psfcDS[TRef]->GetExtents().IsInside(pt))
 		{
 			CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, station);
-			//
-		//	{
 			CHourlyData& data = station.GetHour(localTRef);
 			m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-		//}
-		//else
-		//{
-		//	CWeatherDay& data = station.GetDay(localTRef.as(CTM::DAILY));
-		//	m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-		//}
-
 
 			msg += callback.StepIt(0);
 		}
@@ -858,7 +846,6 @@ namespace WBSF
 
 
 		//compute direct hourly value. For example RH from Tdew and TAir or Ea from Tdew or Es from Tair
-		//CTPeriod period = weather.GetEntireTPeriod();
 		weather.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = weather.GetVariablesCount();
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
