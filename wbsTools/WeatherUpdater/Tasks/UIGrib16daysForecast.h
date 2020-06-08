@@ -72,7 +72,7 @@ namespace WBSF
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH, size_t hhh);
 		//ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
-
+		static void CompleteVariables(CWeatherStation& weather);
 		
 		ERMsg Clean(size_t source, CCallback& callback);
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList1);

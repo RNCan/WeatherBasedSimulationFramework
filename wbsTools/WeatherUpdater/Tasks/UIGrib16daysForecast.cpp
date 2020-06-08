@@ -2,6 +2,8 @@
 #include "HRDPS.h"
 #include "UIGrib16daysForecast.h"
 #include "Basic/FileStamp.h"
+#include "Simulation/WeatherGenerator.h"
+
 #include "UI/Common/SYShowMessage.h"
 #include "Geomatic/TimeZones.h"
 #include "TaskFactory.h"
@@ -361,7 +363,7 @@ namespace WBSF
 	{
 		CTPeriod p;
 		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		
+
 		__int32 first_hours = as<__int32>(FIRST_HOUR);
 		__int32 last_hours = as<__int32>(LAST_HOUR);
 
@@ -373,9 +375,9 @@ namespace WBSF
 		for (size_t i = 0; i < fileList1.size(); i++)
 		{
 			string filePath = GetLocaleFilePath(s, fileList1[i].m_filePath);
-			
+
 			size_t HH = GetHH(s, filePath);
-			
+
 			//int hours = TRefUTC - nowUTC;
 			if (HH >= first_hours && HH <= last_hours)
 			{
@@ -700,49 +702,14 @@ namespace WBSF
 
 		GDALSetCacheMax64(128 * 1024 * 1024);
 
-		//m_variables = GetVariables(Get(VARIABLES));
-
-			//for optimization, we select only 2 wind variables
-	/*	GribVariables var = sfcDS.get_variables();
-		if (var.test(H_WNDS) && var.test(H_WNDD))
-		{
-			var.reset(H_UWND);
-			var.reset(H_VWND);
-		}
-		else if (var.test(H_UWND) && var.test(H_VWND))
-		{
-			var.reset(H_WNDS);
-			var.reset(H_WNDD);
-		}
-		else
-		{
-			var.reset(H_UWND);
-			var.reset(H_VWND);
-			var.reset(H_WNDS);
-			var.reset(H_WNDD);
-		}
-
-		sfcDS.m_variables_to_load = var;*/
-
-
 		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		//__int32 max_hours = as<__int32>(MAX_HOUR);
 
-		CTPeriod p (nowUTC - 480, nowUTC + 480);//Get all file available
+		CTPeriod p(nowUTC - 480, nowUTC + 480);//Get all file available
 
 		CGribsMap gribsList;
 		msg = GetGribsList(p, gribsList, callback);
-		//m_pGrib.reset(new CSfcGribDatabase);
-
-		//m_pGrib->m_nb_points = 0;
-		//m_pGrib->m_bIncremental = false;
-		//grib.m_variables = GetVariables(Get(VARIABLES));
-		//m_pGrib->m_nbMaxThreads = omp_get_num_procs();
-
 
 		callback.PushTask("Open forecast images (" + to_string(gribsList.size()) + ")", gribsList.size());
-
-		//		for (auto it = gribsList.begin(); it != gribsList.end() && msg; it++)
 
 		vector<CTRef> tmp;
 		for (auto it = gribsList.begin(); it != gribsList.end() && msg; it++)
@@ -776,17 +743,20 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		if (!m_psfcDS.empty())
 		{
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 			CWVariablesCounter counter = station.GetVariablesCount();
-			CTRef TRefEnd = counter.GetTPeriod().End();
-			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
+			//CTRef TRefEnd = counter.GetTPeriod().End();
+			//ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
 
+
+			//station must have data in the last week
+			//clean up varaibles that are not up to date
 			static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
-			//
+
 			CWVariables vars = station.GetVariables();
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 			{
@@ -794,16 +764,13 @@ namespace WBSF
 					vars.reset(v);
 			}
 
-			
-			//station must have data in the last week
-			//if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
-			if(vars.any())
+			if (vars.any())
 			{
 
 				//create all data for multi-thread
 				CTPeriod p(m_psfcDS.begin()->first, m_psfcDS.rbegin()->first);
 
-				CWeatherStation forecast_station(station.IsHourly());
+				CWeatherStation forecast_station(true);//always extract forecast as hourly
 				((CLocation&)forecast_station) = station;
 				forecast_station.CreateYears(p);
 
@@ -817,31 +784,31 @@ namespace WBSF
 				for (auto it = m_psfcDS.begin(); it != m_psfcDS.end() && msg; it++)
 					tmp.push_back(it->first);
 
-				
 
-				#pragma omp parallel for shared(msg)
+
+				//				#pragma omp parallel for shared(msg)
 				for (__int64 i = 0; i < (__int64)tmp.size(); i++)
 				{
 #pragma omp flush(msg)
 					if (msg)
 					{
 						CTRef TRef = tmp[i];
-						msg += ExtractStation(TRef, station, callback);
+						msg += ExtractStation(TRef, forecast_station, callback);
 						msg += callback.StepIt();
 #pragma omp flush(msg)
 
 					}
 				}
 
+				CompleteVariables(forecast_station);
 
-				//forecast_station.CleanUnusedVariable(vars);
-				p = forecast_station.GetEntireTPeriod();
+				p.Transform(station.GetTM());
 				//add valid forecast to the station
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 				{
 					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					{
-						if (vars[v] && !station[TRef][v].IsInit())
+						if (vars[v] && !station[TRef][v].IsInit() && forecast_station[TRef][v].IsInit())
 							station[TRef].SetStat(v, forecast_station[TRef][v]);
 					}
 
@@ -857,52 +824,72 @@ namespace WBSF
 
 	ERMsg CUIGrib16daysForecast::ExtractStation(CTRef TRef, CWeatherStation& station, CCallback& callback)
 	{
+		ASSERT(station.GetTM() == CTM::HOURLY);
+
 		ERMsg msg;
 
-
-		//if (msg)
-		//{
-
-
-			//CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, m_psfcDS[TRef]->GetPrjID());
-		CGeoPoint pt = station; 
-		//shift longitude to 0-360 for west 
-		//if (pt.m_lon < 0)
-		//	pt.m_lon += 360;
+		CGeoPoint pt = station;
 
 		//pt.Reproject(GEO_2_WEA);
 		if (m_psfcDS[TRef]->GetExtents().IsInside(pt))
 		{
 			CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, station);
-			if (station.GetTM() == CTM::HOURLY)
-			{
-				CHourlyData& data = station.GetHour(localTRef);
-				m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-			}
-			else
-			{
-				CWeatherDay& data = station.GetDay(localTRef.as(CTM::DAILY));
-				m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-			}
+			//
+		//	{
+			CHourlyData& data = station.GetHour(localTRef);
+			m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
+		//}
+		//else
+		//{
+		//	CWeatherDay& data = station.GetDay(localTRef.as(CTM::DAILY));
+		//	m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
+		//}
 
 
 			msg += callback.StepIt(0);
 		}
 
-
-
-		//}
 		return msg;
 	}
 
+	//fill missing value between 3 hours 
+	void CUIGrib16daysForecast::CompleteVariables(CWeatherStation& weather)
+	{
+		ASSERT(weather.IsHourly());
+
+
+		//compute direct hourly value. For example RH from Tdew and TAir or Ea from Tdew or Es from Tair
+		//CTPeriod period = weather.GetEntireTPeriod();
+		weather.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
+		CWVariablesCounter counter = weather.GetVariablesCount();
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+		{
+			CTPeriod period = counter[v].second;
+			if (/*v != H_PRCP && */period.IsInit())
+			{
+				for (CTRef TRef = period.Begin(); TRef <= period.End() - 3; TRef ++)
+				{
+					CHourlyData& data0 = weather.GetHour(TRef);
+					CHourlyData& data1 = weather.GetHour(TRef + 1);
+					CHourlyData& data2 = weather.GetHour(TRef + 2);
+					CHourlyData& data3 = weather.GetHour(TRef + 3);
+
+					if (WEATHER::HaveValue(data0[v]) && WEATHER::HaveValue(data3[v]) && 
+						WEATHER::IsMissing(data1[v]) && WEATHER::IsMissing(data2[v]))
+					{
+						data1.SetStat(v, (2 * data0[v] + 1 * data3[v]) / 3.0);
+						data2.SetStat(v, (1 * data0[v] + 2 * data3[v]) / 3.0);
+					}
+
+				}
+			}
+		}
+	}
 
 	ERMsg CUIGrib16daysForecast::Finalize(TType type, CCallback& callback)
 	{
-		//m_gribsList.clear();
-		//m_pGrib.reset();
 		for (auto it = m_psfcDS.begin(); it != m_psfcDS.end(); it++)
 			it->second->Close();
-
 
 		m_psfcDS.clear();
 
@@ -928,6 +915,7 @@ namespace WBSF
 
 			string path = workingDir + string(SOURCES_NAME[source]) + "\\";
 			StringVector list = WBSF::GetDirectoriesList(path + "*");
+			sort(list.begin(), list.end());
 
 			for (size_t i = 0; i < list.size(); i++)
 			{
@@ -1014,43 +1002,16 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//CTRef TRef = GetLocalTRef(inputFilePath);
 		string outputFilePath = inputFilePath;
 		ReplaceString(outputFilePath, ".grib2", ".tif");
 
 		ASSERT(GoodGrib(inputFilePath));
 
-		
-
-
-		//DSin.m_variables_to_load.reset(H_PRCP);
-		//DSin.m_variables_to_load.reset(H_PRATE);
-		//DSin.m_variables_to_load.reset(H_WNDS);//use computed wind speed and direction from U and V
-		//DSin.m_variables_to_load.reset(H_SNOW);//no data available
-		//DSin.m_variables_to_load.reset(H_SWE);//no data available
-		
 		CSfcDatasetCached DSin;
 		msg += DSin.open(inputFilePath, true);
 		if (msg)
 		{
 			int nbBands = (int)DSin.get_variables().count();
-
-
-			//size_t bS = DSin1.get_band(H_WNDS);
-			//size_t bU = DSin.get_band(H_UWND);
-			//size_t bV = DSin.get_band(H_VWND);
-			//ASSERT(bU && bV);
-			////if (bU != NOT_INIT && bV != NOT_INIT)
-			//nbBands += 2;
-
-			//size_t bT = DSin.get_band(H_TAIR);
-			//size_t bH = DSin.get_band(H_SPFH);
-			//ASSERT(bT && bH);
-
-			//if (bH != NOT_INIT )
-			//	nbBands += 2;
-
-
 			callback.PushTask(string("Convert to GeoTiff ") + GetFileTitle(inputFilePath), nbBands);
 
 
@@ -1074,14 +1035,9 @@ namespace WBSF
 			msg += DSout.CreateImage(outputFilePath + "2", options);
 			if (msg)
 			{
-				for (size_t v = 0, bb = 0; v < DSin.get_variables().size()&&msg; v++)
+				for (size_t v = 0, bb = 0; v < DSin.get_variables().size() && msg; v++)
 				{
 					size_t b = DSin.get_band(v);
-					//if (v == H_PRCP)
-					//	b = DSin.get_band(H_PRATE);
-
-					//if (v == H_PRATE)//replace PRATE by PRCP
-					//	continue;
 
 					if (b != NOT_INIT)
 					{
@@ -1095,32 +1051,11 @@ namespace WBSF
 						float no_data_in = DSin.GetNoData(b);
 						vector<float> data(DSin.GetRasterXSize()*DSin.GetRasterYSize());
 						pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-						//convert 0-360 to -180-180 replace no data
-						//for (size_t xy = 0; xy < data.size()/2; xy++)
-						//{
-						//	//if (fabs(data[xy] - no_data_in) < 0.1)
-						//		//data[xy] = no_data;
-
-						//	size_t xy1 = xy;
-						//	size_t xy2 = data.size() / 2 + xy;
-						//	float tmp = data[xy1];
-						//	data[xy1] = data[xy2];
-						//	data[xy2] = tmp;
-
-						//	if (fabs(data[xy1] - no_data_in) < 0.1)
-						//		data[xy1] = no_data;
-
-						//	if (fabs(data[xy2] - no_data_in) < 0.1)
-						//		data[xy2] = no_data;
-						//}
 						for (size_t y = 0; y < DSin.GetRasterYSize(); y++)
 						{
 							for (size_t x = 0; x < DSin.GetRasterXSize() / 2; x++)
 							{
-								//if (fabs(data[xy] - no_data_in) < 0.1)
-									//data[xy] = no_data;
-
-								size_t xy1 = y* DSin.GetRasterXSize() + x;
+								size_t xy1 = y * DSin.GetRasterXSize() + x;
 								size_t xy2 = y * DSin.GetRasterXSize() + DSin.GetRasterXSize() / 2 + x;
 								float tmp = data[xy1];
 								data[xy1] = data[xy2];
@@ -1143,128 +1078,11 @@ namespace WBSF
 							pBandout->SetMetadata(pBandin->GetMetadata());
 
 						bb++;
-						
+
 						msg += callback.StepIt();
 					}
 
 					DSout->FlushCache();
-
-					//if (v == H_TDEW)
-					//{
-					//	ASSERT(b == NOT_INIT);//Tdew ignored here
-					//	//add wind direction from U and V
-					//	size_t bT = DSin.get_band(H_TAIR);
-					//	size_t bH = DSin.get_band(H_SPFH);
-
-
-					//	if (bT != NOT_INIT && bH != NOT_INIT)
-					//	{
-					//		GDALRasterBand* pBandinT = DSin.GetRasterBand(bT);
-					//		GDALRasterBand* pBandinH = DSin.GetRasterBand(bH);
-					//		GDALRasterBand* pBandoutTd = DSout.GetRasterBand(bb);
-					//		GDALRasterBand* pBandoutHr = DSout.GetRasterBand(bb + 1);
-
-
-					//		ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
-					//		ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
-
-					//		float no_data_inT = DSin.GetNoData(bT);
-					//		float no_data_inH = DSin.GetNoData(bH);
-					//		vector<float> dataT(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-					//		vector<float> dataH(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-					//		pBandinT->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataT[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandinH->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataH[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-
-					//		vector<float> dataTd(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
-					//		vector<float> dataHr(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
-					//		//replace no data
-					//		for (size_t xy = 0; xy < dataT.size(); xy++)
-					//		{
-					//			if (fabs(dataT[xy] - no_data_inT) > 0.1 &&
-					//				fabs(dataH[xy] - no_data_inH) > 0.1)
-					//			{
-					//				dataTd[xy] = Hs2Td(dataT[xy], dataH[xy]);
-					//				dataHr[xy] = Hs2Hr(dataT[xy], dataH[xy]);
-					//			}
-					//		}
-
-					//		pBandoutTd->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataTd[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandoutTd->SetDescription(CSfcGribDatabase::META_DATA[H_TDEW][M_DESC]);
-					//		pBandoutTd->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_TDEW][M_COMMENT]);
-					//		pBandoutTd->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_TDEW][M_ELEMENT]);
-					//		pBandoutTd->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_TDEW][M_SHORT_NAME]);
-					//		pBandoutTd->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_TDEW][M_UNIT]);
-
-					//		pBandoutHr->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataHr[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandoutHr->SetDescription(CSfcGribDatabase::META_DATA[H_RELH][M_DESC]);
-					//		pBandoutHr->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_RELH][M_COMMENT]);
-					//		pBandoutHr->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_RELH][M_ELEMENT]);
-					//		pBandoutHr->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_RELH][M_SHORT_NAME]);
-					//		pBandoutHr->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_RELH][M_UNIT]);
-
-					//		bb += 2;
-					//	}
-					//}
-
-					//if (v == H_WNDS)
-					//{
-					//	ASSERT(b == NOT_INIT);//wind speed ignored here
-					//	//add wind direction from U and V
-					//	size_t bU = DSin.get_band(H_UWND);
-					//	size_t bV = DSin.get_band(H_VWND);
-
-
-					//	if (bU != NOT_INIT && bV != NOT_INIT)
-					//	{
-					//		GDALRasterBand* pBandinU = DSin.GetRasterBand(bU);
-					//		GDALRasterBand* pBandinV = DSin.GetRasterBand(bV);
-					//		GDALRasterBand* pBandoutS = DSout.GetRasterBand(bb);
-					//		GDALRasterBand* pBandoutD = DSout.GetRasterBand(bb + 1);
-
-
-					//		ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
-					//		ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
-
-					//		float no_data_inU = DSin.GetNoData(bU);
-					//		float no_data_inV = DSin.GetNoData(bV);
-					//		vector<float> dataU(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-					//		vector<float> dataV(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-					//		pBandinU->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataU[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandinV->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataV[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-
-					//		vector<float> dataS(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
-					//		vector<float> dataD(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
-					//		//replace no data
-					//		for (size_t xy = 0; xy < dataU.size(); xy++)
-					//		{
-					//			if (fabs(dataU[xy] - no_data_inU) > 0.1 &&
-					//				fabs(dataV[xy] - no_data_inV) > 0.1)
-					//			{
-					//				dataS[xy] = sqrt(dataU[xy] * dataU[xy] + dataV[xy] * dataV[xy]);
-					//				dataD[xy] = (float)GetWindDirection(dataU[xy], dataV[xy], true);//approximation of wind direction
-					//			}
-					//		}
-
-					//		pBandoutS->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataS[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandoutS->SetDescription(CSfcGribDatabase::META_DATA[H_WNDS][M_DESC]);
-					//		pBandoutS->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_WNDS][M_COMMENT]);
-					//		pBandoutS->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_WNDS][M_ELEMENT]);
-					//		pBandoutS->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_WNDS][M_SHORT_NAME]);
-					//		pBandoutS->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_WNDS][M_UNIT]);
-
-
-					//		pBandoutD->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataD[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-					//		pBandoutD->SetDescription(CSfcGribDatabase::META_DATA[H_WNDD][M_DESC]);
-					//		pBandoutD->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_COMMENT]);
-					//		pBandoutD->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_ELEMENT]);
-					//		pBandoutD->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_WNDD][M_SHORT_NAME]);
-					//		pBandoutD->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_WNDS][H_WNDD]);
-
-
-					//		bb += 2;
-					//	}
-					//}
-					
 				}
 
 				DSout.Close();

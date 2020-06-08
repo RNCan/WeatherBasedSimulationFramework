@@ -45,6 +45,15 @@ namespace WBSF
 
 		enum TWarning{ W_DATA_FILLED_WITH_NORMAL, W_UNEEDED_REPLICATION, NB_WARNING };
 		static void OutputWarning(const std::bitset<NB_WARNING>& bits, CCallback& callback);
+		static void ExposureIndices(double exposure_index[12], double latit, double elev, float slope, float orientation, short albedoType);
+		static int Sol9(double inlatit, double inelev, double inslope, double inazimuth, double *expin);
+		static void CompleteSimpleVariables(CSimulationPoint& simulationPoint, CWVariables variables);
+		static ERMsg ComputeHumidityRadiation(CSimulationPoint&  simulationPoint, CWVariables variables);
+		static ERMsg ComputeSnow(CSimulationPoint&  simulationPoint, CWVariables variables);
+		static ERMsg ComputeWindDirection(CSimulationPoint& simulationPoint);
+		static ERMsg ComputePressure(CSimulationPoint& simulationPoint);
+		static bool VerifyData(const CSimulationPointVector& simulationPoints, CWVariables variables1);
+
 
 		CWeatherGenerator();
 		~CWeatherGenerator();
@@ -94,17 +103,6 @@ namespace WBSF
 		
 
 		bool UseExpo()const{ return m_target.GetSlope() > 0 && m_tgi.m_albedo != CWGInput::NONE; }
-		
-
-		static void ExposureIndices(double exposure_index[12], double latit, double elev, float slope, float orientation, short albedoType);
-		static int Sol9(double inlatit, double inelev, double inslope, double inazimuth, double *expin);
-
-		static void CompleteSimpleVariables(CSimulationPoint& simulationPoint, CWVariables variables);
-		static ERMsg ComputeHumidityRadiation(CSimulationPoint&  simulationPoint, CWVariables variables);
-		static ERMsg ComputeSnow(CSimulationPoint&  simulationPoint, CWVariables variables);
-		static ERMsg ComputeWindDirection(CSimulationPoint& simulationPoint);
-		static ERMsg ComputePressure(CSimulationPoint& simulationPoint);
-		static bool VerifyData(const CSimulationPointVector& simulationPoints, CWVariables variables1);
 
 
 		//members
