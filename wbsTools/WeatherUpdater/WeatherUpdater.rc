@@ -772,7 +772,7 @@ BEGIN
                             "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
     IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour historique (jours)"
     IDS_UPDATER_LONG_FORECAST_P 
-                            "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP"
+                            "Répertoire de travail|Type|Serveur|Début (heures)|Fin (heures)|Supprimer après (heures)|Afficher WinSCP"
 END
 
 STRINGTABLE
@@ -1263,7 +1263,7 @@ BEGIN
                             "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
     IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical (days)"
     IDS_UPDATER_LONG_FORECAST_P 
-                            "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP"
+                            "Working directory|Type|Server|Begin (hours)|End (hours)|Delete after (hours)|Show WinSCP"
 END
 
 STRINGTABLE

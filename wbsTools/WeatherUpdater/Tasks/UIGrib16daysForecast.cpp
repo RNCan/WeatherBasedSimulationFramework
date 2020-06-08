@@ -33,8 +33,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUIGrib16daysForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "Server", "MaxHour", "DeleteAfter", "ShowWinSCP" };
-	const size_t CUIGrib16daysForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL };
+	const char* CUIGrib16daysForecast::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Sources", "Server", "FirstHour", "LastHour", "DeleteAfter", "ShowWinSCP" };
+	const size_t CUIGrib16daysForecast::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_STRING, T_BOOL };
 	const UINT CUIGrib16daysForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_LONG_FORECAST_P;
 	const UINT CUIGrib16daysForecast::DESCRIPTION_TITLE_ID = ID_TASK_LONG_FORECAST;
 
@@ -73,7 +73,8 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Forecast\\"; break;
 		case SOURCES: str = "0"; break;
 		case SERVER_TYPE: str = "0"; break;
-		case MAX_HOUR: str = "384"; break;
+		case FIRST_HOUR: str = "1"; break;
+		case LAST_HOUR: str = "384"; break;
 		case DELETE_AFTER: str = "96"; break;
 		};
 
@@ -112,7 +113,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		size_t nbDownload = 0;
 		size_t source = as<size_t>(SOURCES);
-		__int32 max_hours = as<__int32>(MAX_HOUR);
 
 		if (source == N_GFS)
 		{
@@ -210,7 +210,6 @@ namespace WBSF
 
 		size_t nbDownload = 0;
 		size_t source = as<size_t>(SOURCES);
-		__int32 max_hours = as<__int32>(MAX_HOUR);
 
 		if (source == N_GFS)
 		{
@@ -362,7 +361,10 @@ namespace WBSF
 	{
 		CTPeriod p;
 		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		__int32 max_hours = as<__int32>(MAX_HOUR);
+		
+		__int32 first_hours = as<__int32>(FIRST_HOUR);
+		__int32 last_hours = as<__int32>(LAST_HOUR);
+
 
 
 		std::sort(fileList1.begin(), fileList1.end(), [](const CFileInfo& s1, const CFileInfo& s2) { return std::strcmp(s1.m_filePath.c_str(), s2.m_filePath.c_str()) < 0; });
@@ -371,10 +373,13 @@ namespace WBSF
 		for (size_t i = 0; i < fileList1.size(); i++)
 		{
 			string filePath = GetLocaleFilePath(s, fileList1[i].m_filePath);
-			CTRef TRefUTC = GetTRef(s, filePath);
-
-			if (TRefUTC >= nowUTC && TRefUTC - nowUTC <= max_hours)
+			
+			size_t HH = GetHH(s, filePath);
+			
+			//int hours = TRefUTC - nowUTC;
+			if (HH >= first_hours && HH <= last_hours)
 			{
+				CTRef TRefUTC = GetTRef(s, filePath);
 				fileList2[TRefUTC] = fileList1[i];
 			}
 		}
@@ -721,9 +726,9 @@ namespace WBSF
 
 
 		CTRef nowUTC = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		__int32 max_hours = as<__int32>(MAX_HOUR);
+		//__int32 max_hours = as<__int32>(MAX_HOUR);
 
-		CTPeriod p(nowUTC - 24, nowUTC + max_hours);//estimate of actual period (only used year)
+		CTPeriod p (nowUTC - 480, nowUTC + 480);//Get all file available
 
 		CGribsMap gribsList;
 		msg = GetGribsList(p, gribsList, callback);
@@ -774,41 +779,76 @@ namespace WBSF
 		
 		if (!m_psfcDS.empty())
 		{
+			CTRef current = CTRef::GetCurrentTRef(TM);
+			station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
+			CWVariablesCounter counter = station.GetVariablesCount();
+			CTRef TRefEnd = counter.GetTPeriod().End();
+			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
+
+			static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+			//
 			CWVariables vars = station.GetVariables();
-
-			//create all data for multi-thread
-			CTPeriod p(m_psfcDS.begin()->first, m_psfcDS.rbegin()->first);
-			station.CreateYears(p);
-
-			size_t nbStationAdded = 0;
-			string feed = "Update GFS forecast for \"" + station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
-			callback.PushTask(feed, m_psfcDS.size());
-			callback.AddMessage(feed);
-
-			//convert set into vector for multi-thread
-			vector<CTRef> tmp;
-			for (auto it = m_psfcDS.begin(); it != m_psfcDS.end() && msg; it++)
-				tmp.push_back(it->first);
-
-			//#pragma omp parallel for shared(msg)
-			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
+			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 			{
-#pragma omp flush(msg)
-				if (msg)
-				{
-					CTRef TRef = tmp[i];
-					msg += ExtractStation(TRef, station, callback);
-					msg += callback.StepIt();
-#pragma omp flush(msg)
-
-				}
+				if (current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) >= NB_MISS_DAY_TO_IGNORE_FORECAST)
+					vars.reset(v);
 			}
 
+			
+			//station must have data in the last week
+			//if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
+			if(vars.any())
+			{
 
-			station.CleanUnusedVariable(vars);
+				//create all data for multi-thread
+				CTPeriod p(m_psfcDS.begin()->first, m_psfcDS.rbegin()->first);
+
+				CWeatherStation forecast_station(station.IsHourly());
+				((CLocation&)forecast_station) = station;
+				forecast_station.CreateYears(p);
+
+				size_t nbStationAdded = 0;
+				string feed = "Update GFS forecast for \"" + forecast_station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
+				callback.PushTask(feed, m_psfcDS.size());
+				callback.AddMessage(feed);
+
+				//convert set into vector for multi-thread
+				vector<CTRef> tmp;
+				for (auto it = m_psfcDS.begin(); it != m_psfcDS.end() && msg; it++)
+					tmp.push_back(it->first);
+
+				
+
+				#pragma omp parallel for shared(msg)
+				for (__int64 i = 0; i < (__int64)tmp.size(); i++)
+				{
+#pragma omp flush(msg)
+					if (msg)
+					{
+						CTRef TRef = tmp[i];
+						msg += ExtractStation(TRef, station, callback);
+						msg += callback.StepIt();
+#pragma omp flush(msg)
+
+					}
+				}
 
 
-			callback.PopTask();
+				//forecast_station.CleanUnusedVariable(vars);
+				p = forecast_station.GetEntireTPeriod();
+				//add valid forecast to the station
+				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+				{
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+					{
+						if (vars[v] && !station[TRef][v].IsInit())
+							station[TRef].SetStat(v, forecast_station[TRef][v]);
+					}
+
+				}
+
+				callback.PopTask();
+			}
 		}
 
 

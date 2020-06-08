@@ -23,7 +23,7 @@ namespace WBSF
 
 		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
 		enum TNetwork{ N_GFS, NB_SOURCES };
-		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, MAX_HOUR, DELETE_AFTER, SHOW_WINSCP, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, SOURCES, SERVER_TYPE, FIRST_HOUR, LAST_HOUR, DELETE_AFTER, SHOW_WINSCP, NB_ATTRIBUTES };
 
 
 		static const char* CLASS_NAME();
@@ -71,7 +71,8 @@ namespace WBSF
 		
 		bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
 		static std::string GetRemoteFilePath(size_t source, CTRef TRef, size_t HH, size_t hhh);
-		ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
+		//ERMsg GetLatestHH(size_t& HH, CCallback& callback)const;
+
 		
 		ERMsg Clean(size_t source, CCallback& callback);
 		CTPeriod CleanList(size_t s, CFileInfoVector& fileList1);

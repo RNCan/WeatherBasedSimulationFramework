@@ -18,7 +18,7 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
-	static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+	
 
 	CRegionArray CRegionSelection::REGION_NAME;
 
@@ -485,17 +485,14 @@ namespace WBSF
 			CTRef TRefEnd = counter.GetTPeriod().End();
 			ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
 
-
-			//station must have data in the last 2 weeks
+			static const size_t NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+			//station must have data in the last week
 			if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
 			{
 
 				array<bool, NB_VAR_H> bAddForecast;
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 					bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
-
-				//if (bAddForecast[H_TMIN] || bAddForecast[H_TAIR] || bAddForecast[H_TMAX])
-					//bAddForecast[H_TMIN] = bAddForecast[H_TAIR] = bAddForecast[H_TMAX] = true;
 
 				int shapeNo = -1;
 
