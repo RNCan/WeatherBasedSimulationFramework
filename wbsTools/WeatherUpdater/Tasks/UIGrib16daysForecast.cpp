@@ -141,11 +141,23 @@ namespace WBSF
 					{
 						for (size_t i = curI; i < fileList.size() && msg; i++)
 						{
-							string inputPath = fileList[i].m_filePath;
 							string outputPath = GetLocaleFilePath(source, fileList[i].m_filePath);
 							CreateMultipleDir(GetPath(outputPath));
 
+							string file_name = WBSF::GetFileName(fileList[i].m_filePath);
+							//CTRef TRef = GetTRef(source, outputPath);
+							//string dir_name = FormatA("/gfs.%4d%02d%02d/%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
+							string dir_name = fileList[i].m_filePath.substr(27,16);
+
+							//msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
+
+							//URL=https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_sflux.pl?file=gfs.t06z.sfluxgrbf384.grib2&lev_10_m_above_ground=on&lev_2_m_above_ground=on&lev_surface=on&var_DSWRF=on&var_HGT=on&var_PRATE=on&var_PRES=on&var_SNOD=on&var_SPFH=on&var_TMAX=on&var_TMIN=on&var_TMP=on&var_UGRD=on&var_VGRD=on&var_WEASD=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs.20200611%2F06
+							string inputPath = "/cgi-bin/filter_gfs_sflux.pl?lev_10_m_above_ground=on&lev_2_m_above_ground=on&lev_surface=on&var_DSWRF=on&var_HGT=on&var_PRATE=on&var_PRES=on&var_SNOD=on&var_SPFH=on&var_TMAX=on&var_TMIN=on&var_TMP=on&var_UGRD=on&var_VGRD=on&var_WEASD=on";
+							
+							inputPath += "&dir=" + dir_name;
+							inputPath += "&file=" + file_name;
 							msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
+
 							if (msg)
 							{
 								if (GoodGrib(outputPath))
@@ -315,7 +327,7 @@ namespace WBSF
 				{
 					bool bRemoveDir = true;
 
-					StringVector filesListTmp = GetFilesList(workingDir + dates[i] + "/*.grib2");
+					StringVector filesListTmp = GetFilesList(workingDir + dates[i] + "/*.tif");
 					for (size_t f = 0; f < filesListTmp.size(); f++)
 					{
 						CTRef TRefUTC = GetTRef(source, filesListTmp[f]);
@@ -748,6 +760,9 @@ namespace WBSF
 			CTRef current = CTRef::GetCurrentTRef(TM);
 			station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 			CWVariablesCounter counter = station.GetVariablesCount();
+			//CTRef TRefEnd = counter.GetTPeriod().End();
+			//ASSERT(TRefEnd.as(CTM::DAILY) <= current.as(CTM::DAILY));
+
 
 			//station must have data in the last week
 			//clean up varaibles that are not up to date
@@ -773,7 +788,7 @@ namespace WBSF
 				size_t nbStationAdded = 0;
 				string feed = "Update GFS forecast for \"" + forecast_station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
 				callback.PushTask(feed, m_psfcDS.size());
-				//callback.AddMessage(feed);
+				callback.AddMessage(feed);
 
 				//convert set into vector for multi-thread
 				vector<CTRef> tmp;
@@ -830,8 +845,17 @@ namespace WBSF
 		if (m_psfcDS[TRef]->GetExtents().IsInside(pt))
 		{
 			CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, station);
+			//
+		//	{
 			CHourlyData& data = station.GetHour(localTRef);
 			m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
+		//}
+		//else
+		//{
+		//	CWeatherDay& data = station.GetDay(localTRef.as(CTM::DAILY));
+		//	m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
+		//}
+
 
 			msg += callback.StepIt(0);
 		}
@@ -846,6 +870,7 @@ namespace WBSF
 
 
 		//compute direct hourly value. For example RH from Tdew and TAir or Ea from Tdew or Es from Tair
+		//CTPeriod period = weather.GetEntireTPeriod();
 		weather.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = weather.GetVariablesCount();
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
@@ -959,31 +984,7 @@ namespace WBSF
 		return HH;
 	}
 
-	CTRef CUIGrib16daysForecast::GetLocalTRef(string filePath)
-	{
-		CTRef TRef;
-
-		string name = GetFileTitle(filePath);
-		filePath = GetPath(filePath);
-		string dir1 = WBSF::GetLastDirName(filePath);
-		while (WBSF::IsPathEndOk(filePath))
-			filePath = filePath.substr(0, filePath.length() - 1);
-		filePath = GetPath(filePath);
-		string dir2 = WBSF::GetLastDirName(filePath);
-		while (WBSF::IsPathEndOk(filePath))
-			filePath = filePath.substr(0, filePath.length() - 1);
-		filePath = GetPath(filePath);
-		string dir3 = WBSF::GetLastDirName(filePath);
-
-		int year = WBSF::as<int>(dir3);
-		size_t m = WBSF::as<int>(dir2) - 1;
-		size_t d = WBSF::as<int>(dir1) - 1;
-		size_t h = WBSF::as<int>(name.substr(6, 2));
-		TRef = CTRef(year, m, d, h);
-
-		return TRef;
-	}
-
+	
 	ERMsg CUIGrib16daysForecast::CreateHourlyGeotiff(const string& inputFilePath, CCallback& callback)const
 	{
 		ERMsg msg;

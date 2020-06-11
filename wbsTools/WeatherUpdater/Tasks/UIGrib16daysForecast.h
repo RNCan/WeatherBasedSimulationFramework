@@ -79,7 +79,7 @@ namespace WBSF
 		ERMsg GetFilesToDownload(size_t source, size_t server, CFileInfoVector& fileList, CCallback& callback);
 		std::string GetLocaleFilePath(size_t source, const std::string& remote)const;
 
-		static CTRef GetLocalTRef(std::string filePath);
+		
 		ERMsg CreateHourlyGeotiff(const std::string& inputFilePath, CCallback& callback)const;
 
 
