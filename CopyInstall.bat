@@ -108,6 +108,8 @@ copy /Y ".\bin\Releasex64\Models\FWI Drought Code (Monthly).mdl" "..\Install\NRC
 copy /Y ".\bin\Releasex64\Models\FWI Drought Code-Fixe (Daily).mdl" "..\Install\NRCan\Models\FWI Drought Code-Fixe (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI Drought Code-Fixe (Monthly).mdl" "..\Install\NRCan\Models\FWI Drought Code-Fixe (Monthly).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI Drought Code.dll" "..\Install\NRCan\Models\FWI Drought Code.dll"
+copy /Y ".\bin\Releasex64\Models\SummerMoisture (Monthly).mdl" "..\Install\NRCan\Models\SummerMoisture (Monthly).mdl"
+copy /Y ".\bin\Releasex64\Models\SummerMoisture.dll" "..\Install\NRCan\Models\SummerMoisture.dll"
 
 copy /Y ".\bin\Releasex64\Models\GrowingSeason.mdl" "..\Install\NRCan\Models\GrowingSeason.mdl"
 copy /Y ".\bin\Releasex64\Models\GrowingSeason.dll" "..\Install\NRCan\Models\GrowingSeason.dll"
