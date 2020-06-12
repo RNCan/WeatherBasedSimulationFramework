@@ -788,7 +788,7 @@ namespace WBSF
 				size_t nbStationAdded = 0;
 				string feed = "Update GFS forecast for \"" + forecast_station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
 				callback.PushTask(feed, m_psfcDS.size());
-				callback.AddMessage(feed);
+				//callback.AddMessage(feed);
 
 				//convert set into vector for multi-thread
 				vector<CTRef> tmp;
