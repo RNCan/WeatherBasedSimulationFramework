@@ -75,7 +75,7 @@ namespace WBSF
 	const UINT CUINOAAForecast::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_FORECAST_P;
 	const UINT CUINOAAForecast::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_FORECAST;
 
-	static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+
 
 	const char* CUINOAAForecast::CLASS_NAME() { static const char* THE_CLASS_NAME = "NOAAForecast";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINOAAForecast::ClassType()const { return CTaskBase::UPDATER; }
@@ -362,15 +362,25 @@ namespace WBSF
 		CTRef current = CTRef::GetCurrentTRef(station.GetTM());
 		station.GetStat(H_TAIR);//force to compute stat before call GetVariablesCount
 		CWVariablesCounter counter = station.GetVariablesCount();
-		CTRef TRefEnd = counter.GetTPeriod().End();
-		ASSERT(TRefEnd <= current);
+		//CTRef TRefEnd = counter.GetTPeriod().End();
+		//ASSERT(TRefEnd <= current);
 
-		//station must have data in the last 2 weeks
-		if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
+		static const int NB_MISS_DAY_TO_IGNORE_FORECAST = 7;
+		CWVariables vars = station.GetVariables();
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 		{
-			array<bool, NB_VAR_H> bAddForecast;
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
-				bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
+			if (current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) >= NB_MISS_DAY_TO_IGNORE_FORECAST)
+				vars.reset(v);
+		}
+
+		if (vars.any())
+		{
+		//station must have data in the last 2 weeks
+		//if (current.as(CTM::DAILY) - TRefEnd.as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST)
+		//{
+			//array<bool, NB_VAR_H> bAddForecast;
+			//for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+				//bAddForecast[v] = current.as(CTM::DAILY) - counter[v].second.End().as(CTM::DAILY) < NB_MISS_DAY_TO_IGNORE_FORECAST;
 
 			//if (bAddForecast[H_TMIN] || bAddForecast[H_TAIR] || bAddForecast[H_TMAX])
 				//bAddForecast[H_TMIN] = bAddForecast[H_TAIR] = bAddForecast[H_TMAX] = true;
@@ -405,8 +415,10 @@ namespace WBSF
 							if (t == 1 && f == 1 && v == V_PRCP)
 								continue;
 
-							if (!bAddForecast[FORECAST_VARIABLES[t][v]])
+							if( !vars[v] )
 								continue;
+							//if (!bAddForecast[FORECAST_VARIABLES[t][v]])
+							//	continue;
 
 							if (!m_datasets[t][f][v].IsOpen())
 								continue;
