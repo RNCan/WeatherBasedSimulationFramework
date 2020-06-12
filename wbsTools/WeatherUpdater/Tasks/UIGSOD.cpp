@@ -691,14 +691,14 @@ namespace WBSF
 					snowDept = ToDouble(line.substr(125, 5));
 
 
-				if (Tmean > -60 && Tmean <  40)
+				if (Tmean > -76 && Tmean <  122)
 				{
 					double TmeanC = ((Tmean - 32.0)*5.0 / 9.0);
 					data[TRef][H_TAIR] = TmeanC;
 				}
 
-				if (Tmin > -60 && Tmin < 40 &&
-					Tmax > -60 && Tmax < 40)
+				if (Tmin > -76 && Tmin < 122 &&
+					Tmax > -76 && Tmax < 122)
 				{
 					assert(Tmin<Tmax);
 					if (Tmin > Tmax)
@@ -710,13 +710,13 @@ namespace WBSF
 					data[TRef][H_TMAX] = TmaxC;
 				}
 
-				if (ppt >= 0 && ppt<10)
+				if (ppt >= 0 && ppt<12)
 				{
 					data[TRef][H_PRCP] = (ppt*25.40);
 				}
 
 
-				if (Tdew > -60 && Tdew < 40)
+				if (Tdew > -76 && Tdew < 122)
 				{
 					data[TRef][H_TDEW] = ((Tdew - 32.0)*5.0 / 9.0);
 
@@ -741,7 +741,7 @@ namespace WBSF
 
 				if (snowDept >= 0)
 				{
-					//data[TRef][H_SNDH] = snowDept*???;
+					data[TRef][H_SNDH] = snowDept*2.540;//inch --> cm
 				}
 			}
 		}
