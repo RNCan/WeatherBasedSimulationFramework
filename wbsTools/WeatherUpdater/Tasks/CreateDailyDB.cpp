@@ -276,10 +276,8 @@ namespace WBSF
 			return;
 
 		CWVariables variables = station.GetVariables();
-		//array<double, NB_VAR_H> factor;
-		//factor.fill( station.IsHourly() ? 24 : 1);
-		//factor[H_TMIN] = 1;//Tmin and Tmax always have only one value event from hourly compilation
-		//factor[H_TMAX] = 1;
+		
+
 
 		double monthlyCompleteness = as<double>(MONTHLY_COMPLETENESS);
 		double annualCompleteness = as<double>(ANNUAL_COMPLETENESS);
@@ -316,16 +314,18 @@ namespace WBSF
 					}
 				}
 			}
+
+			station.ResetStat();
 		}
 
 		if (annualCompleteness > 0)
 		{
-			station.ResetStat();
+			
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
-			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
-			assert(p.Begin() <= now);
-			if (p.End() >= now)
-				p.End() = now - 1;
+			CTRef this_year = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
+			assert(p.Begin() <= this_year);
+			//if (p.End() >= now)
+				//p.End() = now - 1;
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -335,24 +335,45 @@ namespace WBSF
 					if (variables[v])
 					{
 						double completeness = 100.0 * count[v].first / TRef.GetNbDaysPerYear();
-						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (TRef.GetNbDaysPerYear()*factor[v]);
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < annualCompleteness)
 						{
-							//reset month
-							int year = TRef.GetYear();
-							for (size_t m = 0; m < 12; m++)
+							bool bClear = true;
+							if (TRef == this_year)
 							{
-								for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+								CTRef today = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
+								if (today.GetJDay() > 15)//check for minimum days after the 10 of january
 								{
-									station[year][m][d][v].clear();
+									//minimum of 7 days
+									if( count[v].first >= 7)
+										bClear = false;
+								}
+								else
+								{
+									bClear = false;
+								}
+								
+							}
+							//reset year
+							if (bClear)
+							{
+								int year = TRef.GetYear();
+								for (size_t m = 0; m < 12; m++)
+								{
+									for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+									{
+										station[year][m][d][v].clear();
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+
+			station.ResetStat();
 		}
+
 	}
 
 

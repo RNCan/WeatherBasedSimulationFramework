@@ -197,6 +197,8 @@ namespace WBSF
 					}
 				}
 			}
+
+			station.ResetStat();
 		}
 		
 
@@ -240,10 +242,10 @@ namespace WBSF
 		if (annualCompleteness > 0)
 		{
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
-			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
-			assert(p.Begin() <= now);
-			if (p.End() >= now)
-				p.End() = now - 1;
+			CTRef this_year = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
+			assert(p.Begin() <= this_year);
+			//if (p.End() >= now)
+				//p.End() = now - 1;
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -253,18 +255,37 @@ namespace WBSF
 					if (variables[v])
 					{
 						double completeness = 100.0 * count[v].first / TRef.GetNbDaysPerYear();
-						//double completeness = 100.0 * station[TRef][v][NB_VALUE] / (factor[v] * TRef.GetNbDaysPerYear());
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < annualCompleteness)
 						{
-							//reset month
-							int year = TRef.GetYear();
-							for (size_t m = 0; m < 12; m++)
+							bool bClear = true;
+							if (TRef == this_year)
 							{
-								for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+								CTRef today = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
+								if (today.GetJDay() > 15)//check for minimum days after the 10 of january
 								{
-									for (size_t h = 0; h < 24; h++)
-										station[year][m][d][h][v] = WEATHER::MISSING;
+									//minimum of 7 days (168 hours)
+									if (count[v].first >= 168)
+										bClear = false;
+								}
+								else
+								{
+									bClear = false;
+								}
+
+							}
+							//reset year
+							if (bClear)
+							{
+
+								int year = TRef.GetYear();
+								for (size_t m = 0; m < 12; m++)
+								{
+									for (size_t d = 0; d < TRef.GetNbDayPerMonth(year, m); d++)
+									{
+										for (size_t h = 0; h < 24; h++)
+											station[year][m][d][h][v] = WEATHER::MISSING;
+									}
 								}
 							}
 						}

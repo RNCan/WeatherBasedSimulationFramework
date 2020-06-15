@@ -787,7 +787,7 @@ namespace WBSF
 
 				size_t nbStationAdded = 0;
 				string feed = "Update GFS forecast for \"" + forecast_station.m_name + "\" (extracting " + to_string(m_psfcDS.size()) + " hours)";
-				callback.PushTask(feed, m_psfcDS.size());
+				//callback.PushTask(feed, m_psfcDS.size());
 				//callback.AddMessage(feed);
 
 				//convert set into vector for multi-thread
@@ -825,7 +825,7 @@ namespace WBSF
 
 				}
 
-				callback.PopTask();
+				//callback.PopTask();
 			}
 		}
 
@@ -845,18 +845,8 @@ namespace WBSF
 		if (m_psfcDS[TRef]->GetExtents().IsInside(pt))
 		{
 			CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, station);
-			//
-		//	{
 			CHourlyData& data = station.GetHour(localTRef);
 			m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-		//}
-		//else
-		//{
-		//	CWeatherDay& data = station.GetDay(localTRef.as(CTM::DAILY));
-		//	m_psfcDS[TRef]->get_weather(pt, data);//estimate weather at location
-		//}
-
-
 			msg += callback.StepIt(0);
 		}
 
