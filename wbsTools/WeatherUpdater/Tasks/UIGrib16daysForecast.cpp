@@ -805,7 +805,7 @@ namespace WBSF
 					{
 						CTRef TRef = tmp[i];
 						msg += ExtractStation(TRef, forecast_station, callback);
-						msg += callback.StepIt();
+						msg += callback.StepIt(0);
 #pragma omp flush(msg)
 
 					}

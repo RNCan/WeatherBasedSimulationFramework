@@ -199,7 +199,7 @@ namespace WBSF
 								state = "MD";
 
 							size_t s = CStateSelection::GetState(state);
-							ASSERT(IsInclude(s));
+							//ASSERT(IsInclude(s));
 
 
 							string stationPage;
@@ -590,7 +590,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CWeatherYears data(true);
-		data.CreateYear(year);
+		//data.CreateYear(year);
 
 		//vector<size_t> vars;
 
