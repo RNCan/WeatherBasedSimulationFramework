@@ -465,36 +465,38 @@ namespace WBSF
 
 		bitset<NB_CATEGORIES> categories = GetCategories(variables);
 
-		
-		for (size_t f = 0; f < NB_FIELDS; f++)
+		if (!normalVector.empty())
 		{
-			size_t c = GetCategoryN(f);
-			//if (variables[v])
-			if (categories[c])
+			for (size_t f = 0; f < NB_FIELDS; f++)
 			{
-				ASSERT(normalVector.size() == weight[c].size());
-				for (size_t m = 0; m < 12; m++)
+				size_t c = GetCategoryN(f);
+				//if (variables[v])
+				if (categories[c])
 				{
-					if (f >= TACF_A1 && f <= TACF_B2)
+					ASSERT(normalVector.size() == weight[c].size());
+					for (size_t m = 0; m < 12; m++)
 					{
-						//only take the nearest
-						me[m][f] = normalVector[0][m][f];
-					}
-					else
-					{
-						me[m][f] = 0;
-						for (size_t i = 0; i < normalVector.size(); i++)
+						if (f >= TACF_A1 && f <= TACF_B2)
 						{
-							ASSERT(WEATHER::HaveValue(normalVector[i][m][f]));
-							ASSERT(normalVector[i][m].IsValid(f));
-
-							me[m][f] += float(weight[c][i] * normalVector[i][m][f]);
+							//only take the nearest
+							me[m][f] = normalVector[0][m][f];
 						}
-
-						if (f == PRCP_TT && me[m][f] < 0)
+						else
+						{
 							me[m][f] = 0;
+							for (size_t i = 0; i < normalVector.size(); i++)
+							{
+								ASSERT(WEATHER::HaveValue(normalVector[i][m][f]));
+								ASSERT(normalVector[i][m].IsValid(f));
 
-						me[m][f] = Round(me[m][f], GetNormalDataPrecision(f));
+								me[m][f] += float(weight[c][i] * normalVector[i][m][f]);
+							}
+
+							if (f == PRCP_TT && me[m][f] < 0)
+								me[m][f] = 0;
+
+							me[m][f] = Round(me[m][f], GetNormalDataPrecision(f));
+						}
 					}
 				}
 			}

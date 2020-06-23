@@ -168,6 +168,8 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "Geomatic/TimeZones.h"
 #include "Geomatic/UtilGDAL.h"
+//#include "l.fra\afxres.rc" 
+
 
 #include <gdiplus.h>
 #include "OutputView.h"
@@ -232,6 +234,9 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	}
 
 	CDynamicResources::set(AfxGetResourceHandle());
+
+	
+
 	
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);

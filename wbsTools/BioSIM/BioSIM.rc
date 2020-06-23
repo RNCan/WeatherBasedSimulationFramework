@@ -9,8 +9,7 @@
 //
 #include "afxres.h"
 #include "WeatherBasedSimulationUI.h"
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -646,7 +645,7 @@ BEGIN
     IDS_OPTION_CAPTION      "Options"
     IDS_TO_SHOWMAP          "Afficher carte(s)"
     IDS_OUTPUT_WND          "Registre de messages d'éxécution"
-    IDR_MAINFRAME           "BioSIM\n\nBioSIM\nBioSIM Files (*.biox)\n.biox\nBioSIM.Document\nBioSIM.Document"
+    IDR_MAINFRAME           "BioSIM\nSans titre\nBioSIM\nBioSIM Files (*.biox)\n.biox\nBioSIM.Document\nBioSIM.Document"
 END
 
 STRINGTABLE
@@ -1168,7 +1167,7 @@ BEGIN
     IDS_OPTION_CAPTION      "Options"
     IDS_TO_SHOWMAP          "Show Map(s)"
     IDS_OUTPUT_WND          "Execute Message Log"
-    IDR_MAINFRAME           "BioSIM\n\nBioSIM\nBioSIM Files (*.biox)\n.biox\nBioSIM.Document\nBioSIM.Document"
+    IDR_MAINFRAME           "BioSIM\nUntitled\nBioSIM\nBioSIM Files (*.biox)\n.biox\nBioSIM.Document\nBioSIM.Document"
 END
 
 STRINGTABLE
