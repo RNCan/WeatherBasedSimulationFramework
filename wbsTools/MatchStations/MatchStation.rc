@@ -374,7 +374,7 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE 12, 1\r\n"
+    "//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -900,7 +900,7 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE 12, 1
+//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

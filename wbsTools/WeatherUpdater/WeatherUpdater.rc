@@ -440,7 +440,7 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE LANG_FRENCH, SUBLANG_FRENCH\r\n"
+    "//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH (ne fonctionne pas???)\r\n"
     "#pragma code_page(1252)\r\n"
     "#include ""l.fra\\afxres.rc""         // Standard components\r\n"
     "#include ""l.fra\\afxprint.rc""         // Standard components\r\n"
@@ -1361,7 +1361,7 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
+//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH (ne fonctionne pas???)
 #pragma code_page(1252)
 #include "l.fra\afxres.rc"         // Standard components
 #include "l.fra\afxprint.rc"         // Standard components

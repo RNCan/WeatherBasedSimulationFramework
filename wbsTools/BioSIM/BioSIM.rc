@@ -220,7 +220,7 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE LANG_FRENCH, SUBLANG_FRENCH\r\n"
+    "//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH\r\n"
     "#pragma code_page(1252)\r\n"
     "#include ""l.fra\\afxres.rc""         // Standard components\r\n"
     "#include ""l.fra\\afxprint.rc""         // Standard components\r\n"
@@ -273,8 +273,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,6,7,2
- PRODUCTVERSION 11,6,7,2
+ FILEVERSION 11,6,7,3
+ PRODUCTVERSION 11,6,7,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -291,23 +291,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.6.7.2"
+            VALUE "FileVersion", "11.6.7.3"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.6.7.2"
+            VALUE "ProductVersion", "11.6.7.3"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.6.7.2"
+            VALUE "FileVersion", "11.6.7.3"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1995-2016"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.6.7.2"
+            VALUE "ProductVersion", "11.6.7.3"
         END
     END
     BLOCK "VarFileInfo"
@@ -1380,7 +1380,7 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
+//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 #pragma code_page(1252)
 #include "l.fra\afxres.rc"         // Standard components
 #include "l.fra\afxprint.rc"         // Standard components

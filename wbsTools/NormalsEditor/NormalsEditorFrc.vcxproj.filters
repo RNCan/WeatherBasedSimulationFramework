@@ -37,6 +37,9 @@
     <Image Include="res\chart_wnd.ico">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="res\station_list_wnd.ico" />
+    <Image Include="res\MainFrameToolbar.png" />
+    <Image Include="res\StationsListToolbar.png" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">

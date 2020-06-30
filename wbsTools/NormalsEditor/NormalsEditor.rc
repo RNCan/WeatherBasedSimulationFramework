@@ -150,8 +150,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,3,0
- PRODUCTVERSION 4,4,3,0
+ FILEVERSION 4,4,3,1
+ PRODUCTVERSION 4,4,3,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -168,21 +168,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques normales"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "EditeurNormales"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Normals weather data editor"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.1"
             VALUE "InternalName", "NormalsEditor.exe"
             VALUE "OriginalFilename", "NormalsEditor.exe"
             VALUE "ProductName", "NormalsEditor"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -373,7 +373,7 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE 12, 1\r\n"
+    "//LANGUAGE 12, 1 (ne fonctionne pas???)\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -397,7 +397,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurNormales\n\nEditeurNormales\nBase de données normales (*.NormalsDB)\n.NormalsDB\n\n"
+    IDR_MAINFRAME           "ÉditeurNormales\nSans titre\nEditeurNormales\nBase de données normales (*.NormalsDB)\n.NormalsDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -710,7 +710,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "NormalsEditor\n\nNormalsEditor\nNormals Database (*.NormalsDB)\n.NormalsDB\n\n"
+    IDR_MAINFRAME           "NormalsEditor\nUntitled\nNormalsEditor\nNormals Database (*.NormalsDB)\n.NormalsDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -896,7 +896,7 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE 12, 1
+//LANGUAGE 12, 1 (ne fonctionne pas???)
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)

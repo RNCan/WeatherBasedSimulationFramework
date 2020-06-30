@@ -25,6 +25,7 @@
     <Image Include="res\ChartsToolbar.bmp" />
     <Image Include="res\chart_wnd.ico" />
     <Image Include="res\MainFrameToolbar.bmp" />
+    <Image Include="res\MainFrameToolbar.png" />
     <Image Include="res\menuimages.bmp" />
     <Image Include="res\NormalsEditor.ico" />
     <Image Include="res\Option.ico" />
@@ -33,6 +34,8 @@
     <Image Include="res\properties_wnd.ico" />
     <Image Include="res\spreadsheet_wnd.ico" />
     <Image Include="res\StationsListToolbar.bmp" />
+    <Image Include="res\StationsListToolbar.png" />
+    <Image Include="res\station_list_wnd.ico" />
     <Image Include="res\TableToolbar.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,7 +43,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DFEB78CC-7812-4E50-AB73-002D5F63871A}</ProjectGuid>
-    <RootNamespace>UpdaterRes</RootNamespace>
+    <RootNamespace>NormalsEditorFrc</RootNamespace>
     <ProjectName>NormalsEditorFrc</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

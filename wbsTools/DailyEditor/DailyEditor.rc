@@ -7,11 +7,8 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#ifndef APSTUDIO_INVOKED
-#include <SDKDDKVer.h>
-#endif
 #include "afxres.h"
-#include "verrsrc.h"
+#include "WeatherBasedSimulationUI.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -180,8 +177,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,3,0
- PRODUCTVERSION 4,4,3,0
+ FILEVERSION 4,4,3,1
+ PRODUCTVERSION 4,4,3,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -198,21 +195,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques quotidiennes"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.1"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "EditeurQuotidien"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Daily weather data editor"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.1"
             VALUE "InternalName", "DailyEditor.exe"
             VALUE "OriginalFilename", "DailyEditor.exe"
             VALUE "ProductName", "DailyEditor"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -391,11 +388,8 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#ifndef APSTUDIO_INVOKED\r\n"
-    "#include <SDKDDKVer.h>\r\n"
-    "#endif\r\n"
     "#include ""afxres.h""\r\n"
-    "#include ""verrsrc.h""\r\n"
+    "#include ""WeatherBasedSimulationUI.h""\r\n"
     "\0"
 END
 
@@ -414,7 +408,8 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE 12, 1\r\n"
+    "//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH  (ne fonctionne pas???)\r\n"
+    "#pragma code_page(1252)\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -423,7 +418,9 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#include ""WeatherBasedSimulationString.rc""\r\n"
-    "#include ""WeatherBasedSimulationUI.rc""\0"
+    "#include ""WeatherBasedSimulationUI.rc""\r\n"
+    "\r\n"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -436,7 +433,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurQuotidien\n\nDailyEditor\nBase de données quotidiennes (*.DailyDB)\n.DailyDB\n\n"
+    IDR_MAINFRAME           "ÉditeurQuotidien\nSans titre\nDailyDB\nBase de données quotidiennes (*.DailyDB)\n.DailyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -786,7 +783,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "DailyEditor\n\nDailyEditor\nDaily Database (*.DailyDB)\n.DailyDB\n\n"
+    IDR_MAINFRAME           "DailyEditor\nUntitled\nDailyEditor\nDaily Database (*.DailyDB)\n.DailyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -994,7 +991,8 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE 12, 1
+//LANGUAGE LANG_FRENCH, SUBLANG_FRENCH  (ne fonctionne pas???)
+#pragma code_page(1252)
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)
@@ -1004,6 +1002,8 @@ LANGUAGE 12, 1
 
 #include "WeatherBasedSimulationString.rc"
 #include "WeatherBasedSimulationUI.rc"
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

@@ -180,8 +180,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,3,0
- PRODUCTVERSION 4,4,3,0
+ FILEVERSION 4,4,3,2
+ PRODUCTVERSION 4,4,3,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -198,21 +198,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.2"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "ÉditeurHoraire"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Hourly weather data editor"
-            VALUE "FileVersion", "4.4.3.0"
+            VALUE "FileVersion", "4.4.3.2"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "HourlyEditor"
-            VALUE "ProductVersion", "4.4.3.0"
+            VALUE "ProductVersion", "4.4.3.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -414,7 +414,7 @@ BEGIN
     "#endif\r\n"
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)\r\n"
-    "LANGUAGE 12, 1\r\n"
+    "//LANGUAGE 12, 1\r\n"
     "#include ""l.FRA\\afxres.rc""      // Composants standard\r\n"
     "#include ""l.FRA\\afxprint.rc""    // ressources impression/aperçu avant impression\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -438,7 +438,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "ÉditeurHoraire\n\nHourlyEditor\nBase de données horaires (*.HourlyDB)\n.HourlyDB\n\n"
+    IDR_MAINFRAME           "ÉditeurHoraire\nSans titre\nHourlyEditor\nBase de données horaires (*.HourlyDB)\n.HourlyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -774,7 +774,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "HourlyEditor\n\nHourlyEditor\nHourly Database (*.HourlyDB)\n.HourlyDB\n\n"
+    IDR_MAINFRAME           "HourlyEditor\nUntitled\nHourlyEditor\nHourly Database (*.HourlyDB)\n.HourlyDB\n\n"
     IDS_OPTION_CAPTION      "Options"
 END
 
@@ -968,7 +968,7 @@ END
 #endif
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE 12, 1
+//LANGUAGE 12, 1
 #include "l.FRA\afxres.rc"      // Composants standard
 #include "l.FRA\afxprint.rc"    // ressources impression/aperçu avant impression
 #if !defined(_AFXDLL)
