@@ -29,7 +29,7 @@
                     <Name>Exemple 1: 2008-2010</Name>
                     <InternalName>fepjcf</InternalName>
                     <Description/>
-                    <Execute>true</Execute>
+                    <Execute>false</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -47,7 +47,7 @@
                             <Name>DegreeDay</Name>
                             <InternalName>uacwln</InternalName>
                             <Description/>
-                            <Execute>true</Execute>
+                            <Execute>false</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -60,7 +60,7 @@
                                     <Name>Analysis</Name>
                                     <InternalName>qdweka</InternalName>
                                     <Description/>
-                                    <Execute>true</Execute>
+                                    <Execute>false</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -110,7 +110,7 @@
                             <Name>subset</Name>
                             <InternalName>iaxeve</InternalName>
                             <Description/>
-                            <Execute>true</Execute>
+                            <Execute>false</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -123,7 +123,7 @@
                                     <Name>mean</Name>
                                     <InternalName>vbuoyz</InternalName>
                                     <Description/>
-                                    <Execute>true</Execute>
+                                    <Execute>false</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -200,7 +200,7 @@
                     <Name>Exemple 3: Normals</Name>
                     <InternalName>nnnwqw</InternalName>
                     <Description/>
-                    <Execute>true</Execute>
+                    <Execute>false</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -219,7 +219,7 @@
                             <Name>DD</Name>
                             <InternalName>jnfmxp</InternalName>
                             <Description/>
-                            <Execute>true</Execute>
+                            <Execute>false</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -232,7 +232,7 @@
                                     <Name>Average</Name>
                                     <InternalName>pwnbdm</InternalName>
                                     <Description/>
-                                    <Execute>true</Execute>
+                                    <Execute>false</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -245,7 +245,7 @@
                                             <Name>Ex3</Name>
                                             <InternalName>wzpfak</InternalName>
                                             <Description/>
-                                            <Execute>true</Execute>
+                                            <Execute>false</Execute>
                                             <Export>
                                                 <FileName/>
                                                 <ScriptName/>
@@ -265,7 +265,7 @@
                                                 <InPercent>false</InPercent>
                                             </PrePostTransfo>
                                             <XValOnly>false</XValOnly>
-                                            <UseHxGrid>false</UseHxGrid>
+                                            <CreateLegendOnly>false</CreateLegendOnly>
                                             <InterpolParam>
                                                 <NbPoints>35</NbPoints>
                                                 <OutputNoData>-999</OutputNoData>
@@ -300,6 +300,22 @@
                                                 <TPSMaxError>0.0001</TPSMaxError>
                                                 <RFTreeType>1</RFTreeType>
                                             </InterpolParam>
+                                            <QGISOptions>
+                                                <create_style_file>false</create_style_file>
+                                                <palette_name>RdBu</palette_name>
+                                                <breaks_type>1</breaks_type>
+                                                <nb_classes>7</nb_classes>
+                                                <class_size>10</class_size>
+                                                <min_max_type>1</min_max_type>
+                                                <var_factor>1.5</var_factor>
+                                                <user_min>1.5</user_min>
+                                                <user_max>8.5</user_max>
+                                                <reverse_palette>false</reverse_palette>
+                                                <color_ramp_type>1</color_ramp_type>
+                                                <number_format>%.2f</number_format>
+                                                <date_format>%d %B</date_format>
+                                                <ordinal_date>true</ordinal_date>
+                                            </QGISOptions>
                                         </Mapping>
                                     </ExecutableArray>
                                     <AnalysisWindow>
@@ -393,9 +409,9 @@
                                     <Description/>
                                     <Execute>false</Execute>
                                     <Export>
-                                        <FileName/>
+                                        <FileName>SBW_TimeSeries</FileName>
                                         <ScriptName/>
-                                        <AutoExport>false</AutoExport>
+                                        <AutoExport>true</AutoExport>
                                         <VariableArray>
                                             <Variable Dimension="0" Field="1"/>
                                             <Variable Dimension="3" Field="0"/>
@@ -420,7 +436,27 @@
                                         </VariableArray>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
-                                    <ExecutableArray/>
+                                    <ExecutableArray>
+                                        <Script>
+                                            <Name>Script</Name>
+                                            <InternalName>ixpvkp</InternalName>
+                                            <Description/>
+                                            <Execute>true</Execute>
+                                            <Export>
+                                                <FileName/>
+                                                <ScriptName/>
+                                                <AutoExport>false</AutoExport>
+                                                <VariableArray/>
+                                                <Statistic>00000000000010</Statistic>
+                                            </Export>
+                                            <ExecutableArray/>
+                                            <Script>TimeSeries.R</Script>
+                                            <Input>SBW_TimeSeries.csv</Input>
+                                            <Output/>
+                                            <Arguments/>
+                                            <ShowProgress>false</ShowProgress>
+                                        </Script>
+                                    </ExecutableArray>
                                     <AnalysisWindow>
                                         <SelectLocation>false</SelectLocation>
                                         <LocationSelection/>
@@ -607,7 +643,7 @@
                                 <Statistic>00000000000010</Statistic>
                             </Export>
                             <ExecutableArray/>
-                            <UpdaterFile>Download Current Daily Database</UpdaterFile>
+                            <UpdaterFile>Canada 2019-2020.Update</UpdaterFile>
                             <ShowApp>false</ShowApp>
                         </WeatherUpdater>
                         <WeatherGeneration>
@@ -663,7 +699,7 @@
                                                     </Export>
                                                     <ExecutableArray>
                                                         <Mapping>
-                                                            <Name>Mapping</Name>
+                                                            <Name>Jday Mapping</Name>
                                                             <InternalName>invjjo</InternalName>
                                                             <Description/>
                                                             <Execute>false</Execute>
@@ -677,7 +713,7 @@
                                                             <ExecutableArray/>
                                                             <Method>1</Method>
                                                             <DEMName>Newfoundland 30s.tif</DEMName>
-                                                            <TEMName>%v%t</TEMName>
+                                                            <TEMName>%v_%t</TEMName>
                                                             <PrePostTransfo>
                                                                 <Type>0</Type>
                                                                 <LogType>0</LogType>
@@ -686,7 +722,7 @@
                                                                 <InPercent>false</InPercent>
                                                             </PrePostTransfo>
                                                             <XValOnly>false</XValOnly>
-                                                            <UseHxGrid>false</UseHxGrid>
+                                                            <CreateLegendOnly>false</CreateLegendOnly>
                                                             <InterpolParam>
                                                                 <NbPoints>35</NbPoints>
                                                                 <OutputNoData>-999</OutputNoData>
@@ -721,6 +757,22 @@
                                                                 <TPSMaxError>0.0001</TPSMaxError>
                                                                 <RFTreeType>1</RFTreeType>
                                                             </InterpolParam>
+                                                            <QGISOptions>
+                                                                <create_style_file>false</create_style_file>
+                                                                <palette_name>RdBu</palette_name>
+                                                                <breaks_type>1</breaks_type>
+                                                                <nb_classes>7</nb_classes>
+                                                                <class_size>10</class_size>
+                                                                <min_max_type>1</min_max_type>
+                                                                <var_factor>1.5</var_factor>
+                                                                <user_min>1.5</user_min>
+                                                                <user_max>8.5</user_max>
+                                                                <reverse_palette>false</reverse_palette>
+                                                                <color_ramp_type>1</color_ramp_type>
+                                                                <number_format>%.2f</number_format>
+                                                                <date_format>%d %B</date_format>
+                                                                <ordinal_date>true</ordinal_date>
+                                                            </QGISOptions>
                                                         </Mapping>
                                                     </ExecutableArray>
                                                     <FunctionDefinitionArray>
@@ -753,6 +805,82 @@
                                                         </OutputVariable>
                                                     </FunctionDefinitionArray>
                                                 </FunctionAnalysis>
+                                                <Mapping>
+                                                    <Name>Date Mapping</Name>
+                                                    <InternalName>tmuhjz</InternalName>
+                                                    <Description/>
+                                                    <Execute>false</Execute>
+                                                    <Export>
+                                                        <FileName/>
+                                                        <ScriptName/>
+                                                        <AutoExport>false</AutoExport>
+                                                        <VariableArray/>
+                                                        <Statistic>00000000000010</Statistic>
+                                                    </Export>
+                                                    <ExecutableArray/>
+                                                    <Method>1</Method>
+                                                    <DEMName>Newfoundland 30s.tif</DEMName>
+                                                    <TEMName>%v_%t(date)</TEMName>
+                                                    <PrePostTransfo>
+                                                        <Type>0</Type>
+                                                        <LogType>0</LogType>
+                                                        <UseXprime>true</UseXprime>
+                                                        <n>300</n>
+                                                        <InPercent>false</InPercent>
+                                                    </PrePostTransfo>
+                                                    <XValOnly>false</XValOnly>
+                                                    <CreateLegendOnly>false</CreateLegendOnly>
+                                                    <InterpolParam>
+                                                        <NbPoints>35</NbPoints>
+                                                        <OutputNoData>-999</OutputNoData>
+                                                        <MaxDistance>200000</MaxDistance>
+                                                        <XValPoints>0.2</XValPoints>
+                                                        <OutputType>0</OutputType>
+                                                        <UseElev>true</UseElev>
+                                                        <UseExpo>true</UseExpo>
+                                                        <UseShore>true</UseShore>
+                                                        <GDALOptions>-of GTIFF -ot Float32 -co COMPRESS=LZW -Stats -Hist -Overview "2,4,8,16"</GDALOptions>
+                                                        <GlobalLimit>false</GlobalLimit>
+                                                        <GlobalSD>2</GlobalSD>
+                                                        <GlobalLimitToBound>false</GlobalLimitToBound>
+                                                        <GlobalMinMaxLimit>false</GlobalMinMaxLimit>
+                                                        <GlobalMinLimit>0</GlobalMinLimit>
+                                                        <GlobalMaxLimit>0</GlobalMaxLimit>
+                                                        <GlobalMinMaxLimitToBound>false</GlobalMinMaxLimitToBound>
+                                                        <RegressionModel>[]</RegressionModel>
+                                                        <RegressCriticalR2>0.0005</RegressCriticalR2>
+                                                        <VariogramModel>-1</VariogramModel>
+                                                        <NbLags>0</NbLags>
+                                                        <LagDistance>0</LagDistance>
+                                                        <DetrendingModel>0</DetrendingModel>
+                                                        <ExternalDrift>3</ExternalDrift>
+                                                        <FillNugget>false</FillNugget>
+                                                        <OutputVariogramInfo>false</OutputVariogramInfo>
+                                                        <RegionalLimit>false</RegionalLimit>
+                                                        <RegionalSD>2</RegionalSD>
+                                                        <RegionalLimitToBound>false</RegionalLimitToBound>
+                                                        <IWDModel>-1</IWDModel>
+                                                        <IWDPower>0</IWDPower>
+                                                        <TPSMaxError>0.0001</TPSMaxError>
+                                                        <RFTreeType>1</RFTreeType>
+                                                    </InterpolParam>
+                                                    <QGISOptions>
+                                                        <create_style_file>true</create_style_file>
+                                                        <palette_name>RdBu</palette_name>
+                                                        <breaks_type>0</breaks_type>
+                                                        <nb_classes>7</nb_classes>
+                                                        <class_size>10</class_size>
+                                                        <min_max_type>1</min_max_type>
+                                                        <var_factor>1.5</var_factor>
+                                                        <user_min>1.5</user_min>
+                                                        <user_max>8.5</user_max>
+                                                        <reverse_palette>false</reverse_palette>
+                                                        <color_ramp_type>1</color_ramp_type>
+                                                        <number_format>%.2f</number_format>
+                                                        <date_format>%d %B</date_format>
+                                                        <ordinal_date>false</ordinal_date>
+                                                    </QGISOptions>
+                                                </Mapping>
                                             </ExecutableArray>
                                             <AnalysisWindow>
                                                 <SelectLocation>false</SelectLocation>
