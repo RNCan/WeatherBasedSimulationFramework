@@ -113,7 +113,9 @@ namespace WBSF
 		teleIO Generate(const std::string& str_options);
 		teleIO GenerateGribs(const std::string& str_options);
 		teleIO GetNormals(const std::string& str_options);
-		
+
+		void TestThreads(const std::string& str_options);
+
 	protected:
 		
 		CNormalsDatabasePtr m_pNormalDB;

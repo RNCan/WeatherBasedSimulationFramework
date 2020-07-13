@@ -761,6 +761,24 @@ namespace WBSF
 
 	}
 
+	void WeatherGenerator::TestThreads(const std::string& str_options)
+	{
+		
+		size_t nb_loops = stoi(str_options);
+
+		std::vector<double> tmp;
+		for (size_t i = 0; i < nb_loops; i++)
+		{
+			double x = 100 + ((double)rand())/RAND_MAX;
+			double a = x * x;
+			double b = sqrt(a);
+			double c = log(b);
+			tmp.push_back(c);
+		}
+		
+		
+	}
+
 	void WeatherGenerator::SaveNormals(std::ostream& out, const CNormalsStation& normals)
 	{
 		//write header
@@ -1281,6 +1299,7 @@ namespace WBSF
 			.def("Generate", &WeatherGenerator::Generate)
 			.def("GenerateGribs", &WeatherGenerator::GenerateGribs)
 			.def("GetNormals", &WeatherGenerator::GetNormals)
+			.def("TestThreads", &WeatherGenerator::TestThreads)
 			;
 		 
 		py::class_<ModelExecution>(m, "Model")
