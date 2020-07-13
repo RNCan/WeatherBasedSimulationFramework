@@ -26,7 +26,7 @@ namespace WBSF
 		// Construction
 	public:
 
-		enum { T_HOURLY, T_DAILY, T_NORMALS, T_NORMALS_PAST, T_NORMALS_CC, T_GRIBS, NB_DATABASE_TYPE };
+		enum { T_HOURLY, T_DAILY, T_NORMALS_PAST, T_NORMALS_CURRENT, T_NORMALS_FUTURE, T_GRIBS, NB_DATABASE_TYPE };
 
 
 		CGenerateWUProjectDlg(bool bGenerate, CWnd* pParent = NULL);   // standard constructor
@@ -40,6 +40,7 @@ namespace WBSF
 		std::string m_FTP_path;
 		std::string m_FTP_file_name;
 		std::string m_FTP_file_path;
+		std::string m_locale_path;
 
 		// Implementation
 	protected:
@@ -62,14 +63,15 @@ namespace WBSF
 
 		void UpdateCtrl(void);
 		afx_msg void OnTypeChange();
-		
+		afx_msg void OnNameChange();
+		afx_msg void OnLocaleDirectoryChange();
 		
 		CCFLEdit	m_WeatherUpdaterProjectTitleCtrl;
 		CCFLComboBox m_databaseTypeCtrl;
 		CCFLComboBox m_FTPFileNameCtrl;
+		CCFLComboBox m_localeDirectoryCtrl;
 
-		COpenDirEditCtrl m_filePathCtrl;
-
+		COpenDirEditCtrl m_FTPFilePathCtrl;
 		
 	};
 

@@ -645,7 +645,9 @@ namespace WBSF
 
 			string update_path = WBSF::GetFM().WeatherUpdate().GetLocalPath();
 			string tmp_path = GetPath(update_path) + "tmp\\";
-			string wea_path = GetPath(update_path) + "..\\Weather\\";
+			string file_path_zip = tmp_path + generateWUProjectDlg.m_FTP_file_name;
+			string wea_path = generateWUProjectDlg.m_locale_path;
+			//string wea_path = GetPath(update_path) + "..\\Weather\\";
 			string scriptFilePath = tmp_path + "script.txt";
 			CreateMultipleDir(tmp_path);
 			CreateMultipleDir(wea_path);
@@ -656,7 +658,7 @@ namespace WBSF
 			if (msg)
 			{
 				//string input_file_path = generateWUProjectDlg.m_FTP_file_path;
-				string file_path_zip = tmp_path + generateWUProjectDlg.m_FTP_file_name;
+				
 				//string tmpFilePaht = path + GetFileName(fileList[i].m_filePath);
 								//CreateMultipleDir(GetPath(outputFilePaht));
 

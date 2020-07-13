@@ -57,9 +57,17 @@ namespace WBSF
 		DDX_Control(pDX, IDC_WU_PROJECT_TITLE, m_WeatherUpdaterProjectTitleCtrl);
 		DDX_Control(pDX, IDC_DATABASE_TYPE, m_databaseTypeCtrl);
 		DDX_Control(pDX, IDC_FTP_FILE_NAME, m_FTPFileNameCtrl);
-		DDX_Control(pDX, IDC_FTP_FILEPATH, m_filePathCtrl);
-
-		if (!m_bGenerate)
+		DDX_Control(pDX, IDC_FTP_FILEPATH, m_FTPFilePathCtrl);
+		DDX_Control(pDX, IDC_LOCALE_DIRECTORY, m_localeDirectoryCtrl);
+		
+		
+		
+		if (m_bGenerate)
+		{
+			//do not select output directoy when generate
+			GetDlgItem(IDC_LOCALE_DIRECTORY)->EnableWindow(FALSE);
+		}
+		else
 		{
 			CString title;
 			GetDlgItemText(IDC_STATIC1, title);
@@ -80,8 +88,8 @@ namespace WBSF
 	BEGIN_MESSAGE_MAP(CGenerateWUProjectDlg, CDialogEx)
 
 		ON_CBN_SELCHANGE(IDC_DATABASE_TYPE, &OnTypeChange)
-		ON_CBN_SELCHANGE(IDC_FTP_FILE_NAME, &UpdateCtrl)
-
+		ON_CBN_SELCHANGE(IDC_FTP_FILE_NAME, &OnNameChange)
+		ON_CBN_SELCHANGE(IDC_LOCALE_DIRECTORY, &OnLocaleDirectoryChange)
 	END_MESSAGE_MAP()
 
 	static const char* SERVER_NAME = "ftp.cfl.scf.rncan.gc.ca";
@@ -103,6 +111,15 @@ namespace WBSF
 		m_databaseTypeCtrl.SetCurSel(curType);
 		OnTypeChange();
 
+
+
+		CFileManager& FM = GetFileManager();
+		StringVector paths (FM.GetWeatherPath(), "|");
+		paths.insert(paths.begin(), FM.GetProjectPath() + "Weather\\");
+		
+		
+		m_localeDirectoryCtrl.FillList(paths, paths[0]);
+		
 		//UpdateCtrl();
 
 		return TRUE;  // return TRUE unless you set the focus to a control
@@ -126,8 +143,7 @@ namespace WBSF
 		string filePath = SERVER_NAME + FTP_path + file_name;
 		ReplaceString(filePath, "\\", "/");
 
-		m_filePathCtrl.SetWindowText("ftp://" + filePath);
-
+		m_FTPFilePathCtrl.SetWindowText("ftp://" + filePath);
 	}
 
 	string CGenerateWUProjectDlg::GetFTPPath()
@@ -142,9 +158,9 @@ namespace WBSF
 		{
 		case T_HOURLY: FTP_path = "/regniere/Data11/Weather/Hourly/"; break;
 		case T_DAILY: FTP_path = "/regniere/Data11/Weather/Daily/"; break;
-		case T_NORMALS: FTP_path = "/regniere/Data11/Weather/Normals/"; break;
 		case T_NORMALS_PAST: FTP_path = "/regniere/Data11/Weather/Normals/past/"; break;
-		case T_NORMALS_CC: FTP_path = "/regniere/Data11/Weather/Normals/ClimateChange/"; break;
+		case T_NORMALS_CURRENT: FTP_path = "/regniere/Data11/Weather/Normals/"; break;
+		case T_NORMALS_FUTURE: FTP_path = "/regniere/Data11/Weather/Normals/ClimateChange/"; break;
 		case T_GRIBS: FTP_path = "/regniere/Data11/Weather/Gribs/"; break;
 		default: ASSERT(false);
 		}
@@ -172,6 +188,20 @@ namespace WBSF
 		UpdateCtrl();
 	}
 
+
+	void CGenerateWUProjectDlg::OnNameChange()
+	{
+		string project_name = m_WeatherUpdaterProjectTitleCtrl.GetString();
+		if (project_name.empty())
+		{
+			string file_name = m_FTPFileNameCtrl.GetString();
+			SetFileExtension(file_name, "");
+			m_WeatherUpdaterProjectTitleCtrl.SetString(file_name);
+		}
+
+
+		UpdateCtrl();
+	}
 
 	ERMsg CGenerateWUProjectDlg::GetFTPFileList(const string& FTP_path, CFileInfoVector& fileList)
 	{
@@ -206,6 +236,7 @@ namespace WBSF
 		m_FTP_path = GetFTPPath();
 		m_FTP_file_name = m_FTPFileNameCtrl.GetString();
 		m_FTP_file_path = m_FTP_path + m_FTP_file_name;
+		m_locale_path = m_localeDirectoryCtrl.GetString();
 
 
 		if (m_bGenerate)
@@ -277,4 +308,9 @@ namespace WBSF
 	}
 
 
+}
+
+void WBSF::CGenerateWUProjectDlg::OnLocaleDirectoryChange()
+{
+	UpdateCtrl();
 }

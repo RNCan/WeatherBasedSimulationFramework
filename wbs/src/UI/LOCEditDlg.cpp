@@ -874,7 +874,12 @@ namespace WBSF
 			size_t miss = 0;
 			for (size_t i = 0; i < locations.size() && msg; i++)
 			{
-				if (locations[i].m_name.empty() || bReplaceAll)
+				bool bMissName = bReplaceAll || locations[i].m_name.empty();
+				bool bMissState = bReplaceAll || (bState && locations[i].GetSSI("State").empty());
+				bool bMissCountry = bReplaceAll || (bCountry && locations[i].GetSSI("Country").empty());
+
+
+				if (bMissName || bMissState || bMissCountry)
 				{
 
 					string strGeo;
@@ -899,35 +904,40 @@ namespace WBSF
 								Json::object feature0 = features[0].object_items();
 								Json::object properties = feature0["properties"].object_items();
 								Json::object address = properties["address"].object_items();
-									
+
 								string village = ANSI_2_ASCII(address["village"].string_value());
 								string town = ANSI_2_ASCII(address["town"].string_value());
 								string suburb = ANSI_2_ASCII(address["suburb"].string_value());
 								string city = ANSI_2_ASCII(address["city"].string_value());
 								string county = ANSI_2_ASCII(address["county"].string_value());
 								string region = ANSI_2_ASCII(address["region"].string_value());
-									
+
 								string state = ANSI_2_ASCII(address["state"].string_value());
 								string country = ANSI_2_ASCII(address["country"].string_value());
 
+								
+								string name;
 								if (!village.empty())
-									locations[i].m_name = village;
+									name = village;
 								else if (!town.empty())
-									locations[i].m_name = town;
+									name = town;
 								else if (!suburb.empty())
-									locations[i].m_name = suburb;
+									name = suburb;
 								else if (!city.empty())
-									locations[i].m_name = city;
+									name = city;
 								else if (!county.empty())
-									locations[i].m_name = county;
+									name = county;
 								else if (!region.empty())
-									locations[i].m_name = region;
-									
-									
-								if(bState&&!state.empty()&&(bReplaceAll|| locations[i].GetSSI("State").empty()))
+									name = region;
+								
+
+								if (bMissName && !name.empty())
+									locations[i].m_name = name;
+
+								if (bMissState && !state.empty())
 									locations[i].SetSSI("State", state);
-									
-								if (bCountry && !country.empty() && (bReplaceAll || locations[i].GetSSI("Country").empty()))
+
+								if (bMissCountry && !country.empty())
 									locations[i].SetSSI("Country", country);
 							}
 							else
@@ -992,7 +1002,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			string URL;// = "/v1/" + product + "?&interpolation=" + interpol + "&locations=";
+			string URL;
 
 			vector<size_t> loc_to_update;
 			//select locations to uptade
@@ -1032,20 +1042,20 @@ namespace WBSF
 						if (error.empty() && json["status"] == "OK")
 						{
 							ASSERT(json["results"].is_array());
-							
+
 							Json::array result = json["results"].array_items();
 							for (size_t i = 0; i < result.size(); i++, iii++)
 							{
-								locations[iii].m_elev = result[i]["elevation"].number_value();
+								locations[loc_to_update[iii]].m_elev = result[i]["elevation"].number_value();
 								msg += callback.StepIt();
 							}
-							
-							if(i == loc_to_update.size() - 1)
+
+							if (i == loc_to_update.size() - 1)
 								Sleep(1000);//sleep one second (API limits)
 						}
 						else
 						{
-							if(error.empty())
+							if (error.empty())
 								error = json["error"].string_value();
 
 							msg.ajoute(error);
