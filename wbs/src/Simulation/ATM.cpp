@@ -4242,7 +4242,20 @@ namespace WBSF
 
 							string strVar = meta_data[i]["GRIB_ELEMENT"];
 							string strName = meta_data[i]["GRIB_SHORT_NAME"];
+							string strUnit = meta_data[i]["GRIB_UNIT"];
 							StringVector description(meta_data[i]["description"], " =[]\"");
+							if (description.empty())
+							{
+								StringVector tmp(strName, "-");
+								if (tmp.size() == 2)
+								{
+									description.push_back(tmp[0]);
+									description.push_back(strUnit);
+									description.push_back(tmp[1]);
+									description.push_back("");
+								}
+							}
+
 							if (description.size() > 3 && (description[2] == "ISBL" || description[2] == "SFC" || description[2] == "HTGL" || description[2] == "HYBL"))
 							{
 								if (!description.empty() && description[0].find('-') != NOT_INIT)

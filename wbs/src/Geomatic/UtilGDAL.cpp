@@ -51,12 +51,14 @@ void RegisterGDAL()
 	GDALAllRegister();
 }
 
-ERMsg OpenInputImage(const string& filePath, GDALDataset** poInputDS, double srcNodata, bool bUseDefaultNoData)
+ERMsg OpenInputImage(const string& filePath, GDALDataset** poInputDS, double srcNodata, bool bUseDefaultNoData, bool bReadOnly )
 {
 	ERMsg msg;
 	
+
 	//GDAL_OF_SHARED|
-	*poInputDS = (GDALDataset *)GDALOpenEx(filePath.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+	UINT flag = bReadOnly ? GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR : GDAL_OF_UPDATE | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR;
+	*poInputDS = (GDALDataset *)GDALOpenEx(filePath.c_str(), flag, NULL, NULL, NULL);
 
 	if( *poInputDS == NULL)
 		msg.ajoute(CPLGetLastErrorMsg());
@@ -1445,7 +1447,7 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
 	{ "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
 	{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
 	{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
-	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file fro landsat images. Type can be \"Natural\", \"LandWater\" or \"TrueColor\". " },
+	{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file for landsat images. Type can be \"Natural\", \"LandWater\" or \"TrueColor\". " },
 	{ "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
 	{ "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %%F for YYYY-MM-DD. Use %%J for julian day since 1970 and %P for path/row." },
 	{ "-iFactor", 1, "f", false, "Multiplicator for indices that need multiplication to output in integer. 1000 by default." },
@@ -1524,6 +1526,7 @@ void CBaseOptions::Reset()
 	m_format = "GTIFF";
 	m_memoryLimit = 0;
 	
+	m_bReadOnly = true;
 	m_bUseDefaultNoData = true;
 	m_srcNodata=MISSING_NO_DATA;
 	m_dstNodata=MISSING_NO_DATA;

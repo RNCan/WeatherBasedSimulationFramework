@@ -58,6 +58,8 @@ namespace WBSF
 	inline bool IsProjected(size_t ID)	{ return ID >= PRJ_PROJECTED_BASE && ID < PRJ_PROJECTED_END; }
 	ERMsg BuildVRT(std::string filePath, StringVector fileList, bool bQuiet, std::string EXEPath="");
 	bool GoodGrib(const std::string& file_path);
+	bool GoodGeoTiff(const std::string& file_path);
+
 //*****************************************************************************************************
 //CProjectionNameManager
 

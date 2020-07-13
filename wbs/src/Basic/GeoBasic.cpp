@@ -588,5 +588,23 @@ void CGeoExtents::GetNearestCellPosition(const CGeoPoint& pt, int nbPoint, CGeoP
 
 		return bGood;
 	}
+	
+	bool GoodGeoTiff(const std::string& file_path)
+	{
+		bool bGood = false;
+		ifStream stream;
+		if (stream.open(file_path))
+		{
+			char test[4] = { 0 };
+			stream.read(&(test[0]), 3);
+			stream.close();
+			if (string(test) == "II*")
+				bGood = true;
+
+			stream.close();
+		}
+
+		return bGood;
+	}
 }//GeoBasic
 

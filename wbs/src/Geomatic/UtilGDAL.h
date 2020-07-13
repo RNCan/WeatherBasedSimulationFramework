@@ -28,7 +28,7 @@ namespace WBSF
 
 	//General function
 	void RegisterGDAL();
-	ERMsg OpenInputImage(const std::string& filePath, GDALDataset** poInputDS, double srcNodata = MISSING_NO_DATA, bool bUseDefaultNoData = true);
+	ERMsg OpenInputImage(const std::string& filePath, GDALDataset** poInputDS, double srcNodata = MISSING_NO_DATA, bool bUseDefaultNoData = true, bool bReadOnly= true);
 	ERMsg OpenOutputImage(const std::string& filePath, GDALDataset* poInputDS, GDALDataset** poOutputDS, const char* outDriverName = "GTiff", short cellType = 0, int nbBand = -1, double dstNodata = MISSING_NO_DATA, const StringVector& createOptions = StringVector(), bool bOverwrite = true, const CGeoExtents& extentsIn = CGeoExtents(), bool useDefaultNoData = true);
 	
 	ERMsg GetFilePathList(const char* fileName, int filePathCol, StringVector& filePathList);
@@ -261,7 +261,7 @@ namespace WBSF
 		bool IsVRT()const { return IsEqualNoCase(m_format, "VRT"); }
 		int BLOCK_CPU()const { return std::max(1, int(m_CPU / m_BLOCK_THREADS) ); }
 
-
+		bool m_bReadOnly;
 		std::string m_format;
 		short m_outputType;
 		StringVector m_createOptions;

@@ -33,29 +33,53 @@ namespace WBSF
 
 	const char* CSfcGribDatabase::META_DATA[NB_VAR_GRIBS][NB_META] =
 	{
-		{"2[m] HTGL=\"Specified height level above ground\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
-		{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
-		{"2[m] HTGL=\"Specified height level above ground\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
-		{ "0[-] SFC=\"Ground or water surface\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Relative humidity [%]","RH","2-HTGL","[%]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","10-HTGL","[m/s]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Total snowfall [m]","ASNOW","0-SFC","[m]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Snow depth [m]","SNOD","0-SFC","[m]" },
-		{ "0[-] SFC=\"Ground or water surface\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
+		{"2[m] HTGL \"Minimum Temperature [C]\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
+		{"2[m] HTGL \"Temperature [C]\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
+		{"2[m] HTGL \"Maximum Temperature [C]\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
+		{ "0[-] SFC \"01 hr Total precipitation [kg/(m^2)]\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL \"Dew point temperature [C]\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
+		{ "2[m] HTGL \"Relative humidity [%]\"","Relative humidity [%]","RH","2-HTGL","[%]" },
+		{ "10[m] HTGL \"Wind speed [m/s]\"","Wind speed [m/s]","WIND","10-HTGL","[m/s]" },
+		{ "10[m] HTGL \"Wind direction (from which blowing) [deg true]\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
+		{ "0[-] SFC \"Downward short-wave radiation flux [W/(m^2)]\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
+		{ "0[-] SFC \"Pressure [Pa]\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
+		{ "0[-] SFC \"Total snowfall [m]\"","Total snowfall [m]","ASNOW","0-SFC","[m]" },
+		{ "0[-] SFC \"Snow depth [m]\"","Snow depth [m]","SNOD","0-SFC","[m]" },
+		{ "0[-] SFC \"Water equivalent of accumulated snow depth [kg/(m^2)]\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL \"Wind speed [m/s]\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
 		{"", "", "", "", ""},
 		{"", "", "", "", ""},
-		{ "0[-] SFC=\"Ground or water surface\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
-		{ "10[m] HTGL=\"Specified height level above ground\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
+		{ "0[-] SFC \"Geopotential height [gpm]\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
+		{ "10[m] HTGL \"u-component of wind [m/s]\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
+		{ "10[m] HTGL \"v-component of wind [m/s]\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
 		{"", "", "", "", ""},
 		{"", "", "", "", ""},
-		{ "0[-] SFC=\"Ground or water surface\"","Precipitation rate [kg/(m^2)]","PRATE","0-SFC","[kg/(m^2)]" },
-		{ "2[m] HTGL=\"Specified height level above ground\"","Specific humidity [kg/kg]","SPFH","2-HTGL","[kg/kg]" },
+		{ "0[-] SFC \"Precipitation rate [kg/(m^2)]\"","Precipitation rate [kg/(m^2)]","PRATE","0-SFC","[kg/(m^2)]" },
+		{ "2[m] HTGL \"Specific humidity [kg/kg]\"","Specific humidity [kg/kg]","SPFH","2-HTGL","[kg/kg]" },
+
+		//{"2[m] HTGL=\"Specified height level above ground\"", "Minimum Temperature [C]", "TMIN", "2-HTGL", "[C]"},
+		//{"2[m] HTGL=\"Specified height level above ground\"", "Temperature [C]", "TMP", "2-HTGL", "[C]"},
+		//{"2[m] HTGL=\"Specified height level above ground\"", "Maximum Temperature [C]", "TMAX", "2-HTGL", "[C]"},
+		//{ "0[-] SFC=\"Ground or water surface\"","01 hr Total precipitation [kg/(m^2)]","APCP01","0-SFC","[kg/(m^2)]" },
+		//{ "2[m] HTGL=\"Specified height level above ground\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
+		//{ "2[m] HTGL=\"Specified height level above ground\"","Relative humidity [%]","RH","2-HTGL","[%]" },
+		//{ "10[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","10-HTGL","[m/s]" },
+		//{ "10[m] HTGL=\"Specified height level above ground\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
+		//{ "0[-] SFC=\"Ground or water surface\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
+		//{ "0[-] SFC=\"Ground or water surface\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
+		//{ "0[-] SFC=\"Ground or water surface\"","Total snowfall [m]","ASNOW","0-SFC","[m]" },
+		//{ "0[-] SFC=\"Ground or water surface\"","Snow depth [m]","SNOD","0-SFC","[m]" },
+		//{ "0[-] SFC=\"Ground or water surface\"","Water equivalent of accumulated snow depth [kg/(m^2)]","WEASD","0-SFC","[kg/(m^2)]" },
+		//{ "2[m] HTGL=\"Specified height level above ground\"","Wind speed [m/s]","WIND","2-HTGL","[m/s]" },
+		//{"", "", "", "", ""},
+		//{"", "", "", "", ""},
+		//{ "0[-] SFC=\"Ground or water surface\"","Geopotential height [gpm]","HGT","0-SFC","[gpm]" },
+		//{ "10[m] HTGL=\"Specified height level above ground\"","u-component of wind [m/s]","UGRD","10-HTGL","[m/s]" },
+		//{ "10[m] HTGL=\"Specified height level above ground\"","v-component of wind [m/s]","VGRD","10-HTGL","[m/s]" },
+		//{"", "", "", "", ""},
+		//{"", "", "", "", ""},
+		//{ "0[-] SFC=\"Ground or water surface\"","Precipitation rate [kg/(m^2)]","PRATE","0-SFC","[kg/(m^2)]" },
+		//{ "2[m] HTGL=\"Specified height level above ground\"","Specific humidity [kg/kg]","SPFH","2-HTGL","[kg/kg]" },
 	};
 
 
@@ -815,6 +839,18 @@ namespace WBSF
 						string strName = meta_data[i]["GRIB_SHORT_NAME"];
 						string strUnit = meta_data[i]["GRIB_UNIT"];
 						StringVector description(meta_data[i]["description"], " =[]\"");
+						if (description.empty())
+						{
+							StringVector tmp(strName, "-");
+							if (tmp.size() == 2)
+							{
+								description.push_back(tmp[0]);
+								description.push_back(strUnit);
+								description.push_back(tmp[1]);
+								description.push_back("");
+							}
+						}
+
 						if (description.size() > 3 && (description[2] == "ISBL" || description[2] == "SFC" || description[2] == "HTGL" || description[2] == "HYBL"))
 						{
 							if (!description.empty() && description[0].find('-') != NOT_INIT)

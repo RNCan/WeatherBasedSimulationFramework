@@ -265,7 +265,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		msg = WBSF::OpenInputImage(filePath, &m_poDataset, options.m_srcNodata, options.m_bUseDefaultNoData);
+		msg = WBSF::OpenInputImage(filePath, &m_poDataset, options.m_srcNodata, options.m_bUseDefaultNoData, options.m_bReadOnly);
 		if (msg)
 		{
 			m_extents = WBSF::GetExtents(m_poDataset);

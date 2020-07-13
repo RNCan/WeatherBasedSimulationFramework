@@ -553,6 +553,9 @@
 #define IDC_FTP_FILE_NAME               1262
 #define IDC_FTP_FILEPATH                1263
 #define IDC_WG_DOWNLOAD_WEATHER         1264
+#define IDC_FTP_FILE_NAME2              1264
+#define IDC_LOCALE_DIRECTORY            1264
+#define IDC_LOCALE_FILEPATH             1265
 #define IDC_MAP_CREATE_STYLE_FILE       1266
 #define IDC_MAP_CREATE_STYLE_FILE2      1266
 #define IDC_MAP_INVERT_PALETTE          1267
@@ -940,7 +943,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        236
+#define _APS_NEXT_RESOURCE_VALUE        238
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1291
 #define _APS_NEXT_SYMED_VALUE           101
