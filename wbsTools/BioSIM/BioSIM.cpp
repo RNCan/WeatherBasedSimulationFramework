@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.6.8:13/07/2020	Rémi Saint-Amant	Bug correction in elevation web extraction
+//											Add locale directory when download weather database
 // 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generade new random seed for each location/WGreplications
 //											Change defaut random seed for ModelsExecution by Random/Random
 // 11.6.6:18/03/2020	Rémi Saint-Amant	Bug correction with ftp download
