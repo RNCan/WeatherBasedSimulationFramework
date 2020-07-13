@@ -71,7 +71,7 @@ CExtractSSIDlg::~CExtractSSIDlg()
 	option.WriteProfileBool(_T("ExtractShoreDistance"), m_bExtractShoreDistance);
 	
 	option.WriteProfileBool(_T("ExtractWebElevation"), m_bExtractWebElevation);
-	option.WriteProfileBool(_T("WebElevProduct"), m_webElevProduct);
+	option.WriteProfileInt(_T("WebElevProduct"), m_webElevProduct);
 	option.WriteProfileInt(_T("InterpMethod"), m_interpolationType);
 
 	option.WriteProfileBool(_T("ExtractWebName"), m_bExtractWebName);
@@ -108,7 +108,6 @@ void CExtractSSIDlg::DoDataExchange(CDataExchange* pDX)
 		CString fileFilter = UtilWin::GetCString(IDS_STR_FILTER_RASTER);
 		m_gridFilePathCtrl.EnableFileBrowseButton(_T(".tif"), fileFilter);
 
-		//DDX_CBIndex(pDX, IDC_SSI_METHOD, m_interpolationType);
 		SetExtractFrom(m_extractFrom);
 		UpdateCtrl();
 	}
@@ -146,9 +145,4 @@ void CExtractSSIDlg::UpdateCtrl()
 	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME)->EnableWindow(!bFromDEM);
 	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME2)->EnableWindow(!bFromDEM);
 	GetDlgItem(IDC_MAP_EXTRACT_WEB_NAME3)->EnableWindow(!bFromDEM);
-	
-	//GetDlgItem(IDC_CMN_STATIC3)->EnableWindow(!bFromDEM);
-	
-
-
 }
