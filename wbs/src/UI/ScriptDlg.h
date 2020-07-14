@@ -47,8 +47,8 @@ namespace WBSF
 		CScript m_script;
 		CExecutablePtr m_pParent;
 		
-		CDefaultComboBox m_listCtrl;
-		CDefaultComboBox m_inputCtrl;
+		CCFLComboBox m_listCtrl;
+		CCFLComboBox m_inputCtrl;
 		CCFLEdit m_outputCtrl;
 
 		
