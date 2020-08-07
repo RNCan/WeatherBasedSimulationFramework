@@ -3,7 +3,7 @@
     <Name>Project</Name>
     <InternalName>Project</InternalName>
     <Description/>
-    <Execute>false</Execute>
+    <Execute>true</Execute>
     <Export>
         <FileName/>
         <ScriptName/>
@@ -16,7 +16,7 @@
             <Name>Climatology</Name>
             <InternalName>saplns</InternalName>
             <Description/>
-            <Execute>false</Execute>
+            <Execute>true</Execute>
             <Export>
                 <FileName/>
                 <ScriptName/>
@@ -29,7 +29,7 @@
                     <Name>Exemple 1: 2008-2010</Name>
                     <InternalName>fepjcf</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -47,7 +47,7 @@
                             <Name>DegreeDay</Name>
                             <InternalName>uacwln</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -55,49 +55,7 @@
                                 <VariableArray/>
                                 <Statistic>00000000000010</Statistic>
                             </Export>
-                            <ExecutableArray>
-                                <Analysis>
-                                    <Name>Analysis</Name>
-                                    <InternalName>qdweka</InternalName>
-                                    <Description/>
-                                    <Execute>false</Execute>
-                                    <Export>
-                                        <FileName/>
-                                        <ScriptName/>
-                                        <AutoExport>false</AutoExport>
-                                        <VariableArray/>
-                                        <Statistic>00000000000010</Statistic>
-                                    </Export>
-                                    <ExecutableArray/>
-                                    <AnalysisWindow>
-                                        <SelectLocation>true</SelectLocation>
-                                        <LocationSelection>110</LocationSelection>
-                                        <SelectTime>true</SelectTime>
-                                        <TimeSelection>(0 002008 002009)</TimeSelection>
-                                        <UseCurrentDate-First->false</UseCurrentDate-First->
-                                        <Shift-First->0</Shift-First->
-                                        <UseCurrentDate-Last->false</UseCurrentDate-Last->
-                                        <Shift-Last->0</Shift-Last->
-                                        <SelectVariable>false</SelectVariable>
-                                        <VariableSelectionArray/>
-                                        <SelectParameters>false</SelectParameters>
-                                        <ParametersSelection/>
-                                    </AnalysisWindow>
-                                    <Computation>
-                                        <PreviousStatisticType>-1</PreviousStatisticType>
-                                        <SelectTimeTransformation>false</SelectTimeTransformation>
-                                        <TemporalTypeMode>0 1</TemporalTypeMode>
-                                        <Kind>0</Kind>
-                                        <StatisticType>-1</StatisticType>
-                                        <EventType>0</EventType>
-                                        <K>0</K>
-                                        <DropYear>false</DropYear>
-                                        <MeanOverReplications>true</MeanOverReplications>
-                                        <MeanOverParameterSet>false</MeanOverParameterSet>
-                                        <MeanOverLocations>false</MeanOverLocations>
-                                    </Computation>
-                                </Analysis>
-                            </ExecutableArray>
+                            <ExecutableArray/>
                             <ModelName>DegreeDay (Annual)</ModelName>
                             <ModelInputName>3°C</ModelInputName>
                             <LocationsName/>
@@ -110,7 +68,7 @@
                             <Name>subset</Name>
                             <InternalName>iaxeve</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -123,12 +81,20 @@
                                     <Name>mean</Name>
                                     <InternalName>vbuoyz</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
                                         <AutoExport>false</AutoExport>
-                                        <VariableArray/>
+                                        <VariableArray>
+                                            <Variable Dimension="0" Field="1"/>
+                                            <Variable Dimension="0" Field="2"/>
+                                            <Variable Dimension="0" Field="3"/>
+                                            <Variable Dimension="0" Field="4"/>
+                                            <Variable Dimension="3" Field="0"/>
+                                            <Variable Dimension="4" Field="0"/>
+                                            <Variable Dimension="4" Field="1"/>
+                                        </VariableArray>
                                         <Statistic>00000000000010</Statistic>
                                     </Export>
                                     <ExecutableArray/>
@@ -147,7 +113,7 @@
                                         <ParametersSelection/>
                                     </AnalysisWindow>
                                     <Computation>
-                                        <PreviousStatisticType>-1</PreviousStatisticType>
+                                        <PreviousStatisticType>1</PreviousStatisticType>
                                         <SelectTimeTransformation>true</SelectTimeTransformation>
                                         <TemporalTypeMode>0 0</TemporalTypeMode>
                                         <Kind>0</Kind>
@@ -155,7 +121,7 @@
                                         <EventType>0</EventType>
                                         <K>0</K>
                                         <DropYear>false</DropYear>
-                                        <MeanOverReplications>true</MeanOverReplications>
+                                        <MeanOverReplications>false</MeanOverReplications>
                                         <MeanOverParameterSet>false</MeanOverParameterSet>
                                         <MeanOverLocations>false</MeanOverLocations>
                                     </Computation>
@@ -165,13 +131,13 @@
                                 <SelectLocation>true</SelectLocation>
                                 <LocationSelection>110</LocationSelection>
                                 <SelectTime>true</SelectTime>
-                                <TimeSelection>(1 0220080401 0220100831)</TimeSelection>
+                                <TimeSelection>(1 0220080401 0220090831)</TimeSelection>
                                 <UseCurrentDate-First->false</UseCurrentDate-First->
                                 <Shift-First->0</Shift-First->
                                 <UseCurrentDate-Last->false</UseCurrentDate-Last->
                                 <Shift-Last->0</Shift-Last->
                                 <SelectVariable>true</SelectVariable>
-                                <VariableSelectionArray>00000101</VariableSelectionArray>
+                                <VariableSelectionArray>101</VariableSelectionArray>
                                 <SelectParameters>false</SelectParameters>
                                 <ParametersSelection/>
                             </AnalysisWindow>
@@ -200,7 +166,7 @@
                     <Name>Exemple 3: Normals</Name>
                     <InternalName>nnnwqw</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -216,10 +182,10 @@
                     </Export>
                     <ExecutableArray>
                         <ModelGeneration>
-                            <Name>DD</Name>
+                            <Name>DegreeDay</Name>
                             <InternalName>jnfmxp</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -232,7 +198,7 @@
                                     <Name>Average</Name>
                                     <InternalName>pwnbdm</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -245,7 +211,7 @@
                                             <Name>Ex3</Name>
                                             <InternalName>wzpfak</InternalName>
                                             <Description/>
-                                            <Execute>false</Execute>
+                                            <Execute>true</Execute>
                                             <Export>
                                                 <FileName/>
                                                 <ScriptName/>
@@ -368,7 +334,7 @@
             <Name>Phenology</Name>
             <InternalName>ekpqbr</InternalName>
             <Description/>
-            <Execute>false</Execute>
+            <Execute>true</Execute>
             <Export>
                 <FileName/>
                 <ScriptName/>
@@ -381,7 +347,7 @@
                     <Name>Example 2: Spruce Budworm</Name>
                     <InternalName>wmthkp</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -394,7 +360,7 @@
                             <Name>SpruceBudworm</Name>
                             <InternalName>wqkyxz</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -407,7 +373,7 @@
                                     <Name>Average Ouput</Name>
                                     <InternalName>fmvayx</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName>SBW_TimeSeries</FileName>
                                         <ScriptName/>
@@ -489,7 +455,7 @@
                                     <Name>Date of Peaks</Name>
                                     <InternalName>wrjxin</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName>new</FileName>
                                         <ScriptName/>
@@ -509,7 +475,7 @@
                                             <Name>FunctionAnalysis</Name>
                                             <InternalName>hrmehj</InternalName>
                                             <Description/>
-                                            <Execute>false</Execute>
+                                            <Execute>true</Execute>
                                             <Export>
                                                 <FileName/>
                                                 <ScriptName/>
@@ -522,7 +488,7 @@
                                                     <Name>Analysis</Name>
                                                     <InternalName>siubbd</InternalName>
                                                     <Description/>
-                                                    <Execute>false</Execute>
+                                                    <Execute>true</Execute>
                                                     <Export>
                                                         <FileName/>
                                                         <ScriptName/>
@@ -603,7 +569,7 @@
                                 </Analysis>
                             </ExecutableArray>
                             <ModelName>Spruce Budworm Biology</ModelName>
-                            <ModelInputName>CreateEgg</ModelInputName>
+                            <ModelInputName/>
                             <LocationsName/>
                             <ParamVariationsName/>
                             <SeedType>0</SeedType>
@@ -621,7 +587,7 @@
                     <Name>Example 4: Hemlock Looper</Name>
                     <InternalName>icqrcf</InternalName>
                     <Description/>
-                    <Execute>false</Execute>
+                    <Execute>true</Execute>
                     <Export>
                         <FileName/>
                         <ScriptName/>
@@ -634,7 +600,7 @@
                             <Name>Update current daily database</Name>
                             <InternalName>vpuncm</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -650,7 +616,7 @@
                             <Name>Current weather</Name>
                             <InternalName>hkpnbl</InternalName>
                             <Description/>
-                            <Execute>false</Execute>
+                            <Execute>true</Execute>
                             <Export>
                                 <FileName/>
                                 <ScriptName/>
@@ -663,7 +629,7 @@
                                     <Name>HemlockLooper</Name>
                                     <InternalName>qnmimx</InternalName>
                                     <Description/>
-                                    <Execute>false</Execute>
+                                    <Execute>true</Execute>
                                     <Export>
                                         <FileName/>
                                         <ScriptName/>
@@ -676,7 +642,7 @@
                                             <Name>Peak</Name>
                                             <InternalName>fdlpwq</InternalName>
                                             <Description/>
-                                            <Execute>false</Execute>
+                                            <Execute>true</Execute>
                                             <Export>
                                                 <FileName/>
                                                 <ScriptName/>
@@ -689,7 +655,7 @@
                                                     <Name>Jday</Name>
                                                     <InternalName>gcnnfm</InternalName>
                                                     <Description/>
-                                                    <Execute>false</Execute>
+                                                    <Execute>true</Execute>
                                                     <Export>
                                                         <FileName/>
                                                         <ScriptName/>
@@ -702,7 +668,7 @@
                                                             <Name>Jday Mapping</Name>
                                                             <InternalName>invjjo</InternalName>
                                                             <Description/>
-                                                            <Execute>false</Execute>
+                                                            <Execute>true</Execute>
                                                             <Export>
                                                                 <FileName/>
                                                                 <ScriptName/>
@@ -809,7 +775,7 @@
                                                     <Name>Date Mapping</Name>
                                                     <InternalName>tmuhjz</InternalName>
                                                     <Description/>
-                                                    <Execute>false</Execute>
+                                                    <Execute>true</Execute>
                                                     <Export>
                                                         <FileName/>
                                                         <ScriptName/>
