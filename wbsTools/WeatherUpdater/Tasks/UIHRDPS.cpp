@@ -66,7 +66,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRDPS\\"; break;
-		case HRDPS_VARS_SFC: str = "APCP_SFC|DLWRF_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
+		case HRDPS_VARS_SFC: str = "APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
 		case HRDPS_VARS_TGL: str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
 		case HRDPS_VARS_ISBL: str = "----"; break;
 		case HRDPS_VARS_OTHERS: str = "----"; break;

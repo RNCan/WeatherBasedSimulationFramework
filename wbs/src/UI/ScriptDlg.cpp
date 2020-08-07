@@ -108,7 +108,6 @@ namespace WBSF
 					f << "cat(\"\\014\")" << endl;
 					f << "rm(list=ls())" << endl;
 					f << "graphics.off()" << endl;
-					f << "Resolution=300" << endl;
 					f << "\n" << endl;
 					f << "GetScriptPath <- function()" << endl;
 					f << "{" << endl;

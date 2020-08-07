@@ -673,7 +673,7 @@ namespace WBSF
 
 			if (*pMsg && pDlg->m_bExtractWebName)
 			{
-				*pMsg = ExtractNominatimName(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
+				*pMsg = ExtractNominatimName(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_bExtractWebName, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
 			}
 		}
 
@@ -854,7 +854,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLocDlg::ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bState, bool bCountry, CCallback& callback)
+	ERMsg CLocDlg::ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -874,9 +874,9 @@ namespace WBSF
 			size_t miss = 0;
 			for (size_t i = 0; i < locations.size() && msg; i++)
 			{
-				bool bMissName = bReplaceAll || locations[i].m_name.empty();
-				bool bMissState = bReplaceAll || (bState && locations[i].GetSSI("State").empty());
-				bool bMissCountry = bReplaceAll || (bCountry && locations[i].GetSSI("Country").empty());
+				bool bMissName = bName && (bReplaceAll || locations[i].m_name.empty());
+				bool bMissState = bState &&  (bReplaceAll || locations[i].GetSSI("State").empty());
+				bool bMissCountry = bCountry && (bReplaceAll || locations[i].GetSSI("Country").empty());
 
 
 				if (bMissName || bMissState || bMissCountry)

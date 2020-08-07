@@ -1,13 +1,9 @@
 //Integrated Surface Data - “Lite”
 #include "stdafx.h"
 #include "UIISDLite.h"
-
-//#include <boost\filesystem.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-//#include <boost/iostreams/copy.hpp>
-
 #include "Basic/FileStamp.h"
 #include "Basic/DailyDatabase.h"
 #include "UI/Common/SYShowMessage.h"
@@ -18,6 +14,15 @@
 #include "../Resource.h"
 #include "Geomatic/TimeZones.h"
 #include "cctz/time_zone.h"
+
+//autre source
+//https://www.ncei.noaa.gov/data/global-hourly/access/2020/
+
+//fichier compresser
+//https://www.ncei.noaa.gov/data/global-hourly/archive/isd/
+//ou en format csv
+//https://www.ncei.noaa.gov/data/global-hourly/archive/csv/
+
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;

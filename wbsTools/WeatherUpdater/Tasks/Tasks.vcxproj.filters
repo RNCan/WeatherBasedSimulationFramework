@@ -227,6 +227,12 @@
     <ClInclude Include="UIGrib16daysForecast.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIGribCurrent.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGribHistorical.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -443,6 +449,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIGrib16daysForecast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGribCurrent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGribHistorical.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

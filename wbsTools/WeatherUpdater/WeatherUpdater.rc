@@ -136,14 +136,13 @@ BEGIN
     BUTTON      ID_TASK_EC_RADAR
     BUTTON      ID_TASK_EC_PRCP_RADAR
     SEPARATOR
-    BUTTON      ID_TASK_RTMA
-    BUTTON      ID_TASK_HIRESW
-    SEPARATOR
-    BUTTON      ID_TASK_RAP
-    BUTTON      ID_TASK_NAM
-    BUTTON      ID_TASK_HRDPS
-    BUTTON      ID_TASK_HRRR
-    BUTTON      ID_TASK_GRIB_FORECAST
+	BUTTON      ID_TASK_GRIB_HISTORICAL
+	BUTTON      ID_TASK_GRIB_CURRENT
+	BUTTON      ID_TASK_GRIB_FORECAST
+	SEPARATOR
+	BUTTON      ID_TASK_HRDPS
+	BUTTON      ID_TASK_HRRR
+	BUTTON      ID_TASK_RTMA
     SEPARATOR
     BUTTON      ID_TASK_CMIP5
     BUTTON      ID_TASK_GPCP
@@ -212,13 +211,12 @@ BEGIN
     BUTTON      ID_TASK_MISCELLANEOUS
     BUTTON      ID_TASK_EC_RADAR
     BUTTON      ID_TASK_EC_PRCP_RADAR
-    BUTTON      ID_TASK_RTMA
-    BUTTON      ID_TASK_HIRESW
-    BUTTON      ID_TASK_RAP
-    BUTTON      ID_TASK_NAM
+	BUTTON      ID_TASK_GRIB_HISTORICAL
+	BUTTON      ID_TASK_GRIB_CURRENT
+	BUTTON      ID_TASK_GRIB_FORECAST
     BUTTON      ID_TASK_HRDPS
     BUTTON      ID_TASK_HRRR
-    BUTTON      ID_TASK_GRIB_FORECAST
+	BUTTON      ID_TASK_RTMA
     BUTTON      ID_TASK_CMIP5
     BUTTON      ID_TASK_GPCP
     BUTTON      ID_TASK_CREATE_HOURLY
@@ -689,7 +687,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_FORECAST_P "Répertoire de travail|Type|Ignorer erreur"
-    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Type prcp|Arrière-plan|Radar|Debut (si historique)|Fin (si historique)|Composite"
+    IDS_UPDATER_EC_RADAR_P  "Répertoire de travail|Type|Radar|Composite|Type prcp|Arrière-plan|Debut (si historique)|Fin (si historique)"
     IDS_UPDATER_EC_PRCP_RADAR_P 
                             "Répertoire de travail|Produit|Intervale|Max heures"
     IDS_UPDATER_NOAA_GHCND_P 
@@ -737,7 +735,9 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA|Mise à jour historique (jours)"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Mise à jour historique (jours)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Répertoire de travail|Type|Serveur|Prévision max (heures)|Supprimer après (heures)|Afficher WinSCP|Variables HRDPS (surface)|Variables HRDPS (au sol)|Variables HRDPS (isobares)|Variables HRDPS (autres)|Hauteur au sol HRDPS|Isobares HRDPS"
+                            "Répertoire de travail|Produit|Sureface/3D|Variables|Prévision max (heures)|Supprimer après (jours)"
+	IDS_UPDATER_GRIB_HISTORICAL_P    "Répertoire de travail|Produit|Sureface/3D|Variables|Debut|Fin"
+	IDS_UPDATER_GRIB_CURRENT_P       "Répertoire de travail|Produit|Sureface/3D|Variables|Copier des prévisions si possible"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
@@ -762,7 +762,7 @@ BEGIN
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
-                            "Répertoire d'entrée|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
+                            "Tâche d'image radar|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
     IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour historique (jours)"
     IDS_UPDATER_LONG_FORECAST_P 
                             "Répertoire de travail|Type|Serveur|Début (heures)|Fin (heures)|Supprimer après (heures)|Afficher WinSCP"
@@ -816,7 +816,9 @@ STRINGTABLE
 BEGIN
     ID_TASK_HRDPS           "Télécharger les grilles hautes résolutons HRDPS (Canada)\nGrilles 3D HRDPS (Canada)"
     ID_TASK_HRRR            "Télécharger les grilles hautes résolutons HRRR (État-Unis)\nGrilles 3D HRRR (États-Unis)"
-    ID_TASK_GRIB_FORECAST   "Télécharger les grilles prévisionnelles\nGrilles prévisionnelles"
+	ID_TASK_GRIB_HISTORICAL "Télécharger les grilles historiques\nGrilles historiques"
+	ID_TASK_GRIB_CURRENT    "Télécharger les grilles actuelles\nGrilles actuelles"
+	ID_TASK_GRIB_FORECAST   "Télécharger les grilles prévisionnelles\nGrilles prévisionnelles"
     ID_TASK_CMIP5           "Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
     ID_TASK_GPCP            "Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nCréer BD horaires"
@@ -1181,7 +1183,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_FORECAST_P "Working directory|Type|Ignore error"
-    IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Prcp type|Background|Radar|Begin (if historical)|End (if historical)|Composite"
+    IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Radar|Composite|Prcp type|Background|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Product|Period|Max hours"
     IDS_UPDATER_NOAA_GHCND_P 
                             "Working directory|First year|Last year|Country|States (if USA)|Show progression"
@@ -1228,7 +1230,9 @@ BEGIN
     IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA|Update historical (days)"
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Update historical (days)"
     IDS_UPDATER_GRIB_FORECAST_P 
-                            "Working directory|Type|Server|Max forecast (hours)|Delete after (hours)|Show WinSCP|HRDPS Variables(surface)|HRDPS Variables (ground)|HRDPS Variables (isobars)|HRDPS Variables (others)|HRDPS Gound height|HRDPS Isobars"
+                            "Working directory|Product|Surface/3D|Variables|Max forecast (hours)|Delete after (days)"
+	IDS_UPDATER_GRIB_HISTORICAL_P    "Working directory|Product|Surface/3D|Variables|Begin|End"
+	IDS_UPDATER_GRIB_CURRENT_P       "Working directory|Product|Surrface/3D|Variables|Copy from forecast if possible"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
@@ -1253,7 +1257,7 @@ BEGIN
                             "Direction|Server|Remote file|Local file|User name|Password|Connection type|Connection timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
-                            "Input directory|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
+                            "Radar task|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
     IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical (days)"
     IDS_UPDATER_LONG_FORECAST_P 
                             "Working directory|Type|Server|Begin (hours)|End (hours)|Delete after (hours)|Show WinSCP"
@@ -1307,6 +1311,8 @@ STRINGTABLE
 BEGIN
     ID_TASK_HRDPS           "Download high resolution HRDPS (Canada) 3D gribs\nHRDPS 3D Gribs"
     ID_TASK_HRRR            "Download high resolution HRRR (USA) 3D gribs\nHRRR 3D Gribs"
+	ID_TASK_GRIB_HISTORICAL "Download historical gribs\nHistorical Gribs"
+	ID_TASK_GRIB_CURRENT    "Download current gribs\nCurrent Gribs"
     ID_TASK_GRIB_FORECAST   "Download forecast gribs\nForecast Gribs"
     ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
     ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"

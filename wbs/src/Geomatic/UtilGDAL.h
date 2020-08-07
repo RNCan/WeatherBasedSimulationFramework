@@ -30,6 +30,7 @@ namespace WBSF
 	void RegisterGDAL();
 	ERMsg OpenInputImage(const std::string& filePath, GDALDataset** poInputDS, double srcNodata = MISSING_NO_DATA, bool bUseDefaultNoData = true, bool bReadOnly= true);
 	ERMsg OpenOutputImage(const std::string& filePath, GDALDataset* poInputDS, GDALDataset** poOutputDS, const char* outDriverName = "GTiff", short cellType = 0, int nbBand = -1, double dstNodata = MISSING_NO_DATA, const StringVector& createOptions = StringVector(), bool bOverwrite = true, const CGeoExtents& extentsIn = CGeoExtents(), bool useDefaultNoData = true);
+	bool GoodGeotiff(const std::string& filePath);
 	
 	ERMsg GetFilePathList(const char* fileName, int filePathCol, StringVector& filePathList);
 	ERMsg VerifyInputSize(GDALDataset* poInputDS1, GDALDataset* poInputDS2);

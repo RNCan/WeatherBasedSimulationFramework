@@ -9,7 +9,7 @@ namespace WBSF
 	{
 	public:
 		
-		enum TAttributes { INPUT_DIR, OUTPUT_DIR, START_DATE, END_DATE, FIRST_HOUR, LAST_HOUR, FRAME_DELAY, LOOP, CREATE_ALL, NB_ATTRIBUTES };
+		enum TAttributes { RADAR_INPUT, OUTPUT_DIR, START_DATE, END_DATE, FIRST_HOUR, LAST_HOUR, FRAME_DELAY, LOOP, CREATE_ALL, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CCreateRadarAnimation); }
 
@@ -35,6 +35,8 @@ namespace WBSF
 		
 		static CTRef GetTRef(const std::string& filePath);
 		static std::string GetID(const std::string& filePath);
+		bool NeedUpdate(const std::pair<std::string, StringVector>& it);
+
 	protected:
 
 

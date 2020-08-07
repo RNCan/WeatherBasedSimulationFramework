@@ -8,7 +8,6 @@
 #include "boost/tokenizer.hpp"
 #include "Geomatic/SfcGribsDatabase.h"
 
-//#include "cctz\time_zone.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
@@ -41,8 +40,7 @@ namespace WBSF
 	CHRDPS::CHRDPS(const std::string& workingDir) :
 		m_workingDir(workingDir),
 		m_bCreateDailyGeotiff(true),
-		//m_createHistiricalGeotiff(true),
-		m_update_last_n_days(7),
+		m_update_last_n_days(0),
 		m_bForecast(false),
 		m_max_hours(24),
 		m_bHRDPA6h(false)
@@ -87,7 +85,6 @@ namespace WBSF
 
 	size_t CHRDPS::GetHRDPSVariable(string title)
 	{
-		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
 		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
 		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
 
@@ -105,7 +102,6 @@ namespace WBSF
 		WBSF::ReplaceString(title, "GUST_MAX", "GUST-MAX");
 		WBSF::ReplaceString(title, "GUST_MIN", "GUST-MIN");
 
-		//CMC_hrdps_continental_ABSV_ISBL_0250_ps2.5km_2016122918_P000-00
 		StringVector parts(title, "_");
 		ASSERT(parts.size() == 9);
 		return CHRDPSVariables::GetLevel(parts[5]);
@@ -147,154 +143,8 @@ namespace WBSF
 
 		return msg;
 	}
-
-	//****************************************************************************************************
-	//ERMsg UpdateAll(CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	string working_dir = "Z:/HRG/HRDPS(SFC)/";
-	//	StringVector file_to_update;
-	//	vector<pair<string, string>> year_month;
-	//	StringVector years = WBSF::GetDirectoriesList(working_dir + "*");
-
-	//	for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
-	//	{
-	//		string year = *it1;
-	//		if (ToInt(year) > 1900 && ToInt(year) < 2100)
-	//		{
-	//			StringVector months = WBSF::GetDirectoriesList(working_dir + *it1 + "\\*");
-	//			for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
-	//				year_month.push_back(make_pair(*it1, *it2));
-	//		}
-	//	}
-
-	//	callback.PushTask("Get all file to update (" + to_string(year_month.size()) + " months)", year_month.size());
-	//	callback.AddMessage("Get all file to update (" + to_string(year_month.size()) + " months)");
-
-
-	//	for (auto it = year_month.begin(); it != year_month.end() && msg; it++)
-	//	{
-	//		string year = it->first;
-	//		string month = it->second;
-	//		if (month != "06")
-	//		{
-	//			StringVector days = WBSF::GetDirectoriesList(working_dir + year + "\\" + month + "\\*");
-	//			for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-	//			{
-	//				string day = *it3;
-
-	//				string filter = working_dir + year + "\\" + month + "\\" + day + "\\HRDPS_*.tif";
-	//				StringVector file = WBSF::GetFilesList(filter, 2);
-	//				file_to_update.insert(file_to_update.end(), file.begin(), file.end());
-	//				msg += callback.StepIt(0);
-	//			}//for all days
-	//		}
-	//		msg += callback.StepIt();
-	//	}//for all months
-
-	//	callback.PopTask();
-
-	//	callback.PushTask("Convert files(" + to_string(year_month.size()) + " months)", file_to_update.size());
-	//	
-
-	//	for (size_t i = 0; i != file_to_update.size() && msg; i++)
-	//	{
-	//		//string outputFilePath = file_to_update[i] + "2";
-
-	//		//if (GoodGrib(file_to_update[i]))
-	//		//{
-	//		CSfcData1d DSin;
-	//		DSin.m_variables_to_load.set();
-	//		msg += DSin.open(file_to_update[i], true);
-
-	//		if (msg)
-	//		{
-	//			CBaseOptions options;
-	//			DSin.UpdateOption(options);
-	//			//options.m_nbBands = nbBands;
-	//			//options.m_outputType = GDT_Float32;
-	//			//options.m_dstNodata = GetDefaultNoData(GDT_Float32);
-	//			options.m_bOverwrite = true;
-
-	//			CGDALDatasetEx DSout;
-	//			msg += DSout.CreateImage(file_to_update[i] + "2", options);
-	//			if (msg)
-	//			{
-
-	//				for (size_t v = 0; v < DSin.get_variables().size(); v++)
-	//				{
-	//					size_t b = DSin.get_band(v);
-
-	//					if (b != NOT_INIT)
-	//					{
-	//						GDALRasterBand* pBandin = DSin.GetRasterBand(b);
-	//						GDALRasterBand* pBandout = DSout.GetRasterBand(b);
-
-	//						ASSERT(DSin.GetRasterXSize() == DSout.GetRasterXSize());
-	//						ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
-
-	//						vector<float> data(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-	//						pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-	//						pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
-
-	//						if (v == H_VWND)
-	//						{
-	//							//change v wind by geopot
-	//							
-	//							pBandout->SetDescription(CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_DESC]);
-	//							pBandout->SetMetadataItem("GRIB_COMMENT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_COMMENT]);
-	//							pBandout->SetMetadataItem("GRIB_ELEMENT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_ELEMENT]);
-	//							pBandout->SetMetadataItem("GRIB_SHORT_NAME", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_SHORT_NAME]);
-	//							pBandout->SetMetadataItem("GRIB_UNIT", CHRDPS::CSfcGribDatabase::META_DATA[H_GHGT][CHRDPS::M_UNIT]);
-
-	//						}
-	//						else
-	//						{
-	//							string test1 = pBandin->GetDescription();
-	//							if (pBandin->GetDescription())
-	//								pBandout->SetDescription(pBandin->GetDescription());
-
-	//							string test2 = *pBandin->GetMetadata();
-	//							if (pBandin->GetMetadata())
-	//								pBandout->SetMetadata(pBandin->GetMetadata());
-	//						}
-	//					}
-
-	//					//							DSout->FlushCache();
-
-	//				}
-
-	//				DSout.Close();
-	//			}//out open
-
-	//			DSin.close();
-
-	//			if (msg)
-	//			{
-	//				//do not support block
-	//				string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_to_update[i] + "2" + "\" \"" + file_to_update[i] + "\"";
-	//				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
-	//				msg += WinExecWait(command);
-	//				msg += RemoveFile(file_to_update[i] + "2");
-	//			}
-	//		}//in open
-
-	//		msg += callback.StepIt();
-	//	}// for all files
-
-	//	callback.PopTask();
-
-	//	return msg;
-	//}
-
-
 	ERMsg CHRDPS::Execute(CCallback& callback)
 	{
-		//set<string> t;
-		//t.insert("20200101");
-		//return CreateHourlyGeotiff(t, callback);
-
 		GDALSetCacheMax64(128 * 1024 * 1024);
 
 
@@ -380,7 +230,7 @@ namespace WBSF
 					if (bDownload)
 						dir2.push_back(*it2);
 				}
-				//				dir2.insert(dir2.end(), tmp.begin(), tmp.end());
+				
 				msg += callback.StepIt();
 			}
 		}
@@ -420,15 +270,7 @@ namespace WBSF
 						while (it2 != dir2.end() && msg)
 						{
 							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-							/*string path = it2->m_filePath;
-							path = GetPath(path.substr(0, path.length() - 1));
-							size_t HH = as<size_t>(GetLastDirName(path));
-							size_t hhh0 = as<size_t>(GetLastDirName(it2->m_filePath));
-							size_t hhh = Gethhh(GetFileTitle(it2->m_filePath));
-							ASSERT(hhh=hhh0);*/
-							//	bool bDownload = m_bForecast ? (HH == lastestHH) : (hhh < 7);
-								//if (bDownload)
-								//{
+							
 							CFileInfoVector fileListTmp;
 							msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
 							for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
@@ -462,7 +304,7 @@ namespace WBSF
 									callback.AddMessage("Unknowns HRDPS var: " + fileName);
 								}
 							}//for all files
-						//}//take only 6 first hours
+						
 
 							msg += callback.StepIt();
 							it2++;
@@ -561,21 +403,7 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-		/*for (int m = 1; m <= 9; m++)
-		{
-			for (int d = 1; d <= GetNbDayPerMonth(m - 1); d++)
-			{
-				string file_path_out = FormatA("%s2019\\%02d\\%02d\\HRDPSD_2019%02d%02d.tif", m_workingDir.c_str(), m, d, m, d);
-				if (!WBSF::FileExists(file_path_out))
-					date_to_update.insert(FormatA("2019%02d%02d", m, d));
-			}
-		}
-
-
-		msg = CreateDailyGeotiff(date_to_update, callback);
-		return msg;*/
-
-		if (/*date_to_update.empty() &&*/ m_update_last_n_days > 0)
+		if (m_update_last_n_days > 0)
 		{
 			set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
 			date_to_update.insert(last_n_days.begin(), last_n_days.end());
@@ -626,14 +454,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 		size_t nbHours = m_bForecast ? 48 : 6;
 
 		//Compute the number of hours to update
 		std::map< string, StringVector>  to_update_map;
 
 		callback.PushTask("Find HRDPS hourly GeoTiff to update: " + ToString(outputPath.size()) + " days", outputPath.size() * 4 * nbHours);
-		//callback.AddMessage("Create hourly GeoTiff: " + ToString(outputPath.size()) + " days");
 
 		for (set<string>::const_iterator it = outputPath.begin(); it != outputPath.end() && msg; it++)
 		{
@@ -723,8 +549,6 @@ namespace WBSF
 		callback.PopTask();
 
 
-		//string nbHours_test = FormatA("%s%s\\%s\\%s\\CMC_hrdps_continental_TMP_TGL_2_ps2.5km_*.grib2", m_workingDir.c_str(), year.c_str(), month.c_str(), day.c_str());
-		//StringVector nbHours = WBSF::GetFilesList(nbHours_test, 2, true);
 		callback.PushTask("Create HRDPS hourly GeoTiff: " + ToString(to_update_map.size()) + " hours", to_update_map.size());
 		callback.AddMessage("Create HRDPS hourly GeoTiff: " + ToString(to_update_map.size()) + " hours");
 
@@ -1273,42 +1097,14 @@ namespace WBSF
 
 		std::set<std::string> date_to_update;
 
-		//vector<pair<string, string>> year_month;
-		//StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
-
-		//for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
-		//{
-		//	string year = *it1;
-		//	if (ToInt(year) > 1900 && ToInt(year) < 2100)
-		//	{
-		//		StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-		//		for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
-		//		{
-		//			//year_month.push_back(m_workingDir + *it1 + "\\" + *it2 + "\\*");
-		//			year_month.push_back(make_pair(*it1, *it2));
-		//		}
-		//	}
-		//}
-
+		
 		callback.PushTask("Get historical HRDPS to update (" + to_string(m_update_last_n_days) + " days)", m_update_last_n_days);
 		callback.AddMessage("Get historical HRDPS files to update (" + to_string(m_update_last_n_days) + " days)");
 
 
-		//for (auto it = year_month.begin(); it != year_month.end() && msg; it++)
 		CTRef TRef = CTRef::GetCurrentTRef(CTM::DAILY);
 		for (size_t d = 0; d < nb_days; d++)
 		{
-			//date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
-
-			//}
-
-			//{
-				//string year = it->first;
-				//string month = it->second;
-				//StringVector days = WBSF::GetDirectoriesList(m_workingDir + year + "\\" + month + "\\*");
-	//			for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-				//{
-			//string day = *it3;
 			string filter0 = FormatA("%s%04d\\%02d\\%02d\\*", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1 );
 			StringVector hours = WBSF::GetDirectoriesList(filter0);
 			for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
@@ -1324,17 +1120,11 @@ namespace WBSF
 					if (!WBSF::GetFilesList(filter1, 2, true).empty() || !WBSF::GetFilesList(filter2, 2, true).empty())
 					{
 						string tifFilePath = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02d%02d-%03d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, h2);
-
-						/*if (!WBSF::FileExists(tifFilePath))
-						{
-							string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-							date_to_update.insert(date);
-						}*/
+						
 						CGDALDatasetEx DS;
 						if (DS.OpenInputImage(tifFilePath))
 						{
 							DS.Close();
-							//lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
 						}
 						else
 						{
@@ -1343,11 +1133,8 @@ namespace WBSF
 								callback.AddMessage("Remove invalid HRDPS GeoTiff " + tifFilePath);
 								msg += RemoveFile(tifFilePath);
 							}
-								
-							//TRef.GetFormatedString();
-							//string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+							
 							date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
-							//date_to_update.insert(date);
 						}
 					}
 
@@ -1360,8 +1147,6 @@ namespace WBSF
 			msg += callback.StepIt();
 		}//for all days
 
-
-	//}//for all months
 
 		callback.PopTask();
 
@@ -1496,40 +1281,16 @@ namespace WBSF
 		ERMsg msg;
 		StringVector filesList = GetFilesList(GetOutputFilePath("*"));//don't put extensionbea cause of the 2.5km trouble
 
-		//callback.PushTask("load gribs files (" + ToString(filesList.size()) + ")", filesList.size());
-		//for (StringVector::const_iterator it = filesList.begin(); it != filesList.end() && msg; it++)
-		//{
-		//	if (IsEqual(GetFileExtension(*it), ".grib2"))
-		//	{
-		//		size_t hhh = Gethhh(*it); ASSERT(hhh <= 52);
-		//		size_t vv = GetHRDPSVariable(*it);
-		//		ASSERT(vv != NOT_INIT);
-
-		//		msg += m_datasets[hhh][vv].OpenInputImage(*it);
-		//		msg += callback.StepIt();
-		//	}
-		//}
-
-		////msg += m_datasets[0][0].OpenInputImage("E:/Travaux/Install/DemoBioSIM/Update/EnvCan/Forecast/HRDPS/CMC_hrdps_continental_DPT_TGL_2_ps2.5km_2016050806_P000-00.grib2");
-		//callback.PopTask();
-
-		//if (msg)
-		//{
-		//	m_geo2gribs.Set(PRJ_WGS_84, m_datasets[0][0].GetPrjID());
-		//	msg += m_geo2gribs.Create();
-		//}
-		//
+		
 		return msg;
 	}
-	//Extraction section
 
-	//ERMsg CHRDPS::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	//Extraction section
 	ERMsg CHRDPS::GetVirtuelStation(const CLocationVector& stations, CWVariables variables, CTPeriod p, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//if (ID.empty())
-		//{
+		
 		ASSERT(!station.m_ID.empty());
 		ASSERT(station.m_lat != -999);
 		ASSERT(station.m_lon != -999);

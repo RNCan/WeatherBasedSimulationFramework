@@ -1542,8 +1542,8 @@ namespace WBSF
 			{
 				if (msg)
 				{
-					if (it->HaveData())
-					{
+					//if (it->HaveData())//do not remove station without data because they will krash in set function
+					//{
 						//Force write file name in the file
 						it->SetDataFileName(it->GetDataFileName());
 						it->UseIt(true);
@@ -1552,7 +1552,7 @@ namespace WBSF
 
 						if (msg)
 							nbStationAdded++;
-					}
+					//}
 				}
 
 				msg += callback.StepIt();

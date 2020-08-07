@@ -36,6 +36,15 @@
 
 //{"AT", "ATA", "TX", "TN", "HUA", "HU", "PR", "IR", "WDA", "WD", "UA", "US", "WSA", "WS", "P1", "PC"};
 
+
+//stations list
+//
+
+
+//meta data of station
+//https://agriculture.alberta.ca/acis/station/metadata?resource=complete&station=4508
+
+
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;

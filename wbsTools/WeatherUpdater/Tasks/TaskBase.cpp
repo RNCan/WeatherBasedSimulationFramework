@@ -577,14 +577,15 @@ namespace WBSF
 			bool bDatabaseTask = (*it)->IsDatabase();
 			bool bGribsTask = (*it)->IsGribs();
 			bool bMMGTask = (*it)->IsMMG();
+			bool bRadarTask = (*it)->IsRadar();
 			
 			bool bTime = (types[IS_HOURLY] == bHourlyTask) || (types[IS_DAILY] == bDailyTask);
 			bool bForecast = types[IS_FORECAST] == bForecastTask;
-			bool bType = types[IS_DATABASE] == bDatabaseTask || types[IS_GRIBS] == bGribsTask || types[IS_MMG] == bMMGTask;
+			bool bType = types[IS_DATABASE] == bDatabaseTask || types[IS_GRIBS] == bGribsTask || types[IS_MMG] == bMMGTask || types[IS_RADAR] == bRadarTask;
 			if (bTime && bForecast && bType)
 			{
 				str += str.empty() ? "" : "|";
-				str += (*it)->m_name;//que faire si plusieur fois le mem nom???
+				str += (*it)->m_name;
 			}
 				
 		}

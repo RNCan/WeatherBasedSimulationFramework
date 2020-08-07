@@ -65,12 +65,12 @@ namespace WBSF
 
 	//****************************************************************************************************************
 	//UpdaterType
-	enum TUpdater{ IS_HOURLY, IS_DAILY, IS_FORECAST, IS_DATABASE, IS_GRIBS, IS_MMG, NB_UPDATER_TYPE };
+	enum TUpdater{ IS_HOURLY, IS_DAILY, IS_FORECAST, IS_DATABASE, IS_GRIBS, IS_MMG, IS_RADAR, NB_UPDATER_TYPE };
 	class CUpdaterTypeMask : public std::bitset<NB_UPDATER_TYPE>
 	{
 	public:
 
-		CUpdaterTypeMask(bool bIsHourly = false, bool bIsDaily = false, bool bIsForecast = false, bool bIsDatabase=false, bool bIsGribs = false, bool bIsMMG = false)
+		CUpdaterTypeMask(bool bIsHourly = false, bool bIsDaily = false, bool bIsForecast = false, bool bIsDatabase=false, bool bIsGribs = false, bool bIsMMG = false, bool bIsRadar= false)
 		{
 			CUpdaterTypeMask& me = *this;
 
@@ -80,6 +80,8 @@ namespace WBSF
 			me[IS_DATABASE] = bIsDatabase;
 			me[IS_GRIBS] = bIsGribs;
 			me[IS_MMG] = bIsMMG;
+			me[IS_RADAR] = bIsRadar;
+			
 		}
 	};
 
@@ -140,6 +142,7 @@ namespace WBSF
 		virtual bool IsDatabase()const{ return false; }
 		virtual bool IsGribs()const{ return false; }
 		virtual bool IsMMG()const{ return false; }
+		virtual bool IsRadar()const { return false; }
 
 
 
@@ -160,6 +163,7 @@ namespace WBSF
 		virtual ERMsg GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback = DEFAULT_CALLBACK);
 		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback);
 		virtual ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback = DEFAULT_CALLBACK) { return ERMsg(); }
+		virtual ERMsg GetRadarList(CTPeriod p, std::map<std::string, StringVector>& imageList, CCallback& callback = DEFAULT_CALLBACK) { return ERMsg(); }
 		virtual ERMsg Finalize(TType type, CCallback& callback = DEFAULT_CALLBACK){ return ERMsg(); }
 
 		void writeStruc(zen::XmlElement& output)const;

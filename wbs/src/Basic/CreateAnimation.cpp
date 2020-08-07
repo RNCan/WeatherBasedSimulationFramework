@@ -93,6 +93,7 @@ namespace WBSF
 			ReadFile(hFileIn, &gh, sizeof(GIF_HEADER), &dw, 0);
 			if (strncmp(gh.cSignature, "GIF", 3) || (strncmp(gh.cVersion, "89a", 3) && strncmp(gh.cVersion, "87a", 3))) {
 				msg.ajoute("Not a GIF file, or incorrect version number.");
+				msg.ajoute(file_list[dwIndex]);
 				CloseHandle(hFileIn);
 				CloseHandle(hFileOut);
 				return msg;
@@ -107,6 +108,8 @@ namespace WBSF
 				ReadFile(hFileIn, &c, 1, &dw, 0);
 				if (dw == 0) {
 					msg.ajoute("Premature end of file encountered; no GIF image data present.");
+					msg.ajoute(file_list[dwIndex]);
+					
 					CloseHandle(hFileIn);
 					CloseHandle(hFileOut);
 					return msg;

@@ -85,11 +85,11 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA:	filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset])) + "Russia_518_inventory.csv"; break;
-		case SOPFEU_2013:	filePath = bLocal ? GetApplicationPath() + "Layers\\SOPFEUStnDesc.csv" : ""; break;
+		case SOPFEU_HISTORICAL:	filePath = bLocal ? GetDir(WORKING_DIR) + "Historique Positionement Stations météo.csv" : ""; break;
 		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
 		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
 		case RCM4_22:		filePath = GetDir(WORKING_DIR) + "orog_4nearest_24stations.csv"; break;
-		case CWFIS:			filePath = (bLocal ? GetDir(WORKING_DIR)  : string(SERVER_PATH[dataset])) + "cwfis_allstn.csv"; break;
+		case CWFIS:			filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset])) + "cwfis_allstn.csv"; break;
 		}
 
 		return filePath;
@@ -100,7 +100,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case DATASET:	str = "Russia|SOPFEU 2013|Quebec Hourly|CWEEDS|CCCma RCM4_22|CWFIS"; break;
+		case DATASET:	str = "Russia|SOPFEU historical|Quebec Hourly|CWEEDS|CCCma RCM4_22|CWFIS"; break;
 		};
 		return str;
 	}
@@ -188,7 +188,7 @@ namespace WBSF
 
 								break;
 							}
-							case SOPFEU_2013: break;
+							case SOPFEU_HISTORICAL: break;
 							case QUEBEC_HOURLY:break;
 							case CWEEDS: break;
 							case RCM4_22: break;
@@ -268,7 +268,7 @@ namespace WBSF
 						break;
 
 					}
-					case SOPFEU_2013:break;
+					case SOPFEU_HISTORICAL:break;
 					case QUEBEC_HOURLY:break;
 					case CWEEDS: break;
 					case RCM4_22:
@@ -444,7 +444,7 @@ namespace WBSF
 			switch (dataset)
 			{
 			case CDIAC_RUSSIA: msg = FTPDownload(SERVER_NAME[dataset], fileList[i].m_filePath, outputFilePath, callback); break;
-			case SOPFEU_2013: break;
+			case SOPFEU_HISTORICAL: break;
 			case QUEBEC_HOURLY:break;
 			case CWEEDS: break;
 			case RCM4_22:break;
@@ -484,7 +484,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA:  filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
-		case SOPFEU_2013:   filePath = GetDir(WORKING_DIR) + "MeteoOBS2013.csv"; break;
+		case SOPFEU_HISTORICAL:   filePath = GetDir(WORKING_DIR) + "BioSIM_SOPFEU.csv"; break;
 		case QUEBEC_HOURLY: filePath = GetDir(WORKING_DIR) + stationName.substr(4, 2) + "/" + stationName + ".WY3"; break;
 		case CWEEDS: break;
 		case RCM4_22:break;
@@ -507,7 +507,7 @@ namespace WBSF
 		switch (dataset)
 		{
 		case CDIAC_RUSSIA: filePath = GetDir(WORKING_DIR) + "Russia_518_data.txt.gz"; break;
-		case SOPFEU_2013:   break;
+		case SOPFEU_HISTORICAL:   break;
 		case QUEBEC_HOURLY:break;
 		case CWEEDS: break;
 		case RCM4_22:break;
@@ -523,11 +523,53 @@ namespace WBSF
 
 	bool CUIMiscellaneous::GetStationInformation(const string& ID, CLocation& station)const
 	{
+		size_t pos = NOT_INIT;
 
-		size_t pos = m_stations.FindByID(ID);
-		if (pos != NOT_INIT)
+		size_t dataset = as<size_t>(DATASET);
+		ASSERT(dataset < NB_DATASETS);
+		if (dataset == SOPFEU_HISTORICAL)
 		{
-			station = m_stations[pos];
+			/*StringVector tmp(ID, "_");
+			string ID = tmp[0];
+			CTRef date;
+			date.FromFormatedString(tmp[1]);*/
+
+			//for (auto it2 = m_stations.begin(); it2 != m_stations.end() && pos == NOT_INIT; it2++)
+			//{
+			//	if (it2->m_ID == ID)
+			//	{
+
+			//		CTRef begin;
+			//		begin.FromFormatedString(it2->GetSSI("Ouverture"));
+			//		//CTRef end = CTRef::GetCurrentTRef();
+			//		//if (it2->GetSSI("Fermeture") != "NULL")
+			//			//end.FromFormatedString(it2->GetSSI("Fermeture"));
+
+			//		if (date == begin)
+			//		{
+			//			station = *it2;
+			//			pos = std::distance(m_stations.begin(), it2);
+			//		}
+			//	}
+			//}
+			for (auto it2 = m_stations.begin(); it2 != m_stations.end() && pos == NOT_INIT; it2++)
+			{
+				string id = it2->m_ID + "_" + it2->GetSSI("Ouverture");
+				if (id == ID)
+				{
+					station = *it2;
+					station.m_ID = ID;
+					pos = std::distance(m_stations.begin(), it2);
+				}
+			}
+		}
+		else
+		{
+			pos = m_stations.FindByID(ID);
+			if (pos != NOT_INIT)
+			{
+				station = m_stations[pos];
+			}
 		}
 		//else
 		//{
@@ -541,7 +583,6 @@ namespace WBSF
 	}
 
 
-
 	ERMsg CUIMiscellaneous::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
@@ -553,8 +594,11 @@ namespace WBSF
 			return msg;
 		}
 
-
 		msg = m_stations.Load(GetLocationsFilePath(dataset, true), ",", callback);
+
+
+
+
 		if (msg)
 		{
 			switch (dataset)
@@ -572,15 +616,91 @@ namespace WBSF
 				break;
 			}
 
-			case SOPFEU_2013:
+			case SOPFEU_HISTORICAL:
+			{
+				if (SOPFEU_stations.empty())
+				{
+					for (auto it1 = m_stations.begin(); it1 != m_stations.end(); it1++)
+					{
+
+						CTRef begin;
+						begin.FromFormatedString(it1->GetSSI("Ouverture"));
+						CTRef end = CTRef::GetCurrentTRef();
+						if (it1->GetSSI("Fermeture") != "NULL")
+							end.FromFormatedString(it1->GetSSI("Fermeture"));
+
+						CTPeriod p1(begin, end);
+						if (begin > end)
+							callback.AddMessage("inversion: " + it1->m_ID);
+						if (p1.GetNbDay() == 1)
+							callback.AddMessage("Periode de 1 jour: " + it1->m_ID);
+
+
+						if (begin <= CTRef(1994, DECEMBER, DAY_31))
+						{
+							ASSERT(end <= CTRef(1994, DECEMBER, DAY_31));
+						}
+						if (p1.GetNbDay() > 1 && begin.GetYear() >= 1995)
+						{
+							for (auto it2 = SOPFEU_stations[it1->m_ID].begin(); it2 != SOPFEU_stations[it1->m_ID].end(); it2++)
+							{
+								CTRef begin;
+								begin.FromFormatedString(it2->GetSSI("Ouverture"));
+								CTRef end = CTRef::GetCurrentTRef();
+								if (it2->GetSSI("Fermeture") != "NULL")
+									end.FromFormatedString(it2->GetSSI("Fermeture"));
+
+								CTPeriod p2(begin, end);
+								if (p1.IsIntersect(p2) && p1.Intersect(p2).GetNbDay() > 1)
+								{
+									if (it1->GetDistance(*it2, false, false) > 5000 || fabs(it1->m_elev - it2->m_elev) > 50)
+										callback.AddMessage("Conflict: " + it1->m_ID);
+									else
+										callback.AddMessage("Intersect: " + it1->m_ID);
+
+								}
+
+							}
+
+							SOPFEU_stations[it1->m_ID].push_back(*it1);
+						}
+
+					}
+				}
+
+				msg = LoadSOPFEUInMemory(callback);
+				for (auto it = m_weatherStations.begin(); it != m_weatherStations.end(); it++)
+				{
+					bool bFind = false;
+					for (auto it2 = m_stations.begin(); it2 != m_stations.end(); it2++)
+					{
+						string id = it2->m_ID + "_" + it2->GetSSI("Ouverture");
+						if (id == it->first)
+						{
+							if (bFind)
+								callback.AddMessage("Many station for " + it->first);
+							bFind = true;
+						}
+					}
+
+
+					if (bFind)
+						stationList.push_back(it->first);
+					else
+						callback.AddMessage("WARNING: no station information for ID = " + it->first);
+
+					msg = callback.StepIt(0);
+				}
+
+
+				break;
+			}
 			case QUEBEC_HOURLY:
 			case CWFIS:
 			{
 				if (m_weatherStations.empty())
 				{
-					if (dataset == SOPFEU_2013)
-						msg = LoadSOPFEUInMemory(callback);
-					else if (dataset == QUEBEC_HOURLY)
+					if (dataset == QUEBEC_HOURLY)
 						msg = LoadQuebecInMemory(callback);
 					else if (dataset == CWFIS)
 						msg = LoadCWFISInMemory(callback);
@@ -682,7 +802,7 @@ namespace WBSF
 
 				break;
 			}
-			case SOPFEU_2013:
+			case SOPFEU_HISTORICAL:
 			case QUEBEC_HOURLY:
 			{
 				station.SetHourly(true);
@@ -817,6 +937,9 @@ namespace WBSF
 
 		m_weatherStations.clear();
 
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+
 
 		string filePath = CUIMiscellaneous::GetOutputFilePath("", -999);
 
@@ -824,18 +947,28 @@ namespace WBSF
 		msg = file.open(filePath, ios_base::in | ios_base::binary);
 		if (msg)
 		{
+			
 			callback.PushTask("Load SOPFEU in memory", file.length());
-
-			enum { C_NO_STATION, C_DATE, C_HEURE, C_PLUIE, C_PLUIE_HOR, C_CC, C_TSEC, C_THUM, C_DV, C_VV, C_VVR, C_PRO, C_HR, OTHER_FIELDS };
-			TVarH VAR_TYPE[OTHER_FIELDS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_PRCP, H_SKIP, H_TAIR, H_SKIP, H_WNDD, H_WNDS, H_SKIP, H_TDEW, H_RELH };
-			for (CSVIterator loop(file, ",", true); loop != CSVIterator(); ++loop)
+			enum TColums { C_DATE, C_HEURE, C_NO_STATION, C_STATION_ID, C_STATION_NAME, C_TMIN, C_TAIR, C_TMAX, C_PRCP, C_TDEW, C_RELH, C_WNDS, C_WNDD, NB_SOPFEU_COLUMS };
+			TVarH VAR_TYPE[NB_SOPFEU_COLUMS] = { H_SKIP, H_SKIP, H_SKIP, H_SKIP,  H_SKIP, H_TMIN, H_TAIR, H_TMAX, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD };
+			int line = 2;
+			for (CSVIterator loop(file, ";", true); loop != CSVIterator() && msg; ++loop)
 			{
-				ASSERT(loop->size() >= OTHER_FIELDS);
-				//int ID = WBSF::as<int>((*loop)[C_NO_STATION]);
-				string ID = (*loop)[C_NO_STATION];
+				ASSERT(loop->size() == NB_SOPFEU_COLUMS);
+				if (loop->size() != NB_SOPFEU_COLUMS)
+				{
+					callback.AddMessage("Invalid line " + to_string(line));
+					callback.AddMessage(loop->GetLastLine());
+				}
+
+				/*if ((*loop)[C_NO_STATION].length() != 3)
+				{
+					callback.AddMessage("Invalid station ID: " + (*loop)[C_NO_STATION] + " at line " + to_string(line));
+					callback.AddMessage(loop->GetLastLine());
+				}*/
+
 				string dateStr = (*loop)[C_DATE];
 				StringVector date(dateStr, "- :");
-
 
 				int year = WBSF::as<int>(date[0]);
 				size_t m = WBSF::as<size_t>(date[1]) - 1;
@@ -844,29 +977,91 @@ namespace WBSF
 
 				ASSERT(m < 12);
 				ASSERT(d < GetNbDayPerMonth(year, m));
+				
+				//if ((*loop)[C_NO_STATION] != "113" || year != 1997)
+					//continue;
 
-
-
-				CTRef TRef(year, m, d, h);
-
-				for (size_t i = 0; i < OTHER_FIELDS; i++)
+				if (year >= firstYear && year <= lastYear && (*loop)[C_NO_STATION].length() == 3)
 				{
-					if (VAR_TYPE[i] != H_SKIP)
+					CTRef TRef(year, m, d, h);
+
+					
+					CLocation location;
+
+
+					auto it1 = SOPFEU_stations.find((*loop)[C_NO_STATION]);
+					if (it1 != SOPFEU_stations.end())
 					{
-						string var = (*loop)[i];
-
-						if (!var.empty())
+						for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
 						{
-							if (!m_weatherStations[ID].IsHourly())
-								m_weatherStations[ID].SetHourly(true);//create hourly data
-
-							m_weatherStations[ID][TRef].SetStat(VAR_TYPE[i], ToDouble(var));
+							CTRef begin;
+							begin.FromFormatedString(it2->GetSSI("Ouverture"));
+							CTRef end = CTRef::GetCurrentTRef();
+							if (it2->GetSSI("Fermeture") != "NULL")
+								end.FromFormatedString(it2->GetSSI("Fermeture"));
+							CTPeriod p(begin, end);
+							if (p.IsInside(TRef.as(CTM::DAILY)))
+							{
+								location = *it2;
+							}
 						}
 
+						if (!location.IsInit())
+						{
+							map<size_t, CLocation> nearest;
+							for (auto it2 = it1->second.begin(); it2 != it1->second.end(); it2++)
+							{
+								CTRef begin;
+								begin.FromFormatedString(it2->GetSSI("Ouverture"));
+
+								CTRef end = CTRef::GetCurrentTRef();
+								if (it2->GetSSI("Fermeture") != "NULL")
+									end.FromFormatedString(it2->GetSSI("Fermeture"));
+
+								CTPeriod p(begin, end);
+
+								size_t nb_days = min(abs(TRef.as(CTM::DAILY) - begin), abs(TRef.as(CTM::DAILY) - end));
+								nearest[nb_days] = *it2;
+							}
+
+							if (!nearest.empty() && nearest.begin()->first < 365*2)
+								location = nearest.begin()->second;
+						}
+					}
+					
+
+					string ID = (*loop)[C_NO_STATION] + "_" + to_string(year) + "_" + to_string(m+1);
+					if (location.IsInit())
+						ID = location.m_ID + "_" + location.GetSSI("Ouverture");
+
+					for (size_t i = 0; i < NB_SOPFEU_COLUMS; i++)
+					{
+						if (VAR_TYPE[i] != H_SKIP)
+						{
+							string var = (*loop)[i];
+
+							if (!var.empty() && var != "NULL")
+							{
+								if (!m_weatherStations[ID].IsHourly())
+									m_weatherStations[ID].SetHourly(true);//create hourly data
+
+								double  value = ToDouble(var);
+								if (VAR_TYPE[i] == H_TMIN || VAR_TYPE[i] == H_TAIR || VAR_TYPE[i] == H_TMAX || VAR_TYPE[i] == H_TDEW)
+								{
+									if (value < -60 || value > 60)
+										value = -999;
+								}
+
+								if(value!=-999)
+									m_weatherStations[ID][TRef].SetStat(VAR_TYPE[i], value);
+							}
+
+						}
 					}
 				}
 
 				msg += callback.SetCurrentStepPos((size_t)file.tellg());
+				line++;
 			}//while data 
 
 			callback.PopTask();
@@ -1033,8 +1228,8 @@ namespace WBSF
 
 			if (msg)
 			{
-				callback.PushTask("Load CWFIS "+GetFileName(fileList[i]), (size_t)file.length());
-				for (CSVIterator loop(file, ",", true); loop != CSVIterator()&&msg; ++loop)
+				callback.PushTask("Load CWFIS " + GetFileName(fileList[i]), (size_t)file.length());
+				for (CSVIterator loop(file, ",", true); loop != CSVIterator() && msg; ++loop)
 				{
 					ASSERT(loop->size() == NB_INPUT_HOURLY_COLUMN);
 
@@ -1045,17 +1240,17 @@ namespace WBSF
 					//if (dateTime.size() == 6)
 
 					int year = stoi(dateTime[0]);
-					int month = stoi(dateTime[1])-1;
-					int day = stoi(dateTime[2])-1;
+					int month = stoi(dateTime[1]) - 1;
+					int day = stoi(dateTime[2]) - 1;
 					int hour = stoi(dateTime[3]);
 
 					//bool bInvalidLeap = !IsLeap(year) && (day == DAY_29) && (month == FEBRUARY);
 					ASSERT(month >= 0 && month < 12);
-					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month) );
+					ASSERT(day >= 0 && day < GetNbDayPerMonth(year, month));
 					ASSERT(hour >= 0 && hour < 24);
 
-					
-					if (year >= firstYear && year <= lastYear )
+
+					if (year >= firstYear && year <= lastYear)
 					{
 						CTRef TRef(year, month, day, hour);
 

@@ -66,7 +66,7 @@ namespace WBSF
 		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
 		enum TBackground { B_WHITE, B_BROWN};
 
-		enum TAttributes { WORKING_DIR, TYPE, PRCP_TYPE, BACKGROUND, RADAR, FIRST_DATE, LAST_DATE, COMPOSITE, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, TYPE, RADAR, COMPOSITE, PRCP_TYPE, BACKGROUND, FIRST_DATE, LAST_DATE, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanRadar); }
 
@@ -85,6 +85,9 @@ namespace WBSF
 		virtual const char* Name(size_t i)const{ ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_NAME[i]; }
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
+		virtual bool IsRadar()const { return true; }
+		virtual ERMsg GetRadarList(CTPeriod p, std::map<std::string, StringVector>& imageList, CCallback& callback = DEFAULT_CALLBACK);
+
 
 
 	protected:

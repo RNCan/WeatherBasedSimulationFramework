@@ -178,7 +178,6 @@ namespace WBSF
 					}
 					catch (CException* e)
 					{
-						msg = UtilWin::SYGetMessage(*e);
 						if (nbTry < 5)
 						{
 							callback.AddMessage(UtilWin::SYGetMessage(*e));
@@ -198,14 +197,6 @@ namespace WBSF
 
 			callback.AddMessage(string("Number of ") + SOURCES_NAME[source] + " forecast gribs downloaded: " + ToString(nbDownload));
 			callback.PopTask();
-
-
-
-
-			//now, create daily GeoTiff
-			//if (msg && m_bCreateDailyGeotiff)
-				//msg = CreateDailyGeotiff(fileList, callback);
-
 
 			//delete old files
 			Clean(source, callback);
@@ -279,7 +270,6 @@ namespace WBSF
 						}
 						else
 						{
-							//msg.ajoute("Error in WinCSV");
 							callback.AddMessage("Error in WinCSV");
 						}
 					}

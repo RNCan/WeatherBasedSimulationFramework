@@ -48,6 +48,7 @@ namespace WBSF
 		bool m_bShowWINSCP;
 		bool m_compute_prcp;
 		size_t m_update_last_n_days;
+		bool bUseOnlyBioSIMVar;
 		bool m_createDailyGeotiff;
 		
 

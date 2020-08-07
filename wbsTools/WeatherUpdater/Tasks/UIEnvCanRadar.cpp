@@ -91,7 +91,7 @@ namespace WBSF
 		{
 			str += i != 0 ? "|" : "";
 			if (bAbvr)
-				str += DEFAULT_LIST[i][ABRV1];
+				str += DEFAULT_LIST[i][ABRV2];
 			if (bAbvr && bName)
 				str += "=";
 			if (bName)
@@ -117,7 +117,7 @@ namespace WBSF
 			{
 				if (test(i))
 				{
-					str += DEFAULT_LIST[i][ABRV1];
+					str += DEFAULT_LIST[i][ABRV2];
 					str += '|';
 				}
 			}
@@ -142,7 +142,7 @@ namespace WBSF
 	ERMsg CCanadianRadar::set(const std::string& in)
 	{
 		ERMsg message;
-		size_t p = GetRadar(in, ABRV1);
+		size_t p = GetRadar(in, ABRV2);
 		if (p < size())
 		{
 			set(p);
@@ -156,8 +156,8 @@ namespace WBSF
 	}
 
 	//*********************************************************************
-	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "PrcpType", "Background", "Radar", "FirstDate", "LastDate", "Composite" };
-	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING_SELECT, T_DATE, T_DATE, T_BOOL };
+	const char* CUIEnvCanRadar::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "Radar", "Composite", "PrcpType", "Background", "FirstDate", "LastDate" };
+	const size_t CUIEnvCanRadar::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING_SELECT, T_BOOL, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE };
 	const UINT CUIEnvCanRadar::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_RADAR_P;
 	const UINT CUIEnvCanRadar::DESCRIPTION_TITLE_ID = ID_TASK_EC_RADAR;
 
@@ -229,14 +229,15 @@ namespace WBSF
 
 	bool CUIEnvCanRadar::NeedDownload(const CFileInfo& info, const string& filePath)const
 	{
-		bool bDownload = true;
+		return !FileExists(filePath);
+		/*bool bDownload = true;
 
 		CFileStamp fileStamp(filePath);
 		__time64_t lastUpdate = fileStamp.m_time;
 		if (lastUpdate > 0 && info.m_time < lastUpdate)
 			bDownload = false;
 
-		return bDownload;
+		return bDownload;*/
 	}
 
 
@@ -254,11 +255,28 @@ namespace WBSF
 		string path;
 		if (t == CURRENT_RADAR)
 		{
-			string year = URL.substr(0, 4);
+			/*string year = URL.substr(0, 4);
 			string month = URL.substr(4, 2);
 			string day = URL.substr(6, 2);
-			string region = URL.substr(13, 3);
-			path = GetDir(WORKING_DIR) + region + "\\" + year + "\\" + month + "\\" + day + "\\" + URL;
+			string region = URL.substr(13, 3);*/
+			StringVector tmp(URL, "_");
+			ASSERT(tmp.size() == 4|| tmp.size() == 5);
+
+			string year = tmp[0].substr(0, 4);
+			string month = tmp[0].substr(4, 2);
+			string day = tmp[0].substr(6, 2);
+			string hour = tmp[0].substr(8, 2);
+			string min = tmp[0].substr(10, 2);
+			string radar_id = tmp[1];
+			/*if (radar_id.length() == 5)
+			{
+				size_t id = CCanadianRadar::GetRadar(radar_id, CCanadianRadar::ABRV2);
+				radar_id = CCanadianRadar::GetName(id, CCanadianRadar::ABRV1);
+			}*/
+
+
+			//string type = tmp[2] + "_" + tmp[3];
+			path = GetDir(WORKING_DIR) + radar_id + "\\" + year + "\\" + month + "\\" + day + "\\" + URL;
 		}
 		else if (t == HISTORICAL_RADAR)
 		{
@@ -274,11 +292,11 @@ namespace WBSF
 			string hour = tmp[0].substr(8, 2);
 			string min = tmp[0].substr(10, 2);
 			string radar_id = tmp[1];
-			if (radar_id.length() == 5)
+			/*if (radar_id.length() == 5)
 			{
 				size_t id = CCanadianRadar::GetRadar(radar_id, CCanadianRadar::ABRV2);
 				radar_id = CCanadianRadar::GetName(id, CCanadianRadar::ABRV1);
-			}
+			}*/
 
 
 			string type = tmp[2] + "_" + tmp[3];
@@ -472,6 +490,7 @@ namespace WBSF
 		bool bUseBrown = as<size_t>(BACKGROUND) == B_BROWN;
 		bool bComposite = as<bool>(COMPOSITE);
 
+
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
@@ -516,29 +535,23 @@ namespace WBSF
 		{
 			string fileName = GetFileName(it->m_filePath);
 
-			bool bOk1c = bUseRain && bUseWhite && Find(fileName, "_COMP_PRECIPET_RAIN_A11Y.gif");
-			bool bOk2c = bUseRain && bUseBrown && Find(fileName, "_COMP_PRECIPET_RAIN.gif");
-			bool bOk3c = bUseSnow && bUseWhite && Find(fileName, "_COMP_PRECIPET_SNOW_A11Y.gif");
-			bool bOk4c = bUseSnow && bUseBrown && Find(fileName, "_COMP_PRECIPET_SNOW.gif");
-
-			bool bOk1 = bUseRain && bUseWhite && !bOk1c && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
-			bool bOk2 = bUseRain && bUseBrown && !bOk2c && Find(fileName, "PRECIPET_RAIN.gif");
-			bool bOk3 = bUseSnow && bUseWhite && !bOk3c && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
-			bool bOk4 = bUseSnow && bUseBrown && !bOk4c && Find(fileName, "PRECIPET_SNOW.gif");
+			bool bIsCompsite = Find(fileName, "_COMP_");
+			
+			bool bOk0 = bComposite == bIsCompsite;
+			bool bOk1 = bUseRain && bUseWhite && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
+			bool bOk2 = bUseRain && bUseBrown && Find(fileName, "PRECIPET_RAIN.gif");
+			bool bOk3 = bUseSnow && bUseWhite && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
+			bool bOk4 = bUseSnow && bUseBrown && Find(fileName, "PRECIPET_SNOW.gif");
 
 
-			if (bComposite && (bOk1c || bOk2c || bOk3c || bOk4c))//
+			if ( bOk0 && (bOk1 || bOk2 || bOk3 || bOk4))
 			{
+				//this file is needed, is it up to date?
 				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
 				if (NeedDownload(*it, filePath))
 					clearedList.push_back(*it);
 			}
-			else if (!bComposite && (bOk1 || bOk2 || bOk3 || bOk4))
-			{
-				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
-				if (NeedDownload(*it, filePath))
-					clearedList.push_back(*it);
-			}
+			
 
 			msg += callback.StepIt();
 		}
@@ -579,13 +592,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-		msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (!msg)
-			return msg;
-
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
@@ -607,7 +613,7 @@ namespace WBSF
 
 
 		callback.PushTask("Download historical radar images (" + ToString(imageList.size()) + ")", imageList.size());
-		//callback.SetNbStep(imageList.size());
+
 
 
 		int nbRun = 0;
@@ -714,6 +720,98 @@ namespace WBSF
 
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI));
 		callback.PopTask();
+
+
+		return msg;
+	}
+
+	
+	ERMsg CUIEnvCanRadar::GetRadarList(CTPeriod p, std::map<std::string, StringVector>& imageList, CCallback& callback)
+	{ 
+		ASSERT(p.GetTType() == CTM::DAILY);
+
+		ERMsg msg; 
+
+		string workingDir = GetDir(WORKING_DIR);
+
+		
+
+
+		//CCanadianRadar radar(Get(RADAR));
+		string type = as<bool>(COMPOSITE) ? "COMP_":"";
+		type += (as<size_t>(PRCP_TYPE) == T_RAIN)?"PRECIPET_RAIN":"PRECIPET_SNOW";
+		
+		if(as<size_t>(BACKGROUND) == B_WHITE)
+			type += "_A11Y";
+		
+		CCanadianRadar radar(Get(RADAR));
+		//StringVector radarList(Get(RADAR), "|");
+
+		StringVector radars = GetDirectoriesList(GetDir(WORKING_DIR) + "*");
+		for (size_t d = 0; d < radars.size(); d++)
+		{
+			if (radar.at(radars[d]))
+			{
+
+				//for (size_t r = 0; r < radarList.size(); r++)
+				//{
+					string radar_id = radars[d];
+					string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
+					//string path = "*_" + radar_id + "_" + type + ".gif";
+
+					StringVector years = GetDirectoriesList(inputDir + "*");
+					//callback.PushTask("Get file list", dir.size());
+					for (size_t y = 0; y < years.size() && msg; y++)
+					{
+						int year = ToInt(years[y]);
+						if (p.as(CTM::ANNUAL).IsInside(year))
+						{
+							StringVector tmpList = GetFilesList(inputDir + years[y] + "*_" + radar_id + "_" + type + ".gif", 2, true);
+							for (size_t i = 0; i < tmpList.size() && msg; i++)
+							{
+
+								StringVector tmp(GetFileTitle(tmpList[i]), "_");
+								ASSERT(tmp.size() == 4 || tmp.size() == 5);
+
+								string year = tmp[0].substr(0, 4);
+								string month = tmp[0].substr(4, 2);
+								string day = tmp[0].substr(6, 2);
+								//string hour = tmp[0].substr(8, 2);
+
+
+								CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
+
+								if (p.as(CTM::DAILY).IsInside(TRef))
+									imageList[radar_id + "_" + type].push_back(tmpList[i]);
+
+								msg += callback.StepIt(0);
+
+							}
+
+
+							//callback.PopTask();
+							//callback.PushTask("Get file list", tmpList.size());
+							/*for (size_t i = 0; i < tmpList.size() && msg; i++)
+							{
+								string ID = GetID(tmpList[i]);
+								CTRef TRef = GetTRef(tmpList[i]);
+								string an_file_path = GetAnimationFilePath(TRef, ID);
+								if (!an_file_path.empty())
+								{
+									string current_animation = GetAnimationFilePath(CTRef::GetCurrentTRef(CTM::HOURLY), ID);
+									if (!FileExists(an_file_path) || bCreateAll || an_file_path == current_animation)
+										fileList[an_file_path].push_back(tmpList[i]);
+
+									msg += callback.StepIt(0);
+								}
+							}*/
+						}
+
+						msg += callback.StepIt();
+					}
+				//}
+			}//is radar selected
+		}//for all directories
 
 
 		return msg;

@@ -2146,4 +2146,19 @@ CTPeriod CBaseOptions::GetTTSegment(size_t ss)
 	return p;
 }
 
+
+bool GoodGeotiff(const std::string& filePath)
+{
+	ERMsg msg;
+
+	GDALDataset* poDS = (GDALDataset *)GDALOpenEx(filePath.c_str(), GDAL_OF_READONLY | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+
+	// Once we're done, close properly the dataset 
+	if (poDS != NULL)
+		GDALClose((GDALDatasetH)poDS);
+	else
+		msg.ajoute(CPLGetLastErrorMsg());
+
+	return (bool)msg;
+}
 }
