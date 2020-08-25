@@ -83,41 +83,42 @@ namespace WBSF
 	//MeteorusTrachynotus daily development rates
 
 
-	const CDevRateEquation::TDevRateEquation CMeteorusTrachynotusEquations::EQ_TYPE[NB_STAGES]
+	const CDevRateEquation::TDevRateEquation CMeteorusTrachynotusEquations::EQ_TYPE[NB_EQUATIONS]
 	{
-		TDevRateEquation::Regniere_1982,   //Immature (egg,larva) in OBL or SBW
+		TDevRateEquation::Regniere_1982,   //Immature egg,larva in Generation 0 (overwintered OBL
+		TDevRateEquation::Regniere_1982,   //Immature egg,larva in other Generations (in SBW or OBL)
 		TDevRateEquation::Regniere_1982,   //Pupa
 		TDevRateEquation::Regniere_1982    //Adult
 	};
 
 
 
-	const double  CMeteorusTrachynotusEquations::EQ_P[NB_STAGES][5]
+	const double  CMeteorusTrachynotusEquations::EQ_P[NB_EQUATIONS][5]
 	{  //   p1       p2      p3      Tb      Tm
-		{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
+		//{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
+		//{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
+		//{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
+		{0.01043, 3.4402, 0.0137, 0.2093, 35.7176}, //Immature egg,larva in Generation 0 (overwintered OBL
+		{0.01631, 2.2760, 0.0137, 0.2093, 35.7176}, //Immature egg,larva in other Generations (in SBW or OBL)
 		{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
 		{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
+
 	};
 
 
 	CMeteorusTrachynotusEquations::CMeteorusTrachynotusEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
+		CEquationTableLookup(RG, NB_EQUATIONS, 0, 40, 0.25)
 	{
 	}
 
 	//Compute daily development rate for table lookup
-	double CMeteorusTrachynotusEquations::ComputeRate(size_t s, double T)const
+	double CMeteorusTrachynotusEquations::ComputeRate(size_t e, double T)const
 	{
-		ASSERT(s < NB_STAGES);
+		ASSERT(e < NB_EQUATIONS);
 
-		vector<double> p(begin(EQ_P[s]), end(EQ_P[s]));
+		vector<double> p(begin(EQ_P[e]), end(EQ_P[e]));
 		
-		double Rt = max(0.0, CDevRateEquation::GetRate(EQ_TYPE[s], p, T));
-		//if (s == EGG)
-		//	Rt /= 0.221; //22.1% of the time in egg stage
-		//else if (s == LARVA)
-		//	Rt /= 0.779; //77.9% of the time in larval stage
-
+		double Rt = max(0.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T));
 
 		_ASSERTE(!_isnan(Rt) && _finite(Rt));
 		ASSERT(Rt >= 0);
@@ -125,57 +126,31 @@ namespace WBSF
 		return Rt;
 	}
 
-	//double CMeteorusTrachynotusEquations::GetRate(size_t s, double t)const
-	//{
-	//	ASSERT(s < NB_EQUATIONS);
-	//	double Rt = 0;
-
-	//	if (s == EGG || s == LARVAL)
-	//	{
-	//		double Rt1 = CEquationTableLookup::GetRate(EQ_OBL_POST_DIAPAUSE, t);
-	//		double Rt2 = CEquationTableLookup::GetRate(EQ_IMMATURE, t);
-
-	//		if (Rt1 > 0 && Rt2 > 0)
-	//		{
-	//			static const double Fr[2] = { 0.134, 0.857 };
-	//			double Rt = 1.0 / (Fr[s] / (Rt1) +Fr[s] / (Rt2));
-
-
-	//			if (s == EGG)
-	//				Rt /= 0.143; //14.3% of the time in egg stage
-	//			else if (s == LARVAL)
-	//				Rt /= 0.857; //85.7% of the time in larval stage
-	//		}
-	//	}
-	//	else
-	//	{
-	//		Rt = CEquationTableLookup::GetRate(EQ_PUPA + (s- PUPA), t);
-	//	}
-	//	
-	//	
-	//	
-	//	return Rt;
-	//}
 
 	//*****************************************************************************
 	// individual relative development rate 
 
-	double CMeteorusTrachynotusEquations::Getδ(size_t s)const
+	double CMeteorusTrachynotusEquations::Getδ(size_t e)const
 	{
-		ASSERT(s < NB_STAGES);
+		ASSERT(e < NB_EQUATIONS);
 
-		static const double P[NB_STAGES][4] =
+		static const double P[NB_EQUATIONS][4] =
 		{
 			//  x      s
-			{ 0.0000, 0.3321, 0.5, 2.0 },//Immature (egg,larva) in OBL or SBW
+			//{ 0.0000, 0.3321, 0.5, 2.0 },//Immature (egg,larva) in OBL or SBW
+			//{ 0.0000, 0.1325, 0.7, 1.5 },//Pupa
+			//{ 0.0000, 0.4317, 0.2, 3.0},//Adult longevity
+			{ 0.0000, 0.3608, 0.4, 2.5 },//Immature (egg,larva) in initial OBL
+			{ 0.0000, 0.2829, 0.5, 2.0 },//Immature (egg,larva) in subsequent generations OBL or SBW
 			{ 0.0000, 0.1325, 0.7, 1.5 },//Pupa
 			{ 0.0000, 0.4317, 0.2, 3.0},//Adult longevity
+
 		};
 
 
-		double 	r = m_randomGenerator.RandUnbiasedLogNormal(P[s][0], P[s][1]);
-		while (r<P[s][2] || r>P[s][3])
-			r = m_randomGenerator.RandUnbiasedLogNormal(P[s][0], P[s][1]);
+		double 	r = m_randomGenerator.RandUnbiasedLogNormal(P[e][0], P[e][1]);
+		while (r<P[e][2] || r>P[e][3])
+			r = m_randomGenerator.RandUnbiasedLogNormal(P[e][0], P[e][1]);
 
 
 		return r;

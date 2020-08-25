@@ -34,7 +34,7 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
 			//will be int later when host type will be known
-			m_δ[s] = Equations().Getδ(s);
+			m_δ[s] = Equations().Getδ(s, generation);
 		}
 
 		//oviposition
@@ -98,7 +98,7 @@ namespace WBSF
 
 				//Relative development rate for time step
 
-				double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
+				double r = m_δ[s] * Equations().GetRate(s, m_generation, T) / nbSteps;
 
 				//if (s == ADULT) //Set maximum longevity to 100 days
 					//r = max(1.0 / (100.0*nbSteps), r);
@@ -120,7 +120,7 @@ namespace WBSF
 					ASSERT(m_age >= ADULT);
 
 					double wmax = 13.81 / nbSteps;
-					double dtOnd20 = Equations().GetRate(ADULT, T) / Equations().GetRate(ADULT, 20.);
+					double dtOnd20 = Equations().GetRate(ADULT, m_generation, T) / Equations().GetRate(ADULT, m_generation, 20.);
 					double as = 0.2246;
 					double th = 5.476e-10;
 
