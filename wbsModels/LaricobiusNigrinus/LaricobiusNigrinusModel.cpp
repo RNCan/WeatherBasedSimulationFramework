@@ -262,6 +262,7 @@ namespace WBSF
 				CStatistic stat = output.GetStat(s, p);
 				if (stat.IsInit() && stat[SUM] > 0)
 				{
+					output[0][s] = output[0][s] * 100 / stat[SUM];//when first day is not 0
 					for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
 					{
 						output[d][s] = output[d - 1][s] + output[d][s] * 100 / stat[SUM];
@@ -270,7 +271,7 @@ namespace WBSF
 				}
 			}
 
-			for (size_t s = S_M_EGG; s <= S_M_DEAD_ADULT; s++)
+			/*for (size_t s = S_M_EGG; s <= S_M_DEAD_ADULT; s++)
 			{
 				CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 				if (s >= S_M_ACTIVE_ADULT)
@@ -291,7 +292,7 @@ namespace WBSF
 					}
 				}
 
-			}
+			}*/
 
 		}
 	}
