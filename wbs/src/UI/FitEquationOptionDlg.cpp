@@ -11,7 +11,7 @@
 #include "stdafx.h"
 
 #include "ModelBase/DevRateEquation.h"
-#include "ModelBase/MortalityEquation.h"
+#include "ModelBase/SurvivalEquation.h"
 #include "FileManager/FileManager.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/FileNameProperty.h"
@@ -215,7 +215,7 @@ namespace WBSF
 
 
 			//General 
-			if (m_fitType == F_DEV_RATE)
+			if (m_fitType == F_DEV_TIME_WTH_SIGMA|| m_fitType == F_DEV_TIME_ONLY)
 			{
 				for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
 				{
@@ -243,17 +243,17 @@ namespace WBSF
 					m_propertiesCtrl.AddProperty(pInput, FALSE, FALSE);
 				}
 			}
-			else if (m_fitType == F_MORTALITY)
+			else if (m_fitType == F_SURVIVAL)
 			{
-				for (size_t e = 0; e < CMortalityEquation::NB_EQUATIONS; e++)
+				for (size_t e = 0; e < CSurvivalEquation::NB_EQUATIONS; e++)
 				{
-					TMortalityEquation eq = CMortalityEquation::eq(e);
-					string e_name = CMortalityEquation::GetEquationName(eq);
-					CSAParameterVector params = CMortalityEquation::GetParameters(eq);
+					TSurvivalEquation eq = CSurvivalEquation::eq(e);
+					string e_name = CSurvivalEquation::GetEquationName(eq);
+					CSAParameterVector params = CSurvivalEquation::GetParameters(eq);
 					//CSAParameterVector params = params_0;
 					if (m_eq_options.find(e_name) != m_eq_options.end())
 					{
-						if ((m_eq_options)[e_name].size() == CMortalityEquation::GetParameters(eq).size())
+						if ((m_eq_options)[e_name].size() == CSurvivalEquation::GetParameters(eq).size())
 							params = (m_eq_options)[e_name];
 					}
 					//CDevRateEquation::GetEquationR(e)
@@ -361,7 +361,7 @@ namespace WBSF
 	{
 		m_eq_options.clear();
 
-		if (m_fitType == F_DEV_RATE)
+		if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 		{
 
 			for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
@@ -382,13 +382,13 @@ namespace WBSF
 				}
 			}
 		}
-		else if (m_fitType == F_MORTALITY)
+		else if (m_fitType == F_SURVIVAL)
 		{
-			for (size_t e = 0; e < CMortalityEquation::NB_EQUATIONS; e++)
+			for (size_t e = 0; e < CSurvivalEquation::NB_EQUATIONS; e++)
 			{
-				TMortalityEquation eq = CMortalityEquation::eq(e);
-				string e_name = CMortalityEquation::GetEquationName(eq);
-				CSAParameterVector params = CMortalityEquation::GetParameters(eq);
+				TSurvivalEquation eq = CSurvivalEquation::eq(e);
+				string e_name = CSurvivalEquation::GetEquationName(eq);
+				CSAParameterVector params = CSurvivalEquation::GetParameters(eq);
 
 
 				CMFCPropertyGridProperty* pInput = m_propertiesCtrl.GetProperty((int)e);
@@ -419,7 +419,7 @@ namespace WBSF
 		size_t p = i - e * 10;
 
 		std::string e_name;
-		if (m_fitType == F_DEV_RATE)
+		if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 			ASSERT(e < CDevRateEquation::NB_EQUATIONS);
@@ -430,15 +430,15 @@ namespace WBSF
 				m_eq_options[e_name] = CDevRateEquation::GetParameters(eq);
 
 		}
-		else if (m_fitType == F_MORTALITY)
+		else if (m_fitType == F_SURVIVAL)
 		{
-			TMortalityEquation eq = CMortalityEquation::eq(e);
-			ASSERT(e < CMortalityEquation::NB_EQUATIONS);
-			ASSERT(p < CMortalityEquation::GetParameters(eq).size());
+			TSurvivalEquation eq = CSurvivalEquation::eq(e);
+			ASSERT(e < CSurvivalEquation::NB_EQUATIONS);
+			ASSERT(p < CSurvivalEquation::GetParameters(eq).size());
 
-			e_name = CMortalityEquation::GetEquationName(eq);
+			e_name = CSurvivalEquation::GetEquationName(eq);
 			if (m_eq_options.find(e_name) == m_eq_options.end())
-				m_eq_options[e_name] = CMortalityEquation::GetParameters(eq);
+				m_eq_options[e_name] = CSurvivalEquation::GetParameters(eq);
 
 		}
 		

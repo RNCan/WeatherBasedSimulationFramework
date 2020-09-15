@@ -121,7 +121,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TVariation{ SYSTEMTIC_VARIATION , RANDOM_VARIATION, NB_VARIATIONS_TYPE};
+		enum TVariation{ SYSTEMATIC_VARIATION , RANDOM_VARIATION, NB_VARIATIONS_TYPE};
 		enum TMember{ TYPE, NB_VARIATIONS, PARAMETERS, NB_MEMBER };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* FILE_EXT;

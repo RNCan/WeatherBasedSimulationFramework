@@ -349,9 +349,6 @@
     <ClCompile Include="..\src\UI\LocationVectorCtrl.cpp">
       <Filter>UI\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UI\DevRateParameterizationDlg.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\UI\GenerateWUDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -362,6 +359,9 @@
       <Filter>UI\Common</Filter>
     </ClCompile>
     <ClCompile Include="..\src\UI\FitEquationOptionDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UI\InsectParameterizationDlg.cpp">
       <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -726,9 +726,6 @@
     <ClInclude Include="..\src\UI\LocationVectorCtrl.h">
       <Filter>UI\Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\UI\DevRateParameterizationDlg.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\UI\GenerateWUDlg.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -739,6 +736,9 @@
       <Filter>UI\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\UI\FitEquationOptionDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UI\InsectParameterizationDlg.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

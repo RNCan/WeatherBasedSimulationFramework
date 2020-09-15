@@ -100,7 +100,7 @@
     <ClCompile Include="..\src\Simulation\ImportData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Simulation\DevRateParameterization.cpp">
+    <ClCompile Include="..\src\Simulation\InsectParameterization.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -198,7 +198,7 @@
     <ClInclude Include="..\src\Simulation\ImportData.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Simulation\DevRateParameterization.h">
+    <ClInclude Include="..\src\Simulation\InsectParameterization.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

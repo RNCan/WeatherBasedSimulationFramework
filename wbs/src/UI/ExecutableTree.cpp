@@ -24,7 +24,7 @@
 #include "UI/ScriptDlg.h"
 #include "UI/CopyExportDlg.h"
 #include "UI/ModelParameterizationDlg.h"
-#include "UI/DevRateParameterizationDlg.h"
+#include "UI/InsectParameterizationDlg.h"
 #include "UI/ExecutableTree.h"
 #include "Simulation/ExecutableGroup.h"
 #include "Simulation/BioSIMProject.h"
@@ -66,7 +66,7 @@ namespace WBSF
 		CScript::GetXMLFlag(),
 		CCopyExport::GetXMLFlag(),
 		CModelParameterization::GetXMLFlag(),
-		CDevRateParameterization::GetXMLFlag()
+		CInsectParameterization::GetXMLFlag()
 	};
 
 
@@ -542,7 +542,7 @@ namespace WBSF
 		}break;
 		case CExecutableTree::RATE_FIT:
 		{
-			CDevRateParameterizationDlg dlg(pParent, this);
+			CInsectParameterizationDlg dlg(pParent, this);
 			bAdd = DoModalDlg(dlg, pItem);
 		}break;
 
@@ -571,7 +571,7 @@ namespace WBSF
 		case CExecutableTree::SCRIPT_R: pItem.reset(new CScript); break;
 		case CExecutableTree::COPY_EXPORT: pItem.reset(new CCopyExport); break;
 		case CExecutableTree::MODEL_PARAMETERIZATION:pItem.reset(new CModelParameterization); break;
-		case CExecutableTree::RATE_FIT:pItem.reset(new CDevRateParameterization); break;
+		case CExecutableTree::RATE_FIT:pItem.reset(new CInsectParameterization); break;
 		default: ASSERT(false);
 		}
 		
@@ -748,7 +748,7 @@ namespace WBSF
 				m_pRoot->SetItem(iName, pItem);
 				SetItem(pItem.get(), hItem);
 
-				//pDoc->UpdateAllViews(this, CBioSIMDoc::PROJECT_CHANGE);
+				//pDoc->UpdateAllViews(this, CBioSIMDoc::PROJECT_CHANGE); 
 				Invalidate();
 			}
 			//*pResult = TRUE;

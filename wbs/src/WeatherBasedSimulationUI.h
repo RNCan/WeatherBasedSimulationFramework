@@ -578,6 +578,7 @@
 #define IDC_COMBO1                      1280
 #define IDC_MAP_EXTRACT_PRODUCT         1280
 #define IDC_FIT_OBS_TEMPERATURE         1281
+#define IDC_FIT_BASE_ON                 1282
 #define IDC_FIT_EQ_DEV_RATE             1283
 #define IDC_FIT_INPUT_NAME              1284
 #define IDC_FIT_CALIB_RDR               1285

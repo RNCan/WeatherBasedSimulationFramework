@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // CSimAnnealingDlg dialog
 
-#include "Simulation/DevRateParameterization.h"
+#include "Simulation/InsectParameterization.h"
 #include "ModelBase/Model.h"
 #include "UI/Common/CommonCtrl.h"
 
@@ -22,17 +22,15 @@
 namespace WBSF
 {
 
-	class CDevRateParameterizationDlg : public CDialogEx
+	class CInsectParameterizationDlg : public CDialogEx
 	{
 		// Construction
 	public:
 
-		//friend CDevRateParameterization;
-
-		CDevRateParameterizationDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
+		CInsectParameterizationDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
 
 		virtual void SetExecutable(CExecutablePtr pExecutable){ m_sa = GetSA(pExecutable); }
-		virtual CExecutablePtr GetExecutable()const{ return CExecutablePtr(new CDevRateParameterization(m_sa)); }
+		virtual CExecutablePtr GetExecutable()const{ return CExecutablePtr(new CInsectParameterization(m_sa)); }
 
 	protected:
 
@@ -46,15 +44,9 @@ namespace WBSF
 		CDefaultComboBox	m_TobsFileNameCtrl;
 		CCFLEdit		m_ouputFileNameCtrl;
 		
-		CButton			m_calibSigmaCtrl;
-		CButton			m_fixeSigmaCtrl;
-
 		CCFLComboBox	m_fitTypeCtrl;
 		CSelectionCtrl 	m_eqDevRateCtrl;
-		CSelectionCtrl 	m_eqMortalityCtrl;
-		
-		//CButton			m_converge01Ctrl;
-		
+		CSelectionCtrl 	m_eqSurvivalCtrl;
 
 		// Overrides
 
@@ -76,8 +68,8 @@ namespace WBSF
 
 		void UpdateCtrl(void);
 
-		CDevRateParameterization m_sa;
-		CDevRateParameterization& GetSA(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CDevRateParameterization&>(*pItem); }
+		CInsectParameterization m_sa;
+		CInsectParameterization& GetSA(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CInsectParameterization&>(*pItem); }
 
 
 

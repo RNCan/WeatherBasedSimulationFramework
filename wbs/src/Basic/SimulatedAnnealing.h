@@ -269,7 +269,7 @@ namespace WBSF
 			m_FP = missingValue;
 			m_Fopt = missingValue;
 			m_AICC = m_AICCopt = m_AICCP = missingValue;
-			m_MLH = m_MLHP = m_MLHopt = missingValue;
+			m_MLL = m_MLLP = m_MLLopt = missingValue;
 
 			m_NACC = 0;
 			m_NOBDS = 0;
@@ -305,9 +305,9 @@ namespace WBSF
 		double m_AICCP;
 		double m_AICCopt;
 
-		double m_MLH;
-		double m_MLHP;
-		double m_MLHopt;
+		double m_MLL;
+		double m_MLLP;
+		double m_MLLopt;
 
 		//statistic
 		CStatisticXY m_S;
