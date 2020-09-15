@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.7.0:14/09/2020	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
 // 11.6.8:13/07/2020	Rémi Saint-Amant	Bug correction in elevation web extraction
 //											Add locale directory when download weather database
 // 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generade new random seed for each location/WGreplications
