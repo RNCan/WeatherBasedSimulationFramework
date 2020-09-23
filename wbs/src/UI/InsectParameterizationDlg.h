@@ -48,6 +48,12 @@ namespace WBSF
 		CSelectionCtrl 	m_eqDevRateCtrl;
 		CSelectionCtrl 	m_eqSurvivalCtrl;
 
+		CButton			m_fixeTbCtrl;
+		CCFLEdit		m_TbCtrl;
+		CButton			m_fixeToCtrl;
+		CCFLEdit		m_ToCtrl;
+		CButton			m_fixeTmCtrl;
+		CCFLEdit		m_TmCtrl;
 		// Overrides
 
 	protected:

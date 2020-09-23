@@ -587,6 +587,12 @@
 #define IDC_FIT_SA                      1288
 #define IDC_FIT_FIXED_SIGMA             1289
 #define IDC_FIT_CALIB_SIGMA             1290
+#define IDC_FIT_TB                      1291
+#define IDC_FIT_FIXE_TB                 1292
+#define IDC_FIT_TM                      1293
+#define IDC_FIT_FIXE_TM                 1294
+#define IDC_FIT_FIXE_TO                 1297
+#define IDC_FIT_TO                      1298
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -946,7 +952,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        238
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1291
+#define _APS_NEXT_CONTROL_VALUE         1295
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

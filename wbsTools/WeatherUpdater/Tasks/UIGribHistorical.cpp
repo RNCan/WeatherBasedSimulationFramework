@@ -351,16 +351,12 @@ namespace WBSF
 								{
 									int h = int(curTRef.GetHour());
 									int HH = 0;
-
 									
 									if (product == P_NAM || product == P_GFS)
 									{
-										//if (product == P_NAM || product == P_GFS)
-										//{
 										HH = h % 6;
 										h = int(h / 6) * 6;
 										ASSERT(h == 0 || h == 6 || h == 12 || h == 18);
-										//}
 										
 										if (HH == 0)
 										{
@@ -390,19 +386,10 @@ namespace WBSF
 												}
 											}
 
-											//remove gribs and prcp tif
-											//for (size_t HH = 0; HH <= 6; HH++)
-											//{
+											//remove last gribs 
 											string outputPath = GetOutputFilePath(product, dimension, curTRef, 6, ".grb2");
 											if (FileExists(outputPath))
 												msg += RemoveFile(outputPath);
-
-											//	string prcpOutputPath = GetOutputFilePath(product, dimension, curTRef, HH, "_prcp.tif");
-												//if (FileExists(prcpOutputPath))
-													//msg += RemoveFile(prcpOutputPath);
-											//}
-
-
 										}
 									}
 									else

@@ -6,20 +6,20 @@
 
 namespace WBSF
 {
-
-
 	//**************************************************************************************************
 	//Equation translate to C++ from ILCYM: https://research.cip.cgiar.org/confluence/display/ilcym/Downloads
 	class CSurvivalEquation
 	{
 	public:
 
-		enum { EQ_NAME, EQ_R, EQ_PARAM, NB_INFO };
+		enum { EQ_NAME, EQ_R, EQ_PARAM, R_MATH_PLOT, NB_INFO };
 		enum TParameters { P0, P1, P2, P3, P4, P5, P6, P7, NB_P_MAX };
 		enum TSurvivalEquation
 		{
-			Unknown=-1, Mlo=0,
-			Mhi = 17,
+			Unknown=-1, 
+			Survival_01, Survival_02, Survival_03, Survival_04, Survival_05, Survival_06,
+			Survival_07, Survival_08, Survival_09, Survival_10, Survival_11,
+			Survival_12, Survival_13, Survival_14, GompertzMakeham, Wang2,
 			NB_EQUATIONS
 		};
 
@@ -27,12 +27,12 @@ namespace WBSF
 		static double GetSurvival(TSurvivalEquation model, const std::vector<double>& P, double T);
 		static const char* GetEquationName(TSurvivalEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_NAME]; }
 		static const char* GetEquationR(TSurvivalEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][EQ_R]; }
+		static const char* GetMathPlot(TSurvivalEquation model) { _ASSERTE(model < NB_EQUATIONS); return EQUATION[model][R_MATH_PLOT]; }
 
 
 		static CSAParameterVector GetParameters(TSurvivalEquation model);
 		static CSAParameterVector GetParameters(TSurvivalEquation model, const std::vector<double>& P);
 		static bool IsParamValid(CSurvivalEquation::TSurvivalEquation model, const std::vector<double>& P);
-
 
 	protected:
 

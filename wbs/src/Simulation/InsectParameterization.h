@@ -185,8 +185,10 @@ namespace WBSF
 		enum TFeedback { LOOP, ITERATION, CYCLE };
 		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL,  F_OVIPOSITION, NB_FIT_TYPE };
 
+		
+
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME/*, CALIB_ON*/, CONTROL/*, CONVERGE_01, CALIB_SIGMA, FIXE_SIGMA*/,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -207,7 +209,12 @@ namespace WBSF
 
 		//bool m_bConverge01;
 		//bool m_bCalibSigma;
-		//bool m_bFixeSigma;
+		bool m_bFixeTb;
+		double m_Tb;
+		bool m_bFixeTo;
+		double m_To;
+		bool m_bFixeTm;
+		double m_Tm;
 
 
 

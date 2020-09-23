@@ -411,6 +411,13 @@ namespace WBSF
 			return l + (u - l)*Randu();
 		}
 
+		//return value between [low,high[
+		double RandUniform(double low = 0, double high=1)const
+		{
+			std::uniform_real_distribution<> uniformDist(low, high);
+			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
+			return uniformDist(me.m_gen);
+		}
 
 		double RandBeta(const double alpha, const double beta) const
 		{

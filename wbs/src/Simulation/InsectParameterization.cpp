@@ -65,12 +65,15 @@ namespace WBSF
 
 	double GetSurvival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double obs_time)
 	{
+		if (obs_time == 0)//when time is NA, survival is 0
+			return 0;
+
 		double S = 1;
 		for (size_t t = 0; t < obs_time; t++)
 		{
 			for (size_t h = 0; h < 24; h++)
 			{
-				//daily sruvivla
+				//daily survival
 				double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[t * 24 + h]);
 				//hourly survival
 				double s = pow(d_s, 1.0 / 24.0);
@@ -146,7 +149,8 @@ namespace WBSF
 	double Regniere2020Survival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double mean_time, double k, double n)
 	{
 		double S = GetSurvival(e, computation, T, mean_time);
-
+		
+		
 		if (!isfinite(S) || isnan(S))
 			return S;
 
@@ -415,8 +419,13 @@ namespace WBSF
 					double sigma = sqrt(log(Square(sd) / Square(mean) + 1));
 					boost::math::lognormal_distribution<double> obsLogNormal(mu, sigma);
 
-					double q = at(I_N) / (at(I_N) + 1);
+					//double q = at(I_N) / (at(I_N) + 1);
+					//max_time = ceil(quantile(obsLogNormal, q));
+
+					double alpha = 0.05;
+					double q =pow(alpha, 1.0 / at(I_N));
 					max_time = ceil(quantile(obsLogNormal, q));
+
 				}
 			}
 		}
@@ -465,6 +474,9 @@ namespace WBSF
 			msg = load(file);
 			file.close();
 		}
+		
+		if(!msg)
+			msg.ajoute("Error when reading file:" +file_path);
 
 		return msg;
 	}
@@ -499,11 +511,16 @@ namespace WBSF
 			}
 
 
-			if (msg)
+			if (msg && !loop->empty())
 			{
+				if (loop->size() != m_input_pos.size())
+				{
+					msg.ajoute("Bad number of column for line:"+ loop->GetLastLine());
+					return msg;
+				}
+
+
 				CDevRateDataRow row;
-
-
 				for (size_t i = 0; i < m_input_pos.size(); i++)
 				{
 					if (m_input_pos[i] != I_UNKNOWN)
@@ -566,15 +583,23 @@ namespace WBSF
 				}//for all traitement
 
 				sort(qTime.begin(), qTime.end());
-				double cumsum = 0;
+
+				double alpha = 0.05;
+				double p = 1.0 - pow(alpha, 1.0 / qTime.size());
+
+				//double cumsum = 0;
 				//for (auto it = qTime.begin(); it != qTime.end(); it++)
 				for (size_t n = 0; n < qTime.size(); n++)
 				{
-					CDevRateDataRow& row = at(qTime[n].second);
-					double q = max(0.025, min(0.975, (cumsum + row[I_N] / 2) / N));
+					
+					double q = p + (1-2*p)*n / (qTime.size() - 1);
+
+					//double q = max(0.025, min(0.975, (cumsum + row[I_N] / 2) / N));
 					//double q = 0.05 + (0.95 - 0.05)*n / (qTime.size() - 1);
+
+					CDevRateDataRow& row = at(qTime[n].second);
 					row[I_Q_TIME] = q;
-					cumsum += row[I_N];
+					//cumsum += row[I_N];
 				}
 			}//for all variable
 		}//if individual
@@ -743,6 +768,9 @@ namespace WBSF
 			file.close();
 		}
 
+		if (!msg)
+			msg.ajoute("Error when reading file:" + file_path);
+
 		return msg;
 	}
 
@@ -785,10 +813,15 @@ namespace WBSF
 			}
 
 
-			if (msg)
+			if (msg && !loop->empty())
 			{
-				CDevRateDataRow row;
+				if (loop->size() != m_input_pos.size())
+				{
+					msg.ajoute("Bad number of column for line:" + loop->GetLastLine());
+					return msg;
+				}
 
+				CDevRateDataRow row;
 				for (size_t i = 0; i < m_input_pos.size(); i++)
 				{
 					if (m_input_pos[i] != I_UNKNOWN)
@@ -820,7 +853,8 @@ namespace WBSF
 	//CInsectParameterization
 	const char* CInsectParameterization::DATA_DESCRIPTOR = "InsectParameterizationData";
 	const char* CInsectParameterization::XML_FLAG = "InsectParameterization";
-	const char* CInsectParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "FitType", "DevRateEquations", "SurvivalEquations","EquationsOptions", "InputFileName", "TobsFileName", "OutputFileName", "Control" };
+	const char* CInsectParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "FitType", "DevRateEquations", "SurvivalEquations","EquationsOptions", "InputFileName", "TobsFileName", "OutputFileName", "Control", "Fixe_Tb", "Tb_Value", "Fixe_To", "To_Value", "Fixe_Tm", "Tm_Value" };
+
 	const int CInsectParameterization::CLASS_NUMBER = CExecutableFactory::RegisterClass(CInsectParameterization::GetXMLFlag(), &CInsectParameterization::CreateObject);
 
 	CInsectParameterization::CInsectParameterization()
@@ -850,6 +884,13 @@ namespace WBSF
 		m_inputFileName.clear();
 		m_TobsFileName.clear();
 		m_outputFileName.clear();
+		m_bFixeTb=false;
+		m_Tb=0;
+		m_bFixeTo=false;
+		m_To=20;
+		m_bFixeTm=false;
+		m_Tm=35;
+
 		//m_calibOn = CO_RATE;
 //		m_bConverge01 = false;
 	//	m_bCalibSigma = false;
@@ -884,6 +925,13 @@ namespace WBSF
 			m_inputFileName = in.m_inputFileName;
 			m_TobsFileName = in.m_TobsFileName;
 			m_outputFileName = in.m_outputFileName;
+			m_bFixeTb = in.m_bFixeTb;
+			m_Tb = in.m_Tb;
+			m_bFixeTo = in.m_bFixeTo;
+			m_To= in.m_To;
+			m_bFixeTm = in.m_bFixeTm;
+			m_Tm = in.m_Tm;
+
 		
 			m_ctrl = in.m_ctrl;
 		}
@@ -905,6 +953,13 @@ namespace WBSF
 
 		if (m_outputFileName != in.m_outputFileName) bEqual = false;
 		if (m_ctrl != in.m_ctrl)bEqual = false;
+		if (m_bFixeTb != in.m_bFixeTb)bEqual = false;
+		if (fabs(m_Tb - in.m_Tb)>0.1)bEqual = false;
+		if (m_bFixeTo != in.m_bFixeTo)bEqual = false;
+		if (fabs(m_To - in.m_To) > 0.1)bEqual = false;
+		if (m_bFixeTm != in.m_bFixeTm)bEqual = false;
+		if (fabs(m_Tm - in.m_Tm) > 0.1)bEqual = false;
+
 
 		return bEqual;
 	}
@@ -1144,11 +1199,44 @@ namespace WBSF
 								TDevRateEquation eq = CDevRateEquation::eq(e);
 								string e_name = CDevRateEquation::GetEquationName(eq);
 
+								
 								CSAParameterVector params = CDevRateEquation::GetParameters(eq);
 								if (m_eq_options.find(e_name) != m_eq_options.end())
 								{
 									ASSERT(m_eq_options[e_name].size() == CDevRateEquation::GetParameters(eq).size());
 									params = m_eq_options[e_name];
+								}
+
+								//if there is global lower/upper limit, set it
+								double Tk = (eq == CDevRateEquation::Schoolfield_1981 || eq == CDevRateEquation::Wagner_1988) ? 273.16 : 0;
+								if (m_bFixeTb)
+								{
+									auto it = find_if(params.begin(), params.end(), [](const CSAParameter & m) -> bool { return m.m_name == "Tb"; });
+									if (it != params.end())
+									{
+										it->m_initialValue = m_Tb + Tk;
+										it->m_bounds = CVariableBound(m_Tb + Tk, m_Tb + Tk);
+									}
+								}
+								
+								if (m_bFixeTo)
+								{
+									auto it = find_if(params.begin(), params.end(), [](const CSAParameter & m) -> bool { return m.m_name == "To"; });
+									if (it != params.end())
+									{
+										it->m_initialValue = m_To + Tk;
+										it->m_bounds = CVariableBound(m_To + Tk, m_To + Tk);
+									}
+								}
+
+								if (m_bFixeTm)
+								{
+									auto it = find_if(params.begin(), params.end(), [](const CSAParameter & m) -> bool { return m.m_name == "Tm"; });
+									if (it != params.end())
+									{
+										it->m_initialValue = m_Tm + Tk;
+										it->m_bounds = CVariableBound(m_Tm + Tk, m_Tm + Tk);
+									}
 								}
 
 								if (m_fitType == F_DEV_TIME_WTH_SIGMA)// add relative development rate variance
@@ -1248,9 +1336,9 @@ namespace WBSF
 						
 						sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
 						if (bLogLikelyhoude)
-							file << "Variable,EqName,P,Eq,AICc,maxLL" << endl;
+							file << "Variable,EqName,P,Eq,Math,AICc,maxLL" << endl;
 						else
-							file << "Variable,EqName,P,Eq,R2" << endl;
+							file << "Variable,EqName,P,Eq,Math,R2" << endl;
 
 						for (auto v = variables.begin(); v != variables.end(); v++)
 						{
@@ -1260,12 +1348,14 @@ namespace WBSF
 								{
 									string name;
 									string R_eq;
+									string R_math;
 									string P;
 									if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 									{
 										TDevRateEquation eq = CDevRateEquation::eq(output[i].m_equation);
 										name = CDevRateEquation::GetEquationName(eq);
 										R_eq = CDevRateEquation::GetEquationR(eq);
+										R_math = CDevRateEquation::GetMathPlot(eq);
 										P = to_string(CDevRateEquation::GetParameters(eq, output[i].m_computation.m_Xopt));
 
 										if (m_fitType == F_DEV_TIME_WTH_SIGMA)
@@ -1278,10 +1368,11 @@ namespace WBSF
 										TSurvivalEquation eq = CSurvivalEquation::eq(output[i].m_equation);
 										name = CSurvivalEquation::GetEquationName(eq);
 										R_eq = CSurvivalEquation::GetEquationR(eq);
+										R_math = CSurvivalEquation::GetMathPlot(eq);
 										P = to_string(CSurvivalEquation::GetParameters(eq, output[i].m_computation.m_Xopt));
 									}
 
-									file << output[i].m_variable << "," << name << "," << P << ",\"" << R_eq << "\",";
+									file << output[i].m_variable << "," << name << "," << P << ",\"" << R_eq << "\",\"" << R_math << "\",";
 
 									if (bLogLikelyhoude)
 										file << output[i].m_computation.m_AICCopt << "," << output[i].m_computation.m_MLLopt;
@@ -1963,10 +2054,19 @@ namespace WBSF
 							boost::math::lognormal_distribution<double> obsLogNormal(mu, obs_sigma);
 							boost::math::lognormal_distribution<double> simLogNormal(log(1) - Square(sigma) / 2.0, sigma);
 
+
+							double alpha = 0.05;
+							double p = 1.0 - pow(alpha, 1.0 / m_devTime[i][I_N]);
+
+
+								
+
+							
 							for (size_t n = 0; n < m_devTime[i][I_N]; n++)
 							{
 								//simulate N obs on the log-normal distribution with alpha = 0.05
-								double q = 0.025 + (0.975-0.025)*n / (m_devTime[i][I_N] - 1);
+								//double q = 0.025 + (0.975-0.025)*n / (m_devTime[i][I_N] - 1);
+								double q = p + (1 - 2*p)*n / (m_devTime[i][I_N] - 1);
 								double time = quantile(obsLogNormal, q);
 
 								if (bLogLikelyhoude)
@@ -2032,25 +2132,28 @@ namespace WBSF
 						}
 						else
 						{
-							CStatisticEx rate_stat = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME]);
-
-							double obs = 1.0 / m_devTime[i][I_MEAN_TIME];
-							double sim = rate_stat[MEAN];
-							if (false)//???
+							if (m_devTime[i][I_MEAN_TIME] > 0)
 							{
-								if (sim < 0)
-									sim = -exp(1000 / sim);//let the code to give a chance to converge to the good direction
-								else if (sim > 1)
-									sim = 1 + exp(-1000 / (sim - 1));
+								CStatisticEx rate_stat = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME]);
 
-								//let the code to give a chance to converge to the good direction
+								double obs = 1.0 / m_devTime[i][I_MEAN_TIME];
+								double sim = rate_stat[MEAN];
+								if (false)//???
+								{
+									if (sim < 0)
+										sim = -exp(1000 / sim);//let the code to give a chance to converge to the good direction
+									else if (sim > 1)
+										sim = 1 + exp(-1000 / (sim - 1));
+
+									//let the code to give a chance to converge to the good direction
+								}
+
+								if (!isfinite(sim) || isnan(sim) || sim<-1E8 || sim>1E8)
+									return;
+
+								for (size_t n = 0; n < m_devTime[i][I_N]; n++)
+									stat.Add(sim, obs);
 							}
-
-							if (!isfinite(sim) || isnan(sim) || sim<-1E8 || sim>1E8)
-								return ;
-							
-							for (size_t n = 0; n < m_devTime[i][I_N]; n++)
-								stat.Add(sim, obs);
 						}
 					}//if valid
 				}//for
@@ -2078,7 +2181,7 @@ namespace WBSF
 						else
 						{//RSS
 							//stage survival
-							if (m_survival[i][I_TIME] > 0)
+							if (m_survival[i][I_MEAN_TIME] > 0)
 							{
 								double obs = m_survival[i][I_SURVIVAL] / m_survival[i][I_N];
 								double sim = GetSurvival(eq, computation, m_Tobs[m_survival[i].m_traitment], m_survival[i][I_MEAN_TIME]);
@@ -2131,6 +2234,13 @@ namespace WBSF
 		out[GetMemberName(OUTPUT_FILE_NAME)](m_outputFileName);
 		out[GetMemberName(TOBS_FILE_NAME)](m_TobsFileName);
 		out[GetMemberName(CONTROL)](m_ctrl);
+		out[GetMemberName(FIXE_TB)](m_bFixeTb);
+		out[GetMemberName(TB_VALUE)](m_Tb);
+		out[GetMemberName(FIXE_TO)](m_bFixeTo);
+		out[GetMemberName(TO_VALUE)](m_To);
+		out[GetMemberName(FIXE_TM)](m_bFixeTm);
+		out[GetMemberName(TM_VALUE)](m_Tm);
+		
 	}
 
 	bool CInsectParameterization::readStruc(const zen::XmlElement& input)
@@ -2145,6 +2255,12 @@ namespace WBSF
 		in[GetMemberName(TOBS_FILE_NAME)](m_TobsFileName);
 		in[GetMemberName(OUTPUT_FILE_NAME)](m_outputFileName);
 		in[GetMemberName(CONTROL)](m_ctrl);
+		in[GetMemberName(FIXE_TB)](m_bFixeTb);
+		in[GetMemberName(TB_VALUE)](m_Tb);
+		in[GetMemberName(FIXE_TO)](m_bFixeTo);
+		in[GetMemberName(TO_VALUE)](m_To);
+		in[GetMemberName(FIXE_TM)](m_bFixeTm);
+		in[GetMemberName(TM_VALUE)](m_Tm);
 
 		return true;
 	}

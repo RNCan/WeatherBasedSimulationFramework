@@ -60,11 +60,13 @@ namespace WBSF
 		//DDX_Control(pDX, IDC_FIT_CALIB_ON, m_calibOnCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_DEV_RATE, m_eqDevRateCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_MORTALITY, m_eqSurvivalCtrl);
-		//DDX_Control(pDX, IDC_FIT_LIMIT_DEVRATE, m_converge01Ctrl);
-		//DDX_Control(pDX, IDC_FIT_CALIB_SIGMA, m_calibSigmaCtrl);
-		//DDX_Control(pDX, IDC_FIT_FIXED_SIGMA, m_fixeSigmaCtrl);
+		DDX_Control(pDX, IDC_FIT_FIXE_TB, m_fixeTbCtrl);
+		DDX_Control(pDX, IDC_FIT_TB, m_TbCtrl);
+		DDX_Control(pDX, IDC_FIT_FIXE_TO, m_fixeToCtrl);
+		DDX_Control(pDX, IDC_FIT_TO, m_ToCtrl);
+		DDX_Control(pDX, IDC_FIT_FIXE_TM, m_fixeTmCtrl);
+		DDX_Control(pDX, IDC_FIT_TM, m_TmCtrl);
 		DDX_Control(pDX, IDC_FIT_TYPE, m_fitTypeCtrl);
-		//DDX_Control(pDX, IDC_FIT_BASE_ON, m_baseOnCtrl);
 		
 		
 
@@ -80,9 +82,13 @@ namespace WBSF
 			m_sa.m_fitType = m_fitTypeCtrl.GetCurSel();
 			m_sa.m_eqDevRate.SetSelection(m_eqDevRateCtrl.GetSelection());
 			m_sa.m_eqSurvival.SetSelection(m_eqSurvivalCtrl.GetSelection());
-			//m_sa.m_bConverge01 = m_converge01Ctrl.GetCheck();
-//			m_sa.m_bCalibSigma = m_calibSigmaCtrl.GetCheck();
-	//		m_sa.m_bFixeSigma = m_fixeSigmaCtrl.GetCheck();
+	
+			m_sa.m_bFixeTb = m_fixeTbCtrl.GetCheck();
+			m_sa.m_Tb = ToDouble(m_TbCtrl.GetString());
+			m_sa.m_bFixeTo = m_fixeToCtrl.GetCheck();
+			m_sa.m_To = ToDouble(m_ToCtrl.GetString());
+			m_sa.m_bFixeTm = m_fixeTmCtrl.GetCheck();
+			m_sa.m_Tm = ToDouble(m_TmCtrl.GetString());
 		}
 		else
 		{
@@ -126,7 +132,12 @@ namespace WBSF
 			//m_converge01Ctrl.SetCheck(m_sa.m_bConverge01);
 			//m_calibSigmaCtrl.SetCheck(m_sa.m_bCalibSigma);
 			//m_fixeSigmaCtrl.SetCheck(m_sa.m_bFixeSigma);
-
+			m_fixeTbCtrl.SetCheck(m_sa.m_bFixeTb);
+			m_TbCtrl.SetString(ToString(m_sa.m_Tb ));
+			m_fixeToCtrl.SetCheck(m_sa.m_bFixeTo);
+			m_ToCtrl.SetString(ToString(m_sa.m_To));
+			m_fixeTmCtrl.SetCheck(m_sa.m_bFixeTm);
+			m_TmCtrl.SetString(ToString(m_sa.m_Tm));
 		}
 
 	}
@@ -135,6 +146,9 @@ namespace WBSF
 	BEGIN_MESSAGE_MAP(CInsectParameterizationDlg, CDialogEx)
 		ON_BN_CLICKED(IDC_FIT_SA, &OnEditSACtrl)
 		ON_BN_CLICKED(IDC_FIT_EQ_OPTIONS, &OnEditEqOptions)
+		ON_BN_CLICKED(IDC_FIT_FIXE_TB, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_FIXE_TO, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_FIXE_TM, &UpdateCtrl)
 		ON_CBN_SELCHANGE(IDC_FIT_TYPE, &OnFitTypeChange)
 	END_MESSAGE_MAP()
 
@@ -185,6 +199,17 @@ namespace WBSF
 		m_eqDevRateCtrl.ShowWindow(bDev? SW_SHOW : SW_HIDE);
 		m_eqSurvivalCtrl.ShowWindow(bSurvival ? SW_SHOW : SW_HIDE);
 		
+		m_TbCtrl.EnableWindow(m_fixeTbCtrl.GetCheck());
+		m_ToCtrl.EnableWindow(m_fixeToCtrl.GetCheck());
+		m_TmCtrl.EnableWindow(m_fixeTmCtrl.GetCheck());
+
+		m_fixeTbCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		m_fixeToCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		m_fixeTmCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		m_TbCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		m_ToCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		m_TmCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+
 	}
 
 	void CInsectParameterizationDlg::OnEditSACtrl()
