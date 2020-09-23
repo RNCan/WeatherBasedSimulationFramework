@@ -119,7 +119,7 @@ BEGIN
     BUTTON      ID_ADD_FUNCTION_ANALYSIS
     BUTTON      ID_ADD_MERGE
     BUTTON      ID_ADD_MAP
-    BUTTON      ID_ADD_IMPORT_SIMULATION
+    BUTTON      ID_ADD_IMPORT_SIMULATION 
     BUTTON      ID_ADD_INPUT_ANALYSIS
     BUTTON      ID_ADD_DISPERSAL
     BUTTON      ID_ADD_SCRIPT_R
@@ -1300,7 +1300,7 @@ BEGIN
     ID_ADD_COPY_EXPORT      "Use to copy export file to an other directory or an FTP site\nCopy Export"
     ID_ADD_MODEL_PARAMETERIZATION 
                             "Use to calibrate parameters of external model\nAdd Model Calibration"
-	ID_ADD_RATE_FIT         "Use to calibrate curve or development time, survival and oviposition\nAdd calibration curve"
+	ID_ADD_RATE_FIT         "Use to calibrate curve of development time, survival and oviposition\nAdd Curve Calibration"
     ID_EDIT_DUPLICATE       "Duplicate the selected component and all its childrens\nDuplicate"
     ID_ITEM_EXPAND_ALL      "Expand all children of a component\nExpand All"
     ID_ITEM_COLLAPSE_ALL    "Collapse all children of a component\nCollapse All"
