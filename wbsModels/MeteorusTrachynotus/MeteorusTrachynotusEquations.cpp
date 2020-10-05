@@ -98,8 +98,8 @@ namespace WBSF
 		//{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
 		//{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
 		//{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
-		{0.01659, 2.9074, 0.0169, 5.0000, 35.0000}, //Immature egg,larva in Generation 0 (overwintered OBL
-		{0.02217, 1.9228, 0.0169, 5.0000, 35.0000}, //Immature egg,larva in other Generations (in SBW or OBL)
+		{0.01659, 2.9072, 0.0117, 5.0000, 35.0000}, //Immature egg,larva in Generation 0 (overwintered OBL
+		{0.02217, 1.9227, 0.0117, 5.0000, 35.0000}, //Immature egg,larva in other Generations (in SBW or OBL)
 		{0.03228, 2.7270, 0.1285, 5.0000, 35.0000}, //Pupa (in cocoon) SBW and OBL
 		{0.01243, 3.0574, 0.001, 5.0000, 40.0000}, //Adult
 
