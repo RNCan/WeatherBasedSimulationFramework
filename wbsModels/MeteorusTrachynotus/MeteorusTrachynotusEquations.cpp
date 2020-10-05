@@ -98,10 +98,10 @@ namespace WBSF
 		//{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
 		//{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
 		//{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
-		{0.01043, 3.4402, 0.0137, 0.2093, 35.7176}, //Immature egg,larva in Generation 0 (overwintered OBL
-		{0.01631, 2.2760, 0.0137, 0.2093, 35.7176}, //Immature egg,larva in other Generations (in SBW or OBL)
-		{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
-		{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
+		{0.01659, 2.9074, 0.0169, 5.0000, 35.0000}, //Immature egg,larva in Generation 0 (overwintered OBL
+		{0.02217, 1.9228, 0.0169, 5.0000, 35.0000}, //Immature egg,larva in other Generations (in SBW or OBL)
+		{0.03228, 2.7270, 0.1285, 5.0000, 35.0000}, //Pupa (in cocoon) SBW and OBL
+		{0.01243, 3.0574, 0.001, 5.0000, 40.0000}, //Adult
 
 	};
 
@@ -142,7 +142,7 @@ namespace WBSF
 			//{ 0.0000, 0.4317, 0.2, 3.0},//Adult longevity
 			{ 0.0000, 0.3608, 0.4, 2.5 },//Immature (egg,larva) in initial OBL
 			{ 0.0000, 0.2829, 0.5, 2.0 },//Immature (egg,larva) in subsequent generations OBL or SBW
-			{ 0.0000, 0.1325, 0.7, 1.5 },//Pupa
+			{ 0.0000, 0.1328, 0.7, 1.5 },//Pupa
 			{ 0.0000, 0.4317, 0.2, 3.0},//Adult longevity
 
 		};

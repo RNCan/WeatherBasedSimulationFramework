@@ -119,12 +119,13 @@ namespace WBSF
 				{
 					ASSERT(m_age >= ADULT);
 
-					double wmax = 13.81 / nbSteps;
+					double wmax = 13.865 / nbSteps;
 					double dtOnd20 = Equations().GetRate(ADULT, m_generation, T) / Equations().GetRate(ADULT, m_generation, 20.);
-					double as = 0.2246;
-					double th = 5.476e-10;
+					double as = 2.8126;
+					double th = 1.089e-5;
 
-					double w = as*m_Nh / (1 + as * th*m_Nh) * (1 - m_totalBroods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
+					//Densities adjusted to match densities in experimental conditions (petri dishes)
+					double w = as*(m_Nh/12.5) / (1 + as * th*(m_Nh/12.5)) * (1 - m_totalBroods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
 
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(wmax, w));
