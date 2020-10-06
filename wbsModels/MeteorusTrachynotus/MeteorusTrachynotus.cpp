@@ -124,8 +124,8 @@ namespace WBSF
 					double as = 2.8126;
 					double th = 1.089e-5;
 
-					//Densities adjusted to match densities in experimental conditions (petri dishes)
-					double w = as*(m_Nh/12.5) / (1 + as * th*(m_Nh/12.5)) * (1 - m_totalBroods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
+					//Densities adjusted to match densities in experimental conditions (petri dishes) with a factor of 16.67 (12*16.67=200)
+					double w = as*(m_Nh/16.67) / (1 + as * th*(m_Nh/16.67)) * (1 - m_totalBroods / m_Pmax) * dtOnd20 / nbSteps; //Number of attacks per time step
 
 					//eggs laid with successful attack is, at most, host find
 					double broods = max(0.0, min(wmax, w));
