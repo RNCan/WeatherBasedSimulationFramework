@@ -1,0 +1,4 @@
+KeyID,Name,Latitude,Longitude,Elevation,city,Country,StationType,tzName,GoldStar,County,State
+ISAINTAL79,Rang de l'Eglise Nord,46.736359,-72.061455,78,Saint-Alban,CA,AcuRite Pro Weather Center,America/Montreal,0,Portneuf,Quebec
+ISAINT1358,Le venteux Christinois,46.827,-71.914,145,Sainte-Christine-d'Auvergne,CA,Ambient Weather WS-800-IP,America/Montreal,0,Portneuf,Quebec
+ISAINT544,Station 1616,46.908001,-71.816002,145,Saint-Raymond,CA,Ambient Weather WS-2902,America/Montreal,0,Portneuf,Quebec
