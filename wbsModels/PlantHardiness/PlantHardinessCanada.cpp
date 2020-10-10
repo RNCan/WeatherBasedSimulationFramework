@@ -133,6 +133,7 @@ namespace WBSF
 		double N = GetMeanMaximumSnowDepth(weather) * 10;//cm --> mm
 		double X6 = N / (N + 25.4);
 		//Approximation of max wind gust. max gust is 2.5 time the maximum daily mean wind speed (from wikipedia: 2.27-2.75)
+		//https://en.wikipedia.org/wiki/Wind_speed
 		double X7 = std::min(180.0, weather.GetStat(H_WNDS)[HIGHEST]*2.5);
 	
 		//Y: estimated index of suitability 
