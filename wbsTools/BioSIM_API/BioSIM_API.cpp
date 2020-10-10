@@ -1027,11 +1027,15 @@ namespace WBSF
 				}
 				out.push(stream);
 
+				size_t m_seedType = 0; // RANDOM_FOR_ALL
+				size_t total_runs = simulationPoints.size()*options.m_replications;
+				size_t total_seeds = (m_seedType < 2) ? total_runs : options.m_replications;
 
-				CRandomGenerator rand(options.m_seed);
-				vector<unsigned long> seeds(options.m_replications);
-				for (vector<unsigned long>::iterator it = seeds.begin(); it != seeds.end(); it++)
-					*it = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+				CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
+				vector<unsigned long> seeds;
+				for (size_t i = 0; i < total_seeds; i++)
+					seeds.push_back(rand.Rand(1, CRandomGenerator::RAND_MAX_INT));
+
 
 
 				for (size_t s = 0; s < simulationPoints.size() && msg; s++)
@@ -1040,13 +1044,14 @@ namespace WBSF
 					const CSimulationPoint& simulationPoint = simulationPoints[s];
 					ASSERT(!simulationPoint.empty());
 
-					for (size_t r = 0; r < seeds.size() && msg; r++)
+					for (size_t r = 0; r < options.m_replications && msg; r++)
 					{
 						stringstream inStream;
 						stringstream outStream;
 
 						//get transfer info
-						CTransferInfoIn info = FillTransferInfo(*m_pModel, simulationPoint, modelInput, seeds[r], s*seeds.size() + r, seeds.size()*simulationPoints.size());
+						size_t seed_pos = m_seedType < 2 ? s * options.m_replications + r : r;
+						CTransferInfoIn info = FillTransferInfo(*m_pModel, simulationPoint, modelInput, seeds[seed_pos], s*options.m_replications + r, options.m_replications*simulationPoints.size());
 						CCommunicationStream::WriteInputStream(info, simulationPoint, inStream);
 
 						msg += m_pModel->RunModel(inStream, outStream);	// call DLL
