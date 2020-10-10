@@ -6,6 +6,7 @@
 #include "basic/CSV.h"
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
+//#include "UI/LocEditDlg.h"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
@@ -35,8 +36,8 @@ namespace WBSF
 	//*********************************************************************
 
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;//| INTERNET_FLAG_TRANSFER_BINARY
-	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "DataType", "Countries", "States", "Province", "StationList", "GoldStar" };//"UpdateStationList" 
-	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_COMBO_INDEX , T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING, T_BOOL };/// 
+	const char* CUIWunderground::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "DataType", /*"Countries", "States", "Province",*/ "StationList", "UpdateMissing", /*, "GoldStar"*/ };//"UpdateStationList" 
+	const size_t CUIWunderground::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_COMBO_INDEX , /*T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT,*/ T_STRING, T_BOOL };/// 
 	const UINT CUIWunderground::ATTRIBUTE_TITLE_ID = IDS_UPDATER_WU_P;
 	const UINT CUIWunderground::DESCRIPTION_TITLE_ID = ID_TASK_WU;
 
@@ -47,7 +48,9 @@ namespace WBSF
 
 	const char* CUIWunderground::SERVER_NAME = "www.wunderground.com";
 
+	const char* CUIWunderground::get_type_name(size_t type) { return (type == HOURLY_WEATHER) ? "hourly" : "daily"; }
 
+	//WU-History-inc.php
 	static const char pageFormat1[] = "weatherstation/ListStations.asp?showall=&start=%s&selectedState=%s";
 	static const char pageFormat2[] = "weatherstation/ListStations.asp?selectedCountry=%s";
 
@@ -65,9 +68,9 @@ namespace WBSF
 		switch (i)
 		{
 		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
-		case COUNTRIES:	str = CCountrySelectionWU::GetAllPossibleValue(); break;
-		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
-		case PROVINCE:	str = CProvinceSelection::GetAllPossibleValue(); break;
+			//case COUNTRIES:	str = CCountrySelectionWU::GetAllPossibleValue(); break;
+			//case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
+			//case PROVINCE:	str = CProvinceSelection::GetAllPossibleValue(); break;
 		};
 		return str;
 	}
@@ -82,7 +85,8 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "0"; break;
-		case GOLD_STAR: str = "0"; break;
+		case UPDATE_MISSING: str = "1"; break;
+			//case GOLD_STAR: str = "0"; break;
 		};
 		return str;
 	}
@@ -95,7 +99,7 @@ namespace WBSF
 		else if (country == "CA")
 			filepath += "WUStationsListCanada.csv";
 		else
-			filepath += "WUStationsListWorld.csv";
+			filepath += "WUStationsList.csv";
 
 
 		return filepath;
@@ -118,7 +122,7 @@ namespace WBSF
 		return ouputPath + ID + ".csv";
 	}
 
-	string Purge(string str)
+	/*string Purge(string str)
 	{
 		MakeUpper(str);
 		ReplaceString(str, "ST.", "ST-");
@@ -176,377 +180,407 @@ namespace WBSF
 
 		return str;
 	}
+*/
+
+//ERMsg CUIWunderground::DownloadStationList(const string& country, CLocationVector& stationList2, CCallback& callback)const
+//{
+//	ERMsg msg;
+
+//	CLocationVector stationList1;
+
+//	CInternetSessionPtr pSession;
+//	CHttpConnectionPtr pConnection;
+
+//	msg += GetHttpConnection("www.wunderground.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+//	if (msg)
+//	{
+//		string URL = "/weatherstation/ListStations.asp?selectedCountry=" + country;
+
+//		string source;
+//		msg = GetPageText(pConnection, URL, source, false, NULL);
+//		if (msg)
+//		{
+
+//			string::size_type b = source.find("<tbody>");
+//			string::size_type e = source.find("</tbody>");
+//			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada)", e);
+//			callback.SetCurrentStepPos(b);
+
+//			string::size_type posBegin = source.find("<tr>", b);
+//			while (posBegin != string::npos)
+//			{
+//				CLocation loc;
+//				loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
+//				if (posBegin != string::npos)
+//					loc.m_name = UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin))));
+
+//				if (posBegin != string::npos)
+//					loc.SetSSI("City", UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin)))));
+
+//				if (posBegin != string::npos)
+//					loc.SetSSI("StationType", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"station-type\">", "&nbsp;", posBegin))));
+
+//				if (loc.m_name.empty())
+//					loc.m_name = loc.GetSSI("City");
+
+//				if (loc.m_name.empty())
+//					loc.m_name = loc.m_ID;
+
+//				bool bNetatmo = WBSF::Find("Netatmo", loc.GetSSI("StationType"), false);
+//				if (!bNetatmo && stationList2.FindByID(loc.m_ID) == NOT_INIT)
+//					stationList1.push_back(loc);
 
 
-	ERMsg CUIWunderground::DownloadStationList(const string& country, CLocationVector& stationList2, CCallback& callback)const
+//				posBegin = source.find("<tr>", posBegin);
+//				msg += callback.SetCurrentStepPos(posBegin);
+//			}
+
+//			callback.PopTask();
+
+
+//			//get station information
+//			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList1.size()) + " stations", stationList1.size());
+//			for (size_t i = 0; i < stationList1.size() && msg; i++)
+//			{
+//				CLocation station = stationList1[i];
+
+//				URL = "/personal-weather-station/dashboard?ID=" + station.m_ID;
+//				string source;
+//				msg = GetPageText(pConnection, URL, source, false, NULL);
+//				if (msg)
+//				{
+//					bool bGoldStart = source.find("pws-goldstar-27x21.png") != string::npos;
+//					station.SetSSI("GoldStar", bGoldStart ? "1" : "0");
+
+//					string::size_type posBegin = source.find("id=\"forecast-link\">");
+//					if (posBegin != string::npos)
+//					{
+//						string str = FindString(source, "</a><span class=\"subheading\">", "</span>", posBegin);
+//						StringVector v(str, "> ");
+//						ASSERT(v.size() >= 3);
+
+//						if (v.size() >= 3)
+//						{
+//							station.m_lat = WBSF::as<double>(v[0]);
+//							station.m_lon = WBSF::as<double>(v[1]);
+
+//							if (v.size() == 4 && v[2] != "-999")
+//							{
+//								if (v[3] == "m")
+//									station.m_elev = WBSF::as<double>(v[2]);
+//								else if (v[3] == "ft")
+//									station.m_elev = WBSF::Feet2Meter(WBSF::as<double>(v[2]));
+//							}
+
+//							if (station.m_elev >= -1000)//station with strange elevation are usually bad
+//								stationList2.push_back(station);
+//						}//if msg
+//					}//if have data
+
+//				}//if msg
+
+//				callback.StepIt();
+//			}//for all station
+
+
+//			callback.PopTask();
+//		}//if msg
+
+//		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList1.size()));
+
+//		pConnection->Close();
+//		pSession->Close();
+
+//		//pGoogleConnection->Close();
+//		//pGoogleSession->Close();
+//	}//if msg
+
+//	return msg;
+//}
+
+//ERMsg CUIWunderground::CompleteStationList(CLocationVector& stationList, CCallback& callback)const
+//{
+//	//ERMsg msg;
+
+//	return CLocDlg::ExtractNominatimName(stationList, false, true, true, true, callback);
+
+//	//CInternetSessionPtr pGoogleSession;
+//	//CHttpConnectionPtr pGoogleConnection;
+
+//	//if (msg)
+//	//	msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+//	//if (msg)
+//	//{
+//	//	//get station information
+//	//	callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList2.size()) + " stations", stationList2.size());
+//	//	for (size_t i = 0; i < stationList2.size() && msg; i++)
+//	//	{
+//	//		CLocation& station = stationList2[i];
+
+//	//		if (station.m_elev == -999)
+//	//		{
+//	//			string elevFormat = "/maps/api/elevation/json?locations=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
+//	//			string strElev;
+//	//			msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+//	//			if (msg)
+//	//			{
+//	//				//extract elevation from google
+//	//				string error;
+//	//				Json jsonElev = Json::parse(strElev, error);
+//	//				ASSERT(jsonElev.is_object());
+
+//	//				if (error.empty() && jsonElev["status"] == "OK")
+//	//				{
+//	//					ASSERT(jsonElev["results"].is_array());
+//	//					Json::array result = jsonElev["results"].array_items();
+//	//					ASSERT(result.size() == 1);
+
+//	//					station.m_elev = result[0]["elevation"].number_value();
+//	//				}
+//	//			}//if msg
+//	//		}
+
+
+
+//	//		//
+//	//		if (station.GetSSI("Country").empty())
+//	//		{
+//	//			string geoFormat = "/maps/api/geocode/json?latlng=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
+//	//			string strGeo;
+
+
+//	//			msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
+//	//			if (msg)
+//	//			{
+//	//				//extract elevation from google
+//	//				string error;
+//	//				Json jsonGeo = Json::parse(strGeo, error);
+//	//				ASSERT(jsonGeo.is_object());
+
+//	//				if (error.empty() && jsonGeo["status"] == "OK")
+//	//				{
+//	//					ASSERT(jsonGeo["results"].is_array());
+//	//					Json::array result1 = jsonGeo["results"].array_items();
+//	//					if (!result1.empty())
+//	//					{
+//	//						Json::array result2 = result1[0]["address_components"].array_items();
+//	//						for (int j = 0; j < result2.size(); j++)
+//	//						{
+//	//							Json::array result3 = result2[j]["types"].array_items();
+//	//							if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
+//	//							{
+//	//								string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
+//	//								WBSF::ReplaceString(str, ",", " ");
+//	//								station.SetSSI("County", str);
+//	//							}
+
+//	//							if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
+//	//								station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+//	//							if (result3.size() == 2 && result3[0] == "country")
+//	//								station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
+
+//	//						}
+//	//					}
+//	//				}
+//	//			}//if msg
+//	//		}
+
+//	//		msg += callback.StepIt();
+//	//	}//for all station
+
+//	//}//if open connection
+
+
+//	//callback.PopTask();
+
+//	//pGoogleConnection->Close();
+//	//pGoogleSession->Close();
+
+
+//	//return msg;
+
+//}
+
+
+
+//TVarH CUIWunderground::GetVar(const string& str)
+//{
+//	TVarH v = H_SKIP;
+
+//	enum { NB_VARS = 7 };
+//	static const char* VAR_NAME[NB_VARS] = { "Temp.:", "DewPoint:", "Humidity:", "WindSpeed:", "Pressure:", "Precipitation:", "SolarRadiation:" };
+//	static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD };
+//	for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
+//	{
+//		if (IsEqual(str, VAR_NAME[vv]))
+//			v = VAR_AVAILABLE[vv];
+//	}
+
+//	return v;
+//}
+
+//CWVariables CUIWunderground::GetVariables(string str)
+//{
+//	//size_t v_count = 0;
+//	//size_t e_count = 0;
+
+//	WBSF::CWVariables variables;
+
+
+
+//	boost::erase_all(str, "\r");
+//	boost::erase_all(str, "\n");
+//	boost::erase_all(str, "\t");
+//	boost::erase_all(str, " ");
+//	string::size_type posBegin = str.find("<tr>");
+
+
+//	//static const TVarH VAR_AVAILABLE[7] = {H_TAIR, H_TDEW, H_RELH, H_WNDS, H_SKIP, H_PRES, H_PRCP};
+
+//	while (posBegin != string::npos)
+//	{
+//		posBegin += 4;
+
+
+//		string str1 = FindString(str, "<td>", "</td>", posBegin);
+//		string str2 = FindString(str, "<td>", "</td>", posBegin);
+//		string str3 = FindString(str, "<td>", "</td>", posBegin);
+
+//		if (str1 != "UVIndex:" && str1 != "WindGust:")
+//		{
+//			size_t v = GetVar(str1);
+//			ASSERT(v != NOT_INIT);
+//			if (v != NOT_INIT && ((str2 != "-" && str2 != "" && str2 != "%") || (str3 != "-" && str3 != "" && str3 != "%")))
+//				variables.set(v);
+//		}
+
+//		posBegin = str.find("<tr>", posBegin);
+//	}
+
+//	ASSERT(str.find("<tr>", posBegin) == string::npos);
+
+//	return variables;
+//}
+
+
+//void CUIWunderground::CleanString(string& str)
+//{
+//	string output;
+
+//	ReplaceString(str, "'", "");
+//	ReplaceString(str, "&deg;", "");
+//	ReplaceString(str, "S ", "-");
+//	ReplaceString(str, "W ", "-");
+//	ReplaceString(str, "N ", "");
+//	ReplaceString(str, "E ", "");
+
+//	Trim(str);
+//}
+
+/*double CUIWunderground::GetCoordinate(string str)
+{
+	CleanString(str);
+
+	float ld = 0, lm = 0, ls = 0;
+	sscanf(str.c_str(), "%f %f %f", &ld, &lm, &ls);
+
+	return ld + Signe(ld)*(lm / 60.0 + ls / 3600.0);
+}*/
+
+//ERMsg CUIWunderground::ExtractElevation(CLocationVector& stationList, CCallback& callback)
+//{
+//	ERMsg msg;
+
+//	CInternetSessionPtr pSession;
+//	CHttpConnectionPtr pConnection;
+//	msg += GetHttpConnection("i.wund.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+//	if (!msg)
+//		return msg;
+
+
+
+//	//Get elevation
+//	callback.PushTask("Extract elevation", stationList.size());
+
+//	for (size_t i = 0; i < stationList.size() && msg; i++)
+//	{
+//		string URL = FormatA("weatherstation/WXDailyHistory.asp?ID=%s&month=4&day=9&year=2016", stationList[i].m_ID.c_str());
+
+//		string source;
+//		msg = GetPageText(pConnection, URL, source);
+//		if (msg)
+//		{
+//			//http://i.wund.com/auto/iphone/weatherstation/WXDailyHistory.asp?ID=KCATUSTI15&month=4&day=9&year=2016
+
+//			string variables;
+//			string::size_type posBegin = source.find("Statistics for the rest of the month");
+
+//			if (posBegin != string::npos)
+//				variables = FindString(source, "<tbody>", "</tbody>", posBegin);
+
+//			WBSF::CWVariables v = GetVariables(variables);
+//			if (v.any())
+//				stationList[i].SetSSI("Variables", v.to_string());
+
+//			string lat = TrimConst(FindString(source, "Lat:</span>", "''"));
+//			if (!lat.empty())
+//				stationList[i].m_lat = GetCoordinate(lat);
+
+//			string lon = TrimConst(FindString(source, "Lon:</span>", "''"));
+//			if (!lon.empty())
+//				stationList[i].m_lon = GetCoordinate(lon);
+
+//			string alt = TrimConst(FindString(source, "Elevation:</span>", "ft"));
+//			if (!alt.empty())
+//				stationList[i].m_elev = ToDouble(alt) * 0.3048;
+//		}
+
+//		msg += callback.StepIt();
+
+//		if (((i + 1) % 200) == 0)
+//			stationList.Save("E:\\Travaux\\Install\\DemoBioSIM\\Update\\WeatherUnderground\\test.csv", ',', callback);
+//	}
+
+//	//now update coordinate
+//	stationList.Save("E:\\Travaux\\Install\\DemoBioSIM\\Update\\WeatherUnderground\\test.csv", ',', callback);
+
+//	callback.PopTask();
+
+//	pConnection->Close();
+//	pSession->Close();
+
+//	return msg;
+//}
+
+	ERMsg GetAPIKey(string& apiKey)
 	{
 		ERMsg msg;
 
-		CLocationVector stationList1;
-
+		//https://
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-
-		msg += GetHttpConnection("www.wunderground.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-		if (msg)
+		if (GetHttpConnection("www.wunderground.com", pConnection, pSession))
 		{
-			string URL = "/weatherstation/ListStations.asp?selectedCountry=" + country;
+
+			//string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), d + 1, m + 1, year);
 
 			string source;
-			msg = GetPageText(pConnection, URL, source, false, NULL);
-			if (msg)
+			msg = GetPageText(pConnection, "weather/CYQB", source, false, FLAGS);
+
+			if (!source.empty())
 			{
-
-				string::size_type b = source.find("<tbody>");
-				string::size_type e = source.find("</tbody>");
-				callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada)", e);
-				callback.SetCurrentStepPos(b);
-
-				string::size_type posBegin = source.find("<tr>", b);
-				while (posBegin != string::npos)
-				{
-					CLocation loc;
-					loc.m_ID = Purge(FindString(source, "?ID=", "\">", posBegin));
-					if (posBegin != string::npos)
-						loc.m_name = UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin))));
-
-					if (posBegin != string::npos)
-						loc.SetSSI("City", UppercaseFirstLetter(ANSI_2_ASCII(Purge(FindString(source, "<td>", "&nbsp;", posBegin)))));
-
-					if (posBegin != string::npos)
-						loc.SetSSI("StationType", UppercaseFirstLetter(Purge(FindString(source, "<td class=\"station-type\">", "&nbsp;", posBegin))));
-
-					if (loc.m_name.empty())
-						loc.m_name = loc.GetSSI("City");
-
-					if (loc.m_name.empty())
-						loc.m_name = loc.m_ID;
-
-					bool bNetatmo = WBSF::Find("Netatmo", loc.GetSSI("StationType"), false);
-					if (!bNetatmo && stationList2.FindByID(loc.m_ID) == NOT_INIT)
-						stationList1.push_back(loc);
-
-
-					posBegin = source.find("<tr>", posBegin);
-					msg += callback.SetCurrentStepPos(posBegin);
-				}
-
-				callback.PopTask();
-
-
-				//get station information
-				callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList1.size()) + " stations", stationList1.size());
-				for (size_t i = 0; i < stationList1.size() && msg; i++)
-				{
-					CLocation station = stationList1[i];
-
-					URL = "/personal-weather-station/dashboard?ID=" + station.m_ID;
-					string source;
-					msg = GetPageText(pConnection, URL, source, false, NULL);
-					if (msg)
-					{
-						bool bGoldStart = source.find("pws-goldstar-27x21.png") != string::npos;
-						station.SetSSI("GoldStar", bGoldStart ? "1" : "0");
-
-						string::size_type posBegin = source.find("id=\"forecast-link\">");
-						if (posBegin != string::npos)
-						{
-							string str = FindString(source, "</a><span class=\"subheading\">", "</span>", posBegin);
-							StringVector v(str, "> ");
-							ASSERT(v.size() >= 3);
-
-							if (v.size() >= 3)
-							{
-								station.m_lat = WBSF::as<double>(v[0]);
-								station.m_lon = WBSF::as<double>(v[1]);
-
-								if (v.size() == 4 && v[2] != "-999")
-								{
-									if (v[3] == "m")
-										station.m_elev = WBSF::as<double>(v[2]);
-									else if (v[3] == "ft")
-										station.m_elev = WBSF::Feet2Meter(WBSF::as<double>(v[2]));
-								}
-
-								if (station.m_elev >= -1000)//station with strange elevation are usually bad
-									stationList2.push_back(station);
-							}//if msg
-						}//if have data
-
-					}//if msg
-
-					callback.StepIt();
-				}//for all station
-
-
-				callback.PopTask();
-			}//if msg
-
-			callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList1.size()));
+				apiKey = FindString(source, "apiKey=", "&");
+				ASSERT(apiKey.length() == 32);
+			}
 
 			pConnection->Close();
 			pSession->Close();
 
-			//pGoogleConnection->Close();
-			//pGoogleSession->Close();
-		}//if msg
-
-		return msg;
-	}
-
-	ERMsg CUIWunderground::CompleteStationList(CLocationVector& stationList2, CCallback& callback)const
-	{
-		ERMsg msg;
-
-
-		CInternetSessionPtr pGoogleSession;
-		CHttpConnectionPtr pGoogleConnection;
-
-		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-		if (msg)
-		{
-			//get station information
-			callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (Canada) : " + ToString(stationList2.size()) + " stations", stationList2.size());
-			for (size_t i = 0; i < stationList2.size() && msg; i++)
-			{
-				CLocation& station = stationList2[i];
-
-				if (station.m_elev == -999)
-				{
-					string elevFormat = "/maps/api/elevation/json?locations=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
-					string strElev;
-					msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
-					if (msg)
-					{
-						//extract elevation from google
-						string error;
-						Json jsonElev = Json::parse(strElev, error);
-						ASSERT(jsonElev.is_object());
-
-						if (error.empty() && jsonElev["status"] == "OK")
-						{
-							ASSERT(jsonElev["results"].is_array());
-							Json::array result = jsonElev["results"].array_items();
-							ASSERT(result.size() == 1);
-
-							station.m_elev = result[0]["elevation"].number_value();
-						}
-					}//if msg
-				}
-
-
-
-				//
-				if (station.GetSSI("Country").empty())
-				{
-					string geoFormat = "/maps/api/geocode/json?latlng=" + ToString(station.m_lat) + "," + ToString(station.m_lon);
-					string strGeo;
-
-
-					msg = UtilWWW::GetPageText(pGoogleConnection, geoFormat, strGeo);
-					if (msg)
-					{
-						//extract elevation from google
-						string error;
-						Json jsonGeo = Json::parse(strGeo, error);
-						ASSERT(jsonGeo.is_object());
-
-						if (error.empty() && jsonGeo["status"] == "OK")
-						{
-							ASSERT(jsonGeo["results"].is_array());
-							Json::array result1 = jsonGeo["results"].array_items();
-							if (!result1.empty())
-							{
-								Json::array result2 = result1[0]["address_components"].array_items();
-								for (int j = 0; j < result2.size(); j++)
-								{
-									Json::array result3 = result2[j]["types"].array_items();
-									if (result3.size() == 2 && result3[0] == "administrative_area_level_2")
-									{
-										string str = ANSI_2_ASCII(result2[j]["short_name"].string_value());
-										WBSF::ReplaceString(str, ",", " ");
-										station.SetSSI("County", str);
-									}
-
-									if (result3.size() == 2 && result3[0] == "administrative_area_level_1")
-										station.SetSSI("State", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
-
-									if (result3.size() == 2 && result3[0] == "country")
-										station.SetSSI("Country", ANSI_2_ASCII(result2[j]["short_name"].string_value()));
-
-								}
-							}
-						}
-					}//if msg
-				}
-
-				msg += callback.StepIt();
-			}//for all station
-
-		}//if open connection
-
-
-		callback.PopTask();
-
-		pGoogleConnection->Close();
-		pGoogleSession->Close();
-
-
-		return msg;
-
-	}
-
-
-
-	TVarH CUIWunderground::GetVar(const string& str)
-	{
-		TVarH v = H_SKIP;
-
-		enum { NB_VARS = 7 };
-		static const char* VAR_NAME[NB_VARS] = { "Temp.:", "DewPoint:", "Humidity:", "WindSpeed:", "Pressure:", "Precipitation:", "SolarRadiation:" };
-		static const TVarH VAR_AVAILABLE[NB_VARS] = { H_TAIR, H_TDEW, H_RELH, H_WNDS, H_PRES, H_PRCP, H_SRAD };
-		for (size_t vv = 0; vv < NB_VARS&&v == H_SKIP; vv++)
-		{
-			if (IsEqual(str, VAR_NAME[vv]))
-				v = VAR_AVAILABLE[vv];
 		}
-
-		return v;
-	}
-
-	CWVariables CUIWunderground::GetVariables(string str)
-	{
-		//size_t v_count = 0;
-		//size_t e_count = 0;
-
-		WBSF::CWVariables variables;
-
-
-
-		boost::erase_all(str, "\r");
-		boost::erase_all(str, "\n");
-		boost::erase_all(str, "\t");
-		boost::erase_all(str, " ");
-		string::size_type posBegin = str.find("<tr>");
-
-
-		//static const TVarH VAR_AVAILABLE[7] = {H_TAIR, H_TDEW, H_RELH, H_WNDS, H_SKIP, H_PRES, H_PRCP};
-
-		while (posBegin != string::npos)
-		{
-			posBegin += 4;
-
-
-			string str1 = FindString(str, "<td>", "</td>", posBegin);
-			string str2 = FindString(str, "<td>", "</td>", posBegin);
-			string str3 = FindString(str, "<td>", "</td>", posBegin);
-
-			if (str1 != "UVIndex:" && str1 != "WindGust:")
-			{
-				size_t v = GetVar(str1);
-				ASSERT(v != NOT_INIT);
-				if (v != NOT_INIT && ((str2 != "-" && str2 != "" && str2 != "%") || (str3 != "-" && str3 != "" && str3 != "%")))
-					variables.set(v);
-			}
-
-			posBegin = str.find("<tr>", posBegin);
-		}
-
-		ASSERT(str.find("<tr>", posBegin) == string::npos);
-
-		return variables;
-	}
-
-
-	void CUIWunderground::CleanString(string& str)
-	{
-		string output;
-
-		ReplaceString(str, "'", "");
-		ReplaceString(str, "&deg;", "");
-		ReplaceString(str, "S ", "-");
-		ReplaceString(str, "W ", "-");
-		ReplaceString(str, "N ", "");
-		ReplaceString(str, "E ", "");
-
-		Trim(str);
-	}
-
-	double CUIWunderground::GetCoordinate(string str)
-	{
-		CleanString(str);
-
-		float ld = 0, lm = 0, ls = 0;
-		sscanf(str.c_str(), "%f %f %f", &ld, &lm, &ls);
-
-		return ld + Signe(ld)*(lm / 60.0 + ls / 3600.0);
-	}
-
-	ERMsg CUIWunderground::ExtractElevation(CLocationVector& stationList, CCallback& callback)
-	{
-		ERMsg msg;
-
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-		msg += GetHttpConnection("i.wund.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-		if (!msg)
-			return msg;
-
-
-
-		//Get elevation
-		callback.PushTask("Extract elevation", stationList.size());
-
-		for (size_t i = 0; i < stationList.size() && msg; i++)
-		{
-			string URL = FormatA("weatherstation/WXDailyHistory.asp?ID=%s&month=4&day=9&year=2016", stationList[i].m_ID.c_str());
-
-			string source;
-			msg = GetPageText(pConnection, URL, source);
-			if (msg)
-			{
-				//http://i.wund.com/auto/iphone/weatherstation/WXDailyHistory.asp?ID=KCATUSTI15&month=4&day=9&year=2016
-
-				string variables;
-				string::size_type posBegin = source.find("Statistics for the rest of the month");
-
-				if (posBegin != string::npos)
-					variables = FindString(source, "<tbody>", "</tbody>", posBegin);
-
-				WBSF::CWVariables v = GetVariables(variables);
-				if (v.any())
-					stationList[i].SetSSI("Variables", v.to_string());
-
-				string lat = TrimConst(FindString(source, "Lat:</span>", "''"));
-				if (!lat.empty())
-					stationList[i].m_lat = GetCoordinate(lat);
-
-				string lon = TrimConst(FindString(source, "Lon:</span>", "''"));
-				if (!lon.empty())
-					stationList[i].m_lon = GetCoordinate(lon);
-
-				string alt = TrimConst(FindString(source, "Elevation:</span>", "ft"));
-				if (!alt.empty())
-					stationList[i].m_elev = ToDouble(alt) * 0.3048;
-			}
-
-			msg += callback.StepIt();
-
-			if (((i + 1) % 200) == 0)
-				stationList.Save("E:\\Travaux\\Install\\DemoBioSIM\\Update\\WeatherUnderground\\test.csv", ',', callback);
-		}
-
-		//now update coordinate
-		stationList.Save("E:\\Travaux\\Install\\DemoBioSIM\\Update\\WeatherUnderground\\test.csv", ',', callback);
-
-		callback.PopTask();
-
-		pConnection->Close();
-		pSession->Close();
 
 		return msg;
 	}
@@ -573,9 +607,17 @@ namespace WBSF
 		size_t type = as<size_t>(DATA_TYPE);
 		//bool bUseGoldStarOnly = as<bool>(GOLD_STAR);
 
+		string apiKey;
+		msg = GetAPIKey(apiKey);
+		if (!msg)
+			return msg;
+
+
 		//if (as<bool>(UPDATE_STATION_LIST))
-		if (UPDATE_STATIONS_LIST)
-		{
+		//if (UPDATE_STATIONS_LIST)
+		//{
+
+			/*
 			CCountrySelection countries(Get(COUNTRIES));
 			callback.PushTask("Update stations list (" + ToString(countries.count()) + " countries)", countries.count());
 
@@ -605,10 +647,15 @@ namespace WBSF
 
 			if (!msg)
 				return msg;
-		}
+				*/
+
+
+				//}
+
+
 
 		CLocationVector stationList;
-		msg = LoadStationList(stationList, callback);
+		msg = LoadStationList(apiKey, stationList, callback);
 
 
 		//Get station
@@ -618,14 +665,14 @@ namespace WBSF
 		int currentYear = GetCurrentYear();
 		CTRef today = CTRef::GetCurrentTRef();
 
-		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
+		string tstr = get_type_name(type);
 
 		callback.AddMessage("Download " + tstr + " WeatherUnderground stations data (" + ToString(stationList.size()) + ")");
 		callback.PushTask("Download " + tstr + " WeatherUnderground stations data (" + ToString(stationList.size()) + ")", stationList.size()*nbYears);
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		msg += GetHttpConnection("api.weather.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 
 		if (!msg)
 			return msg;
@@ -644,116 +691,53 @@ namespace WBSF
 
 				if (NeedDownload(year, ouputFilePath))
 				{
+					CWeatherYears data(type == HOURLY_WEATHER);
+					data.LoadData(ouputFilePath);
 
-					if (type == HOURLY_WEATHER)
+					CTRef TRef = CWeatherYears::GetLastTref(ouputFilePath);
+					inc = 1.0 / (year == currentYear ? (today.GetMonth() - TRef.GetMonth() + 1) : 12);
+
+					size_t fisrt_m = TRef.IsInit() ? TRef.GetMonth() : FIRST_MONTH;
+					size_t last_m = year == currentYear ? today.GetMonth() : LAST_MONTH;
+					for (size_t m = fisrt_m; m <= last_m && msg; m++)
 					{
-						//Get actual file period
-						double last_hms = 0;
-						CTPeriod p = GetHourlyPeriod(ouputFilePath, last_hms).as(CTM::DAILY);
-						inc = 1.0 / (year == currentYear ? today.GetJDay():GetNbDaysPerYear(year));
+						const char* str_type = get_type_name(type);
+						static const char* URL_FORMAT = "v2/pws/history/%s?stationId=%s&format=json&units=m&startDate=%d%02d%02d&endDate=%d%02d%02d&numericPrecision=decimal&apiKey=%s";
+						string URL = FormatA(URL_FORMAT, str_type, stationList[i].m_ID.c_str(), year, m + 1, TRef.GetDay() + 1, year, m + 1, GetNbDayPerMonth(year, m), apiKey.c_str());
 
-						size_t last_m = year == currentYear ? today.GetMonth() : LAST_MONTH;
-						for (size_t m = 0; m <= last_m && msg; m++)
+						try
 						{
-							size_t last_d = (year == currentYear && m == today.GetMonth()) ? today.GetDay() : WBSF::GetNbDayPerMonth(year, m) - 1;
-							for (size_t d = 0; d <= last_d && msg; d++)
+							string source;
+							msg = GetPageText(pConnection, URL, source, false, FLAGS);
+
+							if (!source.empty())
 							{
-								CTRef TRef(year, m, d);
-								if (!p.End().IsInit() || TRef >= p.End())
-								{
-									static const char* URL_FORMAT = "weatherstation/WXDailyHistory.asp?ID=%s&day=%02d&month=%02d&year=%d&graphspan=day&format=1";
-									string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), d + 1, m + 1, year);
-
-									string source;
-									msg = GetPageText(pConnection, URL, source, false, FLAGS);
-									
-									if (!source.empty())
-									{
-										if(source[0] == '\n')
-											source.erase(source.begin());
-
-										ReplaceString(source, "\n<br>", "");
-										ReplaceString(source, "<br>", "");
-									}
-										
-
-									//Time,TemperatureC,DewpointC,PressurehPa,WindDirection,WindDirectionDegrees,WindSpeedKMH,WindSpeedGustKMH,Humidity,HourlyPrecipMM,Conditions,Clouds,dailyrainMM,SoftwareType,DateUTC
-									if (source.substr(0,5) ==  "Time,")
-									{
-										if (FileExists(ouputFilePath))//don't remove header if file does not exist
-										{
-											clean_source((TRef == p.End()) ? last_hms : 24, source);
-										}
-										else
-										{
-											size_t pos1 = source.find('\n');
-											size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
-											if (pos2 == string::npos)//only header, clear source
-												source.clear();
-										}
-
-										if (!source.empty() )
-										{
-											ofStream file;
-											msg = file.open(ouputFilePath, std::fstream::out | std::fstream::app);
-											if (msg)
-											{
-												file << source;
-												file.close();
-												nbDownload++;
-											}
-										}
-									}
-								}
-
-								msg += callback.StepIt(inc);
-							}//for d
-						}//for m
-
-
-						inc = 0;
-					}
-					else
-					{
-						static const char* URL_FORMAT = "weatherstation/WXDailyHistory.asp?ID=%s&day=1&month=1&year=%d&dayend=31&monthend=12&yearend=%d&graphspan=custom&format=1";
-						string URL = FormatA(URL_FORMAT, stationList[i].m_ID.c_str(), year, year);
-						//string ouputFilePath = GetOutputFilePath(tstr, stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year);
-						//CreateMultipleDir(GetPath(ouputFilePath));
-
-						////if (year == currentYear || !FileExists(ouputFilePath))
-						//if (NeedDownload(year, ouputFilePath))
-						//{
-						string source;
-						msg = GetPageText(pConnection, URL, source, false, FLAGS);
-						
-						if (!source.empty())
-						{
-							if (source[0] == '\n')
-								source.erase(source.begin());
-
-							ReplaceString(source, "\n<br>", "");
-							ReplaceString(source, "<br>", "");
-						}
-
-						if ( source.substr(0, 5) == "Date,")
-						{
-							
-
-							ofStream file;
-							msg = file.open(ouputFilePath);
-							if (msg)
-							{
-								file << source;
-								file.close();
+								msg += ParseJson(type, source, data, callback);
 								nbDownload++;
+								msg += callback.StepIt(inc);
 							}
-						}
-					}
-				}//need download
 
-				msg += callback.StepIt(inc);
-			}
-		}
+						}
+						catch (CException* e)
+						{
+							//if an error occur: try again
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}//for all months
+
+
+					if (type == DAILY_WEATHER)
+					{
+						//remove today observation (incomplete)
+						if (year == today.GetYear())
+							data[today].Reset();
+					}
+
+					msg = data.SaveData(ouputFilePath);
+
+				}//need download
+			}//for all years
+		}//for all stations
 
 		pConnection->Close();
 		pSession->Close();
@@ -788,7 +772,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIWunderground::LoadStationList(CLocationVector& stationList, CCallback& callback)const
+	ERMsg CUIWunderground::LoadStationList(const string& apiKey, CLocationVector& stationList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -796,97 +780,192 @@ namespace WBSF
 
 		StringVector stationListID(TrimConst(Get(STATION_LIST)), " ;,|");
 
-		CLocationVector stationList1;
+		//CLocationVector stationList1;
 
-		CCountrySelection countries(Get(COUNTRIES));
-		CStateSelection states(Get(STATES));
-		CProvinceSelection provinces(Get(PROVINCE));
-		bool bUseGoldStarOnly = as<bool>(GOLD_STAR);
+		//CCountrySelection countries(Get(COUNTRIES));
+		//CStateSelection states(Get(STATES));
+		//CProvinceSelection provinces(Get(PROVINCE));
+		//bool bUseGoldStarOnly = as<bool>(GOLD_STAR);
 
 
-		CLocationVector tmp;
-		size_t n = 0;
-		if (countries.at("US") || !stationListID.empty())
+		//CLocationVector tmp;
+		//size_t n = 0;
+		//if (/*countries.at("US") ||*/ !stationListID.empty())
+		//{
+		//msg = tmp.Load(GetStationListFilePath("US"), ",", callback);
+		//stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
+		//	n++;
+		//}
+
+		//if (/*countries.at("CA") ||*/ !stationListID.empty())
+		//{
+		//msg = tmp.Load(GetStationListFilePath("CA"), ",", callback);
+		//stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
+		//	n++;
+		//}
+
+		//if (/*countries.count() > n ||*/ !stationListID.empty())//other country than US and CA
+		//{
+
+		CLocationVector locations;
+		if (FileExists(GetStationListFilePath("")))
+			msg += locations.Load(GetStationListFilePath(""), ",", callback);
+		// (tmp.Load(GetStationListFilePath(""), ",", callback))
+			//stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
+
+		//	n++;
+		//}
+
+		StringVector toUpdated;
+		for (auto it = stationListID.begin(); it != stationListID.end() && msg; it++)
 		{
-			msg = tmp.Load(GetStationListFilePath("US"), ",", callback);
-			stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
-			n++;
+			size_t pos = locations.FindByID(*it);
+			if (pos == NOT_INIT)
+				toUpdated.push_back(*it);
 		}
 
-		if (countries.at("CA") || !stationListID.empty())
+		bool bUpdateMissing = as<bool>(UPDATE_MISSING);
+		if (!toUpdated.empty() && !apiKey.empty())
 		{
-			msg = tmp.Load(GetStationListFilePath("CA"), ",", callback);
-			stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
-			n++;
-		}
-
-		if (countries.count() > n || !stationListID.empty())//other country than US and CA
-		{
-			if (tmp.Load(GetStationListFilePath(""), ",", callback))
-				stationList1.insert(stationList1.end(), tmp.begin(), tmp.end());
-
-			n++;
-		}
-
-		
-		if (!stationListID.empty())
-		{
-			stationList.reserve(stationListID.size());
-
-			for (auto it = stationListID.begin(); it != stationListID.end() && msg; it++)
+			if (bUpdateMissing)
 			{
-				size_t pos = stationList1.FindByID(*it);
-				if (pos != NOT_INIT)
-					stationList.insert(stationList.end(), stationList1[pos]);
-				else
-					callback.AddMessage("Warning: Stations with ID " + *it + " is not in coordinate station's list. This station must to be added to the stations list.");
-			}
-		}
-		else
-		{
-			callback.PushTask("Clean list (" + ToString(stationList1.size()) + ")", stationList1.size());
-			stationList.reserve(stationList1.size());
-			for (auto it = stationList1.begin(); it != stationList1.end() && msg; it++)
-			{
-				bool bDownload = false;
-				bool bGoldStart = WBSF::as<bool>(it->GetSSI("GoldStar"));
+				callback.PushTask("Update WeatherUnderground unknowns metadata: " + to_string(toUpdated.size()) + " stations", toUpdated.size());
+				callback.AddMessage("Update WeatherUnderground unknowns metadata: " + to_string(toUpdated.size()) + " stations");
 
-				if (!bUseGoldStarOnly || bGoldStart)
+				//CLocationVector locations;
+				//if (FileExists(GetStationListFilePath("")))
+					//msg += locations.Load(GetStationListFilePath(""), ",", callback);
+
+				size_t nbUpdated = 0;
+				for (auto it = toUpdated.begin(); it != toUpdated.end() && msg; it++)
 				{
-					string country = it->GetSSI("Country");
+					//https://api.weather.com/v2/pwsidentity?apiKey=6532d6454b8aa370768e63d6ba5a832e&stationId=ISAINTAL79&format=json&units=m
 
+					CInternetSessionPtr pSession;
+					CHttpConnectionPtr pConnection;
+					msg += GetHttpConnection("api.weather.com", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS);
 
-					if (countries.at(country))
+					if (msg)
 					{
-						string state = it->GetSSI("State");
-						if (country == "US")
+
+						static const char* URL_FORMAT = "v2/pwsidentity?apiKey=%s&stationId=%s&format=json&units=m";
+						string URL = FormatA(URL_FORMAT, apiKey.c_str(), it->c_str());
+
+						try
 						{
-							if (states.at(state))
-								bDownload = true;
+							string source;
+							msg = GetPageText(pConnection, URL, source, false, FLAGS);
+
+							if (!source.empty())
+							{
+								CLocation location;
+								msg += ParseJsonMetadata(source, location, callback);
+								
+								//msg += callback.StepIt(inc);
+
+								if (msg)
+								{
+									if (location.m_name.empty() || location.GetSSI("County").empty() || location.GetSSI("State").empty() || location.GetSSI("Country").empty())
+									{
+										ExtractNominatimName(location, callback);
+									}
+
+									nbUpdated++;
+									locations.push_back(location);
+								}
+							}
 						}
-						else if (country == "CA")
+						catch (CException* e)
 						{
-							if (provinces.at(state))
-								bDownload = true;
-						}
-						else
-						{
-							bDownload = true;
+							//if an error occur: try again
+							msg = UtilWin::SYGetMessage(*e);
 						}
 
-					}//if country selection
 
+						pConnection->Close();
+						pSession->Close();
+
+
+
+					}//if msg
 				}
 
-				if (bDownload)
-					stationList.insert(stationList.end(), *it);
 
-				msg += callback.StepIt();
+				msg += locations.Save(GetStationListFilePath(""), ',', callback);
+
+				callback.AddMessage("Unknowns WeatherUnderground metadata updated: " + to_string(nbUpdated) + " stations");
+				callback.PopTask();
+			}
+			else
+			{
+				callback.AddMessage("Some stations metadata is missing. Activate \"Update missing metadata\" to update metadata");
 			}
 
+		}//update metadata
 
-			callback.PopTask();
+
+		stationList.reserve(stationListID.size());
+
+		for (auto it = stationListID.begin(); it != stationListID.end() && msg; it++)
+		{
+			size_t pos = locations.FindByID(*it);
+			if (pos != NOT_INIT)
+			{
+				stationList.insert(stationList.end(), locations[pos]);
+			}
+			else
+			{
+				callback.AddMessage("Warning: Stations with ID " + *it + " is not in coordinate station's list");
+			}
+
 		}
+		//}
+		//}
+		//else
+		//{
+		//	callback.PushTask("Clean list (" + ToString(stationList1.size()) + ")", stationList1.size());
+		//	stationList.reserve(stationList1.size());
+		//	for (auto it = stationList1.begin(); it != stationList1.end() && msg; it++)
+		//	{
+		//		bool bDownload = false;
+		//		//bool bGoldStart = WBSF::as<bool>(it->GetSSI("GoldStar"));
+
+		//		//if (!bUseGoldStarOnly || bGoldStart)
+		//		{
+		//			string country = it->GetSSI("Country");
+
+
+		//			if (countries.at(country))
+		//			{
+		//				string state = it->GetSSI("State");
+		//				if (country == "US")
+		//				{
+		//					if (states.at(state))
+		//						bDownload = true;
+		//				}
+		//				else if (country == "CA")
+		//				{
+		//					if (provinces.at(state))
+		//						bDownload = true;
+		//				}
+		//				else
+		//				{
+		//					bDownload = true;
+		//				}
+
+		//			}//if country selection
+
+		//		}
+
+		//		if (bDownload)
+		//			stationList.insert(stationList.end(), *it);
+
+		//		msg += callback.StepIt();
+		//	}
+
+
+		//	callback.PopTask();
+		//}
 
 
 
@@ -899,7 +978,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		msg = LoadStationList(m_stations, callback);
+		msg = LoadStationList("", m_stations, callback);
 
 		if (msg)
 		{
@@ -916,6 +995,14 @@ namespace WBSF
 	ERMsg CUIWunderground::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
+
+		size_t type = as<size_t>(DATA_TYPE);
+		if (TM.IsHourly() && type == DAILY_WEATHER)
+		{
+			msg.ajoute("Cannot create hourly database on daily data");
+			return msg;
+		}
+
 
 		size_t pos = m_stations.FindByID(ID);
 		if (pos == NOT_INIT)
@@ -934,8 +1021,8 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = size_t(lastYear - firstYear + 1);
 		station.CreateYears(firstYear, nbYears);
-		size_t type = as<size_t>(DATA_TYPE);
-		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
+
+
 
 		station.SetHourly(type == HOURLY_WEATHER);
 
@@ -943,13 +1030,14 @@ namespace WBSF
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
-			string filePath = GetOutputFilePath(tstr, station.GetSSI("Country"), station.GetSSI("State"), ID, year);
+			string filePath = GetOutputFilePath(get_type_name(type), station.GetSSI("Country"), station.GetSSI("State"), ID, year);
 			if (FileExists(filePath))
 			{
-				if (type == HOURLY_WEATHER)
-					msg = ReadHourlyData(filePath, station, callback);
-				else
-					msg = ReadDailyData(filePath, station, callback);
+				msg += station.LoadData(filePath, -999, false);
+				//if (type == HOURLY_WEATHER)
+					//msg = ReadHourlyData(filePath, station, callback);
+				//else
+					//msg = ReadDailyData(filePath, station, callback);
 
 				msg += callback.StepIt(0);
 			}
@@ -1163,7 +1251,7 @@ namespace WBSF
 						//	last_prcp_TRef = TRef.as(CTM::DAILY);
 						//	last_prcp = 0;
 						//}
-						
+
 
 						for (size_t cc = 0; cc < loop->size(); cc++)
 						{
@@ -1175,7 +1263,7 @@ namespace WBSF
 								{
 									double value = atof(str.c_str());
 
-									if (c == C_PRCP && value< last_prcp)
+									if (c == C_PRCP && value < last_prcp)
 									{
 										//sometime the reset is not done at midnight
 										//last_prcp_TRef = TRef.as(CTM::DAILY);
@@ -1209,179 +1297,472 @@ namespace WBSF
 	}
 
 
-	CTPeriod CUIWunderground::GetHourlyPeriod(const string& filePath, double& last_hms)
+	//CTPeriod CUIWunderground::GetHourlyPeriod(const string& filePath, double& last_hms)
+	//{
+	//	CTPeriod p;
+	//	last_hms = 0;
+
+	//	ifStream file;
+	//	if (file.open(filePath, ifStream::in | ifStream::binary))
+	//	{
+	//		string firstLine;
+
+	//		std::getline(file, firstLine);//read header
+	//		std::getline(file, firstLine);//first line
+
+	//		StringVector columns1(firstLine, ",");
+	//		if (!columns1.empty())
+	//		{
+	//			StringVector dateTime1(columns1[0], " -:");
+	//			if (dateTime1.size() == 6)
+	//			{
+	//				int year = atoi(dateTime1[0].c_str());
+	//				size_t m = atoi(dateTime1[1].c_str()) - 1;
+	//				size_t d = atoi(dateTime1[2].c_str()) - 1;
+	//				size_t h = atoi(dateTime1[3].c_str());
+	//				size_t mm = atoi(dateTime1[4].c_str());
+	//				size_t ss = atoi(dateTime1[5].c_str());
+
+	//				ASSERT(year >= 2000 && year <= 2100);
+	//				ASSERT(m >= 0 && m < 12);
+	//				ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+	//				ASSERT(h >= 0 && h < 24);
+	//				ASSERT(mm >= 0 && mm < 60);
+	//				ASSERT(ss >= 0 && ss < 60);
+
+	//				CTRef TRef1 = CTRef(year, m, d, h);
+	//				if (TRef1.IsValid())
+	//				{
+	//					file.seekg(-1, ios_base::end);                // go to one spot before the EOF
+
+	//					bool keepLooping = true;
+	//					bool bSkipFirst = true;
+	//					while (keepLooping)
+	//					{
+	//						char ch;
+	//						file.get(ch);                            // Get current byte's data
+
+	//						if ((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
+	//							file.seekg(0);                       // The first line is the last line
+	//							keepLooping = false;                // So stop there
+	//						}
+	//						else if (ch == '\n') {                   // If the data was a newline
+	//							if (bSkipFirst)
+	//							{
+	//								bSkipFirst = false;
+	//								file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+	//							}
+	//							else
+	//							{
+	//								keepLooping = false;                // Stop at the current position.
+	//							}
+	//						}
+	//						else {                                  // If the data was neither a newline nor at the 0 byte
+	//							file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+	//						}
+	//					}
+
+	//					string lastLine;
+	//					getline(file, lastLine);                      // Read the current line
+
+	//					StringVector columns2(lastLine, ",");
+	//					if (!columns2.empty())
+	//					{
+	//						StringVector dateTime2(columns2[0], " -:");
+	//						if (dateTime2.size() == 6)
+	//						{
+	//							int year = atoi(dateTime2[0].c_str());
+	//							size_t m = atoi(dateTime2[1].c_str()) - 1;
+	//							size_t d = atoi(dateTime2[2].c_str()) - 1;
+	//							size_t h = atoi(dateTime2[3].c_str());
+	//							size_t mm = atoi(dateTime2[4].c_str());
+	//							size_t ss = atoi(dateTime2[5].c_str());
+
+	//							ASSERT(year >= 2000 && year <= 2100);
+	//							ASSERT(m >= 0 && m < 12);
+	//							ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+	//							ASSERT(h >= 0 && h < 24);
+	//							ASSERT(mm >= 0 && mm < 60);
+	//							ASSERT(ss >= 0 && ss < 60);
+
+	//							CTRef TRef2 = CTRef(year, m, d, h);
+	//							if (TRef2.IsValid())
+	//							{
+	//								p = CTPeriod(TRef1, TRef2);
+	//								last_hms = h + mm / 60.0 + ss / 3600.0;
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+
+	//		file.close();
+	//	}
+
+	//	return p;
+	//}
+
+	//void CUIWunderground::clean_source(double last_hms, std::string& source)
+	//{
+	//	if (last_hms < 24)
+	//	{
+	//		//remove all line until hms
+	//		size_t pos1 = source.find('\n');
+	//		//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
+	//		while (pos1 != string::npos)
+	//		{
+	//			size_t pos2 = source.find('\n', pos1 + 1);
+	//			if (pos2 != string::npos)
+	//			{
+	//				string line = source.substr(pos1 + 1, pos2 - pos1 - 1);
+	//				StringVector columns(line, ",");
+	//				if (!columns.empty())
+	//				{
+	//					StringVector dateTime(columns[0], " -:");
+	//					if (dateTime.size() == 6)
+	//					{
+	//						int year = atoi(dateTime[0].c_str());
+	//						size_t m = atoi(dateTime[1].c_str()) - 1;
+	//						size_t d = atoi(dateTime[2].c_str()) - 1;
+	//						size_t h = atoi(dateTime[3].c_str());
+	//						size_t mm = atoi(dateTime[4].c_str());
+	//						size_t ss = atoi(dateTime[5].c_str());
+
+	//						ASSERT(year >= 2000 && year <= 2100);
+	//						ASSERT(m >= 0 && m < 12);
+	//						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+	//						ASSERT(h >= 0 && h < 24);
+	//						ASSERT(mm >= 0 && mm < 60);
+	//						ASSERT(ss >= 0 && ss < 60);
+
+	//						//CTRef TRef = CTRef(year, m, d);
+	//						//if ( TRef == lastDay)
+	//						//{
+	//						double hms = h + mm / 60.0 + ss / 3600.0;
+
+	//						if (hms > last_hms)
+	//						{
+	//							source = source.substr(pos1 + 1);
+	//							pos2 = string::npos;//stop here
+	//						}
+	//						//}
+	//					}
+	//				}
+	//			}
+	//			else
+	//			{
+	//				//no update
+	//				source.clear();
+	//			}
+
+	//			pos1 = pos2;
+	//		}//while pos1
+	//	}
+	//	else
+	//	{
+	//		size_t pos1 = source.find('\n');
+	//		//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
+	//		if (pos1 != string::npos)//only header, clear source
+	//			source = source.substr(pos1 + 1);
+	//		//else
+	//			//source.clear();
+
+	//	}
+	//}
+
+	TVarH GetVariable2(const string& header)
 	{
-		CTPeriod p;
-		last_hms = 0;
+		static const char* VAR_NAME[] = { "temp", "precip", "dewpt", "humidity", "windspeed", "winddir", "solarRadiation", "pressure" };
+		static const char* STAT_NAME[] = { "Low", "Avg", "High", "Total", "Min", "Max" };
+		static const TVarH VAR_TYPE[] = { H_TAIR, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD, H_PRES };
 
-		ifStream file;
-		if (file.open(filePath, ifStream::in | ifStream::binary))
+		TVarH var = H_SKIP;
+
+
+		auto it1 = std::find_if(begin(VAR_NAME), end(VAR_NAME), [header](const char* name) {return header.find(name) != string::npos; });
+		auto it2 = std::find_if(begin(STAT_NAME), end(STAT_NAME), [header](const char* stat) {return header.find(stat) != string::npos; });
+
+		if (it1 != end(VAR_NAME) && it2 != end(STAT_NAME))
 		{
-			string firstLine;
+			size_t d1 = std::distance(begin(VAR_NAME), it1);
+			size_t d2 = std::distance(begin(STAT_NAME), it2);
+			if (d1 == 0 && d2 == 0)
+				var = H_TMIN;
+			if (d1 == 0 && d2 == 2)
+				var = H_TMAX;
+			if (d1 == 1 && d2 == 3)
+				var = VAR_TYPE[d1];
+			if ((d1 == 0 || d1 == 2 || d1 == 3 || d1 == 4 || d1 == 5) && d2 == 1)
+				var = VAR_TYPE[d1];
+			if (d1 == 6 && d2 == 2)
+				var = VAR_TYPE[d1];
 
-			std::getline(file, firstLine);//read header
-			std::getline(file, firstLine);//first line
+		}
 
-			StringVector columns1(firstLine, ",");
-			if (!columns1.empty())
+		return var;
+	}
+
+	map<string, TVarH> GetVariables2(const Json::object& elem)
+	{
+		map<string, TVarH> variables;
+
+		for (auto it = elem.begin(); it != elem.end(); it++)
+		{
+			if (!it->second.is_object())
 			{
-				StringVector dateTime1(columns1[0], " -:");
-				if (dateTime1.size() == 6)
+				TVarH var = GetVariable2(it->first);
+				if (var != H_SKIP)
+					variables[it->first] = var;
+			}
+			else
+			{
+				for (auto iit = it->second.object_items().begin(); iit != it->second.object_items().end(); iit++)
 				{
-					int year = atoi(dateTime1[0].c_str());
-					size_t m = atoi(dateTime1[1].c_str()) - 1;
-					size_t d = atoi(dateTime1[2].c_str()) - 1;
-					size_t h = atoi(dateTime1[3].c_str());
-					size_t mm = atoi(dateTime1[4].c_str());
-					size_t ss = atoi(dateTime1[5].c_str());
-
-					ASSERT(year >= 2000 && year <= 2100);
-					ASSERT(m >= 0 && m < 12);
-					ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-					ASSERT(h >= 0 && h < 24);
-					ASSERT(mm >= 0 && mm < 60);
-					ASSERT(ss >= 0 && ss < 60);
-
-					CTRef TRef1 = CTRef(year, m, d, h);
-					if (TRef1.IsValid())
-					{
-						file.seekg(-1, ios_base::end);                // go to one spot before the EOF
-
-						bool keepLooping = true;
-						bool bSkipFirst = true;
-						while (keepLooping)
-						{
-							char ch;
-							file.get(ch);                            // Get current byte's data
-
-							if ((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
-								file.seekg(0);                       // The first line is the last line
-								keepLooping = false;                // So stop there
-							}
-							else if (ch == '\n') {                   // If the data was a newline
-								if (bSkipFirst)
-								{
-									bSkipFirst = false;
-									file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
-								}
-								else
-								{
-									keepLooping = false;                // Stop at the current position.
-								}
-							}
-							else {                                  // If the data was neither a newline nor at the 0 byte
-								file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
-							}
-						}
-
-						string lastLine;
-						getline(file, lastLine);                      // Read the current line
-
-						StringVector columns2(lastLine, ",");
-						if (!columns2.empty())
-						{
-							StringVector dateTime2(columns2[0], " -:");
-							if (dateTime2.size() == 6)
-							{
-								int year = atoi(dateTime2[0].c_str());
-								size_t m = atoi(dateTime2[1].c_str()) - 1;
-								size_t d = atoi(dateTime2[2].c_str()) - 1;
-								size_t h = atoi(dateTime2[3].c_str());
-								size_t mm = atoi(dateTime2[4].c_str());
-								size_t ss = atoi(dateTime2[5].c_str());
-
-								ASSERT(year >= 2000 && year <= 2100);
-								ASSERT(m >= 0 && m < 12);
-								ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-								ASSERT(h >= 0 && h < 24);
-								ASSERT(mm >= 0 && mm < 60);
-								ASSERT(ss >= 0 && ss < 60);
-
-								CTRef TRef2 = CTRef(year, m, d, h);
-								if (TRef2.IsValid())
-								{
-									p = CTPeriod(TRef1, TRef2);
-									last_hms = h + mm / 60.0 + ss / 3600.0;
-								}
-							}
-						}
-					}
+					TVarH var = GetVariable2(iit->first);
+					if (var != H_SKIP)
+						variables[iit->first] = var;
 				}
 			}
 
-			file.close();
 		}
 
-		return p;
+		return variables;
 	}
 
-	void CUIWunderground::clean_source(double last_hms, std::string& source)
+	ERMsg CUIWunderground::ParseJson(size_t type, const string& str, CWeatherYears& data, CCallback& callback)const
 	{
-		if (last_hms < 24)
+		ERMsg msg;
+
+
+		//try to load old data, ignor error if the fiole does not exist
+		//if (type == HOURLY_WEATHER)
+
+
+
+		//stringstream stream(str);
+
+
+
+
+		string error;
+		Json json = Json::parse(str, error);
+		ASSERT(json.is_object());
+
+		if (error.empty() /*&& observations["status"] == "OK"*/)
 		{
-			//remove all line until hms
-			size_t pos1 = source.find('\n');
-			//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
-			while (pos1 != string::npos)
+			map<string, TVarH > variables;
+
+			ASSERT(json["observations"].is_array());
+			const Json::array& observations = json["observations"].array_items();
+			for (int i = 0; i < observations.size(); i++)
 			{
-				size_t pos2 = source.find('\n', pos1 + 1);
-				if (pos2 != string::npos)
+				if (variables.empty())
 				{
-					string line = source.substr(pos1 + 1, pos2 - pos1 - 1);
-					StringVector columns(line, ",");
-					if (!columns.empty())
-					{
-						StringVector dateTime(columns[0], " -:");
-						if (dateTime.size() == 6)
-						{
-							int year = atoi(dateTime[0].c_str());
-							size_t m = atoi(dateTime[1].c_str()) - 1;
-							size_t d = atoi(dateTime[2].c_str()) - 1;
-							size_t h = atoi(dateTime[3].c_str());
-							size_t mm = atoi(dateTime[4].c_str());
-							size_t ss = atoi(dateTime[5].c_str());
-
-							ASSERT(year >= 2000 && year <= 2100);
-							ASSERT(m >= 0 && m < 12);
-							ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-							ASSERT(h >= 0 && h < 24);
-							ASSERT(mm >= 0 && mm < 60);
-							ASSERT(ss >= 0 && ss < 60);
-
-							//CTRef TRef = CTRef(year, m, d);
-							//if ( TRef == lastDay)
-							//{
-							double hms = h + mm / 60.0 + ss / 3600.0;
-
-							if (hms > last_hms)
-							{
-								source = source.substr(pos1 + 1);
-								pos2 = string::npos;//stop here
-							}
-							//}
-						}
-					}
-				}
-				else
-				{
-					//no update
-					source.clear();
+					variables = GetVariables2(observations[0].object_items());
+					if (type == DAILY_WEATHER)
+						variables.erase("solarRadiationHigh");// it's the daily higest and not the daily mean
 				}
 
-				pos1 = pos2;
-			}//while pos1
-		}
+
+				StringVector date_time(observations[i]["obsTimeLocal"].string_value(), " -:");
+				ASSERT(date_time.size() == 6);
+
+				int year = ToInt(date_time[0]);
+				size_t m = ToSizeT(date_time[1]) - 1;
+				size_t d = ToSizeT(date_time[2]) - 1;
+				size_t h = ToSizeT(date_time[3]);
+
+				ASSERT(m >= 0 && m < 12);
+				ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+
+				CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+				ASSERT(TRef.IsValid());
+
+				const Json::object& elem = observations[i].object_items();
+				//for (auto it = elem.begin(); it != elem.end(); it++)
+				for (auto it = variables.begin(); it != variables.end(); it++)
+				{
+					string name = it->first;
+					if (observations[i][name].is_number())
+						data[TRef].SetStat(variables[name], observations[i][name].number_value());
+
+					if (observations[i]["metric"][name].is_number())
+						data[TRef].SetStat(variables[name], observations[i]["metric"][name].number_value());
+				}
+
+				if (observations[i]["metric"]["pressureMin"].is_number() && observations[i]["metric"]["pressureMax"].is_number())
+				{
+					double pres = (observations[i]["metric"]["pressureMin"].number_value() + observations[i]["metric"]["pressureMax"].number_value()) / 2.0;
+					data[TRef].SetStat(H_PRES, pres);
+				}
+
+				//if (variables.find(name) != variables.end() && variables[name] != H_SKIP)
+				//{
+				//	double value = it->second.number_value();
+				//	data[TRef].SetStat(variables[name], value);
+				//}
+				//if (name == "metric")
+				//{
+				//	ASSERT(observations[i]["metric"].is_object());
+				//	const Json::object& metric = it->second.object_items();
+				//	
+
+				//	for (auto iit = metric.begin(); iit != metric.end(); iit++)
+				//	{
+				//		string name = iit->first;
+				//		if (variables.find(name) != variables.end() && variables[name] != H_SKIP)
+				//		{
+				//			double value = iit->second.number_value();
+				//			data[TRef].SetStat(variables[name], value);
+				//		}
+				//	}//if good vars
+				//}//if metric
+			//}//for all element
+			}//for all observation
+		}//no error
 		else
 		{
-			size_t pos1 = source.find('\n');
-			//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
-			if (pos1 != string::npos)//only header, clear source
-				source = source.substr(pos1 + 1);
-			//else
-				//source.clear();
-
+			msg.ajoute(error);
 		}
 
-
+		return msg;
 	}
+
+
+	ERMsg CUIWunderground::ParseJsonMetadata(const string& str, CLocation& location, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		string error;
+		Json json = Json::parse(str, error);
+		ASSERT(json.is_object());
+
+		if (error.empty())
+		{
+			const Json::object& elem = json.object_items();
+			location.m_ID = json["ID"].string_value();
+			location.m_name = json["name"].string_value();
+			location.m_lat = json["latitude"].number_value();
+			location.m_lon = json["longitude"].number_value();
+			location.m_elev = json["elevation"].number_value();
+			location.SetSSI("city", json["city"].string_value());
+			location.SetSSI("State", json["state"].string_value());
+			location.SetSSI("Country", json["country"].string_value());
+			location.SetSSI("StationType", json["stationType"].string_value());
+			location.SetSSI("tzName", json["tzName"].string_value());
+			location.SetSSI("GoldStar", to_string(json["goldStar"].bool_value()));
+		}//no error
+		else
+		{
+			msg.ajoute(error);
+		}
+
+		return msg;
+	}
+
+	ERMsg CUIWunderground::ExtractNominatimName(CLocation& location, CCallback& callback)
+	{
+		ERMsg msg;
+
+		size_t miss = 0;
+		bool bMissName = location.m_name.empty();
+		bool bMissCounty = location.GetSSI("State").empty();
+		bool bMissState = location.GetSSI("State").empty();
+		bool bMissCountry = location.GetSSI("Country").empty();
+
+
+		if (bMissName || bMissCounty || bMissState || bMissCountry)
+		{
+			CHttpConnectionPtr pConnection;
+			CInternetSessionPtr pSession;
+			msg += GetHttpConnection("nominatim.openstreetmap.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+
+
+			if (msg)
+			{
+				string URL = "/reverse?zoom=18&format=geojson&lat=" + ToString(location.m_lat) + "&lon=" + ToString(location.m_lon);
+
+				string metadata;
+				msg = UtilWWW::GetPageText(pConnection, URL, metadata, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+				if (msg)
+				{
+					//extract elevation from google
+					string error;
+					Json geojson = Json::parse(metadata, error);
+
+					if (error.empty())
+					{
+						ASSERT(geojson.is_object());
+						ASSERT(geojson["features"].is_array());
+						Json::array features = geojson["features"].array_items();
+						if (features.size() == 1)
+						{
+							ASSERT(features[0].is_object());
+
+							Json::object feature0 = features[0].object_items();
+							Json::object properties = feature0["properties"].object_items();
+							Json::object address = properties["address"].object_items();
+
+							string village = ANSI_2_ASCII(address["village"].string_value());
+							string town = ANSI_2_ASCII(address["town"].string_value());
+							string suburb = ANSI_2_ASCII(address["suburb"].string_value());
+							string city = ANSI_2_ASCII(address["city"].string_value());
+							string county = ANSI_2_ASCII(address["county"].string_value());
+							string region = ANSI_2_ASCII(address["region"].string_value());
+							string state = ANSI_2_ASCII(address["state"].string_value());
+							string country = ANSI_2_ASCII(address["country"].string_value());
+
+
+							string name;
+							if (!village.empty())
+								name = village;
+							else if (!town.empty())
+								name = town;
+							else if (!suburb.empty())
+								name = suburb;
+							else if (!city.empty())
+								name = city;
+							else if (!county.empty())
+								name = county;
+							else if (!region.empty())
+								name = region;
+
+
+							if (bMissName && !name.empty())
+								location.m_name = name;
+
+							if (bMissCounty && !county.empty())
+								location.SetSSI("County", county);
+
+							if (bMissState && !state.empty())
+								location.SetSSI("State", state);
+
+							if (bMissCountry && !country.empty())
+								location.SetSSI("Country", country);
+						}
+						else
+						{
+							miss++;
+						}
+					}
+					else
+					{
+						if (error.empty())
+							error = geojson["error"]["message"].string_value();
+
+						msg.ajoute(error);
+					}
+
+					pConnection->Close();
+					pSession->Close();
+
+				}//if msg
+			}//if msg
+		}//if missing info
+
+		return msg;
+	}
+
+
 }

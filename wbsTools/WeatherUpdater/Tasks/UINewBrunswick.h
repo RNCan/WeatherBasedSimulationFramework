@@ -12,8 +12,8 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TNetwork { FIRE_HISTORICAL, PRIVATE_FIRE, PUBLIC_FIRE, AGRI, NB_NETWORKS };
-		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, NB_ATTRIBUTES };
+		enum TNetwork { FIRE_HISTORICAL, FIRE_PRIVATE, FIRE_PUBLIC, AGRI_DAILY, AGRI_HOURLY, NB_NETWORKS };
+		enum TAttributes { WORKING_DIR, NETWORK, FIRST_YEAR, LAST_YEAR, USER_NAME, PASSWORD, SHOW_CURL, NB_ATTRIBUTES };
 		static size_t GetNetworkFromName(std::string name);
 
 
@@ -47,15 +47,20 @@ namespace WBSF
 		
 		ERMsg ExecutePrivateFire(size_t n, CCallback& callback);
 		ERMsg ExecutePublicFire(CCallback& callback);
-		ERMsg ExecuteAgriculture(CCallback& callback);
+		ERMsg ExecuteAgricultureDaily(CCallback& callback);
+		ERMsg ExecuteAgricultureHourly(CCallback& callback);
 		
 
-		ERMsg SaveStation(const std::string& outputFilePath, std::string str);
+		//ERMsg SaveStation(const std::string& outputFilePath, std::string str);
+		ERMsg SplitAgriStation(const std::string& outputFilePath);
 		//ERMsg LoadStationList(CCallback& callback);
 		ERMsg MergeData(const std::string& ID, const std::string& filePath, CCallback& callback)const;
-		ERMsg ReadDataHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
-		ERMsg DownloadAgriStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& ID, int year, std::string& text);
+		ERMsg DownloadAgriStationDaily(const std::string& filePath, int year);
 
+		ERMsg ReadFireHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
+		ERMsg DownloadAgriStationHourly(const std::string& ID, int year, std::string& str);
+		ERMsg SaveAgriStationHourly(const std::string& filePath, std::string str);
+		
 
 		std::bitset<NB_NETWORKS> GetNetWork()const;
 

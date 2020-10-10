@@ -1,6 +1,6 @@
 #include "StdAfx.h"
-#include "UIEnvCanHourly.h"
 
+#include "UIEnvCanHourly.h"
 #include <iostream>
 #include <algorithm>
 #include <iterator> 
@@ -10,10 +10,14 @@
 #include "Basic/UtilMath.h"
 
 #include "Basic/Psychrometrics_SI.h"
+#include "Basic/CallcURL.h"
 #include "UI/Common/SYShowMessage.h"
 #include "UI/Common/UtilWin.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
+
+
+
 
 
 #include "../Resource.h"
@@ -30,7 +34,7 @@ namespace WBSF
 
 	//nouveau site:
 	//http://beta.weatheroffice.gc.ca/observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
-
+	//https://climate.weather.gc.ca/historical_data/search_historic_data_stations_e.html?searchType=stnProv&timeframe=1&lstProvince=QC&optLimit=yearRange&StartYear=2020&EndYear=2020&Year=2020&Month=9&Day=29&selRowPerPage=100&startRow=1&
 
 	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weatheroffice.gc.ca" };
 	//*********************************************************************
@@ -131,12 +135,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
 		//Interface attribute index to attribute index
 		//sample for alberta:
 		//http://climate.weatheroffice.ec.gc.ca/advanceSearch/searchHistoricDataStations_f.html?timeframe=1&Prov=XX&StationID=99999&Year=2007&Month=10&Day=2&selRowPerPage=ALL&optlimit=yearRange&searchType=stnProv&startYear=2007&endYear=2007&lstProvince=ALTA&startRow=1
 
 		static const char pageFormat[] =
-			"historical_data/search_historic_data_stations_e.html?"
+			"https://climate.weather.gc.ca/historical_data/search_historic_data_stations_e.html?"
 			"searchType=stnProv&"
 			"timeframe=1&"
 			"lstProvince=%s&"
@@ -147,7 +152,7 @@ namespace WBSF
 			"Month=%d&"
 			"Day=%d&"
 			"selRowPerPage=%d&"
-			"startRow=%d&";
+			"startRow=%d";
 		//"cmdProvSubmit=Search";
 
 		static const short SEL_ROW_PER_PAGE = 100;
@@ -158,81 +163,59 @@ namespace WBSF
 		int lastYear = as<int>(LAST_YEAR);
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
 
-
+		//loop on province
 		size_t nbRun = 0;
 		size_t curI = 0;
 		while (curI < CProvinceSelection::NB_PROVINCES && msg)
 		{
 			nbRun++;
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-			if (msg)
+			if (selection[curI])
 			{
 
-				try
+				//first call
+				CTime today = CTime::GetCurrentTime();
+				string URL = FormatA(pageFormat, selection.GetName(curI, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
+
+
+				size_t nbStation = NOT_INIT;
+				msg = GetNbStation(URL, nbStation);
+
+				if (msg)
 				{
-					//loop on province
-					for (size_t i = curI; i < CProvinceSelection::NB_PROVINCES&&msg; i++)
+					ASSERT(nbStation != NOT_INIT && nbStation > 0);
+					size_t nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
+
+					callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(curI, CProvinceSelection::NAME), ToString(nbPage)));
+
+					for (size_t j = 0; j < nbPage&&msg; j++)
 					{
-						if (selection[i])
-						{
+						size_t startRow = j * SEL_ROW_PER_PAGE + 1;
+						URL = FormatA(pageFormat, selection.GetName(curI, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
+						msg = GetStationListPage(URL, stationList);
 
-							//first call
-							CTime today = CTime::GetCurrentTime();
-							string URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, 1);
+						msg += callback.StepIt(1.0 / nbPage);
+					}
 
-							int nbStation = GetNbStation(pConnection, URL);
-
-							if (nbStation != -1)
-							{
-								short nbPage = (nbStation - 1) / SEL_ROW_PER_PAGE + 1;
-
-								callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(i, CProvinceSelection::NAME), ToString(nbPage)));
-
-								for (int j = 0; j < nbPage&&msg; j++)
-								{
-									short startRow = j * SEL_ROW_PER_PAGE + 1;
-									URL = FormatA(pageFormat, selection.GetName(i, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
-									msg = GetStationListPage(pConnection, URL, stationList);
-
-									msg += callback.StepIt(1.0 / nbPage);
-								}
-							}
-							else
-							{
-								throw(new UtilWin::CStringException(UtilWin::GetCString(IDS_SERVER_DOWN)));
-								//msg.ajoute(GetString(IDS_SERVER_DOWN));
-							}
-						}
-
-
-
+					if (msg)
+					{
 						curI++;
 						nbRun = 0;
-
 					}
+					
 				}
-				catch (CException* e)
+				
+				if (!msg && !callback.GetUserCancel() && nbRun < 5)
 				{
-					if (nbRun < 5)
-					{
-						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg = WaitServer(10, callback);
-					}
-					else
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
-
+					callback.AddMessage(msg);
+					msg = WaitServer(10, callback);//remove error
 				}
-
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
 			}
-		}
+			else
+			{
+				curI++;
+			}
+		}//for all provinces
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
@@ -241,12 +224,18 @@ namespace WBSF
 	}
 
 
-	int CUIEnvCanHourly::GetNbStation(CHttpConnectionPtr& pConnection, const string& URL)const
+	ERMsg CUIEnvCanHourly::GetNbStation(const string& URL, size_t& nbStation)const
 	{
-		int nbStation = -1;
-		string source;
+		ERMsg msg;
 
-		if (GetPageText(pConnection, URL, source))
+		string argument = "-s \"" + URL + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
+		string source;
+		msg = cURL.get_text(argument, source);
+
+		if (msg)
 		{
 			string::size_type posBegin = source.find("stations found");
 
@@ -256,22 +245,42 @@ namespace WBSF
 				string tmp = FindString(source, ">", "stations found", posBegin);
 				nbStation = ToInt(tmp);
 			}
+			else
+			{
+				msg.ajoute("Unable to find number of pages for:");
+				msg.ajoute(URL);
+			}
+
 		}
 
-		return nbStation;
+		return msg;
 	}
 
-	ERMsg CUIEnvCanHourly::GetStationListPage(CHttpConnectionPtr& pConnection, const string& page, CLocationVector& stationList)const
+	ERMsg CUIEnvCanHourly::GetStationListPage(const string& URL, CLocationVector& stationList)const
 	{
 		ERMsg msg;
+
+
+		string argument = "-s \"" + URL + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
 		string source;
-		msg = GetPageText(pConnection, page, source);
+		msg = cURL.get_text(argument, source);
+
+		//		msg = GetPageText(pConnection, page, source);
 		if (msg)
 		{
 			if (Find(source, "stations found"))
 			{
 				msg = ParseStationListPage(source, stationList);
 			}
+			else
+			{
+				msg.ajoute("Unable get station list for:");
+				msg.ajoute(URL);
+			}
+
 		}
 
 		return msg;
@@ -350,37 +359,16 @@ namespace WBSF
 		//callback.SetNbStep(stationList.size());
 
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
+		//CInternetSessionPtr pSession;
+		//CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (!msg)
-			return msg;
+		//msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//if (!msg)
+			//return msg;
 
 
 		for (CLocationVector::iterator it = stationList.begin(); it != stationList.end(); it++)
 		{
-			//this station doesn't exist, we add it
-			//CTPeriod period = String2Period(it->GetSSI("Period"));
-			//
-			//string ID = it->m_ID;
-			////string internalID = it->GetSSI("InternalID");
-			////__int64 ID = ToInt64(internalID);
-			//CLocationMap::iterator it2 = stationMap.find(ID);
-			//if (it2 == m_stations.end() || it2->second.m_lat == -999)
-			//{
-			//	stationMap[ID] = *it;
-			//	__int64 internalID = WBSF::as<__int64>(it->GetSSI("InternalID"));
-			//	msg += UpdateCoordinate(pConnection, internalID, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), stationMap[ID]);
-			//}
-			//else
-			//{
-			//	stationMap[ID].SetSSI("Period", it->GetSSI("Period"));
-			//}
-
-			////now: update coordinate for stationList station
-			//*it = stationMap[ID];
-
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 			string internalID = it->GetSSI("InternalID");
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
@@ -396,7 +384,7 @@ namespace WBSF
 				ASSERT(it2 != stations.end());
 				__int64 internalID64 = ToInt64(internalID);
 
-				ERMsg msgTmp = UpdateCoordinate(pConnection, internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), *it2);
+				ERMsg msgTmp = UpdateCoordinate(internalID64, period.End().GetYear(), period.End().GetMonth(), period.End().GetDay(), *it2);
 				if (!msgTmp)
 					callback.AddMessage(msgTmp);
 			}
@@ -411,8 +399,8 @@ namespace WBSF
 			msg += callback.StepIt();
 		}
 
-		pConnection->Close();
-		pSession->Close();
+		//pConnection->Close();
+		//pSession->Close();
 		callback.PopTask();
 
 		return msg;
@@ -421,11 +409,11 @@ namespace WBSF
 
 	//because station coordinate in the csv file is lesser accurate than in the web page
 	//we have to update coordinate from web page
-	ERMsg CUIEnvCanHourly::UpdateCoordinate(CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, size_t d, CLocation& station)const
+	ERMsg CUIEnvCanHourly::UpdateCoordinate(__int64 ID, int year, size_t m, size_t d, CLocation& station)const
 	{
 		static const char webPageDataFormat[] =
 		{
-			"climate_data/hourly_data_e.html?"
+			"https://climate.weather.gc.ca/climate_data/hourly_data_e.html?"
 			"timeframe=1&"
 			"StationID=%ld&"
 			"Year=%d&"
@@ -437,143 +425,127 @@ namespace WBSF
 
 		string URL = FormatA(webPageDataFormat, ID, year, m + 1, d + 1);
 
-		try
+		//	try
+			//{
+
+		string argument = "-s \"" + URL + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
+		string source;
+		msg = cURL.get_text(argument, source);
+
+		//msg = GetPageText(pConnection, URL, source);
+		if (msg)
 		{
-			string source;
-			msg = GetPageText(pConnection, URL, source);
-			if (msg)
+			string::size_type posBegin = source.find("latitude");
+			string::size_type posEnd = 0;
+
+			if (posBegin != string::npos)
 			{
-				string::size_type posBegin = source.find("latitude");
-				string::size_type posEnd = 0;
+				//find latitude						   
+				string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
+				latitude = CleanString(latitude);
 
-				if (posBegin != string::npos)
+				//find longitude
+				string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
+				longitude = CleanString(longitude);
+				longitude.insert(longitude.begin(), '-');
+
+				//find elevation
+				string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
+				elevation = CleanString(elevation);
+
+				string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
+				ClimateID = Trim(ClimateID);
+
+				string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
+				WMOID = Trim(WMOID);
+
+				string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
+				TCID = Trim(TCID);
+
+				if (!latitude.empty() &&
+					!longitude.empty() &&
+					!elevation.empty())
 				{
-					//find latitude						   
-					string latitude = FindString(source, "labelledby=\"latitude\">", "</div>", posBegin, posEnd);
-					latitude = CleanString(latitude);
+					station.m_lat = GetCoordinate(latitude);
+					station.m_lon = GetCoordinate(longitude);
+					station.m_elev = ToDouble(elevation);
 
-					//find longitude
-					string longitude = FindString(source, "labelledby=\"longitude\">", "</div>", posBegin, posEnd);
-					longitude = CleanString(longitude);
-					longitude.insert(longitude.begin(), '-');
+					station.m_ID = ClimateID;
+					if (!WMOID.empty())
+						station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
+					if (!TCID.empty())
+						station.SetSSI("TransportCanadaID", TCID);
 
-					//find elevation
-					string elevation = FindString(source, "labelledby=\"elevation\">", "</div>", posBegin, posEnd);
-					elevation = CleanString(elevation);
-
-					string ClimateID = FindString(source, "labelledby=\"climateid\">", "</div>", posBegin, posEnd);
-					ClimateID = Trim(ClimateID);
-
-					string WMOID = FindString(source, "labelledby=\"wmoid\">", "</div>", posBegin, posEnd);
-					WMOID = Trim(WMOID);
-
-					string TCID = FindString(source, "labelledby=\"tcid\">", "</div>", posBegin, posEnd);
-					TCID = Trim(TCID);
-
-					if (!latitude.empty() &&
-						!longitude.empty() &&
-						!elevation.empty())
-					{
-						station.m_lat = GetCoordinate(latitude);
-						station.m_lon = GetCoordinate(longitude);
-						station.m_elev = ToDouble(elevation);
-
-						station.m_ID = ClimateID;
-						if (!WMOID.empty())
-							station.SetSSI("WorldMeteorologicalOrganizationID", WMOID);
-						if (!TCID.empty())
-							station.SetSSI("TransportCanadaID", TCID);
-
-						ASSERT(station.IsValid());
-					}
-					else
-					{
-						msg.ajoute("EnvCan Hourly bad coordinate: " + URL);
-					}
+					ASSERT(station.IsValid());
+				}
+				else
+				{
+					msg.ajoute("EnvCan Hourly bad coordinate: " + URL);
 				}
 			}
 		}
-		catch (CException* e)
-		{
+		//}
+		//catch (CException* e)
+		//{
 			//if an error occur: try again
-			msg = UtilWin::SYGetMessage(*e);
-		}
+		//	msg = UtilWin::SYGetMessage(*e);
+		//}
 
 		return msg;
 	}
 
 	//******************************************************
-	ERMsg CUIEnvCanHourly::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const string& filePath, CCallback& callback)
-	{
-		ERMsg msg;
+	//ERMsg CUIEnvCanHourly::CopyStationDataPage(__int64 ID, int year, size_t m, const string& filePath, CCallback& callback)
+	//{
+	//	ERMsg msg;
 
-		static const char pageDataFormat[] =
-		{
-			"climate_data/bulk_data_e.html?"
-			"format=csv&"
-			"stationID=%ld&"
-			"Year=%d&"
-			"Month=%d&"
-			"Day=1&"
-			"timeframe=1&"
-			"submit=Download+Data"
-		};
+	//	static const char pageDataFormat[] =
+	//	{
+	//		"climate_data/bulk_data_e.html?"
+	//		"format=csv&"
+	//		"stationID=%ld&"
+	//		"Year=%d&"
+	//		"Month=%d&"
+	//		"Day=1&"
+	//		"timeframe=1&"
+	//		"submit=Download+Data"
+	//	};
 
-		string URL = FormatA(pageDataFormat, ID, year, m + 1);
-		UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+	//	string URL = FormatA(pageDataFormat, ID, year, m + 1);
+	//	UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 
-		//string source;
-		//msg = GetPageText(pConnection, URL, source);
-		//if (msg)
-		//{
-		//	string::size_type posBegin = source.find("\"Date/Time\"", 0);
+	//	//string source;
+	//	//msg = GetPageText(pConnection, URL, source);
+	//	//if (msg)
+	//	//{
+	//	//	string::size_type posBegin = source.find("\"Date/Time\"", 0);
 
-		//	if (posBegin != string::npos)
-		//	{
-		//		ofStream file;
-		//		msg = file.open(filePath);
+	//	//	if (posBegin != string::npos)
+	//	//	{
+	//	//		ofStream file;
+	//	//		msg = file.open(filePath);
 
-		//		if (msg)
-		//		{
-		//			file << source.substr(posBegin);
-		//			file.close();
-		//		}
-		//	}
-		//	else
-		//	{
-		//		callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
-		//		msg = WaitServer(10, callback);
-		//	}
-		//}
+	//	//		if (msg)
+	//	//		{
+	//	//			file << source.substr(posBegin);
+	//	//			file.close();
+	//	//		}
+	//	//	}
+	//	//	else
+	//	//	{
+	//	//		callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year) + ", month = " + ToString(m + 1));
+	//	//		msg = WaitServer(10, callback);
+	//	//	}
+	//	//}
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 
-	ERMsg CUIEnvCanHourly::CleanStationList(CLocationVector& stationList, CCallback& callback)const
-	{
-		ERMsg msg;
-
-		//CGeoRect boundingBox;
-
-		//if (!boundingBox.IsRectEmpty() && boundingBox != DEFAULT_BOUDINGBOX)
-		//{
-		//	callback.SetCurrentDescription(GetString(IDS_CLEAN_LIST));
-		//	callback.SetNbStep(stationList.size());
-
-		//	for (CLocationVector::iterator it = stationList.begin(); it != stationList.end() && msg; )
-		//	{
-		//		if( boundingBox.PtInRect(*it))
-		//			it++;
-		//		else
-		//			it = stationList.erase(it);
-
-		//		msg += callback.StepIt();
-		//	}
-		//}
-
-		return msg;
-	}
+	
 
 	//***********************************************************************************************************
 
@@ -662,9 +634,7 @@ namespace WBSF
 		//save event if they append an error...
 		msg += m_stations.Save(GetStationListFilePath());
 
-		if (msg)
-			msg = CleanStationList(stationList, callback);
-
+		
 		if (!msg)
 			return msg;
 
@@ -680,76 +650,45 @@ namespace WBSF
 		{
 			nbRun++;
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-
-			msg = GetHttpConnection(SERVER_NAME[N_HISTORICAL], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
+			msg = DownloadStation(stationList[curI], callback);
 			if (msg)
 			{
-				try
-				{
-					while (curI < stationList.size() && msg)
-					{
-						msg = DownloadStation(pConnection, stationList[curI], callback);
-						if (msg)
-						{
-							curI++;
-							nbRun = 0;
-							nbFiles++;
-							msg += callback.StepIt();
-						}
-					}
-				}
-				catch (CException* e)
-				{
-
-					if (nbRun < 5)
-					{
-						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						msg += WaitServer(10, callback);
-					}
-					else
-					{
-						msg = UtilWin::SYGetMessage(*e);
-					}
-				}
-
-				//if an error occur: try again
-				//if (!msg && !callback.GetUserCancel())
-				//{
-				//	if (nbRun < 5)
-				//	{
-				//		callback.AddMessage(msg);
-				//		msg = ERMsg();
-
-
-				//		callback.PushTask("Waiting 30 seconds for server...", 600);
-				//		for (size_t i = 0; i < 600 && msg; i++)
-				//		{
-				//			Sleep(50);//wait 50 milisec
-				//			msg += callback.StepIt();
-				//		}
-				//		callback.PopTask();
-				//	}
-				//}
-
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
+				curI++;
+				nbRun = 0;
+				nbFiles++;
+				msg += callback.StepIt();
+			}
+			else if (!callback.GetUserCancel() && nbRun < 5)
+			{
+				callback.AddMessage(msg);
+				msg = WaitServer(10, callback);//remove error
 			}
 		}
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles));
+		callback.AddMessage("Number of stations updated: " + ToString(nbFiles));
 		callback.PopTask();
 
 		return msg;
 	}
 
 
-	ERMsg CUIEnvCanHourly::DownloadStation(CHttpConnectionPtr& pConnection, const CLocation& station, CCallback& callback)
+	ERMsg CUIEnvCanHourly::DownloadStation(const CLocation& station, CCallback& callback)
 	{
 		ERMsg msg;
+
+		static const char pageDataFormat[] =
+		{
+			"https://climate.weather.gc.ca/climate_data/bulk_data_e.html?"
+			"format=csv&"
+			"stationID=%s&"
+			"Year=%d&"
+			"Month=%d&"
+			"Day=1&"
+			"timeframe=1&"
+			"submit=Download+Data"
+		};
+
+
 
 		string workingDir = GetDir(WORKING_DIR);
 
@@ -815,7 +754,36 @@ namespace WBSF
 							CreateMultipleDir(GetPath(filePath));
 
 
-							msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath, callback);
+							string URL = FormatA(pageDataFormat, internalID.c_str(), year, m + 1);
+
+							string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
+							string argument = "-s \"" + URL + "\" --output \"" + filePath + "\"";
+							string command = exe + " " + argument;
+
+							DWORD exit_code;
+							msg = WinExecWait(command, "", SW_HIDE, &exit_code);
+							if (exit_code == 0 && FileExists(filePath))
+							{
+								/*if (GoodGrib(outputFilePath))
+								{
+									nbDownloaded++;
+									CTRef TRef = GetRemoteTRef(fileList[i].m_filePath);
+									date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+								}
+								else
+								{
+									msg = WBSF::RemoveFile(outputFilePath);
+								}*/
+							}
+							else
+							{
+								//msg.ajoute("Error in WinCSV");
+								callback.AddMessage("Error in curl.exe");
+							}
+
+							//UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+							//msg += CopyStationDataPage(pConnection, ToLong(internalID), year, m, filePath, callback);
+							msg += callback.StepIt(0);
 							msg += callback.StepIt(nbFilesToDownload > 60 ? 1 : 0);
 						}
 					}
@@ -1128,14 +1096,14 @@ namespace WBSF
 			{
 				//new file don't have the DATA_QUALITY flag
 //				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
-				if (loop.Header().size() != NB_INPUT_HOURLY_COLUMN )
+				if (loop.Header().size() != NB_INPUT_HOURLY_COLUMN)
 				{
 					msg.ajoute("Numbers of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN));
 					msg.ajoute(filePath);
 					return msg;
 				}
 
-				if (loop->size() == NB_INPUT_HOURLY_COLUMN )
+				if (loop->size() == NB_INPUT_HOURLY_COLUMN)
 				{
 					int year = ToInt((*loop)[H_YEAR]);
 					int month = ToInt((*loop)[H_MONTH]) - 1;

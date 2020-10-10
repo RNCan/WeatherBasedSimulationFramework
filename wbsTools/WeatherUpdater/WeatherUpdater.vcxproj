@@ -142,10 +142,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_NETWORK_ENABLE_HTTPS;_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include;..\..\external\cpp-netlib</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -155,8 +155,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;mosa_d.lib;</AdditionalDependencies>
-      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;mosa_d.dll</DelayLoadDLLs>
+      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;mosa_d.lib</AdditionalDependencies>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;titanlib.dll;mosa_d.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
@@ -226,7 +226,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\external;..\..\wbs\src;..\..\external\netCDF\cxx4;..\..\external\netCDF\include;</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <OpenMPSupport>true</OpenMPSupport>
@@ -237,8 +237,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib</AdditionalDependencies>
-      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;mosa.dll</DelayLoadDLLs>
+      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib;cpp-netlib.lib</AdditionalDependencies>
+      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;titanlib.dll;mosa.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>

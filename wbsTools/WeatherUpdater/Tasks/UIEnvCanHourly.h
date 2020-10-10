@@ -60,18 +60,17 @@ namespace WBSF
 
 		//Update station list part
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
-		ERMsg CleanStationList(CLocationVector& stationList, CCallback& callback)const;
-		int GetNbStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page)const;
-		ERMsg UpdateCoordinate(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, size_t d, CLocation& station)const;
+		ERMsg GetNbStation(const std::string& URL, size_t& nbStation)const;
+		ERMsg UpdateCoordinate(__int64 ID, int year, size_t m, size_t d, CLocation& station)const;
 		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "HourlyStationsList.csv"; }
 
-		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
+		ERMsg GetStationListPage(const std::string& URL, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
 		ERMsg UpdateStationList(CLocationVector& stationList, CLocationVector & stations, CCallback& callback)const;
 		std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetNetWork()const;
 
 		//Update data part
-		ERMsg DownloadStation(UtilWWW::CHttpConnectionPtr& pConnection, const CLocation& info, CCallback& callback);
+		ERMsg DownloadStation(const CLocation& info, CCallback& callback);
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback = DEFAULT_CALLBACK)const;
 
 		ERMsg ExecuteSWOB(CCallback& callback);
@@ -89,7 +88,7 @@ namespace WBSF
 		ERMsg SaveSWOB(const std::string& filePath, const SWOBData& data);
 		
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int year, size_t m)const;
-		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 ID, int year, size_t m, const std::string& page, CCallback& callback);
+		//ERMsg CopyStationDataPage(__int64 ID, int year, size_t m, const std::string& page, CCallback& callback);
 
 		
 		CLocationVector m_stations;

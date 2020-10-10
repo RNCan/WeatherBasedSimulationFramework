@@ -59,14 +59,14 @@ namespace WBSF
 		//Update station list part
 
 
-		int GetNbStation(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page)const;
+		ERMsg GetNbStation(const std::string& URL, size_t& nbStation)const;
 
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback);
-		ERMsg GetStationListPage(UtilWWW::CHttpConnectionPtr& pConnection, const std::string& page, CLocationVector& stationList)const;
+		ERMsg GetStationListPage(const std::string& URL, CLocationVector& stationList)const;
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
 		//ERMsg UpdateAllStationList(CCallback& callback);
 		static ERMsg UpdateStationList(CLocationVector& stationList, CLocationVector& stations, CCallback& callback);
-		static ERMsg UpdateCoordinate(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, size_t m, CLocation& station);
+		static ERMsg UpdateCoordinate(__int64 id, int year, size_t m, CLocation& station);
 
 
 
@@ -74,11 +74,11 @@ namespace WBSF
 		ERMsg ParseStationDataPage(const std::string& sourceIn, CLocation& station, std::string& parsedText)const;
 
 		bool NeedDownload(const std::string& filePath, const CLocation& info, int y)const;
-		ERMsg CopyStationDataPage(UtilWWW::CHttpConnectionPtr& pConnection, __int64 id, int year, const std::string& page, CCallback& callback);
+		//ERMsg CopyStationDataPage(__int64 id, int year, const std::string& page, CCallback& callback);
 		//std::string GetForecastListFilePath()const{ return GetApplicationPath() + "ForecastLinkEnvCan.csv"; }
 		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "DailyStationsList.csv"; }
-		ERMsg DownloadStation(UtilWWW::CHttpConnectionPtr& pConnection, const CLocation& info, CCallback& callback);
-		ERMsg CleanStationList(CLocationVector& stationList, CCallback& callback)const;
+		ERMsg DownloadStation(const CLocation& info, CCallback& callback);
+		
 
 		CLocationVector m_stations;
 

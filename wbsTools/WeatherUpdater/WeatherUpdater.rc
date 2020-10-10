@@ -165,6 +165,7 @@ END
 
 IDR_TASK_TOOLBAR5 TOOLBAR 32, 32
 BEGIN
+	BUTTON      ID_TASK_QUALITY_CONTROL
     BUTTON      ID_TASK_CREATE_CANUS
     BUTTON      ID_TASK_CREATE_WEAGRID
     SEPARATOR
@@ -227,6 +228,7 @@ BEGIN
     BUTTON      ID_TASK_MERGE_DB
     BUTTON      ID_TASK_APPEND_DB
     BUTTON      ID_TASK_CROP_DB
+	BUTTON      ID_TASK_QUALITY_CONTROL
     BUTTON      ID_TASK_CREATE_CANUS
     BUTTON      ID_TASK_CREATE_WEAGRID
     BUTTON      ID_TASK_ZIP_UNZIP
@@ -710,18 +712,18 @@ BEGIN
     IDS_UPDATER_OTHER_COUNTRY_P 
                             "Répertoire de travail|Reseau|Compté (si Irlande)|Première année|Dernière année|Type de données"
     IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
-    IDS_UPDATER_ALBERTA_P   "Nom d'usager|Mot de passe|Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
+    IDS_UPDATER_ALBERTA_P   "Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
     IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
     IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
     IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_QUEBEC_P    "Répertoire de travail|Première année|Dernière année|Réseau|Type de données|Télécharger pendant x jours|Mettre à jour la liste des stations|Nom d'usager SOPFEU|Mot de passe SOPFEU|Nom d'usager MFFP|Mot de passe MFFP"
     IDS_UPDATER_NEWBRUNSWICK_P 
-                            "Nom d'usager (réseau feux privé)|Mot de passe (réseau feux privé)|Répertoire de travail|Première année|Dernière année|Réseau"
+                            "Répertoire de travail|Réseau|Première année|Dernière année|Nom d'usager (réseau feux privé)|Mot de passe (réseau feux privé)|Afficher curl"
     IDS_UPDATER_NOVASCOTIA_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_NEWFOUNDLAND_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
-    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Type de données|Pays|États (si États-Unis)|Province (si Canada)|Liste des stations|Utiliser seulement les stations GoldStar"
+    IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Type de données|IDs des stations|Mettre à jour les métadata manquantes"
 END
 
 STRINGTABLE
@@ -738,6 +740,7 @@ BEGIN
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Prévision max (heures)|Supprimer après (jours)"
 	IDS_UPDATER_GRIB_HISTORICAL_P    "Répertoire de travail|Produit|Sureface/3D|Variables|Debut|Fin"
 	IDS_UPDATER_GRIB_CURRENT_P       "Répertoire de travail|Produit|Sureface/3D|Variables|Copier des prévisions si possible"
+	IDS_TOOL_QUALITY_CONTROL_P		 "Répertoire de travail|Produit|Sureface/3D|Variables|Copier des prévisions si possible"
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
@@ -830,6 +833,7 @@ BEGIN
     ID_TASK_MERGE_DB        "Fusionner deux bases de données météorologiques\nFusionner"
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
+	ID_TASK_QUALITY_CONTROL "Appliquer un controle de qualité sur des bases de données météo\nControle de qualité"
     ID_TASK_CREATE_CANUS    "Créer une grille Canada/USA à partir de HRDPS and HRRR\nCréer grille CanUS"
     ID_TASK_CREATE_WEAGRID  "Créer une base de données météo (horaire/quotidien) à partir d'un fichier Gribs\nCréer BD météo"
 END
@@ -1205,18 +1209,18 @@ BEGIN
     IDS_UPDATER_OTHER_COUNTRY_P 
                             "Working directory|Network|County (if Ireland)|First year|Last year|Type de données"
     IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
-    IDS_UPDATER_ALBERTA_P   "User Name|Password|Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
+    IDS_UPDATER_ALBERTA_P   "Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
     IDS_UPDATER_SASKATCHEWAN_P "Working directory|Download Archive"
     IDS_UPDATER_MANITOBA_P  "Working directory|First year|Last year|Network|Data type"
     IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
     IDS_UPDATER_QUEBEC_P    "Working directory|First year|Last year|Network|Data type|Update until x days|Update stations list|SOPFEU User Name|SOPFEU Password|MFFP User Name|MFFP Password"
     IDS_UPDATER_NEWBRUNSWICK_P 
-                            "User Name (private fire network)|Password (private fire network)|Working directory|First year|Last year|Network"
+                            "Working directory|Network|First year|Last year|User Name (private fire network)|Password (private fire network)|Show curl"
     IDS_UPDATER_NOVASCOTIA_P 
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 
                             "User Name|Password|Working directory|First year|Last year"
-    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Data type|Country|States (if USA)|Province (if Canada)|Stations list|Use only GoldStar stations"
+    IDS_UPDATER_WU_P        "Working directory|First year|Last year|Data type|Stations IDs|Update missing metadata"
 END
 
 STRINGTABLE
@@ -1233,6 +1237,7 @@ BEGIN
                             "Working directory|Product|Surface/3D|Variables|Max forecast (hours)|Delete after (days)"
 	IDS_UPDATER_GRIB_HISTORICAL_P    "Working directory|Product|Surface/3D|Variables|Begin|End"
 	IDS_UPDATER_GRIB_CURRENT_P       "Working directory|Product|Surrface/3D|Variables|Copy from forecast if possible"
+	IDS_TOOL_QUALITY_CONTROL_P		 "Working directory|Product|Surrface/3D|Variables|Copy from forecast if possible"
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
@@ -1324,6 +1329,7 @@ BEGIN
     ID_TASK_MERGE_DB        "Merge two weather databases\nMerge"
     ID_TASK_APPEND_DB       "Append one databases into an other database (move files)\nAppend"
     ID_TASK_CROP_DB         "Crop weather database\nCrop"
+	ID_TASK_QUALITY_CONTROL "Appply quality control on weather database\nQuality Controle"
     ID_TASK_CREATE_CANUS    "Create Canada/USA grib from HRDPS and HRRR\nCreate CanUS Grid"
     ID_TASK_CREATE_WEAGRID  "Create weather database (hourly/daily) from Gribs file\nWeather DB"
 END

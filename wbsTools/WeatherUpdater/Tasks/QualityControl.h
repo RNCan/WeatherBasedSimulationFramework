@@ -1,58 +1,29 @@
 #pragma once
 
-//#include "ApproximateNearestNeighbor.h"
-#include "ToolsBase.h"
-//class CDailyDatabase;
-//class CDailyStation;
+#include "TaskBase.h"
+#include "basic/weatherStation.h"
+#include "basic/FileStamp.h"
+#include "Geomatic/SfcGribsDatabase.h"
 
-
-class CQualityControl : public CToolsBase
+namespace WBSF
 {
-public:
-
-	enum TATTRIBUTE {INPUT_DB, OUTPUT_PATH, NB_ATTRIBUTE};
-	enum TATTRIBUTE_I {I_INPUT_DB=CToolsBase::NB_ATTRIBUTE, I_OUTPUT_PATH, I_NB_ATTRIBUTE};
-
-
-	CQualityControl(void);
-	virtual ~CQualityControl(void);
-	CQualityControl(const CQualityControl& in);
-
-	void Reset();
-	CQualityControl& operator =(const CQualityControl& in);
-	bool operator ==(const CQualityControl& in)const;
-	bool operator !=(const CQualityControl& in)const;
-	bool Compare(const CParameterBase& in)const;
-	CParameterBase& Assign(const CParameterBase& in);
-
-	ERMsg ExecuteDaily(CFL::CCallback& callback=DEFAULT_CALLBACK);
-//	ERMsg ExecuteNormal(CFL::CCallback& callback=DEFAULT_CALLBACK);
-
-	virtual ERMsg Execute(CFL::CCallback& callback=DEFAULT_CALLBACK);
-	virtual void InitClass(const CStringArray& option = EMPTY_OPTION);
-	virtual CString GetClassID()const{return CLASS_NAME;}
-
 	
-	virtual int GetNbAttribute()const{return I_NB_ATTRIBUTE; }
-	virtual CString GetValue(short type)const;
-	virtual void SetValue(short type, const CString& value);
 
-	
-protected:
+	//**************************************************************
+	class CQualityControl
+	{
+	public:
 
-	ERMsg CreateDatabseDaily(CFL::CCallback& callback)const;
-	ERMsg CreateDatabaseNormal(CFL::CCallback& callback)const;
-	
-	CString m_inputFilePath;
-	CString m_outputPath;
+		enum TOutput{ OT_HOURLY, OT_DAILY, NB_OUTPUT_TYPES };
+		enum TATTRIBUTE { HRDPS_PATH, HRRR_PATH, OUTPUT_PATH, UPDATE_LAST_N_DAYS, NB_ATTRIBUTES };
 
 
-	
-	static const char* ATTRIBUTE_NAME[NB_ATTRIBUTE];
-	static const char* CLASS_NAME;	
+		CQualityControl(void);
+		virtual ~CQualityControl(void);
 
-	static void DrawScaleX(CDC* pDC, int x, int y);
-	static void DrawScaleY(CDC* pDC, int x, int y);
 
-};
+		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 
+	};
+
+}

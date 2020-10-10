@@ -52,15 +52,17 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
-	
+
 
 
 	//*********************************************************************
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UserName", "Password", "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan", "MonthLag" };
-	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
+	//"UserName", "Password", 
+	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan", "MonthLag" };
+	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL };
+	//T_STRING, T_PASSWORD, 
 	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ALBERTA_P;
 	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ALBERTA;
 
@@ -130,6 +132,720 @@ namespace WBSF
 	//Interface attribute index to attribute index
 	static const char PageDataFormat[] = "acis/rss/data?type=%s&stationId=%s&date=%4d%02d%02d";
 
+	static const bool OLD_CODE = true;
+
+
+	ERMsg CUIACIS::Execute(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string workingDir = GetDir(WORKING_DIR);
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(SERVER_NAME, 1);
+		callback.AddMessage("");
+
+
+		msg = VerifyUserPass(callback);//to protect user if they have not a good password to be locked
+		if (!msg)
+			return msg;
+
+
+		bool bForeUpdate = as<bool>(UPDATE_STATIONS_LIST);
+		if (FileExists(GetStationListFilePath()) && !bForeUpdate)
+		{
+			msg = m_stations.Load(GetStationListFilePath());
+		}
+		else
+		{
+			CreateMultipleDir(GetPath(GetStationListFilePath()));
+			if (OLD_CODE)
+			{
+				msg = DownloadStationListII(m_stations, callback);
+			}
+			else
+			{
+				msg = DownloadStationList(m_stations, callback);
+			}
+
+
+			if (msg)
+				msg = m_stations.Save(GetStationListFilePath());
+		}
+
+		if (!msg)
+			return msg;
+
+
+		if (OLD_CODE)
+		{
+			size_t type = as <size_t>(DATA_TYPE);
+			if (type == HOURLY_WEATHER)
+				msg = DownloadStationHourly(callback);
+			else
+				msg = DownloadStationDaily(callback);
+		}
+		else
+		{
+			msg = DownloadStation(callback);
+		}
+
+
+		return msg;
+	}
+
+
+	ERMsg CUIACIS::DownloadStationListII(CLocationVector& stationList, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession);
+		if (!msg)
+			return msg;
+
+
+
+		//Get cookie and page list
+		//agriculture.alberta.ca/acis/alberta-weather-data-viewer.jsp
+		string source;
+		msg = GetPageText(pConnection, "acis/alberta-weather-data-viewer.jsp", source);
+		if (msg)
+		{
+
+			vector<string> listID;
+			string::size_type posBegin = source.find("Select Station(s):");
+			//int posEnd = posBegin;
+			while (msg&&posBegin != string::npos)
+			{
+				string ID = FindString(source, "<option value=", ">", posBegin);
+				//string Name = FindString(source, "</option>", posBegin);
+
+				if (ID != "-1")
+				{
+					listID.push_back(ID);
+
+					posBegin = source.find("<option value=", posBegin);
+					msg += callback.StepIt(0);
+				}
+			}
+
+			callback.PushTask(GetString(IDS_LOAD_STATION_LIST), listID.size());
+
+			for (size_t i = 0; i < listID.size() && msg; i++)
+			{
+				string metadata;
+				msg = GetPageText(pConnection, ("acis/station/metadata?resource=complete&station=" + listID[i]).c_str(), metadata);
+				string::size_type metaPosBegin = metadata.find("<name>");
+				if (msg && metaPosBegin != string::npos)
+				{
+					//CLocation stationInfo;
+					CLocation stationInfo;
+					//last word is the network
+					//StringVector tmp(TrimConst(FindString(metadata, "<name>", "</name>", metaPosBegin)), " ");
+					/*ASSERT(tmp.size() >= 2);
+
+					stationInfo.m_name = tmp[0];
+					for(size_t j=1; j<tmp.size()-1; j++)
+						stationInfo.m_name += " " + tmp[i];*/
+					stationInfo.m_name = TrimConst(FindString(metadata, "<name>", "</name>", metaPosBegin));
+					stationInfo.m_ID = TrimConst(listID[i]);
+					stationInfo.m_lat = ToDouble(FindString(metadata, "<latitude>", "</latitude>", metaPosBegin));
+					stationInfo.m_lon = ToDouble(FindString(metadata, "<longitude>", "</longitude>", metaPosBegin));
+					stationInfo.m_alt = ToDouble(FindString(metadata, "<elevation>", "</elevation>", metaPosBegin));
+
+					//<aliases><WMO>71285</WMO><TC>XAF</TC><EC>3010010</EC><AENV>ABEE</AENV><LOGGER_ID>1285</LOGGER_ID></aliases>
+					string owner = FindString(metadata, "<owner><name>", "</name></owner>", metaPosBegin);
+					if (!owner.empty())
+						stationInfo.SetSSI("owner", owner);
+
+					string oper = FindString(metadata, "<operator><name>", "</name></operator>", metaPosBegin);
+					if (!oper.empty())
+						stationInfo.SetSSI("operator", oper);
+
+
+					StringVector aliases(FindString(metadata, "<aliases>", "</aliases>", metaPosBegin), "<>");
+					ASSERT(aliases.size() % 3 == 0);
+					for (size_t j = 0; j < aliases.size(); j += 3)
+					{
+						if (!aliases[j + 1].empty())
+							stationInfo.SetSSI(aliases[j], aliases[j + 1]);
+					}
+
+					/*string WMO = FindString(aliases, "<WMO>", "</WMO>");
+					if (!WMO.empty())
+						stationInfo.SetSSI("WMO", WMO);
+					string ECID = FindString(aliases, "<EC>", "</EC>");
+					if (!ECID.empty())
+						stationInfo.SetSSI("EC_id", ECID);
+					string AENV = FindString(aliases, "<AENV>", "</AENV>");
+					if (!AENV.empty())
+						stationInfo.SetSSI("AENV", AENV);
+
+					*/
+
+
+					stationList.push_back(stationInfo);
+					msg += callback.StepIt();
+				}
+			}
+		}
+
+		pConnection->Close();
+		pSession->Close();
+
+
+
+		//clear all non ACIS stations
+		for (CLocationVector::iterator it = stationList.begin(); it != stationList.end();)
+		{
+			if (it->GetSSI("ClimateID").substr(0, 3) == "999")
+				it++;
+			else
+				it = stationList.erase(it);
+		}
+
+
+		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+		callback.PopTask();
+
+		return msg;
+	}
+
+
+	string CUIACIS::GetSessiosnID(CHttpConnectionPtr& pConnection)
+	{
+		string sessionID;
+		string page;
+
+		if (GetPageText(pConnection, "acis/alberta-weather-data-viewer.jsp", page))
+		{
+
+			string::size_type posBegin = page.find("getSessionId()");
+			if (posBegin >= 0)
+				sessionID = FindString(page, "return \"", "\";", posBegin);
+		}
+
+		return sessionID;
+	}
+
+	//CTRef CUIACIS::GetTRefFromTime64(__time64_t t, CTM TM = CTM(CTM::DAILY))
+	//{
+	//	CTRef TRef;
+
+	//	if (t > 0)
+	//	{
+	//		struct tm *theTime = _localtime64(&t);
+	//		TRef = CTRef(1900 + theTime->tm_year, theTime->tm_mon, theTime->tm_mday - 1, theTime->tm_hour, TM);
+	//	}
+
+	//	return TRef;
+	//}
+
+	bool CUIACIS::IsInclude(const CLocation& station)
+	{
+		string owner = station.GetSSI("owner");
+		string ID = station.GetSSI("EC");
+		ID = ID.substr(0, 3);
+
+		//		static const char* ENV_CAN_MISSING[] = { "3076069", "3055754", "3031875", "3053760" };
+
+		bool bASRD = IsEqual(owner, "Alberta Sustainable Resource Development");
+		bool bParck = IsEqual(owner, "Environment and Parks");
+		//	bool bException = find(begin(ENV_CAN_MISSING), end(ENV_CAN_MISSING), station.m_ID)!= end(ENV_CAN_MISSING);
+		bool bInclude = ID.empty() || ID == "999" || bASRD || bParck;
+		return bInclude;
+	}
+
+	bool CUIACIS::NeedUpdate(const CLocation& station, int year, size_t m)
+	{
+		string filepath = GetOutputFilePath(year, m, station.m_ID);
+
+
+		CTRef TRef1 = CWeatherYears::GetLastTref(filepath).as(CTM::DAILY);
+		CTRef TRef2(year, m, LAST_DAY);
+		CTimeRef last_update(GetFileStamp(filepath));
+		//CTRef today = CTRef::GetCurrentTRef();
+		bool bNotCompleted = TRef1.IsInit() && TRef1 - TRef2 < 0;
+		bool bNot5days = !last_update.IsInit() || last_update - TRef2 < 5;
+
+		bool bNeedUpdate = bNotCompleted || bNot5days; //let 5 days to update the data if it's not the current month
+		return bNeedUpdate;
+	}
+
+	ERMsg CUIACIS::DownloadStationHourly(CCallback& callback)
+	{
+		ERMsg msg;
+
+		static const char PageDataFormatH[] =
+			"acis/api/v1/legacy/weather-data/timeseries?"
+			"stations=%s&"
+			"elements=PRCIP,ATAM,ATX,ATN,HUAM,IR,WSAM,WDAM,UA,SD,DEW&"
+			"startdate=%4d%02d%02d&"
+			"enddate=%4d%02d%02d&"
+			"interval=HOURLY&"
+			"format=csv&"
+			"precipunit=mm&"
+			"inclCompleteness=false&"
+			"inclSource=false&"
+			"inclComments=false&"
+			"session=%s";
+
+
+		CTRef today = CTRef::GetCurrentTRef();
+		string workingDir = GetDir(WORKING_DIR);
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+
+		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
+		size_t type = as <size_t>(DATA_TYPE);
+
+		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
+
+
+		size_t nbFilesToDownload = 0;
+		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
+		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		{
+			bNeedDownload[i].resize(nbYears);
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
+
+				size_t nbm = year == today.GetYear() ? today.GetMonth() + 1 : 12;
+				for (size_t m = 0; m < nbm && msg; m++)
+				{
+					bool bNeedUpdate = NeedUpdate(m_stations[i], year, m);
+					if (bNeedUpdate && bIgoneEC)
+						bNeedUpdate = IsInclude(m_stations[i]);
+
+					bNeedDownload[i][y][m] = bNeedUpdate;
+					nbFilesToDownload += bNeedUpdate ? 1 : 0;
+					msg += callback.StepIt();
+				}
+			}
+		}
+
+		callback.PopTask();
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 1, callback);
+		if (!msg)
+			return msg;
+
+		//une protection empêche de charger plus de fichier
+		size_t nbDownload = 0;
+		size_t currentNbDownload = 0;
+		size_t nbTry = 0;
+
+		callback.PushTask("Download ACIS hourly data: " + to_string(nbFilesToDownload) + " station-month", nbFilesToDownload);
+		callback.AddMessage("Download ACIS hourly data: " + to_string(nbFilesToDownload) + " station-month");
+
+		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		{
+
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
+				for (size_t m = 0; m < 12 && msg; m++)
+				{
+					if (bNeedDownload[i][y][m])
+					{
+
+						string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
+						CreateMultipleDir(GetPath(filePath));
+
+						string sessionID = GetSessiosnID(pConnection);
+						string URL = FormatA(PageDataFormatH, m_stations[i].m_ID.c_str(), year, m + 1, 1, year, m + 1, GetNbDayPerMonth(year, m), sessionID.c_str());
+
+						try
+						{
+							string source;
+							msg = GetPageText(pConnection, URL, source, false, FLAGS | INTERNET_FLAG_FORMS_SUBMIT);
+							if (msg)
+							{
+								if (source.find("An Error Has Occurred") == string::npos &&
+									source.find("Page Not Found") == string::npos)
+								{
+									if (source.find("Too Many Requests") == string::npos)
+									{
+										msg += SaveData(type, filePath, source, callback);
+										if (msg)
+										{
+											nbDownload++;
+											currentNbDownload++;
+											nbTry = 0;
+										}
+
+										//need to wait to not bust the maximum download by minute
+										size_t pause_time = 10;
+										for (size_t s = 0; s < pause_time && msg; s++)
+										{
+											Sleep(100);
+											msg += callback.StepIt(0);
+										}
+									}
+									else
+									{
+
+
+										nbTry++;
+										if (nbTry < 5)
+										{
+											callback.AddMessage("Too Many Requests");
+											//wait 120 seconds 
+											msg += WaitServer(120, callback);
+										}
+										else
+										{
+											//msg = UtilWin::SYGetMessage(*e);
+											msg.ajoute("Too Many Requests");
+										}
+
+									}
+								}
+								else
+								{
+									msg.ajoute(URL);
+								}
+							}
+
+							if (msg)
+								msg += callback.StepIt();
+						}
+						catch (CException* e)
+						{
+							//if an error occur: try again
+							msg = UtilWin::SYGetMessage(*e);
+						}
+					}
+				}
+			}
+		}
+
+
+		//clean connection
+		//pConnection->OpenRequest(CHttpConnection::HTTP_VERB_UNLINK, _T("acis/api/v1/legacy/weather-data/timeseries?"));
+		pConnection->Close();
+		pConnection.release();
+		pSession->Close();
+		pSession.release();
+
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.PopTask();
+
+		return msg;
+	}
+
+	ERMsg CUIACIS::DownloadStationDaily(CCallback& callback)
+	{
+		ERMsg msg;
+
+		static const char PageDataFormatD[] =
+			"acis/api/v1/legacy/weather-data/timeseries?"
+			"stations=%s&"
+			"elements=PRCIP,ATAM,ATX,ATN,HUAM,IR,WSAM,WDAM,UA,SD,DEW&"
+			"startdate=%4d%02d%02d&"
+			"enddate=%4d%02d%02d&"
+			"interval=DAILY&"
+			"format=csv&"
+			"precipunit=mm&"
+			"inclCompleteness=false&"
+			"inclSource=false&"
+			"inclComments=false&"
+			"session=%s";
+
+		CTRef today = CTRef::GetCurrentTRef();
+		string workingDir = GetDir(WORKING_DIR);
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+
+		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
+		size_t type = as <size_t>(DATA_TYPE);
+
+		callback.PushTask("Clear stations list...", m_stations.size()*nbYears);
+
+
+		size_t nbFilesToDownload = 0;
+		vector<vector<bool>> bNeedDownload(m_stations.size());
+		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		{
+			bNeedDownload[i].resize(nbYears);
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
+
+				string filePath = GetOutputFilePath(year, NOT_INIT, m_stations[i].m_ID);
+				bool bNeedUpdate = NeedUpdate(m_stations[i], year);
+				if (bNeedUpdate && bIgoneEC)
+					bNeedUpdate = IsInclude(m_stations[i]);
+
+
+
+				bNeedDownload[i][y] = bNeedUpdate;
+				nbFilesToDownload += bNeedUpdate ? 1 : 0;
+				msg += callback.StepIt();
+
+			}
+		}
+
+		callback.PopTask();
+
+		CInternetSessionPtr pSession;
+		CHttpConnectionPtr pConnection;
+		msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 1, callback);
+		if (!msg)
+			return msg;
+
+		//une protection empêche de charger plus de fichier
+		size_t nbDownload = 0;
+		size_t currentNbDownload = 0;
+		size_t nbTry = 0;
+
+		callback.PushTask("Download ACIS daily data: " + to_string(nbFilesToDownload) + " station-year", nbFilesToDownload);
+		callback.AddMessage("Download ACIS daily data: " + to_string(nbFilesToDownload) + " station-year");
+
+		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		{
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
+				if (bNeedDownload[i][y])
+				{
+					try
+					{
+						string filePath = GetOutputFilePath(year, NOT_INIT, m_stations[i].m_ID);
+						CreateMultipleDir(GetPath(filePath));
+
+						string sessionID = GetSessiosnID(pConnection);
+						string URL = FormatA(PageDataFormatD, m_stations[i].m_ID.c_str(), year, 1, 1, year, 12, 31, sessionID.c_str());
+
+						string source;
+						msg = GetPageText(pConnection, URL, source, false, FLAGS | INTERNET_FLAG_FORMS_SUBMIT);
+
+						if (msg)
+						{
+							if (source.find("An Error Has Occurred") == string::npos &&
+								source.find("Page Not Found") == string::npos)
+							{
+								if (source.find("Too Many Requests") == string::npos)
+								{
+									msg += SaveData(type, filePath, source, callback);
+									if (msg)
+									{
+										nbDownload++;
+										currentNbDownload++;
+										nbTry = 0;
+									}
+
+									//need to wait to not bust the maximum download by minute
+									size_t pause_time = 10;
+									for (size_t s = 0; s < pause_time && msg; s++)
+									{
+										Sleep(100);
+										msg += callback.StepIt(0);
+									}
+								}
+								else
+								{
+									nbTry++;
+									if (nbTry < 5)
+									{
+										callback.AddMessage("Too Many Requests");
+										//wait 120 seconds 
+										msg += WaitServer(120, callback);
+									}
+									else
+									{
+										//msg = UtilWin::SYGetMessage(*e);
+										msg.ajoute("Too Many Requests");
+									}
+
+								}
+							}
+							else
+							{
+								msg.ajoute(URL);
+							}
+						}
+
+						if (msg)
+							msg += callback.StepIt();
+					}
+					catch (CException* e)
+					{
+						//if an error occur: try again
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
+			}
+		}
+
+
+		//clean connection
+		//pConnection->OpenRequest(CHttpConnection::HTTP_VERB_UNLINK, _T("acis/api/v1/legacy/weather-data/timeseries?"));
+		pConnection->Close();
+		pConnection.release();
+		pSession->Close();
+		pSession.release();
+
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		callback.PopTask();
+
+
+		return msg;
+	}
+
+
+	//******************************************************************************************************************************
+	//******************************************************************************************************************************
+	//******************************************************************************************************************************
+	//******************************************************************************************************************************
+	//rss part
+
+
+
+	ERMsg CUIACIS::DownloadStation(CCallback& callback)
+	{
+		ERMsg msg;
+
+		CTRef today = CTRef::GetCurrentTRef();
+		string workingDir = GetDir(WORKING_DIR);
+		int firstYear = as<int>(FIRST_YEAR);
+		int lastYear = as<int>(LAST_YEAR);
+		size_t nbYears = lastYear - firstYear + 1;
+		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
+		size_t type = as <size_t>(DATA_TYPE);
+
+		size_t nbFilesToDownload = 0;
+		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
+
+		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
+		for (size_t i = 0; i < m_stations.size() && msg; i++)
+		{
+			bNeedDownload[i].resize(nbYears);
+			for (size_t y = 0; y < nbYears&&msg; y++)
+			{
+				int year = firstYear + int(y);
+
+				size_t nbm = year == today.GetYear() ? today.GetMonth() + 1 : 12;
+				for (size_t m = 0; m < nbm && msg; m++)
+				{
+					string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
+					CTimeRef TRef1(GetFileStamp(filePath));
+					CTRef TRef2(year, m, LAST_DAY);
+
+					bool bND = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
+					if (bND && bIgoneEC)
+					{
+						//string network = m_stations[i].GetSSI("type");
+						string ID = m_stations[i].GetSSI("EC_id");
+						ID = ID.substr(0, 3);
+						if (!ID.empty() && ID != "999"/* && network != "AENV"  && network != "PARC"*/)
+							bND = false;
+					}
+
+					bNeedDownload[i][y][m] = bND;
+					nbFilesToDownload += bND ? 1 : 0;
+
+					msg += callback.StepIt();
+				}
+			}
+		}
+
+		callback.PopTask();
+
+		size_t nbTry = 0;
+		size_t curI = 0;
+		size_t nbDownload = 0;
+
+
+		callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
+		callback.AddMessage("Nb stations months to downloaded: " + ToString(nbFilesToDownload));
+
+		while (curI < m_stations.size() && msg)
+		{
+			nbTry++;
+
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 1, callback);
+
+			if (msg)
+			{
+				try
+				{
+					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+
+					while (curI < m_stations.size() && msg)
+					{
+						for (size_t y = 0; y < nbYears && msg; y++)
+						{
+							int year = firstYear + int(y);
+							for (size_t m = 0; m < 12 && msg; m++)
+							{
+								if (bNeedDownload[curI][y][m])
+								{
+									string filePath = GetOutputFilePath(year, m, m_stations[curI].m_ID);
+									CreateMultipleDir(GetPath(filePath));
+
+									msg += DownloadMonth(pConnection, year, m, m_stations[curI].m_ID, filePath, callback);
+									if (msg)
+									{
+										nbDownload++;
+										nbTry = 0;
+										msg += callback.StepIt();
+									}
+								}//if need download
+							}//for all months
+						}//for all years
+
+						curI++;
+					}//for all station
+				}
+				catch (CException* e)
+				{
+					//if an error occur: try again
+					if (nbTry < 5)
+					{
+						callback.AddMessage(UtilWin::SYGetMessage(*e));
+
+						//msg = WaitServer(10, callback);
+						//wait 5 seconds 
+						callback.PushTask("Wait 5 seconds...", 50);
+						for (size_t s = 0; s < 50 && msg; s++)
+						{
+							Sleep(100);
+							msg += callback.StepIt();
+						}
+						callback.PopTask();
+					}
+					else
+					{
+						msg = UtilWin::SYGetMessage(*e);
+					}
+				}
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
+			}//if msg
+		}//while
+
+		callback.AddMessage("Nb stations months downloaded: " + ToString(nbDownload));
+		callback.PopTask();
+
+		return msg;
+	}
 
 	ERMsg CUIACIS::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
 	{
@@ -140,7 +856,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), false, 5, callback);
+		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 1, callback);
 		if (!msg)
 			return msg;
 
@@ -216,207 +932,38 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIACIS::Execute(CCallback& callback)
-	{
-		ERMsg msg;
-
-		string workingDir = GetDir(WORKING_DIR);
-
-		callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		callback.AddMessage(workingDir, 1);
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(SERVER_NAME, 1);
-		callback.AddMessage("");
-
-		msg = VerifyUserPass(callback);//to protect user if they have not a good password to be locked
-		if (!msg)
-			return msg;
-
-
-		bool bForeUpdate = as<bool>(UPDATE_STATIONS_LIST);
-		if (FileExists(GetStationListFilePath()) && !bForeUpdate)
-		{
-			msg = m_stations.Load(GetStationListFilePath());
-		}
-		else
-		{
-			CreateMultipleDir(GetPath(GetStationListFilePath()));
-			msg = DownloadStationList(m_stations, callback);
-
-			if (msg)
-				msg = m_stations.Save(GetStationListFilePath());
-		}
-
-		if (!msg)
-			return msg;
-
-
-
-		msg = DownloadStation(callback);
-
-		return msg;
-	}
-
-
-
-	ERMsg CUIACIS::DownloadStation(CCallback& callback)
-	{
-		ERMsg msg;
-
-		CTRef today = CTRef::GetCurrentTRef();
-		string workingDir = GetDir(WORKING_DIR);
-		int firstYear = as<int>(FIRST_YEAR);
-		int lastYear = as<int>(LAST_YEAR);
-		size_t nbYears = lastYear - firstYear + 1;
-		bool bIgoneEC = as<bool>(IGNORE_ENV_CAN);
-		size_t type = as <size_t>(DATA_TYPE);
-
-		size_t nbFilesToDownload = 0;
-		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
-
-		callback.PushTask("Clear stations list...", m_stations.size()*nbYears * 12);
-		for (size_t i = 0; i < m_stations.size() && msg; i++)
-		{
-			bNeedDownload[i].resize(nbYears);
-			for (size_t y = 0; y < nbYears&&msg; y++)
-			{
-				int year = firstYear + int(y);
-
-				size_t nbm = year == today.GetYear() ? today.GetMonth() + 1 : 12;
-				for (size_t m = 0; m < nbm && msg; m++)
-				{
-					string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
-					CTimeRef TRef1(GetFileStamp(filePath));
-					CTRef TRef2(year, m, LAST_DAY);
-
-					bool bND = !TRef1.IsInit() || TRef1 - TRef2 < 2; //let 2 days to update the data if it's not the current month
-					if (bND && bIgoneEC)
-					{
-						string network = m_stations[i].GetSSI("type");
-						string ID = m_stations[i].GetSSI("EC_id");
-						ID = ID.substr(0, 3);
-						if (!ID.empty() && ID != "999" && network != "AENV"  && network != "PARC")
-							bND = false;
-					}
-
-					bNeedDownload[i][y][m] = bND;
-					nbFilesToDownload += bND ? 1 : 0;
-
-					msg += callback.StepIt();
-				}
-			}
-		}
-
-		callback.PopTask();
-
-		size_t nbTry = 0;
-		size_t curI = 0;
-		size_t nbDownload = 0;
-		
-
-		callback.PushTask(string("Download ACIS ") + (type == HOURLY_WEATHER ? "hourly" : "daily") + " data (" + ToString(nbFilesToDownload) + " files)", nbFilesToDownload);
-		callback.AddMessage("Nb stations months to downloaded: " + ToString(nbFilesToDownload));
-
-		while (curI < m_stations.size() && msg)
-		{
-			nbTry++;
-
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), false, 5, callback);
-
-			if (msg)
-			{
-				try
-				{
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-
-					while (curI < m_stations.size() && msg)
-					{
-						for (size_t y = 0; y < nbYears && msg; y++)
-						{
-							int year = firstYear + int(y);
-							for (size_t m = 0; m < 12 && msg; m++)
-							{
-								if (bNeedDownload[curI][y][m])
-								{
-									string filePath = GetOutputFilePath(year, m, m_stations[curI].m_ID);
-									CreateMultipleDir(GetPath(filePath));
-
-									msg += DownloadMonth(pConnection, year, m, m_stations[curI].m_ID, filePath, callback);
-									if (msg )
-									{
-										nbDownload++;
-										nbTry = 0;
-										msg += callback.StepIt();
-									}
-								}//if need download
-							}//for all months
-						}//for all years
-
-						curI++;
-					}//for all station
-				}
-				catch (CException* e)
-				{
-					//if an error occur: try again
-					if (nbTry < 5)
-					{
-						callback.AddMessage(UtilWin::SYGetMessage(*e));
-						
-						//msg = WaitServer(10, callback);
-						//wait 5 seconds 
-						callback.PushTask("Wait 5 seconds...", 50);
-						for (size_t s = 0; s < 50 && msg; s++)
-						{
-							Sleep(100);
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
-					}
-					else
-					{ 
-						msg = UtilWin::SYGetMessage(*e);
-					}
-				}
-
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
-			}//if msg
-		}//while
-
-		callback.AddMessage("Nb stations months downloaded: " + ToString(nbDownload));
-		callback.PopTask();
-	
-		return msg;
-	}
-
 	ERMsg CUIACIS::VerifyUserPass(CCallback& callback)
 	{
 		ERMsg msg;
 
-
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), false, 5, callback);
-		if (msg)
+		if (OLD_CODE)
 		{
-			size_t type = as <size_t>(DATA_TYPE);
-			string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "HOURLY" : "DAILY", "2154", 2016, 1, 1);
-
-			string source;
-			msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
-
-			if (source.empty() || source.find("No Records Were Found") != string::npos || source.find("ACIS Error") != string::npos)
+			//if(Get(USER_NAME) != "12345" || Get(PASSWORD) != "12345")
+				//msg.ajoute("Invalid user name/password");
+		}
+		else
+		{
+			CInternetSessionPtr pSession;
+			CHttpConnectionPtr pConnection;
+			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 1, callback);
+			if (msg)
 			{
-				msg.ajoute("Invalid user name/password or server problem");
+				size_t type = as <size_t>(DATA_TYPE);
+				string pageURL = FormatA(PageDataFormat, type == HOURLY_WEATHER ? "HOURLY" : "DAILY", "2154", 2016, 1, 1);
+
+				string source;
+				msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
+
+				if (source.empty() || source.find("No Records Were Found") != string::npos || source.find("ACIS Error") != string::npos)
+				{
+					msg.ajoute("Invalid user name/password or server problem");
+				}
+
+
+				//clean connection
+				pConnection->Close();
+				pSession->Close();
 			}
-
-
-			//clean connection
-			pConnection->Close();
-			pSession->Close();
 		}
 
 		return msg;
@@ -603,116 +1150,7 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CUIACIS::DownloadStationHourly(CCallback& callback)
-	//{
-	////msg += DownlaodFeeds();
-	//////http://agriculture.alberta.ca/acis/rss/available-data?type=hourly&stationId=10540
-	////<rss version = "2.0">
-	////	<channel>
-	////	<title>Hourly Weather Data For Abee AGDM< / title>
-	////	<link>http://agriculture.alberta.ca/acis/rss</link>
-	////<description>...< / description>
-	////	<pubDate>Mon, 25 Apr 2016 00 : 00 : 00 MDT< / pubDate>
-	////	<generator>jRSSGenerator by Henrique A.Viecili< / generator>
-	////	<docs>http ://agriculture.alberta.ca/acis/references.jsp</docs>
-	////	<item>
-	////	<title>Apr 25, 2016 < / title >
-	////	<link>
-	////http ://agriculture.alberta.ca/acis/rss/data?type=HOURLY&stationId=10540&date=20160425
-	////	  < / link>
-	////	  <description>Hourly Weather Data for Abee AGDM April 25, 2016 < / description >
-	////	  <author>Alberta Alberta Agriculture and Forestry< / author>
-	////	  <pubDate>Mon, 25 Apr 2016 14 : 05 : 17 MDT< / pubDate>
-	////	  < / item>
 
-	//	string sessionID = GetSessiosnID(pConnection);
-	//	int nbDownload = 0;
-	//	int currentNbDownload = 0;
-
-	//	callback.PushTask("Download data", nbFilesToDownload);
-	//	for (size_t i = 0; i < m_stations.size() && msg; i++)
-	//	{
-	//		if (m_stations[i].GetSSI("ClimateID").substr(0, 3) == "999")
-	//		{
-	//			for (size_t y = 0; y < nbYears&&msg; y++)
-	//			{
-	//				int year = firstYear + int(y);
-	//				for (size_t m = 0; m < 12 && msg; m++)
-	//				{
-	//					if (bNeedDownload[i][y][m])
-	//					{
-
-	//						string filePath = GetOutputFilePath(year, m, m_stations[i].m_ID);
-	//						CreateMultipleDir(GetPath(filePath));
-
-	//						string pageURL = FormatA(PageDataFormatH, m_stations[i].m_ID.c_str(), year, m + 1, 1, year, m + 1, GetNbDayPerMonth(year, m), sessionID.c_str());
-
-	//						string source;
-	//						msg = GetPageText(pConnection, pageURL, source, false, FLAGS | INTERNET_FLAG_FORMS_SUBMIT);
-	//						if (msg)
-	//						{
-	//							if (source.find("An Error Has Occurred") == string::npos &&
-	//								source.find("Page Not Found") == string::npos &&
-	//								source.find("Too Many Requests") == string::npos)
-	//							{
-	//								ofStream file;
-	//								msg = file.open(filePath);
-	//								if (msg)
-	//								{
-	//									file << source;
-	//									file.close();
-	//								}
-
-
-	//								nbDownload++;
-	//								currentNbDownload++;
-	//								msg += callback.StepIt();
-	//							}
-	//							else
-	//							{
-	//								msg.ajoute(source);
-	//							}
-
-	//						}
-	//						else
-	//						{
-	//							pConnection->Close();
-	//							pSession->Close();
-
-	//							//wait 5 seconds 
-	//							callback.PushTask("Waiting 5 seconds...", 50);
-	//							for (size_t s = 0; s < 50 && msg; s++)
-	//							{
-	//								Sleep(100);
-	//								msg += callback.StepIt();
-	//							}
-	//							callback.PopTask();
-
-	//							msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD));
-	//							string olID = sessionID;
-	//							sessionID = GetSessiosnID(pConnection);
-
-	//							assert(sessionID != olID);
-	//							currentNbDownload = 0;
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
-
-	//	//clean connection
-	//	pConnection->Close();
-	//	pConnection.release();
-	//	pSession->Close();
-	//	pSession.release();
-
-
-	//	callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
-	//	callback.PopTask();
-
-	//}
 
 	std::string CUIACIS::GetStationListFilePath()const
 	{
@@ -723,7 +1161,17 @@ namespace WBSF
 	string CUIACIS::GetOutputFilePath(int year, size_t m, const string& ID)const
 	{
 		size_t type = as<size_t>(DATA_TYPE);
-		return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv.gz";
+		string filepath = GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\";
+
+		if (!OLD_CODE)
+			filepath += FormatA("%02d", m + 1) + "\\";
+
+		filepath += ID + ".csv";
+
+		if (!OLD_CODE)
+			filepath += ".gz";
+
+		return filepath;
 	}
 
 
@@ -743,15 +1191,17 @@ namespace WBSF
 
 			for (size_t i = 0; i < m_stations.size(); i++)
 			{
+
 				bool bAdd = true;
 				if (bIgoneEC)
-				{
-					string network = m_stations[i].GetSSI("type");
-					string ID = m_stations[i].GetSSI("EC_id");
-					ID = ID.substr(0, 3);
-					if (!ID.empty() && ID != "999" && network != "AENV"  && network != "PARC")
-						bAdd = false;
-				}
+					bAdd = IsInclude(m_stations[i]);
+				//{
+				//	//string network = m_stations[i].GetSSI("type");
+				//	string ID = m_stations[i].GetSSI("EC_id");
+				//	ID = ID.substr(0, 3);
+				//	if (!ID.empty() && ID != "999")//&& network != "AENV"  && network != "PARC"
+				//		bAdd = false;
+				//}
 
 				if (bAdd)
 					stationList.push_back(m_stations[i].m_ID);
@@ -830,154 +1280,326 @@ namespace WBSF
 		return msg;
 	}
 
+	static TVarH GetVar(const string& header)
+	{
+
+		TVarH var = H_SKIP;
+
+		static const char* VAR_NAME[] = { "Air Temp. Min. (°C)", "Air Temp. Avg. (°C)", "Air Temp. Max. (°C)", "Precip. (mm)", "Est. Dew Point Temp. (°C)", "Humidity Avg. (%)", "Wind Speed 10 m Avg. (km/h)", "Wind Dir. 10 m Avg. (°)", "Incoming Solar Rad. (W/m2)", "Snow Depth (cm)", "Wind Speed 2 m Avg. (km/h)" };
+		//PRCIP,ATAM,ATX,ATN,HUAM,IR,WSAM,WDAM,UA,SD,DEW
+		static const TVarH VAR[] = { H_TMIN, H_TAIR, H_TMAX, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD,H_SRAD, H_SNDH, H_WND2 };
+
+		//auto a = begin(VAR_NAME);
+		auto it = std::find_if(begin(VAR_NAME), end(VAR_NAME), [header](const char* name) {return IsEqual(header, name); });
+		if (it != end(VAR_NAME))
+			var = VAR[std::distance(begin(VAR_NAME), it)];
+
+		return var;
+	}
 
 
 	ERMsg CUIACIS::ReadDataFile(const string& filePath, CWeatherStation& station)
 	{
 		ERMsg msg;
+
 		size_t type = as <size_t>(DATA_TYPE);
 		bool bLagOneMonth = as<bool>(MONTH_LAG);
-
 		CTRef today = CTRef::GetCurrentTRef();
 
-		ifStream  file;
-
-		msg = file.open(filePath, ios_base::in | ios_base::binary);
-		if (msg)
+		if (IsEqual(GetFileExtension(filePath), ".gz"))
 		{
+			ifStream  file;
 
-			try
+			msg = file.open(filePath, ios_base::in | ios_base::binary);
+			if (msg)
 			{
-				boost::iostreams::filtering_istreambuf in;
-				in.push(boost::iostreams::gzip_decompressor());
-				in.push(file);
-				std::istream incoming(&in);
 
-				string line;
-				std::getline(incoming, line);
-				while (std::getline(incoming, line) && msg)
+				try
 				{
-					line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
-					StringVector columns;
-					columns.Tokenize(line, ",", false);//some field is empty
+					boost::iostreams::filtering_istreambuf in;
+					in.push(boost::iostreams::gzip_decompressor());
+					in.push(file);
+					std::istream incoming(&in);
 
-					size_t nbColumns = (type == HOURLY_WEATHER) ? 7 : 13;
-					ASSERT(columns.size() == nbColumns);
-					if (columns.size() == nbColumns)
+					string line;
+					std::getline(incoming, line);
+					while (std::getline(incoming, line) && msg)
 					{
-						size_t c = 0;
-						int year = ToInt(columns[c++]);
-						size_t m = ToInt(columns[c++]) - 1;
-						size_t d = ToInt(columns[c++]) - 1;
-						size_t h = 0;
-						if (type == HOURLY_WEATHER)
-							h = ToInt(columns[c++]);
+						line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+						StringVector columns;
+						columns.Tokenize(line, ",", false);//some field is empty
 
-						ASSERT(m >= 0 && m < 12);
-						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-
-						CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
-						ASSERT(TRef.IsValid());
-
-
-
-						bool bUseIt = true;
-						if (bLagOneMonth)
-							bUseIt = today - TRef.as(CTM::DAILY) > 30;
-
-						if (TRef.IsValid() && bUseIt)//some data have invalid TRef or we have to make a one month lag
+						size_t nbColumns = (type == HOURLY_WEATHER) ? 7 : 13;
+						ASSERT(columns.size() == nbColumns);
+						if (columns.size() == nbColumns)
 						{
-							string var_str = columns[c++];
+							size_t c = 0;
+							int year = ToInt(columns[c++]);
+							size_t m = ToInt(columns[c++]) - 1;
+							size_t d = ToInt(columns[c++]) - 1;
+							size_t h = 0;
+							if (type == HOURLY_WEATHER)
+								h = ToInt(columns[c++]);
 
-							TVarH var = H_SKIP;
-							if (var_str == "AT" || var_str == "ATA")
-								var = H_TAIR;
-							else if (var_str == "TX")
-								var = H_TMAX;
-							else if (var_str == "TN")
-								var = H_TMIN;
-							else if (var_str == "PR")
-								var = H_PRCP;
-							else if (var_str == "HU" || var_str == "HUA")
-								var = H_RELH;
-							else if (var_str == "WS" || var_str == "WSA")
-								var = H_WNDS;
-							else if (var_str == "WD" || var_str == "WDA")
-								var = H_WNDD;
-							else if (var_str == "US")
-								var = H_WND2;
-							else if (var_str == "IR")
-								var = H_SRAD;
-							/*else if (var_str == "PC")
-								var = H_ADD1;
-								else if (var_str == "P1")
-								var = H_ADD2;*/
+							ASSERT(m >= 0 && m < 12);
+							ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+
+							CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+							ASSERT(TRef.IsValid());
 
 
-							if (var != H_SKIP)
+
+							bool bUseIt = true;
+							if (bLagOneMonth)
+								bUseIt = today - TRef.as(CTM::DAILY) > 30;
+
+							if (TRef.IsValid() && bUseIt)//some data have invalid TRef or we have to make a one month lag
 							{
-								string str = columns[c++];
-								if (!str.empty())
+								string var_str = columns[c++];
+
+								TVarH var = H_SKIP;
+								if (var_str == "AT" || var_str == "ATA")
+									var = H_TAIR;
+								else if (var_str == "TX")
+									var = H_TMAX;
+								else if (var_str == "TN")
+									var = H_TMIN;
+								else if (var_str == "PR")
+									var = H_PRCP;
+								else if (var_str == "HU" || var_str == "HUA")
+									var = H_RELH;
+								else if (var_str == "WS" || var_str == "WSA")
+									var = H_WNDS;
+								else if (var_str == "WD" || var_str == "WDA")
+									var = H_WNDD;
+								else if (var_str == "US")
+									var = H_WND2;
+								else if (var_str == "IR")
+									var = H_SRAD;
+								/*else if (var_str == "PC")
+									var = H_ADD1;
+									else if (var_str == "P1")
+									var = H_ADD2;*/
+
+
+								if (var != H_SKIP)
 								{
-									float value = value = WBSF::as<float>(str);
-									if (var == H_SNDH)
-										value /= 10;
-
-									if (type == HOURLY_WEATHER)
+									string str = columns[c++];
+									if (!str.empty())
 									{
-										station[TRef].SetStat(var, value);
-										if (var == H_RELH && station[TRef][H_TAIR].IsInit())
-											station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR], value));
-									}
-									else
-									{
-										if (var == H_SRAD)
-											value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
+										float value = value = WBSF::as<float>(str);
+										if (var == H_SNDH)
+											value /= 10;
 
-										station[TRef].SetStat(var, value);
-
-										string str_min = columns[c++];
-										string str_max = columns[c++];
-
-										if (var == H_TAIR)
+										if (type == HOURLY_WEATHER)
 										{
-											float Tmin = WBSF::as<float>(str_min);
-											float Tmax = WBSF::as<float>(str_max);
-											if (Tmin > -999 && Tmax > -999)
-											{
-												ASSERT(Tmin >= -70 && Tmin <= 70);
-												ASSERT(Tmax >= -70 && Tmax <= 70);
-												ASSERT(Tmin <= Tmax);
-
-												station[TRef].SetStat(H_TMIN, Tmin);
-												station[TRef].SetStat(H_TMAX, Tmax);
-
-											}
+											station[TRef].SetStat(var, value);
+											if (var == H_RELH && station[TRef][H_TAIR].IsInit())
+												station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR], value));
 										}
-									}//if daily
-								}//if not empty
-							}//if good vars
-						}//TRef is valid
-					}//good number of column
-				}//for all lines
-			}//try
-			catch (const boost::iostreams::gzip_error& exception)
-			{
-				int error = exception.error();
-				if (error == boost::iostreams::gzip::zlib_error)
-				{
-					//check for all error code    
-					msg.ajoute(exception.what());
-				}
-			}
-		}//if msg
+										else
+										{
+											if (var == H_SRAD)
+												value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
 
+											station[TRef].SetStat(var, value);
+
+											string str_min = columns[c++];
+											string str_max = columns[c++];
+
+											if (var == H_TAIR)
+											{
+												float Tmin = WBSF::as<float>(str_min);
+												float Tmax = WBSF::as<float>(str_max);
+												if (Tmin > -999 && Tmax > -999)
+												{
+													ASSERT(Tmin >= -70 && Tmin <= 70);
+													ASSERT(Tmax >= -70 && Tmax <= 70);
+													ASSERT(Tmin <= Tmax);
+
+													station[TRef].SetStat(H_TMIN, Tmin);
+													station[TRef].SetStat(H_TMAX, Tmax);
+
+												}
+											}
+										}//if daily
+									}//if not empty
+								}//if good vars
+							}//TRef is valid
+						}//good number of column
+					}//for all lines
+				}//try
+				catch (const boost::iostreams::gzip_error& exception)
+				{
+					int error = exception.error();
+					if (error == boost::iostreams::gzip::zlib_error)
+					{
+						//check for all error code    
+						msg.ajoute(exception.what());
+					}
+				}
+			}//if msg
+		}
+		else
+		{
+			station.LoadData(filePath);
+			if (type == HOURLY_WEATHER)
+			{
+				//Compute hourly Tair form Tmin and Tmax
+				for (size_t y = 0; y < station.size(); y++)
+				{
+					for (size_t m = 0; m < station[y].size(); m++)
+					{
+						for (size_t d = 0; d < station[y][m].size(); d++)
+						{
+							for (size_t h = 0; h < station[y][m][d].size(); h++)
+							{
+								if (station[y][m][d][h][H_TAIR] == -999 && station[y][m][d][h][H_TMIN] != -999 && station[y][m][d][h][H_TMAX] != -999)
+									station[y][m][d][h].SetStat(H_TAIR, (station[y][m][d][h][H_TMIN] + station[y][m][d][h][H_TMAX]) / 2.0);
+
+								if (station[y][m][d][h][H_RELH] == -999 && station[y][m][d][h][H_TAIR] != -999 && station[y][m][d][h][H_TDEW] != -999)
+									station[y][m][d][h].SetStat(H_RELH, Td2Hr(station[y][m][d][H_TAIR], station[y][m][d][h][H_TDEW]));
+
+								if (station[y][m][d][h][H_TDEW] == -999 && station[y][m][d][h][H_TAIR] != -999 && station[y][m][d][h][H_RELH] != -999)
+									station[y][m][d][h].SetStat(H_TDEW, Hr2Td(station[y][m][d][H_TAIR], station[y][m][d][h][H_RELH]));
+
+							}
+						}
+					}
+				}
+
+			}
+			//bool bUseIt = true;
+			//if (bLagOneMonth)
+				//bUseIt = today - TRef.as(CTM::DAILY) > 30;
+
+			if (bLagOneMonth)//some data have invalid TRef or we have to make a one month lag
+			{
+				//reset last month data
+				int ndRef = 30;
+
+				if (type == HOURLY_WEATHER)
+				{
+					ndRef = 30 * 24;
+					today.Transform(CTM(CTM::HOURLY), 0);
+				}
+
+				for (CTRef TRef = today - ndRef; TRef <= today; TRef++)
+					station.Get(TRef).Reset();
+			}
+		}
 
 		return msg;
 	}
 
 
+	ERMsg CUIACIS::SaveData(size_t type, const string& filePath, const string& str, CCallback& callback)
+	{
+		ERMsg msg;
 
+
+
+		CWeatherYears data(type == HOURLY_WEATHER);
+		//try to load old data, ignor error if the fiole does not exist
+		if (type == HOURLY_WEATHER)
+			data.LoadData(filePath);
+
+
+		stringstream stream(str);
+
+		vector<TVarH > variables;
+		for (CSVIterator loop(stream, ",", true, true); loop != CSVIterator() && msg; ++loop)
+		{
+			if (variables.empty())
+			{
+				for (size_t c = 0; c < loop.Header().size(); c++)
+				{
+					TVarH var = GetVar(loop.Header()[c]);
+					variables.push_back(var);
+				}
+			}
+
+
+			if (loop->size() == variables.size())
+			{
+				StringVector tmp((*loop)[1], " -:");
+				ASSERT(type == HOURLY_WEATHER || tmp.size() == 3);
+				ASSERT(type == DAILY_WEATHER || tmp.size() == 5);
+
+				int year = ToInt(tmp[2]);
+				size_t m = CTRef::GetMonthIndex(tmp[1].c_str());
+				size_t d = ToInt(tmp[0]) - 1;
+				size_t h = 0;
+				if (type == HOURLY_WEATHER)
+					h = ToInt(tmp[3]);
+
+
+				ASSERT(m >= 0 && m < 12);
+				ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+
+				CTRef TRef(year, m, d, h, type == HOURLY_WEATHER ? CTM::HOURLY : CTM::DAILY);
+				ASSERT(TRef.IsValid());
+
+				if (TRef.IsValid())//some data have invalid TRef or we have to make a one month lag
+				{
+					for (size_t c = 2; c < loop->size(); c++)
+					{
+						if (variables[c] != H_SKIP)
+						{
+							const string& str = (*loop)[c];
+							if (!str.empty())
+							{
+								float value = value = WBSF::as<float>(str);
+								//if (variables[c] == H_SNDH)
+									//value /= 10;
+
+								if (type == HOURLY_WEATHER)
+								{
+									data[TRef].SetStat(variables[c], value);
+									//if (variables[c] == H_RELH && station[TRef][H_TAIR].IsInit())
+										//station[TRef].SetStat(H_TDEW, Hr2Td(station[TRef][H_TAIR], value));
+								}
+								else
+								{
+									//if (var == H_SRAD)
+										//value *= 1000000.0f / (3600 * 24);//convert MJ/m² --> W/m²
+
+									data[TRef].SetStat(variables[c], value);
+
+									/*string str_min = columns[c++];
+									string str_max = columns[c++];
+
+									if (var == H_TAIR)
+									{
+										float Tmin = WBSF::as<float>(str_min);
+										float Tmax = WBSF::as<float>(str_max);
+										if (Tmin > -999 && Tmax > -999)
+										{
+											ASSERT(Tmin >= -70 && Tmin <= 70);
+											ASSERT(Tmax >= -70 && Tmax <= 70);
+											ASSERT(Tmin <= Tmax);
+
+											station[TRef].SetStat(H_TMIN, Tmin);
+											station[TRef].SetStat(H_TMAX, Tmax);
+
+										}
+									}*/
+								}//if daily
+							}//if not empty
+						}//if good vars
+					}
+
+				}//TRef is valid
+			}//good number of column
+		}//for all lines
+
+
+
+		CreateMultipleDir(GetPath(filePath));
+		msg = data.SaveData(filePath);
+
+		return msg;
+	}
 
 
 

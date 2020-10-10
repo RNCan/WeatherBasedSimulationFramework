@@ -233,6 +233,15 @@
     <ClInclude Include="UIGribHistorical.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UIQualityControl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QualityControl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -455,6 +464,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIGribHistorical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIQualityControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QualityControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

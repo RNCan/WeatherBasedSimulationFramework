@@ -107,8 +107,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_NETWORK_ENABLE_HTTPS;_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include;..\..\..\external\cpp-netlib;..\..\..\external\cpp-netlib\openssl\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
@@ -144,8 +144,8 @@
       <FunctionLevelLinking>
       </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_NETWORK_ENABLE_HTTPS;_CRT_SECURE_NO_WARNINGS;_WINDOWS;WIN32;_WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\external;..\..\..\wbs\src;..\..\..\external\netCDF\cxx4;..\..\..\external\netCDF\include;..\..\..\external\GDAL\include;..\..\..\external\cpp-netlib</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- -D_SCL_SECURE_NO_WARNINGS</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -177,6 +177,9 @@
     <ClInclude Include="IrelandCounty.h" />
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
+    <ClInclude Include="QualityControl.h" />
+    <ClInclude Include="test.h" />
+    <ClInclude Include="UIQualityControl.h" />
     <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
     <ClInclude Include="UICMIP5.h" />
@@ -253,6 +256,14 @@
     <ClCompile Include="IrelandCounty.cpp" />
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
+    <ClCompile Include="QualityControl.cpp" />
+    <ClCompile Include="test.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="UIQualityControl.cpp" />
     <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />
     <ClCompile Include="UICMIP5.cpp" />
