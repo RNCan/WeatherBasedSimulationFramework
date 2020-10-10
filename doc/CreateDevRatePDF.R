@@ -56,7 +56,7 @@ pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_s
 
 	plot.new()
 	text(0.5,1.0, adj=c(0.5,0.9), expression("BioSIM' Development Rate Models"), family = myfont[font_sel], cex = 2.0)
-	text(0.5,.92, adj=c(0.5,0.9), expression("Uniformised Parameters"), family = myfont[font_sel], cex = 1.8)
+	text(0.5,.92, adj=c(0.5,0.9), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
 	text(0.0,0.8, adj=c(0,0.5), expression("Scale factor"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.8, adj=c(0,0.5), expression(psi), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
@@ -168,5 +168,4 @@ embed_fonts(file_name, outfile=paste("E:/Project/doc/DevRateEquations.pdf",sep="
 	
 	# dev.off()
 # }
-
 

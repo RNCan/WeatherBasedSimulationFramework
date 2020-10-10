@@ -37,7 +37,7 @@ pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_s
 
 	plot.new()
 	text(0.5,1.0, adj=c(0.5,0.9), expression("BioSIM' Survival Models"), family = myfont[font_sel], cex = 2.0)
-	text(0.5,.92, adj=c(0.5,0.9), expression("Uniformised Parameters"), family = myfont[font_sel], cex = 1.8)
+	text(0.5,.92, adj=c(0.5,0.9), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
 	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],kk, kk[1],kk[2])), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
