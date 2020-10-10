@@ -237,7 +237,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib;cpp-netlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib;</AdditionalDependencies>
       <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;titanlib.dll;mosa.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
