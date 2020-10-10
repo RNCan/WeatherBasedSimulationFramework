@@ -180,7 +180,7 @@ namespace WBSF
 
 		auto it = find_if(std::begin(INPUT_NAME), std::end(INPUT_NAME), [&](auto &s) {return boost::iequals(s, name); });
 		if (it != std::end(INPUT_NAME))
-			col = static_cast<TTobsCol>(distance(std::begin(INPUT_NAME), it));
+			col = static_cast<TTobsCol>(std::distance(std::begin(INPUT_NAME), it));
 
 		return col;
 
@@ -440,7 +440,7 @@ namespace WBSF
 
 		auto it = find_if(std::begin(INPUT_NAME), std::end(INPUT_NAME), [&](auto &s) {return boost::iequals(s, name); });
 		if (it != std::end(INPUT_NAME))
-			col = static_cast<TDevTimeCol>(distance(std::begin(INPUT_NAME), it));
+			col = static_cast<TDevTimeCol>(std::distance(std::begin(INPUT_NAME), it));
 
 		return col;
 	}

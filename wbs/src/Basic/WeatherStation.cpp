@@ -2812,6 +2812,34 @@ namespace WBSF
 
 		return years;
 	}
+	
+	CTRef CWeatherYears::GetLastTref(const std::string& filepath)
+	{
+		CTRef TRef;
+
+		ifStream file;
+		if (file.open(filepath))
+		{
+			string header;
+			getline(file, header);
+			CWeatherFormat format(header.c_str(), " \",;\t");
+			size_t min_col = format.GetTM().Type() == CTM::HOURLY ? 4 : 3;
+
+			std::string line = getLastLine(file);
+			StringVector tmp(line, ",");
+			if (tmp.size() >= min_col)
+			{
+				TRef = format.GetTRef(tmp);
+				ASSERT(TRef.IsValid());
+				if (!TRef.IsValid())
+					TRef.clear();
+			}
+
+			file.close();
+		}
+
+		return TRef;
+	}
 
 	ERMsg CWeatherYears::SaveData(const std::string& filePath, CTM TM, char separator)const
 	{

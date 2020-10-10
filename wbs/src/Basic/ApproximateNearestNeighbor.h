@@ -62,7 +62,7 @@ namespace WBSF
 			ar & m_nSize & m_nbDimension & m_positions;
 			if (m_nSize*m_nbDimension > 0)
 			{
-				m_pDataPts = annAllocPts(m_nSize, m_nbDimension);
+				m_pDataPts = ::annAllocPts(m_nSize, m_nbDimension);
 				ar.load_binary(m_pDataPts[0], m_nbDimension*m_nSize*sizeof(double));
 			}
 		}

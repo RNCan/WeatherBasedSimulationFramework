@@ -257,6 +257,7 @@
     </ClCompile>
     <ClCompile Include="..\src\Basic\ApproximateNearestNeighbor.cpp" />
     <ClCompile Include="..\src\Basic\Callback.cpp" />
+    <ClCompile Include="..\src\Basic\CallcURL.cpp" />
     <ClCompile Include="..\src\Basic\CSV.cpp" />
     <ClCompile Include="..\src\Basic\DailyDatabase.cpp" />
     <ClCompile Include="..\src\Basic\Dbf3.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="..\src\Basic\ANN\pr_queue_k.h" />
     <ClInclude Include="..\src\Basic\ApproximateNearestNeighbor.h" />
     <ClInclude Include="..\src\Basic\Callback.h" />
+    <ClInclude Include="..\src\Basic\CallcURL.h" />
     <ClInclude Include="..\src\Basic\CSV.h" />
     <ClInclude Include="..\src\Basic\DailyDatabase.h" />
     <ClInclude Include="..\src\Basic\Dbf3.h" />

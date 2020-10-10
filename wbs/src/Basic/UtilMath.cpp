@@ -1629,7 +1629,7 @@ namespace WBSF
 
 	void CRandomGenerator::Randomize(size_t seed)
 	{
-		if (seed == 0)
+		if (seed == RANDOM_SEED)
 		{
 			static unsigned long ID = 1;
 			//seed = static_cast<unsigned long>(std::time(NULL)+ID*1000);

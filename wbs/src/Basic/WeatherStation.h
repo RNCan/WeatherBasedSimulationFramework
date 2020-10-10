@@ -55,7 +55,7 @@ public:
 
 	void clear()
 	{
-		std::for_each(begin(), end(), [this](CStatistic& ob) { ob.clear(); });
+		std::for_each(std::array<CStatistic, T>::begin(), std::array<CStatistic, T>::end(), [this](CStatistic& ob) { ob.clear(); });
 		m_period.clear();
 		m_bInit = false;
 	}
@@ -75,8 +75,8 @@ public:
 	CWVariables GetVariables()const
 	{
 		CWVariables variables;
-		for (size_t v = 0; v<size(); v++)
-			variables[v] = at(v).IsInit();
+		for (size_t v = 0; v< std::array<CStatistic, T>::size(); v++)
+			variables[v] = std::array<CStatistic, T>::at(v).IsInit();
 
 		return variables;
 	}
@@ -84,11 +84,11 @@ public:
 	CWVariablesCounter GetVariablesCount(bool bOneCountPerDay = false)const
 	{
 		CWVariablesCounter variables;
-		for (size_t v = 0; v < size(); v++)
+		for (size_t v = 0; v < std::array<CStatistic, T>::size(); v++)
 		{
-			if (at(v).IsInit())
+			if (std::array<CStatistic, T>::at(v).IsInit())
 			{
-				variables[v].first += size_t(bOneCountPerDay ? 1 : at(v)[NB_VALUE]);
+				variables[v].first += size_t(bOneCountPerDay ? 1 : std::array<CStatistic, T>::at(v)[NB_VALUE]);
 				variables[v].second += m_period;// CTPeriod(m_TRef, m_TRef);//m_period can not be init yet
 			}
 		}
@@ -98,8 +98,8 @@ public:
 	bool HaveData()const
 	{
 		bool bHaveData = false;
-		for (size_t v = 0; v<size() && !bHaveData; v++)
-			bHaveData = at(v).IsInit();
+		for (size_t v = 0; v< std::array<CStatistic, T>::size() && !bHaveData; v++)
+			bHaveData = std::array<CStatistic, T>::at(v).IsInit();
 
 		return bHaveData;
 	}
@@ -978,6 +978,8 @@ class CWeatherYears : public CDataInterface, public CWeatherYearMap
 {
 
 public:
+
+	static CTRef GetLastTref(const std::string& filepath);
 
 	std::array<std::string, HOURLY_DATA::NB_ADD> m_addName;
 

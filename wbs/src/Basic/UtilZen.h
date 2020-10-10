@@ -9,6 +9,8 @@
 //******************************************************************************
 #pragma once
 
+#include <vector>
+#include <string>
 #include "basic/zenXml.h"
 #include "Basic/UtilStd.h"
 
@@ -36,7 +38,7 @@ namespace zen
 
 		auto iterPair = input.getChildren(T::GetXMLFlag());
 		out.resize(std::distance( iterPair.first, iterPair.second) );
-		std::vector<T>::iterator it = out.begin();
+		auto it = out.begin();
 		for (auto iter = iterPair.first; iter != iterPair.second; ++iter, it++)
 		{
 			if (!zen::readStruc(*iter, *it))
@@ -66,7 +68,7 @@ namespace zen
 
 		auto iterPair = input.getChildren(XMLFlag);
 		out.resize(std::distance(iterPair.first, iterPair.second));
-		std::vector<T>::iterator it = out.begin();
+		auto it = out.begin();
 		for (auto iter = iterPair.first; iter != iterPair.second; ++iter, it++)
 		{
 			if (!zen::readStruc(*iter, *it))
@@ -166,7 +168,7 @@ namespace zen
 	template<class T>
 	std::string to_string(T& Class, std::string rootName, std::string version)
 	{
-		string str;
+		std::string str;
 
 		try
 		{

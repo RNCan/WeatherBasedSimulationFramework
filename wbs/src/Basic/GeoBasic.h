@@ -903,16 +903,16 @@ namespace WBSF
 		{
 			ERMsg msg;
 
-			for (std::vector<U>::iterator it = begin(); it != end(); it++)
+			for (typename std::vector<U>::iterator it = std::vector<U>::begin(); it != std::vector<U>::end(); it++)
 				msg += it->Reproject(PT);
 
 			return msg;
 		}
 
-		size_t GetPrjID()const{ return empty()?PRJ_NOT_INIT:front().GetPrjID();}
+		size_t GetPrjID()const{ return std::vector<U>::empty()?PRJ_NOT_INIT: std::vector<U>::front().GetPrjID();}
 		void SetPrjID(size_t ID)
 		{
-			for (std::vector<U>::iterator it = begin(); it != end(); it++)
+			for (typename std::vector<U>::iterator it = std::vector<U>::begin(); it != std::vector<U>::end(); it++)
 				it->SetPrjID(ID);
 		}
 	};
@@ -1709,7 +1709,7 @@ namespace WBSF
 		//int size()const{ return (int)std::vector<CGridPoint>::size(); }
 
 		//get distance of 2 points
-		double CGridPointVector::GetDistance(int i, int j)const
+		double GetDistance(int i, int j)const
 		{
 			return at(i).GetDistance(at(j));
 		}

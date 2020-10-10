@@ -12,6 +12,7 @@
 #include <crtdbg.h>
 #include <vector>
 
+
 #include "Basic/ERMsg.h"
 #include "Basic/zenXml.h"
 #include "Basic/UtilStd.h"
@@ -724,7 +725,7 @@ namespace WBSF
 		void Init(CTPeriod period = CTPeriod())
 		{
 			m_period = period;
-			resize(m_period.GetNbRef());
+			std::vector<T>::resize(m_period.GetNbRef());
 		}
 
 		CTReferencedVector(const CTReferencedVector& in){ operator=(in); }

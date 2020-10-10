@@ -380,7 +380,7 @@ template <class Num> inline
 int saferPrintf(char* buffer, size_t bufferSize, const char* format, const Num& number) //there is no such thing as a "safe" printf ;)
 {
 #if defined _MSC_VER || defined __MINGW32__
-    return ::_snprintf(buffer, bufferSize, format, number); //by factor 10 faster than "std::snprintf" on MinGW and on par with std::sprintf()!!!
+    return ::_snprintf_s(buffer, bufferSize, _TRUNCATE, format, number); //by factor 10 faster than "std::snprintf" on MinGW and on par with std::sprintf()!!!
 #else
     return std::snprintf(buffer, bufferSize, format, number); //C99
 #endif

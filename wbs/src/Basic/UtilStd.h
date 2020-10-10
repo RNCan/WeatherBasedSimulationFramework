@@ -373,18 +373,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	std::string::size_type GetNextLinePos(const std::string& str, std::string::size_type begin);
 
-	template <typename T> inline
-	const std::vector<T> ToVector(const std::string& str, const std::string& be="[", const std::string& sep=",", const std::string& en="]")
-	{
-		StringVector tmp = Tokenize(str, be+sep+en);
-		std::vector<T> v;
-		v.reserve(tmp.size());
-		for(StringVector::const_iterator it=tmp.begin(); it!=tmp.end(); it++)
-			if (!it->empty())
-				v.push_back( ToValue<T>(*it) );
-
-		return v;
-	}
+	
 
 	inline bool ToBool(const std::string& str){ return atoi(str.c_str())!=0; }
 	inline char ToChar(const std::string& str){ return (char)atoi(str.c_str()); }
@@ -475,6 +464,19 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return v;
 	}
 
+	template <typename T> inline
+		const std::vector<T> ToVector(const std::string& str, const std::string& be = "[", const std::string& sep = ",", const std::string& en = "]")
+	{
+		StringVector tmp = Tokenize(str, be + sep + en);
+		std::vector<T> v;
+		v.reserve(tmp.size());
+		for (StringVector::const_iterator it = tmp.begin(); it != tmp.end(); it++)
+			if (!it->empty())
+				v.push_back(ToValue<T>(*it));
+
+		return v;
+	}
+
 	std::string ToDMS(double);
 	
 
@@ -547,6 +549,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	inline std::string ToString(double val, int pres=4){ return ToStringStd(val, pres);}
 	std::string ToStringDMS(double coord, bool bWithFraction);
 	
+
 
 	//http://stackoverflow.com/a/13636164/195722
 	template <typename T> inline
@@ -791,8 +794,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		bool operator !=(const CFileInfo& in)const{ return !(operator==(in)); }
 
 
-		std::ostream& operator>>(std::ostream &s)const{ s << string_quote_writer(m_filePath) << " " << m_time << " " << m_size;	return s; }
-		std::istream& operator<<(std::istream &s){ s >> string_quote_reader(m_filePath) >> m_time >> m_size; return s; }
+		std::ostream& operator>>(std::ostream &s)const{ s << m_filePath << " " << m_time << " " << m_size;	return s; }
+		std::istream& operator<<(std::istream &s){ s >> m_filePath >> m_time >> m_size; return s; }
 		friend std::ostream& operator<<(std::ostream &s, const CFileInfo& pt){ pt >> s; return s; }
 		friend std::istream& operator>>(std::istream &s, CFileInfo& pt){ pt << s;	return s; }
 
@@ -1264,6 +1267,14 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	//*********************************************************************************************************************
 	//xfStream
+	inline std::string getLastLine(std::ifstream& in)
+	{
+		std::string line;
+		while (in >> std::ws && std::getline(in, line)) // skip empty lines
+			;
+
+		return line;
+	}
 
 
 	//by default deny read and write

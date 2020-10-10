@@ -224,6 +224,9 @@
     <ClCompile Include="..\src\Basic\QGISPalette.cpp">
       <Filter>stdafx</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\CallcURL.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -489,6 +492,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Basic\QGISPalette.h">
       <Filter>stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\CallcURL.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

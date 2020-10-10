@@ -52,6 +52,27 @@ namespace WBSF
 	inline double Feet2Meter(double f){ return f*FEET2METER; }
 	inline double Meter2Feet(double m){ return m*METER2FEET; }
 
+	template<class T>
+	int Signe(const T& a)
+	{
+		return a >= 0 ? 1 : -1;
+	}
+
+	template<class T>
+	__int64 Trunk(const T& a, double prec = 0.0000000001)
+	{
+		return __int64(a + Signe(a)*prec);
+	}
+
+	inline int TrunkLowest(double a, double prec = 0.0000000001) { return (int)floor(a + prec); }
+
+	template<class T>
+	void Switch(T& x, T& y)
+	{
+		T tmp = x;
+		x = y;
+		y = tmp;
+	}
 
 	template<class T>
 	T Square(const T& x){ return x*x; }
@@ -77,27 +98,7 @@ namespace WBSF
 	}
 
 
-	template<class T>
-	__int64 Trunk(const T& a, double prec = 0.0000000001)
-	{
-		return __int64(a + Signe(a)*prec);
-	}
-
-	inline int TrunkLowest(double a, double prec = 0.0000000001){ return (int)floor(a + prec); }
-
-	template<class T>
-	int Signe(const T& a)
-	{
-		return a >= 0 ? 1 : -1;
-	}
-
-	template<class T>
-	void Switch(T& x, T& y)
-	{
-		T tmp = x;
-		x = y;
-		y = tmp;
-	}
+	
 
 
 	double eᵒ(double Tair);//hourly vapor pressure
@@ -330,7 +331,7 @@ namespace WBSF
 			Randomize(seed);
 		}
 
-		void Randomize(size_t seed = 0);
+		void Randomize(size_t seed = RANDOM_SEED);
 
 
 		unsigned long Rand()const

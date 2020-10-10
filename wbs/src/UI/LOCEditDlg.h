@@ -89,6 +89,14 @@ namespace WBSF
 	{
 		// Construction
 	public:
+
+
+		static ERMsg ExtractFromDEM(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bReplaceAll, CCallback& callback);
+		static ERMsg ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback);
+		static ERMsg ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eINterpol, CCallback& callback);
+		static ERMsg ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback);
+
+
 		CLocDlg(CWnd* pParent = NULL);   // standard constructor
 
 		enum { IDD = IDD_SIM_LOC };
@@ -137,12 +145,6 @@ namespace WBSF
 
 		BOOL m_bEnable;
 
-
-		static ERMsg ExtractFromDEM(CLocationVector& locations, const std::string& filePath, size_t interpolationType, bool bExtractElev, bool bExtractSlopeAspect, bool bReplaceAll, CCallback& callback);
-		static ERMsg ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback);
-		static ERMsg ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eINterpol, CCallback& callback);
-		static ERMsg ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback);
-	
 		static UINT ExtractSSI(void* pParam);
 	};
 
