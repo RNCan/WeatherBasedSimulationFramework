@@ -27,7 +27,7 @@ namespace WBSF
 		static void Covert2D(const CModelStatVector& result, CModelStatVector& resultD);
 		static void Covert2M(const CModelStatVector& result, CModelStatVector& resultM);
 		static void Covert2A(const CModelStatVector& result, CModelStatVector& resultA);
-		static long GetNbDayWithoutPrcp(const CModelStatVector& result, const CTPeriod& p, bool bConsecutive);
+		//static long GetNbDayWithoutPrcp(const CModelStatVector& result, const CTPeriod& p, bool bConsecutive);
 
 	};
 
@@ -53,21 +53,25 @@ namespace WBSF
 		ERMsg Execute(const CWeatherStation& weather, CModelStatVector& output);
 		//const CFWIDStatVector& GetResult()const{ return m_dailyResult; }
 
-		static double GetFFMC(double oldDMC, const CWeatherDay& data);
-		static double GetFFMC(double oldDMC, const CHourlyData& data);
+		//static double GetFFMC(double oldDMC, const CWeatherDay& data, double prcp);
 		static double GetFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp);
 
-		static double GetDMC(double oldDMC, const CWeatherDay& data);
-		static double GetDMC(double oldDMC, const CHourlyData& data);
+		
+		//static double GetHFFMC(double oldDMC, const CHourlyData& data);
+		static double GetHFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp);
+
+		//static double GetDMC(double oldDMC, const CWeatherDay& data, double prcp);
+		//static double GetDMC(double oldDMC, const CHourlyData& data);
 		static double GetDMC(double oldDMC, size_t m, double T, double Hr, double prcp);
 
-		static double GetDC(double oldDMC, const CHourlyData& data);
-		static double GetDC(double oldDMC, const CWeatherDay& data);
-		static double GetDC(double oldDC, size_t m, double T, double prcp);
+		//static double GetDC(double oldDMC, const CHourlyData& data);
+		//static double GetDC(double oldDMC, const CWeatherDay& data, double prcp);
+		static double GetDC(double oldDC, double lat, size_t m, double T, double prcp);
 
-		static double GetISI(double ffmc, const CHourlyData& data);
-		static double GetISI(double ffmc, const CWeatherDay& data);
-		static double GetISI(double ffmc, double Ws);
+		static double GetHISI(double Fo, double Ws, bool fbpMod = false);
+		//static double GetHISI(double ffmc, const CHourlyData& data);
+		//static double GetISI(double ffmc, const CWeatherDay& data);
+		static double GetISI(double ffmc, double Ws, bool fbpMod = false);
 
 		static double GetBUI(double dmc, double dc);
 		static double GetFWI(double bui, double isi);

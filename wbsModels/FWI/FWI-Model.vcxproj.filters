@@ -13,12 +13,18 @@
     <ClCompile Include="FWI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FWI(new from wang2015).cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FWI-Model.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="FWI.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FWI(new from wang2015).h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

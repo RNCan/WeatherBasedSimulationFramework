@@ -1,6 +1,7 @@
 //*********************************************************************
-//16/03/2020	3.2.0	Rémi Saint-Amant    precipitation compute from hourly oon to noon
-//											Add initial valuues from files
+//09/10/2020	3.2.1	Rémi Saint-Amant    Add hourly computation. Use of noon to noon prcp in FWI computation
+//16/03/2020	3.2.0	Rémi Saint-Amant    precipitation compute from hourly noon to noon
+//											Add initial values from files
 //23/03/2018	3.1.2	Rémi Saint-Amant    Compile with VS 2017
 //10/05/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -21,6 +22,7 @@
 #include "ModelBase/EntryPoint.h"
 #include "FWI.h"
 #include "FWI-Model.h"
+#include "FWI(new from wang2015).h"
 
 
 using namespace std;
@@ -43,7 +45,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER=8;
-		VERSION = "3.2.0 (2020)";
+		VERSION = "3.2.1 (2020)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;
@@ -140,6 +142,40 @@ namespace WBSF
 	
 		msg = FWI.Execute(m_weather, output);
 
+		
+		//compare with wang code;
+
+		
+		//CFWIInputVector in;
+		//for (CTRef TRef = m_firstDay.GetTRef(m_weather.GetFirstYear()); TRef <= m_lastDay.GetTRef(m_weather.GetFirstYear()); TRef++)
+		//{
+		//	const CWeatherDay& pday = m_weather.GetDay(TRef).HavePrevious() ? m_weather.GetDay(TRef).GetPrevious() : m_weather.GetDay(TRef);
+		//	const CWeatherDay& day = m_weather.GetDay(TRef);
+		//	//const CHourlyData& data = day[12];
+		//	double prcp = 0;
+		//	for (size_t h = 13; h < 24; h++)
+		//		if (!WEATHER::IsMissing(day[h][H_PRCP]))
+		//			prcp += pday[h][H_PRCP];
+		//	for (size_t h = 0; h <= 12; h++)
+		//		if (!WEATHER::IsMissing(day[h][H_PRCP]))
+		//			prcp += day[h][H_PRCP];
+
+		//	in.push_back(CFWIInput(int(TRef.GetMonth()+1), int(TRef.GetDay()+1), day[12][H_TAIR], day[12][H_RELH], day[12][H_WNDS], prcp));
+		//}
+
+		//CFWIOutputVector out;
+		//ComputeFWI(in, out, m_FFMC, m_DMC, m_DC);
+
+		//size_t i = 0;
+		//for (CTRef TRef = m_firstDay.GetTRef(m_weather.GetFirstYear()); TRef <= m_lastDay.GetTRef(m_weather.GetFirstYear()); TRef++, i++)
+		//{
+		//	ASSERT( fabs( output[TRef][CFWIStat::FFMC] - out[i].ffmc ) < 0.1 );
+		//	ASSERT(fabs(output[TRef][CFWIStat::DMC] - out[i].dmc) < 0.1);
+		//	ASSERT(fabs(output[TRef][CFWIStat::DC] - out[i].dc) < 0.1);
+		//	ASSERT(fabs(output[TRef][CFWIStat::ISI] - out[i].isi) < 0.1);
+		//	ASSERT(fabs(output[TRef][CFWIStat::BUI] - out[i].bui) < 0.1);
+		//	ASSERT(fabs(output[TRef][CFWIStat::FWI] - out[i].fwi) < 0.1);
+		//}
 
 		return msg;
 	}
