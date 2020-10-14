@@ -1,5 +1,7 @@
 //*********************************************************************
-//21-02-2017	1.0.0	Rémi Saint-Amant	Creation from code of Beguería, Santiago; Vicente Serrano, Sergio M: http://digital.csic.es/handle/10261/10002?
+//14-10-2020	1.0.2	Rémi Saint-Amant	Bug correction on temperature
+//21-02-2017	1.0.0	Rémi Saint-Amant	Creation from code of Beguería, Santiago; Vicente Serrano, Sergio M:
+//http://digital.csic.es/handle/10261/10002?
 //*********************************************************************
 
 #include "Basic/WeatherDefine.h"
@@ -27,7 +29,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER=2;
-		VERSION = "1.0.1 (2017)";
+		VERSION = "1.0.2 (2020)";
 
 		m_k = 1;
 		m_ETType = THORNTHWAITE;
@@ -70,7 +72,7 @@ namespace WBSF
 		vector<double> ETP(Tair.size());
 		switch (m_ETType)
 		{
-		case THORNTHWAITE:		Thornthwaite(Tair.data(), Prcp.size(), m_info.m_loc.m_lat, ETP.data()); break;
+		case THORNTHWAITE:		Thornthwaite(Tair.data(), (int)Prcp.size(), m_info.m_loc.m_lat, ETP.data()); break;
 		case HARGREAVES_SAMANI: HargreavesSamani(m_weather, ETP.data()); break;
 		case PENMAN_MONTEITH:	PenmanMonteith(m_weather, ETP.data()); break;
 		}
@@ -89,7 +91,7 @@ namespace WBSF
 		{
 			for (size_t j = 0; j<m_k; j++) 
 			{
-				output[O_TAIRE][i - m_k + 1] += Tair[i - j];
+				output[O_TAIRE][i - m_k + 1] += Tair[i - j]/ m_k;
 				output[O_PRCP][i - m_k + 1] += Prcp[i - j];
 				output[O_PET][i - m_k + 1] += ETP[i - j];
 				output[O_BAL][i - m_k + 1] += balance[i - j];
@@ -97,7 +99,7 @@ namespace WBSF
 		}
 
 		// Compute the SPEI series
-		spei(output[O_BAL].data(), output[O_BAL].size(), output[O_SPEI].data());
+		spei(output[O_BAL].data(), (int)output[O_BAL].size(), output[O_SPEI].data());
 
 		
 		m_output.Init(output[O_SPEI].size(), p.Begin() + m_k - 1, NB_OUTPUTS);
@@ -133,7 +135,7 @@ namespace WBSF
 		stats.Transform(CTM(CTM::MONTHLY), SUM);
 
 		for (size_t n = 0; n < stats.size(); n++)
-			etpSeries[n] = max(0.0, stats[n][ETInterface::S_ET]);;
+			etpSeries[n] = max(0.0, stats[n][ETInterface::S_ET]);
 	}
 
 	

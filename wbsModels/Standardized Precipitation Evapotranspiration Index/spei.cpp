@@ -27,10 +27,10 @@ void spei(double dataSeries[], int n, double speiSeries[])
 		for (int i = j; i < n; i += SEASONS)
 			seasonSeries.push_back( dataSeries[i] );
 
-		upward(seasonSeries.data(), seasonSeries.size());
+		upward(seasonSeries.data(), (int)seasonSeries.size());
 		// Compute probability weighted moments
 		//pwm(seasonSeries, nSeason, beta, -0.35, 0, 0);
-		pwm(seasonSeries.data(), seasonSeries.size(), beta, 0, 0, 0);
+		pwm(seasonSeries.data(), (int)seasonSeries.size(), beta, 0, 0, 0);
 		// Fit a Log Logistic probability function
 		logLogisticFit(beta, logLogisticParams[j]);
 		//printf("\nSeason %u", jndice);
