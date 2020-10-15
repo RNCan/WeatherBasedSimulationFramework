@@ -2,12 +2,12 @@
 <Model version="3">
     <Title>FWI(daily)</Title>
     <Version>1.0</Version>
-    <ID>.FWI</ID>
-    <EXE>FWI.dll</EXE>
+    <ID>.FBP</ID>
+    <EXE>FBP.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
-    <WindowRect>0 0 381 710</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS SD</SimulatedCategory>
+    <WindowRect>0 0 483 710</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS WD SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -134,7 +134,7 @@
             <MaxValue>0.9</MaxValue>
             <TextValue/>
         </InputVariable>
-		<InputVariable>
+        <InputVariable>
             <Name>VanWagnerType</Name>
             <Caption>VanWagner (HFFMC)</Caption>
             <Description/>
@@ -169,6 +169,30 @@
             <MinValue>-999</MinValue>
             <MaxValue>999</MaxValue>
             <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Ignition</Name>
+            <Caption>Ignition(YYYY-MM-DD-HH)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>360 15 380 340</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FuelType</Name>
+            <Caption>FuelType</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>385 15 410 340</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>16</MaxValue>
+            <TextValue>C1-Spruce-Lichen Woodland|C2-Boreal Spruce|C3-Mature Jack or Lodgepole Pine|C4-Immature Jack or Lodgepole Pine|C5-Red and White Pine|C6-Conifer Plantation|C7-Ponderosa Pine / Douglas Fir|D1-Leafless Aspen|M1-Boreal Mixedwood - Leafless |M2-Boreal Mixedwood - Green |M3-Dead Balsam Fir Mixedwood - Leafless |M4-Dead Balsam Fir Mixedwood - Green |S1-Jack or Lodgepole Pine Slash|S2-White Spruce / Balsam Slash |S3-Coastal Cedar / Hemlock / Douglas-Fir Slash|O1A-Matted Grass |O1B-Standing Grass</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>HeadBegin1</Name>
@@ -254,111 +278,88 @@
             <MaxValue>999</MaxValue>
             <TextValue/>
         </InputVariable>
+        <InputVariable>
+            <Name>Line</Name>
+            <Caption>Line3</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>340 15 360 620</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>3 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>T</Name>
-            <Title>T</Title>
-            <Units>°C</Units>
-            <Description>Temperature</Description>
+            <Name>CFB</Name>
+            <Title>CFB</Title>
+            <Units>----</Units>
+            <Description>Crown Fraction Burned by the head fire</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>RH</Name>
-            <Title>RH</Title>
-            <Units>%</Units>
-            <Description>Relative humidity</Description>
+            <Name>CFC</Name>
+            <Title>CFC</Title>
+            <Units>kg/m²</Units>
+            <Description>Crown Fuel Consumption</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>WS</Name>
-            <Title>WS</Title>
-            <Units>km/h</Units>
-            <Description>Wind speed</Description>
+            <Name>FD</Name>
+            <Title>FD</Title>
+            <Units>S=Surface, I=Intermittent, C=Crown</Units>
+            <Description>Fire description</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Prcp</Name>
-            <Title>Prcp</Title>
-            <Units>mm</Units>
-            <Description>Total daily precipitation</Description>
+            <Name>HFI</Name>
+            <Title>HFI</Title>
+            <Units>kW/m</Units>
+            <Description>Head Fire Intensity</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>FFMC</Name>
-            <Title>FFMC</Title>
-            <Units/>
-            <Description>Fine Fuel Moisture Code, the moisture content of litter and cured fine fuels, 1–2 cm deep.</Description>
+            <Name>RAZ</Name>
+            <Title>RAZ</Title>
+            <Units>degrees</Units>
+            <Description>Spread direction azimuth</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DMC</Name>
-            <Title>DMC</Title>
-            <Units/>
-            <Description>Duff Moisture Code, the moisture content of loosely compacted, decomposing organic matter, 5–10 cm deep.</Description>
+            <Name>ROS</Name>
+            <Title>ROS</Title>
+            <Units>m/min</Units>
+            <Description>Equilibrium Head Fire Rate of Spread</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DC</Name>
-            <Title>DC</Title>
-            <Units/>
-            <Description>Drought Code, moisture content of the deep layer of compacted organic matter, 10–20 cm deep</Description>
+            <Name>SFC</Name>
+            <Title>SFC</Title>
+            <Units>kg/m²</Units>
+            <Description>Surface Fuel Consumption</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ISI</Name>
-            <Title>ISI</Title>
-            <Units/>
-            <Description>Initial Spread Index, numerical rating of fire spread immediately after ignition without the influence of variable fuel quantity</Description>
+            <Name>TFC</Name>
+            <Title>TFC</Title>
+            <Units>kg/m²</Units>
+            <Description>Total Fuel Consumption</Description>
             <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>BUI</Name>
-            <Title>BUI</Title>
-            <Units/>
-            <Description>Build Up Index, total fuel available for combustion.</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>FWI</Name>
-            <Title>FWI</Title>
-            <Units/>
-            <Description>Fire Weather Index, numerical rating of the intensity of a spreading fire</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>DSR</Name>
-            <Title>DSR</Title>
-            <Units/>
-            <Description>Daily Severity Rating</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>5</Precision>
-            <Climatic>1</Climatic>
+            <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit/>
-    <HelpFileName>FWI.pdf</HelpFileName>
+    <Credit>Forestry Canada Fire Danger Group(FCFDG) (1992). "Development and Structure of the Canadian Forest Fire Behavior Prediction System." Technical Report ST - X - 3, Forestry Canada, Ottawa, Ontario.&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Wotton, B.M., Alexander, M.E., Taylor, S.W. 2009. Updates and revisions to the 1992 Canadian forest fire behavior prediction system.Nat.Resour. Can., Can.For.Serv., Great Lakes For.Cent., Sault Ste.Marie, Ontario, Canada.Information Report GLC - X - 10, 45p.</Credit>
+    <HelpFileName/>
 </Model>

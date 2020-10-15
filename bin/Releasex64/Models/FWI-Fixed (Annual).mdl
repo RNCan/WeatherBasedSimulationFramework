@@ -98,6 +98,30 @@
             <MaxValue>0.9</MaxValue>
             <TextValue/>
         </InputVariable>
+		<InputVariable>
+            <Name>VanWagnerType</Name>
+            <Caption>VanWagnerType</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>410 15 430 340</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>VanWagner 1977|VanWargner 1987</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>fbpMode</Name>
+            <Caption>fbpMode</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>440 15 460 340</Rect>
+            <SeparatorPos>205</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
         <InputVariable>
             <Name>InitialValue</Name>
             <Caption>Initial values file</Caption>
