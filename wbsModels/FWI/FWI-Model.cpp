@@ -1,5 +1,6 @@
 //*********************************************************************
 //09/10/2020	3.2.1	Rémi Saint-Amant    Add hourly computation. Use of noon to noon prcp in FWI computation
+//											Add Van Wagner type and fbp mode
 //16/03/2020	3.2.0	Rémi Saint-Amant    precipitation compute from hourly noon to noon
 //											Add initial values from files
 //23/03/2018	3.1.2	Rémi Saint-Amant    Compile with VS 2017
@@ -44,7 +45,7 @@ namespace WBSF
 	CFWIModel::CFWIModel() 
 	{
 		// initialise your variable here (optionnal)
-		NB_INPUT_PARAMETER=8;
+		NB_INPUT_PARAMETER=10;
 		VERSION = "3.2.1 (2020)";
 
 		m_bAutoSelect = true;
@@ -61,6 +62,10 @@ namespace WBSF
 		m_thresholdEnd = 5;
 		m_carryOverFraction = 1;
 		m_effectivenessOfWinterPrcp = 0.75;
+		size_t m_VanWagnerType = CFWI::VAN_WAGNER_1987;
+		bool m_fbpMod = false;
+
+
 		m_method = CFWI::NOON_CALCULATION;
 	}
 
@@ -87,6 +92,9 @@ namespace WBSF
 			m_DC = parameters[c++].GetReal();
 			m_carryOverFraction = parameters[c++].GetReal();
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
+			m_VanWagnerType = parameters[c++].GetInt();
+			m_fbpMod = parameters[c++].GetBool();
+
 
 			if(!GetFileData(0).empty())
 				msg = m_init_values.Load(GetFileData(0));
@@ -105,7 +113,8 @@ namespace WBSF
 			m_thresholdEnd = parameters[c++].GetReal();
 			m_carryOverFraction = parameters[c++].GetReal();
 			m_effectivenessOfWinterPrcp = parameters[c++].GetReal();
-			//m_method = parameters[c++].GetInt();
+			m_VanWagnerType = parameters[c++].GetInt();
+			m_fbpMod = parameters[c++].GetBool();
 		}
 		
 		return msg;
@@ -139,6 +148,8 @@ namespace WBSF
 		//common setting
 		FWI.m_carryOverFraction = m_carryOverFraction;
 		FWI.m_effectivenessOfWinterPrcp = m_effectivenessOfWinterPrcp;
+		FWI.m_VanWagnerType = CFWI::TVanWagner(m_VanWagnerType);
+		FWI.m_fbpMod = m_fbpMod;
 	
 		msg = FWI.Execute(m_weather, output);
 
@@ -215,12 +226,9 @@ namespace WBSF
 		//Init class member
 		CFWIMStatVector resultD;
 		msg = ExecuteDaily(resultD);
+		CFWIStat::Covert2M(resultD, m_output);
 
-
-		CFWIMStatVector resultM;
-		CFWIStat::Covert2M(resultD, resultM);
-
-		SetOutput(resultM);
+		
 
 
 		return msg;
@@ -236,18 +244,18 @@ namespace WBSF
 		CFWIDStatVector resultD;
 		msg = ExecuteDaily(resultD);
 
-		CFWIAStatVector resultA;
-		CFWIStat::Covert2A(resultD, resultA);
+		//CFWIAStatVector resultA;
+		CFWIStat::Covert2A(resultD, m_output);
 
-		for (size_t y = 0; y < resultA.size(); y++)
+		for (size_t y = 0; y < m_output.size(); y++)
 		{
-			resultA[y][CFWIStat::SNOW_MELT] = snow.GetLastSnowTRef(m_weather[y]).GetJDay() + 1;
+			m_output[y][CFWIStat::SNOW_MELT] = snow.GetLastSnowTRef(m_weather[y]).GetJDay() + 1;
 			CTRef Tref = snow.GetFirstSnowTRef(m_weather[y]);
-			resultA[y][CFWIStat::SNOW_FALL] = Tref.IsInit() ? Tref.GetJDay() + 1 : 367;
+			m_output[y][CFWIStat::SNOW_FALL] = Tref.IsInit() ? Tref.GetJDay() + 1 : 367;
 		}
 
 
-		SetOutput(resultA);
+		//SetOutput(resultA);
 
 		return msg;
 	}

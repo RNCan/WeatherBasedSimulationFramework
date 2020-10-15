@@ -119,29 +119,19 @@ namespace WBSF
 
 		m_carryOverFraction = 1;
 		m_effectivenessOfWinterPrcp = 0.75;
+		m_VanWagnerType = VAN_WAGNER_1987;
+		m_fbpMod = false;
 	}
 
-	//double CFWI::GetHFFMC(double oldFFMC, const CHourlyData& data)
-	//{
-	//	return GetHFFMC(oldFFMC, data[H_TAIR], data[H_RELH], data[H_WNDS], data[H_PRCP]);
-	//}
 
-	//double CFWI::GetFFMC(double oldFFMC, const CWeatherDay& data, double prcp)
-	//{
-	//	ASSERT(data.IsHourly());
-	//	return GetFFMC(oldFFMC, data[12][H_TNTX], data[12][H_RELH], data[12][H_WNDS], prcp/*data[H_PRCP][SUM]*/);
-	//}
-
-
-
-
-	//T: Temperature (°C)
-	//Hr: relative humidity (%)
-	//Ws: wind speed (km/h)
-	//prcp: precipitation in mm
-	double CFWI::GetFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp)
+	//FFMC:   Fine Fuel Moisture Code
+	//T: Temperature [°C]
+	//Hr: relative humidity [%]
+	//Ws: wind speed [km/h]
+	//prcp: precipitation [mm]
+	double CFWI::GetFFMC(double Fo, double T, double Hr, double Ws, double prcp)
 	{
-		double wmo = 147.2*(101 - oldFFMC) / (59.5 + oldFFMC);
+		double wmo = 147.2*(101 - Fo) / (59.5 + Fo);
 		if (prcp > 0.5)
 		{
 			double ra = prcp - 0.5;
@@ -177,13 +167,21 @@ namespace WBSF
 		return ffmc;
 	}
 
-
+	//HFFMC:   hourly Fine Fuel Moisture Code
+	//Fo: initial Fine Fuel Moisture Code
+	//T: Temperature [°C]
+	//Hr: relative humidity [%]
+	//Ws: wind speed [km/h]
+	//ro: precipitation [mm]
 	//compute from: A comparison of hourly fine fuel moisture code calculations within canada
 	//Kerry Anderson, Canadian Forest Service, 2009
-	double CFWI::GetHFFMC(double Fo, double T, double Hr, double Ws, double ro)
+	double CFWI::GetHFFMC(double Fo, double T, double Hr, double Ws, double ro, TVanWagner VanWagnerType)
 	{
-		double mo = 205.2*(101.0 - Fo) / (82.9 + Fo);//after Anderson 2009
-		//double mo = 147.27723*(101 - Fo) / (59.5 + Fo);
+		double vw1 = VanWagnerType == VAN_WAGNER_1977 ? 205.2:147.2;
+		double vw2 = VanWagnerType == VAN_WAGNER_1977 ? 82.9:59.5;
+
+		double mo = vw1 *(101.0 - Fo) / (vw2 + Fo);
+
 
 		if (ro > 0)
 		{
@@ -208,30 +206,30 @@ namespace WBSF
 
 
 		double m = 0;
-		//[2a] Ed = 0.942 H 0 * 6 7 9 + 11 - 1 0 0 ) / 1 0 + 0.18(21.1 - T)(1 - e(H - 100) / 10- 0.115 H
+		//[2a] 
 		double Ed = 0.942*pow(Hr, 0.679) + 11.0*exp((Hr - 100.0) / 10.0) + 0.18*(21.1 - T)*(1 - exp(-0.115*Hr));
 		if (mo > Ed)
 		{
-			//[3a] ka = 0.424[1 - (H / 100)1 * 7] + 0.0694 W0'5 [1 - (H/100)8]a+ 10 e + 0.18(21.1 - T)(1 - e
+			//[3a]
 			double Ka = 0.424*(1.0 - pow(Hr / 100.0, 1.7)) + 0.0694*pow(Ws, 0.5)*(1.0 - pow(Hr / 100.0, 8.0));
-			//[3b] k 0.0365 T d = 0.0579 kfle
+			//[3b]
 			double Kd = 0.0579*Ka*exp(0.0365*T);
 
-			//[5a] m = Ed + (mo - Ed) e ' 2 - 3 0 3 kd
+			//[5a]
 			m = Ed + (mo - Ed)*exp(-2.303*Kd);
 		}
 		else
 		{
-			//[2b] E, = 0.618 H0 .753 - 0.115 Hw a+ 10 e + 0.18(21.1 - T)(1 - e;
+			//[2b]
 			double Ew = 0.618*pow(Hr, 0.753) + 10.0*exp((Hr - 100.0) / 10.0) + 0.18*(21.1 - T)*(1 - exp(-0.115*Hr));
 			if (mo < Ew)
 			{
-				//[4a] k 1.7 0.5 8 b = 0.424[1 - ({ TOO. - H) / 100)] + 0.0694 W[1 - ((100 - H) / l00)]
+				//[4a]
 				double Kb = 0.424*(1 - pow((100.0 - Hr) / 100.0, 1.7)) + 0.0694 *sqrt(Ws)*(1 - pow((100 - Hr) / 100.0, 8.0));
-				//[4b] k = 0.0579 k.e 0.0365 T w b
+				//[4b]
 				double Kw = 0.0579*Kb*exp(0.0365*T);
 
-				//[5b] m = Ew - (Ew - mo) e " 2 ' 3 0 3 "S /
+				//[5b]
 				m = Ew + (Ew - mo)*exp(-2.303*Kw);
 			}
 			else
@@ -241,28 +239,19 @@ namespace WBSF
 		}
 
 
-		//[6] F = 59.5(250 - m) / (147.27723 + m)
-		//double F = 59.5*(250 - m) / (147.27723 + m);//after alexander 1984
-		double F = 82.9*(250 - m) / (205.2 + m);//after  anderson 2009
+		//[6]
+		double F = vw2 *(250 - m) / (vw1 + m);
 
 		return max(0.0, min(101.0, F));
 	}
 
-	//double CFWI::GetDMC(double oldDMC, const CHourlyData& data)
-	//{
-	//	return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[H_TAIR], data[H_RELH], data[H_PRCP]);
-	//}
-
-	//double CFWI::GetDMC(double oldDMC, const CWeatherDay& data, double prcp)
-	//{
-	//	ASSERT(data.IsHourly());
-	//	return GetDMC(oldDMC, data.GetTRef().GetMonth(), data[12][H_TNTX], data[12][H_RELH], prcp/*data[H_PRCP][SUM]*/);
-	//}
-
-
+	//Duff Moisture Code (DMC)
+	//m : month (0..11)
+	//T: Temperature [°C]
+	//Hr: relative humidity [%]
+	//prcp: precipitation [mm]
 	double CFWI::GetDMC(double oldDMC, size_t m, double T, double Hr, double prcp)
 	{
-		//short m = day.Month();
 		static const double el[12] = { 6.5, 7.5, 9.0, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8.0, 7.0, 6.0 };
 
 		double temp = T;
@@ -293,17 +282,10 @@ namespace WBSF
 		return dmc;
 	}
 
-	//double CFWI::GetDC(double oldDC, const CHourlyData& data)
-	//{
-	//	return GetDC(oldDC, data.GetLocation().m_lat, data.GetTRef().GetMonth(), data[H_TAIR], data[H_PRCP]);
-	//}
-
-	//double CFWI::GetDC(double oldDC, const CWeatherDay& data, double prcp)
-	//{
-	//	ASSERT(data.IsHourly());
-	//	return GetDC(oldDC, data.GetLocation().m_lat, data.GetTRef().GetMonth(), data[12][H_TNTX], prcp/*data[H_PRCP][SUM]*/);
-	//}
-
+	//Drought Code
+	//lat: latitude [°]
+	//T: Temperature [°C]
+	//prcp: precipitation [mm]
 	double CFWI::GetDC(double oldDC, double lat, size_t m, double T, double prcp)
 	{
 		ASSERT(oldDC >= 0);
@@ -336,29 +318,13 @@ namespace WBSF
 
 		return dc;
 	}
-/*
-	double CFWI::GetHISI(double FFMC, const CHourlyData& data)
-	{
-		return GetHISI(FFMC, data[H_WNDS]);
-	}
 
-	double CFWI::GetISI(double FFMC, const CWeatherDay& data)
-	{
-		return GetISI(FFMC, data[12][H_WNDS]);
-	}
-*/
-	//FFMC:   Fine Fuel Moisture Code
-	//Ws : Wind Speed(km/h)
+	//Initial Spread Index
+	//FFMC: Fine Fuel Moisture Code
+	//Ws : Wind Speed [km/h]
 	//fbpMod : TRUE / FALSE if using the fbp modification at the extreme end
-	//Returns ISI:    Initial Spread Index
 	double CFWI::GetISI(double FFMC, double Ws, bool fbpMod)
 	{
-		/*double fm = 147.2*(101.0 - FFMC) / (59.5 + FFMC);
-		double sf = 91.9*exp(-0.1386*fm)*(1.0 + pow(fm, 5.31) / 4.93e07);
-		double isi = 0.208*sf * exp(0.05039*Ws);
-
-		return isi;*/
-
 		//Eq. 10 - Moisture content
 		double fm = 147.2 * (101 - FFMC) / (59.5 + FFMC);
 		//Eq. 24 - Wind Effect
@@ -373,17 +339,18 @@ namespace WBSF
 		return isi;
 	}
 
-	double CFWI::GetHISI(double Fo, double Ws, bool fbpMod)
+	//Hourly Initial Spread Index
+	//Fo: Fine Fuel Moisture Code
+	//Ws : Wind Speed [km/h]
+	//VanWagnerType: Van Wagner constant 1977/1987
+	//fbpMod : TRUE / FALSE if using the fbp modification at the extreme end
+	double CFWI::GetHISI(double Fo, double Ws, TVanWagner VanWagnerType, bool fbpMod)
 	{
-
-		//double m = 205.2*(101.0 - Fo) / (82.9 + Fo);//after anderson 2009
-		//double sf = 91.9*exp(-0.1386*m)*(1.0 + pow(m, 5.31) / 4.93e07);
-		//double isi = 0.208*sf * exp(0.05039*Ws);
-
-		//return isi;
+		double vw1 = VanWagnerType == VAN_WAGNER_1977 ? 205.2 : 147.2;
+		double vw2 = VanWagnerType == VAN_WAGNER_1977 ? 82.9 : 59.5;
 
 		//Eq. 10 - Moisture content
-		double fm = 205.2*(101.0 - Fo) / (82.9 + Fo);//after anderson 2009
+		double fm = vw1 *(101.0 - Fo) / (vw2 + Fo);
 		//double fm = 147.27723 * (101.0 - Fo) / (59.5 + Fo);
 		//Eq. 24 - Wind Effect
 		//the ifelse, also takes care of the ISI modification for the fbp functions
@@ -397,6 +364,7 @@ namespace WBSF
 		return isi;
 	}
 
+	//Buildup Index
 	double CFWI::GetBUI(double dmc, double dc)
 	{
 		double bui = 0;
@@ -414,6 +382,7 @@ namespace WBSF
 		return bui;
 	}
 
+	//Fire Weather Index 
 	double CFWI::GetFWI(double bui, double isi)
 	{
 		double bb = 0;
@@ -429,6 +398,7 @@ namespace WBSF
 		return fwi;
 	}
 
+	//Daily Severity Rating
 	double CFWI::GetDSR(double fwi)
 	{
 		double dsr = 0.0272*pow(fwi, 1.77);
@@ -797,7 +767,22 @@ namespace WBSF
 
 		return firstDay;
 	}
+	
+	double CFWI::GetNoonToNoonPrcp(const CWeatherDay& day)
+	{
+		double prcp = 0;
 
+		const CWeatherDay& pday = day.HavePrevious() ? day.GetPrevious() : day;
+
+		for (size_t h = 13; h < 24; h++)
+			if (!WEATHER::IsMissing(pday[h][H_PRCP]))
+				prcp += pday[h][H_PRCP];
+		for (size_t h = 0; h <= 12; h++)
+			if (!WEATHER::IsMissing(day[h][H_PRCP]))
+				prcp += day[h][H_PRCP];
+		
+		return prcp;
+	}
 
 	ERMsg CFWI::Execute(const CWeatherStation& weather, CModelStatVector& output)
 	{
@@ -807,8 +792,6 @@ namespace WBSF
 		output.clear();
 		output.Init(weather.GetEntireTPeriod(CTM(m_method == ALL_HOURS_CALCULATION ? CTM::HOURLY : CTM::DAILY)), CFWIStat::NB_D_STAT, MISSING);
 		
-		
-		bool fbpMod = false;
 		bool bContinueMode = false;
 		size_t firstDay = NOT_INIT;
 		size_t lastDay = NOT_INIT;
@@ -874,15 +857,12 @@ namespace WBSF
 
 			if (m_method == ALL_HOURS_CALCULATION)
 			{
-
-				//CTPeriod p = weather[y].GetEntireTPeriod(CTM::HOURLY);
 				CTPeriod p = weather[y].GetEntireTPeriod(CTM::DAILY);
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)//for all day
 				{
-					const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
+					//const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
 					const CWeatherDay& day = weather.GetDay(TRef);
 
-				//	const CHourlyData& hour = weather.GetHour(TRef);
 					size_t jd = TRef.GetJDay();
 
 					if (jd >= firstDay && jd <= lastDay)
@@ -891,18 +871,17 @@ namespace WBSF
 						size_t m = TRef.GetMonth();
 						double Tnoon = day[12][H_TAIR];
 						double RHnoon = day[12][H_RELH];
-						double prcp = 0;// day[H_PRCP][SUM];
-						for (size_t h = 13; h < 24; h++)
+						double prcp = GetNoonToNoonPrcp(day);//compute daily prcp from noon to noon summation
+						/*for (size_t h = 13; h < 24; h++)
 							if (!WEATHER::IsMissing(pday[h][H_PRCP]))
 								prcp += pday[h][H_PRCP];
 						for (size_t h = 0; h <= 12; h++)
 							if (!WEATHER::IsMissing(day[h][H_PRCP]))
 								prcp += day[h][H_PRCP];
-
+*/
 						double DMC = GetDMC(oldDMC, m, Tnoon, RHnoon, prcp);
 
 						// compute DC 
-						//double DC = GetDC(oldDC, day, prcp);
 						double DC = GetDC(oldDC, lat, m, Tnoon, prcp);
 
 						// compute BUI from DMC and DC
@@ -913,16 +892,14 @@ namespace WBSF
 						{
 							const CHourlyData& hour = day[h];
 							
-							// compute FFMC
-							//double FFMC = GetHFFMC(oldFFMC, hour);
-							double FFMC = GetHFFMC(oldFFMC, hour[H_TAIR], hour[H_RELH], hour[H_WNDS], hour[H_PRCP]);
+							// compute HFFMC
+							double HFFMC = GetHFFMC(oldFFMC, hour[H_TAIR], hour[H_RELH], hour[H_WNDS], hour[H_PRCP], m_VanWagnerType);
 
 							// compute ISI
-							//double ISI = GetHISI(FFMC, hour);
-							double ISI = GetHISI(FFMC, hour[H_WNDS], fbpMod);
+							double HISI = GetHISI(HFFMC, hour[H_WNDS], m_VanWagnerType, m_fbpMod);
 
 							// compute FWI from BUI ans ISI
-							double FWI = GetFWI(BUI, ISI);
+							double FWI = GetFWI(BUI, HISI);
 
 							// compute DSR from FWI
 							double DSR = GetDSR(FWI);
@@ -934,15 +911,15 @@ namespace WBSF
 							output[TRefh][CFWIStat::RELH_NOON] = hour[H_RELH];
 							output[TRefh][CFWIStat::WNDS_NOON] = hour[H_WNDS];
 							output[TRefh][CFWIStat::PRCP] = hour[H_PRCP];
-							output[TRefh][CFWIStat::FFMC] = FFMC;
+							output[TRefh][CFWIStat::FFMC] = HFFMC;
 							output[TRefh][CFWIStat::DMC] = DMC;
 							output[TRefh][CFWIStat::DC] = DC;
-							output[TRefh][CFWIStat::ISI] = ISI;
+							output[TRefh][CFWIStat::ISI] = HISI;
 							output[TRefh][CFWIStat::BUI] = BUI;
 							output[TRefh][CFWIStat::FWI] = FWI;
 							output[TRefh][CFWIStat::DSR] = DSR;
 							
-							oldFFMC = FFMC;
+							oldFFMC = HFFMC;
 						}
 
 						oldDMC = DMC;
@@ -956,7 +933,7 @@ namespace WBSF
 				CTPeriod p = weather[y].GetEntireTPeriod(CTM::DAILY);
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)//for all day
 				{
-					const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
+					//const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
 					const CWeatherDay& day = weather.GetDay(TRef);
 
 					size_t jd = TRef.GetJDay();
@@ -968,33 +945,31 @@ namespace WBSF
 						double Tnoon = day[12][H_TAIR];
 						double RHnoon = day[12][H_RELH];
 						double WSnoon = day[12][H_WNDS];
-						double prcp = 0;// day[H_PRCP][SUM];
+						double prcp = GetNoonToNoonPrcp(day);//compute daily prcp from noon to noon summation
+
+						//compute daily prcp from noon to noon summation
+						/*double prcp = 0;
 						for (size_t h = 13; h < 24; h++)
 							if (!WEATHER::IsMissing(pday[h][H_PRCP]))
 								prcp += pday[h][H_PRCP];
 						for (size_t h = 0; h <= 12; h++)
 							if (!WEATHER::IsMissing(day[h][H_PRCP]))
-								prcp += day[h][H_PRCP];
+								prcp += day[h][H_PRCP];*/
 
 						// compute DMC
-						//double DMC = GetDMC(oldDMC, day, prcp);
 						double DMC = GetDMC(oldDMC, m, Tnoon, RHnoon, prcp);
 
 						// compute DC 
-						//double DC = GetDC(oldDC, day, prcp);
 						double DC = GetDC(oldDC, lat, m, Tnoon, prcp);
 
 						// compute BUI from DMC and DC
 						double BUI = GetBUI(DMC, DC);
 
-
 						// compute FFMC
-						//double FFMC = GetFFMC(oldFFMC, day, prcp);
 						double FFMC = GetFFMC(oldFFMC, Tnoon, RHnoon, WSnoon, prcp);
 
 						// compute ISI
-						//double ISI = GetISI(FFMC, day);
-						double ISI = GetISI(FFMC, WSnoon, fbpMod);
+						double ISI = GetISI(FFMC, WSnoon, m_fbpMod);
 						
 						// compute FWI from BUI ans ISI
 						double FWI = GetFWI(BUI, ISI);

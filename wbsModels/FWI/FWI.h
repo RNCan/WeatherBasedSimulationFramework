@@ -1,14 +1,20 @@
 #pragma once
 
 #include <wtypes.h>
+#include <map>
+#include <array>
 #include "Basic/ERMsg/ERMsg.h"
-#include "Basic/WeatherStation.h"
+//#include "Basic/WeatherStation.h"
 #include "Basic/modelStat.h"
 #include "ModelBase\InputParam.h"
 
 
 namespace WBSF
 {
+	class CWeatherStation;
+	class CModelStatVector;
+	class CWeatherDay;
+	class CWeatherYear;
 
 	enum TFWIInitValue{ FWI_START_DATE, FWI_FFMC, FWI_DMC, FWI_DC, FWI_END_DATE, NB_FWI_INPUT };
 	class CInitialValues : public std::map<std::string, std::array<double, NB_FWI_INPUT> >
@@ -40,6 +46,7 @@ namespace WBSF
 	{
 	public:
 
+		enum TVanWagner { VAN_WAGNER_1977, VAN_WAGNER_1987 };
 		enum TMethod{NOON_CALCULATION, ALL_HOURS_CALCULATION, NB_METHODS};
 		static const int MISSING = -9999;
 
@@ -51,37 +58,25 @@ namespace WBSF
 		void Reset();
 
 		ERMsg Execute(const CWeatherStation& weather, CModelStatVector& output);
-		//const CFWIDStatVector& GetResult()const{ return m_dailyResult; }
 
-		//static double GetFFMC(double oldDMC, const CWeatherDay& data, double prcp);
 		static double GetFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp);
-
-		
-		//static double GetHFFMC(double oldDMC, const CHourlyData& data);
-		static double GetHFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp);
-
-		//static double GetDMC(double oldDMC, const CWeatherDay& data, double prcp);
-		//static double GetDMC(double oldDMC, const CHourlyData& data);
+		static double GetHFFMC(double oldFFMC, double T, double Hr, double Ws, double prcp, TVanWagner VanWagnerType= VAN_WAGNER_1987);
 		static double GetDMC(double oldDMC, size_t m, double T, double Hr, double prcp);
-
-		//static double GetDC(double oldDMC, const CHourlyData& data);
-		//static double GetDC(double oldDMC, const CWeatherDay& data, double prcp);
 		static double GetDC(double oldDC, double lat, size_t m, double T, double prcp);
-
-		static double GetHISI(double Fo, double Ws, bool fbpMod = false);
-		//static double GetHISI(double ffmc, const CHourlyData& data);
-		//static double GetISI(double ffmc, const CWeatherDay& data);
+		static double GetHISI(double Fo, double Ws, TVanWagner VanWagnerType = VAN_WAGNER_1987, bool fbpMod = false);
 		static double GetISI(double ffmc, double Ws, bool fbpMod = false);
-
 		static double GetBUI(double dmc, double dc);
 		static double GetFWI(double bui, double isi);
 		static double GetDSR(double fwi);
-
+		
+		static double GetNoonToNoonPrcp(const CWeatherDay& day);
+		static size_t GetNbDayLastRain(const CWeatherYear& weather, size_t firstDay);
 
 		size_t GetInitialValue(const CWeatherStation& weather, size_t y, size_t lastDay, double& FFMC, double& DMC, double& DC);
 
 		CTRef GetFirstDay(const CWeatherYear& weather);
 		CTRef GetLastDay(const CWeatherYear& weather);
+		
 
 		TMethod m_method;
 		bool m_bAutoSelect;
@@ -107,10 +102,9 @@ namespace WBSF
 		//
 		double m_carryOverFraction;//Carry over fraction (a)
 		double m_effectivenessOfWinterPrcp;//Effectiveness of winter (b)
-
-	private:
-
-		static size_t GetNbDayLastRain(const CWeatherYear& weather, size_t firstDay);
+		
+		TVanWagner m_VanWagnerType;
+		bool m_fbpMod;
 
 	};
 

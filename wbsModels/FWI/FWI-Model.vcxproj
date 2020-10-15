@@ -202,11 +202,13 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FBP.cpp" />
     <ClCompile Include="FWI(new from wang2015).cpp" />
     <ClCompile Include="FWI-Model.cpp" />
     <ClCompile Include="FWI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FBP.h" />
     <ClInclude Include="FWI(new from wang2015).h" />
     <ClInclude Include="FWI-Model.h" />
     <ClInclude Include="FWI.h" />

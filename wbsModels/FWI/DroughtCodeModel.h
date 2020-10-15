@@ -47,8 +47,5 @@ namespace WBSF
 		double m_carryOverFraction;//1
 		double m_effectivenessOfWinterPrcp;//0.75
 		size_t m_method;
-
-
-		//static double ComputeIndice(int year, size_t m, double& DCMo, double Rm, double Tm);
 	};
 }

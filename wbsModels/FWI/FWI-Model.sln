@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SummerMoisture", "SummerMoistureModel.vcxproj", "{9A7A583E-1B6D-4314-AF87-651149081704}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBP", "FBP-Model.vcxproj", "{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +62,14 @@ Global
 		{9A7A583E-1B6D-4314-AF87-651149081704}.Release|Win32.Build.0 = Release|Win32
 		{9A7A583E-1B6D-4314-AF87-651149081704}.Release|x64.ActiveCfg = Release|x64
 		{9A7A583E-1B6D-4314-AF87-651149081704}.Release|x64.Build.0 = Release|x64
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Debug|Win32.Build.0 = Debug|Win32
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Debug|x64.ActiveCfg = Debug|x64
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Debug|x64.Build.0 = Debug|x64
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Release|Win32.ActiveCfg = Release|Win32
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Release|Win32.Build.0 = Release|Win32
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Release|x64.ActiveCfg = Release|x64
+		{31F85221-B12B-47B9-8D6A-2A8365DD1A0E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

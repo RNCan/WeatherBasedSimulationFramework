@@ -54,6 +54,10 @@ namespace WBSF
 		//common parameters
 		double m_carryOverFraction;//1.0
 		double m_effectivenessOfWinterPrcp;//0.75
+		size_t m_VanWagnerType;//VanWagner 1987
+		bool m_fbpMod;//false
+
+
 		size_t m_method;
 
 		static double ComputeIndice(int year, int m, double& DCMo, double Rm, double Tm);

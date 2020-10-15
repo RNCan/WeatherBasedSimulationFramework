@@ -16,6 +16,9 @@
     <ClCompile Include="FWI(new from wang2015).cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FBP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FWI-Model.h">
@@ -25,6 +28,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="FWI(new from wang2015).h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FBP.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
