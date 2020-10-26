@@ -342,7 +342,7 @@ namespace WBSF
 	//Hourly Initial Spread Index
 	//Fo: Fine Fuel Moisture Code
 	//Ws : Wind Speed [km/h]
-	//VanWagnerType: Van Wagner constant 1977/1987
+	//VanWagnerType: Van Wagner constant 1977/1987 
 	//fbpMod : TRUE / FALSE if using the fbp modification at the extreme end
 	double CFWI::GetHISI(double Fo, double Ws, TVanWagner VanWagnerType, bool fbpMod)
 	{
@@ -872,13 +872,7 @@ namespace WBSF
 						double Tnoon = day[12][H_TAIR];
 						double RHnoon = day[12][H_RELH];
 						double prcp = GetNoonToNoonPrcp(day);//compute daily prcp from noon to noon summation
-						/*for (size_t h = 13; h < 24; h++)
-							if (!WEATHER::IsMissing(pday[h][H_PRCP]))
-								prcp += pday[h][H_PRCP];
-						for (size_t h = 0; h <= 12; h++)
-							if (!WEATHER::IsMissing(day[h][H_PRCP]))
-								prcp += day[h][H_PRCP];
-*/
+						
 						double DMC = GetDMC(oldDMC, m, Tnoon, RHnoon, prcp);
 
 						// compute DC 
@@ -910,6 +904,7 @@ namespace WBSF
 							output[TRefh][CFWIStat::TMEAN_NOON] = hour[H_TAIR];
 							output[TRefh][CFWIStat::RELH_NOON] = hour[H_RELH];
 							output[TRefh][CFWIStat::WNDS_NOON] = hour[H_WNDS];
+							output[TRefh][CFWIStat::WNDD_NOON] = hour[H_WNDD];
 							output[TRefh][CFWIStat::PRCP] = hour[H_PRCP];
 							output[TRefh][CFWIStat::FFMC] = HFFMC;
 							output[TRefh][CFWIStat::DMC] = DMC;
@@ -945,16 +940,8 @@ namespace WBSF
 						double Tnoon = day[12][H_TAIR];
 						double RHnoon = day[12][H_RELH];
 						double WSnoon = day[12][H_WNDS];
+						double WDnoon = day[12][H_WNDD];
 						double prcp = GetNoonToNoonPrcp(day);//compute daily prcp from noon to noon summation
-
-						//compute daily prcp from noon to noon summation
-						/*double prcp = 0;
-						for (size_t h = 13; h < 24; h++)
-							if (!WEATHER::IsMissing(pday[h][H_PRCP]))
-								prcp += pday[h][H_PRCP];
-						for (size_t h = 0; h <= 12; h++)
-							if (!WEATHER::IsMissing(day[h][H_PRCP]))
-								prcp += day[h][H_PRCP];*/
 
 						// compute DMC
 						double DMC = GetDMC(oldDMC, m, Tnoon, RHnoon, prcp);
@@ -982,6 +969,7 @@ namespace WBSF
 						output[TRef][CFWIStat::TMEAN_NOON] = Tnoon;
 						output[TRef][CFWIStat::RELH_NOON] = RHnoon;
 						output[TRef][CFWIStat::WNDS_NOON] = WSnoon;
+						output[TRef][CFWIStat::WNDD_NOON] = WDnoon;
 						output[TRef][CFWIStat::PRCP] = prcp;
 						output[TRef][CFWIStat::FFMC] = FFMC;
 						output[TRef][CFWIStat::DMC] = DMC;
@@ -1038,8 +1026,9 @@ namespace WBSF
 		CTRef lastDate = resultD.GetLastTRef();
 
 		int nbYear = lastDate.GetYear() - firstDate.GetYear() + 1;
-		resultM.SetFirstTRef(CTRef(firstDate.GetYear(), 0));
-		resultM.resize(nbYear * 12);
+		resultM.Init(nbYear * 12, CTRef(firstDate.GetYear(), JANUARY), NB_M_STAT, CFWI::MISSING);
+		//resultM.SetFirstTRef(CTRef(firstDate.GetYear(), 0));
+		//resultM.resize(nbYear * 12);
 
 		for (CTRef d = firstDate; d <= lastDate; )
 		{
@@ -1093,8 +1082,9 @@ namespace WBSF
 		CTRef lastDate = resultD.GetLastTRef();
 
 		int nbYear = lastDate.GetYear() - firstDate.GetYear() + 1;
-		resultA.SetFirstTRef(CTRef((short)firstDate.GetYear()));
-		resultA.resize(nbYear, CFWI::MISSING);
+		resultA.Init(nbYear, CTRef(firstDate.GetYear()), NB_A_STAT, CFWI::MISSING);
+		//resultA.SetFirstTRef(CTRef((short)firstDate.GetYear()));
+		//resultA.resize(nbYear, CFWI::MISSING);
 
 		for (CTRef d = firstDate; d <= lastDate; )
 		{

@@ -183,14 +183,8 @@ namespace WBSF
 
 		if (IsCreated(d))
 		{
-			//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
-			//size_t hostType = stoi(get_property("HostType"));
-
 			stat[S_BROODS_OBL] += m_broods_by_host[H_OBL] * m_scaleFactor;
 			stat[S_BROODS_SBW] += m_broods_by_host[H_SBW] * m_scaleFactor;
-
-			//			stat[S_ATTACKS_OBL] += m_nb_attacks_by_host[H_OBL] * m_scaleFactor;
-				//		stat[S_ATTACKS_SBW] += m_nb_attacks_by_host[H_SBW] * m_scaleFactor;
 
 
 			if (m_death == HOST_DIE)
@@ -198,8 +192,19 @@ namespace WBSF
 
 			if (m_lastStatus == HEALTHY && m_status == DEAD && m_death == HOST_DIE)
 				stat[M_HOST_DIE] += m_scaleFactor;
-		}
 
+			bool bAlive = IsAlive();
+			bool bHostOK = !m_pAssociateHost.expired();
+			bool bGenOK = GetGeneration() != 0;
+			bool bImmature = GetStage() == IMMATURE;
+
+			if (bAlive && bHostOK && bGenOK && bImmature)
+			{
+				string host_name = typeid(*m_pAssociateHost.lock()).name();
+				if(host_name == typeid(CSpruceBudworm).name())
+					stat[S_SBW_WITH_METEO] += m_scaleFactor;
+			}
+		}
 	}
 
 	std::string CMeteorusTrachynotus_OBL_SBW::get_property(const std::string& name)const
@@ -219,48 +224,12 @@ namespace WBSF
 					prop = to_string(H_OBL);
 				else if (test == typeid(CSpruceBudworm).name())
 					prop = to_string(H_SBW);
-				//prop = m_pAssociateHost.lock()->get_property(name);
 			}
-
 		}
 
 		return prop;
 	}
 
-	//bool CMeteorusTrachynotus_OBL_SBW::CanPack(const CIndividualPtr& in)const
-	//{
-	//	CMeteorusTrachynotus_OBL_SBW* pIn = static_cast<CMeteorusTrachynotus_OBL_SBW*>(in.get());
-	//	return CIndividual::CanPack(in) && (GetStage() != ADULT || GetSex() != FEMALE) && pIn->m_bDiapause == m_bDiapause;
-	//}
-
-	//void CMeteorusTrachynotus_OBL_SBW::Pack(const CIndividualPtr& pBug)
-	//{
-	//	CMeteorusTrachynotus_OBL_SBW* in = (CMeteorusTrachynotus_OBL_SBW*)pBug.get();
-
-	//	m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-	//	m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-	//	m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-
-	//	CIndividual::Pack(pBug);
-	//}
-
-	//std::string CObliqueBandedLeafrollerEx::get_property(const std::string& name)
-	//{
-	//	std::string prop;
-	//	if (name == "HostType")
-	//		prop = to_string(H_OBL);//OBL by default, need override to change that
-
-	//	return prop;
-	//}
-
-	//std::string CSpruceBudwormEx::get_property(const std::string& name)
-	//{
-	//	std::string prop;
-	//	if (name == "HostType")
-	//		prop = to_string(H_SBW);//OBL by default, need override to change that
-
-	//	return prop;
-	//}
 
 	//*********************************************************************************************************************
 	//Host
@@ -285,22 +254,6 @@ namespace WBSF
 		}
 	}
 
-	//std::string CMeteorusTrachynotus_OBL_SBW_Host::get_property(const std::string& name)
-	//{
-	//	std::string prop;
-	//	if (name == "HostType")
-	//	{
-	//		/*string class_name = typeid(begin()).name();
-	//		std::type_info(begin());
-	//		if (class_name == "CObliqueBandedLeafroller")
-	//			prop = to_string(0);
-	//		else
-	//			prop = to_string(1);*/
-	//	}
-
-
-	//	return prop;
-	//}
 	//*********************************************************************************************************************
 	//Stand
 
@@ -343,13 +296,9 @@ namespace WBSF
 					stat[S_NB_SBW] += (*it)->GetScaleFactor();
 			}
 		}
-
-		/*CModelStat statOBL;
-		m_OBLStand.GetStat(d, statOBL, -1);
-		nbAttacka
-		CModelStat statSBW;
-		m_SBWStand.GetStat(d, statSBW, -1);*/
 	}
+
+
 	bool CMeteorusTrachynotus_OBL_SBW_Stand::AdjustPopulation()
 	{
 		bool bAdjuste = CMeteorusTrachynotusStand::AdjustPopulation();
@@ -398,14 +347,11 @@ namespace WBSF
 	CHostPtr CMeteorusTrachynotus_OBL_SBW_Stand::GetNearestHost(CHost* pHost)
 	{
 		return CMeteorusTrachynotusStand::GetNearestHost(pHost);
-		//m_OBLStand.GetNearestHost(NULL);
-		//m_SBWStand.GetNearestHost(NULL);
 	}
 
 	CIndividualPtr CMeteorusTrachynotus_OBL_SBW_Stand::SelectRandomHost(bool bUseSBW)
 	{
 		CIndividualPtr pHost;
-		//std::weak_ptr<CIndividual> pHost;
 
 		const std::shared_ptr<WBSF::CHost>& pOBLObjects = m_OBLStand.m_host.front();
 		ASSERT(!pOBLObjects->empty());

@@ -5,6 +5,7 @@
 //		Tobin(2018).Phenology of Hemlock Woolly Adelgid (Hemiptera:Adelgidae) in the Central Appalachian Mountains, USA
 //
 //
+// 20/10/2020	1.2.0	Rémi Saint-Amant	Bug correction in equation.
 // 13/03/2019	1.0.0	Rémi Saint-Amant	Creation 
 //**************************************************************************************************************
 //  It under the terms of the GNU General Public License as published by
@@ -39,7 +40,7 @@ namespace WBSF
 	CHWAPhenologyModel::CHWAPhenologyModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.1.0 (2020)";
+		VERSION = "1.2.0 (2020)";
 
 	}
 
@@ -87,6 +88,8 @@ namespace WBSF
 	double CHWAPhenologyModel::Eq1(size_t e, double CDD)
 	{
 		enum { ʀ, β };
+
+		//from Tobin 2018. Remove double minus signe.
 		static const double P[4][2] =
 		{
 			{0.0167, 4.6047},
@@ -94,9 +97,8 @@ namespace WBSF
 			{0.0035, 4.0459},
 			{0.0027, 3.7759},
 		};
-
 		
-		double M = 1/( 1 + exp( -P[e][ʀ] * CDD + P[e][β]))*100;
+		double M = exp(-exp(-P[e][ʀ] * CDD + P[e][β])) * 100;//By RSA 2020-10-20. Now same as Tobin 2018 
 		if (M < 0.1)
 			M = 0;
 		if (M > 99.9)
@@ -110,12 +112,13 @@ namespace WBSF
 	{
 		int year = weather.GetTRef().GetYear();
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		
+			
 		output[p.Begin()][O_P_EGG] = 0;
 		for (size_t e = 0; e < 4; e++)
 			output[p.Begin()][O_P_BROOD + e] = 0;
 
 		CDegreeDays DD(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0);
+
 		double CDD = 0;
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{

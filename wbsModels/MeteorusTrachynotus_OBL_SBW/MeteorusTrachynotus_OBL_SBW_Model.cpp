@@ -3,6 +3,7 @@
 //
 // Description: CMeteorusTrachynotus_OBL_SBW_Model is a BioSIM model of MeteorusTrachynotus and ObliqueBandedLeafroller model
 //*****************************************************************************
+// 26/10/2020	1.0.1	Rémi Saint-Amant	Add 
 // 27/02/2020	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
 
@@ -28,23 +29,16 @@ namespace WBSF
 		CModelFactory::RegisterModel(CMeteorusTrachynotus_OBL_SBW_Model::CreateObject);
 
 	
-	enum TDailyOutput { O_D_IMMATURE, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT * NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
-	//enum TDailyOutput{ O_D_EGG, O_D_LARVA, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT*NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, NB_DAILY_OUTPUT_EX };
-	//extern char DAILY_HEADER[] = "Egg,Pupa,Adult,DeadAdult,OvipositingAdult,BroodOBL,BroodSBW,Attrition,CumulAdult,CumulDiapause";
-	
+	enum TDailyOutput { O_D_IMMATURE, O_D_PUPA, O_D_ADULT, O_D_DEAD_ADULT, O_D_OVIPOSITING_ADULT, O_D_BROOD_OBL, O_D_BROOD_SBW, O_D_ATTRITION, O_D_CUMUL_REATCH_ADULT, O_D_CUMUL_DIAPAUSE, O_D_TOTAL, NB_DAILY_OUTPUT, O_D_DAY_LENGTH = NB_DAILY_OUTPUT * NB_GENERATIONS, O_D_NB_OBL, O_D_NB_OBL_L3D, O_D_NB_SBW, O_D_DIAPAUSE_AGE, O_SBW_WITH_METEO, NB_DAILY_OUTPUT_EX };
 	enum TGenerationOutput{ O_G_YEAR, O_G_GENERATION, O_G_ADULTS, O_G_BROODS_OBL, O_G_BROODS_SBW, O_G_DIAPAUSE, O_G_FECONDITY, O_G_GROWTH_RATE, O_G_DEAD_ADULT, O_G_HOST_DIE, O_G_FROZEN, NB_GENERATION_OUTPUT };
-	//extern char GENERATION_HEADER[] = "Year,Generation,Eggs,Pupa,Adults,DeadAdults,Broods,Attrition,Frozen,HostDie,Diapause,Fecondity,EggGrowth,AdultGrowth";
-
 	enum TAnnualOutput{ O_A_NB_GENERATION, O_A_ADULTS, O_A_BROODS_OBL, O_A_BROODS_SBW, O_A_DIAPAUSE, O_A_FECONDITY, O_A_GROWTH_RATE, O_A_DEAD_ADULT, O_A_HOST_DIE, O_A_FROZEN, NB_ANNUAL_OUTPUT };
-	//extern char ANNUAL_HEADER[] = "Gmax,Broods,Diapause,Fecondity,GrowthRate,DeadAdults,Attrition,Frozen,HostDie,DeadOthers";
-
 
 	CMeteorusTrachynotus_OBL_SBW_Model::CMeteorusTrachynotus_OBL_SBW_Model()
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.0 (2020)";
+		VERSION = "1.0.1 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
@@ -112,12 +106,18 @@ namespace WBSF
 
 				if (MeteorusTrachynotusStat[g][TRef][M_DIAPAUSE] > 0)
 					diapauseAge += MeteorusTrachynotusStat[g][TRef][M_DIAPAUSE_AGE] / MeteorusTrachynotusStat[g][TRef][M_DIAPAUSE];
+
+				m_output[TRef][O_SBW_WITH_METEO] += MeteorusTrachynotusStat[g][TRef][S_SBW_WITH_METEO];
 			}
+
+
 			m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
 			m_output[TRef][O_D_NB_OBL] = MeteorusTrachynotusStat[0][TRef][S_NB_OBL];
 			m_output[TRef][O_D_NB_OBL_L3D] = MeteorusTrachynotusStat[0][TRef][S_NB_OBL_L3D];
 			m_output[TRef][O_D_NB_SBW] = MeteorusTrachynotusStat[0][TRef][S_NB_SBW];
 			m_output[TRef][O_D_DIAPAUSE_AGE] = diapauseAge;
+			
+			
 			 
 		}
 
@@ -165,9 +165,6 @@ namespace WBSF
 			stand.m_criticalDaylength = m_criticalDaylength;
 			stand.m_lethalTemp = m_lethalTemp;
 			stand.m_preOvip = m_preOvip;
-			//stand.m_host.push_front(pHostMeteorusTrachynotus);
-
-
 			
 			//run the model for all days of all years
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
@@ -230,10 +227,6 @@ namespace WBSF
 					m_output[TRef][O_A_FECONDITY] = (m_output[TRef][O_A_BROODS_OBL] + m_output[TRef][O_A_BROODS_SBW]) / m_output[TRef][O_A_ADULTS];
 
 				m_output[TRef][O_A_GROWTH_RATE] = m_output[TRef][O_A_DIAPAUSE] / 100;
-				
-				//m_output[TRef][O_A_HOST_OBL] = m_output[TRef][S_NB_OBL];
-				//m_output[TRef][O_A_DIAPAUSED_OBL] = m_output[TRef][S_NB_OBL_L3D];
-				//m_output[TRef][O_A_HOST_SBW] = m_output[TRef][S_NB_SBW];
 			}
 		}
 
@@ -267,9 +260,6 @@ namespace WBSF
 				size_t y = TRef - p.Begin();
 				CTPeriod season(CTRef(TRef.GetYear(), FIRST_MONTH, FIRST_DAY), CTRef(TRef.GetYear(), LAST_MONTH, LAST_DAY));
 
-
-				//double eggsBegin = 100;
-				//double adultBegin = 0;
 				for (size_t g = 0; g < maxG; g++)
 				{
 					size_t gg = y*NB_GENERATIONS + g;
@@ -287,20 +277,8 @@ namespace WBSF
 
 					if (m_output[gg][O_G_ADULTS]>0)
 						m_output[gg][O_G_FECONDITY] = (m_output[gg][O_G_BROODS_OBL]+ m_output[gg][O_G_BROODS_SBW]) / m_output[gg][O_G_ADULTS];
-					
-					
-//					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100 + (gg > 0? m_output[gg - 1][O_G_GROWTH_RATE]:0);
-					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100;
-					//m_output[gg][O_G_HOST_OBL] = m_output[gg][S_NB_OBL];
-					//m_output[gg][O_G_DIAPAUSED_OBL] = m_output[gg][S_NB_OBL_L3D];
-					//m_output[gg][O_G_HOST_SBW] = m_output[gg][S_NB_SBW];
-					
-					//m_output[gg][O_G_EGG_GROWTH] = (eggsBegin>0)?m_output[gg][O_G_BROOD] / eggsBegin : -999;
-					//m_output[gg][O_G_ADULT_GROW] = (adultBegin>0)?m_output[gg][O_G_ADULT] / adultBegin : -999;
-					
-					//eggsBegin = m_output[gg][O_G_BROOD];
-					//adultBegin = m_output[gg][O_G_ADULT];
 
+					m_output[gg][O_G_GROWTH_RATE] = m_output[gg][O_G_DIAPAUSE] / 100;
 				}
 			}
 		}

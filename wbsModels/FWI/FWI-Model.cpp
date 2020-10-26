@@ -1,4 +1,5 @@
 //*********************************************************************
+//19/10/2020	3.2.2	Rémi Saint-Amant    Add wind direction
 //09/10/2020	3.2.1	Rémi Saint-Amant    Add hourly computation. Use of noon to noon prcp in FWI computation
 //											Add Van Wagner type and fbp mode
 //16/03/2020	3.2.0	Rémi Saint-Amant    precipitation compute from hourly noon to noon
@@ -46,7 +47,7 @@ namespace WBSF
 	{
 		// initialise your variable here (optionnal)
 		NB_INPUT_PARAMETER=10;
-		VERSION = "3.2.1 (2020)";
+		VERSION = "3.2.2 (2020)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;

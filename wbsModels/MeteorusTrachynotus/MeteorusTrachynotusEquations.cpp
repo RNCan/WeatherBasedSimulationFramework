@@ -30,8 +30,8 @@ namespace WBSF
 	};
 
 	const double  COBLPostDiapauseEquations::EQ_P[NB_OBL_STAGES][5]
-	{  //   p1       p2      p3      Tb      Tm
-		{0.01704, 5.3577, 0.1672, 0.4290, 30.7558}, //Immatures in OBL post diapause
+	{   //  psy      k       Tb      Tm     ΔT
+		{0.01704, 5.3577, 0.4290, 30.7558, 0.1672}, //Immatures in OBL post diapause
 	};
 
 
@@ -82,7 +82,6 @@ namespace WBSF
 	//*****************************************************************************
 	//MeteorusTrachynotus daily development rates
 
-
 	const CDevRateEquation::TDevRateEquation CMeteorusTrachynotusEquations::EQ_TYPE[NB_EQUATIONS]
 	{
 		TDevRateEquation::Regniere_1982,   //Immature egg,larva in Generation 0 (overwintered OBL
@@ -91,18 +90,12 @@ namespace WBSF
 		TDevRateEquation::Regniere_1982    //Adult
 	};
 
-
-
 	const double  CMeteorusTrachynotusEquations::EQ_P[NB_EQUATIONS][5]
-	{  //   p1       p2      p3      Tb      Tm
-		//{0.01500, 2.4875, 0.0318, 0.0814, 35.8600}, //Immature (egg,larva) in OBL or SBW
-		//{0.02967, 3.0176, 0.1441, 4.1731, 35.5319}, //Pupa (in cocoon) SBW and OBL
-		//{0.00825, 3.1113, 0.0073, 0.3062, 35.9200}, //Adult
-		{0.01659, 2.9072, 0.0117, 5.0000, 35.0000}, //Immature egg,larva in Generation 0 (overwintered OBL
-		{0.02217, 1.9227, 0.0117, 5.0000, 35.0000}, //Immature egg,larva in other Generations (in SBW or OBL)
-		{0.03228, 2.7270, 0.1285, 5.0000, 35.0000}, //Pupa (in cocoon) SBW and OBL
-		{0.01243, 3.0574, 0.001, 5.0000, 40.0000}, //Adult
-
+	{   //  psy      k      Tb       Tm      ΔT
+		{0.01659, 2.9072, 5.0000, 35.0000, 0.0117 }, //Immature egg,larva in Generation 0 (overwintered OBL
+		{0.02217, 1.9227, 5.0000, 35.0000, 0.0117 }, //Immature egg,larva in other Generations (in SBW or OBL)
+		{0.03228, 2.7270, 5.0000, 35.0000, 0.1285 }, //Pupa (in cocoon) SBW and OBL
+		{0.01243, 3.0574, 5.0000, 40.0000, 0.0010 }, //Adult
 	};
 
 

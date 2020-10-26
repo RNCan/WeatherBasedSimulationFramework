@@ -131,7 +131,7 @@ namespace WBSF
 					double broods = max(0.0, min(wmax, w));
 					m_broods += broods;
 
-					ASSERT(m_totalBroods + m_broods < m_Pmax);
+					ASSERT(m_totalBroods + m_broods <= m_Pmax+0.01);
 				}
 			}//for all time steps
 
@@ -142,24 +142,6 @@ namespace WBSF
 	}
 
 
-	//void CMeteorusTrachynotus::Brood(const CWeatherDay& weather)
-	//{
-	//	ASSERT(IsAlive() && m_sex == FEMALE);
-	//	ASSERT(m_totalBroods <= m_Pmax + 1);
-
-	//	m_totalBroods += m_broods;
-
-	//	//Oviposition module after Régniere 1983
-	//	if (m_bFertil && m_broods > 0)
-	//	{
-	//		ASSERT(m_age >= ADULT);
-
-	//		double attRate = GetStand()->m_generationAttrition;
-	//		double scaleFactor = m_broods * m_scaleFactor*attRate;
-	//		CIndividualPtr object = make_shared<CMeteorusTrachynotus>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
-	//		m_pHost->push_front(object);
-	//	}
-	//}
 
 	// kills by attrition, old age and end of season
 	// Output:  Individual's state is updated to follow update
@@ -198,15 +180,6 @@ namespace WBSF
 		if (IsCreated(d))
 		{
 			size_t s = GetStage();
-
-			//assert(get_property("HostType") == "0" || get_property("HostType") == "1");
-			//size_t hostType = stoi(get_property("HostType"));
-
-			//stat[S_BROOD_OBL+hostType] += m_broods*m_scaleFactor;
-			//stat[E_BROOD] += m_broods*m_scaleFactor; //E_BROOD is the same as S_BROOD
-
-
-
 
 			if (s >= ADULT)//individuals that reach adult stage (alive or dead)
 				stat[S_CUMUL_REATCH_ADULT] += m_scaleFactor;
@@ -337,15 +310,6 @@ namespace WBSF
 
 		CHost::Live(weather);
 	}
-
-	//std::string CMeteorusTrachynotusHost::get_property(const std::string& name)
-	//{
-	//	std::string prop;
-	//	//if (name == "HostType")
-	//		//prop = to_string(m_hostType);
-	//	
-	//	return prop;
-	//}
 
 	//*********************************************************************************************************************
 

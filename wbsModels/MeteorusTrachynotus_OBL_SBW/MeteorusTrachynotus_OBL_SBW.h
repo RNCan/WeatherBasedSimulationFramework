@@ -10,7 +10,6 @@
 
 #include "Basic/UtilTime.h"
 #include "ModelBase/IndividualBase.h"
-//#include "MeteorusTrachynotusEquations.h"
 #include "MeteorusTrachynotus.h"
 #include "ObliqueBandedLeafroller.h"
 #include "SpruceBudworm.h"
@@ -23,7 +22,7 @@ namespace WBSF
 	{
 		enum TMeteorusTrachynotus_OBL_SBW_Stats
 		{
-			S_NB_OBL = TMeteorusTrachynotusStats::NB_STATS, S_NB_OBL_L3D, S_NB_SBW,
+			S_NB_OBL = TMeteorusTrachynotusStats::NB_STATS, S_NB_OBL_L3D, S_NB_SBW, S_SBW_WITH_METEO,
 			NB_STATS_EX
 		};
 
@@ -45,14 +44,9 @@ namespace WBSF
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
 		virtual void GetStat(CTRef d, CModelStat& stat);
-		//virtual bool CanPack(const CIndividualPtr& in)const;
-		//virtual void Pack(const CIndividualPtr& in);
 		virtual size_t GetNbStages()const{ return MeteorusTrachynotus::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CMeteorusTrachynotus_OBL_SBW>(*this); }
 		virtual std::string get_property(const std::string& name)const override;
-
-
-
 
 		inline CMeteorusTrachynotus_OBL_SBW_Host* GetHost();
 		inline const CMeteorusTrachynotus_OBL_SBW_Host* GetHost()const;
@@ -67,27 +61,6 @@ namespace WBSF
 		std::array< double, MeteorusTrachynotus::NB_HOSTS> m_broods_by_host;
 	};
 
-	//class CObliqueBandedLeafrollerEx : public CObliqueBandedLeafroller
-	//{
-	//	using CObliqueBandedLeafroller::CObliqueBandedLeafroller;
-	//	//inline CMeteorusTrachynotus_OBL_SBW_Stand* GetStand();
-	//	//inline const CMeteorusTrachynotus_OBL_SBW_Stand* GetStand()const;
-	//	//inline CObliqueBandedLeafrollerEquations& Equations();
-
-	//	virtual std::string get_property(const std::string& name)override;
-	//};
-
-	//class CSpruceBudwormEx : public CSpruceBudworm
-	//{
-	//	using CSpruceBudworm::CSpruceBudworm;
-	//	//inline CMeteorusTrachynotus_OBL_SBW_Stand* GetStand();
-	//	//inline const CMeteorusTrachynotus_OBL_SBW_Stand* GetStand()const;
-	//	//inline CSpruceBudwormEquations& Equations();
-
-	//	virtual std::string get_property(const std::string& name)override;
-
-	//};
-
 
 
 	class CModelStat;
@@ -101,16 +74,10 @@ namespace WBSF
 			CMeteorusTrachynotusHost(pStand)
 		{}
 		
-		//virtual std::string get_property(const std::string& name)override;
 		void Initialize(const CInitialPopulation& initValue);
 
 		inline CMeteorusTrachynotus_OBL_SBW_Stand* GetStand();
 		inline const CMeteorusTrachynotus_OBL_SBW_Stand* GetStand()const;
-
-		//virtual void Live(const CWeatherDay& weaDay);
-		//virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT);
-
-		
 	};
 
 	//*******************************************************************************************************
@@ -119,15 +86,12 @@ namespace WBSF
 	{
 	public:
 
-		//CMeteorusTrachynotusStand m_MeteorusTrachynotusStand;
 		CObliqueBandedLeafrollerStand m_OBLStand;
 		CSBWStand m_SBWStand;
 
 		//global variables of all bugs
-
 		CMeteorusTrachynotus_OBL_SBW_Stand(CBioSIMModelBase* pModel) :
 			CMeteorusTrachynotusStand(pModel),
-			//m_MeteorusTrachynotusStand(pModel),
 			m_OBLStand(pModel),
 			m_SBWStand(pModel)
 		{
