@@ -50,7 +50,8 @@ namespace WBSF
 
 
 		//General method
-		virtual void Execute(CWeatherStation& station, CModelStatVector& output);
+		void Execute(const CWeatherYears& station, CModelStatVector& output);
+		void Execute(const CWeatherYear& weather, CModelStatVector& output);
 	
 		double GetDD(const CWeatherDay& in)const;
 		double GetDD(const CWeatherMonth& in, const CTPeriod& p = CTPeriod())const;
@@ -110,7 +111,7 @@ namespace WBSF
 		}
 
 		//General method
-		virtual void Execute(CWeatherStation& station, CModelStatVector& output);
+		void Execute(const CWeatherYears& station, CModelStatVector& output);
 		double GetDH(const CHourlyData& in)const;
 	};
 

@@ -400,7 +400,8 @@ namespace WBSF
 
 		while (std::getline(file, line) && msg)
 		{
-			StringVector columnList(line, ",;\t");
+			StringVector columnList;
+			columnList.Tokenize(line, ",;\t", false);
 			ASSERT(columnList.size() == m_columnLinkArray.size());
 
 

@@ -147,6 +147,7 @@ namespace WBSF
 					else
 					{
 						msg.ajoute("Unable to find location with ID = " + name);
+						msg.ajoute(loop->GetLastLine());
 					}
 				}
 			}

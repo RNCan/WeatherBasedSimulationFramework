@@ -231,7 +231,7 @@ namespace WBSF
 
 				if (!have_var(C_TID))
 				{
-					msg.ajoute("Mandatory missing column. \"ID\" must be define");
+					msg.ajoute("Mandatory missing column. \"Tid\" must be define");
 				}
 
 				//check for mandatory columns
@@ -1803,15 +1803,9 @@ namespace WBSF
 	//    3. RMARIN and RANMAR are designed to be protable; they should not
 	//       cause any problems.
 	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
-		//ERMsg CInsectParameterization::Optimize(CFitOutput& output, CCallback& callback)
 	{
 		ERMsg msg;
-
-		/*string s = output.m_variable;
-		size_t  e = output.m_equation;
-		CSAParameterVector& parameters = output.m_parameters;
-		CComputationVariable& computation = output.m_computation;
-*/
+		
 //  Initialize the random number generator RANMAR.
 		CRandomizeNumber random(m_ctrl.Seed1(), m_ctrl.Seed2());
 

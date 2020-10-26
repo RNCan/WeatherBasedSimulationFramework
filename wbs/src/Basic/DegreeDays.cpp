@@ -581,9 +581,20 @@ namespace WBSF
 		return ahdd;
 	}
 
-	void CDegreeDays::Execute(CWeatherStation& weather, CModelStatVector& output)
+	void CDegreeDays::Execute(const CWeatherYears& weather, CModelStatVector& output)
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);// (TM);
+		output.Init(p, NB_OUTPUT, 0, HEADER);
+
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			double dd = GetDD(weather.GetDay(TRef));
+			output[TRef][S_DD] = dd;
+		}
+	}
+	void CDegreeDays::Execute(const CWeatherYear& weather, CModelStatVector& output)
+	{
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 		output.Init(p, NB_OUTPUT, 0, HEADER);
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
@@ -595,10 +606,9 @@ namespace WBSF
 
 
 
-
 	//***********************************************************************************************************************
 	const char CDegreeHours::HEADER[] = "DH";
-	void CDegreeHours::Execute(CWeatherStation& weather, CModelStatVector& output)
+	void CDegreeHours::Execute(const CWeatherYears& weather, CModelStatVector& output)
 	{
 		ASSERT(weather.IsHourly());
 		
