@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 344 700</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS SD</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H WS WD SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -134,7 +134,7 @@
             <MaxValue>0.9</MaxValue>
             <TextValue/>
         </InputVariable>
-		<InputVariable>
+        <InputVariable>
             <Name>VanWagnerType</Name>
             <Caption>VanWagnerType</Caption>
             <Description/>
@@ -286,6 +286,14 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>WD</Name>
+            <Title>WD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>Prcp</Name>
             <Title>Prcp</Title>
             <Units>mm</Units>
@@ -388,6 +396,14 @@
             <Climatic>1</Climatic>
         </OutputVariable>
         <OutputVariable>
+            <Name>WDmin</Name>
+            <Title>WDmin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>NbDay without prcp (cons)</Name>
             <Title>NbDay without prcp (cons)</Title>
             <Units>days</Units>
@@ -478,6 +494,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WDmax</Name>
+            <Title>WDmax</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>NbDayWithoutPrcp</Name>

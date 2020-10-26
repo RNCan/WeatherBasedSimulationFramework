@@ -575,6 +575,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>SBW_with_Meteo</Name>
+            <Title>SBW_with_Meteo</Title>
+            <Units/>
+            <Description>SBW with immature Meteorus</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
     <Credit/>

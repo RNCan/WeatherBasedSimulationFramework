@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 381 710</WindowRect>
-    <SimulatedCategory>TN T TX P TD H WS SD</SimulatedCategory>
+    <SimulatedCategory>TN T TX P TD H WS WD SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -134,7 +134,7 @@
             <MaxValue>0.9</MaxValue>
             <TextValue/>
         </InputVariable>
-		<InputVariable>
+        <InputVariable>
             <Name>VanWagnerType</Name>
             <Caption>VanWagner (HFFMC)</Caption>
             <Description/>
@@ -284,6 +284,15 @@
             <TimeMode>4 0</TimeMode>
             <Precision>5</Precision>
             <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WD</Name>
+            <Title>WD</Title>
+            <Units>°</Units>
+            <Description>Wind direction</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>7</Climatic>
         </OutputVariable>
         <OutputVariable>
             <Name>Prcp</Name>

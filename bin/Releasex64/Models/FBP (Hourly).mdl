@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>FWI(daily)</Title>
+    <Title>FBP(hourly)</Title>
     <Version>1.0</Version>
     <ID>.FBP</ID>
     <EXE>FBP.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description/>
+    <Description>fire behavior prediction</Description>
     <WindowRect>0 0 483 710</WindowRect>
     <SimulatedCategory>TN T TX P TD H WS WD SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -360,6 +360,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Forestry Canada Fire Danger Group(FCFDG) (1992). "Development and Structure of the Canadian Forest Fire Behavior Prediction System." Technical Report ST - X - 3, Forestry Canada, Ottawa, Ontario.&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Wotton, B.M., Alexander, M.E., Taylor, S.W. 2009. Updates and revisions to the 1992 Canadian forest fire behavior prediction system.Nat.Resour. Can., Can.For.Serv., Great Lakes For.Cent., Sault Ste.Marie, Ontario, Canada.Information Report GLC - X - 10, 45p.</Credit>
+    <Credit>Forestry Canada Fire Danger Group(FCFDG) (1992). "Development and Structure of the Canadian Forest Fire Behavior Prediction System." Technical Report ST - X - 3, Forestry Canada, Ottawa, Ontario.&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;Wotton, B.M., Alexander, M.E., Taylor, S.W. 2009. Updates and revisions to the 1992 Canadian forest fire behavior prediction system.Nat.Resour. Can., Can.For.Serv., Great Lakes For.Cent., Sault Ste.Marie, Ontario, Canada.Information Report GLC - X - 10, 45p.&#x0D;&#x0A;&#x0D;&#x0A;https://rdrr.io/cran/cffdrs/man/cffdrs-package.html</Credit>
     <HelpFileName/>
 </Model>
