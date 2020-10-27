@@ -16,7 +16,6 @@ using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::LNF;
 
-#define CONFLICT1 = TRUE
 
 namespace WBSF
 {
