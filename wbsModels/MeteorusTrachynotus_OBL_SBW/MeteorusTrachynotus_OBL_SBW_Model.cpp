@@ -3,6 +3,7 @@
 //
 // Description: CMeteorusTrachynotus_OBL_SBW_Model is a BioSIM model of MeteorusTrachynotus and ObliqueBandedLeafroller model
 //*****************************************************************************
+// 28/10/2020	1.0.2	Rémi Saint-Amant	Add SBW rpoportion as input parameters
 // 26/10/2020	1.0.1	Rémi Saint-Amant	Add 
 // 27/02/2020	1.0.0	Rémi Saint-Amant	Creation
 //*****************************************************************************
@@ -37,8 +38,8 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER is used to determine if the DLL 
 		//uses the same number of parameters than the model interface
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.0.1 (2020)";
+		NB_INPUT_PARAMETER = 7;
+		VERSION = "1.0.2 (2020)";
 
 		// initialize your variables here (optimal values obtained by sensitivity analysis)
 		m_generationAttrition = 0.01;//Attrition survival (cull in the egg stage, before creation)
@@ -47,6 +48,7 @@ namespace WBSF
 		m_preOvip = 3.0 / 22.4;
 		m_bOBLAttition = false;
 		m_bSBWAttition = false;
+		m_pSBW = 0.5; //proportion of SBW relatively to OBL
 	}
 
 	CMeteorusTrachynotus_OBL_SBW_Model::~CMeteorusTrachynotus_OBL_SBW_Model()
@@ -67,6 +69,9 @@ namespace WBSF
 		m_preOvip = parameters[c++].GetReal();
 		m_bOBLAttition = parameters[c++].GetBool();
 		m_bSBWAttition = parameters[c++].GetBool();
+		m_pSBW = parameters[c++].GetReal();
+
+		ASSERT(m_pSBW >= 0 && m_pSBW <= 1);
 
 		return msg;
 	}
@@ -138,6 +143,7 @@ namespace WBSF
 
 			//Create stand
 			CMeteorusTrachynotus_OBL_SBW_Stand stand(this);
+			stand.m_pSBW = m_pSBW;
 
 			//OBL init
 			std::shared_ptr<CHost> pHostOBL = make_shared<CHost>(&stand.m_OBLStand);

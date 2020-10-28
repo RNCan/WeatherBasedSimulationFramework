@@ -88,6 +88,7 @@ namespace WBSF
 
 		CObliqueBandedLeafrollerStand m_OBLStand;
 		CSBWStand m_SBWStand;
+		double m_pSBW; //proportion of SBW relatively to OBL
 
 		//global variables of all bugs
 		CMeteorusTrachynotus_OBL_SBW_Stand(CBioSIMModelBase* pModel) :
@@ -95,6 +96,7 @@ namespace WBSF
 			m_OBLStand(pModel),
 			m_SBWStand(pModel)
 		{
+			m_pSBW = 0.5;
 		}
 
 

@@ -366,7 +366,7 @@ namespace WBSF
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
 			{
 				if ((*it)->IsAlive())
-					nbAttackable += (*it)->GetScaleFactor();
+					nbAttackable += (1- m_pSBW)*(*it)->GetScaleFactor();
 			}
 
 		}
@@ -379,7 +379,7 @@ namespace WBSF
 				if (stage >= SBW::L2 && stage <= SBW::L6)
 				{
 					if ((*it)->IsAlive())
-						nbAttackable += (*it)->GetScaleFactor();
+						nbAttackable += (m_pSBW)*(*it)->GetScaleFactor();
 				}
 			}
 		}
@@ -393,7 +393,7 @@ namespace WBSF
 			if (stage >= OBL::L1 && stage <= OBL::L6 && stage != OBL::L3D)
 			{
 				if ((*it)->IsAlive())
-					nbAttackable += (*it)->GetScaleFactor();
+					nbAttackable += (1 - m_pSBW)*(*it)->GetScaleFactor();
 			}
 
 			if (nbAttackable >= rand)
@@ -408,7 +408,7 @@ namespace WBSF
 				if (stage >= SBW::L2 && stage <= SBW::L6)
 				{
 					if ((*it)->IsAlive())
-						nbAttackable += (*it)->GetScaleFactor();
+						nbAttackable += (m_pSBW)*(*it)->GetScaleFactor();
 				}
 
 				if (nbAttackable >= rand)

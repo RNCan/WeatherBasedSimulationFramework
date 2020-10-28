@@ -33,7 +33,7 @@ namespace WBSF
 		//bool m_bOnGround;
 		bool m_bOBLAttition;
 		bool m_bSBWAttition;
-
+		double m_pSBW; //proportion of SBW relatively to OBL
 	};
 
 
