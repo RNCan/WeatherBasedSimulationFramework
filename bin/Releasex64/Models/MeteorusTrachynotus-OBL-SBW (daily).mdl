@@ -6,7 +6,7 @@
     <EXE>MeteorusTrachynotus-OBL-SBW.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description>Development, fecondity and attrition of Actia interrupta</Description>
-    <WindowRect>0 0 270 229</WindowRect>
+    <WindowRect>0 0 329 285</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -82,6 +82,18 @@
             <Rect>185 10 205 200</Rect>
             <SeparatorPos>130</SeparatorPos>
             <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>pSBW</Name>
+            <Caption>SBW proportion (0..1)</Caption>
+            <Description>Proportion of SBW</Description>
+            <Type>2</Type>
+            <Rect>210 10 230 200</Rect>
+            <SeparatorPos>130</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
