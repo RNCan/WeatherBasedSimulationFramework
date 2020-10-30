@@ -29,7 +29,9 @@ namespace WBSF
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIBC::CLASS_NAME(), (createF)CUIBC::create);
 
 
-	const char* CUIBC::SERVER_NAME = "tools.pacificclimate.org";
+	
+	const char* CUIBC::SERVER_NAME = "data.pacificclimate.org";
+	//const char* CUIBC::SERVER_NAME = "tools.pacificclimate.org";
 
 //network_id	network_name
 //1				EC
@@ -47,6 +49,23 @@ namespace WBSF
 //16			FRBC
 //17			ARDA
 //19			EC_raw
+//AGRI	BC Ministry of Agriculture
+//ARDA	Agricultural and Rural Development Act Network
+//BCH	BC Hydro
+//CRD	Capital Regional District
+//EC	Environment Canada(Canadian Daily Climate Data 2007)
+//EC_raw	Environment Canada(raw observations from "Climate Data Online")
+//ENV - AQN	BC Ministry of Environment - Air Quality Network
+//ENV - ASP	BC Ministry of Environment - Automated Snow Pillow Network
+//FLNRO - FERN	BC Ministry of Forests, Lands, and Natural Resource Operations - Forest Ecosystems Research Network
+//FLNRO - WMB	BC Ministry of Forests, Lands, and Natural Resource Operations - Wild Fire Managment Branch
+//FRBC	Forest Renewal British Columbia
+//MoTIe	Ministry of Transportation and Infrastructure(electronic)
+//MoTIm	Ministry of Transportation and Infrastructure(manual)
+//MVAN	Metro Vancouver
+//RTA	RioTintoAlcan
+//UNBC_CAM	UNBC Cariboo Alpine Mesonet
+
 	const size_t CUIBC::NETWOK_ID_TO_ENUM[20] = { NOT_INIT, EC, MoTIe, MoTIm, NOT_INIT, BCH, RTA, NOT_INIT, NOT_INIT, ENV_AQN, AGRI, FLNRO_FERN, FLNRO_WMB, NOT_INIT, ENV_ASP, NOT_INIT, FRBC, ARDA, NOT_INIT, EC_RAW };
 		
 
@@ -67,6 +86,23 @@ namespace WBSF
 		true, false,//FRBC
 		true, false,//MoTIe
 		false, true,//MoTIm 
+		false, true,//RTA
+	};
+
+	const bool CUIBC::ACTIVE[NB_NETWORKS][NB_TYPES] =
+	{
+		false, false,//AGR
+		false, false,//ARDA
+		true, true,	//BCH
+		false, true,//EC
+		true, true,	//EC_raw
+		true, false,//ENV-AQN
+		false, true,//ENV_ASP
+		false, false,//FLNRO-FERN
+		true, false, //FLNRO-WMB
+		false, false,//FRBC
+		true, false,//MoTIe
+		false, false,//MoTIm 
 		false, true,//RTA
 	};
 
@@ -107,7 +143,7 @@ namespace WBSF
 
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "PCIC\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "BC\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case DATA_TYPE: str = "1"; break;
@@ -146,11 +182,12 @@ namespace WBSF
 		}
 
 		callback.AddMessage(GetString(IDS_UPDATE_FILE));
-		int nbDownload = 0;
+		size_t nbDownload = 0;
 
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
+		size_t nbRun = 0;
 
 		callback.PushTask("Download data for all years", nbYears);
 		
@@ -161,14 +198,18 @@ namespace WBSF
 
 			size_t type = as<size_t>(DATA_TYPE); ASSERT(type < NB_TYPES);
 			callback.PushTask(FormatA("%04d", year), type == HOURLY_WEATHER ? 7 : 9);
-			for (size_t n = 0; n < NB_NETWORKS && msg; n++)
+			for (size_t n = 0; n < NB_NETWORKS && msg; )
 			{
+				nbRun++;
 				bool bIgnoreEnvCan = as<bool>(IGNORE_ENV_CAN);
 				bool bEnvCan = n == EC || n == EC_RAW;
-				if (!(bIgnoreEnvCan&&bEnvCan))
+
+				bool bHaveData = year<2019? AVAILABILITY[n][type]:ACTIVE[n][type];
+
+				if (bHaveData && !(bIgnoreEnvCan&&bEnvCan))
 				{
 					static const char* URL_FORMAT =
-						"dataportal/data/pcds/agg/?"
+						"data/pcds/agg/?"
 						"from-date=%4d%%2F01%%2F01&"
 						"to-date=%4d%%2F12%%2F31&"
 						"input-polygon=&"
@@ -178,9 +219,8 @@ namespace WBSF
 						"data-format=ascii&"
 						"cliptodate=cliptodate&"
 						"download-timeseries=Timeseries";
-
-					//string URL = "dataportal/data/pcds/agg/?from-date=2015%2F01%2F01&to-date=2015%2F12%2F31&input-polygon=&input-var=&network-name=FLNRO-WMB&input-freq=1-hourly&data-format=ascii&cliptodate=cliptodate&download-timeseries=Timeseries";	
-					//string URL = "dataportal/data/pcds/agg/?from-date=2016%2F01%2F01&to-date=2016%2F12%2F31&input-polygon=&input-var=&network-name=BCH&input-freq=daily&data-format=ascii&cliptodate=cliptodate&download-timeseries=Timeseries
+					
+					//data.pacificclimate.org/data/pcds/agg/?from-date=2020%2F01%2F01&to-date=2020%2F10%2F28&input-polygon=&input-var=&network-name=BCH&input-freq=daily&data-format=ascii&cliptodate=cliptodate&download-timeseries=Timeseries
 					string URL = FormatA(URL_FORMAT, year, year, NETWORK_NAME[n], TYPE_NAME[type]);
 
 					string ouputPath = workingDir + TYPE_NAME[type] + "\\" + ToString(year) + "\\";// +NETWORK_NAME[n] + "\\";
@@ -190,18 +230,25 @@ namespace WBSF
 					string  filePathZip = ouputPath + NETWORK_NAME[n] + ".zip";
 
 					
-					callback.PushTask("Downloading " + string(NETWORK_NAME[n]) + " " + ToString(year) + "...", NOT_INIT);
-					msg += UtilWWW::CopyFile(pConnection, URL, filePathZip, FLAGS, false, callback);
-					callback.PopTask();
-					if (msg)
+					//callback.PushTask("Downloading " + string(NETWORK_NAME[n]) + " " + ToString(year) + "...", NOT_INIT);
+					msg += UtilWWW::CopyFile(pConnection, URL, filePathZip, FLAGS, false, callback );
+					//callback.PopTask();
+					if (msg && FileExists(filePathZip))
 					{
-						if (FileExists(filePathZip) )
+
+						ifStream file;
+						file.open(filePathZip);
+						size_t length = file.length();
+						string str;
+						std::getline(file, str);
+						file.close();
+						//
+						if (str.find("429 Too Many Requests") == string::npos)
 						{
-							ifStream tmp;
-							tmp.open(filePathZip);
-							size_t length = tmp.length();
-							tmp.close();
-							if (length == 2)
+							n++;
+							nbRun = 0;
+
+							if (length == 2)//no data
 							{
 								RemoveFile(filePathZip);
 							}
@@ -215,29 +262,45 @@ namespace WBSF
 									nbDownload++;
 								}
 							}
-						}
 
-						msg += callback.StepIt();
+							msg += callback.StepIt();
+						}
+						else
+						{
+							pConnection->Close();
+							pSession->Close();
+
+							//wait 5 seconds 
+							if(nbRun<5)
+								msg = WaitServer(30, callback);
+							else 
+								msg.ajoute("Error downloading BC data");
+		
+							if(msg)
+								msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+						}
+						
 					}
 					else
 					{
 					
 						pConnection->Close();
 						pSession->Close();
+						if (nbRun < 5)
+							msg = WaitServer(30, callback);
+						else
+							msg.ajoute("Error downloading BC data");
 
-						//wait 5 seconds 
-						callback.PushTask("Waiting 5 seconds...", 50);
-						for (size_t s = 0; s < 50 && msg; s++)
-						{
-							Sleep(100);
-							msg += callback.StepIt();
-						}
-						callback.PopTask();
-
+						//wait 30 seconds 
+						msg = WaitServer(30, callback);
 						msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 						
 					}
 				}//if available
+				else
+				{
+					n++;
+				}
 			}//for all networks
 
 			callback.PopTask();
@@ -397,6 +460,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
 		size_t pos = m_stations.FindByID(stationID);
 		if (pos == NOT_INIT)
 		{
@@ -416,6 +480,14 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 		size_t type = as<size_t>(DATA_TYPE);
 
+		if (type == DAILY_WEATHER && TM == CTM::HOURLY)
+		{
+			msg.ajoute("Select hourly");
+			return msg;
+		}
+
+		//station.CreateYears(firstYear, nbYears);
+		station.SetHourly(type == HOURLY_WEATHER);
 		string network_name = station.GetSSI("network_name");
 		size_t n = GetNetwork(network_name);
 		
@@ -441,7 +513,7 @@ namespace WBSF
 
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
-				msg = ReadData(fileList[i], TM, station, callback);
+				msg = ReadData(fileList[i], type == HOURLY_WEATHER ? CTM::HOURLY:CTM::DAILY , station, callback);
 				msg += callback.StepIt(bStepIt ? 1 : 0);
 			}
 
@@ -551,7 +623,10 @@ namespace WBSF
 				{
 					if ((*loop).size() == NB_COLUMNS)
 					{
-						StringVector method((*loop)[C_CELL_METHOD], ":");
+						string tmp = (*loop)[C_CELL_METHOD];
+						ReplaceString(tmp, "(interval: 1 hour)", "");
+						ReplaceString(tmp, "(interval: 24 hour)", "");
+						StringVector method(tmp, ":");
 						ASSERT(method.size() == 2);
 
 						string var_name = TrimConst((*loop)[C_VARIABLE]);
@@ -716,7 +791,12 @@ namespace WBSF
 							double value = stod(str);
 							value = Normalize(value, col_pos[c]->first, col_pos[c]->second.units, data.m_z);
 
-							
+							/*if (col_pos[c]->second.v == H_TAIR)
+							{
+								stat.Add(TRef, H_TMIN, value);
+								stat.Add(TRef, H_TMAX, value);
+							}*/
+
 							if (col_pos[c]->second.v == H_RELH)//limit to 100
 								value = min(100.0, value);
 							

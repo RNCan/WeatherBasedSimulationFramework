@@ -74,7 +74,7 @@ namespace WBSF
 		static const size_t NETWOK_ID_TO_ENUM[20];
 		static const char* TYPE_NAME[NB_TYPES];
 		static const bool AVAILABILITY[NB_NETWORKS][NB_TYPES];
-		
+		static const bool ACTIVE[NB_NETWORKS][NB_TYPES];
 
 	};
 
