@@ -132,7 +132,7 @@ namespace WBSF
 	//Interface attribute index to attribute index
 	static const char PageDataFormat[] = "acis/rss/data?type=%s&stationId=%s&date=%4d%02d%02d";
 
-	static const bool OLD_CODE = true;
+	static const bool NEW_CODE = true;
 
 
 	ERMsg CUIACIS::Execute(CCallback& callback)
@@ -161,7 +161,7 @@ namespace WBSF
 		else
 		{
 			CreateMultipleDir(GetPath(GetStationListFilePath()));
-			if (OLD_CODE)
+			if (NEW_CODE)
 			{
 				msg = DownloadStationListII(m_stations, callback);
 			}
@@ -179,7 +179,7 @@ namespace WBSF
 			return msg;
 
 
-		if (OLD_CODE)
+		if (NEW_CODE)
 		{
 			size_t type = as <size_t>(DATA_TYPE);
 			if (type == HOURLY_WEATHER)
@@ -936,7 +936,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (OLD_CODE)
+		if (NEW_CODE)
 		{
 			//if(Get(USER_NAME) != "12345" || Get(PASSWORD) != "12345")
 				//msg.ajoute("Invalid user name/password");
@@ -1163,12 +1163,12 @@ namespace WBSF
 		size_t type = as<size_t>(DATA_TYPE);
 		string filepath = GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\";
 
-		if (!OLD_CODE)
+		if (!NEW_CODE)
 			filepath += FormatA("%02d", m + 1) + "\\";
 
 		filepath += ID + ".csv";
 
-		if (!OLD_CODE)
+		if (!NEW_CODE)
 			filepath += ".gz";
 
 		return filepath;
@@ -1255,15 +1255,60 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			for (size_t m = 0; m < 12 && msg; m++)
+			//for (size_t m = 0; m < 12 && msg; m++)
+			//{
+			string filePath = GetOutputFilePath(year, NOT_INIT, ID);
+			if (FileExists(filePath))
 			{
-				string filePath = GetOutputFilePath(year, m, ID);
-				if (FileExists(filePath))
+				//msg = ReadDataFile(filePath, station);
+				station.LoadData(filePath, -999, false);
+				
+				msg += callback.StepIt(0);
+			}
+			//}
+		}
+
+		if (type == HOURLY_WEATHER)
+		{
+			//Compute hourly Tair form Tmin and Tmax
+			for (size_t y = 0; y < station.size(); y++)
+			{
+				for (size_t m = 0; m < station[y].size(); m++)
 				{
-					msg = ReadDataFile(filePath, station);
-					msg += callback.StepIt(0);
+					for (size_t d = 0; d < station[y][m].size(); d++)
+					{
+						for (size_t h = 0; h < station[y][m][d].size(); h++)
+						{
+							if (station[y][m][d][h][H_TAIR] == -999 && station[y][m][d][h][H_TMIN] != -999 && station[y][m][d][h][H_TMAX] != -999)
+								station[y][m][d][h].SetStat(H_TAIR, (station[y][m][d][h][H_TMIN] + station[y][m][d][h][H_TMAX]) / 2.0);
+
+							if (station[y][m][d][h][H_RELH] == -999 && station[y][m][d][h][H_TAIR] != -999 && station[y][m][d][h][H_TDEW] != -999)
+								station[y][m][d][h].SetStat(H_RELH, Td2Hr(station[y][m][d][H_TAIR], station[y][m][d][h][H_TDEW]));
+
+							if (station[y][m][d][h][H_TDEW] == -999 && station[y][m][d][h][H_TAIR] != -999 && station[y][m][d][h][H_RELH] != -999)
+								station[y][m][d][h].SetStat(H_TDEW, Hr2Td(station[y][m][d][H_TAIR], station[y][m][d][h][H_RELH]));
+
+						}
+					}
 				}
 			}
+
+		}
+		bool bLagOneMonth = as<bool>(MONTH_LAG);
+		CTRef today = CTRef::GetCurrentTRef();
+		if (bLagOneMonth)//some data have invalid TRef or we have to make a one month lag
+		{
+			//reset last month data
+			int ndRef = 30;
+
+			if (type == HOURLY_WEATHER)
+			{
+				ndRef = 30 * 24;
+				today.Transform(CTM(CTM::HOURLY), 0);
+			}
+
+			for (CTRef TRef = today - ndRef; TRef <= today; TRef++)
+				station.Get(TRef).Reset();
 		}
 
 		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
@@ -1442,7 +1487,7 @@ namespace WBSF
 		}
 		else
 		{
-			station.LoadData(filePath);
+			station.LoadData(filePath, -999, false);
 			if (type == HOURLY_WEATHER)
 			{
 				//Compute hourly Tair form Tmin and Tmax
