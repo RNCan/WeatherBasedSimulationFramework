@@ -1038,7 +1038,8 @@ namespace WBSF
 
 
 
-		callback.PushTask("Download New-Brunswick agriculture data (" + ToString(nbYears) + " files)", nbYears);
+		callback.PushTask("Download New-Brunswick daily agriculture data (" + ToString(nbYears) + " files)", nbYears);
+		callback.AddMessage("Download New-Brunswick daily agriculture data (" + ToString(nbYears) + " files)");
 
 		int nbFiles = 0;
 		if (msg)
@@ -1104,8 +1105,8 @@ namespace WBSF
 
 		if (msg)
 		{
-			callback.PushTask("Download New-Brunswick agriculture hourly data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
-			callback.AddMessage("Download New-Brunswick agriculture hourly data (" + ToString(fileList.size()*nbYears) + " files)");
+			callback.PushTask("Download New-Brunswick hourly agriculture data (" + ToString(fileList.size()*nbYears) + " files)", fileList.size()*nbYears);
+			callback.AddMessage("Download New-Brunswick hourly agriculture data (" + ToString(fileList.size()*nbYears) + " files)");
 
 			for (size_t i = 0; i < fileList.size() && msg; i++)
 			{
