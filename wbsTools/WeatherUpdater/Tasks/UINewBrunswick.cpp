@@ -304,7 +304,7 @@ namespace WBSF
 			}
 			else if (n == AGRI_HOURLY)
 			{
-				string argument = "-s \"https://agri.gnb.ca/010-001/archive.aspx\"";
+				string argument = "-s -k \"https://agri.gnb.ca/010-001/archive.aspx\"";
 				string exe = GetApplicationPath() + "External\\curl.exe";
 				CCallcURL cURL(exe);
 
@@ -722,7 +722,7 @@ namespace WBSF
 		string URL = "https://agri.gnb.ca/010-001/WebServiceData.aspx";
 		string strHeaders = "-H \"Content-Type: application/x-www-form-urlencoded\"";
 
-		string argument = "-s \""+ URL +"\""; //-H \"Connection: keep-alive\" -H \"Upgrade-Insecure-Requests: 1\" -H \"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36\" -H \"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\" -H \"Sec-Fetch-Site: none\" -H \"Sec-Fetch-Mode: navigate\" -H \"Sec-Fetch-Dest: document\" -H \"Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\"";
+		string argument = "-s -k \""+ URL +"\""; //-H \"Connection: keep-alive\" -H \"Upgrade-Insecure-Requests: 1\" -H \"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36\" -H \"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\" -H \"Sec-Fetch-Site: none\" -H \"Sec-Fetch-Mode: navigate\" -H \"Sec-Fetch-Dest: document\" -H \"Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -748,7 +748,7 @@ namespace WBSF
 			strParam += "ctl00%24Content1%24tbToDateMonth=12&";
 			strParam += "ctl00%24Content1%24tbToDateDay=31&";
 
-			string argument = "-s \"" + URL + "\" " + strHeaders + " --data-binary \"" + strParam + "\"";
+			string argument = "-s -k \"" + URL + "\" " + strHeaders + " --data-binary \"" + strParam + "\"";
 			msg = cURL.get_text(argument, source);
 
 			//request data 
@@ -773,7 +773,7 @@ namespace WBSF
 			strParam += "ctl00%24Content1%24btnSubmit=Generate";
 
 			
-			argument = "-v \"" + URL + "\" "+ strHeaders +" --data-binary \"" + strParam + "\" --output \"" + file_path + "\"";
+			argument = "-v -k \"" + URL + "\" "+ strHeaders +" --data-binary \"" + strParam + "\" --output \"" + file_path + "\"";
 			string command = exe + " " + argument;
 
 			DWORD exit_code;
@@ -809,7 +809,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string argument = "-s \"https://agri.gnb.ca/010-001/archive.aspx\" -H \"Connection: keep-alive\" -H \"Upgrade-Insecure-Requests: 1\" -H \"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36\" -H \"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\" -H \"Sec-Fetch-Site: none\" -H \"Sec-Fetch-Mode: navigate\" -H \"Sec-Fetch-Dest: document\" -H \"Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\"";
+		string argument = "-s -k \"https://agri.gnb.ca/010-001/archive.aspx\" -H \"Connection: keep-alive\" -H \"Upgrade-Insecure-Requests: 1\" -H \"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36\" -H \"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\" -H \"Sec-Fetch-Site: none\" -H \"Sec-Fetch-Mode: navigate\" -H \"Sec-Fetch-Dest: document\" -H \"Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -841,7 +841,7 @@ namespace WBSF
 			strParam += "ctl00%24Content1%24btnGetData=Submit";
 
 
-			string argument = "-s \"" + URL + "\" "+ strHeaders +" --data-binary \"" + strParam + "\"";
+			string argument = "-s -k \"" + URL + "\" "+ strHeaders +" --data-binary \"" + strParam + "\"";
 			msg = cURL.get_text(argument, str);
 
 
