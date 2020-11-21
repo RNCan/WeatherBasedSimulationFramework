@@ -360,10 +360,12 @@ namespace WBSF
 										
 										if (HH == 0)
 										{
-											for (size_t HH = 0; HH <= 6; HH++)
+											for (size_t HH = 0; HH <= 6&&msg; HH++)
 											{
 												string inputPath = GetInputFilePath(product, dimension, curTRef, HH);
 												string outputPath = GetOutputFilePath(product, dimension, curTRef, HH, ".grb2");
+												CreateMultipleDir(GetPath(outputPath));
+
 
 												msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
 											}
