@@ -992,7 +992,8 @@ namespace WBSF
 			CSimulationPointVector simulationPoints;
 			msg += LoadWeather(input, simulationPoints);
 
-
+			
+			//simulationPoints.GetVariables() == ;
 
 			CModelInput modelInput;
 			msg += options.GetModelInput(*m_pModel, modelInput);
@@ -1014,6 +1015,19 @@ namespace WBSF
 
 			if (msg)
 			{
+				ASSERT(!simulationPoints.empty());
+				//verify nb years and variables
+
+				if (simulationPoints.begin()->GetNbYears() < m_pModel->GetNbYearMin() || simulationPoints.begin()->GetNbYears() > m_pModel->GetNbYearMax())
+					msg.ajoute(FormatMsg(IDS_BSC_NB_YEAR_INVALID, ToString(simulationPoints.begin()->GetNbYears()), m_pModel->GetName(), ToString(m_pModel->GetNbYearMin()), ToString(m_pModel->GetNbYearMax())));
+
+				msg += m_pModel->VerifyInputs(simulationPoints.begin()->GetSSIHeader(), simulationPoints.GetVariables());
+			}
+			
+			if (msg)
+			{
+
+
 				// Compress
 				std::stringstream stream;
 				//CStatistic::SetVMiss(-999);
