@@ -227,7 +227,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -260,7 +260,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -424,7 +424,7 @@ namespace WBSF
 
 		string URL = FormatA(webPageDataFormat, id, year, month + 1);
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -619,7 +619,7 @@ namespace WBSF
 				string URL = FormatA(pageDataFormat, internalID.c_str(), year);
 
 				string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
-				string argument = "-s \"" + URL + "\" --output \"" + filePath + "\"";
+				string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
 				string command = exe + " " + argument;
 
 				DWORD exit_code;

@@ -36,7 +36,7 @@ namespace WBSF
 	//http://beta.weatheroffice.gc.ca/observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 	//https://climate.weather.gc.ca/historical_data/search_historic_data_stations_e.html?searchType=stnProv&timeframe=1&lstProvince=QC&optLimit=yearRange&StartYear=2020&EndYear=2020&Year=2020&Month=9&Day=29&selRowPerPage=100&startRow=1&
 
-	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weatheroffice.gc.ca" };
+	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","205.189.10.47"/*"dd.weatheroffice.gc.ca"*/ };
 	//*********************************************************************
 
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "MaxSwobDays" };
@@ -228,7 +228,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -261,7 +261,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -428,7 +428,7 @@ namespace WBSF
 		//	try
 			//{
 
-		string argument = "-s \"" + URL + "\"";
+		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
 		CCallcURL cURL(exe);
 
@@ -757,7 +757,7 @@ namespace WBSF
 							string URL = FormatA(pageDataFormat, internalID.c_str(), year, m + 1);
 
 							string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
-							string argument = "-s \"" + URL + "\" --output \"" + filePath + "\"";
+							string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
 							string command = exe + " " + argument;
 
 							DWORD exit_code;
