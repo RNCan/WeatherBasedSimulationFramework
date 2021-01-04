@@ -1641,7 +1641,7 @@ namespace WBSF
 		{
 
 
-			callback.AddMessage("Missing stations information: ");
+			callback.AddMessage("Update missing stations information: ");
 			for (set<string>::const_iterator it = missingID.begin(); it != missingID.end() && msg; it++)
 			{
 				callback.AddMessage(*it, 2);
