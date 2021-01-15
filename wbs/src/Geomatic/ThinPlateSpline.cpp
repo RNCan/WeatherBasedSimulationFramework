@@ -201,7 +201,7 @@ namespace WBSF
 	{
 		double value = m_param.m_noData;
 
-		if (iXval >= 0)
+		if (iXval >= 0 && m_param.m_XvalPoints > 0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)

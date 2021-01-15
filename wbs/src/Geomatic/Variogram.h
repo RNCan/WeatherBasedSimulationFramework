@@ -151,7 +151,7 @@ namespace WBSF
 		double GetR2()const		{ return m_R2; }
 
 		double  cova3(const CGridPoint& pt1, const CGridPoint& pt2)const;
-		double  cova3(double x1, double y1, double z1, double x2, double y2, double z2)const;
+		//double  cova3(double x1, double y1, double z1, double x2, double y2, double z2)const;
 		double GetMaxCov()const{ return m_nugget + ((m_model == POWER) ? m_PMX : m_sill); }
 		double GetUnbias()const{ return GetMaxCov(); }
 

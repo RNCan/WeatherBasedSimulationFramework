@@ -387,9 +387,9 @@ namespace WBSF
 						if (m_pGridInterpol->GetVariogram(variogram))
 						{
 							if (i == 0)
-								callback.AddMessage("nbLags\tLadDist\tType\tVariogram R²\tX-val R²");
+								callback.AddMessage("nbLags\tLadDist\tType\tNugget\tSill\tRange\tVariogram R²\tMixed R²");
 
-							string tmp = FormatA("%4d\t%6.3lf\t%10.10s\t%.3lf\t%.3lf", parameterset[i].m_nbLags, parameterset[i].m_lagDist, variogram.GetModelName(), variogram.GetR2(), optimisationR²[i]);
+							string tmp = FormatA("%4d\t%8.3lf\t%16.16s\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf", parameterset[i].m_nbLags, parameterset[i].m_lagDist, variogram.GetModelName(), variogram.GetNugget(), variogram.GetSill(), variogram.GetRange(), max(-9.999,variogram.GetR2()), max(-9.999,optimisationR²[i]));
 							callback.AddMessage(tmp);
 						}
 					}
@@ -461,6 +461,9 @@ namespace WBSF
 					if (m_pGridInterpol->GetVariogram(variogram))
 						msg += variogram.Save(filePath);
 				}
+
+				CStatisticXY stat1;
+				m_validation.GetStatistic(stat1, VMISS);
 
 				//push back removed point with VMISS data
 				if (!m_trimPosition.empty())

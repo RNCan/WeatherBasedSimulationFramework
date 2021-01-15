@@ -313,7 +313,7 @@ namespace WBSF
 		if (!m_pVariogram->IsInit())
 			return m_param.m_noData;
 
-		if (iXval >= 0)
+		if (iXval >= 0 && m_param.m_XvalPoints>0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
@@ -532,7 +532,7 @@ namespace WBSF
 		{
 			string tmp = string(CGridInterpolParam::GetMemberName(varPrint[i])) + " = " + m_param.GetMember(varPrint[i]);
 			if (i == 0)
-				tmp += string(" \"") + m_pVariogram->GetModelName() + "\"\t(R² = " + ToString(m_pVariogram->GetR2()) + ")";
+				tmp += string(" \"") + m_pVariogram->GetModelName() + "\"\t(R² = " + ToString(m_pVariogram->GetR2(),4) + ")";
 			if (i == 3)
 				tmp += " (" + m_pVariogram->GetDetrending().GetEquation() + ")";
 			if (i == 4)
@@ -575,7 +575,13 @@ namespace WBSF
 	{
 		double XValR² = CGridInterpolBase::GetOptimizedR²(callback);
 		double varioR² = m_pVariogram->GetR2();
-		double R² = XValR² * 3 / 4 + varioR² / 4;
+
+		//if (XValR² <= m_param.m_noData)
+		//	XValR² = 0;
+		//if (varioR² <= m_param.m_noData)
+		//	varioR² = 0;
+
+		double R² = XValR² * 4.0 / 5.0 + varioR² * 1.0 / 5.0;
 		return R²;
 
 	}

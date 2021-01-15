@@ -98,6 +98,9 @@
     <ClCompile Include="..\src\Geomatic\SfcGribsDatabase.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Geomatic\MODISDataset.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -194,6 +197,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Geomatic\SfcGribsDatabase.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Geomatic\MODISDataset.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

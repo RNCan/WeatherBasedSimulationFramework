@@ -415,7 +415,7 @@ namespace WBSF
 
 	double CSpatialRegression::Evaluate(const CGridPoint& pt, int iXval)const
 	{
-		if (iXval >= 0)
+		if (iXval >= 0 && m_param.m_XvalPoints > 0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
