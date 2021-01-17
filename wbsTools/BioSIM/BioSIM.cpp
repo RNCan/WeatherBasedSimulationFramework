@@ -1,9 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.7.1:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
+// 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
 //											Bug correction for variogram Cubic, Pentaspherical, Sine hole effect
 //											Change lower and upper bound and initial values for variogram Power
 //											Change in search radius in BobyQA (variagram)
+//											Change in the StepWise for regression
+//											Add min/max/step options for variogram search
 // 11.6.8:13/07/2020	Rémi Saint-Amant	Bug correction in elevation web extraction
 //											Add locale directory when download weather database
 // 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generade new random seed for each location/WGreplications

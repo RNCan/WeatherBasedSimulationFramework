@@ -167,7 +167,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>..\..\external\gdal\lib$(PlatformArchitecture);..\..\external\lib$(PlatformArchitecture);..\..\external\VisualLeakDetector\lib\Win$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <IgnoreEmbeddedIDL>false</IgnoreEmbeddedIDL>
       <StackReserveSize>50000000</StackReserveSize>

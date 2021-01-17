@@ -119,13 +119,13 @@ BEGIN
     BUTTON      ID_ADD_FUNCTION_ANALYSIS
     BUTTON      ID_ADD_MERGE
     BUTTON      ID_ADD_MAP
-    BUTTON      ID_ADD_IMPORT_SIMULATION 
+    BUTTON      ID_ADD_IMPORT_SIMULATION
     BUTTON      ID_ADD_INPUT_ANALYSIS
     BUTTON      ID_ADD_DISPERSAL
     BUTTON      ID_ADD_SCRIPT_R
     BUTTON      ID_ADD_COPY_EXPORT
     BUTTON      ID_ADD_MODEL_PARAMETERIZATION
-	BUTTON      ID_ADD_RATE_FIT
+    BUTTON      ID_ADD_RATE_FIT
     SEPARATOR
     BUTTON      ID_PROPERTIES
     BUTTON      ID_EDIT
@@ -274,8 +274,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,6,8,4
- PRODUCTVERSION 11,6,8,4
+ FILEVERSION 11,7,0,1
+ PRODUCTVERSION 11,7,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -292,23 +292,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.6.8.4"
+            VALUE "FileVersion", "11.7.0.1"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2020"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.6.8.4"
+            VALUE "ProductVersion", "11.7.0.1"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.6.8.4"
+            VALUE "FileVersion", "11.7.0.1"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2020"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.6.8.4"
+            VALUE "ProductVersion", "11.7.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -398,7 +398,7 @@ BEGIN
         MENUITEM "Ajouter s&cript...",          ID_ADD_SCRIPT_R
         MENUITEM "Ajouter copie d'expor&t...",  ID_ADD_COPY_EXPORT
         MENUITEM "Ajouter calibration de modè&le...", ID_ADD_MODEL_PARAMETERIZATION
-		MENUITEM "Ajouter calibration de cour&bes...", ID_ADD_RATE_FIT
+        MENUITEM "Ajouter calibration de cour&bes...", ID_ADD_RATE_FIT
         MENUITEM SEPARATOR
         MENUITEM "E&xécuter cochés\tF5",        ID_EXECUTE
         MENUITEM "Afficher stations appariées...", ID_MATCH_STATION
@@ -443,7 +443,7 @@ BEGIN
         MENUITEM "Ajouter génération &météorologique...", ID_ADD_WEATHER_GENERATION
         MENUITEM "Ajouter &exécution de modèle...", ID_ADD_MODEL_EXECUTION
         MENUITEM "Ajouter &analyse...",         ID_ADD_ANALYSIS
-        MENUITEM "Ajouter analyse &météo...",    ID_ADD_FUNCTION_ANALYSIS
+        MENUITEM "Ajouter analyse &météo...",   ID_ADD_FUNCTION_ANALYSIS
         MENUITEM "Ajouter f&usion...",          ID_ADD_MERGE
         MENUITEM "Ajouter &interpolation spatiale...", ID_ADD_MAP
         MENUITEM "Ajouter im&portat de données...", ID_ADD_IMPORT_SIMULATION
@@ -452,7 +452,7 @@ BEGIN
         MENUITEM "Ajouter s&cript...",          ID_ADD_SCRIPT_R
         MENUITEM "Ajouter c&opie d'export...",  ID_ADD_COPY_EXPORT
         MENUITEM "Ajouter calibration de modè&le...", ID_ADD_MODEL_PARAMETERIZATION
-		MENUITEM "Ajouter calibration de cour&bes...", ID_ADD_RATE_FIT
+        MENUITEM "Ajouter calibration de cour&bes...", ID_ADD_RATE_FIT
         MENUITEM SEPARATOR
         MENUITEM "&Exécuter cochés\tCtrl+E",    ID_EXECUTE_MENU
         MENUITEM "Afficher stations appariées...", ID_MATCH_STATION
@@ -778,7 +778,7 @@ BEGIN
     ID_ADD_COPY_EXPORT      "Permet de copier l'export vers un autre répertoire ou un site FTP\nAjoute copie d'export"
     ID_ADD_MODEL_PARAMETERIZATION 
                             "Permet de calibrer les paramètres d'un modèle externe\nAjouter calibration de modèle"
-	ID_ADD_RATE_FIT         "Permet de calibrer des courbes de temps de dévelopement, de survie et d'oviposition\nAjouter calibration de courbes"
+    ID_ADD_RATE_FIT         "Permet de calibrer des courbes de temps de dévelopement, de survie et d'oviposition\nAjouter calibration de courbes"
     ID_EDIT_DUPLICATE       "Dupliquer l'élément sélectionné et tout ses enfants\nDupliquer"
     ID_ITEM_EXPAND_ALL      "Développer tous les enfants d'un élément\nTout développer"
     ID_ITEM_COLLAPSE_ALL    "Réduire tous les enfants d'un élément\nTout réduire"
@@ -924,8 +924,8 @@ BEGIN
         MENUITEM "Add &Dispersal...",           ID_ADD_DISPERSAL
         MENUITEM "Add Scri&pt...",              ID_ADD_SCRIPT_R
         MENUITEM "Add &Copy Export...",         ID_ADD_COPY_EXPORT
-        MENUITEM "Add Mode&l Calibration...",    ID_ADD_MODEL_PARAMETERIZATION
-		MENUITEM "Add Cur&ve Calibration...",    ID_ADD_RATE_FIT
+        MENUITEM "Add Mode&l Calibration...",   ID_ADD_MODEL_PARAMETERIZATION
+        MENUITEM "Add Cur&ve Calibration...",   ID_ADD_RATE_FIT
         MENUITEM SEPARATOR
         MENUITEM "E&xecute Checked\tF5",        ID_EXECUTE
         MENUITEM "Show Matched Stations...",    ID_MATCH_STATION
@@ -975,10 +975,10 @@ BEGIN
         MENUITEM "Add &Import File...",         ID_ADD_IMPORT_SIMULATION
         MENUITEM "Add Weather Input Analyisis...", ID_ADD_INPUT_ANALYSIS
         MENUITEM "Add &Dispersal...",           ID_ADD_DISPERSAL
-        MENUITEM "Add Scri&pt...",               ID_ADD_SCRIPT_R
+        MENUITEM "Add Scri&pt...",              ID_ADD_SCRIPT_R
         MENUITEM "Add &Copy Export...",         ID_ADD_COPY_EXPORT
         MENUITEM "Add Mode&l Calibration...",   ID_ADD_MODEL_PARAMETERIZATION
-		MENUITEM "Add Cur&ve Calibration...",    ID_ADD_RATE_FIT
+        MENUITEM "Add Cur&ve Calibration...",   ID_ADD_RATE_FIT
         MENUITEM SEPARATOR
         MENUITEM "E&xecute Checked\tCtrl+E",    ID_EXECUTE_MENU
         MENUITEM "Show Matched Stations...",    ID_MATCH_STATION
@@ -1300,7 +1300,7 @@ BEGIN
     ID_ADD_COPY_EXPORT      "Use to copy export file to an other directory or an FTP site\nCopy Export"
     ID_ADD_MODEL_PARAMETERIZATION 
                             "Use to calibrate parameters of external model\nAdd Model Calibration"
-	ID_ADD_RATE_FIT         "Use to calibrate curve of development time, survival and oviposition\nAdd Curve Calibration"
+    ID_ADD_RATE_FIT         "Use to calibrate curve of development time, survival and oviposition\nAdd Curve Calibration"
     ID_EDIT_DUPLICATE       "Duplicate the selected component and all its childrens\nDuplicate"
     ID_ITEM_EXPAND_ALL      "Expand all children of a component\nExpand All"
     ID_ITEM_COLLAPSE_ALL    "Collapse all children of a component\nCollapse All"
