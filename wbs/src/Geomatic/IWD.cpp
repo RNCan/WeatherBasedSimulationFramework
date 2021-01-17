@@ -34,21 +34,20 @@ namespace WBSF
 	CIWD::~CIWD()
 	{}
 
+	void CIWD::SetDataset(const CGridPointVectorPtr& pPts)
+	{
+		ASSERT(!pPts->empty());
+
+		CGridInterpolBase::SetDataset(pPts);
+
+		m_pANNSearch = make_unique<CANNSearch>();
+		m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
+
+	}
+
 	ERMsg CIWD::Initialization(CCallback& callback)
 	{
 		ERMsg msg = CGridInterpolBase::Initialization(callback);
-		
-		if(!m_bInit)
-		{
-			//m_lastCheckSum = checkSum;
-			ASSERT(!m_pPts->empty());
-			
-			m_pANNSearch = make_unique<CANNSearch>();
-			m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
-		
-
-			m_bInit = true;
-		}
 
 		return msg;
 	}
@@ -106,12 +105,12 @@ namespace WBSF
 
 	double CIWD::Evaluate(const CGridPoint& pt, int iXval)const
 	{
-		if (iXval >= 0 && m_param.m_XvalPoints > 0)
+		/*if (iXval >= 0 && m_param.m_XvalPoints > 0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
 				return m_param.m_noData;
-		}
+		}*/
 
 		//Add one point if we are in X validation
 		size_t nbPoint = m_pANNSearch->GetSize() - (iXval >= 0 ? 1 : 0);
@@ -188,7 +187,7 @@ namespace WBSF
 		parameterset.clear();
 
 		int nbModel = m_param.m_IWDModel == CGridInterpolParam::BEST_IWD_MODEL ? CGridInterpolParam::NB_IWD_MODEL : 1;
-		int nbPower = m_param.m_power <= 0 ? 6 : 1;
+		int nbPower = m_param.m_power <= 0 ? 15 : 1;
 		if (nbModel*nbPower > 1)
 		{
 			parameterset.resize(nbModel*nbPower, m_param);
@@ -200,12 +199,17 @@ namespace WBSF
 						parameterset[i*nbPower + j].m_IWDModel = i;
 
 					if (nbPower>1)
-						parameterset[i*nbPower + j].m_power = 1 + 0.5*j;
+						parameterset[i*nbPower + j].m_power = 0.25 + 0.25*j;
 				}
 			}
 		}
 	}
 
 
+	void CIWD::Cleanup()
+	{
+		m_pANNSearch = nullptr;
+		annClose();
+	}
 
 }

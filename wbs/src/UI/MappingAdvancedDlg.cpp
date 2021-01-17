@@ -103,6 +103,7 @@ namespace WBSF
 
 	BEGIN_MESSAGE_MAP(CMappingAdvancedDlg, CDialog)
 		ON_CBN_SELCHANGE(IDC_MAP_VARIOGRAM_MODEL, &UpdateCtrl)
+		ON_CBN_SELCHANGE(IDC_MAP_EXTERNAL_DRIFT, &UpdateCtrl)
 	END_MESSAGE_MAP()
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -130,8 +131,9 @@ namespace WBSF
 
 		m_nbPointCtrl.EnableWindow(bEnableKriging || bEnableIWD);
 		m_maxDistanceCtrl.EnableWindow(bEnableKriging || bEnableIWD || bEnableTPS);
+		bool bEnableStepWiseR²= bEnableKriging && (m_externalDriftCtrl.GetCurSel() - 1) == CGridInterpolParam::ED_STEPWISE;
 		
-		m_static1Ctrl.EnableWindow(bEnableRegression, TRUE);
+		m_static1Ctrl.EnableWindow(bEnableRegression| bEnableStepWiseR², TRUE);
 		m_static2Ctrl.EnableWindow(bEnableKriging, TRUE);
 		m_static3Ctrl.EnableWindow(bEnableIWD, TRUE);
 		m_static4Ctrl.EnableWindow(bEnableTPS, TRUE);

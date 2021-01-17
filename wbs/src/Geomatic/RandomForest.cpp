@@ -28,7 +28,7 @@ namespace WBSF
 	// Construction/Destruction
 	//////////////////////////////////////////////////////////////////////
 
-	CRandomForest::CRandomForest():
+	CRandomForest::CRandomForest() :
 		m_pForest(nullptr),
 		m_bUseExposition(false)
 	{
@@ -65,7 +65,7 @@ namespace WBSF
 
 
 			// Create forest object
-			switch (treetype) 
+			switch (treetype)
 			{
 			case TREE_CLASSIFICATION:	m_pForest = new ForestClassification; break;
 			case TREE_REGRESSION:		m_pForest = new ForestRegression; break;
@@ -76,17 +76,17 @@ namespace WBSF
 
 			// Verbose output to logfile if non-verbose mode
 			CGridPointVector* pPts = m_pPts.get();
-			
+
 			StringVector names("X|Y", "|");
 			m_bUseExposition = m_param.m_bUseExposition && pPts->HaveExposition();
 
-			if(IsGeographic(pPts->GetPrjID()) )
+			if (IsGeographic(pPts->GetPrjID()))
 				names.push_back("Z");
-			if( m_param.m_bUseElevation)
+			if (m_param.m_bUseElevation)
 				names.push_back("Elev");
-			if(m_bUseExposition)
+			if (m_bUseExposition)
 				names.push_back("Expo");
-			if( m_param.m_bUseShore)
+			if (m_param.m_bUseShore)
 				names.push_back("Shore");
 			names.push_back("Variable");
 
@@ -95,8 +95,8 @@ namespace WBSF
 			DataFloat input;
 			input.setVariableNames(names);
 			input.resize(nbPoints, names.size());
-			
-			for (size_t i = 0, ii = 0; ii < pPts->size(); ++i, ii = i * m_inc)
+
+			for (size_t i = 0, ii = 0; i < nbPoints&&ii < pPts->size(); ++i, ii = i * m_inc)
 			{
 				ASSERT(ii < pPts->size());
 				const CGridPoint& pt = pPts->at(ii);
@@ -106,7 +106,7 @@ namespace WBSF
 				{
 					if ((k < 2 && pt.IsProjected()) || (k < 3 && pt.IsGeographic()))
 					{
-						input.set(kk,i, pt.IsProjected() ? pt[kk] : pt(kk), error);
+						input.set(kk, i, pt.IsProjected() ? pt[kk] : pt(kk), error);
 						kk++;
 					}
 					else if (k == 3 && m_param.m_bUseElevation)
@@ -116,7 +116,7 @@ namespace WBSF
 					}
 					else if (k == 4 && m_bUseExposition)
 					{
-						input.set(kk, i,  pt.GetExposition(), error);
+						input.set(kk, i, pt.GetExposition(), error);
 						kk++;
 					}
 					else if (k == 5 && m_param.m_bUseShore)
@@ -141,12 +141,12 @@ namespace WBSF
 			//}
 
 			// Set prediction mode
-			
+
 			// Call other init function
 			m_pForest->init_grow("Variable", &input, 0, (uint)nbTrees, 0, DEFAULT_NUM_THREADS, (ImportanceMode)importance_mode, 0, "", true, std::vector<std::string>(),
 				false, DEFAULT_SPLITRULE, 1, DEFAULT_ALPHA, DEFAULT_MINPROP, false, DEFAULT_NUM_RANDOM_SPLITS);
 
-			
+
 			// Set variables to be always considered for splitting
 		//	if (!always_split_variable_names.empty()) {
 			//	setAlwaysSplitVariables(always_split_variable_names);
@@ -196,18 +196,18 @@ namespace WBSF
 			//*verbose_out << "Starting Ranger." << std::endl;
 
 			m_pForest->run_grow(&input);
-			
-			
+
+
 		}
-		catch (std::exception& e) 
+		catch (std::exception& e)
 		{
 			delete m_pForest;
 			m_pForest = nullptr;
 
-			msg.ajoute(  "Error: Ranger fail to create forest." );
+			msg.ajoute("Error: Ranger fail to create forest.");
 			msg.ajoute(e.what());
-			
-			
+
+
 		}
 
 		return msg;
@@ -215,9 +215,14 @@ namespace WBSF
 
 	ERMsg CRandomForest::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization(callback);
+		ASSERT(m_pForest == nullptr);
 
-		if (!m_bInit)
+		ERMsg msg;
+
+
+		msg = CGridInterpolBase::Initialization(callback);
+
+		if (msg)
 		{
 			//Compute forest
 			//msg = CreateForest(m_param.m_treeType, m_param.m_nbTrees, m_param.m_importance_mode);
@@ -226,10 +231,8 @@ namespace WBSF
 			{
 				//now init for prediction
 				m_pForest->init_predict(0, -1, false, DEFAULT_PREDICTIONTYPE);
-				m_bInit = true;
+				//	m_bInit = true;
 			}
-				
-
 		}
 
 
@@ -240,12 +243,12 @@ namespace WBSF
 	double CRandomForest::Evaluate(const CGridPoint& pt, int iXval)const
 	{
 
-		if (iXval >= 0 && m_param.m_XvalPoints > 0)
+		/*if (iXval >= 0 && m_param.m_XvalPoints > 0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
 				return m_param.m_noData;
-		}
+		}*/
 
 		size_t nbVars = 2 + (pt.IsGeographic() ? 1 : 0) + (m_param.m_bUseElevation ? 1 : 0) + (m_bUseExposition ? 1 : 0) + (m_param.m_bUseShore ? 1 : 0);
 
@@ -275,20 +278,20 @@ namespace WBSF
 				kk++;
 			}
 		}
-	
 
-	
-	/*DataFloat input;
-	input.resize(1, 6);
-	bool error = false;
 
-	input.set(0, 0, pt.IsProjected()?pt.m_x:pt(0), error);
-		input.set(1, 0, pt.IsProjected()?pt.m_y:pt(1), error);
-		input.set(2, 0, pt.IsProjected()?0:pt(2), error);
-		input.set(3, 0, m_param.m_bUseElevation ? pt.m_alt : 0, error);
-		input.set(4, 0, m_param.m_bUseExposition ? pt.GetExposition() : 0, error);
-		input.set(5, 0, m_param.m_bUseShore ? pt.m_shore : 0, error);
-*/
+
+		/*DataFloat input;
+		input.resize(1, 6);
+		bool error = false;
+
+		input.set(0, 0, pt.IsProjected()?pt.m_x:pt(0), error);
+			input.set(1, 0, pt.IsProjected()?pt.m_y:pt(1), error);
+			input.set(2, 0, pt.IsProjected()?0:pt(2), error);
+			input.set(3, 0, m_param.m_bUseElevation ? pt.m_alt : 0, error);
+			input.set(4, 0, m_param.m_bUseExposition ? pt.GetExposition() : 0, error);
+			input.set(5, 0, m_param.m_bUseShore ? pt.m_shore : 0, error);
+	*/
 		double value = m_param.m_noData;
 
 		//Ranger is not thread safe for the moment
@@ -299,9 +302,9 @@ namespace WBSF
 		}
 
 		value = m_prePostTransfo.InvertTransform(value, m_param.m_noData);
-		
 
-		if ( m_param.m_bGlobalLimit && value > m_param.m_noData)
+
+		if (m_param.m_bGlobalLimit && value > m_param.m_noData)
 		{
 			bool bOutside = value<m_stat[LOWEST] - m_param.m_globalLimitSD*m_stat[STD_DEV] || value>m_stat[HIGHEST] + m_param.m_globalLimitSD*m_stat[STD_DEV];
 			if (bOutside)
@@ -313,7 +316,7 @@ namespace WBSF
 			}
 		}
 
-		if ( m_param.m_bGlobalMinMaxLimit && value > m_param.m_noData)
+		if (m_param.m_bGlobalMinMaxLimit && value > m_param.m_noData)
 		{
 			bool bOutside = value<m_param.m_globalMinLimit || value>m_param.m_globalMaxLimit;
 			if (bOutside)
@@ -341,11 +344,7 @@ namespace WBSF
 		return str;
 	};
 
-	//double CRandomForest::GetOptimizedR²()const
-	//{
-	//	//Don't call parent because we don't want to do Xvalidation
-	//	return 1;
-	//}
+
 
 	void CRandomForest::GetParamterset(CGridInterpolParamVector& parameterset)
 	{

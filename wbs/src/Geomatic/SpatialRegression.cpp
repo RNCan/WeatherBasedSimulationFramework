@@ -22,7 +22,7 @@ namespace WBSF
 	//**********************************************************************
 
 
-	const char* CTerm::TERMS_NAME[3*5] = { "Lon", "Lat", "Elev", "Expo", "Shore", "Lon²", "Lat²", "Elev²", "Expo²", "Shore²", "Lon³", "Lat³", "Elev³", "Expo³", "Shore³" };
+	const char* CTerm::TERMS_NAME[3 * 5] = { "Lon", "Lat", "Elev", "Expo", "Shore", "Lon²", "Lat²", "Elev²", "Expo²", "Shore²", "Lon³", "Lat³", "Elev³", "Expo³", "Shore³" };
 
 	int CTerm::GetNbItem()const
 	{
@@ -60,7 +60,7 @@ namespace WBSF
 		string str;
 
 		//replace x*x² by x³
-		std::bitset<3*5> v;
+		std::bitset<3 * 5> v;
 		for (size_t i = 0; i < 5; i++)
 		{
 			bool bCube = (m_v & (1 << i)) && (m_v & (1 << (i + 5)));
@@ -73,7 +73,7 @@ namespace WBSF
 				v.set(0 + i, m_v & (1 << i));
 				v.set(5 + i, m_v & (1 << (i + 5)));
 			}
-				
+
 		}
 
 
@@ -87,17 +87,17 @@ namespace WBSF
 				str += GetName(i);
 			}
 		}
-/*
-		for (size_t i = 0; i < NB_TERMS; i++)
-		{
-			if (m_v & (1 << i))
-			{
-				if (!str.empty())
-					str += "*";
+		/*
+				for (size_t i = 0; i < NB_TERMS; i++)
+				{
+					if (m_v & (1 << i))
+					{
+						if (!str.empty())
+							str += "*";
 
-				str += GetName(i);
-			}
-		}*/
+						str += GetName(i);
+					}
+				}*/
 
 		return str;
 	}
@@ -316,98 +316,251 @@ namespace WBSF
 
 
 
+
 	//**************************************************************************
 	// permet de trouver les termes de régressions qui seront utilisé dans les
 	// équations 
 	//**************************************************************************
-	double CSpatialRegression::StepWise(std::vector<int>& regressionTerm, double criticalR2)const
+	//double CSpatialRegression::StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2)const
+	//{
+	//	bool bUseLatLon = m_param.m_bUseLatLon;
+	//	bool bUseElev = m_param.m_bUseElevation;
+	//	bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
+	//	bool bUseShore = m_param.m_bUseShore;
+	//	
+	//	
+	//	
+
+	//	CGeoRegression regression;
+	//	// fits best of MAX_PREDICTORS-predictor multiple 
+	//	// regression model and returns the R2.
+
+	//	double bestR² = -999;
+
+	//	//add new terms to model until the r² improvement is < threshold
+	//	bool bContinueLoop1 = true;
+	//	size_t nbTerms = CTerm::GetNbTerms();
+	//	for (int i = 0; i < nbTerms&&bContinueLoop1; i++)
+	//	{
+	//		if (CTerm::IsValid(i, bUseLatLon, bUseElev, bUseExpo, bUseShore))
+	//		{
+	//			bool bContinueLoop2 = true;
+	//			//find the next term
+	//			for (int j = 0; j < nbTerms&&bContinueLoop2; j++)
+	//			{
+	//				if (CTerm::IsValid(j, bUseLatLon, bUseElev, bUseExpo, bUseShore))
+	//				{
+	//					//Verify that term i is not in the model
+	//					//bool alreadyIn = std::find(regression.begin(), regression.end(), GetTerm(j, bExpo)) != regression.end();
+	//					bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
+
+	//					//if the term isn't in the model, test the improvement achieved by adding it.
+	//					if (!alreadyIn)
+	//					{
+	//						regression.push_back(CTerm(j));
+	//						//double R² = regression.Compute(*m_pPts, m_prePostTransfo);
+	//						double R² = regression.Compute(calibPts, m_prePostTransfo);
+	//						
+	//						if (R² > -999)
+	//						{
+	//							if (R² - bestR² > criticalR2)
+	//							{
+	//								bestR² = R²;
+	//								bContinueLoop2 = false;
+	//							}
+	//							else
+	//							{
+	//								//discard this term
+	//								regression.pop_back();
+	//							}
+	//						}
+	//					}//if not already in
+	//				}
+	//			} //for all term
+
+	//			bContinueLoop1 = !bContinueLoop2;
+	//		}
+	//	}
+
+	//	//transfer parameters
+	//	regressionTerm.resize(regression.size());
+	//	for (size_t i = 0; i < regression.size(); i++)
+	//		regressionTerm[i] = regression[i].m_v;
+
+	//	return bestR²;
+	//}
+
+	//i-Starting with no variables in the model, we fit a separate model including each variable one by one.
+	//The variable(assuming there is one) with the most statistically significant P - value below a pre - defined inclusion threshold is selected.
+	//ii-We fit separate models including the variable selected at stage 1 and adding each remaining variable one by one.
+	//Of the remaining variables, the variable(assuming there is one) with the most statistically significant P - value below the inclusion threshold is selected.
+	//iv-If a variable was added to the model at step(ii), all previously selected variables are checked to see if they still reach the inclusion threshold, and are dropped one by one if not, starting with the least significant.
+	//Steps(ii) and (iii)are repeated until none of the remaining variables have a P - value below the inclusion threshold when added to the model including the previously selected variables.
+
+
+
+	ERMsg CSpatialRegression::StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, CCallback& callback)const
 	{
+		ERMsg msg;
+
+		bool bUseLatLon = m_param.m_bUseLatLon;
 		bool bUseElev = m_param.m_bUseElevation;
 		bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
 		bool bUseShore = m_param.m_bUseShore;
+
+
 
 
 		CGeoRegression regression;
 		// fits best of MAX_PREDICTORS-predictor multiple 
 		// regression model and returns the R2.
 
-		double bestR² = -999;
+		double global_bestR² = -999;
 
 		//add new terms to model until the r² improvement is < threshold
-		bool bContinueLoop1 = true;
-		size_t nbTerms = CTerm::GetNbTerms();
-		for (int i = 0; i < nbTerms&&bContinueLoop1; i++)
+		
+		static const int Term[2][10] = 
 		{
-			if (CTerm::IsValid(i, bUseElev, bUseExpo, bUseShore))
+			{CTerm::LON, CTerm::LAT, CTerm::ELEV,CTerm::EXPO,CTerm::SHORE},
+			{CTerm::LON|CTerm::LAT, CTerm::LON|CTerm::ELEV,CTerm::LON | CTerm::EXPO,CTerm::LON | CTerm::SHORE,
+			CTerm::LAT| CTerm::ELEV,CTerm::LAT | CTerm::EXPO,CTerm::LAT | CTerm::SHORE,
+			CTerm::ELEV|CTerm::EXPO,CTerm::ELEV|CTerm::SHORE,
+			CTerm::EXPO| CTerm::SHORE }
+		};
+
+		for (int i = 0; i < 3 && msg; i++)
+		{
+			
+			//size_t nbTerms = CTerm::GetNbTerms();
+			//int first_j = i == 0 ? 0 : 5;
+			size_t last_j = i == 0 ? 5: i==1? 10 : CTerm::GetNbTerms();
+
+			bool bContinueAdd = true;
+			while (bContinueAdd&&msg)
 			{
-				bool bContinueLoop2 = true;
+				//if (CTerm::IsValid(i, bUseLatLon, bUseElev, bUseExpo, bUseShore))
+				//{
+				//bool bContinueLoop2 = true;
+				//vector < double>  R²(nbTerms,-999);
+				double best_R² = -999;
+				int best_j = -1;
 				//find the next term
-				for (int j = 0; j < nbTerms&&bContinueLoop2; j++)
+				for (size_t jj = 0; jj < last_j&&msg; jj++)
 				{
-					if (CTerm::IsValid(j, bUseElev, bUseExpo, bUseShore))
+					int j = int(i<2?Term[i][jj]:jj);
+					if (CTerm::IsValid(j, bUseLatLon, bUseElev, bUseExpo, bUseShore))
 					{
-						//Verify that term i is not in the model
-						//bool alreadyIn = std::find(regression.begin(), regression.end(), GetTerm(j, bExpo)) != regression.end();
+						//Verify that term j is not in the model
 						bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
 
 						//if the term isn't in the model, test the improvement achieved by adding it.
 						if (!alreadyIn)
 						{
-							regression.push_back(CTerm(j));
-							double R² = regression.Compute(*m_pPts, m_prePostTransfo);
-							if (R² > -999)
+							//add thid term
+							CGeoRegression regression2 = regression;
+							regression2.push_back(CTerm(j));
+
+							double R² = regression2.Compute(calibPts, m_prePostTransfo);
+							if (R² > best_R²)
 							{
-								if (R² - bestR² > criticalR2)
-								{
-									bestR² = R²;
-									bContinueLoop2 = false;
-								}
-								else
-								{
-									//discard this term
-									regression.pop_back();
-								}
+								best_R² = R²;
+								best_j = j;
 							}
+
+							msg += callback.StepIt(0);
+							//remove this term
+							//regression.pop_back();
 						}//if not already in
 					}
 				} //for all term
 
-				bContinueLoop1 = !bContinueLoop2;
+				if (best_j != -1 && best_R² - global_bestR² >= criticalR2)
+				{
+					global_bestR² = best_R²;
+					regression.push_back(CTerm(best_j));
+
+
+					//remove non-relevent term
+					bool bContinueRemove = true;
+					while (bContinueRemove&&msg)
+					{
+						double worst_R² = 999;
+						int worst_j = -1;
+
+						for (int j = 0; j < regression.size() - 1 && msg; j++)
+						{
+							CGeoRegression regression2 = regression;
+							regression2.erase(regression2.begin() + j);
+
+							double R² = regression2.Compute(calibPts, m_prePostTransfo);
+							if (R² < worst_R²)
+							{
+								worst_R² = R²;
+								worst_j = j;
+							}
+
+							msg += callback.StepIt(0);
+						} //for all term
+
+						if (worst_j != -1 && global_bestR² - worst_R² < criticalR2)
+						{
+							CGeoRegression::iterator it = std::find(regression.begin(), regression.end(), CTerm(best_j));
+							ASSERT(it != regression.end());
+
+							regression.erase(it);
+							global_bestR² = worst_R²;
+						}
+						else
+						{
+							bContinueRemove = false;
+						}
+
+					}
+				}
+				else
+				{
+					bContinueAdd = false;
+				}
+
 			}
 		}
-
 		//transfer parameters
 		regressionTerm.resize(regression.size());
 		for (size_t i = 0; i < regression.size(); i++)
 			regressionTerm[i] = regression[i].m_v;
 
-		return bestR²;
+		//return global_bestR²;
+		return msg;
 	}
 
 	ERMsg CSpatialRegression::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization(callback);
+		//		ASSERT(!m_bInit);
 
-		if (!m_bInit)
+		ERMsg msg;
+
+		msg = CGridInterpolBase::Initialization(callback);
+		if (msg)
 		{
+			CGridPointVectorPtr pCalibPts = GetCalibrationPts();
+			ASSERT(pCalibPts->size() >= 30);
+
 			//Compute best regression
-			StepWise(m_param.m_regressionModel, m_param.m_regressCriticalR2);
+			msg = StepWise(*pCalibPts, m_param.m_regressionModel, m_param.m_regressCriticalR2, callback);
+			if (msg)
+			{
+				m_regression.resize(m_param.m_regressionModel.size());
+				for (size_t i = 0; i < m_param.m_regressionModel.size(); i++)
+					m_regression[i] = m_param.m_regressionModel[i];
 
-			m_regression.resize(m_param.m_regressionModel.size());
-			for (size_t i = 0; i < m_param.m_regressionModel.size(); i++)
-				m_regression[i] = m_param.m_regressionModel[i];
-
-			//Compute with the real parameters
-			m_regression.Compute(*m_pPts, m_prePostTransfo);
-			m_bInit = true;
-
+				//Compute with the real parameters
+				m_regression.Compute(*pCalibPts, m_prePostTransfo);
+				//			m_bInit = true;
+				if (m_regression.empty())
+					msg.ajoute("Unable to create spatial regression");
+			}
 		}
 
-
-		if (m_regression.empty())
-		{
-			msg.ajoute("Unable to create spatial regression");
-		}
 
 		return msg;
 	}
@@ -415,12 +568,12 @@ namespace WBSF
 
 	double CSpatialRegression::Evaluate(const CGridPoint& pt, int iXval)const
 	{
-		if (iXval >= 0 && m_param.m_XvalPoints > 0)
+		/*if (iXval >= 0 && m_param.m_XvalPoints > 0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
 				return m_param.m_noData;
-		}
+		}*/
 
 		double value = m_prePostTransfo.InvertTransform(m_regression.GetF(pt), m_param.m_noData);
 
@@ -464,11 +617,7 @@ namespace WBSF
 		return str;
 	};
 
-	//double CSpatialRegression::GetOptimizedR²()const
-	//{
-	//	//Don't call parent because we don't want to do Xvalidation
-	//	return 1;
-	//}
+
 
 	void CSpatialRegression::GetParamterset(CGridInterpolParamVector& parameterset)
 	{

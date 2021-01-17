@@ -34,7 +34,7 @@ namespace WBSF
 	static const double EPSLON = 0.000000000000001;
 
 
-	
+
 	CParamUK::CParamUK()
 	{
 		Reset();
@@ -42,6 +42,7 @@ namespace WBSF
 
 	void CParamUK::Reset()
 	{
+		m_nbPoint = 0;
 		m_xsiz = 0;
 		m_ysiz = 0;
 
@@ -78,17 +79,16 @@ namespace WBSF
 	void CUniversalKriging::Reset()
 	{
 		m_p.Reset();
-		
-		m_lastCheckSum=0;
-//		m_lastParam.Reset();
-		//m_lastPrePostTransfo.Reset();
+
+		m_defaultLagDist = 0;
 
 		if (m_pVariogram)
 			m_pVariogram->Reset();
+		
 		m_externalDrift.Reset();
 	}
 
-	
+
 
 	CVariogram* CUniversalKriging::GetVariogram()const
 	{
@@ -128,53 +128,94 @@ namespace WBSF
 	{
 		if (m_pVariogram != NULL)
 			variogram = *m_pVariogram;
-		
-		return m_pVariogram!=NULL;
+
+		return m_pVariogram != NULL;
+	}
+
+	void CUniversalKriging::SetDataset(const CGridPointVectorPtr& pPts)
+	{
+		ASSERT(!pPts->empty());
+
+		CGridInterpolBase::SetDataset(pPts);
+
+		m_pANNSearch = make_unique<CANNSearch>();
+		m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
+
 	}
 
 	ERMsg CUniversalKriging::Initialization(CCallback& callback)
 	{
-		ERMsg msg = CGridInterpolBase::Initialization(callback);
-
-		if (!m_bInit)
-			m_pVariogram->Reset(); // force creation of the variogram
-	
-		//detrending and variogram
-		//m_pVariogram = GetVariogram();
-		//m_pVariogram = new CVariogram;
-
-		int dm = m_param.m_detrendingModel;
-		CDetrending detrending(CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]);
-		for (size_t i = 0; i < CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]; i++)
-			detrending[i] = CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][i + 1];
-
+		ERMsg msg;
 		
-		CRotationMatrix rotmat;
-		msg = m_pVariogram->CreateVariogram(*m_pPts, m_prePostTransfo, m_param.m_variogramModel, m_param.m_nbLags, m_param.m_lagDist, detrending, rotmat, callback);
-
-
+		msg = CGridInterpolBase::Initialization(callback);
 		if (msg)
 		{
-			int em = m_param.m_externalDrift;
-			m_externalDrift.resize(CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]);
-			for (size_t i = 0; i < CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]; i++)
-				m_externalDrift[i] = CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][i + 1];
+			//m_pVariogram->Reset(); // force creation of the variogram
+
+			//detrending and variogram
+			int dm = m_param.m_detrendingModel;
+			CDetrending detrending(CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]);
+			for (size_t i = 0; i < CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]; i++)
+				detrending[i] = CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][i + 1];
+
+			//create variogram
+			CRotationMatrix rotmat;
+			CGridPointVectorPtr pCalibPts = GetCalibrationPts();
+			msg = m_pVariogram->CreateVariogram(*pCalibPts, m_prePostTransfo, m_param.m_variogramModel, m_param.m_nbLags, m_param.m_lagDist, detrending, rotmat, callback);
 
 
-			size_t checkSum = m_pPts->GetCheckSum();
-			if (checkSum != m_lastCheckSum)
+			if (msg)
 			{
-				m_lastCheckSum = checkSum;
-				m_pANNSearch = make_unique<CANNSearch>();
-				m_pANNSearch->Init(m_pPts, m_param.m_bUseElevation, m_param.m_bUseShore);
-			}
+				int em = m_param.m_externalDrift;
+				if (em < CGridInterpolParam::ED_STEPWISE)
+				{
+					m_externalDrift.resize(CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]);
+					for (size_t i = 0; i < CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][0]; i++)
+						m_externalDrift[i] = CGridInterpolParam::EX_DRIFT_TERM_DEFINE[em][i + 1];
+				}
+				else
+				{
+					if (m_externalDrift.empty())
+					{
+						CGridInterpolParam  sr_param;
+						sr_param.m_regressCriticalR2 = m_param.m_regressCriticalR2;
+						sr_param.m_bUseLatLon = false;
+						sr_param.m_bUseElevation = true;
+						sr_param.m_bUseExposition = false;
+						sr_param.m_bUseShore = true;
 
-			//fill-in information
-			m_p.m_nbPoint = m_param.m_nbPoints;
-			m_p.m_xsiz = m_info.m_cellSizeX;
-			m_p.m_ysiz = m_info.m_cellSizeY;
-			
-			m_bInit = true;
+						CSpatialRegression sr;
+						sr.SetParam(sr_param);
+						sr.SetDataset(m_pPts);//send all point because sr remove 
+						sr.Initialization(callback);
+
+						m_externalDrift.resize(sr.GetParam().m_regressionModel.size());
+						for (size_t i = 0; i < sr.GetParam().m_regressionModel.size(); i++)
+						{
+							m_externalDrift[i] = sr.GetParam().m_regressionModel[i];
+						}
+
+						//Compute with the real parameters
+						m_externalDrift.Compute(*pCalibPts, m_prePostTransfo);
+					}
+				}
+				
+				/*m_ed_stat.clear();
+				m_ed_stat.resize(m_externalDrift.size());
+				for (size_t i = 0; i < pCalibPts->size(); i++)
+				{
+					const CGridPoint& pt = m_pPts->at(i);
+					for (size_t ii = 0; ii < m_externalDrift.size(); ii++)
+					{
+						m_ed_stat[ii] += m_externalDrift[ii].GetE(pt);
+					}
+				}*/
+
+				//fill-in information
+				m_p.m_nbPoint = m_param.m_nbPoints;
+				m_p.m_xsiz = m_info.m_cellSizeX;
+				m_p.m_ysiz = m_info.m_cellSizeY;
+			}
 		}
 
 		return msg;
@@ -193,7 +234,7 @@ namespace WBSF
 		// Fill in the kriging matrix: 
 		for (int i = 0; i < (int)va.size(); i++)
 		{
-			for (int j = i; j<(int)va.size(); j++)
+			for (int j = i; j < (int)va.size(); j++)
 			{
 				double cov = m_pVariogram->cova3(va[i], va[j]);
 
@@ -217,19 +258,29 @@ namespace WBSF
 		// Add the additional Unbiasedness constraints: 
 		int im = int(va.size()) + 1;
 
-		//const CDetrending& detrending = m_pVariogram->GetDetrending();
+		const CDetrending& detrending = m_pVariogram->GetDetrending();
 		for (int i = 0; i < (int)m_externalDrift.size(); i++)
 		{
 			double resce = m_pVariogram->GetMaxCov() / max(LIMIT, m_externalDrift[i].GetE(pt));
 			//compute 
 			for (int j = 0; j < (int)va.size(); j++)
 			{
-				a[im][j] = m_externalDrift[i].GetE(va[j])*resce;
+				a[im][j] = m_externalDrift[i].GetE(va[j]) *resce;
 				a[j][im] = a[im][j];
 			}
 
 			im++;
 		}
+		
+		//double resce = m_pVariogram->GetMaxCov() / max(LIMIT, m_externalDrift.GetF(pt));
+		////compute 
+		//for (int j = 0; j < (int)va.size(); j++)
+		//{
+		//	a[im][j] = m_externalDrift.GetF(va[j])*resce;
+		//	a[j][im] = a[im][j];
+		//}
+
+		
 	}
 
 	void CUniversalKriging::Init_r(const CGridPoint& pt, CGridPointVector& va, NEWMAT::ColumnVector& r)const
@@ -313,12 +364,12 @@ namespace WBSF
 		if (!m_pVariogram->IsInit())
 			return m_param.m_noData;
 
-		if (iXval >= 0 && m_param.m_XvalPoints>0)
+		/*if (iXval >= 0 && m_param.m_XvalPoints>0)
 		{
 			int l = (int)ceil((iXval) / m_inc);
 			if (int(l*m_inc) == iXval)
 				return m_param.m_noData;
-		}
+		}*/
 
 		// Find the nearest samples: 
 		CGridPointVector va;
@@ -386,7 +437,7 @@ namespace WBSF
 			return m_param.m_noData;
 
 
-		NEWMAT::ColumnVector s = a*r;
+		NEWMAT::ColumnVector s = a * r;
 
 
 		CDiscretisation m_discr;
@@ -454,8 +505,9 @@ namespace WBSF
 	void CUniversalKriging::GetParamterset(CGridInterpolParamVector& parameterset)
 	{
 		parameterset.clear();
-
+		
 		CSugestedLagOptionNew op;
+		op.LoadDefaultCtrl();
 
 		int nbModel = m_param.m_variogramModel == CGridInterpolParam::BEST_VARIOGRAM ? CVariogram::NB_MODELS : 1;
 		int nbStepLag = m_param.m_nbLags == 0 ? (int((op.m_nbLagMax - op.m_nbLagMin) / op.m_nbLagStep) + 1) : 1;
@@ -463,14 +515,11 @@ namespace WBSF
 		int nbDetrending = m_param.m_detrendingModel == CGridInterpolParam::BEST_DETRENDING ? CGridInterpolParam::NB_DETRENDINGS : 1;
 		int nbExternalDrift = m_param.m_externalDrift == CGridInterpolParam::BEST_EXTERNAL_DRIFT ? CGridInterpolParam::NB_EXTERNAL_DRIFTS : 1;
 
-		int nbParamters = nbStepLag*nbStepLagDist*nbDetrending*nbModel*nbExternalDrift;
+		int nbParamters = nbStepLag * nbStepLagDist*nbDetrending*nbModel*nbExternalDrift;
 		if (nbParamters > 1) //if we have to do optimization
 		{
-
-
-			double defaultLagDist = 0;
 			if (m_param.m_lagDist == 0)  //compute default lag distance only if we need it
-				defaultLagDist = CVariogram::GetSuggestedLag(*m_pPts);
+				m_defaultLagDist = CVariogram::GetSuggestedLag(*m_pPts);
 
 			parameterset.resize(nbParamters, m_param);
 
@@ -485,13 +534,13 @@ namespace WBSF
 							for (int m = 0; m < nbExternalDrift; m++)
 							{
 
-								int index = i*(nbStepLagDist*nbDetrending*nbModel*nbExternalDrift) + j*(nbDetrending*nbModel*nbExternalDrift) + k*(nbModel*nbExternalDrift) + l*(nbExternalDrift)+m;
+								int index = i * (nbStepLagDist*nbDetrending*nbModel*nbExternalDrift) + j * (nbDetrending*nbModel*nbExternalDrift) + k * (nbModel*nbExternalDrift) + l * (nbExternalDrift)+m;
 
 								if (m_param.m_nbLags == 0)
 									parameterset[index].m_nbLags = op.m_nbLagMin + op.m_nbLagStep*i;
 
 								if (m_param.m_lagDist == 0)
-									parameterset[index].m_lagDist = defaultLagDist*(op.m_lagDistMin + j*op.m_lagDistStep);
+									parameterset[index].m_lagDist = m_defaultLagDist * (op.m_lagDistMin + j * op.m_lagDistStep);
 
 								if (m_param.m_detrendingModel == CGridInterpolParam::BEST_DETRENDING)
 									parameterset[index].m_detrendingModel = k;
@@ -514,8 +563,8 @@ namespace WBSF
 				//remove combinaison that have exposition
 				for (int i = (int)parameterset.size() - 1; i >= 0; i--)
 				{
-					if ( CTerm::HaveExposition( parameterset[i].m_detrendingModel ) ||
-						CTerm::HaveExposition(parameterset[i].m_externalDrift)  )
+					if (CTerm::HaveExposition(parameterset[i].m_detrendingModel) ||
+						CTerm::HaveExposition(parameterset[i].m_externalDrift))
 						parameterset.erase(parameterset.begin() + i);
 				}
 			}
@@ -528,11 +577,14 @@ namespace WBSF
 		string str;
 		int varPrint[5] = { CGridInterpolParam::VARIOGRAM_MODEL, CGridInterpolParam::NB_LAGS, CGridInterpolParam::LAG_DISTANCE, CGridInterpolParam::DETRENDING_MODEL, CGridInterpolParam::EXTERNAL_DRIFT };
 
+		
 		for (int i = 0; i < 5; i++)
 		{
 			string tmp = string(CGridInterpolParam::GetMemberName(varPrint[i])) + " = " + m_param.GetMember(varPrint[i]);
 			if (i == 0)
-				tmp += string(" \"") + m_pVariogram->GetModelName() + "\"\t(R² = " + ToString(m_pVariogram->GetR2(),4) + ")";
+				tmp += string(" \"") + m_pVariogram->GetModelName() + "\"\t(N="+ ToString((size_t)round(m_pPts->size() / m_inc))+", R² = " + ToString(m_pVariogram->GetR2(), 4) + ")";
+			if (i == 2 && m_defaultLagDist>0)
+				tmp += "\t(" + ToString(m_pVariogram->GetDistLag()/m_defaultLagDist, 2) + "*"+ToString(m_defaultLagDist,3)+")";
 			if (i == 3)
 				tmp += " (" + m_pVariogram->GetDetrending().GetEquation() + ")";
 			if (i == 4)
@@ -561,7 +613,7 @@ namespace WBSF
 
 		//if (m_param.m_detrendingModel != NO_DETRENDING)
 			//mdt += m_pVariogram->GetDetrending().size();
-			
+
 		//if( m_p.bExternDrift )
 			//NO_EXTERNAL_DRIFT
 
@@ -573,19 +625,21 @@ namespace WBSF
 
 	double CUniversalKriging::GetOptimizedR²(CCallback& callback)const
 	{
+		ASSERT(m_pVariogram->IsInit());
+
 		double XValR² = CGridInterpolBase::GetOptimizedR²(callback);
 		double varioR² = m_pVariogram->GetR2();
 
-		//if (XValR² <= m_param.m_noData)
-		//	XValR² = 0;
-		//if (varioR² <= m_param.m_noData)
-		//	varioR² = 0;
-
 		double R² = XValR² * 4.0 / 5.0 + varioR² * 1.0 / 5.0;
 		return R²;
-
 	}
 
+
+	void CUniversalKriging::Cleanup()
+	{
+		m_pANNSearch = nullptr;
+		annClose();
+	}
 	//************************************************************************************
 	//CDiscretisation
 	CDiscretisation::CDiscretisation()
@@ -640,5 +694,6 @@ namespace WBSF
 
 
 	}
+
 
 }

@@ -534,7 +534,7 @@ namespace WBSF
 			mapInput.m_options.m_outputType = 6; // GDT_Float32;
 			mapInput.m_options.m_CPU = CTRL.m_nbMaxThreads;
 			mapInput.m_options.m_IOCPU = min(CTRL.m_nbMaxThreads, 4);
-			mapInput.m_options.m_BLOCK_THREADS = CTRL.m_nbMaxThreads;
+			mapInput.m_options.m_BLOCK_THREADS = 1;// CTRL.m_nbMaxThreads;
 			mapInput.m_options.m_bMulti = true;
 			mapInput.m_options.m_nbBands = 1;
 			mapInput.m_options.m_dstNodata = m_pParam->m_noData;
@@ -562,6 +562,7 @@ namespace WBSF
 
 		return msg;
 	}
+
 
 	int CMapping::GetNbTask()const
 	{

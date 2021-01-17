@@ -36,6 +36,12 @@ namespace WBSF
 		BOOL	m_bKeepTmpFile;
 		int		m_nbMaxThreads;
 		BOOL	m_bUseHxGrid;
+		int		m_nbLagMin;
+		int		m_nbLagMax;
+		int		m_nbLagStep;
+		float	m_lagDistMin;
+		float	m_lagDistMax;
+		float	m_lagDistStep;
 
 		// Implementation
 	protected:

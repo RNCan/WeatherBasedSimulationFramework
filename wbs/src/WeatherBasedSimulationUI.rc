@@ -827,18 +827,30 @@ BEGIN
     CONTROL         "Exécuter les génération météo même si aucun des points de simulation n'est à moins de ",IDC_CMN_OPTION_RUN_EVEN_FAR,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,7,7,385,10
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE1,38,17,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km d'une station normale ou quotidienne/horaire.",-1,67,19,214,9
-    LTEXT           "Avertir lorsqu'un un point de simulation est à plus de ",-1,7,37,385,9
+    LTEXT           "km d'une station normale ou quotidienne/horaire.",IDC_STATIC,67,19,214,9
+    LTEXT           "Avertir lorsqu'un un point de simulation est à plus de ",IDC_STATIC,7,37,385,9
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE2,38,47,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km d'une station normale ou quotidienne/horaire.",-1,67,50,154,8
+    LTEXT           "km d'une station normale ou quotidienne/horaire.",IDC_STATIC,67,50,154,8
     CONTROL         "Exécuter les simulations même s'il manque des années dans la base de données d'observations. ",IDC_CMN_OPTION_RUN_MISSING_YEAR,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,64,385,10
     CONTROL         "Ne pas effacer les fichiers temporaires après la simulation (pour débogage)",IDC_CMN_OPTION_REMOVE_TMP_FILE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,104,249,10
     CONTROL         "Activer les calculs parallèles hxGrid. Ceci implique l'installation de hxGrid sur votre ordinateur et votre réseau. hxGrid est un produit externe. Lire la documentation et utiliser à vos propres risques.",IDC_CMN_OPTION_HXGRID,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,219,385,24
-    LTEXT           "Nombre maximum de CPU à utiliser :",-1,7,138,120,9
+    LTEXT           "Nombre maximum de CPU à utiliser :",IDC_STATIC,7,138,120,9
     EDITTEXT        IDC_CMN_OPTION_MAX_THREADS,130,136,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Krigeage variogramme",IDC_STATIC,7,153,385,60
+    LTEXT           "Recherche de lag :",IDC_STATIC,19,180,69,9
+    EDITTEXT        IDC_CMN_OPTION_LAG_MIN,142,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_CMN_OPTION_LAG_MAX,177,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_CMN_OPTION_LAG_STEP,220,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Recherche de distance :",IDC_STATIC,20,197,109,9
+    EDITTEXT        IDC_CMN_OPTION_DIST_MIN,142,195,26,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_DIST_MAX,177,195,26,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_DIST_STEP,220,195,26,12,ES_AUTOHSCROLL
+    LTEXT           "Min",IDC_STATIC,147,164,15,9
+    LTEXT           "Max",IDC_STATIC,182,164,15,9
+    LTEXT           "Étape",IDC_STATIC,222,165,24,9
 END
 
 IDD_CMN_OPTION_CHARTS DIALOG 0, 0, 399, 250
@@ -3056,6 +3068,11 @@ BEGIN
     0
 END
 
+IDD_CMN_OPTION_ADVANCED AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3516,30 +3533,19 @@ BEGIN
 0x694c, 0x7474, 0x726f, 0x6c61, "\000" 
     IDC_MAP_EXTERNAL_DRIFT, 0x403, 10, 0
 0x6cc9, 0x76e9, 0x7461, 0x6f69, 0x006e, 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 23, 0
-0x6cc9, 0x76e9, 0x7461, 0x6f69, 0x206e, 0x202b, 0x7845, 0x6f70, 0x6973, 
-0x6974, 0x6e6f, "\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 21, 0
-0x6cc9, 0x76e9, 0x7461, 0x6f69, 0x206e, 0x202b, 0x696c, 0x7474, 0x726f, 
-0x6c61, "\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 22, 0
-0x7845, 0x6f70, 0x6973, 0x6974, 0x6e6f, 0x2b20, 0x6c20, 0x7469, 0x6f74, 
-0x6172, 0x006c, 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 35, 0
-0x6cc9, 0x76e9, 0x7461, 0x6f69, 0x6e70, 0x2b20, 0x6520, 0x7078, 0x736f, 
-0x7469, 0x6f69, 0x206e, 0x202b, 0x696c, 0x7474, 0x726f, 0x6c61, "\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 24, 0
-0x414c, 0x2074, 0x202b, 0x6f6c, 0x206e, 0x202b, 0x6c65, 0x7665, 0x2b20, 
-0x6520, 0x7078, 0x006f, 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 25, 0
-0x614c, 0x2074, 0x202b, 0x6f6c, 0x206e, 0x202b, 0x6c65, 0x7665, 0x2b20, 
-0x7320, 0x6f68, 0x6572, "\000" 
+    IDC_MAP_EXTERNAL_DRIFT, 0x403, 10, 0
+0x6150, 0x2073, 0x20e0, 0x6170, 0x0073, 
     IDC_MAP_RANDOM_FOREST_MODEL, 0x403, 15, 0
 0x6c43, 0x7361, 0x6973, 0x6966, 0x6163, 0x6974, 0x6e6f, "\000" 
     IDC_MAP_RANDOM_FOREST_MODEL, 0x403, 11, 0
 0xe952, 0x7267, 0x7365, 0x6973, 0x6e6f, "\000" 
+    IDC_MAP_OUTPUT_TYPE, 0x403, 12, 0
+0x6143, 0x696c, 0x7262, 0x7461, 0x6f69, 0x006e, 
     IDC_MAP_OUTPUT_TYPE, 0x403, 11, 0
 0x6156, 0x696c, 0x6164, 0x6974, 0x6e6f, "\000" 
+    IDC_MAP_OUTPUT_TYPE, 0x403, 23, 0
+0x6143, 0x696c, 0x7262, 0x7461, 0x6f69, 0x2f6e, 0x6156, 0x696c, 0x6164, 
+0x6974, 0x6e6f, "\000" 
     IDC_MAP_OUTPUT_TYPE, 0x403, 14, 0
 0x6e49, 0x6574, 0x7072, 0x6c6f, 0x7461, 0x6f69, 0x006e, 
     0
@@ -5126,18 +5132,30 @@ BEGIN
     CONTROL         "Run weather genration even if none of the simulation points are within ",IDC_CMN_OPTION_RUN_EVEN_FAR,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,7,7,385,10
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE1,51,17,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km of the nearest normal or daily/hourly station.",-1,80,19,149,8
-    LTEXT           "Warn when a simulation point is farther than ",-1,7,36,141,9
+    LTEXT           "km of the nearest normal or daily/hourly station.",IDC_STATIC,80,19,149,8
+    LTEXT           "Warn when a simulation point is farther than ",IDC_STATIC,7,36,141,9
     EDITTEXT        IDC_CMN_OPTION_MAX_DISTANCE2,51,46,26,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "km of the nearest normal or daily/hourly station.",-1,83,49,149,8
+    LTEXT           "km of the nearest normal or daily/hourly station.",IDC_STATIC,83,49,149,8
     CONTROL         "Run simulations even if there are missing years in the observation's database.",IDC_CMN_OPTION_RUN_MISSING_YEAR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,70,258,10
     CONTROL         "Do not remove temporary files after simulation (for debugging).",IDC_CMN_OPTION_REMOVE_TMP_FILE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,104,209,10
     CONTROL         "Enable hxGrid parallel computing. This involves installing hxGrid on your computer and network. hxGrid is an external product. Read the documentation and use at your own risk.",IDC_CMN_OPTION_HXGRID,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,215,385,28
-    LTEXT           "Maximum number of CPU to used:",-1,7,138,112,9
-    EDITTEXT        IDC_CMN_OPTION_MAX_THREADS,119,136,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Maximum number of CPU to used:",IDC_STATIC,7,130,112,9
+    EDITTEXT        IDC_CMN_OPTION_MAX_THREADS,119,128,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Kriging variogram",IDC_STATIC,7,153,385,60
+    LTEXT           "Lag search:",IDC_STATIC,19,180,69,9
+    EDITTEXT        IDC_CMN_OPTION_LAG_MIN,142,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_CMN_OPTION_LAG_MAX,177,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_CMN_OPTION_LAG_STEP,220,178,26,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Distance search:",IDC_STATIC,20,197,68,9
+    EDITTEXT        IDC_CMN_OPTION_DIST_MIN,142,195,26,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_DIST_MAX,177,195,26,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CMN_OPTION_DIST_STEP,220,195,26,12,ES_AUTOHSCROLL
+    LTEXT           "Min",IDC_STATIC,147,164,15,9
+    LTEXT           "Max",IDC_STATIC,182,164,15,9
+    LTEXT           "Étape",IDC_STATIC,222,165,24,9
 END
 
 IDD_CMN_OPTION_CHARTS DIALOGEX 0, 0, 399, 250
@@ -7471,6 +7489,11 @@ BEGIN
     0
 END
 
+IDD_CMN_OPTION_ADVANCED AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -8043,30 +8066,19 @@ BEGIN
 0x6853, 0x726f, 0x0065, 
     IDC_MAP_EXTERNAL_DRIFT, 0x403, 10, 0
 0x6c45, 0x7665, 0x7461, 0x6f69, 0x006e, 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 21, 0
-0x6c45, 0x7665, 0x7461, 0x6f69, 0x206e, 0x202b, 0x7845, 0x6f70, 0x7573, 
-0x6572, "\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 18, 0
-0x6c45, 0x7665, 0x7461, 0x6f69, 0x206e, 0x202b, 0x6853, 0x726f, 0x0065, 
-
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 19, 0
-0x7845, 0x6f70, 0x6973, 0x6974, 0x6e6f, 0x2b20, 0x5320, 0x6f68, 0x6572, 
-"\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 31, 0
-0x6c45, 0x7665, 0x7461, 0x6f69, 0x206e, 0x202b, 0x7845, 0x6f70, 0x6973, 
-0x6974, 0x6e6f, 0x2b20, 0x5320, 0x6f68, 0x6572, "\000" 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 24, 0
-0x614c, 0x2074, 0x202b, 0x6f6c, 0x206e, 0x202b, 0x6c65, 0x7665, 0x2b20, 
-0x6520, 0x7078, 0x006f, 
-    IDC_MAP_EXTERNAL_DRIFT, 0x403, 25, 0
-0x614c, 0x2074, 0x202b, 0x6f6c, 0x206e, 0x202b, 0x6c65, 0x7665, 0x2b20, 
-0x7320, 0x6f68, 0x6572, "\000" 
+    IDC_MAP_EXTERNAL_DRIFT, 0x403, 10, 0
+0x7453, 0x7065, 0x5720, 0x7369, 0x0065, 
     IDC_MAP_RANDOM_FOREST_MODEL, 0x403, 15, 0
 0x6c43, 0x7361, 0x6973, 0x6966, 0x6163, 0x6974, 0x6e6f, "\000" 
     IDC_MAP_RANDOM_FOREST_MODEL, 0x403, 11, 0
 0x6552, 0x7267, 0x7365, 0x6973, 0x6e6f, "\000" 
+    IDC_MAP_OUTPUT_TYPE, 0x403, 12, 0
+0x6143, 0x696c, 0x7262, 0x7461, 0x6f69, 0x006e, 
     IDC_MAP_OUTPUT_TYPE, 0x403, 11, 0
 0x6156, 0x696c, 0x6164, 0x6974, 0x6e6f, "\000" 
+    IDC_MAP_OUTPUT_TYPE, 0x403, 23, 0
+0x6143, 0x696c, 0x7262, 0x7461, 0x6f69, 0x2f6e, 0x6156, 0x696c, 0x6164, 
+0x6974, 0x6e6f, "\000" 
     IDC_MAP_OUTPUT_TYPE, 0x403, 14, 0
 0x6e49, 0x6574, 0x7072, 0x6c6f, 0x7461, 0x6f69, 0x006e, 
     0

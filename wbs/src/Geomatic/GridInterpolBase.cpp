@@ -27,25 +27,10 @@ using namespace VITALENGINE;
 
 namespace WBSF
 {
-	//static CCriticalSection FREE_CS;
-
-	//CANNSearchCache CGridInterpolBase::ANN_SEARCH_CACHE;
-	void CANNSearchCache::FreeMemoryCache2()
-	{
-		Enter();
-		if (!empty())
-		{
-			annClose();
-			clear();
-		}
-		Leave();
-	}
-
+	static const int MINIMUM_CALIB_POINT = 30;
+	
 	void CGridInterpolBase::FreeMemoryCache()
 	{
-		//FREE_CS.Enter();
-		//ANN_SEARCH_CACHE.FreeMemoryCache2();
-		//FREE_CS.Leave();
 	}
 
 	const int CGridInterpolParam::DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4] =
@@ -73,18 +58,13 @@ namespace WBSF
 		{ 1, CTerm::SHORE², 0, 0 },
 	};
 
-	const int CGridInterpolParam::EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][5] =
+	const int CGridInterpolParam::EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][2] =
 	{
-		{ 0, 0, 0, 0, 0 },
-		{ 1, CTerm::EXPO, 0, 0, 0 },//we put expo and shore before elev to put elev at the same position (3) than ever
-		{ 1, CTerm::SHORE, 0, 0, 0 },
-		{ 1, CTerm::ELEV, 0, 0, 0 },
-		{ 3, CTerm::ELEV, CTerm::EXPO, CTerm::ELEV | CTerm::EXPO },
-		{ 3, CTerm::ELEV, CTerm::SHORE, CTerm::ELEV | CTerm::SHORE },
-		{ 3, CTerm::EXPO, CTerm::SHORE, CTerm::EXPO | CTerm::SHORE },
-		{ 4, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE, CTerm::ELEV|CTerm::EXPO | CTerm::SHORE },
-		{ 3, CTerm::LAT, CTerm::ELEV, CTerm::LAT|CTerm::ELEV },
-		{ 4, CTerm::LAT, CTerm::ELEV, CTerm::EXPO, CTerm::SHORE },
+		{ 0, 0},
+		{ 1, CTerm::EXPO },//we put expo and shore before elev to put elev at the same position (3) than ever
+		{ 1, CTerm::SHORE },
+		{ 1, CTerm::ELEV },
+		{ 0, 0 },
 	};
 
 	//***************************************************************************
@@ -103,8 +83,9 @@ namespace WBSF
 		m_nbPoints = 35;
 		m_noData = -999;
 		m_maxDistance = 200000;//200 km
-		m_XvalPoints = 0.2;//20% for X-validation
-		m_outputType = O_VALIDATION;
+		m_XvalPoints = 0.2;//20% for validation
+		m_outputType = O_CALIB_VALID;
+		m_bUseLatLon = true;
 		m_bUseElevation = true;
 		m_bUseExposition = true;
 		m_bUseShore = true;
@@ -158,6 +139,7 @@ namespace WBSF
 		m_maxDistance = in.m_maxDistance;
 		m_XvalPoints = in.m_XvalPoints;
 		m_outputType = in.m_outputType;
+		m_bUseLatLon = in.m_bUseLatLon;
 		m_bUseElevation = in.m_bUseElevation;
 		m_bUseExposition = in.m_bUseExposition;
 		m_bUseShore = in.m_bUseShore;
@@ -210,7 +192,8 @@ namespace WBSF
 		if ((float)m_noData != (float)in.m_noData)bEqual = false;
 		if ((float)m_maxDistance != (float)in.m_maxDistance)bEqual = false;
 		if ((float)m_XvalPoints != (float)in.m_XvalPoints)bEqual = false;
-		if (m_outputType!=in.m_outputType)bEqual = false;
+		if (m_outputType != in.m_outputType)bEqual = false;
+		if (m_bUseLatLon != in.m_bUseLatLon)bEqual = false;
 		if (m_bUseElevation != in.m_bUseElevation)bEqual = false;
 		if (m_bUseExposition != in.m_bUseExposition)bEqual = false;
 		if (m_bUseShore != in.m_bUseShore)bEqual = false;
@@ -248,10 +231,10 @@ namespace WBSF
 
 		//Thin Plate Spline
 		if ((float)m_TPSMaxError != (float)in.m_TPSMaxError)bEqual = false;
-		
+
 		//Random Forest
 		if (m_RFTreeType != in.m_RFTreeType)bEqual = false;
-		
+
 
 		return bEqual;
 	}
@@ -281,7 +264,7 @@ namespace WBSF
 		case GLOBAL_MINMAX_LIMIT_TO_BOUND:str = ToString(m_bGlobalMinMaxLimitToBound); break;
 		case REGRESSION_MODEL:		str = ToString(m_regressionModel); break;
 		case REGRESS_CRITICAL_R2:	str = ToString(m_regressCriticalR2, 5); break;
-		
+
 		case VARIOGRAM_MODEL:		str = ToString(m_variogramModel); break;
 		case NB_LAGS:				str = ToString(m_nbLags); break;
 		case LAG_DISTANCE:			str = ToString(m_lagDist, 8); break;
@@ -513,7 +496,7 @@ namespace WBSF
 	{
 		m_pAgent = NULL;
 		m_hxGridSessionID = 0;
-		m_bInit = false;
+//		m_bInit = false;
 	}
 
 	CGridInterpolBase::~CGridInterpolBase()
@@ -575,7 +558,12 @@ namespace WBSF
 		//Do interpolation
 		CCallback callback;
 		CGridLine lineOut;
-		Interpolation(lineIn, lineOut, callback);
+		
+		
+		/*if (InternalInit(callback))
+		{
+			Interpolation(lineIn, lineOut, callback);
+		}*/
 
 		unsigned __int64 size = (unsigned __int64)lineOut.size();
 		//Write line index and output result
@@ -607,46 +595,43 @@ namespace WBSF
 
 		//compute increment for Xval
 		float xValPercent = max(0.0f, min(1.0f, (float)m_param.m_XvalPoints));//compute value in float to avoid difference
-		size_t nbPoints = max(1.0f, (1.0f - xValPercent)*m_pPts->size());
-		m_inc = max(1.0, (double)pPts->size() / nbPoints);
+		//size_t nbPoints = max(1.0f, (1.0f - xValPercent)*m_pPts->size());
+		//m_inc = max(1.0, (double)pPts->size() / nbPoints);
+		size_t nbCalibPoints = (1.0f - xValPercent)*m_pPts->size();
+		m_inc = (double)pPts->size() / nbCalibPoints;
+		//m_inc = max(1.0, (double)pPts->size() / nbPoints);
+
+		
+		if (nbCalibPoints < MINIMUM_CALIB_POINT)
+			msg.ajoute("Need at least "+to_string(MINIMUM_CALIB_POINT )+" points to calibrate model. Calibration points: " + to_string(nbCalibPoints) + "Verify number of valid points and validation ratio.");
 
 		return msg;
 	}
 
-	ERMsg CGridInterpolBase::InternalInit(CCallback& callback)const
-	{
-		ASSERT(m_pPts.get());
+	//ERMsg CGridInterpolBase::InternalInit(CCallback& callback)const
+	//{
+	//	ASSERT(m_pPts.get());
 
-		ERMsg msg;
+	//	ERMsg msg;
 
-		CGridInterpolBase& me = const_cast<CGridInterpolBase&>(*this);
+	//	CGridInterpolBase& me = const_cast<CGridInterpolBase&>(*this);
 
-		//to avoid to reinit multiple time on the same object, we have to protect it
-		me.m_CS.Enter();
+	//	//to avoid to reinit multiple time on the same object, we have to protect it
+	//	me.m_CS.Enter();
+	//	msg = me.Initialization(callback);
+	//	me.m_CS.Leave();
 
-
-		msg = me.Initialization(callback);
-		if (msg)
-
-
-		me.m_CS.Leave();
-
-		return msg;
-	}
+	//	return msg;
+	//}
 
 	double CGridInterpolBase::GetOptimizedR²(CCallback& callback)const
 	{
-		double R² = -999;
-
 		CXValidationVector XValidation;
-		if (GetXValidation(CGridInterpolParam::O_VALIDATION, XValidation, callback))
-		{
-			//Gat statistic for this parameter set
-			CStatisticXY stat;
-			XValidation.GetStatistic(stat, m_param.m_noData);
-			R² = stat[COEF_D];
-		}
-
+		GetXValidation(CGridInterpolParam::O_CALIBRATION, XValidation, callback);
+		
+		//Gat statistic for this parameter set
+		CStatisticXY stat = XValidation.GetStatistic(m_param.m_noData);
+		double R² = stat[COEF_D];
 		return R²;
 	}
 
@@ -658,7 +643,7 @@ namespace WBSF
 		//IGenericStream* outStream = (IGenericStream*) outStreamIn;
 
 
-		m_bInit = false;//load new set of parameters, then reinitialized
+//		m_bInit = false;//load new set of parameters, then reinitialized
 
 		//Get the current parameter set index
 		__int32 parameterIndex = 0;
@@ -690,39 +675,55 @@ namespace WBSF
 		//LeaveCriticalSection(&me.m_CS);
 	}
 
-	ERMsg CGridInterpolBase::GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const
+	void CGridInterpolBase::GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const
 	{
 		ERMsg msg;
 
 
-		XValidation.clear();
+		//XValidation.clear();
 
 
-		msg = InternalInit(callback);
-		if (msg)
+		//msg = InternalInit(callback);
+		//if (msg)
+		//{
+
+		XValidation.resize(m_pPts->size());
+
+
+		#pragma omp parallel for /*schedule(static, 10)*/ num_threads( m_info.m_nbCPU ) if (m_info.m_bMulti)
+		for (int i = 0; i < m_pPts->size(); i++)
 		{
+			int l = (int)ceil((i) / m_inc);
+			int ii = int(l*m_inc);
 
-			XValidation.resize(m_pPts->size());
+			const CGridPoint& pt = m_pPts->at(i);
 
-
-#pragma omp parallel for schedule(static, 10) num_threads( m_info.m_nbCPU ) if (m_info.m_bMulti)
-			for (int i = 0; i < m_pPts->size(); i++)
+			XValidation[i].m_observed = pt.m_event;
+			if (type == CGridInterpolParam::O_CALIBRATION)
 			{
-				const CGridPoint& pt = m_pPts->at(i);
-
-				XValidation[i].m_observed = pt.m_event;
-				if(type == CGridInterpolParam::O_VALIDATION)
-					XValidation[i].m_predicted = Evaluate(pt, i);
-				else
-					XValidation[i].m_predicted = Evaluate(pt);
-
-				if (m_pAgent && m_pAgent->TestConnection(m_hxGridSessionID) == S_FALSE)
-					throw(CHxGridException());
+				XValidation[i].m_predicted = (i == ii) ? Evaluate(pt, i) : m_param.m_noData;
 			}
+			if (type == CGridInterpolParam::O_VALIDATION)
+			{
+				XValidation[i].m_predicted = (i != ii) ? Evaluate(pt, i) : m_param.m_noData;
+			}
+			else if (type == CGridInterpolParam::O_CALIB_VALID)
+			{
+				XValidation[i].m_predicted = Evaluate(pt, i);
+			}
+			else if (type == CGridInterpolParam::O_INTERPOLATION)
+			{
+				XValidation[i].m_predicted = Evaluate(pt);
+			}
+
+
+			if (m_pAgent && m_pAgent->TestConnection(m_hxGridSessionID) == S_FALSE)
+				throw(CHxGridException());
 		}
+	//	}
 
 
-		return msg;
+		//return msg;
 	}
 
 	bool CGridInterpolBase::GetVariogram(CVariogram& variogram)const
@@ -731,17 +732,17 @@ namespace WBSF
 		return false;
 	}
 
-	ERMsg CGridInterpolBase::Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const
+	void CGridInterpolBase::Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const
 	{
-		ERMsg msg;
+		//ERMsg msg;
 
-		msg = InternalInit(callback);
-		if (!msg)
-			return msg;
+		//msg = InternalInit(callback);
+		//if (!msg)
+			//return msg;
 
 		lineOut.resize(lineIn.size());
 
-		//#pragma omp parallel for if(m_bUseOpenMP)
+		
 		for (size_t i = 0; i < lineIn.size(); i++)
 		{
 			const CGridPoint& pt = lineIn[i];
@@ -758,8 +759,45 @@ namespace WBSF
 				throw(CHxGridException());
 		}
 
-		return msg;
+		//return msg;
 	}
 
+	CGridPointVectorPtr CGridInterpolBase::GetCalibrationPts()const
+	{
+		CGridPointVectorPtr pPts(new CGridPointVector);
+		size_t nbPoints = (size_t)round(m_pPts->size() / m_inc);
+		//CGridPointVector points;
+		pPts->resize(nbPoints);
+		for (size_t i = 0, ii = 0; i < nbPoints&&ii < m_pPts->size(); ++i, ii = i * m_inc)
+		{
+			ASSERT(ii < m_pPts->size());
+			pPts->at(i) = m_pPts->at(ii);
+		}
 
+		return pPts;
+	}
+
+	CGridPointVectorPtr CGridInterpolBase::GetValidationPts()const
+	{
+		CGridPointVectorPtr pPts(new CGridPointVector);
+		size_t nbPoints = m_pPts->size() - (size_t)round(m_pPts->size() / m_inc);
+		//CGridPointVector points;
+		pPts->resize(nbPoints);
+		for (size_t i = 0; i < nbPoints; ++i)
+		{
+			size_t l = size_t(ceil(i / m_inc));
+			size_t ii = size_t(l*m_inc);
+
+			ASSERT(ii < m_pPts->size());
+			if(i!=ii)
+				pPts->at(i) = m_pPts->at(ii);
+		}
+
+		return pPts;
+	}
+
+	void CGridInterpolBase::Cleanup()
+	{
+
+	}
 }

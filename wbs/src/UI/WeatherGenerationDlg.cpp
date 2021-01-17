@@ -308,11 +308,9 @@ namespace WBSF
 			error.ajoute(FormatMsg(IDS_SIM_INPUTNOTEXIST, m_WG.m_WGInputName));
 			m_WGInputNameCtrl.SetCurSel(0);
 		}
-
-		//m_weatherLocCtrl.SetCheck(m_WG.GetWeatherLoc() );
-		//m_XValidationCtrl.SetCheck(m_WG.GetWeatherLoc()&&m_WG.GetXValidation() );
+		
 		m_replicationsCtrl.SetString(to_string(m_WG.m_nbReplications));
-		//m_useHxGridCtrl.SetCheck(m_WG.m_bUseHxGrid);
+		
 
 		if (!error)
 			UtilWin::SYShowMessage(error, this);

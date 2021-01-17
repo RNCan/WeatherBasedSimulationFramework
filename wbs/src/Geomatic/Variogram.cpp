@@ -23,9 +23,11 @@
 #include "Basic/UtilStd.h"
 #include "Basic/Statistic.h"
 #include "Basic/OpenMP.h"
+#include "Basic/Registry.h"
 #include "hxGrid/interface/IAgent.h"
 #include "Newmat/Regression.h"
 #include "Geomatic/Variogram.h" 
+
 
 #define BOOST_NONCOPYABLE_HPP_INCLUDED
 #include "dlib/svm.h"
@@ -35,6 +37,16 @@
 namespace WBSF
 {
 
+	void CSugestedLagOptionNew::LoadDefaultCtrl()
+	{
+		CRegistry registry("ExecuteCtrl");
+		m_nbLagMin = registry.GetValue("LagMin", m_nbLagMin);
+		m_nbLagMax = registry.GetValue("LagMax", m_nbLagMax);
+		m_nbLagStep = registry.GetValue("LagStep", m_nbLagStep);
+		m_lagDistMin = registry.GetValue("LagDistMin", m_lagDistMin);
+		m_lagDistMax = registry.GetValue("LagDistMax", m_lagDistMax);
+		m_lagDistStep = registry.GetValue("LagDistStep", m_lagDistStep);
+	}
 	//static const double EPSILON = 0.000000000000001;
 	static const double EPSILON = 0.00001;
 	// The svm functions use column vectors to contain a lot of the data on which they 
@@ -310,12 +322,10 @@ namespace WBSF
 			if (m_model == CVariogram::POWER)
 			{
 				lower_bound = 0.0, 0.0, 0.0;
-				upper_bound = 2*statV[LOWEST], 10.0, 2.0;
+				upper_bound = statV[HIGHEST], 10.0, 2.0;
 			}
 			else
 			{
-				//lower_bound = statV[LOWEST], statV[LOWEST], (m_model == CVariogram::POWER) ? 0.0 : statD[LOWEST];
-				//upper_bound = statV[HIGHEST], statV[HIGHEST], (m_model == CVariogram::POWER) ? 2.0 : statD[HIGHEST];
 				lower_bound = statV[LOWEST], statV[LOWEST], statD[LOWEST];
 				upper_bound = statV[HIGHEST], statV[HIGHEST], statD[HIGHEST];
 			}
@@ -500,8 +510,9 @@ namespace WBSF
 		m_pAgent = NULL;
 		m_hxGridSessionID = 0;
 		m_model = SPERICAL;
-		m_nLags = 40;
+		m_nLags = 0;
 		m_dLag = 0.0f;
+		
 		m_detrending.Reset();
 		m_rotmat.Reset();
 
@@ -551,7 +562,7 @@ namespace WBSF
 		if (m_R2 != in.m_R2)bEqual = false;
 		if (m_detrending != in.m_detrending)bEqual = false;
 		if (m_dLag != in.m_dLag)bEqual = false;
-		if (m_nLags != in.m_nLags)bEqual = false;
+				if (m_nLags != in.m_nLags)bEqual = false;
 		if (m_rotmat != in.m_rotmat)bEqual = false;
 
 		if (!std::equal(m_predictorVector.begin(), m_predictorVector.end(), in.m_predictorVector.begin()))
@@ -681,10 +692,15 @@ namespace WBSF
 		ERMsg msg;
 
 
-		if (lagVar.size() < 8)//this variogram doesn't have the minimum number of lags
+		m_nugget = 0;
+		m_sill = 0;
+		m_range = 0;
+		m_R2 = -999;
+
+		if (lagVar.size() < 6)//this variogram doesn't have the minimum number of lags
 		{
-			m_R2 = -999;
-			msg.ajoute("Not enough lags");
+			//m_R2 = -999;
+			//msg.ajoute("Not enough lags");
 			return msg;
 		}
 
@@ -705,10 +721,6 @@ namespace WBSF
 		ASSERT(x.size() > 1);
 
 
-		m_nugget = 0;
-		m_sill = 0;
-		m_range = 0;
-		m_R2 = -999;
 
 		//try different radius size
 		//sometime bobyqa throw exeception
@@ -741,20 +753,7 @@ namespace WBSF
 						10000       // max number of allowable calls to cross_validation_objective()
 					);
 
-				//call a second time with lower radius
-				//rho_begin = rho_end*100;
-				//rho_end = rho_end/10000;
-				//best_score =
-				//	find_min_bobyqa(
-				//		CVO,		// Function to maximize
-				//		x,			// starting point
-				//		npt,        // See BOBYQA docs, generally size*2+1 is a good setting for this
-				//		x_lower,    // lower bound 
-				//		x_upper,    // upper bound
-				//		rho_begin,  // search radius
-				//		rho_end,    // desired accuracy
-				//		10000       // max number of allowable calls to cross_validation_objective()
-				//	);
+				
 				m_nugget = x(0);
 				m_sill = x(1);
 				m_range = x(2);
@@ -783,11 +782,10 @@ namespace WBSF
 		ASSERT(model >= SPERICAL && model < NB_MODELS);
 		ASSERT(nLags > 0);
 		ASSERT(dLag > 0);
+		ASSERT(pts.size() > 30);
+
 
 		ERMsg msg;
-
-
-		//size_t checkSum = pts.GetCheckSum();
 
 		//bypass variogram if all parameters is the same
 		//note that prePostTransfo must be constant
@@ -805,8 +803,7 @@ namespace WBSF
 				msg = FitVariogramModels(m_model, m_predictorVector, m_nugget, m_sill, m_range, m_R2, callback);
 		}
 
-		//m_CS.Leave();
-
+		
 		return msg;
 	}
 

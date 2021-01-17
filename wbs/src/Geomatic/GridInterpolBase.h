@@ -103,14 +103,16 @@ namespace WBSF
 
 		size_t size()const{ return std::vector<CXvalTuple>::size(); }
 
-		void GetStatistic(CStatisticXY& stat, double noData)
+		CStatisticXY GetStatistic( double noData)
 		{
+			CStatisticXY stat;
 			for (size_t i = 0; i<size(); i++)
 			{
 				if (fabs(at(i).m_observed - noData)>EPSILON_NODATA &&
 					fabs(at(i).m_predicted - noData)>EPSILON_NODATA )
 					stat.Add(at(i).m_predicted, at(i).m_observed);
 			}
+			return stat;
 		}
 
 	};
@@ -119,11 +121,12 @@ namespace WBSF
 	{
 	public:
 
-		enum TOutputType {O_VALIDATION, O_INTERPOLATION, NB_OUTPUT_TYPE};
+		enum TOutputType { O_CALIBRATION, O_VALIDATION, O_CALIB_VALID, O_INTERPOLATION, NB_OUTPUT_TYPE};
 		enum TIWDModel{ BEST_IWD_MODEL = -1, IWD_CLASIC, IWD_TENSION, NB_IWD_MODEL };
 		enum TVariogram{ BEST_VARIOGRAM = -1, SPERICAL, EXPONENTIAL, GAUSSIAN, POWER, NB_MODEL };
 		enum TDetrending { BEST_DETRENDING = -1, NO_DETRENDING, NB_DETRENDINGS=21};
-		enum TExternalDrift { BEST_EXTERNAL_DRIFT = -1, NO_EXTERNAL_DRIFT, ED_EXPO, ED_SHORE, ED_ELEV, ED_ELEV_EXPO, ED_ELEV_SHORE,ED_EXPO_SHORE, ED_ELEV_EXPO_SHORE, ED_LAT_LON_ELEV_EXPO, LAT_LON_ELEV_SHORE, NB_EXTERNAL_DRIFTS };
+		//ED_ELEV_EXPO, ED_ELEV_SHORE,ED_EXPO_SHORE, ED_ELEV_EXPO_SHORE, ED_LAT_LON_ELEV_EXPO, LAT_LON_ELEV_SHORE
+		enum TExternalDrift { BEST_EXTERNAL_DRIFT = -1, NO_EXTERNAL_DRIFT, ED_EXPO, ED_SHORE, ED_ELEV, ED_STEPWISE, NB_EXTERNAL_DRIFTS };
 		enum TRegression { BEST_REGRESSION = -1, /*...*/ };
 		//enum TTPSType{ TPS_REGIONAL, TPS_GLOBAL, TPS_GLOBAL_WITH_CLUSTER, NB_TPSTYPE };
 
@@ -131,7 +134,7 @@ namespace WBSF
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 		static const int DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4];
-		static const int EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][5];
+		static const int EX_DRIFT_TERM_DEFINE[NB_EXTERNAL_DRIFTS][2];
 		
 		
 		CGridInterpolParam();
@@ -151,6 +154,7 @@ namespace WBSF
 		double	m_XvalPoints;
 		size_t	m_outputType;
 		std::string  m_GDALOptions;
+		bool m_bUseLatLon;
 		bool m_bUseElevation;
 		bool m_bUseExposition;
 		bool m_bUseShore;
@@ -301,29 +305,30 @@ namespace WBSF
 
 		static const char* DATA_DESCRIPTOR;
 
+		virtual void SetDataset(const CGridPointVectorPtr& pts){ m_pPts = pts; }
 		virtual ERMsg Initialization(CCallback& callback);
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset){}
 		virtual double GetOptimizedR²(CCallback& callback)const;
 
 		virtual std::string GetFeedbackBestParam()const{ return std::string(); }
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const{ return std::string(); }
-
-		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const{ return -999; }
-
-		virtual ERMsg GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const;
 		virtual bool GetVariogram(CVariogram& variogram)const;
-		virtual ERMsg Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const;
+		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const{ return -999; }
+		virtual void Cleanup();
 
 		
+		
+		void Interpolation(const CGridPointVector& lineIn, CGridLine& lineOut, CCallback& callback)const;
+		void GetXValidation(CGridInterpolParam::TOutputType type, CXValidationVector& XValidation, CCallback& callback)const;
+
 
 		void GetOptimizedR²(std::istream& inStream, std::ostream& outStream);
 		void Interpolation(std::istream& inStream, std::ostream& outStream);
-
 		void WriteStream(std::ostream& stream)const;
 		void ReadStream(std::istream& stream);
 
 		const CGridPointVectorPtr& GetDataset()const{ return m_pPts; }
-		void SetDataset(const CGridPointVectorPtr& pts){ m_pPts = pts; m_bInit = false; }
+		
 
 		const CGridInterpolInfo& GetInfo()const{ return m_info; }
 		void SetInfo(const CGridInterpolInfo& info){ m_info = info; }
@@ -332,13 +337,12 @@ namespace WBSF
 		const CPrePostTransfo& GetPrePostTransfo()const	{ return m_prePostTransfo; }
 		void SetPrePostTransfo(const CPrePostTransfo& prePostTransfo){ m_prePostTransfo = prePostTransfo;  }
 
-
-		//CGridPointVectorPtr GetPts(double);
-
-
+		CGridPointVectorPtr GetCalibrationPts()const;
+		CGridPointVectorPtr GetValidationPts()const;
+		
 	protected:
 
-		ERMsg InternalInit(CCallback& callback)const;
+		//ERMsg InternalInit(CCallback& callback)const;
 
 
 		CGridPointVectorPtr m_pPts;
@@ -349,7 +353,7 @@ namespace WBSF
 		IAgent* m_pAgent;
 		DWORD m_hxGridSessionID;
 
-		bool m_bInit;
+		//bool m_bInit;
 		CStatistic m_stat;
 
 		double m_inc;

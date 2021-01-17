@@ -30,10 +30,12 @@ namespace WBSF
 		CIWD();
 		virtual ~CIWD();
 
+		virtual void SetDataset(const CGridPointVectorPtr& pts)override;
 		virtual ERMsg Initialization(CCallback& callback);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;
+		virtual void Cleanup()override;
 
 		void Search(CGridPointResultVector& result, const CGridPoint& pt, int iXval = -1)const;
 		bool IsInit() const { return (bool)m_pANNSearch; }

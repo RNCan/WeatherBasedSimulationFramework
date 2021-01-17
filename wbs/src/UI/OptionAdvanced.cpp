@@ -26,15 +26,21 @@ namespace WBSF
 
 	COptionAdvanced::COptionAdvanced() : CMFCPropertyPage(COptionAdvanced::IDD)
 	{
-		WBSF::CRegistry option("ExecuteCtrl");
+		WBSF::CRegistry registry("ExecuteCtrl");
 
-		m_maxDistFromLOC = option.GetProfileInt("MaxDistFromLOC", 300);
-		m_maxDistFromPoint = option.GetProfileInt("MaxDistFromPoint", 500);
-		m_bRunEvenFar = option.GetProfileInt("RunEvenFar", FALSE);
-		m_bRunWithMissingYear = option.GetProfileInt("RunWithMissingYear", FALSE);
-		m_bKeepTmpFile = option.GetProfileInt("KeepTmpOutputFile", FALSE);
-		m_nbMaxThreads = option.GetProfileInt("NbMaxThreads", omp_get_num_procs());
-		m_bUseHxGrid = option.GetProfileInt("UseHxGrid", FALSE);
+		m_maxDistFromLOC = registry.GetProfileInt("MaxDistFromLOC", 300);
+		m_maxDistFromPoint = registry.GetProfileInt("MaxDistFromPoint", 500);
+		m_bRunEvenFar = registry.GetProfileInt("RunEvenFar", FALSE);
+		m_bRunWithMissingYear = registry.GetProfileInt("RunWithMissingYear", FALSE);
+		m_bKeepTmpFile = registry.GetProfileInt("KeepTmpOutputFile", FALSE);
+		m_nbMaxThreads = registry.GetProfileInt("NbMaxThreads", omp_get_num_procs());
+		m_bUseHxGrid = registry.GetProfileInt("UseHxGrid", FALSE);
+		m_nbLagMin  = registry.GetValue("LagMin", 10);
+		m_nbLagMax  = registry.GetValue("LagMax", 40);
+		m_nbLagStep = registry.GetValue("LagStep", 5);
+		m_lagDistMin  = registry.GetValue("LagDistMin", 0.5f);
+		m_lagDistMax  = registry.GetValue("LagDistMax", 5.0f);
+		m_lagDistStep = registry.GetValue("LagDistStep", 0.5f);
 	}
 
 	COptionAdvanced::~COptionAdvanced()
@@ -43,8 +49,6 @@ namespace WBSF
 
 	void COptionAdvanced::DoDataExchange(CDataExchange* pDX)
 	{
-
-
 		CMFCPropertyPage::DoDataExchange(pDX);
 		DDX_Text(pDX, IDC_CMN_OPTION_MAX_DISTANCE1, m_maxDistFromLOC);
 		DDX_Text(pDX, IDC_CMN_OPTION_MAX_DISTANCE2, m_maxDistFromPoint);
@@ -53,6 +57,14 @@ namespace WBSF
 		DDX_Check(pDX, IDC_CMN_OPTION_REMOVE_TMP_FILE, m_bKeepTmpFile);
 		DDX_Text(pDX, IDC_CMN_OPTION_MAX_THREADS, m_nbMaxThreads);
 		DDX_Check(pDX, IDC_CMN_OPTION_HXGRID, m_bUseHxGrid);
+
+		DDX_Text(pDX, IDC_CMN_OPTION_LAG_MIN, m_nbLagMin);
+		DDX_Text(pDX, IDC_CMN_OPTION_LAG_MAX, m_nbLagMax);
+		DDX_Text(pDX, IDC_CMN_OPTION_LAG_STEP,m_nbLagStep);
+		DDX_Text(pDX, IDC_CMN_OPTION_DIST_MIN, m_lagDistMin);
+		DDX_Text(pDX, IDC_CMN_OPTION_DIST_MAX, m_lagDistMax);
+		DDX_Text(pDX, IDC_CMN_OPTION_DIST_STEP, m_lagDistStep);
+
 	}
 
 
@@ -70,14 +82,20 @@ namespace WBSF
 		//if page is init
 		if (GetDlgItem(IDC_CMN_OPTION_MAX_DISTANCE1)->GetSafeHwnd() != NULL)
 		{
-			WBSF::CRegistry option("ExecuteCtrl");
-			option.WriteProfileInt("MaxDistFromLOC", m_maxDistFromLOC);
-			option.WriteProfileInt("MaxDistFromPoint", m_maxDistFromPoint);
-			option.WriteProfileInt("RunEvenFar", m_bRunEvenFar);
-			option.WriteProfileInt("RunWithMissingYear", m_bRunWithMissingYear);
-			option.WriteProfileInt("KeepTmpOutputFile", m_bKeepTmpFile);
-			option.WriteProfileInt("NbMaxThreads", m_nbMaxThreads);
-			option.WriteProfileInt("UseHxGrid", m_bUseHxGrid);
+			WBSF::CRegistry registry("ExecuteCtrl");
+			registry.WriteProfileInt("MaxDistFromLOC", m_maxDistFromLOC);
+			registry.WriteProfileInt("MaxDistFromPoint", m_maxDistFromPoint);
+			registry.WriteProfileInt("RunEvenFar", m_bRunEvenFar);
+			registry.WriteProfileInt("RunWithMissingYear", m_bRunWithMissingYear);
+			registry.WriteProfileInt("KeepTmpOutputFile", m_bKeepTmpFile);
+			registry.WriteProfileInt("NbMaxThreads", m_nbMaxThreads);
+			registry.WriteProfileInt("UseHxGrid", m_bUseHxGrid);
+			registry.SetValue("LagMin", m_nbLagMin);
+			registry.SetValue("LagMax", m_nbLagMax);
+			registry.SetValue("LagStep", m_nbLagStep);
+			registry.SetValue("LagDistMin", m_lagDistMin);
+			registry.SetValue("LagDistMax", m_lagDistMax);
+			registry.SetValue("LagDistStep", m_lagDistStep);
 		}
 
 		CMFCPropertyPage::OnOK();

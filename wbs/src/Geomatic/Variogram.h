@@ -26,13 +26,15 @@ namespace WBSF
 		CSugestedLagOptionNew()
 		{
 			m_nbLagMin = 10;
-			m_nbLagMax = 30;
+			m_nbLagMax = 40;
 			m_nbLagStep = 5;
 
 			m_lagDistMin = 0.5;
-			m_lagDistMax = 1.5;
-			m_lagDistStep = .25;
+			m_lagDistMax = 5.0;
+			m_lagDistStep = .5;
 		}
+		void LoadDefaultCtrl();
+			
 
 		int m_nbLagMin;
 		int m_nbLagMax;
@@ -156,7 +158,8 @@ namespace WBSF
 		double GetUnbias()const{ return GetMaxCov(); }
 
 		const CDetrending& GetDetrending()const{ return m_detrending; }
-
+		float GetDistLag()const {return m_dLag;}
+		
 	protected:
 
 		ERMsg FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2, CCallback& callback = DEFAULT_CALLBACK);
@@ -166,6 +169,7 @@ namespace WBSF
 		int		m_model;
 		int		m_nLags;
 		float	m_dLag;
+		
 		CDetrending m_detrending;
 		CRotationMatrix m_rotmat;
 

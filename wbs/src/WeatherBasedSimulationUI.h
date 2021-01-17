@@ -630,10 +630,16 @@
 #define IDC_CMN_OPTION_ADD2             1629
 #define IDC_CMN_OPTION_MAX_DISTANCE2    1630
 #define IDC_CMN_OPTION_MAX_THREADS      1631
+#define IDC_CMN_OPTION_LAG_MIN          1632
 #define IDC_MAP_TRANSFO_INFO            1633
+#define IDC_CMN_OPTION_LAG_MAX          1633
 #define IDC_MAP_STYLE_INFO              1634
+#define IDC_CMN_OPTION_LAG_STEP         1634
 #define IDC_GENLOC_UNIFORM              1635
+#define IDC_CMN_OPTION_DIST_MIN         1635
 #define IDC_GENLOC_NORMAL               1636
+#define IDC_CMN_OPTION_DIST_MAX         1636
+#define IDC_CMN_OPTION_DIST_STEP        1637
 #define IDC_GENLOC_EXTREM               1645
 #define IDC_CMN_OPTION_ERROR_LEVEL      1649
 #define IDC_CMN_STATIC1                 1741
@@ -950,7 +956,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        238
+#define _APS_NEXT_RESOURCE_VALUE        240
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1295
 #define _APS_NEXT_SYMED_VALUE           101

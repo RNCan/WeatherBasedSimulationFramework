@@ -397,27 +397,26 @@ namespace WBSF
 		m_decimalDelimiter = '.';
 		m_bExportAllLines = false;
 		m_nbMaxThreads = omp_get_num_procs();
+		
 	}
 
 	void CExecuteCtrl::LoadDefaultCtrl()
 	{
 		CRegistry registry("ExecuteCtrl");
-		m_maxDistFromLOC = registry.GetProfileInt("MaxDistFromLOC", 300);
-		m_maxDistFromPoint = registry.GetProfileInt("MaxDistFromPoint", 500);
-		m_bRunEvenFar = registry.GetProfileBool("RunEvenFar", false);
-		m_bRunWithMissingYear = registry.GetProfileBool("RunWithMissingYear", false);
-		m_bKeepTmpFile = registry.GetProfileBool("KeepTmpOutputFile", false);
-		m_bUseHxGrid = registry.GetProfileBool("UseHxGrid", false);
-		m_bExportAllLines = registry.GetProfileBool("ExportAllLines", false);
+		m_maxDistFromLOC = registry.GetProfileInt("MaxDistFromLOC", m_maxDistFromLOC);
+		m_maxDistFromPoint = registry.GetProfileInt("MaxDistFromPoint", m_maxDistFromPoint);
+		m_bRunEvenFar = registry.GetProfileBool("RunEvenFar", m_bRunEvenFar);
+		m_bRunWithMissingYear = registry.GetProfileBool("RunWithMissingYear", m_bRunWithMissingYear);
+		m_bKeepTmpFile = registry.GetProfileBool("KeepTmpOutputFile", m_bKeepTmpFile);
+		m_bUseHxGrid = registry.GetProfileBool("UseHxGrid", m_bUseHxGrid);
+		m_bExportAllLines = registry.GetProfileBool("ExportAllLines", m_bExportAllLines);
 		m_nbMaxThreads = min(omp_get_num_procs(), registry.GetProfileInt("NbMaxThreads", omp_get_num_procs()));
-
+		
 		CRegistry registryII;
 		m_listDelimiter = registryII.GetListDelimiter();
 		m_decimalDelimiter = registryII.GetDecimalDelimiter();
 
 		m_timeFormat = CTRef::GetFormat();
-
-
 	}
 
 	void CExecutable::LoadDefaultCtrl()
@@ -1060,9 +1059,9 @@ namespace WBSF
 		double timePerUnit = 0;
 		if (!name.empty())
 		{
-			CRegistry option("ExecutionTime");
+			CRegistry registry("ExecutionTime");
 			std::string model = name + "_" + TM.GetTypeName() + (bUseHxGrid ? "[HxGrid]" : "");
-			timePerUnit = option.GetValue(model, 0.0);
+			timePerUnit = registry.GetValue(model, 0.0);
 		}
 
 		return timePerUnit;
@@ -1070,9 +1069,9 @@ namespace WBSF
 
 	void CExecutable::SetExecutionTime(const std::string& name, double timePerUnit, CTM TM, bool bUseHxGrid)
 	{
-		CRegistry option("ExecutionTime");
+		CRegistry registry("ExecutionTime");
 		std::string model = name + +"_" + TM.GetTypeName() + (bUseHxGrid ? "[HxGrid]" : "");
-		option.SetValue(model, timePerUnit);
+		registry.SetValue(model, timePerUnit);
 	}
 
 

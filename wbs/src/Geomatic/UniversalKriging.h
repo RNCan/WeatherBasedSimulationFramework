@@ -25,7 +25,7 @@ namespace WBSF
 
 		double m_xsiz;
 		double m_ysiz;
-		float m_outputNoData;
+		//float m_outputNoData;
 
 		size_t m_nbPoint;
 		size_t m_nxdis, m_nydis, m_nzdis;
@@ -66,13 +66,15 @@ namespace WBSF
 		virtual ~CUniversalKriging();
 		void Reset();
 
+		virtual void SetDataset(const CGridPointVectorPtr& pts)override;
 		virtual ERMsg Initialization(CCallback& callback);
 		virtual double GetOptimizedR²(CCallback& callback)const;
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const;
 		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;
-		virtual bool GetVariogram(CVariogram& variogram)const;
+		virtual bool GetVariogram(CVariogram& variogram)const override;
+		virtual void Cleanup()override;
 
 		CParamUK m_p;
 
@@ -92,7 +94,9 @@ namespace WBSF
 		CVariogram* m_pVariogram;
 		CExternalDrift m_externalDrift;
 		std::unique_ptr<CANNSearch> m_pANNSearch;
-		size_t m_lastCheckSum;
+		double m_defaultLagDist;
+		//std::vector<CStatistic> m_ed_stat;
+		//size_t m_lastCheckSum;
 
 		static CVariogramCache VARIOGRAM_CACHE;
 

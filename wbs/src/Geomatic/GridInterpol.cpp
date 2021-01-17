@@ -150,7 +150,9 @@ namespace WBSF
 		}
 
 		if (msg)
+		{
 			m_pGridInterpol = CreateNewGridInterpol();
+		}
 
 		return msg;
 	}
@@ -158,11 +160,14 @@ namespace WBSF
 	void CGridInterpol::Finalize()
 	{
 		m_inputGrid.Close(m_options);
+		if (m_pGridInterpol)
+			m_pGridInterpol->Cleanup();
+
 		Reset();
 
-		CGridInterpolBase::FreeMemoryCache();
-		CUniversalKriging::FreeMemoryCache();
-		annClose();
+		//CGridInterpolBase::FreeMemoryCache();
+		//CUniversalKriging::FreeMemoryCache();
+		//annClose();
 	}
 
 
@@ -177,6 +182,14 @@ namespace WBSF
 		m_inputGrid.UpdateOption(m_options);
 		m_options.m_dstNodata = m_param.m_noData;
 		m_options.m_outputType = GDT_Float32;
+		if (m_options.m_extents.m_yBlockSize>0 && (m_options.m_extents.m_yBlockSize % 256)==0)
+		{
+			//input is tiled, so output will be tiled
+			//add tiled
+			m_options.m_createOptions.push_back("TILED=YES");
+			m_options.m_createOptions.push_back("BLOCKXSIZE="+to_string(m_options.m_extents.m_yBlockSize));//use y block to avoid problem (256x)
+			m_options.m_createOptions.push_back("BLOCKYSIZE=" + to_string(m_options.m_extents.m_yBlockSize));
+		}
 
 		msg = m_outputGrid.CreateImage(m_TEMFilePath, m_options);
 		if (!msg)
@@ -350,6 +363,7 @@ namespace WBSF
 		ERMsg msg;
 
 
+
 		CGridInterpolParamVector parameterset;
 		m_pGridInterpol->GetParamterset(parameterset);
 
@@ -378,19 +392,23 @@ namespace WBSF
 				{
 					//initialize with this parameters set
 					m_pGridInterpol->SetParam(parameterset[i]);
-					optimisationR²[i] = m_pGridInterpol->GetOptimizedR²(callback);
-
-					if (m_param.m_bOutputVariogramInfo)
+					msg = m_pGridInterpol->Initialization(callback);
+					if (msg)
 					{
-						CVariogram variogram;
+						optimisationR²[i] = m_pGridInterpol->GetOptimizedR²(callback);
 
-						if (m_pGridInterpol->GetVariogram(variogram))
+						if (m_param.m_bOutputVariogramInfo)
 						{
-							if (i == 0)
-								callback.AddMessage("nbLags\tLadDist\tType\tNugget\tSill\tRange\tVariogram R²\tMixed R²");
+							CVariogram variogram;
 
-							string tmp = FormatA("%4d\t%8.3lf\t%16.16s\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf", parameterset[i].m_nbLags, parameterset[i].m_lagDist, variogram.GetModelName(), variogram.GetNugget(), variogram.GetSill(), variogram.GetRange(), max(-9.999,variogram.GetR2()), max(-9.999,optimisationR²[i]));
-							callback.AddMessage(tmp);
+							if (m_pGridInterpol->GetVariogram(variogram))
+							{
+								if (i == 0)
+									callback.AddMessage("nbLags\tLadDist\tType\tNugget\tSill\tRange\tVariogram R²\tMixed R²");
+
+								string tmp = FormatA("%4d\t%8.3lf\t%16.16s\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf\t% 7.4lf", parameterset[i].m_nbLags, parameterset[i].m_lagDist, variogram.GetModelName(), variogram.GetNugget(), variogram.GetSill(), variogram.GetRange(), max(-9.999, variogram.GetR2()), max(-9.999, optimisationR²[i]));
+								callback.AddMessage(tmp);
+							}
 						}
 					}
 
@@ -437,23 +455,11 @@ namespace WBSF
 			//if we have transformation, we have to change the noData values
 			m_pGridInterpol->SetParam(m_param);
 
-			//Get Xvalidation with good parameter
-			msg = m_pGridInterpol->GetXValidation(CGridInterpolParam::O_VALIDATION, m_validation, callback);
-
-			//replace noData by VMISS
-			for (CXValidationVector::iterator it = m_validation.begin(); it != m_validation.end(); it++)
-			{
-				if (fabs(it->m_observed - m_param.m_noData) < 0.1)
-					it->m_observed = VMISS;
-
-				if (fabs(it->m_predicted - m_param.m_noData) < 0.1)
-					it->m_predicted = VMISS;
-			}
-
-
-			//update
+			//Initialise with good parameter
+			msg = m_pGridInterpol->Initialization(callback);
 			if (msg)
 			{
+				//save variogram
 				if (m_param.m_bOutputVariogramInfo)
 				{
 					string filePath = GetPath(m_TEMFilePath) + GetFileTitle(m_TEMFilePath) + "_variogram.csv";
@@ -462,34 +468,32 @@ namespace WBSF
 						msg += variogram.Save(filePath);
 				}
 
-				CStatisticXY stat1;
-				m_validation.GetStatistic(stat1, VMISS);
+				//compute calibration X-Validation
+				CXValidationVector m_calibration;
+				m_pGridInterpol->GetXValidation(CGridInterpolParam::O_CALIBRATION, m_calibration, callback);
 
-				//push back removed point with VMISS data
-				if (!m_trimPosition.empty())
-				{
-					CXvalTuple empty(VMISS, VMISS);
 
-					for (vector<size_t>::const_reverse_iterator p = m_trimPosition.rbegin(); p != m_trimPosition.rend(); p++)
-					{
-						m_validation.insert(m_validation.begin() + *p, empty);
-					}
-				}
-
-				CStatisticXY stat;
-				m_validation.GetStatistic(stat, VMISS);
+				CStatisticXY stat = m_calibration.GetStatistic(m_param.m_noData);
 
 				string comment = FormatMsg(IDS_MAP_METHOD_CHOOSE, GetMethodName(), ToString(stat[NB_VALUE]), ToString(stat[COEF_D], 4));
 				callback.AddMessage(comment);
 				callback.AddMessage(m_pGridInterpol->GetFeedbackBestParam());
-			}
 
-			if (m_param.m_outputType == CGridInterpolParam::O_INTERPOLATION)
-			{
-				msg = m_pGridInterpol->GetXValidation(CGridInterpolParam::O_INTERPOLATION, m_interpolation, callback);
 
+				//Compute validation
+				CXValidationVector m_validation;
+				m_pGridInterpol->GetXValidation(CGridInterpolParam::O_VALIDATION, m_validation, callback);
+
+				stat = m_validation.GetStatistic(m_param.m_noData);
+				comment = FormatMsg(IDS_MAP_VALIDATION_MSG, ToString(stat[NB_VALUE]), ToString(stat[COEF_D], 4));
+				callback.AddMessage(comment);
+
+
+
+				//compute output
+				m_pGridInterpol->GetXValidation((CGridInterpolParam::TOutputType)m_param.m_outputType, m_output, callback);
 				//replace noData by VMISS
-				for (CXValidationVector::iterator it = m_interpolation.begin(); it != m_interpolation.end(); it++)
+				for (CXValidationVector::iterator it = m_output.begin(); it != m_output.end(); it++)
 				{
 					if (fabs(it->m_observed - m_param.m_noData) < 0.1)
 						it->m_observed = VMISS;
@@ -498,22 +502,18 @@ namespace WBSF
 						it->m_predicted = VMISS;
 				}
 
-
-				//update
-				if (msg)
+				//push back removed point with VMISS data
+				if (!m_trimPosition.empty())
 				{
-					//push back removed point with VMISS data
-					if (!m_trimPosition.empty())
-					{
-						CXvalTuple empty(VMISS, VMISS);
+					CXvalTuple empty(VMISS, VMISS);
 
-						for (vector<size_t>::const_reverse_iterator p = m_trimPosition.rbegin(); p != m_trimPosition.rend(); p++)
-						{
-							m_interpolation.insert(m_interpolation.begin() + *p, empty);
-						}
+					for (vector<size_t>::const_reverse_iterator p = m_trimPosition.rbegin(); p != m_trimPosition.rend(); p++)
+					{
+						m_output.insert(m_output.begin() + *p, empty);
 					}
-				}//if msg
-			}//if interpolation
+				}
+
+			}//if init
 		}
 
 		return msg;
@@ -523,6 +523,8 @@ namespace WBSF
 	ERMsg CGridInterpol::RunInterpolation(CCallback& callback)
 	{
 		ERMsg msg;
+
+		//m_options.m_BLOCK_THREADS = 2;
 
 
 		//Load band holders
@@ -535,7 +537,7 @@ namespace WBSF
 
 		//get projection
 		vector< CProjectionTransformation> PT(m_options.m_BLOCK_THREADS);
-		for(size_t i=0; i< PT.size(); i++)
+		for (size_t i = 0; i < PT.size(); i++)
 			PT[i] = CProjectionTransformation(m_inputGrid.GetPrj(), CProjectionManager::GetPrj(PRJ_WGS_84));
 		//m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
 
@@ -547,10 +549,11 @@ namespace WBSF
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 
+		
+
 		//run over all blocks
-		//schedule(static, 100)
 		omp_set_nested(1);//for IOCPU
-#pragma omp parallel for /*schedule(static, 1)*/ num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
+#pragma omp parallel for num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
 		for (__int64 xy = 0; xy < (__int64)XYindex.size(); xy++)//for all blocks
 		{
 #pragma omp flush(msg)
@@ -570,69 +573,69 @@ namespace WBSF
 				//execute over all pixels of the blocks
 				vector<float> output(blockExtents.m_ySize*blockExtents.m_xSize);
 
-				//#pragma omp parallel for schedule(static, 100) num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)
-				for (int y = 0; y < blockExtents.m_ySize&&msg && !callback.GetUserCancel(); y++)
+#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)
+				for (int y = 0; y < blockExtents.m_ySize/*&&msg && !callback.GetUserCancel()*/; y++)
 				{
-					//#pragma omp flush(msg)
-						//			if (msg)
-								//	{
-					for (int x = 0; x < blockExtents.m_xSize&&msg && !callback.GetUserCancel(); x++)
-					{
-						int pos_xy = y * blockExtents.m_xSize + x;
-						if (input[0]->IsValid(x, y))
-						{
-							CGridPoint pt;
-							((CGeoPoint&)pt) = blockExtents.XYPosToCoord(CGeoPointIndex(x, y));
-							pt.m_z = input[0]->at(x, y);
-
-							if (bHaveExposition)
-							{
-								input[0]->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
-
-								if (IsGeographic(pt.GetPrjID()))
-								{
-									pt.m_latitudeDeg = pt.m_y;
-								}
-								else
-								{
-									CGeoPoint ptGeo(pt);
-									ptGeo.Reproject(PT[no]);
-									pt.m_latitudeDeg = ptGeo.m_y;
-								}
-							}
-							if (bUseShore)
-							{
-								if (IsGeographic(pt.GetPrjID()))
-								{
-									pt.m_shore = CShore::GetShoreDistance(pt);
-								}
-								else
-								{
-									CGeoPoint ptGeo(pt);
-									ptGeo.Reproject(PT[no]);
-									pt.m_shore = CShore::GetShoreDistance(ptGeo);
-								}
-							}
-
-							pt.m_event = m_pGridInterpol->Evaluate(pt);
-							output[pos_xy] = (float)m_outputGrid.PostTreatment(pt.m_event);
-						}
-						else
-						{
-							output[pos_xy] = (float)m_param.m_noData;
-						}
-
-#pragma omp atomic 
-						m_options.m_xx++;
-					}//x
-
+#pragma omp flush(msg)
 					if (msg)
 					{
-						if (omp_get_thread_num() == 0)//this line is essential to avoid very slow performence. Stanges!
-							msg += callback.SetCurrentStepPos(m_options.m_xx);
+						for (int x = 0; x < blockExtents.m_xSize&&msg && !callback.GetUserCancel(); x++)
+						{
+							int pos_xy = y * blockExtents.m_xSize + x;
+							if (input[0]->IsValid(x, y))
+							{
+								CGridPoint pt;
+								((CGeoPoint&)pt) = blockExtents.XYPosToCoord(CGeoPointIndex(x, y));
+								pt.m_z = input[0]->at(x, y);
+
+								if (bHaveExposition)
+								{
+									input[0]->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
+
+									if (IsGeographic(pt.GetPrjID()))
+									{
+										pt.m_latitudeDeg = pt.m_y;
+									}
+									else
+									{
+										CGeoPoint ptGeo(pt);
+										ptGeo.Reproject(PT[no]);
+										pt.m_latitudeDeg = ptGeo.m_y;
+									}
+								}
+								if (bUseShore)
+								{
+									if (IsGeographic(pt.GetPrjID()))
+									{
+										pt.m_shore = CShore::GetShoreDistance(pt);
+									}
+									else
+									{
+										CGeoPoint ptGeo(pt);
+										ptGeo.Reproject(PT[no]);
+										pt.m_shore = CShore::GetShoreDistance(ptGeo);
+									}
+								}
+
+								pt.m_event = m_pGridInterpol->Evaluate(pt);
+								output[pos_xy] = (float)m_outputGrid.PostTreatment(pt.m_event);
+							}
+							else
+							{
+								output[pos_xy] = (float)m_param.m_noData;
+							}
+
+#pragma omp atomic 
+							m_options.m_xx++;
+						}//x
+
+						if (msg)
+						{
+							if (omp_get_thread_num() == 0)//this line is essential to avoid very slow performence. Stanges!
+								msg += callback.SetCurrentStepPos(m_options.m_xx);
 #pragma omp flush(msg)
-					}
-					//	}//if msg
+						}
+					}//if msg
 				}//y
 
 
@@ -1203,8 +1206,6 @@ namespace WBSF
 			int loop = 0;//verify the connection with server
 			CGridPointVector blockIn;
 
-
-			//for(int i=0; i<m_inputGrid->GetRasterYSize()&&msg; i++)
 			for (int xy = 0; xy < (int)XYindex.size() && msg; xy++)//for all blocks
 			{
 				int xBlock = XYindex[xy].first;

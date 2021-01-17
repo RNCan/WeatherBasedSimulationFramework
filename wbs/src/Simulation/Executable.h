@@ -80,6 +80,7 @@ namespace WBSF
 		CTRefFormat m_timeFormat;
 		bool m_bExportAllLines;
 		int m_nbMaxThreads;
+		
 	};
 
 	class CExecutable;
