@@ -1804,7 +1804,8 @@ namespace WBSF
 			if (msgSaved)
 				lastUpdate[ID] = lastTRef;
 
-			msg += msgSaved;
+			//msg += msgSaved;
+			callback.AddMessage(msgSaved);
 
 			callback.PopTask();
 			msg += callback.StepIt();

@@ -13,6 +13,7 @@
 #include "Basic/Registry.h"
 #include "Basic/OpenMP.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -39,7 +40,7 @@ namespace WBSF
 		m_nbLagMax  = registry.GetValue("LagMax", 40);
 		m_nbLagStep = registry.GetValue("LagStep", 5);
 		m_lagDistMin  = registry.GetValue("LagDistMin", 0.5f);
-		m_lagDistMax  = registry.GetValue("LagDistMax", 5.0f);
+		m_lagDistMax  = registry.GetValue("LagDistMax", 10.0f);
 		m_lagDistStep = registry.GetValue("LagDistStep", 0.5f);
 	}
 

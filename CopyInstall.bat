@@ -46,6 +46,10 @@ copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\Bl
 copy /Y ".\bin\Releasex64\Models\BlueStainVariables.mdl" "..\Install\NRCan\Models\BlueStainVariables.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainVariables.dll" "..\Install\NRCan\Models\BlueStainVariables.dll"
 
+copy /Y ".\bin\Releasex64\Models\CCBio (Monthly).mdl"       "..\Install\NRCan\Models\CCBio (Monthly).mdl"
+copy /Y ".\bin\Releasex64\Models\CCBio.dll"                 "..\Install\NRCan\Models\CCBio.dll"
+copy /Y ".\bin\Releasex64\Models\CCBio (Annual).mdl"        "..\Install\NRCan\Models\CCBio (Annual).mdl"
+
 copy /Y ".\bin\Releasex64\Models\Climatic (Hourly).mdl"       "..\Install\NRCan\Models\Climatic (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic (Daily).mdl"        "..\Install\NRCan\Models\Climatic (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\Climatic (Monthly).mdl"      "..\Install\NRCan\Models\Climatic (Monthly).mdl"
@@ -65,9 +69,9 @@ copy /Y ".\bin\Releasex64\Models\Climate Mosture Index (Annual).mdl" "..\Install
 copy /Y ".\bin\Releasex64\Models\Climate Moisture Index.dll" "..\Install\NRCan\Models\Climate Moisture Index.dll"
 copy /Y ".\bin\Releasex64\Models\ClimaticQc (Annual).mdl"   "..\Install\NRCan\Models\ClimaticQc (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\ClimaticQc.dll"            "..\Install\NRCan\Models\ClimaticQc.dll"
-copy /Y ".\bin\Releasex64\Models\CCBio (Monthly).mdl"       "..\Install\NRCan\Models\CCBio (Monthly).mdl"
-copy /Y ".\bin\Releasex64\Models\CCBio.dll"                 "..\Install\NRCan\Models\CCBio.dll"
-copy /Y ".\bin\Releasex64\Models\CCBio (Annual).mdl"        "..\Install\NRCan\Models\CCBio (Annual).mdl"
+
+copy /Y ".\bin\Releasex64\Models\CornHeatUnits.mdl" "..\Install\NRCan\Models\CornHeatUnits.mdl"
+copy /Y ".\bin\Releasex64\Models\CornHeatUnits.dll" "..\Install\NRCan\Models\CornHeatUnits.dll"
 
 
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl"    "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
@@ -95,6 +99,9 @@ copy /Y ".\bin\Releasex64\Models\SpringCankerworms.dll" "..\Install\NRCan\Models
 copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.mdl" "..\Install\NRCan\Models\ForestTentCaterpillar.mdl"
 copy /Y ".\bin\Releasex64\Models\ForestTentCaterpillar.dll" "..\Install\NRCan\Models\ForestTentCaterpillar.dll"
 
+
+copy /Y ".\bin\Releasex64\Models\FBP (Hourly).mdl" "..\Install\NRCan\Models\FBP (Hourly).mdl"
+copy /Y ".\bin\Releasex64\Models\FBP.dll" "..\Install\NRCan\Models\FBP.dll"
 copy /Y ".\bin\Releasex64\Models\FWI (Daily).mdl" "..\Install\NRCan\Models\FWI (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI (Hourly).mdl" "..\Install\NRCan\Models\FWI (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\FWI (Monthly).mdl" "..\Install\NRCan\Models\FWI (Monthly).mdl"
@@ -183,6 +190,9 @@ copy /Y ".\bin\Releasex64\Models\Soil Moisture Index QL(Daily).mdl" "..\Install\
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index QL.dll" "..\Install\NRCan\Models\Soil Moisture Index QL.dll"
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Models\Soil Moisture Index.dll"
 
+
+copy /Y ".\bin\Releasex64\Models\Solar.mdl" "..\Install\NRCan\Models\Solar.mdl"
+copy /Y ".\bin\Releasex64\Models\Solar.dll" "..\Install\NRCan\Models\Solar.dll"
 
 
 copy /Y ".\bin\Releasex64\Models\SpruceBeetle.dll" "..\Install\NRCan\Models\SpruceBeetle.dll"

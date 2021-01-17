@@ -182,12 +182,12 @@ namespace WBSF
 		m_inputGrid.UpdateOption(m_options);
 		m_options.m_dstNodata = m_param.m_noData;
 		m_options.m_outputType = GDT_Float32;
-		if (m_options.m_extents.m_yBlockSize>0 && (m_options.m_extents.m_yBlockSize % 256)==0)
+		if (m_options.m_extents.m_yBlockSize > 0 && (m_options.m_extents.m_yBlockSize % 256) == 0)
 		{
 			//input is tiled, so output will be tiled
 			//add tiled
 			m_options.m_createOptions.push_back("TILED=YES");
-			m_options.m_createOptions.push_back("BLOCKXSIZE="+to_string(m_options.m_extents.m_yBlockSize));//use y block to avoid problem (256x)
+			m_options.m_createOptions.push_back("BLOCKXSIZE=" + to_string(m_options.m_extents.m_yBlockSize));//use y block to avoid problem (256x)
 			m_options.m_createOptions.push_back("BLOCKYSIZE=" + to_string(m_options.m_extents.m_yBlockSize));
 		}
 
@@ -528,7 +528,7 @@ namespace WBSF
 
 
 		//Load band holders
-		CBandsHolderMT bandHolder(3, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
+		CBandsHolderMT bandHolder(3, m_options.m_memoryLimit, 1/*m_options.m_IOCPU*/, 1/*m_options.m_BLOCK_THREADS*/);
 		msg += bandHolder.Load(m_inputGrid, m_options.m_bQuiet, m_options.m_extents);
 
 		if (!msg)
@@ -536,7 +536,7 @@ namespace WBSF
 
 
 		//get projection
-		vector< CProjectionTransformation> PT(m_options.m_BLOCK_THREADS);
+		vector< CProjectionTransformation> PT(m_options.m_CPU);
 		for (size_t i = 0; i < PT.size(); i++)
 			PT[i] = CProjectionTransformation(m_inputGrid.GetPrj(), CProjectionManager::GetPrj(PRJ_WGS_84));
 		//m_PT = GetReProjection(pPts->GetPrjID(), PRJ_WGS_84);
@@ -549,101 +549,103 @@ namespace WBSF
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 
 
-		
+
 
 		//run over all blocks
-		omp_set_nested(1);//for IOCPU
-#pragma omp parallel for num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
-		for (__int64 xy = 0; xy < (__int64)XYindex.size(); xy++)//for all blocks
+		//omp_set_nested(1);//for IOCPU
+//#pragma omp parallel for num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti )
+		for (__int64 xy = 0; xy < (__int64)XYindex.size() && msg; xy++)//for all blocks
 		{
-#pragma omp flush(msg)
-			if (msg && !callback.GetUserCancel())
-			{
-				int xBlock = XYindex[xy].first;
-				int yBlock = XYindex[xy].second;
-				CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
-				size_t no = omp_get_thread_num();
+			//#pragma omp flush(msg)
+						//if (msg && !callback.GetUserCancel())
+						//{
+			int xBlock = XYindex[xy].first;
+			int yBlock = XYindex[xy].second;
+			CGeoExtents blockExtents = extents.GetBlockExtents(xBlock, yBlock);
+			
 
 #pragma omp critical(GDAL_READ)
-				bandHolder[no].LoadBlock(blockExtents);
+			bandHolder[0].LoadBlock(blockExtents);
 
 
-				vector<CDataWindowPtr> input = bandHolder[no].GetWindow();
+			vector<CDataWindowPtr> input = bandHolder[0].GetWindow();
 
-				//execute over all pixels of the blocks
-				vector<float> output(blockExtents.m_ySize*blockExtents.m_xSize);
-
-#pragma omp parallel for num_threads( m_options.BLOCK_CPU() ) if (m_options.m_bMulti)
-				for (int y = 0; y < blockExtents.m_ySize/*&&msg && !callback.GetUserCancel()*/; y++)
-				{
+			//execute over all pixels of the blocks
+			vector<float> output(blockExtents.m_ySize*blockExtents.m_xSize);
+			
+#pragma omp parallel for /*schedule(static, 1)*/ num_threads( m_options.m_CPU ) if (m_options.m_bMulti)
+			for (int y = 0; y < blockExtents.m_ySize/*&&msg && !callback.GetUserCancel()*/; y++)
+			{
+				size_t no = omp_get_thread_num();
 #pragma omp flush(msg)
-					if (msg)
+				if (msg)
+				{
+					for (int x = 0; x < blockExtents.m_xSize&&msg && !callback.GetUserCancel(); x++)
 					{
-						for (int x = 0; x < blockExtents.m_xSize&&msg && !callback.GetUserCancel(); x++)
+						int pos_xy = y * blockExtents.m_xSize + x;
+						if (input[0]->IsValid(x, y))
 						{
-							int pos_xy = y * blockExtents.m_xSize + x;
-							if (input[0]->IsValid(x, y))
+							CGridPoint pt;
+							((CGeoPoint&)pt) = blockExtents.XYPosToCoord(CGeoPointIndex(x, y));
+							pt.m_z = input[0]->at(x, y);
+
+							if (bHaveExposition)
 							{
-								CGridPoint pt;
-								((CGeoPoint&)pt) = blockExtents.XYPosToCoord(CGeoPointIndex(x, y));
-								pt.m_z = input[0]->at(x, y);
+								input[0]->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
 
-								if (bHaveExposition)
+								if (IsGeographic(pt.GetPrjID()))
 								{
-									input[0]->GetSlopeAndAspect(x, y, pt.m_slope, pt.m_aspect);
-
-									if (IsGeographic(pt.GetPrjID()))
-									{
-										pt.m_latitudeDeg = pt.m_y;
-									}
-									else
-									{
-										CGeoPoint ptGeo(pt);
-										ptGeo.Reproject(PT[no]);
-										pt.m_latitudeDeg = ptGeo.m_y;
-									}
+									pt.m_latitudeDeg = pt.m_y;
 								}
-								if (bUseShore)
+								else
 								{
-									if (IsGeographic(pt.GetPrjID()))
-									{
-										pt.m_shore = CShore::GetShoreDistance(pt);
-									}
-									else
-									{
-										CGeoPoint ptGeo(pt);
-										ptGeo.Reproject(PT[no]);
-										pt.m_shore = CShore::GetShoreDistance(ptGeo);
-									}
+									CGeoPoint ptGeo(pt);
+									ptGeo.Reproject(PT[no]);
+									pt.m_latitudeDeg = ptGeo.m_y;
 								}
-
-								pt.m_event = m_pGridInterpol->Evaluate(pt);
-								output[pos_xy] = (float)m_outputGrid.PostTreatment(pt.m_event);
 							}
-							else
+							if (bUseShore)
 							{
-								output[pos_xy] = (float)m_param.m_noData;
+								if (IsGeographic(pt.GetPrjID()))
+								{
+									pt.m_shore = CShore::GetShoreDistance(pt);
+								}
+								else
+								{
+									CGeoPoint ptGeo(pt);
+									ptGeo.Reproject(PT[no]);
+									pt.m_shore = CShore::GetShoreDistance(ptGeo);
+								}
 							}
+
+							pt.m_event = m_pGridInterpol->Evaluate(pt);
+							output[pos_xy] = (float)m_outputGrid.PostTreatment(pt.m_event);
+						}
+						else
+						{
+							output[pos_xy] = (float)m_param.m_noData;
+						}
 
 #pragma omp atomic 
-							m_options.m_xx++;
-						}//x
+						m_options.m_xx++;
+					}//x
 
-						if (msg)
-						{
-							if (omp_get_thread_num() == 0)//this line is essential to avoid very slow performence. Stanges!
-								msg += callback.SetCurrentStepPos(m_options.m_xx);
+					if (msg)
+					{
+						if (omp_get_thread_num() == 0)//this line is essential to avoid very slow performence. Stanges!
+							msg += callback.SetCurrentStepPos(m_options.m_xx);
 #pragma omp flush(msg)
-						}
-					}//if msg
-				}//y
+					}
+				}//if msg
+			}//y
 
 
-				CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
-				GDALRasterBand *pBand = m_outputGrid.GetRasterBand(0);
+			CGeoRectIndex outputRect = extents.GetBlockRect(xBlock, yBlock);
+			GDALRasterBand *pBand = m_outputGrid.GetRasterBand(0);
 #pragma omp critical(GDAL_WRITE)
-				pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
-			}// if msg
+			pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
+			pBand->FlushBlock(xBlock, yBlock);
+			//}// if msg
 		}//for all blocks
 
 

@@ -21,7 +21,7 @@
             <Type>2</Type>
             <Rect>20 10 40 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0.2</DefaultValue>
+            <DefaultValue>1.2</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>

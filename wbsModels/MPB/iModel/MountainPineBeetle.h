@@ -42,7 +42,7 @@ namespace WBSF
 
 		enum TOvipAdultColdOption { OA_KILL_NONE, OA_KILL_COLD, OA_KILL_DECEMBER_31, OA_KILL_M18, NB_OA_OPTION };
 
-		CMountainPineBeetle(CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CMountainPineBeetle(CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CMountainPineBeetle(const CMountainPineBeetle& in);
 		~CMountainPineBeetle(void);
 

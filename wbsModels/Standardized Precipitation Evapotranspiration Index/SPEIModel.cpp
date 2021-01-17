@@ -77,6 +77,7 @@ namespace WBSF
 		case PENMAN_MONTEITH:	PenmanMonteith(m_weather, ETP.data()); break;
 		}
 
+		
 		vector<double> balance(ETP.size());
 		for (size_t i = 0; i<ETP.size(); i++)
 			balance[i] = Prcp[i] - ETP[i];

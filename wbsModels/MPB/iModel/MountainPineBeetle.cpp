@@ -88,7 +88,7 @@ namespace WBSF
 
 
 	// Object creator
-	CMountainPineBeetle::CMountainPineBeetle(CHost* pHost, CTRef creationDay, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CMountainPineBeetle::CMountainPineBeetle(CHost* pHost, CTRef creationDay, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDay, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Only females are modeled (fecundity is reduced by SEX_RATIO in Develop() )
@@ -158,11 +158,11 @@ namespace WBSF
 			const CMPBDevelopmentTable & rates = GetStand()->m_rates;
 			double sigma = rates.GetRelativeSigma(s);
 			if (s != OVIPOSITING_ADULT) sigma = sigma / 2; //A modification made to imporve observed/simulated adult emergence patterns 
-			m_relativeDevRate[s] = RandomGenerator().RandLogNormal(0, sigma);
+			m_relativeDevRate[s] = RandomGenerator().RandUnbiasedLogNormal(0, sigma);
 
 			//extremes of the distributions are avoided
 			while (m_relativeDevRate[s]<0.4 || m_relativeDevRate[s]>2.5)
-				m_relativeDevRate[s] = RandomGenerator().RandLogNormal(0, sigma);
+				m_relativeDevRate[s] = RandomGenerator().RandUnbiasedLogNormal(0, sigma);
 
 		}
 

@@ -30,7 +30,7 @@ namespace WBSF
 			m_nbLagStep = 5;
 
 			m_lagDistMin = 0.5;
-			m_lagDistMax = 5.0;
+			m_lagDistMax = 10.0;
 			m_lagDistStep = .5;
 		}
 		void LoadDefaultCtrl();
