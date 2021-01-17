@@ -7,7 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
-// 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
+// 06-12-2020	Rémi Saint-Amant	Create from Lansat dataset
 //******************************************************************************
 #include "stdafx.h"
 #include <algorithm>
@@ -15,7 +15,7 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/MODISDataset.h"
 #include "basic/zenXml.h"
 
 
@@ -26,11 +26,11 @@ namespace WBSF
 {
 
 	static double G_INDICES_FACTOR = 1000;
-	double Landsat::INDICES_FACTOR() { return G_INDICES_FACTOR; }
-	void Landsat::INDICES_FACTOR(double f) { G_INDICES_FACTOR = f; }
+	double MODIS::INDICES_FACTOR() { return G_INDICES_FACTOR; }
+	void MODIS::INDICES_FACTOR(double f) { G_INDICES_FACTOR = f; }
 
 
-	const char* Landsat::GetBandName(size_t s)
+	const char* MODIS::GetBandName(size_t s)
 	{
 		static const char* BANDS_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
@@ -39,9 +39,9 @@ namespace WBSF
 
 	}
 
-	const char* Landsat::GetIndiceName(size_t i)
+	const char* MODIS::GetIndiceName(size_t i)
 	{
-		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI","NDWI",  "TCB", "TCG", "TCW", "NBR2", "EVI", "EVI2", "SAVI", "MSAVI", "SR", "CL", "HZ", "LSWI", "VIgreen" };
+		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI", "NDWI", "TCB", "TCG", "TCW", "NBR2", "EVI", "EVI2", "SAVI", "MSAVI", "SR", "CL", "HZ", "LSWI", "VIgreen" };
 		ASSERT(i < NB_INDICES);
 		return INDICES_NAME[i];
 	}
@@ -50,9 +50,9 @@ namespace WBSF
 
 
 
-	Landsat::TLandsatFormat Landsat::GetFormatFromName(const string& title)
+	MODIS::TMODISFormat MODIS::GetFormatFromName(const string& title)
 	{
-		TLandsatFormat format = F_UNKNOWN;
+		TMODISFormat format = F_UNKNOWN;
 		if (!title.empty())
 		{
 			if (title.size() >= 25 && title[2] == '0')
@@ -72,7 +72,7 @@ namespace WBSF
 		return format;
 	}
 
-	__int16 Landsat::GetCaptorFromName(const string& title)
+	__int16 MODIS::GetCaptorFromName(const string& title)
 	{
 		__int16 captor = -32768;
 		if (!title.empty())
@@ -92,11 +92,11 @@ namespace WBSF
 		return captor;
 	}
 
-	CTRef Landsat::GetTRefFromName(const string& title)
+	CTRef MODIS::GetTRefFromName(const string& title)
 	{
 		CTRef TRef;
 
-		TLandsatFormat format = GetFormatFromName(title);
+		TMODISFormat format = GetFormatFromName(title);
 		if (format == F_OLD)
 		{
 
@@ -120,11 +120,11 @@ namespace WBSF
 
 		return TRef;
 	}
-	__int16 Landsat::GetPathFromName(const string& title)
+	__int16 MODIS::GetPathFromName(const string& title)
 	{
 		__int16 path = -32768;
 
-		TLandsatFormat format = GetFormatFromName(title);
+		TMODISFormat format = GetFormatFromName(title);
 		if (format == F_OLD)
 		{
 			path = ToInt(title.substr(3, 3));
@@ -136,11 +136,11 @@ namespace WBSF
 
 		return path;
 	}
-	__int16 Landsat::GetRowFromName(const string& title)
+	__int16 MODIS::GetRowFromName(const string& title)
 	{
 		__int16 row = -32768;
 
-		TLandsatFormat format = GetFormatFromName(title);
+		TMODISFormat format = GetFormatFromName(title);
 		if (format == F_OLD)
 		{
 			row = ToInt(title.substr(6, 3));
@@ -153,7 +153,7 @@ namespace WBSF
 		return row;
 	}
 
-	Landsat::TIndices Landsat::GetIndiceType(const std::string& str)
+	MODIS::TIndices MODIS::GetIndiceType(const std::string& str)
 	{
 		TIndices type = I_INVALID;
 		for (size_t i = 0; i < NB_INDICES&&type == I_INVALID; i++)
@@ -163,7 +163,7 @@ namespace WBSF
 		return type;
 	}
 
-	Landsat::TDomain Landsat::GetIndiceDomain(const std::string& str)
+	MODIS::TDomain MODIS::GetIndiceDomain(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR" };
 		TDomain domain = D_INVALID;
@@ -174,7 +174,7 @@ namespace WBSF
 		return domain;
 	}
 
-	Landsat::TOperator Landsat::GetIndiceOperator(const std::string& str)
+	MODIS::TOperator MODIS::GetIndiceOperator(const std::string& str)
 	{
 		static const char* MODE_NAME[NB_OPERATORS] = { "<", ">" };
 		TOperator op = O_INVALID;
@@ -185,23 +185,10 @@ namespace WBSF
 		return op;
 	}
 
-	Landsat::TCorr8 Landsat::GetCorr8(const std::string& str)
-	{
-		static const char* TYPE_NAME[NB_CORR8_TYPE] = { "CANADA", "AUSTRALIA", "USA" };
-		TCorr8 corr8 = NO_CORR8;
-		for (size_t i = 0; i < NB_CORR8_TYPE&&corr8 == NO_CORR8; i++)
-		{
-			if (IsEqualNoCase(str, TYPE_NAME[i]))
-				corr8 = (TCorr8)i;
-		}
 
-		return corr8;
-	}
+	using namespace WBSF::MODIS;
 
-
-	using namespace WBSF::Landsat;
-
-	ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
+	ERMsg CMODISDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
 	{
 		ERMsg msg = CGDALDatasetEx::OpenInputImage(filePath, options);
 		if (msg)
@@ -254,7 +241,7 @@ namespace WBSF
 			}
 			else
 			{
-				msg.ajoute("ERROR: input image bands count (" + ToString(GetRasterCount()) + ") must be a multiple of LANDSAT scene size (" + ToString(options.m_scenesSize) + ")");
+				msg.ajoute("ERROR: input image bands count (" + ToString(GetRasterCount()) + ") must be a multiple of MODIS scene size (" + ToString(options.m_scenesSize) + ")");
 			}
 
 			InitFileInfo();
@@ -263,7 +250,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandsatDataset::InitFileInfo()
+	void CMODISDataset::InitFileInfo()
 	{
 		m_info.resize(GetNbScenes());
 		if (IsVRT())
@@ -280,7 +267,7 @@ namespace WBSF
 		}
 	}
 
-	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
+	ERMsg CMODISDataset::CreateImage(const std::string& filePath, CBaseOptions options)
 	{
 		ASSERT(options.m_nbBands%SCENES_SIZE == 0);
 
@@ -311,7 +298,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandsatDataset::GetBandsHolder(CBandsHolder& bandsHoler)const
+	void CMODISDataset::GetBandsHolder(CBandsHolder& bandsHoler)const
 	{
 		CGDALDatasetEx::GetBandsHolder(bandsHoler);
 
@@ -320,7 +307,7 @@ namespace WBSF
 		//bandsHoler[i*NB_BAND_PER_IMAGE + CMergeImagesOption::I_IMAGE_DATE]->m_b;
 	}
 
-	void CLandsatDataset::UpdateOption(CBaseOptions& option)const
+	void CMODISDataset::UpdateOption(CBaseOptions& option)const
 	{
 		//CMergeImagesOption& option = dynamic_cast<CMergeImagesOption&>(optionIn);
 
@@ -344,7 +331,7 @@ namespace WBSF
 
 	}
 
-	std::string CLandsatDataset::GetCommonName()const
+	std::string CMODISDataset::GetCommonName()const
 	{
 		//replace the common part by the new name
 		size_t common_end = MAX_PATH;//common begin
@@ -369,7 +356,7 @@ namespace WBSF
 		return title;
 	}
 
-	std::string CLandsatDataset::GetCommonImageName(size_t i)const
+	std::string CMODISDataset::GetCommonImageName(size_t i)const
 	{
 
 		string title0 = GetFileTitle(GetInternalName(i*SCENES_SIZE));
@@ -385,7 +372,7 @@ namespace WBSF
 			common_end = min(common_end, k);
 		}
 
-		std::string common = CLandsatDataset::GetCommonName();
+		std::string common = CMODISDataset::GetCommonName();
 		string title = GetFileTitle(GetInternalName(i*SCENES_SIZE));
 		if (common_end != MAX_PATH)
 			title = title.substr(common.length(), common_end - common.length());
@@ -393,7 +380,7 @@ namespace WBSF
 		return title;
 	}
 
-	std::string CLandsatDataset::GetSubname(size_t i, std::string format, size_t b)const
+	std::string CMODISDataset::GetSubname(size_t i, std::string format, size_t b)const
 	{
 		string subName;
 		if (format.empty())
@@ -440,7 +427,7 @@ namespace WBSF
 			}
 
 			if (b != NOT_INIT)
-				subName += string("_") + Landsat::GetBandName(b);
+				subName += string("_") + MODIS::GetBandName(b);
 		}
 
 		return subName;
@@ -448,36 +435,36 @@ namespace WBSF
 
 
 
-	std::string CLandsatDataset::GetCommonBandName(size_t b)const
+	std::string CMODISDataset::GetCommonBandName(size_t b)const
 	{
-		std::string common = CLandsatDataset::GetCommonImageName(b / SCENES_SIZE);
+		std::string common = CMODISDataset::GetCommonImageName(b / SCENES_SIZE);
 		string title = GetFileTitle(GetInternalName(b));
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetBandName(b%SCENES_SIZE));
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, MODIS::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
-	std::string CLandsatDataset::GetSpecificBandName(size_t b)const
+	std::string CMODISDataset::GetSpecificBandName(size_t b)const
 	{
-		std::string common = CLandsatDataset::GetCommonName();
+		std::string common = CMODISDataset::GetCommonName();
 		string title = GetFileTitle(GetInternalName(b));
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetBandName(b%SCENES_SIZE));
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, MODIS::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
 
 
-	std::string CLandsatDataset::GetSpecificBandName(size_t i, size_t b)const
+	std::string CMODISDataset::GetSpecificBandName(size_t i, size_t b)const
 	{
-		return CLandsatDataset::GetSpecificBandName(i*SCENES_SIZE + b);
+		return CMODISDataset::GetSpecificBandName(i*SCENES_SIZE + b);
 	}
 
-	void CLandsatDataset::Close(const CBaseOptions& options)
+	void CMODISDataset::Close(const CBaseOptions& options)
 	{
 		if (IsOpen())
 		{
@@ -512,7 +499,7 @@ namespace WBSF
 		}
 	}
 
-	ERMsg CLandsatDataset::CreateRGB(size_t iz, const std::string filePath, CBaseOptions::TRGBTye type)
+	ERMsg CMODISDataset::CreateRGB(size_t iz, const std::string filePath, CBaseOptions::TRGBTye type)
 
 	{
 		ERMsg msg;
@@ -552,7 +539,7 @@ namespace WBSF
 				node.setAttribute("subClass", "VRTDerivedRasterBand");
 				node.addChild("NoDataValue").setValue("-32768");
 				static const char* RGB_NAME[3] = { "red", "green", "blue" };
-				string pixelValName = string("Landsat.") + RGB_NAME[j] + "(" + CBaseOptions::RGB_NAME[type] + ")";
+				string pixelValName = string("MODIS.") + RGB_NAME[j] + "(" + CBaseOptions::RGB_NAME[type] + ")";
 
 				node.addChild("PixelFunctionType").setValue(pixelValName);
 				for (size_t b = 0; b < SCENES_SIZE; b++)
@@ -619,7 +606,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLandsatDataset::CreateIndices(size_t iz, const std::string filePath, Landsat::TIndices type)
+	ERMsg CMODISDataset::CreateIndices(size_t iz, const std::string filePath, MODIS::TIndices type)
 	{
 		ERMsg msg;
 
@@ -658,7 +645,7 @@ namespace WBSF
 			node.setAttribute("subClass", "VRTDerivedRasterBand");
 			node.addChild("NoDataValue").setValue("-32768");
 
-			string pixelValName = string("Landsat.") + GetIndiceName(type);
+			string pixelValName = string("MODIS.") + GetIndiceName(type);
 
 			node.addChild("PixelFunctionType").setValue(pixelValName);
 			for (size_t b = 0; b < SCENES_SIZE; b++)
@@ -722,29 +709,26 @@ namespace WBSF
 	}
 
 	//****************************************************************************************************************
-	CLandsatWindow::CLandsatWindow() :
-		CRasterWindow(TLandsatBands::SCENES_SIZE),
-		m_corr8(NO_CORR8)
+	CMODISWindow::CMODISWindow() :
+		CRasterWindow(TMODISBands::SCENES_SIZE)
 	{}
 
-	CLandsatWindow::CLandsatWindow(const CRasterWindow& in) :
-		CRasterWindow(TLandsatBands::SCENES_SIZE),
-		m_corr8(NO_CORR8)
+	CMODISWindow::CMODISWindow(const CRasterWindow& in) :
+		CRasterWindow(TMODISBands::SCENES_SIZE)
 	{
 		if (&in != this)
 			CRasterWindow::operator=(in);
 
 	}
 
-	CLandsatWindow::CLandsatWindow(const CLandsatWindow& in) :
-		CRasterWindow(TLandsatBands::SCENES_SIZE),
-		m_corr8(NO_CORR8)
+	CMODISWindow::CMODISWindow(const CMODISWindow& in) :
+		CRasterWindow(TMODISBands::SCENES_SIZE)
 	{
 		if (&in != this)
 			CRasterWindow::operator=(in);
 	}
 
-	size_t CLandsatWindow::GetPrevious(size_t z, int x, int y)const
+	size_t CMODISWindow::GetPrevious(size_t z, int x, int y)const
 	{
 		size_t previous = NOT_INIT;
 		for (size_t zz = z - 1; zz < GetNbScenes() && previous == NOT_INIT; zz--)
@@ -756,7 +740,7 @@ namespace WBSF
 		return previous;
 	}
 
-	size_t CLandsatWindow::GetNext(size_t z, int x, int y)const
+	size_t CMODISWindow::GetNext(size_t z, int x, int y)const
 	{
 		size_t next = NOT_INIT;
 
@@ -768,22 +752,19 @@ namespace WBSF
 		return next;
 	}
 
-	CLandsatPixel CLandsatWindow::GetPixel(size_t i, int x, int y)const
+	CMODISPixel CMODISWindow::GetPixel(size_t i, int x, int y)const
 	{
-		CLandsatPixel pixel;
+		CMODISPixel pixel;
 		for (size_t z = 0; z < SCENES_SIZE; z++)
 		{
 			size_t ii = i * SCENES_SIZE + z;
-			pixel[z] = (LandsatDataType)at(ii)->at(x, y);
+			pixel[z] = (MODISDataType)at(ii)->at(x, y);
 		}
-
-		if (m_corr8 != NO_CORR8 && at(i*SCENES_SIZE)->GetCaptor() == 8 && pixel.IsValid())
-			pixel.correction8to7(m_corr8);
 
 		return pixel;
 	}
 
-	CLandsatPixel CLandsatWindow::GetPixelMean(size_t i, int x, int y, int n_rings, const std::vector<double>& weight)const
+	CMODISPixel CMODISWindow::GetPixelMean(size_t i, int x, int y, int n_rings, const std::vector<double>& weight)const
 	{
 		ASSERT(weight.empty() || (n_rings + 1) == weight.size());
 		if (n_rings == 0)
@@ -793,7 +774,7 @@ namespace WBSF
 		if (w.empty())// no weight
 			w.resize(n_rings + 1, 1.0 / Square(2 * n_rings + 1));
 
-		CLandsatPixel pixel;
+		CMODISPixel pixel;
 
 		array<CStatistic, SCENES_SIZE> stat;
 		CStatistic stat_w;
@@ -801,7 +782,7 @@ namespace WBSF
 		{
 			for (int xx = -n_rings; xx <= n_rings; xx++)
 			{
-				CLandsatPixel p = GetPixel(i, x + xx, y + yy);
+				CMODISPixel p = GetPixel(i, x + xx, y + yy);
 				if (p.IsValid())
 				{
 					for (size_t z = 0; z < SCENES_SIZE; z++)
@@ -825,7 +806,7 @@ namespace WBSF
 		return pixel;
 	}
 
-	bool CLandsatWindow::GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const
+	bool CMODISWindow::GetPixel(size_t i, int x, int y, CMODISPixel& pixel)const
 	{
 		ASSERT(i < GetNbScenes());
 
@@ -835,18 +816,18 @@ namespace WBSF
 			/*for (size_t z = 0; z < SCENES_SIZE; z++)
 			{
 				size_t ii = i * SCENES_SIZE + z;
-				pixel[z] = (LandsatDataType)at(ii)->at(x, y);
+				pixel[z] = (MODISDataType)at(ii)->at(x, y);
 			}*/
 		}
 
 		return i != NOT_INIT && IsValid(i, pixel);
 	}
 
-	CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, int buffer)const
+	CMODISPixel CMODISWindow::GetPixelMedian(size_t f, size_t l, int x, int y, int buffer)const
 	{
 		assert(f < GetNbScenes());
 		assert(l < GetNbScenes());
-		LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+		MODISDataType noData = (MODISDataType)WBSF::GetDefaultNoData(GDT_Int16);
 		bool bAllBandsValid = true;
 
 		array<CStatisticEx, SCENES_SIZE> stat;
@@ -858,7 +839,7 @@ namespace WBSF
 				{
 					for (int xx = 0; xx < 2 * buffer + 1; xx++)
 					{
-						CLandsatPixel p = GetPixel(i, x + xx, y + yy);
+						CMODISPixel p = GetPixel(i, x + xx, y + yy);
 						if (p.IsValid())
 						{
 							for (size_t z = 0; z < SCENES_SIZE; z++)
@@ -877,7 +858,7 @@ namespace WBSF
 					{
 						for (int xx = 0; xx < 2 * buffer + 1; xx++)
 						{
-							LandsatDataType val = (LandsatDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
+							MODISDataType val = (MODISDataType)at(ii)->at(x + xx - buffer, y + yy - buffer);
 							if (val != noData)
 								stat[z] += val;
 						}
@@ -893,7 +874,7 @@ namespace WBSF
 				bValid = false;
 		}
 
-		CLandsatPixel pixel;
+		CMODISPixel pixel;
 		if (bValid)
 		{
 			for (size_t z = 0; z < SCENES_SIZE; z++)
@@ -906,20 +887,20 @@ namespace WBSF
 	//****************************************************************************************************************
 
 
-	CLandsatPixel::CLandsatPixel()
+	CMODISPixel::CMODISPixel()
 	{
 		Reset();
 	}
 
-	void CLandsatPixel::Reset()
+	void CMODISPixel::Reset()
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		fill(noData);
 	}
 
-	LandsatDataType CLandsatPixel::operator[](const Landsat::TIndices& i)const
+	MODISDataType CMODISPixel::operator[](const MODIS::TIndices& i)const
 	{
-		LandsatDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
+		MODISDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		if (IsInit(i))
 		{
 			switch (i)
@@ -932,7 +913,7 @@ namespace WBSF
 			case B6:
 			case B7:
 			case QA:
-			case JD:		val = LandsatPixel::operator[](i); break;
+			case JD:		val = MODISPixel::operator[](i); break;
 			case I_NBR:		val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() * NBR(), GDT_Int16, 1); break;
 			case I_NDVI:	val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() * NDVI(), GDT_Int16, 1); break;
 			case I_NDMI:	val = (__int16)WBSF::LimitToBound(INDICES_FACTOR() * NDMI(), GDT_Int16, 1); break;
@@ -958,7 +939,7 @@ namespace WBSF
 		return val;
 	}
 
-	bool CLandsatPixel::IsInit()const
+	bool CMODISPixel::IsInit()const
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
@@ -972,7 +953,7 @@ namespace WBSF
 		return bIsInit;
 	}
 
-	bool CLandsatPixel::IsInit(TIndices i)const
+	bool CMODISPixel::IsInit(TIndices i)const
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
@@ -991,24 +972,25 @@ namespace WBSF
 		case B7:
 		case QA:
 		case JD:		need.set(i); break;
-		case I_NBR:		need.set(B4); need.set(B7); break;
-		case I_NDVI:	need.set(B3); need.set(B4); break;
-		case I_NDMI:	need.set(B4); need.set(B5); break;
-		case I_NDWI:	need.set(B2); need.set(B5); break;
-		case I_TCB:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
-		case I_TCG:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
-		case I_TCW:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
-		case I_ZSW:		need.set(B3); need.set(B4); need.set(B5); need.set(B7); break;
-		case I_NBR2:	need.set(B5); need.set(B7); break;
-		case I_EVI:		need.set(B1); need.set(B3); need.set(B4); break;
-		case I_EVI2:	need.set(B3); need.set(B4); break;
-		case I_SAVI:	need.set(B3); need.set(B4); break;
-		case I_MSAVI:	need.set(B3); need.set(B4); break;
-		case I_SR:		need.set(B3); need.set(B4); break;
-		case I_CL:		need.set(B1); need.set(B6); break;
+		case I_NBR:		need.set(B2); need.set(B7); break;
+		case I_NDVI:	need.set(B1); need.set(B2); break;
+		case I_NDMI:	need.set(B2); need.set(B6); break;
+		case I_NDWI:	need.set(B4); need.set(B6); break;
+		case I_TCB:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B6); need.set(B7); break;
+		case I_TCG:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B6); need.set(B7); break;
+		case I_TCW:		need.set(B1); need.set(B2); need.set(B3); need.set(B4); need.set(B6); need.set(B7); break;
+		case I_ZSW:		need.set(B1); need.set(B2); need.set(B6); need.set(B7); break;
+		case I_NBR2:	need.set(B6); need.set(B7); break;
+		case I_EVI:		need.set(B1); need.set(B2); need.set(B3); break;
+		case I_EVI2:	need.set(B1); need.set(B2); break;
+		case I_SAVI:	need.set(B1); need.set(B2); break;
+		case I_MSAVI:	need.set(B1); need.set(B2); break;
+		case I_SR:		need.set(B1); need.set(B2); break;
+		case I_CL:		need.set(B3); need.set(B7); break;
 		case I_HZ:		need.set(B1); need.set(B3); break;
-		case I_LSWI:	need.set(B4); need.set(B5); break;
-		case I_VIgreen:	need.set(B2); need.set(B3); break;
+		case I_LSWI:	need.set(B2); need.set(B6); break;
+		case I_VIgreen:	need.set(B1); need.set(B4); break;
+
 		default: ASSERT(false);
 		}
 
@@ -1021,7 +1003,7 @@ namespace WBSF
 
 		return bIsInit;
 	}
-	CTRef CLandsatPixel::GetTRef()const
+	CTRef CMODISPixel::GetTRef()const
 	{
 		CTRef TRef;
 		if (at(JD) != (__int16)WBSF::GetDefaultNoData(GDT_Int16))
@@ -1031,7 +1013,7 @@ namespace WBSF
 	}
 
 
-	bool CLandsatPixel::IsValid()const
+	bool CMODISPixel::IsValid()const
 	{
 		__int16 noData = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 
@@ -1048,46 +1030,21 @@ namespace WBSF
 		return bIsValid;
 	}
 
-	void CLandsatPixel::correction8to7(Landsat::TCorr8 type)
-	{
-		ASSERT(type < NB_CORR8_TYPE);
-
-		static const double c0[NB_CORR8_TYPE][SCENES_SIZE - 2] =
-		{
-			{ 129.3, 98.3, 66.0, 240.3, 113.4, 0.0, 51.6},
-			{ 4.1, 28.9, 27.4, 0.4, 25.6, 0.0, -32.7 },
-			{ 183.0, 123.0, 123.0, 448.0, 306.0, 0.0, 116.0 }
-		};
-		static const double c1[NB_CORR8_TYPE][SCENES_SIZE - 2] =
-		{
-			{ 0.6512, 0.74324, 0.76879, 0.87379, 0.88424, 1.0, 0.86283 },
-			{ 0.9747, 0.99779, 1.00446, 0.98906, 0.99467, 1.0, 1.02551 },
-			{ 0.8850, 0.93170, 0.93720,	0.83390, 0.86390, 1.0, 0.91650 }
-		};
-
-		for (size_t b = 0; b < SCENES_SIZE - 2; b++)
-		{
-			double newVal = c0[type][b] + c1[type][b] * at(b);
-			at(b) = (__int16)WBSF::LimitToBound(newVal, GDT_Int16, 1);
-		}
-
-	}
-
-	double CLandsatPixel::GetCloudRatio()const
+	double CMODISPixel::GetCloudRatio()const
 	{
 		return (double)at(B1) / max(0.1, (double)at(B6));
 	}
 
-	Color8 CLandsatPixel::R(CBaseOptions::TRGBTye type, const CBandStats& stats)const
+	Color8 CMODISPixel::R(CBaseOptions::TRGBTye type, const CMODISBandStats& stats)const
 	{
 		Color8 pix_val = 255;
 		switch (type)
 		{
 		case CBaseOptions::NO_RGB: break;
-		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 90.0) / (1000.0 - 90.0)) * 254.0))); break;
-		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) + 150.0) / 6150.0) * 254.0))); break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) - 90.0) / (1000.0 - 90.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) + 150.0) / 6150.0) * 254.0))); break;
 			//case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max- stats[B3].m_min))), 0.5)* 254.0); break;
-		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
+		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B1) - stats[B1].m_min) / (stats[B1].m_max - stats[B1].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
 			//case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - (stats[B3].m_mean - 1*stats[B3].m_sd)) / (2*stats[B3].m_sd))), 0.5)* 254.0); break;
 		default: ASSERT(false);
 		}
@@ -1095,16 +1052,16 @@ namespace WBSF
 		return pix_val;
 	}
 
-	Color8 CLandsatPixel::G(CBaseOptions::TRGBTye type, const CBandStats& stats)const
+	Color8 CMODISPixel::G(CBaseOptions::TRGBTye type, const CMODISBandStats& stats)const
 	{
 		Color8 pix_val = 255;
 		switch (type)
 		{
 		case CBaseOptions::NO_RGB: break;
-		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) - 170.0) / (1050.0 - 170.0)) * 254.0))); break;
-		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B5) + 190.0) / 5190.0) * 254.0))); break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) - 170.0) / (1050.0 - 170.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B6) + 190.0) / 5190.0) * 254.0))); break;
 			//case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5)* 254.0); break;
-		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
+		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
 			//case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - (stats[B2].m_mean - 1*stats[B2].m_sd)) / (2*stats[B2].m_sd))), 0.5)* 254.0); break;
 		default: ASSERT(false);
 		}
@@ -1113,15 +1070,15 @@ namespace WBSF
 
 
 	}
-	Color8 CLandsatPixel::B(CBaseOptions::TRGBTye type, const CBandStats& stats)const
+	Color8 CMODISPixel::B(CBaseOptions::TRGBTye type, const CMODISBandStats& stats)const
 	{
 		Color8 pix_val = 255;
 		switch (type)
 		{
 		case CBaseOptions::NO_RGB: break;
-		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) - 130.0) / (780.0 - 130.0)) * 254.0))); break;
-		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) + 200.0) / 2700.0) * 254.0))); break;
-		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B1) - stats[B1].m_min) / (stats[B1].m_max - stats[B1].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
+		case CBaseOptions::NATURAL:	pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 130.0) / (780.0 - 130.0)) * 254.0))); break;
+		case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) + 200.0) / 2700.0) * 254.0))); break;
+		case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B3) - stats[B1].m_min) / (stats[B3].m_max - stats[B3].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0)))* 254.0); break;
 			//case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B1) - (stats[B1].m_mean - 1*stats[B1].m_sd)) / (2*stats[B1].m_sd))), 0.5)* 254.0); break;
 		default: ASSERT(false);
 		}
@@ -1131,7 +1088,7 @@ namespace WBSF
 
 	}
 
-	double CLandsatPixel::GetEuclideanDistance(const CLandsatPixel& pixel, CBaseOptions::TRGBTye type)const
+	double CMODISPixel::GetEuclideanDistance(const CMODISPixel& pixel, CBaseOptions::TRGBTye type)const
 	{
 		double r = type != CBaseOptions::NO_RGB ? R(type) - pixel.R(type) : at(B4) - pixel[B4];
 		double g = type != CBaseOptions::NO_RGB ? G(type) - pixel.G(type) : at(B5) - pixel[B5];
@@ -1141,106 +1098,109 @@ namespace WBSF
 	}
 
 
-	double CLandsatPixel::NBR()const
+	double CMODISPixel::NBR()const
 	{
-		return ((double)at(B4) - at(B7)) / max(0.1, double(at(B4)) + at(B7));
+		return ((double)at(B2) - at(B7)) / max(0.1, double(at(B2)) + at(B7));
 	}
 
 
-	double CLandsatPixel::NDVI()const
+	double CMODISPixel::NDVI()const
 	{
-		return ((double)at(B4) - at(B3)) / max(0.1, double(at(B4)) + at(B3));
+		return ((double)at(B2) - at(B1)) / max(0.1, double(at(B2)) + at(B1));
 	}
 
-	double CLandsatPixel::NDMI()const
+	double CMODISPixel::NDMI()const
 	{
-		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4)) + at(B5));
+		return ((double)at(B2) - at(B6)) / max(0.1, double(at(B2)) + at(B6));
 	}
 
-	double CLandsatPixel::NDWI()const
+	double CMODISPixel::NDWI()const
 	{
-		return ((double)at(B2) - at(B5)) / max(0.1, double(at(B2)) + at(B5));
+		return ((double)at(B4) - at(B6)) / max(0.1, double(at(B4)) + at(B6));
 	}
 
-
-	double CLandsatPixel::TCB()const
+	double CMODISPixel::TCB()const
 	{
-		static const double F[7] = { 0.2043, 0.4158, 0.5524, 0.5741, 0.3124, 0.0000, 0.2303 };
-		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B5] * at(B5) + F[B7] * at(B7);
+		//static const double F[7] = { 0.2043, 0.4158, 0.5524, 0.5741, 0.3124, 0.0000, 0.2303 };
+		static const double F[7] = { 0.5524, 0.5741, 0.2043, 0.4158, 0.0000,  0.3124, 0.2303 };
+		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B6] * at(B6) + F[B7] * at(B7);
 	}
 
-	double CLandsatPixel::TCG()const
+	double CMODISPixel::TCG()const
 	{
-		static const double F[7] = { -0.1603, -0.2819, -0.4934, 0.7940, 0.0002, 0.000, -0.1446 };
-		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B5] * at(B5) + F[B7] * at(B7);
+		static const double F[7] = { -0.4934, 0.7940, -0.1603, -0.2819, 0.000, 0.0002, -0.1446 };
+		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B6] * at(B6) + F[B7] * at(B7);
 	}
 
-	double CLandsatPixel::TCW()const
+	double CMODISPixel::TCW()const
 	{
-		static const double F[7] = { 0.0315, 0.2021, 0.3102, 0.1594, 0.6806, 0.000, -0.6109 };
-		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B5] * at(B5) + F[B7] * at(B7);
+		static const double F[7] = { 0.3102, 0.1594, 0.0315, 0.2021, 0.000, 0.6806, -0.6109 };
+		return F[B1] * at(B1) + F[B2] * at(B2) + F[B3] * at(B3) + F[B4] * at(B4) + F[B6] * at(B6) + F[B7] * at(B7);
 	}
 
-	double CLandsatPixel::ZSW()const
+	double CMODISPixel::ZSW()const
 	{
-		double b3 = Square(max(0.0, at(B3) - 141.4518) / 70.56979);
-		double b4 = Square(max(0.0, at(B4) - 221.1589) / 147.9847);
-		double b5 = Square(max(0.0, at(B5) - 91.9588) / 130.7777);
+		double b1 = Square(max(0.0, at(B1) - 141.4518) / 70.56979);
+		double b2 = Square(max(0.0, at(B2) - 221.1589) / 147.9847);
+		double b6 = Square(max(0.0, at(B6) - 91.9588) / 130.7777);
 		double b7 = Square(max(0.0, at(B7) - 68.39219) / 99.17062);
-		double ZSW = sqrt(0.25  * (b3 + b4 + b5 + b7)) * 100;
+		double ZSW = sqrt(0.25  * (b1 + b2 + b6 + b7)) * 100;
 		return ZSW;
 
 	}
 
-	double CLandsatPixel::NBR2()const
+	double CMODISPixel::NBR2()const
 	{
-		return ((double)at(B5) - at(B7)) / max(0.1, double(at(B5)) + at(B7));
+		return ((double)at(B6) - at(B7)) / max(0.1, double(at(B6)) + at(B7));
 	}
 
-	double CLandsatPixel::EVI()const
+	double CMODISPixel::EVI()const
 	{
-		return 2.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + 6.0 * at(B3) - 7.5*at(B1) + 1));
+		return 2.5 * ((double)at(B2) - at(B1)) / max(0.1, (at(B2) + 6.0 * at(B1) - 7.5*at(B3) + 1));
 	}
 
-	double CLandsatPixel::EVI2()const
+	double CMODISPixel::EVI2()const
 	{
-		return 2.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + 2.4 * at(B3) + 1));
+		return 2.5 * ((double)at(B2) - at(B1)) / max(0.1, (at(B2) + 2.4 * at(B1) + 1));
 	}
 
 
-	double CLandsatPixel::SAVI()const
+	double CMODISPixel::SAVI()const
 	{
 		return 1.5 * ((double)at(B4) - at(B3)) / max(0.1, (at(B4) + at(B3) + 0.5));
 	}
-	double CLandsatPixel::MSAVI()const
+
+	double CMODISPixel::MSAVI()const
 	{
-		return (2.0 * at(B4) + 1 - sqrt((2.0 * at(B4) + 1)*(2.0 * at(B4) + 1) - 8 * ((double)at(B4) - at(B3)))) / 2;
-	}
-	double CLandsatPixel::SR() const
-	{
-		return ((double)at(B4) / max(0.1, (double)at(B3)));
-	}
-	double CLandsatPixel::CL()const
-	{
-		return ((double)at(B1) / max(0.1, (double)at(B6)));
-	}
-	double CLandsatPixel::HZ()const
-	{
-		return ((double)at(B1) / max(0.1, (double)at(B3)));
+		return (2.0 * at(B2) + 1 - sqrt((2.0 * at(B2) + 1)*(2.0 * at(B2) + 1) - 8 * ((double)at(B2) - at(B1)))) / 2;
 	}
 
-	double CLandsatPixel::LSWI()const
+	double CMODISPixel::SR() const
 	{
-		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4) + at(B5)));
+		return ((double)at(B2) / max(0.1, (double)at(B1)));
+	}
+	double CMODISPixel::CL()const
+	{
+		//return ((double)at(B1) / max(0.1, (double)at(B6)));
+		//la bande B6 n'existe pas dans MODIS, utilisation de la bansde 7
+		return ((double)at(B3) / max(0.1, (double)at(B7)));
+	}
+	double CMODISPixel::HZ()const
+	{
+		return ((double)at(B3) / max(0.1, (double)at(B1)));
 	}
 
-	double CLandsatPixel::VIgreen()const
+	double CMODISPixel::LSWI()const
 	{
-		return ((double)at(B2) - at(B3)) / max(0.1, double(at(B2) + at(B3)));
+		return ((double)at(B2) - at(B6)) / max(0.1, double(at(B2) + at(B6)));
 	}
 
+	double CMODISPixel::VIgreen()const
+	{
+		return ((double)at(B4) - at(B1)) / max(0.1, double(at(B4) + at(B1)));
+	}
 
-	double CLandsatPixel::GetDespike(double pre, double spike, double post, double min_trigger)
+	double CMODISPixel::GetDespike(double pre, double spike, double post, double min_trigger)
 	{
 		double d1 = (post - pre);
 		if (abs(d1) < min_trigger)
