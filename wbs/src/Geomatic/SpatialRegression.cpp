@@ -228,84 +228,14 @@ namespace WBSF
 	// permet de trouver les termes de régressions qui seront utilisé dans les
 	// équations 
 	//**************************************************************************
-	//double CSpatialRegression::StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2)const
-	//{
-	//	bool bUseLatLon = m_param.m_bUseLatLon;
-	//	bool bUseElev = m_param.m_bUseElevation;
-	//	bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
-	//	bool bUseShore = m_param.m_bUseShore;
-	//	
-	//	
-	//	
 
-	//	CGeoRegression regression;
-	//	// fits best of MAX_PREDICTORS-predictor multiple 
-	//	// regression model and returns the R2.
-
-	//	double bestR² = -999;
-
-	//	//add new terms to model until the r² improvement is < threshold
-	//	bool bContinueLoop1 = true;
-	//	size_t nbTerms = CTerm::GetNbTerms();
-	//	for (int i = 0; i < nbTerms&&bContinueLoop1; i++)
-	//	{
-	//		if (CTerm::IsValid(i, bUseLatLon, bUseElev, bUseExpo, bUseShore))
-	//		{
-	//			bool bContinueLoop2 = true;
-	//			//find the next term
-	//			for (int j = 0; j < nbTerms&&bContinueLoop2; j++)
-	//			{
-	//				if (CTerm::IsValid(j, bUseLatLon, bUseElev, bUseExpo, bUseShore))
-	//				{
-	//					//Verify that term i is not in the model
-	//					//bool alreadyIn = std::find(regression.begin(), regression.end(), GetTerm(j, bExpo)) != regression.end();
-	//					bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
-
-	//					//if the term isn't in the model, test the improvement achieved by adding it.
-	//					if (!alreadyIn)
-	//					{
-	//						regression.push_back(CTerm(j));
-	//						//double R² = regression.Compute(*m_pPts, m_prePostTransfo);
-	//						double R² = regression.Compute(calibPts, m_prePostTransfo);
-	//						
-	//						if (R² > -999)
-	//						{
-	//							if (R² - bestR² > criticalR2)
-	//							{
-	//								bestR² = R²;
-	//								bContinueLoop2 = false;
-	//							}
-	//							else
-	//							{
-	//								//discard this term
-	//								regression.pop_back();
-	//							}
-	//						}
-	//					}//if not already in
-	//				}
-	//			} //for all term
-
-	//			bContinueLoop1 = !bContinueLoop2;
-	//		}
-	//	}
-
-	//	//transfer parameters
-	//	regressionTerm.resize(regression.size());
-	//	for (size_t i = 0; i < regression.size(); i++)
-	//		regressionTerm[i] = regression[i].m_v;
-
-	//	return bestR²;
-	//}
 
 	//i-Starting with no variables in the model, we fit a separate model including each variable one by one.
 	//The variable(assuming there is one) with the most statistically significant P - value below a pre - defined inclusion threshold is selected.
 	//ii-We fit separate models including the variable selected at stage 1 and adding each remaining variable one by one.
-	//Of the remaining variables, the variable(assuming there is one) with the most statistically significant P - value below the inclusion threshold is selected.
-	//iv-If a variable was added to the model at step(ii), all previously selected variables are checked to see if they still reach the inclusion threshold, and are dropped one by one if not, starting with the least significant.
+	//iii-Of the remaining variables, the variable(assuming there is one) with the most statistically significant P - value below the inclusion threshold is selected.
+	//iiii-If a variable was added to the model at step(ii), all previously selected variables are checked to see if they still reach the inclusion threshold, and are dropped one by one if not, starting with the least significant.
 	//Steps(ii) and (iii)are repeated until none of the remaining variables have a P - value below the inclusion threshold when added to the model including the previously selected variables.
-
-
-
 	ERMsg CSpatialRegression::StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -337,48 +267,51 @@ namespace WBSF
 
 		for (int i = 0; i < 3 && msg; i++)
 		{
-
-			//size_t nbTerms = CTerm::GetNbTerms();
-			//int first_j = i == 0 ? 0 : 5;
-			size_t last_j = i == 0 ? 5 : i == 1 ? 10 : CTerm::GetNbTerms();
+			int last_j = i == 0 ? 5 : i == 1 ? 10 : int(CTerm::GetNbTerms());
 
 			bool bContinueAdd = true;
 			while (bContinueAdd&&msg)
 			{
-				//if (CTerm::IsValid(i, bUseLatLon, bUseElev, bUseExpo, bUseShore))
-				//{
-				//bool bContinueLoop2 = true;
-				//vector < double>  R²(nbTerms,-999);
+				
 				double best_R² = -999;
 				int best_j = -1;
 				//find the next term
-				for (size_t jj = 0; jj < last_j&&msg; jj++)
+#pragma omp parallel for num_threads( m_info.m_nbCPU ) if (m_info.m_bMulti)
+				for (int jj = 0; jj < last_j; jj++)
 				{
-					int j = int(i < 2 ? Term[i][jj] : jj);
-					if (CTerm::IsValid(j, bUseLatLon, bUseElev, bUseExpo, bUseShore))
+#pragma omp flush(msg)
+					if (msg)
 					{
-						//Verify that term j is not in the model
-						bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
-
-						//if the term isn't in the model, test the improvement achieved by adding it.
-						if (!alreadyIn)
+						int j = int(i < 2 ? Term[i][jj] : jj);
+						if (CTerm::IsValid(j, bUseLatLon, bUseElev, bUseExpo, bUseShore))
 						{
-							//add thid term
-							CGeoRegression regression2 = regression;
-							regression2.push_back(CTerm(j));
+							//Verify that term j is not in the model
+							bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(j)) != regression.end();
 
-							double R² = regression2.Compute(calibPts, m_prePostTransfo);
-							if (R² > best_R²)
+							//if the term isn't in the model, test the improvement achieved by adding it.
+							if (!alreadyIn)
 							{
-								best_R² = R²;
-								best_j = j;
-							}
+								//add thid term
+								CGeoRegression regression2 = regression;
+								regression2.push_back(CTerm(j));
 
-							msg += callback.StepIt(0);
-							//remove this term
-							//regression.pop_back();
-						}//if not already in
-					}
+								double R² = regression2.Compute(calibPts, m_prePostTransfo);
+#pragma omp critical(SPA_REG_SET)
+								{
+									if (R² > best_R²)
+									{
+										best_R² = R²;
+										best_j = j;
+									}
+									msg += callback.StepIt(0);
+#pragma omp flush(msg)
+								}
+								//
+								//remove this term
+
+							}//if not already in
+						}
+					}//msg
 				} //for all term
 
 				if (best_j != -1 && best_R² - global_bestR² >= criticalR2)
@@ -393,20 +326,24 @@ namespace WBSF
 					{
 						double less_imp_R² = 999;
 						int less_imp_j = -1;
-
-						for (int j = 0; j < regression.size() - 1 && msg; j++)
+#pragma omp parallel for num_threads( m_info.m_nbCPU ) if (m_info.m_bMulti)
+						for (int j = 0; j < regression.size() - 1; j++)
 						{
+
 							CGeoRegression regression2 = regression;
 							regression2.erase(regression2.begin() + j);
 
 							double R² = regression2.Compute(calibPts, m_prePostTransfo);
-							if (R² > less_imp_R²)
+#pragma omp critical(SPA_REG_SET)
 							{
-								less_imp_R² = R²;
-								less_imp_j = j;
+								if (R² > less_imp_R²)
+								{
+									less_imp_R² = R²;
+									less_imp_j = j;
+								}
+								msg += callback.StepIt(0);
+#pragma omp flush(msg)
 							}
-
-							msg += callback.StepIt(0);
 						} //for all term
 
 						if (less_imp_j != -1 && global_bestR² - less_imp_R² < criticalR2)
@@ -422,13 +359,14 @@ namespace WBSF
 							bContinueRemove = false;
 						}
 
+
 					}
 				}
 				else
 				{
 					bContinueAdd = false;
 				}
-
+				msg += callback.StepIt(0);
 			}
 		}
 		//transfer parameters
