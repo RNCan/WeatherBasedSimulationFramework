@@ -729,7 +729,7 @@ namespace WBSF
 		{
 			if (!SSIHeader.Find(SSI[i], false))
 			{
-				msg.ajoute("Mssing SSI: " + SSI[i]);
+				msg.ajoute("Missing SSI: " + SSI[i]);
 				//msg.ajoute(FormatMsg(IDS_BSC_MISSING_WEATHER, HOURLY_DATA::GetVariableName(v)));
 			}
 		}
