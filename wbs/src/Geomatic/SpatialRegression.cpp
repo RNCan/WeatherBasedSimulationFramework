@@ -462,7 +462,7 @@ namespace WBSF
 		callback.PushTask("Backward optimization", NOT_INIT);
 
 		//start with all terms that have positive R²
-		msg = StraightForeward(calibPts, regressionTerm, criticalR2/10.0, maxLevel, callback);
+		msg = Foreward(calibPts, regressionTerm, criticalR2/10.0, maxLevel, callback);
 		if (!msg)
 			return msg;
 
