@@ -350,14 +350,6 @@ namespace WBSF
 	{
 		parameterset.clear();
 
-		//if (m_param.m_regressionModel.empty())
-		//{
-		//	//this is to call GetOptimiseR² and initialise term with StepWise
-		//	parameterset.resize(1, m_param);
-
-		//	//Compute best regression
-		//	StepWise(parameterset[0].m_regressionModel);
-		//}
 	}
 
 

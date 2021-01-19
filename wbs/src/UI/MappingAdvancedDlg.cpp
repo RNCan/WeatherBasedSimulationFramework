@@ -60,6 +60,7 @@ namespace WBSF
 		DDX_Control(pDX, IDC_MAP_GLOBAL_MINMAX_LIMIT_TO_BOUND, m_globalMinMaxLimitToBoundCtrl);
 
 		//Spatial Regression
+		DDX_Control(pDX, IDC_MAP_REGRESSION_MODEL, m_regressOptCtrl);
 		DDX_Control(pDX, IDC_MAP_ADD_TERM, m_R²Ctrl);
 
 		//IDW
@@ -174,6 +175,7 @@ namespace WBSF
 
 
 		//Spatial Regression
+		m_pParam->m_regressOptimization = m_regressOptCtrl.GetCurSel();
 		m_pParam->m_regressCriticalR2 = ToDouble(m_R²Ctrl.GetString());
 		
 		//Kriging
@@ -222,7 +224,8 @@ namespace WBSF
 
 
 		//Spatial Regression
-		m_R²Ctrl.SetWindowText(ToString(m_pParam->m_regressCriticalR2));
+		m_regressOptCtrl.SetCurSel(int(m_pParam->m_regressOptimization));
+		m_R²Ctrl.SetWindowText(ToString(m_pParam->m_regressCriticalR2,10));
 
 		//Kriging
 		m_variogramModelCtrl.SetCurSel(m_pParam->m_variogramModel + 1);

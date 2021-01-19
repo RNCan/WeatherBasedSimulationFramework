@@ -178,6 +178,7 @@ namespace WBSF
 					if (m_externalDrift.empty())
 					{
 						CGridInterpolParam  sr_param;
+						sr_param.m_regressOptimization = m_param.m_regressOptimization;
 						sr_param.m_regressCriticalR2 = m_param.m_regressCriticalR2;
 						sr_param.m_bUseLatLon = false;
 						sr_param.m_bUseElevation = true;
@@ -189,11 +190,7 @@ namespace WBSF
 						sr.SetDataset(m_pPts);//send all point because sr remove 
 						sr.Initialization(callback);
 
-						m_externalDrift.resize(sr.GetParam().m_regressionModel.size());
-						for (size_t i = 0; i < sr.GetParam().m_regressionModel.size(); i++)
-						{
-							m_externalDrift[i] = sr.GetParam().m_regressionModel[i];
-						}
+						m_externalDrift = sr.GetParam().m_regressionModel;
 
 						//Compute with the real parameters
 						m_externalDrift.Compute(*pCalibPts, m_prePostTransfo);

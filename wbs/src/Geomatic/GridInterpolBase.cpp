@@ -70,7 +70,7 @@ namespace WBSF
 	//***************************************************************************
 	const char* CGridInterpolParam::XML_FLAG = "InterpolParam";
 
-	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "OutputType", "UseElev", "UseExpo", "UseShore", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "TPSMaxError", "RFTreeType", "OutputVariogramInfo" };
+	const char* CGridInterpolParam::MEMBER_NAME[NB_MEMBER] = { "NbPoints", "OutputNoData", "MaxDistance", "XValPoints", "OutputType", "UseElev", "UseExpo", "UseShore", "GDALOptions", "RegionalLimit", "RegionalSD", "RegionalLimitToBound", "GlobalLimit", "GlobalSD", "GlobalLimitToBound", "GlobalMinMaxLimit", "GlobalMinLimit", "GlobalMaxLimit", "GlobalMinMaxLimitToBound", "RegressionOptimization", "RegressionModel", "RegressCriticalR2", "VariogramModel", "NbLags", "LagDistance", "DetrendingModel", "ExternalDrift", "FillNugget", "IWDModel", "IWDPower", "TPSMaxError", "RFTreeType", "OutputVariogramInfo" };
 
 	CGridInterpolParam::CGridInterpolParam()
 	{
@@ -99,6 +99,7 @@ namespace WBSF
 		m_bGlobalMinMaxLimitToBound = false;
 
 		//Spatial Regression
+		m_regressOptimization = CGeoRegression::SW_STEPWISE;
 		m_regressionModel.empty();
 		m_regressCriticalR2 = 0.0005;
 
@@ -153,6 +154,7 @@ namespace WBSF
 		m_bGlobalMinMaxLimitToBound = in.m_bGlobalMinMaxLimitToBound;
 
 		//Spatial Regression
+		m_regressOptimization = in.m_regressOptimization;
 		m_regressionModel = in.m_regressionModel;
 		m_regressCriticalR2 = in.m_regressCriticalR2;
 
@@ -209,6 +211,7 @@ namespace WBSF
 
 
 		//Spatial Regression
+		if(m_regressOptimization!=in.m_regressOptimization)bEqual = false;
 		if (m_regressionModel != in.m_regressionModel)bEqual = false;
 		if (m_regressCriticalR2 != in.m_regressCriticalR2)bEqual = false;
 
@@ -262,8 +265,9 @@ namespace WBSF
 		case GLOBAL_MIN_LIMIT:		str = ToString(m_globalMinLimit); break;
 		case GLOBAL_MAX_LIMIT:		str = ToString(m_globalMaxLimit); break;
 		case GLOBAL_MINMAX_LIMIT_TO_BOUND:str = ToString(m_bGlobalMinMaxLimitToBound); break;
+		case REGRESS_OPTIMIZATION: str = ToString(m_regressOptimization); break;
 		case REGRESSION_MODEL:		str = ToString(m_regressionModel); break;
-		case REGRESS_CRITICAL_R2:	str = ToString(m_regressCriticalR2, 5); break;
+		case REGRESS_CRITICAL_R2:	str = ToString(m_regressCriticalR2, 10); break;
 
 		case VARIOGRAM_MODEL:		str = ToString(m_variogramModel); break;
 		case NB_LAGS:				str = ToString(m_nbLags); break;

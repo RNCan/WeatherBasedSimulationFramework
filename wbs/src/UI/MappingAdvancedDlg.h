@@ -48,6 +48,8 @@ namespace WBSF
 		CButton		m_useShoreCtrl;
 
 		//Regression
+		CComboBox	m_regressOptCtrl;
+		CCFLEdit	m_R²Ctrl;
 		//CComboBox	m_regressionModelCtrl;
 
 		//Kriging
@@ -73,7 +75,6 @@ namespace WBSF
 		CButton		m_globalMinMaxLimitToBoundCtrl;
 
 		//IWD	
-		CCFLEdit	m_R²Ctrl;
 		CComboBox	m_IWDModelCtrl;
 		CCFLComboBox	m_powerCtrl;
 

@@ -460,7 +460,7 @@ namespace WBSF
 			if (msg)
 			{
 				//save variogram
-				if (m_param.m_bOutputVariogramInfo)
+				if (m_method== CGridInterpol::UNIVERSAL_KRIGING&&m_param.m_bOutputVariogramInfo)
 				{
 					string filePath = GetPath(m_TEMFilePath) + GetFileTitle(m_TEMFilePath) + "_variogram.csv";
 					CVariogram variogram;

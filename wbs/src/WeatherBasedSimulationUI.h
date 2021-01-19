@@ -591,6 +591,7 @@
 #define IDC_FIT_FIXE_TB                 1292
 #define IDC_FIT_TM                      1293
 #define IDC_FIT_FIXE_TM                 1294
+#define IDC_MAP_REGRESSION_MODEL        1295
 #define IDC_FIT_FIXE_TO                 1297
 #define IDC_FIT_TO                      1298
 #define IDC_CMN_NEWPRJ_NAME             1350
@@ -958,7 +959,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        240
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1295
+#define _APS_NEXT_CONTROL_VALUE         1296
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

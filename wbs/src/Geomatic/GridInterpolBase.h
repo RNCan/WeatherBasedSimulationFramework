@@ -130,7 +130,7 @@ namespace WBSF
 		enum TRegression { BEST_REGRESSION = -1, /*...*/ };
 		//enum TTPSType{ TPS_REGIONAL, TPS_GLOBAL, TPS_GLOBAL_WITH_CLUSTER, NB_TPSTYPE };
 
-		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, XVAL_POINTS, OUTPUT_TYPE, USE_ELEV, USE_EXPO, USE_SHORE, GDAL_OPTIONS, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, TPS_MAX_ERROR, RF_TREE_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
+		enum TMember { NB_POINTS, OUTPUT_NO_DATA, MAX_DISTANCE, XVAL_POINTS, OUTPUT_TYPE, USE_ELEV, USE_EXPO, USE_SHORE, GDAL_OPTIONS, REGIONAL_LIMIT, REGIONAL_SD, REGIONAL_LIMIT_TO_BOUND, GLOBAL_LIMIT, GLOBAL_SD, GLOBAL_LIMIT_TO_BOUND, GLOBAL_MINMAX_LIMIT, GLOBAL_MIN_LIMIT, GLOBAL_MAX_LIMIT, GLOBAL_MINMAX_LIMIT_TO_BOUND, REGRESS_OPTIMIZATION, REGRESSION_MODEL, REGRESS_CRITICAL_R2, VARIOGRAM_MODEL, NB_LAGS, LAG_DISTANCE, DETRENDING_MODEL, EXTERNAL_DRIFT, FILL_NUGGET, IWD_MODEL, IWD_POWER, TPS_MAX_ERROR, RF_TREE_TYPE, OUTPUT_VARIOGRAM_INFO, NB_MEMBER };
 		static const char* GetMemberName(int i){ ASSERT(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag(){ return XML_FLAG; }
 		static const int DETRENDING_TERM_DEFINE[NB_DETRENDINGS][4];
@@ -173,6 +173,7 @@ namespace WBSF
 
 
 		//Regression 
+		size_t m_regressOptimization;
 		std::vector<int> m_regressionModel;
 		double	m_regressCriticalR2;
 
@@ -399,6 +400,8 @@ namespace zen
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::GLOBAL_MINMAX_LIMIT_TO_BOUND)](in.m_bGlobalMinMaxLimitToBound);
 
 		//Spatial Regression
+		
+		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESS_OPTIMIZATION)](in.m_regressOptimization);
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESSION_MODEL)](WBSF::ToString(in.m_regressionModel));
 		out[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESS_CRITICAL_R2)](in.m_regressCriticalR2);
 
@@ -449,6 +452,7 @@ namespace zen
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::GLOBAL_MINMAX_LIMIT_TO_BOUND)](out.m_bGlobalMinMaxLimitToBound);
 
 		std::string str;
+		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESS_OPTIMIZATION)](out.m_regressOptimization);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESSION_MODEL)](str);out.m_regressionModel = WBSF::ToVector<int>(str);
 		in[WBSF::CGridInterpolParam::GetMemberName(WBSF::CGridInterpolParam::REGRESS_CRITICAL_R2)](out.m_regressCriticalR2);
 

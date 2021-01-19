@@ -123,7 +123,7 @@ namespace WBSF
 		enum TModel { SPERICAL, EXPONENTIAL, GAUSSIAN, POWER, CUBIC, PENTASPHERICAL, SINE_HOLE_EFFECT, NB_MODELS };
 
 		static double GetSuggestedLag(const CGridPointVector& pts);
-		static const char* GetModelName(int model)	{ASSERT(model >= SPERICAL && model < NB_MODELS);return MODEL_NAME[model];}
+		static const char* GetModelName(size_t model)	{ASSERT( model < NB_MODELS);return model < NB_MODELS?MODEL_NAME[model]:"";}
 		static double   expfn(double x);
 		static double   powfn(double x, double p);
 

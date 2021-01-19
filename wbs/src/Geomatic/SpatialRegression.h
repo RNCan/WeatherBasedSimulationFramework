@@ -19,12 +19,18 @@ namespace WBSF
 	{
 	public:
 
+		enum TLevel {SIMPLE_FIRST_ORDER, MULTI_FIRST_ORDER, SIMPLE_SECOND_ORDER, MULTI_SECOND_ORDER1, MULTI_SECOND_ORDER2, SIMPLE_THIRTH_ORDER, ALL_ORDER, NB_LEVEL};
 		enum TTrend { LON = 1, LAT = 2, ELEV = 4, EXPO = 8, SHORE = 16, LON² = 32, LAT² = 64, ELEV² = 128, EXPO² = 256, SHORE² = 512, NB_TERMS = 10 };
 		static const char* GetName(size_t i) { ASSERT(i >= 0 && i < 3*5); return TERMS_NAME[i]; }
 
 		CTerm(int v = 0) { Init(v); }
+		CTerm(const CTerm& in) { m_v=in.m_v; }
+		CTerm& operator=(const CTerm& in) { m_v = in.m_v; return *this; }
 		void Reset() { Init(0); }
 		void Init(int v) { m_v = v; }
+		static std::vector<int> GetOrder(size_t level);
+		
+		int GetInt()const { return m_v; }
 
 		std::string GetName()const;
 
@@ -33,7 +39,7 @@ namespace WBSF
 
 
 		bool IsInit()const { return m_v > 0; }
-		int GetNbItem()const;
+		size_t GetNbItem()const;
 
 		double GetE(const CGridPoint& pt)const { return GetE(pt.m_x, pt.m_y, pt.m_z, pt.GetExposition(), pt.m_shore); }
 		double GetE(double x, double y, double elev, double expo, double shore)const;
@@ -41,10 +47,9 @@ namespace WBSF
 		bool HaveExposition()const { return HaveExposition(m_v); }
 		bool HaveShore()const { return HaveShore(m_v); }
 		bool IsValid(bool bUseLatLon, bool bUseElev, bool bUseExpo, bool bUseShore)const { return IsValid(m_v, bUseLatLon, bUseElev, bUseExpo, bUseShore); }
+		
 
-		int m_v;
-
-		static size_t GetNbTerms() {return 1 << NB_TERMS;};
+		static int GetNbTerms() {return 1 << NB_TERMS;}
 		
 		static bool HaveLatLon(int v) { return v & LON || v & LON²|| v & LAT || v & LAT²; }
 		static bool HaveElevation(int v) { return v & ELEV || v & ELEV²; }
@@ -54,6 +59,9 @@ namespace WBSF
 		
 	protected:
 
+
+		int m_v;
+
 		static const char* TERMS_NAME[3*5];
 	};
 
@@ -62,6 +70,8 @@ namespace WBSF
 	class CGeoRegression : public CTermVector
 	{
 	public:
+
+		enum TRegressOpt { STRAIGHT_FOREWARD, SW_FOREWARD, SW_BACKWARD, SW_STEPWISE, NB_REGRESS_OPT };
 
 		CGeoRegression(size_t size = 0) :CTermVector(size) { m_intercept = 0; m_R² = 0; }
 
@@ -74,6 +84,7 @@ namespace WBSF
 
 		}
 
+		CGeoRegression(const std::vector<int>& in) { operator=(in); }
 		CGeoRegression& operator=(const std::vector<int>& in)
 		{
 			resize(in.size());
@@ -103,6 +114,16 @@ namespace WBSF
 			return bRep;
 		}
 
+		std::vector<int> GetOrder()const
+		{
+			std::vector<int> order(size());
+			for (size_t i = 0; i < size(); i++)
+				order[i] = at(i).GetInt();
+			
+			return order;
+		}
+		
+
 	protected:
 
 		//parameter of term
@@ -130,7 +151,12 @@ namespace WBSF
 
 	protected:
 
-		ERMsg StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, CCallback& callback)const;
+		ERMsg StraightForeward(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, size_t maxLevel, CCallback& callback)const;
+		ERMsg Foreward(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, size_t maxLevel, CCallback& callback)const;
+		ERMsg Backward(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, size_t maxLevel, CCallback& callback)const;
+		ERMsg StepWise(const CGridPointVector& calibPts, std::vector<int>& regressionTerm, double criticalR2, size_t maxLevel, CCallback& callback)const;
+
+		
 
 		//regression term
 		CGeoRegression m_regression;
