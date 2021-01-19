@@ -398,7 +398,9 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 		int rel = 72;
 		short size = 6;
 		if (head.Find("release 7.2") >= 0 ||
-			(head.Find("release 8.2") >= 0 && head.Find("version 5.1") >= 0 && head.Find("1994")>=0))
+			(head.Find("release 8.2") >= 0 && head.Find("version 5.1") >= 0 && head.Find("1994")>=0) 
+			
+			)
 		{
 			rel = 72;
 			size = 8;
@@ -410,7 +412,9 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 				firstRec[i] = tmp;
 			}
 		}
-		else if (head.Find("release 8.2") >= 0)
+		else if ( (head.Find("release 8.2") >= 0) ||
+			(head.Find("release 9.1") >= 0 && head.Find("version  6.1") >= 0 )
+			)
 		{
 			rel = 82;
 			size = 6;
@@ -423,7 +427,7 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 			AfxMessageBox(_T("release not supported"));
 		}
 
-		if (firstRec[0] == 2 || firstRec[0] == 3 || firstRec[0] == 4 || firstRec[0] == 127)
+		if (firstRec[0] == 2 || firstRec[0] == 3 || firstRec[0] == 4 || firstRec[0] == 127|| firstRec[0] == 128)
 		{
 			INT_PTR pos = colArray.GetSize();
 			colArray.SetSize(pos + 1);
@@ -454,7 +458,8 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 				case 2: col.m_name.Format("Constant %d", col.m_no); break;
 				case 3: col.m_name.Format("Column %d", col.m_no); break;
 				case 4: col.m_name.Format("Matrix %d", col.m_no); break;
-				case 127:col.m_name.Format("Unknown %d", col.m_no); break;
+				case 127:
+				case 128:col.m_name.Format("Unknown %d", col.m_no); break;
 				default: ASSERT(false);
 				}
 			}
@@ -465,7 +470,7 @@ bool CMiniTab2CSVDlg::ReadVersionIBM(CFile& mtw, CMTWColomnArray& colArray)
 				{
 					VERIFY(mtw.Read(&(col.m_data.GetData()[i]), 4) == 4);
 				}
-				else if (firstRec[0] == 127)
+				else if (firstRec[0] == 127|| firstRec[0] == 128)
 				{
 					long tmp;
 					VERIFY(mtw.Read(&tmp, 4) == 4);
