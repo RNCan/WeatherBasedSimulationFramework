@@ -317,44 +317,44 @@ namespace WBSF
 
 		vector<int> order = CTerm::GetOrder(maxLevel);
 		//add new terms to model until the r² improvement is < threshold
-		bool bContinueLoop1 = true;
-		while (bContinueLoop1&&msg)
-		{
-			bool bContinueLoop2 = true;
+		//bool bContinueLoop1 = true;
+		//while (bContinueLoop1&&msg)
+		//{
+			//bool bContinueLoop2 = true;
 			//find the next term
-			for (size_t j = 0; j < order.size() && bContinueLoop2&&msg; j++)
+		for (size_t j = 0; j < order.size()/* && bContinueLoop2*/ && msg; j++)
+		{
+			if (CTerm::IsValid(order[j], bUseLatLon, bUseElev, bUseExpo, bUseShore))
 			{
-				if (CTerm::IsValid(order[j], bUseLatLon, bUseElev, bUseExpo, bUseShore))
+				//Verify that term i is not in the model
+				//bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(order[j])) != regression.end();
+
+				//if the term isn't in the model, test the improvement achieved by adding it.
+				//if (!alreadyIn)
+				//{
+				CGeoRegression regression2 = regression;
+				regression2.push_back(CTerm(order[j]));
+
+				double R² = regression2.Compute(calibPts, m_prePostTransfo);
+				double adjR² = 1 - ((1 - R²)*(calibPts.size() - 1)) / (calibPts.size() - regression2.size() - 1);
+
+				if (adjR² - bestR² > criticalR2)
 				{
-					//Verify that term i is not in the model
-					bool alreadyIn = std::find(regression.begin(), regression.end(), CTerm(order[j])) != regression.end();
-
-					//if the term isn't in the model, test the improvement achieved by adding it.
-					if (!alreadyIn)
-					{
-						CGeoRegression regression2 = regression;
-						regression2.push_back(CTerm(order[j]));
-
-						double R² = regression2.Compute(calibPts, m_prePostTransfo);
-						double adjR² = 1 - ((1 - R²)*(calibPts.size() - 1)) / (calibPts.size() - regression2.size() - 1);
-						
-						if (adjR² - bestR² > criticalR2)
-						{
-							//add the term and restart from beginning
-							regression.push_back(CTerm(order[j]));
-							bestR² = adjR²;
-							bContinueLoop2 = false;
-						}
-					}//if not already in
+					//add the term and restart from beginning
+					regression.push_back(CTerm(order[j]));
+					bestR² = adjR²;
+					//bContinueLoop2 = false;
 				}
+				//}//if not already in
+			}
 
-				msg += callback.StepIt(0);
-			} //for all term
+			msg += callback.StepIt(0);
+		} //for all term
 
-			bContinueLoop1 = !bContinueLoop2;
-		}
+		//bContinueLoop1 = !bContinueLoop2;
+	//}
 
-		//transfer parameters
+	//transfer parameters
 		regressionTerm = regression.GetOrder();
 
 
@@ -462,7 +462,7 @@ namespace WBSF
 		callback.PushTask("Backward optimization", NOT_INIT);
 
 		//start with all terms that have positive R²
-		msg = Foreward(calibPts, regressionTerm, criticalR2/10.0, maxLevel, callback);
+		msg = StraightForeward(calibPts, regressionTerm, 0.001, maxLevel, callback);
 		if (!msg)
 			return msg;
 
@@ -658,7 +658,7 @@ namespace WBSF
 
 
 
-	
+
 
 	ERMsg CSpatialRegression::Initialization(CCallback& callback)
 	{
