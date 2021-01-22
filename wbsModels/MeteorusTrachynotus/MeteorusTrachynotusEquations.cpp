@@ -130,9 +130,6 @@ namespace WBSF
 		static const double P[NB_EQUATIONS][4] =
 		{
 			//  x      s
-			//{ 0.0000, 0.3321, 0.5, 2.0 },//Immature (egg,larva) in OBL or SBW
-			//{ 0.0000, 0.1325, 0.7, 1.5 },//Pupa
-			//{ 0.0000, 0.4317, 0.2, 3.0},//Adult longevity
 			{ 0.0000, 0.3608, 0.4, 2.5 },//Immature (egg,larva) in initial OBL
 			{ 0.0000, 0.2829, 0.5, 2.0 },//Immature (egg,larva) in subsequent generations OBL or SBW
 			{ 0.0000, 0.1328, 0.7, 1.5 },//Pupa

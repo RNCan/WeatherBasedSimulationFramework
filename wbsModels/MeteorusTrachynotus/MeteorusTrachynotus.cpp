@@ -33,7 +33,6 @@ namespace WBSF
 		//host is actually unknowns, will be set later
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
-			//will be int later when host type will be known
 			m_δ[s] = Equations().Getδ(s, generation);
 		}
 
@@ -51,9 +50,6 @@ namespace WBSF
 		if (&in != this)
 		{
 			CIndividual::operator=(in);
-
-			//m_OBLPostDiapause = in.m_OBLPostDiapause;
-			//m_OBLPostDiapause_δ = in.m_OBLPostDiapause_δ;
 
 			m_δ = in.m_δ;
 			m_Pmax = in.m_Pmax;
@@ -97,11 +93,7 @@ namespace WBSF
 				double T = weather[h][H_TAIR];
 
 				//Relative development rate for time step
-
 				double r = m_δ[s] * Equations().GetRate(s, m_generation, T) / nbSteps;
-
-				//if (s == ADULT) //Set maximum longevity to 100 days
-					//r = max(1.0 / (100.0*nbSteps), r);
 
 				//Adjust age
 				if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
@@ -147,8 +139,6 @@ namespace WBSF
 	// Output:  Individual's state is updated to follow update
 	void CMeteorusTrachynotus::Die(const CWeatherDay& weather)
 	{
-		//ASSERT(!m_diapauseTRef.IsInit() || fabs(m_age - GetStand()->m_diapauseAge)<0.0001);
-
 		//attrition mortality. Killed at the end of time step 
 		if (GetStage() == DEAD_ADULT)
 		{
@@ -240,23 +230,7 @@ namespace WBSF
 		}
 	}
 
-	//*****************************************************************************
-	// IsDeadByAttrition is for one time step development
-	// Output: TRUE if the insect dies, FALSE otherwise
-	//*****************************************************************************
-	//bool CMeteorusTrachynotus::IsDeadByAttrition(size_t s, double T)
-	//{
-	//	bool bDeath = false;
-
-
-	//	//Computes attrition (probability of survival in a given time step, based on daily rate)
-	//	double survival = pow(Equations().GetSurvivalRate(s, T), 1.0 / GetTimeStep().NbSteps());
-	//	if (RandomGenerator().Randu() > survival)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
-
+	
 	bool CMeteorusTrachynotus::CanPack(const CIndividualPtr& in)const
 	{
 		CMeteorusTrachynotus* pIn = static_cast<CMeteorusTrachynotus*>(in.get());
@@ -266,11 +240,6 @@ namespace WBSF
 	void CMeteorusTrachynotus::Pack(const CIndividualPtr& pBug)
 	{
 		CMeteorusTrachynotus* in = (CMeteorusTrachynotus*)pBug.get();
-
-		//m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-	//	m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-	//	m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-
 		CIndividual::Pack(pBug);
 	}
 

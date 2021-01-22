@@ -1,7 +1,7 @@
 ﻿//*****************************************************************************
 // Class: CObliqueBandedLeafroller, CObliqueBandedLeafrollerHost, CObliqueBandedLeafrollerStand
 //
-// Description:	CObliqueBandedLeafroller represent a spruce budworm insect or a group of insect with same carractéristics. 
+// Description:	CObliqueBandedLeafroller represent a insect or a group of insect with same carractéristics. 
 //				CObliqueBandedLeafrollerHost represent the tree that contain CObliqueBandedLeafroller. 
 //				CObliqueBandedLeafrollerStand represent the tree that contain CSWBTree. 
 //*****************************************************************************
@@ -50,7 +50,6 @@ namespace WBSF
 		virtual size_t GetNbStages()const{ return OBL::NB_STAGES; }
 		virtual CIndividualPtr CreateCopy()const{ return std::make_shared<CObliqueBandedLeafroller>(*this); }
 		virtual bool IsInDiapause(CTRef TRef)const{ return m_bRequireDiapause || (GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear()); }
-		//virtual bool IsInDiapause2(CTRef TRef)const{ return (GetStage() == OBL::L3D && TRef.GetYear() == m_diapauseTRef.GetYear()); }
 
 	protected:
 
@@ -99,8 +98,6 @@ namespace WBSF
 	typedef std::shared_ptr<CObliqueBandedLeafrollerStand> CObliqueBandedLeafrollerStandPtr;
 
 	//WARNING: cast must be defined here to avoid bug
-	//inline CIndividualPtrContainer* CObliqueBandedLeafroller::GetHost(){ return dynamic_cast<CIndividualPtrContainer*>(m_pHost); }
-	//inline const CIndividualPtrContainer* CObliqueBandedLeafroller::GetHost()const{ return dynamic_cast<const CIndividualPtrContainer*>(m_pHost); }
 	inline CObliqueBandedLeafrollerStand* CObliqueBandedLeafroller::GetStand(){ ASSERT(m_pHost); return static_cast<CObliqueBandedLeafrollerStand*>(m_pHost->GetStand()); }
 	inline const CObliqueBandedLeafrollerStand* CObliqueBandedLeafroller::GetStand()const{ ASSERT(m_pHost); return static_cast<const CObliqueBandedLeafrollerStand*>(m_pHost->GetStand()); }
 	inline CObliqueBandedLeafrollerEquations& CObliqueBandedLeafroller::Equations(){ return GetStand()->m_equations; }

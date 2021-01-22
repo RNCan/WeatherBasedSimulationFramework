@@ -230,22 +230,7 @@ namespace WBSF
 		}
 	}
 
-	//*****************************************************************************
-	// IsDeadByAttrition is for one time step development
-	// Output: TRUE if the insect dies, FALSE otherwise
-	//*****************************************************************************
-	//bool CObliqueBandedLeafroller::IsDeadByAttrition(size_t s, double T)
-	//{
-	//	bool bDeath = false;
-
-
-	//	//Computes attrition (probability of survival in a given time step, based on daily rate)
-	//	double survival = pow(Equations().GetSurvivalRate(s, T), 1.0 / GetTimeStep().NbSteps());
-	//	if (RandomGenerator().Randu() > survival)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
+	
 
 	bool CObliqueBandedLeafroller::CanPack(const CIndividualPtr& in)const
 	{
@@ -256,10 +241,6 @@ namespace WBSF
 	void CObliqueBandedLeafroller::Pack(const CIndividualPtr& pBug)
 	{
 		CObliqueBandedLeafroller* in = (CObliqueBandedLeafroller*)pBug.get();
-
-		//m_Pmax = (m_Pmax*m_scaleFactor + in->m_Pmax*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		//m_Pᵗ = (m_Pᵗ*m_scaleFactor + in->m_Pᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		//m_Eᵗ = (m_Eᵗ*m_scaleFactor + in->m_Eᵗ*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
 		CIndividual::Pack(pBug);
 	}

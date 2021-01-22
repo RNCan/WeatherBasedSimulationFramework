@@ -52,7 +52,6 @@ namespace WBSF
 		virtual WBSF::CIndividualPtr CreateCopy()const{ return std::make_shared<CSpruceBudworm>(*this); }
 		virtual bool NeedOverheating()const{ return !(GetStage() == SBW::L2o || GetStage() == SBW::ADULT); }
 		virtual bool IsInDiapause(CTRef TRef)const{ return GetStage() == SBW::L2o && (TRef.GetYear() == m_overwinteringDate.GetYear()); }
-		//virtual bool IsInDiapause2(CTRef TRef)const{ return GetStage() == SBW::L2o && (TRef.GetYear() == m_overwinteringDate.GetYear()); }
 
 		double GetRelativeDevRate(size_t s)const { _ASSERTE(s >= 0 && s < SBW::NB_STAGES); return m_relativeDevRate[s]; } //Reports individual's relative development rate in "stage" 
 		void ResetRelativeDevRate();
@@ -67,7 +66,7 @@ namespace WBSF
 		static double get_Tair(const CWeatherDay& weather, double h);
 		static double get_Prcp(const CWeatherDay& weather, double h);
 		static double get_WndS(const CWeatherDay& weather, double h);
-//		double GetFlightActivity(const CHourlyData& weather, double tau);
+
 		bool ComputeExodus(double T, double P, double W, double tau);
 		bool ComputeExodus(const CWeatherDay& weather);
 		bool GetExodus()const{ return m_bExodus; }
@@ -80,11 +79,11 @@ namespace WBSF
 		double GetFº()const{ return m_Fº; }
 		double GetFᴰ()const{ return m_Fᴰ; }
 		double GetF()const { return m_F; }
-		//double GetLiftoffHour()const{ return m_liftoff_hour; }
+
 
 	protected:
 
-//		static double GetAttritionRate(size_t s, double Tin);
+
 		double GetRelativeDevRate(double T, double r)const;
 
 		bool IsDeadByAttrition(double RR)const;
@@ -118,7 +117,7 @@ namespace WBSF
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];
 		static const double POTENTIAL_FECONDITY;
 		static double GetEnergyLost(double T);
-		//static const bool ALWAYSE_APPLY_ADULT_ATTRITION;
+
 	};
 
 	class CSBWTree : public CHost
@@ -139,7 +138,7 @@ namespace WBSF
 		bool GetHatchDate(CTRef& ref, double& d)const;
 
 		bool m_bAutumnCleaned;
-		//Defoliation
+		//Defoliation: uncomment to get defoliation
 		//	double m_budDensity;//number of bud by branche
 		//	double GetDefoliation()const{ return 1-m_foliageRatio; }
 		//	void Eated(double feding){ m_bugsFeeding += feding;}

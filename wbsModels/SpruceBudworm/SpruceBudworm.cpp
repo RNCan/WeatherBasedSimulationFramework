@@ -207,13 +207,6 @@ namespace WBSF
 		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR], r);
-		//correction for defoliation (from 1 to .75 between 50 and 100 %)
-		//if (s >= L3 && s <= L6) //commented by RSA 03-08-2018
-		//{
-		//	double defFactor = max(0.75, 1.0 - max(0.0, m_D - 50.0)*0.005);
-		//	RR *= defFactor;
-		//}
-
 
 		//development rate for white spruce is accelerated by a factor
 		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
@@ -325,9 +318,6 @@ namespace WBSF
 			if (m_F - broods < 5.74)//avoid very small egg deposition
 				broods = m_F;
 
-			//if ((m_totalBroods + broods) > m_Fᴰ)
-				//broods = m_Fᴰ - m_totalBroods;
-
 			//Don't apply survival here. Survival must be apply in brooding
 			m_broods = broods;
 			m_totalBroods += broods;
@@ -348,7 +338,6 @@ namespace WBSF
 
 
 			//compute weight from forewing area and female gravidity
-			//m_M = Equations().get_M(m_sex, m_A, (m_Fᴰ - m_totalBroods) / m_Fº, true);
 			m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;
 		}
 	}
@@ -391,23 +380,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = FROZEN;
 		}
-		//else if (GetStage() == ADULT && GetStand()->m_adult_longivity_max > NO_MAX_ADULT_LONGEVITY)
-		//{
-		//	ASSERT(m_emergingPupaeDate.IsInit());
-		//	if (weather.GetTRef().as(CTM::DAILY) - m_emergingPupaeDate > GetStand()->m_adult_longivity_max)
-		//	{
-		//		//adult reach maximum longevity. Kill it.
-		//		m_age = DEAD_ADULT;
-		//		m_status = DEAD;
-		//		m_death = OLD_AGE;
-		//	}
-		//	
-		//}
-		/*else if (m_bRemoveExodus)
-		{
-			m_status = DEAD;
-			m_death = EXODUS;
-		}*/
+		
 
 	}
 
@@ -606,54 +579,6 @@ namespace WBSF
 	}
 
 
-
-
-
-	//bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᴹ)const
-	//{
-	//	static const __int64 Δtᶠ = 5 * 3600;//s
-	//	static const __int64 Δtᶳ = 3600;//s
-	//	static const __int64 Δt = 60;//s
-	//	static const double Tº = 25.4;//°C
-
-	//	__int64 tᵀº = 0;
-
-
-	//	CSun sun(wº.GetLocation().m_lat, wº.GetLocation().m_lon, wº.GetLocation().GetTimeZone());
-	//	__int64 tᶳ = (sun.GetSunset(wº.GetTRef())) * 3600;//[s]
-	//	if (tᶳ > 12 * 3600)//if sunset is after noon (avoid problem in north)
-	//	{
-
-	//		//first estimate of exodus info
-	//		tº = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours
-	//		tᴹ = tᶳ + 4 * 3600; // maximum at 1:00 daylight saving time next day, -1 for normal time
-
-
-	//		ASSERT(tº > 0);
-	//		for (__int64 t = tº; t <= tᴹ && tᵀº == 0; t += Δt)
-	//		{
-	//			//sunset hour shifted by t
-	//			double h = t / 3600.0;
-	//			const CWeatherDay& w = h < 24 ? wº : wº.GetNext();
-
-	//			//temperature interpolation between 2 hours
-	//			double Tair = get_Tair(w, h < 24 ? h : h - 24.0);
-	//			if (Tair <= Tº)
-	//				tᵀº = t;
-	//		}
-
-	//		ASSERT(tᵀº != 0);
-	//		if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 Normal time
-	//			tᵀº = 22 * 3600;
-
-	//		//now calculate the real tº, tᶬ and tᶜ
-	//		tº = max(tº, tᵀº);
-	//		tᴹ = min(tº + Δtᶠ, tᴹ);
-	//	}
-
-	//	return tᵀº != 0;
-	//}
-
 	//tᶳ [in]: sunset [s] (since the begginning of the day)
 	//tº [out]: start of liftoff [s] (since the begginning of the day)
 	//tᴹ [out]: end of liftoff [s] (since the begginning of the day)
@@ -803,9 +728,6 @@ namespace WBSF
 
 		m_D = (m_D*m_scaleFactor + in->m_D*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
 
-		//m_liftoff_hour = (m_liftoff_hour*m_scaleFactor + in->m_liftoff_hour*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-		//m_flightActivity = (m_flightActivity*m_scaleFactor + in->m_flightActivity*in->m_scaleFactor) / (m_scaleFactor + in->m_scaleFactor);
-
 		CIndividual::Pack(pBug);
 	}
 
@@ -853,21 +775,6 @@ namespace WBSF
 		CHost::GetStat(d, stat, generation);
 
 		stat[S_AVERAGE_INSTAR] = GetAI(true);
-
-		//CStatistic sum;
-		//CStatistic weight;
-		//size_t nbStages = (*begin())->GetNbStages();
-		//for (const_iterator it = begin(); it != end(); it++)
-		//{
-		//	if ((*it)->GetStage() == ADULT && (*it)->GetSex() == FEMALE &&
-		//		(*it)->IsAlive() )//|| (*it)->GetStage()==DEAD_ADULT)
-		//	{
-		//		sum += (*it)->GetStageAge()*(*it)->GetScaleFactor();
-		//		weight += (*it)->GetScaleFactor();
-		//	}
-		//}
-
-		//stat[S_FEMALE_AGE] = (weight.IsInit() && weight[SUM] > 0) ? sum[SUM] / weight[SUM] : CBioSIMModelBase::VMISS;;
 	}
 
 
@@ -893,51 +800,7 @@ namespace WBSF
 
 		return stat[NB_VALUE] > 0;
 	}
-	//
-	//CTRef CSBWTree::GetFirstHatchDate()const
-	//{
-	//	_ASSERT( size()>0 );
-	//	return size()>0?at(0)->GetCreationDate():CTRef();
-	//}
-
-	//double CSBWTree::GetHU(CDailyWaveVector& T)
-	//{
-	//	static const double TZERO=2.78;
-	//	double hu = 0;
-	//
-	//	for(int h=0; h<(int)T.size(); h++)
-	//        hu += Max(0.0, (T[h]-TZERO))/T.size();
-	//
-	//	return hu;
-	//}
-	//
-	////Update defoliation ratio of the tree
-	////Update m_foliageRatio
-	//void CSBWTree::UpdateDefoliation()
-	//{
-	//	static const double UZERO	= 4.80;
-	//	static const double UMAX	= 231.30;
-	//	static const double WASTE	= 0.4;
-	//
-	//
-	//	if( m_bugsFeeding > 0 )	
-	//	{
-	//		double totalFoliage=0;
-	//		switch(m_kind)
-	//		{
-	//		case BALSAM_FIR: totalFoliage=m_budDensity*(UZERO+UMAX*(1-exp(-pow((m_hu/689.7),2.651))));break;
-	//		case WHITE_SPRUCE: totalFoliage=m_budDensity*(UZERO+UMAX*(1-exp(-pow((m_hu/589.7), 3.051)))); break;
-	//		default: _ASSERTE(false);
-	//		}
-	//			
-	//		double availableFoliage = totalFoliage*m_foliageRatio;
-	//		double currentFoliage= Max(0.0, availableFoliage-(1.0+WASTE)*m_bugsFeeding);
-	//
-	//		m_foliageRatio=currentFoliage/totalFoliage;
-	//		
-	//		m_bugsFeeding=0;
-	//	}
-	//}
+	
 
 	//remove all bugs of generation 0 and all non L2o
 	void CSBWTree::CleanUp()
@@ -954,205 +817,5 @@ namespace WBSF
 	}
 
 
-	//void CSpruceBudworm::Live(const CWeatherDay& weather)
-	//{
-	//	assert(IsAlive());
-	//	assert(m_status == HEALTHY);
-
-	//	//For optimization, nothing happens when temperature is under -10
-	//	if (weather[H_TMIN][MEAN] < -10)
-	//		return;
-
-
-	//	CIndividual::Live(weather);
-
-	//	CSBWTree* pTree = GetTree();
-	//	CSBWStand* pStand = GetStand();
-
-	//	static const double OVERHEAT_FACTOR = 0.11;
-	//	COverheat overheat(OVERHEAT_FACTOR);
-
-	//	size_t nbSteps = GetTimeStep().NbSteps();
-	//	for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
-	//	{
-	//		size_t h = step*GetTimeStep();
-	//		size_t s = GetStage();
-	//		double T = weather[h][H_TAIR];
-	//		if (NeedOverheating())
-	//			T += overheat.GetOverheat(weather, h);
-
-	//		//Time step development rate
-	//		double r = Equations().GetRate(s, m_sex, T) / nbSteps;
-	//		//Relative development rate
-	//		double RR = GetRelativeDevRate(weather[h][H_TAIR], r);
-
-	//		//development rate for white spruce is accelerated by a factor
-	//		if (pTree->m_kind == CSBWTree::WHITE_SPRUCE)
-	//			RR *= WHITE_SPRUCE_FACTOR[s];
-
-
-	//		//If we became L2o this year, then we stop
-	//		//development until the next year  (diapause)
-	//		if ((s == L2o && m_overwinteringDate.GetYear() == weather.GetTRef().GetYear()))
-	//			RR = 0;
-
-	//		//this line avoid to develop L2 of the generation 1
-	//		if (GetStand()->m_bStopL22 && s == L2 && m_generation == 1)
-	//			RR = 0;
-
-	//		//If we became a new L2o, then we note the date(year)
-	//		if (s == L1 && IsChangingStage(RR))
-	//			m_overwinteringDate = weather.GetTRef();
-
-	//		//Emerging 
-	//		if (s == L2o && IsChangingStage(RR))
-	//			m_emergingL2oDate = weather.GetTRef();
-
-	//		//Adjust age
-	//		m_age += RR;
-
-	//		//adjust overwintering energy
-	//		if (s == L2o)
-	//			m_OWEnergy -= GetEnergyLost(weather[h][H_TAIR]) / nbSteps;
-
-	//		//Compute defoliation on tree
-	//		m_eatenFoliage += GetEatenFoliage(RR);
-
-	//		if (IsDeadByAttrition(RR))
-	//			m_bKillByAttrition = true;
-	//	}
-
-	//	//flight activity, only in live adults 
-	//	if (GetStage() == ADULT)
-	//	{
-	//		m_flightActivity = GetFlightActivity(weather);
-	//	}
-
-	//	m_age = min(m_age, double(DEAD_ADULT));
-	//}
-
-	//double prcp = -1;
-	//double sumF = 0;
-	//double k0 = 10.;
-	//double k1 = -8.25;
-	//double twoPi = 2 * 3.14159 / 24.;
-	//double fourPi = 4 * 3.14159 / 24.;
-
-	//size_t nbSteps = GetTimeStep().NbSteps();
-	//for (size_t step = 0; step < nbSteps; step++)
-	//{
-	//	size_t h = step*GetTimeStep();
-
-	//	//effect of time of day
-	//	//double time = nbSteps / 2. + 24 * h / nbSteps;
-
-
-	//	//TRES TRES ETRANGE....
-	//	double time = (double)h + GetTimeStep() / 2.0;
-	//	double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
-
-	//	//effect of temperature. The amplitude of sumF is independent of size of time step.
-	//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
-	//	if (prcp >= 0)
-	//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR]) / 9.52), 1.3));
-
-	//	sumF += F / nbSteps;
-	//}
-
-	//double f_ppt = max(0.0, 1.0 - pow(prcp / k0, 2));
-	//return sumF*f_ppt;
-
-	//if (!m_bAlreadyFlow)
-
-
-	//__int64 h4 = 4;
-
-
-	//double CSpruceBudworm::GetFlightActivity(const CWeatherDay& weather)
-	//{
-	//	static const double Δtᶠ = 3;
-	//	static const double Δtᶳ = -0.5;//j'ai mis 0.5 ici car j'ai l'impression que mon algo retourne une demi-heure plot tôt : à vérifier
-	//	static const double C = 1.0 - 2.0 / 3.0 + 1.0 / 5.0;
-	//	static const double K = 166;
-	//	static const double b[2] = { 21.35, 24.08 };
-	//	static const double c[2] = { 2.97, 6.63 };
-	//	static const double Tº = 24.5;
-	//	static const double Δt = 0.25;
-	//	static const size_t hᶬ = 23;//hᶬ is only a practical limit to avoid looking at the next day
-
-	//	const double Vmax = 65 * (m_sex == MALE ? 1 : 1.2);
-
-
-	//	double flight = 0;
-
-	//	if (m_p_exodus <= 1)
-	//	{
-	//		CSun sun(weather.GetLocation().m_lat, weather.GetLocation().m_lon);
-	//		double sunset = sun.GetSunset(weather.GetTRef());
-
-	//		//first estimate of tº and tᶬ to find Δtᵀ
-	//		double tº = -4;//subtract 4 hours
-	//		double tᶬ = 4;//add 4 hours
-	//		double Δtᵀ = 4;
-
-	//		for (double t = tº; t < tᶬ && Δtᵀ == 4; t += Δt)
-	//		{
-	//			//sunset hour shifted by t
-	//			double h = sunset + t;
-	//			size_t hº = size_t(h);
-	//			size_t h¹ = hº + 1;
-
-
-	//			//temperature interpolation between 2 hours
-	//			double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR];
-	//			if (T <= Tº)
-	//				Δtᵀ = t;
-	//		}
-
-
-	//		if (Δtᵀ < 4)//if the Δtᵀ is greater than 4, no temperature under Tº, then no exodus. probably rare situation
-	//		{
-	//			//now calculate the real tº, tᶬ and tᶜ
-	//			double tº = max(Δtᶳ - 0.5*Δtᶠ, double(Δtᵀ));
-	//			double tᶬ = min(4.0, tº + Δtᶠ);
-	//			double tᶜ = (tº + tᶬ) / 2;
-
-	//			//
-	//			double Mº = Equations().get_M(m_A, 1);//initial weight of mean gravid female
-	//			double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
-	//			double RM = Mᴬ / Mº; //ratio of actual vs initial weight female
-	//			double M = m_M*RM;	//actual weight is initial weight x ratio
-	//			double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight
-
-	//			//now compute tau, p and flight
-	//			for (double t = tº; t < tᶬ && flight == 0; t += Δt)
-	//			{
-	//				double tau = (t - tᶜ) / (tᶬ - tᶜ);
-	//				double p = (C + tau - 2 * pow(tau, 3) / 3 + pow(tau, 5) / 5) / (2 * C);
-	//				if (m_sex == MALE)
-	//					p *= 0.3 / 0.7;//sex ratio equilibrium
-
-	//				double h = sunset + t;
-	//				size_t hº = size_t(h);
-	//				size_t h¹ = hº + 1;
-
-
-	//				//temperature interpolation between 2 hours
-	//				double T = (h - hº)*weather[min(hᶬ, hº)][H_TAIR] + (h¹ - h)*weather[min(hᶬ, h¹)][H_TAIR];
-	//				if (T > 0)
-	//				{
-	//					double Vᵀ = Vmax*(1 - exp(-pow(T / b[m_sex], c[m_sex])));
-	//					if (Vᵀ > Vᴸ && p > m_p_exodus)
-	//					{
-	//						flight = 1;		//this insect is exodus
-	//						m_p_exodus = 10;//change exodus to ignore this insect for exodus
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//	return flight;
-	//}
 
 }

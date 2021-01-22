@@ -1,9 +1,6 @@
 ﻿//*****************************************************************************
 // Class: CMeteorusTrachynotus, CMeteorusTrachynotusHost, CMeteorusTrachynotusStand
 //
-// Description:	CMeteorusTrachynotus represent a spruce budworm insect or a group of insect with same carractéristics. 
-//				CMeteorusTrachynotusHost represent the tree that contain CMeteorusTrachynotus. 
-//				CMeteorusTrachynotusStand represent the tree that contain CSWBTree. 
 //*****************************************************************************
 
 #pragma once
@@ -79,7 +76,6 @@ namespace WBSF
 	class CMeteorusTrachynotusHost : public CHost
 	{
 	public:
-		//public members
 		
 		CMeteorusTrachynotusHost(WBSF::CStand* pStand);
 
