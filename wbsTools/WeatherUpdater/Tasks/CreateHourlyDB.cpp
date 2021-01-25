@@ -173,6 +173,11 @@ namespace WBSF
 		{
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::DAILY));
 			assert(p.GetTM().Type() == CTM::DAILY);
+			CTRef now = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
+			assert(p.Begin() <= now);
+			if (p.End() >= now)
+				p.End() = now - 1;
+
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
@@ -243,32 +248,38 @@ namespace WBSF
 		{
 			CTPeriod p = station.GetEntireTPeriod(CTM(CTM::ANNUAL));
 			CTRef this_year = CTRef::GetCurrentTRef(CTM(CTM::ANNUAL));
+			CTRef today = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
+
 			assert(p.Begin() <= this_year);
+			
 			//if (p.End() >= now)
 				//p.End() = now - 1;
 
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
+				size_t NbDaysPerYear = TRef >= this_year ? (today.GetJDay() + 1) : TRef.GetNbDaysPerYear();
+
+
 				CWVariablesCounter count = station[TRef].GetVariablesCount(true);
 				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
 				{
 					if (variables[v])
 					{
-						double completeness = 100.0 * count[v].first / TRef.GetNbDaysPerYear();
+						double completeness = 100.0 * count[v].first / NbDaysPerYear;
 						assert(completeness >= 0 && completeness <= 100);
 						if (completeness < annualCompleteness)
 						{
 							bool bClear = true;
 							if (TRef == this_year)
 							{
-								CTRef today = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
-								if (today.GetJDay() > 15)//check for minimum days after the 10 of january
-								{
+								
+								if (today.GetJDay() < 15)//check for minimum days after the 15 of january
+//								{
 									//minimum of 7 days (168 hours)
-									if (count[v].first >= 168)
-										bClear = false;
-								}
-								else
+	//								if (count[v].first >= 168)
+		//								bClear = false;
+			//					}
+				//				else
 								{
 									bClear = false;
 								}

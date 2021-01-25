@@ -86,7 +86,7 @@ namespace WBSF
 		return str;
 	}
 
-	const char* CEnvCanHourlyForecast::SERVER_NAME = "dd.weatheroffice.ec.gc.ca";
+	const char* CEnvCanHourlyForecast::SERVER_NAME = "dd.weather.gc.ca";
 	const char* CEnvCanHourlyForecast::SERVER_PATH = "/meteocode/";
 
 	//*********************************************************************
@@ -378,6 +378,12 @@ namespace WBSF
 
 		if (msg || m_bAlwaysCreate)
 		{
+			if (!msg)
+			{
+				callback.AddMessage(msg);
+				msg = ERMsg();
+			}
+
 			callback.PushTask("Create forecast database (" + to_string(m_regions.size()) + " regions)", m_regions.size());
 
 			//Create only one database for all forecast
@@ -406,8 +412,11 @@ namespace WBSF
 						msg += callback.StepIt(0);
 					}
 
-					for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end(); it++)
+					for (CWeatherStationVector::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+					{
 						DB.Add(*it);
+						msg += callback.StepIt(0);
+					}
 
 
 					msg += callback.StepIt();

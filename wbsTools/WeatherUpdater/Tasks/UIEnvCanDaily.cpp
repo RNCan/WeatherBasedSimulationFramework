@@ -626,16 +626,31 @@ namespace WBSF
 				msg = WinExecWait(command, "", SW_HIDE, &exit_code);
 				if (exit_code == 0 && FileExists(filePath))
 				{
-					/*if (GoodGrib(outputFilePath))
+					ifStream file;
+					msg += file.open(filePath);
+					if (msg)
 					{
-						nbDownloaded++;
-						CTRef TRef = GetRemoteTRef(fileList[i].m_filePath);
-						date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+						string line;
+						if (std::getline(file, line))
+						{
+							if (!WBSF::Find(line, "Climate ID"))
+							{
+								msg.ajoute("Error :" + line);
+								msg.ajoute(filePath);
+							}
+						}
+						else
+						{
+							msg.ajoute("Empty file: " + filePath);
+						}
+
+						file.close();
 					}
-					else
+
+					if (!msg)
 					{
-						msg = WBSF::RemoveFile(outputFilePath);
-					}*/
+						msg = WBSF::RemoveFile(filePath);
+					}
 				}
 				else
 				{

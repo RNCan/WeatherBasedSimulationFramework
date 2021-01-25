@@ -764,16 +764,31 @@ namespace WBSF
 							msg = WinExecWait(command, "", SW_HIDE, &exit_code);
 							if (exit_code == 0 && FileExists(filePath))
 							{
-								/*if (GoodGrib(outputFilePath))
+								ifStream file;
+								msg += file.open(filePath);
+								if (msg)
 								{
-									nbDownloaded++;
-									CTRef TRef = GetRemoteTRef(fileList[i].m_filePath);
-									date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+									string line;
+									if (std::getline(file, line))
+									{
+										if (!WBSF::Find(line, "Climate ID"))
+										{
+											msg.ajoute("Error :" + line);
+											msg.ajoute(filePath);
+										}
+									}
+									else
+									{
+										msg.ajoute("Empty file: " + filePath);
+									}
+
+									file.close();
 								}
-								else
+
+								if (!msg)
 								{
-									msg = WBSF::RemoveFile(outputFilePath);
-								}*/
+									msg = WBSF::RemoveFile(filePath);
+								}
 							}
 							else
 							{
@@ -1077,12 +1092,12 @@ namespace WBSF
 
 		//int nbYear = m_lastYear-m_firstYear+1;
 
-		enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
-		//Longitude (x)	Latitude (y)	Station Name	Climate ID	Date/Time	Year	Month	Day	Time	Temp (°C)	Temp Flag	Dew Point Temp (°C)	Dew Point Temp Flag	Rel Hum (%)	Rel Hum Flag	Wind Dir (10s deg)	Wind Dir Flag	Wind Spd (km/h)	Wind Spd Flag	Visibility (km)	Visibility Flag	Stn Press (kPa)	Stn Press Flag	Hmdx	Hmdx Flag	Wind Chill	Wind Chill Flag	Weather
+		enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, PRECIP, PRECIP_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
+		//"Longitude (x)", "Latitude (y)", "Station Name", "Climate ID", "Date/Time (LST)", "Year", "Month", "Day", "Time (LST)", "Temp (°C)", "Temp Flag", "Dew Point Temp (°C)", "Dew Point Temp Flag", "Rel Hum (%)", "Rel Hum Flag", "Precip. Amount (mm)", "Precip. Amount Flag", "Wind Dir (10s deg)", "Wind Dir Flag", "Wind Spd (km/h)", "Wind Spd Flag", "Visibility (km)", "Visibility Flag", "Stn Press (kPa)", "Stn Press Flag", "Hmdx", "Hmdx Flag", "Wind Chill", "Wind Chill Flag", "Weather"
 
 
-		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, -1, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
-		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 0, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
+		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, PRECIP, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
+		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 1, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
 
 
 
@@ -1098,7 +1113,7 @@ namespace WBSF
 //				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
 				if (loop.Header().size() != NB_INPUT_HOURLY_COLUMN)
 				{
-					msg.ajoute("Numbers of columns in Env Can hourly file" + to_string(loop.Header().size()) + "is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN));
+					msg.ajoute("Numbers of columns in Env Can hourly file (" + to_string(loop.Header().size()) + ") is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN));
 					msg.ajoute(filePath);
 					return msg;
 				}
@@ -1118,6 +1133,7 @@ namespace WBSF
 
 					bool bValid[NB_VAR_H] = { 0 };
 					bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
+					bValid[H_PRCP] = (*loop)[PRECIP_FLAG].empty() && !(*loop)[PRECIP].empty();
 					bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
 					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
 					bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M") && !(*loop)[RELHUM].empty();

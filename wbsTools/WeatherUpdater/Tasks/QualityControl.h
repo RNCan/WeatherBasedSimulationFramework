@@ -24,6 +24,9 @@ namespace WBSF
 
 		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 
+		ERMsg ExecuteHourly(CCallback& callback);
+		ERMsg ExecuteDaily(CCallback& callback);
+
 	};
 
 }

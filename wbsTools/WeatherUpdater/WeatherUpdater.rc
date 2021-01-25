@@ -252,8 +252,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,8,8,4
- PRODUCTVERSION 5,8,8,4
+ FILEVERSION 5,9,0,1
+ PRODUCTVERSION 5,9,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -270,21 +270,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.8.8.4"
+            VALUE "FileVersion", "5.9.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.8.8.4"
+            VALUE "ProductVersion", "5.9.0.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.8.8.4"
+            VALUE "FileVersion", "5.9.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.8.8.4"
+            VALUE "ProductVersion", "5.9.0.1"
         END
     END
     BLOCK "VarFileInfo"

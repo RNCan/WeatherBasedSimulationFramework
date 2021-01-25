@@ -1,3 +1,4 @@
+//5.9.0 25/01/2021	Rémi Saint-Amant	Update in EnvCan hourly, Daily and forecast
 //5.8.8	03/11/2020	Rémi Saint-Amant	Update for BC, Alberta and NB
 //5.8.7	12/06/2020	Rémi Saint-Amant	GSOD bug correction 
 //5.8.6	02/06/2020	Rémi Saint-Amant	Add GFS long forecast 
