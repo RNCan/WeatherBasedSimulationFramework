@@ -57,7 +57,6 @@ namespace WBSF
 		DDX_Control(pDX, IDC_FIT_INPUT_NAME, m_inputFileNameCtrl);
 		DDX_Control(pDX, IDC_FIT_OBS_TEMPERATURE, m_TobsFileNameCtrl);
 		DDX_Control(pDX, IDC_FIT_OUTPUT_NAME, m_ouputFileNameCtrl);
-		//DDX_Control(pDX, IDC_FIT_CALIB_ON, m_calibOnCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_DEV_RATE, m_eqDevRateCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_MORTALITY, m_eqSurvivalCtrl);
 		DDX_Control(pDX, IDC_FIT_FIXE_TB, m_fixeTbCtrl);
@@ -67,9 +66,9 @@ namespace WBSF
 		DDX_Control(pDX, IDC_FIT_FIXE_TM, m_fixeTmCtrl);
 		DDX_Control(pDX, IDC_FIT_TM, m_TmCtrl);
 		DDX_Control(pDX, IDC_FIT_TYPE, m_fitTypeCtrl);
+		DDX_Control(pDX, IDC_FIT_USE_OUTPUT_AS_INPUT, m_useOutputAsInputCtrl);
+		DDX_Control(pDX, IDC_FIT_SHOW_TRACE, m_ShowTraceCtrl);
 		
-		
-
 		
 		if (pDX->m_bSaveAndValidate)
 		{
@@ -89,6 +88,12 @@ namespace WBSF
 			m_sa.m_To = ToDouble(m_ToCtrl.GetString());
 			m_sa.m_bFixeTm = m_fixeTmCtrl.GetCheck();
 			m_sa.m_Tm = ToDouble(m_TmCtrl.GetString());
+
+
+			m_sa.m_bUseOutputAsInput = m_useOutputAsInputCtrl.GetCheck();
+			m_sa.m_bShowTrace = m_ShowTraceCtrl.GetCheck();
+			
+
 		}
 		else
 		{
@@ -138,6 +143,10 @@ namespace WBSF
 			m_ToCtrl.SetString(ToString(m_sa.m_To));
 			m_fixeTmCtrl.SetCheck(m_sa.m_bFixeTm);
 			m_TmCtrl.SetString(ToString(m_sa.m_Tm));
+
+			m_useOutputAsInputCtrl.SetCheck(m_sa.m_bUseOutputAsInput);
+			m_ShowTraceCtrl.SetCheck(m_sa.m_bShowTrace);
+
 		}
 
 	}

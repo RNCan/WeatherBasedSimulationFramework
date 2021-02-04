@@ -54,6 +54,9 @@ namespace WBSF
 		CCFLEdit		m_ToCtrl;
 		CButton			m_fixeTmCtrl;
 		CCFLEdit		m_TmCtrl;
+
+		CButton			m_useOutputAsInputCtrl;
+		CButton			m_ShowTraceCtrl;
 		// Overrides
 
 	protected:

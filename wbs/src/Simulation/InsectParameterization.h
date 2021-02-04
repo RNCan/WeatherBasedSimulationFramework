@@ -25,7 +25,7 @@ namespace WBSF
 
 	namespace DevRateInput
 	{
-		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TRAITMENT, /*I_TMIN, I_TMAX, I_T_PROFILE, I_TTYPE, */I_TIME, I_MEAN_TIME, I_TIME_STD, I_N, I_RELATIVE_TIME, I_Q_TIME, I_SURVIVAL, NB_DEV_INPUT };
+		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TRAITMENT, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, NB_DEV_INPUT };
 		enum TTobsCol {C_UNKNOWN = -1, C_TID, C_T, NB_TOBS_COL };
 		enum TTemperature { T_UNKNOWN = -1, T_CONSTANT, T_MIN_MAX, T_SINUS, T_TRIANGULAR, T_HOBO, NB_TMP_TYPE };
 		
@@ -71,10 +71,17 @@ namespace WBSF
 		size_t get_pos(DevRateInput::TDevTimeCol c)const;
 
 		std::vector< DevRateInput::TDevTimeCol> m_input_pos;
-		std::map<std::string, std::map<std::string, CStatisticEx>> m_stats;
+		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsTime;
+		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsRate;
 
 		bool m_bIndividual;
-		size_t GetMaxTime() const;
+		bool m_bAllTConstant;
+		//size_t GetMaxTime() const;
+		double GetDefaultSigma(const std::string& variable)const;
+		bool IsAllTConstant()const;
+		
+		static double ei(size_t n);
+		static double cv_2_sigma(double cv, size_t n);
 	};
 
 
@@ -97,6 +104,8 @@ namespace WBSF
 		bool have_var(DevRateInput::TTobsCol c)const { return get_pos(c) != NOT_INIT; }
 		size_t get_pos(DevRateInput::TTobsCol c)const;
 		std::vector< DevRateInput::TTobsCol> m_input_pos;
+
+		//bool IsAllFixed()const;
 	};
 
 
@@ -188,7 +197,7 @@ namespace WBSF
 		
 
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, USE_OUTPUT_AS_INPUT, SHOW_TRACE, TM_VALUE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -215,7 +224,8 @@ namespace WBSF
 		double m_To;
 		bool m_bFixeTm;
 		double m_Tm;
-
+		bool m_bUseOutputAsInput;
+		bool m_bShowTrace;
 
 
 		CSAControl m_ctrl;
@@ -250,6 +260,7 @@ namespace WBSF
 
 		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
+		void WriteInfoEx(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
 
 		double Exprep(const double& RDUM);
 
@@ -257,7 +268,7 @@ namespace WBSF
 		CTobsSeries m_Tobs;
 		CDevRateData m_devTime;
 		CSurvivalData m_survival;
-		CDevRateEqFile m_dev_rate_eq;
+		//CDevRateEqFile m_dev_rate_eq;
 
 
 		static const char* XML_FLAG;

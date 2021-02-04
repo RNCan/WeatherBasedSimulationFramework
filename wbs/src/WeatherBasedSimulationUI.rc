@@ -383,12 +383,12 @@ BEGIN
     PUSHBUTTON      "Préférence du recuit simulé",IDC_FIT_SA,226,177,122,18,BS_MULTILINE
     LTEXT           "Fichier d'entrées :",-1,7,61,68,8
     COMBOBOX        IDC_FIT_INPUT_NAME,90,58,258,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Variable, T, Time or MeanTime+TimeSD, N.\nT peut être une température ou un ID pour utiliser une série de température observées (hobo) dans un fichier séparé.",-1,90,77,258,28
+    LTEXT           "Variable, T, Time or MeanTime+TimeSD, N.\nT peut être une température ou un ID (identique à Tid) pour utiliser une série de température observées (hobo) dans un fichier séparé.",-1,90,77,258,28
     LTEXT           "Type de paramétrisation",-1,7,41,83,9
     CONTROL         "",IDC_FIT_EQ_DEV_RATE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,178,210,159
     LTEXT           "Fichier de sortie :",-1,7,147,68,8
     EDITTEXT        IDC_FIT_OUTPUT_NAME,90,145,258,12,ES_AUTOHSCROLL
-    LTEXT           "Nom du fichier d'entré si vide. Exporte dans sous répertoire output.",-1,90,163,258,10
+    LTEXT           "Nom du fichier de sortie dans sous répertoire output. %i = nom du fichier d'entré.",-1,90,163,258,10
     CONTROL         "Fixer Tb",IDC_FIT_FIXE_TB,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,235,228,39,14
     COMBOBOX        IDC_FIT_OBS_TEMPERATURE,90,110,258,158,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Températures Hobo :",-1,7,110,73,12
@@ -397,12 +397,13 @@ BEGIN
     CONTROL         "",IDC_FIT_EQ_MORTALITY,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,178,210,159
     COMBOBOX        IDC_FIT_TYPE,90,39,258,158,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Fixer Tm",IDC_FIT_FIXE_TM,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,235,260,40,14
-    COMBOBOX        IDC_FIT_BASE_ON,235,302,113,158,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Basé sur :",-1,225,286,45,8,NOT WS_VISIBLE
     EDITTEXT        IDC_FIT_TB,283,228,65,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_FIT_TM,283,262,65,12,ES_AUTOHSCROLL
     CONTROL         "Fixer To",IDC_FIT_FIXE_TO,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,235,244,40,14
     EDITTEXT        IDC_FIT_TO,283,244,65,12,ES_AUTOHSCROLL
+    CONTROL         "Afficher trace",IDC_FIT_SHOW_TRACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,235,296,113,14
+    CONTROL         "Utiliser le fichier de sortie comme fichier d'entré",IDC_FIT_USE_OUTPUT_AS_INPUT,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,158,83,14
 END
 
 IDD_WG_INPUT DIALOGEX 0, 0, 419, 354
@@ -4487,10 +4488,6 @@ BEGIN
 0x7553, 0x7672, 0x6569, "\000" 
     IDC_FIT_TYPE, 0x403, 12, 0
 0x764f, 0x7069, 0x736f, 0x7469, 0x6f69, 0x006e, 
-    IDC_FIT_BASE_ON, 0x403, 6, 0
-0x6554, 0x706d, 0x0073, 
-    IDC_FIT_BASE_ON, 0x403, 5, 0
-0x6154, 0x7875, "\000" 
     0
 END
 
@@ -6485,10 +6482,10 @@ BEGIN
     LTEXT           "Internal name:",-1,7,327,50,8
     PUSHBUTTON      "Simulated Annealing option",IDC_FIT_SA,270,169,108,17,BS_MULTILINE
     LTEXT           "Input file:",-1,7,65,68,8
-    LTEXT           "Variable, T, Time or MeanTime(TimeSD), N\nTid is used for observed temperature in a separate file",-1,96,78,281,19
+    LTEXT           "Variable, T, Time or MeanTime+TimeSD, N\nT can be a temperature or an ID (same as Tid) of observed temperature in a separate file",-1,96,78,281,19
     LTEXT           "Parametrization type",-1,7,43,82,8
     LTEXT           "Output file :",-1,7,140,68,8
-    LTEXT           "If empty, input file name. Output in output sub-directory.",-1,96,153,218,10
+    LTEXT           "Output file name in output sub-directory.. %i = input file name.",-1,96,153,218,10
     LTEXT           "Temperature observed:",-1,7,102,82,8
     PUSHBUTTON      "Equations options",IDC_FIT_EQ_OPTIONS,270,191,108,17,BS_MULTILINE
     COMBOBOX        IDC_FIT_INPUT_NAME,96,60,281,158,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
@@ -6498,14 +6495,14 @@ BEGIN
     COMBOBOX        IDC_FIT_TYPE,96,42,282,158,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "",IDC_FIT_EQ_DEV_RATE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,168,252,150
     LTEXT           "Tid,T. One line per hourly temperature",-1,96,119,282,12
-    COMBOBOX        IDC_FIT_BASE_ON,270,298,108,158,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Based on:",-1,270,286,45,8,NOT WS_VISIBLE
     CONTROL         "Fix Tb",IDC_FIT_FIXE_TB,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,271,229,39,14
     CONTROL         "Fix Tm",IDC_FIT_FIXE_TM,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,271,263,40,14
     EDITTEXT        IDC_FIT_TB,313,229,65,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_FIT_TM,313,263,65,12,ES_AUTOHSCROLL
     CONTROL         "Fix To",IDC_FIT_FIXE_TO,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,271,245,40,14
     EDITTEXT        IDC_FIT_TO,313,246,65,12,ES_AUTOHSCROLL
+    CONTROL         "Show trace",IDC_FIT_SHOW_TRACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,270,294,108,14
+    CONTROL         "Show trace",IDC_FIT_USE_OUTPUT_AS_INPUT,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,7,149,82,14
 END
 
 IDD_GENERATE_WU DIALOGEX 0, 0, 453, 118
@@ -8983,10 +8980,6 @@ BEGIN
 0x7553, 0x7672, 0x7669, 0x6c61, "\000" 
     IDC_FIT_TYPE, 0x403, 12, 0
 0x764f, 0x7069, 0x736f, 0x7469, 0x6f69, 0x006e, 
-    IDC_FIT_BASE_ON, 0x403, 5, 0
-0x6954, 0x656d, "\000" 
-    IDC_FIT_BASE_ON, 0x403, 5, 0
-0x6152, 0x6574, "\000" 
     0
 END
 

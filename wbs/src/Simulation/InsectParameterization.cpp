@@ -12,6 +12,9 @@
 #include "stdafx.h"
 #include <math.h>
 #include <sstream>
+#include <algorithm>
+#include <random>
+
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/poisson.hpp>
@@ -46,21 +49,105 @@ using namespace WBSF::DevRateInput;
 namespace WBSF
 {
 
-	//**********************************************************************************************
+	static const double SIGMA_DEFAULT = 0.2;
+	static const double SIGMA_MIN = 0.01;
+	static const double SIGMA_MAX = 1.7;
 
-	CStatisticEx GetRateStat(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T, double obs_time)
+	//	static const bool m_bShowInfoEx = true;
+
+		//**********************************************************************************************
+
+	double GetRateStat(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T, double obs_time)
 	{
 		CStatisticEx stat;
-		for (size_t t = 0; t < obs_time; t++)
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
+			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			stat += rate;//sum of hourly rate
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
+				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//sum of hourly rate
+
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+			//for (size_t t = 0; t < obs_time; t++)
+			stat += (obs_time*rate);//sum of hourly rate
+		}
+		else
+		{
+			for (size_t t = 0; t < obs_time; t++)
 			{
-				double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//daily rate
-				stat += rate;//sum of hourly rate
+				for (size_t h = 0; h < 24; h++)
+				{
+					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//daily rate
+					if (!isfinite(rate) || isnan(rate))
+						return NAN;
+
+					stat += rate;//sum of hourly rate
+				}
 			}
 		}
 
 		return stat;
+	}
+
+	//return time (days) to comple stage
+	double GetTimeStat(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T)
+	{
+		double time = 0;
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+		{
+			double rate = CDevRateEquation::GetRate(e, computation.m_XP, T[0]);//daily rate
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			if (rate > 0)
+				time = ceil(1 / rate);//sum of hourly rate
+			else
+				time = 1000.0*(1 - rate);//let a chnace to converge
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+			double rate = 0;
+			for (size_t h = 0; h < 24; h++)
+				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//sum of hourly rate
+
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+			//for (size_t t = 0; t < obs_time; t++)
+			//stat += (obs_time*rate);//sum of hourly rate
+
+			if (rate > 0)
+				time = ceil(1 / rate);//sum of hourly rate
+			else
+				time = 1000.0*(1 - rate);//let a chnace to converge
+		}
+		else
+		{
+			double sum_rate = 0;
+			for (size_t h = 0; h < T.size() && sum_rate < 1.0; h++)
+			{
+				double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//daily rate
+				if (!isfinite(rate) || isnan(rate))
+					return NAN;
+
+				sum_rate += rate;//sum of hourly rate
+				time += 1;
+			}
+
+			if (sum_rate >= 1)
+				time = ceil(time / 24.0);
+			else
+				time = 1000 / max(0.001, sum_rate);
+		}
+
+		return time;
 	}
 
 	double GetSurvival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double obs_time)
@@ -69,16 +156,51 @@ namespace WBSF
 			return 0;
 
 		double S = 1;
-		for (size_t t = 0; t < obs_time; t++)
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+		{
+			//daily survival
+			double s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[0]);
+			if (!isfinite(s) || isnan(s))
+				return NAN;
+
+
+			//multiplication of all daily survival
+			S = pow(s, obs_time);
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			for (size_t h = 0; h < 24; h++)
 			{
 				//daily survival
-				double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[t * 24 + h]);
+				double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[h]);
+				if (!isfinite(d_s) || isnan(d_s))
+					return NAN;
+
 				//hourly survival
 				double s = pow(d_s, 1.0 / 24.0);
 				//multiplication of all hourly survival
 				S *= s;
+			}
+
+			S = pow(S, obs_time);//a verifier????
+		}
+		else
+		{
+			for (size_t t = 0; t < obs_time; t++)
+			{
+				for (size_t h = 0; h < 24; h++)
+				{
+					//daily survival
+					double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[t * 24 + h]);
+					if (!isfinite(d_s) || isnan(d_s))
+						return NAN;
+
+
+					//hourly survival
+					double s = pow(d_s, 1.0 / 24.0);
+					//multiplication of all hourly survival
+					S *= s;
+				}
 			}
 		}
 
@@ -86,25 +208,58 @@ namespace WBSF
 	}
 
 
-	double Regniere2020DevRate(TDevRateEquation  e, double sigma, CComputationVariable& computation, const vector<double>& T, double ti)
+	double Regniere2021DevRate(TDevRateEquation  e, double sigma, CComputationVariable& computation, const vector<double>& T, double ti)
 	{
 		ASSERT(sigma > 0);
 
-		boost::math::lognormal_distribution<double> LogNormal(log(1) - Square(sigma) / 2.0, sigma);
 
-		double xi = 0;//integral (hourly summation) of daily rate for variable hourly temperature at day ti
-		double xiˉ¹ = 0;//integral (hourly summation) of daily rate for variable hourly temperature at day ti-1
-		for (size_t t = 0; t < ti; t++)
+		double xi = 0;
+		double xiˉ¹ = 0;
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			for (size_t h = 0; h < 24; h++)
-			{
-				double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h])) / 24.0;//hourly rate
-				if (!isfinite(rate) || isnan(rate))
-					return NAN;
+			//xi = integral (daily summation) of all daily rate at temperature at day ti
+			//xiˉ¹ = integral (dailysummation) of all daily rate at daily temperature at day ti-1
 
-				xi += rate;//sum of hourly rate
-				if (t < (ti - 1))
-					xiˉ¹ += rate;
+			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			xi = rate * ti;//sum of daily rate
+			xiˉ¹ = rate * (ti - 1);
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+			//xi = integral (hourly summation) of all hourly rate at hourly temperature at day ti
+			//xiˉ¹ = integral (hourly summation) of all hourly rate at hourly temperature at day ti-1
+
+			double rate = 0;
+			for (size_t h = 0; h < 24; h++)
+				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+
+			xi = rate * ti;//sum of daily rate
+			xiˉ¹ = rate * (ti - 1);
+		}
+		else
+		{
+			//xi = integral (hourly summation) of all hourly rate at hourly temperature at day ti
+			//xiˉ¹ = integral (hourly summation) of all hourly rate at hourly temperature at day ti-1
+			for (size_t t = 0; t < ti; t++)
+			{
+				for (size_t h = 0; h < 24; h++)
+				{
+					ASSERT(t * 24 + h < T.size());
+					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h])) / 24.0;//hourly rate
+					if (!isfinite(rate) || isnan(rate))
+						return NAN;
+
+					xi += rate;//sum of hourly rate
+					if (t < (ti - 1))
+						xiˉ¹ += rate;
+				}
 			}
 		}
 
@@ -113,31 +268,104 @@ namespace WBSF
 		xiˉ¹ = max(1E-20, xiˉ¹);
 
 		//compute probability of changing stage between ti-1 and ti
+		boost::math::lognormal_distribution<double> LogNormal(-0.5*Square(sigma), sigma);
 		double p = max(1e-200, cdf(LogNormal, 1.0 / xiˉ¹) - cdf(LogNormal, 1.0 / xi));
+		//double p = max(1e-200, cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹));
 
 		return log(p);
 	}
 
-	double Regniere2020DevRateMean(TDevRateEquation  e, double sigma_mean, CComputationVariable& computation, const vector<double>& T, double mean_time, double n)
+
+	double Regniere2021DevRateMeanSDn(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T, double mean_time, double time_SD, double n)
+	{
+		CStatistic stat_rate;
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+		{
+			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			stat_rate = rate;//mean daily rate
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+			double rate = 0;
+			for (size_t h = 0; h < 24; h++)
+				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			stat_rate = rate;//mean daily rate
+		}
+		else
+		{
+			for (size_t t = 0; t < mean_time; t++)
+			{
+				for (size_t h = 0; h < 24; h++)
+				{
+					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//rate for each hour
+					if (!isfinite(rate) || isnan(rate))
+						return NAN;
+
+					stat_rate += rate;//mean daily rate
+				}
+			}
+		}
+
+		//1E-20: avoid division by zero
+		double sim_time = 1.0 / max(1E-20, stat_rate[MEAN]);
+
+		//compute probability of changing stage between ti-1 and ti
+		boost::math::normal_distribution<double> Normal(0, time_SD / sqrt(n));
+
+		double p = max(1e-200, pdf(Normal, mean_time - sim_time));
+		return log(p);
+	}
+
+	double Regniere2021DevRateMean(TDevRateEquation  e, double sigma_mean, CComputationVariable& computation, const vector<double>& T, double mean_time, double n)
 	{
 		ASSERT(sigma_mean > 0);
 
 
 		CStatistic stat_rate;
-		for (size_t t = 0; t < mean_time; t++)
+		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			for (size_t h = 0; h < 24; h++)
-			{
-				double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//rate for each hourly
-				if (!isfinite(rate) || isnan(rate))
-					return NAN;
+			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
 
-				stat_rate += rate;//mean of rate
+			stat_rate = rate;//mean daily rate
+		}
+		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+
+			double rate = 0;
+			for (size_t h = 0; h < 24; h++)
+				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+
+			if (!isfinite(rate) || isnan(rate))
+				return NAN;
+
+			stat_rate = rate;//mean daily rate
+		}
+		else
+		{
+			for (size_t t = 0; t < mean_time; t++)
+			{
+				for (size_t h = 0; h < 24; h++)
+				{
+					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//rate for each hourly
+					if (!isfinite(rate) || isnan(rate))
+						return NAN;
+
+					stat_rate += rate;//mean of rate
+				}
 			}
 		}
 
 		//1E-20: avoid division by zero
-		double sim_time = 1.0/max(1E-20, stat_rate[MEAN]);
+		double sim_time = 1.0 / max(1E-20, stat_rate[MEAN]);
 
 		//compute probability of changing stage between ti-1 and ti
 		boost::math::normal_distribution<double> Normal(1, sigma_mean / sqrt(n));
@@ -149,8 +377,8 @@ namespace WBSF
 	double Regniere2020Survival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double mean_time, double k, double n)
 	{
 		double S = GetSurvival(e, computation, T, mean_time);
-		
-		
+
+
 		if (!isfinite(S) || isnan(S))
 			return S;
 
@@ -319,15 +547,20 @@ namespace WBSF
 			size_t i = it->second;
 			ASSERT(data[i].m_type != T_HOBO);
 
-			//bool bFromTime = data.have_var(I_TIME);
-			double needed_days_max = data[i].GetMaxTime();
-
-			double T = data[i].GetT();
-			double Tmin = data[i].GetTmin();
-			double Tmax = data[i].GetTmax();
-
-			for (size_t t = 0; t < needed_days_max; t++)
+			if (data[i].m_type == T_CONSTANT)
 			{
+				//constant T have only one value
+				double T = data[i].GetT();
+				(*this)[data[i].m_traitment].resize(1, T);
+			}
+			else if (data[i].m_type == T_MIN_MAX ||
+				data[i].m_type == T_SINUS ||
+				data[i].m_type == T_TRIANGULAR)
+			{
+				double T = data[i].GetT();
+				double Tmin = data[i].GetTmin();
+				double Tmax = data[i].GetTmax();
+
 				for (size_t h = 0; h < 24; h++)
 				{
 					double Ti = T;
@@ -342,15 +575,46 @@ namespace WBSF
 					}
 					else if (data[i].m_type == T_TRIANGULAR)
 					{
-						Ti = (Tmin + Tmax) / 2 + (Tmax - Tmin) / 2 * (fabs(12.0 - ((t + 6) % 24)) - 6.0) / 6.0;
+						Ti = (Tmin + Tmax) / 2 + (Tmax - Tmin) / 2 * (fabs(12.0 - ((h + 6) % 24)) - 6.0) / 6.0;
 					}
 
 
 					(*this)[data[i].m_traitment].push_back(Ti);
-				}
+				}//all hours
 			}
+			//else //HOBO
+			//{
+			//	double needed_days_max = data[i].GetMaxTime();
 
-		}
+			//	//double T = data[i].GetT();
+			//	//double Tmin = data[i].GetTmin();
+			//	//double Tmax = data[i].GetTmax();
+
+			//	for (size_t t = 0; t < needed_days_max; t++)
+			//	{
+			//		for (size_t h = 0; h < 24; h++)
+			//		{
+			//			double Ti = T;
+			//			if (data[i].m_type == T_MIN_MAX)
+			//			{
+			//				Ti = h < 12 ? Tmin : Tmax;
+			//			}
+			//			else if (data[i].m_type == T_SINUS)
+			//			{
+			//				double theta = 2 * PI*h / 24.0;
+			//				Ti = (Tmin + Tmax) / 2 + (Tmax - Tmin) / 2 * sin(theta);
+			//			}
+			//			else if (data[i].m_type == T_TRIANGULAR)
+			//			{
+			//				Ti = (Tmin + Tmax) / 2 + (Tmax - Tmin) / 2 * (fabs(12.0 - ((h + 6) % 24)) - 6.0) / 6.0;
+			//			}
+
+
+			//			(*this)[data[i].m_traitment].push_back(Ti);
+			//		}//all hours
+			//	}//all days
+			//}//T constant
+		}//al treatment
 	}
 
 
@@ -400,32 +664,42 @@ namespace WBSF
 	size_t CDevRateDataRow::GetMaxTime() const
 	{
 		size_t max_time = 0;
-		
+
 		if (find(I_TIME) != end())
 		{
 			max_time = at(I_TIME);
 		}
 		else if (find(I_MEAN_TIME) != end())
 		{
-			max_time = ceil(at(I_MEAN_TIME));
-			
-			if (find(I_TIME_STD) != end())
+			double mean = at(I_MEAN_TIME);
+			if (mean > 0)
 			{
-				double mean = at(I_MEAN_TIME);
-				double sd = at(I_TIME_STD);
-				if (mean > 0 && sd > 0)//in case of NA
+				max_time = ceil(mean);
+
+				if (find(I_TIME_SD) != end() && find(I_N) != end())
 				{
-					double mu = log(Square(mean) / sqrt(Square(sd) + Square(mean)));
-					double sigma = sqrt(log(Square(sd) / Square(mean) + 1));
-					boost::math::lognormal_distribution<double> obsLogNormal(mu, sigma);
+					//GetDefaultSigma();
+					size_t n = at(I_N);
+					double sd = at(I_TIME_SD);
 
-					//double q = at(I_N) / (at(I_N) + 1);
-					//max_time = ceil(quantile(obsLogNormal, q));
+					if (sd > 0)//in case of NA
+					{
+						double cv = sd / mean;
+						double sigma = CDevRateData::cv_2_sigma(cv, n);
+						boost::math::lognormal_distribution<double> obsLogNormal(-0.5*Square(sigma), sigma);
 
-					double alpha = 0.05;
-					double q =pow(alpha, 1.0 / at(I_N));
-					max_time = ceil(quantile(obsLogNormal, q));
+						double q = max(0.005, 1 / (n + 1.0));
+						double RDR = quantile(obsLogNormal, q);
 
+						max_time = ceil(mean / (RDR*exp(Square(sigma))));//estimate of time (approx)
+
+						//	//double alpha = 0.05;
+						//	//double q = pow(alpha, 1.0 / N);
+						//	//max_time = ceil(quantile(obsLogNormal, q));
+
+
+
+					}
 				}
 			}
 		}
@@ -433,7 +707,7 @@ namespace WBSF
 		return max_time;
 	}
 
-	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T",/*,"Tmin","Tmax", "Tid", "Ttype",*/"Time","MeanTime","TimeSD","N", "RDT", "qTime", "Survival" };
+	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T","Start", "Time","MeanTime","TimeSD","N", "RDT", "qTime", "Rate", "RDR", "qRate", "Survival" };
 	TDevTimeCol CDevRateData::get_input(const std::string& name)
 	{
 		TDevTimeCol col = I_UNKNOWN;
@@ -474,9 +748,9 @@ namespace WBSF
 			msg = load(file);
 			file.close();
 		}
-		
-		if(!msg)
-			msg.ajoute("Error when reading file:" +file_path);
+
+		if (!msg)
+			msg.ajoute("Error when reading file:" + file_path);
 
 		return msg;
 	}
@@ -515,9 +789,10 @@ namespace WBSF
 			{
 				if (loop->size() != m_input_pos.size())
 				{
-					msg.ajoute("Bad number of column for line:"+ loop->GetLastLine());
+					msg.ajoute("Bad number of column for line:" + loop->GetLastLine());
 					return msg;
 				}
+
 
 
 				CDevRateDataRow row;
@@ -534,27 +809,52 @@ namespace WBSF
 					}
 				}
 
+				if (have_var(I_TIME_SD) && row[I_TIME_SD] <= 0)
+				{
+					msg.ajoute("Standard deviation equal zero is not supported: " + loop->GetLastLine());
+					return msg;
+				}
+
+
 				row.m_type = get_TType(row.m_traitment);
-				
+
+				if (!have_var(I_START))
+					row[I_START] = 0.0;
+
 				if (!have_var(I_N))
 					row[I_N] = 1.0;
+
+				if (!have_var(I_RATE) && have_var(I_TIME))
+					row[I_RATE] = 1.0 / row[I_TIME];
 
 				push_back(row);
 
 				if (have_var(I_TIME))
 				{
 					for (size_t n = 0; n < row[I_N]; n++)
-						m_stats[row.m_variable][row.m_traitment].Add(row[I_TIME]);
+					{
+						m_statsTime[row.m_variable][row.m_traitment].Add(row[I_TIME]);
+						m_statsRate[row.m_variable][row.m_traitment].Add(row[I_RATE]);
+					}
+
+				}
+				else if (have_var(I_MEAN_TIME) && have_var(I_N))
+				{
+					for (size_t n = 0; n < row[I_N]; n++)
+						m_statsTime[row.m_variable][row.m_traitment].Add(row[I_MEAN_TIME]);
 				}
 			}
 		}
 
 		m_bIndividual = have_var(I_TIME);
-		if(m_bIndividual)
+		m_bAllTConstant = IsAllTConstant();
+
+		if (m_bIndividual)
 		{
+
 			//compute reative time and qtime
 			//for all variable
-			for (auto it = m_stats.begin(); it != m_stats.end(); it++)
+			for (auto it = m_statsTime.begin(); it != m_statsTime.end(); it++)
 			{
 				string variable = it->first;
 				vector<pair<double, size_t>> qTime;
@@ -569,14 +869,14 @@ namespace WBSF
 					double mean = iit->second[MEAN];
 					double n = iit->second[NB_VALUE];
 					N += n;
-					
+
 					for (size_t i = 0; i < size(); i++)
 					{
 						CDevRateDataRow& row = at(i);
 						if (row.m_variable == variable && row.m_traitment == traitment)
 						{
 							double rel_time = row[I_TIME] / mean;
-							row[I_RELATIVE_TIME] = rel_time;
+							row[I_RDT] = rel_time;
 							qTime.push_back(make_pair(rel_time, i));
 						}
 					}
@@ -584,71 +884,359 @@ namespace WBSF
 
 				sort(qTime.begin(), qTime.end());
 
-				double alpha = 0.05;
-				double p = 1.0 - pow(alpha, 1.0 / qTime.size());
+				//double alpha = 0.25;//alpha with 50% of the sample size
+				//double p = 1.0 - pow(alpha, 1.0 / qTime.size());
 
-				//double cumsum = 0;
-				//for (auto it = qTime.begin(); it != qTime.end(); it++)
-				for (size_t n = 0; n < qTime.size(); n++)
+				double alpha = 0.05;//95% of the range
+				//double p = 0.005; //99% of the range
+				double p = min(alpha, 1.0 - pow(alpha, 1.0 / qTime.size()));
+
+
+				////double cumsum = 0;
+				//for (size_t n = 0; n < qTime.size(); n++)
+				//{
+				//	//double q = p + (1.0 - 2.0*p)*n / (qTime.size() - 1);
+				//	//nn = (0:(N - 1)) / (N - 1)
+
+				//	double q = max(0.005, min(0.995, p + (1.0 - 2.0*p)*n / (qTime.size() - 1)));
+				//	CDevRateDataRow& row = at(qTime[n].second);
+				//	row[I_Q_TIME] = q;
+				//	//cumsum += row[I_N];
+				//}
+
+				double cumsum = 0;
+				for (auto it = qTime.begin(); it != qTime.end(); it++)
 				{
-					
-					double q = p + (1-2*p)*n / (qTime.size() - 1);
-
-					//double q = max(0.025, min(0.975, (cumsum + row[I_N] / 2) / N));
-					//double q = 0.05 + (0.95 - 0.05)*n / (qTime.size() - 1);
-
-					CDevRateDataRow& row = at(qTime[n].second);
+					CDevRateDataRow& row = at(it->second);
+					double q = max(0.005, min(0.995, (cumsum + row[I_N] / 2) / N));
 					row[I_Q_TIME] = q;
-					//cumsum += row[I_N];
+					cumsum += row[I_N];
 				}
+
+
 			}//for all variable
+
+
+
+			//compute reative rate and qRate
+			//for all variable
+			for (auto it = m_statsRate.begin(); it != m_statsRate.end(); it++)
+			{
+				string variable = it->first;
+				vector<pair<double, size_t>> qRate;
+				double N = 0;
+				CStatistic stat_qRate;
+
+				//for all treatment
+				for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+				{
+					string traitment = iit->first;
+
+					double mean = iit->second[MEAN];
+					double n = iit->second[NB_VALUE];
+					N += n;
+
+					for (size_t i = 0; i < size(); i++)
+					{
+						CDevRateDataRow& row = at(i);
+						if (row.m_variable == variable && row.m_traitment == traitment)
+						{
+							double RDR = row[I_RATE] / mean;
+							row[I_RDR] = RDR;
+							qRate.push_back(make_pair(RDR, i));
+						}
+					}
+				}//for all traitement
+
+				sort(qRate.begin(), qRate.end());
+
+				//double alpha = 0.25;//alpha with 50% of the sample size
+				//double p = 1.0 - pow(alpha, 1.0 / qTime.size());
+
+				double alpha = 0.05;//95% of the range
+				//double p = 0.005; //99% of the range
+				double p = min(alpha, 1.0 - pow(alpha, 1.0 / qRate.size()));
+
+
+				////double cumsum = 0;
+				//for (size_t n = 0; n < qTime.size(); n++)
+				//{
+				//	//double q = p + (1.0 - 2.0*p)*n / (qTime.size() - 1);
+				//	//nn = (0:(N - 1)) / (N - 1)
+
+				//	double q = max(0.005, min(0.995, p + (1.0 - 2.0*p)*n / (qTime.size() - 1)));
+				//	CDevRateDataRow& row = at(qTime[n].second);
+				//	row[I_Q_TIME] = q;
+				//	//cumsum += row[I_N];
+				//}
+
+				double cumsum = 0;
+				for (auto it = qRate.begin(); it != qRate.end(); it++)
+				{
+					CDevRateDataRow& row = at(it->second);
+					double q = max(0.005, min(0.995, (cumsum + row[I_N] / 2) / N));
+					row[I_Q_RATE] = q;
+					cumsum += row[I_N];
+				}
+
+
+			}//for all variable
+
+
+
+
 		}//if individual
-		//else if(have_var(I_MEAN_TIME) && have_var(I_TIME_STD))
-		//{
-		//	//create individual values from mean, sd and N
-		//	//for all variable
-		//	for (auto it = m_stats.begin(); it != m_stats.end(); it++)
-		//	{
-		//		string varible = it->first;
-		//		vector<pair<double, size_t>> qTime;
-		//		double N = 0;
-		//		//for all traitment of this variable
-		//		for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
-		//			N += iit->second[NB_VALUE];
-
-		//		for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
-		//		{
-		//			string traitment = iit->first;
-
-		//			double mean = iit->second[MEAN];
-		//			double sd = iit->second[STD_DEV];
-		//			double mu = log(Square(mean) / sqrt(Square(sd) + Square(mean)));
-		//			double sigma = sqrt(log(Square(sd) / Square(mean) + 1));
-		//			double n = iit->second[NB_VALUE];
-
-		//			boost::math::lognormal_distribution<double> LogNormal(mu, sigma);
-		//			for (size_t n = 0; n < N; n++)
-		//			{
-		//				//simulate N obs on the log-normal distribution with alpha = 0.05
-		//				double q = 0.025 + (0.975 - 0.025)*n / (N - 1);
-		//				double time = quantile(LogNormal, q);
-		//			}
-		//		}
+		else if (have_var(I_MEAN_TIME) && have_var(I_TIME_SD) && have_var(I_N))
+		{
 
 
-		//		double cumsum = 0;
-		//		for (auto it = qTime.begin(); it != qTime.end(); it++)
-		//		{
-		//			CDevRateDataRow& row = at(it->second);
-		//			double q = max(0.001, min(0.999, (cumsum + row[I_N] / 2) / N));
-		//			row[I_Q_TIME] = q;
-		//			cumsum += row[I_N];
-		//		}
-		//	}
-		//}
-		
+			//CDevRateData new_data;
+			////for all variable
+			//for (auto it = m_statsTime.begin(); it != m_statsTime.end(); it++)
+			//{
+			//	string variable = it->first;
+			//	//vector<pair<double, size_t>> qTime;
+
+			//	CStatistic stat_wm;
+			//	CStatistic stat_n;
+
+			//	//for all treatment
+			//	//for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+			//	//{
+			//		//string traitment = iit->first;
+
+			//		//double mean = iit->second[MEAN];
+			//		//double n = iit->second[NB_VALUE];
+
+			//	for (size_t i = 0; i < size(); i++)
+			//	{
+			//		CDevRateDataRow& row = at(i);
+			//		if (row.m_variable == variable/* && row.m_traitment == traitment*/)
+			//		{
+			//			double mean = row[I_MEAN_TIME];
+			//			double n = row[I_N];
+
+			//			if (n > 0)
+			//			{
+			//				stat_wm += mean * n;
+			//				stat_n += n;
+			//			}
+			//		}
+			//	}
+			//	//}//for all traitement
+
+
+			//	double M = stat_n[NB_VALUE];
+			//	double N = stat_n[SUM];
+			//	double wm = stat_wm[SUM] / N;
+			//	CStatistic stat_wsd;
+
+
+			//	//for all treatment
+			//	//for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+			//	//{
+			//		//string traitment = iit->first;
+
+			//		//double mean = iit->second[MEAN];
+			//		//double n = iit->second[NB_VALUE];
+
+			//	for (size_t i = 0; i < size(); i++)
+			//	{
+			//		CDevRateDataRow& row = at(i);
+			//		if (row.m_variable == variable /*&& row.m_traitment == traitment*/)
+			//		{
+			//			double mean = row[I_MEAN_TIME];
+			//			double n = row[I_N];
+			//			if (n > 0)
+			//			{
+			//				stat_wsd += n * Square(mean - wm);
+			//			}
+			//		}
+			//	}
+			//	//}//for all traitement
+
+			//	double wsd = sqrt(stat_wsd[SUM] / ((M - 1) / M * N));
+			//	double mu = log(Square(wm) / sqrt(Square(wsd) + Square(wm)));
+			//	double sigma = sqrt(log(Square(wsd) / Square(wm) + 1));
+			//	boost::math::lognormal_distribution<double> LogNormal(mu, sigma);
+
+
+			//	//randomize order 
+			//	vector<size_t> order(N);
+
+			//	for (size_t i = 0; i < N; i++)
+			//		order[i] = i;
+
+			//	auto rng = std::default_random_engine{};
+			//	std::shuffle(order.begin(), order.end(), rng);
+
+			//	//for all treatment 
+			//	//size_t ii = 0;
+			//	//for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+			//	//{
+			//		//string traitment = iit->first;
+
+			//		//double mean = iit->second[MEAN];
+			//		//double n = iit->second[NB_VALUE];
+			//		//N += n;
+
+			//	for (size_t i = 0, ii=0; i < size(); i++)
+			//	{
+			//		CDevRateDataRow& row = at(i);
+			//		if (row.m_variable == variable /*&& row.m_traitment == traitment*/)
+			//		{
+			//			for (size_t j = 0; j < size_t(row[I_N]); j++)
+			//			{
+			//				size_t n = order[ii];
+			//				double p = 0.005;
+			//				double q = p + (1.0 - 2 * p)*n / (N - 1);
+			//				double time = ceil( quantile(LogNormal, q));
+			//				//#row[I_Q_TIME] = q;
+			//				//ow[I_TIME] = time;
+			//				ii++;
+
+
+			//				CDevRateDataRow new_row = row;
+			//				new_row[I_Q_TIME] = q;
+			//				new_row[I_TIME] = time;
+			//				new_row[I_N] = 1;
+			//				new_data.push_back(new_row);
+			//			}
+			//		}
+			//	}
+			//	//}//for all traitement
+
+			//	//treat this simulation like an individual one
+
+			//}//for all variable
+
+
+			//new_data.m_bIndividual = true;
+			//*this = new_data;
+			//create individual values from mean, sd and N
+			//for all variable
+			//for (auto it = m_statsTime.begin(); it != m_statsTime.end(); it++)
+			//{
+			//	string varible = it->first;
+			//	vector<pair<double, size_t>> qTime;
+			//	double N = 0;
+			//	//for all traitment of this variable
+			//	for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+			//		N += iit->second[NB_VALUE];
+
+			//	for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+			//	{
+			//		string traitment = iit->first;
+
+			//		double mean = iit->second[MEAN];
+			//		double sd = iit->second[STD_DEV];
+			//		double mu = log(Square(mean) / sqrt(Square(sd) + Square(mean)));
+			//		double sigma = sqrt(log(Square(sd) / Square(mean) + 1));
+			//		double n = iit->second[NB_VALUE];
+
+			//		boost::math::lognormal_distribution<double> LogNormal(mu, sigma);
+			//		for (size_t n = 0; n < N; n++)
+			//		{
+			//			//simulate N obs on the log-normal distribution with alpha = 0.05
+			//			double q = 0.025 + (1.0 - 2*0.025)*n / (N - 1);
+			//			double time = quantile(LogNormal, q);
+			//		}
+			//	}
+
+			//	double cumsum = 0;
+			//	for (auto it = qTime.begin(); it != qTime.end(); it++)
+			//	{
+			//		CDevRateDataRow& row = at(it->second);
+			//		double q = max(0.001, min(0.999, (cumsum + row[I_N] / 2) / N));
+			//		row[I_Q_TIME] = q;
+			//		cumsum += row[I_N];
+			//
+			//	}
+			//}
+
+			//m_bIndividual = have_var(I_TIME);
+		}
+
 
 		return msg;
+	}
+
+	bool CDevRateData::IsAllTConstant()const
+	{
+		bool bAllTConstant = true;
+
+		for (size_t i = 0; i < size() && bAllTConstant; i++)
+			bAllTConstant = at(i).m_type == T_CONSTANT;
+
+		return bAllTConstant;
+	}
+
+	double CDevRateData::ei(size_t n) { return pow(1.0 + 1.0 / n, n); }
+	double CDevRateData::cv_2_sigma(double cv, size_t n)
+	{
+		static const double e = exp(1);
+		static const double p[3] = { 0.528196, 2.373248, 3.493202 };//with 10 000 replication
+		return e * cv*(1 - p[0] * sqrt(e - ei(n))) / (p[1] + cv * (1 - p[2] * sqrt(e - ei(n))));
+	}
+
+	double CDevRateData::GetDefaultSigma(const std::string& variable)const
+	{
+
+		CStatistic stat_ws;
+		CStatistic stat_n;
+
+
+		//compute sigma
+		if (m_bIndividual)
+		{
+			const std::map<std::string, CStatisticEx>& stat = m_statsTime.at(variable);
+			//for all treatment
+			for (auto it = stat.begin(); it != stat.end(); it++)
+			{
+				string traitment = it->first;
+
+				double mean = it->second[MEAN];
+				double sd = it->second[STD_DEV];
+				double n = it->second[NB_VALUE];
+				if (n > 0)
+				{
+					double cv = sd / mean;
+					double sigma = cv_2_sigma(cv, n);
+
+					stat_ws += n * sigma;
+					stat_n += n;
+				}
+			}
+		}
+		else
+		{
+
+
+			//for all treatment
+			for (size_t i = 0; i < size(); i++)
+			{
+				const CDevRateDataRow& row = at(i);
+				if (row.m_variable == variable)
+				{
+					double mean = row.at(I_MEAN_TIME);
+					double sd = row.at(I_TIME_SD);
+					double n = row.at(I_N);
+
+					if (n > 0)
+					{
+						double cv = sd / mean;
+						double sigma = cv_2_sigma(cv, n);
+
+						stat_ws += n * sigma;
+						stat_n += n;
+					}
+				}
+			}
+		}
+
+		ASSERT(stat_n[SUM] > 0);
+		double sigma = stat_ws[SUM] / stat_n[SUM];
+		return sigma;
 	}
 
 	//**********************************************************************************************
@@ -853,7 +1441,7 @@ namespace WBSF
 	//CInsectParameterization
 	const char* CInsectParameterization::DATA_DESCRIPTOR = "InsectParameterizationData";
 	const char* CInsectParameterization::XML_FLAG = "InsectParameterization";
-	const char* CInsectParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "FitType", "DevRateEquations", "SurvivalEquations","EquationsOptions", "InputFileName", "TobsFileName", "OutputFileName", "Control", "Fixe_Tb", "Tb_Value", "Fixe_To", "To_Value", "Fixe_Tm", "Tm_Value" };
+	const char* CInsectParameterization::MEMBERS_NAME[NB_MEMBERS_EX] = { "FitType", "DevRateEquations", "SurvivalEquations","EquationsOptions", "InputFileName", "TobsFileName", "OutputFileName", "Control", "Fixe_Tb", "Tb_Value", "Fixe_To", "To_Value", "Fixe_Tm", "Tm_Value", "UseOutputAsInput", "ShowTrace" };
 
 	const int CInsectParameterization::CLASS_NUMBER = CExecutableFactory::RegisterClass(CInsectParameterization::GetXMLFlag(), &CInsectParameterization::CreateObject);
 
@@ -883,13 +1471,16 @@ namespace WBSF
 		m_eq_options.clear();
 		m_inputFileName.clear();
 		m_TobsFileName.clear();
-		m_outputFileName.clear();
-		m_bFixeTb=false;
-		m_Tb=0;
-		m_bFixeTo=false;
-		m_To=20;
-		m_bFixeTm=false;
-		m_Tm=35;
+		m_outputFileName = "%i";//same as input file name
+		m_bFixeTb = false;
+		m_Tb = 0;
+		m_bFixeTo = false;
+		m_To = 20;
+		m_bFixeTm = false;
+		m_Tm = 35;
+		m_bUseOutputAsInput = false;
+		m_bShowTrace = false;
+
 
 		//m_calibOn = CO_RATE;
 //		m_bConverge01 = false;
@@ -928,11 +1519,14 @@ namespace WBSF
 			m_bFixeTb = in.m_bFixeTb;
 			m_Tb = in.m_Tb;
 			m_bFixeTo = in.m_bFixeTo;
-			m_To= in.m_To;
+			m_To = in.m_To;
 			m_bFixeTm = in.m_bFixeTm;
 			m_Tm = in.m_Tm;
+			m_bUseOutputAsInput = in.m_bUseOutputAsInput;
+			m_bShowTrace = in.m_bShowTrace;
 
-		
+
+
 			m_ctrl = in.m_ctrl;
 		}
 
@@ -954,11 +1548,13 @@ namespace WBSF
 		if (m_outputFileName != in.m_outputFileName) bEqual = false;
 		if (m_ctrl != in.m_ctrl)bEqual = false;
 		if (m_bFixeTb != in.m_bFixeTb)bEqual = false;
-		if (fabs(m_Tb - in.m_Tb)>0.1)bEqual = false;
+		if (fabs(m_Tb - in.m_Tb) > 0.1)bEqual = false;
 		if (m_bFixeTo != in.m_bFixeTo)bEqual = false;
 		if (fabs(m_To - in.m_To) > 0.1)bEqual = false;
 		if (m_bFixeTm != in.m_bFixeTm)bEqual = false;
 		if (fabs(m_Tm - in.m_Tm) > 0.1)bEqual = false;
+		if (m_bUseOutputAsInput != in.m_bUseOutputAsInput)bEqual = false;
+		if (m_bShowTrace != in.m_bShowTrace)bEqual = false;
 
 
 		return bEqual;
@@ -1065,14 +1661,10 @@ namespace WBSF
 
 		static const char* TYPE_NAME[NB_FIT_TYPE] = { "Development time (with sigma)","Development time only","Survival", "Oviposition" };
 		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
-		if (m_fitType == F_DEV_TIME_ONLY && bLogLikelyhoude)//base on mean rate only (no sigma)
-		{
-			msg.ajoute(string("Maximize log likelihood is not available for ")+ TYPE_NAME[m_fitType]+". Use minize residual sum of square instead.");
-			return msg;
-		}
 
 
-		
+
+
 
 		CResult resultDB;
 		msg = resultDB.Open(GetDBFilePath(GetPath(fileManager)), std::fstream::out | std::fstream::binary);
@@ -1114,27 +1706,6 @@ namespace WBSF
 					//msg += m_dev_rate_eq.load("G:/Travaux/LaricobiusOsakensis/Output/pre-selection(force32).csv");
 				}
 
-
-
-				if (!m_TobsFileName.empty())
-				{
-					string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
-					msg += m_Tobs.load(TobsFilePath);
-
-					if (msg)
-					{
-						if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
-						{
-							msg = m_Tobs.verify(m_devTime);
-						}
-						else if (m_fitType == F_SURVIVAL)
-						{
-							msg = m_Tobs.verify(m_survival);
-						}
-
-					}
-				}
-
 				//generate fixed temperature profile
 				if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 				{
@@ -1145,21 +1716,63 @@ namespace WBSF
 					m_Tobs.generate(m_survival);
 				}
 
-
-				if (m_fitType == F_DEV_TIME_WTH_SIGMA && 
-					!(m_devTime.m_bIndividual || ( m_devTime.have_var(I_MEAN_TIME) && m_devTime.have_var(I_N)) ))
+				if (!m_TobsFileName.empty())
 				{
-					msg.ajoute("Unable to use calibration with sigma when individual time or mean time and n is unavailable");
+					string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
+					msg += m_Tobs.load(TobsFilePath);
 				}
 
-				if (m_fitType == F_DEV_TIME_WTH_SIGMA && !bLogLikelyhoude)
+				//verify that all temperature profile have anought data
+				if (msg)
 				{
-					if (!(m_devTime.m_bIndividual || (m_devTime.have_var(I_MEAN_TIME) && m_devTime.have_var(I_TIME_STD) && m_devTime.have_var(I_N))))
+					if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 					{
-						msg.ajoute(string("Minimize residual sum of square is not available for ") + TYPE_NAME[m_fitType] + ". Use maximize log likelihood instead.");
+						msg = m_Tobs.verify(m_devTime);
+					}
+					else if (m_fitType == F_SURVIVAL)
+					{
+						msg = m_Tobs.verify(m_survival);
+					}
+
+				}
+
+
+
+				if (m_fitType == F_DEV_TIME_WTH_SIGMA &&
+					!(m_devTime.m_bIndividual || (m_devTime.have_var(I_MEAN_TIME) && m_devTime.have_var(I_TIME_SD) && m_devTime.have_var(I_N))))
+				{
+					msg.ajoute(string("Calibration of ") + TYPE_NAME[m_fitType] + " need individual Time or MeanTime, TimeSD and n");
+				}
+
+				//if (m_fitType == F_DEV_TIME_WTH_SIGMA && !bLogLikelyhoude)
+				//{
+				//	if (!(m_devTime.m_bIndividual || (m_devTime.have_var(I_MEAN_TIME) && m_devTime.have_var(I_TIME_SD) && m_devTime.have_var(I_N))))
+				//	{
+				//		msg.ajoute(string("Minimize residual sum of square for ") + TYPE_NAME[m_fitType] + " need individual Time or MeanTime, TimeSD and n.");
+				//		return msg;
+				//	}
+				//}
+				if (m_fitType == F_DEV_TIME_ONLY && m_devTime.m_bIndividual)//base on mean rate only (no sigma)
+				{
+					msg.ajoute(string("Calibration of \"") + TYPE_NAME[m_fitType] + "\" can not be used with individual Time. Use \"" + TYPE_NAME[F_DEV_TIME_WTH_SIGMA] + "\" instead or use MeanTime, TimeSD and n.");
+					return msg;
+				}
+
+				if (m_fitType == F_DEV_TIME_ONLY && !m_devTime.m_bIndividual)//base on mean rate only (no sigma)
+				{
+					if (!m_devTime.have_var(I_MEAN_TIME))
+					{
+						msg.ajoute(string("Calibration of ") + TYPE_NAME[m_fitType] + " need MeanTime.");
 						return msg;
 					}
 
+					/*if (!(m_devTime.m_bIndividual || (m_devTime.have_var(I_MEAN_TIME))))
+					{
+						msg.ajoute(string("Calibration of ") + TYPE_NAME[m_fitType] + " need individual Time or MeanTime.");
+						return msg;
+					}*/
+					//msg.ajoute(string("Maximize log likelihood is not available for ") + TYPE_NAME[m_fitType] + ". Use minize residual sum of square instead.");
+					//return msg;
 				}
 
 
@@ -1199,7 +1812,7 @@ namespace WBSF
 								TDevRateEquation eq = CDevRateEquation::eq(e);
 								string e_name = CDevRateEquation::GetEquationName(eq);
 
-								
+
 								CSAParameterVector params = CDevRateEquation::GetParameters(eq);
 								if (m_eq_options.find(e_name) != m_eq_options.end())
 								{
@@ -1218,7 +1831,7 @@ namespace WBSF
 										it->m_bounds = CVariableBound(m_Tb + Tk, m_Tb + Tk);
 									}
 								}
-								
+
 								if (m_bFixeTo)
 								{
 									auto it = find_if(params.begin(), params.end(), [](const CSAParameter & m) -> bool { return m.m_name == "To"; });
@@ -1240,9 +1853,17 @@ namespace WBSF
 								}
 
 								if (m_fitType == F_DEV_TIME_WTH_SIGMA)// add relative development rate variance
-									params.push_back(CSAParameter("sigma", 0.2, 0.01, 0.9));
-
-
+								{
+									double sigma = m_devTime.GetDefaultSigma(*v);//fixe sigma here
+									if (m_devTime.m_bIndividual)
+									{
+										params.push_back(CSAParameter("sigma", sigma, SIGMA_MIN, SIGMA_MAX));
+									}
+									else
+									{
+										params.push_back(CSAParameter("sigma", sigma, sigma, sigma));
+									}
+								}
 
 								CFitOutput out(*v, eq, params);
 								msg += InitialiseComputationVariable(out.m_variable, out.m_equation, out.m_parameters, out.m_computation, callback);
@@ -1293,7 +1914,7 @@ namespace WBSF
 					if (msg)
 					{
 						msg += Optimize(output[i].m_variable, output[i].m_equation, output[i].m_parameters, output[i].m_computation, callback);
-	
+
 #pragma omp critical(WRITE_INFO)
 						{
 							if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
@@ -1323,8 +1944,15 @@ namespace WBSF
 
 				if (true)
 				{
-					string outputFilePath = fileManager.GetOutputPath() + (!m_outputFileName.empty() ? m_outputFileName : GetFileTitle(m_inputFileName));
-					SetFileExtension(outputFilePath, ".csv");
+					string output_file_name = !m_outputFileName.empty() ? m_outputFileName : GetFileTitle(m_inputFileName);
+					SetFileExtension(output_file_name, ".csv");
+
+					ReplaceString(output_file_name, "%i", GetFileTitle(m_inputFileName));
+
+
+
+					string outputFilePath = fileManager.GetOutputPath() + output_file_name;
+
 
 					//begin to read
 					ofStream file;
@@ -1333,7 +1961,7 @@ namespace WBSF
 					ERMsg msg_file = file.open(outputFilePath);
 					if (msg_file)//save result event if user cancel or error
 					{
-						
+
 						sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
 						if (bLogLikelyhoude)
 							file << "Variable,EqName,P,Eq,Math,AICc,maxLL" << endl;
@@ -1504,12 +2132,18 @@ namespace WBSF
 		double F = m_ctrl.Max() ? computation.m_Fopt : -computation.m_Fopt;
 		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
 
+		CStatistic stat;
+		for (size_t i = 0, j = 0; i < computation.m_Xstat.size(); i++)
+			stat += 100.0*computation.m_Xstat[j][RANGE] / computation.m_Xstat[j][MEAN];
+
 		if (bLogLikelyhoude)
-			line = FormatA("N=%10d\tT=%9.5f\tF=%8.5lf\nAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_AICCopt, computation.m_MLLopt);
+			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, stat[HIGHEST], computation.m_AICCopt, computation.m_MLLopt);
 		else if (computation.m_Sopt[NB_VALUE] > 0)
-			line = FormatA("N=%10d\tT=%9.5f\tF=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²]);
+			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, stat[HIGHEST], computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²]);
 		else
 			line = "No optimum find yet...";
+
+
 
 		callback.AddMessage(line);
 
@@ -1519,9 +2153,9 @@ namespace WBSF
 		{
 
 			bool bShowRange = !computation.m_XPstat.empty() && computation.m_XPstat[0][NB_VALUE] > 0;
-			for (size_t i = 0, j = 0; i < parameters.size(); i++)
+			for (size_t j = 0; j < parameters.size(); j++)
 			{
-				string name = parameters[i].m_name; Trim(name);
+				string name = parameters[j].m_name; Trim(name);
 				string tmp;
 
 				if (bShowRange)
@@ -1534,12 +2168,91 @@ namespace WBSF
 				}
 
 				line += tmp;
-				j++;
 			}
 
 			callback.AddMessage(line);
 		}
 	}
+
+	void CInsectParameterization::WriteInfoEx(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback)
+	{
+		string line;
+		double F = m_ctrl.Max() ? computation.m_Fopt : -computation.m_Fopt;
+		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
+
+		CStatistic stat;
+		for (size_t i = 0, j = 0; i < computation.m_XPstat.size(); i++)
+			stat += 100.0*computation.m_XPstat[j][RANGE] / computation.m_XPstat[j][MEAN];
+
+		if (bLogLikelyhoude)
+			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, stat[HIGHEST], computation.m_AICCopt, computation.m_MLLopt);
+		else if (computation.m_Sopt[NB_VALUE] > 0)
+			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, stat[HIGHEST], computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²]);
+		else
+			line = "No optimum find yet...";
+
+
+
+		callback.AddMessage(line);
+
+
+		line.clear();
+		bool bShowRange = !computation.m_XPstat.empty() && computation.m_XPstat[0][NB_VALUE] > 0;
+		for (size_t i = 0, j = 0; i < parameters.size(); i++)
+		{
+			string name = parameters[i].m_name; Trim(name);
+			string tmp;
+
+			if (bShowRange)
+			{
+				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_Xopt[j], computation.m_XPstat[j][LOWEST], computation.m_XPstat[j][HIGHEST], computation.m_VMstat[j][LOWEST], computation.m_VMstat[j][HIGHEST]);
+			}
+			else
+			{
+				tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), computation.m_Xopt[j]);
+			}
+
+			line += tmp;
+			j++;
+		}
+
+		callback.AddMessage(line);
+		line.clear();
+
+
+		/*double eps = fabs(computation.m_Fopt - computation.m_F);
+		line = "Eps = [" + ToString(eps, -1) + "]{";
+
+		for (int i = 0; i < computation.m_FSTAR.size(); i++)
+		{
+
+			string tmp;
+			double eps = fabs(computation.m_F - computation.m_FSTAR[i]);
+
+			if (eps < 10e6)
+				tmp = FormatA("%8.5lf", eps);
+			else tmp = "-----";
+
+
+			if (i > 0)
+				line += ", ";
+
+			line += tmp;
+		}
+
+		line += "}";
+*/
+//callback.AddMessage(line);
+
+//callback.AddMessage("***********************************");
+//callback.StepIt(0);
+
+
+//clean X stats
+//for (size_t i = 0; i < computation.m_XPstat.size(); i++)
+	//computation.m_XPstat[i].Reset();
+	}
+
 
 	std::string CInsectParameterization::GetPath(const CFileManager& fileManager)const
 	{
@@ -1805,8 +2518,12 @@ namespace WBSF
 	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
 	{
 		ERMsg msg;
-		
-//  Initialize the random number generator RANMAR.
+
+
+		if (m_bShowTrace)
+			WriteInfoEx(parameters, computation, callback);
+
+		//  Initialize the random number generator RANMAR.
 		CRandomizeNumber random(m_ctrl.Seed1(), m_ctrl.Seed2());
 
 		bool bQuit = false;
@@ -1860,7 +2577,6 @@ namespace WBSF
 							if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
 							{
 								computation.m_XP[i] = computation.m_bounds[i].GetLowerBound() + computation.m_bounds[i].GetExtent()*random.Ranmar();
-
 								LNOBDS++;
 								computation.m_NOBDS++;
 							}
@@ -1965,14 +2681,17 @@ namespace WBSF
 				}//all VM
 			}//M
 
+			if (m_bShowTrace)
+				WriteInfoEx(parameters, computation, callback);
+
+
+			computation.m_Xstat = computation.m_XPstat;
 			for (size_t i = 0; i < computation.m_XPstat.size(); i++)
 				computation.m_XPstat[i].Reset();
 
 			//clean VM stats
 			for (size_t i = 0; i < computation.m_VMstat.size(); i++)
 				computation.m_VMstat[i].Reset();
-
-			//WriteInfo(parameters, computation, callback);
 
 			//  Loop again.
 			bQuit = fabs(computation.m_F - computation.m_Fopt) <= m_ctrl.EPS();
@@ -1997,11 +2716,15 @@ namespace WBSF
 		//bool bValid = false;
 		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
 		double log_likelyhoude = 0;
-		size_t N = 0;
+		size_t N_likelyhoude = 0;
+		//size_t N = 0;
 		CStatisticXYEx stat;
 
+		//ofStream file;
+		//file.open("G:\\Travaux\\Aproceros leucopoda\\Output\\test.csv");
+		//file << "Variable,T,Tsim,Tobs" << endl;
 
-		if (m_fitType == F_DEV_TIME_WTH_SIGMA)//use individual time
+		if (m_fitType == F_DEV_TIME_WTH_SIGMA)
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 			if (CDevRateEquation::IsParamValid(eq, computation.m_XP))
@@ -2012,104 +2735,58 @@ namespace WBSF
 				{
 					if (WBSF::IsEqualNoCase(m_devTime[i].m_variable, var))
 					{
-
-						if (m_devTime.m_bIndividual)
+						if (bLogLikelyhoude)//use likelyhood method
 						{
-							if (bLogLikelyhoude)
+							double LL = 0;
+
+							if (m_devTime.m_bIndividual)//use individual time
 							{
-								double LL = Regniere2020DevRate(eq, sigma, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
-								if (!isfinite(LL) || isnan(LL))
+								LL = Regniere2021DevRate(eq, sigma, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
+								LL *= m_devTime[i][I_N];
+							}
+							else//use mean+sd+n
+							{
+								//LL seem to not have to be mutiply by N!
+								LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
+							}
+
+							if (!isfinite(LL) || isnan(LL))
+								return;
+
+							log_likelyhoude += LL;
+							N_likelyhoude += m_devTime[i][I_N];
+						}
+						else//use least square method
+						{
+							if (m_devTime.m_bIndividual)//use individual time
+							{
+								double rate = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
+								if (!isfinite(rate) || isnan(rate))
 									return;
 
-								log_likelyhoude += LL * m_devTime[i][I_N];
-								N += m_devTime[i][I_N];
+								boost::math::lognormal_distribution<double> LogNormal(-0.5*Square(sigma), sigma);
+								double RDR = quantile(LogNormal, m_devTime[i][I_Q_RATE]);
+								double sim = rate * RDR;
+								double obs = m_devTime[i][I_RATE];
+								for (size_t n = 0; n < m_devTime[i][I_N]; n++)
+									stat.Add(sim, obs);
 							}
-							else
+							else//use mean+sd+n 
 							{
-								CStatisticEx rate_stat = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
+								double mean_time = GetTimeStat(eq, computation, m_Tobs[m_devTime[i].m_traitment]);
+								if (!isfinite(mean_time) || isnan(mean_time))
+									return;
 
-								boost::math::lognormal_distribution<double> LogNormal(log(1) - Square(sigma) / 2.0, sigma);
-								double rt = quantile(LogNormal, (1-m_devTime[i][I_Q_TIME]));
-								double sim = rate_stat[MEAN] * rt;
+								double obs = 1 / m_devTime[i][I_MEAN_TIME];//apply the same aproximation
+								double sim = 1 / mean_time;//apply the same aproximation
 
-								double obs = 1.0 / m_devTime[i][I_TIME];
 								for (size_t n = 0; n < m_devTime[i][I_N]; n++)
 									stat.Add(sim, obs);
 							}
 						}
-						else if (m_devTime.have_var(I_MEAN_TIME) && m_devTime.have_var(I_TIME_STD))//observation by class
-						{
-							double mean = m_devTime[i][I_MEAN_TIME];
-							double sd = m_devTime[i][I_TIME_STD];
-							double mu = log(Square(mean) / sqrt(Square(sd) + Square(mean)));
-							double obs_sigma = sqrt(log(Square(sd) / Square(mean) + 1));
-
-
-							boost::math::lognormal_distribution<double> obsLogNormal(mu, obs_sigma);
-							boost::math::lognormal_distribution<double> simLogNormal(log(1) - Square(sigma) / 2.0, sigma);
-
-
-							double alpha = 0.05;
-							double p = 1.0 - pow(alpha, 1.0 / m_devTime[i][I_N]);
-
-
-								
-
-							
-							for (size_t n = 0; n < m_devTime[i][I_N]; n++)
-							{
-								//simulate N obs on the log-normal distribution with alpha = 0.05
-								//double q = 0.025 + (0.975-0.025)*n / (m_devTime[i][I_N] - 1);
-								double q = p + (1 - 2*p)*n / (m_devTime[i][I_N] - 1);
-								double time = quantile(obsLogNormal, q);
-
-								if (bLogLikelyhoude)
-								{
-									double LL = Regniere2020DevRate(eq, sigma, computation, m_Tobs[m_devTime[i].m_traitment], time);
-									if (!isfinite(LL) || isnan(LL))
-										return;
-
-									log_likelyhoude += LL;
-									N ++;
-								}
-								else
-								{
-									//compute simulated value with the same quantile
-									CStatisticEx rate_stat = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], time);
-									double mean_rate = rate_stat[MEAN];
-									if (!isfinite(mean_rate) || isnan(mean_rate) || mean_rate<-1E8 || mean_rate>1E8)
-										return;
-
-									double rt = quantile(simLogNormal, (1-q) );
-									double sim = mean_rate * rt;
-									double obs = 1.0 / time;
-
-									stat.Add(sim, obs);
-								}
-							}
-
-						}
-						else
-						{
-							if (bLogLikelyhoude)
-							{
-								double sigma_e = sqrt(exp(Square(sigma)) - 1);
-								double LL = Regniere2020DevRateMean(eq, sigma_e, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_N]);
-								if (!isfinite(LL) || isnan(LL))
-									return;
-
-								log_likelyhoude += LL;
-								N += m_devTime[i][I_N];
-							}
-							else
-							{
-									
-							}
-						}
 					}//if valid
 				}//for
-
-			}
+			}//if valid parameters
 		}
 		else if (m_fitType == F_DEV_TIME_ONLY)//base on mean rate only (no sigma)
 		{
@@ -2123,27 +2800,37 @@ namespace WBSF
 					{
 						if (bLogLikelyhoude)
 						{
+
+							double LL = 0;
+							if (m_devTime.m_bIndividual)//use individual time
+							{
+								//ASSERT(false);
+								//LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
+							}
+							else
+							{
+								LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
+							}
+
+							if (!isfinite(LL) || isnan(LL))
+								return;
+
+							//log_likelyhoude += LL;
+							//N_likelyhoude++;
+							log_likelyhoude += LL/* * m_devTime[i][I_N]*/;
+							N_likelyhoude += m_devTime[i][I_N];
 						}
 						else
 						{
 							if (m_devTime[i][I_MEAN_TIME] > 0)
 							{
-								CStatisticEx rate_stat = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME]);
-
-								double obs = 1.0 / m_devTime[i][I_MEAN_TIME];
-								double sim = rate_stat[MEAN];
-								if (false)//???
-								{
-									if (sim < 0)
-										sim = -exp(1000 / sim);//let the code to give a chance to converge to the good direction
-									else if (sim > 1)
-										sim = 1 + exp(-1000 / (sim - 1));
-
-									//let the code to give a chance to converge to the good direction
-								}
-
-								if (!isfinite(sim) || isnan(sim) || sim<-1E8 || sim>1E8)
+								double mean_time = GetTimeStat(eq, computation, m_Tobs[m_devTime[i].m_traitment]);
+								if (!isfinite(mean_time) || isnan(mean_time) || mean_time<-1E8 || mean_time>1E8)
 									return;
+
+								double obs = 1.0 / m_devTime[i][I_MEAN_TIME];//apply the same approximation
+								double sim = 1.0 / mean_time;//apply the same approximation
+
 
 								for (size_t n = 0; n < m_devTime[i][I_N]; n++)
 									stat.Add(sim, obs);
@@ -2170,7 +2857,7 @@ namespace WBSF
 								return;
 
 							log_likelyhoude += LL;
-							N += m_survival[i][I_N];
+							N_likelyhoude += m_survival[i][I_N];
 						}
 						else
 						{//RSS
@@ -2195,10 +2882,10 @@ namespace WBSF
 
 		if (bLogLikelyhoude)
 		{
-			if (N > 0)
+			if (N_likelyhoude > 0)
 			{
 				double k = computation.m_XP.size();
-				double n = N;
+				double n = N_likelyhoude;
 				double AIC = 2 * k - 2 * (log_likelyhoude);
 				double AICc = AIC + (2 * k*(k + 1) / (n - k - 1));// n/k < 40
 
@@ -2212,7 +2899,8 @@ namespace WBSF
 			computation.m_FP = m_ctrl.AdjustFValue(stat[m_ctrl.m_statisticType]);
 			computation.m_SP = stat;
 		}
-		
+
+		//file.close();
 	}
 
 	void CInsectParameterization::writeStruc(zen::XmlElement& output)const
@@ -2234,7 +2922,9 @@ namespace WBSF
 		out[GetMemberName(TO_VALUE)](m_To);
 		out[GetMemberName(FIXE_TM)](m_bFixeTm);
 		out[GetMemberName(TM_VALUE)](m_Tm);
-		
+		out[GetMemberName(USE_OUTPUT_AS_INPUT)](m_bUseOutputAsInput);
+		out[GetMemberName(SHOW_TRACE)](m_bShowTrace);
+
 	}
 
 	bool CInsectParameterization::readStruc(const zen::XmlElement& input)
@@ -2255,6 +2945,11 @@ namespace WBSF
 		in[GetMemberName(TO_VALUE)](m_To);
 		in[GetMemberName(FIXE_TM)](m_bFixeTm);
 		in[GetMemberName(TM_VALUE)](m_Tm);
+		in[GetMemberName(USE_OUTPUT_AS_INPUT)](m_bUseOutputAsInput);
+		in[GetMemberName(SHOW_TRACE)](m_bShowTrace);
+
+
+
 
 		return true;
 	}

@@ -289,7 +289,8 @@ namespace WBSF
 		std::vector<double> m_XP;
 		std::vector<double> m_Xopt;
 		CStatisticVector m_XPstat;
-
+		CStatisticVector m_Xstat;
+		
 
 		double m_T;
 

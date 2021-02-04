@@ -592,6 +592,8 @@
 #define IDC_FIT_TM                      1293
 #define IDC_FIT_FIXE_TM                 1294
 #define IDC_MAP_REGRESSION_MODEL        1295
+#define IDC_FIT_SHOW_TRACE              1295
+#define IDC_FIT_USE_OUTPUT_AS_INPUT     1296
 #define IDC_FIT_FIXE_TO                 1297
 #define IDC_FIT_TO                      1298
 #define IDC_CMN_NEWPRJ_NAME             1350
