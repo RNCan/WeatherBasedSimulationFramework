@@ -1,15 +1,12 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27428.2011
+VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelBase", "..\..\wbs\msvc\ModelBase.vcxproj", "{DD3A2586-EF87-438E-9304-33FB8179A04C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurst", "BudBurst.vcxproj", "{BEA70323-CFD3-401D-9FBB-807B1056C1F1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSBW", "BudBurstSBW.vcxproj", "{043A92A5-6A0F-47F4-A11D-642EDE4FF175}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LaricobiusOsakensis", "Leucopis.vcxproj", "{99102D3E-8A01-4265-9894-70824623E876}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,27 +32,19 @@ Global
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|Win32.Build.0 = Release|Win32
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.ActiveCfg = Release|x64
 		{DD3A2586-EF87-438E-9304-33FB8179A04C}.Release|x64.Build.0 = Release|x64
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Debug|Win32.ActiveCfg = Debug|Win32
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Debug|Win32.Build.0 = Debug|Win32
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Debug|x64.ActiveCfg = Debug|x64
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Debug|x64.Build.0 = Debug|x64
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Release|Win32.ActiveCfg = Release|Win32
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Release|Win32.Build.0 = Release|Win32
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Release|x64.ActiveCfg = Release|x64
-		{BEA70323-CFD3-401D-9FBB-807B1056C1F1}.Release|x64.Build.0 = Release|x64
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Debug|Win32.ActiveCfg = Debug|Win32
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Debug|Win32.Build.0 = Debug|Win32
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Debug|x64.ActiveCfg = Debug|x64
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Debug|x64.Build.0 = Debug|x64
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Release|Win32.ActiveCfg = Release|Win32
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Release|Win32.Build.0 = Release|Win32
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Release|x64.ActiveCfg = Release|x64
-		{043A92A5-6A0F-47F4-A11D-642EDE4FF175}.Release|x64.Build.0 = Release|x64
+		{99102D3E-8A01-4265-9894-70824623E876}.Debug|Win32.ActiveCfg = Debug|Win32
+		{99102D3E-8A01-4265-9894-70824623E876}.Debug|Win32.Build.0 = Debug|Win32
+		{99102D3E-8A01-4265-9894-70824623E876}.Debug|x64.ActiveCfg = Debug|x64
+		{99102D3E-8A01-4265-9894-70824623E876}.Debug|x64.Build.0 = Debug|x64
+		{99102D3E-8A01-4265-9894-70824623E876}.Release|Win32.ActiveCfg = Release|Win32
+		{99102D3E-8A01-4265-9894-70824623E876}.Release|Win32.Build.0 = Release|Win32
+		{99102D3E-8A01-4265-9894-70824623E876}.Release|x64.ActiveCfg = Release|x64
+		{99102D3E-8A01-4265-9894-70824623E876}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {60DFEC56-32AC-4DA6-930D-37835EA58F20}
+		SolutionGuid = {BC964F46-E7B7-465E-8F20-FB45F268870E}
 	EndGlobalSection
 EndGlobal
