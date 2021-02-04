@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.7.1:04/02/2021	Rémi Saint-Amant	New parametreisation of insect development time. Support likelihood and least square
+//											for individuals ansd mean+sd+n
 // 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
 //											Bug correction for variogram Cubic, Pentaspherical, Sine hole effect
 //											Change lower and upper bound and initial values for variogram Power
