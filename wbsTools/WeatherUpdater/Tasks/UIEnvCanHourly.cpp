@@ -202,9 +202,9 @@ namespace WBSF
 						curI++;
 						nbRun = 0;
 					}
-					
+
 				}
-				
+
 				if (!msg && !callback.GetUserCancel() && nbRun < 5)
 				{
 					callback.AddMessage(msg);
@@ -545,7 +545,7 @@ namespace WBSF
 	//}
 
 
-	
+
 
 	//***********************************************************************************************************
 
@@ -634,7 +634,7 @@ namespace WBSF
 		//save event if they append an error...
 		msg += m_stations.Save(GetStationListFilePath());
 
-		
+
 		if (!msg)
 			return msg;
 
@@ -1084,6 +1084,71 @@ namespace WBSF
 		return ToInt(Tokenize(line, ":", pos));
 	}
 
+	enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, PRECIP, PRECIP_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMNS };
+	static const char* COLUMNS_NAME[NB_INPUT_HOURLY_COLUMNS] = { "Longitude (x)", "Latitude (y)", "Station Name", "Climate ID", "Date/Time (LST)", "Year", "Month", "Day", "Time (LST)", u8"Temp (°C)", "Temp Flag", u8"Dew Point Temp (°C)", "Dew Point Temp Flag", "Rel Hum (%)", "Rel Hum Flag", "Precip. Amount (mm)", "Precip. Amount Flag", "Wind Dir (10s deg)", "Wind Dir Flag", "Wind Spd (km/h)", "Wind Spd Flag", "Visibility (km)", "Visibility Flag", "Stn Press (kPa)", "Stn Press Flag", "Hmdx", "Hmdx Flag", "Wind Chill", "Wind Chill Flag", "Weather" };
+	const TVarH COL_VAR[NB_INPUT_HOURLY_COLUMNS] = { H_SKIP, H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,
+			H_TAIR, H_SKIP, H_TDEW, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_PRES, H_SKIP,
+			H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+	const double FACTOR[NB_VAR_H] = { 0, 1, 0, 1, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
+
+	static TVarH GetVariable(string header)
+	{
+
+
+
+
+		auto it = find_if(begin(COLUMNS_NAME), end(COLUMNS_NAME), [header](const char* name) {return IsEqual(header, name); });
+
+		if (it == end(COLUMNS_NAME))
+		{
+			throw ERMsg(ERMsg::ERREUR, "Unknow column header in EnvCan hourly data");
+		}
+
+		return COL_VAR[std::distance(begin(COLUMNS_NAME), it)];
+	}
+
+	static std::map<TVarH, size_t> GetVariables(StringVector headers)
+	{
+		if (!headers.empty() && headers[0].length() >= 3)
+		{
+			char c0 = headers[0][0];
+			char c1 = headers[0][1];
+			char c2 = headers[0][2];
+			//remove BOM if any
+			if(c0 == '\xef' && c1 == '\xbb' && c2 == '\xbf')
+				headers[0] = headers[0].substr(3);
+		}
+
+
+		std::map<TVarH, size_t> variables;
+		for (size_t i = 0; i < headers.size(); i++)
+		{
+			TVarH v = GetVariable(headers[i]);
+			if (v != H_SKIP)
+				variables[v] = i;
+		}
+
+		return variables;
+	}
+
+	bool IsValid(TVarH v, const StringVector& row)
+	{
+		bool bValid = false;
+		switch (v)
+		{
+		case H_TAIR: bValid = row.size()>= TEMPERATURE_FLAG &&(row[TEMPERATURE_FLAG].empty() || row[TEMPERATURE_FLAG] == "E") && !row[TEMPERATURE].empty(); break;
+		case H_PRCP: bValid = row.size()>= PRECIP_FLAG &&row[PRECIP_FLAG].empty() && !row[PRECIP].empty(); break;
+		case H_PRES: bValid = row.size()>= PRESSURE_FLAG &&row[PRESSURE_FLAG].empty() && !row[PRESSURE].empty(); break;
+		case H_TDEW: bValid = row.size()>= DEWPOINT_FLAG &&(row[DEWPOINT_FLAG].empty() || row[DEWPOINT_FLAG] != "M") && !row[DEWPOINT].empty(); break;
+		case H_RELH: bValid = row.size()>= RELHUM_FLAG &&(row[RELHUM_FLAG].empty() || row[RELHUM_FLAG] != "M") && !row[RELHUM].empty(); break;
+		case H_WNDS: bValid = row.size()>= WIND_SPEED_FLAG &&(row[WIND_SPEED_FLAG].empty() || row[WIND_SPEED_FLAG] != "E") && !row[WIND_SPEED].empty(); break;
+		case H_WNDD: bValid = row.size()>= WIND_DIR_FLAG &&(row[WIND_DIR_FLAG].empty() || row[WIND_DIR_FLAG] == "E") && !row[WIND_DIR].empty(); break;
+		default: ASSERT(false);
+		}
+
+		return bValid;
+	}
+
 
 
 	ERMsg CUIEnvCanHourly::ReadData(const string& filePath, CTM TM, CYear& data, CCallback& callback)const
@@ -1092,14 +1157,12 @@ namespace WBSF
 
 		//int nbYear = m_lastYear-m_firstYear+1;
 
-		enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, PRECIP, PRECIP_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMN };
-		//"Longitude (x)", "Latitude (y)", "Station Name", "Climate ID", "Date/Time (LST)", "Year", "Month", "Day", "Time (LST)", "Temp (°C)", "Temp Flag", "Dew Point Temp (°C)", "Dew Point Temp Flag", "Rel Hum (%)", "Rel Hum Flag", "Precip. Amount (mm)", "Precip. Amount Flag", "Wind Dir (10s deg)", "Wind Dir Flag", "Wind Spd (km/h)", "Wind Spd Flag", "Visibility (km)", "Visibility Flag", "Stn Press (kPa)", "Stn Press Flag", "Hmdx", "Hmdx Flag", "Wind Chill", "Wind Chill Flag", "Weather"
+		//const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, PRECIP, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
 
-
-		const int COL_POS[NB_VAR_H] = { -1, TEMPERATURE, -1, PRECIP, DEWPOINT, RELHUM, WIND_SPEED, WIND_DIR, -1, PRESSURE, -1, -1, -1, -1, -1 };
-		const double FACTOR[NB_VAR_H] = { 0, 1, 0, 1, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
-
-
+		map<TVarH, size_t> variables;
+		size_t TairColPos = NOT_INIT;
+		size_t TdewColPos = NOT_INIT;
+		size_t RelHColPos = NOT_INIT;
 
 		//now extract data 
 		ifStream file;
@@ -1111,14 +1174,30 @@ namespace WBSF
 			{
 				//new file don't have the DATA_QUALITY flag
 //				__int64 fix = (loop.Header().size() == NB_INPUT_HOURLY_COLUMN) ? 0 : -1;
-				if (loop.Header().size() != NB_INPUT_HOURLY_COLUMN)
+				/*if (loop.Header().size() != NB_INPUT_HOURLY_COLUMNS)
 				{
 					msg.ajoute("Numbers of columns in Env Can hourly file (" + to_string(loop.Header().size()) + ") is not the number expected " + to_string(NB_INPUT_HOURLY_COLUMN));
 					msg.ajoute(filePath);
 					return msg;
+				}*/
+
+				if (variables.empty())
+				{
+					variables = GetVariables(loop.Header());
+					if (variables.empty())
+					{
+						callback.AddMessage("Empty Env Can Hourly file: " + filePath);
+						return msg;
+					}
+
+					size_t TairColPos = variables[H_TAIR];
+					size_t TdewColPos = variables[H_TDEW];
+					size_t RelHColPos = variables[H_RELH];
+
+					ASSERT(TairColPos < NB_INPUT_HOURLY_COLUMNS&&TdewColPos < NB_INPUT_HOURLY_COLUMNS&&RelHColPos < NB_INPUT_HOURLY_COLUMNS);
 				}
 
-				if (loop->size() == NB_INPUT_HOURLY_COLUMN)
+				if ((*loop).size() >= TEMPERATURE)
 				{
 					int year = ToInt((*loop)[H_YEAR]);
 					int month = ToInt((*loop)[H_MONTH]) - 1;
@@ -1131,32 +1210,36 @@ namespace WBSF
 
 					CTRef TRef(year, month, day, hour);
 
-					bool bValid[NB_VAR_H] = { 0 };
-					bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
+					bool bValid[NB_VAR_H] = { false };
+					
+					/*bValid[H_TAIR] = ((*loop)[TEMPERATURE_FLAG].empty() || (*loop)[TEMPERATURE_FLAG] == "E") && !(*loop)[TEMPERATURE].empty();
 					bValid[H_PRCP] = (*loop)[PRECIP_FLAG].empty() && !(*loop)[PRECIP].empty();
 					bValid[H_PRES] = (*loop)[PRESSURE_FLAG].empty() && !(*loop)[PRESSURE].empty();
 					bValid[H_TDEW] = ((*loop)[DEWPOINT_FLAG].empty() || (*loop)[DEWPOINT_FLAG] != "M") && !(*loop)[DEWPOINT].empty();
 					bValid[H_RELH] = ((*loop)[RELHUM_FLAG].empty() || (*loop)[RELHUM_FLAG] != "M") && !(*loop)[RELHUM].empty();
 					bValid[H_WNDS] = ((*loop)[WIND_SPEED_FLAG].empty() || (*loop)[WIND_SPEED_FLAG] != "E") && !(*loop)[WIND_SPEED].empty();
 					bValid[H_WNDD] = ((*loop)[WIND_DIR_FLAG].empty() || (*loop)[WIND_DIR_FLAG] == "E") && !(*loop)[WIND_DIR].empty();
-
-					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+*/
+					//for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; v++)
+					for (auto it = variables.begin(); it != variables.end(); it++)
 					{
-						if (bValid[v])
+						TVarH v = it->first;
+						bValid[v] = IsValid(v, *loop);
+
+						if(bValid[v])
 						{
-							if (COL_POS[v] >= 0)
-							{
-								double value = ToDouble((*loop)[COL_POS[v]])*FACTOR[v];
-								data[TRef].SetStat(v, value);
-							}
+							size_t c = it->second;
+							ASSERT(c < (*loop).size());
+							double value = ToDouble((*loop)[c])*FACTOR[v];
+							data[TRef].SetStat(v, value);
 						}
 					}
 
 					if (bValid[H_TAIR] && (!bValid[H_TDEW] || !bValid[H_RELH]))
 					{
-						double Tair = ToDouble((*loop)[COL_POS[H_TAIR]])*FACTOR[H_TAIR];
-						double Tdew = ToDouble((*loop)[COL_POS[H_TDEW]])*FACTOR[H_TDEW];
-						double Hr = ToDouble((*loop)[COL_POS[H_RELH]])*FACTOR[H_RELH];
+						double Tair = ToDouble((*loop)[TairColPos])*FACTOR[H_TAIR];
+						double Tdew = ToDouble((*loop)[TdewColPos])*FACTOR[H_TDEW];
+						double Hr = ToDouble((*loop)[RelHColPos])*FACTOR[H_RELH];
 						if (Hr == -999 && Tdew != -999)
 							data[TRef].SetStat(H_RELH, Td2Hr(Tair, Tdew));
 						else if (Tdew == -999 && Hr != -999)
