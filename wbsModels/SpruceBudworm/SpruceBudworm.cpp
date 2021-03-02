@@ -359,7 +359,7 @@ namespace WBSF
 			m_status = DEAD;
 			m_death = ATTRITION;
 		}
-		else if (m_overwinteringDate.IsInit() && m_emergingL2oDate == weather.GetTRef())
+		else if (m_overwinteringDate.IsInit() && m_emergingL2oDate.as(CTM::DAILY) == weather.GetTRef())
 		{
 			//second generation L2o emerging:compute mortality
 			if (IsDeadByMissingEnergy())
