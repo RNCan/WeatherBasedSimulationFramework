@@ -29,33 +29,37 @@ namespace WBSF
 
 		CInsectParameterizationDlg(const CExecutablePtr& pParent, CWnd* pParentWnd);   // standard constructor
 
-		virtual void SetExecutable(CExecutablePtr pExecutable){ m_sa = GetSA(pExecutable); }
-		virtual CExecutablePtr GetExecutable()const{ return CExecutablePtr(new CInsectParameterization(m_sa)); }
+		virtual void SetExecutable(CExecutablePtr pExecutable) { m_sa = GetSA(pExecutable); }
+		virtual CExecutablePtr GetExecutable()const { return CExecutablePtr(new CInsectParameterization(m_sa)); }
 
 	protected:
 
-		enum { IDD = IDD_SIM_FIT_EQUATION};
+		enum { IDD = IDD_SIM_FIT_EQUATION };
 
 		CCFLEdit	m_nameCtrl;
 		CCFLEdit	m_internalNameCtrl;
 		CCFLEdit	m_descriptionCtrl;
-		
+
 		CCFLComboBox	m_inputFileNameCtrl;
 		CDefaultComboBox	m_TobsFileNameCtrl;
 		CCFLEdit		m_ouputFileNameCtrl;
-		
+
 		CCFLComboBox	m_fitTypeCtrl;
 		CSelectionCtrl 	m_eqDevRateCtrl;
 		CSelectionCtrl 	m_eqSurvivalCtrl;
+		CSelectionCtrl 	m_eqFecundityCtrl;
 
 		CButton			m_fixeTbCtrl;
-		CCFLEdit		m_TbCtrl;
+		std::array<CCFLEdit, 3> m_TbCtrl;
 		CButton			m_fixeToCtrl;
-		CCFLEdit		m_ToCtrl;
+		std::array < CCFLEdit, 3>m_ToCtrl;
 		CButton			m_fixeTmCtrl;
-		CCFLEdit		m_TmCtrl;
+		std::array < CCFLEdit, 3>m_TmCtrl;
+		CButton			m_fixeF0Ctrl;
+		std::array<CCFLEdit, 3>		m_F0Ctrl;
 
 		CButton			m_useOutputAsInputCtrl;
+		CCFLComboBox	m_outputAsInputCtrl;
 		CButton			m_ShowTraceCtrl;
 		// Overrides
 
@@ -69,6 +73,7 @@ namespace WBSF
 		afx_msg void OnEditEqOptions();
 		afx_msg void OnFitTypeChange();
 		void FillInputFile();
+		void FillOutputAsInputFile();
 
 
 		DECLARE_MESSAGE_MAP()
@@ -78,7 +83,7 @@ namespace WBSF
 		void UpdateCtrl(void);
 
 		CInsectParameterization m_sa;
-		CInsectParameterization& GetSA(const CExecutablePtr& pItem){ ASSERT(pItem); return dynamic_cast<CInsectParameterization&>(*pItem); }
+		CInsectParameterization& GetSA(const CExecutablePtr& pItem) { ASSERT(pItem); return dynamic_cast<CInsectParameterization&>(*pItem); }
 
 
 

@@ -62,17 +62,17 @@ namespace WBSF
 			m_creationDate = in.m_creationDate;
 			m_sex = in.m_sex;
 			m_age = in.m_age;
+			m_lastAge = in.m_lastAge;
 			m_bFertil = in.m_bFertil;
 			m_generation = in.m_generation;
 			m_scaleFactor = in.m_scaleFactor;
 
 			//state member
 			m_status = in.m_status;
+			m_lastStatus = in.m_lastStatus;
 			m_death = in.m_death;
 			m_broods = in.m_broods;
 			m_totalBroods = in.m_totalBroods;
-			m_lastAge = in.m_lastAge;
-			m_lastStatus = in.m_lastStatus;
 		}
 
 		return *this;

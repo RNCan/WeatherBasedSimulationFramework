@@ -579,6 +579,7 @@
 #define IDC_MAP_EXTRACT_PRODUCT         1280
 #define IDC_FIT_OBS_TEMPERATURE         1281
 #define IDC_FIT_BASE_ON                 1282
+#define IDC_FIT_OUTPUT_AS_INPUT         1282
 #define IDC_FIT_EQ_DEV_RATE             1283
 #define IDC_FIT_INPUT_NAME              1284
 #define IDC_FIT_CALIB_RDR               1285
@@ -596,6 +597,21 @@
 #define IDC_FIT_USE_OUTPUT_AS_INPUT     1296
 #define IDC_FIT_FIXE_TO                 1297
 #define IDC_FIT_TO                      1298
+#define IDC_FIT_EQ_FECUNDITY            1299
+#define IDC_FIT_FIXE_F0                 1300
+#define IDC_FIT_F0                      1301
+#define IDC_FIT_F0_BY                   1301
+#define IDC_FIT_TB_FROM                 1302
+#define IDC_FIT_TM_FROM                 1303
+#define IDC_FIT_TO_FROM                 1304
+#define IDC_FIT_F0_FROM                 1305
+#define IDC_FIT_TB_TO                   1306
+#define IDC_FIT_TM_TO                   1307
+#define IDC_FIT_TO_TO                   1308
+#define IDC_FIT_F0_TO                   1309
+#define IDC_FIT_TB_BY                   1310
+#define IDC_FIT_TO_BY                   1311
+#define IDC_FIT_TM_BY                   1312
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -961,7 +977,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        240
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1296
+#define _APS_NEXT_CONTROL_VALUE         1313
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

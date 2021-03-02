@@ -268,6 +268,34 @@ namespace WBSF
 					m_propertiesCtrl.AddProperty(pInput, FALSE, FALSE);
 				}
 			}
+			else if (m_fitType == F_FECUNDITY)
+			{
+				for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
+				{
+					TDevRateEquation eq = CDevRateEquation::eq(e);
+					string e_name = CDevRateEquation::GetEquationName(eq);
+					CSAParameterVector params = CDevRateEquation::GetParameters(eq);
+					//CSAParameterVector params = params_0;
+					if (m_eq_options.find(e_name) != m_eq_options.end())
+					{
+						if ((m_eq_options)[e_name].size() == CDevRateEquation::GetParameters(eq).size())
+							params = (m_eq_options)[e_name];
+					}
+					//CDevRateEquation::GetEquationR(e)
+					CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(CString(e_name.c_str()), -1);
+					for (size_t p = 0; p < params.size(); p++)
+					{
+
+						//string value_0 = FormatA("%.7g", params_0[p].m_initialValue) + params_0[p].m_bounds.ToString();
+						//CMFCPropertyGridProperty* pItem = new CMFCPropertyGridProperty(CString(params[p].m_name.c_str()), CString(value.c_str()), _T(""), ee * 10 + p);
+						string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
+						CStdGridProperty* pItem = new CStdGridProperty(params[p].m_name, value.c_str(), "", e * 10 + p);
+						pInput->AddSubItem(pItem);
+					}
+
+					m_propertiesCtrl.AddProperty(pInput, FALSE, FALSE);
+				}
+			}
 
 			m_propertiesCtrl.ExpandAll(FALSE);
 			m_propertiesCtrl.AdjustLayout();
@@ -402,6 +430,27 @@ namespace WBSF
 				}
 			}
 		}
+		else if (m_fitType == F_FECUNDITY)
+		{
+
+			for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
+			{
+				TDevRateEquation eq = CDevRateEquation::eq(e);
+				string e_name = CDevRateEquation::GetEquationName(eq);
+				CSAParameterVector params = CDevRateEquation::GetParameters(eq);
+
+
+				CMFCPropertyGridProperty* pInput = m_propertiesCtrl.GetProperty((int)e);
+				ASSERT(pInput->GetSubItemsCount() == params.size());
+				for (size_t p = 0; p < params.size(); p++)
+				{
+					string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
+					CMFCPropertyGridProperty* pItem = pInput->GetSubItem((int)p);
+					pItem->SetOriginalValue(CString(value.c_str()));
+					pItem->ResetOriginalValue();
+				}
+			}
+		}
 		//m_propertiesCtrl.ResetDefault();
 	}
 
@@ -439,6 +488,17 @@ namespace WBSF
 			e_name = CSurvivalEquation::GetEquationName(eq);
 			if (m_eq_options.find(e_name) == m_eq_options.end())
 				m_eq_options[e_name] = CSurvivalEquation::GetParameters(eq);
+
+		}
+		else if (m_fitType == F_FECUNDITY)
+		{
+			TDevRateEquation eq = CDevRateEquation::eq(e);
+			ASSERT(e < CDevRateEquation::NB_EQUATIONS);
+			ASSERT(p < CDevRateEquation::GetParameters(eq).size());
+
+			e_name = CDevRateEquation::GetEquationName(eq);
+			if (m_eq_options.find(e_name) == m_eq_options.end())
+				m_eq_options[e_name] = CDevRateEquation::GetParameters(eq);
 
 		}
 		

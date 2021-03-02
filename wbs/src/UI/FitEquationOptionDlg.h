@@ -55,7 +55,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL, F_OVIPOSITION, NB_FIT_TYPE };
+		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL, F_FECUNDITY, NB_FIT_TYPE };
 
 		CFitInputParamDlg(size_t type, CWnd* pParentDlg = NULL);
 		~CFitInputParamDlg();

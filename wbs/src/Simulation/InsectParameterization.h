@@ -22,10 +22,13 @@
 namespace WBSF
 {
 	class CWeatherGenerator;
+	typedef TDevRateEquation TFecundityEquation;
+	typedef CDevRateEqSelected CFecundityEqSelected;
+	typedef CDevRateEquation CFecundityEquation;
 
 	namespace DevRateInput
 	{
-		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TRAITMENT, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, NB_DEV_INPUT };
+		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TRAITMENT, I_I, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, I_BROOD, I_MEAN_BROOD, I_BROOD_SD, I_RFR, I_Q_BROOD, NB_DEV_INPUT };
 		enum TTobsCol {C_UNKNOWN = -1, C_TID, C_T, NB_TOBS_COL };
 		enum TTemperature { T_UNKNOWN = -1, T_CONSTANT, T_MIN_MAX, T_SINUS, T_TRIANGULAR, T_HOBO, NB_TMP_TYPE };
 		
@@ -42,7 +45,8 @@ namespace WBSF
 
 		std::string m_variable;
 		std::string m_traitment;
-		std::string GetProfile()const { return m_variable + "_" + m_traitment; }
+		std::string m_i;
+		std::string GetProfile()const { return m_variable + "_" + m_traitment + "_" + m_i; }
 		size_t m_type;
 
 		double GetT() const{ return (GetTmin() + GetTmax()) / 2; }
@@ -73,17 +77,25 @@ namespace WBSF
 		std::vector< DevRateInput::TDevTimeCol> m_input_pos;
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsTime;
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsRate;
+		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsBrood;
+		
 
 		bool m_bIndividual;
+		bool m_bIndividualSeries;
 		bool m_bAllTConstant;
 		//size_t GetMaxTime() const;
 		double GetDefaultSigma(const std::string& variable)const;
+		double GetSigmaBrood(TDevRateEquation  e, const std::vector<double>& X, const std::vector<double>& T)const;
+		double GetDefaultSigma()const;
+		//void GetDefaultFSigmaBrood(const std::string& variable, double& Fo, double& sigma)const;
+		//double GetSigma(CComputationVariable& computation)const;
 		bool IsAllTConstant()const;
 		
 		static double ei(size_t n);
 		static double cv_2_sigma(double cv, size_t n);
 	};
 
+	typedef CDevRateData CFecundityData;
 
 	class CTobsSeries :public std::map<std::string, std::vector<double>>
 	{
@@ -192,12 +204,12 @@ namespace WBSF
 		static const char* DATA_DESCRIPTOR;
 		enum TDevRateCalibOn { CO_TIME, CO_RATE, NB_CALIB_ON };
 		enum TFeedback { LOOP, ITERATION, CYCLE };
-		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL,  F_OVIPOSITION, NB_FIT_TYPE };
+		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL,  F_FECUNDITY, NB_FIT_TYPE };
 
 		
 
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, USE_OUTPUT_AS_INPUT, SHOW_TRACE, TM_VALUE,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -214,17 +226,22 @@ namespace WBSF
 
 		CDevRateEqSelected m_eqDevRate;
 		CSurvivalEqSelected m_eqSurvival;
+		CFecundityEqSelected  m_eqFecundity;
 		CSAParametersMap m_eq_options;
 
 		//bool m_bConverge01;
 		//bool m_bCalibSigma;
 		bool m_bFixeTb;
-		double m_Tb;
+		std::array<double,3> m_Tb;
 		bool m_bFixeTo;
-		double m_To;
+		std::array<double, 3> m_To;
 		bool m_bFixeTm;
-		double m_Tm;
+		std::array<double, 3> m_Tm;
+		bool m_bFixeF0;
+		std::array<double, 3> m_F0;
+
 		bool m_bUseOutputAsInput;
+		std::string m_outputAsIntputFileName;
 		bool m_bShowTrace;
 
 
@@ -253,6 +270,8 @@ namespace WBSF
 		const CSAControl& GetControl()const { return m_ctrl; }
 		void SetControl(CSAControl& control) { m_ctrl = control; }
 
+
+		static ERMsg ReadParametersFromFile(const std::string& outputFilePath, std::map<std::string, std::map<std::string, std::map<std::string, double>>>& params);
 	protected:
 
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
@@ -268,6 +287,7 @@ namespace WBSF
 		CTobsSeries m_Tobs;
 		CDevRateData m_devTime;
 		CSurvivalData m_survival;
+		CFecundityData m_fecundity;
 		//CDevRateEqFile m_dev_rate_eq;
 
 

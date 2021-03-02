@@ -59,14 +59,29 @@ namespace WBSF
 		DDX_Control(pDX, IDC_FIT_OUTPUT_NAME, m_ouputFileNameCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_DEV_RATE, m_eqDevRateCtrl);
 		DDX_Control(pDX, IDC_FIT_EQ_MORTALITY, m_eqSurvivalCtrl);
+		DDX_Control(pDX, IDC_FIT_EQ_FECUNDITY, m_eqFecundityCtrl);
+		
 		DDX_Control(pDX, IDC_FIT_FIXE_TB, m_fixeTbCtrl);
-		DDX_Control(pDX, IDC_FIT_TB, m_TbCtrl);
+		DDX_Control(pDX, IDC_FIT_TB_FROM, m_TbCtrl[0]);
+		DDX_Control(pDX, IDC_FIT_TB_TO, m_TbCtrl[1]);
+		DDX_Control(pDX, IDC_FIT_TB_BY, m_TbCtrl[2]);
 		DDX_Control(pDX, IDC_FIT_FIXE_TO, m_fixeToCtrl);
-		DDX_Control(pDX, IDC_FIT_TO, m_ToCtrl);
+		DDX_Control(pDX, IDC_FIT_TO_FROM, m_ToCtrl[0]);
+		DDX_Control(pDX, IDC_FIT_TO_TO, m_ToCtrl[1]);
+		DDX_Control(pDX, IDC_FIT_TO_BY, m_ToCtrl[2]);
 		DDX_Control(pDX, IDC_FIT_FIXE_TM, m_fixeTmCtrl);
-		DDX_Control(pDX, IDC_FIT_TM, m_TmCtrl);
+		DDX_Control(pDX, IDC_FIT_TM_FROM, m_TmCtrl[0]);
+		DDX_Control(pDX, IDC_FIT_TM_TO, m_TmCtrl[1]);
+		DDX_Control(pDX, IDC_FIT_TM_BY, m_TmCtrl[2]);
+		DDX_Control(pDX, IDC_FIT_FIXE_F0, m_fixeF0Ctrl);
+		DDX_Control(pDX, IDC_FIT_F0_FROM, m_F0Ctrl[0]);
+		DDX_Control(pDX, IDC_FIT_F0_TO, m_F0Ctrl[1]);
+		DDX_Control(pDX, IDC_FIT_F0_BY, m_F0Ctrl[2]);
+
+
 		DDX_Control(pDX, IDC_FIT_TYPE, m_fitTypeCtrl);
 		DDX_Control(pDX, IDC_FIT_USE_OUTPUT_AS_INPUT, m_useOutputAsInputCtrl);
+		DDX_Control(pDX, IDC_FIT_OUTPUT_AS_INPUT, m_outputAsInputCtrl);
 		DDX_Control(pDX, IDC_FIT_SHOW_TRACE, m_ShowTraceCtrl);
 		
 		
@@ -81,16 +96,26 @@ namespace WBSF
 			m_sa.m_fitType = m_fitTypeCtrl.GetCurSel();
 			m_sa.m_eqDevRate.SetSelection(m_eqDevRateCtrl.GetSelection());
 			m_sa.m_eqSurvival.SetSelection(m_eqSurvivalCtrl.GetSelection());
+			m_sa.m_eqFecundity.SetSelection(m_eqFecundityCtrl.GetSelection());
+			
 	
 			m_sa.m_bFixeTb = m_fixeTbCtrl.GetCheck();
-			m_sa.m_Tb = ToDouble(m_TbCtrl.GetString());
 			m_sa.m_bFixeTo = m_fixeToCtrl.GetCheck();
-			m_sa.m_To = ToDouble(m_ToCtrl.GetString());
 			m_sa.m_bFixeTm = m_fixeTmCtrl.GetCheck();
-			m_sa.m_Tm = ToDouble(m_TmCtrl.GetString());
+			m_sa.m_bFixeF0 = m_fixeF0Ctrl.GetCheck();
+
+
+			for (size_t i = 0; i < 3; i++)
+			{
+				m_sa.m_Tb[i] = ToDouble(m_TbCtrl[i].GetString());
+				m_sa.m_To[i] = ToDouble(m_ToCtrl[i].GetString());
+				m_sa.m_Tm[i] = ToDouble(m_TmCtrl[i].GetString());
+				m_sa.m_F0[i] = ToDouble(m_F0Ctrl[i].GetString());
+			}
 
 
 			m_sa.m_bUseOutputAsInput = m_useOutputAsInputCtrl.GetCheck();
+			m_sa.m_outputAsIntputFileName = m_outputAsInputCtrl.GetString();
 			m_sa.m_bShowTrace = m_ShowTraceCtrl.GetCheck();
 			
 
@@ -125,8 +150,12 @@ namespace WBSF
 			m_eqDevRateCtrl.SetSelection(m_sa.m_eqDevRate.GetSelection());
 			m_eqSurvivalCtrl.SetPossibleValues(possibleValues2);
 			m_eqSurvivalCtrl.SetSelection(m_sa.m_eqSurvival.GetSelection());
+			m_eqFecundityCtrl.SetPossibleValues(possibleValues1);
+			m_eqFecundityCtrl.SetSelection(m_sa.m_eqFecundity.GetSelection());
+			
 
 			FillInputFile();
+			FillOutputAsInputFile();
 			m_inputFileNameCtrl.SelectString(0, m_sa.m_inputFileName);
 			m_TobsFileNameCtrl.SelectString(0, m_sa.m_TobsFileName);
 			m_ouputFileNameCtrl.SetString(m_sa.m_outputFileName);
@@ -134,17 +163,27 @@ namespace WBSF
 			m_fitTypeCtrl.SetCurSel((int)m_sa.m_fitType);
 			m_sa.m_eqDevRate.SetSelection(m_eqDevRateCtrl.GetSelection());
 			m_sa.m_eqSurvival.SetSelection(m_eqSurvivalCtrl.GetSelection());
+			m_sa.m_eqFecundity.SetSelection(m_eqFecundityCtrl.GetSelection());
 			//m_converge01Ctrl.SetCheck(m_sa.m_bConverge01);
 			//m_calibSigmaCtrl.SetCheck(m_sa.m_bCalibSigma);
 			//m_fixeSigmaCtrl.SetCheck(m_sa.m_bFixeSigma);
 			m_fixeTbCtrl.SetCheck(m_sa.m_bFixeTb);
-			m_TbCtrl.SetString(ToString(m_sa.m_Tb ));
 			m_fixeToCtrl.SetCheck(m_sa.m_bFixeTo);
-			m_ToCtrl.SetString(ToString(m_sa.m_To));
 			m_fixeTmCtrl.SetCheck(m_sa.m_bFixeTm);
-			m_TmCtrl.SetString(ToString(m_sa.m_Tm));
+			m_fixeF0Ctrl.SetCheck(m_sa.m_bFixeF0);
+
+			for (size_t i = 0; i < 3; i++)
+			{
+				m_TbCtrl[i].SetString(ToString(m_sa.m_Tb[i]));
+				m_ToCtrl[i].SetString(ToString(m_sa.m_To[i]));
+				m_TmCtrl[i].SetString(ToString(m_sa.m_Tm[i]));
+				m_F0Ctrl[i].SetString(ToString(m_sa.m_F0[i]));
+			}
+
+
 
 			m_useOutputAsInputCtrl.SetCheck(m_sa.m_bUseOutputAsInput);
+			m_outputAsInputCtrl.SetWindowText(m_sa.m_outputAsIntputFileName);
 			m_ShowTraceCtrl.SetCheck(m_sa.m_bShowTrace);
 
 		}
@@ -158,6 +197,8 @@ namespace WBSF
 		ON_BN_CLICKED(IDC_FIT_FIXE_TB, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_FIXE_TO, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_FIXE_TM, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_FIXE_F0, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_USE_OUTPUT_AS_INPUT, &UpdateCtrl)
 		ON_CBN_SELCHANGE(IDC_FIT_TYPE, &OnFitTypeChange)
 	END_MESSAGE_MAP()
 
@@ -203,22 +244,38 @@ namespace WBSF
 
 		bool bDev = type == CInsectParameterization::F_DEV_TIME_WTH_SIGMA || type == CInsectParameterization::F_DEV_TIME_ONLY;
 		bool bSurvival = type == CInsectParameterization::F_SURVIVAL;
-		bool bOvip = type == CInsectParameterization::F_OVIPOSITION;
+		bool bOvip = type == CInsectParameterization::F_FECUNDITY;
+
 
 		m_eqDevRateCtrl.ShowWindow(bDev? SW_SHOW : SW_HIDE);
 		m_eqSurvivalCtrl.ShowWindow(bSurvival ? SW_SHOW : SW_HIDE);
+		m_eqFecundityCtrl.ShowWindow(bOvip ? SW_SHOW : SW_HIDE);
 		
-		m_TbCtrl.EnableWindow(m_fixeTbCtrl.GetCheck());
-		m_ToCtrl.EnableWindow(m_fixeToCtrl.GetCheck());
-		m_TmCtrl.EnableWindow(m_fixeTmCtrl.GetCheck());
+		m_outputAsInputCtrl.EnableWindow(m_useOutputAsInputCtrl.GetCheck());
 
-		m_fixeTbCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
-		m_fixeToCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
-		m_fixeTmCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
-		m_TbCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
-		m_ToCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
-		m_TmCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		//m_fixeTbCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		//m_fixeToCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		//m_fixeTmCtrl.ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+		//m_fixeF0Ctrl.ShowWindow(bOvip ? SW_SHOW : SW_HIDE);
 
+		m_fixeTbCtrl.EnableWindow(bDev);
+		m_fixeToCtrl.EnableWindow(bDev);
+		m_fixeTmCtrl.EnableWindow(bDev);
+		m_fixeF0Ctrl.EnableWindow(bOvip);
+
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			//m_TbCtrl[i].ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+			//m_ToCtrl[i].ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+			//m_TmCtrl[i].ShowWindow(bDev ? SW_SHOW : SW_HIDE);
+			//m_F0Ctrl[i].ShowWindow(bOvip ? SW_SHOW : SW_HIDE);
+
+			m_TbCtrl[i].EnableWindow(bDev&&m_fixeTbCtrl.GetCheck());
+			m_ToCtrl[i].EnableWindow(bDev&&m_fixeToCtrl.GetCheck());
+			m_TmCtrl[i].EnableWindow(bDev&&m_fixeTmCtrl.GetCheck());
+			m_F0Ctrl[i].EnableWindow(bOvip&&m_fixeF0Ctrl.GetCheck());
+		}
 	}
 
 	void CInsectParameterizationDlg::OnEditSACtrl()
@@ -241,6 +298,13 @@ namespace WBSF
 	}
 
 	
+	void CInsectParameterizationDlg::FillOutputAsInputFile()
+	{
+		WBSF::StringVector list = WBSF::GetFilesList( WBSF::GetFM().GetOutputPath()+"*.csv", FILE_NAME);
+		m_outputAsInputCtrl.FillList(list);
+		
+	}
+
 }
 
 
