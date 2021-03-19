@@ -227,6 +227,9 @@
     <ClCompile Include="..\src\Basic\CallcURL.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\ExtractLocationInfo.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -494,6 +497,9 @@
       <Filter>stdafx</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\CallcURL.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ExtractLocationInfo.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

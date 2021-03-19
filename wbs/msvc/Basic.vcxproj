@@ -270,6 +270,7 @@
     <ClCompile Include="..\src\Basic\ERMsg\syenvmsg.cpp" />
     <ClCompile Include="..\src\Basic\ERMsg\symessag.cpp" />
     <ClCompile Include="..\src\Basic\Evapotranspiration.cpp" />
+    <ClCompile Include="..\src\Basic\ExtractLocationInfo.cpp" />
     <ClCompile Include="..\src\Basic\FileStamp.cpp" />
     <ClCompile Include="..\src\Basic\FrequencyTable.cpp" />
     <ClCompile Include="..\src\Basic\GeoBasic.cpp" />
@@ -352,6 +353,7 @@
     <ClInclude Include="..\src\Basic\ERMsg\symessag.h" />
     <ClInclude Include="..\src\Basic\Evapotranspiration.h" />
     <ClInclude Include="..\src\Basic\Event.h" />
+    <ClInclude Include="..\src\Basic\ExtractLocationInfo.h" />
     <ClInclude Include="..\src\Basic\FileStamp.h" />
     <ClInclude Include="..\src\Basic\FrequencyTable.h" />
     <ClInclude Include="..\src\Basic\GeoBasic.h" />
