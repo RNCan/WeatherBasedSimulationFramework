@@ -53,7 +53,7 @@ namespace WBSF
 			m_name = UppercaseFirstLetter(name);
 
 			m_country = TrimConst(line[C_CTRY]);
-			m_state = TrimConst(line[C_STATE]);
+			m_subDivisions = TrimConst(line[C_STATE]);
 			if (m_country.empty())
 				m_country = "UN";//Unknown
 
@@ -136,9 +136,9 @@ namespace WBSF
 				{
 					if (station.m_country == "CA")
 					{
-						if (m_pShapefile && station.m_state.empty())
+						if (m_pShapefile && station.m_subDivisions.empty())
 						{
-							station.m_state = GetProvince(station.m_lat, station.m_lon);
+							station.m_subDivisions = GetProvince(station.m_lat, station.m_lon);
 							station.SetToSSI();
 						}
 					}

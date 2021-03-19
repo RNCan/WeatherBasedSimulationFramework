@@ -6,6 +6,7 @@
 #include <filesystem>
 #include "basic/WeatherStation.h"
 #include "basic/CSV.h"
+#include "Basic/ExtractLocationInfo.h"
 #include "UI/Common/SYShowMessage.h"
 #include "json\json11.hpp"
 #include "Geomatic/TimeZones.h"
@@ -607,9 +608,9 @@ namespace WBSF
 							int year = firstYear + int(y);
 
 							string country = stationList[cur_i].GetSSI("Country");
-							string state = stationList[cur_i].GetSSI("State");
+							string subDivisions = stationList[cur_i].GetSSI("SubDivisions");
 							string ID = stationList[cur_i].m_ID;
-							string ouputFilePath = GetOutputFilePath(country, state, ID, year);
+							string ouputFilePath = GetOutputFilePath(country, subDivisions, ID, year);
 							CreateMultipleDir(GetPath(ouputFilePath));
 
 							CTPeriod p = GetActualState(ouputFilePath);
@@ -755,7 +756,7 @@ namespace WBSF
 			if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 			{
 				string country = it->GetSSI("Country");
-				string state = it->GetSSI("State");
+				string subDivisions = it->GetSSI("SubDivisions");
 				string network = it->GetSSI("Network");
 				string start = it->GetSSI("Start");
 				string end = it->GetSSI("End");
@@ -779,9 +780,9 @@ namespace WBSF
 					if (subsetIDS.empty())
 					{
 						if (country == "US")
-							IsIncludeIV = states.at(state);
+							IsIncludeIV = states.at(subDivisions);
 						else if (country == "CA")
-							IsIncludeIV = provinces.at(state);
+							IsIncludeIV = provinces.at(subDivisions);
 						else
 							IsIncludeIV = countries.at(country);
 					}
@@ -846,7 +847,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("State"), ID, year);
+			string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("SubDivisions"), ID, year);
 			if (FileExists(filePath))
 			{
 				station.LoadData(filePath, -999, false);
@@ -861,6 +862,15 @@ namespace WBSF
 			variables.reset(H_PRCP);
 			station.CleanUnusedVariable(variables);
 		}
+
+		string network = station.GetSSI("Network");
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivisions");
+
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", network);
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivisions", subDivisions);
 
 		if (msg)
 		{
@@ -1349,13 +1359,18 @@ namespace WBSF
 									DEM_alt_str = to_string(DEM_alt);
 								}
 
-								if (location.m_alt == -999 && DEM_alt != -999 )
+								if (location.m_alt == -999 && DEM_alt > 0 )//some DEM alt have suspicious 0
 									location.m_alt = DEM_alt;
 
-								if (location.m_alt == 0 && DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
+								if (location.m_alt < 0 && DEM_alt > 0)//some DEM alt have suspicious 0
+									location.m_alt = -999;//extarct it later
+
+
+								if (location.m_alt == 0 && DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 100)
 								{
-									location.m_alt = DEM_alt;
-									location.m_name += " (suspicious elev at 0)";
+									location.m_alt = -999;
+									//location.m_alt = DEM_alt;
+									//location.m_name += " (suspicious elev at 0)";
 								}
 
 								//remove ID from the name
@@ -1365,7 +1380,7 @@ namespace WBSF
 								Trim(location.m_name);
 
 								string country = (*it)["COUNTRY"].string_value();
-								string state = (*it)["STATE"].string_value();
+								string subDivisions = (*it)["STATE"].string_value();
 								string time_zone = (*it)["TIMEZONE"].string_value();
 								string id = (*it)["ID"].string_value();
 								string status = (*it)["STATUS"].string_value();
@@ -1378,9 +1393,9 @@ namespace WBSF
 
 								if (country.empty())
 								{
-									if (CProvinceSelection::GetProvince(state) != UNKNOWN_POS)
+									if (CProvinceSelection::GetProvince(subDivisions) != UNKNOWN_POS)
 										country = "CA";
-									else if (CStateSelection::GetState(state) != UNKNOWN_POS)
+									else if (CStateSelection::GetState(subDivisions) != UNKNOWN_POS)
 										country = "US";
 									else
 										country = "UN";//Unknown
@@ -1388,14 +1403,14 @@ namespace WBSF
 
 								if (country == "CA")
 								{
-									if (state == "NF")
-										state = "NL";
-									else if (state == "YK")
-										state = "YT";
-									else if (state == "BC`")
-										state = "BC";
-									else if (state == "PQ")
-										state = "QC";
+									if (subDivisions == "NF")
+										subDivisions = "NL";
+									else if (subDivisions == "YK")
+										subDivisions = "YT";
+									else if (subDivisions == "BC`")
+										subDivisions = "BC";
+									else if (subDivisions == "PQ")
+										subDivisions = "QC";
 								}
 
 
@@ -1409,7 +1424,7 @@ namespace WBSF
 									{
 										((CGeoPoint&)location) = correction[corr_pos];
 										country = correction[corr_pos].GetSSI("Country");
-										state = correction[corr_pos].GetSSI("State");
+										subDivisions = correction[corr_pos].GetSSI("SubDivisions");
 									}
 								}
 
@@ -1419,9 +1434,9 @@ namespace WBSF
 								if (country == "US" || country == "CA" /*|| country == "MX"*/)
 								{
 									bool bBuoy = location.m_name.find("Buoy") != string::npos;
-									if (state != "HI" && state != "VI" && state != "PR" && state != "GU" &&
-										state != "PI" && state != "P1" && state != "P4" && state != "SA" &&
-										state != "AS" && state != "MP"&& state != "WS" && state != "GA" && state != "WK" &&
+									if (subDivisions != "HI" && subDivisions != "VI" && subDivisions != "PR" && subDivisions != "GU" &&
+										subDivisions != "PI" && subDivisions != "P1" && subDivisions != "P4" && subDivisions != "SA" &&
+										subDivisions != "AS" && subDivisions != "MP"&& subDivisions != "WS" && subDivisions != "GA" && subDivisions != "WK" &&
 										!bBuoy && corr_pos == NOT_INIT)
 									{
 										if (country == "US")
@@ -1434,32 +1449,32 @@ namespace WBSF
 											}
 										}
 										string countryII;
-										string stateII;
+										string subDivisionsII;
 										//find country
 										static const double MAX_DISTANCE = 20000.0;
 
-										double d = GetCountryState(shapefile, location.m_lat, location.m_lon, country, state, countryII, stateII);
+										double d = GetCountryState(shapefile, location.m_lat, location.m_lon, country, subDivisions, countryII, subDivisionsII);
 										
 
 										if (country == countryII)
 										{
-											if (state.empty()||state=="XX")
+											if (subDivisions.empty()|| subDivisions =="XX")
 											{
 												if (d == 0)
-													state = stateII;
+													subDivisions = subDivisionsII;
 											}
 											else
 											{
-												if (stateII == state)
+												if (subDivisionsII == subDivisions)
 												{
-													if (DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
+													/*if (DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
 													{
-														callback.AddMessage("IE," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," +to_string(DEM_alt) +"," +  country + "," + state + "," + country + "," + state + "," + to_string(location.m_alt - DEM_alt) + ",0");
-													}
+														callback.AddMessage("IE," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," +to_string(DEM_alt) +"," +  country + "," + subDivisions + "," + country + "," + subDivisionsII + "," + to_string(location.m_alt - DEM_alt) + ",0");
+													}*/
 												}
 												else
 												{
-													callback.AddMessage("IS," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," +  country + "," + state + "," + countryII + "," + stateII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
+													callback.AddMessage("IS," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," +  country + "," + subDivisions + "," + countryII + "," + subDivisionsII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
 												}
 													
 											}
@@ -1467,13 +1482,13 @@ namespace WBSF
 										}
 										else
 										{
-											if (country == "US"&&countryII == "CA"&&state == stateII)
+											if (country == "US"&&countryII == "CA"&&subDivisions == subDivisionsII)
 											{
 												country = "CA";
 											}
 											else
 											{
-												callback.AddMessage("IC," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," + country + "," + state + "," + countryII + "," + stateII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
+												callback.AddMessage("IC," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," + country + "," + subDivisions + "," + countryII + "," + subDivisionsII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
 											}
 
 										}
@@ -1531,7 +1546,7 @@ namespace WBSF
 								location.SetSSI("ELEV_DEM", DEM_alt_str);
 								location.SetSSI("Status", status);
 								location.SetSSI("Country", country);
-								location.SetSSI("State", state);
+								location.SetSSI("SubDivisions", subDivisions);
 								location.SetSSI("Network", network);
 								location.SetSSI("NetworkID", networkID);
 								location.SetSSI("TimeZoneName", time_zone);
@@ -1540,6 +1555,7 @@ namespace WBSF
 								location.SetSSI("Excluded", exclude);
 								location.SetSSI("Start", start);
 								location.SetSSI("End", end);
+								location.SetSSI("ElevFromSRTM", location.m_alt==-999?"1":"0");
 								
 
 								
@@ -1579,6 +1595,38 @@ namespace WBSF
 		}
 		//}
 
+		ASSERT(stationList.IsValid());
+		//compute missing elevation
+		//if missing elevation, extract elevation at 30 meters
+		if (!stationList.IsValid(false))
+			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+		//if still missing elevation, extract elevation at 90 meters
+		if (!stationList.IsValid(false))
+			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM90M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+		if (!stationList.IsValid(false))
+		{
+			size_t nb_erase = stationList.size();
+			for (CLocationVector::iterator it = stationList.begin(); it != stationList.end(); )
+			{
+				//if (it->m_elev == -999)
+				if(!it->IsValid(false))
+				{
+					callback.AddMessage("WARNING: bad coordinate :" + it->m_name + "("+it->m_ID+"), " + "lat="+to_string(it->m_lat) +", lon=" + to_string(it->m_lon) + ", elev="+ to_string(it->m_alt), 2);
+					it = stationList.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+
+			//nb_erase -= stationList.size();
+			//callback.AddMessage("WARNING: unable to fill " + to_string(nb_erase) + " locations elevation", 2);
+		}
+
+
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
 
@@ -1589,6 +1637,10 @@ namespace WBSF
 	double CUIMesoWest::GetCountryState(CShapeFileBase& shapefile, double lat, double lon, const std::string& countryI, const std::string& stateI, std::string& countryII, std::string& stateII)
 	{
 		double d = -1;
+		countryII = "--";
+		stateII = "--";
+
+
 		const CDBF3& DBF = shapefile.GetDBF();
 		int FindexC = DBF.GetFieldIndex("COUNTRY_ID");
 		int FindexS = DBF.GetFieldIndex("STATE_ID");
@@ -1610,9 +1662,11 @@ namespace WBSF
 			d = shapefile.GetMinimumDistance(pt, &shapeNo);
 			ASSERT(shapeNo >= 0 && shapeNo < DBF.GetNbRecord());
 			
-			countryII = DBF[shapeNo][FindexC].GetElement();
-			stateII = DBF[shapeNo][FindexS].GetElement();
-			
+			if (d < 100000)
+			{
+				countryII = DBF[shapeNo][FindexC].GetElement();
+				stateII = DBF[shapeNo][FindexS].GetElement();
+			}
 		}
 		//
 
@@ -2375,7 +2429,7 @@ namespace WBSF
 					if (!ID.empty() && pos != NOT_INIT)
 					{
 						string country = m_stations[pos].GetSSI("Country");
-						string state = m_stations[pos].GetSSI("State");
+						string subDivisions = m_stations[pos].GetSSI("SubDivisions");
 						string time_zone = m_stations[pos].GetSSI("TimeZone");
 						ASSERT(time_zone.length() == 5);
 						int time_shift = ToInt(time_zone.substr(0, 3));
@@ -2418,7 +2472,7 @@ namespace WBSF
 								if (!data.IsYearInit(accumulator.GetTRef().GetYear()))
 								{
 									//try to load old data before changing it...
-									string filePath = GetOutputFilePath(country, state, ID, accumulator.GetTRef().GetYear());
+									string filePath = GetOutputFilePath(country, subDivisions, ID, accumulator.GetTRef().GetYear());
 									data.LoadData(filePath, -999, false);//don't erase other years when multiple years
 								}
 
@@ -2467,7 +2521,7 @@ namespace WBSF
 						{
 							for (auto it = data.begin(); it != data.end(); it++)
 							{
-								string filePath = GetOutputFilePath(country, state, ID, it->first);
+								string filePath = GetOutputFilePath(country, subDivisions, ID, it->first);
 								string outputPath = GetPath(filePath);
 								CreateMultipleDir(outputPath);
 								msg = it->second->SaveData(filePath);

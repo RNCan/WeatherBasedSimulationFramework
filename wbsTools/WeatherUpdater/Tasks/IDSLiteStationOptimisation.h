@@ -14,7 +14,7 @@ namespace WBSF
 		std::string m_USAF;
 		std::string m_WBAN;
 		std::string m_country;
-		std::string m_state;
+		std::string m_subDivisions;
 		CTPeriod m_period;
 
 		void SetToSSI()
@@ -22,7 +22,7 @@ namespace WBSF
 			CLocation::SetSSI("USAF_ID", m_USAF);
 			CLocation::SetSSI("WBAN_ID", m_WBAN);
 			CLocation::SetSSI("Country", m_country);
-			CLocation::SetSSI("State", m_state);
+			CLocation::SetSSI("SubDivisions", m_subDivisions);
 			CLocation::SetSSI("Period", m_period.GetFormatedString("%1|%2", "%Y-%m-%d"));
 		}
 
@@ -31,7 +31,7 @@ namespace WBSF
 			m_USAF = CLocation::GetSSI("USAF_ID");
 			m_WBAN = CLocation::GetSSI("WBAN_ID");
 			m_country = CLocation::GetSSI("Country");
-			m_state = CLocation::GetSSI("State");
+			m_subDivisions = CLocation::GetSSI("SubDivisions");
 			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1|%2", "%Y-%m-%d");
 		}
 

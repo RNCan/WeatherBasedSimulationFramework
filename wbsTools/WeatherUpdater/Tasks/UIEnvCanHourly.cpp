@@ -1072,6 +1072,14 @@ namespace WBSF
 			}
 		}
 
+		//AdministrativeDivisions
+
+		string Province = station.GetSSI("Province");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "EnvironmentCanada");
+		station.SetSSI("Country", "Canada");
+		station.SetSSI("SubDivisions", Province);
+
 
 		return msg;
 	}

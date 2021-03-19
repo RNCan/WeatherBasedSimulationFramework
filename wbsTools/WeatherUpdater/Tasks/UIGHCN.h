@@ -31,11 +31,11 @@ namespace WBSF
 			WESF, WESD,
 			STMM, STSS, TAVG, THIC, TMAX, TMIN, TMPW, TSUN, WTEQ,
 			//TD3200 only
-			EVAP, MNPN, MXPN, TOBS, WDMV,
+			EVAP, MNPN, MXPN, TOBS, WDMV, WDF1,
 			NB_ELEMENT
 		};
 		
-		enum TSimpleGHCN{ V_TMIN, V_TMAX, V_PRCP, V_AWND, V_AWDR, V_WESF, V_SNWD, V_WESD, V_TAVG, V_MNPN, V_MXPN, NB_VARIABLES };
+		enum TSimpleGHCN{ V_TMIN, V_TMAX, V_PRCP, V_AWND, V_AWDR, V_WESF, V_SNWD, V_WESD, V_TAVG, V_MNPN, V_MXPN, V_WDF1, NB_VARIABLES };
 		static const int GHCN_VARIABLES[NB_VARIABLES];
 		static size_t GetElementType(const char* type);
 		static const char* CLASS_NAME();

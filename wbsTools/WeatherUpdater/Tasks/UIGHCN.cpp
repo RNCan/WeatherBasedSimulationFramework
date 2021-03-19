@@ -31,7 +31,7 @@ namespace WBSF
 using namespace boost;
 
 
-const int CUIGHCND::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND, AWDR, WESF, SNWD, WESD, TAVG };
+const int CUIGHCND::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND, AWDR, WESF, SNWD, WESD, TAVG, WDF1 };
 
 
 //********************************************************************************************
@@ -44,7 +44,7 @@ const char* CUIGHCND::ELEM_CODE[NB_ELEMENT] =
 	"SCSS", "SGMM", "SGSS", "SLVP", "SMMM", "SMSS", "SNOW", "SNWD",
 	"WESF", "WESD",
 	"STMM", "STSS", "TAVG", "THIC", "TMAX", "TMIN", "TMPW", "TSUN", "WTEQ",
-	"EVAP", "MNPN", "MXPN", "TOBS", "WDMV", 
+	"EVAP", "MNPN", "MXPN", "TOBS", "WDMV", "WDF1"
 };
 
 //MNPN = Daily minimum temperature of water in an evaporation pan (tenths of degrees C)
@@ -358,7 +358,7 @@ bool CUIGHCND::IsStationInclude(const string& ID)const
 				if( IsEqualNoCase( location.GetSSI("Country"), "US") )
 				{
 					CStateSelection states(Get(STATES));
-					string state = location.GetSSI("State");
+					string state = location.GetSSI("SubDivisions");
 					if (states.at(state))
 						bRep=true;
 				}
@@ -626,9 +626,21 @@ ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation
 			
 			if (dataYear[jd][V_AWDR]>-999)
 				day.SetStat(H_WNDD, dataYear[jd][V_AWDR]);
+			else if (dataYear[jd][V_WDF1] > -999)//estimation of wind direction from the 1 minute wind direction
+				day.SetStat(H_WNDD, dataYear[jd][V_WDF1]);
 
 		}
 	}
+
+
+	string country = station.GetSSI("Country");
+	string subDivisions = station.GetSSI("SubDivisions");
+	station.m_siteSpeceficInformation.clear();
+	station.SetSSI("Network", "GHCND");
+	station.SetSSI("Country", country);
+	station.SetSSI("SubDivisions", subDivisions);
+
+
 
 	if (msg && station.HaveData())
 	{
@@ -979,6 +991,13 @@ ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback&
 								if ((int)value >= 0 && value <= 360)
 								{
 									data[ID][year][TRef.GetJDay()][V_AWND] = value;
+								}
+								break;
+							case WDF1://Wind direction for the fatest 1 minutes (approximation)
+								ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
+								if ((int)value >= 0 && value <= 360)
+								{
+									data[ID][year][TRef.GetJDay()][V_WDF1] = value;
 								}
 								break;
 

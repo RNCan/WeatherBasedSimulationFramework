@@ -252,13 +252,13 @@ namespace WBSF
 					if (IsEqualNoCase(station.m_country, "US"))
 					{
 						CStateSelection states(Get(STATES));
-						if (states.at(station.m_state))
+						if (states.at(station.m_subDivisions))
 							bRep = true;
 					}
 					else if (IsEqualNoCase(station.m_country, "CA"))
 					{
 						CProvinceSelection provinces(Get(PROVINCES));
-						if (provinces.at(station.m_state))
+						if (provinces.at(station.m_subDivisions))
 							bRep = true;
 					}
 					else
@@ -667,6 +667,15 @@ namespace WBSF
 		}
 
 		ASSERT(station.GetEntireTPeriod().GetFirstYear() >= firstYear && station.GetEntireTPeriod().GetLastYear() <= lastYear);
+
+
+		
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivisions");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "ISDLite");
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivisions", subDivisions);
 
 		if (msg && station.HaveData())
 			msg = station.IsValid();

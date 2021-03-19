@@ -3,6 +3,7 @@
 
 #include "basic/WeatherStation.h"
 #include "basic/CSV.h"
+#include "Basic/ExtractLocationInfo.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "TaskFactory.h"
@@ -75,11 +76,21 @@ namespace WBSF
 
 				CLocation stationInfo(name, ID, stod(latitude), stod(longitude), stod(altitude));
 				stationInfo.SetSSI("Begin", period);
+				stationInfo.SetSSI("Owner", "Québec");
+				stationInfo.SetSSI("Network", "MDDELCC");
 				stationList.push_back(stationInfo);
 
 				posBegin = source.find("<div class=\"lienClim\">", posBegin);
 			}
 		}
+
+		//if missing elevation, extract elevation at 30 meters
+		if (!stationList.IsValid(false))
+			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+		//if still missing elevation, extract elevation at 90 meters
+		if (!stationList.IsValid(false))
+			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM90M, COpenTopoDataElevation::I_BILINEAR, callback);
 
 
 		pConnection->Close();

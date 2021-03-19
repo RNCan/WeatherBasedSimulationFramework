@@ -3,6 +3,7 @@
 #include "Basic/FileStamp.h"
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
+#include "Basic/CallcURL.h"
 #include "UI/Common/SYShowMessage.h"
 #include "../Resource.h"
 #include "TaskFactory.h"
@@ -165,7 +166,7 @@ namespace WBSF
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanRadar::CLASS_NAME(), (createF)CUIEnvCanRadar::create);
 
-	const char* CUIEnvCanRadar::SERVER_NAME[NB_TEMPORAL_TYPE] = { "dd.weather.gc.ca", "climate.weather.gc.ca" };
+	const char* CUIEnvCanRadar::SERVER_NAME[NB_TEMPORAL_TYPE] = { "dd.weather.gc.ca", "climat.meteo.gc.ca" };
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 
 	const char* CUIEnvCanRadar::TYPE_NAME_OLD[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
@@ -216,6 +217,32 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+	
+		/*StringVector tmpList = GetFilesList("D:/Travaux/WeatherUpdater/EnvCan/Radar/CASVD/*.gif", 2, true);
+		sort(tmpList.begin(), tmpList.end());
+
+		for (size_t i = tmpList.size()-1; i < tmpList.size(); i--)
+		{
+			string file1 = GetFileTitle(tmpList[i]);
+			string year = file1.substr(0, 4);
+			string month = file1.substr(4, 2);
+			string day = file1.substr(6, 2);
+			string hour = file1.substr(8, 2);
+			string min = file1.substr(10, 2);
+
+			CTRef TRef(ToInt(year), ToSizeT(month)-1, ToSizeT(day)-1, ToSizeT(hour));
+			
+			TRef += 5;
+			
+
+			string file_path2 = tmpList[i];
+			string file2 = TRef.GetFormatedString("%Y%m%d%H") + file1.substr(10);
+			SetFileTitle(file_path2, file2);
+
+			WBSF::RenameFile(tmpList[i], file_path2);
+		}*/
+
+
 		switch (as<int>(TYPE))
 		{
 		case CURRENT_RADAR: msg = ExecuteCurrent(callback); break;
@@ -252,6 +279,7 @@ namespace WBSF
 
 	string CUIEnvCanRadar::GetOutputFilePath(size_t t, const string& URL)const
 	{
+		//Get path in UTC
 		string path;
 		if (t == CURRENT_RADAR)
 		{
@@ -260,7 +288,7 @@ namespace WBSF
 			string day = URL.substr(6, 2);
 			string region = URL.substr(13, 3);*/
 			StringVector tmp(URL, "_");
-			ASSERT(tmp.size() == 4|| tmp.size() == 5);
+			ASSERT(tmp.size() == 4 || tmp.size() == 5);
 
 			string year = tmp[0].substr(0, 4);
 			string month = tmp[0].substr(4, 2);
@@ -283,14 +311,16 @@ namespace WBSF
 			size_t pos = URL.find("|");
 			ASSERT(pos != string::npos);
 
+			
 			StringVector tmp(URL.substr(0, pos), "_");
 			ASSERT(tmp.size() == 5);
 
-			string year = tmp[0].substr(0, 4);
-			string month = tmp[0].substr(4, 2);
-			string day = tmp[0].substr(6, 2);
-			string hour = tmp[0].substr(8, 2);
-			string min = tmp[0].substr(10, 2);
+			string date = FindString(URL, "time=", "&");
+			string year = date.substr(0, 4);
+			string month = date.substr(4, 2);
+			string day = date.substr(6, 2);
+			string hour = date.substr(8, 2);
+			string min = date.substr(10, 2);
 			string radar_id = tmp[1];
 			/*if (radar_id.length() == 5)
 			{
@@ -364,9 +394,11 @@ namespace WBSF
 		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&sYear=2013&sMonth=7&sDay=15&sHour=22&sMin=00&Duration=2&ImageType=PRECIP_SNOW_WEATHEROFFICE&scale=14
 		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2015&month=7&day=10&hour=20&minute=40&duration=2&image_type=PRECIPET_SNOW_WEATHEROFFICE
 		//http://climate.weather.gc.ca/radar/index_e.html?site=XAM&year=2012&month=7&day=10&hour=20&minute=40&duration=2&image_type=PRECIP_RAIN_WEATHEROFFICE
+		//https://climat.meteo.gc.ca/radar/index_f.html?site=CASVD&year=2017&month=8&day=1&hour=00&minute=00&duration=6&image_type=PRECIPET_SNOW_WEATHEROFFICE
+
 
 		static const char pageFormat[] =
-			"radar/index_e.html?"
+			"https://climate.weather.gc.ca/radar/index_e.html?"
 			"site=%s&"
 			"year=%d&"
 			"month=%d&"
@@ -385,13 +417,6 @@ namespace WBSF
 		size_t type = as<size_t>(TYPE);
 		size_t prcpType = as<size_t>(PRCP_TYPE);
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-		msg = GetHttpConnection(SERVER_NAME[type], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (!msg)
-			return msg;
-
 
 		ASSERT(period.GetTM().Type() == CTM::HOURLY);
 
@@ -409,7 +434,15 @@ namespace WBSF
 					URL.resize(strlen(URL.c_str()));
 
 					string source;
-					UtilWWW::GetPageText(pConnection, URL, source, true);
+					//UtilWWW::GetPageText(pConnection, URL, source, true);
+					string argument = "-s -k \"" + URL + "\"";
+					string exe = GetApplicationPath() + "External\\curl.exe";
+					CCallcURL cURL(exe);
+
+					//string source;
+					msg = cURL.get_text(argument, source);
+
+
 
 					size_t begin = source.find("blobArray = [") + 13;//skip the first
 					string fileList1 = FindString(source, "blobArray = [", "]", begin);
@@ -442,9 +475,6 @@ namespace WBSF
 				}
 			}
 		}
-
-		pConnection->Close();
-		pSession->Close();
 
 
 		radarList.insert(radarList.end(), tmpList.begin(), tmpList.end());
@@ -536,7 +566,7 @@ namespace WBSF
 			string fileName = GetFileName(it->m_filePath);
 
 			bool bIsCompsite = Find(fileName, "_COMP_");
-			
+
 			bool bOk0 = bComposite == bIsCompsite;
 			bool bOk1 = bUseRain && bUseWhite && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
 			bool bOk2 = bUseRain && bUseBrown && Find(fileName, "PRECIPET_RAIN.gif");
@@ -544,14 +574,14 @@ namespace WBSF
 			bool bOk4 = bUseSnow && bUseBrown && Find(fileName, "PRECIPET_SNOW.gif");
 
 
-			if ( bOk0 && (bOk1 || bOk2 || bOk3 || bOk4))
+			if (bOk0 && (bOk1 || bOk2 || bOk3 || bOk4))
 			{
 				//this file is needed, is it up to date?
 				string filePath = GetOutputFilePath(as<size_t>(TYPE), fileName);
 				if (NeedDownload(*it, filePath))
 					clearedList.push_back(*it);
 			}
-			
+
 
 			msg += callback.StepIt();
 		}
@@ -623,82 +653,64 @@ namespace WBSF
 		{
 			nbRun++;
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
+			//CInternetSessionPtr pSession;
+			//CHttpConnectionPtr pConnection;
 
-			msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			//msg = GetHttpConnection(SERVER_NAME[as<size_t>(TYPE)], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 			if (msg)
 			{
-				TRY
+				//TRY
+			//	{
+				for (int i = curI; i < imageList.size() && msg; i++)
 				{
-					for (int i = curI; i < imageList.size() && msg; i++)
+					string filePath = GetOutputFilePath(as<size_t>(TYPE), imageList[i]);
+					msg += CreateMultipleDir(GetPath(filePath));
+
+
+					StringVector name(imageList[i], "|"); ASSERT(name.size() == 2);
+					string URL = "https://climate.weather.gc.ca" + name[1];
+
+					string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
+					string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
+					string command = exe + " " + argument;
+
+					DWORD exit_code;
+					msg = WinExecWait(command, "", SW_HIDE, &exit_code);
+					if (exit_code == 0 && FileExists(filePath))
 					{
-						string filePath = GetOutputFilePath(as<size_t>(TYPE), imageList[i]);
-						msg += CreateMultipleDir(GetPath(filePath));
-						//msg += CopyFile(pConnection, imageList[i], filePath, INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC);
-
-						StringVector name(imageList[i], "|"); ASSERT(name.size() == 2);
-						CString URL(name[1].c_str());
-						CHttpFile* pURLFile = pConnection->OpenRequest(_T("GET"), URL, NULL, 1, NULL, NULL, INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_TRANSFER_BINARY | WININET_API_FLAG_SYNC | INTERNET_FLAG_NEED_FILE);
-
-						bool bRep = false;
-
-						if (pURLFile != NULL)
+						ifStream file;
+						msg += file.open(filePath);
+						if (msg)
 						{
-							if (pURLFile->SendRequest() != 0)
+
+							string line;
+							std::getline(file, line);
+
+							file.close();
+
+							if (WBSF::Find(line, "GIF89"))
 							{
-								CArray<char> source;
-								int len = 0;
-								CArray<char> tmp;
-								tmp.SetSize(50);
-
-								DWORD dwStatusCode = 0;
-								pURLFile->QueryInfoStatusCode(dwStatusCode);
-
-								ULONGLONG length = pURLFile->GetLength();
-								while (length > 0)
-								{
-									pURLFile->Read(tmp.GetData(), 50);
-									source.Append(tmp);
-
-									length = pURLFile->GetLength();
-								}
-
-								pURLFile->QueryInfoStatusCode(dwStatusCode);
-								pURLFile->Close();
-
-								ofStream file;
-
-								msg = file.open(filePath, ios::out | ios::binary);
-								if (msg)
-								{
-									if (!source.IsEmpty())
-										file.write(source.GetData(), (UINT)source.GetSize());
-
-									file.close();
-
-									//convert image to GeoTiff
-									//ConvertToGeotiff(filePath, CCanadianRadar(CCanadianRadar::coord));
-								}
+								msg += callback.StepIt();
+								curI++;
+								nbRun = 0;
+							}
+							else
+							{
+								msg = WBSF::RemoveFile(filePath);
 							}
 						}
 
-						if (msg)
-						{
-							curI++;
-							nbRun = 0;
-							msg += callback.StepIt();
-						}
 					}
-				}
-					CATCH_ALL(e)
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
+					//}
+					//}
+					//CATCH_ALL(e)
+					//{
+					//	msg = UtilWin::SYGetMessage(*e);
+					//}
+					//END_CATCH_ALL
 
-					//if an error occur: try again
+						//if an error occur: try again
 					if (!msg && !callback.GetUserCancel())
 					{
 						//callback.AddTask(1);//one step more
@@ -710,10 +722,7 @@ namespace WBSF
 							Sleep(1000);//wait 1 sec
 						}
 					}
-
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
+				}
 			}
 		}
 
@@ -725,25 +734,20 @@ namespace WBSF
 		return msg;
 	}
 
-	
+
 	ERMsg CUIEnvCanRadar::GetRadarList(CTPeriod p, std::map<std::string, StringVector>& imageList, CCallback& callback)
-	{ 
+	{
 		ASSERT(p.GetTType() == CTM::DAILY);
 
-		ERMsg msg; 
+		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		
 
 
-		//CCanadianRadar radar(Get(RADAR));
-		string type = as<bool>(COMPOSITE) ? "COMP_":"";
-		type += (as<size_t>(PRCP_TYPE) == T_RAIN)?"PRECIPET_RAIN":"PRECIPET_SNOW";
-		
-		if(as<size_t>(BACKGROUND) == B_WHITE)
-			type += "_A11Y";
-		
+
+
+
 		CCanadianRadar radar(Get(RADAR));
 		//StringVector radarList(Get(RADAR), "|");
 
@@ -755,60 +759,70 @@ namespace WBSF
 
 				//for (size_t r = 0; r < radarList.size(); r++)
 				//{
-					string radar_id = radars[d];
-					string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
-					//string path = "*_" + radar_id + "_" + type + ".gif";
+				string radar_id = radars[d];
+				string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
+				//string path = "*_" + radar_id + "_" + type + ".gif";
 
-					StringVector years = GetDirectoriesList(inputDir + "*");
-					//callback.PushTask("Get file list", dir.size());
-					for (size_t y = 0; y < years.size() && msg; y++)
+				StringVector years = GetDirectoriesList(inputDir + "*");
+				//callback.PushTask("Get file list", dir.size());
+				for (size_t y = 0; y < years.size() && msg; y++)
+				{
+					int year = ToInt(years[y]);
+					if (p.as(CTM::ANNUAL).IsInside(year))
 					{
-						int year = ToInt(years[y]);
-						if (p.as(CTM::ANNUAL).IsInside(year))
+						string type = as<bool>(COMPOSITE) ? "COMP_" : "";
+						if (year <= 2013)
+							type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIP_RAIN" : "PRECIP_SNOW";
+						else
+							type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIPET_RAIN" : "PRECIPET_SNOW";
+
+						if (as<size_t>(BACKGROUND) == B_WHITE)
+							type += "_A11Y";
+
+
+						StringVector tmpList = GetFilesList(inputDir + years[y] + "*_" + radar_id + "_" + type + ".gif", 2, true);
+						for (size_t i = 0; i < tmpList.size() && msg; i++)
 						{
-							StringVector tmpList = GetFilesList(inputDir + years[y] + "*_" + radar_id + "_" + type + ".gif", 2, true);
-							for (size_t i = 0; i < tmpList.size() && msg; i++)
-							{
 
-								StringVector tmp(GetFileTitle(tmpList[i]), "_");
-								ASSERT(tmp.size() == 4 || tmp.size() == 5);
+							StringVector tmp(GetFileTitle(tmpList[i]), "_");
+							ASSERT(tmp.size() == 4 || tmp.size() == 5);
 
-								string year = tmp[0].substr(0, 4);
-								string month = tmp[0].substr(4, 2);
-								string day = tmp[0].substr(6, 2);
-								//string hour = tmp[0].substr(8, 2);
+							string year = tmp[0].substr(0, 4);
+							string month = tmp[0].substr(4, 2);
+							string day = tmp[0].substr(6, 2);
+							//string hour = tmp[0].substr(8, 2);
 
 
-								CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
+							CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
 
-								if (p.as(CTM::DAILY).IsInside(TRef))
-									imageList[radar_id + "_" + type].push_back(tmpList[i]);
+							if (p.as(CTM::DAILY).IsInside(TRef))
+								imageList[radar_id + "_" + type].push_back(tmpList[i]);
 
-								msg += callback.StepIt(0);
+							msg += callback.StepIt(0);
 
-							}
-
-
-							//callback.PopTask();
-							//callback.PushTask("Get file list", tmpList.size());
-							/*for (size_t i = 0; i < tmpList.size() && msg; i++)
-							{
-								string ID = GetID(tmpList[i]);
-								CTRef TRef = GetTRef(tmpList[i]);
-								string an_file_path = GetAnimationFilePath(TRef, ID);
-								if (!an_file_path.empty())
-								{
-									string current_animation = GetAnimationFilePath(CTRef::GetCurrentTRef(CTM::HOURLY), ID);
-									if (!FileExists(an_file_path) || bCreateAll || an_file_path == current_animation)
-										fileList[an_file_path].push_back(tmpList[i]);
-
-									msg += callback.StepIt(0);
-								}
-							}*/
 						}
 
-						msg += callback.StepIt();
+
+						//callback.PopTask();
+						//callback.PushTask("Get file list", tmpList.size());
+						/*for (size_t i = 0; i < tmpList.size() && msg; i++)
+						{
+							string ID = GetID(tmpList[i]);
+							CTRef TRef = GetTRef(tmpList[i]);
+							string an_file_path = GetAnimationFilePath(TRef, ID);
+							if (!an_file_path.empty())
+							{
+								string current_animation = GetAnimationFilePath(CTRef::GetCurrentTRef(CTM::HOURLY), ID);
+								if (!FileExists(an_file_path) || bCreateAll || an_file_path == current_animation)
+									fileList[an_file_path].push_back(tmpList[i]);
+
+								msg += callback.StepIt(0);
+							}
+						}*/
 					}
+
+					msg += callback.StepIt();
+				}
 				//}
 			}//is radar selected
 		}//for all directories

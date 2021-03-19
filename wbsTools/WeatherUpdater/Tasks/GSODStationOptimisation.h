@@ -18,7 +18,7 @@ namespace WBSF
 		std::string m_WBAN;	//NCDC WBAN number
 		std::string m_CALL; //ICAO call sign
 		std::string m_country; //WMO historical country ID, followed by FIPS country ID
-		std::string m_state;	//State for US, canada stations
+		std::string m_subDivisions;	//State for US, canada stations
 		CTPeriod m_period;
 
 		void SetToSSI()
@@ -27,7 +27,8 @@ namespace WBSF
 			CLocation::SetSSI("WBAN_ID", m_WBAN);
 			CLocation::SetSSI("ICAO_ID", m_CALL);
 			CLocation::SetSSI("Country", m_country);
-			CLocation::SetSSI("State", m_state);
+			//CLocation::SetSSI("State", m_state);
+			CLocation::SetSSI("SubDivisions", m_subDivisions);
 			CLocation::SetSSI("Period", m_period.GetFormatedString("%1|%2", "%Y-%m-%d"));
 		}
 
@@ -37,7 +38,7 @@ namespace WBSF
 			m_WBAN = CLocation::GetSSI("WBAN_ID");
 			m_CALL = CLocation::GetSSI("ICAO_ID");
 			m_country = CLocation::GetSSI("Country");
-			m_state = CLocation::GetSSI("State");
+			m_subDivisions = CLocation::GetSSI("SubDivisions");
 			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1|%2", "%Y-%m-%d");
 		}
 		bool operator>(const CGSODStation& in)const{ return true; }

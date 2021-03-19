@@ -3,12 +3,14 @@
 #include <boost\dynamic_bitset.hpp>
 #include <boost\filesystem.hpp>
 
-#include "UI/Common/UtilWin.h"
+
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
-#include "UI/Common/SYShowMessage.h"
-#include "Basic\CSV.h"
+#include "Basic/ExtractLocationInfo.h"
+#include "Basic/CSV.h"
 #include "json\json11.hpp"
+#include "UI/Common/SYShowMessage.h"
+#include "UI/Common/UtilWin.h"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
@@ -1272,30 +1274,30 @@ namespace WBSF
 			ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 			if (msgTmp)
 			{
-				TRY
+				try
 				{
 					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
 
 
-				//split data in seperate files
-				if (msgTmp)
-				{
-					ASSERT(FileExists(outputFilePath));
-					msg = SplitFireData(outputFilePath, callback);
-					RemoveFile(outputFilePath);
+					//split data in seperate files
+					if (msgTmp)
+					{
+						ASSERT(FileExists(outputFilePath));
+						msg = SplitFireData(outputFilePath, callback);
+						RemoveFile(outputFilePath);
 
-					msg += callback.StepIt();
-					bDownloaded = true;
+						msg += callback.StepIt();
+						bDownloaded = true;
+					}
 				}
-				}
-					CATCH_ALL(e)
+				catch (CException* e)
 				{
 					msgTmp = UtilWin::SYGetMessage(*e);
 				}
-				END_CATCH_ALL
 
-					//clean connection
-					pConnection->Close();
+
+				//clean connection
+				pConnection->Close();
 				pSession->Close();
 			}
 			else
@@ -1431,13 +1433,12 @@ namespace WBSF
 
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-
-		CInternetSessionPtr pGoogleSession;
-		CHttpConnectionPtr pGoogleConnection;
-
 		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (msg)
-			msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+
+		//CInternetSessionPtr pGoogleSession;
+		//CHttpConnectionPtr pGoogleConnection;
+		//if (msg)
+			//msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 		if (msg)
 		{
@@ -1472,25 +1473,25 @@ namespace WBSF
 						location.SetSSI("Region", metadata["properties"]["REGION"].string_value());
 						location.SetSSI("Zone", metadata["properties"]["I_A_ZONE"].string_value());
 
-						string elevFormat = "/maps/api/elevation/json?locations=" + ToString(location.m_lat) + "," + ToString(location.m_lon);
-						string strElev;
-						msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
-						if (msg)
-						{
-							//extract elevation from google
-							string error;
-							Json jsonElev = Json::parse(strElev, error);
-							ASSERT(jsonElev.is_object());
+						//string elevFormat = "/maps/api/elevation/json?locations=" + ToString(location.m_lat) + "," + ToString(location.m_lon);
+						//string strElev;
+						//msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
+						//if (msg)
+						//{
+						//	//extract elevation from google
+						//	string error;
+						//	Json jsonElev = Json::parse(strElev, error);
+						//	ASSERT(jsonElev.is_object());
 
-							if (error.empty() && jsonElev["status"] == "OK")
-							{
-								ASSERT(jsonElev["results"].is_array());
-								Json::array result = jsonElev["results"].array_items();
-								ASSERT(result.size() == 1);
+						//	if (error.empty() && jsonElev["status"] == "OK")
+						//	{
+						//		ASSERT(jsonElev["results"].is_array());
+						//		Json::array result = jsonElev["results"].array_items();
+						//		ASSERT(result.size() == 1);
 
-								location.m_elev = result[0]["elevation"].number_value();
-							}
-						}//if msg
+						//		location.m_elev = result[0]["elevation"].number_value();
+						//	}
+						//}//if msg
 
 						locations.push_back(location);
 
@@ -1511,10 +1512,39 @@ namespace WBSF
 		pConnection->Close();
 		pSession->Close();
 
-		pGoogleConnection->Close();
-		pGoogleSession->Close();
+		//lat/lon is valid
+		ASSERT(locations.IsValid(true));
+		//if missing elevation, extract elevation at 30 meters
+		if (!locations.IsValid(false))
+			locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
 
-		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 2);
+		//if still missing elevation, extract elevation at 90 meters
+		if (!locations.IsValid(false))
+			locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM90M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+		if (!locations.IsValid(false))
+		{
+			size_t nb_erase = locations.size();
+			for (CLocationVector::iterator it = locations.begin(); it != locations.end(); )
+			{
+				if (!it->IsValid(false))
+				{
+					callback.AddMessage("WARNING: bad coordinate :" + it->m_name + "(" + it->m_ID + "), " + "lat=" + to_string(it->m_lat) + ", lon=" + to_string(it->m_lon) + ", elev=" + to_string(it->m_alt), 2);
+					it = locations.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+
+			nb_erase -= locations.size();
+			callback.AddMessage("WARNING: unable to fill " + to_string(nb_erase) + " locations elevation", 2);
+		}
+		//pGoogleConnection->Close();
+		//pGoogleSession->Close();
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(locations.size()), 2);
 		callback.PopTask();
 
 

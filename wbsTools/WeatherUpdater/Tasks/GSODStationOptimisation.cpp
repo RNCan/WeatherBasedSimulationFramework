@@ -155,7 +155,7 @@ namespace WBSF
 					if (station.m_country.empty())
 						station.m_country = "UN";//Unknown
 
-					station.m_state = line.substr(48, 2);
+					station.m_subDivisions = line.substr(48, 2);
 					//station.m_CALL = line.substr(52, 4); 
 					station.m_period = GetPeriod(line);
 					ASSERT(station.m_USAF != "999999" || station.m_WBAN != "99999");

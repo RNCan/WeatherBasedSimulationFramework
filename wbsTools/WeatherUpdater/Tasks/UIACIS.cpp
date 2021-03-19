@@ -261,11 +261,11 @@ namespace WBSF
 					//<aliases><WMO>71285</WMO><TC>XAF</TC><EC>3010010</EC><AENV>ABEE</AENV><LOGGER_ID>1285</LOGGER_ID></aliases>
 					string owner = FindString(metadata, "<owner><name>", "</name></owner>", metaPosBegin);
 					if (!owner.empty())
-						stationInfo.SetSSI("owner", owner);
+						stationInfo.SetSSI("Owner", owner);
 
-					string oper = FindString(metadata, "<operator><name>", "</name></operator>", metaPosBegin);
-					if (!oper.empty())
-						stationInfo.SetSSI("operator", oper);
+					//string oper = FindString(metadata, "<operator><name>", "</name></operator>", metaPosBegin);
+					//if (!oper.empty())
+					stationInfo.SetSSI("Network", "ACIS");
 
 
 					StringVector aliases(FindString(metadata, "<aliases>", "</aliases>", metaPosBegin), "<>");
@@ -275,6 +275,8 @@ namespace WBSF
 						if (!aliases[j + 1].empty())
 							stationInfo.SetSSI(aliases[j], aliases[j + 1]);
 					}
+
+					
 
 					/*string WMO = FindString(aliases, "<WMO>", "</WMO>");
 					if (!WMO.empty())
@@ -348,7 +350,7 @@ namespace WBSF
 
 	bool CUIACIS::IsInclude(const CLocation& station)
 	{
-		string owner = station.GetSSI("owner");
+		string owner = station.GetSSI("Owner");
 		string ID = station.GetSSI("EC");
 		ID = ID.substr(0, 3);
 
@@ -1311,6 +1313,11 @@ namespace WBSF
 				station.Get(TRef).Reset();
 		}
 
+		
+		station.SetSSI("WMO","");
+		station.SetSSI("TC", "");
+		station.SetSSI("EC", "");
+		station.SetSSI("AENV", "");
 		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
 
 		if (msg)

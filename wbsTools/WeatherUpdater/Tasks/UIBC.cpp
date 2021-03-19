@@ -387,12 +387,13 @@ namespace WBSF
 				CLocation loc(WBSF::UppercaseFirstLetter(name), strID, ToDouble((*loop)[LAT]), ToDouble((*loop)[LON]), ToDouble((*loop)[ELEV]));
 
 				 
-				loc.SetSSI("network_name", (*loop)[NETWORK_NAME]);
+				loc.SetSSI("Network", (*loop)[NETWORK_NAME]);
 				loc.SetSSI("native_id", (*loop)[NATIVE_ID]);
 				loc.SetSSI("min_obs_time", (*loop)[MIN_OBS_TIME]);
 				loc.SetSSI("max_obs_time", (*loop)[MAX_OBS_TIME]);
 				loc.SetSSI("freq", (*loop)[FREQ]);
-				loc.SetSSI("province", (*loop)[PROVINCE]);
+				loc.SetSSI("Country", "Canada");
+				loc.SetSSI("Province", (*loop)[PROVINCE]);
 				loc.SetSSI("station_id", (*loop)[STATION_ID]);
 				
 				m_stations.push_back(loc);
@@ -488,7 +489,7 @@ namespace WBSF
 
 		//station.CreateYears(firstYear, nbYears);
 		station.SetHourly(type == HOURLY_WEATHER);
-		string network_name = station.GetSSI("network_name");
+		string network_name = station.GetSSI("Network");
 		size_t n = GetNetwork(network_name);
 		
 		ASSERT(n != NOT_INIT);
@@ -533,6 +534,15 @@ namespace WBSF
 					msg = station.IsValid();
 				}
 			}
+
+//remove native_id
+			string network = station.GetSSI("Network");
+			string province = station.GetSSI("Province");
+			station.m_siteSpeceficInformation.clear();
+			station.SetSSI("Network", network);
+			station.SetSSI("Country", "Canada");
+			station.SetSSI("SubDivisions", province);
+
 
 			if (bStepIt)
 				callback.PopTask();

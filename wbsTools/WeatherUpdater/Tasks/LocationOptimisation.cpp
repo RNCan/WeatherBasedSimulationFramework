@@ -340,12 +340,15 @@ namespace WBSF
 			string tmp;
 
 			string country = TrimConst(line.substr(0, 2));
-			string state = TrimConst(line.substr(38, 2));
+			string subDivisions = TrimConst(line.substr(38, 2));
 			if (country.empty())
 				country = "UN";//Unknown
 
 			location.SetSSI("Country", country);
-			location.SetSSI("State", state);
+			//location.SetSSI("State", state);
+			location.SetSSI("SubDivisions", subDivisions);
+			//string SubDivisions = station.GetSSI("SubDivisions");
+			//string country = station.GetSSI("Country");
 
 			location.m_ID = Trim(line.substr(0, 11));
 			location.m_name = UppercaseFirstLetter(Trim(line.substr(41, 29)));

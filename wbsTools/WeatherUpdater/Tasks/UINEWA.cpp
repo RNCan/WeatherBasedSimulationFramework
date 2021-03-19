@@ -223,7 +223,7 @@ namespace WBSF
 									alt = -999;
 
 								CLocation location(name, ID, lat, lon, alt);
-								location.SetSSI("State", state);
+								location.SetSSI("SubDivisions", state);
 								stationList.push_back(location);
 							}//if msg
 						}//if line not empty
@@ -309,7 +309,7 @@ namespace WBSF
 		vector<vector<array<bool, 12>>> bNeedDownload(m_stations.size());
 		for (size_t i = 0; i < m_stations.size() && msg; i++)
 		{
-			string state = m_stations[i].GetSSI("State");
+			string state = m_stations[i].GetSSI("SubDivisions");
 
 			if (states.at(state))
 			{

@@ -372,7 +372,7 @@ namespace WBSF
 					if (IsEqual(station.m_country, "US"))
 					{
 						//size_t state = CStateSelection::GetState(station.m_state);
-						if (states.at(station.m_state))
+						if (states.at(station.m_subDivisions))
 							bRep = true;
 					}
 					else
@@ -586,6 +586,14 @@ namespace WBSF
 
 			msg += callback.StepIt(0);
 		}
+
+		
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivisions");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "GSOD");
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivisions", subDivisions);
 
 		//verify station is valid
 		if (msg && station.HaveData())

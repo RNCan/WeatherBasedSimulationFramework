@@ -196,7 +196,7 @@ namespace WBSF
 						double alt = Feet2Meter(ToDouble(columns[C_ELEV]));
 						CLocation station(PurgeFileName(name), TrimConst(ID), ToDouble(columns[C_LATITUDE]), ToDouble(columns[C_LONGITUDE]), alt);
 						station.SetSSI("Network", TrimConst(columns[C_NTWK]));
-						station.SetSSI("State", columns[C_STATE]);
+						station.SetSSI("SubDivisions", columns[C_STATE]);
 						station.SetSSI("County", columns[C_COUNTY]);
 						station.SetSSI("Huc", columns[C_HUC]);
 						//station.SetSSI("EndDate", ConvertEndDate(columns[C_END_DATE]));
@@ -226,7 +226,7 @@ namespace WBSF
 
 		for (size_t s = 0; s < stations.size() && msg; s++)
 		{
-			string URL = string("reportGenerator/view_csv/customSingleStationReport/daily/" + stations[s].m_ID + ":" + stations[s].GetSSI("State") + ":" + stations[s].GetSSI("Network") + "%7Cid=%22%22%7Cname~0/0,0/stationId,actonId,latitude,longitude,elevation,inServiceDate,outServiceDate");
+			string URL = string("reportGenerator/view_csv/customSingleStationReport/daily/" + stations[s].m_ID + ":" + stations[s].GetSSI("SubDivisions") + ":" + stations[s].GetSSI("Network") + "%7Cid=%22%22%7Cname~0/0,0/stationId,actonId,latitude,longitude,elevation,inServiceDate,outServiceDate");
 
 			string source;
 			msg = UtilWWW::GetPageText(pConnection, URL, source, false, FLAGS);
@@ -360,7 +360,7 @@ namespace WBSF
 			{
 				int year = firstYear + int(y);
 
-				string state = m_stations[i].GetSSI("State");
+				string state = m_stations[i].GetSSI("SubDivisions");
 				if (states.none() || states.at(state))
 				{
 					bool bSnowStation = m_stations[i].GetSSI("Network") == "SNOW";
@@ -421,7 +421,7 @@ namespace WBSF
 						};
 
 						string ID = m_stations[i].m_ID;
-						string state = m_stations[i].GetSSI("State");
+						string state = m_stations[i].GetSSI("SubDivisions");
 						URL = FormatA(webPageDataFormat, ID.c_str(), state.c_str());
 
 					}
@@ -490,7 +490,7 @@ namespace WBSF
 
 		for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)
 		{
-			string state = it->GetSSI("State");
+			string state = it->GetSSI("SubDivisions");
 			if (states.none() || states.at(state))
 			{
 
@@ -546,6 +546,14 @@ namespace WBSF
 			}
 		}
 
+		string network = station.GetSSI("Network");
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivisions");
+
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "SnoTel_"+ network);
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivisions", subDivisions);
 
 		if (station.HaveData())
 		{

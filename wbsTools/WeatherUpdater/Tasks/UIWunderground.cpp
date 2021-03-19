@@ -686,7 +686,7 @@ namespace WBSF
 				int year = firstYear + int(y);
 				double inc = 1;
 
-				string ouputFilePath = GetOutputFilePath(tstr, stationList[i].GetSSI("Country"), stationList[i].GetSSI("State"), stationList[i].m_ID, year);
+				string ouputFilePath = GetOutputFilePath(tstr, stationList[i].GetSSI("Country"), stationList[i].GetSSI("SubDivisions"), stationList[i].m_ID, year);
 				CreateMultipleDir(GetPath(ouputFilePath));
 
 				if (NeedDownload(year, ouputFilePath))
@@ -865,7 +865,7 @@ namespace WBSF
 
 								if (msg)
 								{
-									if (location.m_name.empty() || location.GetSSI("County").empty() || location.GetSSI("State").empty() || location.GetSSI("Country").empty())
+									if (location.m_name.empty() || location.GetSSI("County").empty() || location.GetSSI("SubDivisions").empty() || location.GetSSI("Country").empty())
 									{
 										ExtractNominatimName(location, callback);
 									}
@@ -1030,7 +1030,7 @@ namespace WBSF
 		for (size_t y = 0; y < nbYears&&msg; y++)
 		{
 			int year = firstYear + int(y);
-			string filePath = GetOutputFilePath(get_type_name(type), station.GetSSI("Country"), station.GetSSI("State"), ID, year);
+			string filePath = GetOutputFilePath(get_type_name(type), station.GetSSI("Country"), station.GetSSI("SubDivisions"), ID, year);
 			if (FileExists(filePath))
 			{
 				msg += station.LoadData(filePath, -999, false);
@@ -1042,6 +1042,15 @@ namespace WBSF
 				msg += callback.StepIt(0);
 			}
 		}
+
+		//string network = station.GetSSI("Network");
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivisions");
+
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "WeatherUnderground");
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivisions", subDivisions);
 
 		if (msg)
 		{
@@ -1647,7 +1656,7 @@ namespace WBSF
 			location.m_lon = json["longitude"].number_value();
 			location.m_elev = json["elevation"].number_value();
 			location.SetSSI("city", json["city"].string_value());
-			location.SetSSI("State", json["state"].string_value());
+			location.SetSSI("SubDivisions", json["state"].string_value());
 			location.SetSSI("Country", json["country"].string_value());
 			location.SetSSI("StationType", json["stationType"].string_value());
 			location.SetSSI("tzName", json["tzName"].string_value());
@@ -1667,8 +1676,8 @@ namespace WBSF
 
 		size_t miss = 0;
 		bool bMissName = location.m_name.empty();
-		bool bMissCounty = location.GetSSI("State").empty();
-		bool bMissState = location.GetSSI("State").empty();
+		bool bMissCounty = location.GetSSI("County").empty();
+		bool bMissState = location.GetSSI("SubDivisions").empty();
 		bool bMissCountry = location.GetSSI("Country").empty();
 
 
@@ -1710,7 +1719,7 @@ namespace WBSF
 							string city = ANSI_2_ASCII(address["city"].string_value());
 							string county = ANSI_2_ASCII(address["county"].string_value());
 							string region = ANSI_2_ASCII(address["region"].string_value());
-							string state = ANSI_2_ASCII(address["state"].string_value());
+							string subDivisions = ANSI_2_ASCII(address["state"].string_value());
 							string country = ANSI_2_ASCII(address["country"].string_value());
 
 
@@ -1735,8 +1744,8 @@ namespace WBSF
 							if (bMissCounty && !county.empty())
 								location.SetSSI("County", county);
 
-							if (bMissState && !state.empty())
-								location.SetSSI("State", state);
+							if (bMissState && !subDivisions.empty())
+								location.SetSSI("SubDivisions", subDivisions);
 
 							if (bMissCountry && !country.empty())
 								location.SetSSI("Country", country);
