@@ -72,6 +72,9 @@ namespace WBSF
 		static size_t GetMemberFromName(const std::string& headerIn);
 		static std::vector<size_t> GetMembers(const StringVector& header);
 
+		
+
+
 		//public member
 		std::string m_name;		//name of the simulation point
 		std::string m_ID;		//ID of the simulation point
@@ -229,6 +232,12 @@ namespace WBSF
 	{
 	public:
 
+		static ERMsg ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback);
+		static ERMsg ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eINterpol, CCallback& callback);
+		static ERMsg ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback);
+
+
+
 		CLocationVector(size_t size = 0) :CLocationVectorBase(size)
 		{}
 
@@ -237,6 +246,12 @@ namespace WBSF
 		ERMsg Save(const std::string& filePath, char separator = ',', CCallback& callback = CCallback::DEFAULT_CALLBACK)const;
 		ERMsg Save(std::ostream& filePath, char separator = ',', CCallback& callback = CCallback::DEFAULT_CALLBACK)const;
 		ERMsg IsValid(bool bExludeUnknownElev=true)const;
+		ERMsg ExtractNominatimName(bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback) { return ExtractNominatimName(*this, bReplaceAll, bName, bState, bCountry, callback); }
+		ERMsg ExtractOpenTopoDataElevation(bool bReplaceAll, size_t eProduct, size_t eINterpol, CCallback& callback) { return ExtractOpenTopoDataElevation(*this, bReplaceAll, eProduct, eINterpol, callback); }
+		ERMsg ExtractShoreDistance(bool bReplaceAll, CCallback& callback) { return ExtractShoreDistance(*this, bReplaceAll, callback); }
+
+
+
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)

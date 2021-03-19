@@ -6,17 +6,12 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 19-03-2021	Rémi Saint-Amant	Bug correction in reading buffer
 // 01-10-2020	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 
 #include "stdafx.h"
 #include "Basic/CallcURL.h"
-
-//#include <windows.h> 
-//#include <tchar.h>
-//#include <stdio.h> 
-//#include <strsafe.h>
-//#include <string>
 
 using namespace std;
 
@@ -177,7 +172,7 @@ namespace WBSF
 		DWORD dwRead;
 		//CHAR chBuf[BUFSIZE] = { 0 };
 		std::string chBuf;
-		chBuf.resize(BUFSIZE);
+		chBuf.resize(BUFSIZE,0);
 
 		BOOL bSuccess = FALSE;
 
@@ -197,7 +192,7 @@ namespace WBSF
 			if (!bSuccess)
 				break;
 
-			str += chBuf;
+			str.append( chBuf.c_str(), dwRead);
 		}
 
 		return msg;

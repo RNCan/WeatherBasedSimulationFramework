@@ -61,6 +61,7 @@ namespace WBSF
 			if (m_pShore->search(location, 1, shorePt) )
 			{
 				d = shorePt.front().m_distance;
+				ASSERT(d >= 0 && d < 10000000);
 			}
 		}
 
