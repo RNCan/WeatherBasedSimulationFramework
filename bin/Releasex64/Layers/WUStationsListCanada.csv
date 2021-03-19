@@ -1,4 +1,4 @@
-KeyID,Name,Latitude,Longitude,Elevation,City,StationType,GoldStar,County,State,Country
+KeyID,Name,Latitude,Longitude,Elevation,City,StationType,GoldStar,County,SubDivisions,Country
 IABBOTSF4,Sdf Weather Station,49.039,-122.228,34,Abbotsford,Acurite Pro Weather Center,0,Fraser Valley,BC,CA
 IABBOTSF9,Clearbrook,49.041,-122.334,70,Abbotsford,Bloomsky,1,Fraser Valley,BC,CA
 IADELAID27,Cairngorm,42.907,-81.69,220,Adelaide Metcalfe,Ambient Weather Ws-1001-Wifi (Wireless),1,Middlesex County,ON,CA
