@@ -348,54 +348,57 @@ bool Data::load_expression_file(const std::string& file_name, std::string& txt, 
 
 bool Data::update_virtual_cols(const std::string& virtual_cols_txt, const std::vector<std::string>& virtual_cols_name)
 {
-	assert(!virtual_cols_txt.empty());
+	//assert(!virtual_cols_txt.empty());
 
-	bool data_thruncked = false;
+	bool bSuccess = true;
 
-	std::vector<std::string> names = variable_names;
-
-	//reshape data
-	names.insert(names.end(), virtual_cols_name.begin(), virtual_cols_name.end());
-	reshape(names);
-
-	//assert(num_cols == num_cols_no_snp);
-
-	symbol_table_t symbol_table;
-	symbol_table.add_constants();
-
-	//add all column as variable
-	std::vector<double> m_vars(num_cols);
-	for (std::size_t c = 0; c < variable_names.size(); ++c)
-		symbol_table.add_variable(variable_names[c], m_vars[c]);
-
-	parser_t parser;
-	parser.dec().collect_variables() = true;
-	parser.dec().collect_functions() = true;
-
-	expression_t expression;
-	expression.register_symbol_table(symbol_table);
-
-	if (parser.compile(virtual_cols_txt, expression))
+	if (!virtual_cols_txt.empty())
 	{
+		bSuccess = false;
+		std::vector<std::string> names = variable_names;
 
-		for (std::size_t r = 0; r < num_rows; ++r)
+		//reshape data
+		names.insert(names.end(), virtual_cols_name.begin(), virtual_cols_name.end());
+		reshape(names);
+
+		//assert(num_cols == num_cols_no_snp);
+
+		symbol_table_t symbol_table;
+		symbol_table.add_constants();
+
+		//add all column as variable
+		std::vector<double> m_vars(num_cols);
+		for (std::size_t c = 0; c < variable_names.size(); ++c)
+			symbol_table.add_variable(variable_names[c], m_vars[c]);
+
+		parser_t parser;
+		parser.dec().collect_variables() = true;
+		parser.dec().collect_functions() = true;
+
+		expression_t expression;
+		expression.register_symbol_table(symbol_table);
+
+		if (parser.compile(virtual_cols_txt, expression))
 		{
-			for (std::size_t c = 0; c < num_cols; ++c)
-				m_vars[c] = get_data(r, c);
 
-			expression.value();
+			for (std::size_t r = 0; r < num_rows; ++r)
+			{
+				for (std::size_t c = 0; c < num_cols; ++c)
+					m_vars[c] = get_data(r, c);
 
-			for (std::size_t c = 0; c < num_cols; ++c)
-				set(c, r, m_vars[c], data_thruncked);
+				expression.value();
+
+				for (std::size_t c = 0; c < num_cols; ++c)
+					set(c, r, m_vars[c], bSuccess);
+			}
+		}
+		else
+		{
+			throw std::runtime_error("Virtual Parser Error: " + parser.error() + "\tExpression: " + virtual_cols_txt);
 		}
 	}
-	else
-	{
-		throw std::runtime_error("Virtual Parser Error: " + parser.error() + "\tExpression: " + virtual_cols_txt);
-	}
 
-
-	return data_thruncked;
+	return bSuccess;
 }
 
 
