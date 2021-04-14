@@ -2074,7 +2074,7 @@ namespace WBSF
 
 		m_ctrl.Reset();
 		m_ctrl.m_bMax = true;
-		m_ctrl.m_statisticType = LOG_LIKELIHOOD1;
+		m_ctrl.m_statisticType = LIKELIHOOD;
 		m_ctrl.m_MAXEVL = 1000000;
 		m_ctrl.m_NS = 15;
 		m_ctrl.m_NT = 20;
@@ -2272,7 +2272,7 @@ namespace WBSF
 		ERMsg msg;
 
 		static const char* TYPE_NAME[NB_FIT_TYPE] = { "Development time (with sigma)","Development time only","Survival", "Oviposition" };
-		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
+		bool bLogLikelyhoude = m_ctrl.m_statisticType == LIKELIHOOD;
 
 
 
@@ -2948,7 +2948,7 @@ namespace WBSF
 		string line;
 
 		double F = m_ctrl.Max() ? computation.m_Fopt : -computation.m_Fopt;
-		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
+		bool bLogLikelyhoude = m_ctrl.m_statisticType == LIKELIHOOD;
 
 		CStatistic stat;
 		for (size_t i = 0, j = 0; i < computation.m_Xstat.size(); i++)
@@ -2996,7 +2996,7 @@ namespace WBSF
 	{
 		string line;
 		double F = m_ctrl.Max() ? computation.m_Fopt : -computation.m_Fopt;
-		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
+		bool bLogLikelyhoude = m_ctrl.m_statisticType == LIKELIHOOD;
 
 		CStatistic stat;
 		for (size_t i = 0, j = 0; i < computation.m_XPstat.size(); i++)
@@ -3532,7 +3532,7 @@ namespace WBSF
 	void CInsectParameterization::GetFValue(string var, size_t e, CComputationVariable& computation)
 	{
 		//bool bValid = false;
-		bool bLogLikelyhoude = m_ctrl.m_statisticType == LOG_LIKELIHOOD1;
+		bool bLogLikelyhoude = m_ctrl.m_statisticType == LIKELIHOOD;
 		double log_likelyhoude = 0;
 		size_t N_likelyhoude = 0;
 		//size_t N = 0;
@@ -3827,16 +3827,16 @@ namespace WBSF
 							if (m_fecundity.m_bIndividual)//use individual time
 							{
 								//double F = quantile(LogNormal, m_fecundity[i][I_Q_BROOD]);
-								double brood = GetFecundity(eq, computation, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], qi[i]);
-								if (!isfinite(brood) || isnan(brood))
-									return;
+								//double brood = GetFecundity(eq, computation, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], qi[i]);
+								//if (!isfinite(brood) || isnan(brood))
+								//	return;
 
-								//boost::math::lognormal_distribution<double> LogNormal(-0.5*Square(sigma), sigma);
-								//double RFR = quantile(LogNormal, m_fecundity[i][I_Q_BROOD]);
-								double sim = brood;
-								double obs = m_fecundity[i][I_BROOD];
-								for (size_t n = 0; n < m_fecundity[i][I_N]; n++)
-									stat.Add(sim, obs);
+								////boost::math::lognormal_distribution<double> LogNormal(-0.5*Square(sigma), sigma);
+								////double RFR = quantile(LogNormal, m_fecundity[i][I_Q_BROOD]);
+								//double sim = brood;
+								//double obs = m_fecundity[i][I_BROOD];
+								//for (size_t n = 0; n < m_fecundity[i][I_N]; n++)
+								//	stat.Add(sim, obs);
 							}
 							else//use mean+sd+n 
 							{
