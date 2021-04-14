@@ -72,20 +72,27 @@ namespace WBSF
 		virtual void GetParamterset(CGridInterpolParamVector& parameterset);
 		virtual std::string GetFeedbackBestParam()const;
 		virtual std::string GetFeedbackOnOptimisation(const CGridInterpolParamVector& parameterset, const std::vector<double>& optimisationR²)const;
-		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const;
+		virtual double Evaluate(const CGridPoint& pt, int iXval = -1)const { double error;  return EvaluateWithError(pt, iXval, error); }
 		virtual bool GetVariogram(CVariogram& variogram)const override;
 		virtual void Cleanup()override;
+
+
+
+		double EvaluateWithError(const CGridPoint& pt, int iXval, double& error)const;
+
+
 
 		CParamUK m_p;
 
 	protected:
 
+		
 
 		int GetMDT()const;
 
 		void Init_va(const CGridPoint& pt, int iXVal, CGridPointVector& va)const;
-		void Init_a(const CGridPoint& pt, CGridPointVector& va, NEWMAT::Matrix &a)const;
-		void Init_r(const CGridPoint& pt, CGridPointVector& va, NEWMAT::ColumnVector& r)const;
+		void Init_a(const CGridPoint& pt, const CGridPointVector& va, NEWMAT::Matrix &a)const;
+		void Init_r(const CGridPoint& pt, const CGridPointVector& va, NEWMAT::ColumnVector& r)const;
 
 		CVariogram* GetVariogram()const;
 		

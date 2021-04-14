@@ -57,6 +57,11 @@ namespace WBSF
 		static bool HaveShore(int v){ return v & SHORE || v & SHORE²; }
 		static bool IsValid(int v, bool bUseLatLon, bool bUseElev, bool bUseExpo, bool bUseShore){ return v>0 && (bUseLatLon || !HaveLatLon(v)) && (bUseElev || !HaveElevation(v)) && (bUseExpo || !HaveExposition(v)) && (bUseShore || !HaveShore(v)); }
 		
+		std::istream& operator << (std::istream& s) { s >> m_v; return s; }
+		std::ostream& operator >> (std::ostream& s)const { s << m_v; return s; }
+		friend std::istream& operator >>(std::istream& s, CTerm& p) { p << s; return s; }
+		friend std::ostream& operator <<(std::ostream& s, const CTerm& p) { p >> s; return s; }
+
 	protected:
 
 
@@ -65,7 +70,18 @@ namespace WBSF
 		static const char* TERMS_NAME[3*5];
 	};
 
-	typedef std::vector<CTerm> CTermVector;
+	typedef std::vector<CTerm> CTermVectorBase;
+	class CTermVector : public CTermVectorBase
+	{
+	public:
+
+		using CTermVectorBase::CTermVectorBase;
+		std::istream& operator << (std::istream& s);
+		std::ostream& operator >> (std::ostream& s)const;
+		friend std::istream& operator >>(std::istream& s, CTermVector& p) { p << s; return s; }
+		friend std::ostream& operator <<(std::ostream& s, const CTermVector& p) { p >> s; return s; }
+
+	};
 
 	class CGeoRegression : public CTermVector
 	{
@@ -123,6 +139,11 @@ namespace WBSF
 			return order;
 		}
 		
+
+		std::istream& operator << (std::istream& s) { CTermVector::operator<<(s); deserialize(s, m_param); s >> m_intercept >> m_R²; return s; }
+		std::ostream& operator >> (std::ostream& s)const { CTermVector::operator>>(s); serialize(s, m_param); s << m_intercept<< m_R²; return s; }
+		friend std::istream& operator >>(std::istream& s, CGeoRegression& p) { p << s; return s; }
+		friend std::ostream& operator <<(std::ostream& s, const CGeoRegression& p) { p >> s; return s; }
 
 	protected:
 

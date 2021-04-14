@@ -156,7 +156,7 @@ namespace WBSF
 		if (m_bUseXPrime)
 			x = (m_n*x + 1) / (m_n + 2);
 	
-		ASSERT(x>=0 && x<1);
+		ASSERT(x>0 && x<1);
 		double y = log(x / (1 - x));
 
 		return y;
@@ -175,6 +175,7 @@ namespace WBSF
 		if (m_bDataInPercent)
 			x *= 100;
 
+		ASSERT(x >= 0 && x <= 1);
 		return x;
 	}
 

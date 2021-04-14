@@ -746,6 +746,7 @@ void CSFPolyLine::GetBoundingBox(CGeoRect& box)const
     box = m_boundingBox;
 }
 
+
 double CSFPolyLine::GetMinimumDistance(const CGeoPoint& pt, int* pNearestSegmentNo)const
 {
     double distanceMin = 1e20;
@@ -770,34 +771,54 @@ double CSFPolyLine::GetMinimumDistance(const CGeoPoint& pt, int* pNearestSegment
 
         for( int j = first; j <last ; j++)
         {
-			
-            CGeoDistance U = m_points[j].GetDistanceXY(pt);
-            CGeoDistance P = m_points[j+1].GetDistanceXY(pt);
+			CGeoSegment segment(m_points[j], m_points[j + 1]);
+			//segment.SetPrjID(m_points[j].GetPrjID());
+			CGeoPoint closestPt = segment.GetClosestPoint(pt);
+			double d = closestPt.GetDistance(pt);
 
-            
-            CGeoDistance V = U-P;//(U.m_x-P.m_x, U.m_y-P.m_y); //= m_points[j+1].GetDistanceXY(m_points[j],bGeographic);
-            double dV2 = SQUARE( V.m_x ) + SQUARE( V.m_y ) ;
-            double c = (V.m_x*U.m_x + V.m_y*U.m_y)/dV2;
-
-
-            double dPU2 = SQUARE(c*V.m_x) + SQUARE(c*V.m_y);
-
-            double d = 0;
-
-            //Si la perpendiculaire ce situ entre les deux points.
-            if( c > 0 && dPU2 < dV2 )
-            {
-                d = fabs( (U.m_x*V.m_y) - (U.m_y*V.m_x) )/ sqrt( dV2 ) ;
-                ASSERT( d >= 0);
-                //ASSERT( d < min( d1, d2));
-                //ASSERT( SQUARE(d) + dPU2 - SQUARE(test1) < 0.0001);
-            }
-            else
-            {
-                double d1 = m_points[j].GetMinimumDistance(pt);
-                double d2 = m_points[j+1].GetMinimumDistance(pt);
-                d = min( d1, d2);
-            }
+            //CGeoDistance U = m_points[j].GetDistanceXY(pt);
+            //CGeoDistance P = m_points[j+1].GetDistanceXY(pt);
+//			CGeoDistance U = pt - m_points[j];
+//			CGeoDistance P = pt - m_points[j+1];
+//
+//            
+//            CGeoDistance V = U-P;//(U.m_x-P.m_x, U.m_y-P.m_y); //= m_points[j+1].GetDistanceXY(m_points[j],bGeographic);
+//            double dV2 = SQUARE( V.m_x ) + SQUARE( V.m_y ) ;
+//            double c = (V.m_x*U.m_x + V.m_y*U.m_y)/dV2;
+//
+//
+//            double dPU2 = SQUARE(c*V.m_x) + SQUARE(c*V.m_y);
+//
+//            double d = 0;
+//			//double t = V * U / (V*V);
+//			/*const v = [B[0] - A[0], B[1] - A[1]]
+//				const u = [A[0] - P[0], A[1] - P[1]]
+//				const vu = v[0] * u[0] + v[1] * u[1]
+//				const vv = v[0] * * 2 + v[1] * * 2
+//				const t = -vu / vv
+//				if (t >= 0 && t <= 1)
+//
+//*/
+//
+//            //Si la perpendiculaire ce situ entre les deux points.
+//            if( c > 0 && dPU2 < dV2 )
+//            {
+//				CGeoSegment segment(m_points[j], m_points[j+1]);
+//				segment.SetPrjID(m_points[j].GetPrjID());
+//				CGeoPoint close = GetClosestPoint(segment, pt);
+//				d = close.GetDistance(pt);
+//
+//                //d = fabs( (U.m_x*V.m_y) - (U.m_y*V.m_x) )/ sqrt( dV2 ) ;
+//                ASSERT( d >= 0);
+//                //ASSERT( d < min( d1, d2));
+//                //ASSERT( SQUARE(d) + dPU2 - SQUARE(test1) < 0.0001);
+//            }
+//            else
+//            {
+//                double d1 = m_points[j].GetMinimumDistance(pt);
+//                double d2 = m_points[j+1].GetMinimumDistance(pt);
+//                d = min( d1, d2);
+//            }
 
 
             if( d < distanceMin)

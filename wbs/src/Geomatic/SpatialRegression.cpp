@@ -174,6 +174,27 @@ namespace WBSF
 		return str;
 	}
 
+	//**********************************************************************
+	std::istream& CTermVector::operator << (std::istream& s)
+	{
+		size_t the_size = 0;
+		s >> the_size;
+		resize(the_size);
+		for (size_t i = 0; i < size(); i++)
+			at(i) << s;
+
+		return s;
+	}
+	std::ostream& CTermVector::operator >> (std::ostream& s)const
+	{
+		size_t the_size = size();
+		s << the_size;
+
+		for (size_t i = 0; i < size(); i++)
+			s << at(i);
+
+		return s;
+	}
 
 	//**********************************************************************
 

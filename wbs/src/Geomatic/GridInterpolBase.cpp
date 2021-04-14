@@ -393,37 +393,39 @@ namespace WBSF
 
 		//? m_bUseElevation ? 4 : 3 : m_bUseElevation ? 3 : 2;
 		m_nSize = pts.size();
-		m_pDataPts = annAllocPts((int)m_nSize, (int)m_nbDimension);
-
-		for (size_t i = 0; i < m_nSize; i++)
+		if (m_nSize > 0)
 		{
-			for (int k = 0, kk = 0; k < 6; k++)
-			{
+			m_pDataPts = annAllocPts((int)m_nSize, (int)m_nbDimension);
 
-				if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
+			for (size_t i = 0; i < m_nSize; i++)
+			{
+				for (int k = 0, kk = 0; k < 6; k++)
 				{
-					m_pDataPts[i][kk] = m_bGeographic ? pts[i](k) : pts[i][k];
-					kk++;
-				}
-				else if (k == 3 && m_bUseElevation)
-				{
-					m_pDataPts[i][kk] = pts[i].m_elev * 100;
-					kk++;
-				}
-				/*else if (k == 4 && m_bHaveExposition)
-				{
-					dp = pts[i].GetExposition();
-				}*/
-				else if (k == 5 && m_bUseShore)
-				{
-					m_pDataPts[i][kk] = pts[i].m_shore;
-					kk++;
+
+					if ((k < 2 && !m_bGeographic) || (k < 3 && m_bGeographic))
+					{
+						m_pDataPts[i][kk] = m_bGeographic ? pts[i](k) : pts[i][k];
+						kk++;
+					}
+					else if (k == 3 && m_bUseElevation)
+					{
+						m_pDataPts[i][kk] = pts[i].m_elev * 100;
+						kk++;
+					}
+					/*else if (k == 4 && m_bHaveExposition)
+					{
+						dp = pts[i].GetExposition();
+					}*/
+					else if (k == 5 && m_bUseShore)
+					{
+						m_pDataPts[i][kk] = pts[i].m_shore;
+						kk++;
+					}
 				}
 			}
+
+			m_pTreeRoot.reset(new ANNkd_tree(m_pDataPts, (int)m_nSize, (int)m_nbDimension));
 		}
-
-		m_pTreeRoot.reset(new ANNkd_tree(m_pDataPts, (int)m_nSize, (int)m_nbDimension));
-
 	}
 
 	void CANNSearch::Search(const CGridPoint& pt, size_t nbPoint, CGridPointResultVector& result)const

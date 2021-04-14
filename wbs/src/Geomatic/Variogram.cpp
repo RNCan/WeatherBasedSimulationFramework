@@ -154,7 +154,7 @@ namespace WBSF
 			{
 				if (range < EPSILON)
 					range = EPSILON;
-				
+
 				yh = nugget + sill * (1.0 - sin(PI*xx / range) / (PI*xx / range));
 
 				break;
@@ -329,7 +329,7 @@ namespace WBSF
 				lower_bound = statV[LOWEST], statV[LOWEST], statD[LOWEST];
 				upper_bound = statV[HIGHEST], statV[HIGHEST], statD[HIGHEST];
 			}
-			
+
 
 			//param is limited between lower and upper bounds
 			double p[3] = { min(upper_bound(0), max(lower_bound(0), params(0))), min(upper_bound(1), max(lower_bound(1), params(1))), min(upper_bound(2), max(lower_bound(2), params(2))) };
@@ -348,7 +348,7 @@ namespace WBSF
 
 	protected:
 
-		int m_model;
+		size_t m_model;
 		const CVariogramPredictorVector& m_samples;
 	};
 
@@ -484,6 +484,32 @@ namespace WBSF
 		return(sqd);
 	}
 
+
+	//*****************************************************
+
+	std::istream& CVariogramPredictorVector::operator << (std::istream& s)
+	{
+		size_t the_size = 0;
+		s >> the_size;
+		resize(the_size);
+		for (size_t i = 0; i < size(); i++)
+			at(i) << s;
+
+		return s;
+	}
+	std::ostream& CVariogramPredictorVector::operator >> (std::ostream& s)const
+	{
+		size_t the_size = size();
+		s << the_size;
+
+		for (size_t i = 0; i < size(); i++)
+			s << at(i);
+
+		return s;
+	}
+
+
+	//*****************************************************
 	const char* CVariogram::MODEL_NAME[NB_MODELS] = { "Sperical", "Exponential", "Gaussian", "Power", "Cubic","Pentaspherical","Sine Hole Effect" };
 
 
@@ -512,7 +538,7 @@ namespace WBSF
 		m_model = SPERICAL;
 		m_nLags = 0;
 		m_dLag = 0.0f;
-		
+
 		m_detrending.Reset();
 		m_rotmat.Reset();
 
@@ -562,7 +588,7 @@ namespace WBSF
 		if (m_R2 != in.m_R2)bEqual = false;
 		if (m_detrending != in.m_detrending)bEqual = false;
 		if (m_dLag != in.m_dLag)bEqual = false;
-				if (m_nLags != in.m_nLags)bEqual = false;
+		if (m_nLags != in.m_nLags)bEqual = false;
 		if (m_rotmat != in.m_rotmat)bEqual = false;
 
 		if (!std::equal(m_predictorVector.begin(), m_predictorVector.end(), in.m_predictorVector.begin()))
@@ -686,9 +712,9 @@ namespace WBSF
 	}
 
 
-	ERMsg CVariogram::FitVariogramModels(int model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2, CCallback& callback)
+	ERMsg CVariogram::FitVariogramModels(size_t model, const CVariogramPredictorVector& lagVar, double& final_nugget, double& final_sill, double& final_range, double& final_r2, CCallback& callback)
 	{
-		ASSERT(model >= SPERICAL && model < NB_MODELS);
+		ASSERT(model < NB_MODELS);
 		ERMsg msg;
 
 
@@ -724,13 +750,13 @@ namespace WBSF
 
 		//try different radius size
 		//sometime bobyqa throw exeception
-		for (size_t i = 0; i < 4&& m_R2 ==-999; i++)
+		for (size_t i = 0; i < 4 && m_R2 == -999; i++)
 		{
 			try
 			{
 				long npt = x.size() * 2 + 1;
-				double rho_begin = min(x_upper - x_lower) / (2.5*(i+1));
-				double rho_end = min(0.01, rho_begin / (1000000/(pow(10,i))));
+				double rho_begin = min(x_upper - x_lower) / (2.5*(i + 1));
+				double rho_end = min(0.01, rho_begin / (1000000 / (pow(10, i))));
 				ASSERT(x.size() + 2 <= npt);
 				ASSERT(npt <= (x.size() + 1)*(x.size() + 2) / 2);
 				ASSERT(0 < rho_end);
@@ -753,7 +779,7 @@ namespace WBSF
 						10000       // max number of allowable calls to cross_validation_objective()
 					);
 
-				
+
 				m_nugget = x(0);
 				m_sill = x(1);
 				m_range = x(2);
@@ -768,7 +794,7 @@ namespace WBSF
 			{
 				//Usually BOBYQA that are not able to solve problem
 				//callback.AddMessage(string("WARNING: Variagram (") + GetModelName(model)  + ") " + e.what());
-				
+
 			}
 		}
 
@@ -776,10 +802,10 @@ namespace WBSF
 	}
 
 
-	ERMsg CVariogram::CreateVariogram(const CGridPointVector& pts, const CPrePostTransfo& transfo, int model, int nLags, float dLag,
+	ERMsg CVariogram::CreateVariogram(const CGridPointVector& pts, const CPrePostTransfo& transfo, size_t model, int nLags, float dLag,
 		const CDetrending& detrending, const CRotationMatrix& rotmat, CCallback& callback)
 	{
-		ASSERT(model >= SPERICAL && model < NB_MODELS);
+		ASSERT(model < NB_MODELS);
 		ASSERT(nLags > 0);
 		ASSERT(dLag > 0);
 		ASSERT(pts.size() > 30);
@@ -803,7 +829,7 @@ namespace WBSF
 				msg = FitVariogramModels(m_model, m_predictorVector, m_nugget, m_sill, m_range, m_R2, callback);
 		}
 
-		
+
 		return msg;
 	}
 
@@ -823,6 +849,51 @@ namespace WBSF
 		}
 
 		return msg;
+	}
+
+
+	std::istream& CVariogram::operator << (std::istream& s)
+	{
+		WBSF::read_value(s, m_model);
+		WBSF::read_value(s, m_nLags);
+		WBSF::read_value(s, m_dLag);
+
+		s >> m_detrending;
+		s >> m_rotmat;
+
+		//variogram 
+		WBSF::read_value(s, m_nugget);
+		WBSF::read_value(s, m_sill);
+		WBSF::read_value(s, m_range);
+		WBSF::read_value(s, m_R2);
+		WBSF::read_value(s, m_PMX);
+
+
+		s >> m_predictorVector;
+
+		return s;
+	}
+
+	std::ostream& CVariogram::operator >> (std::ostream& s)const
+	{
+		WBSF::write_value(s, m_model);
+		WBSF::write_value(s, m_nLags);
+		WBSF::write_value(s, m_dLag);
+
+		s << m_detrending;
+		s << m_rotmat;
+
+		//variogram 
+		WBSF::write_value(s, m_nugget);
+		WBSF::write_value(s, m_sill);
+		WBSF::write_value(s, m_range);
+		WBSF::write_value(s, m_R2);
+		WBSF::write_value(s, m_PMX);
+
+
+		s << m_predictorVector;
+
+		return s;
 	}
 
 	/*
@@ -1026,7 +1097,7 @@ namespace WBSF
 		case POWER:				cova3 = m_PMX - cc * powfn(h, aa); break;
 		case CUBIC:				cova3 = (hr < 1.0) ? cc * (1.0 - (7.0 * pow(hr, 2.0) - 35.0 / 4.0 * pow(hr, 3.0) + 7.0 / 2.0 * pow(hr, 5.0) - 3.0 / 4.0 * pow(hr, 7.0))) : 0; break;
 		case PENTASPHERICAL:	cova3 = (hr < 1.0) ? cc * (1.0 - (15.0 / 8.0 * pow(hr, 1.0) - 5.0 / 4.0 * pow(hr, 3.0) + 3.0 / 8.0 * pow(hr, 5.0))) : 0; break;
-		case SINE_HOLE_EFFECT:	cova3 = cc * ( sin(PI*hr) / (PI*hr)); break;
+		case SINE_HOLE_EFFECT:	cova3 = cc * (sin(PI*hr) / (PI*hr)); break;
 		default: ASSERT(false);
 		}
 

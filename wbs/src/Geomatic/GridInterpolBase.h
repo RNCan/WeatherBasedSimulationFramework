@@ -103,7 +103,7 @@ namespace WBSF
 
 		size_t size()const{ return std::vector<CXvalTuple>::size(); }
 
-		CStatisticXY GetStatistic( double noData)
+		CStatisticXY GetStatistic( double noData)const
 		{
 			CStatisticXY stat;
 			for (size_t i = 0; i<size(); i++)
@@ -178,7 +178,7 @@ namespace WBSF
 		double	m_regressCriticalR2;
 
 		//Kriging
-		int		m_variogramModel;
+		size_t	m_variogramModel;
 		int		m_nbLags;
 		double	m_lagDist;
 		int		m_detrendingModel;

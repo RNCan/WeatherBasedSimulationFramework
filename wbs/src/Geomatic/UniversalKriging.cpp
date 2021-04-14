@@ -153,7 +153,7 @@ namespace WBSF
 			//m_pVariogram->Reset(); // force creation of the variogram
 
 			//detrending and variogram
-			int dm = m_param.m_detrendingModel;
+			int dm = CGridInterpolParam::NO_DETRENDING;//m_param.m_detrendingModel;
 			CDetrending detrending(CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]);
 			for (size_t i = 0; i < CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][0]; i++)
 				detrending[i] = CGridInterpolParam::DETRENDING_TERM_DEFINE[dm][i + 1];
@@ -218,7 +218,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CUniversalKriging::Init_a(const CGridPoint& pt, CGridPointVector& va, NEWMAT::Matrix &a)const
+	void CUniversalKriging::Init_a(const CGridPoint& pt, const CGridPointVector& va, NEWMAT::Matrix &a)const
 	{
 		ASSERT(a.Ncols() == a.Nrows());
 
@@ -233,6 +233,10 @@ namespace WBSF
 		{
 			for (int j = i; j < (int)va.size(); j++)
 			{
+				//double h = va[i].GetDistance(va[j]);
+				
+
+
 				double cov = m_pVariogram->cova3(va[i], va[j]);
 
 				a[i][j] = cov;
@@ -255,7 +259,7 @@ namespace WBSF
 		// Add the additional Unbiasedness constraints: 
 		int im = int(va.size()) + 1;
 
-		const CDetrending& detrending = m_pVariogram->GetDetrending();
+		//const CDetrending& detrending = m_pVariogram->GetDetrending();
 		for (int i = 0; i < (int)m_externalDrift.size(); i++)
 		{
 			double resce = m_pVariogram->GetMaxCov() / max(LIMIT, m_externalDrift[i].GetE(pt));
@@ -280,7 +284,7 @@ namespace WBSF
 		
 	}
 
-	void CUniversalKriging::Init_r(const CGridPoint& pt, CGridPointVector& va, NEWMAT::ColumnVector& r)const
+	void CUniversalKriging::Init_r(const CGridPoint& pt, const CGridPointVector& va, NEWMAT::ColumnVector& r)const
 	{
 
 		double unbias = m_pVariogram->GetUnbias();
@@ -316,7 +320,7 @@ namespace WBSF
 		int im = int(va.size()) + 1;
 
 		double resc = max(m_pVariogram->GetMaxCov(), LIMIT) / (2.0 * m_p.m_radius);
-		const CDetrending& detrending = m_pVariogram->GetDetrending();
+		//const CDetrending& detrending = m_pVariogram->GetDetrending();
 
 
 		for (int i = 0; i < m_externalDrift.size(); i++)
@@ -355,7 +359,8 @@ namespace WBSF
 
 
 
-	double CUniversalKriging::Evaluate(const CGridPoint& pt, int iXval)const
+	//double CUniversalKriging::Evaluate(const CGridPoint& pt, int iXval)const
+	double CUniversalKriging::EvaluateWithError(const CGridPoint& pt, int iXval, double& error)const
 	{
 		//if variogram is not initialised correckly, we retuern no data;
 		if (!m_pVariogram->IsInit())
@@ -406,12 +411,12 @@ namespace WBSF
 		bool bOK = false;
 		while (!bOK && neq >= mdt + m_p.m_nbPoint * 2 / 3)//by RSA 25/10/2010
 		{
-			Try
+			try
 			{
 				a = a.i();
 				bOK = true;
 			}
-				Catch(NEWMAT::Exception)
+			catch(NEWMAT::Exception)
 			{
 				OutputDebugStringW(L"a=a.i() failled; Reduce number of point");
 
@@ -450,6 +455,7 @@ namespace WBSF
 				uuk += s[j] * (m_prePostTransfo.Transform(va[j].m_event) - m_p.m_SKmean);
 		}
 
+		error = ukv;
 		uuk += m_p.m_SKmean;
 		uuk = m_prePostTransfo.InvertTransform(uuk, m_param.m_noData);
 		//
@@ -468,7 +474,7 @@ namespace WBSF
 					uuk = m_param.m_noData;
 			}
 		}
-
+		
 		if ( /*iXval<0 &&*/ m_param.m_bGlobalLimit && uuk > m_param.m_noData)
 		{
 			bool bOutside = uuk<m_stat[LOWEST] - m_param.m_globalLimitSD*m_stat[STD_DEV] || uuk>m_stat[HIGHEST] + m_param.m_globalLimitSD*m_stat[STD_DEV];
