@@ -109,7 +109,7 @@ for( g in 1:nbPlots )
 		at_bottom = c("Deva&Higgis", "Hansen ( 2011 )", "Johnson_1974","Regniere_2012", "Wang&Engel_1998", "Wang&Lan&Ding_1982", "Lobry&Rosso&Flandrois_1993")
 		adj_y = ifelse(e %in% at_bottom,0.8,0.55)
 		
-		if(e=="Saint-Amant_2019")e = 'Saint–Amant_2019'#strange problem with some font
+		if(e=="Saint-Amant_2021")e = 'Saint–Amant_2021'#strange problem with some font
 			
 		name = strsplit(e, "_")[[1]][1]
 		year = strsplit(e, "_")[[1]][2]
@@ -152,7 +152,7 @@ embed_fonts(file_name, outfile=paste("E:/Project/doc/DevRateEquations.pdf",sep="
 	
 	# for(i in 1:length(f)) 
 	# {
-		i=9
+		#i=9
 		
 		
 		
@@ -169,3 +169,17 @@ embed_fonts(file_name, outfile=paste("E:/Project/doc/DevRateEquations.pdf",sep="
 	# dev.off()
 # }
 
+
+
+e<-equations[37]
+simS<-sim[which(sim$EqName==e),]
+			
+P <- unlist(strsplit(as.character(simS$P), " "))
+Param <- strsplit(as.character(P), "=")
+for (j in 1:length(Param))
+	assign(Param[[j]][1], as.double(Param[[j]][2]) )
+L <- lapply(Param, '[[', 1)	
+E<-parse(text = as.character(simS$Eq))
+
+"psi~e^~bgroup('[',scriptstyle(-k[1]~bgroup('(',T[omega]-T,')')^2)~+~bgroup('(',over(1,-k[2]~bgroup('(',T[m]-T,')')),')'),']')"
+ex <- parse(text = simS$Math)
