@@ -29,7 +29,7 @@
 
 #include "WeatherBasedSimulationString.h"
 
- 
+
 using namespace std;
 using namespace json11;
 
@@ -47,7 +47,7 @@ namespace WBSF
 
 	StringVector CLocation::MEMBER_TITLE;
 	StringVector CLocation::DEFAULT_SSI_TITLE;
-	
+
 
 	const char* CLocation::GetMemberTitle(size_t i)
 	{
@@ -158,7 +158,7 @@ namespace WBSF
 		return io;
 	}
 
-	
+
 	string CLocation::GetMember(size_t i)const
 	{
 		_ASSERTE(i < NB_MEMBER);
@@ -241,7 +241,7 @@ namespace WBSF
 		if (it != m_siteSpeceficInformation.end())
 			aspect = ToDouble(it->second.first);
 
-		_ASSERTE(aspect==-999 || (aspect >= 0 && aspect <= 360) );
+		_ASSERTE(aspect == -999 || (aspect >= 0 && aspect <= 360));
 		return aspect;
 	}
 
@@ -255,8 +255,8 @@ namespace WBSF
 		return WBSF::GetDayLength(m_lat, d);
 	}
 
-	double CLocation::GetPressure()const{ return WBSF::GetPressure(m_elev); }
-	
+	double CLocation::GetPressure()const { return WBSF::GetPressure(m_elev); }
+
 	double CLocation::GetTimeZone()const
 	{
 		double timeZone = Round(m_lon / 15.0);
@@ -419,21 +419,21 @@ namespace WBSF
 
 		if (bTakeElevation && bTakeShoreDistance)
 		{
-			ASSERT(GetShoreDistance()>-999);
-			ASSERT(in.GetShoreDistance()>-999);
+			ASSERT(GetShoreDistance() > -999);
+			ASSERT(in.GetShoreDistance() > -999);
 			double s = (in.GetShoreDistance() - GetShoreDistance())*WEATHER::SHORE_DISTANCE_FACTOR;
-			d = sqrt(d*d + e*e + s*s);
+			d = sqrt(d*d + e * e + s * s);
 		}
 		else if (bTakeElevation && !bTakeShoreDistance)
 		{
-			d = sqrt(d*d + e*e);
+			d = sqrt(d*d + e * e);
 		}
 		else if (!bTakeElevation && bTakeShoreDistance)
 		{
-			ASSERT(GetShoreDistance()>-999);
-			ASSERT(in.GetShoreDistance()>-999);
+			ASSERT(GetShoreDistance() > -999);
+			ASSERT(in.GetShoreDistance() > -999);
 			double s = (in.GetShoreDistance() - GetShoreDistance())*WEATHER::SHORE_DISTANCE_FACTOR;
-			d = sqrt(d*d + s*s);
+			d = sqrt(d*d + s * s);
 		}
 
 		//double e = (in.m_elev - m_elev) * ELEV_FACTOR;
@@ -462,8 +462,8 @@ namespace WBSF
 		string header(headerIn);
 		header.erase(std::remove(header.begin(), header.end(), '"'), header.end());
 		header.erase(std::remove(header.begin(), header.end(), '\''), header.end());
-		
-		
+
+
 		string::size_type pos = header.find('(');
 		if (pos != string::npos)
 			header = Trim(header.substr(0, pos));
@@ -524,17 +524,17 @@ namespace WBSF
 		double shore_distance = -999;
 		string sd_str = GetSSI(GetDefaultSSIName(SHORE_DIST));
 		if (!sd_str.empty())
-			shore_distance = ToDouble(sd_str)*1000;//[km] to [m]
+			shore_distance = ToDouble(sd_str) * 1000;//[km] to [m]
 		else
 			shore_distance = CShore::GetShoreDistance(*this);
 
 		return shore_distance;
 	}
-	
+
 	void CLocation::SetShoreDistance(double shore_distance)
 	{
-		if (shore_distance>-999)
-			SetSSI(GetDefaultSSIName(SHORE_DIST), ToString(shore_distance/1000, 1)); //[m] to [km]
+		if (shore_distance > -999)
+			SetSSI(GetDefaultSSIName(SHORE_DIST), ToString(shore_distance / 1000, 1)); //[m] to [km]
 		else
 			SetSSI(GetDefaultSSIName(SHORE_DIST), ""); //reset
 	}
@@ -635,13 +635,13 @@ namespace WBSF
 		file.seekg(0);
 		vector<size_t> members;
 
-		
+
 		for (CSVIterator loop(file, separator); loop != CSVIterator() && msg; ++loop)
 		{
 			if (members.empty())
 				members = CLocation::GetMembers((StringVector&)loop.Header());
 
-			if (loop->size()>1)//can be empty line or some spaces...
+			if (loop->size() > 1)//can be empty line or some spaces...
 			{
 				size_t i = this->size();
 				resize(i + 1);
@@ -769,7 +769,7 @@ namespace WBSF
 	}
 
 	CLocationVector::const_iterator CLocationVector::FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const
-	{ 
+	{
 		return std::find_if(begin(), end(), FindLocationBySSI(SSI, value, bCase));
 	}
 
@@ -908,7 +908,7 @@ namespace WBSF
 
 
 
-	
+
 	ERMsg CLocationVector::ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eInterpol, CCallback& callback)
 	{
 		ASSERT(eProduct < COpenTopoDataElevation::NB_PRODUCTS);
@@ -918,11 +918,11 @@ namespace WBSF
 		ERMsg msg;
 
 		//http://api.opentopodata.org/v1/test-dataset?locations=56.35,123.90
-		callback.PushTask("Extract elevation from Open Topo Data", locations.size());
+		//API limits
+		//Max 100 locations per request.
+		//Max 1 call per second.
+		//Max 1000 calls per day.						
 
-		//CHttpConnectionPtr pConnection;
-		//CInternetSessionPtr pSession;
-		//msg += GetHttpConnection("api.opentopodata.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
 		//NOAA etopo1 1.8 km (Global, including bathymetry and ice surface elevation near poles)
 		//NASA srtm	90 m (Latitudes -60 to 60)
@@ -932,90 +932,87 @@ namespace WBSF
 		//USGS ned 10 m (Continental USA, Hawaii, parts of Alaska)
 
 
-	
-		
 		string product = COpenTopoDataElevation::PROPDUCT_NAME[eProduct];
 		string interpol = COpenTopoDataElevation::INTERPOL_NAME[eInterpol];
 
-		if (msg)
+		//if (msg)
+	//	{
+		string URL;
+
+		vector<size_t> loc_to_update;
+		//select locations to uptade
+		for (size_t i = 0; i < locations.size() && msg; i++)
 		{
-			string URL;
-
-			vector<size_t> loc_to_update;
-			//select locations to uptade
-			for (size_t i = 0; i < locations.size() && msg; i++)
+			if (locations[i].m_elev == -999 || bReplaceAll)
 			{
-				if (locations[i].m_elev == -999 || bReplaceAll)
-				{
+				bool bLimit60 = locations[i].m_lat >= -60 && locations[i].m_lat <= 60;
+				bool bNoLimits = eProduct != COpenTopoDataElevation::NASA_SRTM90M && eProduct != COpenTopoDataElevation::NASA_SRTM30M;
+				if(bLimit60 || bNoLimits)
 					loc_to_update.push_back(i);
-				}
 			}
+		}
 
-			size_t ii = 0;
-			size_t iii = 0;
-			for (size_t i = 0; i < loc_to_update.size() && msg; i++)
+		callback.PushTask("Extract elevation from Open Topo Data (" + to_string(loc_to_update.size()) + " locations)", ceil(loc_to_update.size() / 100));
+		callback.AddMessage("Extract elevation from Open Topo Data (" + to_string(loc_to_update.size()) + " locations)");
+
+		size_t ii = 0;
+		size_t iii = 0;
+		for (size_t i = 0; i < loc_to_update.size() && msg; i++)
+		{
+			if (ii == 0)
+				URL = "https://api.opentopodata.org/v1/" + product + "?&interpolation=" + interpol + "&locations=";
+			else
+				URL += "|";
+
+			size_t index = loc_to_update[i];
+			URL += ToString(locations[index].m_lat) + "," + ToString(locations[index].m_lon);
+			ii++;
+
+			if (ii == 100 || i == loc_to_update.size() - 1)
 			{
-				if (ii == 0)
-					URL = "https://api.opentopodata.org/v1/" + product + "?&interpolation=" + interpol + "&locations=";
-				else
-					URL += "|";
+				ii = 0;
+				string strGeo;
 
-				size_t index = loc_to_update[i];
-				URL += ToString(locations[index].m_lat) + "," + ToString(locations[index].m_lon);
-				ii++;
+				string argument = "-s -k \"" + URL + "\"";
+				string exe = GetApplicationPath() + "External\\curl.exe";
+				CCallcURL cURL(exe);
+				msg = cURL.get_text(argument, strGeo);
 
-				if (ii == 100 || i == loc_to_update.size() - 1)
+				//msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+				if (msg)
 				{
-					ii = 0;
-					string strGeo;
-					
-					string argument = "-s -k \"" + URL + "\"";
-					string exe = GetApplicationPath() + "External\\curl.exe";
-					CCallcURL cURL(exe);
-					msg = cURL.get_text(argument, strGeo);
+					//extract elevation from google
+					string error;
+					Json json = Json::parse(strGeo, error);
+					ASSERT(json.is_object());
 
-					//msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
-					if (msg)
+					if (error.empty() && json["status"] == "OK")
 					{
-						//extract elevation from google
-						string error;
-						Json json = Json::parse(strGeo, error);
-						ASSERT(json.is_object());
+						ASSERT(json["results"].is_array());
 
-						if (error.empty() && json["status"] == "OK")
+						Json::array result = json["results"].array_items();
+						for (size_t i = 0; i < result.size(); i++, iii++)
 						{
-							ASSERT(json["results"].is_array());
+							locations[loc_to_update[iii]].m_elev = result[i]["elevation"].number_value();
 
-							Json::array result = json["results"].array_items();
-							for (size_t i = 0; i < result.size(); i++, iii++)
-							{
-								locations[loc_to_update[iii]].m_elev = result[i]["elevation"].number_value();
-								msg += callback.StepIt();
-							}
-
-							if (i == loc_to_update.size() - 1)
-								Sleep(1000);//sleep one second (API limits)
-						}
-						else
-						{
-							if (error.empty())
-								error = json["error"].string_value();
-
-							msg.ajoute(error);
 						}
 					}
-				}//if no elev
+					else
+					{
+						if (error.empty())
+							error = json["error"].string_value();
 
+						msg.ajoute(error);
+					}
+				}
 
-			}//for all locations
+				msg += callback.StepIt();
+				if (i < (loc_to_update.size() - 1))
+					Sleep(1500);//sleep (API limits)
 
-			//pConnection->Close();
-			//pSession->Close();
-
-
-			//if (miss)
-				//SYShowMessage("Some missing values");
-		}//if msg
+			}//each 100 locations
+		}//for all locations
+	//}//if msg
 
 		callback.PopTask();
 
@@ -1058,5 +1055,40 @@ namespace WBSF
 	{
 		return zen::SaveXML(filePath, "Locations", "1", *this);
 	}
+
+	ERMsg CLocationMap::LoadFromCSV(const std::string& filePath)
+	{
+		ERMsg msg;
+
+		clear();
+
+		CLocationVector locations;
+		msg = locations.Load(filePath);
+		if (msg)
+		{
+			for (CLocationVector::const_iterator it = locations.begin(); it != locations.end(); it++)
+			{
+				ASSERT(find(it->m_ID) == end());//no duplication
+				(*this)[it->m_ID] = *it;
+			}
+		}
+
+		return msg;
+	}
+
+	ERMsg CLocationMap::SaveToCSV(const std::string& filePath)
+	{
+		CLocationVector locations;
+		locations.reserve(size());
+
+		for (CLocationMap::const_iterator it = begin(); it != end(); ++it)
+			locations.push_back(it->second);
+
+
+
+		return locations.Save(filePath);
+	}
+
+
 
 }//namespace WBSF

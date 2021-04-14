@@ -300,6 +300,8 @@ namespace WBSF
 
 		ERMsg Load(const std::string& filePath);
 		ERMsg Save(const std::string& filePath);
+		ERMsg LoadFromCSV(const std::string& filePath);
+		ERMsg SaveToCSV(const std::string& filePath);
 
 	};
 

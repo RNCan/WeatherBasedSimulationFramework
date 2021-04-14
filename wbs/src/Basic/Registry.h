@@ -14,6 +14,12 @@
 #include "Basic/UtilStd.h"
 namespace WBSF
 {
+	enum TGeoRegistryKey
+	{
+		L_WORLD_SRTM, L_WORLD_GADM,
+		NB_GEO_LAYERS_KEY
+	};
+
 
 	class CRegistry
 	{
@@ -98,14 +104,15 @@ namespace WBSF
 		char GetDecimalDelimiter()const;
 		void SetDecimalDelimiter(char sep);
 
+		static const char* GetGeoRegistryKey(size_t key) { return GEO_KEY_NAME[key]; }
 
 	protected:
 
 		std::wstring m_keyName;
 		std::wstring m_commonKeyName;
 
-		static const char* KEY_NAME;
-
+		static const char* KEY_PATH;
+		static const std::array<char*, NB_GEO_LAYERS_KEY> GEO_KEY_NAME;
 
 		HKEY  m_hKey;
 		HKEY  m_hCommonKey;

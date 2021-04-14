@@ -533,6 +533,33 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return str;
 	}
 
+	template<typename T>
+	std::ostream& serialize(std::ostream& os, std::vector<T> const& v)
+	{
+		// this only works on built in data types (T)
+		static_assert(std::is_trivial<T>::value && std::is_standard_layout<T>::value,
+			"Can only serialize build-in types with this function");
+
+		auto size = v.size();
+		os.write(reinterpret_cast<char const*>(&size), sizeof(size));
+		os.write(reinterpret_cast<char const*>(v.data()), v.size() * sizeof(T));
+		return os;
+	}
+
+	template<typename T>
+	std::istream& deserialize(std::istream& is, std::vector<T>& v)
+	{
+		static_assert(std::is_trivial<T>::value && std::is_standard_layout<T>::value,
+			"Can only deserialize build-in types with this function");
+
+		decltype(v.size()) size;
+		is.read(reinterpret_cast<char*>(&size), sizeof(size));
+		v.resize(size);
+		is.read(reinterpret_cast<char*>(v.data()), v.size() * sizeof(T));
+		return is;
+	}
+
+
 	
 	template <typename T, typename V>
 	bool IsEqual(const T& a, const V& b, bool bCase = false){ return (bCase ? strcmp(a, b): _stricmp(a, b)) == 0; }

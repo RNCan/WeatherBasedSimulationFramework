@@ -20,8 +20,13 @@ using namespace std;
 
 namespace WBSF
 {
+	
+	const char* CRegistry::KEY_PATH = "Software\\NRCan\\";
 
-	const char* CRegistry::KEY_NAME = "Software\\NRCan\\";
+	const std::array<char*, NB_GEO_LAYERS_KEY> CRegistry::GEO_KEY_NAME=
+	{
+		"World_SRTM","World_GADM"
+	};
 
 
 
@@ -69,8 +74,8 @@ namespace WBSF
 		m_hKey = NULL;
 		m_hCommonKey = NULL;
 
-		string keyName;
-		keyName = KEY_NAME;
+		//string keyName;
+		//keyName = KEY_PATH;
 		if (application.empty())
 		{
 			std::string appPath;
@@ -80,7 +85,7 @@ namespace WBSF
 			application = GetFileTitle(appPath);
 		}
 
-		keyName = "Software\\NRCan\\" + application + "\\" + section;
+		string keyName = KEY_PATH + application + "\\" + section;
 
 		DWORD  dwDisposition = 0;
 		// try to create an App Name key 
@@ -96,7 +101,7 @@ namespace WBSF
 		ASSERT(lRetCode == ERROR_SUCCESS);
 		ASSERT(m_hKey != NULL);
 
-		keyName = "Software\\NRCan\\Common";
+		keyName = string(KEY_PATH) +"\\Common";
 		m_commonKeyName = UTF16(keyName);
 		lRetCode = RegCreateKeyExW(HKEY_CURRENT_USER,
 			m_commonKeyName.c_str(),

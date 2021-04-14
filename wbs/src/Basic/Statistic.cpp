@@ -44,7 +44,8 @@ namespace WBSF
 		"Lowest", "Mean", "Sum", "Sum²", "StandardDeviation (N-1)", "StandardDeviation (N)", "StandardError", "CoeficientOfVariation", "Variance", "Highest", "TotalSumOfSquares", "QuadraticMean", "Range", "NbValue",
 		"MeanAbsoluteDeviation", "Skewness", "Kurtosis", "Median", "Mode", "Lo", "Q¹", "Q³", "Hi", "IQR",
 		"MeanX", "MeanY", "Intercept", "Slope", "Covariance", "Correlation", "Bias", "MeanAbsolutError", "RootMeanSquareError", "ResidualSumOfSquare", "CoeficientOfDetermination", "CoeficientOfCorrelation", "R²",
-		"TheilSenIntercept", "TheilSenSlope", "LogLikelihood", "LogLikelihood2"
+		"TheilSenIntercept", "TheilSenSlope", "Likelihood"
+		//, "LogLikelihood2"
 	};
 
 	
@@ -690,30 +691,30 @@ namespace WBSF
 
 				value = stat[MEDIAN];
 			}
-			else if (type == LOG_LIKELIHOOD1)
-			{
-				//double xSum = m_x[SUM];
-				double ySum = m_y[SUM];
-				if (ySum > 0)
-				{
-					double LL = 0;
-					//likelihood with classical sigma hat
-					double sigma = sqrt(me[RSS] / (m_xValues.size() - 1))*(m_xValues.size()) / (m_xValues.size() - 1);
-					for (size_t i = 0; i < m_xValues.size(); i++)
-					{
-						double m = m_xValues[i];
-						boost::math::normal_distribution<> N(m, sigma);
+			//else if (type == LOG_LIKELIHOOD1)
+			//{
+			//	//double xSum = m_x[SUM];
+			//	double ySum = m_y[SUM];
+			//	if (ySum > 0)
+			//	{
+			//		double LL = 0;
+			//		//likelihood with classical sigma hat
+			//		double sigma = sqrt(me[RSS] / (m_xValues.size() - 1))*(m_xValues.size()) / (m_xValues.size() - 1);
+			//		for (size_t i = 0; i < m_xValues.size(); i++)
+			//		{
+			//			double m = m_xValues[i];
+			//			boost::math::normal_distribution<> N(m, sigma);
 
-						double x = m_yValues[i];
-						double p = boost::math::pdf(N, x);
-						ASSERT(p > 0);
-						LL += log(p);
-					}
+			//			double x = m_yValues[i];
+			//			double p = boost::math::pdf(N, x);
+			//			ASSERT(p > 0);
+			//			LL += log(p);
+			//		}
 
-					value = LL;
-				}
-			}
-			else if (type == LOG_LIKELIHOOD2)
+			//		value = LL;
+			//	}
+			//}
+			else if (type == LIKELIHOOD)
 			{
 				double xSum = m_x[SUM];
 				double ySum = m_y[SUM];
@@ -763,6 +764,63 @@ namespace WBSF
 		return *this;
 	}
 
+	//cook distance
+	std::vector<double> CStatisticXYEx::GetCookDistance()const
+	{
+		ASSERT(m_xValues.size() == m_yValues.size());
+
+		std::vector<double> cookD(x().size());
+
+		vector<array<double, 2>> X(x().size());
+		for (size_t i = 0; i < x().size(); i++)
+		{
+			X[i][0] = 1;
+			X[i][1] = x(i);
+		}
+		
+			
+		
+		double d = (m_x[NB_VALUE] * m_x[SUM²]) - Square(m_x[SUM]);
+		array<array<double, 2>, 2> s =
+		{ 
+			{{m_x[SUM²] / d,-m_x[SUM] / d},
+			{-m_x[SUM] / d, m_x[NB_VALUE] / d}}
+		};
+
+		vector<vector<double>> P(X.size());
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			P[i].resize(X.size());
+			for (size_t j = 0; j < X.size(); j++)
+			{
+				P[i][j] = (s[0][0] * X[i][0] + s[1][0] * X[i][1])*X[j][0] + (s[0][1] * X[i][0] + s[1][1] * X[i][1])*X[j][1];
+			}
+		}
+
+
+		array<double, 2> b = { 0 };
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			b[0] += (s[0][0] * X[i][0] + s[1][0] * X[i][1])*y(i);
+			b[1] += (s[0][1] * X[i][0] + s[1][1] * X[i][1])*y(i);
+		}
+
+		double RSS=0;
+		for (size_t i = 0; i < X.size(); i++)
+			RSS += Square(y(i) - (b[0] * X[i][0] + b[1] * X[i][1]));
+		
+		size_t k = 2;
+		double s2 = RSS / (X.size() - k);                  //three predictors(including intercept(100 - k = 98))
+
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			double res² = Square(y(i) - (b[0] * X[i][0] + b[1] * X[i][1]));
+			cookD[i] = (res² / (k*s2))*(P[i][i] / Square(1.0 - P[i][i]));
+		}
+
+		return cookD;
+
+	}
 
 	//*************************************************************
 	//Weighted CStatisticXY

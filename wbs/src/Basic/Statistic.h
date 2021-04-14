@@ -59,7 +59,7 @@ enum TStatXY{ MEAN_X = NB_STAT_TYPE_EX, MEAN_Y, INTERCEPT, SLOPE, COVARIANCE, CO
 //INTERCEPT_THEIL_SEN: Intercep of of Theil-sen computation
 //SLOPE_THEIL_SEN: Slope of Theil-sen computation
 //NEGATIVE_LOG_LIKELIHOOD:   negative log of Likelihood
-enum TStatXYEx{INTERCEPT_THEIL_SEN=NB_STATXY_TYPE, SLOPE_THEIL_SEN, LOG_LIKELIHOOD1, LOG_LIKELIHOOD2, NB_STATXY_TYPE_EX};
+enum TStatXYEx{INTERCEPT_THEIL_SEN=NB_STATXY_TYPE, SLOPE_THEIL_SEN, LIKELIHOOD, NB_STATXY_TYPE_EX};
 
 inline bool IsTemporalStat(size_t stat){return stat==LOWEST||stat==MEAN||stat==HIGHEST;}
 
@@ -275,6 +275,8 @@ public:
 
 	double x(size_t i)const { return m_xValues[i]; }
 	double y(size_t i)const { return m_yValues[i]; }
+
+	std::vector<double> GetCookDistance()const;
 
 protected:
 

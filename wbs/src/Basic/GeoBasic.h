@@ -511,14 +511,14 @@ namespace WBSF
 		CGeoPoint m_pt1;
 		CGeoPoint m_pt2;
 
-		CGeoSegment(){};
-		CGeoSegment(const CGeoPoint& pt1, const CGeoPoint& pt2){m_pt1=pt1;m_pt2=pt2;};
+		CGeoSegment(size_t prjID = PRJ_NOT_INIT) :CGeoRef(prjID) {};
+		CGeoSegment(const CGeoPoint& pt1, const CGeoPoint& pt2) :CGeoRef(pt1.GetPrjID()) { ASSERT_PRJ(pt1, pt2); m_pt1=pt1;m_pt2=pt2;};
 
-		void clear(){m_pt1.clear();m_pt2.clear();};
-		const CGeoPoint& GetPt1()const{return m_pt1;};
-		void SetPt1(const CGeoPoint& pt){m_pt1=pt;};
-		const CGeoPoint& GetPt2()const{return m_pt2;};
-		void SetPt2(const CGeoPoint& pt){m_pt2=pt;};
+		void clear() { CGeoRef::clear();  m_pt1.clear(); m_pt2.clear(); };
+		//const CGeoPoint& GetPt1()const{return m_pt1;};
+		//void SetPt1(const CGeoPoint& pt){m_pt1=pt;};
+		//const CGeoPoint& GetPt2()const{return m_pt2;};
+		//void SetPt2(const CGeoPoint& pt){m_pt2=pt;};
 
 		//-------------------------------------------------
 		// GetArea()
@@ -572,6 +572,24 @@ namespace WBSF
 			//On trouve le point d'intersection
 			return CGeoPoint ((1 - lambda) * segment.m_pt1.m_x + lambda * segment.m_pt2.m_x, (1 - lambda) * segment.m_pt1.m_y + lambda * segment.m_pt2.m_y, segment.GetPrjID());
 		}
+
+		CGeoPoint GetClosestPoint(const CGeoPoint& pt)const
+		{
+			CGeoDistance v = m_pt2 - m_pt1;
+			CGeoDistance u = m_pt1 - pt;
+
+			const double vu = v.m_x * u.m_x + v.m_y * u.m_y;
+			const double vv = Square(v.m_x) + Square(v.m_y);
+			const double t = -vu / vv;
+
+			if (t >= 0 && t <= 1) return CGeoPoint((1 - t) * m_pt1.m_x + t * m_pt2.m_x, (1 - t) * m_pt1.m_y + t * m_pt2.m_y, pt.GetPrjID());
+
+			const double d1 = m_pt1.GetDistance(pt);
+			const double d2 = m_pt2.GetDistance(pt);
+			return d1 <= d2 ? m_pt1 : m_pt2;
+		}
+
+
 
 		template <class T>
 		ERMsg Reproject(const T& PT)
