@@ -29,15 +29,15 @@ namespace WBSF
 
 	public:
 		//S_LOWEST, S_HIGHEST, S_COEF_D,
-		enum TStatistic{ S_MEAN_OBS, S_MEAN_SIM, S_BIAS, S_MAE, S_RMSE, S_STAT_R², S_NB_STAT };
+		enum TStatistic{ S_N, S_MEAN_OBS, S_MEAN_SIM, S_BIAS, S_MAE, S_RMSE, S_STAT_R², S_NB_STAT };
 		static const size_t STATISTICS[S_NB_STAT];
 
 		friend CWGInputAnalysisDlg;
 		enum TKind {
 			MATCH_STATION_NORMALS, MATCH_STATION_OBSERVATIONS,//, MATCH_STATION_HOURLY, 
 			ESTIMATE_ERROR_NORMALS, ESTIMATE_ERROR_OBSERVATIONS,
-			XVALIDATION_NORMALS, XVALIDATION_OBSERVATIONS,
-			KERNEL_VALIDATION, EXTRACT_NORMALS, MISSING_OBSERVATIONS, LAST_OBSERVATION, 
+			XVALIDATION_NORMALS, XVALIDATION_OBSERVATIONS, KERNEL_VALIDATION,
+			EXTRACT_NORMALS, GRADIENTS_INPUTS, MISSING_OBSERVATIONS, LAST_OBSERVATION,
 			DB_COMPLETENESS, NB_KIND
 		};
 
@@ -89,6 +89,7 @@ namespace WBSF
 		ERMsg ObservationsError(const CFileManager& fileManager, CResult& resultDB, CCallback& callback);
 		ERMsg KernelValidation(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg ExtractNormal(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
+		ERMsg ExtractGradientInputs(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg GetNbMissingObservations(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg LastObservation(const CFileManager& fileManager, CResult& resultsDB, CCallback& callback);
 		ERMsg GetCompleteness(const CFileManager& fileManager, CResult& resultDB, CCallback& callback);

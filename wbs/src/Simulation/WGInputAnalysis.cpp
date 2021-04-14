@@ -41,7 +41,7 @@ namespace WBSF
 	//CWGInputAnalysis
 
 	//LOWEST, HIGHEST, , STAT_R² 
-	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
+	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { NB_VALUE, MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
 	const char* CWGInputAnalysis::XML_FLAG = "WGInputAnalysis";
 	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
@@ -66,6 +66,8 @@ namespace WBSF
 
 	CStatistic GetStat(size_t s, const CStatisticXY& station)
 	{
+		
+
 		CStatistic stat;
 		if (s == CWGInputAnalysis::S_MEAN_OBS)
 			stat = station.Y();
@@ -241,6 +243,22 @@ namespace WBSF
 
 				info.m_parameterset.m_variation.push_back(CParameterVariation("Category", true, CModelInputParameterDef::kMVString));
 			}
+			else if (m_kind == GRADIENTS_INPUTS)
+			{
+				//get standardized normal variables
+				for (size_t g = 0; g < GRADIENT::NB_GRADIENT; g++)
+				{
+					CModelInput modelInput;
+					static const char* NAME[4] = { "Tmin","Tmax","Prcp","Tdew"};
+
+					string name = NAME[g];
+					modelInput.SetName(name);
+					modelInput.push_back(CModelInputParam(name, name));
+					info.m_parameterset.push_back(modelInput);
+				}
+				
+				info.m_parameterset.m_variation.push_back(CParameterVariation("Gradient", true, CModelInputParameterDef::kMVString));
+			}
 			else if (m_kind == KERNEL_VALIDATION || m_kind == XVALIDATION_NORMALS || m_kind == ESTIMATE_ERROR_NORMALS)
 			{
 				//get standardized normal variables
@@ -297,6 +315,10 @@ namespace WBSF
 				else if (m_kind == MATCH_STATION_OBSERVATIONS)
 					info.m_nbReplications = WGInput.IsHourly() ? WGInput.m_nbHourlyStations : WGInput.m_nbDailyStations;
 			}
+			else if (m_kind == GRADIENTS_INPUTS)
+			{
+				info.m_nbReplications = CWeatherGradient::NB_STATION_REGRESSION_LOCAL;
+			}
 			else
 			{
 				info.m_nbReplications = 1;
@@ -310,6 +332,11 @@ namespace WBSF
 			{
 				CTM TM(CTM::MONTHLY, CTM::OVERALL_YEARS);
 				info.m_period = CTPeriod(CTRef(YEAR_NOT_INIT, JANUARY, 0, 0, TM), CTRef(YEAR_NOT_INIT, DECEMBER, 0, 0, TM));
+			}
+			else if (m_kind == GRADIENTS_INPUTS)
+			{
+				CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
+				info.m_period = CTPeriod(CTRef(YEAR_NOT_INIT, 0, 0, 0, TM), CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
 			}
 			else if (m_kind == LAST_OBSERVATION || m_kind == MATCH_STATION_OBSERVATIONS || m_kind == MISSING_OBSERVATIONS)
 			{
@@ -345,6 +372,15 @@ namespace WBSF
 				info.m_variables.push_back(CModelOutputVariableDef("DeltaShore", "DeltaShore", "m", "Difference of shore distance"));
 				info.m_variables.push_back(CModelOutputVariableDef("Virtual Distance", "Virtual Distance", "km", "Distance including delta elevation and delta shore"));
 				info.m_variables.push_back(CModelOutputVariableDef("Weight", "Weight", "%", "Theorical Weigth"));
+			}
+			else if (m_kind == GRADIENTS_INPUTS)
+			{
+				info.m_variables.push_back(CModelOutputVariableDef("X", "X", "", "Delta longitude"));
+				info.m_variables.push_back(CModelOutputVariableDef("Y", "Y", "", "Delta latitude"));
+				info.m_variables.push_back(CModelOutputVariableDef("Z", "Z", "", "Delta elevation"));
+				info.m_variables.push_back(CModelOutputVariableDef("S", "S", "", "Delta shore"));
+				for(size_t m=0; m<12; m++)
+					info.m_variables.push_back(CModelOutputVariableDef(WBSF::GetMonthName(m), WBSF::GetMonthName(m), "", WBSF::GetMonthName(m)));
 			}
 			else if (m_kind == ESTIMATE_ERROR_NORMALS || m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == KERNEL_VALIDATION || m_kind == XVALIDATION_NORMALS || m_kind == XVALIDATION_OBSERVATIONS)
 			{
@@ -423,6 +459,7 @@ namespace WBSF
 				case XVALIDATION_OBSERVATIONS:		msg = XValidationObservations(fileManager, resultDB, callback); break;
 				case KERNEL_VALIDATION:				msg = KernelValidation(fileManager, resultDB, callback); break;
 				case EXTRACT_NORMALS:				msg = ExtractNormal(fileManager, resultDB, callback); break;
+				case GRADIENTS_INPUTS:				msg = ExtractGradientInputs(fileManager, resultDB, callback); break;
 				case MISSING_OBSERVATIONS:			msg = GetNbMissingObservations(fileManager, resultDB, callback); break;
 				case DB_COMPLETENESS:				msg = GetCompleteness(fileManager, resultDB, callback); break;
 				default: ASSERT(false);
@@ -808,7 +845,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -969,7 +1006,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -998,16 +1035,16 @@ namespace WBSF
 		if (msg && WGInput.IsNormals())
 			msg.ajoute("The observation cross-validation can only be done from observation weather generation");
 
-		CWeatherGenerator WG;
+		CWeatherGenerator WGin;
 		if (msg)
-			msg = InitDefaultWG(fileManager, WG, callback);
+			msg = InitDefaultWG(fileManager, WGin, callback);
 
 		if (!msg)
 			return msg;
 
 
 		const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
-		CWeatherDatabase& obsDB = GetObsDB(WG);
+		CWeatherDatabase& obsDB = GetObsDB(WGin);
 
 
 		CStatisticXY overallStat[NB_VAR_H];
@@ -1025,76 +1062,87 @@ namespace WBSF
 		}
 
 
-		for (size_t l = 0; l < locations.size() && msg; l++)
+		vector<size_t> locPos;
+		CWeatherGeneration::GetLocationIndexGrid(locations, locPos);
+
+#pragma omp parallel for schedule(static, 1) shared(resultDB, msg) 
+		for (__int64 ll = 0; ll < (__int64)locPos.size(); ll++)
 		{
-
-			array<CStatisticXY, NB_VAR_H> stationStat;
-
-			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all categories
+#pragma omp flush(msg)
+			if (msg)
 			{
-				if (variables[v])//if this variable is selected
-				{
-					//fin stations for this variables
-					CSearchResultVector weatherStationsI;
-					obsDB.Search(weatherStationsI, locations[l], 1, -1, v, -999, true, true, WGInput.m_bUseShore);
+				size_t l = locPos[ll];
 
-					if (!weatherStationsI.empty() && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
+				array<CStatisticXY, NB_VAR_H> stationStat;
+
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all categories
+				{
+					if (variables[v])//if this variable is selected
 					{
-						CWeatherStation obsStation;
-						obsDB.Get(obsStation, weatherStationsI[0].m_index, years);
+						//fin stations for this variables
+						CSearchResultVector weatherStationsI;
+						obsDB.Search(weatherStationsI, locations[l], 1, -1, v, -999, true, true, WGInput.m_bUseShore);
 
-
-						CWGInput WGInputTmp(WGInput);
-						WGInputTmp.m_variables = v;
-						WGInputTmp.m_bXValidation = true;
-						WG.SetWGInput(WGInputTmp);
-						WG.SetTarget(obsStation);
-
-						msg = WG.Initialize();//create gradient
-
-						if (msg)
+						if (!weatherStationsI.empty() && weatherStationsI.front().m_distance < 5000 && weatherStationsI.front().m_deltaElev < 50)
 						{
-							CWeatherStation simStation;
-							msg = (WG.GetWGInput().IsHourly()) ? WG.GetHourly(simStation, callback) : WG.GetDaily(simStation, callback);
+							CWeatherStation obsStation;
+							obsDB.Get(obsStation, weatherStationsI[0].m_index, years);
 
-							CTPeriod period = simStation.GetEntireTPeriod();
-							period.Intersect(obsStation.GetEntireTPeriod());
+							CWeatherGenerator WG = WGin;
+							CWGInput WGInputTmp(WGInput);
+							WGInputTmp.m_variables = v;
+							WGInputTmp.m_bXValidation = true;
+							WG.SetWGInput(WGInputTmp);
+							WG.SetTarget(obsStation);
 
-							for (CTRef TRef = period.Begin(); TRef != period.End(); TRef++)
+							msg = WG.Initialize();//create gradient
+
+							if (msg)
 							{
-								if (simStation[TRef][v].IsInit() && obsStation[TRef][v].IsInit())
+								CWeatherStation simStation;
+								((CLocation&)simStation) = obsStation;
+								msg = (WG.GetWGInput().IsHourly()) ? WG.GetHourly(simStation, callback) : WG.GetDaily(simStation, callback);
+
+								CTPeriod period = simStation.GetEntireTPeriod();
+								period.Intersect(obsStation.GetEntireTPeriod());
+
+								for (CTRef TRef = period.Begin(); TRef != period.End(); TRef++)
 								{
-									stationStat[v].Add(simStation[TRef][v], obsStation[TRef][v]);
-									overallStat[v].Add(simStation[TRef][v], obsStation[TRef][v]);
+									if (simStation[TRef][v].IsInit() && obsStation[TRef][v].IsInit())
+									{
+										stationStat[v].Add(simStation[TRef][v], obsStation[TRef][v]);
+#pragma omp critical(SAVE_STATS)
+										overallStat[v].Add(simStation[TRef][v], obsStation[TRef][v]);
+									}
 								}
-							}
-						}//if it's a weather stations
-					}//for all years
+							}//if(msg)
+						}//if this year have this station
 
-					msg += callback.StepIt();
+						msg += callback.StepIt();
+#pragma omp flush(msg)
+					}//if this variable is used
+				}//for all variable	
 
-				}//if this variable is used
-			}//for all variable	
 
-
-			//save data 
-			for (size_t v = 0, vv=0; v < NB_VAR_H&&msg; v++)
-			{
-				if (variables[v])
+				//save data 
+				for (size_t v = 0, vv = 0; v < NB_VAR_H&&msg; v++)
 				{
-					CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
-					CNewSectionData  section(1, S_NB_STAT, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
+					if (variables[v])
+					{
+						CTM TM(CTM::ANNUAL, CTM::OVERALL_YEARS);
+						CNewSectionData  section(1, S_NB_STAT, CTRef(YEAR_NOT_INIT, 0, 0, 0, TM));
 
-					for (size_t s = 0; s < S_NB_STAT; s++)
-						section[0][s] = GetStat(s, stationStat[v]);
+						for (size_t s = 0; s < S_NB_STAT; s++)
+							section[0][s] = GetStat(s, stationStat[v]);
 
 
-					//for all statistics
-					size_t no = resultDB.GetSectionNo(l,vv,0);
-					resultDB.SetSection(no, section);
-					vv++;
-				}//if selected field
-			}
+						//for all statistics
+						size_t no = resultDB.GetSectionNo(l, vv, 0);
+						resultDB.SetSection(no, section);
+						vv++;
+					}//if selected variable
+				}
+			}//if(msg)
 		}// for all locations
 
 
@@ -1107,7 +1155,7 @@ namespace WBSF
 			if (variables[v])
 			{
 				std::string str = std::string(GetVariableName(v));
-				str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 
@@ -1244,7 +1292,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -1400,7 +1448,7 @@ namespace WBSF
 			if (variables[v])
 			{
 				std::string str = std::string(GetVariableName(v));
-				str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 
@@ -1469,6 +1517,95 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CWGInputAnalysis::ExtractGradientInputs(const CFileManager& fileManager, CResult& resultDB, CCallback& callback)
+	{
+		ASSERT(m_pParent);
+		ERMsg msg;
+		//
+		CWeatherGenerator WGBase;
+		msg = InitDefaultWG(fileManager, WGBase, callback);
+
+		if (!msg)
+			return msg;
+
+		const CLocationVector& locations = resultDB.GetMetadata().GetLocations();
+
+		callback.PushTask("Extract normals", locations.size());
+		CStatistic::SetVMiss(VMISS);
+
+		vector<size_t> locPos;
+		CWeatherGeneration::GetLocationIndexGrid(locations, locPos);
+
+//#pragma omp parallel for schedule(static, 1) shared(resultDB, msg) 
+		for (__int64 ll = 0; ll < (__int64)locPos.size(); ll++)
+		{
+#pragma omp flush(msg)
+			if (msg)
+			{
+				//fin stations for this variables
+				// init the loc part of WGInput
+				size_t l = locPos[ll];
+				//CWeatherGenerator WG = WGBase;
+				//WG.SetTarget(locations[l]);
+				
+				CNormalsDatabasePtr pNormalDB = WGBase.GetNormalDB();	//Normal database
+				CWeatherGradient gradients;
+				gradients.SetNormalsDatabase(pNormalDB);
+
+				gradients.m_variables = WGBase.GetWGInput().GetNormalMandatoryVariables();
+
+				if (gradients.m_variables[H_TMIN] || gradients.m_variables[H_TAIR] || gradients.m_variables[H_TMAX])
+				{
+					gradients.m_variables.set(H_TMIN);
+					gradients.m_variables.set(H_TAIR);
+					gradients.m_variables.set(H_TMAX);
+				}
+
+				gradients.m_allowDerivedVariables = WGBase.GetWGInput().m_allowedDerivedVariables;
+				gradients.m_bXVal = WGBase.GetWGInput().m_bXValidation;
+				gradients.m_bUseShore = WGBase.GetWGInput().m_bUseShore;
+				gradients.m_target = locations[l];
+				gradients.m_bKeepInputs = true;
+
+				msg = gradients.CreateGradient(callback);
+
+				if (msg)
+				{
+					//CModelStatVector section(12, CTRef(YEAR_NOT_INIT, 0, 0, 0, CTM(CTRef::MONTHLY, CTRef::OVERALL_YEARS)), NORMALS_DATA::NB_FIELDS);
+					CTRef TRef(YEAR_NOT_INIT, 0, 0, 0, CTM(CTRef::ANNUAL, CTRef::OVERALL_YEARS));
+					CNewSectionData section(1, 16, TRef);
+					
+					//for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
+					size_t z = 0;
+					{
+						for (size_t g = 0; g < GRADIENT::NB_GRADIENT&&msg; g++)
+						{
+							const CGradientInput& input = gradients.GetInputs(z, g);
+							
+							for (size_t i = 0; i < input.size(); i++)
+							{
+								ASSERT(input[i].size() == 16);
+
+								for (size_t j = 0; j < input[i].size(); j++)
+									section[0][j] = input[i][j];
+
+								resultDB.SetSection((l*GRADIENT::NB_GRADIENT + g)*input.size()+i, section);
+							}
+
+							
+						}
+					}
+					
+					
+					
+					msg += callback.StepIt();
+#pragma omp flush(msg)
+				}
+			}
+		}
+
+		return msg;
+	}
 
 	ERMsg CWGInputAnalysis::GetNbMissingObservations(const CFileManager& fileManager, CResult& resultDB, CCallback& callback)
 	{
