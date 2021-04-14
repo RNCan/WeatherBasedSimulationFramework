@@ -608,7 +608,7 @@ namespace WBSF
 							int year = firstYear + int(y);
 
 							string country = stationList[cur_i].GetSSI("Country");
-							string subDivisions = stationList[cur_i].GetSSI("SubDivisions");
+							string subDivisions = stationList[cur_i].GetSSI("SubDivision");
 							string ID = stationList[cur_i].m_ID;
 							string ouputFilePath = GetOutputFilePath(country, subDivisions, ID, year);
 							CreateMultipleDir(GetPath(ouputFilePath));
@@ -756,7 +756,7 @@ namespace WBSF
 			if (it->m_ID.find('?') == string::npos)//don't take station with '?'
 			{
 				string country = it->GetSSI("Country");
-				string subDivisions = it->GetSSI("SubDivisions");
+				string subDivisions = it->GetSSI("SubDivision");
 				string network = it->GetSSI("Network");
 				string start = it->GetSSI("Start");
 				string end = it->GetSSI("End");
@@ -847,7 +847,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("SubDivisions"), ID, year);
+			string filePath = GetOutputFilePath(station.GetSSI("Country"), station.GetSSI("SubDivision"), ID, year);
 			if (FileExists(filePath))
 			{
 				station.LoadData(filePath, -999, false);
@@ -865,12 +865,12 @@ namespace WBSF
 
 		string network = station.GetSSI("Network");
 		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivisions");
+		string subDivisions = station.GetSSI("SubDivision");
 
 		station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Network", network);
 		station.SetSSI("Country", country);
-		station.SetSSI("SubDivisions", subDivisions);
+		station.SetSSI("SubDivision", subDivisions);
 
 		if (msg)
 		{
@@ -1424,7 +1424,7 @@ namespace WBSF
 									{
 										((CGeoPoint&)location) = correction[corr_pos];
 										country = correction[corr_pos].GetSSI("Country");
-										subDivisions = correction[corr_pos].GetSSI("SubDivisions");
+										subDivisions = correction[corr_pos].GetSSI("SubDivision");
 									}
 								}
 
@@ -1546,7 +1546,7 @@ namespace WBSF
 								location.SetSSI("ELEV_DEM", DEM_alt_str);
 								location.SetSSI("Status", status);
 								location.SetSSI("Country", country);
-								location.SetSSI("SubDivisions", subDivisions);
+								location.SetSSI("SubDivision", subDivisions);
 								location.SetSSI("Network", network);
 								location.SetSSI("NetworkID", networkID);
 								location.SetSSI("TimeZoneName", time_zone);
@@ -2429,7 +2429,7 @@ namespace WBSF
 					if (!ID.empty() && pos != NOT_INIT)
 					{
 						string country = m_stations[pos].GetSSI("Country");
-						string subDivisions = m_stations[pos].GetSSI("SubDivisions");
+						string subDivisions = m_stations[pos].GetSSI("SubDivision");
 						string time_zone = m_stations[pos].GetSSI("TimeZone");
 						ASSERT(time_zone.length() == 5);
 						int time_shift = ToInt(time_zone.substr(0, 3));

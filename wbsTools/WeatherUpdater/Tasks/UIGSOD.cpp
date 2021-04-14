@@ -589,11 +589,11 @@ namespace WBSF
 
 		
 		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivisions");
+		string subDivisions = station.GetSSI("SubDivision");
 		station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Network", "GSOD");
 		station.SetSSI("Country", country);
-		station.SetSSI("SubDivisions", subDivisions);
+		station.SetSSI("SubDivision", subDivisions);
 
 		//verify station is valid
 		if (msg && station.HaveData())

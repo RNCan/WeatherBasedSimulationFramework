@@ -12,6 +12,7 @@ namespace WBSF
 {
 
 	class CGDALDatasetEx;
+	class CShapeFileBase;
 
 	//****************************************************************
 	//GHCND extractor
@@ -41,6 +42,7 @@ namespace WBSF
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIGHCND); }
 
+		enum TInvetory { DISTANCE_TXT, LOCAL_TXT, LOCAL_CSV, NB_INVENTORY_TYPES };
 
 		CUIGHCND(void);
 		virtual ~CUIGHCND(void);
@@ -75,22 +77,23 @@ namespace WBSF
 		ERMsg UpdateStationList(UtilWWW::CFtpConnectionPtr& pConnection, CCallback& callback)const;
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherYear& data, CCallback& callback)const;
 
-
-		std::string GetStationFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(SERVER_PATH)) + "ghcnd-stations.txt"; }
+		
+		std::string GetStationFilePath(size_t type)const;
+		
 		ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 
 
-		ERMsg UpdateStationHistory(CCallback& callback);
+		ERMsg UpdateStationList(CCallback& callback);
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
+		//ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
 
-		std::string GetOptFilePath()const;
+		//std::string GetOptFilePath()const;
 
-		ERMsg LoadOptimisation();
-		bool StationExist(const std::string& fileTitle)const;
-		void GetStationInformation(const std::string& fileTitle, CLocation& location)const;
+		//ERMsg LoadOptimisation();
+		//bool StationExist(const std::string& fileTitle)const;
+		//void GetStationInformation(const std::string& fileTitle, CLocation& location)const;
 
 		//Get stations list part
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
@@ -100,13 +103,14 @@ namespace WBSF
 		std::string GetOutputFilePath(int year)const;
 		
 
-		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
-		bool IsFileInclude(const std::string& fileTitle)const;
+		//ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
+		//bool IsFileInclude(const std::string& fileTitle)const;
 		bool IsStationInclude(const std::string& ID)const;
 
 		ERMsg PreProcess(CCallback& callback);
 		//optimisation for GetStations
-		CGHCNStationOptimisation m_optFile;
+		//CGHCNStationOptimisation m_optFile;
+		CLocationMap m_stations;
 
 		typedef std::string StationID;
 		class SimpleDataDay : public std::array < float, NB_VARIABLES >
@@ -129,6 +133,9 @@ namespace WBSF
 		std::set<StationID> m_rejected;
 		ERMsg LoadData(const std::string& filePath, SimpleDataMap& data, CCallback& callback)const;
 
+		static double GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string stateI, std::string& countryII, std::string& stateII);
+		static ERMsg convert_txt_to_csv(const std::string& txtFilePath, const std::string& csvFilePath, CCallback& callback);
+		static CLocation LocationFromLine(std::string line);
 
 		static const char* ELEM_CODE[NB_ELEMENT];
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];

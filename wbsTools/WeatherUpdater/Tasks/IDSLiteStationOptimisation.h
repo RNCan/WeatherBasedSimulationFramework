@@ -22,7 +22,7 @@ namespace WBSF
 			CLocation::SetSSI("USAF_ID", m_USAF);
 			CLocation::SetSSI("WBAN_ID", m_WBAN);
 			CLocation::SetSSI("Country", m_country);
-			CLocation::SetSSI("SubDivisions", m_subDivisions);
+			CLocation::SetSSI("SubDivision", m_subDivisions);
 			CLocation::SetSSI("Period", m_period.GetFormatedString("%1|%2", "%Y-%m-%d"));
 		}
 
@@ -31,7 +31,7 @@ namespace WBSF
 			m_USAF = CLocation::GetSSI("USAF_ID");
 			m_WBAN = CLocation::GetSSI("WBAN_ID");
 			m_country = CLocation::GetSSI("Country");
-			m_subDivisions = CLocation::GetSSI("SubDivisions");
+			m_subDivisions = CLocation::GetSSI("SubDivision");
 			m_period.FromFormatedString(CLocation::GetSSI("Period"), "%1|%2", "%Y-%m-%d");
 		}
 

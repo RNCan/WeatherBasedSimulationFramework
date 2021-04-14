@@ -1,3 +1,4 @@
+//5.9.2 14/04/2021	Rémi Saint-Amant	Make update of long forecast
 //5.9.1 19/03/2021	Rémi Saint-Amant	Bug correction to avoid invalid elevation (-999)
 //										Remove all SSI and add Network, Country and SubDivision in SSI
 //5.9.0 25/01/2021	Rémi Saint-Amant	Update in EnvCan hourly, Daily and forecast
@@ -163,7 +164,7 @@
 #include "MainFrm.h"
 
 #include "WeatherUpdaterDoc.h"
-
+#include "Basic/Shore.h"
 #include "basic/Registry.h"
 #include "basic/DynamicRessource.h"
 #include "WeatherUpdaterCmdLine.h"
@@ -292,6 +293,7 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	CTRef::SetFormat(format);
 
+	VERIFY(CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann"));
 	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
 
 	//init GDAL

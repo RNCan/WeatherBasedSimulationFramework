@@ -38,6 +38,8 @@ CWeatherUpdaterOptionsDlg::CWeatherUpdaterOptionsDlg(CWnd* pParentWnd, UINT iSel
 
     AddPage(&m_links);
 	AddPage(&m_regional);
+	AddPage(&m_layers);
+	
 
     CAppOption option;
 	SetActivePage( option.GetProfileInt(_T("OptionPanel"), 0) );

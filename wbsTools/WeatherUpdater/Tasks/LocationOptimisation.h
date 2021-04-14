@@ -50,13 +50,12 @@ namespace WBSF
 
 		std::string m_DEMFilePath;
 
-	protected:
-
 		static int GetPrecision(const std::string& line);
 		static double GetStationElevation(const CGDALDatasetEx& dataset, const CLocation& station, int nbNearest, double deltatElevMax);
 		static void GetZoneElevation(const CGDALDatasetEx& dataset, const CGeoPoint& pt0, const CGeoPoint& pt1, const CGeoPoint& pt2, double& evelLow, double& elev, double& elevHigh);
 		static bool LocationFromLine(std::string line, CLocation& station);
 
+	protected:
 	};
 
 	//****************************************************************

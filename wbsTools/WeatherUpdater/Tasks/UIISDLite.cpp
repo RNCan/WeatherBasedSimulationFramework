@@ -671,11 +671,11 @@ namespace WBSF
 
 		
 		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivisions");
+		string subDivisions = station.GetSSI("SubDivision");
 		station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Network", "ISDLite");
 		station.SetSSI("Country", country);
-		station.SetSSI("SubDivisions", subDivisions);
+		station.SetSSI("SubDivision", subDivisions);
 
 		if (msg && station.HaveData())
 			msg = station.IsValid();

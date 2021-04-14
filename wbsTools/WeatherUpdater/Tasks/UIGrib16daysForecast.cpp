@@ -147,7 +147,7 @@ namespace WBSF
 							string file_name = WBSF::GetFileName(fileList[i].m_filePath);
 							//CTRef TRef = GetTRef(source, outputPath);
 							//string dir_name = FormatA("/gfs.%4d%02d%02d/%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour());
-							string dir_name = fileList[i].m_filePath.substr(27,16);
+							string dir_name = fileList[i].m_filePath.substr(27,22);
 
 							//msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
 
@@ -235,14 +235,14 @@ namespace WBSF
 				{
 					//CTRef TRef = GetTRef(s, fileList[i].m_filePath);
 					string outputFilePath = GetLocaleFilePath(source, fileList[i].m_filePath);
-					string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
+					//string tmpFilePaht = GetPath(outputFilePath) + GetFileName(fileList[i].m_filePath);
 					CreateMultipleDir(GetPath(outputFilePath));
 
 					stript << "open ftp://anonymous:anonymous%40example.com@" << FTP_SERVER_NAME[source] << endl;
 
 					stript << "cd " << GetPath(fileList[i].m_filePath) << endl;
-					stript << "lcd \"" << GetPath(tmpFilePaht) << "\"" << endl;
-					stript << "get " << GetFileName(tmpFilePaht) << endl;
+					stript << "lcd \"" << GetPath(outputFilePath) << "\"" << endl;
+					stript << "get " << GetFileName(outputFilePath) << endl;
 					stript << "exit" << endl;
 					stript.close();
 
@@ -253,18 +253,19 @@ namespace WBSF
 					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 					if (msg)
 					{
-						if (exit_code == 0 && FileExists(tmpFilePaht))
+						if (exit_code == 0 && FileExists(outputFilePath))
 						{
 							ifStream stream;
-							if (GoodGrib(tmpFilePaht))
+							if (GoodGrib(outputFilePath))
 							{
 								nbDownload++;
-								msg = RenameFile(tmpFilePaht, outputFilePath);
+								//msg = RenameFile(tmpFilePaht, outputFilePath);
+								msg += CreateHourlyGeotiff(outputFilePath, callback);
 							}
 							else
 							{
-								callback.AddMessage("corrupt file, remove: " + tmpFilePaht);
-								msg = WBSF::RemoveFile(tmpFilePaht);
+								callback.AddMessage("corrupt file, remove: " + outputFilePath);
+								msg = WBSF::RemoveFile(outputFilePath);
 							}
 
 						}
@@ -429,8 +430,8 @@ namespace WBSF
 					string URL = SERVER_PATH[source];
 					switch (source)
 					{
-						//					ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.20200528/06/gfs.t06z.sfluxgrbf312.grib2
-					case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetHour()); break;
+					//https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gdas.20210405/00/atmos/
+					case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/atmos/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetHour()); break;
 					default: ASSERT(false);
 					}
 
@@ -460,7 +461,7 @@ namespace WBSF
 					string URL = SERVER_PATH[source];
 					switch (source)
 					{
-					case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetHour()); break;
+					case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/atmos/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetHour()); break;
 					default: ASSERT(false);
 					}
 
@@ -485,7 +486,7 @@ namespace WBSF
 
 		switch (source)
 		{
-		case N_GFS:filePath += FormatA("gfs.%4d%02d%02d/%02d/gfs.t%02dz.sfluxgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH, hhh); break;
+		case N_GFS:filePath += FormatA("gfs.%4d%02d%02d/%02d/atmos/gfs.t%02dz.sfluxgrbf??.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH, hhh); break;
 		}
 
 		return  filePath;
@@ -582,7 +583,7 @@ namespace WBSF
 							string URL = SERVER_PATH[source];
 							switch (source)
 							{
-							case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH); break;
+							case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/atmos/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH); break;
 							default: ASSERT(false);
 							}
 
@@ -627,7 +628,7 @@ namespace WBSF
 			{
 				string name = WBSF::GetLastDirName(dirList[i].m_filePath);
 				size_t pos = name.find('.');
-				if (pos != NOT_INIT && (pos == 3 || pos == 4))
+				if (pos != NOT_INIT && pos == 3 && name.substr(0,pos) == "gfs")
 				{
 					name = name.substr(pos + 1);
 					int year = WBSF::as<int>(name.substr(0, 4));
@@ -636,6 +637,7 @@ namespace WBSF
 
 					CTRef TRef(year, m, d, 0);
 					latest1.insert(TRef);
+				
 				}
 			}
 
@@ -664,7 +666,7 @@ namespace WBSF
 							string URL = SERVER_PATH[source];
 							switch (source)
 							{
-							case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH); break;
+							case N_GFS:URL += FormatA("gfs.%4d%02d%02d/%02d/atmos/gfs.t%02dz.sfluxgrbf???.grib2", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, HH, HH); break;
 							default: ASSERT(false);
 							}
 

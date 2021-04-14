@@ -541,7 +541,7 @@ namespace WBSF
 			station.m_siteSpeceficInformation.clear();
 			station.SetSSI("Network", network);
 			station.SetSSI("Country", "Canada");
-			station.SetSSI("SubDivisions", province);
+			station.SetSSI("SubDivision", province);
 
 
 			if (bStepIt)

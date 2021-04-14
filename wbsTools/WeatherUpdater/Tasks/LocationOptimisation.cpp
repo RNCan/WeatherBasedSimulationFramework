@@ -346,8 +346,8 @@ namespace WBSF
 
 			location.SetSSI("Country", country);
 			//location.SetSSI("State", state);
-			location.SetSSI("SubDivisions", subDivisions);
-			//string SubDivisions = station.GetSSI("SubDivisions");
+			location.SetSSI("SubDivision", subDivisions);
+			//string SubDivisions = station.GetSSI("SubDivision");
 			//string country = station.GetSSI("Country");
 
 			location.m_ID = Trim(line.substr(0, 11));

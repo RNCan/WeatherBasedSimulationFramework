@@ -1524,12 +1524,12 @@ namespace WBSF
 
 		if (!locations.IsValid(false))
 		{
-			size_t nb_erase = locations.size();
+			
 			for (CLocationVector::iterator it = locations.begin(); it != locations.end(); )
 			{
 				if (!it->IsValid(false))
 				{
-					callback.AddMessage("WARNING: bad coordinate :" + it->m_name + "(" + it->m_ID + "), " + "lat=" + to_string(it->m_lat) + ", lon=" + to_string(it->m_lon) + ", elev=" + to_string(it->m_alt), 2);
+					callback.AddMessage("WARNING: invalid coordinate :" + it->m_name + "(" + it->m_ID + "), " + "lat=" + to_string(it->m_lat) + ", lon=" + to_string(it->m_lon) + ", elev=" + to_string(it->m_alt), 2);
 					it = locations.erase(it);
 				}
 				else
@@ -1537,9 +1537,6 @@ namespace WBSF
 					it++;
 				}
 			}
-
-			nb_erase -= locations.size();
-			callback.AddMessage("WARNING: unable to fill " + to_string(nb_erase) + " locations elevation", 2);
 		}
 		//pGoogleConnection->Close();
 		//pGoogleSession->Close();

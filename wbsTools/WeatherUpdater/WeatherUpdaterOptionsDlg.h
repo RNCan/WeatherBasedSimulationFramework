@@ -8,6 +8,7 @@
 #include "UI/Common/CommonCtrl.h"
 #include "UI/OptionLinks.h"
 #include "UI/OptionRegional.h"
+#include "UI/OptionLayers.h"
 #include "WeatherBasedSimulationUI.h"
 
 
@@ -30,6 +31,7 @@ public:
 
     WBSF::COptionLinks m_links;
 	WBSF::COptionRegional m_regional;
+	WBSF::COptionLayerPage m_layers;
 	
 	CImageList m_images;
 	
