@@ -68,7 +68,7 @@ namespace WBSF
 			{ "-BestMedian", 1, "type", false, "Select the pixel that have the best median score for bands (B3,B4,B5,QA). Take individual median by band by default." },
 			{ "-worstQA", 1, "", false, "Remove the worst QA before computing median." },
 			{ "-BandValidity", 1, "", false, "Verify validity on each band separately. all valid or invalid be default" },
-			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
+			//{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 			{ "-Debug", 0, "", false, "Output debug information." },
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
