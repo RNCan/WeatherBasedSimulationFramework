@@ -14,6 +14,7 @@
 #define IDD_GENERATE_WU                 223
 #define IDD_CREATE_STYLE                226
 #define IDD_SIM_FIT_EQUATION_OPTIONS    234
+#define IDD_CMN_OPTION_LAYERS           240
 #define IDR_CMN_BROWSETITLE             940
 #define IDR_CMN_PROJECT_EXIST           941
 #define IDR_SHOWMAP_TOOLBAR             942
@@ -612,6 +613,7 @@
 #define IDC_FIT_TB_BY                   1310
 #define IDC_FIT_TO_BY                   1311
 #define IDC_FIT_TM_BY                   1312
+#define IDC_OPTION_LAYER_PROPERTIES     1313
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -975,9 +977,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        240
+#define _APS_NEXT_RESOURCE_VALUE        242
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1313
+#define _APS_NEXT_CONTROL_VALUE         1314
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
