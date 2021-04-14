@@ -228,7 +228,7 @@ namespace WBSF
 		m_R²Ctrl.SetWindowText(ToString(m_pParam->m_regressCriticalR2,10));
 
 		//Kriging
-		m_variogramModelCtrl.SetCurSel(m_pParam->m_variogramModel + 1);
+		m_variogramModelCtrl.SetCurSel(int(m_pParam->m_variogramModel) + 1);
 		m_lagDistanceCtrl.SetWindowText(ToString(m_pParam->m_lagDist, 6));
 		m_nbLagsCtrl.SetWindowText(ToString(m_pParam->m_nbLags));
 		m_detrendingCtrl.SetCurSel(m_pParam->m_detrendingModel + 1);

@@ -668,18 +668,21 @@ namespace WBSF
 			ASSERT(pDlg->m_extractFrom == CExtractSSIDlg::FROM_WEB);
 			if (*pMsg && pDlg->m_bExtractWebElevation)
 			{
-				*pMsg = ExtractOpenTopoDataElevation(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_webElevProduct, pDlg->m_interpolationType, *pCallback);
+				//*pMsg = ExtractOpenTopoDataElevation(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_webElevProduct, pDlg->m_interpolationType, *pCallback);
+				*pMsg = pLocations->ExtractOpenTopoDataElevation(!pDlg->m_bMissingOnly, pDlg->m_webElevProduct, pDlg->m_interpolationType, *pCallback);
 			}
 
 			if (*pMsg && pDlg->m_bExtractWebName)
 			{
-				*pMsg = ExtractNominatimName(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_bExtractWebName, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
+				//*pMsg = ExtractNominatimName(*pLocations, !pDlg->m_bMissingOnly, pDlg->m_bExtractWebName, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
+				*pMsg = pLocations->ExtractNominatimName(!pDlg->m_bMissingOnly, pDlg->m_bExtractWebName, pDlg->m_bExtractWebState, pDlg->m_bExtractWebCountry, *pCallback);
 			}
 		}
 
 		if (pDlg->m_bExtractShoreDistance)
 		{
-			*pMsg = ExtractShoreDistance(*pLocations, !pDlg->m_bMissingOnly, *pCallback);
+			//*pMsg = ExtractShoreDistance(*pLocations, !pDlg->m_bMissingOnly, *pCallback);
+			*pMsg = pLocations->ExtractShoreDistance(!pDlg->m_bMissingOnly, *pCallback);
 		}
 
 
@@ -854,256 +857,256 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLocDlg::ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback)
-	{
-		ERMsg msg;
+	//ERMsg CLocDlg::ExtractNominatimName(CLocationVector& locations, bool bReplaceAll, bool bName, bool bState, bool bCountry, CCallback& callback)
+	//{
+	//	ERMsg msg;
 
 
-		//http://nominatim.openstreetmap.org/reverse?format=json&lat=46.736497&lon=-71.450790
+	//	//http://nominatim.openstreetmap.org/reverse?format=json&lat=46.736497&lon=-71.450790
 
-		callback.PushTask("Extract location name from nominatim", locations.size());
-
-
-		CHttpConnectionPtr pConnection;
-		CInternetSessionPtr pSession;
-		msg += GetHttpConnection("nominatim.openstreetmap.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
+	//	callback.PushTask("Extract location name from nominatim", locations.size());
 
 
-		if (msg)
-		{
-			size_t miss = 0;
-			for (size_t i = 0; i < locations.size() && msg; i++)
-			{
-				bool bMissName = bName && (bReplaceAll || locations[i].m_name.empty());
-				bool bMissState = bState &&  (bReplaceAll || locations[i].GetSSI("State").empty());
-				bool bMissCountry = bCountry && (bReplaceAll || locations[i].GetSSI("Country").empty());
+	//	CHttpConnectionPtr pConnection;
+	//	CInternetSessionPtr pSession;
+	//	msg += GetHttpConnection("nominatim.openstreetmap.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
 
-				if (bMissName || bMissState || bMissCountry)
-				{
-
-					string strGeo;
-					string URL = "/reverse?zoom=18&format=geojson&lat=" + ToString(locations[i].m_lat) + "&lon=" + ToString(locations[i].m_lon);
-
-					msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
-					if (msg)
-					{
-						//extract elevation from google
-						string error;
-						Json geojson = Json::parse(strGeo, error);
-
-						if (error.empty())
-						{
-							ASSERT(geojson.is_object());
-							ASSERT(geojson["features"].is_array());
-							Json::array features = geojson["features"].array_items();
-							if (features.size() == 1)
-							{
-								ASSERT(features[0].is_object());
-
-								Json::object feature0 = features[0].object_items();
-								Json::object properties = feature0["properties"].object_items();
-								Json::object address = properties["address"].object_items();
-
-								string village = ANSI_2_ASCII(address["village"].string_value());
-								string town = ANSI_2_ASCII(address["town"].string_value());
-								string suburb = ANSI_2_ASCII(address["suburb"].string_value());
-								string city = ANSI_2_ASCII(address["city"].string_value());
-								string county = ANSI_2_ASCII(address["county"].string_value());
-								string region = ANSI_2_ASCII(address["region"].string_value());
-
-								string state = ANSI_2_ASCII(address["state"].string_value());
-								string country = ANSI_2_ASCII(address["country"].string_value());
-
-								
-								string name;
-								if (!village.empty())
-									name = village;
-								else if (!town.empty())
-									name = town;
-								else if (!suburb.empty())
-									name = suburb;
-								else if (!city.empty())
-									name = city;
-								else if (!county.empty())
-									name = county;
-								else if (!region.empty())
-									name = region;
-								
-
-								if (bMissName && !name.empty())
-									locations[i].m_name = name;
-
-								if (bMissState && !state.empty())
-									locations[i].SetSSI("State", state);
-
-								if (bMissCountry && !country.empty())
-									locations[i].SetSSI("Country", country);
-							}
-							else
-							{
-								miss++;
-							}
-						}
-						else
-						{
-							if (error.empty())
-								error = geojson["error"]["message"].string_value();
-
-							msg.ajoute(error);
-						}
-					}//if msg
-				}//if empty name
-
-				msg += callback.StepIt();
-			}//for all locations
-
-			pConnection->Close();
-			pSession->Close();
-		}//if msg
-
-		callback.PopTask();
-
-		return msg;
-	}
+	//	if (msg)
+	//	{
+	//		size_t miss = 0;
+	//		for (size_t i = 0; i < locations.size() && msg; i++)
+	//		{
+	//			bool bMissName = bName && (bReplaceAll || locations[i].m_name.empty());
+	//			bool bMissState = bState &&  (bReplaceAll || locations[i].GetSSI("State").empty());
+	//			bool bMissCountry = bCountry && (bReplaceAll || locations[i].GetSSI("Country").empty());
 
 
+	//			if (bMissName || bMissState || bMissCountry)
+	//			{
+
+	//				string strGeo;
+	//				string URL = "/reverse?zoom=18&format=geojson&lat=" + ToString(locations[i].m_lat) + "&lon=" + ToString(locations[i].m_lon);
+
+	//				msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+	//				if (msg)
+	//				{
+	//					//extract name from nominatim
+	//					string error;
+	//					Json geojson = Json::parse(strGeo, error);
+
+	//					if (error.empty())
+	//					{
+	//						ASSERT(geojson.is_object());
+	//						ASSERT(geojson["features"].is_array());
+	//						Json::array features = geojson["features"].array_items();
+	//						if (features.size() == 1)
+	//						{
+	//							ASSERT(features[0].is_object());
+
+	//							Json::object feature0 = features[0].object_items();
+	//							Json::object properties = feature0["properties"].object_items();
+	//							Json::object address = properties["address"].object_items();
+
+	//							string village = ANSI_2_ASCII(address["village"].string_value());
+	//							string town = ANSI_2_ASCII(address["town"].string_value());
+	//							string suburb = ANSI_2_ASCII(address["suburb"].string_value());
+	//							string city = ANSI_2_ASCII(address["city"].string_value());
+	//							string county = ANSI_2_ASCII(address["county"].string_value());
+	//							string region = ANSI_2_ASCII(address["region"].string_value());
+
+	//							string state = ANSI_2_ASCII(address["state"].string_value());
+	//							string country = ANSI_2_ASCII(address["country"].string_value());
+
+	//							
+	//							string name;
+	//							if (!village.empty())
+	//								name = village;
+	//							else if (!town.empty())
+	//								name = town;
+	//							else if (!suburb.empty())
+	//								name = suburb;
+	//							else if (!city.empty())
+	//								name = city;
+	//							else if (!county.empty())
+	//								name = county;
+	//							else if (!region.empty())
+	//								name = region;
+	//							
+
+	//							if (bMissName && !name.empty())
+	//								locations[i].m_name = name;
+
+	//							if (bMissState && !state.empty())
+	//								locations[i].SetSSI("State", state);
+
+	//							if (bMissCountry && !country.empty())
+	//								locations[i].SetSSI("Country", country);
+	//						}
+	//						else
+	//						{
+	//							miss++;
+	//						}
+	//					}
+	//					else
+	//					{
+	//						if (error.empty())
+	//							error = geojson["error"]["message"].string_value();
+
+	//						msg.ajoute(error);
+	//					}
+	//				}//if msg
+	//			}//if empty name
+
+	//			msg += callback.StepIt();
+	//		}//for all locations
+
+	//		pConnection->Close();
+	//		pSession->Close();
+	//	}//if msg
+
+	//	callback.PopTask();
+
+	//	return msg;
+	//}
 
 
 
-	ERMsg CLocDlg::ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eInterpol, CCallback& callback)
-	{
-		ERMsg msg;
-
-		//http://api.opentopodata.org/v1/test-dataset?locations=56.35,123.90
-		callback.PushTask("Extract elevation from Open Topo Data", locations.size());
-
-		CHttpConnectionPtr pConnection;
-		CInternetSessionPtr pSession;
-		msg += GetHttpConnection("api.opentopodata.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
-
-		//NOAA etopo1 1.8 km (Global, including bathymetry and ice surface elevation near poles)
-		//NASA srtm	90 m (Latitudes -60 to 60)
-		//NASA srtm 30 m (Latitudes -60 to 60)
-		//EEA eudem 25 m (Europe)
-		//NASA aster 30 m (Global)
-		//USGS ned 10 m (Continental USA, Hawaii, parts of Alaska)
 
 
-		enum TProduct { NOAA_ETOPO1, NASA_SRTM90M, NASA_SRTM30M, EEQ_UDEM25M, NASA_ASTER30M, USGS_NED10M, NB_PRODUCTS };
-		enum TInterpol { I_NEAREST, I_BILINEAR, I_CUBIC, NB_INTERPOL };
-		static const char* PROPDUCT_NAME[NB_PRODUCTS] = { "etopo1", "srtm90m", "srtm30m", "udem25m", "aster30m", "ned10m" };
-		static const char* INTERPOL_NAME[NB_INTERPOL] = { "nearest", "bilinear", "cubic" };;
+	//ERMsg CLocDlg::ExtractOpenTopoDataElevation(CLocationVector& locations, bool bReplaceAll, size_t eProduct, size_t eInterpol, CCallback& callback)
+	//{
+	//	ERMsg msg;
 
-		ASSERT(eProduct < NB_PRODUCTS);
-		ASSERT(eInterpol < NB_INTERPOL);
-		string product = PROPDUCT_NAME[eProduct];
-		string interpol = INTERPOL_NAME[eInterpol];
+	//	//http://api.opentopodata.org/v1/test-dataset?locations=56.35,123.90
+	//	callback.PushTask("Extract elevation from Open Topo Data", locations.size());
 
-		if (msg)
-		{
-			string URL;
+	//	CHttpConnectionPtr pConnection;
+	//	CInternetSessionPtr pSession;
+	//	msg += GetHttpConnection("api.opentopodata.org", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true);
 
-			vector<size_t> loc_to_update;
-			//select locations to uptade
-			for (size_t i = 0; i < locations.size() && msg; i++)
-			{
-				if (locations[i].m_elev == -999 || bReplaceAll)
-				{
-					loc_to_update.push_back(i);
-				}
-			}
-
-			size_t ii = 0;
-			size_t iii = 0;
-			for (size_t i = 0; i < loc_to_update.size() && msg; i++)
-			{
-				if (ii == 0)
-					URL = "/v1/" + product + "?&interpolation=" + interpol + "&locations=";
-				else
-					URL += "|";
-
-				size_t index = loc_to_update[i];
-				URL += ToString(locations[index].m_lat) + "," + ToString(locations[index].m_lon);
-				ii++;
-
-				if (ii == 100 || i == loc_to_update.size() - 1)
-				{
-					ii = 0;
-					string strGeo;
-					msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
-					if (msg)
-					{
-						//extract elevation from google
-						string error;
-						Json json = Json::parse(strGeo, error);
-						ASSERT(json.is_object());
-
-						if (error.empty() && json["status"] == "OK")
-						{
-							ASSERT(json["results"].is_array());
-
-							Json::array result = json["results"].array_items();
-							for (size_t i = 0; i < result.size(); i++, iii++)
-							{
-								locations[loc_to_update[iii]].m_elev = result[i]["elevation"].number_value();
-								msg += callback.StepIt();
-							}
-
-							if (i == loc_to_update.size() - 1)
-								Sleep(1000);//sleep one second (API limits)
-						}
-						else
-						{
-							if (error.empty())
-								error = json["error"].string_value();
-
-							msg.ajoute(error);
-						}
-					}
-				}//if no elev
+	//	//NOAA etopo1 1.8 km (Global, including bathymetry and ice surface elevation near poles)
+	//	//NASA srtm	90 m (Latitudes -60 to 60)
+	//	//NASA srtm 30 m (Latitudes -60 to 60)
+	//	//EEA eudem 25 m (Europe)
+	//	//NASA aster 30 m (Global)
+	//	//USGS ned 10 m (Continental USA, Hawaii, parts of Alaska)
 
 
-			}//for all locations
+	//	enum TProduct { NOAA_ETOPO1, NASA_SRTM90M, NASA_SRTM30M, EEQ_UDEM25M, NASA_ASTER30M, USGS_NED10M, NB_PRODUCTS };
+	//	enum TInterpol { I_NEAREST, I_BILINEAR, I_CUBIC, NB_INTERPOL };
+	//	static const char* PROPDUCT_NAME[NB_PRODUCTS] = { "etopo1", "srtm90m", "srtm30m", "udem25m", "aster30m", "ned10m" };
+	//	static const char* INTERPOL_NAME[NB_INTERPOL] = { "nearest", "bilinear", "cubic" };;
 
-			pConnection->Close();
-			pSession->Close();
+	//	ASSERT(eProduct < NB_PRODUCTS);
+	//	ASSERT(eInterpol < NB_INTERPOL);
+	//	string product = PROPDUCT_NAME[eProduct];
+	//	string interpol = INTERPOL_NAME[eInterpol];
+
+	//	if (msg)
+	//	{
+	//		string URL;
+
+	//		vector<size_t> loc_to_update;
+	//		//select locations to uptade
+	//		for (size_t i = 0; i < locations.size() && msg; i++)
+	//		{
+	//			if (locations[i].m_elev == -999 || bReplaceAll)
+	//			{
+	//				loc_to_update.push_back(i);
+	//			}
+	//		}
+
+	//		size_t ii = 0;
+	//		size_t iii = 0;
+	//		for (size_t i = 0; i < loc_to_update.size() && msg; i++)
+	//		{
+	//			if (ii == 0)
+	//				URL = "/v1/" + product + "?&interpolation=" + interpol + "&locations=";
+	//			else
+	//				URL += "|";
+
+	//			size_t index = loc_to_update[i];
+	//			URL += ToString(locations[index].m_lat) + "," + ToString(locations[index].m_lon);
+	//			ii++;
+
+	//			if (ii == 100 || i == loc_to_update.size() - 1)
+	//			{
+	//				ii = 0;
+	//				string strGeo;
+	//				msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+	//				if (msg)
+	//				{
+	//					//extract elevation from google
+	//					string error;
+	//					Json json = Json::parse(strGeo, error);
+	//					ASSERT(json.is_object());
+
+	//					if (error.empty() && json["status"] == "OK")
+	//					{
+	//						ASSERT(json["results"].is_array());
+
+	//						Json::array result = json["results"].array_items();
+	//						for (size_t i = 0; i < result.size(); i++, iii++)
+	//						{
+	//							locations[loc_to_update[iii]].m_elev = result[i]["elevation"].number_value();
+	//							msg += callback.StepIt();
+	//						}
+
+	//						if (i == loc_to_update.size() - 1)
+	//							Sleep(1000);//sleep one second (API limits)
+	//					}
+	//					else
+	//					{
+	//						if (error.empty())
+	//							error = json["error"].string_value();
+
+	//						msg.ajoute(error);
+	//					}
+	//				}
+	//			}//if no elev
 
 
-			//if (miss)
-				//SYShowMessage("Some missing values");
-		}//if msg
+	//		}//for all locations
 
-		callback.PopTask();
-
-		return msg;
-
-	}
+	//		pConnection->Close();
+	//		pSession->Close();
 
 
-	ERMsg CLocDlg::ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback)
-	{
-		ERMsg msg;
+	//		//if (miss)
+	//			//SYShowMessage("Some missing values");
+	//	}//if msg
 
-		callback.PushTask("Extract shore distance", locations.size());
+	//	callback.PopTask();
+
+	//	return msg;
+
+	//}
 
 
-		//process all point
-		for (size_t i = 0; i < locations.size() && msg; i++)
-		{
-			if (bReplaceAll || locations[i].GetDefaultSSI(CLocation::SHORE_DIST).empty())
-			{
-				double d = CShore::GetShoreDistance(locations[i]) / 1000.0;//distance in km
-				locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d, 1));
-			}
+	//ERMsg CLocDlg::ExtractShoreDistance(CLocationVector& locations, bool bReplaceAll, CCallback& callback)
+	//{
+	//	ERMsg msg;
 
-			msg += callback.StepIt();
-		}//for all locations
+	//	callback.PushTask("Extract shore distance", locations.size());
 
-		callback.PopTask();
 
-		return msg;
-	}
+	//	//process all point
+	//	for (size_t i = 0; i < locations.size() && msg; i++)
+	//	{
+	//		if (bReplaceAll || locations[i].GetDefaultSSI(CLocation::SHORE_DIST).empty())
+	//		{
+	//			double d = CShore::GetShoreDistance(locations[i]) / 1000.0;//distance in km
+	//			locations[i].SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), ToString(d, 1));
+	//		}
+
+	//		msg += callback.StepIt();
+	//	}//for all locations
+
+	//	callback.PopTask();
+
+	//	return msg;
+	//}
 
 	//************************************************************************
 	CLocationsFileManagerDlg::CLocationsFileManagerDlg(CWnd* pParent) :
