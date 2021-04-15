@@ -84,7 +84,7 @@ namespace WBSF
 		T& operator()(size_t row, size_t col)   // i = row, y = col
 		{
 			CMatrix<T>& me = *this;
-			return mew[row][col];
+			return me[row][col];
 		}
 
 		//Get Size
