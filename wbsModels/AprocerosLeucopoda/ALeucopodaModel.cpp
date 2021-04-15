@@ -45,12 +45,22 @@ namespace WBSF
 		VERSION = "1.0.0 (2021)";
 
 		m_generationSurvival = 1;
-		m_bCumul = false;
+//		m_bCumul = false;
 //		m_stage = 0;
 	//	m_T = 0;
 
-		m_EWD.fill(0);
-		m_EAS.fill(0);
+		//m_EWD.fill(0);
+		//m_EAS.fill(0);
+		//Set parameters to equation
+		//ASSERT(stand.m_equations.m_EWD.size() == m_EWD.size());
+		for (size_t p = 0; p < m_EWD.size(); p++)
+			m_EWD[p] = CAprocerosLeucopodaEquations::EWD[p];
+
+		//ASSERT(stand.m_equations.m_EAS.size() == m_EAS.size());
+		for (size_t p = 0; p < m_EAS.size(); p++)
+			m_EAS[p] = CAprocerosLeucopodaEquations::EAS[p];
+
+
 		//m_P.fill(0);
 		/*m_P[Τᴴ²] = 19.1;
 		m_P[delta] = 45;
@@ -78,7 +88,7 @@ namespace WBSF
 		//		m_stage = parameters[c++].GetInt() + 1;
 			//	m_T = parameters[c++].GetInt()+1;
 
-		m_bCumul = parameters[c++].GetBool();
+		//m_bCumul = parameters[c++].GetBool();
 		if (parameters.size() == m_EWD.size() + m_EAS.size() + 1)
 		{
 			//entering winter diapause  parameters
@@ -93,7 +103,7 @@ namespace WBSF
 				m_EAS[p] = parameters[c++].GetFloat();
 			}
 		}
-
+		
 
 		return msg;
 	}
@@ -219,19 +229,22 @@ namespace WBSF
 
 		//if (m_bCumul)
 		//{
-		//	//cumulative result
-		//	for (size_t s = S_EGG; s < S_ADULT; s++)
+		//	for (size_t g = 0; g < output.size(); g++)
 		//	{
-		//		CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-
-		//		CStatistic stat = output.GetStat(s, p);
-		//		if (stat.IsInit() && stat[SUM] > 0)
+		//		//cumulative result
+		//		for (size_t s = S_EGG; s < S_ADULT; s++)
 		//		{
-		//			output[0][s] = output[0][s] * 100 / stat[SUM];//when first day is not 0
-		//			for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
+		//			CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+
+		//			CStatistic stat = output[g].GetStat(s, p);
+		//			if (stat.IsInit() && stat[SUM] > 0)
 		//			{
-		//				output[d][s] = output[d - 1][s] + output[d][s] * 100 / stat[SUM];
-		//				_ASSERTE(!_isnan(output[d][s]));
+		//				output[g][0][s] = output[g][0][s] * 100 / stat[SUM];//when first day is not 0
+		//				for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
+		//				{
+		//					output[g][d][s] = output[g][d - 1][s] + output[g][d][s] * 100 / stat[SUM];
+		//					_ASSERTE(!_isnan(output[g][d][s]));
+		//				}
 		//			}
 		//		}
 		//	}

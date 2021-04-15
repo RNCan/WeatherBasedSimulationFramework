@@ -39,7 +39,7 @@ namespace WBSF
 		//size_t m_T;
 
 		double m_generationSurvival;
-		bool m_bCumul;
+		//bool m_bCumul;
 		//void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
 		//void CalibrateEmergence(CStatisticXY& stat);
 		//void CalibrateEmergenceI(CStatisticXY& stat);
