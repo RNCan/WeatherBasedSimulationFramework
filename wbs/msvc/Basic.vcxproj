@@ -278,6 +278,12 @@
     <ClCompile Include="..\src\Basic\gzip.cpp" />
     <ClCompile Include="..\src\Basic\HourlyDatabase.cpp" />
     <ClCompile Include="..\src\Basic\hxGrid.cpp" />
+    <ClCompile Include="..\src\Basic\json\json11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\Basic\Location.cpp" />
     <ClCompile Include="..\src\Basic\ModelStat.cpp" />
     <ClCompile Include="..\src\Basic\Mtrx.cpp" />
@@ -361,6 +367,7 @@
     <ClInclude Include="..\src\Basic\gzip.h" />
     <ClInclude Include="..\src\Basic\HourlyDatabase.h" />
     <ClInclude Include="..\src\Basic\hxGrid.h" />
+    <ClInclude Include="..\src\Basic\json\json11.hpp" />
     <ClInclude Include="..\src\Basic\Location.h" />
     <ClInclude Include="..\src\Basic\LRUCache.h" />
     <ClInclude Include="..\src\Basic\ModelStat.h" />
