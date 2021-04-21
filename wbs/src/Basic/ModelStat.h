@@ -262,8 +262,9 @@ namespace WBSF
 		void Init(CTPeriod period = CTPeriod(), size_t nbVars = 0)
 		{
 			m_period = period;
-			resize_rows(m_period.GetNbRef());
-			resize_cols(nbVars);
+			CMatrix::resize(m_period.GetNbRef(), nbVars);
+			//resize_rows(m_period.GetNbRef());
+			//resize_cols(nbVars);
 		}
 		
 

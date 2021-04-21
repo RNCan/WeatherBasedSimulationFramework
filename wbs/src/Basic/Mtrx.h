@@ -88,8 +88,8 @@ namespace WBSF
 		}
 
 		//Get Size
-		size_t size_x()const{ return shape()[1]; }
-		size_t size_y()const{ return shape()[0]; }
+		size_t size_x()const{ return boost::multi_array<T, 2>::shape()[1]; }
+		size_t size_y()const{ return boost::multi_array<T, 2>::shape()[0]; }
 		size_t cols()const{return size_x();}
 		size_t rows()const{return size_y();}
 	};
