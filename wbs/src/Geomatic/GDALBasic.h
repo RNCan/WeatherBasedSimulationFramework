@@ -196,7 +196,7 @@ namespace WBSF
 			const_iterator it1 = begin() + i*m_sceneSize;
 
 			bool bValid = true;
-			for (T::const_iterator it2 = pixel.begin(); it2 != pixel.end() && bValid; it2++)
+			for (class T::const_iterator it2 = pixel.begin(); it2 != pixel.end() && bValid; it2++)
 				bValid = (*it1)->IsValid(*it2);
 
 
@@ -699,7 +699,7 @@ namespace WBSF
 		template <class T>
 		void GetBlockLineAllLayer(int y, std::vector<std::vector<T>>& input, bool byBandFirst = true)
 		{
-			size_t nXSize = m_extents.m_xBlockSize;
+			size_t nXSize = m_entireExtents.m_xBlockSize;
 			size_t nbBand = GetRasterCount();
 
 			if (input.size() != (byBandFirst ? nbBand : nXSize))
@@ -726,7 +726,7 @@ namespace WBSF
 		template <class T>
 		void GetBlockAllLayer(std::vector<std::vector<std::vector<T>>>& input)
 		{
-			CGeoSize size = m_extents.GetSize();
+			CGeoSize size = m_entireExtents.GetSize();
 			size_t nXSize = size.m_x;
 			size_t nYSize = size.m_y;
 			size_t nbBand = GetRasterCount();
