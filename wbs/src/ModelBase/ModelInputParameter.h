@@ -41,8 +41,8 @@ namespace WBSF
 		std::string m_name;
 		std::string m_caption;
 		std::string m_description;
-		tagRECT   m_rect;
-		int		m_beginSecondField;
+		tagRECT		m_rect;
+		int			m_beginSecondField;
 
 
 		std::string m_min;
@@ -106,7 +106,7 @@ namespace WBSF
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & m_type &m_name &m_caption &m_description &m_rect &m_BeginSecondField &m_min &m_max &m_default &m_listValues;
+			ar & m_type &m_name &m_caption &m_description &m_rect &m_beginSecondField &m_min &m_max &m_default &m_listValues;
 		}
 
 		bool IsNumeric()const

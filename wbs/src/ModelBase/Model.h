@@ -181,7 +181,7 @@ namespace WBSF
 
 		std::string GetDocumentation()const;
 		ERMsg VerifyWGInput(const CWGInput& WGInput)const;
-		ERMsg VerifyInputs(StringVector& SSIHeader, CWVariables m_variables)const;
+		ERMsg VerifyInputs(const StringVector& SSIHeader, CWVariables m_variables)const;
 
 		long GetSimulatedAnnealingSize(){ return m_GetSimulatedAnnealingSize(); }
 		ERMsg SetSimulatedAnnealingSize(long size, std::string resultFilePath);

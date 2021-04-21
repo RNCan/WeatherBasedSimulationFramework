@@ -720,7 +720,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CModel::VerifyInputs(StringVector& SSIHeader, CWVariables variables)const
+	ERMsg CModel::VerifyInputs(const StringVector& SSIHeader, CWVariables variables)const
 	{
 		ERMsg msg;
 
