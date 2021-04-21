@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1500
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{7B96251F-134D-4583-AF1B-4A8AAC83C56E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wrapper", "Wrapper\Wrapper.vcxproj", "{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BioSIM_API_Console", "CLIConsole\BioSIM_API_Console.csproj", "{F3473083-6438-4DF7-92E4-058008CDEE75}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Debug|x64.ActiveCfg = Debug|x64
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Debug|x64.Build.0 = Debug|x64
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Release|x64.ActiveCfg = Release|x64
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Release|x64.Build.0 = Release|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Debug|x64.ActiveCfg = Debug|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Debug|x64.Build.0 = Debug|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Release|x64.ActiveCfg = Release|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Release|x64.Build.0 = Release|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Debug|x64.ActiveCfg = Debug|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Debug|x64.Build.0 = Debug|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Release|x64.ActiveCfg = Release|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {36569CE6-E974-4720-B15C-EB624CBB2DC6}
+	EndGlobalSection
+EndGlobal
