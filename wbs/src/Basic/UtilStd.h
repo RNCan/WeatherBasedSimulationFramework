@@ -443,7 +443,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		{
 			if (it != v.begin())
 				str += sep;
-			str += ToString(*it);
+			str += WBSF::ToString(*it);
 		}
 
 		str += end;
