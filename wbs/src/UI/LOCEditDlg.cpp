@@ -26,7 +26,7 @@
 #include "UI/LOCGeneratorDlg.h"
 #include "UI/LOCEditDlg.h"
 #include "UI/ExtractSSIDlg.h"
-#include "json\json11.hpp"
+#include "Basic/json/json11.hpp"
 #include "WeatherBasedSimulationString.h"
 
 
