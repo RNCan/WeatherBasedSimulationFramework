@@ -25,9 +25,10 @@ namespace WBSF
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg CreateHourlyCanUS(std::set<std::string> outputPath, CCallback& callback);
 		ERMsg CreateDailyCanUS(std::set<std::string> outputPath, CCallback& callback);
-		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback);
+		ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)const;
+		ERMsg CreateCanUSGribList(CCallback& callback)const;
 
-
+		//static ERMsg CreateCanUSGribList(const std::string& path, CCallback& callback);
 	protected:
 
 		std::string m_workingDir;

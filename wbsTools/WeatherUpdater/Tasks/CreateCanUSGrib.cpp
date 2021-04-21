@@ -80,6 +80,10 @@ namespace WBSF
 		if (msg)
 			msg += HRCanUS.Execute(callback);
 
+		if(msg)
+			msg += HRCanUS.CreateCanUSGribList(callback);
+
+
 		return msg;
 	}
 
