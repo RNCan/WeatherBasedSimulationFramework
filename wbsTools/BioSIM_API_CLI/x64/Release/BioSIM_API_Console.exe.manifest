@@ -49,19 +49,19 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>t4/BvGB8cC/UJTCrEBgFaG88OWHqdAl5jqFPrtkH7aM=</dsig:DigestValue>
+        <dsig:DigestValue>wvpcex17a+MkWPX2xH7/1vWfkfOcFCOcODXlBG+UsYo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Wrapper.dll" size="172544">
-      <assemblyIdentity name="Wrapper" version="1.0.7780.35387" language="neutral" processorArchitecture="amd64" />
+      <assemblyIdentity name="Wrapper" version="1.0.7780.35754" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>xheVAxVzcExvOxM8paYjcZYmwZfE4LP828e5zw3fBhI=</dsig:DigestValue>
+        <dsig:DigestValue>6wKr0J20DQFwfesZ+QKF8cGBAfmmczOsYnrS3AdTQxE=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
