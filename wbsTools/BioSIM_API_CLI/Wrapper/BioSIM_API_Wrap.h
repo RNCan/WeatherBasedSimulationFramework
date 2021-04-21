@@ -1,4 +1,4 @@
-//Entity.h
+//BioSIM_API_Wrap.h
 #pragma once
 #include "ManagedObject.h"
 #include "../Core/BioSIM_API.h"

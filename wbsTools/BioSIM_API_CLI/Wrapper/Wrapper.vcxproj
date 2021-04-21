@@ -140,13 +140,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BioSIM_API_Warp.h" />
+    <ClInclude Include="BioSIM_API_Wrap.h" />
     <ClInclude Include="ManagedObject.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="BioSIM_API_Warp.cpp" />
+    <ClCompile Include="BioSIM_API_Wrap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />

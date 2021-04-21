@@ -17,7 +17,7 @@
     <ClInclude Include="Resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="BioSIM_API_Warp.h">
+    <ClInclude Include="BioSIM_API_Wrap.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -25,7 +25,7 @@
     <ClCompile Include="AssemblyInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BioSIM_API_Warp.cpp">
+    <ClCompile Include="BioSIM_API_Wrap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
