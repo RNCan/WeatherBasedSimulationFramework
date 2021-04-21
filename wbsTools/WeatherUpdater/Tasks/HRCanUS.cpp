@@ -73,7 +73,7 @@ namespace WBSF
 		if (!years.empty())
 		{
 			//create hourly gribs list
-			CTPeriod p = CTPeriod(*years.begin(), JANUARY, DAY_01, *years.rbegin(), DECEMBER, DAY_31);
+			CTPeriod p = CTPeriod(CTRef(*years.begin(), JANUARY, DAY_01, 0), CTRef(*years.rbegin(), DECEMBER, DAY_31, 23));
 			if (*years.rbegin() == WBSF::GetCurrentYear())
 				p.End() = CTRef::GetCurrentTRef(CTM::HOURLY);
 
@@ -551,12 +551,13 @@ namespace WBSF
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
 			size_t d = TRef.GetDay();
+			size_t h = TRef.GetHour();
 
 			string file_path;
 			if (p.GetTM().Type() == CTM::HOURLY)
-				file_path = FormatA("%s%d\\%02d\\%02d\\CANUS_%d%02d%02d*.tif", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
+				file_path = FormatA("%s%d\\%02d\\%02d\\CanUS_%d%02d%02d%02d.tif", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1, h);
 			else
-				file_path = FormatA("%s%d\\%02d\\CANUS_%d%02d*.tif", m_workingDir.c_str(), year, m + 1, year, m + 1);
+				file_path = FormatA("%s%d\\%02d\\CanUS_%d%02d%02d.tif", m_workingDir.c_str(), year, m + 1, year, m + 1, d + 1);
 
 			if (FileExists(file_path))
 				gribsList[TRef] = file_path;

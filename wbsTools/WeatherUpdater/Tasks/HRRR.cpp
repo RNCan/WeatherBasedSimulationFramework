@@ -25,7 +25,7 @@ namespace WBSF
 	//*********************************************************************
 	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"} };
 	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };
-	const char* CHRRR::PRODUCT_ABR[NB_SOURCES][NB_PRODUCT] = { {"prs","sfc"}, {"nat", "sfc"} };
+	const char* CHRRR::PRODUCT_ABR[NB_SOURCES][NB_PRODUCT] = { {"sfc","prs"}, {"sfc","nat"} };
 
 	CHRRR::CHRRR(const std::string& workingDir) :
 		m_workingDir(workingDir),

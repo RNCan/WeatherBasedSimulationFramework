@@ -63,7 +63,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{ 
-		case PRODUCT:	str = "HRRR (3d native)|HRRR (surface)"; break;
+		case PRODUCT:	str = "HRRR (surface)|HRRR (3d native)"; break;
 		case SOURCE:	str = "Archived (MesoWest)|Current (NOAA)"; break;
 		case SERVER_TYPE: str = "HTTP|FTP"; break;
 		};
@@ -76,7 +76,7 @@ namespace WBSF
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRRR\\"; break;
-		case PRODUCT: str = "1"; break;
+		case PRODUCT: str = "0"; break;
 		case SOURCE: str = "1"; break;
 		case SERVER_TYPE: str = "0"; break;
 		case FIRST_DATE:

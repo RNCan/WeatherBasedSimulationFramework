@@ -23,7 +23,7 @@ namespace WBSF
 		
 		enum TSource { MESO_WEST, NOMADS, NB_SOURCES};
 		enum TServer { HTTP_SERVER, FTP_SERVER, NB_SERVER_TYPE };
-		enum TProduct { HRRR_3D, HRRR_SFC, NB_PRODUCT };
+		enum TProduct { HRRR_SFC, HRRR_3D, NB_PRODUCT };
 		
 		CHRRR(const std::string& workingDir);
 		virtual ~CHRRR(void);

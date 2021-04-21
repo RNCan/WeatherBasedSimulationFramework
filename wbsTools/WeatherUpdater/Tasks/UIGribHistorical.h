@@ -57,7 +57,7 @@ namespace WBSF
 		std::string GetOutputFilePath(size_t product, size_t dimension, CTRef TRef, size_t HH, std::string ext)const;
 		
 		
-		ERMsg ExecuteHRRR(CCallback& callback);
+		//ERMsg ExecuteHRRR(CCallback& callback);
 		ERMsg CreateHourlyGeotiff(const std::string& inputFilePath, const std::string& inputPrcpFilePath, CCallback& callback)const;
 		ERMsg CreateHourlyPrcp(size_t product, size_t dimension, CTRef TRef, CCallback& callback)const;
 	

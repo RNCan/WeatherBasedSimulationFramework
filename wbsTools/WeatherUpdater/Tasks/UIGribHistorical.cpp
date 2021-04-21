@@ -267,7 +267,20 @@ namespace WBSF
 		}
 
 		if (product == P_HRRR)
-			return ExecuteHRRR(callback);
+		{
+			CHRRR HRRR(workingDir + GetDirectoryName(P_HRRR, dimension) + "\\");
+			HRRR.m_product = dimension;
+			HRRR.m_source = CHRRR::MESO_WEST;
+			HRRR.m_serverType = CHRRR::HTTP_SERVER;
+			HRRR.m_bShowWINSCP = false;
+			HRRR.m_period = GetPeriod();
+			HRRR.m_compute_prcp = true;
+			HRRR.m_update_last_n_days = 0;
+			HRRR.bUseOnlyBioSIMVar = true;
+			HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
+
+			return HRRR.Execute(callback);
+		}
 
 
 
@@ -810,24 +823,24 @@ namespace WBSF
 
 
 
-	ERMsg CUIGribHistorical::ExecuteHRRR(CCallback& callback)
-	{
-		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(P_HRRR, D_3D) + "\\";
-		CreateMultipleDir(workingDir);
+	//ERMsg CUIGribHistorical::ExecuteHRRR(CCallback& callback)
+	//{
+	//	string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(P_HRRR, D_3D) + "\\";
+	//	CreateMultipleDir(workingDir);
 
-		CHRRR HRRR(workingDir);
-		HRRR.m_product = CHRRR::HRRR_3D;
-		HRRR.m_source = CHRRR::MESO_WEST;
-		HRRR.m_serverType = CHRRR::HTTP_SERVER;
-		HRRR.m_bShowWINSCP = false;
-		HRRR.m_period = GetPeriod();
-		HRRR.m_compute_prcp = true;
-		HRRR.m_update_last_n_days = 0;
-		HRRR.bUseOnlyBioSIMVar = true;
-		HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
+	//	CHRRR HRRR(workingDir);
+	//	HRRR.m_product = CHRRR::HRRR_3D;
+	//	HRRR.m_source = CHRRR::MESO_WEST;
+	//	HRRR.m_serverType = CHRRR::HTTP_SERVER;
+	//	HRRR.m_bShowWINSCP = false;
+	//	HRRR.m_period = GetPeriod();
+	//	HRRR.m_compute_prcp = true;
+	//	HRRR.m_update_last_n_days = 0;
+	//	HRRR.bUseOnlyBioSIMVar = true;
+	//	HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
 
-		return HRRR.Execute(callback);
-	}
+	//	return HRRR.Execute(callback);
+	//}
 
 	ERMsg CUIGribHistorical::CreateHourlyPrcp(size_t product, size_t dimension, CTRef TRef, CCallback& callback)const
 	{
