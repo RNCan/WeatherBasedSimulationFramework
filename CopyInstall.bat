@@ -25,6 +25,9 @@ copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
 
 copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\AllenWave.dll" "..\Install\NRCan\Models\AllenWave.dll"
+copy /Y ".\bin\Releasex64\Models\AprocerosLeucopoda.mdl" "..\Install\NRCan\Models\AprocerosLeucopoda.mdl"
+copy /Y ".\bin\Releasex64\Models\AprocerosLeucopoda.dll" "..\Install\NRCan\Models\AprocerosLeucopoda.dll"
+
 
 copy /Y ".\bin\Releasex64\Models\ASCE-ETc (Daily).mdl" "..\Install\NRCan\Models\ASCE-ETc (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\ASCE-ETc.dll" "..\Install\NRCan\Models\ASCE-ETc.dll"
@@ -150,6 +153,9 @@ copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models\LaricobiusNigrinus.dll"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
+copy /Y ".\bin\Releasex64\Models\Leucopis.dll" "..\Install\NRCan\Models\Leucopis.dll"
+copy /Y ".\bin\Releasex64\Models\Leucopis spp.mdl" "..\Install\NRCan\Models\Leucopis spp.mdl"
+
 
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Daily).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Annual).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Annual).mdl"
