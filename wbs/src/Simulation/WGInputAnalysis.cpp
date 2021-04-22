@@ -986,6 +986,7 @@ namespace WBSF
 						}
 
 						//add only once
+						section[0][S_N] = allMonths[STATISTICS[S_N]];
 						section[0][S_STAT_R²] = allMonths[STATISTICS[S_STAT_R²]];
 
 						size_t sectionNo = resultDB.GetSectionNo(l, ff, 0);

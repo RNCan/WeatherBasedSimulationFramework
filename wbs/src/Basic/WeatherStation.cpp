@@ -3754,14 +3754,14 @@ namespace WBSF
 						if (v == H_PRCP)
 						{
 							ASSERT(!IsMissing(me[TRef][v][SUM]));
-							double c = correction.GetCorrection(me, TRef, H_PRCP);
+							double c = correction.GetCorrection(me, TRef, H_PRCP, TRef.GetYear());
 							double prcp = me[TRef][v][SUM] * c;
 							me[TRef].SetStat(v, prcp);
 						}
 						else
 						{
 							ASSERT(!IsMissing(me[TRef][v][MEAN]));
-							double c = correction.GetCorrection(me, TRef, v);
+							double c = correction.GetCorrection(me, TRef, v, TRef.GetYear());
 							double value = me[TRef][v][MEAN] + c;
 							ASSERT(value > -99);
 

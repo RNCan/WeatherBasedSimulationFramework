@@ -20,10 +20,14 @@ namespace WBSF
 	{
 	public:
 
-
+		enum TType{ FOR_NORMALS, FOR_OBSERVATION, NB_CORRECTION_TYPES };
 		//public member (properties)
 		bool m_bXVal;
 		bool m_bUseShore;
+		bool m_bUseNearestElev;
+		bool m_bUseNearestShore;
+		int m_firstYear;
+		int m_lastYear;
 		CLocation m_target;
 		CWVariables m_variables;
 		CWVariables m_allowDerivedVariables;//don't return error if normals doesn't exist
@@ -34,7 +38,7 @@ namespace WBSF
 
 		void reset();
 		
-		virtual double GetCorrection(const CLocation& pt, CTRef TRef, size_t v)const;
+		virtual double GetCorrection(const CLocation& pt, CTRef TRef, size_t v, int year)const;
 
 	protected:
 

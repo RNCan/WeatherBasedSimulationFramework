@@ -412,6 +412,13 @@ namespace WBSF
 		GenerateSeed();
 
 		m_gradients.SetNormalsDatabase(m_pNormalDB);
+		if (m_tgi.IsObservation())
+		{
+			m_gradients.m_firstYear = m_tgi.m_firstYear;
+			m_gradients.m_lastYear = m_tgi.m_lastYear;
+			m_gradients.SetObservedDatabase(GetObservedDatabase());
+		}
+		
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
 
@@ -424,7 +431,11 @@ namespace WBSF
 
 		m_gradients.m_allowDerivedVariables = m_tgi.m_allowedDerivedVariables;
 		m_gradients.m_bXVal = m_tgi.m_bXValidation;
-		m_gradients.m_bUseShore = m_tgi.m_bUseShore;
+		//nerver use shore in gradients, casue some inexpected result in regression by RSA 17-03-2021
+		//shore is only used to select nearest gradient stations
+		m_gradients.m_bUseShore = false;//m_tgi.m_bUseShore;
+		m_gradients.m_bUseNearestShore = false;
+		m_gradients.m_bUseNearestElev= true;
 		m_gradients.m_target = m_target;
 
 		msg = m_gradients.CreateGradient(callback);

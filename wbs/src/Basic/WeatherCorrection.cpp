@@ -13,7 +13,7 @@
 #include "stdafx.h"
 #include "Basic/WeatherCorrection.h"
 
- 
+
 namespace WBSF
 {
 	using namespace GRADIENT;
@@ -33,16 +33,20 @@ namespace WBSF
 	void CWeatherCorrections::reset()
 	{
 		m_bXVal = false;
-		m_bUseShore = true;
+		m_bUseShore = false;
+		m_bUseNearestElev = true;
+		m_bUseNearestShore = true;
+		m_firstYear = -999;
+		m_lastYear = -999;
 		m_target.clear();
 		m_variables.reset();
 		m_allowDerivedVariables.set();
 	}
 
-	double CWeatherCorrections::GetCorrection(const CLocation& pt, CTRef TRef, size_t v)const
+	double CWeatherCorrections::GetCorrection(const CLocation& pt, CTRef TRef, size_t v, int year)const
 	{
 		return (v == HOURLY_DATA::H_PRCP) ? 1 : 0;
 	}
-	
+
 
 }

@@ -88,15 +88,17 @@ namespace WBSF
 
 		
 
+
 		ERMsg GetNormals(CNormalsStation& normals, CCallback& callback);
 		ERMsg GetDaily(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GetHourly(CSimulationPoint& simulationPoint, CCallback& callback);
+		CWeatherDatabasePtr GetObservedDatabase() { return m_tgi.IsNormals()?nullptr:m_tgi.IsDaily()? std::dynamic_pointer_cast<CWeatherDatabase>(m_pDailyDB) : std::dynamic_pointer_cast<CWeatherDatabase>(m_pHourlyDB); }
 		//ERMsg GetGribs(CSimulationPoint& simulationPoint, CCallback& callback);
 		ERMsg GenerateNormals(CSimulationPointVector& simulationPointVector, CCallback& callback);
 		void RemoveForecast(CSimulationPoint& simulationPoint);
 
 		const std::bitset<NB_WARNING>& GetWarningBits()const { return m_warning; }
-		
+
 	protected:
 
 		void GenerateSeed();

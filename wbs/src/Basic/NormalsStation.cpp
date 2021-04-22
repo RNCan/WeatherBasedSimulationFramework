@@ -243,32 +243,34 @@ namespace WBSF
 			if (vars[H_TMIN] && correction.m_variables[H_TMIN])
 			{
 				//it's temperature correction
-				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN);
+				me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN, -999);
 				ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
 			}
-			if (vars[H_TAIR] && correction.m_variables[H_TAIR])
-			{
-				//it's temperature correction
-				//me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN);
-				//ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
-			}
+			
 			if (vars[H_TMAX] && correction.m_variables[H_TMAX])
 			{
 				//it's temperature correction
-				me[m][TMAX_MN] += (float)correction.GetCorrection(me, TRef, H_TMAX);
+				me[m][TMAX_MN] += (float)correction.GetCorrection(me, TRef, H_TMAX, -999);
 				ASSERT(me[m][TMAX_MN]>-99 && me[m][TMAX_MN]<99);
 			}
 
 			if (vars[H_PRCP] && correction.m_variables[H_PRCP] ||
 				vars[H_SNOW] && correction.m_variables[H_SNOW]  )
 			{
-				me[m][PRCP_TT] *= (float)correction.GetCorrection(me, TRef, H_PRCP);
+				me[m][PRCP_TT] *= (float)correction.GetCorrection(me, TRef, H_PRCP, -999);
 				//responsability of the caller to verify that precipitation is positive
 				//prcp must be positive: ça doit créer des biais!!!
 				//if (me[m][PRCP_TT] < 0)
 				//me[m][PRCP_TT] = 0;
 			}
 
+			if (vars[H_TDEW] && correction.m_variables[H_TDEW])
+			{
+				//it's temperature correction
+				//me[m][TMIN_MN] += (float)correction.GetCorrection(me, TRef, H_TMIN);
+				//ASSERT(me[m][TMIN_MN]>-99 && me[m][TMIN_MN]<99);
+				//ASSERT(FALSE);
+			}
 			//add normal atmospheric pressure
 			if (vars[H_PRES] && correction.m_variables[H_PRES])
 			{

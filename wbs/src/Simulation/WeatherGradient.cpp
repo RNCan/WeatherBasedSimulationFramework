@@ -799,6 +799,7 @@ namespace WBSF
 		CWeatherCorrections::reset();
 		reset_data();
 		m_bForceComputeAllScale = false;
+		m_bKeepInputs = false;
 	}
 
 	void CWeatherGradient::reset_data()
@@ -807,13 +808,17 @@ namespace WBSF
 		{
 			for (size_t g = 0; g < NB_GRADIENT; g++)
 			{
-				m_factor[z][g].fill(0);
 				m_R²[z][g].fill(0);
 				for (size_t m = 0; m < 12; m++)
 					m_Sᵒ[z][g][m].clear();
 
 				for (size_t m = 0; m < 12; m++)
 					m_gradient[z][g][m].fill(0);
+
+				//for (size_t t = 0; t < NB_CORRECTION_TYPES; t++)
+				//{
+					//m_factor[t][z][g].fill(0);
+				//}
 			}
 		}
 	}
@@ -873,7 +878,7 @@ namespace WBSF
 
 		//f *= correction;
 
-		//for optimisation if the factror is over 95% we take 100 and below 5% we take 0
+		//for optimisation if the factor is over 95% we take 100 and below 5% we take 0
 		if (f > 0.95)
 			f = 1;
 
@@ -901,6 +906,7 @@ namespace WBSF
 		std::array < CGradientVariables, NB_HEMISPHERE> gradient;
 		std::array < std::array < CGradientR², GRADIENT::NB_GRADIENT >, NB_HEMISPHERE> R²;
 		std::array <std::array <CGradientSᵒ, GRADIENT::NB_GRADIENT >, NB_HEMISPHERE> Sᵒ;
+		CGradientInputs inputs;
 
 		for (size_t e = 0; e < NB_HEMISPHERE&&msg; e++)
 		{
@@ -929,7 +935,7 @@ namespace WBSF
 						size_t g = V2G(v);
 
 
-						msg = ComputeGradient(g, results, gradient[e][g], R²[e][g], callback);
+						msg = ComputeGradient(g, results, gradient[e][g], R²[e][g], inputs[e][g], callback);
 
 
 						GetSᵒ(g, results, Sᵒ[e][g]);
@@ -1048,6 +1054,23 @@ namespace WBSF
 		return msg;
 	}
 
+	std::set<int> CWeatherGradient::GetYears()const
+	{
+
+		std::set<int> years({ -999 });
+
+		if (m_pObservedDB.get())
+		{
+			ASSERT(m_firstYear <= m_lastYear);
+			ASSERT(m_firstYear > -999 && m_lastYear > -999);
+			for (size_t y = m_firstYear; y <= m_lastYear; y++)
+				years.insert(years.end(), int(y));
+		}
+
+
+		return years;
+	}
+
 
 	ERMsg CWeatherGradient::CreateGradient(CCallback& callback)
 	{
@@ -1066,9 +1089,7 @@ namespace WBSF
 		}
 		callback.PushTask("Create gradient", NB_SCALE_GRADIENT*nbVar, 1);
 
-		/*size_t e = NORTH_HEMISPHERE;
-		if (m_target.m_lat < 0)
-		e = SOUTH_HEMISPHERE;*/
+
 		size_t e = NORTH_WEST;
 		if (m_target.m_lat < 13 && m_target.m_lon < -25)
 			e = SOUTH_WEST;
@@ -1078,71 +1099,125 @@ namespace WBSF
 			e = NORTH_EST;
 
 		size_t nbSpaces = GetNbSpaces();
+		std::set<int> years = GetYears();
 
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
 			size_t g = V2G(v);
 			if (m_variables[v] && g < NB_GRADIENT)
 			{
-				for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
+				bool bContinue = true;
+				for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg&&bContinue; z++)
 				{
-					double sum = 0;
-					for (size_t zz = 0; zz < z; zz++)
-						for (size_t s = 0; s < nbSpaces; s++)
-							sum += m_factor[zz][g][s] / nbSpaces;
+					//vector<double> sum (GetNbCorrectionType(), 0 );
 
-					if (sum < 1 || m_bForceComputeAllScale)
+					//map<int, double> sum;
+
+					//m_factor[z][g].resize(GetNbCorrectionType(), 0);
+					//for (size_t y = 0; y < years.size(); y++)
+					/*for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
 					{
-						CSearchResultVector results;
+						m_factor[*it][z][g].fill(0);
 
-						if (z < CONTINENTAL_GRADIENT)
+						for (size_t zz = 0; zz < z; zz++)
+							for (size_t s = 0; s < nbSpaces; s++)
+								sum[*it] += m_factor[*it][zz][g][s] / nbSpaces;
+					}*/
+
+					//if (sum[0] < 1 || (sum.size() == 2 && sum[1] < 1) || m_bForceComputeAllScale)
+					//{
+					
+					if (z < CONTINENTAL_GRADIENT)
+					{
+
+						bContinue = m_bForceComputeAllScale;
+						size_t nbStations = size_t(NB_STATION_REGRESSION_LOCAL*pow(REGIONAL_FACTOR, z));
+
+						ERMsg msgTmp;
+						for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
 						{
-							size_t nbStations = size_t(NB_STATION_REGRESSION_LOCAL*pow(REGIONAL_FACTOR, z));
-							ERMsg msgTmp = m_pNormalDB->Search(results, m_target, nbStations, -1, v, -999, true, true, m_bUseShore);
+							CSearchResultVector results;
 
-							if (msgTmp)
-								msg = ComputeGradient(g, results, m_gradient[z][g], m_R²[z][g], callback);
-							else  if (!m_allowDerivedVariables[v])
-								msg += msgTmp;
+							//for a unknown reason, using elevation and shore in selection of gradient stations get better result in all situation
+							if (*it == -999)
+							{
+								msgTmp += m_pNormalDB->Search(results, m_target, nbStations, -1, v, -999, true, m_bUseNearestElev, m_bUseNearestShore);
+								if (msgTmp)
+									msg = ComputeGradient(g, results, m_gradient[z][g], m_R²[z][g], m_inputs[z][g], callback);
+								else  if (!m_allowDerivedVariables[v])
+									msg += msgTmp;
 
+								GetSᵒ(g, results, m_Sᵒ[z][g]);
+							}
+							else
+							{
+								msgTmp += m_pObservedDB->Search(results, m_target, nbStations, -1, v, *it, true, m_bUseNearestElev, m_bUseNearestShore);
+							}
 
-							GetSᵒ(g, results, m_Sᵒ[z][g]);
+							//compute factor
+					//for (size_t t = 0; t < GetNbCorrectionType(); t++)
+
+							//for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
+							//{
+
+							for (size_t s = 0; s < GetNbSpaces(); s++)
+							{
+								double f = GetFactor(z, g, s, results);
+								double ff = 1;
+								//The factor of this scale is apply only on the residual of the finer scale
+								for (size_t zz = 0; zz < z; zz++)
+									ff -= m_factor[*it][zz][g][s];
+
+								m_factor[*it][z][g][s] = max(0.0, min(1.0, f*ff));
+
+								if (m_factor[*it][z][g][s] < 1.0)
+									bContinue = true;
+							}
 						}
-						else
+
+					}
+					else
+					{
+						for (size_t m = 0; m < 12; m++)
+							for (size_t s = 0; s < GetNbSpaces(); s++)
+								m_gradient[z][g][m][s] = m_bUseShore ? DEFAULT_GRADIENTS[e][g][m][s] : DEFAULT_GRADIENTS_NO_SHORE[e][g][m][s];
+
+						m_Sᵒ[z][g] = GLOBAL_Sᵒ[e][g];
+
+						for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
 						{
-							for (size_t m = 0; m < 12; m++)
-								for (size_t s = 0; s < GetNbSpaces(); s++)
-									m_gradient[z][g][m][s] = m_bUseShore ? DEFAULT_GRADIENTS[e][g][m][s] : DEFAULT_GRADIENTS_NO_SHORE[e][g][m][s];
+							for (size_t s = 0; s < GetNbSpaces(); s++)
+							{
+								double ff = 1;
+								//The factor of this scale is apply only on the residual of the finer scale
+								for (size_t zz = 0; zz < z; zz++)
+									ff -= m_factor[*it][zz][g][s];
 
-							m_Sᵒ[z][g] = GLOBAL_Sᵒ[e][g];
+								m_factor[*it][z][g][s] = max(0.0, min(1.0, ff));
+							}
 						}
 
+						bContinue = false;
+						//}
 
-						//compute factor
-						for (size_t s = 0; s < GetNbSpaces(); s++)
-						{
-							double f = GetFactor(z, g, s, results);
 
-							double ff = 1;
-							//The factor of this scale is apply only on the residual of the finer scale
-							for (size_t zz = 0; zz < z; zz++)
-								ff -= m_factor[zz][g][s];
 
-							m_factor[z][g][s] = max(0.0, min(1.0, f*ff));
-						}
 					}
 
 
 					msg += callback.StepIt();
 				}//for all scale
 
-				for (size_t s = 0; s < GetNbSpaces(); s++)
+				for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
 				{
-					double f = 0;
-					for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
-						f += m_factor[z][g][s];
+					for (size_t s = 0; s < GetNbSpaces(); s++)
+					{
+						double f = 0;
+						for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg; z++)
+							f += m_factor[*it][z][g][s];
 
-					ASSERT(f == 1);
+						ASSERT(f == 1);
+					}
 				}
 			}//if selected variable
 		}//all variable
@@ -1168,7 +1243,7 @@ namespace WBSF
 		}
 	}
 
-	ERMsg CWeatherGradient::ComputeGradient(size_t g, CSearchResultVector& results, CGradientYear& Gr, CGradientR²& R², CCallback& callback)
+	ERMsg CWeatherGradient::ComputeGradient(size_t g, CSearchResultVector& results, CGradientYear& Gr, CGradientR²& R², CGradientInput& input, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -1245,7 +1320,27 @@ namespace WBSF
 				msg.ajoute(NEWMAT::Exception::what());
 		}
 
-		/*ofStream out;
+		if (m_bKeepInputs)
+		{
+			input.resize(results.size());
+			for (int i = 0; i < (int)results.size() && msg; i++)
+			{
+				size_t c = 0;
+				input[i][c++] = M[i][X_GR];
+				input[i][c++] = M[i][Y_GR];
+				input[i][c++] = M[i][Z_GR];
+				if (D_SHORE < nbSpaces)
+					input[i][c++] = M[i][S_GR];
+				else
+					input[i][c++] = -999;
+
+				for (size_t m = 0; m < 12; m++)
+					input[i][c++] = V[m][i];
+
+
+			}
+
+			/*ofStream out;
 		out.open("C:/temp/testGradient.csv");
 		out << "station,X,Y,Z,S,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12" << endl;
 
@@ -1263,13 +1358,15 @@ namespace WBSF
 			out << endl;
 		}
 		out.close();*/
+		}
+
 
 		return msg;
 	}
 
-	double CWeatherGradient::GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s)const
+	double CWeatherGradient::GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s, int year)const
 	{
-		ASSERT(s >= GetNbSpaces() || (m_factor[0][g][s] + m_factor[1][g][s] + m_factor[2][g][s]) == 1);
+		ASSERT(s >= GetNbSpaces() || (m_factor.at(year)[0][g][s] + m_factor.at(year)[1][g][s] + m_factor.at(year)[2][g][s]) == 1);
 
 		double correction = (g == PRCP_GR) ? 1 : 0;
 
@@ -1278,7 +1375,7 @@ namespace WBSF
 		if (g == TMIN_GR || g == TMAX_GR)
 		{
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
-				correction += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
+				correction += delta * m_factor.at(year)[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
 		}
 		else if (g == PRCP_GR)
 		{
@@ -1287,8 +1384,8 @@ namespace WBSF
 
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			{
-				c += delta * m_factor[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
-				Sᵒ += (m_factor[z][g][s] * m_Sᵒ[z][g][m][MEAN]);/// nbSpaces 
+				c += delta * m_factor.at(year)[z][g][s] * m_gradient[z][g][m][s];// / nbSpaces 
+				Sᵒ += (m_factor.at(year)[z][g][s] * m_Sᵒ[z][g][m][MEAN]);/// nbSpaces 
 			}
 
 			ASSERT(Sᵒ > 0);
@@ -1305,8 +1402,10 @@ namespace WBSF
 		return correction;
 	}
 
-	double CWeatherGradient::GetCorrection(const CLocation& station, CTRef TRef, size_t v)const
+	double CWeatherGradient::GetCorrection(const CLocation& station, CTRef TRef, size_t v, int year)const
 	{
+		//		ASSERT(type < NB_CORRECTION_TYPES);
+
 		double correction = (v == H_PRCP) ? 1 : 0;
 		size_t g = V2G(v);
 		size_t m = TRef.GetMonth();
@@ -1314,7 +1413,7 @@ namespace WBSF
 		if (v == H_PRES)
 		{
 			//reverse correction by RSA 15-02-2019
-			correction = (GetPressure(m_target.m_alt) - GetPressure(station.m_alt) ) / 100; //correction in [hPa]
+			correction = (GetPressure(m_target.m_alt) - GetPressure(station.m_alt)) / 100; //correction in [hPa]
 		}
 		else if (v == H_TMIN || v == H_TAIR || v == H_TMAX)
 		{
@@ -1325,8 +1424,8 @@ namespace WBSF
 
 				for (size_t s = 0; s < GetNbSpaces(); s++)
 				{
-					cTmin += GetCorrectionII(station, m, TMIN_GR, s);
-					cTmax += GetCorrectionII(station, m, TMAX_GR, s);
+					cTmin += GetCorrectionII(station, m, TMIN_GR, s, year);
+					cTmax += GetCorrectionII(station, m, TMAX_GR, s, year);
 				}
 
 				double p = (sin(2 * PI*TRef.GetHour() / 24.0) + 1) / 2;//full Tmin gradient at 6:00 and full Tmax gradient at 18:00
@@ -1341,19 +1440,19 @@ namespace WBSF
 				{
 					//pour l'instant je laisse les gradients moyen, mais a changer pour le gradient Tair  : ajouter Tair Pres dans normals
 					for (size_t s = 0; s < GetNbSpaces(); s++)
-						correction += (GetCorrectionII(station, m, TMIN_GR, s) + GetCorrectionII(station, m, TMAX_GR, s)) / 2;
+						correction += (GetCorrectionII(station, m, TMIN_GR, s, year) + GetCorrectionII(station, m, TMAX_GR, s, year)) / 2;
 				}
 				else
 				{
 					for (size_t s = 0; s < GetNbSpaces(); s++)
-						correction += GetCorrectionII(station, m, g, s);
+						correction += GetCorrectionII(station, m, g, s, year);
 				}
 			}
 		}
 		else if (v == H_PRCP)
 		{
 			for (size_t s = 0; s < GetNbSpaces(); s++)
-				correction *= GetCorrectionII(station, m, g, s);
+				correction *= GetCorrectionII(station, m, g, s, year);
 		}
 
 
@@ -1375,7 +1474,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			file1.write("scale,gradient,month,R²,S°,X,Y,Z,S\n");
+			file1.write("scale,gradient,year,month,R²,S°,X,Y,Z,S\n");
 
 			for (size_t z = 0; z < NB_SCALE_GRADIENT; z++)
 			{
@@ -1411,7 +1510,7 @@ namespace WBSF
 			{
 				for (size_t s = 0; s < NB_SPACE_EX; s++)
 				{
-					string line = FormatA("%d,%d,%0.3lf,%0.3lf,%0.3lf", g + 1, s + 1, m_factor[0][g][s], m_factor[1][g][s], m_factor[2][g][s]);
+					string line = FormatA("%d,%d,%0.3lf,%0.3lf,%0.3lf", g + 1, s + 1, m_factor.at(-999)[0][g][s], m_factor.at(-999)[1][g][s], m_factor.at(-999)[2][g][s]);
 					file2.write(line + "\n");
 				}
 			}
@@ -1422,7 +1521,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CWeatherGradient::ExportInput(const string& filePath, size_t v, CSearchResultVector& results)
+	ERMsg CWeatherGradient::ExportInput(const string& filePath, size_t v, CSearchResultVector& results )
 	{
 		ERMsg msg;
 

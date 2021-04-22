@@ -475,7 +475,7 @@ BEGIN
     PUSHBUTTON      "Rayon de recherche",IDC_WG_SEARCH_RADIUS,301,183,104,14
     CONTROL         "Ne pas compléter les valeur manquantes avec les normales",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,323,406,10
-    CONTROL         "Utiliser la distance au littoral dans la sélection des stations météo et des gradients",IDC_WG_USE_SHORE,
+    CONTROL         "Utiliser la distance au littoral dans la sélection des stations météo",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,336,406,10
     EDITTEXT        IDC_WG_GRIBS_NB_POINTS,352,167,53,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Télécharger Météo",IDC_WG_DOWNLOAD_WEATHER,14,86,106,14
@@ -5063,14 +5063,14 @@ BEGIN
     CONTROL         "Use radars precipitation",IDC_WG_USE_RADARS_PRCP,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,319,49,94,12
     COMBOBOX        IDC_WG_GRIBS_DBNAME,79,164,251,134,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "",IDC_WG_GRIBS_LINK,336,164,17,14
-    CONTROL         "Skip database verification (when the database is never updated). Not recommended.",IDC_WG_SKIP_VERIFY,
+    CONTROL         "Skip database verification (when the database is never updated). Not recommended",IDC_WG_SKIP_VERIFY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,314,406,10
     CONTROL         "At surface",IDC_WG_AT_SURFACE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,357,50,48,12
     CONTROL         "Use Forecast",IDC_WG_USE_FORECASTS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,190,207,62,12
     PUSHBUTTON      "Search Radius",IDC_WG_SEARCH_RADIUS,291,181,114,14
     CONTROL         "Don't fill missing values with Normals",IDC_WG_NO_FILL_MISSING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,326,406,10
-    CONTROL         "Use shore distance in selection of weather stations and gradients",IDC_WG_USE_SHORE,
+    CONTROL         "Use shore distance in selection of weather stations",IDC_WG_USE_SHORE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,339,406,10
     EDITTEXT        IDC_WG_GRIBS_NB_POINTS,357,164,48,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Download Weather",IDC_WG_DOWNLOAD_WEATHER,14,86,106,14
