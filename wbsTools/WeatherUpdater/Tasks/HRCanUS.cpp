@@ -47,6 +47,9 @@ namespace WBSF
 			TRef--;
 		}
 
+
+		
+		//date_to_update.insert(CTRef(2021, JANUARY, DAY_29).GetFormatedString("%Y%m%d"));
 		msg += CreateHourlyCanUS(date_to_update, callback);
 		if (msg)
 			msg += CreateDailyCanUS(date_to_update, callback);
@@ -82,6 +85,7 @@ namespace WBSF
 			msg += gribsList.save(m_workingDir + "CanUS_H.gribs");
 
 			//create daily gribs list
+			gribsList.clear();
 			p.Transform(CTM::DAILY);
 			msg += GetGribsList(p, gribsList, callback);
 			msg += gribsList.save(m_workingDir + "CanUS_D.gribs");
@@ -309,16 +313,16 @@ namespace WBSF
 						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
-						msg += RemoveFile(file_path_out + "2");
+						RemoveFile(file_path_out + "2");
 					}
 
 				}//if input images open
-
+				Sleep(1000);//let the time to the system to finish task
 				if (FileExists(file_path_tmp1))
-					msg += RemoveFile(file_path_tmp1);
+					RemoveFile(file_path_tmp1);
 
 				if (FileExists(file_path_tmp2))
-					msg += RemoveFile(file_path_tmp2);
+					RemoveFile(file_path_tmp2);
 
 			}//tmp file created
 
@@ -543,10 +547,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CTPeriod pp = p.GetTType() == CTM::HOURLY ? p.as(CTM(CTM::DAILY)) : p.as(CTM(CTM::MONTHLY));
+		//CTPeriod pp = p.GetTType() == CTM::HOURLY ? p.as(CTM(CTM::DAILY)) : p.as(CTM(CTM::MONTHLY));
 
-		callback.PushTask(string("Create Gribs (")+ (p.GetTType() == CTM::HOURLY ? "hourly":"daily")+")", pp.size());
-		for (CTRef TRef = pp.Begin(); TRef <= pp.End()&&msg; TRef++)
+		callback.PushTask(string("Create Gribs (")+ (p.GetTType() == CTM::HOURLY ? "hourly":"daily")+")", p.size());
+		for (CTRef TRef = p.Begin(); TRef <= p.End()&&msg; TRef++)
 		{
 			int year = TRef.GetYear();
 			size_t m = TRef.GetMonth();
@@ -563,97 +567,12 @@ namespace WBSF
 				gribsList[TRef] = file_path;
 
 			msg += callback.StepIt();
-			//			{
-			//				size_t d = TRef.GetDay();
-			////				for (size_t d = 0; d < GetNbDayPerMonth(year, m); d++)
-			//	//			{
-			//				string filter = FormatA("%s%d\\%02d\\%02d\\CANUS_%d%02d%02d*.tif", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
-			//				StringVector list2 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, false);
-			//				list1.insert(list1.end(), list2.begin(), list2.end());
-			//	//		}
-			//			}
-			//			else
-			//			{
-			//				string filter = FormatA("%s%d\\%02d\\CANUS_%d%02d*.tif", m_workingDir.c_str(), year, m + 1, year, m + 1);
-			//				
-
-
-//			int year = TRef.GetYear();
-//			size_t m = TRef.GetMonth();
-//
-
-//			StringVector list1;
-//			if (p.GetTM().Type() == CTM::HOURLY)
-//			{
-//				size_t d = TRef.GetDay();
-////				for (size_t d = 0; d < GetNbDayPerMonth(year, m); d++)
-//	//			{
-//				string filter = FormatA("%s%d\\%02d\\%02d\\CANUS_%d%02d%02d*.tif", m_workingDir.c_str(), year, m + 1, d + 1, year, m + 1, d + 1);
-//				StringVector list2 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, false);
-//				list1.insert(list1.end(), list2.begin(), list2.end());
-//	//		}
-//			}
-//			else
-//			{
-//				string filter = FormatA("%s%d\\%02d\\CANUS_%d%02d*.tif", m_workingDir.c_str(), year, m + 1, year, m + 1);
-//				StringVector list2 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, false);
-//				list1.insert(list1.end(), list2.begin(), list2.end());
-//			}
-//
-//			for (size_t i = 0; i < list1.size(); i++)
-//			{
-//				CTRef TRef = GetLocalTRef(list1[i]);
-//				gribsList[TRef] = list1[i];
-//			}
+			
 
 		}
 
 		callback.PopTask();
-		/*
-				int firstYear = p.Begin().GetYear();
-				int lastYear = p.End().GetYear();
-				size_t nbYears = lastYear - firstYear + 1;
-
-				StringVector list1;
-				for (size_t y = 0; y < nbYears; y++)
-				{
-					int year = firstYear + int(y);
-					for (size_t m = 0; m < 12; m++)
-					{
-						if (p.GetTM().Type() == CTM::HOURLY)
-						{
-							for (size_t d = 0; d < GetNbDayPerMonth(year,m); d++)
-							{
-								string filter = FormatA("%s%d\\%02d\\%02d\\CANUS_%d%02d%02d*.tif", m_workingDir.c_str(), year, m+1, d+1, year, m + 1, d + 1);
-								StringVector list2 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, false);
-								list1.insert(list1.end(), list2.begin(), list2.end());
-							}
-						}
-						else
-						{
-							string filter = FormatA("%s%d\\%02d\\CANUS_%d%02d*.tif", m_workingDir.c_str(), year, m + 1, year, m + 1);
-							StringVector list2 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, false);
-							list1.insert(list1.end(), list2.begin(), list2.end());
-						}
-
-						for (size_t i = 0; i < list1.size(); i++)
-						{
-							CTRef TRef = GetLocalTRef(list1[i]);
-							if (p.IsInside(TRef))
-								gribsList[TRef] = list1[i];
-						}
-
-					}
-				}
-
-
-				for (size_t i = 0; i < list1.size(); i++)
-				{
-					CTRef TRef = GetLocalTRef(list1[i]);
-					if ( p.IsInside(TRef))
-						gribsList[TRef] = list1[i];
-				}
-		*/
+		
 
 
 		return msg;

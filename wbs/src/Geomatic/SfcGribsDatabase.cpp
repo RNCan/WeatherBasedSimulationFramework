@@ -175,7 +175,7 @@ namespace WBSF
 
 					string abs_file_path = GetAbsolutePath(path, (*loop)[1]);
 					me[TRef] = abs_file_path;
-					//insert(make_pair(TRef, GetAbsolutePath(path, (*loop)[1])));
+					
 				}
 			}
 
@@ -198,10 +198,11 @@ namespace WBSF
 			string path = GetPath(file_path);
 			file << "TRef,FilePath" << endl;
 			for (const_iterator it = begin(); it != end(); it++)
-				//{
-				//	for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
-				file << it->first.GetFormatedString("%Y-%m-%d-%H") << "," << GetRelativePath(path, it->second) << endl;
-			//}
+			{
+				string format = it->first.GetType() == CTM::HOURLY ? "%Y-%m-%d-%H" : "%Y-%m-%d";
+				string date = it->first.GetFormatedString(format) ;
+				file << date << "," << GetRelativePath(path, it->second) << endl;
+			}
 
 			file.close();
 		}

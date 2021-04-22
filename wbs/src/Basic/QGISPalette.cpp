@@ -180,7 +180,9 @@ namespace WBSF
 		CCQGISColorProfile profile = GetColorProfile();
 
 		std::string color;
-		if (type == CCreateStyleOptions::CR_DISCRETE)
+		//Todo: il devrait y avir des palette discrète et des palette continue....
+
+		/*if (type == CCreateStyleOptions::CR_DISCRETE)
 		{
 			CCQGISColorStop& a = profile[min(i, profile.size()-1)];
 
@@ -189,7 +191,7 @@ namespace WBSF
 			color = tmp;
 		}
 		else if (type == CCreateStyleOptions::CR_INTERPOLATED)
-		{
+		{*/
 			double f = double(i) / (nb_class - 1);
 			for (size_t ii = 0; ii < profile.size() - 1 && color.empty(); ii++)
 			{
@@ -211,7 +213,7 @@ namespace WBSF
 					color = tmp;
 				}
 			}
-		}
+		//}
 		//#2b83ba
 		return color;
 	}

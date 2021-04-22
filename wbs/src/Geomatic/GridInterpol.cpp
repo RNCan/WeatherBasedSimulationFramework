@@ -644,7 +644,7 @@ namespace WBSF
 			GDALRasterBand *pBand = m_outputGrid.GetRasterBand(0);
 #pragma omp critical(GDAL_WRITE)
 			pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(output[0]), outputRect.Width(), outputRect.Height(), GDT_Float32, 0, 0);
-			pBand->FlushBlock(xBlock, yBlock);
+			//pBand->FlushBlock(xBlock, yBlock);
 			//}// if msg
 		}//for all blocks
 
