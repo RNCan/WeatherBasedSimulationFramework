@@ -1,5 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.8.0:17/03/2021	Rémi Saint-Amant	Removing use of shore as a dimension in gradient calculation. 
+//											The use of shore give very strange gradients in some situation
+//											Shore is still in use to select nearest weather stations
+//											Gradient scale factor are now compute for each year to avoid problem between DB density
 // 11.7.2:10/02/2021	Rémi Saint-Amant	Order of parameter in survival change
 //											Add oviposition curve fit
 // 11.7.1:04/02/2021	Rémi Saint-Amant	New parametreisation of insect development time. Support likelihood and least square
