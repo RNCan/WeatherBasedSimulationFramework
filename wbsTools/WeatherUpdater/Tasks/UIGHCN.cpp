@@ -192,19 +192,14 @@ namespace WBSF
 
 		ofStream invalid;
 		msg += invalid.open(invalid_coord_file_path);
-
-		//std::string state_file_path = GetApplicationPath() + "Layers\\ameriquenord.shp";
-		//std::string state_file_path = "D:\\Layers\\gadm36_NA_1_lo.shp";
+		
 		CRegistry registry;
-		std::string GADM_file_path = registry.GetString(CRegistry::GetGeoRegistryKey(L_WORLD_SRTM));
-			//"D:\\Layers\\gadm36_1_lo.shp";
-		//		std::string state_file_path = "D:\\Layers\\KY_VA.shp";
-
+		std::string GADM_file_path = registry.GetString(CRegistry::GetGeoRegistryKey(L_WORLD_GADM));
 
 		CShapeFileBase shapefile;
 		bool bGADM = shapefile.Read(GADM_file_path);
 		if (!bGADM)
-			callback.AddMessage("WARNING: GADM file not found " + GADM_file_path);
+			callback.AddMessage("WARNING: unable to load correctly GADM file: " + GADM_file_path);
 
 
 		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
@@ -223,72 +218,6 @@ namespace WBSF
 
 				CLocationVector locations;
 				locations.reserve(120000);
-
-
-				//string line;
-				//while (msg && std::getline(file, line))
-				//{
-				//	CLocation location = LocationFromLine(line);
-				//	string country = location.GetSSI("Country");
-				//	string subDivision = location.GetSSI("SubDivision");
-				//	//if (subDivision.empty())
-				//		//subDivision = "--";
-
-				//	string Hasc = subDivision.empty() ? country : country + "." + subDivision;
-
-
-				//	//if (countries.find(country) == countries.end())
-				//	//if( subDivisions.find(Hasc) == subDivisions.end())
-				//	{
-				//		string countryII;
-				//		string subDivisionII;
-
-				//		const CDBF3& DBF = shapefile.GetDBF();
-				//		//int FindexC = DBF.GetFieldIndex("COUNTRY_ID");
-				//		//int FindexS = DBF.GetFieldIndex("STATE_ID");
-				//		//ASSERT(FindexC >= 0 && FindexC < DBF.GetNbField());
-				//		//ASSERT(FindexS >= 0 && FindexS < DBF.GetNbField());
-
-				//		int FindexH = DBF.GetFieldIndex("HASC_1");
-				//		ASSERT(FindexH >= 0 && FindexH < DBF.GetNbField());
-
-				//		CGeoPoint pt(location.m_lon, location.m_lat, PRJ_WGS_84);
-				//		int shapeNo = -1;
-
-
-				//		if (shapefile.IsInside(pt, &shapeNo))//inside a shape
-				//		{
-				//			string HascII = DBF[shapeNo][FindexH].GetElement();
-
-				//			StringVector tmp(HascII, ".");
-				//			ASSERT(tmp.size() == 2 && tmp[0].length() == 2 && tmp[1].length() == 2);
-				//			if (tmp.size() >= 1)
-				//				countryII = tmp[0];
-				//			if (tmp.size() >= 2)
-				//				subDivisionII = tmp[1];
-
-
-
-				//			//if (country == countryII)
-
-
-				//			//invalid << country << "," << countryII << endl;
-
-				//			if (subDivision.empty())
-				//				HascII = countryII;
-
-
-				//			if (Hasc != HascII)
-				//				invalid << "Bad" << "," << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << "0" << "," << "0" << endl;
-				//			//invalid << Hasc << "," << HascII << endl;
-
-
-
-				//		//countries[country] = countryII;
-				//		//subDivisions[Hasc] = HascII;
-
-				//		}
-				//	}
 
 				string line;
 				while (msg && std::getline(file, line))
@@ -320,16 +249,10 @@ namespace WBSF
 								bool bDiffLon = fabs(location.m_lon - old_locations[oldPos].m_lon) > 0.001;
 								bool bDiffAlt = old_locations[oldPos].m_alt == -999 || (location.m_alt != -999 && fabs(location.m_alt - old_locations[oldPos].m_alt) > 1);
 								bNeedExtration = bDiffLat || bDiffLon || bDiffAlt;
-								//bool bDiffCountry = location.GetSSI("Country") != old_locations[oldPos].GetSSI("Country");
-								//bool bDiffSubDivision = location.GetSSI("SubDivision") != old_locations[oldPos].GetSSI("SubDivision");
-
+								
 								if (!bNeedExtration)
 									location = old_locations[oldPos];
 							}
-
-							//string country = location.GetSSI("Country");
-							//string subDivision = location.GetSSI("SubDivision");
-
 
 
 							if (bNeedExtration && bGADM)

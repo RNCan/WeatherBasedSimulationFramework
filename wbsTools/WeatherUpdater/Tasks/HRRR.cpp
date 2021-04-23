@@ -245,7 +245,7 @@ namespace WBSF
 
 
 		CFileInfoVector dir;
-		msg = FindDirectories(pConnection, SERVER_PATH[NOMADS][HTTP_SERVER], dir);
+		msg = FindDirectories(pConnection, SERVER_PATH[NOMADS][HTTP_SERVER], dir, false, callback);
 		for (CFileInfoVector::const_iterator it1 = dir.begin(); it1 != dir.end() && msg; it1++)
 		{
 			CFileInfoVector fileListTmp;
@@ -551,62 +551,25 @@ namespace WBSF
 		ERMsg msg;
 
 		std::set<std::string> date_to_update;
-		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
+		
 
-		/*CTPeriod p;
-		switch (m_source)
-		{
-		case MESO_WEST: p = m_period; break;
-		case NOMADS: p = CTPeriod(now - 24 * 3, now); break;
-		default: ASSERT(false);
-		}*/
-
-
-		//set<string> date_to_update;
-		//StringVector years = WBSF::GetDirectoriesList(m_workingDir + "*");
-		//for (StringVector::const_iterator it1 = years.begin(); it1 != years.end() && msg; it1++)
-		//{
-			//string year = *it1;
-
-			//if (p.IsIntersect(CTPeriod(ToInt(year), ToInt(year)).as(CTM::HOURLY)))
-			//{
-		//
-				//StringVector months = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\*");
-				//for (StringVector::const_iterator it2 = months.begin(); it2 != months.end() && msg; it2++)
-				//{
-					//string month = *it2;
-					//if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToInt(year), ToSizeT(month) - 1, 0).as(CTM::HOURLY)))
-					//{
-		//StringVector days = WBSF::GetDirectoriesList(m_workingDir + *it1 + "\\" + *it2 + "\\*");
+		callback.PushTask("Get last file to update: " + to_string(nb_days) + " days", nb_days*24);
+		
 		CTRef TRef = CTRef::GetCurrentTRef(CTM::HOURLY);
-		for (size_t d = 0; d < nb_days * 24; d++)
+		for (size_t d = 0; d < nb_days * 24&&msg; d++)
 		{
-			//for (StringVector::const_iterator it3 = days.begin(); it3 != days.end() && msg; it3++)
-			//{
-				//string day = *it3;
-				//if (p.IsIntersect(CTPeriod(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1).as(CTM::HOURLY)))
-				//{
-			////string filter = FormatA("%s%04d\\%02d\\%02d\\*.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-			//StringVector files = WBSF::GetFilesList(filter, 2, true);
-			//for (StringVector::const_iterator it4 = files.begin(); it4 != files.end() && msg; it4++)
-			//{
-			//string title = GetFileTitle(*it4);
-			//ASSERT(title.length() == 19);
-			//string hour = title.substr(6, 2);
-
-			//CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1, ToSizeT(hour));
+			
 			string file_path = GetOutputFilePath(TRef, 0);
 			if (GoodGrib(file_path))
 			{
 				string tifFilePath = file_path;
 				ReplaceString(tifFilePath, "f00.grib2", "f00.tif");
-				//if (!WBSF::FileExists(tifFilePath))
-					//date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
+				
 				CGDALDatasetEx DS;
 				if (DS.OpenInputImage(tifFilePath))
 				{
 					DS.Close();
-					//lastUpdate = max(lastUpdate, GetFileInfo(*it4).m_time);
+				
 				}
 				else
 				{
@@ -615,11 +578,8 @@ namespace WBSF
 						callback.AddMessage("Remove invalid HRRR GeoTiff " + tifFilePath);
 						msg += RemoveFile(tifFilePath);
 					}
-
-					//TRef.GetFormatedString();
-					//string date = FormatA("%04d\\%02d\\%02d", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
 					date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
-					//date_to_update.insert(date);
+					
 				}
 			}
 			else
@@ -630,16 +590,13 @@ namespace WBSF
 					msg += RemoveFile(file_path);
 				}
 			}
-			//}
+		
 
-			msg += callback.StepIt(0);
+			msg += callback.StepIt();
 			TRef--;
 		}//for all days
-	//}//if intersect day
-//}//if intersect month
-//}//for all months
-//}//if iontersect year
-//}//for all years
+
+		callback.PopTask();
 
 		return date_to_update;
 	}
@@ -658,7 +615,9 @@ namespace WBSF
 
 		size_t nb_pass = m_compute_prcp ? 2 : 1;
 
-		for (CTRef h = m_period.Begin(); h <= m_period.End(); h++)
+		callback.PushTask(string("Find gribs to update for period ") + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(m_period.size()) + " hours", m_period.size());
+
+		for (CTRef h = m_period.Begin(); h <= m_period.End()&&msg; h++)
 		{
 			size_t hh = (h - m_period.Begin());
 			for (size_t i = 0; i < nb_pass; i++)
@@ -666,8 +625,11 @@ namespace WBSF
 				bGrbNeedDownload[hh][i] = NeedDownload(GetOutputFilePath(h, i));
 				nbFilesToDownload += bGrbNeedDownload[hh][i] ? 1 : 0;
 			}
-			msg += callback.StepIt(0);
+			msg += callback.StepIt();
 		}
+		callback.PopTask();
+
+
 
 		callback.PushTask(string("Download HRRR gribs from \"") + SERVER_NAME[MESO_WEST][HTTP_SERVER] + "\" for period " + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(nbFilesToDownload) + " files", nbFilesToDownload);
 		callback.AddMessage(string("Download HRRR gribs from \"") + SERVER_NAME[MESO_WEST][HTTP_SERVER] + "\" for period " + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(nbFilesToDownload) + " files");
@@ -762,8 +724,6 @@ namespace WBSF
 		callback.PopTask();
 
 
-		//if (date_to_update.empty() && m_createHistoricalGeotiff)
-			//date_to_update = GetAll(callback);
 		if (m_update_last_n_days > 0)
 		{
 			set<string> last_n_days = Getlast_n_days(m_update_last_n_days, callback);
