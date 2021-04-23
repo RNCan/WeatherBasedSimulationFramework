@@ -38,12 +38,6 @@
     <ClInclude Include="CountrySelection.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="GSODStationOptimisation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IDSLiteStationOptimisation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="MergeWeather.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -269,12 +263,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CountrySelection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GSODStationOptimisation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IDSLiteStationOptimisation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MergeWeather.cpp">

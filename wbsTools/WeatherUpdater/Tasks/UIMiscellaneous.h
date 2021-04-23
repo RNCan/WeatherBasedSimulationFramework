@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GSODStationOptimisation.h"
+#include "Basic/WeatherStation.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 

@@ -292,7 +292,7 @@ namespace WBSF
 								location.SetSSI("Country", country);
 								location.SetSSI("SubDivision", subDivision);
 								location.SetSSI("d", to_string(Round(d / 1000, 1)));
-								location.SetSSI("ElevType", (location.m_alt == -999) ? "SRTM" : "GHCN");
+								location.SetSSI("ElevType", (location.m_alt == -999) ? "SRTM" : "NOAA");
 
 							}
 
@@ -728,30 +728,25 @@ namespace WBSF
 		if (it != m_stations.end())
 		{
 			const CLocation& location = it->second;
-			//GetStationInformation(ID, location);
-			//bool bDEMElev = ToBool(location.GetSSI("DEMElevation"));
-			//if (!bDEMElev || false)
+			
+			CCountrySelectionGADM countries(Get(COUNTRIES));
+			size_t country = CCountrySelectionGADM::GetCountry(location.GetSSI("Country"));
+				
+			if (country != -1 && (countries.none() || countries.test(country)))
 			{
-				CCountrySelectionGADM countries(Get(COUNTRIES));
-				size_t country = CCountrySelectionGADM::GetCountry(location.GetSSI("Country"));
-				//ASSERT(country != NOT_INIT);
-
-
-				if (country != -1 && (countries.none() || countries.test(country)))
+				if (IsEqualNoCase(location.GetSSI("Country"), "USA"))
 				{
-					if (IsEqualNoCase(location.GetSSI("Country"), "USA"))
-					{
-						CStateSelection states(Get(STATES));
-						string state = location.GetSSI("SubDivision");
-						if (states.at(state))
-							bRep = true;
-					}
-					else
-					{
+					CStateSelection states(Get(STATES));
+					string state = location.GetSSI("SubDivision");
+					if (states.at(state))
 						bRep = true;
-					}//use this state if USA
-				}//use this country
-			}//use DEM elevation
+				}
+				else
+				{
+					bRep = true;
+				}//use this state if USA
+			}//use this country
+			
 		}//station exist
 
 		return bRep;

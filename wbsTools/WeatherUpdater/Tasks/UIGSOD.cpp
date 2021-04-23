@@ -2,22 +2,18 @@
 #include "UIGSOD.h"
 
 #include <boost\dynamic_bitset.hpp>
-//#include <boost\filesystem.hpp>
-//#include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-
-
-
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 #include "../Resource.h"
-
 #include "CountrySelection.h"
 #include "StateSelection.h"
 
+//include isd-tile for stations list
+#include "UIISDLite.h"
 
 using namespace std; 
 using namespace WBSF::HOURLY_DATA;
@@ -84,37 +80,44 @@ namespace WBSF
 	//****************************************************
 
 
-	ERMsg CUIGSOD::UpdateStationHistory(CCallback& callback)
-	{
-		ERMsg msg;
+	//ERMsg CUIGSOD::UpdateStationHistory(CCallback& callback)
+	//{
+	//	ERMsg msg;
 
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
+	//	CInternetSessionPtr pSession;
+	//	CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
-		if (msg)
-		{
-			string path = GetHistoryFilePath(false);
+	//	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+	//	if (msg)
+	//	{
+	//		string URL = GetHistoryFilePath(false);
 
-			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, false, CCallback::DEFAULT_CALLBACK);
-			if (msg)
-			{
-				ASSERT(fileList.size() == 1);
+	//		CFileInfoVector fileList;
+	//		msg = FindFiles(pConnection, URL, fileList, false, CCallback::DEFAULT_CALLBACK);
+	//		if (msg)
+	//		{
+	//			ASSERT(fileList.size() == 1);
 
-				string workingDir = GetDir(WORKING_DIR);
-				string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
-				
-				if (!IsFileUpToDate(fileList[0], outputFilePath))
-					msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePath);
-			}
+	//			string workingDir = GetDir(WORKING_DIR);
+	//			//string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
+	//			string outputFilePathTmp = GetHistoryFilePath(true);
+	//			SetFileTitle(outputFilePathTmp, GetFileTitle(outputFilePathTmp) + "_tmp");
+	//			
+	//			if (!IsFileUpToDate(fileList[0], outputFilePathTmp))
+	//			{
+	//				msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePathTmp);
 
-			pConnection->Close();
-			pSession->Close();
-		}
+	//				string outputFilePath = GetHistoryFilePath(true);
+	//				msg = CUIISDLite::ExtractCountrySubDivision(outputFilePathTmp, outputFilePath, callback);
+	//			}
+	//		}
 
-		return msg;
-	}
+	//		pConnection->Close();
+	//		pSession->Close();
+	//	}
+
+	//	return msg;
+	//}
 
 	ERMsg CUIGSOD::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
@@ -128,14 +131,9 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		callback.PushTask(GetString(IDS_LOAD_FILE_LIST), nbYears);
-//		callback.SetNbStep(nbYears);
-
-
 
 		dynamic_bitset<size_t> toDo(nbYears + 1);
 		toDo.set();
-		//toDo.InsertAt(0, true, nbYears+1);
-
 
 		size_t nbRun = 0;
 
@@ -179,7 +177,6 @@ namespace WBSF
 							int index = year - firstYear + 1;
 							if (toDo[index])
 							{
-								//msgTmp = FindFiles(pConnection, string(info.m_filePath) + "*.op.gz", fileList, callback);
 								msgTmp = FindFiles(pConnection, string(info.m_filePath) + "gsod_" + ToString(year) + ".tar", fileList, false, callback);
 								if (msgTmp)
 								{
@@ -286,14 +283,25 @@ namespace WBSF
 
 
 		//load station list
+		
+		{
+			//same as isd-lite, so use isd-lite instead
+			CUIISDLite ISDLite;
+			ISDLite.SetProjectPath(GetProjectPath());
+			ISDLite.SetParameters(GetParameters());
+
+			msg = ISDLite.UpdateStationHistory(callback);
+		}
+
+		//if (msg)
+			//msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
+
+		//if (msg)
+			//msg = LoadOptimisation();
+
+		
 		CFileInfoVector fileList;
-		msg = UpdateStationHistory(callback);
-
-		if (msg)
-			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
-
-		if (msg)
-			msg = LoadOptimisation();
+		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 
 		if (msg)
 			msg = GetFileList(fileList, callback);
@@ -352,27 +360,29 @@ namespace WBSF
 	{
 		bool bRep = false;
 
-		if (StationExist(fileTitle))
+		string ID = fileTitle.substr(0, 12);
+		if (m_stations.find(ID) != m_stations.end())
 		{
 			//PAS VRAIMENT OPTIMISER
 			CCountrySelection countries(Get(COUNTRIES));
 			CStateSelection states(Get(STATES));
 			CGeoRect boundingBox;
 
-			CGSODStation station;
-			GetStationInformation(fileTitle, station);
-			station.GetFromSSI();
-
-			size_t country = CCountrySelection::GetCountry(station.m_country.c_str());
+//			CGSODStation station;
+	//		GetStationInformation(fileTitle, station);
+		//	station.GetFromSSI();
+			CLocation location = m_stations.at(ID);
+			size_t country = CCountrySelectionGADM::GetCountry(location.GetSSI("Country"));
 
 			if (country == NOT_INIT || countries.none() || countries[country])
 			{
-				if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(station))
+				if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(location))
 				{
-					if (IsEqual(station.m_country, "US"))
+					if (IsEqualNoCase(location.GetSSI("Country"), "USA"))
 					{
-						//size_t state = CStateSelection::GetState(station.m_state);
-						if (states.at(station.m_subDivisions))
+						CStateSelection states(Get(STATES));
+						string state = location.GetSSI("SubDivision");
+						if (states.at(state))
 							bRep = true;
 					}
 					else
@@ -451,74 +461,80 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGSOD::LoadOptimisation()
-	{
-		//load station list in memory for optimization
-		ERMsg msg;
-		string filePath = GetHistoryFilePath();
+	//ERMsg CUIGSOD::LoadOptimisation()
+	//{
+	//	//load station list in memory for optimization
+	//	ERMsg msg;
+	//	string filePath = GetHistoryFilePath();
 
-		msg = m_optFile.Load(GetOptFilePath(filePath));
-		return msg;
-	}
-
-
-	string CUIGSOD::GetOptFilePath(const string& filePath)const
-	{
-		string optFilePath = filePath;
-		SetFileExtension(optFilePath, ".GSODopt");
-
-		return optFilePath;
-	}
+	//	msg = m_optFile.Load(GetOptFilePath(filePath));
+	//	return msg;
+	//}
 
 
-	bool CUIGSOD::StationExist(const string& fileTitle)const
-	{
-		string ID = fileTitle.substr(0, 12);
-		return m_optFile.KeyExists(ID);
-	}
+	//string CUIGSOD::GetOptFilePath(const string& filePath)const
+	//{
+	//	string optFilePath = filePath;
+	//	SetFileExtension(optFilePath, ".GSODopt");
 
-	void CUIGSOD::GetStationInformation(const string& fileTitle, CLocation& station)const
-	{
-		ASSERT(StationExist(fileTitle));
-
-		
-		string ID = fileTitle.substr(0, 12);
-		if (m_optFile.KeyExists(ID))
-	
-			station = m_optFile.at(ID);
-	}
-
-	ERMsg CUIGSOD::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
-	{
-		ERMsg msg;
-
-		string refFilePath = GetHistoryFilePath();
-		string optFilePath = GetOptFilePath(refFilePath.c_str());
-
-		if (CGSODStationOptimisation::NeedUpdate(refFilePath, optFilePath))
-		{
-			CGSODStationOptimisation optFile;
-			msg = optFile.Update(refFilePath, callback);
-			if (msg)
-				msg = optFile.Save(optFilePath);
-		}
+	//	return optFilePath;
+	//}
 
 
-		return msg;
-	}
+	//bool CUIGSOD::StationExist(const string& fileTitle)const
+	//{
+	//	string ID = fileTitle.substr(0, 12);
+	//	return m_optFile.KeyExists(ID);
+	//}
+
+	//void CUIGSOD::GetStationInformation(const string& fileTitle, CLocation& station)const
+	//{
+	//	ASSERT(StationExist(fileTitle));
+
+	//	
+	//	string ID = fileTitle.substr(0, 12);
+	//	if (m_optFile.KeyExists(ID))
+	//
+	//		station = m_optFile.at(ID);
+	//}
+
+	//ERMsg CUIGSOD::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
+	//{
+	//	ERMsg msg;
+
+	//	string refFilePath = GetHistoryFilePath();
+	//	string optFilePath = GetOptFilePath(refFilePath.c_str());
+
+	//	if (CGSODStationOptimisation::NeedUpdate(refFilePath, optFilePath))
+	//	{
+	//		CGSODStationOptimisation optFile;
+	//		msg = optFile.Update(refFilePath, callback);
+	//		if (msg)
+	//			msg = optFile.Save(optFilePath);
+	//	}
+
+
+	//	return msg;
+	//}
 
 	ERMsg CUIGSOD::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
-
+/*
 		msg = UpdateOptimisationStationFile(workingDir, callback);
 		if (!msg)
 			return msg;
 
 
 		msg = LoadOptimisation();
+		if (!msg)
+			return msg;
+*/
+
+
+		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 		if (!msg)
 			return msg;
 
@@ -561,13 +577,18 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGSOD::GetWeatherStation(const std::string& stationName, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIGSOD::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
 		//Get station information
-		GetStationInformation(stationName, station);
+		//GetStationInformation(stationName, station);
+		//station.m_name = PurgeFileName(station.m_name);
+
+		((CLocation&)station) = m_stations.at(ID);
 		station.m_name = PurgeFileName(station.m_name);
+
+
 
 		vector<int> stationIDList;
 		int firstYear = as<int>(FIRST_YEAR);
@@ -580,14 +601,14 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(stationName, year);
+			string filePath = GetOutputFilePath(ID, year);
 			if (FileExists(filePath))
 				msg = ReadData(filePath, station[year]);
 
 			msg += callback.StepIt(0);
 		}
 
-		
+		//clear all SSI
 		string country = station.GetSSI("Country");
 		string subDivisions = station.GetSSI("SubDivision");
 		station.m_siteSpeceficInformation.clear();

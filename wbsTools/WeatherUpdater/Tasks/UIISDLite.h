@@ -2,8 +2,9 @@
 
 
 #include "StateSelection.h"
-#include "IDSLiteStationOptimisation.h"
-#include "CountrySelection.h"
+//#include "IDSLiteStationOptimisation.h"
+//#include "CountrySelection.h"
+#include "Basic/WeatherStation.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
 
@@ -12,6 +13,7 @@
 namespace WBSF
 {
 
+	class CShapeFileBase;
 	//**************************************************************
 	class CUIISDLite : public CTaskBase
 	{
@@ -47,31 +49,28 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+
+		ERMsg UpdateStationHistory(CCallback& callback)const;
+		
+
 	protected:
 
 
 		std::string GetHistoryFilePath(bool bLocal = true)const;
-		ERMsg LoadOptimisation();
-		std::string GetOptFilePath(const std::string& filePath)const;
-		ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callback)const;
+		ERMsg ExtractCountrySubDivision(const std::string& txtFilePath, const std::string& csvFilePath, CCallback& callback)const;
+		double GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const;
+		CLocation LocationFromLine(const StringVector& line)const;
+
+		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback)const;
+		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback)const;
+
 		ERMsg ReadData(const std::string& filePath, CWeatherStation& station, CWeatherAccumulator& stat, CCallback& callback = DEFAULT_CALLBACK)const;
 		std::string GetOutputFilePath(const std::string& stationName, short year, const std::string& ext = ".gz")const;
 		bool IsFileInclude(const std::string& fileTitle)const;
 		ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
-		bool StationExist(const std::string& fileTitle)const;
-		void GetStationInformation(const std::string& fileTitle, CLocation& station)const;
 
-
-		ERMsg UpdateStationHistory(CCallback& callback);
-		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback)const;
-		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback)const;
-
-		CIDSLiteStationOptimisation m_optFile;
-
-
-		//Database Creation part
-		//void GetStationHeader(const std::string& stationName, CLocation& station);
-		//ERMsg LoadStationList();
+		
+		CLocationMap m_stations;
 		
 		static CTRef GetTRef(const FieldArray& e);
 		static bool LoadFields(const std::string& line, FieldArray& e);

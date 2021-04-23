@@ -6,6 +6,10 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include "Basic/FileStamp.h"
 #include "Basic/DailyDatabase.h"
+#include "Basic/Registry.h"
+#include "Basic/CSV.h"
+#include "Basic/ExtractLocationInfo.h"
+#include "Geomatic/ShapeFileBase.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 #include "CountrySelection.h"
@@ -96,7 +100,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIISDLite::UpdateStationHistory(CCallback& callback)
+	ERMsg CUIISDLite::UpdateStationHistory(CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -116,9 +120,19 @@ namespace WBSF
 			{
 				ASSERT(fileList.size() == 1);
 
-				string outputFilePath = GetHistoryFilePath(true);
-				if (!IsFileUpToDate(fileList[0], outputFilePath))
-					msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePath);
+
+				string outputFilePathTmp = GetHistoryFilePath(true);
+				SetFileTitle(outputFilePathTmp, GetFileTitle(outputFilePathTmp) + "-tmp");
+
+				if (!IsFileUpToDate(fileList[0], outputFilePathTmp))
+				{
+
+					msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePathTmp);
+
+					string outputFilePath = GetHistoryFilePath(true);
+					msg = ExtractCountrySubDivision(outputFilePathTmp, outputFilePath, callback);
+				}
+
 			}
 
 			pConnection->Close();
@@ -126,6 +140,378 @@ namespace WBSF
 		}
 
 		return msg;
+	}
+
+
+	ERMsg CUIISDLite::ExtractCountrySubDivision(const std::string& inFilePath, const std::string& outFilePath, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		string path = GetPath(inFilePath);
+		std::string correction_file_path = path + "ISDLite-corrections.csv";
+		CLocationVector correction;
+		correction.Load(correction_file_path);
+
+
+		CLocationVector old_locations;
+		old_locations.Load(outFilePath);
+
+		std::string invalid_coord_file_path = path + "ISDLite-invalid-stations.csv";
+		CLocationVector old_invalid_Stations;
+		old_invalid_Stations.Load(invalid_coord_file_path);
+
+		ofStream invalid;
+		msg += invalid.open(invalid_coord_file_path);
+
+		CRegistry registry;
+		std::string GADM_file_path = registry.GetString(CRegistry::GetGeoRegistryKey(L_WORLD_GADM));
+
+		CShapeFileBase shapefile;
+		bool bGADM = shapefile.Read(GADM_file_path);
+		if (!bGADM)
+			callback.AddMessage("WARNING: unable to load correctly GADM file: " + GADM_file_path);
+
+
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
+
+		ifStream file;
+		file.imbue(utf8_locale);
+		msg += file.open(inFilePath);
+		if (msg)
+		{
+
+			if (file.length() > 1000)
+			{
+				callback.PushTask("Extract country and administative sub-division", file.length());
+				invalid << "ID,Name,Latitude,Longitude,Elevation,Country1,SubDivision1,Country2,SubDivision2,Distance(km),Comment" << endl;
+
+
+				CLocationVector locations;
+				locations.reserve(40000);
+
+
+				for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
+				{
+					CLocation location = LocationFromLine(*loop);
+					//make a manual correction if any
+					size_t corr_pos = correction.FindByID(location.m_ID);
+					bool bManualCorrection = corr_pos != NOT_INIT;
+					if (bManualCorrection)
+					{
+						location = correction[corr_pos];
+					}
+
+					bool bExclude = location.GetSSI("Excluded") == "1";
+					if (!bExclude)
+					{
+						if (location.IsValid(true))
+						{
+							size_t invalid_pos = old_invalid_Stations.FindByID(location.m_ID);
+							bool bInvalid = invalid_pos != NOT_INIT;
+							bool bNeedExtration = true;
+
+
+							//find the old station information if any
+							size_t oldPos = old_locations.FindByID(location.m_ID);
+							if (!bInvalid && !bManualCorrection && oldPos != NOT_INIT)
+							{
+								bool bDiffLat = fabs(location.m_lat - old_locations[oldPos].m_lat) > 0.001;
+								bool bDiffLon = fabs(location.m_lon - old_locations[oldPos].m_lon) > 0.001;
+								bool bDiffAlt = old_locations[oldPos].m_alt == -999 || (location.m_alt != -999 && fabs(location.m_alt - old_locations[oldPos].m_alt) > 1);
+								bNeedExtration = bDiffLat || bDiffLon || bDiffAlt;
+
+								if (!bNeedExtration)
+									location = old_locations[oldPos];
+							}
+
+
+							if (bNeedExtration && bGADM)
+							{
+								string country = location.GetSSI("Country");
+								string subDivision = location.GetSSI("SubDivision");
+								string countryII = "--";
+								string subDivisionII = "--";
+								double d = GetCountrySubDivision(shapefile, location.m_lat, location.m_lon, country, subDivision, countryII, subDivisionII);
+
+								//if (country.empty() && d == 0)
+								if (countryII == "--")
+								{
+									//<< (bExclude ? "1" : "0") << "," 
+									invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "UnknownCountry" << endl;
+									country = "UN";//Unknown
+								}
+								else
+								{
+									if (country != countryII && d > 20000)
+									{
+										//"," << (bExclude ? "1" : "0") << 
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+									}
+
+									country = countryII;
+
+									if (!subDivision.empty() && subDivisionII != "--" && subDivisionII != subDivision && d > 20000)
+									{
+										//<< "," << (bExclude ? "1" : "0") 
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchSubDivision" << endl;
+									}
+
+									subDivision = subDivisionII;
+								}
+
+								location.SetSSI("Country", country);
+								location.SetSSI("SubDivision", subDivision);
+								location.SetSSI("d", to_string(Round(d / 1000, 1)));
+								location.SetSSI("ElevType", (location.m_alt == -999) ? "SRTM" : "NOAA");
+
+							}
+
+							locations.push_back(location);
+
+						}
+						else//invalid lat/lon
+						{
+							//callback.AddMessage("BadLocation," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) );
+							string country = location.GetSSI("Country");
+							string subDivision = location.GetSSI("SubDivision");
+							//<< "," << (bExclude ? "1" : "0") 
+							invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) + "," << country << "," << subDivision << "," << "," << "," << "," << "BadLocation" << endl;
+						}
+					}
+
+					msg += callback.StepIt(loop->GetLastLine().length() + 1);
+				}//for all lines
+
+				if (bGADM)
+					shapefile.Close();
+
+				invalid.close();
+				file.close();
+
+
+				callback.AddMessage("Number of stations: " + to_string(locations.size()));
+				callback.PopTask();
+
+				if (msg)
+				{
+					//extraxt missing elevations
+					ASSERT(locations.IsValid(true));
+
+					//extract missing name
+					msg = locations.ExtractNominatimName(false, true, false, false, callback);
+
+
+					//if missing elevation, extract elevation at 30 meters: not support < -60° and > 60°
+					if (!locations.IsValid(false))
+						msg = locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+					//if still missing elevation, extract elevation at 30 meters ASTER
+					if (msg && !locations.IsValid(false))
+						msg = locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_ASTER30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+					if (/*msg && */!locations.IsValid(false))
+					{
+						for (CLocationVector::iterator it = locations.begin(); it != locations.end(); )
+						{
+							if (!it->IsValid(false))
+							{
+								callback.AddMessage("WARNING: invalid coordinate :" + it->m_name + "(" + it->m_ID + "), " + "lat=" + to_string(it->m_lat) + ", lon=" + to_string(it->m_lon) + ", elev=" + to_string(it->m_alt), 2);
+								it = locations.erase(it);
+							}
+							else
+							{
+								it++;
+							}
+						}
+					}
+
+					//save event if extract to fail
+
+					msg += locations.Save(outFilePath);
+
+					set<string> unknow_country;
+					for (CLocationVector::iterator it = locations.begin(); it != locations.end(); it++)
+					{
+						size_t country = CCountrySelectionGADM::GetCountry(it->GetSSI("Country"));
+
+						if (country == -1)
+							unknow_country.insert(it->GetSSI("Country"));
+					}
+
+					for (auto it = unknow_country.begin(); it != unknow_country.end(); it++)
+					{
+						size_t c = CCountrySelection::GetCountry(*it);
+						string name = c != NOT_INIT ? CCountrySelection::GetName(c, 1) : "";
+						callback.AddMessage("WARNING: unknown country: " + *it + "," + name);
+					}
+				}
+			}
+			else
+			{
+				callback.AddMessage("WARNING: empty stations list file");
+				callback.AddMessage("Removing " + inFilePath);
+				msg += WBSF::RemoveFile(inFilePath);
+			}
+
+		}
+
+		return msg;
+	}
+
+
+	CLocation CUIISDLite::LocationFromLine(const StringVector& line)const
+	{
+		enum TColumn { C_USAF, C_WBAN, C_STATION_NAME, C_CTRY, C_STATE, C_ICAO, C_LAT, C_LON, C_ELEV, C_BEGIN, C_END, NB_COLUMNS };
+		ASSERT(line.size() == NB_COLUMNS);
+
+		CLocation location;
+
+		ASSERT(!line[C_USAF].empty());
+		ASSERT(!line[C_WBAN].empty());
+
+		location.SetSSI("USAF_ID", "USAF" + line[C_USAF]);
+		location.SetSSI("WBAN_ID", "WBAN" + line[C_WBAN]);
+		location.m_ID = line[C_USAF] + "-" + line[C_WBAN];
+		ASSERT(!location.m_ID.empty());
+
+		string name = TrimConst(line[C_STATION_NAME]);
+		location.m_name = UppercaseFirstLetter(name);
+
+
+		if (!line[C_LAT].empty() && !line[C_LON].empty() &&
+			line[C_LAT] != "+00.000" && line[C_LON] != "+000.000")
+		{
+			location.m_lat = ToDouble(line[C_LAT]);
+			location.m_lon = ToDouble(line[C_LON]);
+			ASSERT(location.m_lat >= -90 && location.m_lat < 90);
+			ASSERT(location.m_lon >= -180 && location.m_lon < 180);
+		}
+
+		if (!line[C_ELEV].empty() && line[C_ELEV] != "-0999.9" && line[C_ELEV] != "-0999.0")
+			location.m_alt = ToDouble(line[C_ELEV]);
+		else
+			location.m_alt = -999;
+
+
+
+
+		//if (line[C_USAF] == "716920")//coordinate error over MARTICOT ISLAND
+			//m_lon = -54.583;
+		//if (line[C_WBAN] == "12848")//coordinate error over Dinner Key NAF
+			//m_lon = -80.2333;
+
+
+		string country = CCountrySelection::GHCN_to_GADM(TrimConst(line[C_CTRY]));
+		string subDivisions = CCountrySelection::GHCN_to_GADM(country, TrimConst(line[C_STATE]));
+
+		size_t c_ID = CCountrySelectionGADM::GetCountry(country, 2);//by ID2
+		if (c_ID != NOT_INIT)
+			country = CCountrySelectionGADM::m_default_list[c_ID][0];
+
+		location.SetSSI("Country", country);
+		location.SetSSI("SubDivision", subDivisions);
+
+
+		if (!line[C_BEGIN].empty() && !line[C_END].empty())
+		{
+			CTPeriod period;
+			period.Begin() = CTRef(ToInt(line[C_BEGIN].substr(0, 4)), ToInt(line[C_BEGIN].substr(4, 2)) - 1, ToInt(line[C_BEGIN].substr(6, 2)) - 1);
+			period.End() = CTRef(ToInt(line[C_END].substr(0, 4)), ToInt(line[C_END].substr(4, 2)) - 1, ToInt(line[C_END].substr(6, 2)) - 1);
+
+			location.SetSSI("Period", period.GetFormatedString("%1|%2", "%Y-%m-%d"));
+		}
+
+
+
+
+		return location;
+	}
+
+
+	double CUIISDLite::GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const
+	{
+		double d = -1;
+		countryII = "--";
+		subDivisionII.clear();
+
+
+		const CDBF3& DBF = shapefile.GetDBF();
+
+		int FindexH = DBF.GetFieldIndex("HASC_1");
+		ASSERT(FindexH >= 0 && FindexH < DBF.GetNbField());
+		int FindexGID = DBF.GetFieldIndex("GID_0");
+		ASSERT(FindexGID >= 0 && FindexGID < DBF.GetNbField());
+
+		CGeoPoint pt(lon, lat, PRJ_WGS_84);
+		int shapeNo = -1;
+
+		bool bInShape = shapefile.IsInside(pt, &shapeNo);
+		if (bInShape)//inside a shape
+		{
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
+			d = 0;
+		}
+		else
+		{
+			d = shapefile.GetMinimumDistance(pt, &shapeNo);
+			ASSERT(shapeNo >= 0 && shapeNo < DBF.GetNbRecord());
+
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
+		}
+
+
+		if (countryI.length() == 3)
+		{
+			if (countryII != countryI ||
+				(!subDivisionI.empty() && subDivisionII != subDivisionI))
+			{
+
+				double min_d = 1e20;
+				for (int i = 0; i < DBF.GetNbRecord(); i++)
+				{
+
+					StringVector tmp(DBF[i][FindexH].GetElement(), ".");
+					string country = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+
+					string subDivision;
+					if (tmp.size() >= 2)
+						subDivision = TrimConst(tmp[1]);
+
+					if (countryI == country &&
+						(subDivisionI.empty() || subDivisionI == subDivision))
+					{
+						double dd = shapefile[i].GetShape().GetMinimumDistance(pt);
+						if (dd < min_d)
+						{
+							d = dd;
+							min_d = dd;
+							countryII = countryI;
+							subDivisionII = subDivisionI;
+						}
+					}
+				}
+			}
+		}
+
+		if (countryII.length() < 2)
+			countryII = "--";
+
+		if (subDivisionII.length() != 2)
+			subDivisionII.clear();
+
+
+		return d;
 	}
 
 	ERMsg CUIISDLite::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
@@ -232,33 +618,31 @@ namespace WBSF
 	{
 		bool bRep = false;
 
-		if (StationExist(fileTitle))
+		string ID = fileTitle.substr(0, 12);
+		if (m_stations.find(ID) != m_stations.end())
 		{
-
 			CCountrySelection countries(Get(COUNTRIES));
-
 			CGeoRect boundingBox;
 
-			CIDSLiteStation station;
-			GetStationInformation(fileTitle, station);
-			station.GetFromSSI();
+			CLocation location = m_stations.at(ID);
+			size_t country = CCountrySelectionGADM::GetCountry(location.GetSSI("Country"));
 
-			size_t country = CCountrySelection::GetCountry(station.m_country.c_str());
 
 			if (country != -1 && (countries.none() || countries.test(country)))
 			{
-				if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(station))
+				if (boundingBox.IsRectEmpty() || boundingBox.PtInRect(location))
 				{
-					if (IsEqualNoCase(station.m_country, "US"))
+					if (IsEqualNoCase(location.GetSSI("Country"), "USA"))
 					{
 						CStateSelection states(Get(STATES));
-						if (states.at(station.m_subDivisions))
+						string state = location.GetSSI("SubDivision");
+						if (states.at(state))
 							bRep = true;
 					}
-					else if (IsEqualNoCase(station.m_country, "CA"))
+					else if (IsEqualNoCase(location.GetSSI("Country"), "CAN"))
 					{
 						CProvinceSelection provinces(Get(PROVINCES));
-						if (provinces.at(station.m_subDivisions))
+						if (provinces.at(location.GetSSI("SubDivision")))
 							bRep = true;
 					}
 					else
@@ -335,61 +719,61 @@ namespace WBSF
 	}
 
 
-	bool CUIISDLite::StationExist(const string& fileTitle)const
-	{
-		string ID = fileTitle.substr(0, 12);
-		return m_optFile.KeyExists(ID);
-	}
+	//bool CUIISDLite::StationExist(const string& fileTitle)const
+	//{
+	//	string ID = fileTitle.substr(0, 12);
+	//	return m_optFile.KeyExists(ID);
+	//}
 
-	void CUIISDLite::GetStationInformation(const string& fileTitle, CLocation& station)const
-	{
-		ASSERT(StationExist(fileTitle));
+	//void CUIISDLite::GetStationInformation(const string& fileTitle, CLocation& station)const
+	//{
+	//	ASSERT(StationExist(fileTitle));
 
-		string ID = fileTitle.substr(0, 12);
-		station = m_optFile.at(ID);
+	//	string ID = fileTitle.substr(0, 12);
+	//	station = m_optFile.at(ID);
 
-	}
+	//}
 
-	ERMsg CUIISDLite::LoadOptimisation()
-	{
-		//load station list in memory for optimization
-		ERMsg msg;
-		string filePath = GetHistoryFilePath();
+	//ERMsg CUIISDLite::LoadOptimisation()
+	//{
+	//	//load station list in memory for optimization
+	//	ERMsg msg;
+	//	string filePath = GetHistoryFilePath();
 
-		msg = m_optFile.Load(GetOptFilePath(filePath));
-		return msg;
-	}
-
-
-	string CUIISDLite::GetOptFilePath(const string& filePath)const
-	{
-		string optFilePath = filePath;
-		SetFileExtension(optFilePath, ".ISDopt");
+	//	msg = m_optFile.Load(GetOptFilePath(filePath));
+	//	return msg;
+	//}
 
 
-		return optFilePath;
-	}
+	//string CUIISDLite::GetOptFilePath(const string& filePath)const
+	//{
+	//	string optFilePath = filePath;
+	//	SetFileExtension(optFilePath, ".ISDopt");
 
 
-	ERMsg CUIISDLite::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
-	{
-		ERMsg msg;
-
-		string refFilePath = GetHistoryFilePath();
-		string optFilePath = GetOptFilePath(refFilePath);
+	//	return optFilePath;
+	//}
 
 
-		CIDSLiteStationOptimisation optFile;
+	//ERMsg CUIISDLite::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
+	//{
+	//	ERMsg msg;
 
-		if (CLocationOptimisation::NeedUpdate(refFilePath, optFilePath))
-		{
-			msg = optFile.Update(refFilePath, callback);
-			if (msg)
-				msg = optFile.Save(optFilePath);
-		}
+	//	string refFilePath = GetHistoryFilePath();
+	//	string optFilePath = GetOptFilePath(refFilePath);
 
-		return msg;
-	}
+
+	//	CIDSLiteStationOptimisation optFile;
+
+	//	if (CLocationOptimisation::NeedUpdate(refFilePath, optFilePath))
+	//	{
+	//		msg = optFile.Update(refFilePath, callback);
+	//		if (msg)
+	//			msg = optFile.Save(optFilePath);
+	//	}
+
+	//	return msg;
+	//}
 
 	ERMsg CUIISDLite::Execute(CCallback& callback)
 	{
@@ -410,11 +794,14 @@ namespace WBSF
 		CFileInfoVector fileList;
 		msg = UpdateStationHistory(callback);
 
-		if (msg)
-			msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
+		//if (msg)
+			//msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
 
-		if (msg)
-			msg = LoadOptimisation();
+		//if (msg)
+			//msg = LoadOptimisation();
+
+		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
+
 
 		if (msg)
 			msg = GetFileList(fileList, callback);
@@ -529,14 +916,23 @@ namespace WBSF
 		ERMsg msg;
 
 
+		stationList.clear();
 		string workingDir = GetDir(WORKING_DIR);
-		msg = UpdateOptimisationStationFile(workingDir, callback);
 
-		if (msg)
-			msg = LoadOptimisation();
 
+		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 		if (!msg)
 			return msg;
+
+
+
+		//msg = UpdateOptimisationStationFile(workingDir, callback);
+
+		//if (msg)
+			//msg = LoadOptimisation();
+
+		//if (!msg)
+			//return msg;
 
 		//get all file in the directory
 		StringVector fileList;
@@ -624,15 +1020,18 @@ namespace WBSF
 
 
 
-	ERMsg CUIISDLite::GetWeatherStation(const string& stationName, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIISDLite::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
+		ASSERT(m_stations.find(ID) != m_stations.end());
+
+
 		ERMsg msg;
 
-		GetStationInformation(stationName, station);
+		((CLocation&)station) = m_stations.at(ID);
 		station.m_name = PurgeFileName(station.m_name);
 
 
-		cctz::time_zone zone;
+		//cctz::time_zone zone;
 		//CTimeZones::GetZone(station, zone);
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
@@ -647,7 +1046,7 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(stationName, year);
+			string filePath = GetOutputFilePath(ID, year);
 			if (FileExists(filePath))
 			{
 				ERMsg msgTmp = ReadData(filePath, station, accumulator, callback);
@@ -669,7 +1068,7 @@ namespace WBSF
 		ASSERT(station.GetEntireTPeriod().GetFirstYear() >= firstYear && station.GetEntireTPeriod().GetLastYear() <= lastYear);
 
 
-		
+
 		string country = station.GetSSI("Country");
 		string subDivisions = station.GetSSI("SubDivision");
 		station.m_siteSpeceficInformation.clear();

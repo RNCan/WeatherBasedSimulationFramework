@@ -87,14 +87,6 @@ namespace WBSF
 		ERMsg UpdateStationList(CCallback& callback);
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 
-		//ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
-
-		//std::string GetOptFilePath()const;
-
-		//ERMsg LoadOptimisation();
-		//bool StationExist(const std::string& fileTitle)const;
-		//void GetStationInformation(const std::string& fileTitle, CLocation& location)const;
-
 		//Get stations list part
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
 		
@@ -103,13 +95,9 @@ namespace WBSF
 		std::string GetOutputFilePath(int year)const;
 		
 
-		//ERMsg CleanList(StringVector& fileList, CCallback& callback)const;
-		//bool IsFileInclude(const std::string& fileTitle)const;
 		bool IsStationInclude(const std::string& ID)const;
 
 		ERMsg PreProcess(CCallback& callback);
-		//optimisation for GetStations
-		//CGHCNStationOptimisation m_optFile;
 		CLocationMap m_stations;
 
 		typedef std::string StationID;
