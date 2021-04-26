@@ -1,250 +1,256 @@
 ID3,Country,ID2,Numeric
+ABW,Aruba,AW,533
 AFG,Afghanistan,AF,4
-ALB,Albania,AL,8
-DZA,Algeria,DZ,12
-ASM,American Samoa,AS,16
-AND,Andorra,AD,20
 AGO,Angola,AO,24
 AIA,Anguilla,AI,660
-ATA,Antarctica,AQ,10
-ATG,Antigua and Barbuda,AG,28
+ALA,Åland Islands,AX,248
+ALB,Albania,AL,8
+AND,Andorra,AD,20
+ARE,United Arab Emirates (the),AE,784
 ARG,Argentina,AR,32
 ARM,Armenia,AM,51
-ABW,Aruba,AW,533
+ASM,American Samoa,AS,16
+ATA,Antarctica,AQ,10
+ATF,French Southern Territories (the),TF,260
+ATG,Antigua and Barbuda,AG,28
 AUS,Australia,AU,36
 AUT,Austria,AT,40
 AZE,Azerbaijan,AZ,31
-BHS,Bahamas (the),BS,44
-BHR,Bahrain,BH,48
-BGD,Bangladesh,BD,50
-BRB,Barbados,BB,52
-BLR,Belarus,BY,112
-BEL,Belgium,BE,56
-BLZ,Belize,BZ,84
-BEN,Benin,BJ,204
-BMU,Bermuda,BM,60
-BTN,Bhutan,BT,64
-BOL,Bolivia (Plurinational State of),BO,68
-BES,Bonaire (Sint Eustatius and Saba),BQ,535
-BIH,Bosnia and Herzegovina,BA,70
-BWA,Botswana,BW,72
-BVT,Bouvet Island,BV,74
-BRA,Brazil,BR,76
-IOT,British Indian Ocean Territory (the),IO,86
-BRN,Brunei Darussalam,BN,96
-BGR,Bulgaria,BG,100
-BFA,Burkina Faso,BF,854
 BDI,Burundi,BI,108
-CPV,Cabo Verde,CV,132
-KHM,Cambodia,KH,116
-CMR,Cameroon,CM,120
-CAN,Canada,CA,124
-CYM,Cayman Islands (the),KY,136
+BEL,Belgium,BE,56
+BEN,Benin,BJ,204
+BES,Bonaire (Sint Eustatius and Saba),BQ,535
+BFA,Burkina Faso,BF,854
+BGD,Bangladesh,BD,50
+BGR,Bulgaria,BG,100
+BHR,Bahrain,BH,48
+BHS,Bahamas (the),BS,44
+BIH,Bosnia and Herzegovina,BA,70
+BLM,Saint Barthélemy,BL,652
+BLR,Belarus,BY,112
+BLZ,Belize,BZ,84
+BMU,Bermuda,BM,60
+BOL,Bolivia (Plurinational State of),BO,68
+BRA,Brazil,BR,76
+BRB,Barbados,BB,52
+BRN,Brunei Darussalam,BN,96
+BTN,Bhutan,BT,64
+BVT,Bouvet Island,BV,74
+BWA,Botswana,BW,72
 CAF,Central African Republic (the),CF,140
-TCD,Chad,TD,148
+CAN,Canada,CA,124
+CCK,Cocos (Keeling) Islands (the),CC,166
+CHE,Switzerland,CH,756
 CHL,Chile,CL,152
 CHN,China,CN,156
-CXR,Christmas Island,CX,162
-CCK,Cocos (Keeling) Islands (the),CC,166
-COL,Colombia,CO,170
-COM,Comoros (the),KM,174
+CIV,Côte d'Ivoire,CI,384
+CMR,Cameroon,CM,120
 COD,Congo (the Democratic Republic of the),CD,180
 COG,Congo (the),CG,178
 COK,Cook Islands (the),CK,184
+COL,Colombia,CO,170
+COM,Comoros (the),KM,174
+CPV,Cabo Verde,CV,132
 CRI,Costa Rica,CR,188
-HRV,Croatia,HR,191
 CUB,Cuba,CU,192
 CUW,Curaçao,CW,531
+CXR,Christmas Island,CX,162
+CYM,Cayman Islands (the),KY,136
 CYP,Cyprus,CY,196
 CZE,Czechia,CZ,203
-CIV,Côte d'Ivoire,CI,384
-DNK,Denmark,DK,208
+DEU,Germany,DE,276
 DJI,Djibouti,DJ,262
 DMA,Dominica,DM,212
+DNK,Denmark,DK,208
 DOM,Dominican Republic (the),DO,214
+DZA,Algeria,DZ,12
 ECU,Ecuador,EC,218
 EGY,Egypt,EG,818
-SLV,El Salvador,SV,222
-GNQ,Equatorial Guinea,GQ,226
 ERI,Eritrea,ER,232
+ESH,Western Sahara,EH,732
+ESP,Spain,ES,724
 EST,Estonia,EE,233
-SWZ,Eswatini,SZ,748
 ETH,Ethiopia,ET,231
-FLK,Falkland Islands (the) [Malvinas],FK,238
-FRO,Faroe Islands (the),FO,234
-FJI,Fiji,FJ,242
 FIN,Finland,FI,246
+FJI,Fiji,FJ,242
+FLK,Falkland Islands (the) [Malvinas],FK,238
 FRA,France,FR,250
-GUF,French Guiana,GF,254
-PYF,French Polynesia,PF,258
-ATF,French Southern Territories (the),TF,260
+FRO,Faroe Islands (the),FO,234
+FSM,Micronesia (Federated States of),FM,583
 GAB,Gabon,GA,266
-GMB,Gambia (the),GM,270
+GBR,United Kingdom of Great Britain and Northern Ireland (the),GB,826
 GEO,Georgia,GE,268
-DEU,Germany,DE,276
+GGY,Guernsey,GG,831
 GHA,Ghana,GH,288
 GIB,Gibraltar,GI,292
-GRC,Greece,GR,300
-GRL,Greenland,GL,304
-GRD,Grenada,GD,308
-GLP,Guadeloupe,GP,312
-GUM,Guam,GU,316
-GTM,Guatemala,GT,320
-GGY,Guernsey,GG,831
 GIN,Guinea,GN,324
+GLP,Guadeloupe,GP,312
+GMB,Gambia (the),GM,270
 GNB,Guinea-Bissau,GW,624
+GNQ,Equatorial Guinea,GQ,226
+GRC,Greece,GR,300
+GRD,Grenada,GD,308
+GRL,Greenland,GL,304
+GTM,Guatemala,GT,320
+GUF,French Guiana,GF,254
+GUM,Guam,GU,316
 GUY,Guyana,GY,328
-HTI,Haiti,HT,332
-HMD,Heard Island and McDonald Islands,HM,334
-VAT,Holy See (the),VA,336
-HND,Honduras,HN,340
 HKG,Hong Kong,HK,344
+HMD,Heard Island and McDonald Islands,HM,334
+HND,Honduras,HN,340
+HRV,Croatia,HR,191
+HTI,Haiti,HT,332
 HUN,Hungary,HU,348
-ISL,Iceland,IS,352
-IND,India,IN,356
 IDN,Indonesia,ID,360
+IMN,Isle of Man,IM,833
+IND,India,IN,356
+IOT,British Indian Ocean Territory (the),IO,86
+IRL,Ireland,IE,372
 IRN,Iran (Islamic Republic of),IR,364
 IRQ,Iraq,IQ,368
-IRL,Ireland,IE,372
-IMN,Isle of Man,IM,833
+ISL,Iceland,IS,352
 ISR,Israel,IL,376
 ITA,Italy,IT,380
 JAM,Jamaica,JM,388
-JPN,Japan,JP,392
 JEY,Jersey,JE,832
 JOR,Jordan,JO,400
+JPN,Japan,JP,392
 KAZ,Kazakhstan,KZ,398
 KEN,Kenya,KE,404
+KGZ,Kyrgyzstan,KG,417
+KHM,Cambodia,KH,116
 KIR,Kiribati,KI,296
-PRK,Korea (the Democratic People's Republic of),KP,408
+KNA,Saint Kitts and Nevis,KN,659
 KOR,Korea (the Republic of),KR,410
 KWT,Kuwait,KW,414
-KGZ,Kyrgyzstan,KG,417
 LAO,Lao People's Democratic Republic (the),LA,418
-LVA,Latvia,LV,428
 LBN,Lebanon,LB,422
-LSO,Lesotho,LS,426
 LBR,Liberia,LR,430
 LBY,Libya,LY,434
+LCA,Saint Lucia,LC,662
 LIE,Liechtenstein,LI,438
+LKA,Sri Lanka,LK,144
+LSO,Lesotho,LS,426
 LTU,Lithuania,LT,440
 LUX,Luxembourg,LU,442
+LVA,Latvia,LV,428
 MAC,Macao,MO,446
+MAF,Saint Martin (French part),MF,663
+MAR,Morocco,MA,504
+MCO,Monaco,MC,492
+MDA,Moldova (the Republic of),MD,498
 MDG,Madagascar,MG,450
-MWI,Malawi,MW,454
-MYS,Malaysia,MY,458
 MDV,Maldives,MV,462
+MEX,Mexico,MX,484
+MHL,Marshall Islands (the),MH,584
+MKD,Republic of North Macedonia,MK,807
 MLI,Mali,ML,466
 MLT,Malta,MT,470
-MHL,Marshall Islands (the),MH,584
-MTQ,Martinique,MQ,474
-MRT,Mauritania,MR,478
-MUS,Mauritius,MU,480
-MYT,Mayotte,YT,175
-MEX,Mexico,MX,484
-FSM,Micronesia (Federated States of),FM,583
-MDA,Moldova (the Republic of),MD,498
-MCO,Monaco,MC,492
-MNG,Mongolia,MN,496
-MNE,Montenegro,ME,499
-MSR,Montserrat,MS,500
-MAR,Morocco,MA,504
-MOZ,Mozambique,MZ,508
 MMR,Myanmar,MM,104
-NAM,Namibia,NA,516
-NRU,Nauru,NR,520
-NPL,Nepal,NP,524
-NLD,Netherlands (the),NL,528
-NCL,New Caledonia,NC,540
-NZL,New Zealand,NZ,554
-NIC,Nicaragua,NI,558
-NER,Niger (the),NE,562
-NGA,Nigeria,NG,566
-NIU,Niue,NU,570
-NFK,Norfolk Island,NF,574
+MNE,Montenegro,ME,499
+MNG,Mongolia,MN,496
 MNP,Northern Mariana Islands (the),MP,580
+MOZ,Mozambique,MZ,508
+MRT,Mauritania,MR,478
+MSR,Montserrat,MS,500
+MTQ,Martinique,MQ,474
+MUS,Mauritius,MU,480
+MWI,Malawi,MW,454
+MYS,Malaysia,MY,458
+MYT,Mayotte,YT,175
+NAM,Namibia,NA,516
+NCL,New Caledonia,NC,540
+NER,Niger (the),NE,562
+NFK,Norfolk Island,NF,574
+NGA,Nigeria,NG,566
+NIC,Nicaragua,NI,558
+NIU,Niue,NU,570
+NLD,Netherlands (the),NL,528
 NOR,Norway,NO,578
+NPL,Nepal,NP,524
+NRU,Nauru,NR,520
+NZL,New Zealand,NZ,554
 OMN,Oman,OM,512
 PAK,Pakistan,PK,586
-PLW,Palau,PW,585
-PSE,Palestine (State of),PS,275
 PAN,Panama,PA,591
-PNG,Papua New Guinea,PG,598
-PRY,Paraguay,PY,600
+PCN,Pitcairn,PN,612
 PER,Peru,PE,604
 PHL,Philippines (the),PH,608
-PCN,Pitcairn,PN,612
+PLW,Palau,PW,585
+PNG,Papua New Guinea,PG,598
 POL,Poland,PL,616
-PRT,Portugal,PT,620
 PRI,Puerto Rico,PR,630
+PRK,Korea (the Democratic People's Republic of),KP,408
+PRT,Portugal,PT,620
+PRY,Paraguay,PY,600
+PSE,Palestine (State of),PS,275
+PYF,French Polynesia,PF,258
 QAT,Qatar,QA,634
-MKD,Republic of North Macedonia,MK,807
+REU,Réunion,RE,638
 ROU,Romania,RO,642
 RUS,Russian Federation (the),RU,643
 RWA,Rwanda,RW,646
-REU,Réunion,RE,638
-BLM,Saint Barthélemy,BL,652
-SHN,Saint Helena (Ascension and Tristan da Cunha),SH,654
-KNA,Saint Kitts and Nevis,KN,659
-LCA,Saint Lucia,LC,662
-MAF,Saint Martin (French part),MF,663
-SPM,Saint Pierre and Miquelon,PM,666
-VCT,Saint Vincent and the Grenadines,VC,670
-WSM,Samoa,WS,882
-SMR,San Marino,SM,674
-STP,Sao Tome and Principe,ST,678
 SAU,Saudi Arabia,SA,682
+SDN,Sudan (the),SD,729
 SEN,Senegal,SN,686
-SRB,Serbia,RS,688
-SYC,Seychelles,SC,690
-SLE,Sierra Leone,SL,694
 SGP,Singapore,SG,702
-SXM,Sint Maarten (Dutch part),SX,534
+SGS,South Georgia and the South Sandwich Islands,GS,239
+SHN,Saint Helena (Ascension and Tristan da Cunha),SH,654
+SJM,Svalbard and Jan Mayen,SJ,744
+SLB,Solomon Islands,SB,90
+SLE,Sierra Leone,SL,694
+SLV,El Salvador,SV,222
+SMR,San Marino,SM,674
+SOM,Somalia,SO,706
+SPM,Saint Pierre and Miquelon,PM,666
+SRB,Serbia,RS,688
+SSD,South Sudan,SS,728
+STP,Sao Tome and Principe,ST,678
+SUR,Suriname,SR,740
 SVK,Slovakia,SK,703
 SVN,Slovenia,SI,705
-SLB,Solomon Islands,SB,90
-SOM,Somalia,SO,706
-ZAF,South Africa,ZA,710
-SGS,South Georgia and the South Sandwich Islands,GS,239
-SSD,South Sudan,SS,728
-ESP,Spain,ES,724
-LKA,Sri Lanka,LK,144
-SDN,Sudan (the),SD,729
-SUR,Suriname,SR,740
-SJM,Svalbard and Jan Mayen,SJ,744
 SWE,Sweden,SE,752
-CHE,Switzerland,CH,756
+SWZ,Eswatini,SZ,748
+SXM,Sint Maarten (Dutch part),SX,534
+SYC,Seychelles,SC,690
 SYR,Syrian Arab Republic,SY,760
-TWN,Taiwan (Province of China),TW,158
-TJK,Tajikistan,TJ,762
-TZA,Tanzania (United Republic of),TZ,834
-THA,Thailand,TH,764
-TLS,Timor-Leste,TL,626
+TCA,Turks and Caicos Islands (the),TC,796
+TCD,Chad,TD,148
 TGO,Togo,TG,768
+THA,Thailand,TH,764
+TJK,Tajikistan,TJ,762
 TKL,Tokelau,TK,772
+TKM,Turkmenistan,TM,795
+TLS,Timor-Leste,TL,626
 TON,Tonga,TO,776
 TTO,Trinidad and Tobago,TT,780
 TUN,Tunisia,TN,788
 TUR,Turkey,TR,792
-TKM,Turkmenistan,TM,795
-TCA,Turks and Caicos Islands (the),TC,796
 TUV,Tuvalu,TV,798
+TWN,Taiwan (Province of China),TW,158
+TZA,Tanzania (United Republic of),TZ,834
 UGA,Uganda,UG,800
 UKR,Ukraine,UA,804
-ARE,United Arab Emirates (the),AE,784
-GBR,United Kingdom of Great Britain and Northern Ireland (the),GB,826
 UMI,United States Minor Outlying Islands (the),UM,581
-USA,United States of America (the),US,840
 URY,Uruguay,UY,858
+USA,United States of America (the),US,840
 UZB,Uzbekistan,UZ,860
-VUT,Vanuatu,VU,548
+VAT,Holy See (the),VA,336
+VCT,Saint Vincent and the Grenadines,VC,670
 VEN,Venezuela (Bolivarian Republic of),VE,862
-VNM,Viet Nam,VN,704
 VGB,Virgin Islands (British),VG,92
 VIR,Virgin Islands (U.S.),VI,850
+VNM,Viet Nam,VN,704
+VUT,Vanuatu,VU,548
 WLF,Wallis and Futuna,WF,876
-ESH,Western Sahara,EH,732
+WSM,Samoa,WS,882
+XAD,Akrotiri and Dhekelia,XAD,-999
+XCA,Caspian Sea,XCA,-999
+XCL,Clipperton Island,XCL,-999
+XKO,Kosovo,XKO,-999
+XNC,Northern Cyprus,XNC,-999
+XSP,Spratly Islands,XSP,-999
 YEM,Yemen,YE,887
+ZAF,South Africa,ZA,710
 ZMB,Zambia,ZM,894
 ZWE,Zimbabwe,ZW,716
-ALA,Åland Islands,AX,248
