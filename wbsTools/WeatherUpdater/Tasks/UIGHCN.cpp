@@ -438,7 +438,7 @@ namespace WBSF
 				{
 
 					StringVector tmp(DBF[i][FindexH].GetElement(), ".");
-					string country = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+					string country = TrimConst(DBF[i][FindexGID].GetElement());
 
 					string subDivision;
 					if (tmp.size() >= 2)

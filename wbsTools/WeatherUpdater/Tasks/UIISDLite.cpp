@@ -148,7 +148,7 @@ namespace WBSF
 		ERMsg msg;
 
 		string path = GetPath(inFilePath);
-		std::string correction_file_path = path + "ISDLite-corrections.csv";
+		std::string correction_file_path = path + "isd-corrections.csv";
 		CLocationVector correction;
 		correction.Load(correction_file_path);
 
@@ -156,7 +156,7 @@ namespace WBSF
 		CLocationVector old_locations;
 		old_locations.Load(outFilePath);
 
-		std::string invalid_coord_file_path = path + "ISDLite-invalid-stations.csv";
+		std::string invalid_coord_file_path = path + "isd-invalid-stations.csv";
 		CLocationVector old_invalid_Stations;
 		old_invalid_Stations.Load(invalid_coord_file_path);
 
@@ -244,8 +244,8 @@ namespace WBSF
 								{
 									if (country != countryII && d > 20000)
 									{
-										//"," << (bExclude ? "1" : "0") << 
-										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+										if (location.m_name.find("Buoy")==string::npos && location.m_name.find("Platform") == string::npos )
+											invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
 									}
 
 									country = countryII;
@@ -482,7 +482,7 @@ namespace WBSF
 				{
 
 					StringVector tmp(DBF[i][FindexH].GetElement(), ".");
-					string country = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+					string country = TrimConst(DBF[i][FindexGID].GetElement());
 
 					string subDivision;
 					if (tmp.size() >= 2)
@@ -799,8 +799,8 @@ namespace WBSF
 
 		//if (msg)
 			//msg = LoadOptimisation();
-
-		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
+		if(msg)
+			msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 
 
 		if (msg)

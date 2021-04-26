@@ -404,101 +404,26 @@ namespace WBSF
 
 	string CCountrySelection::GHCN_to_GADM(string country)
 	{
-		/*static const map<string, string> COUNTRY_MAP =
-		{
-			{"AC","DZ"},
-			{"AG","DZ"},
-			{"AJ","AZ"},
-			{"AQ","AS"},
-			{"AS","AU"},
-			{"AU","AT"},
-			{"BC","BW"},
-			{"BF","BS"},
-			{"BG","BD"},
-			{"BL","BO"},
-			{"BK","BA"},
-			{"BP","SB"},
-			{"BO","BY"},
-			{"BX","BN"},
-			{"CB","KH"},
-			{"CD","TD"},
-			{"CF","CG"},
-			{"CG","CD"},
-			{"CH","CN"},
-			{"CI","CL"},
-			{"CQ","MP"},
-			{"CT","CF"},
-			{"DA","DK"},
-			{"DR","DO"},
-			{"EI","IE"},
-			{"EN","EE"},
-			{"EZ","CZ"},
-			{"FG","GF"},
-			{"FP","PF"},
-			{"FS","TF"},
-			{"GB","GA"},
-			{"GG","GE"},
-			{"GM","DE"},
-			{"GQ","GU"},
-			{"HO","HN"},
-			{"IC","IS"},
-			{"IS","IL"},
-			{"IV","CI"},
-			{"JA","JP"},
-			{"KS","KR"},
-			{"LG","EE"},
-			{"LH","LT"},
-			{"MA","MG"},
-			{"MB","MQ"},
-			{"MG","MN"},
-			{"MI","MW"},
-			{"MO","MA"},
-			{"MU","OM"},
-			{"NG","NE"},
-			{"NS","SR"},
-			{"NI","NG"},
-			{"PA","PY"},
-			{"PO","PT"},
-			{"PS","PW"},
-			{"PP","PG"},
-			{"RP","PH"},
-			{"RQ","PR"},
-			{"RS","RU"},
-			{"SF","ZA"},
-			{"SG","SN"},
-			{"SP","ES"},
-			{"SU","SD"},
-			{"SW","SE"},
-			{"TI","TJ"},
-			{"TO","TG"},
-			{"TS","TN"},
-			{"TU","TR"},
-			{"TX","TM"},
-			{"UP","UA"},
-			{"UV","BF"},
-			{"VM","VN"},
-			{"VQ","VI"},
-			{"WA","AO"},
-			{"WA","ZA"},
-			{"WZ","SZ"},
-			{"ZA","ZM"},
-			{"ZI","ZW"},
-		};
-*/
-
-
-		//"JQ" "JU" "LQ" "PC" "RM" "UK" "TE" 
 		static const map<string, string> COUNTRY_MAP =
 		{
 			{"AY","AQ"},
+			{"CT","TL"},
+			{"CW","CK"},
+			{"DA","DK"},//isd
+			{"EI","IE"},//isd
 			{"FP","PF"},
 			{"FS","TF"},
 			{"HO","HN"},
 			{"IC","IS"},
 			{"JA","JP"},
+			{"KU","KW"},//isd
+			{"RM","MH"},//isd
 			{"SF","ZA"},
 			{"SP","ES"},
 			{"SW","SE"},
+			{"TN","TO"},//isd
+			{"TS","TN"},//isd
+			{"UK","GB"},//isd
 		};
 
 		if (COUNTRY_MAP.find(country) != COUNTRY_MAP.end())
