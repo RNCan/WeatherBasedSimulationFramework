@@ -57,7 +57,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case COUNTRIES:	str = CCountrySelection::GetAllPossibleValue(); break;
+		case COUNTRIES:	str = CCountrySelectionGADM::GetAllPossibleValue(); break;
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
 		};
 		return str;
@@ -80,44 +80,6 @@ namespace WBSF
 	//****************************************************
 
 
-	//ERMsg CUIGSOD::UpdateStationHistory(CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	CInternetSessionPtr pSession;
-	//	CFtpConnectionPtr pConnection;
-
-	//	msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
-	//	if (msg)
-	//	{
-	//		string URL = GetHistoryFilePath(false);
-
-	//		CFileInfoVector fileList;
-	//		msg = FindFiles(pConnection, URL, fileList, false, CCallback::DEFAULT_CALLBACK);
-	//		if (msg)
-	//		{
-	//			ASSERT(fileList.size() == 1);
-
-	//			string workingDir = GetDir(WORKING_DIR);
-	//			//string outputFilePath = workingDir + GetFileName(fileList[0].m_filePath);
-	//			string outputFilePathTmp = GetHistoryFilePath(true);
-	//			SetFileTitle(outputFilePathTmp, GetFileTitle(outputFilePathTmp) + "_tmp");
-	//			
-	//			if (!IsFileUpToDate(fileList[0], outputFilePathTmp))
-	//			{
-	//				msg = CopyFile(pConnection, fileList[0].m_filePath, outputFilePathTmp);
-
-	//				string outputFilePath = GetHistoryFilePath(true);
-	//				msg = CUIISDLite::ExtractCountrySubDivision(outputFilePathTmp, outputFilePath, callback);
-	//			}
-	//		}
-
-	//		pConnection->Close();
-	//		pSession->Close();
-	//	}
-
-	//	return msg;
-	//}
 
 	ERMsg CUIGSOD::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
@@ -268,9 +230,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//problème : certain nom dans le fichier history n'est pas le même que dans le non de fichier
-		//		callback.SetNbStep(3);
-
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
@@ -284,25 +243,18 @@ namespace WBSF
 
 		//load station list
 		
-		{
-			//same as isd-lite, so use isd-lite instead
-			CUIISDLite ISDLite;
-			ISDLite.SetProjectPath(GetProjectPath());
-			ISDLite.SetParameters(GetParameters());
+		//same as isd-lite, so use isd-lite instead
+		CUIISDLite ISDLite;
+		ISDLite.SetProjectPath(GetProjectPath());
+		ISDLite.SetParameters(GetParameters());
 
-			msg = ISDLite.UpdateStationHistory(callback);
-		}
-
-		//if (msg)
-			//msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
-
-		//if (msg)
-			//msg = LoadOptimisation();
-
+		msg = ISDLite.UpdateStationHistory(callback);
 		
-		CFileInfoVector fileList;
-		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
+		
+		if(msg)
+			msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 
+		CFileInfoVector fileList;
 		if (msg)
 			msg = GetFileList(fileList, callback);
 
@@ -364,13 +316,10 @@ namespace WBSF
 		if (m_stations.find(ID) != m_stations.end())
 		{
 			//PAS VRAIMENT OPTIMISER
-			CCountrySelection countries(Get(COUNTRIES));
+			CCountrySelectionGADM countries(Get(COUNTRIES));
 			CStateSelection states(Get(STATES));
 			CGeoRect boundingBox;
 
-//			CGSODStation station;
-	//		GetStationInformation(fileTitle, station);
-		//	station.GetFromSSI();
 			CLocation location = m_stations.at(ID);
 			size_t country = CCountrySelectionGADM::GetCountry(location.GetSSI("Country"));
 
@@ -401,8 +350,6 @@ namespace WBSF
 		ERMsg msg;
 
 		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-		//callback.SetNbStep(fileList.size());
-
 
 		for (StringVector::iterator it = fileList.begin(); it != fileList.end() && msg;)
 		{
@@ -428,8 +375,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 
 		callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-		//callback.SetNbStep(fileList.size());
-		
 
 		for (CFileInfoVector::const_iterator it = fileList.begin(); it != fileList.end() && msg;)
 		{
@@ -461,78 +406,12 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CUIGSOD::LoadOptimisation()
-	//{
-	//	//load station list in memory for optimization
-	//	ERMsg msg;
-	//	string filePath = GetHistoryFilePath();
-
-	//	msg = m_optFile.Load(GetOptFilePath(filePath));
-	//	return msg;
-	//}
-
-
-	//string CUIGSOD::GetOptFilePath(const string& filePath)const
-	//{
-	//	string optFilePath = filePath;
-	//	SetFileExtension(optFilePath, ".GSODopt");
-
-	//	return optFilePath;
-	//}
-
-
-	//bool CUIGSOD::StationExist(const string& fileTitle)const
-	//{
-	//	string ID = fileTitle.substr(0, 12);
-	//	return m_optFile.KeyExists(ID);
-	//}
-
-	//void CUIGSOD::GetStationInformation(const string& fileTitle, CLocation& station)const
-	//{
-	//	ASSERT(StationExist(fileTitle));
-
-	//	
-	//	string ID = fileTitle.substr(0, 12);
-	//	if (m_optFile.KeyExists(ID))
-	//
-	//		station = m_optFile.at(ID);
-	//}
-
-	//ERMsg CUIGSOD::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
-	//{
-	//	ERMsg msg;
-
-	//	string refFilePath = GetHistoryFilePath();
-	//	string optFilePath = GetOptFilePath(refFilePath.c_str());
-
-	//	if (CGSODStationOptimisation::NeedUpdate(refFilePath, optFilePath))
-	//	{
-	//		CGSODStationOptimisation optFile;
-	//		msg = optFile.Update(refFilePath, callback);
-	//		if (msg)
-	//			msg = optFile.Save(optFilePath);
-	//	}
-
-
-	//	return msg;
-	//}
 
 	ERMsg CUIGSOD::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
-/*
-		msg = UpdateOptimisationStationFile(workingDir, callback);
-		if (!msg)
-			return msg;
-
-
-		msg = LoadOptimisation();
-		if (!msg)
-			return msg;
-*/
-
 
 		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 		if (!msg)
@@ -582,9 +461,6 @@ namespace WBSF
 		ERMsg msg;
 
 		//Get station information
-		//GetStationInformation(stationName, station);
-		//station.m_name = PurgeFileName(station.m_name);
-
 		((CLocation&)station) = m_stations.at(ID);
 		station.m_name = PurgeFileName(station.m_name);
 

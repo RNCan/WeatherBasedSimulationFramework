@@ -365,8 +365,8 @@ namespace WBSF
 
 					for (auto it = unknow_country.begin(); it != unknow_country.end(); it++)
 					{
-						size_t c = CCountrySelection::GetCountry(*it);
-						string name = c != NOT_INIT ? CCountrySelection::GetName(c, 1) : "";
+						size_t c = CCountrySelectionGADM::GetCountry(*it);
+						string name = c != NOT_INIT ? CCountrySelectionGADM::GetName(c, 1) : "";
 						callback.AddMessage("WARNING: unknown country: " + *it + "," + name);
 					}
 				}
@@ -478,10 +478,6 @@ namespace WBSF
 		if (!line.empty())
 		{
 			string tmp;
-
-			//string country = CCountrySelection::GHCN_to_GADM(TrimConst(line.substr(0, 2)));
-			//string subDivisions = CCountrySelection::GHCN_to_GADM(country, TrimConst(line.substr(38, 2)));
-
 
 			string country = CCountrySelection::GHCN_to_GADM(TrimConst(line.substr(0, 2)));
 			string subDivisions = CCountrySelection::GHCN_to_GADM(country, TrimConst(line.substr(38, 2)));
@@ -723,7 +719,6 @@ namespace WBSF
 	{
 		bool bRep = false;
 
-		//if (StationExist(ID.c_str()))
 		CLocationMap::const_iterator it = m_stations.find(ID);
 		if (it != m_stations.end())
 		{

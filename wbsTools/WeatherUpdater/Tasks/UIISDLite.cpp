@@ -66,7 +66,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case COUNTRIES:	str = CCountrySelection::GetAllPossibleValue(); break;
+		case COUNTRIES:	str = CCountrySelectionGADM::GetAllPossibleValue(); break;
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
 		case PROVINCES:	str = CProvinceSelection::GetAllPossibleValue(); break;
 		};
@@ -244,7 +244,7 @@ namespace WBSF
 								{
 									if (country != countryII && d > 20000)
 									{
-										if (location.m_name.find("Buoy")==string::npos && location.m_name.find("Platform") == string::npos )
+										if (location.m_name.find("Buoy") == string::npos && location.m_name.find("Platform") == string::npos)
 											invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
 									}
 
@@ -340,8 +340,8 @@ namespace WBSF
 
 					for (auto it = unknow_country.begin(); it != unknow_country.end(); it++)
 					{
-						size_t c = CCountrySelection::GetCountry(*it);
-						string name = c != NOT_INIT ? CCountrySelection::GetName(c, 1) : "";
+						size_t c = CCountrySelectionGADM::GetCountry(*it);
+						string name = c != NOT_INIT ? CCountrySelectionGADM::GetName(c, 1) : "";
 						callback.AddMessage("WARNING: unknown country: " + *it + "," + name);
 					}
 				}
@@ -391,14 +391,6 @@ namespace WBSF
 			location.m_alt = ToDouble(line[C_ELEV]);
 		else
 			location.m_alt = -999;
-
-
-
-
-		//if (line[C_USAF] == "716920")//coordinate error over MARTICOT ISLAND
-			//m_lon = -54.583;
-		//if (line[C_WBAN] == "12848")//coordinate error over Dinner Key NAF
-			//m_lon = -80.2333;
 
 
 		string country = CCountrySelection::GHCN_to_GADM(TrimConst(line[C_CTRY]));
@@ -557,8 +549,6 @@ namespace WBSF
 				{
 					for (int y = 0; y < dirList.size() && msg&&msgTmp; y++)
 					{
-						//msg += callback.StepIt(0);
-
 						const CFileInfo& info = dirList[y];
 						string path = info.m_filePath;
 
@@ -577,8 +567,8 @@ namespace WBSF
 									nbRun = 0;
 								}
 							}
-						}
-					}
+						}//
+					}//for all dir
 				}
 
 				pConnection->Close();
@@ -621,7 +611,7 @@ namespace WBSF
 		string ID = fileTitle.substr(0, 12);
 		if (m_stations.find(ID) != m_stations.end())
 		{
-			CCountrySelection countries(Get(COUNTRIES));
+			CCountrySelectionGADM countries(Get(COUNTRIES));
 			CGeoRect boundingBox;
 
 			CLocation location = m_stations.at(ID);
@@ -719,62 +709,6 @@ namespace WBSF
 	}
 
 
-	//bool CUIISDLite::StationExist(const string& fileTitle)const
-	//{
-	//	string ID = fileTitle.substr(0, 12);
-	//	return m_optFile.KeyExists(ID);
-	//}
-
-	//void CUIISDLite::GetStationInformation(const string& fileTitle, CLocation& station)const
-	//{
-	//	ASSERT(StationExist(fileTitle));
-
-	//	string ID = fileTitle.substr(0, 12);
-	//	station = m_optFile.at(ID);
-
-	//}
-
-	//ERMsg CUIISDLite::LoadOptimisation()
-	//{
-	//	//load station list in memory for optimization
-	//	ERMsg msg;
-	//	string filePath = GetHistoryFilePath();
-
-	//	msg = m_optFile.Load(GetOptFilePath(filePath));
-	//	return msg;
-	//}
-
-
-	//string CUIISDLite::GetOptFilePath(const string& filePath)const
-	//{
-	//	string optFilePath = filePath;
-	//	SetFileExtension(optFilePath, ".ISDopt");
-
-
-	//	return optFilePath;
-	//}
-
-
-	//ERMsg CUIISDLite::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
-	//{
-	//	ERMsg msg;
-
-	//	string refFilePath = GetHistoryFilePath();
-	//	string optFilePath = GetOptFilePath(refFilePath);
-
-
-	//	CIDSLiteStationOptimisation optFile;
-
-	//	if (CLocationOptimisation::NeedUpdate(refFilePath, optFilePath))
-	//	{
-	//		msg = optFile.Update(refFilePath, callback);
-	//		if (msg)
-	//			msg = optFile.Save(optFilePath);
-	//	}
-
-	//	return msg;
-	//}
-
 	ERMsg CUIISDLite::Execute(CCallback& callback)
 	{
 		ERMsg msg;
@@ -794,12 +728,7 @@ namespace WBSF
 		CFileInfoVector fileList;
 		msg = UpdateStationHistory(callback);
 
-		//if (msg)
-			//msg = UpdateOptimisationStationFile(GetDir(WORKING_DIR), callback);
-
-		//if (msg)
-			//msg = LoadOptimisation();
-		if(msg)
+		if (msg)
 			msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 
 
@@ -825,12 +754,10 @@ namespace WBSF
 			if (msgTmp)
 			{
 
-				TRY
+				try
 				{
 					for (int i = curI; i < fileList.size() && msgTmp && msg; i++)
 					{
-						//msg += callback.StepIt(0);
-
 						string fileTitle = GetFileTitle(fileList[i].m_filePath);
 
 						string stationID = fileTitle.substr(0, 12);
@@ -846,32 +773,6 @@ namespace WBSF
 						//unzip 
 						if (msgTmp)
 						{
-
-
-							//if (FileExists(zipFilePath))
-							//{
-							//	string command = "External\\7za.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
-							//	msg += WinExecWait(command.c_str());
-							//	RemoveFile(zipFilePath);
-							//}
-
-							////remove old file
-							//if (FileExists(extractedFilePath) && FileExists(outputFilePath))
-							//	RemoveFile(outputFilePath);
-
-
-							//if (FileExists(extractedFilePath) )
-							//{
-							//	//rename file. by default, file don't have extension
-							//	if (RenameFile(extractedFilePath, outputFilePath))
-							//	{
-							//		//update time to the time of the .gz file
-							//		boost::filesystem::path p(outputFilePath);
-							//		if (boost::filesystem::exists(p))
-							//			boost::filesystem::last_write_time(p, fileList[i].m_time);
-							//	}
-							//}
-
 							ASSERT(FileExists(outputFilePath));
 							nbRun = 0;
 							curI++;
@@ -880,14 +781,14 @@ namespace WBSF
 						}
 					}
 				}
-					CATCH_ALL(e)
+				catch (CException* e)
 				{
 					msgTmp = UtilWin::SYGetMessage(*e);
 				}
-				END_CATCH_ALL
 
-					//clean connection
-					pConnection->Close();
+
+				//clean connection
+				pConnection->Close();
 				pSession->Close();
 
 				if (!msgTmp)
@@ -923,16 +824,6 @@ namespace WBSF
 		msg = m_stations.LoadFromCSV(GetHistoryFilePath(true));
 		if (!msg)
 			return msg;
-
-
-
-		//msg = UpdateOptimisationStationFile(workingDir, callback);
-
-		//if (msg)
-			//msg = LoadOptimisation();
-
-		//if (!msg)
-			//return msg;
 
 		//get all file in the directory
 		StringVector fileList;
@@ -1030,9 +921,7 @@ namespace WBSF
 		((CLocation&)station) = m_stations.at(ID);
 		station.m_name = PurgeFileName(station.m_name);
 
-
-		//cctz::time_zone zone;
-		//CTimeZones::GetZone(station, zone);
+		
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
@@ -1177,25 +1066,6 @@ namespace WBSF
 
 		e.fill(-9999);
 		return sscanf(line.c_str(), "%f %f %f %f %f %f %f %f %f %f %f %f", &(e[0]), &(e[1]), &(e[2]), &(e[3]), &(e[4]), &(e[5]), &(e[6]), &(e[7]), &(e[8]), &(e[9]), &(e[10]), &(e[11])) == CUIISDLite::NB_ISD_FIELD;
-		//for (int i = 0, pos = 0; i < 12; i++)
-		//{
-		//	elem[i] = line.substr(pos, SIZE[i]);
-		//	pos += SIZE[i];
-		//}
-
-		//ASSERT(e.size() == CUIISDLite::NB_ISD_FIELD);
 	}
 
-	//ERMsg CUIISDLite::GetStation(const string& stationName, CDailyStation& station, CCallback& callback)
-	//{
-	//	return GetWeatherStation(stationName, CTM(CTM::DAILY), station, callback);
-	//}
-
-	//string CUIISDLite::GetStationIDFromName(const string& stationName)
-	//{
-	//	CLocation station;
-	//	GetStationInformation(stationName, station);
-
-	//	return station.m_ID.c_str();
-	//}
 }
