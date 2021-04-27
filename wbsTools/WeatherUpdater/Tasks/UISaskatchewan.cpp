@@ -195,6 +195,12 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
+		string network = station.GetSSI("Network");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", network);
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "SK");
+
 		return msg;
 	}
 

@@ -877,7 +877,7 @@ namespace WBSF
 		string Province = station.GetSSI("Province");
 		station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Network", "EnvironmentCanada");
-		station.SetSSI("Country", "Canada");
+		station.SetSSI("Country", "CAN");
 		station.SetSSI("SubDivision", Province);
 
 

@@ -29,6 +29,8 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
+	//https://wateroffice.ec.gc.ca/download/report_e.html?dt=1&df=csv&ext=zip
+
 	//catalogue de toute les stations:
 	//ftp://ftp.tor.ec.gc.ca/Pub/About_the_data/Station_catalogue/station_data_catalogue.txt
 
@@ -1077,7 +1079,7 @@ namespace WBSF
 		string Province = station.GetSSI("Province");
 		station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Network", "EnvironmentCanada");
-		station.SetSSI("Country", "Canada");
+		station.SetSSI("Country", "CAN");
 		station.SetSSI("SubDivision", Province);
 
 

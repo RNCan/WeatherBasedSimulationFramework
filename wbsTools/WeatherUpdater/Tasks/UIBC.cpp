@@ -392,7 +392,7 @@ namespace WBSF
 				loc.SetSSI("min_obs_time", (*loop)[MIN_OBS_TIME]);
 				loc.SetSSI("max_obs_time", (*loop)[MAX_OBS_TIME]);
 				loc.SetSSI("freq", (*loop)[FREQ]);
-				loc.SetSSI("Country", "Canada");
+				loc.SetSSI("Country", "CAN");
 				loc.SetSSI("Province", (*loop)[PROVINCE]);
 				loc.SetSSI("station_id", (*loop)[STATION_ID]);
 				
@@ -540,7 +540,7 @@ namespace WBSF
 			string province = station.GetSSI("Province");
 			station.m_siteSpeceficInformation.clear();
 			station.SetSSI("Network", network);
-			station.SetSSI("Country", "Canada");
+			station.SetSSI("Country", "CAN");
 			station.SetSSI("SubDivision", province);
 
 

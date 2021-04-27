@@ -11,7 +11,7 @@ namespace WBSF
 	{
 	public:
 
-		
+		enum TNetwork { DFFA_NETWORK, WRMD_NETWORK, NB_NETWORKS};
 		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
@@ -42,13 +42,12 @@ namespace WBSF
 
 	protected:
 		
-
-		//ERMsg UpdateStationsFile(CCallback& callback);
-
-		std::string GetStationsListFilePath()const;
-		std::string GetOutputFilePath(const std::string& fileTitle, int year)const;
+		std::string GetStationsListFilePath(size_t n)const;
+		std::string GetOutputFilePath(size_t network, const std::string& fileTitle, int year)const;
 		std::string GetOutputFilePath(int year)const;
-		
+		ERMsg ExecutePublicWRMD(CCallback& callback);
+
+
 		ERMsg UpdateStationList(CCallback& callback);
 		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
 
@@ -57,7 +56,7 @@ namespace WBSF
 		static CTRef GetTRef(std::string str);
 
 
-		CLocationVector m_stations;
+		std::array<CLocationVector, NB_NETWORKS> m_stations;
 
 		
 

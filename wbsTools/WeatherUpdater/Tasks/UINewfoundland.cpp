@@ -3,19 +3,20 @@
 #include <boost\dynamic_bitset.hpp>
 #include <boost\filesystem.hpp>
 
-#include "UI/Common/UtilWin.h"
+
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
-#include "UI/Common/SYShowMessage.h"
 #include "Basic\CSV.h"
-
+#include "Basic/CallcURL.h"
+#include "UI/Common/UtilWin.h"
+#include "UI/Common/SYShowMessage.h"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
 
-using namespace std; 
+using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
@@ -23,16 +24,24 @@ using namespace boost;
 
 namespace WBSF
 {
+
+	//autre reseau: Water Resources Management Division (WRMD) Automatic Data Retrieval System (ADRS)
+	//https://www.mae.gov.nl.ca/wrmd/ADRS/v6/Graphs_List.asp
+	//https://www.mae.gov.nl.ca/wrmd/ADRS/v6/template_station.asp?station=nlencl0004
+	//https://www.mae.gov.nl.ca/wrmd/ADRS/v6/Data/NLENCL0004_Line.csv
+	//https://www.gov.nl.ca/eccm/waterres/cycle/hydrologic/weather/
+	//https://www.mae.gov.nl.ca/wrmd/ADRS/v6/ADRS_Stations_Dec_08_2020.kmz
+
 	const char* CUINewfoundland::SERVER_NAME = "Ftpque.nrcan.gc.ca";
 	const char* CUINewfoundland::SERVER_PATH = "/NLWeather/";
 
 	//*********************************************************************
 	const char* CUINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear" };
-	const size_t CUINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING};
+	const size_t CUINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
 	const UINT CUINewfoundland::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWFOUNDLAND_P;
 	const UINT CUINewfoundland::DESCRIPTION_TITLE_ID = ID_TASK_NEWFOUNDLAND;
 
-	const char* CUINewfoundland::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Newfoundland";  return THE_CLASS_NAME; }
+	const char* CUINewfoundland::CLASS_NAME() { static const char* THE_CLASS_NAME = "Newfoundland";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUINewfoundland::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUINewfoundland::CLASS_NAME(), (createF)CUINewfoundland::create);
 
@@ -70,14 +79,26 @@ namespace WBSF
 	//****************************************************
 
 
-	std::string CUINewfoundland::GetStationsListFilePath()const
+	std::string CUINewfoundland::GetStationsListFilePath(size_t n)const
 	{
-		return GetDir(WORKING_DIR) + "Station_Metadata.csv";
+		string file_path;
+		if (n == DFFA_NETWORK)
+			file_path = GetDir(WORKING_DIR) + "Station_Metadata.csv";
+		else if (n == WRMD_NETWORK)
+			file_path = WBSF::GetApplicationPath() + "Layers\\NLStationsWRMD.csv";
+
+		return file_path;
 	}
 
-	string CUINewfoundland::GetOutputFilePath(const string& fileTitle, int year)const
+	string CUINewfoundland::GetOutputFilePath(size_t n, const string& fileTitle, int year)const
 	{
-		return GetDir(WORKING_DIR) + ToString(year) + "\\" + fileTitle +".csv";
+		string file_path;
+		if(n== DFFA_NETWORK)
+			file_path = GetDir(WORKING_DIR) + ToString(year) + "\\" + fileTitle + ".csv";
+		else if (n == WRMD_NETWORK)
+			file_path = GetDir(WORKING_DIR) + "WRMD\\"+ ToString(year) + "\\" + fileTitle + ".csv";
+
+		return file_path;
 	}
 
 	string CUINewfoundland::GetOutputFilePath(int year)const
@@ -89,7 +110,7 @@ namespace WBSF
 	ERMsg CUINewfoundland::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
@@ -99,7 +120,7 @@ namespace WBSF
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
 		callback.AddMessage(string(SERVER_NAME) + "/", 1);
 		callback.AddMessage("");
-		
+
 
 		StringVector fileList;
 
@@ -167,55 +188,236 @@ namespace WBSF
 			pSession->Close();
 		}
 
-		
 
-		callback.AddMessage("Number of file downloaded: " + ToString(nbDownloads) );
+
+		callback.AddMessage("Number of file downloaded: " + ToString(nbDownloads));
+		callback.PopTask();
+
+
+		//now downlaod WRMD stations
+		msg += ExecutePublicWRMD(callback);
+
+		return msg;
+	}
+
+	enum TColums { C_STAT_NUM, C_WSC_NUM, C_NST_DATI, C_AIR_TEMP, C_REL_HUMIDITY, C_ATMOS_PRES, C_DEW_POINT, C_PRECIP_TB, C_RAIN, C_SNOW, C_SNOW_DEPTH, C_SNOW_DEPTH_NEW, C_RAD_SOLAR, C_SUNSHINE_HRS, C_WIND_SPEED, C_WIND_DIR, C_WIND_SPEED_GUST, C_WIND_DIR_GUST, C_SOIL_MOIS, C_BATT_VOLTAGE, C_AIR_TEMP_SCND, C_SWE_TL, C_SWE_K, C_WIND_CHILL, C_HUMIDEX, NB_COLUMS };
+	static TVarH GetVar(const string& header)
+	{
+		static const char* VAR_NAME[NB_COLUMS] = { "STAT_NUM", "WSC_NUM", "NST_DATI", "AIR_TEMP", "REL_HUMIDITY", "ATMOS_PRES", "DEW_POINT", "PRECIP_TB", "RAIN", "SNOW", "SNOW_DEPTH", "SNOW_DEPTH_NEW", "RAD_SOLAR", "SUNSHINE_HRS", "WIND_SPEED", "WIND_DIR", "WIND_SPEED_GUST", "WIND_DIR_GUST", "SOIL_MOIS", "BATT_VOLTAGE", "AIR_TEMP_SCND", "SWE_TL","SWE_K", "WIND_CHILL","HUMIDEX" };
+		static const TVarH VAR[NB_COLUMS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_PRES, H_PRCP, H_TDEW, H_SKIP, H_SKIP, H_SNDH, H_SKIP, H_SRAD, H_SKIP, H_WNDS, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SWE, H_SKIP, H_SKIP, H_SKIP };
+
+
+		TVarH var = H_SKIP;
+		auto it = std::find_if(begin(VAR_NAME), end(VAR_NAME), [header](const char* name) {return IsEqual(header, name); });
+		ASSERT(it != end(VAR_NAME));
+
+		if (it != end(VAR_NAME))
+			var = VAR[std::distance(begin(VAR_NAME), it)];
+
+		return var;
+	}
+
+
+	ERMsg CUINewfoundland::ExecutePublicWRMD(CCallback& callback)
+	{
+		ERMsg msg;
+
+		static const char* SERVER_NAME = "www.mae.gov.nl.ca";
+
+		string workingDir = GetDir(WORKING_DIR) + "WRMD\\";
+		msg = CreateMultipleDir(workingDir);
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(workingDir, 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(string(SERVER_NAME), 1);
+		callback.AddMessage("");
+
+		
+		CLocationVector location;
+		msg = location.Load(GetStationsListFilePath(WRMD_NETWORK));
+
+		callback.PushTask("Download Newfoundland public WRMD data (" + ToString(location.size()) + " stations)", location.size());
+		callback.AddMessage("Download Newfoundland public WRMD data (" + ToString(location.size()) + " stations)");
+
+		size_t nbFiles = 0;
+		for (size_t i = 0; i < location.size() && msg; i++)
+		{
+
+			CWeatherYears data(true);
+
+			////https://www.mae.gov.nl.ca/NLENCL0004_Line.csv
+			string str;
+			//msg = UtilWWW::GetPageText(pConnection, "wrmd/ADRS/v6/Data/%s_Line.csv" + location[i].m_ID, str);
+			//if (msg)
+			string URL = "https://www.mae.gov.nl.ca/wrmd/ADRS/v6/Data/" + location[i].m_ID + "_Line.csv";
+			string filePath = workingDir + location[i].m_ID + "_Line.csv";
+
+			string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
+			string exe = GetApplicationPath() + "External\\curl.exe";
+			string command = exe + " " + argument;
+
+			DWORD exit_code;
+			msg = WinExecWait(command, "", SW_HIDE, &exit_code);
+			if (exit_code == 0 && FileExists(filePath))
+			{
+				ifStream file;
+				msg += file.open(filePath);
+				if (msg)
+				{
+					vector<TVarH> variables;
+
+					string line;
+					getline(file, line);//skip warning
+
+					//CWeatherAccumulator stat(CTM::HOURLY);
+					//double lastPrcp = 0;
+
+					CSVIterator loop(file);
+					++loop; //skip units.
+
+					for (; loop != CSVIterator(); ++loop)
+					{
+						ASSERT(loop->size() >= 3);
+
+						if (variables.empty())
+						{
+							for (size_t c = 0; c < loop.Header().size(); c++)
+							{
+								TVarH var = GetVar(loop.Header()[c]);
+								variables.push_back(var);
+							}
+						}
+
+
+						string date_time_str = (*loop)[C_NST_DATI];
+
+						StringVector date_time(date_time_str, "/ :");
+						ASSERT(date_time.size() == 7);
+
+						size_t m = WBSF::as<size_t>(date_time[0]) - 1;
+						size_t d = WBSF::as<size_t>(date_time[1]) - 1;
+						int year = WBSF::as<int>(date_time[2]);
+						size_t h = WBSF::as<size_t>(date_time[3]);
+						size_t mm = WBSF::as<size_t>(date_time[4]);
+						size_t ss = WBSF::as<size_t>(date_time[5]);
+						
+						CTRef TRef(year,m,d,h);
+						//TRef.FromFormatedString(date_time, "%m/%d/%Y %H:%M:%S");
+						if (date_time[6]=="AM" && TRef.GetHour() == 12)
+							TRef -= 12;
+						else if (date_time[6] == "PM" && TRef.GetHour() != 12)
+							TRef += 12;
+
+						
+						ASSERT(TRef.IsValid());
+
+						if (TRef.IsValid())
+						{
+							if (!data.IsYearInit(TRef.GetYear()))
+							{
+								//try to load old data before changing it...
+								string filePath = GetOutputFilePath(WRMD_NETWORK, location[i].m_ID, TRef.GetYear());
+								data.LoadData(filePath, -999, false);//don't erase other years when multiple years
+							}
+
+
+							for (size_t c = 0; c < loop->size(); c++)
+							{
+								if (variables[c] != H_SKIP && !loop->at(c).empty())
+								{
+									float value = ToFloat(loop->at(c));
+
+
+									if (variables[c] == H_SRAD)
+										value *= 1000.0f / (3600 * 24);//convert KJ/m² --> W/m²
+									else if (variables[c] == H_PRES)
+										value *= 10;//convert kPa --> hPa
+									else if (variables[c] == H_SNDH)
+										value = max(0.0, value*100.0);//convert m --> cm
+
+									if (data.GetHour(TRef)[variables[c]] == -999)
+										data.GetHour(TRef).SetStat(variables[c], value);
+								}
+							}
+						}
+
+					}//for all lines
+
+
+					if (data.HaveData())
+					{
+						for (auto it = data.begin(); it != data.end(); it++)
+						{
+							string outputPath = GetOutputFilePath(WRMD_NETWORK, location[i].m_ID, it->first);
+							CreateMultipleDir(GetPath(outputPath));
+							it->second->SaveData(outputPath);
+						}
+					}
+					else
+					{
+						callback.AddMessage(location[i].m_ID + " don't have data");
+					}
+
+					nbFiles++;
+					msg += callback.StepIt();
+					file.close();
+
+					//WBSF::RemoveFile(filePath);
+				}//msg
+			}//if msg
+
+		}//for all locations
+
+
+
+
+		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbFiles), 1);
 		callback.PopTask();
 
 		return msg;
 	}
 
-
 	ERMsg CUINewfoundland::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
-		msg = m_stations.Load(GetStationsListFilePath());
+		for (size_t n = 0; n < NB_NETWORKS; n++)
+		{
+			msg += m_stations[n].Load(GetStationsListFilePath(n));
+			msg += m_stations[n].IsValid();
 
-		if (msg)
-			msg += m_stations.IsValid();
+			for (size_t i = 0; i < m_stations[n].size(); i++)
+			{
+				stationList.push_back(std::to_string(n) + "|" + m_stations[n][i].m_ID);
+			}
+				
+		}
 
 		//Update network
-		//for (size_t i = 0; i < locations.size(); i++)
-			//locations[i].SetSSI("Network", "Newfoundland");
 
-		//m_stations.insert(m_stations.end(), locations.begin(), locations.end());
-				
-		for (size_t i = 0; i < m_stations.size(); i++)
-			stationList.push_back(m_stations[i].m_ID);
-	
 
 		return msg;
 	}
 
-	ERMsg CUINewfoundland::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUINewfoundland::GetWeatherStation(const std::string& str_in, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//NL_New_Harbour_15_orig.csv
-//		StationName, DateTime, Temp, Rh, Wspd, Dir, Rn24
-	//	New Harbour 15, 2017 / 01 / 01 00:00 : 00, -1.2, 99, 8.6, 276, 0
-
 
 		//Get station information
-		size_t it = m_stations.FindByID(ID);
+		StringVector tmp(str_in, "|");
+		ASSERT(tmp.size() == 2);
+		size_t n = WBSF::as <size_t>(tmp[0]);
+		string ID = tmp[1];
+		size_t it = m_stations[n].FindByID(ID);
 		ASSERT(it != NOT_INIT);
 
-		((CLocation&)station) = m_stations[it];
+		((CLocation&)station) = m_stations[n][it];
 		int firstYear = WBSF::as<int>(Get(FIRST_YEAR));
 		int lastYear = WBSF::as<int>(Get(LAST_YEAR));
 		size_t nbYears = lastYear - firstYear + 1;
-		
+
 		station.CreateYears(firstYear, nbYears);
 		station.m_name = PurgeFileName(station.m_name);
 
@@ -224,9 +426,15 @@ namespace WBSF
 		{
 			int year = firstYear + int(y);
 
-			string filePath = GetOutputFilePath(station.GetSSI("FileTitle"), year);
+			string title = (n == DFFA_NETWORK)? station.GetSSI("FileTitle"): station.m_ID;
+			string filePath = GetOutputFilePath(n, title, year);
 			if (FileExists(filePath))
-				msg = ReadDataFile(filePath, TM, station, callback);
+			{
+				if(n== DFFA_NETWORK)
+					msg = ReadDataFile(filePath, TM, station, callback);
+				else if(n== WRMD_NETWORK)
+					msg = station.LoadData(filePath, -999, false);
+			}
 
 			msg += callback.StepIt(0);
 		}
@@ -237,6 +445,14 @@ namespace WBSF
 			//verify station is valid
 			msg = station.IsValid();
 		}
+
+		static const char* NETWORK_NAME[NB_NETWORKS] = {"NL_DFFA", "NL_WRMD"};
+
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", NETWORK_NAME[n]);
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "NL");
+
 
 		return msg;
 	}
@@ -252,7 +468,7 @@ namespace WBSF
 		CFtpConnectionPtr pConnection;
 
 		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
-		
+
 		if (msg)
 		{
 			string path = "/hydromanitoba/NLWeather/Station_Metadata.csv";
@@ -264,13 +480,13 @@ namespace WBSF
 			{
 				ASSERT(fileList.size() == 1);
 
-				string outputFilePath = GetStationsListFilePath();
+				string outputFilePath = GetStationsListFilePath(DFFA_NETWORK);
 				if (!IsFileUpToDate(fileList.front(), outputFilePath))
 				{
 					CreateMultipleDir(GetPath(outputFilePath));
 					msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
 				}
-					
+
 			}
 
 			pConnection->Close();
@@ -306,7 +522,7 @@ namespace WBSF
 	CTRef CUINewfoundland::GetTRef(string str)//const vector<size_t>& vars, const CSVIterator& loop)
 	{
 		CTRef TRef;
-		
+
 		//2017/01/01 00:00:00
 		StringVector vec(str, " :/");
 		if (vec.size() == 6)
@@ -335,7 +551,7 @@ namespace WBSF
 
 		enum TColumns { C_NAME, C_DATE_TIME, C_TAIR, CTMIN, C_TMAX, C_RELH, C_WNDS, C_WNDD, C_RAIN24, NB_COLUMNS };
 		static const TVarH COL_VAR[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR, H_TAIR, H_TAIR, H_RELH, H_WNDS, H_WNDD, H_PRCP };
-		
+
 		//now extract data 
 		ifStream file;
 
@@ -390,5 +606,5 @@ namespace WBSF
 		return msg;
 	}
 
-	
+
 }

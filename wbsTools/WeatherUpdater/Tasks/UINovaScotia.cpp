@@ -236,9 +236,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//size_t n = ToSizeT(NID.substr(0,1));
-		//string ID = NID.substr(2);
-
 		//Get station information
 		size_t it = m_stations.FindByID(ID);
 		ASSERT(it != NOT_INIT);
@@ -273,6 +270,16 @@ namespace WBSF
 		}
 
 		ReplaceString(station.m_name, "_", " ");
+
+
+
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "NovaScotiaFire");
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "NS");
+
+
+
 		return msg;
 	}
 
