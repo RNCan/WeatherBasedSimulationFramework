@@ -1,13 +1,20 @@
-KeyID,Name,Latitude,Longitude,Elevation,Region,Type
-NLENCL0001,Pippy Park in St. Johns,47.5879722222,-52.7336944444,111,10 Avalon Peninsula,Climate
-NLENCL0002,Exploits River at Badger East of Stadium,48.9748611111,-56.0347777778,98,07 Exploits River and Norte Dame Bay,Climate (Camera)
-NLENCL0003,Humber River At Humber Village Bridge,48.9827777778,-57.7606388889,9,06 West Coast Humber and Baie Verte,Climate (Camera)
-NLENCL0004,Churchill River at end of Mud Lake Road,53.33775,-60.1893055556,2,03 Churchill River and Lake Melville,Climate (Camera)
-NLENCL0005,Sandy Lake near Birchy Narrows (Camp 55),49.2745277778,-56.8516111111,127,06 West Coast Humber and Baie Verte,Climate (Camera)
-NLENCL0006,Muskrat Falls,53.2433055538,-60.7584194441,24,03 Churchill River and Lake Melville,Climate
-NLENCL0007,Upper Humber River Above Black Brook,49.6181430678,-57.2954672162,301,06 West Coast Humber and Baie Verte,Climate (Camera)
-NLENCL0008,TLH between Churchill Falls and Lab City,53.35979,-65.5615,539,03 Churchill River and Lake Melville,Climate
-NLENCL0009,Metchin River near TLH,53.43614,-63.2337,332,03 Churchill River and Lake Melville,Climate
-NLENCL0010,Exploits below Noel Paul's Brook,48.844666667,-56.269416667,129,07 Exploits River and Norte Dame Bay,Climate
-NLENCL0011,Mud Lake Road,53.33525,-60.189861111,4,03 Churchill River and Lake Melville,Climate
-NLENCL0012,Vale LH1,47.424166667,-53.766027778,166,10 Avalon Peninsula,Climate
+KeyID,Name,Latitude,Longitude,Elevation,Region
+NLENCL0001,Pippy Park in St. Johns,47.5879722222,-52.7336944444,111,10 Avalon Peninsula
+NLENCL0002,Exploits River at Badger East of Stadium,48.9748611111,-56.0347777778,98,07 Exploits River and Norte Dame Bay
+NLENCL0003,Humber River At Humber Village Bridge,48.9827777778,-57.7606388889,9,06 West Coast Humber and Baie Verte
+NLENCL0004,Churchill River at end of Mud Lake Road,53.33775,-60.1893055556,2,03 Churchill River and Lake Melville
+NLENCL0005,Sandy Lake near Birchy Narrows (Camp 55),49.2745277778,-56.8516111111,127,06 West Coast Humber and Baie Verte
+NLENCL0006,Muskrat Falls,53.2433055538,-60.7584194441,24,03 Churchill River and Lake Melville
+NLENCL0007,Upper Humber River Above Black Brook,49.6181430678,-57.2954672162,301,06 West Coast Humber and Baie Verte
+NLENCL0008,TLH between Churchill Falls and Lab City,53.35979,-65.5615,539,03 Churchill River and Lake Melville
+NLENCL0009,Metchin River near TLH,53.43614,-63.2337,332,03 Churchill River and Lake Melville
+NLENCL0010,Exploits below Noel Paul's Brook,48.844666667,-56.269416667,129,07 Exploits River and Norte Dame Bay
+NLENCL0011,Mud Lake Road,53.33525,-60.189861111,4,03 Churchill River and Lake Melville
+NLENCL0012,Vale LH1,47.424166667,-53.766027778,166,10 Avalon Peninsula
+02YL009,Corner Brook Lake At Lake Outlet,48.8488888889,-57.8513888889,326,06 West Coast and Humber and Baie Verte
+02YK010,Grand Lake East Of Grand Lake Brook,48.67,-58.0794444444,85,06 West Coast and Humber and Baie Verte
+02YM004,Indian Brook Diversion Above Birchy Lake,49.3669444444,-56.6161111111,108,06 West Coast and Humber and Baie Verte
+02YL008,Upper Humber River Above Black Brook,49.6181666667,-57.2945666667,297,06 West Coast and Humber and Baie Verte
+02YO011,Exploits River Below Noel Pauls Brook,48.8408333333,-56.2758333333,131,07 Exploits River and Norte Dame Bay
+02ZC004,Granite Lake At East End,48.18125,-56.9316666667,312,08 South Coast and Burin Peninsula
+02ZD002,Grey River Near Grey River,47.7430555556,-56.9347222222,25,08 South Coast and Burin Peninsula
