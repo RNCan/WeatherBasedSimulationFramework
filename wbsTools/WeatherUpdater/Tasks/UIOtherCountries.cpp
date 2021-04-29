@@ -771,6 +771,10 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
+		station.SetSSI("Provider", "Irland");
+		station.SetSSI("Network", "Irland");
+		
+
 		return msg;
 	}
 

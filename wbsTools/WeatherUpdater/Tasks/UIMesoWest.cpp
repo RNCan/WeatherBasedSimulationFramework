@@ -319,7 +319,7 @@ namespace WBSF
 		StringVector networks_select(networks_str, "|");
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCES));
-		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES));
+		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES), "CAN|USA");
 		StringVector subsetIDS = GetSubsetIds();
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
@@ -735,7 +735,7 @@ namespace WBSF
 		StringVector networks_select(Get(NETWORKS), "|");
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCES));
-		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES));
+		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES), "CAN|USA");
 		StringVector subsetIDS = GetSubsetIds();
 		bool bWithTemp = as<bool>(WITH_TEMP);
 

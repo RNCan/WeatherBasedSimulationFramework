@@ -146,25 +146,29 @@ namespace WBSF
 		//static const CInfo DEFAULT_LIST[CCountrySelectionGADM];
 
 		static std::vector<CInfo> m_default_list;
-		static void LoadDefault();
-		static ERMsg Load(const std::string& file_path);
+		static void LoadDefault(const std::string& ignore_str="");
+		static ERMsg Load(const std::string& file_path, const std::string& ignore_str = "");
 
 
-		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true, const std::string& ignore="");
+		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true, const std::string& ignore = "");
 		static size_t GetCountry(const std::string& in, size_t t = BY_ABVR);//by abr
 
-		CCountrySelectionGADM(const std::string& in = "");
+		CCountrySelectionGADM(const std::string& in = "", const std::string& ignore = "");
 
 		std::string ToString()const;
 		ERMsg FromString(const std::string& in);
 
 		static std::string GetName(size_t i, size_t t = BY_ABVR);
 
-		//		using std::bitset<NB_COUNTRIES_WU>::at;
 		bool at(const std::string& in)const
 		{
 			if (none())
+				return false;
+
+			if (all())
 				return true;
+			
+			
 
 			size_t p = GetCountry(in);
 			return p < size() ? test(p) : false;

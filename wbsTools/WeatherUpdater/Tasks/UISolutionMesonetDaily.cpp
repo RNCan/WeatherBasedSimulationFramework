@@ -602,6 +602,8 @@ namespace WBSF
 				msg = station.IsValid();
 		}
 
+		station.SetSSI("Provider", "Solution-Mesonet");
+
 
 		return msg;
 	}

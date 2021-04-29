@@ -481,6 +481,12 @@ namespace WBSF
 		if (msg && station.HaveData())
 			msg = station.IsValid();
 
+		station.SetSSI("Provider", "Quebec");
+		station.SetSSI("Network", "MDDELCC");
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "QC");
+
+
 		return msg;
 	}
 

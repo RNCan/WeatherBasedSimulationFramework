@@ -760,6 +760,11 @@ namespace WBSF
 			}
 		}
 
+		station.SetSSI("Provider", "NEWA");
+		station.SetSSI("Network", "NEWA");
+		station.SetSSI("Country", "USA");
+		//station.SetSSI("SubDivision", station.GetSSI("Province"));
+
 		return msg;
 	}
 

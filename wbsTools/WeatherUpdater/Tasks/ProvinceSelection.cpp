@@ -2,7 +2,6 @@
 #include "ProvinceSelection.h"
 
 
-//#include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
 

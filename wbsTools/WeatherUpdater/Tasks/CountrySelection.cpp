@@ -852,27 +852,29 @@ namespace WBSF
 	std::vector<CCountrySelectionGADM::CInfo> CCountrySelectionGADM::m_default_list;
 
 
-	CCountrySelectionGADM::CCountrySelectionGADM(const std::string& in)
+	CCountrySelectionGADM::CCountrySelectionGADM(const std::string& in, const std::string& ignore_str )
 	{
-		LoadDefault();
+		LoadDefault(ignore_str);
 		
 		resize(m_default_list.size());
 		FromString(in);
 	}
 
-	void CCountrySelectionGADM::LoadDefault()
+	void CCountrySelectionGADM::LoadDefault(const std::string& ignore_str)
 	{
 		if (m_default_list.empty())
-			Load(GetApplicationPath() + "Layers\\countries.csv");
+			Load(GetApplicationPath() + "Layers\\countries.csv", ignore_str);
 
 		ASSERT(!m_default_list.empty());
 	}
 	
 
 
-	ERMsg CCountrySelectionGADM::Load(const string& file_path)
+	ERMsg CCountrySelectionGADM::Load(const string& file_path, const std::string& ignore_str)
 	{
 		ERMsg msg;
+		
+		StringVector ignore(ignore_str, "|");
 
 		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
 		ifStream file;
@@ -884,8 +886,13 @@ namespace WBSF
 			m_default_list.reserve(220);
 			for (CSVIterator loop(file); loop != CSVIterator(); ++loop)
 			{
-				ASSERT(loop->size()>=3);
-				m_default_list.push_back(CInfo({ (*loop)[0], (*loop)[1], (*loop)[2] }));
+				ASSERT(loop->size() >= 3);
+
+				if (ignore.Find( (*loop)[0], false) == NOT_INIT )
+				{
+					m_default_list.push_back(CInfo({ (*loop)[0], (*loop)[1], (*loop)[2] }));
+				}
+				
 			}
 		}
 
@@ -896,22 +903,20 @@ namespace WBSF
 
 	std::string CCountrySelectionGADM::GetAllPossibleValue(bool bAbvr, bool bName, const std::string& ignore_str)
 	{
-		LoadDefault();
+		LoadDefault(ignore_str);
 
-		StringVector ignore(ignore_str,"|");
+		
 		string str;
 		for (size_t i = 0; i < m_default_list.size(); i++)
 		{
-			if (ignore.Find(m_default_list[i].m_abrv, false) == NOT_INIT)
-			{
-				str += i != 0 ? "|" : "";
-				if (bAbvr)
-					str += m_default_list[i].m_abrv;
-				if (bAbvr && bName)
-					str += "=";
-				if (bName)
-					str += m_default_list[i].m_name;
-			}
+			str += i != 0 ? "|" : "";
+			if (bAbvr)
+				str += m_default_list[i].m_abrv;
+			if (bAbvr && bName)
+				str += "=";
+			if (bName)
+				str += m_default_list[i].m_name;
+			
 		}
 
 		return str;
@@ -929,16 +934,24 @@ namespace WBSF
 	string CCountrySelectionGADM::ToString()const
 	{
 		string str;
+
 		if (any())
 		{
-			for (size_t i = 0; i < m_default_list.size(); i++)
+			if (!all())
 			{
-				if (test(i))
+				for (size_t i = 0; i < m_default_list.size(); i++)
 				{
-					str += m_default_list[i].m_abrv;
-					str += '|';
+					if (test(i))
+					{
+						str += m_default_list[i].m_abrv;
+						str += '|';
+					}
 				}
 			}
+		}
+		else
+		{
+			str = "----";
 		}
 
 		return str;
@@ -949,10 +962,22 @@ namespace WBSF
 		ERMsg msg;
 
 		resize(m_default_list.size());
-
-		StringVector tmp(in, "|;");
-		for (size_t i = 0; i < tmp.size(); i++)
-			msg += set(tmp[i]);
+		
+		if (in == "----")
+		{
+			reset();
+		}
+		else if (in.empty())
+		{
+			set();
+		}
+		else
+		{
+			StringVector tmp(in, "|;");
+			for (size_t i = 0; i < tmp.size(); i++)
+				msg += set(tmp[i]);
+		}
+		
 
 		return msg;
 	}

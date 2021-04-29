@@ -491,6 +491,9 @@ namespace WBSF
 		if (nbYears>8)
 			callback.PopTask();
 
+		station.SetSSI("Provider", "Solution-Mesonet");
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "QC");
 
 		return msg;
 	}

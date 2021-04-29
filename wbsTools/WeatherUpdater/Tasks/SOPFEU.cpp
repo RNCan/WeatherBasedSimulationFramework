@@ -518,6 +518,12 @@ namespace WBSF
 		if (msg && station.HaveData())
 			msg = station.IsValid();
 
+		station.SetSSI("Provider", "SOPFEU");
+		station.SetSSI("Network", "SOPFEU");
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "QC");
+
+
 		return msg;
 	}
 
