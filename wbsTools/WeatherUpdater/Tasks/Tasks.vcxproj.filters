@@ -59,9 +59,6 @@
     <ClInclude Include="UIISDLite.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="LocationOptimisation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="EnvCanLocationMap.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -284,9 +281,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIISDLite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LocationOptimisation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EnvCanLocationMap.cpp">

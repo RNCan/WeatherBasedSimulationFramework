@@ -39,8 +39,9 @@ namespace WBSF
 	CTaskBase::TType CUIQuebec::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIQuebec::CLASS_NAME(), (createF)CUIQuebec::create);
 
-	const char* CUIQuebec::SERVER_NAME[NB_NETWORKS] = { "FTP3.sopfeu.qc.ca", "www.mddelcc.gouv.qc.ca", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org" };
-	const char* CUIQuebec::NETWORK_NAME[NB_NETWORKS] = { "SOPFEU", "MDDELCC", "HYDRO", "MFFP", "ALCAN", "FADQ", "SM" };
+	const std::array<const char*, CUIQuebec::NB_NETWORKS> CUIQuebec::PROVIDER = { { "SOPFEU", "Québec", "SolutionMesonet", "SolutionMesonet", "SolutionMesonet", "SolutionMesonet", "SolutionMesonet" } };
+	const std::array<const char*, CUIQuebec::NB_NETWORKS> CUIQuebec::SERVER_NAME = { { "FTP3.sopfeu.qc.ca", "www.mddelcc.gouv.qc.ca", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org", "horus.mesonet-quebec.org" } };
+	const std::array<const char*, CUIQuebec::NB_NETWORKS> CUIQuebec::NETWORK_NAME = { { "SOPFEU", "MDDELCC", "HYDRO", "MFFP", "ALCAN", "FADQ", "SM" } };
 
 
 	std::bitset<CUIQuebec::NB_NETWORKS> CUIQuebec::GetNetwork()const
@@ -286,6 +287,9 @@ namespace WBSF
 		default:  msg += GetWeatherStation(n, ID, TM, station, callback); break;
 		}
 
+		station.SetSSI("Provider", PROVIDER[n]);
+
+
 		return msg;
 	}
 
@@ -328,6 +332,16 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
+
+
+		/*string network = station.GetSSI("Network");
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivision");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", network);
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivision", subDivisions);
+*/
 
 		return msg;
 	}

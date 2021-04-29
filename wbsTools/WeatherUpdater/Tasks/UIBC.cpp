@@ -31,7 +31,7 @@ namespace WBSF
 
 	
 	const char* CUIBC::SERVER_NAME = "data.pacificclimate.org";
-	//const char* CUIBC::SERVER_NAME = "tools.pacificclimate.org";
+	
 
 //network_id	network_name
 //1				EC
@@ -536,12 +536,13 @@ namespace WBSF
 			}
 
 //remove native_id
-			string network = station.GetSSI("Network");
-			string province = station.GetSSI("Province");
-			station.m_siteSpeceficInformation.clear();
-			station.SetSSI("Network", network);
+			//string network = station.GetSSI("Network");
+			//string province = station.GetSSI("Province");
+			//station.m_siteSpeceficInformation.clear();
+			//station.SetSSI("Network", network);
+			station.SetSSI("Provider", "PCIC");
 			station.SetSSI("Country", "CAN");
-			station.SetSSI("SubDivision", province);
+			station.SetSSI("SubDivision", station.GetSSI("Province"));
 
 
 			if (bStepIt)

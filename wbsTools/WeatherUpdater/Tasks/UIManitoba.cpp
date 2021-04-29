@@ -426,6 +426,16 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
+		//string network = station.GetSSI("Network");
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", (station.GetSSI("Network") == NETWORK_NAME[HYDRO] ? "Manitoba-Hydro":station.GetSSI("Network")== NETWORK_NAME[POTATO]? "Manitoba-Poteto" :"Manitoba") );
+		//station.SetSSI("Network", network);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
+
+
 		return msg;
 	}
 

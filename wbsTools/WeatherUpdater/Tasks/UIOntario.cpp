@@ -444,6 +444,16 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
+/*
+		string network = station.GetSSI("Network");
+		string country = station.GetSSI("Country");
+		string subDivisions = station.GetSSI("SubDivision");
+		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Network", "GHCND");
+		station.SetSSI("Country", country);
+		station.SetSSI("SubDivision", subDivisions);*/
+		station.SetSSI("Provider", "Ontario");
+
 		return msg;
 	}
 

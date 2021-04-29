@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "GSODStationOptimisation.h"
 #include "Basic/WeatherStation.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
@@ -45,21 +44,7 @@ namespace WBSF
 
 
 		std::string GetHistoryFilePath(bool bLocal = true)const{ return (bLocal ? GetDir(WORKING_DIR) : std::string(LIST_PATH)) + "isd-history.csv"; }
-		//ERMsg UpdateStationHistory(CCallback& callback);
-
 		ERMsg GetFileList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
-		//CLocation LocationFromLine(const StringVector& line)const;
-		//ERMsg ExtractCountrySubDivision(const std::string& txtFilePath, const std::string& csvFilePath, CCallback& callback)const;
-		//double GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const;
-
-
-
-		//ERMsg UpdateOptimisationStationFile(const std::string& workingDir, CCallback& callBack = DEFAULT_CALLBACK)const;
-		//std::string GetOptFilePath(const std::string& filePath)const;
-
-		//ERMsg LoadOptimisation();
-		//bool StationExist(const std::string& fileTitle)const;
-		//void GetStationInformation(const std::string& fileTitle, CLocation& station)const;
 
 		//Get stations list part
 		ERMsg CleanList(CFileInfoVector& fileList, CCallback& callback = DEFAULT_CALLBACK)const;
@@ -73,9 +58,6 @@ namespace WBSF
 
 		ERMsg FTPDownload(const std::string& server, const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback);
 		ERMsg Uncompress(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
-
-		//optimisation for stations
-		//CGSODStationOptimisation m_optFile;
 
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];

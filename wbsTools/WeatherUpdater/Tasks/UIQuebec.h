@@ -79,9 +79,10 @@ namespace WBSF
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
 		
-		static const char* SERVER_NAME[NB_NETWORKS];
-		static const char* NETWORK_NAME[NB_NETWORKS];
-		static const char* NETWORK_TILE[NB_NETWORKS];
+		static const std::array<const char*, NB_NETWORKS> PROVIDER;
+		static const std::array<const char*, NB_NETWORKS> SERVER_NAME;
+		static const std::array<const char*, NB_NETWORKS> NETWORK_NAME;
+		static const std::array<const char*, NB_NETWORKS> NETWORK_TILE;
 		
 		
 	};

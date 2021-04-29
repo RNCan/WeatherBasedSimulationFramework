@@ -546,14 +546,18 @@ namespace WBSF
 			}
 		}
 
-		string network = station.GetSSI("Network");
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
+		//string network = station.GetSSI("Network");
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//
+		//station.m_siteSpeceficInformation.clear();
+		//station.SetSSI("Network", "SnoTel_"+ network);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
 
-		station.m_siteSpeceficInformation.clear();
-		station.SetSSI("Network", "SnoTel_"+ network);
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);
+		station.SetSSI("Provider", "Snotel");
+		
+
 
 		if (station.HaveData())
 		{

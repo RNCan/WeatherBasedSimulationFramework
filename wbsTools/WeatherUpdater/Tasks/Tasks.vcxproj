@@ -213,7 +213,6 @@
     <ClInclude Include="UIMiscellaneous.h" />
     <ClInclude Include="UIRapidUpdateCycle.h" />
     <ClInclude Include="EnvCanLocationMap.h" />
-    <ClInclude Include="LocationOptimisation.h" />
     <ClInclude Include="MergeWeather.h" />
     <ClInclude Include="ProvinceSelection.h" />
     <ClInclude Include="StateSelection.h" />
@@ -300,7 +299,6 @@
     <ClCompile Include="UIMiscellaneous.cpp" />
     <ClCompile Include="UIRapidUpdateCycle.cpp" />
     <ClCompile Include="EnvCanLocationMap.cpp" />
-    <ClCompile Include="LocationOptimisation.cpp" />
     <ClCompile Include="MergeWeather.cpp" />
     <ClCompile Include="ProvinceSelection.cpp" />
     <ClCompile Include="StateSelection.cpp" />

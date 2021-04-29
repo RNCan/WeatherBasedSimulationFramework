@@ -243,13 +243,9 @@ namespace WBSF
 		size_t nbFiles = 0;
 		for (size_t i = 0; i < location.size() && msg; i++)
 		{
-
 			CWeatherYears data(true);
 
-			////https://www.mae.gov.nl.ca/NLENCL0004_Line.csv
-			string str;
-			//msg = UtilWWW::GetPageText(pConnection, "wrmd/ADRS/v6/Data/%s_Line.csv" + location[i].m_ID, str);
-			//if (msg)
+
 			string URL = "https://www.mae.gov.nl.ca/wrmd/ADRS/v6/Data/" + location[i].m_ID + "_Line.csv";
 			string filePath = workingDir + location[i].m_ID + "_Line.csv";
 
@@ -269,10 +265,6 @@ namespace WBSF
 
 					string line;
 					getline(file, line);//skip warning
-
-					//CWeatherAccumulator stat(CTM::HOURLY);
-					//double lastPrcp = 0;
-
 					CSVIterator loop(file);
 					++loop; //skip units.
 
@@ -449,6 +441,7 @@ namespace WBSF
 		static const char* NETWORK_NAME[NB_NETWORKS] = {"NL_DFFA", "NL_WRMD"};
 
 		station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", "Newfoundland");
 		station.SetSSI("Network", NETWORK_NAME[n]);
 		station.SetSSI("Country", "CAN");
 		station.SetSSI("SubDivision", "NL");

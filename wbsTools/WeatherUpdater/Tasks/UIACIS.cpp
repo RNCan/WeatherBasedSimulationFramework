@@ -1314,10 +1314,10 @@ namespace WBSF
 		}
 
 		
-		station.SetSSI("WMO","");
-		station.SetSSI("TC", "");
-		station.SetSSI("EC", "");
-		station.SetSSI("AENV", "");
+		//station.SetSSI("WMO","");
+		//station.SetSSI("TC", "");
+		//station.SetSSI("EC", "");
+		//station.SetSSI("AENV", "");
 		station.CleanUnusedVariable("TN T TX P TD H WS WD W2 R SD");
 
 		if (msg)
@@ -1328,6 +1328,16 @@ namespace WBSF
 				msg = station.IsValid();
 			}
 		}
+
+		//string network = station.GetSSI("Network");
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//station.m_siteSpeceficInformation.clear();
+		//station.SetSSI("Network", network);
+		station.SetSSI("Provider", "ACIS");
+		station.SetSSI("Country", "CAN");
+		//station.SetSSI("SubDivision", subDivisions);
+
 
 		return msg;
 	}

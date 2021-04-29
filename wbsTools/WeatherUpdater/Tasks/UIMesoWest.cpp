@@ -7,12 +7,13 @@
 #include "basic/WeatherStation.h"
 #include "basic/CSV.h"
 #include "Basic/ExtractLocationInfo.h"
-#include "UI/Common/SYShowMessage.h"
 #include "Basic\json\json11.hpp"
+#include "Basic/ExtractLocationInfo.h"
+#include "Basic/Registry.h"
+#include "Basic/CallcURL.h"
 #include "Geomatic/TimeZones.h"
 #include "Geomatic/ShapeFileBase.h"
-
-//#include "cctz\time_zone.h"
+#include "UI/Common/SYShowMessage.h"
 
 #include "TaskFactory.h"
 #include "../Resource.h"
@@ -90,7 +91,6 @@ namespace WBSF
 
 	const char* CUIMesoWest::SERVER_NAME = "api.mesowest.net";
 	static const char* DEFAULT_VARS = "air_temp,precip_accum_since_local_midnight,dew_point_temperature,relative_humidity,wind_speed,wind_direction,pressure,snow_depth,solar_radiation,snow_accum,snow_depth,snow_water_equiv";
-	//static const char* DEFAULT_VARS = "precip_accum_since_local_midnight";
 
 
 	CUIMesoWest::CUIMesoWest(void)
@@ -132,7 +132,7 @@ namespace WBSF
 		if (m_networks.empty())
 		{
 			CUIMesoWest& me = const_cast<CUIMesoWest&>(*this);
-			string file_path = GetApplicationPath() + "Layers\\MesoWestNetworks.csv";
+			string file_path = GetApplicationPath() + "Layers\\MesoWest-Networks.csv";
 			LoadNetwork(file_path, me.m_networks);
 		}
 
@@ -150,11 +150,7 @@ namespace WBSF
 		case NETWORKS: str = all_networks; break;
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
 		case PROVINCES:	str = CProvinceSelection::GetAllPossibleValue(); break;
-		case OTHER_COUNTRIES:
-			str = CCountrySelection::GetAllPossibleValue();
-			ReplaceString(str, "CA=Canada|", "");//remove canada
-			ReplaceString(str, "US=United States|", "");//remove USA
-			break;
+		case OTHER_COUNTRIES:str = CCountrySelectionGADM::GetAllPossibleValue(true, true, "CAN|USA"); break;
 		};
 		return str;
 	}
@@ -185,18 +181,16 @@ namespace WBSF
 	std::string CUIMesoWest::GetStationListFilePath()const
 	{
 		string workingDir = GetDir(WORKING_DIR);
-		return workingDir + "\\StationsList.csv";
+		return workingDir + "\\MesoWest-stations.csv";
 	}
 
 
-	//std::string CUIMesoWest::GetOutputFilePath(const std::string& country, const std::string& states, const std::string& ID, int year, size_t m)
+
 	std::string CUIMesoWest::GetOutputFilePath(std::string country, std::string state, const std::string& ID, int year)
 	{
-		//static const char* API_EXT[NB_API] = { ".csv", ".csv" };
+
 		string workingDir = GetDir(WORKING_DIR);
-		//string subDir = (APIType == DROMAN) ? FormatA("\\%02d\\", m + 1) : FormatA("\\");
-		//string ouputPath = workingDir + country + "\\" + states + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".Json";
-		if (country != "US" && country != "CA")
+		if (country != "USA" && country != "CAN")
 		{
 			state = country;
 			country = "--";
@@ -230,14 +224,11 @@ namespace WBSF
 		bool bForceUpdateList = as<bool>(FORCE_UPDATE_STATIONS_LIST);
 		if (!FileExists(GetStationListFilePath()) || bForceUpdateList)
 		{
-			msg = DownloadStationList(m_stations, callback);
-			if (msg)
-				msg = m_stations.Save(GetStationListFilePath(), ',', callback);
+			msg += UpdateStationList(callback);
 		}
-		else
-		{
+
+		if (msg)
 			msg = m_stations.Load(GetStationListFilePath(), ",", callback);
-		}
 
 		if (!msg)
 			return msg;
@@ -328,13 +319,13 @@ namespace WBSF
 		StringVector networks_select(networks_str, "|");
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCES));
-		CCountrySelection countries(Get(OTHER_COUNTRIES));
+		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES));
 		StringVector subsetIDS = GetSubsetIds();
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
 		if (m_networks.empty())
 		{
-			string file_path = GetApplicationPath() + "Layers\\MesoWestNetworks.csv";
+			string file_path = GetApplicationPath() + "Layers\\MesoWest-Networks.csv";
 			LoadNetwork(file_path, m_networks);
 		}
 
@@ -411,7 +402,7 @@ namespace WBSF
 				for (size_t i = 0; i < countries.size(); i++)
 				{
 					if (countries[i])
-						request.push_back(make_pair(countries.GetName(i, CCountrySelection::BY_ABVR), ""));
+						request.push_back(make_pair(countries.GetName(i, CCountrySelectionGADM::BY_ABVR), ""));
 				}
 			}
 		}
@@ -580,6 +571,7 @@ namespace WBSF
 		CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
 
 		size_t nbDownload = 0;
+		set<size_t> nbStations;
 		callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations years)", stationList.size()*nbYears);
 		callback.AddMessage("Number of MesoWest files to download: " + ToString(stationList.size()*nbYears));
 		size_t SUs = 0;
@@ -666,12 +658,9 @@ namespace WBSF
 
 								if (msg && !source.empty())
 								{
-									/*if (source[0] == '#')
-										msg += MergeData(country, state, ID, source, SUs, callback);
-									else
-										msg.ajoute("Server return: " + source.substr(0, 100) + "...");*/
 									if (msg && !source.empty() && source[0] == '{')
 									{
+										nbStations.insert(cur_i);
 										msg += MergeJsonData("", source, nbDownload, SUs, callback);
 										if (msg)
 										{
@@ -722,6 +711,7 @@ namespace WBSF
 			}//if msg
 		}//while
 
+		callback.AddMessage("Nb stations update: " + ToString(nbStations.size()));
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
 		callback.AddMessage("Service Units: " + to_string(SUs) + " (" + to_string(SUs*0.00000015) + "$)");
 		callback.PopTask();
@@ -745,7 +735,7 @@ namespace WBSF
 		StringVector networks_select(Get(NETWORKS), "|");
 		CStateSelection states(Get(STATES));
 		CProvinceSelection provinces(Get(PROVINCES));
-		CCountrySelection countries(Get(OTHER_COUNTRIES));
+		CCountrySelectionGADM countries(Get(OTHER_COUNTRIES));
 		StringVector subsetIDS = GetSubsetIds();
 		bool bWithTemp = as<bool>(WITH_TEMP);
 
@@ -763,7 +753,7 @@ namespace WBSF
 				string vars = it->GetSSI("Variables");
 				string exclude = it->GetSSI("Excluded");
 
-				if (!start.empty()&& exclude!="1")
+				if (!start.empty() && exclude != "1")
 				{
 					//empty start period seem to don't have data 
 					CTRef startTRef = GetTRef(start);
@@ -779,9 +769,9 @@ namespace WBSF
 
 					if (subsetIDS.empty())
 					{
-						if (country == "US")
+						if (country == "USA")
 							IsIncludeIV = states.at(subDivisions);
-						else if (country == "CA")
+						else if (country == "CAN")
 							IsIncludeIV = provinces.at(subDivisions);
 						else
 							IsIncludeIV = countries.at(country);
@@ -863,14 +853,15 @@ namespace WBSF
 			station.CleanUnusedVariable(variables);
 		}
 
-		string network = station.GetSSI("Network");
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
+		//string network = station.GetSSI("Network");
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
 
-		station.m_siteSpeceficInformation.clear();
-		station.SetSSI("Network", network);
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);
+		//station.m_siteSpeceficInformation.clear();
+		//station.SetSSI("Network", network);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
+		station.SetSSI("Provider", "MesoWest");
 
 		if (msg)
 		{
@@ -1061,636 +1052,550 @@ namespace WBSF
 		return WBSF::UppercaseFirstLetter(WBSF::PurgeFileName(str));
 	}
 
-	ERMsg CUIMesoWest::DownloadNetwork(NetworkMap& networks, CCallback& callback)const
+	ERMsg CUIMesoWest::UpdateNetwork(NetworkMap& networks, CCallback& callback)const
 	{
 		ERMsg msg;
 
-		//string server_name;
-		string URL;
-
-		//if (APIType == DROMAN)
-		//{
-		//	//server_name = "mesowest.utah.edu";
-		//	URL = "cgi-bin/droman/mnet_status_monitor.cgi";
-		//}
-		//else if (APIType == SYNOPTIC)
-		//{
 		string token = Get(API_TOKEN);
-		URL = "v2/networks?token=" + token;
-		//}
+		string URL = "https://api.mesowest.net/v2/networks?token=" + token;
+		string argument = "-s -k \"" + URL + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
 
+		string source;
+		msg = cURL.get_text(argument, source);
 
-		callback.PushTask("Download networks list", -1);
-
-
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-
-
-		size_t nbTry = 0;
-		bool bContinue = true;
-		while (bContinue && msg)
+		if (msg)
 		{
-			nbTry++;
-			try
+
+
+			string command = exe + " " + argument;
+
+			string error;
+			const Json& root = Json::parse(source, error);
+			if (error.empty())
 			{
-				msg += GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-				if (msg)
+				ASSERT(root["MNET"].type() == Json::ARRAY);
+				const std::vector<Json>& nets = root["MNET"].array_items();
+
+				static const char* CATEGORY_NAME[13] = { "Agricultural", "Air Quality", "Offshore", "Federal and state networks", "Hydrological", "State and Local", "NWS/FAA", "CWOP", "Fire weather", "Road and rail weather", "Public Utility", "Research and Education", "Commercial" };
+
+				for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
 				{
-
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-
-					string source;
-					msg = GetPageText(pConnection, URL, source);
-					if (msg)
+					const json11::Json& item = *it;
+					string ID = TrimConst(item["ID"].string_value());
+					if (!ID.empty())
 					{
-						//if (APIType == DROMAN)
-						//{
-						//	ReplaceString(source, "\t", "");
-						//	string::size_type posBegin = source.find("Latest Update:");
-						//	if (posBegin != string::npos)
-						//	{
-						//		//posBegin = source.find("</tr>", posBegin);
-						//		string header = FindString(source, "<tr>", "</tr>", posBegin);
 
-						//		if (posBegin != string::npos)
-						//		{
-						//			source = FindString(source, "</tr>", "</table>", posBegin);
-						//			//ReplaceString(source, "<tr>\n<tr>", "</tr>\n<tr>");
-						//			//source = source.substr(posBegin += 5);
+						array<string, NB_NETWORK_COLUMN> network;
+						network[NETWORK_ID] = ID;
+						network[NETWORK_NAME] = TrimConst(item["LONGNAME"].string_value());
+						network[NETWORK_SHORT_NAME] = TrimConst(item["SHORTNAME"].string_value());
+						size_t cat = atoi(item["CATEGORY"].string_value().c_str()) - 1;
+						network[NETWORK_TYPE] = cat < 13 ? CATEGORY_NAME[cat] : "Unknowns";
+						network[NETWORK_ACTIVE_STATIONS] = TrimConst(item["ACTIVE_STATIONS"].dump());
 
-						//			posBegin = source.find("<tr>");
-						//			while (posBegin != string::npos)
-						//			{
-						//				string record = FindString(source, "<tr>", "<tr>", posBegin);
+						//remove coma to avoid problem in csv file
+						for (size_t i = 0; i < network.size(); i++)
+							ReplaceString(network[i], ",", "");
 
-						//				string::size_type posBeginRecord = 0;
-						//				string ID = TrimConst(FindString(record, "\">", "</td>", posBeginRecord));
-						//				string SHORTNAME = FindString(record, "<a href=", "</td>", posBeginRecord);
-						//				SHORTNAME = TrimConst(FindString(SHORTNAME, "\">", "</a>"));
-
-						//				networks[ID] = SHORTNAME;
-
-						//				posBegin = source.find("<tr>", posBegin + 4);
-						//			}
-						//		}
-						//	}
-						//}
-						//else if (APIType == SYNOPTIC)
-						//{
-						string token = Get(API_TOKEN);
-						URL = "v2/networks?token=" + token;
-
-						string error;
-						const Json& root = Json::parse(source, error);
-						if (error.empty())
-						{
-							ASSERT(root["MNET"].type() == Json::ARRAY);
-							const std::vector<Json>& nets = root["MNET"].array_items();
-
-							static const char* CATEGORY_NAME[13] = { "Agricultural", "Air Quality", "Offshore", "Federal and state networks", "Hydrological", "State and Local", "NWS/FAA", "CWOP", "Fire weather", "Road and rail weather", "Public Utility", "Research and Education", "Commercial" };
-
-							for (Json::array::const_iterator it = nets.begin(); it != nets.end() && msg; it++)
-							{
-								const json11::Json& item = *it;
-								string ID = TrimConst(item["ID"].string_value());
-								if (!ID.empty())
-								{
-
-									array<string, NB_NETWORK_COLUMN> network;
-									network[NETWORK_ID] = ID;
-									network[NETWORK_NAME] = TrimConst(item["LONGNAME"].string_value());
-									network[NETWORK_SHORT_NAME] = TrimConst(item["SHORTNAME"].string_value());
-									size_t cat = atoi(item["CATEGORY"].string_value().c_str()) - 1;
-									network[NETWORK_TYPE] = cat < 13 ? CATEGORY_NAME[cat] : "Unknowns";
-									network[NETWORK_ACTIVE_STATIONS] = TrimConst(item["ACTIVE_STATIONS"].dump());
-
-									//remove coma to avoid problem in csv file
-									for (size_t i = 0; i < network.size(); i++)
-										ReplaceString(network[i], ",", "");
-
-									networks[ID] = network;
-								}
-							}
-						}
-
+						networks[ID] = network;
 					}
 				}
-
-				bContinue = false;
 			}
-			catch (CException* e)
+
+
+
+
+			string file_path = GetDir(WORKING_DIR) + "MesoWest-Networks.csv";
+			//save network to current directory
+			ofStream file;
+			msg = file.open(file_path);
+			if (msg)
 			{
-				if (nbTry < 5)
+				file << "NetworkID,Name,Short Name,Type,Stations Reporting" << endl;
+
+				for (auto it = networks.begin(); it != networks.end(); it++)
 				{
-					callback.AddMessage(UtilWin::SYGetMessage(*e));
-					msg += WaitServer(10, callback);
+					string line;
+					for (size_t i = 0; i < it->second.size(); i++)
+					{
+						line += !line.empty() ? "," : "";
+						line += it->second[i];
+					}
+					file << line << endl;
 				}
-				else
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
+
+
+				file.close();
 			}
-
-			pConnection->Close();
-			pSession->Close();
 		}
-
-		callback.PopTask();
-
-
 
 		return msg;
 	}
 
-	ERMsg CUIMesoWest::DownloadStationList(CLocationVector& stationList, CCallback& callback)const
+	ERMsg CUIMesoWest::UpdateStationList(CCallback& callback)const
 	{
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
-		std::string correction_file_path = workingDir + "CoordCorrection.csv";
-		CLocationVector correction;
-		correction.Load(correction_file_path);
-
-		std::string state_file_path = GetApplicationPath() + "Layers\\ameriquenord.shp";
-
-		CShapeFileBase shapefile;
-		msg = shapefile.Read(state_file_path);
-		if (!msg)
-			return msg;
-
-
-
-		//string countryII, stateII;
-		//uble d = GetCountryState(shapefile, 40.1743, -103.2146, "US", "CO", countryII, stateII);
-
-
-
-		NetworkMap networks;
-		msg = DownloadNetwork(networks, callback);
-		if (!msg)
-			return msg;
-
-		string file_path = GetDir(WORKING_DIR) + "Networks.csv";
-		//save network to current directory
-		ofStream file;
-		msg = file.open(file_path);
-		if (msg)
-		{
-			file << "ID,Name,Short Name,Type,Stations Reporting" << endl;
-
-			for (auto it = networks.begin(); it != networks.end(); it++)
-			{
-				string line;
-				for (size_t i = 0; i < it->second.size(); i++)
-				{
-					line += !line.empty() ? "," : "";
-					line += it->second[i];
-				}
-				file << line << endl;
-			}
-
-
-			file.close();
-		}
-
 
 
 		string token = Get(API_TOKEN);
 		CTRef current = CTRef::GetCurrentTRef();
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
 		callback.PushTask("Download stations list for MesoWest", -1);
+		string URL = "https://api.mesowest.net/v2/stations/metadata?complete=1&sensorvars=1&vars=" + string(DEFAULT_VARS) + "&token=" + token;
+		string json_filepath = workingDir + "MesoWest-stations.json";
 
+		string argument = "-s -k \"" + URL + "\" --output \"" + json_filepath + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		string command = exe + " " + argument;
 
-
-		//if (APIType == DROMAN)
-		//{
-		//	msg += GetHttpConnection("mesowest.utah.edu", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		//	if (msg)
-		//	{
-		//		pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-
-		//		string URL = "cgi-bin/droman/meso_station.cgi";
-		//		//msg = CopyFile(pConnection,URL, );
-		//		string source;
-		//		msg = GetPageText(pConnection, URL, source);
-		//		if (msg)
-		//		{
-		//			ReplaceString(source, "\t", "");
-		//			string::size_type posBegin = source.find("<PRE>");
-		//			if (posBegin != string::npos)
-		//			{
-		//				//posBegin = source.find("</tr>", posBegin);
-		//				source = FindString(source, "<PRE>", "</PRE>", posBegin);
-
-		//				posBegin = source.find("\">");
-		//				while (posBegin != string::npos)
-		//				{
-		//					string record = source.substr(posBegin + 2);
-
-
-
-		//					posBegin = source.find("\">", posBegin + 2);
-		//				}
-		//			}
-		//			//<PRE>
-		//			////</PRE>
-		//		}
-
-		//		pConnection->Close();
-		//		pSession->Close();
-
-		//	}
-		//}
-		//else if (APIType == SYNOPTIC)
-		//{
-		size_t nbTry = 0;
-		bool bContinue = true;
-		while (bContinue && msg)
-		{
-			nbTry++;
-			try
-			{
-				msg += GetHttpConnection("api.mesowest.net", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-				if (msg)
-				{
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 60000);
-
-					//download station list
-					string URL = "v2/stations/metadata?complete=1&sensorvars=1&vars=" + string(DEFAULT_VARS) + "&token=" + token;
-					string source;
-					msg = GetPageText(pConnection, URL, source);
-					if (msg)
-					{
-						//parse station list
-						string error;
-						const Json& root = Json::parse(source, error);
-						if (error.empty())
-						{
-
-							ASSERT(root["STATION"].type() == Json::ARRAY);
-							const std::vector<Json>& stations = root["STATION"].array_items();
-
-
-							callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
-							for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
-							{
-								CLocation location;
-
-
-
-								location.m_name = PurgeName((*it)["NAME"].string_value());
-								location.m_ID = (*it)["STID"].string_value();
-								location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
-								location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
-								if(!(*it)["ELEVATION"].is_null())
-									location.m_alt = WBSF::Feet2Meter(WBSF::as<double>((*it)["ELEVATION"].string_value()));
-								
-								string DEM_alt_str;
-								double DEM_alt = -999;
-
-								//convert DEM altitude in meters
-								if (!(*it)["ELEV_DEM"].is_null())
-								{
-									DEM_alt_str = (*it)["ELEV_DEM"].string_value();
-									DEM_alt = WBSF::Feet2Meter(WBSF::as<double>(DEM_alt_str));
-									DEM_alt_str = to_string(DEM_alt);
-								}
-
-								if (location.m_alt == -999 && DEM_alt > 0 )//some DEM alt have suspicious 0
-									location.m_alt = DEM_alt;
-
-								if (location.m_alt < 0 && DEM_alt > 0)//some DEM alt have suspicious 0
-									location.m_alt = -999;//extarct it later
-
-
-								if (location.m_alt == 0 && DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 100)
-								{
-									location.m_alt = -999;
-									//location.m_alt = DEM_alt;
-									//location.m_name += " (suspicious elev at 0)";
-								}
-
-								//remove ID from the name
-								string ID = location.m_ID;
-								ID.insert(1, 1, 'w');
-								ReplaceString(location.m_name, ID, "");
-								Trim(location.m_name);
-
-								string country = (*it)["COUNTRY"].string_value();
-								string subDivisions = (*it)["STATE"].string_value();
-								string time_zone = (*it)["TIMEZONE"].string_value();
-								string id = (*it)["ID"].string_value();
-								string status = (*it)["STATUS"].string_value();
-								string network = (*it)["SHORTNAME"].string_value();
-								string networkID = (*it)["MNET_ID"].string_value();
-								string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
-								string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
-								CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
-								string str = (*it)["SENSOR_VARIABLES"].string_value();
-
-								if (country.empty())
-								{
-									if (CProvinceSelection::GetProvince(subDivisions) != UNKNOWN_POS)
-										country = "CA";
-									else if (CStateSelection::GetState(subDivisions) != UNKNOWN_POS)
-										country = "US";
-									else
-										country = "UN";//Unknown
-								}
-
-								if (country == "CA")
-								{
-									if (subDivisions == "NF")
-										subDivisions = "NL";
-									else if (subDivisions == "YK")
-										subDivisions = "YT";
-									else if (subDivisions == "BC`")
-										subDivisions = "BC";
-									else if (subDivisions == "PQ")
-										subDivisions = "QC";
-								}
-
-
-								size_t corr_pos = correction.FindByID(location.m_ID);
-
-								string exclude = "0";
-								if (corr_pos != NOT_INIT)
-								{
-									exclude = correction[corr_pos].GetSSI("Excluded");
-									if (exclude == "0")
-									{
-										((CGeoPoint&)location) = correction[corr_pos];
-										country = correction[corr_pos].GetSSI("Country");
-										subDivisions = correction[corr_pos].GetSSI("SubDivision");
-									}
-								}
-
-								
-								
-								//verify country and states
-								if (country == "US" || country == "CA" /*|| country == "MX"*/)
-								{
-									bool bBuoy = location.m_name.find("Buoy") != string::npos;
-									if (subDivisions != "HI" && subDivisions != "VI" && subDivisions != "PR" && subDivisions != "GU" &&
-										subDivisions != "PI" && subDivisions != "P1" && subDivisions != "P4" && subDivisions != "SA" &&
-										subDivisions != "AS" && subDivisions != "MP"&& subDivisions != "WS" && subDivisions != "GA" && subDivisions != "WK" &&
-										!bBuoy && corr_pos == NOT_INIT)
-									{
-										if (country == "US")
-										{
-											if (location.m_lon >= 70 && location.m_lon <= 180)
-											{
-												//try to reverse long
-												if (location.m_lat >= 30 && location.m_lat <= 50)
-													location.m_lon = -location.m_lon;
-											}
-										}
-										string countryII;
-										string subDivisionsII;
-										//find country
-										static const double MAX_DISTANCE = 20000.0;
-
-										double d = GetCountryState(shapefile, location.m_lat, location.m_lon, country, subDivisions, countryII, subDivisionsII);
-										
-
-										if (country == countryII)
-										{
-											if (subDivisions.empty()|| subDivisions =="XX")
-											{
-												if (d == 0)
-													subDivisions = subDivisionsII;
-											}
-											else
-											{
-												if (subDivisionsII == subDivisions)
-												{
-													/*if (DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 250)
-													{
-														callback.AddMessage("IE," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," +to_string(DEM_alt) +"," +  country + "," + subDivisions + "," + country + "," + subDivisionsII + "," + to_string(location.m_alt - DEM_alt) + ",0");
-													}*/
-												}
-												else
-												{
-													callback.AddMessage("IS," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," +  country + "," + subDivisions + "," + countryII + "," + subDivisionsII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
-												}
-													
-											}
-
-										}
-										else
-										{
-											if (country == "US"&&countryII == "CA"&&subDivisions == subDivisionsII)
-											{
-												country = "CA";
-											}
-											else
-											{
-												callback.AddMessage("IC," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) + "," + to_string(DEM_alt) + "," + country + "," + subDivisions + "," + countryII + "," + subDivisionsII + "," + to_string(Round(d / 1000, 1)) + "," + exclude);
-											}
-
-										}
-									}
-								}
-
-
-
-								string vars_str;
-								if ((*it)["SENSOR_VARIABLES"].is_object())
-								{
-									auto vars = (*it)["SENSOR_VARIABLES"].object_items();
-
-									for (auto it_vars = vars.begin(); it_vars != vars.end() && msg; it_vars++)
-									{
-										if (!vars_str.empty())
-											vars_str += "|";
-
-										vars_str += it_vars->first;
-									}
-								}
-								//if the station is still active or seem to be still active, we don't set end date 
-								if (status == "ACTIVE" || TRef.GetYear() >= current.GetYear() - 1)
-									end.clear();
-
-
-								if (!DEM_alt_str.empty())
-								{
-									if (DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 350)
-									{
-										location.m_name += " (suspicious elev)";
-										//location.m_alt = DEM_alt;
-									}
-								}
-
-
-								if (network.empty() && networks.find(networkID) != networks.end())
-									network = networks.at(networkID)[NETWORK_SHORT_NAME];
-
-							
-								string time_zone_Z;
-								__int64 time_zone_shift = CTimeZones::GetTimeZone(location);
-								if (time_zone_shift == NOT_INIT)
-								{
-									time_zone_shift = __int64(location.m_lon / 15 * 3600);
-								}
-
-								double tmp = time_zone_shift / 3600.0f;
-								int HH = int(tmp);
-								int MM = int((tmp - HH) * 60);
-								time_zone_Z = FormatA("%+03d%02d", HH, MM);
-
-
-
-								location.SetSSI("ELEV_DEM", DEM_alt_str);
-								location.SetSSI("Status", status);
-								location.SetSSI("Country", country);
-								location.SetSSI("SubDivision", subDivisions);
-								location.SetSSI("Network", network);
-								location.SetSSI("NetworkID", networkID);
-								location.SetSSI("TimeZoneName", time_zone);
-								location.SetSSI("TimeZone", time_zone_Z);
-								location.SetSSI("Variables", vars_str);
-								location.SetSSI("Excluded", exclude);
-								location.SetSSI("Start", start);
-								location.SetSSI("End", end);
-								location.SetSSI("ElevFromSRTM", location.m_alt==-999?"1":"0");
-								
-
-								
-
-
-								stationList.push_back(location);
-
-								msg += callback.StepIt();
-							}//for all stations
-
-							callback.PopTask();
-						}//if error
-						else
-						{
-							msg.ajoute(error);
-						}
-					}//if msg
-				}//if msg
-
-				bContinue = false;
-			}
-			catch (CException* e)
-			{
-				if (nbTry < 5)
-				{
-					callback.AddMessage(UtilWin::SYGetMessage(*e));
-					msg += WaitServer(10, callback);
-				}
-				else
-				{
-					msg = UtilWin::SYGetMessage(*e);
-				}
-			}
-
-			pConnection->Close();
-			pSession->Close();
-		}
-		//}
-
-		ASSERT(stationList.IsValid());
-		//compute missing elevation
-		//if missing elevation, extract elevation at 30 meters
-		if (!stationList.IsValid(false))
-			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
-
-		//if still missing elevation, extract elevation at 90 meters
-		if (!stationList.IsValid(false))
-			stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM90M, COpenTopoDataElevation::I_BILINEAR, callback);
-
-		if (!stationList.IsValid(false))
-		{
-			size_t nb_erase = stationList.size();
-			for (CLocationVector::iterator it = stationList.begin(); it != stationList.end(); )
-			{
-				//if (it->m_elev == -999)
-				if(!it->IsValid(false))
-				{
-					callback.AddMessage("WARNING: bad coordinate :" + it->m_name + "("+it->m_ID+"), " + "lat="+to_string(it->m_lat) +", lon=" + to_string(it->m_lon) + ", elev="+ to_string(it->m_alt), 2);
-					it = stationList.erase(it);
-				}
-				else
-				{
-					it++;
-				}
-			}
-
-			//nb_erase -= stationList.size();
-			//callback.AddMessage("WARNING: unable to fill " + to_string(nb_erase) + " locations elevation", 2);
-		}
-
-
-		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
+		DWORD exit_code;
+		msg = WinExecWait(command, "", SW_HIDE, &exit_code);
 		callback.PopTask();
+
+
+
+		if (exit_code == 0 && FileExists(json_filepath))
+		{
+			string csv_filepath = workingDir + "MesoWest-stations.csv";
+			msg = convert_json_to_csv(json_filepath, csv_filepath, callback);
+		}
 
 		return msg;
 	}
 
+	ERMsg CUIMesoWest::convert_json_to_csv(const std::string& jsonFilePath, const std::string& csvFilePath, CCallback& callback)const
+	{
+		ERMsg msg;
 
-	double CUIMesoWest::GetCountryState(CShapeFileBase& shapefile, double lat, double lon, const std::string& countryI, const std::string& stateI, std::string& countryII, std::string& stateII)
+		NetworkMap networks;
+		msg = UpdateNetwork(networks, callback);
+		if (!msg)
+			return msg;
+
+
+		string workingDir = GetDir(WORKING_DIR);
+
+
+		string path = GetPath(jsonFilePath);
+		std::string correction_file_path = path + "MesoWest-corrections.csv";
+		CLocationVector correction;
+		correction.Load(correction_file_path);
+
+
+		CLocationVector old_locations;
+		old_locations.Load(csvFilePath);
+
+		std::string invalid_coord_file_path = path + "MesoWest-invalid-stations.csv";
+		CLocationVector old_invalid_Stations;
+		old_invalid_Stations.Load(invalid_coord_file_path);
+
+		ofStream invalid;
+		msg += invalid.open(invalid_coord_file_path);
+
+		CRegistry registry;
+		std::string GADM_file_path = registry.GetString(CRegistry::GetGeoRegistryKey(L_WORLD_GADM));
+
+		CShapeFileBase shapefile;
+		bool bGADM = shapefile.Read(GADM_file_path);
+		if (!bGADM)
+			callback.AddMessage("WARNING: unable to load correctly GADM file: " + GADM_file_path);
+
+
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
+
+		ifStream file;
+		file.imbue(utf8_locale);
+		msg += file.open(jsonFilePath);
+		if (msg)
+		{
+			string source = file.GetText();
+			file.close();
+
+			//parse station list
+			string error;
+			const Json& root = Json::parse(source, error);
+			if (error.empty())
+			{
+				CLocationVector locations;
+				locations.reserve(70000);
+
+				ASSERT(root["STATION"].type() == Json::ARRAY);
+				const std::vector<Json>& stations = root["STATION"].array_items();
+
+				callback.PushTask(GetString(IDS_LOAD_STATION_LIST) + " (MesoWest)", stations.size());
+				invalid << "ID,Name,Latitude,Longitude,Elevation,Country1,SubDivision1,Country2,SubDivision2,Distance(km),Comment" << endl;
+
+
+				for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+				{
+					CLocation location = LocationFromJson(it);
+					//make a manual correction if any
+					size_t corr_pos = correction.FindByID(location.m_ID);
+					bool bManualCorrection = corr_pos != NOT_INIT;
+					if (bManualCorrection)
+					{
+						location = correction[corr_pos];
+					}
+
+					bool bExclude = location.GetSSI("Excluded") == "1";
+					if (!bExclude)
+					{
+						if (location.IsValid(true))
+						{
+							size_t invalid_pos = old_invalid_Stations.FindByID(location.m_ID);
+							bool bInvalid = invalid_pos != NOT_INIT;
+							bool bNeedExtration = true;
+
+
+							//find the old station information if any
+							size_t oldPos = old_locations.FindByID(location.m_ID);
+							if (!bInvalid && !bManualCorrection && oldPos != NOT_INIT)
+							{
+								bool bDiffLat = fabs(location.m_lat - old_locations[oldPos].m_lat) > 0.001;
+								bool bDiffLon = fabs(location.m_lon - old_locations[oldPos].m_lon) > 0.001;
+								bool bDiffAlt = old_locations[oldPos].m_alt == -999 || (location.m_alt != -999 && fabs(location.m_alt - old_locations[oldPos].m_alt) > 1);
+								bNeedExtration = bDiffLat || bDiffLon || bDiffAlt;
+
+								if (!bNeedExtration)
+									location = old_locations[oldPos];
+							}
+
+
+							if (bNeedExtration && bGADM)
+							{
+								string country = location.GetSSI("Country");
+								string subDivision = location.GetSSI("SubDivision");
+								string countryII = "--";
+								string subDivisionII = "--";
+								double d = GetCountrySubDivision(shapefile, location.m_lat, location.m_lon, country, subDivision, countryII, subDivisionII);
+
+								//if (country.empty() && d == 0)
+								if (countryII == "--")
+								{
+									invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "UnknownCountry" << endl;
+									country = "UNK";//Unknown
+								}
+								else
+								{
+									if (!country.empty() && country != countryII && d > 20000)
+									{
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+									}
+
+									country = countryII;
+
+									if (!subDivision.empty() && subDivisionII != "--" && subDivisionII != subDivision && d > 20000)
+									{
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchSubDivision" << endl;
+									}
+
+									subDivision = subDivisionII;
+								}
+
+
+								if (location.GetSSI("Network").empty() && networks.find(location.GetSSI("networkID")) != networks.end())
+									location.SetSSI("Network", networks.at(location.GetSSI("networkID"))[NETWORK_SHORT_NAME]);
+
+
+								location.SetSSI("Country", country);
+								location.SetSSI("SubDivision", subDivision);
+								location.SetSSI("d", to_string(Round(d / 1000, 1)));
+								location.SetSSI("ElevType", (location.m_alt == -999) ? "SRTM" : "MESO");
+							}
+
+							locations.push_back(location);
+
+						}
+						else//invalid lat/lon
+						{
+							//callback.AddMessage("BadLocation," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) );
+							string country = location.GetSSI("Country");
+							string subDivision = location.GetSSI("SubDivision");
+							//<< "," << (bExclude ? "1" : "0") 
+							invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) + "," << country << "," << subDivision << "," << "," << "," << "," << "BadLocation" << endl;
+						}
+					}
+
+					msg += callback.StepIt();
+				}//for all stations
+
+				if (bGADM)
+					shapefile.Close();
+
+				invalid.close();
+				file.close();
+
+
+				callback.AddMessage("Number of stations: " + to_string(locations.size()));
+				callback.PopTask();
+
+				if (msg)
+				{
+					//extraxt missing elevations
+					ASSERT(locations.IsValid(true));
+					//if missing elevation, extract elevation at 30 meters: not support < -60� and > 60�
+					if (!locations.IsValid(false))
+						msg = locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+					//if still missing elevation, extract elevation at 30 meters ASTER
+					if (msg && !locations.IsValid(false))
+						msg = locations.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_ASTER30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+					if (/*msg && */!locations.IsValid(false))
+					{
+						for (CLocationVector::iterator it = locations.begin(); it != locations.end(); )
+						{
+							if (!it->IsValid(false))
+							{
+								callback.AddMessage("WARNING: invalid coordinate :" + it->m_name + "(" + it->m_ID + "), " + "lat=" + to_string(it->m_lat) + ", lon=" + to_string(it->m_lon) + ", elev=" + to_string(it->m_alt), 2);
+								it = locations.erase(it);
+							}
+							else
+							{
+								it++;
+							}
+						}
+					}
+
+					//save event if extract to fail
+
+					msg += locations.Save(csvFilePath);
+
+					set<string> unknow_country;
+					for (CLocationVector::iterator it = locations.begin(); it != locations.end(); it++)
+					{
+						size_t country = CCountrySelectionGADM::GetCountry(it->GetSSI("Country"));
+
+						if (country == -1)
+							unknow_country.insert(it->GetSSI("Country"));
+					}
+
+					for (auto it = unknow_country.begin(); it != unknow_country.end(); it++)
+					{
+						size_t c = CCountrySelectionGADM::GetCountry(*it);
+						string name = c != NOT_INIT ? CCountrySelectionGADM::GetName(c, 1) : "";
+						callback.AddMessage("WARNING: unknown country: " + *it + "," + name);
+					}
+				}
+			}//if error
+			else
+			{
+				msg.ajoute(error);
+			}
+		}//if msg
+
+		return msg;
+	}
+
+	CLocation CUIMesoWest::LocationFromJson(const Json::array::const_iterator& it)const
+	{
+
+		CLocation location;
+
+		location.m_name = PurgeName((*it)["NAME"].string_value());
+		location.m_ID = (*it)["STID"].string_value();
+		if (!(*it)["LATITUDE"].is_null())
+			location.m_lat = WBSF::as<double>((*it)["LATITUDE"].string_value());
+		if (!(*it)["LONGITUDE"].is_null())
+			location.m_lon = WBSF::as<double>((*it)["LONGITUDE"].string_value());
+		if (!(*it)["ELEVATION"].is_null())
+			location.m_alt = WBSF::Feet2Meter(WBSF::as<double>((*it)["ELEVATION"].string_value()));
+
+		if (location.m_lat == 0 && location.m_lon == 0)
+			location.m_lat = location.m_lon = -999;
+
+
+		//remove ID from the name
+		string ID = location.m_ID;
+		ID.insert(1, 1, 'w');
+		ReplaceString(location.m_name, ID, "");
+		Trim(location.m_name);
+
+		string country = (*it)["COUNTRY"].string_value();
+		string subDivisions = (*it)["STATE"].string_value();
+		string time_zone = (*it)["TIMEZONE"].string_value();
+		string id = (*it)["ID"].string_value();
+		string status = (*it)["STATUS"].string_value();
+		string network = (*it)["SHORTNAME"].string_value();
+		string networkID = (*it)["MNET_ID"].string_value();
+		string start = (*it)["PERIOD_OF_RECORD"]["start"].string_value();
+		string end = (*it)["PERIOD_OF_RECORD"]["end"].string_value();
+		CTRef TRef = !end.empty() ? GetTRef(end) : CTRef();
+		string str = (*it)["SENSOR_VARIABLES"].string_value();
+
+		country = CCountrySelection::GHCN_to_GADM(country);
+		size_t c_ID = CCountrySelectionGADM::GetCountry(country, 2);//by ID2
+		if (c_ID != NOT_INIT)
+			country = CCountrySelectionGADM::m_default_list[c_ID][0];
+
+
+		if (country.empty())
+		{
+			if (CProvinceSelection::GetProvince(subDivisions) != UNKNOWN_POS)
+				country = "CAN";
+			else if (CStateSelection::GetState(subDivisions) != UNKNOWN_POS)
+				country = "USA";
+			//else
+				//country = "UNK";//Unknown
+		}
+
+		if (country == "CAN")
+		{
+			if (subDivisions == "NF")
+				subDivisions = "NL";
+			else if (subDivisions == "YK")
+				subDivisions = "YT";
+			else if (subDivisions == "BC`")
+				subDivisions = "BC";
+			else if (subDivisions == "PQ")
+				subDivisions = "QC";
+		}
+
+		string vars_str;
+		if ((*it)["SENSOR_VARIABLES"].is_object())
+		{
+			auto vars = (*it)["SENSOR_VARIABLES"].object_items();
+
+			for (auto it_vars = vars.begin(); it_vars != vars.end(); it_vars++)
+			{
+				if (!vars_str.empty())
+					vars_str += "|";
+
+				vars_str += it_vars->first;
+			}
+		}
+		//if the station is still active or seem to be still active, we don't set end date 
+		if (status == "ACTIVE" || TRef.GetYear() >= CTRef::GetCurrentTRef().GetYear() - 1)
+			end.clear();
+
+
+		//if (!DEM_alt_str.empty())
+		//{
+		//	if (DEM_alt != -999 && fabs(location.m_alt - DEM_alt) > 350)
+		//	{
+		//		location.m_name += " (suspicious elev)";
+		//		//location.m_alt = DEM_alt;
+		//	}
+		//}
+
+
+		string time_zone_Z;
+		__int64 time_zone_shift = CTimeZones::GetTimeZone(location);
+		if (time_zone_shift == NOT_INIT)
+		{
+			time_zone_shift = __int64(location.m_lon / 15 * 3600);
+		}
+
+		double tmp = time_zone_shift / 3600.0f;
+		int HH = int(tmp);
+		int MM = int((tmp - HH) * 60);
+		time_zone_Z = FormatA("%+03d%02d", HH, MM);
+
+
+
+		//location.SetSSI("ELEV_DEM", DEM_alt_str);
+		location.SetSSI("Status", status);
+		location.SetSSI("Country", country);
+		location.SetSSI("SubDivision", subDivisions);
+		location.SetSSI("Network", network);
+		location.SetSSI("NetworkID", networkID);
+		location.SetSSI("TimeZoneName", time_zone);
+		location.SetSSI("TimeZone", time_zone_Z);
+		location.SetSSI("Variables", vars_str);
+		//location.SetSSI("Excluded", exclude);
+		location.SetSSI("Start", start);
+		location.SetSSI("End", end);
+		//location.SetSSI("ElevType", (location.m_alt == -999) ? "SRTM" : "MESO");
+
+		return location;
+	}
+
+	double CUIMesoWest::GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)
 	{
 		double d = -1;
 		countryII = "--";
-		stateII = "--";
+		subDivisionII.clear();
 
 
 		const CDBF3& DBF = shapefile.GetDBF();
-		int FindexC = DBF.GetFieldIndex("COUNTRY_ID");
-		int FindexS = DBF.GetFieldIndex("STATE_ID");
-		ASSERT(FindexC >= 0 && FindexC < DBF.GetNbField());
-		ASSERT(FindexS >= 0 && FindexS < DBF.GetNbField());
+
+		int FindexH = DBF.GetFieldIndex("HASC_1");
+		ASSERT(FindexH >= 0 && FindexH < DBF.GetNbField());
+		int FindexGID = DBF.GetFieldIndex("GID_0");
+		ASSERT(FindexGID >= 0 && FindexGID < DBF.GetNbField());
 
 		CGeoPoint pt(lon, lat, PRJ_WGS_84);
 		int shapeNo = -1;
 
-
-		if (shapefile.IsInside(pt, &shapeNo))//inside a shape
+		bool bInShape = shapefile.IsInside(pt, &shapeNo);
+		if (bInShape)//inside a shape
 		{
-			countryII = DBF[shapeNo][FindexC].GetElement();
-			stateII = DBF[shapeNo][FindexS].GetElement();
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
 			d = 0;
 		}
 		else
 		{
 			d = shapefile.GetMinimumDistance(pt, &shapeNo);
 			ASSERT(shapeNo >= 0 && shapeNo < DBF.GetNbRecord());
-			
-			if (d < 100000)
-			{
-				countryII = DBF[shapeNo][FindexC].GetElement();
-				stateII = DBF[shapeNo][FindexS].GetElement();
-			}
-		}
-		//
 
-		if (countryII != countryI ||
-			stateII != stateI)
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
+		}
+
+
+		if (countryI.length() == 3)
 		{
-			int pos = -1;
-			for (int i = 0; i < DBF.GetNbRecord() && pos == -1; i++)
+			if (countryII != countryI ||
+				(!subDivisionI.empty() && subDivisionII != subDivisionI))
 			{
-				if (countryI == DBF[i][FindexC].GetElement() &&
-					stateI == DBF[i][FindexS].GetElement())
-					pos = i;
-			}
-			if (pos != -1)
-			{
-				d = shapefile[pos].GetShape().GetMinimumDistance(pt);
-				if (d < 20000)
+
+				double min_d = 1e20;
+				for (int i = 0; i < DBF.GetNbRecord(); i++)
 				{
-					countryII = countryI;
-					stateII = stateI;
+
+					StringVector tmp(DBF[i][FindexH].GetElement(), ".");
+					string country = TrimConst(DBF[i][FindexGID].GetElement());
+
+					string subDivision;
+					if (tmp.size() >= 2)
+						subDivision = TrimConst(tmp[1]);
+
+					if (countryI == country &&
+						(subDivisionI.empty() || subDivisionI == subDivision))
+					{
+						double dd = shapefile[i].GetShape().GetMinimumDistance(pt);
+						if (dd < min_d)
+						{
+							d = dd;
+							min_d = dd;
+							countryII = countryI;
+							subDivisionII = subDivisionI;
+						}
+					}
 				}
 			}
-			
 		}
+
+		if (countryII.length() < 2)
+			countryII = "--";
+
+		if (subDivisionII.length() != 2)
+			subDivisionII.clear();
+
 
 		return d;
 	}
@@ -1816,183 +1721,6 @@ namespace WBSF
 	}
 
 
-	//
-	//Air Temperature at 10 meter		캜	T10M
-	//Temperature						캜	TMPF
-	//Air Temperature at 2 meters		캜	T2M
-	//Temperature						캜	MTMP
-	//24 Hr High Temperature				HI24
-	//24 Hr Low Temperature				LO24
-	//
-	//Precipitation 1hr	 			mm	P01I
-	//Precipitation 1hr manual			P01M
-	//Precipitation 24hr	 			mm	P24I
-	//Precipitation 24hr manual			P24M
-	//Precipitation accumulated			PREC
-	//Precipitation manual	 			PREM
-	//
-	//Dewpoint						캜	DWPF
-	//Dew Point						캜	MDWP
-	//Relative Humidity				%	MRH
-	//Relative Humidity				%	RELH
-	//Wind Speed	 					m/s	MSKT
-	//Wind Speed	 					m/s	SKNT
-	//Wind Direction					�	DRCT
-	//Wind Direction					�	MDIR
-	//Peak Wind Direction				�	PDIR
-	//Peak Wind Speed	 				m/s PEAK
-	//
-	//Clear Sky Solar Radiation			CSLR
-	//Incoming Longwave Radiation			INLW
-	//Net Longwave Radiation			W/m� NETL
-	//Net Radiation					W/m� NETR
-	//Net Shortwave Radiation			W / m� NETS
-	//Outgoing Longwave Radiation			OUTL
-	//Outgoing Shortwave Radiatio			OUTS
-	//Solar Radiation					W/m� SOLR
-	//
-	//Altimeter	 	 mb					ALTI
-	//Pressure	 	 mb				MPRS
-	//Sea level pressure	 	 mb			PMSL
-	//Pressure	 	 mb					PRES
-	//
-	//Snow manual	 	 cm					SNOM
-
-	//Snowfall	 	 cm					SSTM
-
-	//Snow depth	 	 cm				SNOW
-	//Snow water equivalent	 			WEQS
-	//
-	//Soil Moisture  %					MSO2
-	//Soil Moisture	%				MSOI
-	//Visibility	 km				VSBY
-
-
-	//ERMsg CUIMesoWest::ExecuteDroman(CLocationVector& stationList, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	int firstYear = as<int>(FIRST_YEAR);
-	//	int lastYear = as<int>(LAST_YEAR);
-	//	size_t nbYears = lastYear - firstYear + 1;
-	//	CTRef current = CTRef::GetCurrentTRef(CTM::HOURLY);
-
-	//	size_t nbDownload = 0;
-	//	size_t nbM = (lastYear < current.GetYear()) ? nbYears * 12 : (nbYears - 1) * 12 + current.GetMonth() + 1;
-	//	callback.PushTask("Download MesoWest stations data (" + ToString(stationList.size()) + " stations)", stationList.size()*nbM);
-	//	callback.AddMessage("Number of MesoWest files to download: " + ToString(stationList.size()*nbM));
-
-	//	size_t nbTry = 0;
-	//	size_t cur_i = 0;
-
-	//	while (cur_i < stationList.size() && msg)
-	//	{
-	//		nbTry++;
-
-	//		CInternetSessionPtr pSession;
-	//		CHttpConnectionPtr pConnection;
-	//		msg += GetHttpConnection(SERVER_NAME[DROMAN], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-	//		if (msg)
-	//		{
-	//			pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);
-
-	//			try
-	//			{
-	//				while (cur_i < stationList.size() && msg)
-	//				{
-	//					string start = stationList[cur_i].GetSSI("Start");
-	//					string end = stationList[cur_i].GetSSI("End");
-	//					ASSERT(!start.empty());
-
-
-	//					CTRef startTRef = GetTRef(start);
-	//					CTRef endTRef = !end.empty() ? GetTRef(end) : current;
-
-	//					CTPeriod activePeriod(startTRef, endTRef);
-	//					activePeriod.Transform(CTM::MONTHLY);
-
-	//					for (size_t y = 0; y < nbYears&&msg; y++)
-	//					{
-	//						int year = firstYear + int(y);
-
-	//						if (year < current.GetYear() || stationList[cur_i].GetSSI("Status") == "ACTIVE")
-	//						{
-	//							size_t nbMonths = (year < current.GetYear()) ? 12 : current.GetMonth() + 1;
-	//							for (size_t m = 0; m < nbMonths&&msg; m++)
-	//							{
-	//								if (activePeriod.IsInside(CTRef(year, m)))
-	//								{
-	//									//https://www.wrh.noaa.gov/mesowest/timeseries.php?sid=D5096&num=72&banner=NONE&units=METRIC
-	//									//https://www.wrh.noaa.gov/mesowest/getobextXml.php?sid=AP244&num=168&&units=METRIC
-	//									//output=csv&product=&stn=D6126&unit=1&day1=17&month1=12&year1=2019&time=LOCAL&hour1=13&hours=365&daycalendar=0&yearcal=2019&monthcal=12
-	//									static const char* URL_FORMAT = "cgi-bin/droman/download_api2_handler.cgi?output=csv&product=&stn=%s&unit=1&daycalendar=0&day1=%02d&month1=%02d&year1=%4d&time=LOCAL&hour1=01&hours=24&yearcal=%4d&monthcal=%02d";
-	//									string URL = FormatA(URL_FORMAT, stationList[cur_i].m_ID.c_str(), year, m + 1, year, m + 1, GetNbDayPerMonth(year, m));
-	//									string ouputFilePath = GetOutputFilePath(DROMAN, stationList[cur_i].GetSSI("Country"), stationList[cur_i].GetSSI("State"), stationList[cur_i].m_ID, year, m);
-	//									CreateMultipleDir(GetPath(ouputFilePath));
-
-	//									CFileInfo info = GetFileInfo(ouputFilePath);
-	//									CTimeRef TRef1(info.m_time);
-	//									if (info.m_size == 0 || TRef1 - CTRef(year, m, LAST_DAY) < 5)
-	//									{
-	//										msg += CopyFile(pConnection, URL, ouputFilePath);
-	//										if (msg)
-	//										{
-	//											if (WBSF::GetFileInfo(ouputFilePath).m_size > 1000)
-	//											{
-	//												nbDownload++;
-	//												nbTry = 0;
-	//											}
-	//											else
-	//											{
-	//												ifStream file;
-	//												if (file.open(ouputFilePath))
-	//												{
-	//													string text = file.GetText();
-	//													if (Find(text, "Account usage has exceeded the free tier"))
-	//														msg.ajoute("Account usage has exceeded the free tier");
-	//												}
-	//											}
-	//										}
-	//									}
-	//								}
-
-	//								msg += callback.StepIt();
-	//							}//for all months
-	//						}//active station only for current year
-	//					}//for all years
-
-	//					cur_i++;
-	//				}//for all stations
-
-	//			}
-	//			catch (CException* e)
-	//			{
-	//				if (nbTry < 5)
-	//				{
-	//					callback.AddMessage(UtilWin::SYGetMessage(*e));
-	//					msg += WaitServer(10, callback);
-	//				}
-	//				else
-	//				{
-	//					msg = UtilWin::SYGetMessage(*e);
-	//				}
-	//			}
-
-	//			pConnection->Close();
-	//			pSession->Close();
-
-	//		}
-	//	}
-
-	//	callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload));
-	//	callback.PopTask();
-
-
-	//	return msg;
-	//}
-
-
 
 	CTPeriod CUIMesoWest::GetActualState(const string& filePath/*, double& last_hms*/)
 	{
@@ -2010,165 +1738,80 @@ namespace WBSF
 			StringVector columns1(firstLine, ",");
 			if (columns1.size() >= 4)
 			{
-				//StringVector dateTime1(columns1[0], " -:");
-				//if (dateTime1.size() == 6)
+				int year = atoi(columns1[0].c_str());
+				size_t m = atoi(columns1[1].c_str()) - 1;
+				size_t d = atoi(columns1[2].c_str()) - 1;
+				size_t h = atoi(columns1[3].c_str());
+
+				ASSERT(year >= 2000 && year <= 2100);
+				ASSERT(m >= 0 && m < 12);
+				ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+				ASSERT(h >= 0 && h < 24);
+				//ASSERT(mm >= 0 && mm < 60);
+				//ASSERT(ss >= 0 && ss < 60);
+
+				CTRef TRef1 = CTRef(year, m, d, h);
+				if (TRef1.IsValid())
 				{
-					int year = atoi(columns1[0].c_str());
-					size_t m = atoi(columns1[1].c_str()) - 1;
-					size_t d = atoi(columns1[2].c_str()) - 1;
-					size_t h = atoi(columns1[3].c_str());
-					//size_t mm = atoi(dateTime1[4].c_str());
-					//size_t ss = atoi(dateTime1[5].c_str());
+					file.seekg(-1, ios_base::end);                // go to one spot before the EOF
 
-					ASSERT(year >= 2000 && year <= 2100);
-					ASSERT(m >= 0 && m < 12);
-					ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-					ASSERT(h >= 0 && h < 24);
-					//ASSERT(mm >= 0 && mm < 60);
-					//ASSERT(ss >= 0 && ss < 60);
-
-					CTRef TRef1 = CTRef(year, m, d, h);
-					if (TRef1.IsValid())
+					bool keepLooping = true;
+					bool bSkipFirst = true;
+					while (keepLooping)
 					{
-						file.seekg(-1, ios_base::end);                // go to one spot before the EOF
+						char ch;
+						file.get(ch);                            // Get current byte's data
 
-						bool keepLooping = true;
-						bool bSkipFirst = true;
-						while (keepLooping)
-						{
-							char ch;
-							file.get(ch);                            // Get current byte's data
-
-							if ((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
-								file.seekg(0);                       // The first line is the last line
-								keepLooping = false;                // So stop there
-							}
-							else if (ch == '\n') {                   // If the data was a newline
-								if (bSkipFirst)
-								{
-									bSkipFirst = false;
-									file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
-								}
-								else
-								{
-									keepLooping = false;                // Stop at the current position.
-								}
-							}
-							else {                                  // If the data was neither a newline nor at the 0 byte
+						if ((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
+							file.seekg(0);                       // The first line is the last line
+							keepLooping = false;                // So stop there
+						}
+						else if (ch == '\n') {                   // If the data was a newline
+							if (bSkipFirst)
+							{
+								bSkipFirst = false;
 								file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
 							}
-						}
-
-						string lastLine;
-						getline(file, lastLine);                      // Read the current line
-
-						StringVector columns2(lastLine, ",");
-						if (columns2.size() >= 4)
-						{
-							//StringVector dateTime2(columns2[0], " -:");
-							//if (dateTime2.size() == 6)
+							else
 							{
-								int year = atoi(columns2[0].c_str());
-								size_t m = atoi(columns2[1].c_str()) - 1;
-								size_t d = atoi(columns2[2].c_str()) - 1;
-								size_t h = atoi(columns2[3].c_str());
-								//size_t mm = atoi(dateTime2[4].c_str());
-								//size_t ss = atoi(dateTime2[5].c_str());
-
-								ASSERT(year >= 2000 && year <= 2100);
-								ASSERT(m >= 0 && m < 12);
-								ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-								ASSERT(h >= 0 && h < 24);
-								//ASSERT(mm >= 0 && mm < 60);
-								//ASSERT(ss >= 0 && ss < 60);
-
-								CTRef TRef2 = CTRef(year, m, d, h);
-								if (TRef2.IsValid())
-								{
-									p = CTPeriod(TRef1, TRef2);
-									//	last_hms = h + mm / 60.0 + ss / 3600.0;
-								}
+								keepLooping = false;                // Stop at the current position.
 							}
 						}
+						else {                                  // If the data was neither a newline nor at the 0 byte
+							file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+						}
 					}
-				}
-			}
+
+					string lastLine;
+					getline(file, lastLine);                      // Read the current line
+
+					StringVector columns2(lastLine, ",");
+					if (columns2.size() >= 4)
+					{
+						int year = atoi(columns2[0].c_str());
+						size_t m = atoi(columns2[1].c_str()) - 1;
+						size_t d = atoi(columns2[2].c_str()) - 1;
+						size_t h = atoi(columns2[3].c_str());
+
+						ASSERT(year >= 2000 && year <= 2100);
+						ASSERT(m >= 0 && m < 12);
+						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
+						ASSERT(h >= 0 && h < 24);
+
+						CTRef TRef2 = CTRef(year, m, d, h);
+						if (TRef2.IsValid())
+						{
+							p = CTPeriod(TRef1, TRef2);
+						}//TRef2 valid
+					}//column2 >=4
+				}//TRef1 valid
+			}//column1 >=4
 
 			file.close();
 		}
 
 		return p;
 	}
-
-	//void CUIMesoWest::clean_source(double last_hms, std::string& source)
-	//{
-	//	if (last_hms < 24)
-	//	{
-	//		//remove all line until hms
-	//		size_t pos1 = source.find('\n');
-	//		//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
-	//		while (pos1 != string::npos)
-	//		{
-	//			size_t pos2 = source.find('\n', pos1 + 1);
-	//			if (pos2 != string::npos)
-	//			{
-	//				string line = source.substr(pos1 + 1, pos2 - pos1 - 1);
-	//				StringVector columns(line, ",");
-	//				if (!columns.empty())
-	//				{
-	//					StringVector dateTime(columns[0], " -:");
-	//					if (dateTime.size() == 6)
-	//					{
-	//						int year = atoi(dateTime[0].c_str());
-	//						size_t m = atoi(dateTime[1].c_str()) - 1;
-	//						size_t d = atoi(dateTime[2].c_str()) - 1;
-	//						size_t h = atoi(dateTime[3].c_str());
-	//						size_t mm = atoi(dateTime[4].c_str());
-	//						size_t ss = atoi(dateTime[5].c_str());
-
-	//						ASSERT(year >= 2000 && year <= 2100);
-	//						ASSERT(m >= 0 && m < 12);
-	//						ASSERT(d >= 0 && d < GetNbDayPerMonth(year, m));
-	//						ASSERT(h >= 0 && h < 24);
-	//						ASSERT(mm >= 0 && mm < 60);
-	//						ASSERT(ss >= 0 && ss < 60);
-
-	//						//CTRef TRef = CTRef(year, m, d);
-	//						//if ( TRef == lastDay)
-	//						//{
-	//						double hms = h + mm / 60.0 + ss / 3600.0;
-
-	//						if (hms > last_hms)
-	//						{
-	//							source = source.substr(pos1 + 1);
-	//							pos2 = string::npos;//stop here
-	//						}
-	//						//}
-	//					}
-	//				}
-	//			}
-	//			else
-	//			{
-	//				//no update
-	//				source.clear();
-	//			}
-
-	//			pos1 = pos2;
-	//		}//while pos1
-	//	}
-	//	else
-	//	{
-	//		size_t pos1 = source.find('\n');
-	//		//size_t pos2 = (pos1 != string::npos)?source.find('\n', pos1 + 1): string::npos;
-	//		if (pos1 != string::npos)//only header, clear source
-	//			source = source.substr(pos1 + 1);
-	//		//else
-	//			//source.clear();
-
-	//	}
-
-
-	//}
 
 	ERMsg CUIMesoWest::MergeData(const string& country, const string& state, const string& ID, const std::string& source, size_t& SUs, CCallback& callback)
 	{
@@ -2179,9 +1822,6 @@ namespace WBSF
 		size_t pos_station = m_stations.FindByID(ID);
 		ASSERT(pos_station != NOT_INIT);
 
-
-		//string country = m_stations[pos].GetSSI("Country");
-		//string state = m_stations[pos].GetSSI("State");
 		string time_zone = m_stations[pos_station].GetSSI("TimeZone");
 		ASSERT(time_zone.length() == 5);
 		int time_shift = ToInt(time_zone.substr(0, 3));

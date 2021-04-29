@@ -375,6 +375,17 @@ namespace WBSF
 
 					if (station.HaveData())
 					{
+						string provider = station.GetSSI("Provider");
+						string network = station.GetSSI("Network");
+						string country = station.GetSSI("Country");
+						string subDivisions = station.GetSSI("SubDivision");
+						station.m_siteSpeceficInformation.clear();
+						station.SetSSI("Provider", provider);
+						station.SetSSI("Network", network);
+						station.SetSSI("Country", country);
+						station.SetSSI("SubDivision", subDivisions);
+
+
 						ASSERT(!station.m_name.empty());
 						string newName = DB.GetUniqueName(station.m_ID, station.m_name);
 						if (newName != station.m_name)

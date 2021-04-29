@@ -233,28 +233,21 @@ namespace WBSF
 								string subDivisionII = "--";
 								double d = GetCountrySubDivision(shapefile, location.m_lat, location.m_lon, country, subDivision, countryII, subDivisionII);
 
-								//if (country.empty() && d == 0)
 								if (countryII == "--")
 								{
-									//<< (bExclude ? "1" : "0") << "," 
 									invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "UnknownCountry" << endl;
-									country = "UN";//Unknown
+									country = "UNK";//Unknown
 								}
 								else
 								{
-									if (country != countryII && d > 20000)
-									{
-										if (location.m_name.find("Buoy") == string::npos && location.m_name.find("Platform") == string::npos)
+									if (!country.empty() && country != countryII && d > 20000)
+										//if (location.m_name.find("Buoy") == string::npos && location.m_name.find("Platform") == string::npos)
 											invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
-									}
 
 									country = countryII;
 
 									if (!subDivision.empty() && subDivisionII != "--" && subDivisionII != subDivision && d > 20000)
-									{
-										//<< "," << (bExclude ? "1" : "0") 
 										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchSubDivision" << endl;
-									}
 
 									subDivision = subDivisionII;
 								}
@@ -958,12 +951,13 @@ namespace WBSF
 
 
 
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
-		station.m_siteSpeceficInformation.clear();
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", "NOAA");
 		station.SetSSI("Network", "ISDLite");
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
 
 		if (msg && station.HaveData())
 			msg = station.IsValid();

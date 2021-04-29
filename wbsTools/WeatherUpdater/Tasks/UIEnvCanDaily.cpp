@@ -874,11 +874,12 @@ namespace WBSF
 
 		station.CompleteSnow();
 
-		string Province = station.GetSSI("Province");
-		station.m_siteSpeceficInformation.clear();
-		station.SetSSI("Network", "EnvironmentCanada");
+		//string Province = station.GetSSI("Province");
+		//station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", "EnvCan");
+		station.SetSSI("Network", "EnvCan");
 		station.SetSSI("Country", "CAN");
-		station.SetSSI("SubDivision", Province);
+		station.SetSSI("SubDivision", station.GetSSI("Province"));
 
 
 		//verify station is valid

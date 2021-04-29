@@ -485,12 +485,13 @@ namespace WBSF
 		}
 
 		//clear all SSI
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
-		station.m_siteSpeceficInformation.clear();
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", "NOAA");
 		station.SetSSI("Network", "GSOD");
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
 
 		//verify station is valid
 		if (msg && station.HaveData())

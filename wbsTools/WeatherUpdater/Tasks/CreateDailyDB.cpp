@@ -178,12 +178,23 @@ namespace WBSF
 
 				if (messageTmp)
 				{
+					//clean-up all SSI values
+					string provider = station.GetSSI("Provider");
+					string network = station.GetSSI("Network");
+					string country = station.GetSSI("Country");
+					string subDivisions = station.GetSSI("SubDivision");
+					station.m_siteSpeceficInformation.clear();
+					station.SetSSI("Provider", provider);
+					station.SetSSI("Network", network);
+					station.SetSSI("Country", country);
+					station.SetSSI("SubDivision", subDivisions);
+
+
 					if (station.IsHourly())
 					{
 						//transform hourly data to daily data
 						station.GetStat(H_TAIR);//compute daily stat
 						station.SetHourly(false);//remove hourly values
-						//station.GetStat(H_TAIR);//compute stat again
 					}
 
 					CleanSparse(station);

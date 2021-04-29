@@ -263,28 +263,20 @@ namespace WBSF
 								string subDivisionII = "--";
 								double d = GetCountrySubDivision(shapefile, location.m_lat, location.m_lon, country, subDivision, countryII, subDivisionII);
 
-								//if (country.empty() && d == 0)
 								if (countryII == "--")
 								{
-									//<< (bExclude ? "1" : "0") << "," 
 									invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "UnknownCountry" << endl;
-									country = "UN";//Unknown
+									country = "UNK";//Unknown
 								}
 								else
 								{
-									if (country != countryII && d > 20000)
-									{
-										//"," << (bExclude ? "1" : "0") << 
+									if (!country.empty() && country != countryII && d > 20000)
 										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
-									}
 
 									country = countryII;
 
 									if (!subDivision.empty() && subDivisionII != "--" && subDivisionII != subDivision && d > 20000)
-									{
-										//<< "," << (bExclude ? "1" : "0") 
 										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchSubDivision" << endl;
-									}
 
 									subDivision = subDivisionII;
 								}
@@ -617,10 +609,6 @@ namespace WBSF
 		string workingDir = GetDir(WORKING_DIR);
 		CreateMultipleDir(workingDir);
 
-		//string tarFilePath = workingDir + "ghcnd_all.tar";
-		//string gzFilePath = tarFilePath + ".gz";
-		//string InputFilePath = string(SERVER_PATH) + "ghcnd_all.tar.gz";
-
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir, 1);
 		callback.AddMessage(GetString(IDS_UPDATE_FROM));
@@ -699,22 +687,6 @@ namespace WBSF
 		return GetDir(WORKING_DIR) + "by_year\\" + fileName;
 	}
 
-	/*bool CUIGHCND::IsFileInclude(const string& ID)const
-	{
-		bool bRep = false;
-
-		CLocationMap::const_iterator it = m_stations.find(ID);
-		if (it != m_stations.end())
-		{
-			CLocation location;
-			GetStationInformation(fileTitle, location);
-
-			bRep = IsStationInclude(it->>m_ID);
-		}
-
-		return bRep;
-	}*/
-
 	bool CUIGHCND::IsStationInclude(const string& ID)const
 	{
 		bool bRep = false;
@@ -746,32 +718,6 @@ namespace WBSF
 
 		return bRep;
 	}
-
-	//ERMsg CUIGHCND::CleanList(StringVector& fileList, CCallback& callback)const
-	//{
-	//	ERMsg msg;
-
-	//	callback.PushTask(GetString(IDS_CLEAN_LIST), fileList.size());
-	//	//callback.SetNbStep(fileList.size());
-
-
-	//	for (StringVector::iterator it = fileList.begin(); it != fileList.end() && msg;)
-	//	{
-	//		string fileTitle = GetFileTitle(*it);
-
-	//		if (!IsFileInclude(fileTitle))
-	//			it = fileList.erase(it);
-	//		else
-	//			it++;
-
-	//		msg += callback.StepIt();
-	//	}
-
-	//	callback.PopTask();
-
-	//	return msg;
-	//}
-
 	ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -801,66 +747,6 @@ namespace WBSF
 		return msg;
 	}
 
-	//ERMsg CUIGHCND::LoadOptimisation()
-	//{
-	//	//load station list in memory for optimization
-	//	ERMsg msg;
-	//	//msg = m_optFile.Load(GetOptFilePath());
-
-	//	
-
-
-
-	//	return msg;
-	//}
-
-/*
-	string CUIGHCND::GetOptFilePath()const
-	{
-
-		string optFilePath(GetStationFilePath(LOCAL_CSV));
-		SetFileExtension(optFilePath, ".GHCNopt");
-
-		return optFilePath;
-	}
-
-
-	bool CUIGHCND::StationExist(const string& fileTitle)const
-	{
-		return m_optFile.KeyExists(fileTitle);
-	}
-
-	void CUIGHCND::GetStationInformation(const string& ID, CLocation& location)const
-	{
-		CLocationOptimisation::const_iterator it = m_optFile.find(ID);
-		ASSERT(it != m_optFile.end());
-
-		if (it != m_optFile.end())
-			location = it->second;
-
-	}
-*/
-//ERMsg CUIGHCND::UpdateOptimisationStationFile(const string& workingDir, CCallback& callback)const
-//{
-//	ERMsg msg;
-
-
-//	string refFilePath = GetStationFilePath(LOCAL_CSV);
-//	string optFilePath = GetOptFilePath();
-
-//	if (CLocationOptimisation::NeedUpdate(refFilePath, optFilePath))
-//	{
-//		CGHCNStationOptimisation optFile;
-//		//if (bUseDEMStation)
-//			//optFile.m_DEMFilePath = GetAbsoluteFilePath(m_DEMFilePath);
-
-//		msg = optFile.Update(refFilePath, callback);
-//		if (msg)
-//			msg = optFile.Save(optFilePath);
-//	}
-
-//	return msg;
-//}
 
 	ERMsg CUIGHCND::PreProcess(CCallback& callback)
 	{
@@ -872,9 +758,6 @@ namespace WBSF
 
 
 		string path = GetDir(WORKING_DIR);
-		//msg = UpdateOptimisationStationFile(path, callback);
-		//if (msg)
-		//{
 		string workingDir = GetDir(WORKING_DIR);
 
 		msg = m_stations.LoadFromCSV(GetStationFilePath(LOCAL_CSV));
@@ -1016,12 +899,13 @@ namespace WBSF
 		}
 
 
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
-		station.m_siteSpeceficInformation.clear();
+		//string country = station.GetSSI("Country");
+		//string subDivisions = station.GetSSI("SubDivision");
+		//station.m_siteSpeceficInformation.clear();
+		station.SetSSI("Provider", "NOAA");
 		station.SetSSI("Network", "GHCND");
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);
+		//station.SetSSI("Country", country);
+		//station.SetSSI("SubDivision", subDivisions);
 
 
 

@@ -894,20 +894,24 @@ namespace WBSF
 
 
 
-	std::string CCountrySelectionGADM::GetAllPossibleValue(bool bAbvr, bool bName)
+	std::string CCountrySelectionGADM::GetAllPossibleValue(bool bAbvr, bool bName, const std::string& ignore_str)
 	{
 		LoadDefault();
 
+		StringVector ignore(ignore_str,"|");
 		string str;
 		for (size_t i = 0; i < m_default_list.size(); i++)
 		{
-			str += i != 0 ? "|" : "";
-			if (bAbvr)
-				str += m_default_list[i].m_abrv;
-			if (bAbvr && bName)
-				str += "=";
-			if (bName)
-				str += m_default_list[i].m_name;
+			if (ignore.Find(m_default_list[i].m_abrv, false) == NOT_INIT)
+			{
+				str += i != 0 ? "|" : "";
+				if (bAbvr)
+					str += m_default_list[i].m_abrv;
+				if (bAbvr && bName)
+					str += "=";
+				if (bName)
+					str += m_default_list[i].m_name;
+			}
 		}
 
 		return str;

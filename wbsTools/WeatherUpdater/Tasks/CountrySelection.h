@@ -150,7 +150,7 @@ namespace WBSF
 		static ERMsg Load(const std::string& file_path);
 
 
-		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true);
+		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true, const std::string& ignore="");
 		static size_t GetCountry(const std::string& in, size_t t = BY_ABVR);//by abr
 
 		CCountrySelectionGADM(const std::string& in = "");
