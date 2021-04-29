@@ -530,8 +530,17 @@ namespace WBSF
 		for (auto it = stations.begin(); it != stations.end(); it++)
 		{
 			it->m_ID = WBSF::MakeLower(it->m_ID);
-			if (m_stations.find(it->m_ID) == m_stations.end())
+			if (m_stations.find(it->m_ID) != m_stations.end())
+			{
+				m_stations[it->m_ID].SetSSI("Network", it->GetSSI("Network"));
+				m_stations[it->m_ID].SetSSI( "Country", it->GetSSI("Country") );
+				m_stations[it->m_ID].SetSSI("SubDivision", it->GetSSI("SubDivision"));
+			}
+			else
+			{
 				m_stations[it->m_ID] = *it;
+			}
+				
 		}
 
 		return msg;
