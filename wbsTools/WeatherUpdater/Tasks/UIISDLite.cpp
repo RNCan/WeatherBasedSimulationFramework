@@ -182,7 +182,7 @@ namespace WBSF
 
 			if (file.length() > 1000)
 			{
-				callback.PushTask("Extract country and administative sub-division", file.length());
+				callback.PushTask("Extract country and administrative sub-division (isd)", file.length());
 				invalid << "ID,Name,Latitude,Longitude,Elevation,Country1,SubDivision1,Country2,SubDivision2,Distance(km),Comment" << endl;
 
 
@@ -240,9 +240,13 @@ namespace WBSF
 								}
 								else
 								{
-									if (!country.empty() && country != countryII && d > 20000)
-										//if (location.m_name.find("Buoy") == string::npos && location.m_name.find("Platform") == string::npos)
-											invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+									bool bBuoy = location.m_name.find("Buoy")!=string::npos || location.m_name.find("Platform") != string::npos;
+
+									if (!country.empty() && country != countryII && d > 20000 && !bBuoy)
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+
+									if (!country.empty() && country == countryII && d > 20000 && !bBuoy)
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "BadCountryID" << endl;
 
 									country = countryII;
 
@@ -386,10 +390,12 @@ namespace WBSF
 			location.m_alt = -999;
 
 
-		string country = CCountrySelection::GHCN_to_GADM(TrimConst(line[C_CTRY]));
-		string subDivisions = CCountrySelection::GHCN_to_GADM(country, TrimConst(line[C_STATE]));
+		string country = CCountrySelectionGADM::NOAA_to_GADM(TrimConst(line[C_CTRY]));
+		string subDivisions = TrimConst(line[C_STATE]);
+		if (country == "CAN"&&subDivisions == "NF")
+			subDivisions = "NL";
 
-		size_t c_ID = CCountrySelectionGADM::GetCountry(country, 2);//by ID2
+		size_t c_ID = CCountrySelectionGADM::GetCountry(country);//by ID
 		if (c_ID != NOT_INIT)
 			country = CCountrySelectionGADM::m_default_list[c_ID][0];
 
@@ -481,8 +487,13 @@ namespace WBSF
 						{
 							d = dd;
 							min_d = dd;
-							countryII = countryI;
-							subDivisionII = subDivisionI;
+							countryII = country;
+							subDivisionII = subDivision;
+							/*if (min_d < 20000)
+							{
+								countryII = countryI;
+								subDivisionII = subDivisionI;
+							}*/
 						}
 					}
 				}

@@ -212,7 +212,7 @@ namespace WBSF
 
 			if (file.length() > 1000)
 			{
-				callback.PushTask("Extract country and administative sub-division", file.length());
+				callback.PushTask("Extract country and administrative sub-division (GHCND)", file.length());
 				invalid << "ID,Name,Latitude,Longitude,Elevation,Country1,SubDivision1,Country2,SubDivision2,Distance(km),Comment" << endl;
 
 
@@ -270,8 +270,13 @@ namespace WBSF
 								}
 								else
 								{
-									if (!country.empty() && country != countryII && d > 20000)
+									bool bBuoy = location.m_name.find("Buoy") != string::npos || location.m_name.find("Platform") != string::npos;
+
+									if (!country.empty() && country != countryII && d > 20000 && !bBuoy)
 										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "MissmatchCountry" << endl;
+
+									if (!country.empty() && country == countryII && d > 20000 && !bBuoy)
+										invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) << "," << country << "," << subDivision << "," << countryII << "," << subDivisionII << "," << to_string(Round(d / 1000, 1)) << "," << "BadCountryID" << endl;
 
 									country = countryII;
 
@@ -293,10 +298,8 @@ namespace WBSF
 						}
 						else//invalid lat/lon
 						{
-							//callback.AddMessage("BadLocation," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) );
 							string country = location.GetSSI("Country");
 							string subDivision = location.GetSSI("SubDivision");
-							//<< "," << (bExclude ? "1" : "0") 
 							invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) + "," << country << "," << subDivision << "," << "," << "," << "," << "BadLocation" << endl;
 						}
 					}
@@ -444,8 +447,13 @@ namespace WBSF
 						{
 							d = dd;
 							min_d = dd;
-							countryII = countryI;
-							subDivisionII = subDivisionI;
+							countryII = country;
+							subDivisionII = subDivision;
+							/*if (min_d < d)
+							{
+								countryII = countryI;
+								subDivisionII = subDivisionI;
+							}*/
 						}
 					}
 				}
@@ -471,10 +479,12 @@ namespace WBSF
 		{
 			string tmp;
 
-			string country = CCountrySelection::GHCN_to_GADM(TrimConst(line.substr(0, 2)));
-			string subDivisions = CCountrySelection::GHCN_to_GADM(country, TrimConst(line.substr(38, 2)));
+			string country = CCountrySelectionGADM::NOAA_to_GADM(TrimConst(line.substr(0, 2)));
+			string subDivisions = TrimConst(line.substr(38, 2));
+			if (country == "CAN"&&subDivisions == "NF")
+				subDivisions = "NL";
 
-			size_t c_ID = CCountrySelectionGADM::GetCountry(country, 2);//by ID2
+			size_t c_ID = CCountrySelectionGADM::GetCountry(country);//by ID
 			if (c_ID != NOT_INIT)
 				country = CCountrySelectionGADM::m_default_list[c_ID][0];
 

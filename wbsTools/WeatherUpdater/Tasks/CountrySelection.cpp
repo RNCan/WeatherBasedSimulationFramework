@@ -402,54 +402,6 @@ namespace WBSF
 		return message;
 	}
 
-	string CCountrySelection::GHCN_to_GADM(string country)
-	{
-		static const map<string, string> COUNTRY_MAP =
-		{
-			{"AY","AQ"},
-			{"CT","TL"},
-			{"CW","CK"},
-			{"DA","DK"},//isd
-			{"EI","IE"},//isd
-			{"FP","PF"},
-			{"FS","TF"},
-			{"HO","HN"},
-			{"IC","IS"},
-			{"JA","JP"},
-			{"KU","KW"},//isd
-			{"RM","MH"},//isd
-			{"SF","ZA"},
-			{"SP","ES"},
-			{"SW","SE"},
-			{"TN","TO"},//isd
-			{"TS","TN"},//isd
-			{"UK","GB"},//isd
-		};
-
-		if (COUNTRY_MAP.find(country) != COUNTRY_MAP.end())
-			country = COUNTRY_MAP.at(country);
-
-		return country;
-	}
-
-	string CCountrySelection::GHCN_to_GADM(string country, string subDivision)
-	{
-
-		static const map<string, string> HASH_MAP =
-		{
-			{"CA.NL","CA.NF"}
-		};
-
-		string hash = country + "." + subDivision;
-		if (HASH_MAP.find(hash) != HASH_MAP.end())
-		{
-			hash = HASH_MAP.at(hash);
-			subDivision = hash.substr(3, 2);
-		}
-
-		return subDivision;
-	}
-
 	//****************************************************************************************************************************************
 	const CCountrySelectionWU::CInfo CCountrySelectionWU::DEFAULT_LIST[NB_COUNTRIES_WU] =
 	{
@@ -849,33 +801,31 @@ namespace WBSF
 
 
 	//****************************************************************************************************************************************
-	std::vector<CCountrySelectionGADM::CInfo> CCountrySelectionGADM::m_default_list;
+	std::vector<std::array<std::string, CCountrySelectionGADM::NB_COLUMNS> > CCountrySelectionGADM::m_default_list;
 
 
-	CCountrySelectionGADM::CCountrySelectionGADM(const std::string& in, const std::string& ignore_str )
+	CCountrySelectionGADM::CCountrySelectionGADM(const std::string& in )
 	{
-		LoadDefault(ignore_str);
+		LoadDefault();
 		
 		resize(m_default_list.size());
 		FromString(in);
 	}
 
-	void CCountrySelectionGADM::LoadDefault(const std::string& ignore_str)
+	void CCountrySelectionGADM::LoadDefault()
 	{
 		if (m_default_list.empty())
-			Load(GetApplicationPath() + "Layers\\countries.csv", ignore_str);
+			Load(GetApplicationPath() + "Layers\\countries.csv");
 
 		ASSERT(!m_default_list.empty());
 	}
 	
 
 
-	ERMsg CCountrySelectionGADM::Load(const string& file_path, const std::string& ignore_str)
+	ERMsg CCountrySelectionGADM::Load(const string& file_path)
 	{
 		ERMsg msg;
 		
-		StringVector ignore(ignore_str, "|");
-
 		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<char>());
 		ifStream file;
 		file.imbue(utf8_locale);
@@ -886,13 +836,12 @@ namespace WBSF
 			m_default_list.reserve(220);
 			for (CSVIterator loop(file); loop != CSVIterator(); ++loop)
 			{
-				ASSERT(loop->size() >= 3);
+				array<string, NB_COLUMNS> row;
 
-				if (ignore.Find( (*loop)[0], false) == NOT_INIT )
-				{
-					m_default_list.push_back(CInfo({ (*loop)[0], (*loop)[1], (*loop)[2] }));
-				}
-				
+				for (size_t i = 0; i < min(size_t(NB_COLUMNS), loop->size()); i++)
+					row[i] = (*loop)[i];
+
+				m_default_list.push_back(row);
 			}
 		}
 
@@ -903,20 +852,23 @@ namespace WBSF
 
 	std::string CCountrySelectionGADM::GetAllPossibleValue(bool bAbvr, bool bName, const std::string& ignore_str)
 	{
-		LoadDefault(ignore_str);
+		LoadDefault();
 
+		StringVector ignore(ignore_str, "|");
 		
 		string str;
 		for (size_t i = 0; i < m_default_list.size(); i++)
 		{
-			str += i != 0 ? "|" : "";
-			if (bAbvr)
-				str += m_default_list[i].m_abrv;
-			if (bAbvr && bName)
-				str += "=";
-			if (bName)
-				str += m_default_list[i].m_name;
-			
+			if (ignore.Find(m_default_list[i][BY_ID3], false) == NOT_INIT)
+			{
+				str += i != 0 ? "|" : "";
+				if (bAbvr)
+					str += m_default_list[i][BY_ID3];
+				if (bAbvr && bName)
+					str += "=";
+				if (bName)
+					str += m_default_list[i][BY_NAME];
+			}
 		}
 
 		return str;
@@ -928,7 +880,7 @@ namespace WBSF
 		ASSERT(i < m_default_list.size());
 		ASSERT(t < 2);
 
-		return m_default_list[i].m_name;
+		return m_default_list[i][t];
 	}
 
 	string CCountrySelectionGADM::ToString()const
@@ -943,7 +895,7 @@ namespace WBSF
 				{
 					if (test(i))
 					{
-						str += m_default_list[i].m_abrv;
+						str += m_default_list[i][BY_ID3];
 						str += '|';
 					}
 				}
@@ -988,9 +940,7 @@ namespace WBSF
 
 		size_t country = NOT_INIT;
 		string tmp = TrimConst(in);
-		//if (tmp.length() != 2)
-			//;
-
+		
 		MakeUpper(tmp);
 		for (size_t i = 0; i < m_default_list.size(); i++)
 		{
@@ -1021,5 +971,34 @@ namespace WBSF
 
 		return message;
 	}
+
+
+
+	string CCountrySelectionGADM::NOAA_to_GADM(string country)
+	{
+		LoadDefault();
+
+		size_t pos = GetCountry(country, BY_NOAA_ID);
+		return (pos==NOT_INIT?string(): m_default_list[pos][BY_ID3]);
+	}
+
+	/*string CCountrySelectionGADM::NOAA_to_GADM(string country, string subDivision)
+	{
+
+		static const map<string, string> HASH_MAP =
+		{
+			{"CA.NL","CA.NF"}
+		};
+
+		string hash = country + "." + subDivision;
+		if (HASH_MAP.find(hash) != HASH_MAP.end())
+		{
+			hash = HASH_MAP.at(hash);
+			subDivision = hash.substr(3, 2);
+		}
+
+		return subDivision;
+	}
+*/
 
 }

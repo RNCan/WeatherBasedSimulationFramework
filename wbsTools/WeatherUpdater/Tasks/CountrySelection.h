@@ -14,8 +14,6 @@ namespace WBSF
 	public:
 
 		enum TSearch { BY_ABVR, BY_NAME };
-		static std::string GHCN_to_GADM(std::string country);
-		static std::string GHCN_to_GADM(std::string country, std::string subDivision);
 
 
 		class CInfo
@@ -119,46 +117,30 @@ namespace WBSF
 
 
 
-	//enum { NB_COUNTRIES_GADM = 217 };
+
 	class CCountrySelectionGADM : public boost::dynamic_bitset<size_t>
 	{
 	public:
 
-		enum TSearch { BY_ABVR, BY_NAME };
-
-		class CInfo
-		{
-		public:
-
-			std::string operator[](size_t i)const
-			{
-				ASSERT(i >= 0 && i < 3);
-				return (i == 0 ? m_abrv : i == 1 ? m_name: m_ID2);
-			}
-
-			std::string m_abrv;
-			std::string m_name;
-			std::string m_ID2;
-		};
+		enum TSearch { BY_ID3, BY_NAME, BY_ID2, BY_NUMBER, BY_NOAA_ID, NB_COLUMNS };
 
 
+		static std::vector<std::array<std::string, NB_COLUMNS> > m_default_list;
+		static void LoadDefault();
+		static ERMsg Load(const std::string& file_path);
+		static std::string NOAA_to_GADM(std::string country);
 		
-		//static const CInfo DEFAULT_LIST[CCountrySelectionGADM];
-
-		static std::vector<CInfo> m_default_list;
-		static void LoadDefault(const std::string& ignore_str="");
-		static ERMsg Load(const std::string& file_path, const std::string& ignore_str = "");
 
 
 		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true, const std::string& ignore = "");
-		static size_t GetCountry(const std::string& in, size_t t = BY_ABVR);//by abr
+		static size_t GetCountry(const std::string& in, size_t t = BY_ID3);//by abr
 
-		CCountrySelectionGADM(const std::string& in = "", const std::string& ignore = "");
+		CCountrySelectionGADM(const std::string& in = "");
 
 		std::string ToString()const;
 		ERMsg FromString(const std::string& in);
 
-		static std::string GetName(size_t i, size_t t = BY_ABVR);
+		static std::string GetName(size_t i, size_t t = BY_ID3);
 
 		bool at(const std::string& in)const
 		{
