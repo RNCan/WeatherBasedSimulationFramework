@@ -41,7 +41,7 @@ namespace WBSF
 
 	protected:
 		
-
+		ERMsg UpdateStationList(CCallback& callback)const;
 		ERMsg SplitStationsCSV(const std::string& outputFilePath, CCallback& callback);
 		ERMsg SplitStationsXML(const std::string& outputFilePath, CCallback& callback);
 		ERMsg LoadStationList(CCallback& callback);

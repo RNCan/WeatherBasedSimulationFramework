@@ -9,6 +9,8 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
 #include "Basic/FileStamp.h"
+#include "Basic/Registry.h"
+#include "Geomatic/ShapeFileBase.h"
 #include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 
@@ -201,6 +203,17 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		CRegistry registry;
+		std::string GADM_file_path = registry.GetString(CRegistry::GetGeoRegistryKey(L_WORLD_GADM));
+
+		CShapeFileBase shapefile;
+		bool bGADM = shapefile.Read(GADM_file_path);
+		if (!bGADM)
+			callback.AddMessage("WARNING: unable to load correctly GADM file: " + GADM_file_path);
+
+
+
+
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 
@@ -243,29 +256,24 @@ namespace WBSF
 				string::size_type metaPosBegin = metadata.find("<name>");
 				if (msg && metaPosBegin != string::npos)
 				{
-					//CLocation stationInfo;
 					CLocation stationInfo;
-					//last word is the network
-					//StringVector tmp(TrimConst(FindString(metadata, "<name>", "</name>", metaPosBegin)), " ");
-					/*ASSERT(tmp.size() >= 2);
 
-					stationInfo.m_name = tmp[0];
-					for(size_t j=1; j<tmp.size()-1; j++)
-						stationInfo.m_name += " " + tmp[i];*/
+					//last word is the network
 					stationInfo.m_name = TrimConst(FindString(metadata, "<name>", "</name>", metaPosBegin));
 					stationInfo.m_ID = TrimConst(listID[i]);
 					stationInfo.m_lat = ToDouble(FindString(metadata, "<latitude>", "</latitude>", metaPosBegin));
 					stationInfo.m_lon = ToDouble(FindString(metadata, "<longitude>", "</longitude>", metaPosBegin));
 					stationInfo.m_alt = ToDouble(FindString(metadata, "<elevation>", "</elevation>", metaPosBegin));
 
-					//<aliases><WMO>71285</WMO><TC>XAF</TC><EC>3010010</EC><AENV>ABEE</AENV><LOGGER_ID>1285</LOGGER_ID></aliases>
+					string country;
+					string subDivision;
+					GetCountrySubDivision(shapefile, stationInfo.m_lat, stationInfo.m_lon, "", "", country, subDivision);
+					stationInfo.SetSSI("Country", country);
+					stationInfo.SetSSI("SubDivision", subDivision);
+
 					string owner = FindString(metadata, "<owner><name>", "</name></owner>", metaPosBegin);
 					if (!owner.empty())
 						stationInfo.SetSSI("Owner", owner);
-
-					//string oper = FindString(metadata, "<operator><name>", "</name></operator>", metaPosBegin);
-					//if (!oper.empty())
-					stationInfo.SetSSI("Network", "ACIS");
 
 
 					StringVector aliases(FindString(metadata, "<aliases>", "</aliases>", metaPosBegin), "<>");
@@ -275,20 +283,6 @@ namespace WBSF
 						if (!aliases[j + 1].empty())
 							stationInfo.SetSSI(aliases[j], aliases[j + 1]);
 					}
-
-					
-
-					/*string WMO = FindString(aliases, "<WMO>", "</WMO>");
-					if (!WMO.empty())
-						stationInfo.SetSSI("WMO", WMO);
-					string ECID = FindString(aliases, "<EC>", "</EC>");
-					if (!ECID.empty())
-						stationInfo.SetSSI("EC_id", ECID);
-					string AENV = FindString(aliases, "<AENV>", "</AENV>");
-					if (!AENV.empty())
-						stationInfo.SetSSI("AENV", AENV);
-
-					*/
 
 
 					stationList.push_back(stationInfo);
@@ -300,16 +294,18 @@ namespace WBSF
 		pConnection->Close();
 		pSession->Close();
 
+		if (bGADM)
+			shapefile.Close();
 
 
 		//clear all non ACIS stations
-		for (CLocationVector::iterator it = stationList.begin(); it != stationList.end();)
+		/*for (CLocationVector::iterator it = stationList.begin(); it != stationList.end();)
 		{
 			if (it->GetSSI("ClimateID").substr(0, 3) == "999")
 				it++;
 			else
 				it = stationList.erase(it);
-		}
+		}*/
 
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
@@ -335,18 +331,6 @@ namespace WBSF
 		return sessionID;
 	}
 
-	//CTRef CUIACIS::GetTRefFromTime64(__time64_t t, CTM TM = CTM(CTM::DAILY))
-	//{
-	//	CTRef TRef;
-
-	//	if (t > 0)
-	//	{
-	//		struct tm *theTime = _localtime64(&t);
-	//		TRef = CTRef(1900 + theTime->tm_year, theTime->tm_mon, theTime->tm_mday - 1, theTime->tm_hour, TM);
-	//	}
-
-	//	return TRef;
-	//}
 
 	bool CUIACIS::IsInclude(const CLocation& station)
 	{
@@ -354,11 +338,8 @@ namespace WBSF
 		string ID = station.GetSSI("EC");
 		ID = ID.substr(0, 3);
 
-		//		static const char* ENV_CAN_MISSING[] = { "3076069", "3055754", "3031875", "3053760" };
-
 		bool bASRD = IsEqual(owner, "Alberta Sustainable Resource Development");
 		bool bParck = IsEqual(owner, "Environment and Parks");
-		//	bool bException = find(begin(ENV_CAN_MISSING), end(ENV_CAN_MISSING), station.m_ID)!= end(ENV_CAN_MISSING);
 		bool bInclude = ID.empty() || ID == "999" || bASRD || bParck;
 		return bInclude;
 	}
@@ -371,7 +352,7 @@ namespace WBSF
 		CTRef TRef1 = CWeatherYears::GetLastTref(filepath).as(CTM::DAILY);
 		CTRef TRef2(year, m, LAST_DAY);
 		CTimeRef last_update(GetFileStamp(filepath));
-		//CTRef today = CTRef::GetCurrentTRef();
+
 		bool bNotCompleted = TRef1.IsInit() && TRef1 - TRef2 < 0;
 		bool bNot5days = !last_update.IsInit() || last_update - TRef2 < 5;
 
@@ -691,9 +672,7 @@ namespace WBSF
 			}
 		}
 
-
 		//clean connection
-		//pConnection->OpenRequest(CHttpConnection::HTTP_VERB_UNLINK, _T("acis/api/v1/legacy/weather-data/timeseries?"));
 		pConnection->Close();
 		pConnection.release();
 		pSession->Close();
@@ -707,6 +686,97 @@ namespace WBSF
 		return msg;
 	}
 
+
+	double CUIACIS::GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const
+	{
+		double d = -1;
+		countryII = "--";
+		subDivisionII.clear();
+
+
+		const CDBF3& DBF = shapefile.GetDBF();
+
+		int FindexH = DBF.GetFieldIndex("HASC_1");
+		ASSERT(FindexH >= 0 && FindexH < DBF.GetNbField());
+		int FindexGID = DBF.GetFieldIndex("GID_0");
+		ASSERT(FindexGID >= 0 && FindexGID < DBF.GetNbField());
+
+		CGeoPoint pt(lon, lat, PRJ_WGS_84);
+		int shapeNo = -1;
+
+		bool bInShape = shapefile.IsInside(pt, &shapeNo);
+		if (bInShape)//inside a shape
+		{
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
+			d = 0;
+		}
+		else
+		{
+			d = shapefile.GetMinimumDistance(pt, &shapeNo);
+			ASSERT(shapeNo >= 0 && shapeNo < DBF.GetNbRecord());
+
+			countryII = TrimConst(DBF[shapeNo][FindexGID].GetElement());
+
+			StringVector tmp(DBF[shapeNo][FindexH].GetElement(), ".");
+
+			if (tmp.size() >= 2)
+				subDivisionII = TrimConst(tmp[1]);
+
+		}
+
+
+		if (countryI.length() == 3)
+		{
+			if (countryII != countryI ||
+				(!subDivisionI.empty() && subDivisionII != subDivisionI))
+			{
+
+				double min_d = 1e20;
+				for (int i = 0; i < DBF.GetNbRecord(); i++)
+				{
+
+					StringVector tmp(DBF[i][FindexH].GetElement(), ".");
+					string country = TrimConst(DBF[i][FindexGID].GetElement());
+
+					string subDivision;
+					if (tmp.size() >= 2)
+						subDivision = TrimConst(tmp[1]);
+
+					if (countryI == country &&
+						(subDivisionI.empty() || subDivisionI == subDivision))
+					{
+						double dd = shapefile[i].GetShape().GetMinimumDistance(pt);
+						if (dd < min_d)
+						{
+							d = dd;
+							min_d = dd;
+							countryII = country;
+							subDivisionII = subDivision;
+							/*if (min_d < 20000)
+							{
+								countryII = countryI;
+								subDivisionII = subDivisionI;
+							}*/
+						}
+					}
+				}
+			}
+		}
+
+		if (countryII.length() < 2)
+			countryII = "--";
+
+		if (subDivisionII.length() != 2)
+			subDivisionII.clear();
+
+
+		return d;
+	}
 
 	//******************************************************************************************************************************
 	//******************************************************************************************************************************
@@ -1197,13 +1267,7 @@ namespace WBSF
 				bool bAdd = true;
 				if (bIgoneEC)
 					bAdd = IsInclude(m_stations[i]);
-				//{
-				//	//string network = m_stations[i].GetSSI("type");
-				//	string ID = m_stations[i].GetSSI("EC_id");
-				//	ID = ID.substr(0, 3);
-				//	if (!ID.empty() && ID != "999")//&& network != "AENV"  && network != "PARC"
-				//		bAdd = false;
-				//}
+				
 
 				if (bAdd)
 					stationList.push_back(m_stations[i].m_ID);
@@ -1329,14 +1393,8 @@ namespace WBSF
 			}
 		}
 
-		//string network = station.GetSSI("Network");
-		//string country = station.GetSSI("Country");
-		//string subDivisions = station.GetSSI("SubDivision");
-		//station.m_siteSpeceficInformation.clear();
-		//station.SetSSI("Network", network);
 		station.SetSSI("Provider", "ACIS");
-		station.SetSSI("Country", "CAN");
-		//station.SetSSI("SubDivision", subDivisions);
+		station.SetSSI("Network", station.GetSSI("Owner"));
 
 
 		return msg;

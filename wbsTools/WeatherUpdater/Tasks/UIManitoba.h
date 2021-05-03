@@ -93,8 +93,10 @@ namespace WBSF
 		static const char* SERVER_PATH[NB_NETWORKS];
 		
 		static const char* NETWORK_NAME[NB_NETWORKS];
+		static const char* PROVIDER_NAME[NB_NETWORKS];
 		static const char* SUBDIR_NAME[NB_NETWORKS];
 		static const char* NETWORK_ABVR[NB_NETWORKS];
+
 
 	};
 

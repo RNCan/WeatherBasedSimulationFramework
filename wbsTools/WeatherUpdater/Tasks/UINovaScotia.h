@@ -45,11 +45,11 @@ namespace WBSF
 	protected:
 		
 
-		ERMsg UpdateStationsFile(CCallback& callback);
+		//ERMsg UpdateStationsFile(CCallback& callback);
 
 		std::string GetStationsListFilePath(size_t network)const;
 		std::string GetOutputFilePath(int year, const std::string& ID)const;
-		ERMsg UpdateStationList(CCallback& callback);
+		//ERMsg UpdateStationList(CCallback& callback);
 
 		static CTRef GetTRef(std::string str);
 		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;

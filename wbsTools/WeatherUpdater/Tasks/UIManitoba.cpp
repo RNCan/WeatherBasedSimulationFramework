@@ -143,6 +143,8 @@ namespace WBSF
 
 	const char* CUIManitoba::SUBDIR_NAME[NB_NETWORKS] = { "Agriculture", "Agriculture2", "Fire", "Hydro", "Potato" };
 	const char* CUIManitoba::NETWORK_NAME[NB_NETWORKS] = { "Manitoba Agriculture", "Manitoba Agriculture2", "Manitoba Fire", "Manitoba Hydro", "Manitoba Potatoes" };
+	const char* CUIManitoba::PROVIDER_NAME[NB_NETWORKS] = { "Manitoba", "Manitoba", "Manitoba", "Manitoba Hydro", "Manitoba Potatoes" };
+
 	const char* CUIManitoba::NETWORK_ABVR[NB_NETWORKS] = { "Agri", "Agri2", "Fire", "Hydro", "Potato" };
 	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "web43.gov.mb.ca", "mbagweather.ca", "www.gov.mb.ca", "www.hydro.mb.ca", "www.mbpotatoes.ca" };
 	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "partners/CanAg/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
@@ -430,7 +432,10 @@ namespace WBSF
 		//string country = station.GetSSI("Country");
 		//string subDivisions = station.GetSSI("SubDivision");
 		//station.m_siteSpeceficInformation.clear();
-		station.SetSSI("Provider", (station.GetSSI("Network") == NETWORK_NAME[HYDRO] ? "Manitoba-Hydro":station.GetSSI("Network")== NETWORK_NAME[POTATO]? "Manitoba-Poteto" :"Manitoba") );
+		//string network = station.GetSSI("Network");
+		//station.SetSSI("Provider", ( == NETWORK_NAME[HYDRO] ? "Manitoba-Hydro":station.GetSSI("Network")== NETWORK_NAME[POTATO]? "Manitoba-Poteto" :"Manitoba") );
+		station.SetSSI("Provider", PROVIDER_NAME[n]);
+
 		//station.SetSSI("Network", network);
 		//station.SetSSI("Country", country);
 		//station.SetSSI("SubDivision", subDivisions);
@@ -1444,12 +1449,6 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
 		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
-		//CInternetSessionPtr pGoogleSession;
-		//CHttpConnectionPtr pGoogleConnection;
-		//if (msg)
-			//msg += GetHttpConnection("maps.googleapis.com", pGoogleConnection, pGoogleSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-
 		if (msg)
 		{
 
@@ -1480,28 +1479,10 @@ namespace WBSF
 						location.m_lon = metadata["geometry"]["coordinates"][0].number_value();
 
 						location.SetSSI("Owner", metadata["properties"]["OWNER"].string_value());
+						location.SetSSI("Country", "CAN");
+						location.SetSSI("SubDivision", "MB");
 						location.SetSSI("Region", metadata["properties"]["REGION"].string_value());
 						location.SetSSI("Zone", metadata["properties"]["I_A_ZONE"].string_value());
-
-						//string elevFormat = "/maps/api/elevation/json?locations=" + ToString(location.m_lat) + "," + ToString(location.m_lon);
-						//string strElev;
-						//msg = UtilWWW::GetPageText(pGoogleConnection, elevFormat, strElev);
-						//if (msg)
-						//{
-						//	//extract elevation from google
-						//	string error;
-						//	Json jsonElev = Json::parse(strElev, error);
-						//	ASSERT(jsonElev.is_object());
-
-						//	if (error.empty() && jsonElev["status"] == "OK")
-						//	{
-						//		ASSERT(jsonElev["results"].is_array());
-						//		Json::array result = jsonElev["results"].array_items();
-						//		ASSERT(result.size() == 1);
-
-						//		location.m_elev = result[0]["elevation"].number_value();
-						//	}
-						//}//if msg
 
 						locations.push_back(location);
 
@@ -1548,9 +1529,7 @@ namespace WBSF
 				}
 			}
 		}
-		//pGoogleConnection->Close();
-		//pGoogleSession->Close();
-
+		
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(locations.size()), 2);
 		callback.PopTask();
 

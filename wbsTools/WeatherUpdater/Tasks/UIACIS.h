@@ -7,6 +7,7 @@
 
 namespace WBSF
 {
+	class CShapeFileBase;
 
 	class CUIACIS : public CTaskBase
 	{
@@ -43,6 +44,8 @@ namespace WBSF
 	protected:
 
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
+		double GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const;
+
 		ERMsg DownloadStation(CCallback& callback);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
 		ERMsg VerifyUserPass(CCallback& callback);
@@ -53,7 +56,7 @@ namespace WBSF
 		bool NeedUpdate(const CLocation& station, int year, size_t m = LAST_MONTH);
 		ERMsg DownloadStationListII(CLocationVector& stationList, CCallback& callback)const;
 		std::string GetSessiosnID(UtilWWW::CHttpConnectionPtr& pConnection);
-		//CTRef GetTRefFromTime64(__time64_t t, CTM TM = CTM(CTM::DAILY));
+		
 		ERMsg DownloadStationHourly(CCallback& callback);
 		ERMsg DownloadStationDaily(CCallback& callback);
 		ERMsg SaveData(size_t type, const std::string& filePath, const std::string& str, CCallback& callback);

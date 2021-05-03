@@ -102,7 +102,8 @@ namespace WBSF
 
 	std::string CUINovaScotia::GetStationsListFilePath(size_t network)const
 	{
-		string filePath = GetDir(WORKING_DIR) + "NS_Wx_Stations_List.csv";
+		
+		string filePath = GetApplicationPath() + "Layers\\NovaScotiaStations.csv";
 		return filePath;
 	}
 
@@ -128,12 +129,12 @@ namespace WBSF
 		callback.AddMessage("");
 
 
-		StringVector fileList;
+		//StringVector fileList;
 
-		msg += UpdateStationList(callback);
+//		msg += UpdateStationList(callback);
 
-		if (!msg)
-			return msg;
+	//	if (!msg)
+		//	return msg;
 
 
 		size_t nbDownloads = 0;
@@ -207,27 +208,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		msg = m_stations.Load(GetStationsListFilePath(FIRE));
 
-		m_stations.clear();
-
-		CLocationVector locations;
-		msg = locations.Load(GetStationsListFilePath(FIRE));
-
-		if (msg)
-			msg += locations.IsValid();
-
-		//Update network
-		for (size_t i = 0; i < locations.size(); i++)
-		{
-			locations[i].SetSSI("Network", NETWORK_NAME[FIRE]);
-		}
-
-
-		m_stations.insert(m_stations.end(), locations.begin(), locations.end());
-
-		for (size_t i = 0; i < locations.size(); i++)
-			stationList.push_back(locations[i].m_ID);
-		
+		for (size_t i = 0; i < m_stations.size(); i++)
+			stationList.push_back(m_stations[i].m_ID);
 
 		return msg;
 	}
@@ -291,70 +275,70 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	ERMsg CUINovaScotia::UpdateStationList(CCallback& callback)
-	{
-		ERMsg msg;
+	//ERMsg CUINovaScotia::UpdateStationList(CCallback& callback)
+	//{
+	//	ERMsg msg;
 
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
+	//	CInternetSessionPtr pSession;
+	//	CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
+	//	msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 
-		if (msg)
-		{
-			string path = "/hydromanitoba/NSWeather/NS_Wx_Stations_List.csv";
+	//	if (msg)
+	//	{
+	//		string path = "/hydromanitoba/NSWeather/NS_Wx_Stations_List.csv";
 
-			CFileInfoVector fileList;
-			msg = FindFiles(pConnection, path, fileList, false, callback);
+	//		CFileInfoVector fileList;
+	//		msg = FindFiles(pConnection, path, fileList, false, callback);
 
-			if (msg)
-			{
-				ASSERT(fileList.size() == 1);
+	//		if (msg)
+	//		{
+	//			ASSERT(fileList.size() == 1);
 
-				string outputFilePath = GetStationsListFilePath(FIRE);
-				if (!IsFileUpToDate(fileList.front(), outputFilePath))
-				{
-					CreateMultipleDir(GetPath(outputFilePath));
-					msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-					if (msg)
-					{
-						//
-						//replace header line
-						ifStream file;
-						msg = file.open(outputFilePath);
-						if (msg)
-						{
-							string line;
-							getline(file, line);
-							string text = "Name,ID,Type,Latitude,Longitude,LatDeg,LongDeg,Easting,Northing,Elevation\n";
+	//			string outputFilePath = GetStationsListFilePath(FIRE);
+	//			if (!IsFileUpToDate(fileList.front(), outputFilePath))
+	//			{
+	//				CreateMultipleDir(GetPath(outputFilePath));
+	//				msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+	//				if (msg)
+	//				{
+	//					//
+	//					//replace header line
+	//					ifStream file;
+	//					msg = file.open(outputFilePath);
+	//					if (msg)
+	//					{
+	//						string line;
+	//						getline(file, line);
+	//						string text = "Name,ID,Type,Latitude,Longitude,LatDeg,LongDeg,Easting,Northing,Elevation\n";
 
-							while (getline(file, line))
-							{
-								text += line + "\n";
-							}
+	//						while (getline(file, line))
+	//						{
+	//							text += line + "\n";
+	//						}
 
-							file.close();
+	//						file.close();
 
-							ofStream file;
-							msg = file.open(outputFilePath);
-							if (msg)
-							{
-								file << text;
-								file.close();
-							}
-						}
-					}
-				}
+	//						ofStream file;
+	//						msg = file.open(outputFilePath);
+	//						if (msg)
+	//						{
+	//							file << text;
+	//							file.close();
+	//						}
+	//					}
+	//				}
+	//			}
 
-			}
+	//		}
 
-			pConnection->Close();
-			pSession->Close();
+	//		pConnection->Close();
+	//		pSession->Close();
 
-		}
+	//	}
 
-		return msg;
-	}
+	//	return msg;
+	//}
 
 
 

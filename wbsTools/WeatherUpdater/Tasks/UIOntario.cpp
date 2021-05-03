@@ -5,18 +5,20 @@
 
 #include "Basic/DailyDatabase.h"
 #include "Basic/FileStamp.h"
-#include "UI/Common/SYShowMessage.h"
 #include "Basic\CSV.h"
-
+#include "Basic\json\json11.hpp"
+#include "Basic/CallcURL.h"
+#include "UI/Common/SYShowMessage.h"
 #include "TaskFactory.h"
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 
 
-using namespace std; 
+using namespace std;
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 using namespace boost;
+using namespace json11;
 
 
 //Table60ElementPos	Table60ElementName	Table60ElementDesc	Table60ElementUnits
@@ -86,6 +88,8 @@ using namespace boost;
 //28	TotRS_MJ	total solar fluxes previous 24 hours	MJ / m²
 //29	Rain2	total rain measured prev 24 hours(secondary)	millimetres(m.m.)
 
+//https://ws.lioservices.lrc.gov.on.ca/arcgis1061a/rest/services/FFIM/Forest_Fire_Info_Map/MapServer/19/query?token=2T1zsImiiqoH42TMxiqzBulN10Pxsqim8GgeiH8N4nmMRepP1Ce4FKyZlkYlmZRM&f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=STATION_IDENT%20ASC
+
 
 namespace WBSF
 {
@@ -93,16 +97,16 @@ namespace WBSF
 	const char* CUIOntario::SERVER_NAME = "www.affes.mnr.gov.on.ca";
 	//const char* CUIOntario::SERVER_PATH = "Extranet/Bulletin_Boards/WXProducts/";
 	const char* CUIOntario::SERVER_PATH = "Maps/WX/";
-	
+
 
 
 	//*********************************************************************
-	const char* CUIOntario::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Network"};
-	const size_t CUIOntario::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT};
+	const char* CUIOntario::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Network" };
+	const size_t CUIOntario::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT };
 	const UINT CUIOntario::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ONTARIO_P;
 	const UINT CUIOntario::DESCRIPTION_TITLE_ID = ID_TASK_ONTARIO;
 
-	const char* CUIOntario::CLASS_NAME(){ static const char* THE_CLASS_NAME = "Ontario";  return THE_CLASS_NAME; }
+	const char* CUIOntario::CLASS_NAME() { static const char* THE_CLASS_NAME = "Ontario";  return THE_CLASS_NAME; }
 	CTaskBase::TType CUIOntario::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIOntario::CLASS_NAME(), (createF)CUIOntario::create);
 
@@ -122,7 +126,7 @@ namespace WBSF
 		switch (i)
 		{
 		case NETWORK:	str = "Ontario Fire Weather Program"; break;
-		//case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
+			//case DATA_TYPE:	str = GetString(IDS_STR_WDATA_TYPE); break;
 		};
 		return str;
 	}
@@ -136,7 +140,7 @@ namespace WBSF
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Ontario\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
-		//case DATA_TYPE: str = "0"; break;
+			//case DATA_TYPE: str = "0"; break;
 		};
 
 		return str;
@@ -153,7 +157,7 @@ namespace WBSF
 		//open a connection on the server
 		CInternetSessionPtr pSession;
 		CHttpConnectionPtr pConnection;
-		
+
 		ERMsg msgTmp = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 		if (msgTmp)
 		{
@@ -161,7 +165,7 @@ namespace WBSF
 			//msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "WxHourly.csv", fileList);
 			msgTmp = FindFiles(pConnection, string(SERVER_PATH) + "wxhourly.xml", fileList);
 		}
-		
+
 		return msg;
 	}
 
@@ -171,73 +175,141 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string workingDir = GetDir(WORKING_DIR);
-		msg = CreateMultipleDir(workingDir);
+		//string workingDir = GetDir(WORKING_DIR);
+		//msg = CreateMultipleDir(workingDir);
 
 
-		callback.AddMessage(GetString(IDS_UPDATE_DIR));
-		callback.AddMessage(workingDir, 1);
-		callback.AddMessage(GetString(IDS_UPDATE_FROM));
-		callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
-		callback.AddMessage("");
+		//callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		//callback.AddMessage(workingDir, 1);
+		//callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		//callback.AddMessage(string(SERVER_NAME) + "/" + SERVER_PATH, 1);
+		//callback.AddMessage("");
 
-		//string fileName = "WxHourly.csv";
-		string fileName = "wxhourly.xml";
-		string remoteFilePath = SERVER_PATH + fileName;
-		string outputFilePath = workingDir + fileName;
-		
+		////string fileName = "WxHourly.csv";
+		////string fileName = "wxhourly.xml";
+		////string remoteFilePath = SERVER_PATH + fileName;
+		////string outputFilePath = workingDir + fileName;
 
-		int nbRun = 0;
-		bool bDownloaded = false;
+		//msg = UpdateStationList(callback);
 
-		while (!bDownloaded && nbRun < 5 && msg)
-		{
-			nbRun++;
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
 
-			ERMsg msgTmp = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-			if (msgTmp)
-			{
-				TRY
-				{
-					callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
-					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
-					callback.PopTask();
+		//int nbRun = 0;
+		//bool bDownloaded = false;
 
-					//split data in seperate files
-					if (msgTmp)
-					{
-						ASSERT(FileExists(outputFilePath));
-						SplitStationsXML(outputFilePath, callback);
-						RemoveFile(outputFilePath);
-							
-						msg += callback.StepIt();
-						bDownloaded = true;
-					}
-				}
-				CATCH_ALL(e)
-				{
-					msgTmp = UtilWin::SYGetMessage(*e);
-				}
-				END_CATCH_ALL
+		//while (!bDownloaded && nbRun < 5 && msg)
+		//{
+		//	nbRun++;
 
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
-			}
-			else
-			{
-				if (nbRun > 1 && nbRun < 5)
-				{
-					msg += WaitServer(10, callback);
-				}
-			}
-		}
+		//	CInternetSessionPtr pSession;
+		//	CHttpConnectionPtr pConnection;
+
+		//	ERMsg msgTmp = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//	if (msgTmp)
+		//	{
+		//		TRY
+		//		{
+		//			callback.PushTask(GetString(IDS_UPDATE_FILE), NOT_INIT);
+		//			msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
+		//			callback.PopTask();
+
+		//			//split data in seperate files
+		//			if (msgTmp)
+		//			{
+		//				ASSERT(FileExists(outputFilePath));
+		//				SplitStationsXML(outputFilePath, callback);
+		//				RemoveFile(outputFilePath);
+		//					
+		//				msg += callback.StepIt();
+		//				bDownloaded = true;
+		//			}
+		//		}
+		//		CATCH_ALL(e)
+		//		{
+		//			msgTmp = UtilWin::SYGetMessage(*e);
+		//		}
+		//		END_CATCH_ALL
+
+		//		//clean connection
+		//		pConnection->Close();
+		//		pSession->Close();
+		//	}
+		//	else
+		//	{
+		//		if (nbRun > 1 && nbRun < 5)
+		//		{
+		//			msg += WaitServer(10, callback);
+		//		}
+		//	}
+		//}
 
 		//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
 		//callback.PopTask();
+
+		return msg;
+	}
+
+	ERMsg CUIOntario::UpdateStationList(CCallback& callback)const
+	{
+		ERMsg msg;
+
+		//https://ws.lioservices.lrc.gov.on.ca/arcgis1061a/rest/services/FFIM/Forest_Fire_Info_Map/MapServer/19/query?token=2T1zsImiiqoH42TMxiqzBulN10Pxsqim8GgeiH8N4nmMRepP1Ce4FKyZlkYlmZRM&f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=STATION_IDENT%20ASC
+		string URL = "https://ws.lioservices.lrc.gov.on.ca/arcgis1061a/rest/services/FFIM/Forest_Fire_Info_Map/MapServer/19/query?token=2T1zsImiiqoH42TMxiqzBulN10Pxsqim8GgeiH8N4nmMRepP1Ce4FKyZlkYlmZRM&f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=STATION_IDENT%20ASC";
+		string argument = "-s -k \"" + URL + "\"";
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
+		string source;
+		msg = cURL.get_text(argument, source);
+
+		if (msg)
+		{
+
+
+			string error;
+			Json jsonfeatures = Json::parse(source, error);
+
+			if (error.empty())
+			{
+
+
+				CLocationVector locations;
+
+				Json::array stations = jsonfeatures["features"].array_items();
+				callback.PushTask("Update fire stations list", stations.size());
+
+				for (Json::array::const_iterator it = stations.begin(); it != stations.end() && msg; it++)
+				{
+					Json::object metadata = it->object_items();
+
+					CLocation location;
+
+					location.m_ID = metadata["properties"]["Stn_ID"].string_value();
+					location.m_name = WBSF::PurgeFileName(metadata["properties"]["Stn_Name"].string_value());
+					location.m_lat = metadata["geometry"]["coordinates"][1].number_value();
+					location.m_lon = metadata["geometry"]["coordinates"][0].number_value();
+
+					location.SetSSI("Owner", metadata["properties"]["OWNER"].string_value());
+					location.SetSSI("Country", "CAN");
+					location.SetSSI("SubDivision", "MB");
+					location.SetSSI("Region", metadata["properties"]["REGION"].string_value());
+					location.SetSSI("Zone", metadata["properties"]["I_A_ZONE"].string_value());
+
+					locations.push_back(location);
+
+					msg += callback.StepIt();
+				}//for all stations
+
+				msg += callback.StepIt();
+			}
+			else
+			{
+				msg.ajoute(error);
+			}
+		}//if msg
+
+
+
 
 		return msg;
 	}
@@ -253,7 +325,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		size_t nbStationsAdded = 0;
 
 		ifStream file;
@@ -264,7 +336,7 @@ namespace WBSF
 
 		if (msg)
 		{
-			enum THourlyColumns{ STATION_CODE, OBSDATE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, RAINFALL, WIND_DIRECTION, NB_COLUMNS };
+			enum THourlyColumns { STATION_CODE, OBSDATE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, RAINFALL, WIND_DIRECTION, NB_COLUMNS };
 			static const char* COL_NAME[NB_COLUMNS] = { "WSTNCODE", "Date", "Time", "temp", "RH", "speed", "precip", "WindDir" };
 			static const TVarH  COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDS, H_PRCP, H_WNDD };
 
@@ -310,7 +382,7 @@ namespace WBSF
 						obs.attribute(COL_NAME[STATION_CODE], ID);
 						if (ID[0] == '4')//strang thiink with lable begging with 4
 							ID = oldID;
-						
+
 						if (!data.IsYearInit(year))
 						{
 							//data.CreateYear(year);
@@ -339,14 +411,14 @@ namespace WBSF
 								}
 							}
 						}//for all variables 
-						
 
-					
+
+
 						msg += callback.StepIt(0);
 					}//for all observations
 
 					//if (stat.GetTRef().IsInit() && data.find(lastID) != data.end())
-					
+
 					//data[lastID][stat.GetTRef()].SetData(stat);
 
 
@@ -377,11 +449,11 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 
 	std::string CUIOntario::GetStationListFilePath()const
 	{
-		
+
 		return WBSF::GetApplicationPath() + "Layers\\OntarioStations.csv";
 	}
 
@@ -444,14 +516,14 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
-/*
-		string network = station.GetSSI("Network");
-		string country = station.GetSSI("Country");
-		string subDivisions = station.GetSSI("SubDivision");
-		station.m_siteSpeceficInformation.clear();
-		station.SetSSI("Network", "GHCND");
-		station.SetSSI("Country", country);
-		station.SetSSI("SubDivision", subDivisions);*/
+		/*
+				string network = station.GetSSI("Network");
+				string country = station.GetSSI("Country");
+				string subDivisions = station.GetSSI("SubDivision");
+				station.m_siteSpeceficInformation.clear();
+				station.SetSSI("Network", "GHCND");
+				station.SetSSI("Country", country);
+				station.SetSSI("SubDivision", subDivisions);*/
 		station.SetSSI("Provider", "Ontario");
 
 		return msg;
@@ -478,7 +550,7 @@ namespace WBSF
 			string lastID;
 
 
-			enum THourlyColumns{ STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
+			enum THourlyColumns { STATION_CODE, OBSTIME, TEMPERATURE, RELATIVE_HUMIDITY, WIND_SPEED, WIND_DIRECTION, RAINFALL, NB_COLUMNS };
 			static const WBSF::HOURLY_DATA::TVarH COL_POS_H[NB_COLUMNS] = { H_SKIP, H_SKIP, H_TAIR, H_RELH, H_WNDS, H_WNDD, H_PRCP };
 
 			for (CSVIterator loop(file); loop != CSVIterator() && msg; ++loop)
@@ -512,7 +584,7 @@ namespace WBSF
 							string filePath = GetOutputFilePath(ID, year);
 							data[ID].LoadData(filePath, -999, false);//don't erase other years when multiple years
 						}
-						
+
 						lastID = ID;
 					}
 
