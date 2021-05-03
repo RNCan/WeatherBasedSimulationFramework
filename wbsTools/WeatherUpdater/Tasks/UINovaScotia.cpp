@@ -131,10 +131,9 @@ namespace WBSF
 
 		//StringVector fileList;
 
-//		msg += UpdateStationList(callback);
-
-	//	if (!msg)
-		//	return msg;
+		msg += UpdateStationList(callback);
+		if (!msg)
+			return msg;
 
 
 		size_t nbDownloads = 0;
@@ -267,6 +266,9 @@ namespace WBSF
 		station.SetSSI("SubDivision", subDivisions);*/
 
 		station.SetSSI("Provider", "Nova-Scotia");
+		station.SetSSI("Network", "Nova Scotia Fire");
+		station.SetSSI("Country", "CAN");
+		station.SetSSI("SubDivision", "NS"); 
 
 
 		return msg;
@@ -275,70 +277,70 @@ namespace WBSF
 
 	//******************************************************************************************************
 
-	//ERMsg CUINovaScotia::UpdateStationList(CCallback& callback)
-	//{
-	//	ERMsg msg;
+	ERMsg CUINovaScotia::UpdateStationList(CCallback& callback)
+	{
+		ERMsg msg;
 
-	//	CInternetSessionPtr pSession;
-	//	CFtpConnectionPtr pConnection;
+		CInternetSessionPtr pSession;
+		CFtpConnectionPtr pConnection;
 
-	//	msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
+		msg = GetFtpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, Get(USER_NAME), Get(PASSWORD), true, 5, callback);
 
-	//	if (msg)
-	//	{
-	//		string path = "/hydromanitoba/NSWeather/NS_Wx_Stations_List.csv";
+		if (msg)
+		{
+			string path = "/hydromanitoba/NSWeather/NS_Wx_Stations_List.csv";
 
-	//		CFileInfoVector fileList;
-	//		msg = FindFiles(pConnection, path, fileList, false, callback);
+			CFileInfoVector fileList;
+			msg = FindFiles(pConnection, path, fileList, false, callback);
 
-	//		if (msg)
-	//		{
-	//			ASSERT(fileList.size() == 1);
+			if (msg)
+			{
+				ASSERT(fileList.size() == 1);
 
-	//			string outputFilePath = GetStationsListFilePath(FIRE);
-	//			if (!IsFileUpToDate(fileList.front(), outputFilePath))
-	//			{
-	//				CreateMultipleDir(GetPath(outputFilePath));
-	//				msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-	//				if (msg)
-	//				{
-	//					//
-	//					//replace header line
-	//					ifStream file;
-	//					msg = file.open(outputFilePath);
-	//					if (msg)
-	//					{
-	//						string line;
-	//						getline(file, line);
-	//						string text = "Name,ID,Type,Latitude,Longitude,LatDeg,LongDeg,Easting,Northing,Elevation\n";
+				string outputFilePath = GetStationsListFilePath(FIRE);
+				if (!IsFileUpToDate(fileList.front(), outputFilePath))
+				{
+					CreateMultipleDir(GetPath(outputFilePath));
+					msg = CopyFile(pConnection, fileList.front().m_filePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
+					if (msg)
+					{
+						//
+						//replace header line
+						ifStream file;
+						msg = file.open(outputFilePath);
+						if (msg)
+						{
+							string line;
+							getline(file, line);
+							string text = "Name,ID,Type,Latitude,Longitude,LatDeg,LongDeg,Easting,Northing,Elevation\n";
 
-	//						while (getline(file, line))
-	//						{
-	//							text += line + "\n";
-	//						}
+							while (getline(file, line))
+							{
+								text += line + "\n";
+							}
 
-	//						file.close();
+							file.close();
 
-	//						ofStream file;
-	//						msg = file.open(outputFilePath);
-	//						if (msg)
-	//						{
-	//							file << text;
-	//							file.close();
-	//						}
-	//					}
-	//				}
-	//			}
+							ofStream file;
+							msg = file.open(outputFilePath);
+							if (msg)
+							{
+								file << text;
+								file.close();
+							}
+						}
+					}
+				}
 
-	//		}
+			}
 
-	//		pConnection->Close();
-	//		pSession->Close();
+			pConnection->Close();
+			pSession->Close();
 
-	//	}
+		}
 
-	//	return msg;
-	//}
+		return msg;
+	}
 
 
 
