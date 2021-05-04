@@ -420,6 +420,64 @@ namespace WBSF
 		}
 
 		station.CleanUnusedVariable("TN T TX P TD H WS WD R Z");
+		//clean temperature under -60 and upper 60°C
+
+		CTPeriod p = station.GetEntireTPeriod();
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			if (station.IsHourly())
+			{
+				CHourlyData& data = station.GetHour(TRef);
+				if ((data[H_TMIN] > -999 && (data[H_TMIN] < -60 || data[H_TMIN] > 60)) ||
+					(data[H_TAIR] > -999 && (data[H_TAIR] < -60 || data[H_TAIR] > 60)) ||
+					(data[H_TMAX] > -999 && (data[H_TMAX] < -60 || data[H_TMAX] > 60)))
+				{
+					data[H_TMIN] = -999;
+					data[H_TAIR] = -999;
+					data[H_TMAX] = -999;
+				}
+
+				if (data[H_TDEW] > -999 && (data[H_TDEW] < -60 || data[H_TDEW] > 60)) 
+				{
+					data[H_TDEW] = -999;
+					data[H_RELH] = -999;
+				}
+
+				if (data[H_WNDS] > -999 && (data[H_WNDS] < 0 || data[H_WNDS] > 110))
+				{
+					data[H_WNDS] = -999;
+					data[H_WNDD] = -999;
+				}
+
+			}
+			else
+			{
+				CWeatherDay& data = station.GetDay(TRef);
+				if ((!data[H_TMIN].empty() && (data[H_TMIN][LOWEST] < -60 || data[H_TMIN][HIGHEST] > 60)) ||
+					(!data[H_TAIR].empty() && (data[H_TAIR][LOWEST] < -60 || data[H_TAIR][HIGHEST] > 60)) ||
+					(!data[H_TMAX].empty() && (data[H_TMAX][LOWEST] < -60 || data[H_TMAX][HIGHEST] > 60)))
+				{
+					data[H_TMIN].Reset();
+					data[H_TAIR].Reset();
+					data[H_TMAX].Reset();
+				}
+
+				if (!data[H_TDEW].empty() && (data[H_TDEW][MEAN] < -60 || data[H_TDEW][MEAN] > 60)) 
+				{
+					data[H_TDEW] = -999;
+					data[H_RELH] = -999;
+				}
+
+				if (!data[H_WNDS].empty() && (data[H_WNDS][MEAN] < 0 || data[H_WNDS][MEAN] > 110))
+				{
+					data[H_WNDS] = -999;
+					data[H_WNDD] = -999;
+				}
+			}
+		}
+
+
+
 
 		//verify station is valid
 		if (msg && station.HaveData())
@@ -428,17 +486,7 @@ namespace WBSF
 			msg = station.IsValid();
 		}
 
-		//string network = station.GetSSI("Network");
-		//string country = station.GetSSI("Country");
-		//string subDivisions = station.GetSSI("SubDivision");
-		//station.m_siteSpeceficInformation.clear();
-		//string network = station.GetSSI("Network");
-		//station.SetSSI("Provider", ( == NETWORK_NAME[HYDRO] ? "Manitoba-Hydro":station.GetSSI("Network")== NETWORK_NAME[POTATO]? "Manitoba-Poteto" :"Manitoba") );
 		station.SetSSI("Provider", PROVIDER_NAME[n]);
-
-		//station.SetSSI("Network", network);
-		//station.SetSSI("Country", country);
-		//station.SetSSI("SubDivision", subDivisions);
 
 
 		return msg;
@@ -1515,7 +1563,7 @@ namespace WBSF
 
 		if (!locations.IsValid(false))
 		{
-			
+
 			for (CLocationVector::iterator it = locations.begin(); it != locations.end(); )
 			{
 				if (!it->IsValid(false))
@@ -1529,7 +1577,7 @@ namespace WBSF
 				}
 			}
 		}
-		
+
 		callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(locations.size()), 2);
 		callback.PopTask();
 

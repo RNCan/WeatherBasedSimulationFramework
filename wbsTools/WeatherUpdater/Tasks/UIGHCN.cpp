@@ -656,12 +656,12 @@ namespace WBSF
 				{
 					//string outputFilePath = GetOutputFilePath(fileList[i]) + ".gz";
 					string fileName = GetFileName(fileList[i].m_filePath);
-					string outputFilePath = GetOutputFilePath(fileName);
+					string zipFilePath = GetOutputFilePath(fileName);
 
-					CreateMultipleDir(GetPath(outputFilePath));
+					CreateMultipleDir(GetPath(zipFilePath));
 					callback.AddMessage("Download " + fileName + " ...");
 
-					msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, outputFilePath.c_str(), callback);
+					msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, zipFilePath.c_str(), callback);
 
 					//unzip it
 					if (msg)
@@ -908,16 +908,8 @@ namespace WBSF
 			}
 		}
 
-
-		//string country = station.GetSSI("Country");
-		//string subDivisions = station.GetSSI("SubDivision");
-		//station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Provider", "NOAA");
 		station.SetSSI("Network", "GHCND");
-		//station.SetSSI("Country", country);
-		//station.SetSSI("SubDivision", subDivisions);
-
-
 
 		if (msg && station.HaveData())
 		{
@@ -1186,10 +1178,7 @@ namespace WBSF
 
 						if (bGoodVar)
 						{
-
-							//char Mf1 = (*loop)[GHCN_M].empty() ? ' ' : ToChar((*loop)[GHCN_M]);
 							char Qf2 = (*loop)[GHCN_Q].empty() ? ' ' : ToChar((*loop)[GHCN_Q]);
-							//char Sf3 = (*loop)[GHCN_S].empty() ? ' ' : ToChar((*loop)[GHCN_S]);
 
 							string strValue = TrimConst((*loop)[GHCN_DATA]);
 							if (!strValue.empty() && Qf2 == ' ')//is valid

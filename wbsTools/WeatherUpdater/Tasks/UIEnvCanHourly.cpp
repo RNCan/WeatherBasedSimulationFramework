@@ -1075,14 +1075,17 @@ namespace WBSF
 		}
 
 		//AdministrativeDivisions
-
-		//string Province = station.GetSSI("Province");
-		//station.m_siteSpeceficInformation.clear();
 		station.SetSSI("Provider", "EnvCan");
 		station.SetSSI("Network", "EnvCan");
 		station.SetSSI("Country", "CAN");
 		station.SetSSI("SubDivision", station.GetSSI("Province"));
 
+		if (station.m_ID == "9052008H")
+		{
+			station.m_name = "Sioux Falls (SD)";
+			station.SetSSI("Country", "USA");
+			station.SetSSI("SubDivision", "SD");
+		}
 
 		return msg;
 	}

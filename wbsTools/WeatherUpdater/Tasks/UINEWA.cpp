@@ -5,16 +5,19 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/CSV.h"
 #include "Basic/FileStamp.h"
+#include "Basic/ExtractLocationInfo.h"
+#include "Basic\json\json11.hpp"
+#include "basic/units.hpp"
+#include "Basic/decode_html_entities_utf8.h"
+
 #include "UI/Common/SYShowMessage.h"
+#include "UI/Common/UtilWin.h"
 #include "TaskFactory.h"
 #include "StateSelection.h"
-#include "Basic\json\json11.hpp"
+
 
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
-#include "basic/units.hpp"
-#include "UI/Common/UtilWin.h"
-#include "Basic/decode_html_entities_utf8.h"
 
 
 using namespace std;
@@ -245,6 +248,18 @@ namespace WBSF
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(stationList.size()));
 		callback.PopTask();
+
+
+
+		//if missing elevation, extract elevation at 30 meters: not support < -60° and > 60°
+		if (!stationList.IsValid(false))
+			msg = stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_SRTM30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+		//if still missing elevation, extract elevation at 30 meters ASTER
+		//if (msg && !stationList.IsValid(false))
+			//msg = stationList.ExtractOpenTopoDataElevation(false, COpenTopoDataElevation::NASA_ASTER30M, COpenTopoDataElevation::I_BILINEAR, callback);
+
+
 
 		return msg;
 	}
@@ -673,9 +688,6 @@ namespace WBSF
 
 	string CUINEWA::GetOutputFilePath(const string& ID, int year)const
 	{
-		//size_t type = as<size_t>(DATA_TYPE);
-		//return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + FormatA("%02d", m + 1) + "\\" + ID + ".csv";
-		//return GetDir(WORKING_DIR) + (type == HOURLY_WEATHER ? "Hourly" : "Daily") + "\\" + ToString(year) + "\\" + ID + ".csv";
 		return GetDir(WORKING_DIR) + "Hourly\\" + ToString(year) + "\\" + ID + ".csv";
 	}
 
