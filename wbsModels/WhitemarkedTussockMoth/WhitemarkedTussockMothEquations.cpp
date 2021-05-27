@@ -175,7 +175,7 @@ namespace WBSF
 		//else
 		//{
 		const vector <double> p(m_P[s], m_P[s] + sizeof m_P[s] / sizeof m_P[s][0]);
-		r = max(0.0, min(1.0, CDevRateEquation::GetFValue(CDevRateEquation::Regniere_2012, p, T)));
+		r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Regniere_2012, p, T)));
 		//}
 
 
