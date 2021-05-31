@@ -24,6 +24,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Core</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>BioSIM_API_Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -104,29 +105,36 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;EXPORT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;CURL_STATICLIB;_DEBUG;EXPORT_DLL;_WIN32;STATIC_AZURE_STORAGE_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\..\External;..\..\..\wbs\src;../../../external/GDAL/Include;</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\..\..\External;..\..\..\wbs\src;../../../external/GDAL/Include;../../../external/azure-storage/Include;</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAsManaged>false</CompileAsManaged>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\external\gdal\lib$(PlatformArchitecture);..\..\..\external\lib$(PlatformArchitecture);..\..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gdal_i.lib;proj_i.lib;version.lib;external_d.lib;wbs_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\external\gdal\lib$(PlatformArchitecture);..\..\..\external\lib$(PlatformArchitecture);..\..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories);..\..\..\external\curl\lib;..\..\..\external\azure-storage\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>external_d.lib;wbs_d.lib;gdal_i.lib;proj_i.lib;Azure-storage_d.lib;libcurl_a.lib;Ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;bcrypt.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>version.lib;external_d.lib;wbs_d.lib;</AdditionalDependencies>
+      <AdditionalDependencies>external_dll_d.lib;wbs_dll_d.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\..\..\external\gdal\lib$(PlatformArchitecture);..\..\..\external\lib$(PlatformArchitecture);..\..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories);..\..\external\VisualLeakDetector\lib\Win$(PlatformArchitecture)</AdditionalLibraryDirectories>
     </Lib>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\wbs\src;</AdditionalIncludeDirectories>
+      <Culture />
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API\$(TargetName)$(TargetExt)"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -156,35 +164,43 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;EXPORT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;CURL_STATICLIB;NDEBUG;EXPORT_DLL;STATIC_AZURE_STORAGE_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\External;..\..\..\wbs\src;../../../external/GDAL/Include;</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\..\..\External;..\..\..\wbs\src;../../../external/GDAL/Include;../../../external/azure-storage/Include;</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gdal_i.lib;proj_i.lib;version.lib;external.lib;wbs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\external\gdal\lib$(PlatformArchitecture);..\..\..\external\lib$(PlatformArchitecture);..\..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>external.lib;wbs.lib;gdal_i.lib;proj_i.lib;Azure-storage.lib;libcurl_a.lib;Ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;bcrypt.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\external\gdal\lib$(PlatformArchitecture);..\..\..\external\lib$(PlatformArchitecture);..\..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories);..\..\..\external\azure-storage\lib;..\..\..\external\curl\lib;</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\wbs\src;</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API\$(TargetName)$(TargetExt)"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BioSIM_API.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="BioSIM_API.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BioSIM_API.rc" />
+    <ResourceCompile Include="BioSIM_API.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

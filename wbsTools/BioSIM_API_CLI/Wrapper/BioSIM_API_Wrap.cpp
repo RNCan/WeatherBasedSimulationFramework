@@ -109,7 +109,7 @@ namespace BioSIM_Wrapper
 	String^ ModelExecution::Help()
 	{
 		std::string str = m_Instance->Help();
-		return gcnew String(str.c_str());
+		return gcnew String(str.c_str()); 
 	}
 
 

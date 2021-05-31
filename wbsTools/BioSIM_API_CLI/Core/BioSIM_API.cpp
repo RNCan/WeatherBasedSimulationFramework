@@ -1,5 +1,13 @@
 //#include "pch.h"
 //Entity.cpp
+
+#include "storage_credential.h"
+#include "storage_account.h"
+#include "blob/blob_client.h"
+//#include <algorithm>
+#include <boost/algorithm/string/predicate.hpp>
+
+
 #include "BioSIM_API.h"
 #include <iostream>
 #include "Basic/NormalsDatabase.h"
@@ -25,10 +33,15 @@
 #pragma warning(disable: 4275 4251 4005)
 #include "gdal_priv.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 
 //using namespace boost;
 using namespace std;
+using namespace azure::storage_lite;
+
 using namespace WBSF;
 using namespace WBSF::WEATHER;
 using namespace WBSF::HOURLY_DATA;
@@ -58,6 +71,12 @@ namespace Core
 
 namespace WBSF
 {
+
+
+	static const std::string ACCOUNT_NAME = "dhportalstoragedev";
+	static const std::string ACCOUNT_KEY = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
+	static const std::string CONTAINER_NAME = "biosim-data";
+
 
 
 	static std::string get_string(ERMsg msg)
@@ -101,6 +120,431 @@ namespace WBSF
 
 		return location;
 	}
+
+
+	ERMsg CreateNormalBinary(string file_path)
+	{
+		ERMsg msg;
+
+
+		string bin_file_path = file_path;
+		SetFileExtension(bin_file_path, ".NormalsDB.bin.gz");
+		//ReplaceString(bin_file_path, " ", "_");
+
+
+		CNormalsDatabase NormalDB1;
+		msg += NormalDB1.Open(file_path, CNormalsDatabase::modeRead);
+		if (msg)
+		{
+
+			//std::string account_name = "dhportalstoragedev";
+			//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
+
+
+			CLocation loc("test", "test", 45, -80, 100);
+			CSearchResultVector results1;
+			NormalDB1.Search(results1, loc, 4);
+			//std::stringstream stream;
+			//std::iostream stream;
+
+			//std::ofstream fout("G:/Travaux/BioSIM_API/World_1991-2020.bin");
+			NormalDB1.SaveAsBinary(bin_file_path);
+			NormalDB1.Close();
+
+
+			CNormalsDatabase NormalDB2;
+			NormalDB2.LoadFromBinary(bin_file_path);
+			NormalDB2.CreateAllCanals();
+
+			CSearchResultVector results2;
+			NormalDB2.Search(results2, loc, 4);
+			ASSERT(results1 == results2);
+
+		}
+
+		return msg;
+	}
+
+	ERMsg UploadNormalsToAzure(string file_path)
+	{
+		ERMsg msg;
+
+		string blobName = "Weather/Normals/" + GetFileName(file_path);
+
+		//std::string account_name = "stockage1234";
+		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
+		//std::string container_name = "biosim-data";
+		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
+		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
+		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
+		blob_client_wrapper client_wrapper(client);
+
+
+
+		auto ret = client->create_container(CONTAINER_NAME).get();
+		std::ifstream fin(file_path, std::ios_base::in | std::ios_base::binary);
+		std::vector<std::pair<std::string, std::string>> metadata;
+		metadata.emplace_back(std::make_pair("type", "Normals"));
+		metadata.emplace_back(std::make_pair("extents", "-180,-90,180,90"));
+		metadata.emplace_back(std::make_pair("period", "1991-2020"));
+		ret = client->upload_block_blob_from_stream(CONTAINER_NAME, blobName, fin, metadata).get();
+		if (!ret.success())
+		{
+			msg.ajoute("Failed to upload Normals, Error: " + ret.error().code + ", " + ret.error().code_name);
+		}
+		fin.close();
+		//client.delete_blob(container_name, blob_name).wait();
+
+
+
+
+		// Save blob contents to a file.
+
+		ASSERT(client_wrapper.blob_exists(CONTAINER_NAME, blobName));
+
+
+		auto blobs = client_wrapper.list_blobs_segmented(CONTAINER_NAME, "/", "", "");
+		std::cout << "Size of BLobs: " << blobs.blobs.size() << std::endl;
+		std::cout << "Error Size of BLobs: " << errno << std::endl;
+		assert(errno == 0);
+
+		time_t last_modified;
+		client_wrapper.download_blob_to_file(CONTAINER_NAME, blobName, file_path + ".new", last_modified);
+		std::cout << "Download Blob done: " << errno << std::endl;
+
+
+		return msg;
+	}
+
+	ERMsg CreateDailyBinary(string file_path)
+	{
+		ERMsg msg;
+
+
+		string bin_file_path = file_path;
+		SetFileExtension(bin_file_path, ".DailyDB.bin.gz");
+		//ReplaceString(bin_file_path, " ", "_");
+
+
+		CDailyDatabase DB1;
+		msg += DB1.Open(file_path, CWeatherDatabase::modeRead);
+		if (msg)
+		{
+			CLocation loc("test", "test", 45, -80, 100);
+			CSearchResultVector results1;
+			DB1.Search(results1, loc, 4, -999, H_TMIN, 2020);
+
+			CWeatherStation st1;
+			DB1.Get(st1, 0);
+
+			DB1.SaveAsBinary(bin_file_path);
+			DB1.Close();
+
+			CDailyDatabase DB2;
+			DB2.LoadFromBinary(bin_file_path);
+			DB2.CreateAllCanals();
+
+			CSearchResultVector results2;
+			DB2.Search(results2, loc, 4, -999, H_TMIN, 2020);
+			ASSERT(results1 == results2);
+
+
+			//CWeatherStation st2;
+			//DB2.Get(st2, 0);
+			//ASSERT(st1 == st2);
+		}
+
+		return msg;
+	}
+
+	ERMsg UploadDailyToAzure(string file_path)
+	{
+		ERMsg msg;
+
+
+		//std::string account_name = "stockage1234";
+		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
+		//std::string container_name = "biosim-data";
+		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
+		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
+		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 8);
+		//blob_client_wrapper client_wrapper(client);
+
+
+//
+//
+//		auto blobs = client_wrapper.list_blobs_segmented(CONTAINER_NAME, "/", "", "Weather/Daily/Canada-USA 2018-2019.DailyDB.bin/2019/");
+//
+//
+//
+//
+//		std::vector<std::pair<std::string, std::string>> metadata;
+//		metadata.emplace_back(std::make_pair("type", "Daily"));
+//
+//
+////		client_wrapper.create_container(CONTAINER_NAME);
+//		//std::ifstream fin(file_path, std::ios_base::in | std::ios_base::binary);
+//		//metadata.emplace_back(std::make_pair("period", "2020-2021"));
+//
+//		ASSERT(client_wrapper.blob_exists(CONTAINER_NAME, "Weather/Daily/" + GetFileName(file_path)));
+//
+//
+//		client_wrapper.upload_file_to_blob(file_path, CONTAINER_NAME, "Weather/Daily/" + GetFileName(file_path), metadata);
+//
+		string base_path = GetPath(file_path) + GetFileTitle(file_path) + "\\";
+		StringVector files = WBSF::GetFilesList(base_path + "*.bin.gz", 2, true);
+		//		StringVector files;
+		//		files.push_back("G:\\Travaux\\BioSIM_API\\Weather\\Daily\\Canada-USA 2018-2019.DailyDB.bin\\2018\\Cutler Dam [USC00421918].bin.gz");
+		//
+		//		
+		//
+		//		string the_file = "G:\\Travaux\\BioSIM_API\\Weather\\Daily\\Canada-USA 2018-2019.DailyDB.bin\\2018\\Cutler Dam [USC00421918].bin.gz";
+		//		string blobName = WBSF::GetRelativePath(GetPath(file_path), the_file);
+		//		ReplaceString(blobName, "\\", "/");
+		//		blobName = WBSF::UTF8_ANSI(blobName);
+		//		blobName = RemoveAccented(blobName);//remove all accent caracters;
+		//		blobName = "Weather/Daily/test2.gz";// + blobName;
+		//
+		//		
+		//		//std::ifstream fin(the_file, std::ios_base::in | std::ios_base::binary);
+		//		//auto ret = client->upload_block_blob_from_stream(CONTAINER_NAME, blobName, fin, metadata).get();
+		//		//if (!ret.success())
+		//		//{
+		//		//	msg.ajoute("Failed to upload Normals, Error: " + ret.error().code + ", " + ret.error().code_name);
+		//		//}
+		//		//fin.close();
+		//
+		//		client_wrapper.upload_file_to_blob(the_file, CONTAINER_NAME, blobName, metadata);
+		//		int err = errno;
+		//		ASSERT(client_wrapper.blob_exists(CONTAINER_NAME, blobName));
+		//		
+
+		std::vector<std::pair<std::string, std::string>> metadata;
+		metadata.clear();
+
+		int count = 0;
+		//#pragma omp parallel for 
+		for (__int64 i = 0; i < (__int64)files.size(); i++)
+		{
+			string blob_name = WBSF::GetRelativePath(GetPath(file_path), files[i]);
+			ReplaceString(blob_name, "\\", "/");
+			blob_name = WBSF::UTF8_ANSI(blob_name);
+			blob_name = RemoveAccented(blob_name);//remove all accent caracters;
+			blob_name = "Weather/Daily/" + blob_name;
+
+			std::ifstream fin(files[i], std::ios_base::in | std::ios_base::binary);
+			auto ret = client->upload_block_blob_from_stream(CONTAINER_NAME, blob_name, fin, metadata).get();
+			fin.close();
+
+
+			if (!ret.success())
+			{
+				msg.ajoute("Failed to upload Normals, Error: " + ret.error().code + ", " + ret.error().code_name);
+				break;
+			}
+
+
+			//client_wrapper.upload_file_to_blob(files[i], CONTAINER_NAME, blob_name);
+
+//#pragma omp atomic 
+			count++;
+		}
+
+
+		//client.delete_blob(container_name, blob_name).wait();
+
+
+		return msg;
+	}
+
+	ERMsg CreateShoreBinary(string file_path)
+	{
+		ERMsg msg;
+
+
+		string bin_file_path = file_path;
+		SetFileExtension(bin_file_path, ".ann.gz");
+		//ReplaceString(bin_file_path, " ", "_");
+
+
+		ifStream file_in;
+		msg += file_in.open(file_path, std::ios::in | std::ios::binary);
+
+		ofStream file_out;
+		msg += file_out.open(bin_file_path, std::ios::out | std::ios::binary);
+
+		if (msg)
+		{
+			CApproximateNearestNeighbor shore;
+			shore << file_in;
+			try
+			{
+				boost::iostreams::filtering_ostreambuf out;
+				out.push(boost::iostreams::gzip_compressor());
+				out.push(file_out);
+				std::ostream outcoming(&out);
+
+				//save coordinate and search optimisation
+				//size_t version = CNormalsDatabase::VERSION;
+				//outcoming.write((char*)(&version), sizeof(version));
+				outcoming << shore;
+			}
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+
+			file_in.close();
+			file_out.close();
+		}
+
+		return msg;
+	}
+
+	ERMsg UploadShoreToAzure(string file_path)
+	{
+		ERMsg msg;
+
+
+		//std::string account_name = "stockage1234";
+		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
+		//std::string container_name = "biosim-data";
+		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
+		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
+		blob_client client(account, 16);
+
+		auto ret = client.create_container(CONTAINER_NAME).get();
+		std::ifstream fin(file_path, std::ios_base::in | std::ios_base::binary);
+		std::vector<std::pair<std::string, std::string>> metadata;
+		metadata.emplace_back(std::make_pair("type", "Shore"));
+		ret = client.upload_block_blob_from_stream(CONTAINER_NAME, "Layers/" + GetFileName(file_path), fin, metadata).get();
+		if (!ret.success())
+		{
+			msg.ajoute("Failed to upload blob, Error: " + ret.error().code + ", " + ret.error().code_name);
+		}
+		fin.close();
+		//client.delete_blob(container_name, blob_name).wait();
+
+
+		return msg;
+	}
+
+	ERMsg UploadDEMToAzure(string file_path)
+	{
+		ERMsg msg;
+
+
+		//std::string account_name = "stockage1234";
+		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
+		//std::string container_name = "biosim-data";
+		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
+		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
+		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
+		blob_client_wrapper client_wrapper(client);
+
+		//		blob_client client(account, 16);
+
+			//	auto ret = client.create_container(CONTAINER_NAME).get();
+			//	std::ifstream fin(file_path, std::ios_base::in | std::ios_base::binary);
+		std::vector<std::pair<std::string, std::string>> metadata;
+		metadata.emplace_back(std::make_pair("type", "DEM"));
+		//	ret = client.upload_block_blob_from_stream(CONTAINER_NAME, "DEM/" + GetFileName(file_path), fin, metadata).get();
+
+		//	// Perform UploadStreamToBlockBlob
+		////bufferSize: = 2 * 1024 * 1024 // Configure the size of the rotating buffers that are used when uploading
+		//	//maxBuffers : = 3               // Configure the number of rotating buffers that are used when uploading
+		//	//_,/ err = UploadStreamToBlockBlob(ctx, bytes.NewReader(data), blockBlobURL,
+		//		//UploadStreamToBlockBlobOptions{ BufferSize: bufferSize, MaxBuffers : maxBuffers })
+		//	client.upload_block_from_stream()
+
+		client_wrapper.upload_file_to_blob(file_path, CONTAINER_NAME, "DEM/" + GetFileName(file_path), metadata,/* parallel */8);
+
+		//if (!ret.success())
+		//{
+			//msg.ajoute("Failed to upload blob, Error: " + ret.error().code + ", " + ret.error().code_name);
+		//}
+	//	fin.close();
+		//client.delete_blob(container_name, blob_name).wait();
+
+
+		return msg;
+	}
+
+	//******************************************************************************************************************************
+
+	//"DefaultEndpointsProtocol","EndpointSuffix",
+	const char* WeatherGeneratorInit::NAME[NB_PAPAMS] = { "AccountName","AccountKey","ContainerName","Shore", "Normals", "Daily", "Hourly", "GRIBS", "DEM" };
+
+	WeatherGeneratorInit::WeatherGeneratorInit()
+	{
+		clear();
+	}
+
+	void WeatherGeneratorInit::clear()
+	{
+		m_account_name.clear();
+		m_account_key.clear();
+		m_container_name.clear();
+		m_shore_name.clear();
+		m_normal_name.clear();
+		m_daily_name.clear();
+		m_DEM_name.clear();
+	}
+
+	ERMsg WeatherGeneratorInit::parse(const std::string& str_init)
+	{
+		ERMsg msg;
+
+		clear();
+
+		StringVector args(str_init, "&");
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			//StringVector option(args[i], "=");
+			string::size_type pos = args[i].find('=');
+			if (pos != string::npos)
+			{
+				string key = args[i].substr(0, pos);
+				string value = args[i].substr(pos + 1);
+
+				//auto it = std::find(begin(NAME), end(NAME), MakeUpper(option[0]));
+				//string str1 = option[0];
+				auto it = std::find_if(begin(NAME), end(NAME), [&str1 = key](const auto& str2) { return boost::iequals(str1, str2); });
+				if (it != end(NAME))
+				{
+					size_t o = distance(begin(NAME), it);
+					switch (o)
+					{
+						//						case DEFAULT_ENDPOINTS_PROTOCOL:
+					case ACCOUNT_NAME:m_account_name = value; break;
+					case ACCOUNT_KEY:m_account_key = value; break;
+						//						case ENDPOINT_SUFFIX:
+					case CONTAINER_NAME:m_container_name = value; break;
+					case SHORE: m_shore_name = value; break;
+					case NORMALS: m_normal_name = value; break;
+					case DAILY: m_daily_name = value; break;
+					case DEM:m_DEM_name = value; break;
+					default: ASSERT(false);
+					}
+				}
+				else
+				{
+					msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
+
+		return msg;
+	};
 
 	//******************************************************************************************************************************
 
@@ -281,116 +725,274 @@ namespace WBSF
 	//******************************************************************************************************************************
 
 
-	const char* WeatherGenerator::NAME[NB_PAPAMS] = { "SHORE", "NORMALS", "DAILY", "HOURLY", "GRIBS", "DEM" };
-
-
 	WeatherGenerator::WeatherGenerator(const std::string &)
 	{
 
 	}
 
-	std::string WeatherGenerator::Initialize(const std::string& str_options)
+	std::string WeatherGenerator::Initialize(const std::string& str_init)
 	{
 		ERMsg msg;
 
-		try
+		CDynamicResources::set(g_hDLL);
+
+		//StringVector files = WBSF::GetFilesList("G:\\Travaux\\BioSIM_API\\Weather\\Daily\\Canada-USA 2018-2019.DailyDB.bin\\2018\\espa*.bin.gz", 2, true);
+		//for (__int64 i = 0; i < (__int64)files.size(); i++)
+		//{
+		//	string test = files[i];
+		//	test = WBSF::UTF8_ANSI(test);
+		//	test = RemoveAccented(test);//remove all accent caracters;
+		//	int g;
+		//	g = 0;
+		//}
+
+
+
+		//string file_path = "G:/Weather/test 1991-2020.NormalsDB";
+		//msg += CreateNormalBinary("G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB");
+		//msg += UploadNormalsToAzure("G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB.bin.gz");
+		//msg += CreateDailyBinary("G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB");
+		//msg += UploadDailyToAzure("G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz");
+
+		//		msg += CreateDailyBinary("G:/weather/PEI 2020-2021.DailyDB");
+				//msg += UploadDailyToAzure("G:/weather/PEI 2020-2021.DailyDB.bin.gz");
+
+				//msg += UploadDEMToAzure("G:/Travaux/BioSIM_API/DEM/Monde 30s(SRTM30).tif");
+
+
+		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
+		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
+		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
+		blob_client_wrapper client_wrapper(client);
+
+
+
+		bool brep = client_wrapper.blob_exists(CONTAINER_NAME, "Weather/Daily/Canada-USA 2018-2019.DailyDB.bin/2018/Cutler Dam [USC00421918].bin.gz");
+
+
+		//
+		//string blobName = "DEM/Monde 30s(SRTM30).tif";
+		//ASSERT(client_wrapper.blob_exists(CONTAINER_NAME, blobName));
+		//auto blobs = client_wrapper.get_blob_property(CONTAINER_NAME, blobName);
+		//
+
+
+		//msg += CreateShoreBinary("E:/Project/bin/Releasex64/Layers/Shore.ann");
+		//msg += UploadShoreToAzure("E:/Project/bin/Releasex64/Layers/Shore.ann");
+		//return "";
+
+		msg = m_init.parse(str_init);
+
+		if (msg)
 		{
-			GDALSetCacheMax64(128 * 1024 * 1024);
-			RegisterGDAL();
-
-
-			CDynamicResources::set(g_hDLL);
-			CCallback callback;
-
-			StringVector args(str_options, "&");
-			for (size_t i = 0; i < args.size(); i++)
+			try
 			{
-				StringVector option(args[i], "=");
-				if (option.size() == 2)
+
+				CCallback callback;
+
+
+				GDALSetCacheMax64(128 * 1024 * 1024);
+				RegisterGDAL();
+
+
+				//AccountName=dhportalstoragedev;AccountKey=+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==
+
+
+						//	std::string account_name = "dhportalstoragedev";
+							//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
+							//std::string container_name = "biosim-data";
+
+
+
+
+				std::shared_ptr<storage_credential> cred;
+				std::shared_ptr<storage_account> account;
+				if (m_init.IsAzure())
 				{
-					auto it = std::find(begin(NAME), end(NAME), MakeUpper(option[0]));
-					if (it != end(NAME))
+					cred = std::make_shared<shared_key_credential>(m_init.m_account_name, m_init.m_account_key);
+					account = std::make_shared<storage_account>(m_init.m_account_name, cred, /* use_https */ true);
+				}
+
+				if (!m_init.m_shore_name.empty())
+				{
+					if (m_init.IsAzure())
 					{
-						size_t o = distance(begin(NAME), it);
-						switch (o)
+						blob_client client(account, 16);
+
+						std::stringstream azure_stream;
+						auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_shore_name, 0, 0, azure_stream).get();
+						if (ret.success())
 						{
-						case SHORE:
-						{
-							msg += CShore::SetShore(option[1]);
-							break;
+							CApproximateNearestNeighborPtr pShore = make_shared<CApproximateNearestNeighbor>();
+
+							*pShore << azure_stream;
+							CShore::SetShore(pShore);
 						}
-						case NORMALS:
+						else
 						{
-							m_pNormalDB.reset(new CNormalsDatabase);
-							msg += m_pNormalDB->Open(option[1], CNormalsDatabase::modeRead, callback, true);
-							if (msg)
-								msg += m_pNormalDB->OpenSearchOptimization(callback);//open here to be thread safe
-
-							break;
-						}
-						case DAILY:
-						{
-							m_pDailyDB.reset(new CDailyDatabase);
-							msg += m_pDailyDB->Open(option[1], CDailyDatabase::modeRead, callback, true);
-							if (msg)
-								msg += m_pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
-
-							break;
-						}
-
-						case HOURLY:
-						{
-							m_pHourlyDB.reset(new CHourlyDatabase);
-							msg += m_pHourlyDB->Open(option[1], CHourlyDatabase::modeRead, callback, true);
-							if (msg)
-								msg += m_pHourlyDB->OpenSearchOptimization(callback);//open here to be thread safe
-
-							break;
-						}
-
-						/*case GRIBS:
-						{
-							m_pGribsDB.reset(new CSfcGribExtractor);
-							msg += m_pGribsDB->open(option[1]);
-							if (msg)
-								m_pGribsDB->load_all();
-
-							break;
-						}*/
-
-						case DEM:
-						{
-							m_pDEM.reset(new CGDALDatasetEx);
-							msg += m_pDEM->OpenInputImage(option[1]);
-
-							break;
-						}
-
-						default: ASSERT(false);
+							msg.ajoute("Failed to download shore, error: " + ret.error().code + ", " + ret.error().code_name);
 						}
 					}
 					else
 					{
-						msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+						msg += CShore::SetShore(m_init.m_shore_name);
 					}
 				}
-				else
+				if (!m_init.m_normal_name.empty())
 				{
-					msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+					m_pNormalDB.reset(new CNormalsDatabase);
+					//m_pNormalDB->m_account_name = m_init.m_account_name;
+					//m_pNormalDB->m_account_key = m_init.m_account_key;
+					//m_pNormalDB->m_container_name = m_init.m_container_name;
+
+
+					if (m_init.IsAzure())
+					{
+						blob_client client(account, 16);
+						std::stringstream azure_stream;
+						auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_normal_name, 0, 0, azure_stream).get();
+						if (ret.success())
+						{
+							try
+							{
+								boost::iostreams::filtering_istreambuf in;
+								in.push(boost::iostreams::gzip_decompressor());
+								in.push(azure_stream);
+								std::istream incoming(&in);
+
+								size_t version = 0;
+								incoming.read((char*)(&version), sizeof(version));
+								if (version == CNormalsDatabase::VERSION)
+								{
+									incoming >> *m_pNormalDB;
+									m_pNormalDB->CreateAllCanals();//create here to be thread safe
+								}
+								else
+								{
+									msg.ajoute("Normal binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
+								}
+
+							}
+							catch (const boost::iostreams::gzip_error& exception)
+							{
+								int error = exception.error();
+								if (error == boost::iostreams::gzip::zlib_error)
+								{
+									//check for all error code    
+									msg.ajoute(exception.what());
+								}
+							}
+
+							//std::cout << out_stream.str();
+						}
+						else
+						{
+							msg.ajoute("Failed to download Normals, error: " + ret.error().code + ", " + ret.error().code_name);
+						}
+					}
+					else
+					{
+
+						msg += m_pNormalDB->LoadFromBinary(m_init.m_normal_name);
+						if (msg)
+							m_pNormalDB->CreateAllCanals();//create here to be thread safe
+
+
+						//msg += m_pNormalDB->Open("G:\\Weather\\test 1991-2020.NormalsDB");
+						//if (msg)
+							//m_pNormalDB->CreateAllCanals();//create here to be thread safe
+					}
+
+					if (!m_init.m_daily_name.empty())
+					{
+						m_pDailyDB.reset(new CDailyDatabase(200));
+
+
+						if (m_init.IsAzure())
+						{
+							m_pDailyDB->m_account_name = m_init.m_account_name;
+							m_pDailyDB->m_account_key = m_init.m_account_key;
+							m_pDailyDB->m_container_name = m_init.m_container_name;
+							m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
+							m_pDailyDB->LoadAzureDLL();
+
+
+							blob_client client(account, 16);
+							std::stringstream azure_stream;
+							auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_daily_name, 0, 0, azure_stream).get();
+							if (ret.success())
+							{
+								try
+								{
+									boost::iostreams::filtering_istreambuf in;
+									in.push(boost::iostreams::gzip_decompressor());
+									in.push(azure_stream);
+									std::istream incoming(&in);
+
+									size_t version = 0;
+									incoming.read((char*)(&version), sizeof(version));
+
+									if (version == CDailyDatabase::VERSION)
+									{
+										incoming >> *m_pDailyDB;
+										m_pDailyDB->CreateAllCanals();//create here to be thread safe
+									}
+									else
+									{
+										msg.ajoute("Daily binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
+									}
+
+								}
+								catch (const boost::iostreams::gzip_error& exception)
+								{
+									int error = exception.error();
+									if (error == boost::iostreams::gzip::zlib_error)
+									{
+										//check for all error code    
+										msg.ajoute(exception.what());
+									}
+								}
+
+								//std::cout << out_stream.str();
+							}
+							else
+							{
+								msg.ajoute("Failed to download Daily, error: " + ret.error().code + ", " + ret.error().code_name);
+							}
+						}
+						else
+						{
+							msg += m_pDailyDB->Open(m_init.m_daily_name, CDailyDatabase::modeRead, callback, true);
+							if (msg)
+								msg += m_pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
+						}
+					}
+
+					if (!m_init.m_DEM_name.empty())
+					{
+						if (m_init.IsAzure())
+						{
+							blob_client client(account, 16);
+						}
+						else
+						{
+							m_pDEM.reset(new CGDALDatasetEx);
+							msg += m_pDEM->OpenInputImage(m_init.m_DEM_name);
+						}
+					}
+				}
+				if (msg)
+				{
+					m_pWeatherGenerator.reset(new CWeatherGenerator);
+					m_pWeatherGenerator->SetNormalDB(m_pNormalDB);
+					m_pWeatherGenerator->SetDailyDB(m_pDailyDB);
 				}
 			}
-
-
-			m_pWeatherGenerator.reset(new CWeatherGenerator);
-			m_pWeatherGenerator->SetNormalDB(m_pNormalDB);
-			m_pWeatherGenerator->SetDailyDB(m_pDailyDB);
-			m_pWeatherGenerator->SetHourlyDB(m_pHourlyDB);
-			//m_pWeatherGenerator->SetGribsDB(m_pGribsDB);
-		}
-		catch (...)
-		{
-			int i;
-			i = 0;
+			catch (...)
+			{
+				int i;
+				i = 0;
+			}
 		}
 
 		return get_string(msg);
@@ -970,7 +1572,7 @@ namespace WBSF
 	{
 		ASSERT(model.GetTransferFileVersion() == CModel::VERSION_STREAM);
 
-	//	CTransferInfoIn info;
+		//	CTransferInfoIn info;
 		info.m_transferTypeVersion = CModel::VERSION_STREAM;
 		info.m_modelName = model.GetName();
 
@@ -986,7 +1588,7 @@ namespace WBSF
 		info.m_TM = model.m_outputTM;
 		info.m_language = CRegistry::ENGLISH;
 
-//		return info;
+		//		return info;
 	}
 
 	std::string ModelExecution::GetWeatherVariablesNeeded()
@@ -1142,6 +1744,12 @@ namespace WBSF
 
 		return msg;
 	}
+
+
+
+
+
+
 }
 
 

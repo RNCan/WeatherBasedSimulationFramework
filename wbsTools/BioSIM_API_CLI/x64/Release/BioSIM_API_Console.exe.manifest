@@ -42,26 +42,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Console.exe" size="6616">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Console.exe" size="6104">
       <assemblyIdentity name="BioSIM_API_Console" version="1.0.0.0" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>wvpcex17a+MkWPX2xH7/1vWfkfOcFCOcODXlBG+UsYo=</dsig:DigestValue>
+        <dsig:DigestValue>F5rFysr91xYJkGq8ox7qkdGzDwXpqX2J8VuAcIeYvN0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Wrapper.dll" size="172544">
-      <assemblyIdentity name="Wrapper" version="1.0.7780.35754" language="neutral" processorArchitecture="amd64" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Wrapper.dll" size="172544">
+      <assemblyIdentity name="BioSIM_API_Wrapper" version="1.0.7817.22686" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>6wKr0J20DQFwfesZ+QKF8cGBAfmmczOsYnrS3AdTQxE=</dsig:DigestValue>
+        <dsig:DigestValue>pDwY8P4mz+yvu2ZYTDVaCfinoKKqqZ3mot2AJbzejNs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

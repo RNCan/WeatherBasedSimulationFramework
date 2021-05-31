@@ -7,14 +7,14 @@
     <framework targetVersion="4.6.1" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="BioSIM_API_Console.exe.manifest" size="4161">
+    <dependentAssembly dependencyType="install" codebase="BioSIM_API_Console.exe.manifest" size="4183">
       <assemblyIdentity name="BioSIM_API_Console.exe" version="1.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Wf45WjJBaClG3CCDQYM5tQ3gjOEXu0seaBiFJtRgEF4=</dsig:DigestValue>
+        <dsig:DigestValue>lNry9tGRemzxKxA6+irNXXx7F4MuVv+NDSNkvFef72o=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

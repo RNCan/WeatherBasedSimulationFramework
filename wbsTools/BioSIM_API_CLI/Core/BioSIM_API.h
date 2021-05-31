@@ -92,6 +92,30 @@ namespace WBSF
 	};
 
 
+	class WeatherGeneratorInit
+	{
+
+	public:
+
+		//DEFAULT_ENDPOINTS_PROTOCOL, ENDPOINT_SUFFIX, 
+		enum TParam { ACCOUNT_NAME, ACCOUNT_KEY, CONTAINER_NAME, SHORE, NORMALS, DAILY, HOURLY, GRIBS, DEM, NB_PAPAMS };
+		static const char* NAME[NB_PAPAMS];
+
+		WeatherGeneratorInit();
+		void clear();
+		ERMsg parse(const std::string& options);
+		bool IsAzure()const { return !m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty(); }
+
+		std::string m_account_name;
+		std::string m_account_key;
+		std::string m_container_name;
+
+		std::string m_shore_name;
+		std::string m_normal_name;
+		std::string m_daily_name;
+		std::string m_DEM_name;
+	};
+
 
 	class WeatherGeneratorOptions
 	{
@@ -127,7 +151,6 @@ namespace WBSF
 
 	
 
-
 	
 
 	class DLL_EXPORT WeatherGenerator
@@ -141,16 +164,18 @@ namespace WBSF
 		WeatherGenerator(const std::string &);
 		std::string Initialize(const std::string& str_options);
 		CTeleIO Generate(const std::string& str_options);
-		CTeleIO GenerateGribs(const std::string& str_options);
+		//CTeleIO GenerateGribs(const std::string& str_options);
 		CTeleIO GetNormals(const std::string& str_options);
 
-		void TestThreads(const std::string& str_options);
+		//void TestThreads(const std::string& str_options);
 
 	protected:
 
+		WeatherGeneratorInit m_init;
+
 		CNormalsDatabasePtr m_pNormalDB;
 		CDailyDatabasePtr m_pDailyDB;
-		CHourlyDatabasePtr m_pHourlyDB;
+		//CHourlyDatabasePtr m_pHourlyDB;
 		//CSfcGribExtractorPtr m_pGribsDB;
 		//CSfcGribDatabasePtr m_pGribsDB;
 		CGDALDatasetExPtr m_pDEM;
@@ -160,9 +185,6 @@ namespace WBSF
 
 		ERMsg ComputeElevation(double latitude, double longitude, double& elevation);
 		void SaveNormals(std::ostream& out, const CNormalsStation& normals);
-
-
-
 	};
 
 
