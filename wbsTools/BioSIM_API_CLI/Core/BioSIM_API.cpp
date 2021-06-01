@@ -73,9 +73,9 @@ namespace WBSF
 {
 
 
-	static const std::string ACCOUNT_NAME = "dhportalstoragedev";
-	static const std::string ACCOUNT_KEY = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
-	static const std::string CONTAINER_NAME = "biosim-data";
+	static const std::string ACCOUNT_NAME = "";
+	static const std::string ACCOUNT_KEY = "";
+	static const std::string CONTAINER_NAME = "";
 
 
 

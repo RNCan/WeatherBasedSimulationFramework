@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Console.exe" size="6104">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Console.exe" size="7128">
       <assemblyIdentity name="BioSIM_API_Console" version="1.0.0.0" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>F5rFysr91xYJkGq8ox7qkdGzDwXpqX2J8VuAcIeYvN0=</dsig:DigestValue>
+        <dsig:DigestValue>21ZxZ8ASQzJxYrmr9h80g56/c4mBVniLuPZRt5e8A+8=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

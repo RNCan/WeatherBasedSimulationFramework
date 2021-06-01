@@ -19,17 +19,32 @@ namespace CLIConsole
             string[] arguments = Environment.GetCommandLineArgs();
             string options = arguments[1];
             Console.WriteLine("trying options: " + options);
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             
+
+
+
             Console.WriteLine("Initialize Weather Generator");
             WeatherGenerator WG = new WeatherGenerator("WG1");
             string msg = WG.Initialize(options);
             Console.WriteLine(msg);
-            
+
+
+            watch.Stop();
+            Console.WriteLine("Time to initialize Weather Generator: " + watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
 
             Console.WriteLine("Initialize DegreeDay model"); 
             ModelExecution model = new ModelExecution("Model1");
             msg = model.Initialize("Model="+ exe_path + "\\Models\\DegreeDay (Annual).mdl");
             Console.WriteLine(msg);
+
+            watch.Stop();
+            Console.WriteLine("Time to initialize DegreeDay model: " + watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
+
+
 
             string variables = model.GetWeatherVariablesNeeded();
             string parameters = model.GetDefaultParameters();
@@ -42,20 +57,41 @@ namespace CLIConsole
             Console.WriteLine("Generate weather for 2018-2019, 1 replications");
             TeleIO WGout = WG.Generate("Compress="+ compress_str+"&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
             Console.WriteLine(WGout.msg);
-           // Console.WriteLine(WGout.metadata);
+            // Console.WriteLine(WGout.metadata);
 
 
-            //example how to create TeleIO from string and bytes
-            //TeleIO = BioSIM_API.teleIO(WGout.compress, WGout.msg, WGout.comment, WGout.metadata, WGout.text, WGout.data)
-
+            // the code that you want to measure comes here
+            watch.Stop();
+            Console.WriteLine("Time to generate weather: "+ watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
 
             Console.WriteLine("Execute DegreeDay Model");
             TeleIO modelOut = model.Execute("Compress="+ compress_str, WGout);
             Console.WriteLine(modelOut.msg);
 
-
             string s = System.Text.Encoding.UTF8.GetString(modelOut.data);
             Console.WriteLine(s);
+
+            watch.Stop();
+            Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
+
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Second generation");
+            WGout = WG.Generate("Compress=" + compress_str + "&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
+
+            watch.Stop();
+            Console.WriteLine("Time to generate weather: " + watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
+
+            modelOut = model.Execute("Compress=" + compress_str, WGout);
+            Console.WriteLine(s);
+
+            watch.Stop();
+            Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
+
 
             //string path_out = path + "\\test" + (compress ? ".gz" : ".csv");
             //System.IO.FileStream fs = System.IO.File.Create(path_out);
