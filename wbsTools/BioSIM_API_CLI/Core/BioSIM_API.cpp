@@ -136,16 +136,9 @@ namespace WBSF
 		msg += NormalDB1.Open(file_path, CNormalsDatabase::modeRead);
 		if (msg)
 		{
-
-			//std::string account_name = "dhportalstoragedev";
-			//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
-
-
 			CLocation loc("test", "test", 45, -80, 100);
 			CSearchResultVector results1;
 			NormalDB1.Search(results1, loc, 4);
-			//std::stringstream stream;
-			//std::iostream stream;
 
 			//std::ofstream fout("G:/Travaux/BioSIM_API/World_1991-2020.bin");
 			NormalDB1.SaveAsBinary(bin_file_path);
@@ -171,9 +164,6 @@ namespace WBSF
 
 		string blobName = "Weather/Normals/" + GetFileName(file_path);
 
-		//std::string account_name = "stockage1234";
-		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
-		//std::string container_name = "biosim-data";
 		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
 		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
 		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
@@ -262,19 +252,10 @@ namespace WBSF
 		ERMsg msg;
 
 
-		//std::string account_name = "stockage1234";
-		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
-		//std::string container_name = "biosim-data";
 		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
 		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
 		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 8);
-		//blob_client_wrapper client_wrapper(client);
-
-
-//
-//
-//		auto blobs = client_wrapper.list_blobs_segmented(CONTAINER_NAME, "/", "", "Weather/Daily/Canada-USA 2018-2019.DailyDB.bin/2019/");
-//
+		
 //
 //
 //
@@ -411,9 +392,6 @@ namespace WBSF
 		ERMsg msg;
 
 
-		//std::string account_name = "stockage1234";
-		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
-		//std::string container_name = "biosim-data";
 		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
 		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
 		blob_client client(account, 16);
@@ -439,18 +417,10 @@ namespace WBSF
 		ERMsg msg;
 
 
-		//std::string account_name = "stockage1234";
-		//std::string account_key = "btjj6YpMgjQLFpjUn/nfJ5gGcSsGJ7tvhBweLU5xaqCp815POnis3a488Norm9DGNGjoqScm3urVcFV8l6PYYg==";
-		//std::string container_name = "biosim-data";
 		std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
 		std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
 		std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
 		blob_client_wrapper client_wrapper(client);
-
-		//		blob_client client(account, 16);
-
-			//	auto ret = client.create_container(CONTAINER_NAME).get();
-			//	std::ifstream fin(file_path, std::ios_base::in | std::ios_base::binary);
 		std::vector<std::pair<std::string, std::string>> metadata;
 		metadata.emplace_back(std::make_pair("type", "DEM"));
 		//	ret = client.upload_block_blob_from_stream(CONTAINER_NAME, "DEM/" + GetFileName(file_path), fin, metadata).get();
@@ -794,17 +764,6 @@ namespace WBSF
 				GDALSetCacheMax64(128 * 1024 * 1024);
 				RegisterGDAL();
 
-
-				//AccountName=dhportalstoragedev;AccountKey=+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==
-
-
-						//	std::string account_name = "dhportalstoragedev";
-							//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
-							//std::string container_name = "biosim-data";
-
-
-
-
 				std::shared_ptr<storage_credential> cred;
 				std::shared_ptr<storage_account> account;
 				if (m_init.IsAzure())
@@ -841,9 +800,6 @@ namespace WBSF
 				if (!m_init.m_normal_name.empty())
 				{
 					m_pNormalDB.reset(new CNormalsDatabase);
-					//m_pNormalDB->m_account_name = m_init.m_account_name;
-					//m_pNormalDB->m_account_key = m_init.m_account_key;
-					//m_pNormalDB->m_container_name = m_init.m_container_name;
 
 
 					if (m_init.IsAzure())
