@@ -40,24 +40,11 @@ void CResultCtrl::OnSetup()
 
 void CResultCtrl::OnSheetSetup(int ID)
 {
-	WORD dpi = GetWindowDPI(GetSafeHwnd());
-//1const int iWindowsReferenceDPI = 96;
-
-
+	SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+	SetTH_Height(MulDiv(m_GI->m_topHdgHeight, GetWindowDPI(GetSafeHwnd()), 96));
+	SetHS_Height(MulDiv(m_GI->m_hScrollHeight, GetWindowDPI(GetSafeHwnd()), 96));
+	
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
-	
-	//LOGFONT lf;                        // Used to create the CFont.
-	//m_font.GetLogFont(&lf);
-	//lf.lfHeight = -MulDiv(12,dpi, iWindowsReferenceDPI);
-	//m_font.DeleteObject();
-	//m_font.CreateFontIndirect(&lf);    // Create the font.
-
-	int height = m_GI->m_defRowHeight;
-	height = MulDiv(height, dpi, 96);
-	SetDefRowHeight(height);
-	
-
-
 	m_cellBorderPen.CreatePen(PS_SOLID, 1, RGB(157, 157, 161));
 	// create and set new top-heading class
 	CExcelTopHdg* pExcelTopHdg = new CExcelTopHdg;
