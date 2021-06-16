@@ -37,6 +37,9 @@ namespace WBSF
 	void CTimeFormatGridCtrl::OnSetup()
 	{
 		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetTH_Height(MulDiv(m_GI->m_topHdgHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetHS_Height(MulDiv(m_GI->m_hScrollHeight, GetWindowDPI(GetSafeHwnd()), 96));
+
 
 		CStringArrayEx strTitle1(IDS_CMN_TIME_FORMAT_DATAHEAD1);
 		CStringArrayEx strTitle2(IDS_CMN_TIME_FORMAT_DATAHEAD2);

@@ -86,6 +86,9 @@ namespace WBSF
 	void CLOCGridCtrl::OnSetup()
 	{
 		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetTH_Height(MulDiv(m_GI->m_topHdgHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetHS_Height(MulDiv(m_GI->m_hScrollHeight, GetWindowDPI(GetSafeHwnd()), 96));
+
 
 		CAppOption option;
 		option.SetCurrentProfile(_T("ColumnWidth"));

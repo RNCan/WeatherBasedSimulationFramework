@@ -62,6 +62,10 @@ namespace WBSF
 	void CWeatherDataGridCtrl::OnSetup()
 	{
 		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetTH_Height(MulDiv(m_GI->m_topHdgHeight, GetWindowDPI(GetSafeHwnd()), 96));
+		SetHS_Height(MulDiv(m_GI->m_hScrollHeight, GetWindowDPI(GetSafeHwnd()), 96));
+
+
 		m_font.CreateStockObject(DEFAULT_GUI_FONT);
 		CreateBoldFont();
 		m_cellBorderPen.CreatePen(PS_SOLID, 1, RGB(157, 157, 161));

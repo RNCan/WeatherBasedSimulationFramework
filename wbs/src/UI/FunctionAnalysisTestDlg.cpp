@@ -36,6 +36,10 @@ namespace WBSF
 	void CInputVariableGridCtrl::OnSetup()
 	{
 		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+		SetTH_Height(MulDiv(m_GI->m_topHdgHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+		SetHS_Height(MulDiv(m_GI->m_hScrollHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+
+
 		//change font of header
 		CUGCell cell;
 		GetHeadingDefault(&cell);
@@ -92,6 +96,10 @@ namespace WBSF
 	void COutputGridCtrl::OnSetup()
 	{
 		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+		SetTH_Height(MulDiv(m_GI->m_topHdgHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+		SetHS_Height(MulDiv(m_GI->m_hScrollHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+
+
 		//change font of header
 		CUGCell cell;
 		GetHeadingDefault(&cell);
