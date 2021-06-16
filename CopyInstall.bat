@@ -76,6 +76,9 @@ copy /Y ".\bin\Releasex64\Models\ClimaticQc.dll"            "..\Install\NRCan\Mo
 copy /Y ".\bin\Releasex64\Models\CornHeatUnits.mdl" "..\Install\NRCan\Models\CornHeatUnits.mdl"
 copy /Y ".\bin\Releasex64\Models\CornHeatUnits.dll" "..\Install\NRCan\Models\CornHeatUnits.dll"
 
+copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (H 2 D).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (H 2 D).mdl"
+copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (D 2 H).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (D 2 H).mdl"
+copy /Y ".\bin\Releasex64\Models\Daily vs Hourly.dll"    "..\Install\NRCan\Models\Daily vs Hourly.dll"
 
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl"    "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Monthly).mdl"   "..\Install\NRCan\Models\DegreeDay (Monthly).mdl"
