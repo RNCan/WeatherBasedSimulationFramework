@@ -49,10 +49,13 @@ int COutputView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	VERIFY(m_messageWnd.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_MESSAGE_WND));
 	VERIFY(m_progressWnd.Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CRect(), this, ID_PROGRESS_WND));
 
-	m_font.CreateFont(16, 0, 0, 0, FW_NORMAL, false, false,
+	WORD dpi = GetWindowDPI(GetSafeHwnd());
+	int height = MulDiv(16, dpi, 96);
+	m_font.CreateFont(height, 0, 0, 0, FW_NORMAL, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Courier New"));
 
+//	m_font.CreateStockObject(DEFAULT_GUI_FONT);
 
 	SetFont(&m_font);
 	m_messageWnd.SetFont(&m_font);

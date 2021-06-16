@@ -36,43 +36,12 @@ void CResultCtrl::OnSetup()
 {
 	CUGExcel::OnSetup();
 }
-typedef HRESULT(WINAPI *PGetDpiForMonitor)(HMONITOR hmonitor, int dpiType, UINT* dpiX, UINT* dpiY);
 
-WORD GetWindowDPI(HWND hWnd)
-{
-	// Try to get the DPI setting for the monitor where the given window is located.
-	// This API is Windows 8.1+.
-	HMODULE hShcore = LoadLibraryW(L"shcore");
-	if (hShcore)
-	{
-		PGetDpiForMonitor pGetDpiForMonitor =
-			reinterpret_cast<PGetDpiForMonitor>(GetProcAddress(hShcore, "GetDpiForMonitor"));
-		if (pGetDpiForMonitor)
-		{
-			HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
-			UINT uiDpiX;
-			UINT uiDpiY;
-			HRESULT hr = pGetDpiForMonitor(hMonitor, 0, &uiDpiX, &uiDpiY);
-			if (SUCCEEDED(hr))
-			{
-				return static_cast<WORD>(uiDpiX);
-			}
-		}
-	}
-
-	// We couldn't get the window's DPI above, so get the DPI of the primary monitor
-	// using an API that is available in all Windows versions.
-	HDC hScreenDC = GetDC(0);
-	int iDpiX = GetDeviceCaps(hScreenDC, LOGPIXELSX);
-	ReleaseDC(0, hScreenDC);
-
-	return static_cast<WORD>(iDpiX);
-}
 
 void CResultCtrl::OnSheetSetup(int ID)
 {
-	WORD dpi = GetWindowDPI(GetSafeHwnd())*2;
-	const int iWindowsReferenceDPI = 96;
+	WORD dpi = GetWindowDPI(GetSafeHwnd());
+//1const int iWindowsReferenceDPI = 96;
 
 
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
@@ -83,8 +52,8 @@ void CResultCtrl::OnSheetSetup(int ID)
 	//m_font.DeleteObject();
 	//m_font.CreateFontIndirect(&lf);    // Create the font.
 
-	int height = 20;
-	height = MulDiv(12, dpi, iWindowsReferenceDPI);
+	int height = m_GI->m_defRowHeight;
+	height = MulDiv(height, dpi, 96);
 	SetDefRowHeight(height);
 	
 
