@@ -352,6 +352,8 @@ namespace UtilWin
 
 	//BOOL RegisterExtension(CString sExt, CString sDescription);
 	inline DWORD GetWindowStyle(HWND hwnd) { return (DWORD)GetWindowLong(hwnd, GWL_STYLE); }
+	WORD GetWindowDPI(HWND hWnd);
+
 }
 
 
