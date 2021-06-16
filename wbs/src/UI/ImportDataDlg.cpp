@@ -33,6 +33,7 @@ namespace WBSF
 
 	void CImportVariablesCtrl::OnSetup()
 	{
+		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
 		//change font of header
 		CUGCell cell;
 		GetHeadingDefault(&cell);

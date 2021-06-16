@@ -36,12 +36,14 @@ namespace WBSF
 	//		It can be used to initially setup the grid
 	void CTimeFormatGridCtrl::OnSetup()
 	{
+		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+
 		CStringArrayEx strTitle1(IDS_CMN_TIME_FORMAT_DATAHEAD1);
 		CStringArrayEx strTitle2(IDS_CMN_TIME_FORMAT_DATAHEAD2);
 		CStringArrayEx strTitle3(IDS_CMN_OUTPUT_TYPE_NAME); strTitle3.RemoveAt(strTitle3.GetSize() - 1);
 
 		//SetDefColWidth( 80 );
-		SetDefRowHeight(18);
+		//SetDefRowHeight(18);
 		SetDefColWidth(115);
 		SetSH_Width(75);
 

@@ -85,6 +85,8 @@ namespace WBSF
 	//		It can be used to initially setup the grid
 	void CLOCGridCtrl::OnSetup()
 	{
+		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
+
 		CAppOption option;
 		option.SetCurrentProfile(_T("ColumnWidth"));
 		m_format = DECIMALS_DEGREES;

@@ -42,7 +42,7 @@ namespace WBSF
 			EXTENDED_TYPE_NAME.LoadString(IDS_STR_TM_MODE);
 
 
-
+		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, GetWindowDPI(GetSafeHwnd()), 96));
 		//change font of header
 		CUGCell cell;
 		GetHeadingDefault(&cell);

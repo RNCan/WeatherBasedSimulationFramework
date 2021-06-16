@@ -434,8 +434,8 @@ namespace WBSF
 		case CExecutableTree::SCRIPT_R:bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
 		case CExecutableTree::COPY_EXPORT:	
 		case CExecutableTree::MODEL_PARAMETERIZATION:
-		case CExecutableTree::RATE_FIT:	bRep = (deepElemType != CExecutableTree::UNKNOWN) && (deepElemType != CExecutableTree::GROUP); break;
-		case CExecutableTree::INPUT_ANALYSIS:	  bRep = deepElemType == CExecutableTree::WEATHER_GENERATION; break;
+		case CExecutableTree::RATE_FIT:	bRep = (elemType == CExecutableTree::GROUP); break;
+		case CExecutableTree::INPUT_ANALYSIS:	bRep = (deepElemType == CExecutableTree::WEATHER_GENERATION); break;
 		case CExecutableTree::MERGE_EXECUTABLE:  bRep = (elemType == CExecutableTree::GROUP); break;
 
 		default: ASSERT(false);

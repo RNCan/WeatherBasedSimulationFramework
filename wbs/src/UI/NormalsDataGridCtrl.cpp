@@ -60,7 +60,7 @@ namespace WBSF
 	//		It can be used to initially setup the grid
 	void CNormalsDataGridCtrl::OnSetup()
 	{
-
+		SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
 		m_font.CreateStockObject(DEFAULT_GUI_FONT);
 		CreateBoldFont();
 		m_cellBorderPen.CreatePen(PS_SOLID, 1, RGB(157, 157, 161));
