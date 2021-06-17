@@ -35,7 +35,7 @@ namespace WBSF
 		m_bXVal = false;
 		m_bUseShore = false;
 		m_bUseNearestElev = true;
-		m_bUseNearestShore = true;
+		m_bUseNearestShore = false;
 		m_firstYear = -999;
 		m_lastYear = -999;
 		m_target.clear();
