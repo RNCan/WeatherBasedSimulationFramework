@@ -57,15 +57,15 @@ CMatchStationDoc::CMatchStationDoc()
 	m_hourlyFilePath = CStringA(options.GetProfileString(_T("HourlyDatabase")));
 	m_dailyFilePath = CStringA(options.GetProfileString(_T("DailyDatabase")));
 	m_normalsFilePath = CStringA(options.GetProfileString(_T("NormalsDatabase")));
-	
-	
-	
+
+
+
 
 
 	//load command line param
 	const CMatchStationCmdLine& cmdInfo = theApp.m_cmdInfo;
 	//const CMatchStationCmdLine* pCmdInfo = dynamic_cast <CMatchStationCmdLine*>(theApp.m_lpCmdLine);
-	
+
 
 	if (cmdInfo.Have(CMatchStationCmdLine::VARIABLE))
 	{
@@ -73,12 +73,12 @@ CMatchStationDoc::CMatchStationDoc()
 		if (var < NB_VAR_H)
 			m_variable = (TVarH)var;
 	}
-	
 
-	
+
+
 	if (cmdInfo.Have(CMatchStationCmdLine::YEAR))
 		m_year = UtilWin::ToInt(cmdInfo.GetParam(CMatchStationCmdLine::YEAR));
-	
+
 	if (cmdInfo.Have(CMatchStationCmdLine::NB_STATIONS))
 		m_nbStations = UtilWin::ToInt64(cmdInfo.GetParam(CMatchStationCmdLine::NB_STATIONS));
 
@@ -87,23 +87,23 @@ CMatchStationDoc::CMatchStationDoc()
 
 	if (cmdInfo.Have(CMatchStationCmdLine::OBS_TYPE))
 		m_obsType = UtilWin::ToInt64(cmdInfo.GetParam(CMatchStationCmdLine::OBS_TYPE));
-	
+
 	if (cmdInfo.Have(CMatchStationCmdLine::SKIP_VERIFY))
 		m_bSkipVerify = UtilWin::ToBool(cmdInfo.GetParam(CMatchStationCmdLine::OBS_TYPE));
-	
+
 
 
 	if (cmdInfo.Have(CMatchStationCmdLine::NORMALS_FILEPATH))
 		m_normalsFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::NORMALS_FILEPATH));
-	
+
 	if (cmdInfo.Have(CMatchStationCmdLine::DAILY_FILEPATH))
 		m_dailyFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::DAILY_FILEPATH));
 
 	if (cmdInfo.Have(CMatchStationCmdLine::HOURLY_FILEPATH))
 		m_hourlyFilePath = CStringA(cmdInfo.GetParam(CMatchStationCmdLine::HOURLY_FILEPATH));
-			
+
 	m_bExecute = false;
-	
+
 
 	//fill with empty 
 
@@ -166,8 +166,8 @@ BOOL CMatchStationDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	{
 		m_hourlyFilePath = filepath;
 	}
-	
-	
+
+
 
 	return (bool)msg;
 }
@@ -188,7 +188,7 @@ void CMatchStationDoc::SetLocationFilePath(const std::string& filepath)
 			{
 				ERMsg msg;
 
-				
+
 				/*CProgressStepDlg dlg(AfxGetMainWnd());
 				dlg.Create();
 
@@ -324,7 +324,7 @@ void CMatchStationDoc::SetDailyFilePath(const std::string& filepath)
 					SYShowMessage(msg, AfxGetMainWnd());
 				}
 
-				
+
 			}//path not empty
 
 			UpdateAllViews(NULL, OBSERVATION_DATABASE_CHANGE, NULL);
@@ -375,7 +375,7 @@ void CMatchStationDoc::SetHourlyFilePath(const std::string& filepath)
 					SYShowMessage(msg, AfxGetMainWnd());
 				}
 
-				
+
 			}//path not empty
 
 			UpdateAllViews(NULL, OBSERVATION_DATABASE_CHANGE, NULL);
@@ -452,7 +452,7 @@ void CMatchStationDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 	CString strText = _T("TODO: implement thumbnail drawing here");
 	LOGFONT lf;
 
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
 	lf.lfHeight = 36;
 
@@ -512,8 +512,6 @@ void CMatchStationDoc::Dump(CDumpContext& dc) const
 
 void CMatchStationDoc::SetCurIndex(size_t i, CView* pSender)
 {
-
-
 	if (i != m_curIndex)
 	{
 		ERMsg msg;
@@ -534,7 +532,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 	//Load database
 	if (!m_bExecute && m_curIndex != UNKNOWN_POS)
 	{
-		
+
 		//update result
 		if (m_pNormalsDB.get() && m_pNormalsDB->IsOpen())
 		{
@@ -548,7 +546,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				if (v == H_TAIR)
 					v = H_TMIN;
 
-				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, m_variable, -999);
+				pNormalsDB->Search(m_normalsResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius * 1000, m_variable, -999);
 				pNormalsDB->GetStations(m_normalsStations, m_normalsResult);
 			}
 
@@ -557,11 +555,35 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 			{
 				//create gradient
 				m_gradient.SetNormalsDatabase(pNormalsDB);
+				if (m_obsType == T_DAILY)
+				{
+					if (m_pDailyDB.get() && m_pDailyDB->IsOpen())
+					{
+						m_gradient.m_firstYear = m_year;
+						m_gradient.m_lastYear = m_year;
+						m_gradient.SetObservedDatabase(m_pDailyDB);
+					}
+				}
+				else
+				{
+					if (m_pHourlyDB.get() && m_pHourlyDB->IsOpen())
+					{
+						m_gradient.m_firstYear = m_year;
+						m_gradient.m_lastYear = m_year;
+						m_gradient.SetObservedDatabase(m_pHourlyDB);
+					}
+				}
+
+
 				m_gradient.m_bForceComputeAllScale = true;
+				m_gradient.m_bUseShore = false;//m_tgi.m_bUseShore;
+				m_gradient.m_bUseNearestShore = false;
+				m_gradient.m_bUseNearestElev = true;
 				m_gradient.m_variables = "TN T TX P TD Z";
 				m_gradient.m_bXVal = false;
-				m_gradient.m_
 				m_gradient.m_target = GetLocation(m_curIndex);
+
+
 
 
 				COutputView* pView = GetOutpoutView();
@@ -571,7 +593,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				pView->AdjustLayout();//open the progress window
 				CProgressStepDlgParam param(this, NULL, (void*)T_GRADIENT);
 
-				
+
 				ERMsg msg = progressWnd.Execute(Execute, &param);
 
 
@@ -596,9 +618,9 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					{
 						CNormalsStationVector stationsVector = m_normalsStations;
 						stationsVector.ApplyCorrections(m_gradient);
-						stationsVector.GetInverseDistanceMean(GetLocation(GetCurIndex()), m_variable, m_normalsEstimate, true, WEATHER::SHORE_DISTANCE_FACTOR>0);
+						stationsVector.GetInverseDistanceMean(GetLocation(GetCurIndex()), m_variable, m_normalsEstimate, true, WEATHER::SHORE_DISTANCE_FACTOR > 0);
 					}
-					
+
 				}
 			}
 		}
@@ -616,7 +638,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					TVarH v = m_variable;
 					if (v == H_TAIR)
 						v = H_TMIN;
-					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
+					pDailyDB->Search(m_dailyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius * 1000, v, m_year);
 					pDailyDB->GetStations(m_dailyStations, m_dailyResult, m_year);
 				}
 			}
@@ -635,7 +657,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 					if (v == H_TMIN || v == H_TMAX)
 						v = H_TAIR;
 
-					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius*1000, v, m_year);
+					pHourlyDB->Search(m_hourlyResult, GetLocation(m_curIndex), m_nbStations, m_searchRadius * 1000, v, m_year);
 					pHourlyDB->GetStations(m_hourlyStations, m_hourlyResult, m_year);
 				}
 			}
@@ -670,7 +692,7 @@ UINT CMatchStationDoc::Execute(void* pParam)
 	CProgressStepDlgParam* pMyParam = (CProgressStepDlgParam*)pParam;
 	CMatchStationDoc* pDoc = (CMatchStationDoc*)pMyParam->m_pThis;
 	std::string filepath;
-	if (pMyParam->m_pFilepath!=NULL)
+	if (pMyParam->m_pFilepath != NULL)
 		filepath = (char*)pMyParam->m_pFilepath;
 
 	size_t type = (size_t)pMyParam->m_pExtra;
@@ -733,10 +755,10 @@ CProgressWnd& CMatchStationDoc::GetProgressWnd(COutputView* pView)
 void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 {
 	ERMsg msg;
-	
+
 	COutputView* pView = GetOutpoutView();
 	CProgressWnd& progressWnd = GetProgressWnd(pView);
-	
+
 	m_bExecute = true;
 	pView->AdjustLayout();//open the progress window
 
@@ -772,7 +794,7 @@ void CMatchStationDoc::OnInitialUpdate() // called first time after construct
 
 		}//path not empty
 	}
-	
+
 	if (m_hourlyFilePath != m_lastHourlyFilePath)
 	{
 		m_lastHourlyFilePath = m_hourlyFilePath;

@@ -389,9 +389,10 @@ string CNormalsGradientCtrl::GetDataText(int col, long row)const
 {
 	string str;
 
-	size_t z = row / NB_SPACE_EX;
+	size_t nb_space = m_gradient.m_bUseShore ? NB_SPACE_EX : NB_SPACE;
+	size_t z = row / nb_space;
 	size_t m = col - G_FIRST_MONTH;
-	size_t s = row % NB_SPACE_EX;
+	size_t s = row % nb_space;
 
 	if (m_variable == H_TAIR)
 	{
@@ -436,7 +437,8 @@ void CNormalsGradientCtrl::SortInfo(int col, int dir)
 			m_curSortCol = col;
 			m_sortInfo.clear();
 
-			size_t nbRows = NB_SPACE_EX*NB_SCALE_GRADIENT;
+			size_t nb_space = m_gradient.m_bUseShore ? NB_SPACE_EX : NB_SPACE;
+			size_t nbRows = nb_space *NB_SCALE_GRADIENT;
 			m_sortInfo.resize(nbRows);
 			for (size_t row = 0; row != nbRows; row++)
 				m_sortInfo[row] = std::make_pair(GetDataText(col, (long)row), row);

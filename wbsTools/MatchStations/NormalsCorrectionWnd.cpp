@@ -26,6 +26,7 @@ END_MESSAGE_MAP()
 // CNormalsCorrectionWnd construction/destruction
 CNormalsCorrectionCtrl::CNormalsCorrectionCtrl()
 {
+	m_gradient.m_bUseShore = false;
 }
 
 CNormalsCorrectionCtrl::~CNormalsCorrectionCtrl()
@@ -325,13 +326,13 @@ string CNormalsCorrectionCtrl::GetDataText(int col, long row)const
 {
 	string str;
 
+	
+	size_t nb_space = m_gradient.m_bUseShore ? NB_SPACE_EX : NB_SPACE;
 
-
-
-	size_t st = row / NB_SPACE_EX;
+	size_t st = row / nb_space;
 	size_t g = V2G(m_variable);
 	size_t m = col - G_FIRST_MONTH;
-	size_t s = row % NB_SPACE_EX;
+	size_t s = row % nb_space;
 
 
 
@@ -379,7 +380,8 @@ void CNormalsCorrectionCtrl::SortInfo(int col, int dir)
 			m_curSortCol = col;
 			m_sortInfo.clear();
 
-			size_t nbRows = m_results.size()*NB_SPACE_EX;
+			size_t nb_space = m_gradient.m_bUseShore ? NB_SPACE_EX : NB_SPACE;
+			size_t nbRows = m_results.size()*nb_space;
 			m_sortInfo.resize(nbRows);
 			for (size_t row = 0; row != nbRows; row++)
 				m_sortInfo[row] = std::make_pair(GetDataText(col, (long)row), row);
