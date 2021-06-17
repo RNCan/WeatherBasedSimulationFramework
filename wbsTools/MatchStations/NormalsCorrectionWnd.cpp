@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "UI/Common/UtilWin.h"
 #include "MatchStationApp.h"
 #include "MatchStationDoc.h"
 #include "NormalsCorrectionWnd.h"
@@ -13,9 +14,9 @@ using namespace WBSF::HOURLY_DATA;
 
 //**************************************************************************************************************************************
 // CNormalsCorrectionWnd
-					
 
-enum TCorrectionColumns{ G_STATION, G_SPACE, G_DELTA, G_FIRST_MONTH, G_JAN = G_FIRST_MONTH, G_FEB, G_MAR, G_APR, G_MAY, G_JUN, G_JUL, G_AUG, G_SEP, G_OCT, G_NOV, G_DEV, NB_GRADIENT_COLUMNS };
+
+enum TCorrectionColumns { G_STATION, G_SPACE, G_DELTA, G_FIRST_MONTH, G_JAN = G_FIRST_MONTH, G_FEB, G_MAR, G_APR, G_MAY, G_JUN, G_JUL, G_AUG, G_SEP, G_OCT, G_NOV, G_DEV, NB_GRADIENT_COLUMNS };
 
 BEGIN_MESSAGE_MAP(CNormalsCorrectionCtrl, CUGCtrl)
 
@@ -35,6 +36,9 @@ CNormalsCorrectionCtrl::~CNormalsCorrectionCtrl()
 
 void CNormalsCorrectionCtrl::OnSetup()
 {
+	SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetTH_Height(MulDiv(m_GI->m_topHdgHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetHS_Height(MulDiv(m_GI->m_hScrollHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
 
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
 	CreateBoldFont();
@@ -108,7 +112,7 @@ void CNormalsCorrectionCtrl::Update()
 				SetColWidth(i, width);
 			}
 
-				
+
 			EnableUpdate(TRUE);
 		}//is open
 		else
@@ -172,7 +176,7 @@ void CNormalsCorrectionCtrl::OnGetCell(int col, long row, CUGCell *cell)
 		{
 			if (row == -1)
 			{
-					
+
 				if (col == G_STATION)
 					text = "Station";
 				else if (col == G_SPACE)
@@ -320,15 +324,16 @@ void CNormalsCorrectionCtrl::OnSH_LClicked(int col, long row, int updn, RECT *re
 string CNormalsCorrectionCtrl::GetDataText(int col, long row)const
 {
 	string str;
-	
+
+
 
 
 	size_t st = row / NB_SPACE_EX;
 	size_t g = V2G(m_variable);
 	size_t m = col - G_FIRST_MONTH;
 	size_t s = row % NB_SPACE_EX;
-		
-	
+
+
 
 	const CLocation& station = m_results[st].m_location;
 
@@ -350,12 +355,12 @@ string CNormalsCorrectionCtrl::GetDataText(int col, long row)const
 			size_t g1 = TMIN_GR;
 			size_t g2 = TMAX_GR;
 
-			double c = (m_gradient.GetCorrectionII(station, m, g1, s) + m_gradient.GetCorrectionII(station, m, g2, s)) / 2;
+			double c = (m_gradient.GetCorrectionII(station, m, g1, s, m_year) + m_gradient.GetCorrectionII(station, m, g2, s, m_year)) / 2;
 			str = ToString(c, 3);
 		}
 		else if (g != NOT_INIT)
 		{
-			double c = m_gradient.GetCorrectionII(station, m, g, s);
+			double c = m_gradient.GetCorrectionII(station, m, g, s, m_year);
 			str = ToString(c, 3);
 		}
 	}
@@ -550,9 +555,10 @@ void CNormalsCorrectionWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHin
 		AdjustLayout();
 	}
 
-	m_correctionCtrl.m_results	= pDoc->GetNormalsMatch();
+	m_correctionCtrl.m_results = pDoc->GetNormalsMatch();
 	m_correctionCtrl.m_gradient = pDoc->GetNormalsGradient();
 	m_correctionCtrl.m_variable = pDoc->GetVariable();
+	m_correctionCtrl.m_year = pDoc->GetYear();
 
 	if (pDoc->GetCurIndex() != UNKNOWN_POS)
 		m_correctionCtrl.m_location = pDoc->GetLocation(pDoc->GetCurIndex());

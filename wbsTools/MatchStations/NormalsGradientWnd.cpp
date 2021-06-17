@@ -3,6 +3,8 @@
 //
 
 #include "stdafx.h"
+
+#include "UI/Common/UtilWin.h"
 #include "NormalsGradientWnd.h"
 #include "Basic/Registry.h"
 #include "UI/Common/SYShowMessage.h"
@@ -53,6 +55,9 @@ CNormalsGradientCtrl::~CNormalsGradientCtrl()
 
 void CNormalsGradientCtrl::OnSetup()
 {
+	SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetTH_Height(MulDiv(m_GI->m_topHdgHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetHS_Height(MulDiv(m_GI->m_hScrollHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
 
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
 	CreateBoldFont();
@@ -109,7 +114,8 @@ void CNormalsGradientCtrl::Update()
 
 	if (filePath != m_lastFilePath ||
 		m_variable != m_lastVariable ||
-		m_location != m_lastLocation)
+		m_location != m_lastLocation || 
+		m_year != m_lastYear)
 	{
 		m_curSortCol = -999;
 		m_sortDir = UGCT_SORTARROWUP;
@@ -120,6 +126,7 @@ void CNormalsGradientCtrl::Update()
 			EnableUpdate(FALSE);
 			m_lastVariable = m_variable;
 			m_lastLocation = m_location;
+			m_lastYear = m_year;
 
 			SortInfo(AfxGetApp()->GetProfileInt(_T("GradientCtrl"), _T("SortCol"), 0), AfxGetApp()->GetProfileInt(_T("GradientCtrl"), _T("SortDir"), 0));
 
@@ -396,7 +403,7 @@ string CNormalsGradientCtrl::GetDataText(int col, long row)const
 		case -1:   str = to_string(row + 1); break;
 		case G_SCALE:	str = GetScaleName(z); break;
 		case G_SPACE:	str = GetSpaceName(s); break;
-		case G_FACTOR:	str = ToString((m_gradient.GetFactor(z, g1, s) + m_gradient.GetFactor(z, g2, s))*0.5 * 100, 1); break;
+		case G_FACTOR:	str = ToString((m_gradient.GetFactor(z, g1, s, m_year) + m_gradient.GetFactor(z, g2, s, m_year))*0.5 * 100, 1); break;
 		default: str = ToString((m_gradient(z, g1, m, s) + m_gradient(z, g2, m, s))*0.5);
 		}
 	}
@@ -411,7 +418,7 @@ string CNormalsGradientCtrl::GetDataText(int col, long row)const
 			case -1:   str = to_string(row + 1); break;
 			case G_SCALE:	str = GetScaleName(z); break;
 			case G_SPACE:	str = GetSpaceName(s); break;
-			case G_FACTOR:	str = ToString(m_gradient.GetFactor(z, g, s) * 100, 1); break;
+			case G_FACTOR:	str = ToString(m_gradient.GetFactor(z, g, s, m_year) * 100, 1); break;
 			default: str = ToString(m_gradient(z, g, m, s));
 			}
 		}
@@ -629,7 +636,10 @@ void CNormalsGradientWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 	m_wndNormalsList.m_pDB = pDoc->GetNormalsDatabase();
 	m_wndNormalsList.m_variable = pDoc->GetVariable();
-	m_wndNormalsList.m_gradient = pDoc->GetNormalsGradient();
+	m_wndNormalsList.m_year = pDoc->GetYear();
+	m_wndNormalsList.m_gradient = pDoc->GetNormalsGradient(); 
+	
+
 	if (pDoc->GetCurIndex() != UNKNOWN_POS)
 		m_wndNormalsList.m_location = pDoc->GetLocation(pDoc->GetCurIndex());
 

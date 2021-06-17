@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "UI/Common/UtilWin.h"
 #include "MatchStationApp.h"
 #include "MatchStationDoc.h"
 #include "NormalsEstimateWnd.h"
@@ -37,6 +38,9 @@ CNormalsEstimateCtrl::~CNormalsEstimateCtrl()
 
 void CNormalsEstimateCtrl::OnSetup()
 {
+	SetDefRowHeight(MulDiv(m_GI->m_defRowHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetTH_Height(MulDiv(m_GI->m_topHdgHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
+	SetHS_Height(MulDiv(m_GI->m_hScrollHeight, UtilWin::GetWindowDPI(GetSafeHwnd()), 96));
 
 	m_font.CreateStockObject(DEFAULT_GUI_FONT);
 	CreateBoldFont();

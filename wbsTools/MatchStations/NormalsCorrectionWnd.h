@@ -29,6 +29,7 @@ public:
 	WBSF::CWeatherGradient m_gradient;
 	WBSF::CLocation	m_location;
 	size_t		m_variable;
+	int m_year;
 
 
 

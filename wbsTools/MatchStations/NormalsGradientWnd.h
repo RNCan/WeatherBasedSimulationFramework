@@ -22,7 +22,7 @@ public:
 	WBSF::CWeatherGradient m_gradient;
 	WBSF::CLocation	m_location;
 	size_t		m_variable;
-
+	int			m_year;
 
 	virtual void OnSetup();
 	virtual int OnCanSizeCol(int) { return TRUE; }
@@ -52,6 +52,7 @@ protected:
 	std::string		m_lastFilePath;
 	size_t			m_lastVariable;
 	WBSF::CLocation		m_lastLocation;
+	int					m_lastYear;
 
 
 	std::string GetDataText(int col, long row)const;

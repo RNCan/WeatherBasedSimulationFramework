@@ -560,6 +560,7 @@ void CMatchStationDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHi
 				m_gradient.m_bForceComputeAllScale = true;
 				m_gradient.m_variables = "TN T TX P TD Z";
 				m_gradient.m_bXVal = false;
+				m_gradient.m_
 				m_gradient.m_target = GetLocation(m_curIndex);
 
 
