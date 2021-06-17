@@ -1367,6 +1367,7 @@ namespace WBSF
 	double CWeatherGradient::GetCorrectionII(const CLocation& station, size_t m, size_t g, size_t s, int year)const
 	{
 		ASSERT(s >= GetNbSpaces() || (m_factor.at(year)[0][g][s] + m_factor.at(year)[1][g][s] + m_factor.at(year)[2][g][s]) == 1);
+		ASSERT(m_factor.find(year)!= m_factor.end());
 
 		double correction = (g == PRCP_GR) ? 1 : 0;
 
