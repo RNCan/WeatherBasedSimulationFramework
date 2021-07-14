@@ -21,9 +21,9 @@ namespace CLIConsole
             Console.WriteLine("trying options: " + options);
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
+
+
             
-
-
 
             Console.WriteLine("Initialize Weather Generator");
             WeatherGenerator WG = new WeatherGenerator("WG1");

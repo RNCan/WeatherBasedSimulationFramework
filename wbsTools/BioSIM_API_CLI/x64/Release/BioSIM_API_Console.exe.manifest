@@ -49,19 +49,19 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>21ZxZ8ASQzJxYrmr9h80g56/c4mBVniLuPZRt5e8A+8=</dsig:DigestValue>
+        <dsig:DigestValue>fvfC8JTycVva8cw8FTQD/QQrr7lxzYyc9MdDFIRo6Rc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BioSIM_API_Wrapper.dll" size="172544">
-      <assemblyIdentity name="BioSIM_API_Wrapper" version="1.0.7817.22686" language="neutral" processorArchitecture="amd64" />
+      <assemblyIdentity name="BioSIM_API_Wrapper" version="1.0.7857.22892" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>pDwY8P4mz+yvu2ZYTDVaCfinoKKqqZ3mot2AJbzejNs=</dsig:DigestValue>
+        <dsig:DigestValue>fnPihDChePpJ5l/vWmzpIvmrX8J5z6YYzevebMy5AjM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

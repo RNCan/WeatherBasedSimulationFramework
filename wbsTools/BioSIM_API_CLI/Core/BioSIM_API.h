@@ -117,6 +117,8 @@ namespace WBSF
 	};
 
 
+
+
 	class WeatherGeneratorOptions
 	{
 	public:
@@ -148,8 +150,6 @@ namespace WBSF
 		bool m_compress;
 	};
 
-
-	
 
 	
 

@@ -39,7 +39,8 @@ namespace BioSIM_Wrapper
 
 	String^ WeatherGenerator::Initialize(const String^ str_options)
 	{
-		return stdstring_to_string(m_Instance->Initialize(string_to_stdstring(str_options)));
+		std::string options = string_to_stdstring(str_options);
+		return stdstring_to_string(m_Instance->Initialize(options));
 	}
 
 
