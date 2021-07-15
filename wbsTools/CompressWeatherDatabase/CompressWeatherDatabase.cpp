@@ -76,12 +76,17 @@ ERMsg CreateNormalBinary(string file_path_in, string file_path_out)
 	//SetFileExtension(file_path_out, ".NormalsDB.bin.gz");
 	std::cout << "Compress: " << GetFileName(file_path_in) << endl;
 
-	CNormalsDatabase NormalDB1;
-	msg += NormalDB1.Open(file_path_in, CNormalsDatabase::modeRead);
+	CCallback callback;
+	CNormalsDatabase DB;
+	msg += DB.Open(file_path_in, CNormalsDatabase::modeRead);
+	if (msg)
+		DB.OpenSearchOptimization(callback);
+
+
 	if (msg)
 	{
-		NormalDB1.SaveAsBinary(file_path_out);
-		NormalDB1.Close();
+		DB.SaveAsBinary(file_path_out);
+		DB.Close();
 	}
 
 	return msg;
@@ -142,12 +147,16 @@ ERMsg CreateDailyBinary(string file_path_in, string file_path_out)
 	std::cout << "Compress: " << GetFileName(file_path_in) << endl;
 	//SetFileExtension(file_path_out, ".DailyDB.bin.gz");
 
-	CDailyDatabase DB1;
-	msg += DB1.Open(file_path_in, CWeatherDatabase::modeRead);
+	CCallback callback;
+	CDailyDatabase DB;
+	msg += DB.Open(file_path_in, CWeatherDatabase::modeRead);
+	if (msg)
+		DB.OpenSearchOptimization(callback);
+
 	if (msg)
 	{
-		DB1.SaveAsBinary(file_path_out);
-		DB1.Close();
+		DB.SaveAsBinary(file_path_out);
+		DB.Close();
 	}
 
 	return msg;
