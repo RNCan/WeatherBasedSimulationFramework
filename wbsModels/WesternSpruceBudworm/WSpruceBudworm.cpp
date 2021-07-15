@@ -46,7 +46,7 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
-	CWSpruceBudworm::CWSpruceBudworm(CHost* pHost, CTRef creation, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CWSpruceBudworm::CWSpruceBudworm(CHost* pHost, CTRef creation, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creation, age, sex, bFertil, generation, scaleFactor)
 	{
 		//A creation date is assigned to each individual
@@ -161,7 +161,7 @@ namespace WBSF
 				double scaleFactor = m_broods*pStand->m_survivalRate*m_scaleFactor;
 				ASSERT(scaleFactor > 0);
 
-				CIndividualPtr pBug = make_shared<CWSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, NOT_INIT, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
+				CIndividualPtr pBug = make_shared<CWSpruceBudworm>(GetHost(), weather.GetTRef(), EGG, RANDOM_SEX, pStand->m_bFertilEgg, m_generation + 1, scaleFactor);
 				GetHost()->push_front(pBug);
 			}
 		}

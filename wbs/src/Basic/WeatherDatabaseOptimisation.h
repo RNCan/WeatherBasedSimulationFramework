@@ -82,7 +82,9 @@ namespace WBSF
 		ERMsg SaveAsXML(const std::string& filePath, const std::string& subDir, const std::string& rootName, short version, const std::string& hdrExt)const;
 		ERMsg LoadData(const std::string& filePath){ return m_filesSection.Load(filePath); }
 		ERMsg SaveData(const std::string& filePath){ return m_filesSection.Save(filePath); }
-
+		//void LoadFromBinary(std::istream& in);
+		//void SaveAsBinary(std::ostream& out)const;
+		//ERMsg CreateAllCanal();
 
 
 		template<class Archive>
@@ -91,6 +93,11 @@ namespace WBSF
 			ar & m_time & m_filesStamps & m_years;
 			ar & boost::serialization::base_object<CLocationVector>(*this);
 		}
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CWeatherDatabaseOptimization& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CWeatherDatabaseOptimization& data) { return data >> stream; }
 
 
 		void clear();
@@ -127,7 +134,7 @@ namespace WBSF
 		bool CanalExists(__int64 canal)const;
 		void AddCanal(__int64 canal, CApproximateNearestNeighborPtr pANN)const;
 		ERMsg Search(const CLocation& station, size_t nbPoint, CSearchResultVector& searchResultArray, __int64 canal)const;
-		ERMsg OpenSearch(const std::string& filePath1, std::string& filePath2)const;
+		ERMsg OpenSearch(const std::string& filePath1, const std::string& filePath2)const;
 		void CloseSearch()const;
 
 		void SetYears(const std::set<int>& in){ m_years = in; }
@@ -137,6 +144,14 @@ namespace WBSF
 		CGeoRect GetBoundingBox()const{ return m_boundingBox; }
 		std::string GetDataPath()const{ return m_filePath + (m_bSubDir ? GetFileTitle(m_filePath) + "\\" : ""); }
 
+
+		__int64 GetCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
+		{
+			return (filter.to_ullong()) * 100000 + std::max(0,year) * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+		}
+
+		//void CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+		
 	protected:
 
 		std::string m_filePath;

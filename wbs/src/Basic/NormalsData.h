@@ -87,10 +87,10 @@ namespace WBSF
 
 		CNormalsData& Copy(const CNormalsData& data, CWVariables variables);
 
-		//std::ostream& operator << ( std::ostream& stream);
-		//std::istream& operator >> ( std::istream& stream);
-		//friend std::ostream& operator << ( std::ostream& stream, CNormalsData& data){	return data << stream;}
-		//friend std::istream& operator >> ( std::istream& stream, CNormalsData& data){	return data >> stream;}
+		std::ostream& operator << ( std::ostream& stream)const;
+		std::istream& operator >> ( std::istream& stream);
+		friend std::ostream& operator << ( std::ostream& stream, const CNormalsData& data){	return data << stream;}
+		friend std::istream& operator >> ( std::istream& stream, CNormalsData& data){	return data >> stream;}
 
 		friend class boost::serialization::access;
 

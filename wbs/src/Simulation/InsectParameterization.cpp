@@ -59,12 +59,12 @@ namespace WBSF
 
 		//**********************************************************************************************
 
-	double GetRateStat(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T, double obs_time)
+	double GetRateStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double obs_time)
 	{
 		CStatisticEx stat;
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
 
@@ -74,7 +74,7 @@ namespace WBSF
 		{
 			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//sum of hourly rate
+				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
 
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
@@ -87,7 +87,7 @@ namespace WBSF
 			{
 				for (size_t h = 0; h < 24; h++)
 				{
-					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//daily rate
+					double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h]));//daily rate
 					if (!isfinite(rate) || isnan(rate))
 						return NAN;
 
@@ -100,12 +100,12 @@ namespace WBSF
 	}
 
 	//return time (days) to comple stage
-	double GetTimeStat(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T)
+	double GetTimeStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T)
 	{
 		double time = 0;
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			double rate = CDevRateEquation::GetRate(e, computation.m_XP, T[0]);//daily rate
+			double rate = CDevRateEquation::GetRate(e, X, T[0]);//daily rate
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
 
@@ -118,7 +118,7 @@ namespace WBSF
 		{
 			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//sum of hourly rate
+				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
 
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
@@ -135,7 +135,7 @@ namespace WBSF
 			double sum_rate = 0;
 			for (size_t h = 0; h < T.size() && sum_rate < 1.0; h++)
 			{
-				double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//daily rate
+				double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//daily rate
 				if (!isfinite(rate) || isnan(rate))
 					return NAN;
 
@@ -152,7 +152,7 @@ namespace WBSF
 		return time;
 	}
 
-	double GetSurvival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double obs_time)
+	double GetSurvival(TSurvivalEquation e, const vector<double>& X, const vector<double>& T, double obs_time)
 	{
 		if (obs_time <= 0)//when time is NA, survival is 0
 			return 0;
@@ -161,7 +161,7 @@ namespace WBSF
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
 			//daily survival
-			double s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[0]);
+			double s = CSurvivalEquation::GetSurvival(e, X, T[0]);
 			if (!isfinite(s) || isnan(s))
 				return NAN;
 
@@ -174,7 +174,7 @@ namespace WBSF
 			for (size_t h = 0; h < 24; h++)
 			{
 				//daily survival
-				double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[h]);
+				double d_s = CSurvivalEquation::GetSurvival(e, X, T[h]);
 				if (!isfinite(d_s) || isnan(d_s))
 					return NAN;
 
@@ -193,7 +193,7 @@ namespace WBSF
 				for (size_t h = 0; h < 24; h++)
 				{
 					//daily survival
-					double d_s = CSurvivalEquation::GetSurvival(e, computation.m_XP, T[t * 24 + h]);
+					double d_s = CSurvivalEquation::GetSurvival(e, X, T[t * 24 + h]);
 					if (!isfinite(d_s) || isnan(d_s))
 						return NAN;
 
@@ -209,12 +209,12 @@ namespace WBSF
 		return S;
 	}
 
-	double GetFecundity(TDevRateEquation e, CComputationVariable& computation, const vector<double>& T, double tiˉ¹, double ti, double qi)
+	double GetFecundity(TDevRateEquation e, const vector<double>& X, const vector<double>& T, double tiˉ¹, double ti, double qi)
 	{
-		double to = 0;
-		double Fo = computation.m_XP[computation.m_XP.size() - 2];
-		double sigma_f = computation.m_XP.back();
-		//	double Fo = computation.m_XP.back();
+		double to = 0;// X[X.size() - 3];
+		double Fo = X[X.size() - 2];
+		double sigma_f = X[X.size() - 1];
+
 		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
 		double Fi = quantile(LogNormal, qi);
 
@@ -229,7 +229,7 @@ namespace WBSF
 		double Ftˉ¹ = 0;//remaining fecundity at day t-1
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//remaining eggs
+			double lambda = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//remaining eggs
 			if (!isfinite(lambda) || isnan(lambda))
 				return NAN;
 
@@ -277,7 +277,7 @@ namespace WBSF
 		return Ftˉ¹ - Ft;
 	}
 
-	double Regniere2021DevRate(TDevRateEquation  e, double sigma, CComputationVariable& computation, const vector<double>& T, double ti)
+	double Regniere2021DevRate(TDevRateEquation  e, double sigma, const vector<double>& X, const vector<double>& T, double ti)
 	{
 		ASSERT(sigma > 0);
 
@@ -289,7 +289,7 @@ namespace WBSF
 			//xi = integral (daily summation) of all daily rate at temperature at day ti
 			//xiˉ¹ = integral (dailysummation) of all daily rate at daily temperature at day ti-1
 
-			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
 
@@ -303,7 +303,7 @@ namespace WBSF
 
 			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//hourly rate;
 
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
@@ -321,7 +321,7 @@ namespace WBSF
 				for (size_t h = 0; h < 24; h++)
 				{
 					ASSERT(t * 24 + h < T.size());
-					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h])) / 24.0;//hourly rate
+					double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h])) / 24.0;//hourly rate
 					if (!isfinite(rate) || isnan(rate))
 						return NAN;
 
@@ -345,12 +345,12 @@ namespace WBSF
 	}
 
 
-	double Regniere2021DevRateMeanSDn(TDevRateEquation  e, CComputationVariable& computation, const vector<double>& T, double mean_time, double time_SD, double n)
+	double Regniere2021DevRateMeanSDn(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double mean_time, double time_SD, double n)
 	{
 		CStatistic stat_rate;
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
 
@@ -360,7 +360,7 @@ namespace WBSF
 		{
 			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//hourly rate;
 
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
@@ -373,7 +373,7 @@ namespace WBSF
 			{
 				for (size_t h = 0; h < 24; h++)
 				{
-					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//rate for each hour
+					double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h]));//rate for each hour
 					if (!isfinite(rate) || isnan(rate))
 						return NAN;
 
@@ -392,7 +392,7 @@ namespace WBSF
 		return log(p);
 	}
 
-	double Regniere2021DevRateMean(TDevRateEquation  e, double sigma_mean, CComputationVariable& computation, const vector<double>& T, double mean_time, double n)
+	double Regniere2021DevRateMean(TDevRateEquation  e, double sigma_mean, const vector<double>& X, const vector<double>& T, double mean_time, double n)
 	{
 		ASSERT(sigma_mean > 0);
 
@@ -400,7 +400,7 @@ namespace WBSF
 		CStatistic stat_rate;
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
-			double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[0]));//daily rate
+			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
 
@@ -411,7 +411,7 @@ namespace WBSF
 
 			double rate = 0;
 			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//hourly rate;
 
 			if (!isfinite(rate) || isnan(rate))
 				return NAN;
@@ -424,7 +424,7 @@ namespace WBSF
 			{
 				for (size_t h = 0; h < 24; h++)
 				{
-					double rate = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//rate for each hourly
+					double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h]));//rate for each hourly
 					if (!isfinite(rate) || isnan(rate))
 						return NAN;
 
@@ -443,9 +443,9 @@ namespace WBSF
 		return log(p);
 	}
 
-	double Regniere2021Survival(TSurvivalEquation e, CComputationVariable& computation, const vector<double>& T, double mean_time, double survival_obs, double n)
+	double Regniere2021Survival(TSurvivalEquation e, const vector<double>& X, const vector<double>& T, double mean_time, double survival_obs, double n)
 	{
-		double S = GetSurvival(e, computation, T, mean_time);
+		double S = GetSurvival(e, X, T, mean_time);
 
 		if (!isfinite(S) || isnan(S))
 			return S;
@@ -459,33 +459,38 @@ namespace WBSF
 	}
 
 	//to : pre-oviposition period
-	double Regniere2021FecundityTimeSeries(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double tiˉ¹, double ti, double brood_obs)
+	double Regniere2021FecundityTimeSeries(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double tiˉ¹, double ti, double brood_obs, double qBrood)
 	{
 		ASSERT(tiˉ¹ < ti);
-		//ASSERT(tiˉ¹ - to >= 0);
-
-		double to = 0;
+		
+		double to = 0;// X[X.size() - 3];
+		//Get Fo and sigma from input parameters X
 		double Fo = X[X.size() - 2];
-		////double sigma_f = computation.m_XP.back();
-		//boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
-//		double Fi = quantile(LogNormal, qi);
-		//double Fo = computation.m_XP.back();
+		double sigma_f = X[X.size() - 1];
 
-		if (tiˉ¹ - to < 0)
-			return NAN;
+		//create relative fecundity unbiased log-normal distribution
+		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
 
-		double Ft = 0;//remaining fecundity at day t
-		double Ftˉ¹ = 0;//remaining fecundity at day t-1
+		//compute individual fecondity (Fi) from Fo and female quantile
+		double Fi = quantile(LogNormal, qBrood);
+		
+
+		double Ft = Fi;//remaining fecundity at day t
+		double Ftˉ¹ = Fi;//remaining fecundity at day t-1
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
+			//compute lambda from equations parameters and fixed temperature
 			double lambda = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//remaining eggs
 			if (!isfinite(lambda) || isnan(lambda))
 				return NAN;
 
 			//double Fi = brood_obs / (exp(-lambda * (tiˉ¹ - to)) - exp(-lambda * (ti - to)));
 
-			Ft = Fo * exp(-lambda * (ti - to));
-			Ftˉ¹ = Fo * exp(-lambda * (tiˉ¹ - to));
+			//compute remainning fecundity
+			if (ti - to >= 0)
+				Ft = Fi * exp(-lambda * (ti - to));
+			if (tiˉ¹ - to >= 0)
+				Ftˉ¹ = Fi * exp(-lambda * (tiˉ¹ - to));
 
 
 			//Ft = exp(-lambda * (ti - to));
@@ -552,39 +557,33 @@ namespace WBSF
 			//}
 		}
 
-		//Fi = I$F / (1 - exp(-lambda(T[match(I$T, RoomName)])*(I$Time)))
+		
+		//create poisson distribution from expected values
 		double expected = max(0.001, Ftˉ¹ - Ft);
 		boost::math::poisson_distribution<double> Poisson(expected);
 
-		////compute probability to get observed brood
+		//compute probability to get observed brood
 		double p = max(1e-20, pdf(Poisson, brood_obs));
-
-		//boost::math::poisson_distribution<double> Poisson2(brood_obs);
-
-		////compute probability to get observed brood
-		//double p2 = pdf(Poisson2, expected);
-
-		//double p1 = cdf(LogNormal, Ftˉ¹);
-		//double p2 = cdf(LogNormal, Ft);
-		//double p = max(1e-200, cdf(LogNormal, Ftˉ¹) - cdf(LogNormal, Ft));
-
 
 		return log(p);
 	}
-	double Regniere2021Fecundity(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double time, double brood_obs)
+
+
+	double Regniere2021Fecundity(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double time, double brood_obs, double qBrood)
 	{
-		double to = 0;
+		//Get to, Fo and sigma from input parameters X
+		double to = 0;// X[X.size() - 3];
 		double Fo = X[X.size() - 2];
 		double sigma_f = X.back();
-		
-		//double Fi = quantile(LogNormal, qi);
-		//double Fo = X.back();
 
-		if (time - to < 0)
-			return NAN;
+		//create relative fecundity unbiased log-normal distribution
+		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
 
-		//double Fi = 0;//remaining fecundity at day t
-		double Ft = 0;//remaining fecundity at day t-1
+		//compute individual fecondity (Fi) from Fo and female quantile
+		double Fi = quantile(LogNormal, qBrood);
+
+
+		double Ft = Fi;//remaining fecundity at end
 		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
 		{
 			double lambda = max(0.001, CDevRateEquation::GetRate(e, X, T[0]));//remaining eggs
@@ -593,7 +592,8 @@ namespace WBSF
 
 			//double Fi = brood_obs / (exp(-lambda * (tiˉ¹ - to)) - exp(-lambda * (ti - to)));
 
-			Ft = Fo * (1 - exp(-lambda * (time - to)));
+			if(time - to>=0)
+				Ft = Fi * (1 - exp(-lambda * (time - to)));
 			//Fi = brood_obs / (1 - exp(-lambda * (ti - to)));
 			//Ftˉ¹ = Fi * exp(-lambda * (tiˉ¹ - to));
 
@@ -662,29 +662,16 @@ namespace WBSF
 			//}
 		}
 
-		//Fi = I$F / (1 - exp(-lambda(T[match(I$T, RoomName)])*(I$Time)))
 		double expected = max(0.001, Ft);
 		boost::math::poisson_distribution<double> Poisson(expected);
 
 		////compute probability to get observed brood
 		double p = max(1e-20, pdf(Poisson, brood_obs));
 
-		//boost::math::poisson_distribution<double> Poisson2(brood_obs);
+//		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
+//	double p2 = max(1e-200, pdf(LogNormal, Ft));
 
-		////compute probability to get observed brood
-		//double p2 = pdf(Poisson2, expected);
-
-		//if (!isfinite(Fi) || isnan(Fi))
-			//return NAN;
-
-		boost::math::lognormal_distribution<double> LogNormal(log(Fo)- 0.5*Square(sigma_f), sigma_f);
-
-		double p2 = max(1e-200, pdf(LogNormal, Ft));
-		//double p2 = cdf(LogNormal, Ft);
-		//double p = max(1e-200, cdf(LogNormal, Ftˉ¹) - cdf(LogNormal, Ft));
-
-
-		return log(p)+log(p2);
+		return log(p);// + log(p2)
 	}
 
 	double Regniere2021FecundityMeanSDn(TDevRateEquation e, const vector<double>& X, const vector<double>& T, double mean_time, double mean_broods, double broodSD, double n)
@@ -1282,9 +1269,9 @@ namespace WBSF
 				//double alpha = 0.25;//alpha with 50% of the sample size
 				//double p = 1.0 - pow(alpha, 1.0 / qTime.size());
 
-				double alpha = 0.05;//95% of the range
+				//double alpha = 0.05;//95% of the range
 				//double p = 0.005; //99% of the range
-				double p = min(alpha, 1.0 - pow(alpha, 1.0 / qTime.size()));
+				//double p = min(alpha, 1.0 - pow(alpha, 1.0 / qTime.size()));
 
 
 				////double cumsum = 0;
@@ -1348,9 +1335,9 @@ namespace WBSF
 				//double alpha = 0.25;//alpha with 50% of the sample size
 				//double p = 1.0 - pow(alpha, 1.0 / qTime.size());
 
-				double alpha = 0.05;//95% of the range
+				//double alpha = 0.05;//95% of the range
 				//double p = 0.005; //99% of the range
-				double p = min(alpha, 1.0 - pow(alpha, 1.0 / qRate.size()));
+				//double p = min(alpha, 1.0 - pow(alpha, 1.0 / qRate.size()));
 
 
 				////double cumsum = 0;
@@ -1380,12 +1367,10 @@ namespace WBSF
 		}
 
 		m_bIndividualSeries = have_var(I_BROOD) && have_var(I_START) && have_var(I_TIME) && have_var(I_I);
-		if (m_bIndividual)
+		if (m_bIndividual&&have_var(I_BROOD))
 		{
-			//QBrood ne peut pas être calculer comme cela...
 
-
-			//vector<pair<double, string>> qBrood;
+			vector<pair<double, string>> qBrood;
 			//CStatistic stat_qBrood;
 
 			//CStatistic stat_fecundity;
@@ -1398,24 +1383,61 @@ namespace WBSF
 			//}
 
 			//double mean_fecundity = stat_fecundity[MEAN];
-			//
-			////for all treatment
-			//for (auto it = m_statsBrood.begin(); it != m_statsBrood.end(); it++)
-			//{
-			//	//for all treatment
-			//	for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
-			//	{
-			//		double fecundity = iit->second[SUM];
-			//		double RFR = fecundity / mean_fecundity;
-			//		qBrood.push_back(make_pair(RFR, iit->first));
-			//	}//for all individual
-			//}//for all traitement
+
+			//for all treatment
+			for (auto it = m_statsBrood.begin(); it != m_statsBrood.end(); it++)
+			{
+				string traitment = it->first;
+
+				CStatistic stat_fecundity;
+				for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+					stat_fecundity += iit->second[SUM];
+
+				double mean_fecundity = stat_fecundity[MEAN];
+
+				//for all individual
+				
+				//double fecundity = iit->second[SUM];
+				//double RFR = fecundity / mean_fecundity;
+				//qBrood.push_back(make_pair(RFR, iit->first));
+				
 
 
-			//sort(qBrood.begin(), qBrood.end());
 
-			////double alpha = 0.05;//95% of the range
-			////double p = min(alpha, 1.0 - pow(alpha, 1.0 / qBrood.size()));
+				//for all observation
+				for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+				{
+					string individual = iit->first;
+					//for all individual
+					//for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
+					//{
+						//double fecundity = iit->second[SUM];
+						//double RFR = fecundity / mean_fecundity;
+					//	qBrood.push_back(make_pair(RFR, iit->first));
+				//	}//for all individual
+
+					double fecundity = iit->second[SUM];
+					double RF = fecundity / mean_fecundity;
+					qBrood.push_back(make_pair(RF, individual));
+
+
+					//for all rows
+					//for (size_t i = 0; i < size(); i++)
+					//{
+					//	CDevRateDataRow& row = at(i);
+					//	if (row.m_variable == traitment && row.m_traitment == individual)
+					//	{
+					//		qBrood.push_back(make_pair(RF, i));
+					//	}//for all individual
+					//}
+				}
+			}//for all traitement
+
+
+			sort(qBrood.begin(), qBrood.end());
+
+			//double alpha = 0.05;//95% of the range
+			//double p = min(alpha, 1.0 - pow(alpha, 1.0 / qBrood.size()));
 
 			//double cumsum = 0;
 			//double N = stat_fecundity[NB_VALUE];
@@ -1445,6 +1467,28 @@ namespace WBSF
 			//		}
 			//	}
 			//}
+
+			//size_t N = qBrood.size();//number of female
+			//double cumsum = 0;
+			for (size_t i = 0; i < qBrood.size(); i++)
+			{
+				
+				//double q = max(0.005, min(0.995, (cumsum + row[I_N] / 2) / N));
+				double q = max(0.005, min(0.995, (i + 0.5) / qBrood.size()));
+
+				//apply this quantile to all observation for this individual
+				string individual = qBrood[i].second;
+				for (size_t i = 0; i < size(); i++)
+				{
+					CDevRateDataRow& row = at(i);
+					if (row.m_i == individual)
+					{
+						ASSERT(row[I_N] == 1);
+						CDevRateDataRow& row = at(i);
+						row[I_Q_BROOD] = q;
+					}//for all individual
+				}
+			}
 
 
 			//sort(begin(), end(), [](const CDevRateDataRow& a, const CDevRateDataRow& b) {return a.at(I_Q_BROOD) < b.at(I_Q_BROOD); });
@@ -1721,14 +1765,14 @@ namespace WBSF
 			for (auto it = m_statsBrood.begin(); it != m_statsBrood.end(); it++)
 			{
 
-				
+
 				const std::map<std::string, CStatisticEx>& individuals = it->second;
 				//for all individuals
 				for (auto iit = individuals.begin(); iit != individuals.end(); iit++)
 				{
 					double broods = iit->second[SUM];//sum af all observations
 					double lambda = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//remaining eggs
-					double Fi = broods / (1 - exp(-lambda * iit->second[NB_VALUE]));//a refoir estimer seulement....
+					double Fi = broods / (1 - exp(-lambda * iit->second[NB_VALUE]));//a revoir estimer seulement....
 					stat += Fi;
 				}
 			}
@@ -1766,7 +1810,7 @@ namespace WBSF
 
 			double mean = stat[MEAN];
 			double sd = stat[STD_DEV];
-			
+
 			sigma = sqrt(log(Square(sd) / Square(mean) + 1));
 
 
@@ -1778,7 +1822,7 @@ namespace WBSF
 	double CDevRateData::GetDefaultSigma()const
 	{
 
-		double sigma=0;
+		double sigma = 0;
 		CStatistic stat_wm;
 		CStatistic stat_ws;
 		CStatistic stat_n;
@@ -2263,7 +2307,7 @@ namespace WBSF
 		return streamObj.str();
 	}
 
-	
+
 
 
 
@@ -2482,11 +2526,25 @@ namespace WBSF
 								string e_name = CDevRateEquation::GetEquationName(eq);
 
 
-								CSAParameterVector params = CDevRateEquation::GetParameters(eq);
+								CSAParameterVector params0 = CDevRateEquation::GetParameters(eq);
 								if (m_eq_options.find(e_name) != m_eq_options.end())
 								{
 									ASSERT(m_eq_options[e_name].size() == CDevRateEquation::GetParameters(eq).size());
-									params = m_eq_options[e_name];
+									params0 = m_eq_options[e_name];
+								}
+								
+								if (m_fitType == F_DEV_TIME_WTH_SIGMA)// add relative development rate variance
+								{
+									double sigma = m_devTime.GetDefaultSigma(*v);
+									if (m_devTime.m_bIndividual)
+									{
+										params0.push_back(CSAParameter("sigma", sigma, sigma / SIGMA_FACTOR, sigma*SIGMA_FACTOR));
+									}
+									else
+									{
+										//fixe sigma here
+										params0.push_back(CSAParameter("sigma", sigma, sigma, sigma));
+									}
 								}
 
 								if (m_bUseOutputAsInput && !output_params.empty())
@@ -2497,8 +2555,8 @@ namespace WBSF
 										ASSERT(output_params[*v][e_name].size() >= CDevRateEquation::GetParameters(eq).size());
 										for (auto it = output_params[*v][e_name].begin(); it != output_params[*v][e_name].end(); it++)
 										{
-											auto iit = find_if(params.begin(), params.end(), [&](CSAParameter &p) {return boost::iequals(p.m_name, it->first); });
-											if (iit != params.end())
+											auto iit = find_if(params0.begin(), params0.end(), [&](CSAParameter &p) {return boost::iequals(p.m_name, it->first); });
+											if (iit != params0.end())
 												iit->m_initialValue = it->second;
 										}
 
@@ -2517,6 +2575,8 @@ namespace WBSF
 
 								for (size_t Tbi = 0; Tbi < nb_Tb; Tbi++)
 								{
+									CSAParameterVector params = params0;
+
 
 									if (m_bFixeTb)
 									{
@@ -2552,22 +2612,6 @@ namespace WBSF
 												{
 													it->m_initialValue = m_Tm[0] + Tmi * m_Tm[2] + Tk;
 													it->m_bounds = CVariableBound(it->m_initialValue, it->m_initialValue);
-												}
-											}
-
-
-
-											if (m_fitType == F_DEV_TIME_WTH_SIGMA)// add relative development rate variance
-											{
-												double sigma = m_devTime.GetDefaultSigma(*v);
-												if (m_devTime.m_bIndividual)
-												{
-													params.push_back(CSAParameter("sigma", sigma / SIGMA_FACTOR, sigma*SIGMA_FACTOR));
-												}
-												else
-												{
-													//fixe sigma here
-													params.push_back(CSAParameter("sigma", sigma, sigma, sigma));
 												}
 											}
 
@@ -2652,7 +2696,9 @@ namespace WBSF
 									}
 								}
 
-								//CSAParameter pFo("Fo", (F * (1 + Fo_FACTOR)) / 2, F, F*Fo_FACTOR);
+								
+								//CSAParameter pto("to", 0, 0, 0);//fixe to at 0
+
 								CSAParameter pFo("Fo", 100, 1, 1000);
 								if (m_bFixeF0)
 									pFo = CSAParameter("Fo", m_F0[0], m_F0[0], m_F0[0]);
@@ -2660,16 +2706,16 @@ namespace WBSF
 
 								if (m_fecundity.m_bIndividual || m_fecundity.m_bIndividualSeries)
 								{
+									//params.push_back(pto);
 									params.push_back(pFo);
-									//params.push_back(CSAParameter("sigma", 0, sigma / SIGMA_FACTOR, sigma*SIGMA_FACTOR));
 									params.push_back(CSAParameter("sigma", 0.2, 0.01, 0.9));
-									//params.push_back(CSAParameter("sigma", sigma, sigma, sigma));
 								}
 								else
 								{
 									//fixe sigma here
-									double sigma = m_fecundity.GetDefaultSigma();
+									//params.push_back(pto);
 									params.push_back(pFo);
+									double sigma = m_fecundity.GetDefaultSigma();
 									params.push_back(CSAParameter("sigma", sigma, sigma, sigma));
 								}
 
@@ -2774,17 +2820,20 @@ namespace WBSF
 									string R_eq;
 									string R_math;
 									string P;
+									const vector<double>& Xopt = output[i].m_computation.m_Xopt;
+
+
 									if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 									{
 										TDevRateEquation eq = CDevRateEquation::eq(output[i].m_equation);
 										name = CDevRateEquation::GetEquationName(eq);
 										R_eq = CDevRateEquation::GetEquationR(eq);
 										R_math = CDevRateEquation::GetMathPlot(eq);
-										P = to_string(CDevRateEquation::GetParameters(eq, output[i].m_computation.m_Xopt));
+										P = to_string(CDevRateEquation::GetParameters(eq, Xopt));
 
 										if (m_fitType == F_DEV_TIME_WTH_SIGMA)
 										{
-											P += " sigma=" + to_string(output[i].m_computation.m_Xopt.back());
+											P += " sigma=" + to_string(Xopt.back());
 										}
 									}
 									else if (m_fitType == F_SURVIVAL)
@@ -2793,7 +2842,7 @@ namespace WBSF
 										name = CSurvivalEquation::GetEquationName(eq);
 										R_eq = CSurvivalEquation::GetEquationR(eq);
 										R_math = CSurvivalEquation::GetMathPlot(eq);
-										P = to_string(CSurvivalEquation::GetParameters(eq, output[i].m_computation.m_Xopt));
+										P = to_string(CSurvivalEquation::GetParameters(eq, Xopt));
 									}
 									else if (m_fitType == F_FECUNDITY)
 									{
@@ -2801,19 +2850,11 @@ namespace WBSF
 										name = CDevRateEquation::GetEquationName(eq);
 										R_eq = CDevRateEquation::GetEquationR(eq);
 										R_math = CDevRateEquation::GetMathPlot(eq);
-										P = to_string(CDevRateEquation::GetParameters(eq, output[i].m_computation.m_Xopt));
+										P = to_string(CDevRateEquation::GetParameters(eq, Xopt));
 
-										//size_t Fo_pos = output[i].m_computation.m_Xopt.size() - 2;
-
-										P += " Fo=" + to_string(output[i].m_computation.m_Xopt[output[i].m_computation.m_Xopt.size() - 2]);
-
-										
-//										P += " sigma=" + to_string(sigma);
-
-										//double sigma = m_fecundity.GetSigmaBrood(eq, output[i].m_computation.m_Xopt, m_Tobs[m_fecundity[i].m_traitment]);
-										P += " sigma=" + to_string(output[i].m_computation.m_Xopt.back());
-										//P += " Fo=" + to_string(output[i].m_computation.m_Xopt.back());
-
+										//P += " to=" + to_string(Xopt[Xopt.size() - 3]);
+										P += " Fo=" + to_string(Xopt[Xopt.size() - 2]);
+										P += " sigma=" + to_string(Xopt[Xopt.size() - 1]);
 									}
 
 
@@ -3559,13 +3600,13 @@ namespace WBSF
 
 							if (m_devTime.m_bIndividual)//use individual time
 							{
-								LL = Regniere2021DevRate(eq, sigma, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
+								LL = Regniere2021DevRate(eq, sigma, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
 								LL *= m_devTime[i][I_N];
 							}
 							else//use mean+sd+n
 							{
 								//LL seem to not have to be mutiply by N!
-								LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
+								LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
 							}
 
 							if (!isfinite(LL) || isnan(LL))
@@ -3578,7 +3619,7 @@ namespace WBSF
 						{
 							if (m_devTime.m_bIndividual)//use individual time
 							{
-								double rate = GetRateStat(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
+								double rate = GetRateStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
 								if (!isfinite(rate) || isnan(rate))
 									return;
 
@@ -3591,7 +3632,7 @@ namespace WBSF
 							}
 							else//use mean+sd+n 
 							{
-								double mean_time = GetTimeStat(eq, computation, m_Tobs[m_devTime[i].m_traitment]);
+								double mean_time = GetTimeStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment]);
 								if (!isfinite(mean_time) || isnan(mean_time))
 									return;
 
@@ -3627,7 +3668,7 @@ namespace WBSF
 							}
 							else
 							{
-								LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
+								LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
 							}
 
 							if (!isfinite(LL) || isnan(LL))
@@ -3642,7 +3683,7 @@ namespace WBSF
 						{
 							if (m_devTime[i][I_MEAN_TIME] > 0)
 							{
-								double mean_time = GetTimeStat(eq, computation, m_Tobs[m_devTime[i].m_traitment]);
+								double mean_time = GetTimeStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment]);
 								if (!isfinite(mean_time) || isnan(mean_time) || mean_time<-1E8 || mean_time>1E8)
 									return;
 
@@ -3670,7 +3711,7 @@ namespace WBSF
 						if (bLogLikelyhoude)
 						{
 							//maximum likelihood
-							double LL = Regniere2021Survival(eq, computation, m_Tobs[m_survival[i].m_traitment], m_survival[i][I_MEAN_TIME], m_survival[i][I_SURVIVAL], m_survival[i][I_N]);
+							double LL = Regniere2021Survival(eq, computation.m_XP, m_Tobs[m_survival[i].m_traitment], m_survival[i][I_MEAN_TIME], m_survival[i][I_SURVIVAL], m_survival[i][I_N]);
 							if (!isfinite(LL) || isnan(LL))
 								return;
 
@@ -3683,7 +3724,7 @@ namespace WBSF
 							if (m_survival[i][I_MEAN_TIME] > 0)
 							{
 								double obs = m_survival[i][I_SURVIVAL] / m_survival[i][I_N];
-								double sim = GetSurvival(eq, computation, m_Tobs[m_survival[i].m_traitment], m_survival[i][I_MEAN_TIME]);
+								double sim = GetSurvival(eq, computation.m_XP, m_Tobs[m_survival[i].m_traitment], m_survival[i][I_MEAN_TIME]);
 
 								if (!isfinite(sim) || isnan(sim) || sim<-1E8 || sim>1E8)
 									return;
@@ -3698,97 +3739,9 @@ namespace WBSF
 		}
 		else if (m_fitType == F_FECUNDITY)
 		{
-			/*size_t Fo_pos = computation.m_XP.size() - 2;
-			double Fo = computation.m_XP[Fo_pos];
-			double to = 0;
-			double sigma_f = computation.m_XP.back();
-			boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
-*/
-
-
-
 			TFecundityEquation eq = CFecundityEquation::eq(e);
 			if (CFecundityEquation::IsParamValid(eq, computation.m_XP))
 			{
-
-				//compute new quatile
-				//std::vector<pair<double, size_t>> qFi(m_fecundity.size());
-
-				//double to = 0;
-				//double Fo = computation.m_XP[computation.m_XP.size() - 2];
-				//double sigma_f = computation.m_XP.back();
-
-				//std::vector<double> qi(m_fecundity.size());
-
-
-				//if (m_fecundity.m_bIndividualSeries)
-				//{
-				//	//CStatistic stat;
-
-
-				//	////for all treatment
-				//	//for (auto it = m_fecundity.m_statsBrood.begin(); it != m_fecundity.m_statsBrood.end(); it++)
-				//	//{
-				//	//	const std::map<std::string, CStatisticEx>& individuals = it->second;
-				//	//	//for all individuals
-				//	//	for (auto iit = individuals.begin(); iit != individuals.end(); iit++)
-				//	//	{
-				//	//		double broods = iit->second[SUM];//sum af all observations
-				//	//		stat += broods;
-
-				//	//		//size_t i = iit->second;
-				//	//		double lambda = max(0.0, CDevRateEquation::GetRate(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment][0]));
-				//	//		if (!isfinite(lambda) || isnan(lambda))
-				//	//			return;
-
-
-				//	//		double Fi = Fo * (1 - exp(-lambda * m_fecundity[i][I_TIME]));
-				//	//		qFi[i] = make_pair(Fi, i);
-				//	//	}
-				//	//	
-
-
-				//	//	
-				//	//}
-
-				//	//double mean = stat[MEAN];//mean of all individuals
-				//	//double sd = stat[STD_DEV];
-
-				//	//sigma = sqrt(log(Square(sd) / Square(mean) + 1));
-				//	//Fi = mean;
-
-				//}
-				//else if (m_fecundity.m_bIndividual)
-				//{
-
-
-				//	//double Fo = computation.m_XP.back();
-				//	for (size_t i = 0; i < m_fecundity.size(); i++)
-				//	{
-				//		double lambda = max(0.0, CDevRateEquation::GetRate(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment][0]));
-				//		if (!isfinite(lambda) || isnan(lambda))
-				//			return;
-
-
-				//		//double Fi = brood_obs / (exp(-lambda * (tiˉ¹ - to)) - exp(-lambda * (ti - to)));
-
-				//		double Fi = m_fecundity[i][I_BROOD] / (1 - exp(-lambda * m_fecundity[i][I_TIME]));
-				//		qFi[i] = make_pair(Fi, i);
-				//	}
-				//	sort(qFi.begin(), qFi.end());
-				//	double N = qFi.size();
-				//	double alpha = 0.05;
-				//	double p = 1.0 - pow(alpha, 1.0 / N);
-				//	//range_q range(p, 1 - p)
-				//	double delta_q = (1 - 2 * p) / (N - 1);
-
-
-				//	for (size_t i = 0; i < qFi.size(); i++)
-				//		qi[qFi[i].second] = max(0.001, min(0.999, p + i * delta_q));
-
-				//}
-
-
 				for (__int64 i = 0; i < (__int64)m_fecundity.size(); i++)
 				{
 					if (WBSF::IsEqualNoCase(m_fecundity[i].m_variable, var))
@@ -3799,15 +3752,12 @@ namespace WBSF
 
 							if (m_fecundity.m_bIndividualSeries)//use individual time
 							{
-								//double Fi = quantile(LogNormal, m_fecundity[i][I_Q_BROOD]);
-								LL = Regniere2021FecundityTimeSeries(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], m_fecundity[i][I_BROOD]);
+								LL = Regniere2021FecundityTimeSeries(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], m_fecundity[i][I_BROOD], m_fecundity[i][I_Q_BROOD]);
 								LL *= m_fecundity[i][I_N];
 							}
 							else if (m_fecundity.m_bIndividual)//use individual time
 							{
-								//double Fi = quantile(LogNormal, m_fecundity[i][I_Q_BROOD]);
-								//LL = Regniere2021Fecundity(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_TIME] - m_fecundity[i][I_START], m_fecundity[i][I_BROOD]);
-								LL = Regniere2021Fecundity(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], m_fecundity[i][I_BROOD]);
+								LL = Regniere2021Fecundity(eq, computation.m_XP, m_Tobs[m_fecundity[i].m_traitment], m_fecundity[i][I_START] + m_fecundity[i][I_TIME], m_fecundity[i][I_BROOD], m_fecundity[i][I_Q_BROOD]);
 								LL *= m_fecundity[i][I_N];
 							}
 							else//use mean+sd+n

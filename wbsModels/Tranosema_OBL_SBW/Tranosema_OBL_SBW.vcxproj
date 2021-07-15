@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A108A618-BC28-4BC5-B9BD-92B7E1847576}</ProjectGuid>
-    <RootNamespace>CfSimWinDll</RootNamespace>
+    <RootNamespace>Models</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>Tranosema-OBL-SBW</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
@@ -130,7 +130,7 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
       <AdditionalIncludeDirectories>..\..\External;..\..\wbs\src;..\tranosema;..\ObliqueBandedLeafroller;..\SpruceBudworm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>
@@ -211,7 +211,7 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\External;..\..\wbs\src;..\tranosema;..\ObliqueBandedLeafroller;..\SpruceBudworm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <OpenMPSupport>
       </OpenMPSupport>
       <PrecompiledHeader>

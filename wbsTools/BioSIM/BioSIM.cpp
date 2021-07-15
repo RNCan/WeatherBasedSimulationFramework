@@ -396,6 +396,7 @@
 #include "wbs_version.h"
 
 
+
 using namespace UtilWin;
 using namespace WBSF;
 
@@ -717,21 +718,23 @@ void CBioSIMApp::PreLoadState()
 	VERIFY(GetContextMenuManager()->AddMenu(_T("Edit1"), IDR_MENU_EDIT));
 	
 }
-
-BOOL CBioSIMApp::InitContextMenuManager()
-{
-	if (afxContextMenuManager != NULL)
-	{
-		ASSERT(FALSE);
-		return FALSE;
-	}
-
-	afxContextMenuManager = new CContextMenuManagerEx;
-	m_bContextMenuManagerAutocreated = TRUE;
-
-	return TRUE;
-
-}
+//
+//BOOL CBioSIMApp::InitContextMenuManager()
+//{
+//	CContextMenuManager *manager = GetContextMenuManager();
+//	if (manager != NULL)
+//	{
+//		ASSERT(FALSE);
+//		return FALSE;
+//	}
+//
+//
+//	manager = new CContextMenuManagerEx;
+//	m_bContextMenuManagerAutocreated = TRUE;
+//
+//	return TRUE;
+//
+//}
 
 void CBioSIMApp::LoadCustomState()
 {

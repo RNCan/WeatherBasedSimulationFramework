@@ -36,13 +36,20 @@ namespace WBSF
 	{
 	public:
 
-		enum TOpenMode { modeNotOpen = -1, modeRead, modeWrite, modeEdit = modeWrite };
+		enum TOpenMode { modeNotOpen = -1, modeRead, modeWrite, modeEdit = modeWrite, modeBinary};
 		enum TWeatherGenerationMethod{ ALL_STATIONS, MOST_COMPLETE_STATIONS, WELL_DISTRIBUTED_STATIONS, COMPLETE_AND_DISTRIBUTED_STATIONS, NB_WEATHER_METHOD };
 
 
-		bool m_bUseCache;
 		CWeatherDatabase(int cacheSize = 200);
 		virtual ~CWeatherDatabase();
+
+
+		bool m_bUseCache;
+		std::string m_account_name;
+		std::string m_account_key;
+		std::string m_container_name;
+		std::string m_DB_blob;
+
 
 
 		virtual ERMsg VerifyVersion(const std::string& filePath)const = 0;
@@ -136,6 +143,15 @@ namespace WBSF
 		void CloseSearchOptimization();
 		ERMsg GetPriority(std::vector<size_t>& priority, CWVariables filter, int year)const;
 
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CWeatherDatabase& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CWeatherDatabase& data) { return data >> stream; }
+
+		ERMsg LoadAzureDLL();
+		void UnloadAzureDLL();
+		
+		
 	protected:
 
 		ERMsg GenerateWellDistributedStation(size_t nbStations, CSearchResultVector& searchResult, std::vector<size_t> priority, bool bUseElevation, CCallback& callback)const;
@@ -143,12 +159,26 @@ namespace WBSF
 		std::string m_filePath;
 		short m_openMode;
 		bool m_bModified;
+		
 
 		// for optimization
 		CWeatherDatabaseOptimization m_zop;
 		CWeatherStationCache m_cache;
 
 		CCriticalSection m_CS;
+
+
+		
+		HINSTANCE m_hDll;
+
+		//	std::string account_name = "dhportalstoragedev";
+			//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
+			//std::string container_name = "biosim-data";
+
+
+		
+		typedef bool(*load_azure_weather_yearsF)(const char* account_name, const char* account_key, const char* container_name, const char* blob_name, void* pData);
+		load_azure_weather_yearsF load_azure_weather_years;
 
 	private:
 
@@ -182,15 +212,24 @@ namespace WBSF
 		using CWeatherDatabase::Get;
 		virtual ERMsg Get(CLocation& station, size_t index, const std::set<int>& years = std::set<int>())const;
 
+
+
 		ERMsg Add(const CLocation& location);
 		ERMsg Set(size_t index, const CLocation& location);
 		ERMsg Remove(size_t index);
 		ERMsg GetStations(CWeatherStationVector& stationArray, const CSearchResultVector& results, int year)const;
 		void GetUnlinkedFile(StringVector& fileList);
+		void CreateAllCanals(bool bExcludeUnused=true, bool bUseElevation = true, bool bUseShoreDistance = true);
+		void CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+		ERMsg SaveAsBinary(const std::string& file_path)const;
+		ERMsg LoadFromBinary(const std::string& file_path);
+			
 
 		ERMsg DeleteDatabase(const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg AppendDatabase(const std::string& inputFilePath1, const std::string& inputFilePath2, bool bCopy=true, CCallback& callback = DEFAULT_CALLBACK);
+		
+
 
 		using CWeatherDatabase::GetVersion;
 		static int GetVersion(const std::string& filePath);

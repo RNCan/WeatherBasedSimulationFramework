@@ -33,17 +33,17 @@ namespace WBSF
 	//
 	// Note: m_relativeDevRate member is modified.
 	//*****************************************************************************
-	CBagworm::CBagworm(WBSF::CHost* pHost, CTRef creationDate, double age, size_t sex, bool bFertil, size_t generation, double scaleFactor) :
+	CBagworm::CBagworm(WBSF::CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		//Individual's "relative" development rate for each life stage
 		//These are independent in successive life stages
-		
-		m_relativeDevRate[EGG] = RandomGenerator().RandLogNormal(5.123, .318);
+
+		m_relativeDevRate[EGG] = RandomGenerator().RandUnbiasedLogNormal(5.123, .318);
 		m_relativeDevRate[LARVAL] = RandomGenerator().RandNormal(2901.1, 191.1);
 		m_relativeDevRate[ADULT] = 1;
 
-//		m_fec = 1000;
+		//		m_fec = 1000;
 		m_clusterWeight = 0;
 	}
 
@@ -55,7 +55,7 @@ namespace WBSF
 	{
 		CIndividual::operator=(in);
 		m_clusterWeight = in.m_clusterWeight;
-		
+
 		return *this;
 	}
 
@@ -101,13 +101,13 @@ namespace WBSF
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&IsAlive(); step++)
 		{
-			size_t h = step*GetTimeStep();
-			
+			size_t h = step * GetTimeStep();
+
 			//Development, reproduction and attrition
 			Develop(weather[h].GetTRef(), weather[h][H_TNTX], nbSteps);
 		}
 
-		
+
 
 	}
 
@@ -130,17 +130,17 @@ namespace WBSF
 
 			if (m_sex == FEMALE && m_totalBroods == 0 && m_age >= ADULT)
 			{
-				short Tf = weather.GetTRef().GetJDay();
+				size_t Tf = weather.GetTRef().GetJDay();
 				double clusterWeight = max(0.0, 1351 - 3.95*Tf);
 
 				//adjust fecondity in function of clusterWeight
-				m_broods = clusterWeight*2.45; //2.45 eggs/mg
+				m_broods = clusterWeight * 2.45; //2.45 eggs/mg
 				m_totalBroods = m_broods;
 
 				//add 2 bugs 
-				CBagworm* pBug = new CBagworm(m_pHost, weather.GetTRef(), EGG_DIAPAUSE, RANDOM_SEX, true, m_generation + 1, m_scaleFactor*2);
+				CBagworm* pBug = new CBagworm(m_pHost, weather.GetTRef(), EGG_DIAPAUSE, RANDOM_SEX, true, m_generation + 1, m_scaleFactor * 2);
 				pBug->SetClusterWeight(clusterWeight);
-				m_pHost->push_front(CIndividualPtr (pBug) );
+				m_pHost->push_front(CIndividualPtr(pBug));
 				//pBug = new CBagworm(T.GetFirstTRef(), EGG_DIAPAUSE, true, m_generation + 1, 1/*m_scaleFactor*m_fec/2*/, m_pHost);
 				//pBug->SetClusterWeight(clusterWeight);
 				//pTree->AddBug(pBug);
@@ -214,7 +214,7 @@ namespace WBSF
 	//			nbStep: is the number of time steps per day (24h/step duration(h) )
 	//			tree: the tree on which the insect is, for defoliation
 	//*****************************************************************************
-	void CBagworm::Develop(CTRef date, double T, short nbStep)
+	void CBagworm::Develop(CTRef date, double T, size_t nbStep)
 	{
 		_ASSERTE(m_status == HEALTHY);
 
@@ -224,11 +224,11 @@ namespace WBSF
 		double DD = GetDevRate(s, T) / nbStep;
 		double RR = DD / m_relativeDevRate[s];
 
-		
+
 		//Adjust age
 		m_age += RR;
 
-		
+
 
 
 		_ASSERTE(RR >= 0);
@@ -243,12 +243,12 @@ namespace WBSF
 	void CBagworm::GetStat(CTRef d, CModelStat& stat)
 	{
 		ASSERT(stat.size() == NB_BAGWORM_STAT);
-		short stage = GetStage();
+		size_t stage = GetStage();
 
 		if (IsAlive())
 		{
 			stat[stage] += m_scaleFactor;
-			stat[STAT_NB_BROOD] += m_broods*m_scaleFactor;
+			stat[STAT_NB_BROOD] += m_broods * m_scaleFactor;
 			//stat[STAT_BROOD_WEIGTH] += m_brood;
 
 			if (d == m_creationDate)

@@ -26,6 +26,9 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 
 
 
@@ -109,6 +112,31 @@ namespace WBSF
 		return msg;
 
 	}
+
+
+
+	std::istream& CNormalsDataDeque::operator >> (std::istream& stream)
+	{
+		size_t s = 0;
+		stream.read((char *)(&s), sizeof(s));
+		resize(s);
+		for (auto it = begin(); it != end(); ++it)
+			stream >> (*it);
+
+		return stream;
+	}
+
+
+	std::ostream& CNormalsDataDeque::operator << (std::ostream& stream)const
+	{
+		size_t s = size();
+		stream.write((char *)(&s), sizeof(s));
+		for (auto it = begin(); it != end(); ++it)
+			stream << (*it);
+
+		return stream;
+	}
+
 
 	ERMsg CNormalsDataDeque::LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback)
 	{
@@ -569,7 +597,7 @@ namespace WBSF
 	ERMsg CNormalsDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
 	{
 		ASSERT(IsOpen());
-		ASSERT(m_openMode == modeRead);
+		ASSERT(m_openMode == modeRead || m_openMode == modeBinary);
 		ASSERT(!m_bModified);//close and open the database again
 		ASSERT(m_zop.size() == m_data.size());
 
@@ -578,7 +606,7 @@ namespace WBSF
 		if (filter == CWVariables(H_WND2))
 			filter = H_WNDS;
 
-		if (!m_zop.SearchIsOpen())
+		if (m_openMode == modeRead && !m_zop.SearchIsOpen())
 		{
 			msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
 			if (!msg)
@@ -587,43 +615,49 @@ namespace WBSF
 		}
 
 		year = 0;//always take zero for normals
-		__int64 canal = (filter.to_ullong()) * 100000 + year * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+
+		__int64 canal = m_zop.GetCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+		//__int64 canal = (filter.to_ullong()) * 100000 + year * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
 
 		const_cast<CNormalsDatabase*>(this)->m_CS.Enter();
 		if (!m_zop.CanalExists(canal))
 		{
-			CLocationVector locations;
-			locations.reserve(m_zop.size());
-			std::vector<__int64> positions;
-			positions.reserve(m_zop.size());
+			//const_cast<CWeatherDatabaseOptimization&>(m_zop).
+			const_cast<CNormalsDatabase&>(*this).CreateCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+
+			//CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+			//CLocationVector locations;
+			//locations.reserve(m_zop.size());
+			//std::vector<__int64> positions;
+			//positions.reserve(m_zop.size());
 
 
-			//build canal
-			for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
-			{
-				bool useIt = it->UseIt();
-				if (useIt || !bExcludeUnused)
-				{
-					size_t index = std::distance(m_zop.begin(), it);
-					bool bIncluded = (m_data[index].GetVariables()&filter) == filter;
+			////build canal
+			//for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
+			//{
+			//	bool useIt = it->UseIt();
+			//	if (useIt || !bExcludeUnused)
+			//	{
+			//		size_t index = std::distance(m_zop.begin(), it);
+			//		bool bIncluded = (m_data[index].GetVariables()&filter) == filter;
 
-					if (bIncluded)
-					{
-						CLocation pt = *it;//removel
-						pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
-						pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
-						locations.push_back(pt);
-						positions.push_back(index);
-					}
-				}//use it
-			}
+			//		if (bIncluded)
+			//		{
+			//			CLocation pt = *it;//removel
+			//			pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+			//			pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
+			//			locations.push_back(pt);
+			//			positions.push_back(index);
+			//		}
+			//	}//use it
+			//}
 
 
-			//by optimization, add the canal event if they are empty
-			CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-			pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
-			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
-			zop.AddCanal(canal, pANN);
+			////by optimization, add the canal event if they are empty
+			//CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+			//pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+			//CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+			//zop.AddCanal(canal, pANN);
 		}
 		const_cast<CNormalsDatabase*>(this)->m_CS.Leave();
 
@@ -663,6 +697,85 @@ namespace WBSF
 
 		return msg;
 	}
+
+	void CNormalsDatabase::CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)
+	{
+		__int64 canal = m_zop.GetCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+
+
+		CLocationVector locations;
+		locations.reserve(size());
+		std::vector<__int64> positions;
+		positions.reserve(size());
+
+		//build canal
+		for (CLocationVector::iterator it = m_zop.begin(); it != m_zop.end(); it++)
+		{
+			bool useIt = it->UseIt();
+			if (useIt || !bExcludeUnused)
+			{
+				size_t index = std::distance(m_zop.begin(), it);
+				//bool bIncluded = (m_data[index].GetVariables()&filter) == filter;
+
+				//CWVariables var = GetWVariables(index, { {year} });
+				CWVariables var = m_data[index].GetVariables();
+				bool bIncluded = (var&filter) == filter;
+
+
+				if (bIncluded)
+				{
+					CLocation pt = *it;//removel
+					pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+					pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
+					locations.push_back(pt);
+					positions.push_back(index);
+				}
+			}//use it
+		}
+
+
+		//by optimization, add the canal event if they are empty
+		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+		//CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+		m_zop.AddCanal(canal, pANN);
+	}
+	
+	//void CNormalsDatabase::CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+	//{
+	//	CLocationVector locations;
+	//	locations.reserve(m_zop.size());
+	//	std::vector<__int64> positions;
+	//	positions.reserve(m_zop.size());
+
+
+	//	//build canal
+	//	for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
+	//	{
+	//		bool useIt = it->UseIt();
+	//		if (useIt || !bExcludeUnused)
+	//		{
+	//			size_t index = std::distance(m_zop.begin(), it);
+	//			bool bIncluded = (m_data[index].GetVariables()&filter) == filter;
+
+	//			if (bIncluded)
+	//			{
+	//				CLocation pt = *it;//removel
+	//				pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+	//				pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
+	//				locations.push_back(pt);
+	//				positions.push_back(index);
+	//			}
+	//		}//use it
+	//	}
+
+
+	//	//by optimization, add the canal event if they are empty
+	//	CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+	//	pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+	//	CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+	//	zop.AddCanal(canal, pANN);
+	//}
 
 	ERMsg CNormalsDatabase::GetStations(CNormalsStationVector& stations, const CSearchResultVector& results)const
 	{
@@ -1137,11 +1250,11 @@ namespace WBSF
 			bool bAdd = true;
 			for (size_t j = 0; j < result.size() && bAdd; j++)
 			{
-				if (fabs( result[j].m_deltaElev) < deltaElev)
+				if (fabs(result[j].m_deltaElev) < deltaElev)
 					bAdd = false;
 			}
 
-			
+
 			if (bAdd)
 			{
 				CNormalsStation station;
@@ -1151,7 +1264,7 @@ namespace WBSF
 			}
 
 
-			
+
 			msg += callback.StepIt();
 		}
 
@@ -1233,4 +1346,112 @@ namespace WBSF
 	}
 
 
+
+
+
+	std::ostream& CNormalsDatabase::operator << (std::ostream& stream)const
+	{
+		CWeatherDatabase::operator << (stream);
+
+		//save data
+		stream << m_data;
+		return stream;
+	}
+
+	std::istream& CNormalsDatabase::operator >> (std::istream& stream)
+	{
+		CWeatherDatabase::operator >> (stream);
+		stream >> m_data;
+		return stream;
+	}
+
+	ERMsg CNormalsDatabase::SaveAsBinary(const string& file_path)const
+	{
+		ASSERT(IsOpen());
+
+		ERMsg msg;
+
+		ofStream file;
+		msg = file.open(file_path, ios::out | ios::binary);
+		if (msg)
+		{
+			try
+			{
+				boost::iostreams::filtering_ostreambuf out;
+				out.push(boost::iostreams::gzip_compressor());
+				out.push(file);
+				std::ostream outcoming(&out);
+
+				//save coordinate and search optimisation
+				size_t version = GetVersion();
+				outcoming.write((char*)(&version), sizeof(version));
+				outcoming << *this;
+			}
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+
+			file.close();
+		}
+
+		return msg;
+	}
+
+
+	void CNormalsDatabase::CreateAllCanals(bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)
+	{
+		for(TVarH v= H_FIRST_VAR; v< H_SRAD; v++)
+			CreateCanal(v, 0, bExcludeUnused, bUseElevation, bUseShoreDistance);
+	}
+	
+
+	ERMsg CNormalsDatabase::LoadFromBinary(const string& file_path)
+	{
+		ERMsg msg;
+		ifStream file;
+		msg = file.open(file_path, ios::in | ios::binary);
+		if (msg)
+		{
+			try
+			{
+				boost::iostreams::filtering_istreambuf in;
+				in.push(boost::iostreams::gzip_decompressor());
+				in.push(file);
+				std::istream incoming(&in);
+
+				size_t version = 0;
+				incoming.read((char *)(&version), sizeof(version));
+
+				if (version == GetVersion())
+				{
+					incoming >> *this;
+				}
+				else
+				{
+					msg.ajoute("Normal binary database (version = " + to_string(version) + ") was not created with the latest version (" + to_string(GetVersion()) + "). Rebuild new binary.");
+				}
+
+			}
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+
+			file.close();
+		}
+
+		
+		return msg;
+	}
 }

@@ -268,10 +268,8 @@ namespace WBSF
 						}
 						else//invalid lat/lon
 						{
-							//callback.AddMessage("BadLocation," + location.m_ID + "," + location.m_name + "," + ToString(location.m_lat, 4) + "," + ToString(location.m_lon, 4) + "," + to_string(location.m_alt) );
 							string country = location.GetSSI("Country");
 							string subDivision = location.GetSSI("SubDivision");
-							//<< "," << (bExclude ? "1" : "0") 
 							invalid << location.m_ID << "," << location.m_name << "," << ToString(location.m_lat, 4) << "," << ToString(location.m_lon, 4) << "," << to_string(location.m_alt) + "," << country << "," << subDivision << "," << "," << "," << "," << "BadLocation" << endl;
 						}
 					}

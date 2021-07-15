@@ -926,7 +926,7 @@ namespace WBSF
 		return t;
 	}
 
-	void CHourlyData::WriteStream(ostream& stream, const CWVariables& variable)const
+	void CHourlyData::WriteStream(ostream& stream, const CWVariables& variable, bool /*asStat*/)const
 	{
 		const CHourlyData& me = *this;
 		for (size_t v = 0; v < variable.size(); v++)
@@ -934,7 +934,7 @@ namespace WBSF
 				write_value(stream, me[v]);
 	}
 
-	void CHourlyData::ReadStream(istream& stream, const CWVariables& variable)
+	void CHourlyData::ReadStream(istream& stream, const CWVariables& variable, bool /*asStat*/)
 	{
 		const CHourlyData& me = *this;
 		for (size_t v = 0; v < variable.size(); v++)
@@ -1662,29 +1662,55 @@ namespace WBSF
 	}
 
 
-	void CWeatherDay::WriteStream(ostream& stream, const CWVariables& variable)const
+	void CWeatherDay::WriteStream(ostream& stream, const CWVariables& variable, bool asStat)const
 	{
 		assert(!IsHourly());
 
 		for (size_t v = 0; v < variable.size(); v++)
+		{
 			if (variable[v])
-				write_value(stream, m_dailyStat[v]);
+			{
+				if (asStat)
+				{
+					write_value(stream, m_dailyStat[v]);
+				}
+				else
+				{
+					float value = m_dailyStat[v].IsInit()? m_dailyStat[v][MEAN]: -999;
+					write_value(stream, value);
+				}
+			}
+		}
 	}
 
 
-	void CWeatherDay::ReadStream(istream& stream, const CWVariables& variable)
+	void CWeatherDay::ReadStream(istream& stream, const CWVariables& variable, bool asStat)
 	{
 		assert(!IsHourly());
 
 		for (size_t v = 0, u = 0; v < variable.size() && u < variable.count(); v++)
-			if (variable[v])
-				read_value(stream, m_dailyStat[v]), u++;
-
-		/*if (variable[H_TMIN] && variable[H_TMAX])
 		{
-			ASSERT(m_dailyStat[H_TMIN].IsInit());
-			ASSERT(m_dailyStat[H_TMAX].IsInit());
-		}*/
+			if (variable[v])
+			{
+				if (asStat)
+				{
+					read_value(stream, m_dailyStat[v]);
+				}
+				else
+				{
+					float value= -999;
+					read_value(stream, value);
+					if (value != -999)
+						m_dailyStat[v] = value;
+				}
+
+				
+				u++;
+			}
+				
+		}
+
+		
 	}
 
 
@@ -2270,7 +2296,7 @@ namespace WBSF
 		return t;
 	}
 
-	void CWeatherMonth::WriteStream(ostream& stream, const CWVariables& variable)const
+	void CWeatherMonth::WriteStream(ostream& stream, const CWVariables& variable, bool /*asStat*/)const
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -2278,7 +2304,7 @@ namespace WBSF
 	}
 
 
-	void CWeatherMonth::ReadStream(istream& stream, const CWVariables& variable)
+	void CWeatherMonth::ReadStream(istream& stream, const CWVariables& variable, bool /*asStat*/)
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -2384,7 +2410,7 @@ namespace WBSF
 		return t;
 	}
 
-	void CWeatherYear::WriteStream(ostream& stream, const CWVariables& variable)const
+	void CWeatherYear::WriteStream(ostream& stream, const CWVariables& variable, bool /*asStat*/)const
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -2392,7 +2418,7 @@ namespace WBSF
 	}
 
 
-	void CWeatherYear::ReadStream(istream& stream, const CWVariables& variable)
+	void CWeatherYear::ReadStream(istream& stream, const CWVariables& variable, bool /*asStat*/)
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -3189,7 +3215,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CWeatherYears::WriteStream(ostream& stream, const CWVariables& variable)const
+	void CWeatherYears::WriteStream(ostream& stream, const CWVariables& variable, bool asStat)const
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -3197,7 +3223,7 @@ namespace WBSF
 	}
 
 
-	void CWeatherYears::ReadStream(istream& stream, const CWVariables& variable)
+	void CWeatherYears::ReadStream(istream& stream, const CWVariables& variable, bool asStat)
 	{
 		for (size_t v = 0; v < variable.size(); v++)
 			if (variable[v])
@@ -3776,7 +3802,7 @@ namespace WBSF
 
 
 
-	void CWeatherStation::WriteStream(ostream& stream)const
+	void CWeatherStation::WriteStream(ostream& stream, bool asStat)const
 	{
 		CStatistic::SetVMiss(MISSING);
 
@@ -3785,7 +3811,9 @@ namespace WBSF
 		CTPeriod p = GetEntireTPeriod();
 		CWVariables variable(GetVariables());
 
+
 		write_value(stream, version);
+		//write_value(stream, asStat);
 		WriteBuffer(stream, locStr);
 		write_value(stream, p);
 		write_value(stream, variable);
@@ -3794,7 +3822,7 @@ namespace WBSF
 			Get(TRef).WriteStream(stream, variable);
 	}
 
-	ERMsg CWeatherStation::ReadStream(istream& stream)
+	ERMsg CWeatherStation::ReadStream(istream& stream, bool asStat)
 	{
 		ERMsg msg;
 

@@ -12,8 +12,14 @@
 //****************************************************************************
 #include "stdafx.h"
 #include <direct.h>
-#include <boost\dynamic_bitset.hpp>
 
+#pragma warning( disable : 4244 )
+#include <boost\archive\binary_oarchive.hpp>
+#include <boost\archive\binary_iarchive.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost\dynamic_bitset.hpp>
 
 #include "Basic/WeatherDatabase.h"
 #include "Basic/WeatherDatabaseCreator.h"
@@ -62,7 +68,7 @@ namespace WBSF
 	{
 		ASSERT(IsOpen());
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 			zop.LoadData(GetOptimisationDataFilePath(m_filePath));
@@ -85,6 +91,8 @@ namespace WBSF
 	// Note:        On doit initialiser cette classe avec un path
 	//****************************************************************************
 	CWeatherDatabase::CWeatherDatabase(int cacheSize) :
+		m_hDll(nullptr),
+		load_azure_weather_years(nullptr),
 		m_cache(cacheSize)
 	{
 		m_bUseCache = cacheSize > 0;
@@ -107,6 +115,8 @@ namespace WBSF
 	{
 		if (IsOpen())
 			Close();
+
+		UnloadAzureDLL();
 	}
 
 
@@ -313,10 +323,12 @@ namespace WBSF
 
 	ERMsg CWeatherDatabase::OpenSearchOptimization(CCallback& callback)
 	{
+		ASSERT(m_openMode == modeRead || m_openMode == modeBinary);
+
 		ERMsg msg;
 
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			string filePath = GetOptimisationDataFilePath(m_filePath);
 			callback.PushTask(FormatMsg(IDS_MSG_LOAD_OP, GetFileName(filePath)), NOT_INIT);
@@ -325,7 +337,7 @@ namespace WBSF
 			callback.PopTask();
 		}
 
-		if (!m_zop.SearchIsOpen())
+		if (m_openMode != modeBinary && !m_zop.SearchIsOpen())
 		{
 			callback.PushTask(FormatMsg(IDS_MSG_LOAD_OP, GetFileName(GetOptimisationSearchFilePath1())), NOT_INIT);
 			//run even of they are not able to open search optimization
@@ -364,7 +376,7 @@ namespace WBSF
 		station = m_zop[index];
 
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 			msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
@@ -835,7 +847,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 			msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
@@ -894,7 +906,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			ASSERT(FileExists(GetOptimisationDataFilePath(m_filePath)));
 
@@ -943,7 +955,7 @@ namespace WBSF
 
 		DBOrder.clear();
 
-		if (m_zop.GetDataSection().GetFilePath().empty())
+		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
 			ASSERT(FileExists(GetOptimisationDataFilePath(m_filePath)));
 
@@ -997,6 +1009,81 @@ namespace WBSF
 		return newName;
 	}
 
+	std::ostream& CWeatherDatabase::operator << (std::ostream& stream)const
+	{
+		stream << m_zop;
+		return stream;
+	}
+
+	std::istream& CWeatherDatabase::operator >> (std::istream& stream)
+	{
+		stream >> m_zop;
+		m_openMode = modeBinary;
+		m_bModified = false;
+		m_filePath.clear();
+
+		return stream;
+	}
+
+	ERMsg CWeatherDatabase::LoadAzureDLL()
+	{
+		ERMsg msg;
+
+		if (m_hDll == nullptr)
+		{
+			string filePath = GetApplicationPath() + "External\\azure_weather.dll";
+
+			//load the dll.
+			m_hDll = LoadLibrary(convert(filePath).c_str());
+
+			if (m_hDll == nullptr)
+			{
+				filePath = "azure_weather.dll";
+				m_hDll = LoadLibrary(convert(filePath).c_str());
+			}
+
+			//if not working try default path
+			if (m_hDll == nullptr)
+			{
+				filePath = GetApplicationPath() + "azure_weather.dll";
+				m_hDll = LoadLibrary(convert(filePath).c_str());
+			}
+
+
+			if (m_hDll != nullptr)
+			{
+				load_azure_weather_years = (load_azure_weather_yearsF)GetProcAddress(m_hDll, "load_azure_weather_years");
+				if(load_azure_weather_years==NULL)
+					msg.ajoute(FormatMsg(IDS_BSC_UNABLE_GETFUNC, "load_azure_weather_years", filePath));
+			}
+			else
+			{
+				msg.ajoute(FormatMsg(IDS_BSC_UNABLE_LOADDLL, filePath));
+			}
+
+		}
+
+		return msg;
+	}
+
+	void CWeatherDatabase::UnloadAzureDLL()
+	{
+		if (m_hDll)
+		{
+			//ASSERT(GetModuleHandleW(convert(GetDLLFilePath()).c_str()) != NULL);
+
+			//to prevent a bug in the VCOMP100.dll we must wait 1 sec before closing dll
+			//see http://support.microsoft.com/kb/94248
+			Sleep(1000);
+			bool bFree = FreeLibrary(m_hDll) != 0;
+			if (bFree)
+			{
+				m_hDll = NULL;
+				load_azure_weather_years = NULL;
+			}
+
+		}
+	}
 	//*********************************************************************************************************************
 
 	ERMsg CDHDatabaseBase::VerifyDB(CCallback& callback)const
@@ -1276,7 +1363,7 @@ namespace WBSF
 				const CLocation& location = pDB2->GetLocation(i);
 
 				CSearchResultVector result;
-				pDB2->SearchD(result, location, d+0.1);//+0.1 to accep itself
+				pDB2->SearchD(result, location, d + 0.1);//+0.1 to accep itself
 
 				////Eliminate duplication in name
 				for (CSearchResultVector::iterator it = result.begin(); it != result.end();)
@@ -1757,6 +1844,22 @@ namespace WBSF
 
 	//*************************************************************************************************************************************************
 
+	static std::string get_azure_data_file_name(CWeatherStation& station, int year)
+	{
+		//std::string country = station.GetSSI("Country");
+		//std::string subAdmin = station.GetSSI("SubAdmin");
+		string name = station.GetDataFileName();
+		SetFileExtension(name, ".bin.gz");
+
+		//if (country.empty())
+			//country = "Ukn";
+
+//		country += "/";
+	//	if (!subAdmin.empty())
+		//	subAdmin += "/";
+
+		return to_string(year) + "/" + name;
+	}
 
 
 	//****************************************************************************
@@ -1791,17 +1894,38 @@ namespace WBSF
 			CWeatherStation* pStation = dynamic_cast<CWeatherStation*>(&station);
 			assert(pStation);
 
+			std::set<int> years = yearsIn;
+			if (years.empty())
+				years = GetYears(index);
+
 			if (m_bUseCache && m_cache.exists(index))
 			{
 
-				std::set<int> years = yearsIn;
-				if (years.empty())
-					years = GetYears(index);
-
+				
 				if (!me.m_cache.get(index).IsYearInit(years))
 				{
-					std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
-					msg = me.m_cache.get(index).LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, years));
+					if (m_openMode == modeBinary)
+					{
+						msg = me.LoadAzureDLL();
+						if (msg)
+						{
+							for (auto it = years.begin(); it != years.end(); it++)
+							{
+								string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
+								CWeatherYears* pWeather = static_cast<CWeatherYears *>(&me.m_cache.get(index));
+								if(!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void *>(pWeather)))
+								{
+									msg.ajoute("Blob not found: " + blob_name);
+								}
+							}
+						}
+					}
+					else
+					{
+						std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
+						msg = me.m_cache.get(index).LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, years));
+					}
+
 				}
 
 
@@ -1819,23 +1943,38 @@ namespace WBSF
 			}
 			else
 			{
-				std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
-				msg = pStation->LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, yearsIn));
+				if (m_openMode == modeBinary)
+				{
+					msg = me.LoadAzureDLL();
+					if (msg)
+					{
+						for (auto it = years.begin(); it != years.end(); it++)
+						{
+							string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
+							CWeatherYears* pWeather = static_cast<CWeatherYears *>(pStation);
+							pWeather->CreateYear(*it);
+							if (!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void *>(pWeather)))
+							{
+								msg.ajoute("Blob not found: "+ blob_name);
+							}
+						}
+					}
+				}
+				else
+				{
+					std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
+					msg = pStation->LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, yearsIn));
+				}
 
 				if (m_bUseCache && msg)
 					me.m_cache.put(index, *pStation);
 			}
-
-
-
 		}
 
 		m_CS.Leave();
 
 		return msg;
 	}
-
-
 
 
 
@@ -2006,7 +2145,7 @@ namespace WBSF
 	ERMsg CDHDatabaseBase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
 	{
 		ASSERT(IsOpen());
-		ASSERT(m_openMode == modeRead);
+		ASSERT(m_openMode == modeRead || m_openMode == modeBinary);
 		ASSERT(!m_bModified);//close and open the database again
 
 		ERMsg msg;
@@ -2016,16 +2155,15 @@ namespace WBSF
 
 		if (searchRadius != 0)
 		{
-			if (m_zop.GetDataSection().GetFilePath().empty())
+			if (m_openMode == modeRead && m_zop.GetDataSection().GetFilePath().empty())
 			{
 				assert(omp_get_num_threads() == 1);
 				CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 				msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
 			}
 
-			if (!m_zop.SearchIsOpen())
+			if (m_openMode == modeRead && !m_zop.SearchIsOpen())
 			{
-
 				msg = m_zop.OpenSearch(GetOptimisationSearchFilePath1(), GetOptimisationSearchFilePath2());
 				if (!msg)
 					return msg;
@@ -2033,76 +2171,79 @@ namespace WBSF
 
 
 			m_CS.Enter();
-			__int64 canal = (filter.to_ullong()) * 100000 + max(year, 0) * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+			//__int64 canal = (filter.to_ullong()) * 100000 + max(year, 0) * 10 + (bUseShoreDistance ? 4 : 0) + (bUseElevation ? 2 : 0) + (bExcludeUnused ? 1 : 0);
+			__int64 canal = m_zop.GetCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
 			if (!m_zop.CanalExists(canal))
 			{
-				CLocationVector locations;
-				locations.reserve(m_zop.size());
-				std::vector<__int64> positions;
-				positions.reserve(m_zop.size());
+				const_cast<CDHDatabaseBase&>(*this).CreateCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
 
-				const CWeatherFileSectionIndex& index = m_zop.GetDataSection();
-				//build canal
-				for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
-				{
-					bool useIt = it->UseIt();
-					if (useIt || !bExcludeUnused)
-					{
-						CWeatherFileSectionIndex::const_iterator it2 = index.find(it->GetDataFileName());
-						if (it2 != index.end())
-						{
-							bool bIncluded = false;
+				//CLocationVector locations;
+				//locations.reserve(m_zop.size());
+				//std::vector<__int64> positions;
+				//positions.reserve(m_zop.size());
 
-							if (year > 0)
-							{
-								const CWeatherYearSectionMap& section = it2->second;
-								CWeatherYearSectionMap::const_iterator it3 = section.find(year);
-								if (it3 != section.end())
-								{
-									bool bIncluded2 = true;
-									for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
-									{
-										if (filter.test(i))
-											bIncluded2 = it3->second.m_nbRecords[i].first > 0;
-									}
+				//const CWeatherFileSectionIndex& index = m_zop.GetDataSection();
+				////build canal
+				//for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
+				//{
+				//	bool useIt = it->UseIt();
+				//	if (useIt || !bExcludeUnused)
+				//	{
+				//		CWeatherFileSectionIndex::const_iterator it2 = index.find(it->GetDataFileName());
+				//		if (it2 != index.end())
+				//		{
+				//			bool bIncluded = false;
 
-									bIncluded = bIncluded2;
-								}//year exist
-							}
-							else
-							{
-								const CWeatherYearSectionMap& section = it2->second;
-								for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end() && !bIncluded; it3++)
-								{
-									bool bIncluded2 = true;
-									for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
-									{
-										if (filter.test(i))
-											bIncluded2 = it3->second.m_nbRecords[i].first > 0;
-									}
+				//			if (year > 0)
+				//			{
+				//				const CWeatherYearSectionMap& section = it2->second;
+				//				CWeatherYearSectionMap::const_iterator it3 = section.find(year);
+				//				if (it3 != section.end())
+				//				{
+				//					bool bIncluded2 = true;
+				//					for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+				//					{
+				//						if (filter.test(i))
+				//							bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+				//					}
 
-									if (bIncluded2)
-										bIncluded = true;
-								}//for all years
-							}
+				//					bIncluded = bIncluded2;
+				//				}//year exist
+				//			}
+				//			else
+				//			{
+				//				const CWeatherYearSectionMap& section = it2->second;
+				//				for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end() && !bIncluded; it3++)
+				//				{
+				//					bool bIncluded2 = true;
+				//					for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+				//					{
+				//						if (filter.test(i))
+				//							bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+				//					}
 
-							if (bIncluded)
-							{
-								CLocation pt = *it;//removel
-								pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
-								locations.push_back(pt);
-								positions.push_back(it - m_zop.begin());
-							}
-						}//File exist
-					}//use it
-				}
+				//					if (bIncluded2)
+				//						bIncluded = true;
+				//				}//for all years
+				//			}
+
+				//			if (bIncluded)
+				//			{
+				//				CLocation pt = *it;//removel
+				//				pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+				//				locations.push_back(pt);
+				//				positions.push_back(it - m_zop.begin());
+				//			}
+				//		}//File exist
+				//	}//use it
+				//}
 
 
-				//by optimization, add the canal event if they are empty
-				CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
-				pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
-				CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
-				zop.AddCanal(canal, pANN);
+				////by optimization, add the canal event if they are empty
+				//CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+				//pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+				//CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+				//zop.AddCanal(canal, pANN);
 			}
 			m_CS.Leave();
 
@@ -2133,9 +2274,246 @@ namespace WBSF
 			string filterName = filter.GetVariablesName('+');
 
 			msg = ERMsg();//reset it and add the new message
-			string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION, ToString(searchResultArray.size()), GetFileName(m_filePath), ToString(year), ToString(nbStation), filterName);
+			string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION, ToString(searchResultArray.size()), string(m_filePath.empty()?" ":GetFileName(m_filePath)), ToString(year), ToString(nbStation), filterName);
 			msg.ajoute(error);
 		}
+
+		return msg;
+	}
+
+	void CDHDatabaseBase::CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)
+	{
+		__int64 canal = m_zop.GetCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+
+
+		CLocationVector locations;
+		locations.reserve(m_zop.size());
+		std::vector<__int64> positions;
+		positions.reserve(m_zop.size());
+
+		const CWeatherFileSectionIndex& index = m_zop.GetDataSection();
+		//build canal
+		for (CLocationVector::const_iterator it = m_zop.begin(); it != m_zop.end(); it++)
+		{
+			bool useIt = it->UseIt();
+			if (useIt || !bExcludeUnused)
+			{
+				CWeatherFileSectionIndex::const_iterator it2 = index.find(it->GetDataFileName());
+				if (it2 != index.end())
+				{
+					bool bIncluded = false;
+
+					if (year > 0)
+					{
+						const CWeatherYearSectionMap& section = it2->second;
+						CWeatherYearSectionMap::const_iterator it3 = section.find(year);
+						if (it3 != section.end())
+						{
+							bool bIncluded2 = true;
+							for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+							{
+								if (filter.test(i))
+									bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+							}
+
+							bIncluded = bIncluded2;
+						}//year exist
+					}
+					else
+					{
+						const CWeatherYearSectionMap& section = it2->second;
+						for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end() && !bIncluded; it3++)
+						{
+							bool bIncluded2 = true;
+							for (size_t i = 0; i < it3->second.m_nbRecords.size() && bIncluded2; i++)
+							{
+								if (filter.test(i))
+									bIncluded2 = it3->second.m_nbRecords[i].first > 0;
+							}
+
+							if (bIncluded2)
+								bIncluded = true;
+						}//for all years
+					}
+
+					if (bIncluded)
+					{
+						CLocation pt = *it;//removel
+						pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+						locations.push_back(pt);
+						positions.push_back(it - m_zop.begin());
+					}
+				}//File exist
+			}//use it
+		}
+
+
+		//by optimization, add the canal event if they are empty
+		CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+		pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+		CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+		zop.AddCanal(canal, pANN);
+	}
+
+	void CDHDatabaseBase::CreateAllCanals(bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)
+	{
+		set<int> years = GetYears();
+		for (auto it = years.begin(); it != years.end(); it++)
+		{
+			for (TVarH v = H_FIRST_VAR; v < H_SRAD; v++)
+				CreateCanal(v, *it, bExcludeUnused, bUseElevation, bUseShoreDistance);
+		}
+	}
+
+
+	ERMsg CDHDatabaseBase::SaveAsBinary(const string& file_path)const
+	{
+		ASSERT(IsOpen());
+
+		ERMsg msg;
+
+		ofStream file;
+		msg = file.open(file_path, ios::out | ios::binary);
+		if (msg)
+		{
+			try
+			{
+				boost::iostreams::filtering_ostreambuf out;
+				out.push(boost::iostreams::gzip_compressor());
+				out.push(file);
+				std::ostream outcoming(&out);
+
+				//save coordinate and search optimisation
+				size_t version = GetVersion();
+				outcoming.write((char*)(&version), sizeof(version));
+				outcoming << *this;
+
+				//now save data
+				for (size_t i = 0; i < size(); i++)
+				{
+					CWeatherStation station;
+					Get(station, i);
+
+					set<int> years = station.GetYears();
+					for (auto it = years.begin(); it != years.end(); it++)
+					{
+						string data_filepath = WBSF::GetPath(file_path) + GetFileTitle(file_path) + "/" + get_azure_data_file_name(station, *it);
+						WBSF::CreateMultipleDir(WBSF::GetPath(data_filepath)); 
+
+						data_filepath = WBSF::ANSI_2_ASCII(RemoveAccented(data_filepath));//remove all accent caracters;
+						
+
+						ofStream data_file;
+						msg = data_file.open(data_filepath, ios::out | ios::binary);
+						if (msg)
+						{
+							try
+							{
+								boost::iostreams::filtering_ostreambuf data_out;
+								data_out.push(boost::iostreams::gzip_compressor());
+								data_out.push(data_file);
+								std::ostream data_outcoming(&data_out);
+
+								station.GetStat(H_TMIN);//compute stat
+								const CWeatherYear& weather = station[*it];
+								CWVariablesCounter count = weather.GetVariablesCount();
+
+								CTPeriod period = count.GetTPeriod();
+								CWVariables variable = count.GetVariables();
+
+								write_value(data_outcoming, period);
+								write_value(data_outcoming, variable);
+
+								for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+								{
+									const CDataInterface& data = weather.Get(TRef);
+									data.WriteStream(data_outcoming, variable, false);
+									/*for (size_t v = 0; v < variable.size(); v++)
+									{
+										if (variable[v])
+										{
+											CStatistic stat;
+											data.GetStat(TVarH(v), stat);
+											float value = stat.IsInit() ? stat[MEAN]:-999;
+											write_value(data_outcoming, value);
+										}
+									}*/
+								}
+							}
+							catch (const boost::iostreams::gzip_error& /*exception*/)
+							{
+								//int error = exception.error();
+								//if (error == boost::iostreams::gzip::zlib_error)
+								//{
+									//check for all error code    
+									//msg.ajoute(exception.what());
+								//}
+							}
+						}
+
+						data_file.close();
+					}
+
+				}
+			}
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+
+
+			file.close();
+		}
+
+		return msg;
+	}
+
+
+	ERMsg CDHDatabaseBase::LoadFromBinary(const string& file_path)
+	{
+		ERMsg msg;
+		ifStream file;
+		msg = file.open(file_path, ios::in | ios::binary);
+		if (msg)
+		{
+			try
+			{
+				boost::iostreams::filtering_istreambuf in;
+				in.push(boost::iostreams::gzip_decompressor());
+				in.push(file);
+				std::istream incoming(&in);
+
+				size_t version = 0;
+				incoming.read((char *)(&version), sizeof(version));
+
+				if (version == GetVersion())
+				{
+					incoming >> *this;
+				}
+				else
+				{
+					msg.ajoute("Daily binary database (version = " + to_string(version) + ") was not created with the latest version (" + to_string(GetVersion()) + "). Rebuild new binary.");
+				}
+
+			}
+			catch (const boost::iostreams::gzip_error& exception)
+			{
+				int error = exception.error();
+				if (error == boost::iostreams::gzip::zlib_error)
+				{
+					//check for all error code    
+					msg.ajoute(exception.what());
+				}
+			}
+
+			file.close();
+		}
+
 
 		return msg;
 	}

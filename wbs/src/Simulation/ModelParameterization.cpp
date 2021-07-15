@@ -898,10 +898,11 @@ namespace WBSF
 
 
 				ifStream inputFile;
-				msg = inputFile.open(inputFilePath);
+				msg = inputFile.open(inputFilePath, ios::in | ios::binary);//open this file in benary mode to avoid some problem...
 				if (msg)
 				{
 					WriteBuffer(inStream, inputFile.GetText(true));
+					inputFile.close();
 
 					string str = inStream.str();
 					*pGlobalDataStream = new TGenericStream(10000000);//CreateGenericStream();

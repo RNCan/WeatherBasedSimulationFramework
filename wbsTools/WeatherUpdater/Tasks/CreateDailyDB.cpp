@@ -201,9 +201,14 @@ namespace WBSF
 
 					if (station.HaveData())
 					{
+						station.m_name = WBSF::UTF8_ANSI(station.m_name);//try to remove UTF8 caracters
+						station.m_name = RemoveAccented(station.m_name);//remove all accent caracters;
+
 						//remove the added number "2" at the end of the name
-						if (!station.m_name.empty() && station.m_name.back() == 2)
+						if (!station.m_name.empty() && station.m_name.back() == '2')
 							station.m_name = station.m_name.substr(0, station.m_name.length() - 1);
+
+						
 
 						string newName = dailyDB.GetUniqueName(station.m_ID, station.m_name);
 						if (newName != station.m_name)
@@ -212,6 +217,8 @@ namespace WBSF
 							station.SetDataFileName("");
 						}
 
+
+						
 						//Force write file name in the file
 						station.SetDataFileName(station.GetDataFileName());
 						station.UseIt(true);

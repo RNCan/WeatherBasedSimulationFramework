@@ -150,7 +150,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib$(PlatformArchitecture)\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(TargetPath)" "..\lib$(PlatformArchitecture)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -201,7 +201,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\lib$(PlatformArchitecture)\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(TargetPath)" "..\lib$(PlatformArchitecture)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

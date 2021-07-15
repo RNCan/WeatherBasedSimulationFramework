@@ -28,7 +28,7 @@ namespace WBSF
 	{
 	public:
 
-		CBagworm(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, size_t sex = NOT_INIT, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
+		CBagworm(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CBagworm(const CBagworm& in) : WBSF::CIndividual(in){ operator=(in); }
 		CBagworm& operator=(const CBagworm& in);
 		~CBagworm(void);
@@ -54,7 +54,7 @@ namespace WBSF
 
 	protected:
 
-		void Develop(CTRef date, double T, short nbStep);
+		void Develop(CTRef date, double T, size_t nbStep);
 		double GetDevRate(size_t s, double T)const;
 
 		//member

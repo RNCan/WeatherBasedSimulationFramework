@@ -759,7 +759,7 @@ BEGIN
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
     IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si compresser)|Include sous-répertoires (si compresser)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
-                            "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Type de connexion|Délais de connexion|Proxy|Vitesse limite|Ascii|Mode passif|Afficher progression"
+                            "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Délais de connexion|Mode passif|Afficher progression"
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Tâche d'image radar|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
@@ -1259,7 +1259,7 @@ BEGIN
     IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
     IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip filter (if Zip)|Include sub-directory (if zip)"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
-                            "Direction|Server|Remote file|Local file|User name|Password|Connection type|Connection timeout|Proxy|Speed limit|Ascii|Passive Mode|Show Progress"
+                            "Direction|Server|Remote file|Local file|User name|Password|Connection timeout|Passive Mode|Show Progress"
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Radar task|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"

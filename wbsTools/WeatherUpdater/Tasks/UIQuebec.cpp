@@ -9,7 +9,7 @@
 #include "../Resource.h"
 #include "WeatherBasedSimulationString.h"
 #include "Geomatic/TimeZones.h" 
-#include "mosa.h"
+#include "mosa.h" 
 
 #include "basic/zenXml.h"
 #include "Basic/WeatherStation.h"
@@ -121,7 +121,18 @@ namespace WBSF
 				{
 				case SOPFEU:  InitSOPFEU(m_SOPFEU); msg += m_SOPFEU.Execute(callback); break;
 				case MDDELCC: InitMDDELCC(m_MDDELCC); msg += m_MDDELCC.Execute(callback); break;
-				case MFFP:    if (InitMFFP(m_MFFP)) { msg += m_MFFP.Execute(callback); break; }
+				case MFFP:
+				{
+					if (InitMFFP(m_MFFP))
+					{
+						msg += m_MFFP.Execute(callback);
+					}
+					else
+					{
+						Init(n); msg += Execute(n, callback);
+					}
+					break;
+				}
 				default: Init(n); msg += Execute(n, callback);
 				}
 
@@ -264,7 +275,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 		CFtpConnectionPtr pConnection;
 
-		return GetFtpConnection(SERVER_NAME[MFFP], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, obj.m_userName, obj.m_password, true, 2);
+		return obj.m_userName != "MFFP" ? GetFtpConnection(SERVER_NAME[MFFP], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, obj.m_userName, obj.m_password, true, 2) : false;
 	}
 
 	ERMsg CUIQuebec::GetWeatherStation(const string& name, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -367,7 +378,7 @@ namespace WBSF
 		string outputFilePathD = working_dir + "CoteNord2.DailyDB";
 		string outputFilePathH = working_dir + "CoteNord2.HourlyDB";
 
-		
+
 		size_t t = 0;
 
 		CDailyDatabase dbD;
@@ -375,7 +386,7 @@ namespace WBSF
 
 		if (t == 0)
 		{
-			
+
 			msg += CHourlyDatabase::DeleteDatabase(outputFilePathH, callback);
 			msg += dbH.Open(outputFilePathH, CHourlyDatabase::modeWrite, callback);
 		}
@@ -384,7 +395,7 @@ namespace WBSF
 			msg += CDailyDatabase::DeleteDatabase(outputFilePathD, callback);
 			msg += dbD.Open(outputFilePathD, CDailyDatabase::modeWrite, callback);
 		}
-			
+
 
 
 		std::map<string, CWeatherStation> data;

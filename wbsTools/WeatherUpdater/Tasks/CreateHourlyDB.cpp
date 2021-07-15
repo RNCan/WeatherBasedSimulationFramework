@@ -385,6 +385,12 @@ namespace WBSF
 						station.SetSSI("Country", country);
 						station.SetSSI("SubDivision", subDivisions);
 
+						station.m_name = WBSF::UTF8_ANSI(station.m_name);//try to remove UTF8 caracters
+						station.m_name = RemoveAccented(station.m_name);//remove all accent caracters;
+
+						//remove the added number "2" at the end of the name
+						if (!station.m_name.empty() && station.m_name.back() == '2')
+							station.m_name = station.m_name.substr(0, station.m_name.length() - 1);
 
 						ASSERT(!station.m_name.empty());
 						string newName = DB.GetUniqueName(station.m_ID, station.m_name);

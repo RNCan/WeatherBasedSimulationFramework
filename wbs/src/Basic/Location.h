@@ -50,6 +50,11 @@ namespace WBSF
 		friend boost::serialization::access;
 
 
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const SiteSpeceficInformationMap& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, SiteSpeceficInformationMap& data) { return data >> stream; }
+
 	};
 
 
@@ -144,6 +149,11 @@ namespace WBSF
 		}
 
 		friend boost::serialization::access;
+		std::ostream& operator>>(std::ostream &s)const;
+		std::istream& operator<<(std::istream &s);
+		friend std::ostream& operator<<(std::ostream &s, const CLocation& pt) { pt >> s; return s; }
+		friend std::istream& operator>>(std::istream &s, CLocation& pt) { pt << s;	return s; }
+
 
 		//set site specific information (SSI)
 		std::string GetDefaultSSI(size_t i)const;
@@ -259,6 +269,11 @@ namespace WBSF
 			ar & boost::serialization::base_object<CLocationVectorBase>(*this);
 		}
 		friend boost::serialization::access;
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CLocationVector& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CLocationVector& data) { return data >> stream; }
 
 		const std::string& GetFilePath()const{ return m_filePath; }
 

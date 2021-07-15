@@ -555,4 +555,17 @@ namespace WBSF
 
 		return msg;
 	}
+
+	std::ostream& CNormalsData::operator << (std::ostream& stream)const
+	{
+		stream.write(reinterpret_cast<char const*>(data()), 12* NORMALS_DATA::NB_FIELDS*sizeof(float));
+		return stream;
+	}
+
+	std::istream& CNormalsData::operator >> (std::istream& stream)
+	{
+		stream.read(reinterpret_cast<char *>(data()), 12 * NORMALS_DATA::NB_FIELDS * sizeof(float));
+		return stream;
+	}
+
 }//namespace WBSF

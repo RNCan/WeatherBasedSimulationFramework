@@ -224,9 +224,6 @@
     <ClCompile Include="..\src\Basic\gzip.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Basic\QGISPalette.cpp">
-      <Filter>stdafx</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Basic\CallcURL.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -235,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Basic\json\json11.cpp">
       <Filter>Source\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\QGISPalette.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -499,9 +499,6 @@
     <ClInclude Include="..\src\Basic\gzip.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Basic\QGISPalette.h">
-      <Filter>stdafx</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Basic\CallcURL.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -510,6 +507,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Basic\json\json11.hpp">
       <Filter>Source\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\QGISPalette.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -234,7 +234,7 @@ namespace WBSF
 			CHostPtr pTree = make_shared<CWSBTree>(&stand);
 			pTree->m_nbMinObjects = m_nbMinObjects;
 			pTree->m_nbMaxObjects = m_nbMaxObjects;
-			pTree->Initialize<CWSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbObjects, m_initialPopulation, L2o, NOT_INIT, m_bFertilEgg, 0));
+			pTree->Initialize<CWSpruceBudworm>(CInitialPopulation(p.Begin(), 0, m_nbObjects, m_initialPopulation, L2o, RANDOM_SEX, m_bFertilEgg, 0));
 
 			stand.m_host.push_back(pTree);
 
@@ -484,7 +484,7 @@ namespace WBSF
 
 				}
 
-				double NLL = statLH[NEGATIVE_LOG_LIKELIHOOD];
+				double NLL = statLH[LIKELIHOOD];
 				//Try to maximize MAE of log(LH)
 				if (NLL > -9999 && !_isnan(NLL) && _finite(NLL))
 					stat.Add(NLL, 0);

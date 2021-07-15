@@ -78,14 +78,14 @@ namespace WBSF
 
 		clear();
 
-		
+
 		msg += m_fileIndex.open(filePathIndex, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYNO
 		if (msg)
 			msg += m_fileData.open(filePathData, ios::in | ios::out | ios::binary | ios::app);//, SH_DENYWR
 
 		if (msg)
 		{
-			
+
 			try
 			{
 				boost::archive::binary_iarchive ar(m_fileIndex, boost::archive::no_header);
@@ -112,7 +112,7 @@ namespace WBSF
 
 				m_fileIndex.close();
 				msg += m_fileIndex.open(filePathIndex, ios::out | ios::binary | ios::trunc);
-				
+
 				if (msg)
 				{
 					m_filePathIndex = filePathIndex;
@@ -167,9 +167,9 @@ namespace WBSF
 
 	bool CSearchOptimisation::CanalExists(__int64 canal)const
 	{
-		
+
 		CCanalPositionMap::const_iterator it = m_canalPosition.find(canal);
-		
+
 		//bool bCanalExist = 
 		//if (bCanalExist && m_fileData.is_open())//enty must also exist in the data file
 		//{
@@ -200,7 +200,7 @@ namespace WBSF
 		//init wiht a default value of zero when the file is not open
 		std::pair<__int64, ULONGLONG> info((__int64)m_ANNs.size(), 0);
 
-		if ( m_fileData.is_open())//open in output
+		if (m_fileData.is_open())//open in output
 		{
 			if (CanalExists(canal))
 			{
@@ -218,7 +218,7 @@ namespace WBSF
 
 			}
 
-			
+
 			m_fileData.seekp(0, ios::end);
 			ULONGLONG curPos = m_fileData.tellp().seekpos();
 			info.second = curPos;
@@ -477,8 +477,8 @@ namespace WBSF
 		msg = load(filePath, doc);
 		if (msg)
 		{
-			
- 			if (IsNormalsDB(filePath))
+
+			if (IsNormalsDB(filePath))
 			{
 				string str;
 				if (doc.root().getAttribute("start", str) && !str.empty())
@@ -753,6 +753,49 @@ namespace WBSF
 		return m_ANNs.CanalExists(canal);
 	}
 
+
+	//void CWeatherDatabaseOptimization::CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)
+	//{
+	//	__int64 canal= GetCanal(filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+
+
+	//	CLocationVector locations;
+	//	locations.reserve(size());
+	//	std::vector<__int64> positions;
+	//	positions.reserve(size());
+
+	//	//build canal
+	//	for (CLocationVector::iterator it = begin(); it != end(); it++)
+	//	{
+	//		bool useIt = it->UseIt();
+	//		if (useIt || !bExcludeUnused)
+	//		{
+	//			size_t index = std::distance(begin(), it);
+	//			//bool bIncluded = (m_data[index].GetVariables()&filter) == filter;
+
+	//			CWVariables var = GetWVariables(index, { {year} });
+	//			bool bIncluded = (var&filter) == filter;
+
+
+	//			if (bIncluded)
+	//			{
+	//				CLocation pt = *it;//removel
+	//				pt.m_siteSpeceficInformation.clear();//remove ssi for ANN
+	//				pt.SetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST), it->GetSSI(CLocation::GetDefaultSSIName(CLocation::SHORE_DIST)));//but keep ShoreDistance
+	//				locations.push_back(pt);
+	//				positions.push_back(index);
+	//			}
+	//		}//use it
+	//	}
+
+
+	//	//by optimization, add the canal event if they are empty
+	//	CApproximateNearestNeighborPtr pANN(new CApproximateNearestNeighbor);
+	//	pANN->set(locations, bUseElevation, bUseShoreDistance, positions);
+	//	//CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
+	//	AddCanal(canal, pANN);
+	//}
+
 	void CWeatherDatabaseOptimization::AddCanal(__int64 canal, CApproximateNearestNeighborPtr pANN)const
 	{
 		//ASSERT(!CanalExists(canal));
@@ -794,7 +837,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CWeatherDatabaseOptimization::OpenSearch(const std::string& filePath1, std::string& filePath2)const
+	ERMsg CWeatherDatabaseOptimization::OpenSearch(const std::string& filePath1, const std::string& filePath2)const
 	{
 		ERMsg msg;
 		m_CS.Enter();
@@ -826,5 +869,44 @@ namespace WBSF
 		return std::set<int>();
 
 	}
+
+
+	std::ostream& CWeatherDatabaseOptimization::operator << (std::ostream& stream)const
+	{
+		CLocationVector::operator << (stream);
+		stream << m_filesSection;
+
+
+		size_t s = m_years.size();
+		stream.write((char*)(&s), sizeof(s));
+		for (auto it = m_years.begin(); it != m_years.end(); it++)
+		{
+			int year =*it;
+			stream.write((char*)(&year), sizeof(year));
+		}
+
+
+		return stream;
+	}
+
+	std::istream& CWeatherDatabaseOptimization::operator >> (std::istream& stream)
+	{
+		CLocationVector::operator >> (stream);
+		stream >> m_filesSection;
+
+		size_t s = 0;
+		stream.read((char*)(&s), sizeof(s));
+		for (size_t i = 0; i < s; i++)
+		{
+			int year = 0;
+			stream.read((char*)(&year), sizeof(year));
+			m_years.insert(year);
+		}
+
+		ASSERT(m_years.size()==s);
+
+		return stream;
+	}
+
 
 }

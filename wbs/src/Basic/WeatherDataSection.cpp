@@ -113,6 +113,85 @@ namespace WBSF
 	}
 	*/
 
+	std::ostream& CCWeatherYearSection::operator << (std::ostream& stream)const
+	{
+		size_t test = sizeof(m_nbRecords);
+
+		stream.write((char*)(&m_begin), sizeof(m_begin));
+		stream.write((char*)(&m_end), sizeof(m_end));
+		stream.write((char*)(&m_lineNo), sizeof(m_lineNo));
+		stream.write((char*)(&m_nbLines), sizeof(m_nbLines));
+		stream.write((char*)(&m_nbRecords), sizeof(m_nbRecords));
+		return stream;
+	}
+
+	std::istream& CCWeatherYearSection::operator >> (std::istream& stream)
+	{
+		stream.read((char*)(&m_begin), sizeof(m_begin));
+		stream.read((char*)(&m_end), sizeof(m_end));
+		stream.read((char*)(&m_lineNo), sizeof(m_lineNo));
+		stream.read((char*)(&m_nbLines), sizeof(m_nbLines));
+		stream.read((char*)(&m_nbRecords), sizeof(m_nbRecords));
+		return stream;
+	}
+
+	std::ostream& CWeatherYearSectionMap::operator << (std::ostream& stream)const
+	{
+		size_t s = size();
+		stream.write((char*)(&s), sizeof(s));
+		for (auto it = begin(); it != end(); it++)
+		{
+			stream.write((char*)(&it->first), sizeof(it->first));
+			stream << (it->second);
+		}
+		return stream;
+	}
+
+	std::istream& CWeatherYearSectionMap::operator >> (std::istream& stream)
+	{
+		size_t s = 0;
+		stream.read((char*)(&s), sizeof(s));
+		for (size_t i = 0; i < s; i++)
+		{
+			int key;
+			stream.read((char*)(&key), sizeof(key));
+
+			CCWeatherYearSection value;
+			stream >> value;
+			(*this)[key] = value;
+		}
+		return stream;
+	}
+
+
+	std::ostream& CWeatherFileSectionIndex::operator << (std::ostream& stream)const
+	{
+		size_t s = size();
+		stream.write((char*)(&s), sizeof(s));
+		for (auto it = begin(); it != end(); it++)
+		{
+			WBSF::WriteBuffer( stream, it->first);
+			stream << (it->second);
+		}
+		return stream;
+	}
+
+	std::istream& CWeatherFileSectionIndex::operator >> (std::istream& stream)
+	{
+		size_t s = 0;
+		stream.read((char*)(&s), sizeof(s));
+		for (size_t i = 0; i < s; i++)
+		{
+			string key;
+			CWeatherYearSectionMap value;
+			WBSF::ReadBuffer(stream, key);
+			stream >> value;
+			(*this)[key] = value;
+		}
+		return stream;
+	}
+
+
 
 	ERMsg CWeatherFileSectionIndex::Load(const std::string& filePath)
 	{

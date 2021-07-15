@@ -1,3 +1,4 @@
+//22-04-2021	1.2.1   Rémi Saint-Amant	Compile with boost 1.76
 //22-04-2021	1.2.0   Rémi Saint-Amant	Bug correction in precipitation gradient. 
 //22-07-2019	1.1.4	Rémi Saint-Amant	ATM version 1.0.4: new circadian rhythm 
 //25-01-2019	1.1.3	Rémi Saint-Amant	Add completeness in WGInputAnalysis

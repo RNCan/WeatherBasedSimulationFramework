@@ -90,9 +90,4 @@
       <UniqueIdentifier>{460eaae5-fc6d-4410-9180-5e1a3abaa7e6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\MTParser\MTParserRes.rc">
-      <Filter>Source</Filter>
-    </ResourceCompile>
-  </ItemGroup>
 </Project>

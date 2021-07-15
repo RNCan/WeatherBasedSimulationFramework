@@ -134,7 +134,7 @@ namespace WBSF
 			//	TRef = p.Begin(); //no snow 
 
 			//get initial population 
-			CInitialPopulation initialPopulation(p.Begin(), 0, 1000, 100, EGG, FEMALE, true, 0);
+			CInitialPopulation initialPopulation(p.Begin(), 0, 1000, 100, MAGGOT, FEMALE, true, 0);
 
 			//Create stand
 			CActiaInterruptaStand stand(this);

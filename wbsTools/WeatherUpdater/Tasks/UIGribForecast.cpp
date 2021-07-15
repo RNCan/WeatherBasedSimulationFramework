@@ -107,7 +107,7 @@ namespace WBSF
 		case DIMENSION:str = "0"; break;
 		case VARIABLE:str = "0"; break;
 		case MAX_HOUR: str = "48"; break;
-		case DELETE_AFTER: str = "2"; break;
+		case DELETE_AFTER: str = "7"; break;
 		};
 
 		return str;

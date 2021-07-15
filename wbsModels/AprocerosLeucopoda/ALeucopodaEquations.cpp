@@ -115,7 +115,8 @@ namespace WBSF
 		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
 		while (RDR < 0.2 || RDR>2.6)//base on individual observation
-			RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));
+			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
+			//RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));//?????
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 

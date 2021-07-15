@@ -35,6 +35,11 @@ namespace WBSF
 		ERMsg LoadFromCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback);
 		ERMsg SaveAsCSV(const std::string& filePath, const CWeatherDatabaseOptimization& zop, CCallback& callback);
 
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CNormalsDataDeque& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CNormalsDataDeque& data) { return data >> stream; }
+
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
@@ -85,7 +90,7 @@ namespace WBSF
 		virtual __time64_t GetLastUpdate(const std::string& filePath, bool bVerifyAllFiles = true)const;
 		virtual ERMsg VerifyDB(CCallback& callBack = DEFAULT_CALLBACK)const;
 		virtual ERMsg CreateFromMerge(const std::string& filePath1, const std::string& filePath2, double distance, double deltaElev, size_t mergeType, size_t priorityRules, std::string& log, CCallback& callback = DEFAULT_CALLBACK);
-
+		//virtual CWVariables GetWVariables(size_t index, std::set<int> years);
 
 		ERMsg GetStations(CNormalsStationVector& stationArray, const CSearchResultVector& results)const;
 		ERMsg SaveAsV6(const std::string& filePath, CCallback& callback);
@@ -108,6 +113,25 @@ namespace WBSF
 		int GetFirstYear()const{ return (!m_zop.GetYears().empty() ? *m_zop.GetYears().begin() : INVLID_YEAR); }
 		int GetLastYear()const{ return (!m_zop.GetYears().empty() ? *m_zop.GetYears().rbegin() : INVLID_YEAR); }
 		const CNormalsData& GetData(size_t index)const;
+
+		//void LoadFromBinary(std::istream& in);
+		//void SaveAsBinary(std::ostream& out)const;
+
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CNormalsDatabase& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CNormalsDatabase& data) { return data >> stream; }
+
+
+		ERMsg LoadFromBinary(const std::string& file_path);
+		ERMsg SaveAsBinary(const std::string& file_path)const;
+		//static ERMsg CreateBinary(std::string file_path_in, std::string file_path_out);
+
+		//void CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+		void CreateAllCanals(bool bExcludeUnused=true, bool bUseElevation = true, bool bUseShoreDistance = true);
+		void CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
+
 	protected:
 
 		void GetStationOrder(std::vector<size_t>& DBOrder)const;

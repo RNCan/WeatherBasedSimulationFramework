@@ -52,6 +52,12 @@ namespace WBSF
 		{
 			ar & m_begin & m_end & m_lineNo & m_nbLines & m_nbRecords;
 		}
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CCWeatherYearSection& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CCWeatherYearSection& data) { return data >> stream; }
+
 	};
 
 
@@ -101,6 +107,12 @@ namespace WBSF
 		{
 			ar & m_checkSum & boost::serialization::base_object<CWeatherYearSectionMapBase>(*this);
 		}
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CWeatherYearSectionMap& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CWeatherYearSectionMap& data) { return data >> stream; }
+
 	};
 
 	typedef std::map<std::string, CWeatherYearSectionMap> CDataFilesMap;
@@ -124,6 +136,12 @@ namespace WBSF
 		{
 			ar & boost::serialization::base_object<CDataFilesMap>(*this);
 		}
+
+		std::ostream& operator << (std::ostream& stream)const;
+		std::istream& operator >> (std::istream& stream);
+		friend std::ostream& operator << (std::ostream& stream, const CWeatherFileSectionIndex& data) { return data << stream; }
+		friend std::istream& operator >> (std::istream& stream, CWeatherFileSectionIndex& data) { return data >> stream; }
+
 
 		void CompileLine(const StringVector& data, const CWeatherFormat& format, CCWeatherYearSection& section);
 

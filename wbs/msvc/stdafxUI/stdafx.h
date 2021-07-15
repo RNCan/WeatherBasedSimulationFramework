@@ -30,6 +30,7 @@
 #include <afxEditBrowseCtrl.h>
 #include <afxMenuButton.h>
 #include <afxDialogEx.h>
+#include <afxcontextmenumanager.h>
 
 
 #ifndef _AFX_NO_OLE_SUPPORT

@@ -43,7 +43,7 @@ public:
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
-	virtual BOOL InitContextMenuManager();
+	//virtual BOOL InitContextMenuManager();
 	
 
 	afx_msg void OnAppAbout();

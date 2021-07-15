@@ -1089,6 +1089,89 @@ namespace WBSF
 		return locations.Save(filePath);
 	}
 
+	std::ostream& CLocation::operator >> (std::ostream& stream)const
+	{
+		//CGeoPoint3D::operator >> (stream);
+		stream.write((char*)(&m_x), sizeof(m_x));
+		stream.write((char*)(&m_y), sizeof(m_y));
+		stream.write((char*)(&m_z), sizeof(m_z));
+		WBSF::WriteBuffer(stream, m_ID);
+		WBSF::WriteBuffer(stream, m_name);
+		stream << m_siteSpeceficInformation;
+		return stream;
+	}
+	
+	std::istream& CLocation::operator << (std::istream& stream)
+	{
+		//CGeoPoint3D::operator << (stream);
+		stream.read((char*)(&m_x), sizeof(m_x));
+		stream.read((char*)(&m_y), sizeof(m_y));
+		stream.read((char*)(&m_z), sizeof(m_z));
+		WBSF::ReadBuffer(stream, m_ID);
+		WBSF::ReadBuffer(stream, m_name);
+
+		m_siteSpeceficInformation >> stream;
+		return stream;
+	}
+
+	std::istream& CLocationVector::operator >> (std::istream& stream)
+	{
+		size_t s = 0;
+		stream.read((char*)(&s), sizeof(s));
+		resize(s);
+		for (iterator it = begin(); it != end(); it++)
+			stream >> *it;
+
+		return stream;
+	}
+
+	//static bool by_index(std::pair < std::string, std::pair<std::string, size_t>> i, std::pair < std::string, std::pair<std::string, size_t>> j) { return i.second.second < j.second.second; }
+	std::ostream& CLocationVector::operator << (std::ostream& stream)const
+	{
+		size_t s = size();
+		stream.write((char*)(&s), sizeof(s));
+
+		for (const_iterator it = begin(); it != end(); it++)
+			stream << *it;
+
+		return stream;
+	}
+
+
+	std::istream& SiteSpeceficInformationMap::operator >> (std::istream& stream)
+	{
+		size_t s = 0;
+		stream.read((char*)(&s), sizeof(s));
+		for (size_t i = 0; i < s; i++)
+		{
+			string key;
+			string value;
+
+			WBSF::ReadBuffer(stream, key);
+			WBSF::ReadBuffer(stream, value);
+			insert( make_pair(key, make_pair(value, i) ) );
+		}
+
+		return stream;
+	}
+
+	//static bool by_index(std::pair < std::string, std::pair<std::string, size_t>> i, std::pair < std::string, std::pair<std::string, size_t>> j) { return i.second.second < j.second.second; }
+	std::ostream& SiteSpeceficInformationMap::operator << (std::ostream& stream)const
+	{
+		size_t s = size();
+		stream.write((char*)(&s), sizeof(s));
+
+		//sort(begin(), end(), by_index);
+		for (const_iterator it = begin(); it != end(); it++)
+		{
+			WBSF::WriteBuffer(stream, it->first);
+			WBSF::WriteBuffer(stream, it->second.first);
+		}
+
+		return stream;
+	}
+
+
 
 
 }//namespace WBSF

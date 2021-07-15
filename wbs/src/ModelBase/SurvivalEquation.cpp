@@ -205,7 +205,6 @@ namespace WBSF
 			double Th = P[P2];
 			double deltaT = P[P3];
 
-			//T = max(Tl, min(Th, T));
 			s = (T >= Tl && T <= Th) ? a * (1.0 - exp(-(T - Tl) / deltaT))*(1.0 - exp(-(Th - T) / deltaT)) : 0;
 		}
 		else if (model == Survival_14)
@@ -216,7 +215,6 @@ namespace WBSF
 			double deltaTl = P[P3];
 			double deltaTh = P[P4];
 
-			//T = max(Tl, min(Th, T));
 			s = (T >= Tl && T <= Th) ? 1.0 - exp(a*(1.0 - exp(-(T - Tl) / deltaTl))*(1.0 - exp(-(Th - T) / deltaTh))) : 0;
 		}
 		else if (model == GompertzMakeham)
@@ -237,10 +235,12 @@ namespace WBSF
 			double deltaTl = P[P3];
 			double deltaTh = P[P4];
 
-			//T = max(Tl, min(Th, T));
-			s = (T >= Tl && T <= Th) ? 1.0 / exp((1.0 + exp(-(T - Tl) / deltaTl))*(1.0 + exp(-(Th - T) / deltaTh))*a):0;
+			s = (T >= Tl && T <= Th) ? 1.0 / exp((1.0 + exp(-(T - Tl) / deltaTl))*(1.0 + exp(-(Th - T) / deltaTh))*a) : 0;
 		}
-
+		else if (model == Unknown)
+		{
+			s = 1.0;
+		}
 
 		return s;
 	}

@@ -3,6 +3,7 @@
 #include <string>
 #include "basic/ERMsg.h"
 
+
 #ifdef QC_LIBRARY_EXPORTS
 #define QC_LIBRARY_API __declspec(dllexport)
 #else
