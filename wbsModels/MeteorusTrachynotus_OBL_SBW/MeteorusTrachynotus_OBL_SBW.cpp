@@ -71,7 +71,7 @@ namespace WBSF
 
 		if (m_sex == FEMALE && m_age >= ADULT && GetStageAge() >= GetStand()->m_preOvip)
 		{
-			//m_Nh is only update for female
+			//m_Nh is only updated for female
 			const std::shared_ptr<WBSF::CHost>& pOBLObjects = pStand->m_OBLStand.m_host.front();
 			for (auto it = pOBLObjects->begin(); it != pOBLObjects->end(); it++)
 			{
