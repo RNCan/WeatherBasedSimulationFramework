@@ -34,7 +34,7 @@ namespace WBSF
 		//m_OBLPostDiapause = 0; //actual state of overwintering post diapause host
 		//m_OBLPostDiapause_δ = Equations().Getδ(EQ_OBL_POST_DIAPAUSE);//Individual's relative overwintering post diapause host
 
-		//host is actually unknowns, will be set later
+		//host is actually unknown, will be set later
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
 			//will be int later when host type will be known
