@@ -397,22 +397,40 @@ namespace WBSF
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 
 		double sumDD = 0;
-		
-		for (size_t ii = (172-1); ii <= (m_equations.m_ADE[ʎ0]-1); ii++)
+
+		//for (size_t ii = (m_equations.m_ADE[ʎ0] - 1); ii <= (m_equations.m_ADE[ʎ0]+ m_equations.m_ADE[ʎ1] - 1); ii++)
+		for (size_t ii = (m_equations.m_ADE[ʎ0] - 1); ii <= (m_equations.m_ADE[ʎ1] - 1); ii++)
 		{
 			CTRef TRef = p.Begin() + ii;
 			const CWeatherDay& wday = weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
 			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-			T = max(m_equations.m_ADE[ʎa], T);
+			//T = max(m_equations.m_ADE[ʎa], T);
 
 			double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 			sumDD += DD;
 		}
 
 		boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
-		int begin = (int)Round((m_equations.m_ADE[ʎ0]-1) + m_equations.m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
+		int begin = (int)Round((m_equations.m_ADE[ʎ1] - 1) + m_equations.m_ADE[ʎa] * cdf(begin_dist, sumDD), 0);
+
+
+		//for (size_t ii = (172-1); ii <= (m_equations.m_ADE[ʎ0]-1); ii++)
+		//{
+		//	CTRef TRef = p.Begin() + ii;
+		//	const CWeatherDay& wday = weather.GetDay(TRef);
+		//	double T = wday[H_TNTX][MEAN];
+
+		//	T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+		//	T = max(m_equations.m_ADE[ʎa], T);
+
+		//	double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
+		//	sumDD += DD;
+		//}
+
+		//boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
+		//int begin = (int)Round((m_equations.m_ADE[ʎ0]-1) + m_equations.m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
 
 
 		return p.Begin() + begin;
@@ -441,11 +459,12 @@ namespace WBSF
 			//diapause end negative DD
 			double T = wday[H_TNTX][MEAN];
 			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-			T = max(m_equations.m_ADE[ʎa], T);
+			//T = max(m_equations.m_ADE[ʎa], T);
 			double NDD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 
 			int ii = d-begin;
-			if( ii>=(172-1) && ii<=int(m_equations.m_ADE[ʎ0]-1))
+			//if( ii>=(172-1) && ii<=int(m_equations.m_ADE[ʎ0]-1))
+			if (ii >= int(m_equations.m_ADE[ʎ0] - 1) && ii <= int(m_equations.m_ADE[ʎ1] - 1))
 				m_diapause_end_NCDD += NDD;
 
 			stat[S_DIAPAUSE_END_NCDD] = m_diapause_end_NCDD;

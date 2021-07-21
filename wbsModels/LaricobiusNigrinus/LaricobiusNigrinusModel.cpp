@@ -458,26 +458,34 @@ namespace WBSF
 	CTRef CLaricobiusNigrinusModel::GetDiapauseEnd(const CWeatherYear& weather)
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		//return  p.Begin() + 253;
+
+
+
 
 		double sumDD = 0;
-		for (CTRef TRef = p.Begin()+172; TRef <= p.End()&& TRef<= p.Begin() + int(m_ADE[ʎ0]); TRef++)
+		//for (CTRef TRef = p.Begin()+172; TRef <= p.End()&& TRef<= p.Begin() + int(m_ADE[ʎ0]); TRef++)
+		for (CTRef TRef = p.Begin() + int(m_ADE[ʎ0]-1); TRef <= p.End() && TRef <= p.Begin() + int(m_ADE[ʎ1]-1); TRef++)
 		{
 			//size_t ii = TRef - p.Begin();
 			const CWeatherDay& wday = m_weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
 			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-			T = Round(max(m_ADE[ʎa], T), ROUND_VAL);
+			//T = Round(max(m_ADE[ʎa], T), ROUND_VAL);
 
 			double DD = min(0.0, T - m_ADE[ʎb]);//DD is negative
 
-			//if (ii < m_ADE[ʎ0])
-				sumDD += DD;
+			sumDD += DD;
 		}
 
 
+		
+		//boost::math::weibull_distribution<double> begin_dist(-m_ADE[ʎ2], m_ADE[ʎ3]);
+//		int begin = (int)Round(m_ADE[ʎ0] + m_ADE[ʎa] * cdf(begin_dist, -sumDD), 0);
+
 		boost::math::logistic_distribution<double> begin_dist(m_ADE[ʎ2], m_ADE[ʎ3]);
-		int begin = (int)Round(m_ADE[ʎ0] + m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
+		int begin = (int)Round(m_ADE[ʎ1] + m_ADE[ʎa] * cdf(begin_dist, sumDD), 0);
 		return  p.Begin() + begin;
 
 
@@ -577,8 +585,8 @@ namespace WBSF
 
 								if (EVALUATE_STAGE == I_EMERGED_ADULT)
 								{
-									//boost::math::logistic_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
-									boost::math::weibull_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
+									boost::math::logistic_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
+									//boost::math::weibull_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
 									sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, ROUND_VAL);
 
 								}
@@ -663,12 +671,12 @@ namespace WBSF
 		bitset<3> test;
 		test.reset();
 
-		test.set(I_EGGS);
-		test.set(I_LARVAE);
-		//test.set(I_EMERGED_ADULT);
+		//test.set(I_EGGS);
+		//test.set(I_LARVAE);
+		test.set(I_EMERGED_ADULT);
 
 		//return CalibrateDiapauseEndTh(stat);
-		//return CalibrateDiapauseEnd(test, stat);
+		return CalibrateDiapauseEnd(test, stat);
 		//return CalibrateOviposition(stat);
 
 		if (!m_SAResult.empty())

@@ -57,16 +57,17 @@ namespace WBSF
 	//Th2 = 18.2
 
 	//Beginning of adult emergence from soil (with BalcksburgLab)
-	//NbVal = 82	Bias = 0.83598	MAE = 3.73598	RMSE = 4.98284	CD = 0.98399	R² = 0.98449
-	//lam0 = 264
-	//lam1 = 18.9
-	//lam2 = -191.9
-	//lam3 = 100
-	//lam_a = -30
-	//lam_b = 22.0
-	//mu_ADE = 2.832
-	//s_ADE = 247.0
-	//Th_ADE = 5.0
+	//#NbVal = 100	Bias = 0.48893	MAE = 5.32455	RMSE = 7.49034	CD = 0.96157	R² = 0.96300
+	//lam0 = 121
+	//lam1 = 212
+	//lam2 = -294.5
+	//lam3 = 105.8
+	//lam_a = 34.8
+	//lam_b = 20
+	//mu_ADE = 1157.8
+	//s_ADE = 125.0
+	//Th_ADE = -2.5
+
 
 
 	//parameters estimated with simulated annealing
@@ -88,13 +89,21 @@ namespace WBSF
 	};
 
 	
-	//const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 240.9, 52.0, 1.5, 21.5 };
-	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 269.0, 12.8, -1581.6, 10.0, 15.4, 23.0 };
-	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.277, 201.2, 5.1 };
-
+	
 	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 220.3, 47.5, 2.1, 20.2 };
-	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };
-	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.832, 247.0, 5.0 };
+	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };
+	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.832, 247.0, 5.0 };
+
+	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };
+	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };
+
+
+
+
+
+
+
+
 
 
 
@@ -243,7 +252,8 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetAdultEmergingCDD()const
 	{
-		boost::math::weibull_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
+		//boost::math::weibull_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
+		boost::math::logistic_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
 
 
 		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
