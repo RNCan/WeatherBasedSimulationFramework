@@ -262,8 +262,8 @@
             <Rect>385 10 410 160</Rect>
             <SeparatorPos>60</SeparatorPos>
             <DefaultValue>0.7</DefaultValue>
-            <MinValue>-100</MinValue>
-            <MaxValue>200</MaxValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>2000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
