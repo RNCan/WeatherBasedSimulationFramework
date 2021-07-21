@@ -180,7 +180,6 @@
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
     <ClInclude Include="QualityControl.h" />
-    <ClInclude Include="test.h" />
     <ClInclude Include="UIQualityControl.h" />
     <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
@@ -256,12 +255,6 @@
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="QualityControl.cpp" />
-    <ClCompile Include="test.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="UIQualityControl.cpp" />
     <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />

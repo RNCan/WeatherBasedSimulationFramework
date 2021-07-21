@@ -335,6 +335,8 @@ namespace WBSF
 
 		}
 
+		ReplaceString(path, "_WT", "");
+
 		return path;
 	}
 
@@ -569,9 +571,9 @@ namespace WBSF
 
 			bool bOk0 = bComposite == bIsCompsite;
 			bool bOk1 = bUseRain && bUseWhite && Find(fileName, "PRECIPET_RAIN_A11Y.gif");
-			bool bOk2 = bUseRain && bUseBrown && Find(fileName, "PRECIPET_RAIN.gif");
+			bool bOk2 = bUseRain && bUseBrown && (Find(fileName, "PRECIPET_RAIN.gif")|| Find(fileName, "PRECIPET_RAIN_WT.gif"));
 			bool bOk3 = bUseSnow && bUseWhite && Find(fileName, "PRECIPET_SNOW_A11Y.gif");
-			bool bOk4 = bUseSnow && bUseBrown && Find(fileName, "PRECIPET_SNOW.gif");
+			bool bOk4 = bUseSnow && bUseBrown && (Find(fileName, "PRECIPET_SNOW.gif")|| Find(fileName, "PRECIPET_SNOW_WT.gif"));
 
 
 			if (bOk0 && (bOk1 || bOk2 || bOk3 || bOk4))
