@@ -36,9 +36,9 @@ namespace WBSF
 	const double  CActiaInterruptaEquations::EQ_P[NB_EQUATIONS][6]
 	{
 		{8.240e-06,  0.8868,   5.6, 40.0}, //OBL post diapause
-		{0.01759, 0.06963, 0.0, 12.0184, 36.0098, 11.1168}, //Post-Diapause Maggot in OBL 
-		{0.01158, 0.14300, 0.0, 0.75120, 33.3348, 6.86540}, //Summer Maggot SBW and OBL
-		{0.01237, 0.10940, 0.0, 0.08686, 33.2958, 4.04460}, //Pupa
+		{0.01717, 0.07214, 0.0, 12.0146, 35.8674, 11.0909}, //Post-Diapause Maggot in OBL 
+		{0.05609, 0.05131,5.78, 15.0039, 33.3739, 4.5405}, //Summer Maggot SBW and OBL
+		{0.01172, 0.14960,1.78,  5.0540, 33.6005, 5.8689}, //Pupa
 		{0,0,0,0},                         //Adult
 	};
 
@@ -86,8 +86,8 @@ namespace WBSF
 			//  x      s
 			{ 0.0000, 0.3488, 0.4, 2.0 },//OBL post diapause
 			{ 0.0000, 0.3031, 0.5, 2.0 },//PostDiapause Maggot in OBL
-			{ 0.0000, 0.1635, 0.5, 2.0 },//Summer Maggot SBW or OBL
-			{ 0.0000, 0.1211, 0.7, 1.5 },//Pupa
+			{ 0.0000, 0.1867, 0.5, 2.0 },//Summer Maggot SBW or OBL
+			{ 0.0000, 0.1237, 0.7, 1.5 },//Pupa
 			{ /*2.8207*/2.9729, 0.5517, 1.0, 100 },//Adult longevity
 		};
 
