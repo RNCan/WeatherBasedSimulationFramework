@@ -50,7 +50,7 @@ model_cex[46] = model_cex[46]*0.9
 
 
 
-file_name = paste("E:/Project/doc/DevRateEquations.pdf",sep="")
+file_name = paste("E:/Project/doc/English/DevRateEquations.pdf",sep="")
 
 pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
 
