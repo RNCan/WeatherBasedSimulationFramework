@@ -45,7 +45,7 @@ namespace WBSF
 		double GetFecondity(double l)const;
 		double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
-		double GetAestivalDiapauseEndCDD()const;
+		//double GetAestivalDiapauseEndCDD()const;
 		double GetTimeInSoil(double T, double day_length);
 		double GetAdultAestivalDiapauseRate(double T, double day_length, double creation_day, double pupation_time);
 		double GetAdultAbundance(double T, size_t j_day_since_jan);

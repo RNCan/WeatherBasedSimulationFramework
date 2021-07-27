@@ -9,7 +9,7 @@
 
 #include "LaricobiusNigrinusEquations.h"
 #include "LaricobiusNigrinus.h"
-#include <boost/math/distributions/weibull.hpp>
+//#include <boost/math/distributions/weibull.hpp>
 #include <boost/math/distributions/logistic.hpp>
 
 using namespace std;
@@ -398,7 +398,6 @@ namespace WBSF
 
 		double sumDD = 0;
 
-		//for (size_t ii = (m_equations.m_ADE[ʎ0] - 1); ii <= (m_equations.m_ADE[ʎ0]+ m_equations.m_ADE[ʎ1] - 1); ii++)
 		for (size_t ii = (m_equations.m_ADE[ʎ0] - 1); ii <= (m_equations.m_ADE[ʎ1] - 1); ii++)
 		{
 			CTRef TRef = p.Begin() + ii;
@@ -406,31 +405,12 @@ namespace WBSF
 			double T = wday[H_TNTX][MEAN];
 
 			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-			//T = max(m_equations.m_ADE[ʎa], T);
-
 			double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 			sumDD += DD;
 		}
 
 		boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
 		int begin = (int)Round((m_equations.m_ADE[ʎ1] - 1) + m_equations.m_ADE[ʎa] * cdf(begin_dist, sumDD), 0);
-
-
-		//for (size_t ii = (172-1); ii <= (m_equations.m_ADE[ʎ0]-1); ii++)
-		//{
-		//	CTRef TRef = p.Begin() + ii;
-		//	const CWeatherDay& wday = weather.GetDay(TRef);
-		//	double T = wday[H_TNTX][MEAN];
-
-		//	T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-		//	T = max(m_equations.m_ADE[ʎa], T);
-
-		//	double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
-		//	sumDD += DD;
-		//}
-
-		//boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
-		//int begin = (int)Round((m_equations.m_ADE[ʎ0]-1) + m_equations.m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
 
 
 		return p.Begin() + begin;
@@ -472,7 +452,7 @@ namespace WBSF
 
 
 		begin = m_diapause_end;
-		end = CTRef(m_diapause_end.GetYear()+1, MARCH, DAY_01);
+		end = CTRef(m_diapause_end.GetYear()+1, JANUARY, DAY_31);
 		if (d >= begin && d <= end)
 		{
 			//adult emergence (growing DD)

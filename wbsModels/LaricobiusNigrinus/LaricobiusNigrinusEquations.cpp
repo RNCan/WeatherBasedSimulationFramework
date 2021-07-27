@@ -90,12 +90,9 @@ namespace WBSF
 
 	
 	
-	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 220.3, 47.5, 2.1, 20.2 };
-	//const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };
-	//const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 2.832, 247.0, 5.0 };
-
-	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };
-	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };
+	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 220.3, 47.5, 2.1, 20.2 };//logistic distribution
+	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
+	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };//logistic distribution
 
 
 
@@ -224,9 +221,9 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetCreationCDD()const
 	{
-		boost::math::logistic_distribution<double> rldist(m_OVP[μ], m_OVP[ѕ]);
+		boost::math::logistic_distribution<double> creation_dist(m_OVP[μ], m_OVP[ѕ]);
 
-		double CDD = boost::math::quantile(rldist, m_randomGenerator.Rand(0.01, 0.99));
+		double CDD = boost::math::quantile(creation_dist, m_randomGenerator.Rand(0.001, 0.999));
 		//while (CDD < 0 || CDD>5000)
 			//CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
 
@@ -234,16 +231,17 @@ namespace WBSF
 	}
 
 
-	double CLaricobiusNigrinusEquations::GetAestivalDiapauseEndCDD()const
-	{
-		boost::math::logistic_distribution<double> rldist(m_EAS[μ], m_EAS[ѕ]);
+	//double CLaricobiusNigrinusEquations::GetAestivalDiapauseEndCDD()const
+	//{
+	//	boost::math::logistic_distribution<double> ADE_dist(m_EAS[μ], m_EAS[ѕ]);
 
-		double CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
-		while (CDD < 0 || CDD>15000)
-			CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
+	//	double CDD = boost::math::quantile(ADE_dist, m_randomGenerator.Rand(0.01, 0.99));
+	//	//double CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
+	//	//while (CDD < 0 || CDD>15000)
+	//		//CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
 
-		return CDD;
-	}
+	//	return CDD;
+	//}
 
 
 	//*****************************************************************************
@@ -255,10 +253,10 @@ namespace WBSF
 		//boost::math::weibull_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
 		boost::math::logistic_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
 
-
-		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
-		while (CDD < 0 || CDD>15000)
-			CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
+		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Rand(0.001, 0.999));
+		//double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
+		//while (CDD < 0 || CDD>15000)
+			//CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
 
 		return CDD;
 	}
