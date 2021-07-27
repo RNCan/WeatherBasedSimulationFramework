@@ -6,7 +6,8 @@
 //
 // Description: 
 //				stage development rates, relative development rates
-//				stage development rates use optimization table lookup
+//				stage daily survival
+//				Adult longevity and fecundity 
 //
 //*****************************************************************************
 // 21/07/2021	Rémi Saint-Amant    New aestivation diapause end and adult emergence from L. nigrinus
@@ -26,18 +27,17 @@ using namespace std;
 namespace WBSF
 {
 
-//NbVal = 13	Bias = -0.11439	MAE = 2.53532	RMSE = 3.07999	CD = 0.98610	R² = 0.98629
-//mu = 68.07812 {  68.07790, 68.07856}	VM = { 0.00006,   0.00024 }
-//s = 38.66296 {  38.66271, 38.66340}	VM = { 0.00008,   0.00026 }
-//Th1 = 1.03981 {   1.03935, 1.04029}	VM = { 0.00007,   0.00020 }
-//Th2 = 4.03636 {   4.03624, 4.03686}	VM = { 0.00006,   0.00017 }
-
+//*********************************************************************************************
+//fitted parameters for cumulative egg creation, CEC
 //N = 64801	T = 0.00023	F = 318.20340
 //NbVal = 13	Bias = -1.29676	MAE = 4.20702	RMSE = 4.94744	CD = 0.96501	R² = 0.96751
-//mu = 105.08142 { 105.08118, 105.08159}	VM = { 0.00007,   0.00021 }
-//s = 88.61601 {  88.61583, 88.61614}	VM = { 0.00009,   0.00014 }
+//mu = 105.081
+//s = 88.61601
+//Th1 = 2.1
+//Th2 = 20.2
 
-//Beginning of adult emergence from soil (from L. nigrinus)
+//*********************************************************************************************
+//fitted parameters for Adult Emergence from Soil AES (from L. nigrinus)
 //#NbVal = 100	Bias = 0.48893	MAE = 5.32455	RMSE = 7.49034	CD = 0.96157	R² = 0.96300
 //lam0 = 121
 //lam1 = 212
@@ -51,7 +51,8 @@ namespace WBSF
 
 
 
-	const double CLaricobiusOsakensisEquations::OVP[NB_OVP_PARAMS] = { 105.1,88.6, 2.1, 20.2 };//logistic distribution
+
+	const double CLaricobiusOsakensisEquations::CEC[NB_CEC_PARAMS] = { 105.1,88.6, 2.1, 20.2 };//logistic distribution
 	const double CLaricobiusOsakensisEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
 	const double CLaricobiusOsakensisEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };//logistic distribution
 
@@ -61,16 +62,9 @@ namespace WBSF
 		CEquationTableLookup(RG, LOF::NB_STAGES, -20, 35, 0.25)
 	{
 
-		/*for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
-			{
-				m_RDR[s][p] = RDR[s][p];
-			}
-		}*/
 
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			m_OVP[p] = OVP[p];
+		for (size_t p = 0; p < NB_CEC_PARAMS; p++)
+			m_CEC[p] = CEC[p];
 
 		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
 			m_ADE[p] = ADE[p];
@@ -162,16 +156,13 @@ namespace WBSF
 			RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
-
-		//covert relative development time into relative development rate
-		//double rR = 1/rT;
-
+		
 		return RDR;
 	}
 
 	double CLaricobiusOsakensisEquations::GetCreationCDD()const
 	{
-		boost::math::logistic_distribution<double> rldist(m_OVP[μ], m_OVP[ѕ]);
+		boost::math::logistic_distribution<double> rldist(m_CEC[μ], m_CEC[ѕ]);
 
 		double CDD = boost::math::quantile(rldist, m_randomGenerator.Rand(0.001, 0.999));
 		//while (CDD < 0 || CDD>5000)
@@ -253,19 +244,17 @@ namespace WBSF
 	double CLaricobiusOsakensisEquations::GetFecondity()const
 	{
 		//AICc,maxLL
-		//1698.68,-839.968
-		static const double Fo = 100.556;
-		static const double sigma = 0.357327;
+		//1690.46,-840.107,5
+		static const double Fo = 100.4;
+		static const double sigma = 0.355;
 
-		double Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
-		while (Fi < 2 || Fi>396)
-			Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
+		//double Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
+		//while (Fi < 2 || Fi>120)
+		//	Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
 
-		/*boost::math::lognormal_distribution<double> fecondity(log(Fo)-WBSF::Square(sigma) / 2.0, sigma);
-		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Randu());
-		while (Fi < 2 || Fi>396)
-			Fi = boost::math::quantile(fecondity, m_randomGenerator.Randu());
-*/
+		boost::math::lognormal_distribution<double> fecondity(log(Fo)-WBSF::Square(sigma) / 2.0, sigma);
+		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Rand(0.001, 0.999));
+		
 		ASSERT(!_isnan(Fi) && _finite(Fi));
 
 
@@ -276,53 +265,14 @@ namespace WBSF
 	{
 		//AICc,maxLL
 		//1698.68,-839.968
-		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::SharpeDeMichele_1977;
+		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
 		
-		static const vector<double> P_FEC = { 5.959380e-04, 3.200656e+01, -3.489816e+04, -5.755484e+04, 1.215706e+01, 9.345022e+05, 2.519381e+01 };
+		static const vector<double> P_FEC = { 1.517823e-02, 1.090325e+01, 6.535087e+00 };
 		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 		return r;
 	}
-
-	////T : temperature [°C]
-	////day_length  : day length  [h]
-	////pupationTime : time to the soil before becoming adult (to complete pre-pupation and pupation) [days]
-	////return aestival diapause rate [day-1]
-	//double CLaricobiusOsakensisEquations::GetAdultAestivalDiapauseRate(double T, double day_length, double creation_day, double pupation_time)
-	//{
-	//	double TimeInSoil = GetTimeInSoil(T, day_length);//[day]
-
-	//	double f = exp(m_ADE[ʎ0] + m_ADE[ʎ1] * 1.0 / (1.0 + exp(-(creation_day - m_ADE[ʎ2]) / m_ADE[ʎ3])));//day length factor
-	//	double AestivalDiapauseTime = max(0.0, (TimeInSoil - pupation_time));
-	//	double ADATime = f * AestivalDiapauseTime;//aestival diapause adult time
-
-	//	double r = min(1.0, 1.0 / ADATime);
-	//	return r;
-	//}
-
-	////T : temperature [°C]
-	////j_day_since_jan : ordinal day since the 1 January of the emergence year (continue after December 31)
-	////return: abundance (number of LN adult by normalized beating tray
-	//double CLaricobiusOsakensisEquations::GetAdultAbundance(double T, size_t j_day_since_jan)
-	//{
-
-	//	//Coefficients:
-	//	//	Estimate Std.Error t value Pr(> | t | )
-	//	//		(Intercept)-2.815284   1.084082 - 2.597  0.01646 *
-	//	//		T            0.088449   0.041528   2.130  0.04461 *
-	//	//		jday         0.008683   0.002774   3.130  0.00487 **
-	//	//		-- -
-	//	//		Signif.codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-	//	//
-	//	//		Residual standard error : 0.4831 on 22 degrees of freedom
-	//	//		Multiple R - squared : 0.4143, Adjusted R - squared : 0.361
-	//	//		F - statistic : 7.78 on 2 and 22 DF, p - value : 0.002784
-
-	//	static const double P[3] = { -2.815284, 0.088449, 0.008683 };
-	//	return max(0.0, P[0] + P[1] * T + P[2] * j_day_since_jan);
-	//}
-
 
 }

@@ -48,8 +48,8 @@ namespace WBSF
 			}
 		}*/
 
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			m_OVP[p] = CLaricobiusOsakensisEquations::OVP[p];
+		for (size_t p = 0; p < NB_CEC_PARAMS; p++)
+			m_CEC[p] = CLaricobiusOsakensisEquations::CEC[p];
 
 		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
 			m_ADE[p] = CLaricobiusOsakensisEquations::ADE[p];
@@ -73,7 +73,7 @@ namespace WBSF
 		m_bApplyAttrition = parameters[c++].GetBool();
 		m_bCumul = parameters[c++].GetBool();
 
-		if (parameters.size() == 2 + /*NB_STAGES * NB_RDR_PARAMS + */NB_OVP_PARAMS + NB_ADE_PARAMS + NB_EAS_PARAMS)
+		if (parameters.size() == 2 + /*NB_STAGES * NB_RDR_PARAMS + */NB_CEC_PARAMS + NB_ADE_PARAMS + NB_EAS_PARAMS)
 		{
 			/*for (size_t s = 0; s < NB_STAGES; s++)
 			{
@@ -83,8 +83,8 @@ namespace WBSF
 				}
 			}
 */
-			for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-				m_OVP[p] = parameters[c++].GetFloat();
+			for (size_t p = 0; p < NB_CEC_PARAMS; p++)
+				m_CEC[p] = parameters[c++].GetFloat();
 
 			for (size_t p = 0; p < NB_ADE_PARAMS; p++)
 				m_ADE[p] = parameters[c++].GetFloat();
@@ -176,12 +176,12 @@ namespace WBSF
 	void CLaricobiusOsakensisModel::ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& output)
 	{
 		//Create stand
-		CLNFStand stand(this, m_OVP[Τᴴ¹], m_OVP[Τᴴ²]);
+		CLNFStand stand(this, m_CEC[Τᴴ¹], m_CEC[Τᴴ²]);
 
 		stand.m_bApplyAttrition = m_bApplyAttrition;
 		//Set parameters to equation
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			stand.m_equations.m_OVP[p] = m_OVP[p];
+		for (size_t p = 0; p < NB_CEC_PARAMS; p++)
+			stand.m_equations.m_CEC[p] = m_CEC[p];
 
 		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
 			stand.m_equations.m_ADE[p] = m_ADE[p];
@@ -357,37 +357,11 @@ namespace WBSF
 
 	bool CLaricobiusOsakensisModel::IsParamValid()const
 	{
-		if (m_OVP[Τᴴ¹] >= m_OVP[Τᴴ²])
+		if (m_CEC[Τᴴ¹] >= m_CEC[Τᴴ²])
 			return false;
 
 
 		bool bValid = true;
-		//for (size_t s = 0; s <= NB_STAGES && bValid; s++)
-		//{
-		//	if (s == EGG || s == LARVAE /*|| s == AESTIVAL_DIAPAUSE_ADULT*/)
-		//	{
-		//		CStatistic rL;
-		//		for (double Э = 0.01; Э < 0.5; Э += 0.01)
-		//		{
-		//			double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
-		//			if (r >= 0.4 && r <= 2.5)
-		//				rL += 1.0 / r;//reverse for comparison
-		//		}
-
-		//		CStatistic rH;
-		//		for (double Э = 0.51; Э < 1.0; Э += 0.01)
-		//		{
-		//			double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
-		//			if (r >= 0.4 && r <= 2.5)
-		//				rH += r;
-		//		}
-
-		//		if (rL.IsInit() && rH.IsInit())
-		//			bValid = fabs(rL[SUM] - rH[SUM]) < 5.3; //in Régnière (2012) obtain a max of 5.3
-		//		else
-		//			bValid = false;
-		//	}
-		//}
 
 		return bValid;
 	}
@@ -395,119 +369,86 @@ namespace WBSF
 
 
 	static const int ROUND_VAL = 4;
-	
+
 
 	void CLaricobiusOsakensisModel::CalibrateOviposition(CStatisticXY& stat)
 	{
 		size_t EVALUATE_STAGE = 0;
-		//for (size_t EVALUATE_STAGE = 0; EVALUATE_STAGE < NB_INPUTS; EVALUATE_STAGE++)
-			//for (size_t j = 0; j < NB_INPUTS; j++)
-		//{
-		//if (test[EVALUATE_STAGE])
+
+		if (m_CEC[Τᴴ¹] >= m_CEC[Τᴴ²])
+			return;
+
+
+		if (m_SAResult.empty())
+			return;
+
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
+
+
+		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
-
-			if (m_OVP[Τᴴ¹] >= m_OVP[Τᴴ²])
-				return;
-
-
-			if (m_SAResult.empty())
-				return;
-
-			if (!m_weather.IsHourly())
-				m_weather.ComputeHourlyVariables();
+			int year = m_weather[y].GetTRef().GetYear();
+			if (m_years[EVALUATE_STAGE].find(year) == m_years[EVALUATE_STAGE].end())
+				continue;
 
 
 
-			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+			double sumDD = 0;
+			vector<double> CDD;
+			CTPeriod p;
+
+
+			p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+			CDD.resize(p.size(), 0);
+
+			CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_CEC[Τᴴ¹], m_CEC[Τᴴ²]);
+
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
-				int year = m_weather[y].GetTRef().GetYear();
-				if (m_years[EVALUATE_STAGE].find(year) == m_years[EVALUATE_STAGE].end())
-					continue;
+				const CWeatherDay& wday = m_weather.GetDay(TRef);
+				size_t ii = TRef - p.Begin();
+				sumDD += DDModel.GetDD(wday);
+				CDD[ii] = sumDD;
+			}
 
-
-
-				double sumDD = 0;
-				vector<double> CDD;
-				CTPeriod p;
-
-				//if (EVALUATE_STAGE == I_EMERGED_ADULT)
-				//{
-
-				//	p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-				//	CDD.resize(p.size(), 0);
-
-				//	CTRef diapauseEnd = GetDiapauseEnd(m_weather[year]);
-				//	for (CTRef TRef = diapauseEnd; TRef <= p.End(); TRef++)
-				//	{
-				//		const CWeatherDay& wday = m_weather.GetDay(TRef);
-				//		double T = wday[H_TNTX][MEAN];
-				//		double DD = max(0.0, T - m_EAS[Τᴴ]);//DD is positive
-
-				//		sumDD += DD;
-
-				//		size_t ii = TRef - p.Begin();
-				//		CDD[ii] = sumDD;
-				//	}
-
-
-
-				//}
-				//else
-				//{
-				p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-				//p.Begin() = GetDiapauseEnd(m_weather[year - 1]);
-
-				CDD.resize(p.size(), 0);
-
-				CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_OVP[Τᴴ¹], m_OVP[Τᴴ²]);
-
-				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			for (size_t i = 0; i < m_SAResult.size(); i++)
+			{
+				size_t ii = m_SAResult[i].m_ref - p.Begin();
+				if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
 				{
-					const CWeatherDay& wday = m_weather.GetDay(TRef);
-					size_t ii = TRef - p.Begin();
-					sumDD += DDModel.GetDD(wday);
-					CDD[ii] = sumDD;
-				}
-				//}
+					double obs_y = m_SAResult[i].m_obs[EVALUATE_STAGE];
 
-
-
-				for (size_t i = 0; i < m_SAResult.size(); i++)
-				{
-					size_t ii = m_SAResult[i].m_ref - p.Begin();
-					if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
+					if (obs_y > -999)
 					{
-						double obs_y = m_SAResult[i].m_obs[EVALUATE_STAGE];
 
-						if (obs_y > -999)
+						double sim_y = 0;
+
+						/*if (EVALUATE_STAGE == I_EMERGED_ADULT)
 						{
-
-							double sim_y = 0;
-
-							/*if (EVALUATE_STAGE == I_EMERGED_ADULT)
-							{
-								boost::math::weibull_distribution<double> emerged_dist(m_EAS[ʎ], m_EAS[к]);
-								sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, ROUND_VAL);
-							}
-							else
-							{*/
-							boost::math::logistic_distribution<double> create_dist(m_OVP[μ], m_OVP[ѕ]);
-							sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
-							//}
-
-
-							if (sim_y < 0.1)
-								sim_y = 0;
-							if (sim_y > 99.9)
-								sim_y = 100;
-
-							stat.Add(obs_y, sim_y);
+							boost::math::weibull_distribution<double> emerged_dist(m_EAS[ʎ], m_EAS[к]);
+							sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, ROUND_VAL);
 						}
+						else
+						{*/
+						boost::math::logistic_distribution<double> create_dist(m_CEC[μ], m_CEC[ѕ]);
+						sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
+						//}
+
+
+						if (sim_y < 0.1)
+							sim_y = 0;
+						if (sim_y > 99.9)
+							sim_y = 100;
+
+						stat.Add(obs_y, sim_y);
 					}
 				}
-			}//for all years
-		}//if
-//	}//for
+			}
+		}//for all years
+
+
 
 
 		return;
@@ -548,7 +489,7 @@ namespace WBSF
 					output.Init(p, NB_STATS, 0);
 					ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
 
-					static const size_t STAT_STAGE[NB_INPUTS] = { S_EGG};
+					static const size_t STAT_STAGE[NB_INPUTS] = { S_EGG };
 
 					for (size_t i = 0; i < m_SAResult.size(); i++)
 					{
