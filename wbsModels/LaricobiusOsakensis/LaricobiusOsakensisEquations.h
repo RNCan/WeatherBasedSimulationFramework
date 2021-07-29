@@ -13,7 +13,8 @@ namespace WBSF
 	{
 		enum TStages{ EGG, LARVAE1, LARVAE2, LARVAE3, LARVAE4, PREPUPAE, PUPAE, AESTIVAL_DIAPAUSE_ADULT, ACTIVE_ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT};
 		enum TRDR { σ, NB_RDR_PARAMS }; //Relative Development Rate
-		enum TCEC{ μ, ѕ, Τᴴ¹, Τᴴ², NB_CEC_PARAMS };//Cumulative Egg Creation (first oviposition)
+		//enum TCEC{ μ, ѕ, Τᴴ¹, Τᴴ², NB_CEC_PARAMS };//Cumulative Egg Creation (first oviposition)
+		enum TCEC { μ, ѕ, ʎf, Τᴴ¹, Τᴴ², NB_CEC_PARAMS };//Cumulative Egg Creation (first oviposition)
 		enum TADE{ ʎ0, ʎ1, ʎ2, ʎ3, ʎa, ʎb, NB_ADE_PARAMS };//Aestival Diapause End
 		enum TEAS{ ʎ, к, Τᴴ, NB_EAS_PARAMS=3 };//Emerging Adult from Soil
 	}

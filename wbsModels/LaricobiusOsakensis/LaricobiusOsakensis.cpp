@@ -5,7 +5,7 @@
 //
 // Description: the CLaricobiusOsakensis represents a group of LNF insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 15/10/2019   Rémi Saint-Amant    Creation
+// 07/07/2021   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
 #include "LaricobiusOsakensisEquations.h"
@@ -55,8 +55,11 @@ namespace WBSF
 		double creationCDD = Equations().GetCreationCDD();
 
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		CTRef begin = CTRef(year, JANUARY, DAY_01);
-		CTRef end = CTRef(year, JUNE, DAY_30);
+		//CTRef begin = CTRef(year, JANUARY, DAY_01);
+		//CTRef end = CTRef(year, JUNE, DAY_30);
+
+		CTRef begin = CTRef(year, DECEMBER, DAY_01);
+		CTRef end = CTRef(year+1, JULY, DAY_31);
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !creationDate.IsInit(); TRef++)
@@ -64,11 +67,14 @@ namespace WBSF
 			const CWeatherDay& wDay = weather_station.GetDay(TRef);
 			double DD = GetStand()->m_DD.GetDD(wDay);
 			CDD += DD;
-			if (CDD >= creationCDD)
+
+			if (CDD  >= creationCDD)
 			{
 				creationDate = wDay.GetTRef();
 			}
 		}
+		if (!creationDate.IsInit())
+			creationDate = end;//for text only
 
 		ASSERT(creationDate.IsInit());
 
@@ -344,6 +350,7 @@ namespace WBSF
 			if (IsAlive() || (s == DEAD_ADULT))
 				stat[S_EGG + s] += m_scaleFactor;
 
+			stat[S_LARVAE] = stat[S_L1]+ stat[S_L2]+ stat[S_L3]+ stat[S_L4];
 
 			if (m_status == DEAD && m_death == ATTRITION)
 				stat[S_DEAD_ATTRTION] += m_scaleFactor;
@@ -351,6 +358,7 @@ namespace WBSF
 			if (HasChangedStage())
 				stat[S_M_EGG + s] += m_scaleFactor;
 
+			
 			//if (s == ACTIVE_ADULT)
 			//{
 			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;
@@ -403,7 +411,8 @@ namespace WBSF
 
 	CTRef CLNFStand::ComputeDiapauseEnd(const CWeatherYear& weather)const
 	{
-		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
+		//CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
+		CTPeriod p = weather.GetPrevious().GetEntireTPeriod(CTM::DAILY);
 
 		double sumDD = 0;
 
@@ -416,8 +425,8 @@ namespace WBSF
 			sumDD += DD;
 		}
 
-		boost::math::logistic_distribution<double> begin_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
-		int begin = (int)Round((m_equations.m_ADE[ʎ1] - 1) + m_equations.m_ADE[ʎa] * cdf(begin_dist, sumDD), 0);
+		boost::math::logistic_distribution<double> diapause_end_dist(m_equations.m_ADE[ʎ2], m_equations.m_ADE[ʎ3]);
+		int begin = (int)Round((m_equations.m_ADE[ʎ1] - 1) + m_equations.m_ADE[ʎa] * cdf(diapause_end_dist, sumDD), 0);
 
 		return p.Begin() + begin;
 	}
@@ -433,14 +442,15 @@ namespace WBSF
 
 		//use year of diapause to compute correctly the adult emergence cdd
 		int year = m_diapause_end.GetYear();
+		
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
 		CTRef end = CTRef(year, DECEMBER, DAY_31);
 
 		if (d >= begin && d <= end)
 		{
 			//Egg creation DD (allen 1976)
-			m_egg_creation_CDD += m_DD.GetDD(wday);
-			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
+			//m_egg_creation_CDD += m_DD.GetDD(wday);
+			//stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
 
 			//diapause end negative DD
 			double T = wday[H_TNTX][MEAN];
@@ -465,6 +475,19 @@ namespace WBSF
 			m_adult_emergence_CDD += GDD;
 			stat[S_ADULT_EMERGENCE_CDD] = m_adult_emergence_CDD;
 		}
+
+		//compute egg creation
+		begin = CTRef(year, DECEMBER, DAY_01);
+		end = CTRef(year+1, JULY, DAY_31);
+
+		if (d >= begin && d <= end)
+		{
+			//Egg creation DD (allen 1976)
+			m_egg_creation_CDD += m_DD.GetDD(wday);
+			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
+		}
+		
+
 	}
 
 

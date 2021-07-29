@@ -25,7 +25,7 @@ namespace WBSF
 		{
 			S_EGG, S_L1, S_L2, S_L3, S_L4, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT,
 			S_M_EGG, S_M_L1, S_M_L2, S_M_L3, S_M_L4, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
-			S_DEAD_ATTRTION, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, NB_STATS
+			S_DEAD_ATTRTION, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, S_LARVAE, NB_STATS
 			//S_ADULT_EMERGENCE = S_M_ACTIVE_ADULT
 		};
 	}
@@ -65,8 +65,6 @@ namespace WBSF
 		inline const CLNFStand* GetStand()const;
 		inline const CLaricobiusOsakensisEquations& Equations()const;
 
-		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
-		//CTRef GetParentAdultEmergence()const;
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
 		bool IsDeadByAttrition(size_t s, double T, double r)const;
@@ -157,7 +155,7 @@ namespace WBSF
 		double m_diapause_end_NCDD;
 		double m_adult_emergence_CDD;
 		//std::array<CTRef, 2>  m_adultEmergenceBegin;
-		CTRef m_diapause_end; // or adult emergence begin;
+		CTRef m_diapause_end;  
 		
 	};
 

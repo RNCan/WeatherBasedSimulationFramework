@@ -8,7 +8,7 @@ namespace WBSF
 
 	public:
 
-		enum TInput { I_EGGS, NB_INPUTS };
+		enum TInput { I_EGGS, I_LARVAE, NB_INPUTS };
 		CLaricobiusOsakensisModel();
 		virtual ~CLaricobiusOsakensisModel();
 
@@ -34,7 +34,7 @@ namespace WBSF
 		std::map<std::string, CStatistic> m_egg_creation_date;
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
-		void CalibrateOviposition(CStatisticXY& stat);
+		void CalibrateCumulativeEggCreation(CStatisticXY& stat);
 
 		bool IsParamValid()const;
 	};

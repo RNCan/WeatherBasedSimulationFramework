@@ -28,13 +28,13 @@ namespace WBSF
 {
 
 //*********************************************************************************************
-//fitted parameters for cumulative egg creation, CEC
-//N = 64801	T = 0.00023	F = 318.20340
-//NbVal = 13	Bias = -1.29676	MAE = 4.20702	RMSE = 4.94744	CD = 0.96501	R² = 0.96751
-//mu = 105.081
-//s = 88.61601
+//fitted parameters for cumulative egg creation from egg and larvae, CEC
+//	NbVal = 30	Bias = -0.16170	MAE = 3.85438	RMSE = 5.36376	CD = 0.98070	R² = 0.98077
+//mu = 1.58011
+//s = 228.2837
 //Th1 = 2.1
 //Th2 = 20.2
+
 
 //*********************************************************************************************
 //fitted parameters for Adult Emergence from Soil AES (from L. nigrinus)
@@ -52,7 +52,7 @@ namespace WBSF
 
 
 
-	const double CLaricobiusOsakensisEquations::CEC[NB_CEC_PARAMS] = { 105.1,88.6, 2.1, 20.2 };//logistic distribution
+	const double CLaricobiusOsakensisEquations::CEC[NB_CEC_PARAMS] = { 1.580,228.3,-999, 2.1, 20.2 };//Weibull distribution
 	const double CLaricobiusOsakensisEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
 	const double CLaricobiusOsakensisEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };//logistic distribution
 
@@ -162,12 +162,11 @@ namespace WBSF
 
 	double CLaricobiusOsakensisEquations::GetCreationCDD()const
 	{
-		boost::math::logistic_distribution<double> rldist(m_CEC[μ], m_CEC[ѕ]);
-
-		double CDD = boost::math::quantile(rldist, m_randomGenerator.Rand(0.001, 0.999));
-		//while (CDD < 0 || CDD>5000)
-			//CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
-
+		//boost::math::logistic_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ]);
+		boost::math::weibull_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ]);
+		//boost::math::non_central_f_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ], m_CEC[ʎf]);
+		double CDD = boost::math::quantile(egg_creation_dist, m_randomGenerator.Rand(0.001, 0.999));
+		
 		return CDD;
 	}
 
