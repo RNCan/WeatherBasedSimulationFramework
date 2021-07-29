@@ -77,9 +77,8 @@ namespace WBSF
 		//double m_CDD;//actual CDD
 		double m_RDR[LOF::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_dropToGroundDate;
-		//CTRef m_adult_emergence;
-		//CTRef m_adultDate;
 		CTRef m_adult_emergence;
+		//std::array < CTRef, 2> m_adult_emergence;
 		std::array<CTRef, LOF::NB_STAGES + 1> m_reachDate;
 		//double m_CDD_ADE;//cumulative negative CDD for aestival diapause end
 		//double m_aestivalDiapauseEndCDD;//CDD need to create individual

@@ -25,13 +25,10 @@ Resolution = 600;
 
 
 
+model_cex = rep(mySize[font_sel], length(equations))
 
 
-
- model_cex = rep(mySize[font_sel], length(equations))
-
-
-file_name = paste("E:/Project/doc/English/SurvivalEquations.pdf",sep="")
+file_name = "E:/Project/doc/English/SurvivalEquations.pdf"
 
 pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
 

@@ -1,5 +1,5 @@
 Variable,EqName,P,Eq,Math,AICc,maxLL
-Egg,Gompertz&Makeham,a1=-2.000000e-01 b1=5.000000e-03 a2=1.678401e+00 b2=-4.867197e+00 c=1.200000e+00,"a1*exp(b1*T) + a2*exp(b2*T) + c","k[0]+k[1]~e^{kk[1]~T} + k[2]~e^{kk[2]~T}",45.8742,-17.863
+Egg,Survival_15,a1=-2.000000e-01 b1=5.000000e-03 a2=1.678401e+00 b2=-4.867197e+00 c=1.200000e+00,"a1*exp(b1*T) + a2*exp(b2*T) + c","k[0]+k[1]~e^{kk[1]~T} + k[2]~e^{kk[2]~T}",45.8742,-17.863
 Egg,Survival_05,a=1.928419e-01 b=1.129665e+00 deltaT=8.031421e+01 c=8.000000e-01 To=3.915841e+00,"a*exp(-b*((T-To)/deltaT)^2)+c","k[0]+k[1]*e^{~-~bgroup('(',over(T~-~T[o],Delta[T]),')')^2}",46.3,-18.0759
 Egg,Survival_03,a=1.895140e+02 b=5.532542e+01 deltaT=7.561927e+02 To=1.182416e+00,"1-1/(1+a*exp(-b*((T-To)/deltaT)^2))","1 - over(1, 1+k~e^{-kk~bgroup('(',over(T~-~T[o],Delta[T]),')')^2})",45.3328,-18.6171
 Egg,Survival_10,To=9.241665e+01 deltaTl=6.629915e+01 deltaTh=2.602997e+02 a=5.000000e-04,"1/(exp(a*(1+exp(-(T-To)/deltaTl))*(1+exp(-(To-T)/deltaTh))))","over(1, e^{kk~bgroup('(',1+e^{~-~over(T~-~T[L],Delta[T[L]])},')')~bgroup('(',1+e^{~-~over(T[H]~-~T,Delta[T[H]])},')')})",46.4189,-19.1602
@@ -8,7 +8,7 @@ Egg,Survival_06,a=1.895140e-01 b=5.529290e+00 deltaT=2.056941e+01 c=8.000000e-01
 Egg,Survival_14,a=-5.196351e+01 Tl=4.892373e+00 Th=9.200356e+01 deltaTl=1.000000e+00 deltaTh=1.746280e+01,"1-exp(a*(1-exp(-pmax(0,(T-Tl))/deltaTl))*(1-exp(-pmax(0,(Th-T))/deltaTh)))","1-e^{~kk~bgroup('(',1~-~e^{~-~over(T~-~T[L],Delta[T[L]])},')')~bgroup('(',{1~-~e^{~-~over(T[H]~-~T,Delta[T[H]])}}, ')')}",51.9863,-20.9191
 Egg,Survival_13,a=9.052565e+01 Tl=1.083511e+00 Th=5.616901e+01 deltaT=6.297197e+03,"1-a*(1-exp(-pmax(0,(T-Tl))/deltaT))*(1-exp(-pmax(0,(Th-T))/deltaT))","{1-k~bgroup('(',1-e^{~-~over(T~-~T[L],Delta[T])},')')~bgroup('(',{1-e^{~-~over(T[H]~-~T,Delta[T])}}, ')')}",51.6545,-21.778
 Egg,Survival_01,a=-5.481017e+00 b=-5.000000e-01 c=1.000000e-02,"1/(1+exp(a+b*T+c*T^2))","over(1, 1+e^{k[0]+k[1]*T+k[2]*T^{~2}})",50.8046,-22.3728
-Egg,Wang2,Tl=2.209604e-01 Th=5.252647e+00 deltaTl=7.322448e+01 deltaTh=1.602879e+01 a=5.000000e-05,"1/(exp(a*(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh))))","over(1, e^{kk~bgroup('(',1+~e^{-~~over(T~-~T[o],Delta[T[L]])},')')~bgroup('(',1+~e^{-~~over(T[o]~-~T,Delta[T[H]])},')')})",55.0385,-22.4452
+Egg,Survival_16,Tl=2.209604e-01 Th=5.252647e+00 deltaTl=7.322448e+01 deltaTh=1.602879e+01 a=5.000000e-05,"1/(exp(a*(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh))))","over(1, e^{kk~bgroup('(',1+~e^{-~~over(T~-~T[o],Delta[T[L]])},')')~bgroup('(',1+~e^{-~~over(T[o]~-~T,Delta[T[H]])},')')})",55.0385,-22.4452
 Egg,Survival_02,a=-4.804969e-01 b=-1.955969e+00 c=3.278645e-01 d=-1.917603e+00,"1/(1+exp(a+b*T+c*T^d))","over(1, 1+e^{k[0]+k[1]*T+k[2]*T^{~kk}})",53.5197,-22.7106
 Egg,Survival_09,k1=1.000000e+00 k2=4.273109e+00 a=-1.593230e+01 b=4.419208e-02 c=6.249291e-01 d=6.262283e-01,"k1/(1+k2*exp(a+b*T+c*T^d))","over(kk[1],1+kk[2]~e^{k[0]+k[1]*T+k[2]*T^{~kk}})",57.6431,-22.7176
 Egg,Survival_08,a=-5.034198e+01 b=1.405519e+00 c=7.715951e+02 d=2.031176e+00,"1-exp(a+b*T+c/T^d)","1-e^{k[0]+k[1]*T+k[2]*T^{~-kk}}",53.5718,-22.7366

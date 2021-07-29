@@ -24,8 +24,8 @@ namespace WBSF
 		{"Survival_12","ifelse(T>=Tl&T<=Th,a/(exp(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh))),0)", "a=7[1,1e3]|Tl=10[0,50|Th=25[0,50]|deltaTl=10[1e-5,1e3]|deltaTh=10[1e-5,1e3]", "over(k, e^{bgroup('(',1+e^{~-~over(T~-~T[L],Delta[T[L]])},')')}~bgroup('(',1+e^{~-~over(T[H]~-~T,Delta[T[H]])},')'))"},
 		{"Survival_13","ifelse(T>=Tl&T<=Th,a*(1-exp(-pmax(0,(T-Tl))/deltaT))*(1-exp(-pmax(0,(Th-T))/deltaT)),0)","a=1[0,100]|Tl=10[0,50]|Th=30[10,100]|deltaT=1[0.1,1e4]","{1-k~bgroup('(',1-e^{~-~over(T~-~T[L],Delta[T])},')')~bgroup('(',{1-e^{~-~over(T[H]~-~T,Delta[T])}}, ')')}"},
 		{"Survival_14","ifelse(T>=Tl&T<=Th,1-exp(a*(1-exp(-pmax(0,(T-Tl))/deltaTl))*(1-exp(-pmax(0,(Th-T))/deltaTh))),0)","a=-1[-100,-1e-5]|Tl=0[-100,100]|Th=50[-100,100]|deltaTl=1[1e-5,1e5]|deltaTh=1[1e-5,1e5]", "1-e^{~kk~bgroup('(',1~-~e^{~-~over(T~-~T[L],Delta[T[L]])},')')~bgroup('(',{1~-~e^{~-~over(T[H]~-~T,Delta[T[H]])}}, ')')}"},
-		{"Gompertz&Makeham","a1*exp(b1*T) + a2*exp(b2*T) + c","a1=-0.2[-10,-1e-4]|b1=0.005[0,1]|a2=-0.25[-10,10]|b2=-0.2[-10,0]|c=1.2[-2,2]", "k[0]+k[1]~e^{kk[1]~T} + k[2]~e^{kk[2]~T}"},
-		{"Wang2","ifelse(T>=Tl&T<=Th,1/(exp(a*(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh)))),0)", "a=5e-5[1e-5,1]|Tl=10[-50,50|Th=30[0,100]|deltaTl=10[0.1,100]|deltaTh=2[0.1,100]", "over(1, e^{kk~bgroup('(',1+~e^{-~~over(T~-~T[o],Delta[T[L]])},')')~bgroup('(',1+~e^{-~~over(T[o]~-~T,Delta[T[H]])},')')})"},
+		{"Survival_15","a1*exp(b1*T) + a2*exp(b2*T) + c","a1=-0.2[-10,-1e-4]|b1=0.005[0,1]|a2=-0.25[-10,10]|b2=-0.2[-10,0]|c=1.2[-2,2]", "k[0]+k[1]~e^{kk[1]~T} + k[2]~e^{kk[2]~T}"},
+		{"Survival_16","ifelse(T>=Tl&T<=Th,1/(exp(a*(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh)))),0)", "a=5e-5[1e-5,1]|Tl=10[-50,50|Th=30[0,100]|deltaTl=10[0.1,100]|deltaTh=2[0.1,100]", "over(1, e^{kk~bgroup('(',1+~e^{-~~over(T~-~T[o],Delta[T[L]])},')')~bgroup('(',1+~e^{-~~over(T[o]~-~T,Delta[T[H]])},')')})"},
 	};
 
 	bool CSurvivalEquation::IsParamValid(CSurvivalEquation::TSurvivalEquation model, const std::vector<double>& P)
@@ -37,7 +37,7 @@ namespace WBSF
 		case Survival_12:
 		case Survival_13:
 		case Survival_14:
-		case Wang2:bValid = P[P1] < P[P2]; break;
+		case Survival_16:bValid = P[P1] < P[P2]; break;
 		}
 
 		return bValid;
@@ -217,7 +217,7 @@ namespace WBSF
 
 			s = (T >= Tl && T <= Th) ? 1.0 - exp(a*(1.0 - exp(-(T - Tl) / deltaTl))*(1.0 - exp(-(Th - T) / deltaTh))) : 0;
 		}
-		else if (model == GompertzMakeham)
+		else if (model == Survival_15)
 		{
 			double a1 = P[P0];
 			double b1 = P[P1];
@@ -227,7 +227,7 @@ namespace WBSF
 
 			s = a1 * exp(b1*T) + a2 * exp(b2*T) + c;
 		}
-		else if (model == Wang2)
+		else if (model == Survival_16)
 		{
 			double a = P[P0];
 			double Tl = P[P1];

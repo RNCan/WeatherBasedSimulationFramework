@@ -19,7 +19,7 @@ namespace WBSF
 			Unknown=-1, 
 			Survival_01, Survival_02, Survival_03, Survival_04, Survival_05, Survival_06,
 			Survival_07, Survival_08, Survival_09, Survival_10, Survival_11,
-			Survival_12, Survival_13, Survival_14, GompertzMakeham, Wang2,
+			Survival_12, Survival_13, Survival_14, Survival_15/*GompertzMakeham*/, Survival_16/*wang2*/,
 			NB_EQUATIONS
 		};
 

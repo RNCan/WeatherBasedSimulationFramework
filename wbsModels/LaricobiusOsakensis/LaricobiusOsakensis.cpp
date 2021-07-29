@@ -38,7 +38,8 @@ namespace WBSF
 		//reset creation date
 		int year = creationDate.GetYear();
 		m_creationDate = GetCreationDate(year);
-		m_adult_emergence = GetAdultEmergence(year);
+		//m_adult_emergence = { {GetAdultEmergence(year),GetAdultEmergence(year+1)} };
+		m_adult_emergence = GetAdultEmergence(year + 1);
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
@@ -351,8 +352,8 @@ namespace WBSF
 				stat[S_EGG + s] += m_scaleFactor;
 
 			stat[S_LARVAE] = stat[S_L1]+ stat[S_L2]+ stat[S_L3]+ stat[S_L4];
-
-			if (m_status == DEAD && m_death == ATTRITION)
+			
+			if (HasChangedStatus() && m_status == DEAD && m_death == ATTRITION)
 				stat[S_DEAD_ATTRTION] += m_scaleFactor;
 
 			if (HasChangedStage())
