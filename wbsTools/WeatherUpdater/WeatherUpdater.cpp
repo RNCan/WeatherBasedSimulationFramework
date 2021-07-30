@@ -1,7 +1,8 @@
 //5.9.3 29/04/2021	Rémi Saint-Amant	Automaticly create gribs list in CanUS.
 //										Bug correction in HRRR 2d/3d options
 //										Extract Country, SubDivision for NOAA product
-//										Add NL WRMD
+//										Add NL WRMD 
+//										Automaticly clean up abberation in Manitoba data
 //5.9.2 14/04/2021	Rémi Saint-Amant	Make update of long forecast
 //5.9.1 19/03/2021	Rémi Saint-Amant	Bug correction to avoid invalid elevation (-999)
 //										Remove all SSI and add Network, Country and SubDivision in SSI

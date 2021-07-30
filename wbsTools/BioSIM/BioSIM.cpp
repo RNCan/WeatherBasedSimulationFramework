@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.8.1:16/06/2021	Rémi Saint-Amant	Grid row sizing for high resolution
 // 11.8.0:17/03/2021	Rémi Saint-Amant	Removing use of shore as a dimension in gradient calculation. 
 //											The use of shore give very strange gradients in some situation
 //											Shore is still in use to select nearest weather stations
