@@ -3,7 +3,7 @@
     <Title>SprintgFrost</Title>
     <Version>1.0</Version>
     <ID>.sf</ID>
-    <EXE>StringFrost.dll</EXE>
+    <EXE>SpringFrost.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute DD for late spring frost</Description>
     <WindowRect>0 0 325 484</WindowRect>
@@ -102,7 +102,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>Date2</Name>
             <Title>Date2</Title>
             <Units/>
@@ -126,7 +126,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>Date3</Name>
             <Title>Date3</Title>
             <Units/>
@@ -150,7 +150,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>Date4</Name>
             <Title>Date4</Title>
             <Units/>
@@ -174,7 +174,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>Date5</Name>
             <Title>Date5</Title>
             <Units/>

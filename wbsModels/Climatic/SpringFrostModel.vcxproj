@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>StringFrost</ProjectName>
+    <ProjectName>SpringFrost</ProjectName>
     <ProjectGuid>{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}</ProjectGuid>
     <RootNamespace>Models</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>

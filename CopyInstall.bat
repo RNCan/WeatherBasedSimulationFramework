@@ -79,6 +79,9 @@ copy /Y ".\bin\Releasex64\Models\CornHeatUnits.dll" "..\Install\NRCan\Models\Cor
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (H 2 D).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (H 2 D).mdl"
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (D 2 H).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (D 2 H).mdl"
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly.dll"    "..\Install\NRCan\Models\Daily vs Hourly.dll"
+copy /Y ".\bin\Releasex64\Models\Daily vs Normals.mdl" "..\Install\NRCan\Models\Daily vs Normals.mdl"
+copy /Y ".\bin\Releasex64\Models\Daily vs Normals.dll" "..\Install\NRCan\Models\Daily vs Normals.dll"
+
 
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Annual).mdl"    "..\Install\NRCan\Models\DegreeDay (Annual).mdl"
 copy /Y ".\bin\Releasex64\Models\DegreeDay (Monthly).mdl"   "..\Install\NRCan\Models\DegreeDay (Monthly).mdl"
@@ -202,6 +205,8 @@ copy /Y ".\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Mode
 
 copy /Y ".\bin\Releasex64\Models\Solar.mdl" "..\Install\NRCan\Models\Solar.mdl"
 copy /Y ".\bin\Releasex64\Models\Solar.dll" "..\Install\NRCan\Models\Solar.dll"
+copy /Y ".\bin\Releasex64\Models\StringFrost.mdl" "..\Install\NRCan\Models\StringFrost.mdl"
+copy /Y ".\bin\Releasex64\Models\StringFrost.dll" "..\Install\NRCan\Models\StringFrost.dll"
 
 
 copy /Y ".\bin\Releasex64\Models\SpruceBeetle.dll" "..\Install\NRCan\Models\SpruceBeetle.dll"
@@ -242,6 +247,10 @@ copy /Y ".\bin\Releasex64\Models\WhitemarkedTussockMoth.mdl" "..\Install\NRCan\M
 copy /Y ".\bin\Releasex64\Models\WhitemarkedTussockMoth.dll" "..\Install\NRCan\Models\WhitemarkedTussockMoth.dll"
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.mdl" "..\Install\NRCan\Models\WhitePineWeevil.mdl"
 copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.dll" "..\Install\NRCan\Models\WhitePineWeevil.dll"
+copy /Y ".\bin\Releasex64\Models\WinterThaw.mdl" "..\Install\NRCan\Models\WinterThaw.mdl"
+copy /Y ".\bin\Releasex64\Models\WinterThaw.dll" "..\Install\NRCan\Models\WinterThaw.dll"
+
+
 
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.dll" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.dll"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.mdl"
@@ -261,4 +270,6 @@ del "..\Install\BioSIM11_x_x.zip"
 .\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
 
 REM ::xcopy /Y "..\Install\NRCan.7z" "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_x_x.7z"
+
+
 
