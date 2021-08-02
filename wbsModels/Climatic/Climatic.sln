@@ -48,9 +48,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CornHeatUnits", "CornHeatUn
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StringFrost", "SpringFrostModel.vcxproj", "{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterModel", "WinterModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "WinterModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TemperatureIndex", "TemperatureIndexrModel.vcxproj", "{886037FF-AEE6-4550-A5C5-E2C45117FC6F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Normals", "Daily vs Normals.vcxproj", "{886037FF-AEE6-4550-A5C5-E2C45117FC6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
