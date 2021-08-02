@@ -30,6 +30,7 @@
 #include "Simulation/ExecutableFactory.h"
 #include "ModelBase/WGInput-ModelInput.h"
 #include "Simulation/ModelExecution.h"
+#include "Simulation/WeatherGeneration.h"
 
 #include "WeatherBasedSimulationString.h"
 
@@ -297,7 +298,7 @@ namespace WBSF
 
 	//const CWGInput& WGInput,
 
-	CTransferInfoIn CModelExecution::FillTransferInfo(CModel& model, const CLocationVector& locations, size_t WGReplication, const CModelInputVector& modelInputVector, size_t seed, size_t l, size_t WGr, size_t p, size_t r)
+	CTransferInfoIn CModelExecution::FillTransferInfo(CModel& model, const CLocationVector& locations, size_t WGReplication, CWGInput WGInput, const CModelInputVector& modelInputVector, size_t seed, size_t l, size_t WGr, size_t p, size_t r)
 	{
 		CTransferInfoIn info;
 
@@ -307,13 +308,13 @@ namespace WBSF
 		info.m_inputInfoPath = path;
 		info.m_inputWeatherFilePath = model.GetTransferFileVersion() != CModel::VERSION_STREAM ? GetWGFilePath(path, l, 0, WGr) : "";
 		info.m_outputFilePath = model.GetTransferFileVersion() != CModel::VERSION_STREAM ? GetModelOutputFilePath(path, l, 0, WGr, p, r) : "";
-		//info.m_normalDBFilePath = GetFileManager().Normal().GetFilePath(WGInput.m_normalsDBName);
-		//info.m_dailyDBFilePath = WGInput.UseDaily()?GetFileManager().Daily().GetFilePath(WGInput.m_dailyDBName):"";
-		//info.m_hourlyDBFilePath = WGInput.UseHourly() ? GetFileManager().Hourly().GetFilePath(WGInput.m_hourlyDBName) : "";
+		info.m_normalDBFilePath = GetFileManager().Normals().GetFilePath(WGInput.m_normalsDBName);
+		info.m_dailyDBFilePath = WGInput.UseDaily()?GetFileManager().Daily().GetFilePath(WGInput.m_dailyDBName):"";
+		info.m_hourlyDBFilePath = WGInput.UseHourly() ? GetFileManager().Hourly().GetFilePath(WGInput.m_hourlyDBName) : "";
 
 		info.m_locationsFilePath = locations.GetFilePath();
 		info.m_modelName = model.GetName();
-		//info.m_WGInputName = WGInput.GetName();
+		info.m_WGInputName = WGInput.GetName();
 		info.m_modelInputName = modelInputVector[p].GetName();
 
 		info.m_locCounter = CCounter(l, locations.size());
@@ -321,7 +322,7 @@ namespace WBSF
 		info.m_repCounter = CCounter(WGr*m_nbReplications + r, m_nbReplications*WGReplication);
 
 		info.m_loc = locations[l];
-		//info.m_WG = WGInput;
+		info.m_WG = WGInput;
 		info.m_inputParameters = modelInputVector[p].GetParametersVector();
 		info.m_outputVariables = model.GetOutputDefinition().GetParametersVector();
 		info.m_seed = seed;
@@ -450,6 +451,21 @@ namespace WBSF
 		return msg;
 	}
 
+	CWGInput CModelExecution::GetWGInput(const CFileManager& fileManager)const
+	{
+		CWGInput WGInput;
+
+		
+		//ASSERT(dynamic_cast<const CWeatherGeneration*>(m_pParent) != NULL);
+		const CWeatherGeneration* pParent = dynamic_cast<const CWeatherGeneration*>(m_pParent);
+
+		//if parent is CWeatherGeneration, 
+		if (pParent != NULL)
+			pParent->GetWGInput(fileManager, WGInput);
+
+		return WGInput;
+	}
+
 
 	ERMsg CModelExecution::RunStreamSimulation(const CFileManager& fileManager, CModel& model, const CModelInputVector& modelInputVector, const CResult& weather, CResult& result, CCallback& callback)
 	{
@@ -471,6 +487,7 @@ namespace WBSF
 		const CLocationVector& locations = weather.GetMetadata().GetLocations();
 		const CTPeriod period = weather.GetMetadata().GetTPeriod();
 		size_t WGNbReplications = weather.GetMetadata().GetNbReplications();
+		CWGInput WGInput = GetWGInput(fileManager);// Get WGInput id parent is WeathetGeneration
 
 		size_t total_runs = locations.size()*WGNbReplications*modelInputVector.size()*m_nbReplications;
 		size_t total_seeds = (m_seedType < 2) ? total_runs : m_nbReplications;
@@ -555,7 +572,7 @@ namespace WBSF
 										//get transfer info
 										size_t seed_pos = m_seedType < 2 ? l*(WGNbReplications*modelInputVector.size()*m_nbReplications)+ WGr *(modelInputVector.size()*m_nbReplications) +p*m_nbReplications +r:r;
 										size_t seed = seeds[seed_pos];
-										CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seed, l, WGr, p, r);
+										CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, WGInput, modelInputVector, seed, l, WGr, p, r);
 										CCommunicationStream::WriteInputStream(info, simulationPoint, inStream);
 
 										ERMsg msgTmp = model.RunModel(inStream, outStream);	// call DLL
@@ -656,6 +673,7 @@ namespace WBSF
 		const CDBMetadata& metadata = weather.GetMetadata();
 		const CLocationVector& locations = metadata.GetLocations();
 		size_t WGNbReplications = metadata.GetNbReplications();
+		CWGInput WGInput = GetWGInput(fileManager);// Get WGInput id parent is WeathetGeneration
 
 		size_t total_runs = locations.size()*WGNbReplications*modelInputVector.size()*m_nbReplications;
 		size_t total_seeds = (m_seedType < 2) ? total_runs : m_nbReplications;
@@ -689,7 +707,7 @@ namespace WBSF
 
 						size_t seed_pos = m_seedType < 2 ? l * (WGNbReplications*modelInputVector.size()*m_nbReplications) + WGr * (modelInputVector.size()*m_nbReplications) + p * m_nbReplications + r : r;
 						size_t seed = seeds[seed_pos];
-						CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, modelInputVector, seed, l, WGr, p, r);
+						CTransferInfoIn info = FillTransferInfo(model, locations, WGNbReplications, WGInput , modelInputVector, seed, l, WGr, p, r);
 						std::string IDsFilePath = outputPath + "IDS.txt";
 						msg = info.Save(IDsFilePath);
 

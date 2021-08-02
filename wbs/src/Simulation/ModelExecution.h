@@ -86,6 +86,7 @@ namespace WBSF
 
 
 		static void InitValidationOptimisation();
+		CWGInput GetWGInput(const CFileManager& fileManager)const;
 		//static ERMsg LoadStaticData(const CFileManager& fileManager, const CModel& model, const CModelInput& modelInput, std::ostream& stream);
 
 
@@ -100,7 +101,7 @@ namespace WBSF
 		ERMsg RunStreamSimulation(const CFileManager& fileManager, CModel& model, const CModelInputVector& modelInputVector, const CResult& weather, CResult& result, CCallback& callback);
 		ERMsg RunFileSimulation(const CFileManager& fileManager, CModel& model, const CModelInputVector& modelInputVector, const CResult& weather, CResult& result, CCallback& callback);
 
-		CTransferInfoIn FillTransferInfo(CModel& model, const CLocationVector& locations, size_t WGReplication, const CModelInputVector& modelInputVector, size_t seed, size_t l, size_t WGr, size_t p, size_t r);
+		CTransferInfoIn FillTransferInfo(CModel& model, const CLocationVector& locations, size_t WGReplication, CWGInput WGInput, const CModelInputVector& modelInputVector, size_t seed, size_t l, size_t WGr, size_t p, size_t r);
 
 		static const char* XML_FLAG;
 		static const char* MEMBERS_NAME[NB_MEMBERS_EX];
