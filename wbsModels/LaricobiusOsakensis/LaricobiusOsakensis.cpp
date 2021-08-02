@@ -38,13 +38,11 @@ namespace WBSF
 		//reset creation date
 		int year = creationDate.GetYear();
 		m_creationDate = GetCreationDate(year);
-		//m_adult_emergence = { {GetAdultEmergence(year),GetAdultEmergence(year+1)} };
 		m_adult_emergence = GetAdultEmergence(year + 1);
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-		//m_adult_longevity = Equations().GetAdultLongevity();
 		m_t = 0;
 		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity() : 0;
 		m_bDeadByAttrition = false;
@@ -60,7 +58,7 @@ namespace WBSF
 		//CTRef end = CTRef(year, JUNE, DAY_30);
 
 		CTRef begin = CTRef(year, DECEMBER, DAY_01);
-		CTRef end = CTRef(year+1, JULY, DAY_31);
+		CTRef end = CTRef(year+1, AUGUST, DAY_31);
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !creationDate.IsInit(); TRef++)
@@ -111,7 +109,7 @@ namespace WBSF
 		//if (!adult_emergence.IsInit())
 			//adult_emergence = CTRef(year, DECEMBER, DAY_31);//pour test seulement a revoir...
 
-		ASSERT(adult_emergence.IsInit());
+		//ASSERT(adult_emergence.IsInit());
 		return adult_emergence;
 	}
 
@@ -412,8 +410,8 @@ namespace WBSF
 
 	CTRef CLNFStand::ComputeDiapauseEnd(const CWeatherYear& weather)const
 	{
-		//CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
-		CTPeriod p = weather.GetPrevious().GetEntireTPeriod(CTM::DAILY);
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
+		//CTPeriod p = weather.GetPrevious().GetEntireTPeriod(CTM::DAILY);
 
 		double sumDD = 0;
 
@@ -478,8 +476,8 @@ namespace WBSF
 		}
 
 		//compute egg creation
-		begin = CTRef(year, DECEMBER, DAY_01);
-		end = CTRef(year+1, JULY, DAY_31);
+		begin = CTRef(year-1, DECEMBER, DAY_01);
+		end = CTRef(year, AUGUST, DAY_31);
 
 		if (d >= begin && d <= end)
 		{

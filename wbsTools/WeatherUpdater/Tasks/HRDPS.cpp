@@ -31,6 +31,11 @@ namespace WBSF
 	//HRDPA:
 	//http://dd.weather.gc.ca/analysis/precip/hrdpa/grib2/polar_stereographic/24/
 
+
+	//HRDPS historical:
+	//https://uwaterloo.ca/water-institute-research/issue-8/feature/canadian-surface-prediction-archive-caspar-can-it-help
+
+
 	//*********************************************************************
 	const char* CHRDPS::SERVER_NAME = "dd.weather.gc.ca";
 	const char* CHRDPS::SERVER_PATH = "/model_hrdps/continental/grib2/";

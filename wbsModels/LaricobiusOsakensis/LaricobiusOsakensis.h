@@ -134,8 +134,8 @@ namespace WBSF
 		{
 			m_bApplyAttrition = false;
 			m_egg_creation_CDD = 0;
-			m_diapause_end_NCDD = 0;
-			m_adult_emergence_CDD = 0;
+			m_diapause_end_NCDD =  0 ;
+			m_adult_emergence_CDD =  0 ;
 		}
 
 		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT)override;
@@ -151,10 +151,18 @@ namespace WBSF
 		//CDegreeDays m_DD4;
 
 		double m_egg_creation_CDD;
+		//std::map<int, double> m_diapause_end_NCDD;
+		//std::map<int, double> m_adult_emergence_CDD;
+		//std::map<int, CTRef>  m_adultEmergenceBegin;
+		//std::map<int,  CTRef> m_diapause_end;
+
 		double m_diapause_end_NCDD;
 		double m_adult_emergence_CDD;
-		//std::array<CTRef, 2>  m_adultEmergenceBegin;
-		CTRef m_diapause_end;  
+		CTRef  m_adultEmergenceBegin;
+		CTRef  m_diapause_end;
+
+
+		//CTRef m_diapause_end;  
 		
 	};
 

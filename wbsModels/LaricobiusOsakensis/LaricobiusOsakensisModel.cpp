@@ -101,8 +101,8 @@ namespace WBSF
 			m_weather.ComputeHourlyVariables();
 
 		//This is where the model is actually executed
-		//CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-		//m_output.Init(p, NB_STATS, 0);
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		m_output.Init(p, NB_STATS, 0);
 
 		//we simulate 2 years at a time. 
 		//we also manager the possibility to have only one year
@@ -141,7 +141,7 @@ namespace WBSF
 
 
 		CTRef begin = BEGIN_DECEMBER ? CTRef(year-1, SEPTEMBER, DAY_01) : CTRef(year, JANUARY, DAY_01);
-		CTRef end = BEGIN_DECEMBER ? CTRef(year, AUGUST, DAY_31) : CTRef(year, DECEMBER, DAY_31);
+		CTRef end = BEGIN_DECEMBER ? CTRef(year, DECEMBER, DAY_31) : CTRef(year, DECEMBER, DAY_31);
 		pHost->Initialize<CLaricobiusOsakensis>(CInitialPopulation(begin, 0, 400, 100, -1));
 
 		//add host to stand			
@@ -149,7 +149,8 @@ namespace WBSF
 
 		//CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 		CTPeriod p(begin, end);
-		output.Init(p, NB_STATS, 0);
+		if(output.empty())
+			output.Init(p, NB_STATS, 0);
 
 		//if have other year extend period to February
 		ASSERT(weather[year].HavePrevious());
@@ -159,9 +160,9 @@ namespace WBSF
 		//}
 		//else
 		//{
-		//	//if have other year extend period to February
-		//	if (weather[year].HaveNext())
-		//		p.End() = CTRef(year + 1, JUNE, DAY_30);
+		//if have other year extend period to February
+		if (weather[year].HaveNext())
+			p.End() = CTRef(year + 1, JUNE, DAY_30);
 
 		//}
 		//if have previous year extend period to DECEMBER
