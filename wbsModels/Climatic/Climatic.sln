@@ -46,11 +46,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticWind", "ClimaticWin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CornHeatUnits", "CornHeatUnits.vcxproj", "{365093C7-7A9A-4A7A-A5DA-D13BC49B2350}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StringFrost", "SpringFrostModel.vcxproj", "{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "WinterModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpringFrost", "SpringFrostModel.vcxproj", "{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Normals", "Daily vs Normals.vcxproj", "{886037FF-AEE6-4550-A5C5-E2C45117FC6F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "WinterThawModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -242,14 +242,6 @@ Global
 		{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}.Release|Win32.Build.0 = Release|Win32
 		{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}.Release|x64.ActiveCfg = Release|x64
 		{0EF64BF0-432A-46B0-B5E9-16EFDEC5AAD1}.Release|x64.Build.0 = Release|x64
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|Win32.Build.0 = Debug|Win32
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|x64.ActiveCfg = Debug|x64
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|x64.Build.0 = Debug|x64
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|Win32.ActiveCfg = Release|Win32
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|Win32.Build.0 = Release|Win32
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|x64.ActiveCfg = Release|x64
-		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|x64.Build.0 = Release|x64
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Debug|Win32.Build.0 = Debug|Win32
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Debug|x64.ActiveCfg = Debug|x64
@@ -258,6 +250,14 @@ Global
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|Win32.Build.0 = Release|Win32
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|x64.ActiveCfg = Release|x64
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|x64.Build.0 = Release|x64
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|Win32.Build.0 = Debug|Win32
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|x64.ActiveCfg = Debug|x64
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Debug|x64.Build.0 = Debug|x64
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|Win32.ActiveCfg = Release|Win32
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|Win32.Build.0 = Release|Win32
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|x64.ActiveCfg = Release|x64
+		{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
