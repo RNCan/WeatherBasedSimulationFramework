@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>WinterThaw</Title>
+    <Version>1.0</Version>
+    <ID>.wt</ID>
+    <EXE>WinterThaw.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute DD for late spring frost</Description>
+    <WindowRect>0 0 146 484</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Begin</Name>
+            <Caption>Begin (mm-dd)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>10 10 30 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>12-01</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>End</Name>
+            <Caption>End (mm-dd)</Caption>
+            <Description/>
+            <Type>3</Type>
+            <Rect>35 10 55 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>03-31</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>NbThaw</Name>
+            <Title>NbThaw</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbThawDays</Name>
+            <Title>NbThawDays</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
