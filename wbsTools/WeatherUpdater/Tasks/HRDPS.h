@@ -127,7 +127,7 @@ namespace WBSF
 	public:
 
 		
-		CHRDPS(const std::string& workingDir);
+		CHRDPS(const std::string& workingDir="");
 		virtual ~CHRDPS(void);
 
 		bool m_bCreateDailyGeotiff;
@@ -141,6 +141,10 @@ namespace WBSF
 		bool m_bForecast;
 		bool m_bHRDPA6h;
 		bool m_bRadiation;
+
+		std::string GetWorkingDir()const { return m_workingDir; }
+		void SetWorkingDir(const std::string& in) { m_workingDir = in; }
+
 
 		ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg GetStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK);

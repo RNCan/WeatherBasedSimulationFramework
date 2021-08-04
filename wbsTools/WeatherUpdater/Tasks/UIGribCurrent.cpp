@@ -271,7 +271,7 @@ namespace WBSF
 
 
 								if ((product == P_NAM || product == P_NAM_NEST_CONUS ||
-									product == P_WRF_ARW || product == P_NMMB || product == P_GFS) )
+									product == P_WRF_ARW || product == P_NMMB || product == P_GFS))
 								{
 									prcpOutputPath = GetOutputFilePath(product, dimension, TRef, HH + 1, "_prcp.tif");
 									string file = GetRemoteFile(product, fileList[curI].second, HH + 1);
@@ -298,7 +298,7 @@ namespace WBSF
 									URL = FormatA("/cgi-bin/filter_%s.pl?lev_surface=on&var_APCP=on", product_name.c_str());
 									URL += "&dir=" + fileList[curI].first;
 									URL += "&file=" + file;
-									
+
 
 
 									msg += CopyFile(pConnection, URL, prcpOutputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
@@ -388,7 +388,7 @@ namespace WBSF
 
 			BandsMetaData meta_data;
 			DS1.GetBandsMetaData(meta_data);
-			
+
 			ofStream oFile;
 			msg = oFile.open(file_path_vrt);
 			if (msg)
@@ -402,9 +402,9 @@ namespace WBSF
 				{
 					string new_description = meta_data[b]["description"];
 					StringVector description(meta_data[b]["description"], "=");
-					if (description.size()==2)
+					if (description.size() == 2)
 					{
-						new_description = description[0] + " \""+ meta_data[b]["GRIB_COMMENT"]+"\"";
+						new_description = description[0] + " \"" + meta_data[b]["GRIB_COMMENT"] + "\"";
 					}
 
 					oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b + 1) << "\">" << endl;
@@ -437,7 +437,7 @@ namespace WBSF
 				StringVector description(meta_data[0]["description"], "=");
 				if (description.size() == 2)
 				{
-					new_description = description[0] + " \"" + meta_data[0]["GRIB_COMMENT"]+"\"";
+					new_description = description[0] + " \"" + meta_data[0]["GRIB_COMMENT"] + "\"";
 				}
 				oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(b + 1) << "\">" << endl;
 				oFile << "    <Description>" << new_description << "</Description>" << endl;
@@ -497,7 +497,7 @@ namespace WBSF
 
 
 		//verify tha geotif is valid
-		if(!GoodGeotiff(file_path_tif))
+		if (!GoodGeotiff(file_path_tif))
 		{
 			msg.ajoute("Invalid hourly file:" + file_path_tif);
 			msg += RemoveFile(file_path_tif);
@@ -637,19 +637,16 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGribCurrent::ExecuteHRDPS(CCallback& callback)
+
+	void CUIGribCurrent::GetHRDPS(CHRDPS& HRDPS)const
 	{
-		ERMsg msg;
 
-
+		size_t product = as<size_t>(PRODUCT);
 		size_t dimension = as<size_t>(DIMENSION);
 		size_t variable = as<size_t>(VARIABLE);
-
-		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(P_HRDPS, dimension) + "\\";
-		CreateMultipleDir(workingDir);
-
-
-		CHRDPS HRDPS(workingDir);
+		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(product, dimension) + "\\";
+		
+		HRDPS.SetWorkingDir(workingDir);
 		HRDPS.m_bForecast = false;
 		HRDPS.m_bHRDPA6h = true;
 		HRDPS.m_max_hours = 48;
@@ -677,18 +674,28 @@ namespace WBSF
 			HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750");
 		}
 
+
+	}
+
+	ERMsg CUIGribCurrent::ExecuteHRDPS(CCallback& callback)
+	{
+		ERMsg msg;
+
+		CHRDPS HRDPS;
+		GetHRDPS(HRDPS);
+
 		msg = HRDPS.Execute(callback);
 
 		return msg;
 
 	}
 
-	ERMsg CUIGribCurrent::ExecuteHRRR(CCallback& callback)
+	void CUIGribCurrent::GetHRRR(CHRRR& HRRR)const
 	{
 		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(P_HRRR, D_3D) + "\\";
 		CreateMultipleDir(workingDir);
 
-		CHRRR HRRR(workingDir);
+		HRRR.SetWorkingDir(workingDir);
 		HRRR.m_product = CHRRR::HRRR_3D;
 		HRRR.m_source = CHRRR::NOMADS;
 		HRRR.m_serverType = CHRRR::HTTP_SERVER;
@@ -698,6 +705,12 @@ namespace WBSF
 		HRRR.m_update_last_n_days = 0;
 		HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
 
+	}
+
+	ERMsg CUIGribCurrent::ExecuteHRRR(CCallback& callback)
+	{
+		CHRRR HRRR;
+		GetHRRR(HRRR);
 		return HRRR.Execute(callback);
 	}
 
@@ -731,7 +744,7 @@ namespace WBSF
 			source = FindString(source, "<table border=0>", "</table>");
 			if (!source.empty())
 			{
-				
+
 				size_t posBegin = source.find("\">");
 				while (posBegin != string::npos)
 				{
@@ -783,7 +796,7 @@ namespace WBSF
 							directories.push_back("/" + dir);
 						}
 
-						
+
 					}
 				}
 			}
@@ -879,7 +892,7 @@ namespace WBSF
 
 		return bNeeded;
 	}
-	
+
 
 	CTPeriod CUIGribCurrent::CleanList(std::vector<std::pair<std::string, std::string>>& fileList)
 	{
@@ -932,24 +945,39 @@ namespace WBSF
 
 		size_t product = as<size_t>(PRODUCT);
 		size_t dimension = as<size_t>(DIMENSION);
+		size_t variable = as<size_t>(VARIABLE);
 		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(product, dimension) + "\\";
 
-
-
-		int firstYear = p.Begin().GetYear();
-		int lastYear = p.End().GetYear();
-		size_t nbYears = lastYear - firstYear + 1;
-
-		for (size_t y = 0; y < nbYears; y++)
+		if (product == P_HRDPS)
 		{
-			int year = firstYear + int(y);
+			CHRDPS HRDPS;
+			GetHRDPS(HRDPS);
+			msg = HRDPS.GetGribsList(p, gribsList, callback);
+		}
+		else if (product == P_HRRR)
+		{
+			CHRRR HRRR;
+			GetHRRR(HRRR);
+			msg = HRRR.GetGribsList(p, gribsList, callback);
+			
+		}
+		else
+		{
+			int firstYear = p.Begin().GetYear();
+			int lastYear = p.End().GetYear();
+			size_t nbYears = lastYear - firstYear + 1;
 
-			StringVector fileList = GetFilesList(workingDir + ToString(year) + "\\*.tif", FILE_PATH, true);
-			for (size_t i = 0; i < fileList.size(); i++)
+			for (size_t y = 0; y < nbYears; y++)
 			{
-				CTRef TRef = GetTRef(fileList[i]);
-				if (p.IsInside(TRef))
-					gribsList[TRef] = fileList[i];
+				int year = firstYear + int(y);
+
+				StringVector fileList = GetFilesList(workingDir + ToString(year) + "\\*.tif", FILE_PATH, true);
+				for (size_t i = 0; i < fileList.size(); i++)
+				{
+					CTRef TRef = GetTRef(fileList[i]);
+					if (p.IsInside(TRef))
+						gribsList[TRef] = fileList[i];
+				}
 			}
 		}
 
@@ -967,18 +995,20 @@ namespace WBSF
 	CTRef CUIGribCurrent::GetTRef(string filePath)
 	{
 		CTRef TRef;
-		StringVector name(GetFileTitle(filePath), "_");
-		ASSERT(name.size() == 4);
+		StringVector title(GetFileTitle(filePath), "_");
+		ASSERT(title.size() == 4);
 
-		if (name.size() == 4)
+		
+		if (title.size() == 4)
 		{
-			int year = WBSF::as<int>(name[1].substr(0, 4));
-			size_t m = WBSF::as<int>(name[1].substr(4, 2)) - 1;
-			size_t d = WBSF::as<int>(name[1].substr(6, 2)) - 1;
-			size_t h = WBSF::as<int>(name[2].substr(0, 2));
-			size_t hh = WBSF::as<int>(name[3].substr(0, 3));
+			int year = WBSF::as<int>(title[1].substr(0, 4));
+			size_t m = WBSF::as<int>(title[1].substr(4, 2)) - 1;
+			size_t d = WBSF::as<int>(title[1].substr(6, 2)) - 1;
+			size_t h = WBSF::as<int>(title[2].substr(0, 2));
+			size_t hh = WBSF::as<int>(title[3].substr(0, 3));
 			TRef = CTRef(year, m, d, h) + hh;//h+hh can be greater than 23
 		}
+
 
 		return TRef;
 	}

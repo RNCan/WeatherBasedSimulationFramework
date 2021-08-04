@@ -11,6 +11,8 @@
 namespace WBSF
 {
 
+	class CHRDPS;
+	class CHRRR;
 
 	//**************************************************************
 	class CUIGribCurrent : public CTaskBase
@@ -52,6 +54,9 @@ namespace WBSF
 
 	protected:
 
+		
+		void GetHRDPS(CHRDPS& HRDPS)const;
+		void GetHRRR(CHRRR& HRRR)const;
 		ERMsg ExecuteHRDPS(CCallback& callback);
 		ERMsg ExecuteHRRR(CCallback& callback);
 		
