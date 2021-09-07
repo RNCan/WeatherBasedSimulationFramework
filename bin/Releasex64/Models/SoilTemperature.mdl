@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Soil Temperature</Title>
+    <Version>1.0</Version>
+    <ID>.Tsoil</ID>
+    <EXE>SoilTemperature.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 159 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>z</Name>
+            <Caption>z [cm]</Caption>
+            <Description>Soil depth [cm]</Description>
+            <Type>2</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>LAI</Name>
+            <Caption>LAI [m²/m²]</Caption>
+            <Description>Leaf Area Index </Description>
+            <Type>2</Type>
+            <Rect>32 10 54 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>LAImax</Name>
+            <Caption>LAImax  [m²/m²]</Caption>
+            <Description>Annaul maximum LAI</Description>
+            <Type>2</Type>
+            <Rect>54 10 76 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>TsoilMin</Name>
+            <Title>TsoilMin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tsoil</Name>
+            <Title>Tsoil</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TsoilMax</Name>
+            <Title>TsoilMax</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Base on Predicting spatial and temporal patterns of soil temperature based on topography, surface cover and air temperature &#x0D;&#x0A;&#x0D;&#x0A;S. Kang,&#x0D;&#x0A;Forest Ecology and Management 136 (2000) 173-184&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
