@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Spruce Budworm Lysyk</Title>
+    <Version>1.0</Version>
+    <ID>.lysyk</ID>
+    <EXE>SpruceBudwormLysyk.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 107 315</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>HostSpecies</Name>
+            <Caption>Host species:</Caption>
+            <Description>The tree on witch the insect develop</Description>
+            <Type>5</Type>
+            <Rect>20 5 40 275</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Balsam Fir;White Spruce</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD8</Name>
+            <Title>DD8</Title>
+            <Units/>
+            <Description>DD after March 1 over 8°C (Allen 1976)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in feeding second larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in third larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L4</Name>
+            <Title>L4</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in fourth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L5</Name>
+            <Title>L5</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in fifth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L6</Name>
+            <Title>L6</Title>
+            <Units>%</Units>
+            <Description>Percentage of insect in sixth larval stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
+            <Units>%</Units>
+            <Description>Percentage of pupae</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
+            <Units>%</Units>
+            <Description>Percentage of adults </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AI</Name>
+            <Title>Average instar</Title>
+            <Units/>
+            <Description>Average instar of the current (L2o..adults) year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Lysyk TJ (1989) Stochastic model of eastern spruce budworm&#x0D;&#x0A;(Lepidoptera Tortricidae) phenology on white spruce and&#x0D;&#x0A;balsam fir. J Econ Entomol 82:1161–1168</Credit>
+    <HelpFileName/>
+</Model>

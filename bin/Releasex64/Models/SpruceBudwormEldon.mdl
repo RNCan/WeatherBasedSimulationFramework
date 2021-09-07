@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Spruce Budworm Eldon</Title>
+    <Version>1.0</Version>
+    <ID>.nul</ID>
+    <EXE>SpruceBudwormEldon.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 107 315</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD556</Name>
+            <Title>DD556</Title>
+            <Units/>
+            <Description>DD after March 1 over 8°C (Allen 1976)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AI</Name>
+            <Title>Average instar</Title>
+            <Units/>
+            <Description>Average instar of the current (L2o..adults) year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Lysyk TJ (1989) Stochastic model of eastern spruce budworm&#x0D;&#x0A;(Lepidoptera Tortricidae) phenology on white spruce and&#x0D;&#x0A;balsam fir. J Econ Entomol 82:1161–1168</Credit>
+    <HelpFileName/>
+</Model>
