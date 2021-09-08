@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBioSIMAPI", "TestBioSIMAPI.csproj", "{EE4F8883-A3B2-4357-AE7C-80B7E7A33733}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE4F8883-A3B2-4357-AE7C-80B7E7A33733}.Debug|x64.ActiveCfg = Debug|x64
+		{EE4F8883-A3B2-4357-AE7C-80B7E7A33733}.Debug|x64.Build.0 = Debug|x64
+		{EE4F8883-A3B2-4357-AE7C-80B7E7A33733}.Release|x64.ActiveCfg = Release|x64
+		{EE4F8883-A3B2-4357-AE7C-80B7E7A33733}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4A2AE911-99CF-414C-BC61-9CF33FA6E60E}
+	EndGlobalSection
+EndGlobal
