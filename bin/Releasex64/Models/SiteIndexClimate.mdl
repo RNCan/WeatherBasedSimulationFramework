@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>SiteIndexClimate</Title>
+    <Version>1.0</Version>
+    <ID>.nul</ID>
+    <EXE>SiteIndexClimate.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD5</Name>
+            <Title>DD5</Title>
+            <Units/>
+            <Description> degreedays above 5°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>UtilPrcp</Name>
+            <Title>UtilPrcp</Title>
+            <Units>mm</Units>
+            <Description>The growing season precipitation (PRE) was calculated as the sum of precipitation (in mm) during the months of June, July, and August</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Aridity</Name>
+            <Title>Aridity</Title>
+            <Units>mm</Units>
+            <Description>Thornthwaite’s monthly potential evapotranspiration minus monthly precipitation. </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>UtilVPD</Name>
+            <Title>UtilVPD</Title>
+            <Units>hPa</Units>
+            <Description>Growing season cumulative vapor pressure deficit (VPD) was calculated as the sum of daily vapor pressure deficit (in mbar) for the months of June, July and August (Julian days 152 to 243) </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Thornthwaite’s potential evapotranspiration. Monthly values of Thornthwaite’s potential evapotranspiration (PET) were computed as in Dunne and Leopold (1978) using mean monthly air temperature as the only input.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Biophysical Site Indices for Shade Tolerant and Intolerant Boreal Species&#x0D;&#x0A;Ung 1999&#x0D;&#x0A;Society of American Foresters&#x0D;&#x0A;&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>

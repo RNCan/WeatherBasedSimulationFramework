@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Wetness Duration (Daily)</Title>
+    <Version>1.0</Version>
+    <ID>.WD</ID>
+    <EXE>WetnessDuration.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model computes climatic daily variables</Description>
+    <WindowRect>0 0 362 377</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS R S</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Model</Name>
+            <Caption>Model</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 30 30 335</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>6</MaxValue>
+            <TextValue>Sinus;Extended Threshold;Fixed Threshold;Difference between T and Tdew;CART;Pedro Jr &amp; Gillespie;SWEB</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>FixedThreshold</Name>
+            <Caption>Threshold</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>75 30 95 335</Rect>
+            <SeparatorPos>160</SeparatorPos>
+            <DefaultValue>89</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Crop</Name>
+            <Caption>Crop</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>150 30 170 335</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue>Corn;Soybean;Apple</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Exposure</Name>
+            <Caption>Exposure</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>180 30 200 335</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Full;Half</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>LAI</Name>
+            <Caption>LAI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 30 270 335</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Crop Height (m)</Name>
+            <Caption>Crop Height (m)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 30 300 335</Rect>
+            <SeparatorPos>155</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line</Name>
+            <Caption>Line</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>35 10 60 340</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line3</Name>
+            <Caption>Line3</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>105 10 130 340</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Line4</Name>
+            <Caption>Line4</Caption>
+            <Description/>
+            <Type>9</Type>
+            <Rect>210 10 230 340</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Head2</Name>
+            <Caption>Fixed threshold options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>50 25 75 175</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Head3</Name>
+            <Caption>Pedro Jr &amp;&amp; Gillespie model options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>125 30 145 220</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Head4</Name>
+            <Caption>SWEB model options</Caption>
+            <Description/>
+            <Type>8</Type>
+            <Rect>225 30 250 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>3 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>WD</Name>
+            <Title>WD</Title>
+            <Units>h</Units>
+            <Description>number of hour of wetness during a day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>2</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

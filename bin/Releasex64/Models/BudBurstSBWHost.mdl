@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>SBWHostBudBurst</Title>
+    <Title>BudBurstSBWHost</Title>
     <Version>1.0</Version>
     <ID>.hbb</ID>
-    <EXE>SBWHostBudBurst.dll</EXE>
+    <EXE>BudBurstSBWHost.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
     <WindowRect>0 0 127 457</WindowRect>
@@ -103,6 +103,14 @@
             <Title>Budburst</Title>
             <Units>%</Units>
             <Description>Budburst progression</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description>Shoot Development Index</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
