@@ -12,7 +12,7 @@ loadfonts(quiet=TRUE)
 #'JasmineUPC','Segoe Print','Constantia','Vijaya','Caladea','Gabriola',
 myfont <- c('Andalus','MV Boli', 'Times New Roman')
 mySize <- c(1.9,1.9,1.9)
-font_sel = 1
+font_sel = 3
 
 
 sim <- read.csv("E:/Project/doc/CreateDevRatePDF.csv")
@@ -53,31 +53,35 @@ model_cex[46] = model_cex[46]*0.9
 file_name = paste("E:/Project/doc/English/DevRateEquations.pdf",sep="")
 
 pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
-
+	par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
 	plot.new()
-	text(0.5,1.0, adj=c(0.5,0.9), expression("BioSIM' Development Rate Models"), family = myfont[font_sel], cex = 2.0)
-	text(0.5,.92, adj=c(0.5,0.9), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
-	text(0.0,0.8, adj=c(0,0.5), expression("Scale factor"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.8, adj=c(0,0.5), expression(psi), family = myfont[font_sel], cex = 1.5)
-	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[3],k[4])), family = myfont[font_sel], cex = 1.5)
+	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Development Rate Models"), family = myfont[font_sel], cex = 2.0)
+	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
+	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.86, adj=c(0.5,0.5), expression("2021"), family = myfont[font_sel], cex = 1.3)
+	
+	
+	text(0.0,0.7, adj=c(0,0.5), expression("Scale factor"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.7, adj=c(0,0.5), expression(psi), family = myfont[font_sel], cex = 1.5)
+	text(0.0,0.6, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.6, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[3],k[4])), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.65, adj=c(0,0.5), expression("Sharpe&all Parameters"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.65, adj=c(0,0.5), expression(list(H[A],H[L],T[L],T[k[L]],H[H],T[H],T[k[H]])), family = myfont[font_sel], cex = 1.5)
-	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.6, adj=c(0,0.5), expression(T~'°C'~~~~bgroup('(','or'~T[k]~'in Kelvin',')')), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.55, adj=c(0,0.5), expression("Lower"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.55, adj=c(0,0.5), expression(T[b]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.5, adj=c(0,0.5), expression("Optimum"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.5, adj=c(0,0.5), expression(T[o]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.45, adj=c(0,0.5), expression("Upper"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.45, adj=c(0,0.5), expression(T[m]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.4, adj=c(0,0.5), expression("Others"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.4, adj=c(0,0.5), expression(T[omega]), family = myfont[font_sel], cex = 1.5)
+	text(0.0,0.55, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.55, adj=c(0,0.5), expression(T~'°C'~~~~bgroup('(','or'~T[k]~'in Kelvin',')')), family = myfont[font_sel], cex = 1.5)
+	text(0.1,0.50, adj=c(0,0.5), expression("Lower"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.50, adj=c(0,0.5), expression(T[b]~'°C'), family = myfont[font_sel], cex = 1.5)
+	text(0.1,0.45, adj=c(0,0.5), expression("Optimum"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.45, adj=c(0,0.5), expression(T[o]~'°C'), family = myfont[font_sel], cex = 1.5)
+	text(0.1,0.40, adj=c(0,0.5), expression("Upper"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.40, adj=c(0,0.5), expression(T[m]~'°C'), family = myfont[font_sel], cex = 1.5)
+	text(0.1,0.35, adj=c(0,0.5), expression("Others"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.35, adj=c(0,0.5), expression(T[omega]), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.3, adj=c(0,0.5), expression("Temperature scale"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.3, adj=c(0,0.5), expression(list(Delta[T],~Delta[T[b]],~Delta[T[m]])), family = myfont[font_sel], cex = 1.5)
-	text(0.0,0.2, adj=c(0,0.5), expression("Intermediate computation"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.2, adj=c(0,0.5), expression(list(beta,~beta[1],~beta[2],~Omega)), family = myfont[font_sel], cex = 1.5)
-
+	text(0.0,0.25, adj=c(0,0.5), expression("Intermediate computation"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.25, adj=c(0,0.5), expression(list(beta,~beta[1],~beta[2],~Omega)), family = myfont[font_sel], cex = 1.5)
+	
 
 nbPlots=8
 for( g in 1:nbPlots )
@@ -125,6 +129,15 @@ for( g in 1:nbPlots )
 		rm(list=unlist(L))
 	}
 }
+
+par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
+	plot.new()
+	
+	text(0.0,1.0, adj=c(0.0,0.0), "Reference", family = myfont[font_sel], cex = 1.5)
+	text(0.05,0.85, adj=c(0.0,0.0), "Sporleder M, Tonnang HEZ, Carhuapoma P, Gonzales JC, Juarez H, Kroschel J. 2013.\n    Insect Life Cycle Modeling (ILCYM) software a new tool for Regional and Global\n    Insect Pest Risk Assessments under Current and Future Climate Change Scenarios.\n    In: Peña JE, ed. Potential invasive pests of agricultural crops. Wallingford: CABI\n    https://doi.org/10.1079/9781845938291.0412", family = myfont[font_sel], cex = 1.)
+	text(0.05,0.7, adj=c(0.0,0.0), "Rebaudo, F., Struelens, Q., Dangles, O. (2018).\n    Modelling temperature-dependent development rate and phenology in arthropods:\n    the DEVRATE package for R. Methods in Ecology & Evolution, 9(4), 1144-1150.\n    https://doi.org/10.1111/2041-210X.12935", family = myfont[font_sel], cex = 1.)
+
+
 dev.off()
 
 #As the name suggests, embed_fonts() will embed the fonts:

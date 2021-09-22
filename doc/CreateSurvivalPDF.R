@@ -12,7 +12,7 @@ loadfonts(quiet = TRUE)
 
 myfont <- c('Andalus','MV Boli', 'Times New Roman')
 mySize <- c(1.9,1.9,1.9)
-font_sel = 1
+font_sel = 3
 
 
 sim <- read.csv("E:/Project/doc/CreateSurvivalPDF.csv")
@@ -31,10 +31,13 @@ model_cex = rep(mySize[font_sel], length(equations))
 file_name = "E:/Project/doc/English/SurvivalEquations.pdf"
 
 pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
-
+	par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
 	plot.new()
-	text(0.5,1.0, adj=c(0.5,0.9), expression("BioSIM' Survival Models"), family = myfont[font_sel], cex = 2.0)
-	text(0.5,.92, adj=c(0.5,0.9), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
+	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Survival Models"), family = myfont[font_sel], cex = 2.0)
+	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
+	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.86, adj=c(0.5,0.5), expression("2021"), family = myfont[font_sel], cex = 1.3)
+
 	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],kk, kk[1],kk[2])), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
@@ -91,6 +94,15 @@ for( g in 1:nbPlots )
 		rm(list=unlist(L))
 	}
 }
+
+
+par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
+	plot.new()
+	
+	text(0.0,1.0, adj=c(0.0,0.0), "Reference", family = myfont[font_sel], cex = 1.5)
+	text(0.05,0.85, adj=c(0.0,0.0), "Sporleder M, Tonnang HEZ, Carhuapoma P, Gonzales JC, Juarez H, Kroschel J. 2013.\n    Insect Life Cycle Modeling (ILCYM) software a new tool for Regional and Global\n    Insect Pest Risk Assessments under Current and Future Climate Change Scenarios.\n    In: Peña JE, ed. Potential invasive pests of agricultural crops. Wallingford: CABI\n    https://doi.org/10.1079/9781845938291.0412", family = myfont[font_sel], cex = 1.)
+
+
 dev.off()
 
 #As the name suggests, embed_fonts() will embed the fonts:
