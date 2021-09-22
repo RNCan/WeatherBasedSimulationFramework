@@ -50,9 +50,10 @@ model_cex[46] = model_cex[46]*0.9
 
 
 
-file_name = paste("E:/Project/doc/English/DevRateEquations.pdf",sep="")
+file_name1 = paste("E:/Project/doc/DevRateEquations.pdf",sep="")
+file_name2 = paste("E:/Project/doc/English/DevRateEquations.pdf",sep="")
 
-pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
+pdf(file=file_name1, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
 	par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
 	plot.new()
 	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Development Rate Models"), family = myfont[font_sel], cex = 2.0)
@@ -141,7 +142,7 @@ par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.
 dev.off()
 
 #As the name suggests, embed_fonts() will embed the fonts:
-embed_fonts(file_name, outfile=paste("E:/Project/doc/DevRateEquations.pdf",sep=""))
+embed_fonts(file_name1, outfile=file_name2)
 
 
 
