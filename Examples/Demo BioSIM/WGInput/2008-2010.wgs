@@ -11,7 +11,7 @@
     <NbNormalsStations>4</NbNormalsStations>
     <NormalDBName>Canada-USA 1981-2010</NormalDBName>
     <NbDailyStations>4</NbDailyStations>
-    <DailyDBName>Canada 1980-2019</DailyDBName>
+    <DailyDBName>Demo 2008-2010</DailyDBName>
     <NbHourlyStations>4</NbHourlyStations>
     <HourlyDBName/>
     <NbGribPoints>4</NbGribPoints>

@@ -5,13 +5,13 @@
     <GenerationType>1</GenerationType>
     <NbNormalsYears>1</NbNormalsYears>
     <FirstYear>2020</FirstYear>
-    <LastYear>2020</LastYear>
+    <LastYear>2021</LastYear>
     <UseForecast>true</UseForecast>
     <UseRadarPrcp>false</UseRadarPrcp>
     <NbNormalsStations>4</NbNormalsStations>
     <NormalDBName>Canada-USA 1981-2010</NormalDBName>
     <NbDailyStations>4</NbDailyStations>
-    <DailyDBName>Canada 2019-2020</DailyDBName>
+    <DailyDBName>Canada 2020-2021</DailyDBName>
     <NbHourlyStations>4</NbHourlyStations>
     <HourlyDBName/>
     <NbGribPoints>4</NbGribPoints>

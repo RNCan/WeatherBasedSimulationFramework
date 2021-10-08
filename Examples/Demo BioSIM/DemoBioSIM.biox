@@ -249,9 +249,10 @@
                                                 <GlobalMinLimit>0</GlobalMinLimit>
                                                 <GlobalMaxLimit>0</GlobalMaxLimit>
                                                 <GlobalMinMaxLimitToBound>false</GlobalMinMaxLimitToBound>
+                                                <RegressionOptimization>3</RegressionOptimization>
                                                 <RegressionModel>[]</RegressionModel>
                                                 <RegressCriticalR2>0.0005</RegressCriticalR2>
-                                                <VariogramModel>-1</VariogramModel>
+                                                <VariogramModel>0</VariogramModel>
                                                 <NbLags>0</NbLags>
                                                 <LagDistance>0</LagDistance>
                                                 <DetrendingModel>0</DetrendingModel>
@@ -609,7 +610,7 @@
                                 <Statistic>00000000000010</Statistic>
                             </Export>
                             <ExecutableArray/>
-                            <UpdaterFile>Canada 2019-2020.Update</UpdaterFile>
+                            <UpdaterFile>Canada_2020-2021.Update</UpdaterFile>
                             <ShowApp>false</ShowApp>
                         </WeatherUpdater>
                         <WeatherGeneration>
@@ -702,13 +703,14 @@
                                                                 <GlobalLimit>false</GlobalLimit>
                                                                 <GlobalSD>2</GlobalSD>
                                                                 <GlobalLimitToBound>false</GlobalLimitToBound>
-                                                                <GlobalMinMaxLimit>false</GlobalMinMaxLimit>
-                                                                <GlobalMinLimit>0</GlobalMinLimit>
-                                                                <GlobalMaxLimit>0</GlobalMaxLimit>
-                                                                <GlobalMinMaxLimitToBound>false</GlobalMinMaxLimitToBound>
+                                                                <GlobalMinMaxLimit>true</GlobalMinMaxLimit>
+                                                                <GlobalMinLimit>1</GlobalMinLimit>
+                                                                <GlobalMaxLimit>365</GlobalMaxLimit>
+                                                                <GlobalMinMaxLimitToBound>true</GlobalMinMaxLimitToBound>
+                                                                <RegressionOptimization>3</RegressionOptimization>
                                                                 <RegressionModel>[]</RegressionModel>
                                                                 <RegressCriticalR2>0.0005</RegressCriticalR2>
-                                                                <VariogramModel>-1</VariogramModel>
+                                                                <VariogramModel>0</VariogramModel>
                                                                 <NbLags>0</NbLags>
                                                                 <LagDistance>0</LagDistance>
                                                                 <DetrendingModel>0</DetrendingModel>
@@ -813,9 +815,10 @@
                                                         <GlobalMinLimit>0</GlobalMinLimit>
                                                         <GlobalMaxLimit>0</GlobalMaxLimit>
                                                         <GlobalMinMaxLimitToBound>false</GlobalMinMaxLimitToBound>
+                                                        <RegressionOptimization>3</RegressionOptimization>
                                                         <RegressionModel>[]</RegressionModel>
                                                         <RegressCriticalR2>0.0005</RegressCriticalR2>
-                                                        <VariogramModel>-1</VariogramModel>
+                                                        <VariogramModel>0</VariogramModel>
                                                         <NbLags>0</NbLags>
                                                         <LagDistance>0</LagDistance>
                                                         <DetrendingModel>0</DetrendingModel>
