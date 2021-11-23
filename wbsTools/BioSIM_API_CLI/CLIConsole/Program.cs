@@ -8,7 +8,7 @@ using BioSIM_Wrapper;
 
 namespace CLIConsole
 {
-    class Program   
+    class Program
     {
         static void Main(string[] args)
         {
@@ -23,76 +23,82 @@ namespace CLIConsole
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
 
-            
-
             Console.WriteLine("Initialize Weather Generator");
             WeatherGenerator WG = new WeatherGenerator("WG1");
             string msg = WG.Initialize(options);
             Console.WriteLine(msg);
 
-
             watch.Stop();
             Console.WriteLine("Time to initialize Weather Generator: " + watch.ElapsedMilliseconds + " ms");
             watch.Restart();
 
-            Console.WriteLine("Initialize DegreeDay model"); 
-            ModelExecution model = new ModelExecution("Model1");
-            msg = model.Initialize("Model="+ exe_path + "\\Models\\DegreeDay (Annual).mdl");
-            Console.WriteLine(msg);
+            if (msg == "Success")
+            {
 
-            watch.Stop();
-            Console.WriteLine("Time to initialize DegreeDay model: " + watch.ElapsedMilliseconds + " ms");
-            watch.Restart();
+                Console.WriteLine("Initialize DegreeDay model");
+                ModelExecution model = new ModelExecution("Model1");
+                msg = model.Initialize("Model=" + exe_path + "\\Models\\DegreeDay (Annual).mdl");
+                Console.WriteLine(msg);
 
+                watch.Stop();
+                Console.WriteLine("Time to initialize DegreeDay model: " + watch.ElapsedMilliseconds + " ms");
+                watch.Restart();
 
-
-            string variables = model.GetWeatherVariablesNeeded();
-            string parameters = model.GetDefaultParameters();
-            bool compress = false;
-            string compress_str = compress? "1":"0";
-
-
-            //&Elevation=2800
-            //example of extracting weather from
-            Console.WriteLine("Generate weather for 2018-2019, 1 replications");
-            TeleIO WGout = WG.Generate("Compress="+ compress_str+"&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
-            Console.WriteLine(WGout.msg);
-            // Console.WriteLine(WGout.metadata);
+                if (msg == "Success")
+                {
 
 
-            // the code that you want to measure comes here
-            watch.Stop();
-            Console.WriteLine("Time to generate weather: "+ watch.ElapsedMilliseconds + " ms");
-            watch.Restart();
-
-            Console.WriteLine("Execute DegreeDay Model");
-            TeleIO modelOut = model.Execute("Compress="+ compress_str, WGout);
-            Console.WriteLine(modelOut.msg);
-
-            string s = System.Text.Encoding.UTF8.GetString(modelOut.data);
-            Console.WriteLine(s);
-
-            watch.Stop();
-            Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
-            watch.Restart();
+                    string variables = model.GetWeatherVariablesNeeded();
+                    string parameters = model.GetDefaultParameters();
+                    bool compress = false;
+                    string compress_str = compress ? "1" : "0";
 
 
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine("Second generation");
-            WGout = WG.Generate("Compress=" + compress_str + "&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
-
-            watch.Stop();
-            Console.WriteLine("Time to generate weather: " + watch.ElapsedMilliseconds + " ms");
-            watch.Restart();
-
-            modelOut = model.Execute("Compress=" + compress_str, WGout);
-            Console.WriteLine(s);
-
-            watch.Stop();
-            Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
+                    //&Elevation=2800
+                    //example of extracting weather from
+                    Console.WriteLine("Generate weather for 2018-2019, 1 replications");
+                    TeleIO WGout = WG.Generate("Compress=" + compress_str + "&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
+                    Console.WriteLine(WGout.msg);
+                    
 
 
+                    // the code that you want to measure comes here
+                    watch.Stop();
+                    Console.WriteLine("Time to generate weather: " + watch.ElapsedMilliseconds + " ms");
+                    watch.Restart();
+
+                    if (msg == "Success")
+                    {
+
+                        Console.WriteLine("Execute DegreeDay Model");
+                        TeleIO modelOut = model.Execute("Compress=" + compress_str, WGout);
+                        Console.WriteLine(modelOut.msg);
+
+                        string s = System.Text.Encoding.UTF8.GetString(modelOut.data);
+                        Console.WriteLine(s);
+
+                        watch.Stop();
+                        Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
+                        watch.Restart();
+
+
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine("Second generation");
+                        WGout = WG.Generate("Compress=" + compress_str + "&Variables=" + variables + "&ID=1&Name=Logan&Latitude=41.73333333&Longitude=-111.8&Elevation=120&First_year=2018&Last_year=2019&Replications=1");
+
+                        watch.Stop();
+                        Console.WriteLine("Time to generate weather: " + watch.ElapsedMilliseconds + " ms");
+                        watch.Restart();
+
+                        modelOut = model.Execute("Compress=" + compress_str, WGout);
+                        Console.WriteLine(s);
+
+                        watch.Stop();
+                        Console.WriteLine("Time to run DD model: " + watch.ElapsedMilliseconds + " ms");
+                    }
+                }
+            }
             //string path_out = path + "\\test" + (compress ? ".gz" : ".csv");
             //System.IO.FileStream fs = System.IO.File.Create(path_out);
             //System.IO.BufferedStream file = fs.;

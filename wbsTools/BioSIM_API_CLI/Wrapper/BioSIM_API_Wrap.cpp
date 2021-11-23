@@ -13,7 +13,7 @@ namespace BioSIM_Wrapper
 		compress = IO.compress;	//if output is compress or not
 		msg = IO.msg;		//error message
 		comment = IO.comment;	//comments
-		metadata = IO.metadata;	//output metadatan in XML
+		metadata = IO.metadata;	//output meta-data in XML
 		data = IO.data;		//output data 
 	}
 
@@ -42,7 +42,7 @@ namespace BioSIM_Wrapper
 		std::string options = string_to_stdstring(str_options);
 		return stdstring_to_string(m_Instance->Initialize(options));
 	}
-
+	 
 
 
 	TeleIO^ WeatherGenerator::Generate(const String^ str_options)
@@ -83,7 +83,7 @@ namespace BioSIM_Wrapper
 		IO_in.m_compress = input->compress;
 		IO_in.m_msg = string_to_stdstring(input->msg);
 		IO_in.m_comment = string_to_stdstring(input->comment);
-		IO_in.m_metadata = string_to_stdstring(input->metadata);
+		IO_in.m_metadata = string_to_stdstring(input->metadata); 
 
 		IO_in.m_data.resize(input->data->Length);
 		for (size_t i = 0; i < input->data->Length; ++i)

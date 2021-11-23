@@ -12,17 +12,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
-    <StartWorkingDirectory>G:\Travaux\BioSIM_API\</StartWorkingDirectory>
-    <StartArguments>"Shore=Layers/Shore.ann&amp;Normals=Weather/Normals/World 1991-2020.NormalsDB.bin.gz&amp;Daily=Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz"</StartArguments>
+    <StartWorkingDirectory>G:\Travaux\BioSIM_API%28debug%29\</StartWorkingDirectory>
+    <StartArguments>"shore=G:/Travaux/BioSIM_API/Layers/Shore.ann&amp;Normals=G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB.bin.gz&amp;Daily=G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz"</StartArguments>
     <StartAction>Program</StartAction>
-    <StartProgram>G:\Travaux\BioSIM_API\BioSIM_API_Console.exe</StartProgram>
+    <StartProgram>G:\Travaux\BioSIM_API%28debug%29\BioSIM_API_Console.exe</StartProgram>
     <RemoteDebugEnabled>false</RemoteDebugEnabled>
   </PropertyGroup>
   <PropertyGroup>
     <EnableSecurityDebugging>false</EnableSecurityDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <StartArguments>"AccountName=dhportalstoragedev&amp;AccountKey=+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==&amp;ContainerName=biosim-data&amp;Shore=Layers/Shore.ann&amp;Normals=Weather/Normals/World 1991-2020.NormalsDB.bin.gz&amp;Daily=Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz"</StartArguments>
+    <StartArguments>
+    </StartArguments>
     <StartWorkingDirectory>G:\Travaux\BioSIM_API\</StartWorkingDirectory>
+    <StartAction>Program</StartAction>
+    <StartProgram>G:\Travaux\BioSIM_API\BioSIM_API_Console.exe</StartProgram>
   </PropertyGroup>
 </Project>

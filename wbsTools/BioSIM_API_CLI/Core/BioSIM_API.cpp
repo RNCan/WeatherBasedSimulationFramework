@@ -4,8 +4,7 @@
 #include "storage_credential.h"
 #include "storage_account.h"
 #include "blob/blob_client.h"
-//#include <algorithm>
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/predicate.hpp> 
 
 
 #include "BioSIM_API.h"
@@ -385,51 +384,12 @@ namespace WBSF
 		ERMsg msg;
 
 		CDynamicResources::set(g_hDLL);
-
-		//StringVector files = WBSF::GetFilesList("G:\\Travaux\\BioSIM_API\\Weather\\Daily\\Canada-USA 2018-2019.DailyDB.bin\\2018\\espa*.bin.gz", 2, true);
-		//for (__int64 i = 0; i < (__int64)files.size(); i++)
-		//{
-		//	string test = files[i];
-		//	test = WBSF::UTF8_ANSI(test);
-		//	test = RemoveAccented(test);//remove all accent caracters;
-		//	int g;
-		//	g = 0;
-		//}
-
-
-
-		//string file_path = "G:/Weather/test 1991-2020.NormalsDB";
-		//msg += CreateNormalBinary("G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB");
-		//msg += UploadNormalsToAzure("G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB.bin.gz");
-		//msg += CreateDailyBinary("G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB");
-		//msg += UploadDailyToAzure("G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz");
-
-		//		msg += CreateDailyBinary("G:/weather/PEI 2020-2021.DailyDB");
-				//msg += UploadDailyToAzure("G:/weather/PEI 2020-2021.DailyDB.bin.gz");
-
-				//msg += UploadDEMToAzure("G:/Travaux/BioSIM_API/DEM/Monde 30s(SRTM30).tif");
-
-
-		//std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(ACCOUNT_NAME, ACCOUNT_KEY);
-		//std::shared_ptr<storage_account> account = std::make_shared<storage_account>(ACCOUNT_NAME, cred, /* use_https */ true);
-		//std::shared_ptr<blob_client> client = std::make_shared<blob_client>(account, 16);
-		//blob_client_wrapper client_wrapper(client);
-
-
-
-		//bool brep = client_wrapper.blob_exists(CONTAINER_NAME, "Weather/Daily/Canada-USA 2018-2019.DailyDB.bin/2018/Cutler Dam [USC00421918].bin.gz");
-
-
-		//
-		//string blobName = "DEM/Monde 30s(SRTM30).tif";
-		//ASSERT(client_wrapper.blob_exists(CONTAINER_NAME, blobName));
-		//auto blobs = client_wrapper.get_blob_property(CONTAINER_NAME, blobName);
-		//
-
-
-		//msg += CreateShoreBinary("E:/Project/bin/Releasex64/Layers/Shore.ann");
-		//msg += UploadShoreToAzure("E:/Project/bin/Releasex64/Layers/Shore.ann");
-		//return "";
+		char path[MAX_PATH] = { 0 }; 
+		if (GetModuleFileNameA(g_hDLL, path, sizeof(path)) != 0)
+		{
+			CWeatherDatabase::set_azure_dll_filepath(GetPath(path)+"azure_weather.dll");
+		}
+		
 
 		msg = m_init.parse(str_init);
 
@@ -518,8 +478,6 @@ namespace WBSF
 									msg.ajoute(exception.what());
 								}
 							}
-
-							//std::cout << out_stream.str();
 						}
 						else
 						{
@@ -542,18 +500,8 @@ namespace WBSF
 						}
 						else
 						{
-							msg.ajoute("Invalid Normals database extention: " + m_init.m_normal_name);
+							msg.ajoute("Invalid Normals database extension: " + m_init.m_normal_name);
 						}
-
-
-
-						//if (msg)
-							//m_pNormalDB->CreateAllCanals();//create here to be thread safe
-
-
-						//msg += m_pNormalDB->Open("G:\\Weather\\test 1991-2020.NormalsDB");
-						//if (msg)
-							//m_pNormalDB->CreateAllCanals();//create here to be thread safe
 					}
 
 					if (!m_init.m_daily_name.empty())
@@ -606,7 +554,6 @@ namespace WBSF
 									}
 								}
 
-								//std::cout << out_stream.str();
 							}
 							else
 							{
@@ -633,12 +580,8 @@ namespace WBSF
 							}
 							else
 							{
-								msg.ajoute("Invalid Daily database extention: " + m_init.m_daily_name);
+								msg.ajoute("Invalid Daily database extension: " + m_init.m_daily_name);
 							}
-
-
-							//msg += m_pDailyDB->Open(m_init.m_daily_name, CDailyDatabase::modeRead, callback, true);
-							
 						}
 					}
 
@@ -655,6 +598,7 @@ namespace WBSF
 						}
 					}
 				}
+				
 				if (msg)
 				{
 					m_pWeatherGenerator.reset(new CWeatherGenerator);
@@ -707,6 +651,8 @@ namespace WBSF
 
 	CTeleIO WeatherGenerator::Generate(const std::string& str_options)
 	{
+		ASSERT(m_pWeatherGenerator != nullptr);
+
 		ERMsg msg;
 		CCallback callback;
 		CTeleIO output;

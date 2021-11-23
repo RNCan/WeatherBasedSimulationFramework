@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Two parameters must by supply: input and putput file" << endl;
+		std::cout << "Two parameters must by supply: input and output file" << endl;
 		std::cout << "For example: CompressWeatherDatabase.exe \"input.DailyDB\" \"output.DailyDB.bin.gz\"" << endl;
 		return 1;
 	}
