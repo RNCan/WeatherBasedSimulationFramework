@@ -5,10 +5,11 @@ graphics.off()
 
 GetScriptPath <- function()
 {
-    argv <- commandArgs(trailingOnly = FALSE)
-    if (any(grepl("--interactive", argv))) {
+    
+    if (interactive()) {
         GetScriptPath <-"D:/Project/Examples/Demo BioSIM/Script/"
     } else {
+        argv <- commandArgs(trailingOnly = FALSE)
         GetScriptPath <- paste(dirname(substring(argv[grep("--file=", argv)],8)), "/", sep='')
     }
 }
@@ -20,18 +21,19 @@ GetFilePath <- function(name)
 }
 
 
-GetInputFilePath <- function()
+GetBioSIMOutputFilePath <- function()
 {
-    argv <- commandArgs(trailingOnly = FALSE)
-    if (any(grepl("--interactive", argv))) { 
-         GetInputFilePath <- GetFilePath("../output/SBW_TimeSeries.csv")
-    } else { GetInputFilePath <- argv[grep("--args", argv)+1] 
+    if (interactive()) { 
+         GetBioSIMOutputFilePath <- GetFilePath("../output/SBW_TimeSeries.csv")
+    } else { 
+        argv <- commandArgs(trailingOnly = FALSE)
+        GetBioSIMOutputFilePath <- argv[grep("--args", argv)+1] 
     }
 }
 
 
 dir.create(GetFilePath("../Images/"), showWarnings = FALSE)
-Esim <- read.csv(GetInputFilePath())
+Esim <- read.csv(GetBioSIMOutputFilePath())
 str(Esim)
 
 #use only the first year of the first location

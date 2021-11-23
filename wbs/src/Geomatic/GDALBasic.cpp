@@ -1555,7 +1555,7 @@ namespace WBSF
 
 
 		m_bExclude = false;
-		m_data.empty();
+		m_data.clear();
 	}
 
 	CSingleBandHolder::~CSingleBandHolder()

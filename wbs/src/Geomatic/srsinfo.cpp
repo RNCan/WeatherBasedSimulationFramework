@@ -419,7 +419,8 @@ namespace WBSF
 		OGRSpatialReference *poSRS = NULL;
 
 		poSRS = oSRS.Clone();
-		poSRS->StripCTParms();
+		//>StripCTParms();
+		poSRS->StripTOWGS84IfKnownDatumAndAllowed();
 		poSRS->exportToWkt(&pszWKT);
 		OGRSpatialReference::DestroySpatialReference(poSRS);
 

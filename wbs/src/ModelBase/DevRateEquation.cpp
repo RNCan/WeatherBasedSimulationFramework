@@ -1,5 +1,6 @@
 ﻿#include "DevRateEquation.h"
 #include <functional>
+#include <random>
 
 using namespace std;
 //**************************************************************************************************
@@ -26,6 +27,7 @@ using namespace std;
 //Lamb	Lamb, R. J., Gerber, G. H., & Atkinson, G. F. (1984). Comparison of developmental rate curves applied to egg hatching data of Entomoscelis americana Brown (Coleoptera: Chrysomelidae). Environmental entomology, 13(3), 868-872. \nLamb, RJ. (1992) Developmental rate of Acyrthosiphon pisum (Homoptera: Aphididae) at low temperatures: implications for estimating rate parameters for insects. Environmental Entomology 21(1): 10-19.
 //Logan-10	Logan, J. A., Wollkind, D. J., Hoyt, S. C., and Tanigoshi, L. K. (1976). An analytic model for description of temperature dependent rate phenomena in arthropods. Environmental Entomology, 5(6), 1133-1140.
 //Logan-6	Logan, J. A., Wollkind, D. J., Hoyt, S. C., and Tanigoshi, L. K. (1976). An analytic model for description of temperature dependent rate phenomena in arthropods. Environmental Entomology, 5(6), 1133-1140.
+//LoganTb  Logan, J.A., R.E.Stinner, R.L.Rabb, and J.S.Bacheler. 1979. A descriptive model for predicting spring emergence of Heliothis zea populations in North Carolina.Environmental Entomology 8: 141 - 146
 //Performance-2	Shi, P., Ge, F., Sun, Y., and Chen, C. (2011) A simple model for describing the effect of temperature on insect developmental rate. Journal of Asia-Pacific Entomology 14(1): 15-20.
 //Second-order polynomial	-
 //Forth-order polynomial	-
@@ -76,7 +78,7 @@ namespace WBSF
 		{ "Lobry&Rosso&Flandrois_1993","TT=pmax(Tb,pmin(Tm,T));psi*((TT-Tm)*(TT-Tb)^2)/((To-Tb)*((To-Tb)*(TT-To)-(To-Tm)*(To+Tb-2*TT)))","psi=0.1[0,1]|Tb=5[-50,50]|To=25[0,50]|Tm=35[0,50]", "psi~over(bgroup('(',T-T[m],')')~bgroup('(',T-T[b],')')^~2,bgroup('(',T[o]-T[b],')')~bgroup('[',bgroup('(',T[o]-T[b],')')~bgroup('(',T-T[o],')')-bgroup('(',T[o]-T[m],')')~bgroup('(',T[o]+T[b]-2~T,')'),']'))" },
 		{ "Logan6_1976","psi*(exp(k*T)-exp(k*Tm-(Tm-T)/deltaT))","psi=0.012[0.0001,1]|k=0.14[0.0001,1]|Tm=33[20,50]|deltaT=5[0.5,10]", "psi~bgroup('(',e^{k~T}~-~e^bgroup('(',k~T[m]~-~over(T[m]~-~T,Delta[T]), ')'), ')')" },
 		{ "Logan10_1976","psi*(1/(1+k1*exp(-k2*T))-exp(-((Tm-T)/deltaT)))","psi=0.03[0.0001,1]|k1=110[10,1000]|k2=0.23[0,100]|Tm=33[20,50]|deltaT=5[0.1,10]", "psi~bgroup('(',over(1,1+k[1]~e^{~-~k[2]*T})~-~e^{~-~over(T[m]~-~T,Delta[T])},')')" },
-		{ "LoganTb","psi*exp(k*(T-Tb)-exp(k*(T-Tb)/deltaT))","psi=0.02[1E-4,1]|k=0.2[-1E4,1]|Tb=30[-50,100]|deltaT=2[0.5,100]", "psi~e^bgroup('(',k~bgroup('(',T~-~T[b],')')~-~e^{~k~over(T~-~T[b],Delta[T])}, ')')" },
+		{ "LoganTb_1979","psi*exp(k*(T-Tb)-exp(k*(T-Tb)/deltaT))","psi=0.02[1E-4,1]|k=0.2[-1E4,1]|Tb=30[-50,100]|deltaT=2[0.5,100]", "psi~e^bgroup('(',k~bgroup('(',T~-~T[b],')')~-~e^{~k~over(T~-~T[b],Delta[T])}, ')')" },
 		{ "ONeill_1972","beta=(Tm-T)/(Tm-To);ifelse(T<=Tm,psi*beta^k*exp(k*(1-beta)),0)","psi=0.08[0.0001,1.0]|k=1[0,100]|To=25[0,50]|Tm=35[0,50]", "list(psi~beta^~k~e^{~k~(1-beta)},scriptstyle(beta~' = '~over(T[m]~-~T,T[m]~-~T[o]) ))" },
 		{ "Poly1","k0+k1*T","k0=0[-1,0.1]|k1=0.02[1E-5,0.1]", "k[0]+k[1]~T"},
 		{ "Poly2","k0+k1*T+k2*T^2","k0=0.1[-1E5,1]|k1=0.015[0,1]|k2=-0.0004[-1,0]", "k[0]+k[1]~T+k[2]~T^{~2}" },
@@ -469,7 +471,7 @@ namespace WBSF
 
 			rT = psi * (1.0 / (1.0 + k1 * exp(-k2 * T)) - exp(-((Tm - T) / ΔT)));
 		}
-		else if (model == LoganTb)//  Tb Model (Logan)
+		else if (model == LoganTb_1979)//  Tb Model (Logan)
 		{
 			double psi = P[P0];
 			double k = P[P1];
@@ -664,7 +666,7 @@ namespace WBSF
 			rT = (p25 * (Tk / Tko) * exp((Ha / 1.987) * ((1.0 / Tko) - (1.0 / Tk)))) /
 				(1.0 + exp((Hb / 1.987) * ((1.0 / Tkb) - (1.0 / Tk))) + exp((Hm / 1.987) * ((1.0 / Tkm) - (1.0 / Tk))));
 		}
-		else if (model == Shi_2011)
+		else if (model == Shi_2011)//Kamykowski_1986??
 		{
 			double psi = P[P0];
 			double k1 = P[P1];
@@ -724,6 +726,17 @@ namespace WBSF
 
 			T = max(Tb, min(Tm, T));
 			rT = exp(psi) * pow(T - Tb, k1) * pow(Tm - T, k2);
+		}
+		else if (model == Boatman_2017)
+		{
+			double psi = P[P0];
+			double k1 = P[P1];
+			double k2 = P[P2];
+			double Tb = P[P3];
+			double Tm = P[P4];
+			
+			//T = max(Tb, min(Tm, T));
+			rT = psi * pow(sin(_Pi*pow( (T - Tb)/(Tm-Tb), k1) ), k2);
 		}
 
 

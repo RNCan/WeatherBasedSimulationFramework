@@ -119,9 +119,6 @@
     <ClInclude Include="CreateMMG.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="UICMIP5.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UINEWA.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -230,6 +227,9 @@
     <ClInclude Include="QualityControl.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UICMIP6.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -335,9 +335,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateMMG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UICMIP5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIWunderground.cpp">
@@ -449,6 +446,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="QualityControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UICMIP6.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -175,32 +175,29 @@ namespace WBSF
 		size_t s = GetStage();
 		double T = weather[H_TAIR];
 		if (NeedOverheating())
-			T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
+		{
+			double OH1 = overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
+			T += OH1;
 
 
-		//{
-		//	double OH = 0;
-		//	//if (m_overheat != 0 && weather[H_TMIN].IsInit() && weather[H_TMAX].IsInit())
-		//	
-		//	const CWeatherDay& day = *((const CWeatherDay*)weather.GetParent());
-		//	const CWeatherDay& dp = day.GetPrevious();
-		//	//const CWeatherDay& me = day;
-		//	const CWeatherDay& dn = day.GetNext();
+			{
+				//const CWeatherDay& day = *((const CWeatherDay*)weather.GetParent());
+				//const CWeatherDay& dp = day.GetPrevious();
+				//const CWeatherDay& dn = day.GetNext();
+				//
+				//double Tmin[3] = { dp[H_TMIN][MEAN], day[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
+				//double Tmax[3] = { dp[H_TMAX][MEAN], day[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
+				//
+				//double Fo = 0.5*(1 + cos((double(16) - h) / 12.0*PI));
+				//
+				//double TRange = max(0.0, (h <= 4) ? dp[H_TMAX][MEAN] - day[H_TMIN][MEAN] : (h <= 16) ? day[H_TMAX][MEAN] - day[H_TMIN][MEAN] : day[H_TMAX][MEAN] - dn[H_TMIN][MEAN]);
+				//double maxOverheat = TRange * OVERHEAT_FACTOR;
+				//double OH2 = maxOverheat * Fo;
+				//T += OH2;
 
-		//	//if (me[H_TMIN].IsInit() && dn[H_TMIN].IsInit()
-		//		//&& dp[H_TMAX].IsInit() && me[H_TMAX].IsInit())
-		//	double Tmin[3] = { dp[H_TMIN][MEAN], day[H_TMIN][MEAN], dn[H_TMIN][MEAN] };
-		//	double Tmax[3] = { dp[H_TMAX][MEAN], day[H_TMAX][MEAN], dn[H_TMAX][MEAN] };
-
-		//	double Fo = 0.5*(1 + cos((double(16) - h) / 12.0*PI));
-		//	
-		//	double TRange = max(0.0, (h <= 4) ? dp[H_TMAX][MEAN] - day[H_TMIN][MEAN] : (h <= 16) ? day[H_TMAX][MEAN] - day[H_TMIN][MEAN] : day[H_TMAX][MEAN] - dn[H_TMIN][MEAN]);
-		//	double maxOverheat = TRange * OVERHEAT_FACTOR;
-		//	OH = maxOverheat * Fo;
-
-		//	T += OH;
-		//	//T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
-		//}
+				
+			}
+		}
 
 
 		//Time step development rate

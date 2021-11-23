@@ -39,6 +39,7 @@ namespace WBSF
 		enum TOpenMode { modeNotOpen = -1, modeRead, modeWrite, modeEdit = modeWrite, modeBinary};
 		enum TWeatherGenerationMethod{ ALL_STATIONS, MOST_COMPLETE_STATIONS, WELL_DISTRIBUTED_STATIONS, COMPLETE_AND_DISTRIBUTED_STATIONS, NB_WEATHER_METHOD };
 
+		static void set_azure_dll_filepath(const std::string& in) { m_azure_dll_filepath = in; }
 
 		CWeatherDatabase(int cacheSize = 200);
 		virtual ~CWeatherDatabase();
@@ -152,6 +153,7 @@ namespace WBSF
 		void UnloadAzureDLL();
 		
 		
+		
 	protected:
 
 		ERMsg GenerateWellDistributedStation(size_t nbStations, CSearchResultVector& searchResult, std::vector<size_t> priority, bool bUseElevation, CCallback& callback)const;
@@ -171,12 +173,7 @@ namespace WBSF
 		
 		HINSTANCE m_hDll;
 
-		//	std::string account_name = "dhportalstoragedev";
-			//std::string account_key = "+zxP+Fo1QDc2aZlwXafS8TiPosRiHn/or1KDRu4/JDOD0rP9Tiqf0KyuqTGGYSMAEifpLpRH9mPBfJmLZsfcJw==";
-			//std::string container_name = "biosim-data";
-
-
-		
+		static std::string m_azure_dll_filepath;
 		typedef bool(*load_azure_weather_yearsF)(const char* account_name, const char* account_key, const char* container_name, const char* blob_name, void* pData);
 		load_azure_weather_yearsF load_azure_weather_years;
 

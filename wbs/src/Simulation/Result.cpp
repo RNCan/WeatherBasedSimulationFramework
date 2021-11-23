@@ -36,7 +36,7 @@ namespace WBSF
 
 	void CResult::Reset()
 	{
-		m_filePath.empty();
+		m_filePath.clear();
 		m_loadedSection.reset();
 		m_lastSectionLoaded = UNKNOWN_POS;
 	}

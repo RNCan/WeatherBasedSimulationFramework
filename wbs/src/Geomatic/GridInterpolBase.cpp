@@ -100,7 +100,7 @@ namespace WBSF
 
 		//Spatial Regression
 		m_regressOptimization = CGeoRegression::SW_STEPWISE;
-		m_regressionModel.empty();
+		m_regressionModel.clear();
 		m_regressCriticalR2 = 0.0005;
 
 		//Kriging

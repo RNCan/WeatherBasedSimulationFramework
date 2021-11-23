@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2011
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -167,6 +167,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "Climatic\WinterThawModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Normals", "Climatic\Daily vs Normals.vcxproj", "{886037FF-AEE6-4550-A5C5-E2C45117FC6F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WhitemarkedTussockMoth", "WhitemarkedTussockMoth\WhitemarkedTussockMoth.vcxproj", "{11D07F52-7844-4892-B856-C7C820FAC29D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpruceBudwormLysyk", "SpruceBudworm\SBW-Lysyk-Model.vcxproj", "{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpruceBudwormEldon", "SpruceBudworm\SBW-Eldon-Model.vcxproj", "{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -840,6 +846,30 @@ Global
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|Win32.Build.0 = Release|Win32
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|x64.ActiveCfg = Release|x64
 		{886037FF-AEE6-4550-A5C5-E2C45117FC6F}.Release|x64.Build.0 = Release|x64
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Debug|Win32.Build.0 = Debug|Win32
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Debug|x64.ActiveCfg = Debug|x64
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Debug|x64.Build.0 = Debug|x64
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Release|Win32.ActiveCfg = Release|Win32
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Release|Win32.Build.0 = Release|Win32
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Release|x64.ActiveCfg = Release|x64
+		{11D07F52-7844-4892-B856-C7C820FAC29D}.Release|x64.Build.0 = Release|x64
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Debug|Win32.ActiveCfg = Debug|Win32
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Debug|Win32.Build.0 = Debug|Win32
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Debug|x64.ActiveCfg = Debug|x64
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Debug|x64.Build.0 = Debug|x64
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Release|Win32.ActiveCfg = Release|Win32
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Release|Win32.Build.0 = Release|Win32
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Release|x64.ActiveCfg = Release|x64
+		{54DA9D90-F7FD-45AB-8CDE-56BE9548E375}.Release|x64.Build.0 = Release|x64
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Debug|Win32.Build.0 = Debug|Win32
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Debug|x64.ActiveCfg = Debug|x64
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Debug|x64.Build.0 = Debug|x64
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|Win32.ActiveCfg = Release|Win32
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|Win32.Build.0 = Release|Win32
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|x64.ActiveCfg = Release|x64
+		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

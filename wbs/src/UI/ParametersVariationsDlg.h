@@ -11,6 +11,7 @@
 
 
 #include "ModelBase/ParametersVariations.h"
+#include "ModelBase/Model.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/CommonCtrl.h"
 #include "UI/Common/HTMLTree/XInfoTip.h"
@@ -60,6 +61,7 @@ namespace WBSF
 
 		//public member
 		bool m_bShowVariationType;
+		CModel m_model;
 		CModelInputParameterDefVector m_parametersDefinition;
 		CParametersVariationsDefinition m_parametersVariations;
 
@@ -72,6 +74,9 @@ namespace WBSF
 		CParametersVariationsProperties m_propertiesCtrl;
 		CCFLComboBox	m_generationTypeCtrl;
 		CCFLEdit		m_nbVariationsCtrl;
+		CDefaultComboBox m_modelInputNameCtrl;
+		CCFLEdit		m_percentOfCtrl;
+		
 
 
 		virtual void OnOK();
@@ -82,6 +87,7 @@ namespace WBSF
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 		void FillParameters();
+		void FillModelInput();
 		void SelectParameters();
 		void Enable(BOOL bEnable);
 
@@ -94,6 +100,7 @@ namespace WBSF
 		afx_msg void OnEnable(BOOL bEnable);
 		afx_msg void OnGeneratioTypeChange();
 		afx_msg void OnNbVariationChange();
+		afx_msg void OnInitFromModelInput();
 	};
 
 

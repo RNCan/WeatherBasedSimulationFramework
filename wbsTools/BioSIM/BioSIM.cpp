@@ -1,5 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.8.4:19/11/2021	Rémi Saint-Amant	Add set variation from model input
+//											Add second reduction factor in SA and avoid observation reduction
+// 11.8.3:07/09/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 11.8.2:02/08/2021	Rémi Saint-Amant	BioSIM compile with dll version of VC and MFC
 // 11.8.1:16/06/2021	Rémi Saint-Amant	Grid row sizing for high resolution
 // 11.8.0:17/03/2021	Rémi Saint-Amant	Removing use of shore as a dimension in gradient calculation. 
@@ -8,7 +11,7 @@
 //											Gradient scale factor are now compute for each year to avoid problem between DB density
 // 11.7.2:10/02/2021	Rémi Saint-Amant	Order of parameter in survival change
 //											Add oviposition curve fit
-// 11.7.1:04/02/2021	Rémi Saint-Amant	New parametreisation of insect development time. Support likelihood and least square
+// 11.7.1:04/02/2021	Rémi Saint-Amant	New parametrization of insect development time. Support likelihood and least square
 //											for individuals ansd mean+sd+n
 // 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
 //											Bug correction for variogram Cubic, Pentaspherical, Sine hole effect

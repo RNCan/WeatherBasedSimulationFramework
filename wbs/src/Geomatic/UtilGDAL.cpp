@@ -1552,7 +1552,7 @@ void CBaseOptions::Reset()
 	m_bRes=false;
 	m_bTap=false;
 	m_bResetJobLog=false;
-	m_jobLogName.empty();
+	m_jobLogName.clear();
 	m_bCreateImage = true;
 	m_bComputeStats=false;
 	m_bComputeHistogram = false;
@@ -1566,7 +1566,7 @@ void CBaseOptions::Reset()
 	m_RGBType = NO_RGB;
 	m_iFactor = 1000;
 
-	m_filesPath.empty();
+	m_filesPath.clear();
 
 	//common option callback status
 	m_xxFinal=0;

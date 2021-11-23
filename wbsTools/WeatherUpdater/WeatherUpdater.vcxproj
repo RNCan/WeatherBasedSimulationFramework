@@ -22,13 +22,13 @@
     <ProjectGuid>{5A0E502B-3761-4DDB-AB21-B8D6276CDD91}</ProjectGuid>
     <RootNamespace>DPT</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
     <CLRSupport>false</CLRSupport>
@@ -36,14 +36,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
@@ -51,7 +51,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -153,10 +153,10 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;mosa_d.lib</AdditionalDependencies>
-      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;titanlib.dll;mosa_d.dll</DelayLoadDLLs>
+      <AdditionalDependencies>version.lib;gdal_i.lib;proj.lib;titanlib.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;mosa_d.lib</AdditionalDependencies>
+      <DelayLoadDLLs>gdal303.dll;proj_7_2.dll;netcdf.dll;titanlib.dll;mosa_d.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
@@ -238,8 +238,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>version.lib;gdal_i.lib;proj_i.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib</AdditionalDependencies>
-      <DelayLoadDLLs>gdal202.dll;proj.dll;netcdf.dll;titanlib.dll;mosa.dll</DelayLoadDLLs>
+      <AdditionalDependencies>version.lib;gdal_i.lib;proj.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib</AdditionalDependencies>
+      <DelayLoadDLLs>gdal303.dll;proj_7_2.dll;netcdf.dll;titanlib.dll;mosa.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>

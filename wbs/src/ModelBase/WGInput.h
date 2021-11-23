@@ -29,7 +29,7 @@ namespace WBSF
 		{
 			fill(-999);//radius in meters
 			for (size_t v = HOURLY_DATA::H_SRAD; v < HOURLY_DATA::NB_VAR_H; v++)
-				at(v) = 0; //no search by default for secondery variables
+				at(v) = 0; //no search by default for secondary variables
 		}
 
 		bool operator==(const CSearchRadius& in)const

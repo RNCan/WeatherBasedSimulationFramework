@@ -93,13 +93,15 @@ namespace WBSF
 			CDevRateEquation::Regniere_2012,//PrePupae
 			CDevRateEquation::Regniere_2012,//Pupae
 			CDevRateEquation::Unknown,		//aestival diapause adult
-			CDevRateEquation::LoganTb		//adult longevity
+			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
 
 
-
+				
 		
-			static const array< vector<double>, LOF::NB_STAGES>  P_DEV =
+	
+		
+		static const array< vector<double>, LOF::NB_STAGES>  P_DEV =
 		{ {
 			//Non-linear
 			{ 4.034685e-02, 8.769218e-02, 3.000000e+00, 2.700000e+01, 9.286385e-01, 5.000079e-01 },//Egg
@@ -107,7 +109,7 @@ namespace WBSF
 			{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L2
 			{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L3
 			{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L4
-			{ 9.052423e-02, 4.551370e-02, 4.000000e+00, 3.400000e+01, 4.999814e+01, 7.393725e+00 },//PrePupae
+			{ 1.050187e-01, 3.292772e-02, 4.000000e+00, 3.300000e+01, 4.994740e+01, 5.421225e+00 },//PrePupae
 			{ 9.747868e-03, 1.092349e-01, 0.000000e+00, 3.300000e+01, 1.000469e-01, 5.229575e-01 },//Pupae
 			{                                                                                    },//aestival diapause adult
 			{ 2.874981e-02, 1.065805e-01, 4.000000e+00, 9.998542e+01                             },//adult
@@ -144,7 +146,7 @@ namespace WBSF
 			{0.18392},//L2
 			{0.18392},//L3
 			{0.18392},//L4
-			{0.20131},//PrePupae
+			{0.20147},//PrePupae
 			{0.12779},//Pupae
 			{1.00000},//aestival diapause adult
 			{0.40071}//adult

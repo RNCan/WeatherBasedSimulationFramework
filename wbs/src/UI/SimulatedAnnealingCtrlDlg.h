@@ -45,6 +45,7 @@ namespace WBSF
 		short	m_nbCycles;
 		short	m_nbIteration;
 		double	m_TReduction;
+		double  m_TReduction2;
 		long	m_maxEvaluation;
 		long	m_nbEps;
 		int		m_max;

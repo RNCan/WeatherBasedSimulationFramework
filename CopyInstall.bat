@@ -20,7 +20,11 @@ copy /Y ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe"
 copy /Y ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe"
 copy /Y ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe"
 copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.manifest"
+copy /Y ".\bin\Releasex64\vcruntime140.dll" "..\Install\NRCan\vcruntime140.dll"
+copy /Y ".\bin\Releasex64\vcruntime140_1.dll" "..\Install\NRCan\vcruntime140_1.dll"
+copy /Y ".\bin\Releasex64\msvcp140.dll" "..\Install\NRCan\msvcp140.dll"
 copy /Y ".\bin\Releasex64\vcomp140.dll" "..\Install\NRCan\vcomp140.dll"
+copy /Y ".\bin\Releasex64\msvcp140_1.dll" "..\Install\NRCan\msvcp140_1.dll"
 copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
 
 copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"
@@ -39,10 +43,10 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-
 
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).mdl" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).mdl"
 ::copy /Y ".\bin\Releasex64\Models\Biophysical site indices (Ecoloap).dll" "..\Install\NRCan\Models\Biophysical site indices (Ecoloap).dll"
-copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.dll" "..\Install\NRCan\Models\SiteIndexClimate.dll"
-copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.mdl" "..\Install\NRCan\Models\SiteIndexClimate.mdl"
-::copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
-::copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
+copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
+copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
+copy /Y ".\bin\Releasex64\Models\BudBurstSBWHost.mdl" "..\Install\NRCan\Models\BudBurstSBWHost.mdl"
+copy /Y ".\bin\Releasex64\Models\BudBurstSBWHost.dll" "..\Install\NRCan\Models\BudBurstSBWHost.dll"
 
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"
@@ -205,8 +209,10 @@ copy /Y ".\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Mode
 
 copy /Y ".\bin\Releasex64\Models\Solar.mdl" "..\Install\NRCan\Models\Solar.mdl"
 copy /Y ".\bin\Releasex64\Models\Solar.dll" "..\Install\NRCan\Models\Solar.dll"
-copy /Y ".\bin\Releasex64\Models\StringFrost.mdl" "..\Install\NRCan\Models\StringFrost.mdl"
-copy /Y ".\bin\Releasex64\Models\StringFrost.dll" "..\Install\NRCan\Models\StringFrost.dll"
+copy /Y ".\bin\Releasex64\Models\SpringFrost.mdl" "..\Install\NRCan\Models\SpringFrost.mdl"
+copy /Y ".\bin\Releasex64\Models\SpringFrost.dll" "..\Install\NRCan\Models\SpringFrost.dll"
+copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.dll" "..\Install\NRCan\Models\SiteIndexClimate.dll"
+copy /Y ".\bin\Releasex64\Models\SiteIndexClimate.mdl" "..\Install\NRCan\Models\SiteIndexClimate.mdl"
 
 
 copy /Y ".\bin\Releasex64\Models\SpruceBeetle.dll" "..\Install\NRCan\Models\SpruceBeetle.dll"
@@ -250,8 +256,6 @@ copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.dll" "..\Install\NRCan\Models\W
 copy /Y ".\bin\Releasex64\Models\WinterThaw.mdl" "..\Install\NRCan\Models\WinterThaw.mdl"
 copy /Y ".\bin\Releasex64\Models\WinterThaw.dll" "..\Install\NRCan\Models\WinterThaw.dll"
 
-
-
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.dll" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.dll"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.mdl"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.pdf"
@@ -262,14 +266,13 @@ xcopy /Y /S ".\bin\Releasex64\Layers\*.*" "..\Install\NRCan\Layers\*.*"
 xcopy /Y /S ".\bin\Releasex64\Palette\*.*" "..\Install\NRCan\Palette\*.*"
 xcopy /Y /S ".\bin\Releasex64\zoneinfo\*.*" "..\Install\NRCan\zoneinfo\*.*"
 
-::copy /Y ".\bin\Releasex64\External\FTPTransfer.exe" "..\Install\NRCan\External\FTPTransfer.exe"
 
 del "..\Install\BioSIM11_x_x.7z"
 .\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.7z" "..\Install\NRCan"
 del "..\Install\BioSIM11_x_x.zip"
 .\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
 
-REM ::xcopy /Y "..\Install\NRCan.7z" "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_x_x.7z"
+
 
 
 

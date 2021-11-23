@@ -164,10 +164,10 @@ namespace WBSF
 			bEmptyResult = at(i)->GetSAResult().empty();
 		}
 
-		if (bEmptyResult)
+		/*if (bEmptyResult)
 		{
 			msg.ajoute("No result in the input file match the location list");
-		}
+		}*/
 
 		return msg;
 	}

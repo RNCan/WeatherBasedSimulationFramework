@@ -28,7 +28,7 @@ namespace WBSF
 
 		CColumnLink()
 		{
-			m_name.empty();
+			m_name.clear();
 			m_dimension = NOT_INIT;
 			m_field = NOT_INIT;
 		}

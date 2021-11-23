@@ -24,7 +24,7 @@ namespace WBSF
 	class CSAControl
 	{
 	public:
-		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_MEMBER };
+		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -101,6 +101,7 @@ namespace WBSF
 		short m_statisticType;
 		bool m_bMax;
 		double m_RT;
+		double m_RT2;
 		double m_EPS;
 		long m_NS;
 		long m_NT;
@@ -236,9 +237,12 @@ namespace WBSF
 	{
 	public:
 		CComputationVariable() { Initialize(1, 4, 0); }
-		void PrepareForAnotherLoop(double RT)
+		void PrepareForAnotherLoop(double RT, double RT2, size_t L)
 		{
-			m_T = RT * m_T;
+			ASSERT(L > 0);//L in base 1
+
+			double F = RT * pow(RT2, L-1);
+			m_T = F * m_T;
 			for (size_t I = m_FSTAR.size() - 1; I > 0; I--)
 			{
 				m_FSTAR[I] = m_FSTAR[I - 1];
@@ -262,8 +266,9 @@ namespace WBSF
 
 		void Initialize(double T, long NEPS, double missingValue)
 		{
+			
 			m_T = T;
-
+			
 			//  Initialize variable
 			m_F = missingValue;
 			m_FP = missingValue;
@@ -278,7 +283,7 @@ namespace WBSF
 			//Initialize FSTAR
 			m_FSTAR.clear();
 			m_FSTAR.insert(m_FSTAR.begin(), NEPS, DBL_MAX);
-
+			m_initial_nb_values = 0;
 		}
 
 		std::vector<double> m_VM;
@@ -292,6 +297,7 @@ namespace WBSF
 		CStatisticVector m_Xstat;
 		
 
+		
 		double m_T;
 
 		std::vector<double> m_FSTAR;
@@ -322,6 +328,7 @@ namespace WBSF
 		//constant 
 		std::vector<double> m_C;
 		CVariableBoundVector m_bounds;
+		size_t m_initial_nb_values;
 	};
 
 }
@@ -339,6 +346,7 @@ namespace zen
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::STAT_OPTIMISATION)](in.m_statisticType);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::INITIAL_TEMPERATURE)](in.m_T);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR)](in.m_RT);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR2)](in.m_RT2);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](in.m_EPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](in.m_NS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](in.m_NT);
@@ -360,6 +368,7 @@ namespace zen
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::STAT_OPTIMISATION)](out.m_statisticType);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::INITIAL_TEMPERATURE)](out.m_T);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR)](out.m_RT);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR2)](out.m_RT2);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](out.m_EPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](out.m_NS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](out.m_NT);

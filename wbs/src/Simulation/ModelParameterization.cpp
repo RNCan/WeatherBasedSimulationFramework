@@ -127,7 +127,7 @@ namespace WBSF
 		m_modelName.clear();
 		m_resultFileName.clear();
 		m_modelInputName = STRDEFAULT;
-		m_modelInputOptName.empty();
+		m_modelInputOptName.clear();
 		m_parametersVariationsName.clear();
 
 		m_nbReplications = 1;
@@ -451,6 +451,11 @@ namespace WBSF
 		computation.Initialize(m_ctrl.T(), m_ctrl.NEPS(), m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
 		msg += GetFValue(computation.m_XP, computation.m_FP, computation.m_SP, callback);
+		computation.m_initial_nb_values = computation.m_SP[NB_VALUE];
+		if (computation.m_initial_nb_values == 0)
+		{
+			msg.ajoute("Bad initial parameters. Set initial parameters that give valid solution.");
+		}
 
 		computation.m_NFCNEV++;
 
@@ -898,14 +903,14 @@ namespace WBSF
 
 
 				ifStream inputFile;
-				msg = inputFile.open(inputFilePath, ios::in | ios::binary);//open this file in benary mode to avoid some problem...
+				msg = inputFile.open(inputFilePath, ios::in | ios::binary);//open this file in binary mode to avoid some problem...
 				if (msg)
 				{
 					WriteBuffer(inStream, inputFile.GetText(true));
 					inputFile.close();
 
 					string str = inStream.str();
-					*pGlobalDataStream = new TGenericStream(10000000);//CreateGenericStream();
+					*pGlobalDataStream = new TGenericStream((DWORD)str.size()+10000);//CreateGenericStream();
 					(*pGlobalDataStream)->Write(str.c_str(), (DWORD)str.size());
 				}
 
@@ -1301,7 +1306,7 @@ namespace WBSF
 			bool bQuit = false;
 
 			//  Start the main loop. Note that it terminates if :
-			//(i) the algorithm succesfully optimizes the function 
+			//(i) the algorithm successfully optimizes the function 
 			//(ii) there are too many function evaluations (more than MAXEVL).
 			int L = 0;
 			do
@@ -1354,8 +1359,9 @@ namespace WBSF
 
 							m_tmp.m_XP.resize(m_tmp.m_X.size());
 
-
+							size_t x = 0;
 							do
+							//for(size_t x=0; x<10&& m_tmp.m_SP[NB_VALUE] < size_t(ceil(4.0 * m_tmp.m_initial_nb_values / 5.0)); x++)
 							{
 								//  Generate XP, the trial value of X. Note use of VM to choose XP.
 								for (int I = 0; I < m_tmp.m_X.size(); I++)
@@ -1377,7 +1383,7 @@ namespace WBSF
 
 								//  Evaluate the function with the trial point XP and return as FP.
 								msg += GetFValue(m_tmp.m_XP, m_tmp.m_FP, m_tmp.m_SP, callback);
-							} while (!m_tmp.m_SP.GetX().IsInit());//if no stat (bad parameters), find new vlaus
+							} while (x<10 && m_tmp.m_SP[NB_VALUE] < size_t (ceil(4.0*m_tmp.m_initial_nb_values/5.0)) );//if no stat or too much elimination of observation (bad parameters), find new parameters
 
 							//add X value to extreme XP statistic
 							for (int i = 0; i < m_tmp.m_XP.size() && i < (int)m_tmp.m_XPstat.size(); i++)
@@ -1486,7 +1492,7 @@ namespace WBSF
 				}
 
 				//  If termination criteria is not met, prepare for another loop.
-				m_tmp.PrepareForAnotherLoop(m_ctrl.RT());
+				m_tmp.PrepareForAnotherLoop(m_ctrl.m_RT, m_ctrl.m_RT2, L);
 
 				callback.PopTask();
 			} while (!bQuit&&msg);

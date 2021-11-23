@@ -117,7 +117,7 @@ namespace WBSF
 
 		if (msg && m_poCT)
 		{
-			if (!m_poCT->TransformEx(nCount, x, y, z, pabSuccess))
+			if (!m_poCT->Transform(nCount, x, y, z, pabSuccess))
 			{
 				msg.ajoute("Some points are failed in re-projection");
 			}

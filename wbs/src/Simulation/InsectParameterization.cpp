@@ -3561,7 +3561,7 @@ namespace WBSF
 			}
 
 			//  If termination criteria is not met, prepare for another loop.
-			computation.PrepareForAnotherLoop(m_ctrl.RT());
+			computation.PrepareForAnotherLoop(m_ctrl.m_RT, m_ctrl.m_RT2, L);
 
 		} while (!bQuit&&msg);
 
@@ -3715,7 +3715,9 @@ namespace WBSF
 							if (!isfinite(LL) || isnan(LL))
 								return;
 
-							log_likelyhoude += LL;
+
+							//verifier avec Jacques????????
+							log_likelyhoude += LL* m_survival[i][I_N];
 							N_likelyhoude += m_survival[i][I_N];
 						}
 						else

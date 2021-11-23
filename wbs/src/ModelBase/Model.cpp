@@ -96,8 +96,8 @@ namespace WBSF
 		m_InitSimulatedAnnealing = NULL;
 		m_GetFValue = NULL;
 
-		m_filePath.empty();
-		m_title.empty();
+		m_filePath.clear();
+		m_title.clear();
 		m_version = "1.0";
 		m_behaviour = DETERMINISTIC;
 		m_variables = "T";

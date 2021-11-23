@@ -59,6 +59,9 @@ namespace WBSF
 		DDX_Text(pDX, IDC_NB_ITERATION, m_nbIteration);
 		DDV_MinMaxInt(pDX, m_nbIteration, 1, 1000);
 		DDX_Text(pDX, IDC_T_REDUCTION, m_TReduction);
+		DDV_MinMaxDouble(pDX, m_TReduction, 0.00001, 1.0);
+		DDX_Text(pDX, IDC_T_REDUCTION2, m_TReduction2);
+		DDV_MinMaxDouble(pDX, m_TReduction2, 0.00001, 1.0);
 		DDX_Text(pDX, IDC_MAX_ELVA, m_maxEvaluation);
 		DDV_MinMaxLong(pDX, m_maxEvaluation, 1, 100000000);
 		DDX_Text(pDX, IDC_NB_ESP, m_nbEps);
@@ -97,7 +100,8 @@ namespace WBSF
 
 		m_nbCycles = (short)m_ctrl.NS();
 		m_nbIteration = (short)m_ctrl.NT();
-		m_TReduction = m_ctrl.RT();
+		m_TReduction = m_ctrl.m_RT;
+		m_TReduction2 = m_ctrl.m_RT2;
 	}
 
 	void CSimulatedAnnealingCtrlDlg::GetSACtrlFromInterface()
@@ -112,7 +116,8 @@ namespace WBSF
 		m_ctrl.SetEPS(m_errorTolerence);
 		m_ctrl.SetNS(m_nbCycles);
 		m_ctrl.SetNT(m_nbIteration);
-		m_ctrl.SetRT(m_TReduction);
+		m_ctrl.m_RT = m_TReduction;
+		m_ctrl.m_RT2 = m_TReduction2;
 
 	}
 

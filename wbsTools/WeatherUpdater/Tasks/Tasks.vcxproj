@@ -22,27 +22,27 @@
     <ProjectGuid>{96338F08-AC18-4D67-9773-F8E6EB5D8F83}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Tasks</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -180,10 +180,10 @@
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
     <ClInclude Include="QualityControl.h" />
+    <ClInclude Include="UICMIP6.h" />
     <ClInclude Include="UIQualityControl.h" />
     <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
-    <ClInclude Include="UICMIP5.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UIACIS.h" />
     <ClInclude Include="UIBC.h" />
@@ -255,10 +255,10 @@
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="QualityControl.cpp" />
+    <ClCompile Include="UICMIP6.cpp" />
     <ClCompile Include="UIQualityControl.cpp" />
     <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />
-    <ClCompile Include="UICMIP5.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

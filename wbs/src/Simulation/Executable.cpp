@@ -452,8 +452,8 @@ namespace WBSF
 	void CExecutable::Reset()
 	{
 		m_bExecute = true;
-		m_name.empty();
-		m_description.empty();
+		m_name.clear();
+		m_description.clear();
 		m_export.Reset();
 		//m_graphArray.clear();
 		m_executables.clear();

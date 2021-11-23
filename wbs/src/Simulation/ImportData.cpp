@@ -258,7 +258,7 @@ namespace WBSF
 
 		m_name = "ImportData";
 
-		m_fileName.empty();
+		m_fileName.clear();
 		m_columnLinkArray.clear();
 
 

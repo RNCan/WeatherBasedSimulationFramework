@@ -18,6 +18,7 @@
 #include "UI/Common/SYShowMessage.h"
 #include "UI/ParametersVariationsDlg.h"
 #include "WeatherBasedSimulationString.h"
+#include "ModelBase/ModelInput.h"
 
 
 #ifdef _DEBUG
@@ -36,7 +37,7 @@ namespace WBSF
 {
 	//*****************************************************************************************************
 
-	enum TParametersVariationsProperties{ PV_MIN, PV_MAX, PV_STEP, NB_PROPERTIES };
+	enum TParametersVariationsProperties { PV_MIN, PV_MAX, PV_STEP, NB_PROPERTIES };
 
 	BEGIN_MESSAGE_MAP(CParametersVariationsProperties, CMFCPropertyGridCtrl)
 		ON_WM_ENABLE()
@@ -63,6 +64,9 @@ namespace WBSF
 		CStringArrayEx propertyHeader(UtilWin::GetCString(IDS_STR_PROPERTY_HEADER));
 		m_nLeftColumnWidth = options.GetProfileInt(_T("ParametersVariationsSplitterPos"), rect.Width() / 2);
 		SetBoolLabels(UtilWin::GetCString(IDS_STR_TRUE), UtilWin::GetCString(IDS_STR_FALSE));
+
+
+
 
 		EnableHeaderCtrl(true, propertyHeader[0], propertyHeader[1]);
 		EnableDescriptionArea(false);
@@ -94,9 +98,9 @@ namespace WBSF
 
 		//if (p != m_curP)
 		{
-			
 
-			
+
+
 			for (int i = 0; i < NB_PROPERTIES; i++)
 			{
 				string str;
@@ -138,8 +142,8 @@ namespace WBSF
 		int i = (int)pProp->GetData();
 		switch (i)
 		{
-		case PV_MIN:	me.m_parametersVariations[m_curP].m_min =  ToFloat(str); break;
-		case PV_MAX:	me.m_parametersVariations[m_curP].m_max =  ToFloat(str); break;
+		case PV_MIN:	me.m_parametersVariations[m_curP].m_min = ToFloat(str); break;
+		case PV_MAX:	me.m_parametersVariations[m_curP].m_max = ToFloat(str); break;
 		case PV_STEP:	me.m_parametersVariations[m_curP].m_step = ToFloat(str); break;
 		default: ASSERT(false);
 		}
@@ -175,7 +179,7 @@ namespace WBSF
 			{
 				if (m_pSel != NULL && m_pSel->IsInPlaceEditing() != NULL && m_pSel->IsEnabled())
 				{
-					if (m_pSel->GetOptionCount()>0)
+					if (m_pSel->GetOptionCount() > 0)
 						OnSelectCombo();
 
 					EndEditItem();
@@ -232,10 +236,12 @@ namespace WBSF
 	}
 
 
-//***************************************************************************************************************************************
+	//***************************************************************************************************************************************
 
 	BEGIN_MESSAGE_MAP(CParametersVariationsDlg, CDialog)
 		ON_CBN_SELCHANGE(IDC_PV_GENERATION_TYPE, OnGeneratioTypeChange)
+		ON_CBN_SELCHANGE(IDC_PV_FROM_MODEL_INPUT, OnInitFromModelInput)
+		ON_EN_CHANGE(IDC_PV_P_RANGE, OnInitFromModelInput)
 		ON_EN_CHANGE(IDC_PV_NB_VARIATIONS, OnNbVariationChange)
 		ON_NOTIFY(TVN_SELCHANGED, IDC_PV_PARAMETERS, OnSelectionChange)
 		ON_REGISTERED_MESSAGE(WM_XHTMLTREE_CHECKBOX_CLICKED, OnCheckbox)
@@ -243,8 +249,10 @@ namespace WBSF
 		ON_WM_ENABLE()
 	END_MESSAGE_MAP()
 
-	
-	
+
+
+
+
 	CParametersVariationsDlg::CParametersVariationsDlg(CWnd* pParent /*=NULL*/, bool bShowVariationType)
 		: CDialog(CParametersVariationsDlg::IDD, pParent),
 		m_propertiesCtrl(m_parametersDefinition, m_parametersVariations)
@@ -260,6 +268,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_PV_PROPERTIES, m_propertiesCtrl);
 		DDX_Control(pDX, IDC_PV_GENERATION_TYPE, m_generationTypeCtrl);
 		DDX_Control(pDX, IDC_PV_NB_VARIATIONS, m_nbVariationsCtrl);
+		DDX_Control(pDX, IDC_PV_FROM_MODEL_INPUT, m_modelInputNameCtrl);
+		DDX_Control(pDX, IDC_PV_P_RANGE, m_percentOfCtrl);
 
 		//{
 		//	m_parametersVariations.m_variationType = m_generationTypeCtrl.GetCurSel();
@@ -271,18 +281,19 @@ namespace WBSF
 		{
 			m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
 			m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
-			
+
 			//Fill parameters
 			FillParameters();
 			//select parameters
 			SelectParameters();
 
-			//UpdateCtrl();
+			//fill model input
+			FillModelInput();
 		}
 
 	}
 
-	
+
 
 
 	BOOL CParametersVariationsDlg::OnInitDialog()
@@ -295,6 +306,12 @@ namespace WBSF
 		CPoint pt = option.GetProfilePoint(_T("ParametersVariationsDlg"), CPoint(480, 30));
 		UtilWin::EnsurePointOnDisplay(pt);
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+
+		option.SetCurrentProfile(_T("Settings"));
+		m_modelInputNameCtrl.SelectStringExact(0, option.GetProfileString(_T("PVDlgModelInput")));
+		m_percentOfCtrl.SetWindowText(option.GetProfileString(_T("PVDlgPercent"), _T("100")));
+
 
 		return TRUE;
 	}
@@ -311,6 +328,15 @@ namespace WBSF
 		m_parametersCtrl.SetPossibleValues(str);
 	}
 
+	void CParametersVariationsDlg::FillModelInput(void)
+	{
+		WBSF::StringVector list = WBSF::GetFM().ModelInput(m_model.GetExtension()).GetFilesList();
+		m_modelInputNameCtrl.FillList(list);
+
+		ASSERT(m_modelInputNameCtrl.GetCount() > 0);
+	}
+
+
 	void CParametersVariationsDlg::SelectParameters()
 	{
 		ASSERT(m_parametersVariations.size() == m_parametersDefinition.size());
@@ -324,7 +350,7 @@ namespace WBSF
 
 		//update property
 		m_propertiesCtrl.SetSelection(m_propertiesCtrl.GetSelection());
-		
+
 
 		m_generationTypeCtrl.SetCurSel((int)m_parametersVariations.m_variationType);
 		m_nbVariationsCtrl.SetString(WBSF::ToString(m_parametersVariations.m_nbVariation));
@@ -351,7 +377,7 @@ namespace WBSF
 	{
 		ASSERT(m_parametersVariations.size() == m_parametersDefinition.size());
 
-		XHTMLTREEMSGDATA *pData = (XHTMLTREEMSGDATA *)wParam;
+		XHTMLTREEMSGDATA* pData = (XHTMLTREEMSGDATA*)wParam;
 		ASSERT(pData);
 
 		if (pData->nCtrlId == IDC_PV_PARAMETERS)
@@ -394,7 +420,46 @@ namespace WBSF
 	{
 		m_parametersVariations.m_nbVariation = ToInt(m_nbVariationsCtrl.GetString());
 	}
-	
+
+	void CParametersVariationsDlg::OnInitFromModelInput()
+	{
+		ASSERT(m_parametersVariations.size() == m_parametersDefinition.size());
+
+		float p = ToFloat(m_percentOfCtrl.GetString())/100;
+		string m_modelInputName = m_modelInputNameCtrl.GetString();
+
+		CModelInput modelInput;
+		if (m_modelInputName.empty() || m_modelInputName == STRDEFAULT)
+		{
+			m_model.GetDefaultParameter(modelInput);
+		}
+		else
+		{
+			GetFM().ModelInput(m_model.GetExtension()).Get(m_modelInputName, modelInput);
+		}
+		
+		ASSERT(m_parametersVariations.size() == modelInput.size());
+
+		for (size_t i = 0; i < m_parametersVariations.size(); i++)
+		{
+			
+			if (m_parametersDefinition[i].m_type == CModelInputParameterDef::kMVInt || m_parametersDefinition[i].m_type == CModelInputParameterDef::kMVReal)
+			{
+				double pv_min = ToDouble(m_parametersDefinition[i].m_min);
+				double pv_max = ToDouble(m_parametersDefinition[i].m_max);
+				double range = (pv_max - pv_min) * p / 2;
+				m_parametersVariations[i].SetMin(std::max(pv_min, std::min(pv_max, modelInput[i].GetDouble() - range)));
+				m_parametersVariations[i].SetMax(std::max(pv_min, std::min(pv_max, modelInput[i].GetDouble() + range)));
+			}
+		}
+
+		m_propertiesCtrl.SetSelection(m_propertiesCtrl.GetSelection());
+
+		//m_model.GetModelIn.Get
+
+	}
+
+
 
 	void CParametersVariationsDlg::UpdateCtrl(void)
 	{
@@ -429,8 +494,18 @@ namespace WBSF
 		CPoint pt = rect.TopLeft();
 		option.WriteProfilePoint(_T("ParametersVariationsDlg"), pt);
 
+
+		option.SetCurrentProfile(_T("Settings"));
+		option.WriteProfileString(_T("PVDlgModelInput"), m_modelInputNameCtrl.GetWindowText());
+		option.WriteProfileString(_T("PVDlgPercent"), m_percentOfCtrl.GetWindowText());
+
+
+
+
 		CDialog::OnDestroy();
 	}
+
+
 
 	BOOL CParametersVariationsDlg::PreTranslateMessage(MSG* pMsg)
 	{
@@ -454,7 +529,7 @@ namespace WBSF
 		GetDlgItem(IDC_CMN_STATIC2)->EnableWindow(bEnable);
 		m_generationTypeCtrl.EnableWindow(bEnable);
 		m_nbVariationsCtrl.EnableWindow(bEnable);
-		
+		m_percentOfCtrl.EnableWindow(bEnable);
 
 	}
 

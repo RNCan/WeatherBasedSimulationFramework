@@ -64,8 +64,7 @@ namespace WBSF
 	{
 		CDialog::OnInitDialog();
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = option.GetProfilePoint(_T("ModelInputManager"), CPoint(30, 30));
 		UtilWin::EnsurePointOnDisplay(pt);
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
@@ -131,8 +130,7 @@ namespace WBSF
 		CRect rect;
 		GetWindowRect(rect);
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = rect.TopLeft();
 		option.WriteProfilePoint(_T("ModelInputManager"), pt);
 
@@ -375,8 +373,7 @@ namespace WBSF
 	{
 		CDialog::OnInitDialog();
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = option.GetProfilePoint(_T("WGInputManager"), CPoint(30, 30));
 		UtilWin::EnsurePointOnDisplay(pt);
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
@@ -443,8 +440,7 @@ namespace WBSF
 		CRect rect;
 		GetWindowRect(rect);
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = rect.TopLeft();
 		option.WriteProfilePoint(_T("WGInputManager"), pt);
 
@@ -684,6 +680,7 @@ namespace WBSF
 		SetStandardButtons(AFX_VSLISTBOX_BTN_NEW | AFX_VSLISTBOX_BTN_DELETE | AFX_VSLISTBOX_BTN_COPY | AFX_VSLISTBOX_BTN_EDIT | AFX_VSLISTBOX_BTN_SET_DEFAULT);
 		OnInitList();
 
+		m_pPVDDlg->m_model = m_model;
 		m_pPVDDlg->m_parametersDefinition = m_model.GetInputDefinition(true);
 		m_pPVDDlg->m_parametersVariations = m_pPVDDlg->m_parametersDefinition.GetParametersVariations();
 		m_pPVDDlg->Create(CParametersVariationsDlg::IDD, this);
@@ -849,8 +846,7 @@ namespace WBSF
 	{
 		CDialog::OnInitDialog();
 
-		CAppOption option;
-		option.SetCurrentProfile(_T("WindowsPosition"));
+		CAppOption option(_T("WindowsPosition"));
 		CPoint pt = option.GetProfilePoint(_T("PVDManager"), CPoint(30, 30));
 		UtilWin::EnsurePointOnDisplay(pt);
 		SetWindowPos(NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);

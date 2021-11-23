@@ -21,12 +21,12 @@ namespace WBSF
 			Allahyari_2005 = FIRST_EQUATIONS, Analytis_1977, Angilletta_2006, Bieri_1983, Briere1_1999, Briere2_1999, Damos_2008, Damos_2011,
 			Deutsch_2008, DevaHiggis, Hansen_2011, HilbertLogan_1983, HilbertLoganIII, HueyStevenson_1979,
 			Janisch1_1932, Janisch2_1932, Johnson_1974, Kontodimas_2004, Lactin1_1995, Lactin2_1995,
-			Lamb_1992, Lobry_Rosso_Flandrois_1993, Logan6_1976, Logan10_1976, LoganTb,
+			Lamb_1992, Lobry_Rosso_Flandrois_1993, Logan6_1976, Logan10_1976, LoganTb_1979,
 			ONeill_1972, Poly1, Poly2, Poly3, Poly4, Pradham_1946,
 			Ratkowsky_1983, Regniere_1982, Regniere_1987, Regniere_2012, Room_1986,
 			SaintAmant_2021, Schoolfield_1981, SharpeDeMichele_1977, Shi_2011, Shi_2016, Stinner_1974,
 			Taylor_1981, Wagner_1988, WangLanDing_1982, WangEngel_1998, YanHunt_1999, Yin_1995,
-			NB_EQUATIONS
+			NB_EQUATIONS, Boatman_2017= NB_EQUATIONS
 		};
 
 

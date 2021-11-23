@@ -159,7 +159,7 @@ template < typename T, typename U >
 std::map< U, T > converse_map( std::map< T, U > const & o )
 {
 	std::map< U, T > result;
-	for ( typename map< T, U >::const_iterator begin( o.begin() );begin != o.end(); ++begin )
+	for ( typename std::map< T, U >::const_iterator begin( o.begin() );begin != o.end(); ++begin )
 		result.insert( make_pair( begin->second, begin->first ) );
 
 	return result;
@@ -435,22 +435,7 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return ss.str();
 	}
 
-	template <class T> inline
-		std::string to_string(const T& v, const std::string& sep, const std::string& begin="", const std::string& end="")
-	{
-		std::string str = begin;
-		for (typename T::const_iterator it = v.begin(); it != v.end(); it++)
-		{
-			if (it != v.begin())
-				str += sep;
-			str += WBSF::ToString(*it);
-		}
-
-		str += end;
-
-		return str;
-	}
-
+	
 	template <typename U, class T=std::vector<U>> inline
 		T to_object(const std::string& str, const std::string& sep, const std::string& be = "", const std::string& en = "")
 	{
@@ -616,6 +601,23 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 		return str;
 	}
+
+	template <class T> inline
+		std::string to_string(const T& v, const std::string& sep, const std::string& begin = "", const std::string& end = "")
+	{
+		std::string str = begin;
+		for (typename T::const_iterator it = v.begin(); it != v.end(); it++)
+		{
+			if (it != v.begin())
+				str += sep;
+			str += WBSF::ToString(*it);
+		}
+
+		str += end;
+
+		return str;
+	}
+
 
 	inline StringStringMap ToStringStringMap(const std::string& str)
 	{

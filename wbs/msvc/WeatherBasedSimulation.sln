@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -25,6 +25,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RangerLib", "RangerLib.vcxproj", "{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simulation", "Simulation.vcxproj", "{4B930370-8BF8-4E89-A3E7-0741999F8EE5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WBSF_UnitTest", "..\test\WBSF_UnitTest.vcxproj", "{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,14 @@ Global
 		{4B930370-8BF8-4E89-A3E7-0741999F8EE5}.Release|Win32.Build.0 = Release|Win32
 		{4B930370-8BF8-4E89-A3E7-0741999F8EE5}.Release|x64.ActiveCfg = Release|x64
 		{4B930370-8BF8-4E89-A3E7-0741999F8EE5}.Release|x64.Build.0 = Release|x64
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Debug|Win32.Build.0 = Debug|Win32
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Debug|x64.ActiveCfg = Debug|x64
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Debug|x64.Build.0 = Debug|x64
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Release|Win32.ActiveCfg = Release|Win32
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Release|Win32.Build.0 = Release|Win32
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Release|x64.ActiveCfg = Release|x64
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +121,7 @@ Global
 		{10ADF16A-32E2-423C-A953-D04248A0A0EE} = {DB2560E7-8309-4CA3-A774-2408E85678AB}
 		{EFC46CE3-08E3-4C5F-B33E-C127677C7E5B} = {972DF664-C2A8-4147-8EBC-FA39AD66B2B5}
 		{4B930370-8BF8-4E89-A3E7-0741999F8EE5} = {972DF664-C2A8-4147-8EBC-FA39AD66B2B5}
+		{CA3AC80D-83A2-4381-95AD-D2C712AF1C12} = {972DF664-C2A8-4147-8EBC-FA39AD66B2B5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {55885038-37D1-48A3-B762-3C8F54F3FE90}

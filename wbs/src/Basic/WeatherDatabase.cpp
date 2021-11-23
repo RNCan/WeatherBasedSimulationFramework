@@ -41,6 +41,10 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
+	//global variable to find azure_dll
+	std::string CWeatherDatabase::m_azure_dll_filepath;
+
+
 	ERMsg CWeatherDatabase::ClearSearchOpt(const std::string& filePath)
 	{
 		ERMsg msg;
@@ -927,7 +931,7 @@ namespace WBSF
 				//this station have data file
 				size_t p = 0;
 				const CWeatherYearSectionMap& section = it2->second;
-				section.find(year);
+				//section.find(year);
 				for (CWeatherYearSectionMap::const_iterator it3 = section.begin(); it3 != section.end(); it3++)
 				{
 					if (year == YEAR_NOT_INIT || it3->first == year)
@@ -1032,22 +1036,24 @@ namespace WBSF
 		if (m_hDll == nullptr)
 		{
 			string filePath = GetApplicationPath() + "External\\azure_weather.dll";
+			if (!m_azure_dll_filepath.empty())
+				filePath = m_azure_dll_filepath;
 
 			//load the dll.
 			m_hDll = LoadLibrary(convert(filePath).c_str());
 
-			if (m_hDll == nullptr)
-			{
-				filePath = "azure_weather.dll";
-				m_hDll = LoadLibrary(convert(filePath).c_str());
-			}
+			//if (m_hDll == nullptr)
+			//{
+			//	filePath = "azure_weather.dll";
+			//	m_hDll = LoadLibrary(convert(filePath).c_str());
+			//}
 
-			//if not working try default path
-			if (m_hDll == nullptr)
-			{
-				filePath = GetApplicationPath() + "azure_weather.dll";
-				m_hDll = LoadLibrary(convert(filePath).c_str());
-			}
+			////if not working try default path
+			//if (m_hDll == nullptr)
+			//{
+			//	filePath = GetApplicationPath() + "azure_weather.dll";
+			//	m_hDll = LoadLibrary(convert(filePath).c_str());
+			//}
 
 
 			if (m_hDll != nullptr)
@@ -2264,7 +2270,7 @@ namespace WBSF
 			if (searchResultArray.empty())
 			{
 				string filterName = filter.GetVariablesName('+');
-				string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), GetFileName(m_filePath), ToString(year), filterName);
+				string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION2, ToString(searchRadius / 1000, 1), string(m_filePath.empty() ? " " : GetFileName(m_filePath)), ToString(year), filterName);
 				msg.ajoute(error);
 			}
 		}
@@ -2383,7 +2389,7 @@ namespace WBSF
 				out.push(file);
 				std::ostream outcoming(&out);
 
-				//save coordinate and search optimisation
+				//save coordinate and search optimization
 				size_t version = GetVersion();
 				outcoming.write((char*)(&version), sizeof(version));
 				outcoming << *this;
@@ -2494,6 +2500,7 @@ namespace WBSF
 				if (version == GetVersion())
 				{
 					incoming >> *this;
+					m_filePath = file_path;
 				}
 				else
 				{
