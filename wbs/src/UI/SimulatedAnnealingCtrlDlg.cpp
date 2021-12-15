@@ -56,6 +56,7 @@ namespace WBSF
 		DDX_Text(pDX, IDC_ERROR_TOLERENCE, m_errorTolerence);
 		DDX_Text(pDX, IDC_NB_CYCLES, m_nbCycles);
 		DDV_MinMaxInt(pDX, m_nbCycles, 1, 1000);
+		DDX_Text(pDX, IDC_NB_SKIP_LOOP, m_nbSkipLoop);
 		DDX_Text(pDX, IDC_NB_ITERATION, m_nbIteration);
 		DDV_MinMaxInt(pDX, m_nbIteration, 1, 1000);
 		DDX_Text(pDX, IDC_T_REDUCTION, m_TReduction);
@@ -98,10 +99,11 @@ namespace WBSF
 		m_initialTemperature = m_ctrl.T();
 		m_errorTolerence = m_ctrl.EPS();
 
-		m_nbCycles = (short)m_ctrl.NS();
-		m_nbIteration = (short)m_ctrl.NT();
+		m_nbCycles = m_ctrl.m_NS;
+		m_nbIteration = m_ctrl.m_NT;
 		m_TReduction = m_ctrl.m_RT;
 		m_TReduction2 = m_ctrl.m_RT2;
+		m_nbSkipLoop = m_ctrl.m_nbSkipLoop;
 	}
 
 	void CSimulatedAnnealingCtrlDlg::GetSACtrlFromInterface()
@@ -114,10 +116,11 @@ namespace WBSF
 
 		m_ctrl.SetT(m_initialTemperature);
 		m_ctrl.SetEPS(m_errorTolerence);
-		m_ctrl.SetNS(m_nbCycles);
-		m_ctrl.SetNT(m_nbIteration);
+		m_ctrl.m_NS = m_nbCycles;
+		m_ctrl.m_NT = m_nbIteration;
 		m_ctrl.m_RT = m_TReduction;
 		m_ctrl.m_RT2 = m_TReduction2;
+		m_ctrl.m_nbSkipLoop = m_nbSkipLoop;
 
 	}
 

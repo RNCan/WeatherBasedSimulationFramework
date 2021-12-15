@@ -1,2 +1,0 @@
-release data can be download from here:
-ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Sources/ReleaseData.7z

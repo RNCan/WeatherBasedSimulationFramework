@@ -658,7 +658,9 @@ namespace WBSF
 
 		CDataWindowPtr GetWindow(size_t layer, int x, int y, int XSize, int YSize)const
 		{
-			return GetWindow(layer, CGeoRectIndex(x - XSize / 2, y - YSize / 2, x + (XSize - 1) / 2 + 1, y + (YSize - 1) / 2 + 1));
+			//return GetWindow(layer, CGeoRectIndex(x - XSize / 2, y - YSize / 2, x + (XSize - 1) / 2 + 1, y + (YSize - 1) / 2 + 1));
+			//return GetWindow(layer, CGeoRectIndex(x-XSize / 2, y - YSize / 2, XSize, YSize));
+			return GetWindow(layer, CGeoRectIndex(x, y, XSize, YSize));
 		}
 
 		CDataWindowPtr GetWindow(size_t layer, int x, int y, int size)const

@@ -24,7 +24,7 @@ namespace WBSF
 	class CSAControl
 	{
 	public:
-		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_MEMBER };
+		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_SKIP_LOOP, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -71,16 +71,16 @@ namespace WBSF
 
 		void SetMax(bool bMax) { m_bMax = bMax; }
 
-		double RT()const { return m_RT; }
-		void SetRT(double RT) { m_RT = RT; }
+		//double RT()const { return m_RT; }
+		//void SetRT(double RT) { m_RT = RT; }
 		double EPS()const { return m_EPS; }
 		void SetEPS(double EPS) { m_EPS = EPS; }
 		//double deltaVar()const{	return m_deltaVar; }
 		//void SetdeltaVar(double EPS)	{ m_deltaVar = EPS; }
-		long NS()const { return m_NS; }
-		void SetNS(long NS) { m_NS = NS; }
-		long NT()const { return m_NT; }
-		void SetNT(long NT) { m_NT = NT; }
+		//long NS()const { return m_NS; }
+		//void SetNS(long NS) { m_NS = NS; }
+		//long NT()const { return m_NT; }
+		//void SetNT(long NT) { m_NT = NT; }
 		long NEPS()const { return m_NEPS; }
 		void SetNEPS(long NEPS) { m_NEPS = NEPS; }
 		long MAXEVL()const { return m_MAXEVL; }
@@ -105,12 +105,13 @@ namespace WBSF
 		double m_EPS;
 		long m_NS;
 		long m_NT;
+		//long m_NT2;
 		long m_NEPS;
 		long m_MAXEVL;
 		long m_seed1;
 		long m_seed2;
 		double m_T;
-
+		long m_nbSkipLoop;
 
 	protected:
 
@@ -354,6 +355,7 @@ namespace zen
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](in.m_MAXEVL);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED1)](in.m_seed1);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED2)](in.m_seed2);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_SKIP_LOOP)](in.m_nbSkipLoop);
 
 	}
 
@@ -376,6 +378,7 @@ namespace zen
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](out.m_MAXEVL);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED1)](out.m_seed1);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED2)](out.m_seed2);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_SKIP_LOOP)](out.m_nbSkipLoop);
 
 
 		return true;

@@ -784,8 +784,8 @@ namespace WBSF
 
 	void CNormalFromDaily::Reset()
 	{
-		m_inputDBFilePath.empty();
-		m_outputDBFilePath.empty();
+		m_inputDBFilePath.clear();
+		m_outputDBFilePath.clear();
 
 		m_firstYear = 1981;
 		m_lastYear = 2010;
@@ -794,7 +794,7 @@ namespace WBSF
 
 		//climatic change section
 		m_bApplyCC = false;
-		m_inputMMGFilePath.empty();
+		m_inputMMGFilePath.clear();
 		m_firstRefYear = 1981;
 		m_nbRefYears = 30;
 		for (size_t i = P_1991_2020; i < NB_CC_PERIODS; i++)

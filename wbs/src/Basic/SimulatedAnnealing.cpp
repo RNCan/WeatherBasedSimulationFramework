@@ -16,7 +16,6 @@
 #include "Basic/SimulatedAnnealing.h"
 
 using namespace std;
-//using namespace VITALENGINE;
 
 
 namespace WBSF
@@ -24,7 +23,7 @@ namespace WBSF
 
 	//*****************************************************************
 	const char* CSAControl::XML_FLAG = "Control";
-	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "NbCycles", "NbIterations", "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2" };
+	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "NbCycles", "NbIterations",  "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2", "nbSkipLoop"};
 
 
 	CSAControl::CSAControl()
@@ -57,6 +56,7 @@ namespace WBSF
 		m_T = 100;
 		m_statisticType = RSS;
 		m_missing = DBL_MAX;
+		m_nbSkipLoop = 0;
 	}
 
 	CSAControl& CSAControl::operator=(const CSAControl& in)
@@ -75,6 +75,7 @@ namespace WBSF
 			m_seed2 = in.m_seed2;
 			m_T = in.m_T;
 			m_statisticType = in.m_statisticType;
+			m_nbSkipLoop = in.m_nbSkipLoop;
 		}
 
 		ASSERT(in == *this);
@@ -93,11 +94,13 @@ namespace WBSF
 		if (fabs(m_EPS - in.m_EPS) > 0.00000001) bEqual = false;
 		if (m_NS != in.m_NS) bEqual = false;
 		if (m_NT != in.m_NT) bEqual = false;
+
 		if (m_NEPS != in.m_NEPS) bEqual = false;
 		if (m_MAXEVL != in.m_MAXEVL) bEqual = false;
 		if (m_seed1 != in.m_seed1) bEqual = false;
 		if (m_seed2 != in.m_seed2) bEqual = false;
 		if (m_statisticType != in.m_statisticType) bEqual = false;
+		if (m_nbSkipLoop != in.m_nbSkipLoop) bEqual = false;
 
 		return bEqual;
 	}
@@ -118,6 +121,7 @@ namespace WBSF
 		case REDUCTION_FACTOR2:str = ToString(m_RT2); break;
 		case EPSILON:str = ToString(m_EPS, -1); break;
 		case NB_CYCLE:str = ToString(m_NS); break;
+		case NB_SKIP_LOOP:str = ToString(m_nbSkipLoop); break;
 		case NB_ITERATION:str = ToString(m_NT); break;
 		case NB_EPSILON:str = ToString(m_NEPS); break;
 		case MAX_EVALUATION:str = ToString(m_MAXEVL); break;
@@ -142,6 +146,7 @@ namespace WBSF
 		case REDUCTION_FACTOR2:m_RT2 = ToDouble(str); break;
 		case EPSILON: m_EPS = ToDouble(str); break;
 		case NB_CYCLE: m_NS = ToInt(str); break;
+		case NB_SKIP_LOOP: m_nbSkipLoop = ToInt(str); break;
 		case NB_ITERATION:m_NT = ToInt(str); break;
 		case NB_EPSILON:m_NEPS = ToInt(str); break;
 		case MAX_EVALUATION:m_MAXEVL = ToInt(str); break;

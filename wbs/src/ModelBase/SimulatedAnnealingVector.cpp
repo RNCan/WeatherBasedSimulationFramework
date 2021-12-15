@@ -146,7 +146,7 @@ namespace WBSF
 					}
 					else
 					{
-						msg.ajoute("Unable to find location with ID = " + name);
+						msg.ajoute("Unable to find location (base on field \""+ loop.Header()[fieldPos] +"\") with ID = " + name);
 						msg.ajoute(loop->GetLastLine());
 					}
 				}

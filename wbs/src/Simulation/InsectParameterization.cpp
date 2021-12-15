@@ -3401,12 +3401,14 @@ namespace WBSF
 			long NDOWN = 0;
 			long LNOBDS = 0;
 
-			for (int M = 0; M < m_ctrl.NT() && msg; M++)
+			int NT = L <= m_ctrl.m_nbSkipLoop ? 2 : m_ctrl.m_NT;
+			for (int M = 0; M < NT && msg; M++)
 			{
 				vector<int> NACP;
 				NACP.insert(NACP.begin(), computation.m_X.size(), 0);
 
-				for (size_t j = 0; j < m_ctrl.NS() && msg; j++)
+				int NS = L <= m_ctrl.m_nbSkipLoop ? 2 : m_ctrl.m_NS;
+				for (size_t j = 0; j < NS && msg; j++)
 				{
 
 					for (size_t h = 0; h < NACP.size() && msg; h++)
@@ -3522,7 +3524,8 @@ namespace WBSF
 				ASSERT(computation.m_VM.size() == NACP.size());
 				for (int I = 0; I < computation.m_VM.size(); I++)
 				{
-					double RATIO = double(NACP[I]) / double(m_ctrl.NS());
+					double RATIO = double(NACP[I]) / double(m_ctrl.m_NS);///????? a vérifier??? m_ctrl.m_NS ou NS???
+					//double RATIO = double(NACP[I]) / double(m_ctrl.NS());
 					if (RATIO > 0.6)
 					{
 						computation.m_VM[I] = computation.m_VM[I] * (1. + computation.m_C[I] * (RATIO - .6) / .4);
@@ -3594,7 +3597,7 @@ namespace WBSF
 				{
 					if (WBSF::IsEqualNoCase(m_devTime[i].m_variable, var))
 					{
-						if (bLogLikelyhoude)//use likelyhood method
+						if (bLogLikelyhoude)//use likelihood method
 						{
 							double LL = 0;
 
@@ -3636,8 +3639,8 @@ namespace WBSF
 								if (!isfinite(mean_time) || isnan(mean_time))
 									return;
 
-								double obs = 1 / m_devTime[i][I_MEAN_TIME];//apply the same aproximation
-								double sim = 1 / mean_time;//apply the same aproximation
+								double obs = 1 / m_devTime[i][I_MEAN_TIME];//apply the same approximation
+								double sim = 1 / mean_time;//apply the same approximation
 
 								for (size_t n = 0; n < m_devTime[i][I_N]; n++)
 									stat.Add(sim, obs);

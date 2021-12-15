@@ -83,6 +83,7 @@
 #define IDC_GRAPH_SHOW_LEGEND           1007
 #define IDC_SIM_MODELINPUT_EDITOR       1007
 #define IDC_TRANSFO_LOG                 1007
+#define IDC_NB_CYCLES2                  1007
 #define IDC_CMN_STEP_PROGRESS           1008
 #define IDC_LP_FORM_SIZE                1008
 #define IDC_MAP_IWD_MODEL               1008
@@ -92,6 +93,7 @@
 #define IDC_SIM_TGINPUT                 1008
 #define IDC_TRANSFO_LOGIT               1008
 #define IDC_SIM_MODEL_OUTPUT            1008
+#define IDC_NB_ITERATION2               1008
 #define IDC_CMN_STEP_MESSAGE            1009
 #define IDC_LP_FORM_SIZE2               1009
 #define IDC_MAP_EXTERNAL_DRIFT          1009
@@ -617,6 +619,7 @@
 #define IDC_OPTION_LAYER_PROPERTIES     1313
 #define IDC_PV_P_RANGE                  1315
 #define IDC_PV_FROM_MODEL_INPUT         1316
+#define IDC_NB_SKIP_LOOP                1317
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -982,7 +985,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1317
+#define _APS_NEXT_CONTROL_VALUE         1318
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

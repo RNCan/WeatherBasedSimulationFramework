@@ -439,6 +439,15 @@ namespace WBSF
 			computation.m_C[i] = 2;
 			computation.m_VM[i] = computation.m_bounds[i].GetExtent();
 
+
+			/*if (true)
+			{
+				computation.m_VM[i] = computation.m_bounds[i].GetExtent() / m_ctrl.m_NS2;
+			}*/
+				//computation.m_VM[i] = computation.m_VM[i] / (1. + computation.m_C[i] * ((.4 - RATIO) / .4));
+
+
+
 			//If the initial value is out of bounds, notify the user and return
 			//to the calling routine.
 			if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
@@ -910,7 +919,7 @@ namespace WBSF
 					inputFile.close();
 
 					string str = inStream.str();
-					*pGlobalDataStream = new TGenericStream((DWORD)str.size()+10000);//CreateGenericStream();
+					*pGlobalDataStream = new TGenericStream((DWORD)str.size());//CreateGenericStream();
 					(*pGlobalDataStream)->Write(str.c_str(), (DWORD)str.size());
 				}
 
@@ -928,7 +937,7 @@ namespace WBSF
 
 		NB_GET_DATA++;
 		IGenericStream** stream = (IGenericStream**)streamIn;
-		(*stream) = *stream = new TGenericStream(10000000);//CreateGenericStream();
+		(*stream) = *stream = new TGenericStream(10000);//CreateGenericStream();
 
 		BYTE* pBase = gSession.m_pGlobalDataStream->GetBasePointer();
 		DWORD length = gSession.m_pGlobalDataStream->GetLength();
@@ -939,7 +948,7 @@ namespace WBSF
 	void* CModelParameterization::CreateStream(__int32 sessionID, unsigned __int64 i, const vector<double>& X)
 	{
 		//Get info stream in XML
-		IGenericStream* inStream = new TGenericStream(10000000); //CreateGenericStream();
+		IGenericStream* inStream = new TGenericStream(10000); //CreateGenericStream();
 
 
 		inStream->Write(&sessionID, sizeof(sessionID));
@@ -978,7 +987,7 @@ namespace WBSF
 #pragma omp critical  
 				{
 					inStream = (IGenericStream*)CreateStream(gSession.m_sessionId, i, X);
-					outStream = new TGenericStream(10000000); //CreateGenericStream();
+					outStream = new TGenericStream(10000); //CreateGenericStream();
 				}
 
 				if (!RunSimulatedAnnealing(inStream, outStream))
@@ -1316,7 +1325,7 @@ namespace WBSF
 
 
 
-				callback.PushTask("Search optimum. Loop = " + ToString(L), m_ctrl.NT()*m_ctrl.NS()*m_tmp.m_X.size());
+				callback.PushTask("Search optimum. Loop = " + ToString(L), m_ctrl.m_NT*m_ctrl.m_NS*m_tmp.m_X.size());
 				//callback.SetNbStep(m_ctrl.NT()*m_ctrl.NS()*m_tmp.m_X.size());
 
 				long NUP = 0;
@@ -1329,14 +1338,16 @@ namespace WBSF
 				//for(size_t i=0; i<m_tmp.m_VMstat.size(); i++)
 					//m_tmp.m_VMstat[i].Reset();
 
-				for (int M = 0; M < m_ctrl.NT() && msg; M++)
+				int NT = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NT;
+				for (int M = 0; M < NT && msg; M++)
 				{
 					OnStartIteration(L, M, callback);
 
-					vector<int> NACP;//(m_tmp.m_X.size());
+					vector<int> NACP;
 					NACP.insert(NACP.begin(), m_tmp.m_X.size(), 0);
 
-					for (int J = 0; J < m_ctrl.NS() && msg; J++)
+					int NS = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NS;
+					for (int J = 0; J < NS && msg; J++)
 					{
 						OnStartCycle(L, M, J, callback);
 
@@ -1361,7 +1372,6 @@ namespace WBSF
 
 							size_t x = 0;
 							do
-							//for(size_t x=0; x<10&& m_tmp.m_SP[NB_VALUE] < size_t(ceil(4.0 * m_tmp.m_initial_nb_values / 5.0)); x++)
 							{
 								//  Generate XP, the trial value of X. Note use of VM to choose XP.
 								for (int I = 0; I < m_tmp.m_X.size(); I++)
@@ -1457,7 +1467,8 @@ namespace WBSF
 					ASSERT(m_tmp.m_VM.size() == NACP.size());
 					for (int I = 0; I < m_tmp.m_VM.size(); I++)
 					{
-						double RATIO = double(NACP[I]) / double(m_ctrl.NS());
+						double RATIO = double(NACP[I]) / double(m_ctrl.m_NS);///????? a vérifier???
+						//double RATIO = double(NACP[I]) / double(NS);
 						if (RATIO > 0.6)
 						{
 							m_tmp.m_VM[I] = m_tmp.m_VM[I] * (1. + m_tmp.m_C[I] * (RATIO - .6) / .4);

@@ -42,8 +42,9 @@ namespace WBSF
 		CString	m_inputFilePath;
 		double	m_initialTemperature;
 		double	m_errorTolerence;
-		short	m_nbCycles;
-		short	m_nbIteration;
+		int	m_nbCycles;
+		int	m_nbIteration;
+		int	m_nbSkipLoop;
 		double	m_TReduction;
 		double  m_TReduction2;
 		long	m_maxEvaluation;

@@ -2,6 +2,7 @@
 // version de BioSIM
 // 11.8.4:19/11/2021	Rémi Saint-Amant	Add set variation from model input
 //											Add second reduction factor in SA and avoid observation reduction
+//											Add skip loops in Simulated Annealing
 // 11.8.3:07/09/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 11.8.2:02/08/2021	Rémi Saint-Amant	BioSIM compile with dll version of VC and MFC
 // 11.8.1:16/06/2021	Rémi Saint-Amant	Grid row sizing for high resolution
@@ -12,8 +13,8 @@
 // 11.7.2:10/02/2021	Rémi Saint-Amant	Order of parameter in survival change
 //											Add oviposition curve fit
 // 11.7.1:04/02/2021	Rémi Saint-Amant	New parametrization of insect development time. Support likelihood and least square
-//											for individuals ansd mean+sd+n
-// 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fiting Developement time and survival. 
+//											for individuals and mean+sd+n
+// 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fitting development time and survival. 
 //											Bug correction for variogram Cubic, Pentaspherical, Sine hole effect
 //											Change lower and upper bound and initial values for variogram Power
 //											Change in search radius in BobyQA (variagram)
@@ -21,10 +22,10 @@
 //											Add min/max/step options for variogram search
 // 11.6.8:13/07/2020	Rémi Saint-Amant	Bug correction in elevation web extraction
 //											Add locale directory when download weather database
-// 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generade new random seed for each location/WGreplications
-//											Change defaut random seed for ModelsExecution by Random/Random
+// 11.6.7:02/06/2020	Rémi Saint-Amant	Add possibility to generate new random seed for each location/WGreplications
+//											Change default random seed for ModelsExecution by Random/Random
 // 11.6.6:18/03/2020	Rémi Saint-Amant	Bug correction with ftp download
-//											Bug correction with special path in input paramters
+//											Bug correction with special path in input parameters
 // 11.6.5:04/03/2020	Rémi Saint-Amant	Bug correction Download Weather in French
 //											Add legend with ordinal date
 //											Legend in selected language
