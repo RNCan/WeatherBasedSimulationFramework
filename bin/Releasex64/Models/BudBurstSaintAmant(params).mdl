@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstSaintAmant</Title>
+    <Version>1.0</Version>
+    <ID>.RSA</ID>
+    <EXE>BudBurstSaintAmant.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 906 859</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 265</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>To</Name>
+            <Caption>To</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 10 65 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>244</DefaultValue>
+            <MinValue>244</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Tlow</Name>
+            <Caption>Tlow</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 170 65 340</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>-0.1</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Thigh</Name>
+            <Caption>Thigh</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 355 70 505</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>26.7</DefaultValue>
+            <MinValue>15</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CUcrit</Name>
+            <Caption>CUcrit</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 510 65 660</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1315</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>slp</Name>
+            <Caption>slp</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 175 100 325</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.29</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>T50</Name>
+            <Caption>T50</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>80 15 100 165</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>9</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FUcrit</Name>
+            <Caption>FUcrit</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 355 95 505</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>57</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_days</Name>
+            <Caption>S_in_days</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>155 25 180 175</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>7</MinValue>
+            <MaxValue>35</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_psi</Name>
+            <Caption>S_in_psi</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 200 170 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>110</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_mu_T</Name>
+            <Caption>S_in_mu_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 360 170 510</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>19.7</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_sigma_T</Name>
+            <Caption>S_in_sigma_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 530 170 680</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>2.6</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_days</Name>
+            <Caption>S_out_days</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>185 25 205 175</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>7</DefaultValue>
+            <MinValue>7</MinValue>
+            <MaxValue>35</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_psi</Name>
+            <Caption>S_out_psi</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 195 200 345</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>456</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>110</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_mu_T</Name>
+            <Caption>S_out_mu_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 360 200 510</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>19.5</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_sigma_T</Name>
+            <Caption>S_out_sigma_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 530 200 680</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_0</Name>
+            <Caption>S_0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 135 135 285</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>20</DefaultValue>
+            <MinValue>5</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_days</Name>
+            <Caption>St_in_days</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>275 20 295 165</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>7</MinValue>
+            <MaxValue>35</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_psi</Name>
+            <Caption>St_in_psi</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>275 185 295 335</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>52</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>110</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_mu_T</Name>
+            <Caption>St_in_mu_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 375 300 525</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>6.1</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_sigma_T</Name>
+            <Caption>St_in_sigma_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 535 300 685</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>9.7</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_days</Name>
+            <Caption>St_out_days</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 20 340 170</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>25</DefaultValue>
+            <MinValue>7</MinValue>
+            <MaxValue>35</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_psi</Name>
+            <Caption>St_out_psi</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 185 340 335</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>110</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_mu_PS</Name>
+            <Caption>St_out_mu_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>345 375 365 525</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>-0.06330</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_sigma_PS</Name>
+            <Caption>St_out_sigma_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>345 535 365 685</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>0.0464</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_mu_T</Name>
+            <Caption>St_out_mu_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>310 375 330 525</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_out_sigma_T</Name>
+            <Caption>St_out_sigma_T</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>310 535 330 685</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>3.77</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_0</Name>
+            <Caption>St_0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>230 125 250 275</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>5</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu_SDI</Name>
+            <Caption>mu_SDI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>440 370 460 520</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>5.08</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma_SDI</Name>
+            <Caption>sigma_SDI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>440 545 460 690</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.39</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_mu_PS</Name>
+            <Caption>S_out_mu_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>210 360 230 510</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_out_sigma_PS</Name>
+            <Caption>S_out_sigma_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>210 530 230 680</Rect>
+            <SeparatorPos>95</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_mu_PS</Name>
+            <Caption>S_in_mu_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>115 365 140 515</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_in_sigma_PS</Name>
+            <Caption>S_in_sigma_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>120 535 140 685</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_mu_PS</Name>
+            <Caption>St_in_mu_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 375 275 525</Rect>
+            <SeparatorPos>85</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_in_sigma_PS</Name>
+            <Caption>St_in_sigma_PS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 535 270 685</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a3</Name>
+            <Caption>a3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>824 10 846 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SDI_Type</Name>
+            <Caption>SDI_Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 280 30 495</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S_conc</Name>
+            <Title>S_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Glucose+Fructode+Sucrose (GFS) concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St_conc</Name>
+            <Title>St_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Starch concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CU</Name>
+            <Title>CU</Title>
+            <Units>CU</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FU</Name>
+            <Title>FU</Title>
+            <Units>FU</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PS</Name>
+            <Title>PS</Title>
+            <Units>g</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Dynamic Modeling of Carbon Metabolism During the Dormant Period Accurately Predicts the Changes in Frost Hardiness in Walnut,Charrier 2018</Credit>
+    <HelpFileName/>
+</Model>

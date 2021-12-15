@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstSBWHost</Title>
+    <Version>1.0</Version>
+    <ID>.new</ID>
+    <EXE>BudBurstNew.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 906 859</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>To</Name>
+            <Caption>To</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 10 65 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>244</DefaultValue>
+            <MinValue>244</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Tlow</Name>
+            <Caption>Tlow</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 170 65 340</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>3.1</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Thigh</Name>
+            <Caption>Thigh</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 355 70 505</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>26.7</DefaultValue>
+            <MinValue>15</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CUcrit</Name>
+            <Caption>CUcrit</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 510 65 660</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>2298.8</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>slp</Name>
+            <Caption>slp</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>95 180 115 330</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.244</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>T50</Name>
+            <Caption>T50</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>95 15 115 165</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>13.46</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FUcrit</Name>
+            <Caption>FUcrit</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>90 355 110 505</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>21.5</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu1c</Name>
+            <Caption>mu1c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 10 170 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma1c</Name>
+            <Caption>sigma1c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 175 170 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>7.7</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>25</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>k1c_trans</Name>
+            <Caption>k1c_trans</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 335 165 485</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.0997</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>dendo1c</Name>
+            <Caption>dendo1c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 495 165 645</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.0888</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>deco1c</Name>
+            <Caption>deco1c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 655 165 805</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.0795</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu1m</Name>
+            <Caption>mu1m</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 10 200 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>19.7</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma1m</Name>
+            <Caption>sigma1m</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>175 175 195 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2.6</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>25</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>k1m_trans</Name>
+            <Caption>k1m_trans</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 335 200 485</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>-0.00704</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>dendo1m</Name>
+            <Caption>dendo1m</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 495 200 645</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>-0.018</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>deco1m</Name>
+            <Caption>deco1m</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 655 200 805</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>3.26</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu2</Name>
+            <Caption>mu2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 10 245 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>40</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma2</Name>
+            <Caption>sigma2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 170 245 320</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>3.77</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>25</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>k2_trans</Name>
+            <Caption>k2_trans</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 335 245 485</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.0464</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>dendo2</Name>
+            <Caption>dendo2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 495 245 645</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>-0.06330</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>deco2</Name>
+            <Caption>deco2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 660 245 810</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.856</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Q10</Name>
+            <Caption>Q10</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 10 300 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a3</Name>
+            <Caption>a3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 175 300 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b3</Name>
+            <Caption>b3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>275 335 295 485</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Rmax</Name>
+            <Caption>Rmax</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>270 495 290 645</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>muSDI</Name>
+            <Caption>muSDI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 10 340 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>3.33</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigmaSDI</Name>
+            <Caption>sigmaSDI</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 175 340 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1.22</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>GFS0</Name>
+            <Caption>GFS0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>350 10 370 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>20</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Starch0</Name>
+            <Caption>Starch0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>355 175 375 325</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Var_eval</Name>
+            <Caption>Var_eval</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>395 15 415 355</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>D0</Name>
+            <Caption>D0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>435 10 460 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>D1</Name>
+            <Caption>D1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 10 485 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu0</Name>
+            <Caption>mu0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>430 175 455 325</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma0</Name>
+            <Caption>sigma0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>430 345 450 495</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu1</Name>
+            <Caption>mu1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 175 485 325</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma1</Name>
+            <Caption>sigma1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>460 345 485 495</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S_conc</Name>
+            <Title>S_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Glucose+Fructode+Sucrose (GFS) concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St_conc</Name>
+            <Title>St_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Starch concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CU</Name>
+            <Title>CU</Title>
+            <Units>CU</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FU</Name>
+            <Title>FU</Title>
+            <Units>FU</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PS</Name>
+            <Title>PS</Title>
+            <Units>g</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WC</Name>
+            <Title>WC</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>R</Name>
+            <Title>R</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Budburst</Name>
+            <Title>Budburst</Title>
+            <Units>%</Units>
+            <Description>Budburst progression</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Dynamic Modeling of Carbon Metabolism During the Dormant Period Accurately Predicts the Changes in Frost Hardiness in Walnut,Charrier 2018</Credit>
+    <HelpFileName/>
+</Model>
