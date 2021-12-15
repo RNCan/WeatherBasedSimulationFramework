@@ -20,8 +20,8 @@ namespace WBSF
 {
 
 	static const size_t MAX_SDI_STAGE = 6;
-	static const size_t NB_STEPS = 5;
-	
+	//static const size_t NB_STEPS = 1;
+	static const bool USE_HOURLY_T_MEAN = false;
 	
 
 
@@ -61,100 +61,138 @@ namespace WBSF
 
 		//compute input
 		// Re sample Daily Climate
-		deque<CInput> input(pp.size());
-		for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
+		
+		if (mean_T_day.empty() || m_P_last != P)
 		{
-			for (size_t m = 0; m < weather[y].GetNbMonth(); m++)
+			m_P_last = P;
+			mean_T_day.resize(pp.GetNbDay());
+
+			for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
 			{
-				for (size_t d = 0; d < weather[y][m].GetNbDays(); d++, dd++)
+				for (size_t m = 0; m < weather[y].GetNbMonth(); m++)
 				{
-					CStatistic PN_stat;
-					CStatistic Tair_stat;
-					CStatistic RC_G_stat;
-					CStatistic RC_F_stat;
-					CStatistic RC_M_stat;
-
-					for (size_t h = 0; h < 24; h++)
+					for (size_t d = 0; d < weather[y][m].GetNbDays(); d++, dd++)
 					{
-						const CHourlyData& hData = weather[y][m][d][h];
-						 
-						//Calculate unitary ps
-						//convert total solar radiation (SRAD) [Watt/m²] into Photo Active Radiation (PAR) μmol*m²/s
-						double PAR = hData[H_SRAD] * 2.1;//Photo Active Radiation (PAR) μmol*m²/s
-						//The approximation 1 Watt/m² ≈ 4.57 μmol.m2/s comes from the Plant Growth Chamber Handbook(chapter 1, radiation; https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf). 
-						//Note that the value of 4.57 converts Watts/m2 to μmol.m2/s, assuming that the Watt/m² is for radiation from 400 to 700 nm. 
-						//However, I don't know that anyone ever measures solar radiation in Watt/m² in the 400-700 nm range. 
-						//Pyranometers measure total solar radiation. 
-						//Since only about 45% of the energy of solar radiation is actually in the 400-700 nm range. 
-						//the conversion of total solar radiation to PAR is ~2.1, rather than 4.57. 
-						//As mentioned by others, that is an approximation, but a pretty good one.
+						CStatistic PN_stat;
+						CStatistic Tair_stat;
+						CStatistic RC_G_stat;
+						CStatistic RC_F_stat;
+						CStatistic RC_M_stat;
 
-						double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS2, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
-						double RC_PAR_T = P.RC_PAR(hData[H_TAIR]);
-
-						static const double umol2mgC = 0.029526111;
-						double PN = max(0.0, RC_PAR_PS * RC_PAR_T * 3600 * P.PAR_SLA);    // umolCO2 gDW - 1 h - 1
-						PN *= umol2mgC; // mgSugar gDW - 1 d - 1
-						PN_stat += PN;
-
-						Tair_stat += hData[H_TAIR];
-						RC_G_stat += P.RC_G(hData[H_TAIR]);
-						RC_F_stat += P.RC_F(hData[H_TAIR]);
-						RC_M_stat += P.RC_M(hData[H_TAIR]);
-					}
-
-					input[dd].Tair = Tair_stat[MEAN];
-					input[dd].PN = PN_stat[SUM];
-					input[dd].RC_G_Tair = RC_G_stat[MEAN];
-					input[dd].RC_F_Tair = RC_F_stat[MEAN];
-					input[dd].RC_M_Tair = RC_M_stat[MEAN];
-
-					if (dd > 14)
-					{
-						CStatistic Tmax14Days_stat;
-						CTRef TRef = weather[y][m][d].GetTRef();
-						for (size_t i = 0; i < 14; i++)//Charrier 2018 use the mean maximum of the last 14 days 
+						for (size_t h = 0; h < 24; h++)
 						{
-							Tmax14Days_stat += weather.GetDay(TRef - i)[H_TMAX];
+							const CHourlyData& hData = weather[y][m][d][h];
+
+							//Calculate unitary ps
+							//convert total solar radiation (SRAD) [Watt/m²] into Photo Active Radiation (PAR) μmol*m²/s
+							double PAR = hData[H_SRAD] * 2.1;//Photo Active Radiation (PAR) μmol*m²/s
+							//The approximation 1 Watt/m² ≈ 4.57 μmol.m2/s comes from the Plant Growth Chamber Handbook(chapter 1, radiation; https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf). 
+							//Note that the value of 4.57 converts Watts/m2 to μmol.m2/s, assuming that the Watt/m² is for radiation from 400 to 700 nm. 
+							//However, I don't know that anyone ever measures solar radiation in Watt/m² in the 400-700 nm range. 
+							//Pyranometers measure total solar radiation. 
+							//Since only about 45% of the energy of solar radiation is actually in the 400-700 nm range. 
+							//the conversion of total solar radiation to PAR is ~2.1, rather than 4.57. 
+							//As mentioned by others, that is an approximation, but a pretty good one.
+
+							double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS2, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
+							double RC_PAR_T = P.RC_PAR(hData[H_TAIR]);
+
+							static const double umol2mgC = 0.029526111;
+							double PN = RC_PAR_PS * RC_PAR_T * 3600 * P.PAR_SLA;    // umolCO2 gDW - 1 h - 1
+							PN *= umol2mgC; // mgSugar gDW - 1 d - 1
+							PN_stat += PN;
+
+							Tair_stat += hData[H_TAIR];
+							
+							
+							
+							RC_G_stat += P.RC_G(hData[H_TAIR]);
+							RC_F_stat += P.RC_F(hData[H_TAIR]);
+							RC_M_stat += P.RC_M(hData[H_TAIR]);
 						}
 
-						input[dd].Tmax14Days = Tmax14Days_stat[MEAN];
+						mean_T_day[dd].Tair = Tair_stat[MEAN];
+						mean_T_day[dd].PN = PN_stat[SUM];
+
+						if (m_P.m_model == FABRIZIO_MODEL_OLD)
+						{
+							mean_T_day[dd].RC_G_Tair = P.RC_G(mean_T_day[dd].Tair);
+							mean_T_day[dd].RC_F_Tair = P.RC_F(mean_T_day[dd].Tair);
+							mean_T_day[dd].RC_M_Tair = P.RC_M(mean_T_day[dd].Tair);
+						}
+						else
+						{
+							mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
+							mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
+							mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
+						}
+
+						if (dd > 14)
+						{
+							CStatistic Tmax14Days_stat;
+							CTRef TRef = weather[y][m][d].GetTRef();
+							for (size_t i = 0; i < 14; i++)//Charrier 2018 use the mean maximum of the last 14 days 
+							{
+								Tmax14Days_stat += weather.GetDay(TRef - i)[H_TMAX];
+							}
+
+							mean_T_day[dd].Tmax14Days = Tmax14Days_stat[MEAN];
+						}
 					}
 				}
 			}
-		}
 
 
-		// Estimate soil temperature from air temperature
-		for (size_t y = 1; y < weather.GetNbYears(); y++)
-		{
-			int year = weather[y].GetTRef().GetYear();
-			CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
-			// 
-			// in the original code, it was from August to September
-			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
-
-
-			CStatistic Tair = weather.GetStat(H_TAIR, p);
-
-			double media = Tair[MEAN];
-			double ampiezza = 8;
-			double shift = -30;
-
-			size_t dd = p.Begin() - pp.Begin();
-			for (size_t d = 0; d < p.size(); d++, dd++)
+			// Estimate soil temperature from air temperature
+			for (size_t y = 1; y < weather.GetNbYears(); y++)
 			{
-				input[dd].Tsoil = media + ampiezza * cos(PI * (d + 1 + shift) / 180);
-				input[dd].RC_G_Tsoil = P.RC_G(input[dd].Tsoil);
+				int year = weather[y].GetTRef().GetYear();
+				CTPeriod p;
+				//if (m_P.m_model == FABRIZIO_MODEL_OLD)
+				//{
+					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+				//}
+				/*else
+				{
+					p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+				}*/
+				// 
+				// in the original code, it was from August to September
+				//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
+
+
+				CStatistic Tair = weather.GetStat(H_TAIR, p);
+
+				double media = Tair[MEAN];
+				double ampiezza = 8;
+				double shift = -30;
+
+				size_t dd = p.Begin() - pp.Begin();
+				for (size_t d = 0; d < p.size(); d++, dd++)
+				{
+					mean_T_day[dd].Tsoil = media + ampiezza * cos(PI * (d + 1 + shift) / 180);
+					mean_T_day[dd].RC_G_Tsoil = P.RC_G(mean_T_day[dd].Tsoil);
+				}
 			}
 		}
-
 
 		for (size_t y = 1; y < weather.GetNbYears(); y++)
 		{
 			// Setup simulation
 			int year = weather[y].GetTRef().GetYear();
-			CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+
+			CTPeriod p;
+			//if (m_P.m_model== FABRIZIO_MODEL_OLD)
+			//{
+				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+//			}
+	//		else
+		//	{
+			//	p  = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+			//}
+			
+			
+			
 			// in the original code, it was from August to September
 			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 
@@ -189,6 +227,12 @@ namespace WBSF
 			
 			
 
+
+
+
+
+
+
 			CVariables x = x0;
 			size_t d = p.Begin() - pp.Begin();
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++, d++)
@@ -200,8 +244,11 @@ namespace WBSF
 
 				
 
-				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW]
-				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
+				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
+				//if(m_P.m_model == FABRIZIO_MODEL_OLD)
+					output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
+				//else
+					//output[TRef][O_ST_CONC] = P.St_min + x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
 				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
 				output[TRef][O_NEEDLE] = P.NB_r * (x.Bdw + x.Mdw - P.Bdw_0)*(1 - def.previous) + Ndw_0;  //[g];
@@ -216,8 +263,8 @@ namespace WBSF
 				COutputEx outputEx;
 				
 
-				//size_t nbSteps = 10;
-				for (size_t t = 0; t < NB_STEPS; t++)
+				size_t nbSteps = m_P.m_nbSteps;
+				for (size_t t = 0; t < nbSteps; t++)
 				{
 					//Phenological switches
 					P.Budburst_switch |= (x.Mdw >= Budburst_thr);
@@ -226,13 +273,13 @@ namespace WBSF
 
 					//double f = 1.0 - (t - 1.0) / (nbSteps - 1.0);
 					//CInput I = input[d] * f + input[d + 1] * (1 - f);
-					CVariables dx = PhenologyConiferEquations(input[d], x, P, def, outputEx);
-					x = x + dx / NB_STEPS;
+					CVariables dx = PhenologyConiferEquations(mean_T_day[d], x, P, def, outputEx);
+					x = x + dx / nbSteps;
 
 					//limit concentration to valid values
 					//double S_conc = max(P.S_min, min(P.S_max, x.S / (x.Mdw + x.Bdw)));       // Sugars concentration [mg/g DW]
-					//double St_conc = max(P.St_min, min(P.St_max, x.St / (x.Mdw + x.Bdw)));     // Starch concentration [mg/g DW]
-					////update sugar and starch
+					//double St_conc = P.St_min + x.St / (x.Mdw + x.Bdw);     // Starch concentration [mg/g DW]
+					//update sugar and starch
 					//x.S = S_conc * (x.Mdw + x.Bdw);
 					//x.St = St_conc * (x.Mdw + x.Bdw);
 					//x.S = max(1.0, x.S);
@@ -261,13 +308,13 @@ namespace WBSF
 					output[TRef][O_PROD_I] = outputEx.Prod_I;
 					output[TRef][O_REMOVAL_I] = outputEx.Removal_I;
 					output[TRef][O_SWELL_SWITCH] = P.Swell_switch;
-					output[TRef][O_TAIR] = input[d].Tair;
-					output[TRef][O_TSOIL] = input[d].Tsoil;
-					output[TRef][O_PN] = input[d].PN;
-					output[TRef][O_RC_G_TAIR] = input[d].RC_G_Tair;
-					output[TRef][O_RC_F_TAIR] = input[d].RC_F_Tair;
-					output[TRef][O_RC_M_TAIR] = input[d].RC_M_Tair;
-					output[TRef][O_RC_G_TSOIL] = input[d].RC_G_Tsoil;
+					output[TRef][O_TAIR] = mean_T_day[d].Tair;
+					output[TRef][O_TSOIL] = mean_T_day[d].Tsoil;
+					output[TRef][O_PN] = mean_T_day[d].PN;
+					output[TRef][O_RC_G_TAIR] = mean_T_day[d].RC_G_Tair;
+					output[TRef][O_RC_F_TAIR] = mean_T_day[d].RC_F_Tair;
+					output[TRef][O_RC_M_TAIR] = mean_T_day[d].RC_M_Tair;
+					output[TRef][O_RC_G_TSOIL] = mean_T_day[d].RC_G_Tsoil;
 				}
 			//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
 

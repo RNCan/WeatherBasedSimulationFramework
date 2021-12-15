@@ -20,7 +20,7 @@ namespace WBSF
 
 	static const double MIN_SDI = 0;
 	static const double MAX_SDI = 6;
-	//static const bool SDI_AGER = true;
+	//static const bool SDI_AGER = true; 
 
 	static const double MIN_STRACH = 5;//Deslauriers data 
 	static const double MAX_STRACH = 70;//Deslauriers data 
@@ -78,6 +78,7 @@ namespace WBSF
 		ASSERT(m_species < HBB::PARAMETERS.size());
 
 		m_P = HBB::PARAMETERS[m_species];
+		m_SDI = SDI[m_species];
 		if (parameters.size() == 2 + 46 + NB_SDI_PARAMS + 1)
 		{
 			m_P.Sw_v = parameters[c++].GetReal();
@@ -133,22 +134,25 @@ namespace WBSF
 				m_SDI[i] = parameters[c++].GetReal();
 
 
-			m_P.Sw_kk = m_SDI[2];
-			m_P.B_kk = m_SDI[3];
-			m_P.G_kk1 = m_SDI[4];
-			m_P.G_kk2 = m_SDI[5];
-			//m_P.Mob_kk2 = m_SDI[4];
-			m_P.Mob_kk1 = m_SDI[6];
-			m_P.Acc_kk = m_SDI[7];
-			m_P.FH_kk1 = m_SDI[8];
-			//m_P.FH_kk2 = m_SDI[8];
-			m_P.FD_kk1 = m_SDI[9];
-			//m_P.FD_kk2 = m_SDI[10];
+			m_P.G_v2 = m_SDI[ʎb];
+			m_P.C_min = m_SDI[Τᴴ¹];
+			m_P.C_max = m_SDI[Τᴴ²];
+			m_P.PAR_minT = m_SDI[ʎ0];
+			m_P.PAR_optT = m_SDI[ʎ1];
+			m_P.PAR_maxT = m_SDI[ʎ2];
+			m_P.m_nbSteps = m_SDI[ʎ3];
+
+			//m_P.Sw_kk = m_SDI[2];
+			//m_P.B_kk = m_SDI[3];
+			//m_P.G_kk1 = m_SDI[4];
+			//m_P.G_kk2 = m_SDI[5];
+			//m_P.Mob_kk1 = m_SDI[6];
+			//m_P.Acc_kk = m_SDI[7];
+			//m_P.FH_kk1 = m_SDI[8];
+			//m_P.FD_kk1 = m_SDI[9];
+
 		}
-		else
-		{
-			m_SDI = SDI[m_species];
-		}
+
 
 		m_SDI_type = parameters[c++].GetInt();
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
@@ -251,7 +255,7 @@ namespace WBSF
 				obs.m_obs.push_back(stod(data[I_STARCH2]));
 				obs.m_obs.push_back(stod(data[I_SUGAR2]));
 
-				if (obs.m_obs[0] > -999)
+				if (obs.m_obs[0] > -999 || obs.m_obs[1] > -999 || obs.m_obs[2] > -999)
 				{
 					m_years.insert(obs.m_ref.GetYear());
 				}
@@ -457,8 +461,10 @@ namespace WBSF
 			for (size_t d = 0; d < output.size(); d++)
 			{
 				//&& S_invalid_factor >0&& St_invalid_factor>0
-				if (_isnan(output[d][O_S_CONC]) || output[d][O_S_CONC] > min(600.0, 2 * m_P.S_max) ||
-					_isnan(output[d][O_ST_CONC]) || output[d][O_ST_CONC] > min(600.0, 2 * m_P.St_max))
+				if (_isnan(output[d][O_S_CONC]) || output[d][O_S_CONC] > 150 ||
+					_isnan(output[d][O_ST_CONC]) || output[d][O_ST_CONC] > 150)//||)
+					//_isnan(output[d][O_PS]) || output[d][O_PS] > 50 ||
+					//_isnan(output[d][O_GROWTH_BDW_NDW]) || output[d][O_GROWTH_BDW_NDW] > 20 ||
 				{
 					nbInvalidS++;
 				}
@@ -471,6 +477,10 @@ namespace WBSF
 
 			//if ( (100.0*nbInvalidS/ output.size()) > m_SAResult.size()/2)
 				//return;
+			size_t last_day = 213;
+			//if (m_P.m_model == HBB::FABRIZIO_MODEL_NEW)
+				//last_day = 243;
+
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
@@ -478,7 +488,7 @@ namespace WBSF
 				{
 					if (m_SAResult.front().m_obs.size() == 2)
 					{
-						if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
+						if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < last_day && output[m_SAResult[i].m_ref][O_SDI] > -999)
 						{
 							double obs_SDI = Round(m_SAResult[i].m_obs[0], 2);
 							double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
@@ -496,7 +506,7 @@ namespace WBSF
 					else
 					{
 
-						if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 213 && output[m_SAResult[i].m_ref][O_SDI] > -999)
+						if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < last_day && output[m_SAResult[i].m_ref][O_SDI] > -999)
 						{
 
 							double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
@@ -511,9 +521,9 @@ namespace WBSF
 							stat.Add(obs_SDI, sim_SDI);
 						}
 
-						if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 && output[m_SAResult[i].m_ref][O_STARCH] > -999)
+						if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 && output[m_SAResult[i].m_ref][O_ST_CONC] > -999)
 						{
-							double sim_St_conc = output[m_SAResult[i].m_ref][O_STARCH] / output[m_SAResult[i].m_ref][O_BRANCH];
+							double sim_St_conc = output[m_SAResult[i].m_ref][O_ST_CONC];// / output[m_SAResult[i].m_ref][O_BRANCH];
 							double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 							double sim_starch = (sim_St_conc - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 
@@ -523,17 +533,16 @@ namespace WBSF
 
 							//double obs_starch = Round((m_SAResult[i].m_obs[1] - m_P.St_min) / (m_P.St_max - m_P.St_min), ROUND_VAL);
 							//double sim_starch = Round((sim_St_conc - m_P.St_min) / (m_P.St_max - m_P.St_min), ROUND_VAL);
+							//for(size_t i=0; i<10; i++)
 							stat.Add(obs_starch, sim_starch);
 						}
 
 
-						if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 && output[m_SAResult[i].m_ref][O_SUGAR] > -999)
+						if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 && output[m_SAResult[i].m_ref][O_S_CONC] > -999)
 						{
 							//double Smax = m_P.S_max + (m_P.S_min - P.S_max) / (1 + exp(-m_P.S_sigma * (I.Tmax14Days - P.S_mu)));
 
-
-
-							double sim_S_conc = output[m_SAResult[i].m_ref][O_SUGAR] / output[m_SAResult[i].m_ref][O_BRANCH];
+							double sim_S_conc = output[m_SAResult[i].m_ref][O_S_CONC];// / output[m_SAResult[i].m_ref][O_BRANCH];
 							double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 							double sim_GFS = (sim_S_conc - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 
@@ -545,6 +554,7 @@ namespace WBSF
 							//double sim_GFS = max(0.0, min(1.0, Round((sim_S_conc - m_P.S_min) / (m_P.S_max - m_P.S_min), ROUND_VAL)));
 							//double obs_GFS = Round((m_SAResult[i].m_obs[2] - m_P.S_min) / (m_P.S_max - m_P.S_min), ROUND_VAL);
 							//double sim_GFS = Round((sim_S_conc - m_P.S_min) / (m_P.S_max - m_P.S_min), ROUND_VAL);
+							//for (size_t i = 0; i < 10; i++)
 							stat.Add(obs_GFS, sim_GFS);
 						}
 					}

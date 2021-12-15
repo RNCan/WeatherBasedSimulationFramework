@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <math.h>
 #include <array>
@@ -109,20 +109,24 @@ namespace WBSF
 			//double Sw_thres;
 			TModel m_model;
 
-			double Sw_kk;
-			double B_kk;
-			double G_kk1;
-			double G_kk2;
-			double Mob_kk2;
-			double Mob_kk1;
-			double Acc_kk;
-			double FH_kk1;
-			double FH_kk2;
-			double FD_kk1;
-			double FD_kk2;
+			//double Sw_kk;
+			//double B_kk;
+			//double G_kk1;
+			//double G_kk2;
+			//double Mob_kk2;
+			//double Mob_kk1;
+			//double Acc_kk;
+			//double FH_kk1;
+			//double FH_kk2;
+			//double FD_kk1;
+			//double FD_kk2;
 
 			bool Swell_switch;
 			bool Budburst_switch;
+			double G_v2;
+			double C_min;
+			double C_max;
+			size_t m_nbSteps;
 
 			double RC_G(double T)const { return RC(T, G_minT, G_optT, G_maxT); }
 			double RC_F(double T)const { return RC(T, F_minT, F_optT, F_maxT); }
@@ -130,13 +134,13 @@ namespace WBSF
 			double RC_PAR(double T)const { return RC(T, PAR_minT, PAR_optT, PAR_maxT); }
 
 
-			double S_ratio(double S_conc) const { return std::max(0.001, std::min(0.999, (S_conc - S_min) / (S_max - S_min))); }
-			double St_ratio(double St_conc) const { return std::max(0.001, std::min(0.999, (St_conc - St_min) / (St_max - St_min))); }
-			double C_ratio(double C) const { return std::max(0.001, std::min(0.999, C / 3000)); }
+			//double S_ratio(double S_conc) const { return std::max(0.001, std::min(0.999, (S_conc - S_min) / (S_max - S_min))); }
+			//double St_ratio(double St_conc) const { return std::max(0.001, std::min(0.999, (St_conc - St_min) / (St_max - St_min))); }
+			//double C_ratio(double C) const { return std::max(0.001, std::min(0.999, C / 3000)); }
 			void InitBeta();
 			size_t value_to_bin(double v)const { return std::max(size_t(0), std::min(size_t(NB_BINS), size_t(std::round(v * NB_BINS)))); }
 			double GetBeta(size_t t, double v)const { return m_beta_function[t][value_to_bin(v)]; }
-			double GetRatio(size_t t, double v)const;
+			double GetRatio(size_t t, double v, double v_min, double v_max)const;
 
 
 			bool is_valid()const
@@ -154,13 +158,101 @@ namespace WBSF
 				if (PAR_minT > PAR_optT || PAR_optT > PAR_maxT)
 					return false;
 
+				if (C_min > C_max)
+					return false;
+
+				/*if (m_model == FABRIZIO_MODEL_NEW)
+				{
+					if ((m_P[CU_σ_PS] > -0.1 && m_P[CU_σ_PS] < 0.1) ||
+						(m_P[FU_σ_PS] > -0.1 && m_P[FU_σ_PS] < 0.1))
+						return false;
+				}*/
+
+
 				return true;
 			}
 
-			std::array < std::array < double, 2>, NB_K> m_K;
+			//std::array < std::array < double, 2>, NB_K> m_K;
+			std::array < double, NB_K> m_K;
 			std::array< std::array < double, NB_BINS + 1>, NB_K> m_beta_function;
 
 		};
+
+
+		class COldParam
+		{
+		public:
+
+			double G_minT;
+			double G_optT;
+			double G_maxT;
+
+			double F_minT;
+			double F_optT;
+			double F_maxT;
+
+			double M_minT;
+			double M_optT;
+			double M_maxT;
+
+			double PAR_minT;
+			double PAR_optT;
+			double PAR_maxT;
+
+			double PAR_PS1;
+			double PAR_PS2;
+			double PAR_PS3;
+
+			COldParam& operator =(const CParameters& in)
+			{
+				G_minT = in.G_minT;
+				G_optT = in.G_optT;
+				G_maxT = in.G_maxT;
+				F_minT = in.F_minT;
+				F_optT = in.F_optT;
+				F_maxT = in.F_maxT;
+				M_minT = in.M_minT;
+				M_optT = in.M_optT;
+				M_maxT = in.M_maxT;
+				PAR_minT = in.PAR_minT;
+				PAR_optT = in.PAR_optT;
+				PAR_maxT = in.PAR_maxT;
+				PAR_PS1 = in.PAR_PS1;
+				PAR_PS2 = in.PAR_PS2;
+				PAR_PS3 = in.PAR_PS3;
+
+				return *this;
+			}
+
+
+			bool e(double e1, double e2)const { return fabs(e1 - e2) < 0.05; }
+			bool operator ==(const CParameters& in)const
+			{
+				return
+					e(G_minT, in.G_minT) &&
+					e(G_optT, in.G_optT) &&
+					e(G_maxT, in.G_maxT) &&
+					e(F_minT, in.F_minT) &&
+					e(F_optT, in.F_optT) &&
+					e(F_maxT, in.F_maxT) &&
+					e(M_minT, in.M_minT) &&
+					e(M_optT, in.M_optT) &&
+					e(M_maxT, in.M_maxT) &&
+					e(PAR_minT, in.PAR_minT) &&
+					e(PAR_optT, in.PAR_optT) &&
+					e(PAR_maxT, in.PAR_maxT) &&
+					e(PAR_PS1, in.PAR_PS1) &&
+					e(PAR_PS2, in.PAR_PS2) &&
+					e(PAR_PS3, in.PAR_PS3);
+			}
+
+
+			bool operator !=(const CParameters& in)const { return !operator ==(in); }
+
+			
+
+		};
+
 
 		extern const std::array<CParameters, NB_SBW_SPECIES> PARAMETERS;
 
