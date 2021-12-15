@@ -27,13 +27,13 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Cubistdefns.h"
 #include "Geomatic/LandsatDataset.h"
 
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
 
+#include "Cubistdefns.h"
 using namespace std;
 using namespace WBSF;
 using namespace WBSF::Landsat;

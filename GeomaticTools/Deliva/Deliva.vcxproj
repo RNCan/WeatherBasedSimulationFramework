@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5D54BA03-9BA7-4C4E-83EC-B38FAD1DEAC9}</ProjectGuid>
+    <ProjectGuid>{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Sieve</RootNamespace>
-    <ProjectName>Sieve</ProjectName>
+    <RootNamespace>ExtractWindow</RootNamespace>
+    <ProjectName>DeLiVa</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -98,28 +98,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Gdal\lib\gdal_i.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <OpenMPSupport>true</OpenMPSupport>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +108,33 @@
       <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external_d.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
+      <OpenMPSupport>false</OpenMPSupport>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external_d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -136,20 +144,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\..\Gdal\lib\gdal_i.lib</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(SolutionDir)Tools\$(TargetName)$(TargetExt)"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "..\Tools$(Configuration)$(Platform)\$(TargetName)$(TargetExt)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,9 +166,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\..\wbs\src\;..\..\External\;..\..\External\GDAL\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -179,16 +186,18 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Sieve.cpp" />
+    <ClCompile Include="DeLiVaStat.cpp" />
+    <ClCompile Include="DeriveLiDARVariable.cpp" />
+    <ClCompile Include="DeriveLiDARVariableApp.cpp" />
     <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DeLiVaStat.h" />
+    <ClInclude Include="DeriveLiDARVariable.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\wbs\msvc\Basic.vcxproj">

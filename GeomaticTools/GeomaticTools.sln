@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KNNMapping", "KNNMapping\KNNMapping.vcxproj", "{038558A1-03FA-4B3D-9E3F-1D2D2460E5B0}"
 EndProject
@@ -72,6 +72,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODISBuildVRT", "MODISBuildVRT\MODISBuildVRT.vcxproj", "{1275F570-B4D3-4E47-97B3-D7E337E88641}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointsExtractorLayer", "PointsExtractorLayer\PointsExtractorLayer.vcxproj", "{D3A06F27-CA76-4EC3-B0D8-2CCC5C9085B4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeLiVa", "Deliva\Deliva.vcxproj", "{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -359,6 +361,14 @@ Global
 		{D3A06F27-CA76-4EC3-B0D8-2CCC5C9085B4}.Release|Win32.ActiveCfg = Release|Win32
 		{D3A06F27-CA76-4EC3-B0D8-2CCC5C9085B4}.Release|Win32.Build.0 = Release|Win32
 		{D3A06F27-CA76-4EC3-B0D8-2CCC5C9085B4}.Release|x64.ActiveCfg = Release|x64
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Debug|Win32.Build.0 = Debug|Win32
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Debug|x64.ActiveCfg = Debug|x64
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Debug|x64.Build.0 = Debug|x64
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|Win32.ActiveCfg = Release|Win32
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|Win32.Build.0 = Release|Win32
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|x64.ActiveCfg = Release|x64
+		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

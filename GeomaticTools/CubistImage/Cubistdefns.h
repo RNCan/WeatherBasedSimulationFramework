@@ -498,7 +498,7 @@ void	    CValToStr(ContValue CV, Attribute Att, String DS);
 
 #ifdef WIN32
 double	    posrint(double);
-double	    rint(double);
+//double	    rint(double);
 #endif
 
 
