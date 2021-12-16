@@ -8,7 +8,7 @@
 //										Remove all SSI and add Network, Country and SubDivision in SSI
 //5.9.0 25/01/2021	Rémi Saint-Amant	Update in EnvCan hourly, Daily and forecast
 //5.8.8	03/11/2020	Rémi Saint-Amant	Update for BC, Alberta and NB
-//5.8.7	12/06/2020	Rémi Saint-Amant	GSOD bug correction 
+//5.8.7	12/06/2020	Rémi Saint-Amant	GSOD bug correction
 //5.8.6	02/06/2020	Rémi Saint-Amant	Add GFS long forecast 
 //5.8.5 16/04/2020	Rémi Saint-Amant	Update Env Can Radar to work with new radar ID
 //                                      Update New-Brunswick
