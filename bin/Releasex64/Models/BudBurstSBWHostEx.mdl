@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstSBWHost</Title>
+    <Version>1.0</Version>
+    <ID>.BudBurst</ID>
+    <EXE>BudBurstSBWHost.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 172 862</WindowRect>
+    <SimulatedCategory>TN T TX R</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>40 10 60 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Version</Name>
+            <Caption>Version</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>65 10 90 235</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Original|Modified</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>SDI_Type</Name>
+            <Caption>SDI_Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>95 10 120 270</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S_conc</Name>
+            <Title>S_conc</Title>
+            <Units>mg/g DW</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St_conc</Name>
+            <Title>St_conc</Title>
+            <Units>mm/g DW</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mdw</Name>
+            <Title>Mdw</Title>
+            <Units>g</Units>
+            <Description>Meristem dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>STEMdw</Name>
+            <Title>STEMdw</Title>
+            <Units>g</Units>
+            <Description>Mdw+Bdw</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Ndw</Name>
+            <Title>Ndw</Title>
+            <Units>g</Units>
+            <Description>Needles dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>C</Name>
+            <Title>C</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>I</Name>
+            <Title>I</Title>
+            <Units/>
+            <Description>Inhibitors</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Budburst</Name>
+            <Title>Budburst</Title>
+            <Units>%</Units>
+            <Description>Budburst progression</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S</Name>
+            <Title>S</Title>
+            <Units>mg</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St</Name>
+            <Title>St</Title>
+            <Units>mg</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PS</Name>
+            <Title>PS</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mobilization</Name>
+            <Title>Mobilization</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mobilization_Stock</Name>
+            <Title>Mobilization_Stock</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Accumulation</Name>
+            <Title>Accumulation</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Swelling</Name>
+            <Title>Swelling</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Translocation</Name>
+            <Title>Translocation</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Growth_Bdw_Ndw</Name>
+            <Title>Growth_Bdw_Ndw</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frost_hardening1</Name>
+            <Title>Frost_hardening1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frost_hardening2</Name>
+            <Title>Frost_hardening2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frost_dehardening1</Name>
+            <Title>Frost_dehardening1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Frost_dehardening2</Name>
+            <Title>Frost_dehardening2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>C_SINK</Name>
+            <Title>C_SINK</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prod_I</Name>
+            <Title>Prod_I</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Removal_I</Name>
+            <Title>Removal_I</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Swell_switch</Name>
+            <Title>Swell_switch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tsoil</Name>
+            <Title>Tsoil</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PN</Name>
+            <Title>PN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RC_G_Tair</Name>
+            <Title>RC_G_Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RC_F_Tair</Name>
+            <Title>RC_F_Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RC_M_Tair</Name>
+            <Title>RC_M_Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RC_G_Tsoil</Name>
+            <Title>RC_G_Tsoil</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit></Credit>
+    <HelpFileName/>
+</Model>

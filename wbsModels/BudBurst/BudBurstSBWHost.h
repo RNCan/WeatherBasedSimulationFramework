@@ -40,7 +40,7 @@ namespace WBSF
 		std::map<int, double> m_defioliation;
 		HBB::COldParam m_P_last;
 		HBB::CParameters m_P;
-		std::array<double, NB_SDI_PARAMS > m_SDI;
+		//std::array<double, NB_SDI_PARAMS > m_SDI;
 		std::deque<HBB::CInput> mean_T_day;
 		
 		ERMsg Execute(CWeatherStation& weather, CModelStatVector& output, bool bModelEx = false);

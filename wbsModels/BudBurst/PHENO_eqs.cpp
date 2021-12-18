@@ -20,15 +20,42 @@ namespace WBSF
 		static const double C_MAX = 5000;
 
 
-		static const std::array<CParameters, NB_SBW_SPECIES> PARAMETERS =
+		//static const std::array<CParameters, NB_SBW_SPECIES>  PARAMETERS_OLD =
+		//{
+		//	//"S_0","St_0","C_0","Bdw_0","v_sw","k_sw","eff_sw","v_mob","k_mob","FH_v1","FH_k1","v_acc","k_acc","v_mob2","k_mob2","FH_v2","FH_k2","v_s","k_s","k_t","S_sigma","St_max","Gtmin","Gtopt","Gtmax","I_c","FD_v1","FD_k1","FD_v2","FD_k2","FD_muS","Mtmin","Mtopt","Mtmax","B_v","B_k","B_eff","Def_mid","Def_slp","Def_min","SLA","PS_Tmin","PS_Topt","PS_Tmax","PS_PAR_1","PS_PAR_2","PS_PAR_3","a1","a2","b1","b2","dmax","bud_dw","buds_num","C_DW_Ratio","mg2g","CH2O2C","r_nb","I_max","Ftmin","Ftopt","Ftmax","S_min","S_max","S_mu","BB_thr","St_min", switch, switch
+		//{
+		//	{20,10,1000,0.125,0.37,1.6154e-03,0.716428,1.0404,247.71,1.0456,1.54962e-03,1.10784,112.522,1.48629,109.582,5.32465,103.526,0.529797,207.776,5.35064,0.000926936,99.2394,5.10764,34.7182,46.9897,14.0832,5.72638,104.64,7.36783,110.22,31.356,4.08611,16.4475,39.3847,10.1622,0.8145228,1.0500,88.3809,21.0082,0.9569,0.00555,-2,20,42,3.50,15.,-0.2413,1,0.0025,3,0.45,2.2864,-40,-5,5.10764,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, 1, 500, 5000, 1},
+		//	{20,10,1000,0.125,0.37,1.6154e-03,0.716428,1.0404,247.71,1.0456,1.54962e-03,1.10784,112.522,1.48629,109.582,5.32465,103.526,0.529797,207.776,5.35064,0.000926936,99.2394,5.10764,34.7182,46.9897,14.0832,5.72638,104.64,7.36783,110.22,31.356,4.08611,16.4475,39.3847,10.1622,0.8145228,1.0500,88.3809,21.0082,0.9569,0.00555,-2,20,42,3.50,15.,-0.2413,1,0.0025,3,0.45,2.2864,-40,-5,5.10764,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, 1, 500, 5000, 1},
+		//	{20,10,1000,0.125,0.28,1.7893e-03,0.661015,1.0195,220.83,1.0571,1.69442e-03,1.14047,104.911,1.02309,106.747,5.26354,108.376,0.528052,222.181,5.26675,0.000905935,92.3277,5.10218,27.3528,41.7731,29.1557,5.10557,106.077,9.7836,106.04,35.803,4.08174,14.7904,39.7261,7.28038,0.8127693,0.6025,10.2237,20.3774,0.9657,0.00443,00,16,42,12.5,3.5,-0.1254,1,0.0023,3,0.45,2.2399,-40,-5,5.10218,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, 1, 500, 5000, 1},
+		//	{0},
+		//	{0}
+		//},
+		//};
+
+
+		static const std::array < std::array<CParameters, NB_SBW_SPECIES>, NB_VERSIONS>  PARAMETERS =
 		{ {
 				//"S_0","St_0","C_0","Bdw_0","v_sw","k_sw","eff_sw","v_mob","k_mob","FH_v1","FH_k1","v_acc","k_acc","v_mob2","k_mob2","FH_v2","FH_k2","v_s","k_s","k_t","S_sigma","St_max","Gtmin","Gtopt","Gtmax","I_c","FD_v1","FD_k1","FD_v2","FD_k2","FD_muS","Mtmin","Mtopt","Mtmax","B_v","B_k","B_eff","Def_mid","Def_slp","Def_min","SLA","PS_Tmin","PS_Topt","PS_Tmax","PS_PAR_1","PS_PAR_2","PS_PAR_3","a1","a2","b1","b2","dmax","bud_dw","buds_num","C_DW_Ratio","mg2g","CH2O2C","r_nb","I_max","Ftmin","Ftopt","Ftmax","S_min","S_max","S_mu","BB_thr","St_min", switch, switch
-					{20,10,1000,0.125,0.37,1.6154e-03,0.716428,1.0404,247.71,1.0456,1.54962e-03,1.10784,112.522,1.48629,109.582,5.32465,103.526,0.529797,207.776,5.35064,0.000926936,99.2394,5.10764,34.7182,46.9897,14.0832,5.72638,104.64,7.36783,110.22,31.356,4.08611,16.4475,39.3847,10.1622,0.8145228,1.0500,88.3809,21.0082,0.9569,0.00555,-2,20,42,3.50,15.,-0.2413,1,0.0025,3,0.45,2.2864,-40,-5,5.10764,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, false, false, 1, 500, 5000, 1},
-					{20,10,1000,0.125,0.37,1.6154e-03,0.716428,1.0404,247.71,1.0456,1.54962e-03,1.10784,112.522,1.48629,109.582,5.32465,103.526,0.529797,207.776,5.35064,0.000926936,99.2394,5.10764,34.7182,46.9897,14.0832,5.72638,104.64,7.36783,110.22,31.356,4.08611,16.4475,39.3847,10.1622,0.8145228,1.0500,88.3809,21.0082,0.9569,0.00555,-2,20,42,3.50,15.,-0.2413,1,0.0025,3,0.45,2.2864,-40,-5,5.10764,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, false, false, 1, 500, 5000, 1},
-					{20,10,1000,0.125,0.28,1.7893e-03,0.661015,1.0195,220.83,1.0571,1.69442e-03,1.14047,104.911,1.02309,106.747,5.26354,108.376,0.528052,222.181,5.26675,0.000905935,92.3277,5.10218,27.3528,41.7731,29.1557,5.10557,106.077,9.7836,106.04,35.803,4.08174,14.7904,39.7261,7.28038,0.8127693,0.6025,10.2237,20.3774,0.9657,0.00443,00,16,42,12.5,3.5,-0.1254,1,0.0023,3,0.45,2.2399,-40,-5,5.10218,0,600,-5,2, 0, FABRIZIO_MODEL_OLD, false, false, 1, 500, 5000, 1},
-					{0},
-					{0}
-			} };
+			{{
+{20,10,1000,0.125,0.1669,10.1044,3.4399,1.2676,172.1745,21.312,197.1779,5.5712,170.0971,1.486,109.58,25.373,171.5592,0.5298,207.76,5.351,0.7577,136.1306,5.1,34.305,47,14.083,24.1956,158.7396,5.8836,48.4441,16.6661,4.1,20.0089,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,34.7003,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-28.0562,5.1,35.8854,81.2951,-14.1663,2,0,0,0,500,5000,1,2.3778,0.6295},
+{20,10,1000,0.125,0.3472,2.388,0.7333,3.0387,180.3126,13.2197,232.9341,0.8665,33.8361,1.486,109.58,7.2392,105.4085,0.5298,207.76,5.351,15.9759,100.6659,5.1,34.9661,47,14.083,14.5555,202.7397,16.3234,181.2976,30.9261,4.1,17.2717,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,4.5474,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-8.2989,5.1,0.5786,83.5623,5.6285,2,0,0,0,0,0,1,2.3099,0.5853},
+{20,10,1000,0.125,0.2768,1.2331,0.6569,0.4099,27.6493,13.0367,249.9973,1.7299,146.8194,1.02309,106.747,4.3181,82.7559,0.528052,222.18105,5.26675,3.4151,79.1996,5.10218,34.2607,41.7731,29.1557,7.7492,109.1669,7.3783,240.7633,20.9677,4.08174,15.8412,39.7261,7.28038,0.8127693,0.6025,10.2237,20.3774,0.965699,0.0044,0,37.4271,42,12.5,3.5,-0.1254,1,0.0023,3,0.45,2.23990845349878,-40,-5,5.10218,36.9038,85.2349,-3.6167,2,0,0,1,500,5000,1,2.9776,0.6982},
+
+
+
+{20,10,1000,0.125,0.3506,248.7847,4.4307,0.4745,89.4141,8.6257,90.0054,1.218,104.577,1.486,109.58,23.9356,3.3463,0.5298,207.76,5.351,9.9617,96.5624,5.1,34.7,47,14.083,7.648,183.2147,58.8426,151.2004,36.5503,4.1,16.4,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,20,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-5,5.1,19.7919,74.5195,13.9711,2,11.6794,0,1,500,5000,1,2.4336,0.4548},
+				{0}
+			}},
+			{{
+{20,10,1000,0.125,0.6245,-68.1304,0.6385,0.2515,-125.3048,95.4066,231.6411,4.613,221.3021,83.8924,-15.4767,13.1494,198.9277,0.5298,207.76,5.351,4.7776,89.672,5.1,36.1253,47,14.083,26.712,53.442,31.9092,-5.2951,23.2684,4.1,17.6723,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,-0.7457,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-7.7088,5.1,11.7985,103.042,13.0787,2,0,1,0,500,5000,1,2.7563,0.6767},
+{20,10,1000,0.125,0.2836,16.4465,0.8936,7.2666,239.1032,1.7581,80.9096,7.7602,161.4455,49.0418,-0.1947,75.5699,-60.6389,0.5298,207.76,5.351,10.177,89.2797,5.1,34.4917,47,14.083,2.4047,-2.5039,9.917,-18.8723,35.2137,4.1,15.7183,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,16.1057,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-29.5466,5.1,36.2831,86.587,19.4486,2,0,1,1,500,5000,1,3.1153,0.4718},
+{20,10,1000,0.125,0.7776,130.7863,1.5257,2.8646,248.5897,2.5309,195.4023,0.1419,-86.1785,5.9797,-214.4967,73.6436,-230.9443,0.3282,225.3909,6.766,15.5534,132.7343,5.10218,33.7624,41.7731,29.1557,1.3023,-73.9447,1.8469,36.1304,22.3558,4.08174,16.1496,39.7261,51.0676,189.7087,0.58,10.2237,20.3774,0.965699,0.0044,0,37.2358,42,12.5,3.5,-0.1254,1,0.0023,3,0.45,2.23990845349878,-46.0727,-6.7202,5.10218,2.4615,83.5162,-0.8327,2,18.9736,1,0,132.0048,3690.9851,1,3.5543,0.735},
+
+			
+			{20,10,1000,0.125,0.3506,248.7847,4.4307,0.4745,89.4141,8.6257,90.0054,1.218,104.577,1.486,109.58,23.9356,3.3463,0.5298,207.76,5.351,9.9617,96.5624,5.1,34.7,47,14.083,7.648,183.2147,58.8426,151.2004,36.5503,4.1,16.4,39.4,10.16,0.8127693,1.05,88.3809,21.0082,0.956886,0.005555,-2,20,42,3.5,15,-0.24132,1,0.0025,3,0.45,2.28642133771412,-40,-5,5.1,19.7919,74.5195,13.9711,2,11.6794,1,1,500,5000,1,2.4336,0.4548},
+				{0}
+			}}
+		 } };
 
 		void CVariables::limitToZero() { S = max(0.0, S); St = max(0.0, St); Mdw = max(0.0, Mdw); Bdw = max(0.0, Bdw); C = max(0.0, C); I = max(0.0, I); }
 
@@ -78,16 +105,17 @@ namespace WBSF
 
 		//CVariables PhenologyConiferEquationsOriginal(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
 		CVariables PhenologyConiferEquationsOriginal(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
-		CVariables PhenologyConiferEquationsNew(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
+		CVariables PhenologyConiferEquationsModified(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
 		CVariables PhenologyConiferEquations(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx)
 		{
 
 
 			CVariables out;
-			switch (P.m_model)
+			switch (P.m_version)
 			{
-			case FABRIZIO_MODEL_OLD: out = PhenologyConiferEquationsOriginal(I, x, P, def, outputEx); break;
-			case FABRIZIO_MODEL_NEW: out = PhenologyConiferEquationsNew(I, x, P, def, outputEx); break;
+				
+			case V_ORIGINAL: out = PhenologyConiferEquationsOriginal(I, x, P, def, outputEx); break;
+			case V_MODIFIED: out = PhenologyConiferEquationsModified(I, x, P, def, outputEx); break;
 			default: _ASSERTE(false);
 			}
 
@@ -95,7 +123,7 @@ namespace WBSF
 			return  out;
 		}
 
-		CVariables PhenologyConiferEquationsNew(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx)
+		CVariables PhenologyConiferEquationsModified(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx)
 		{
 			static const double mg2g = 0.001;
 			static const double CH2O2C = 0.40641993115856;
@@ -115,16 +143,16 @@ namespace WBSF
 			//double PS = I.PN * Ndw * max(0.0, 1 - S_conc / P.S_max) * (1 + 3 * def.previous);
 			//double PS = I.PN * Ndw * max(0.25, 1 - S_conc / ( 2*P.S_max)) * (1 + 3 * def.previous);
 
-			_ASSERTE(PS >= 0);
+			//_ASSERTE(PS >= 0);
 
 
 			// Meristems
-			double Swelling_sink = I.RC_M_Tair * P.Swell_switch * !P.Budburst_switch * (1 - x.I / I_MAX);  // swelling demand
+			double Swelling_sink = I.RC_M_Tair * x.Swell_switch * !x.Budburst_switch * (1 - x.I / I_MAX);  // swelling demand
 			double Swelling = Swelling_sink * P.Sw_v * P.GetRatio(SW_K_BETA, S_conc, P.S_min, P.S_max);
 			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
 
 			// Shoot growth (both branch and needles)
-			double Growth_Bdw_Ndw_sink = (1 - x.I / I_MAX) * I.RC_G_Tair * P.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
+			double Growth_Bdw_Ndw_sink = (1 - x.I / I_MAX) * I.RC_G_Tair * x.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
 			double Growth_Bdw_Ndw = Growth_Bdw_Ndw_sink * P.B_v * P.GetRatio(B_K_BETA, S_conc, P.S_min, P.S_max);   // Shoots growth;
 			double Prod_Bdw = Growth_Bdw_Ndw * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
 
@@ -178,11 +206,11 @@ namespace WBSF
 			outputEx.C_SINK = C_SINK;
 			outputEx.Prod_I = Prod_I;
 			outputEx.Removal_I = Removal_I;
-			outputEx.Swell_switch = P.Swell_switch;
+			outputEx.Swell_switch = x.Swell_switch;
 
 
 			//Output: variation for the current day
-			return  { dS, dSt, dMdw, dBdw, dC, dI };
+			return  CVariables(dS, dSt, dMdw, dBdw, dC, dI, x.Swell_switch, x.Budburst_switch);
 
 		}
 
@@ -210,13 +238,13 @@ namespace WBSF
 
 			// Meristems
 			double RC_M_Tair = P.RC_M(I.Tair);// dehardening and meristem growth
-			double Swelling_sink = RC_M_Tair * P.Swell_switch * !P.Budburst_switch * (1 - x.I / I_max);  // swelling demand
+			double Swelling_sink = RC_M_Tair * x.Swell_switch * !x.Budburst_switch * (1 - x.I / I_max);  // swelling demand
 			double Swelling = Swelling_sink * P.Sw_v * (S_conc / ((P.Sw_k) + S_conc));
 			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
 
 			// Shoot growth (both branch and needles)
 			double RC_G_Tair = P.RC_G(I.Tair);// growth
-			double Growth_Bdw_Ndw_sink = (1 - x.I / I_max) * RC_G_Tair * P.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
+			double Growth_Bdw_Ndw_sink = (1 - x.I / I_max) * RC_G_Tair * x.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
 			double Growth_Bdw_Ndw = Growth_Bdw_Ndw_sink * P.B_v * (S_conc / ((P.B_k) + S_conc));   // Shoots growth;
 			double Prod_Bdw = Growth_Bdw_Ndw * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
 
@@ -269,7 +297,7 @@ namespace WBSF
 			outputEx.C_SINK = C_SINK;
 			outputEx.Prod_I = Prod_I;
 			outputEx.Removal_I = Removal_I;
-			outputEx.Swell_switch = P.Swell_switch;
+			outputEx.Swell_switch = x.Swell_switch;
 
 
 			//Output: variation for the current day

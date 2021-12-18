@@ -478,7 +478,7 @@
             <Name>S_conc</Name>
             <Title>S_conc</Title>
             <Units>mg/gDM</Units>
-            <Description>Glucose+Fructode+Sucrose (GFS) concentration</Description>
+            <Description>Sugar (Glucose+Fructode+Sucrose) concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -493,24 +493,24 @@
         <OutputVariable>
             <Name>CU</Name>
             <Title>CU</Title>
-            <Units>CU</Units>
-            <Description/>
+            <Units></Units>
+            <Description>Chilling units</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>FU</Name>
             <Title>FU</Title>
-            <Units>FU</Units>
-            <Description/>
+            <Units></Units>
+            <Description>Forcing units</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
             <Name>PS</Name>
             <Title>PS</Title>
-            <Units>g</Units>
-            <Description/>
+            <Units></Units>
+            <Description>Physiological stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -518,12 +518,12 @@
             <Name>SDI</Name>
             <Title>SDI</Title>
             <Units/>
-            <Description/>
+            <Description>Shoot Development Index</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Dynamic Modeling of Carbon Metabolism During the Dormant Period Accurately Predicts the Changes in Frost Hardiness in Walnut,Charrier 2018</Credit>
+    <Credit></Credit>
     <HelpFileName/>
 </Model>

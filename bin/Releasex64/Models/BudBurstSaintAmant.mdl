@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstSaintAmant</Title>
+    <Version>1.0</Version>
+    <ID>.BB_RSA</ID>
+    <EXE>BudBurstSaintAmant.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 109 580</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 265</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>SDI_Type</Name>
+            <Caption>SDI_Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 280 30 495</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S_conc</Name>
+            <Title>S_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Sugar (Glucose+Fructode+Sucrose) concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St_conc</Name>
+            <Title>St_conc</Title>
+            <Units>mg/gDM</Units>
+            <Description>Starch concentration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CU</Name>
+            <Title>CU</Title>
+            <Units/>
+            <Description>Chilling units</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FU</Name>
+            <Title>FU</Title>
+            <Units/>
+            <Description>Forcing units</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PS</Name>
+            <Title>PS</Title>
+            <Units/>
+            <Description>Physiological stage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description>Shoot Development Index</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

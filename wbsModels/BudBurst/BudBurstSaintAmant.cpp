@@ -29,7 +29,7 @@ namespace WBSF
 	size_t ST_IN_STAT = H_TMIN;
 	size_t ST_OUT_STAT = H_TMAX;
 
-	
+
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CBudBurstSaintAmantModel::CreateObject);
@@ -46,6 +46,15 @@ namespace WBSF
 	static const double MAX_SUGAR = 85;//Schaberg
 
 
+	const std::array < std::array<double, NB_PARAMS>, NB_HOST_SPECIES> CBudBurstSaintAmantModel::P =
+	{ {
+		{244,-10.8123,29.7523,3594.3427,0.2155,11.5025,91.575,21,20.0743,2.0793,8.1645,7,73.2509,10.6854,3.6068,8.7509,28,72.6097,10.3658,9.8962,28,80.0256,1.6606,0.7881,7.1179,4.433,27.1071,3.3205,0.1719,0.8734,0.1079,1.4943,-0.1426,0.6752,-1.2756,1},
+		{244,10.4811,26.2659,3046.057,0.0912,39.7753,5.18,14,63.4546,-28.5214,1,7,46.3503,12.5385,4.2104,86.3254,28,52.2646,16.1682,15,28,78.5641,0.0936,2.1094,2.2919,12.1458,19.8303,3.7505,0.5726,1.1058,0.1014,1.4713,0.1956,1.2882,-0.1,1},
+		{244,-3.3462,28.4546,2985.5869,0.3514,8.5807,88.2506,14,83.4974,10.9287,11.0639,7,54.478,7.7965,1.7549,17.4918,28,104.1436,7.5859,4.5074,28,90.3712,1.9024,2.8107,6.0349,1.6314,26.8442,2.459,0.3127,0.8861,0.1003,0.7392,0.2213,1.3714,-0.4584,1},
+		{244,0.7084,26.8622,1367.4532,0.3492,14.507,54.9488,21,92.8352,22.991,9.1517,7,96.8089,13.5009,5.5921,38.1528,28,37.0826,1.5321,3.1383,28,85.6357,1.8027,0.6707,7.4595,2.8543,10.3072,2.0302,0.1043,1.674,0.4683,1.7506,-1.468,1.1904,-0.8132,1},
+		{0},
+
+	} };
 
 	CBudBurstSaintAmantModel::CBudBurstSaintAmantModel()
 	{
@@ -78,6 +87,10 @@ namespace WBSF
 		{
 			for (size_t i = 0; i < NB_PARAMS; i++)
 				m_P[i] = parameters[c++].GetReal();
+		}
+		else
+		{
+			m_P = P[m_species];
 		}
 
 		m_SDI_type = parameters[c++].GetInt();
@@ -163,7 +176,7 @@ namespace WBSF
 					size_t max_days = max(p_S_in, max(p_S_out, max(p_St_in, p_St_out)));
 					for (size_t i = 0; i < max_days; i++)//Charrier 2018 use the mean maximum of the last 14 days 
 					{
-						
+
 						if (i < p_S_in)
 						{
 							T_S_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMIN];
@@ -230,7 +243,7 @@ namespace WBSF
 				size_t m2 = yyy == 0 ? DECEMBER : AUGUST;
 				size_t dd = 0;
 
-				
+
 
 				for (size_t m = m1; m <= m2; m++)
 				{
@@ -276,7 +289,7 @@ namespace WBSF
 							//double k1m = max(0.0, PS * m_P[dendo1m] + m_P[k1m_trans]) * exp(-Square(T_x_days - m_P[µ1m])) / (m_P[σ1m] * sqrt(2 * PI));
 							//double k3= max(0.0, PS * m_P[deco2] + m_P[deco1m]) * exp(-Square(T_x_days - m_P[mu1])) / (m_P[ѕigma1] * sqrt(2 * PI));
 
-							
+
 							//double S_in_psi_max = m_P[S_IN_σ_PS] < 0 ? -1/ (m_P[S_IN_σ_PS] * sqrt(2 * PI)) : 0;
 							double S_in_psi_max = m_P[S_IN_σ_PS] < 0 ? 1 : 0;
 							double S_in_psi = m_P[S_IN_PSI] * max(0.0, min(1.0, S_in_psi_max + exp(-0.5 * Square((PS - m_P[S_IN_µ_PS]) / m_P[S_IN_σ_PS])) / (m_P[S_IN_σ_PS] * sqrt(2 * PI))));
@@ -284,19 +297,19 @@ namespace WBSF
 							double S_in_k = S_in_psi * S_in_Rate;
 
 							//double S_out_psi_max = m_P[S_OUT_σ_PS] < 0 ? -1 / (m_P[S_OUT_σ_PS] * sqrt(2 * PI)) : 0;
-							double S_out_psi_max = m_P[S_OUT_σ_PS] < 0 ? 1: 0;
+							double S_out_psi_max = m_P[S_OUT_σ_PS] < 0 ? 1 : 0;
 							double S_out_psi = m_P[S_OUT_PSI] * max(0.0, min(1.0, S_out_psi_max + exp(-0.5 * Square((PS - m_P[S_OUT_µ_PS]) / m_P[S_OUT_σ_PS])) / (m_P[S_OUT_σ_PS] * sqrt(2 * PI))));
 							double S_out_Rate = exp(-0.5 * Square((T_S_out_days - m_P[S_OUT_µ_T]) / m_P[S_OUT_σ_T])) / (m_P[S_OUT_σ_T] * sqrt(2 * PI));
 							double S_out_k = S_out_psi * S_out_Rate;
 
-							
+
 							//double St_in_psi_max = m_P[ST_IN_σ_PS] < 0 ? -1 / (m_P[ST_IN_σ_PS] * sqrt(2 * PI)) : 0;
-							double St_in_psi_max = m_P[ST_IN_σ_PS] < 0 ? 1: 0;
+							double St_in_psi_max = m_P[ST_IN_σ_PS] < 0 ? 1 : 0;
 							double St_in_psi = m_P[ST_IN_PSI] * max(0.0, min(1.0, St_in_psi_max + exp(-0.5 * Square((PS - m_P[ST_IN_µ_PS]) / m_P[ST_IN_σ_PS])) / (m_P[ST_IN_σ_PS] * sqrt(2 * PI))));
 							double St_in_Rate = exp(-0.5 * Square((T_St_in_days - m_P[ST_IN_µ_T]) / m_P[ST_IN_σ_T])) / (m_P[ST_IN_σ_T] * sqrt(2 * PI));
 							double St_in_k = St_in_psi * St_in_Rate;
 
-							
+
 							//double St_out_psi_max = m_P[ST_OUT_σ_PS] < 0 ? -1 / (m_P[ST_OUT_σ_PS] * sqrt(2 * PI)) : 0;
 							double St_out_psi_max = m_P[ST_OUT_σ_PS] < 0 ? 1 : 0;
 							double St_out_psi = m_P[ST_OUT_PSI] * max(0.0, min(1.0, St_out_psi_max + exp(-0.5 * Square((PS - m_P[ST_OUT_µ_PS]) / m_P[ST_OUT_σ_PS])) / (m_P[ST_OUT_σ_PS] * sqrt(2 * PI))));
@@ -307,8 +320,8 @@ namespace WBSF
 							double delta_S = S_in_k - S_out_k;
 							GFS += delta_S;
 							double delta_St = St_in_k - St_out_k;
-							
-							
+
+
 							Starch -= delta_St;
 
 							GFS = max(5.0, min(120.0, GFS));
@@ -317,9 +330,9 @@ namespace WBSF
 							ASSERT(GFS > 0);
 							ASSERT(Starch > 0);
 
-							
+
 							double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
-							double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5))-0.33));//0 .. 5;
+							double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
 
 
 							output[TRef][O_S_CONC] = GFS;
@@ -327,8 +340,8 @@ namespace WBSF
 							output[TRef][O_CU] = CU;
 							output[TRef][O_FU] = FU;
 							output[TRef][O_PS] = PS;
-							output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont: SDI_Auger;
-							
+							output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+
 						}
 					}
 				}
@@ -482,30 +495,30 @@ namespace WBSF
 				(m_P[ST_IN_σ_PS] > -0.1 && m_P[ST_IN_σ_PS] < 0.1) ||
 				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1))
 				return;
-				
 
-				if (data_weather.GetNbYears() == 0)
+
+			if (data_weather.GetNbYears() == 0)
+			{
+				CTPeriod pp((*m_years.begin()) - 1, JANUARY, DAY_01, *m_years.rbegin(), DECEMBER, DAY_31);
+				pp = pp.Intersect(m_weather.GetEntireTPeriod(CTM::DAILY));
+				if (pp.IsInit())
 				{
-					CTPeriod pp((*m_years.begin())-1, JANUARY, DAY_01, *m_years.rbegin(), DECEMBER, DAY_31);
-					pp = pp.Intersect(m_weather.GetEntireTPeriod(CTM::DAILY));
-					if (pp.IsInit())
-					{
-						((CLocation&)data_weather) = m_weather;
-						data_weather.CreateYears(pp);
+					((CLocation&)data_weather) = m_weather;
+					data_weather.CreateYears(pp);
 
-						for (int year = pp.GetFirstYear(); year <= pp.GetLastYear(); year++)
-						{
-							data_weather[year] = m_weather[year];
-						}
-					}
-					else
+					for (int year = pp.GetFirstYear(); year <= pp.GetLastYear(); year++)
 					{
-						//remove these obs, no input weather
-						m_SAResult.clear();
-						return;
+						data_weather[year] = m_weather[year];
 					}
-					
 				}
+				else
+				{
+					//remove these obs, no input weather
+					m_SAResult.clear();
+					return;
+				}
+
+			}
 
 			CTPeriod pp(data_weather.GetEntireTPeriod(CTM::DAILY));
 			CModelStatVector output(pp, NB_OUTPUTS, -999);
@@ -529,7 +542,7 @@ namespace WBSF
 			{
 				if (output.IsInside(m_SAResult[i].m_ref))
 				{
-					if (m_SAResult.front().m_obs.size() == 2) 
+					if (m_SAResult.front().m_obs.size() == 2)
 					{
 						if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 						{
@@ -553,7 +566,7 @@ namespace WBSF
 						{
 							double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 							double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-							
+
 							//if (!bSt_Valid)
 							//	sim_starch *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
 

@@ -36,8 +36,8 @@ namespace WBSF
 		size_t m_SDI_type;
 
 		HBB::CParameters m_P;
-		static const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> SDI;
-		std::array<double, NB_SDI_PARAMS> m_SDI;
+		//static const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> SDI;
+		//std::array<double, NB_SDI_PARAMS> m_SDI;
 		std::set<int> m_years;
 		CWeatherStation data_weather;
 	};

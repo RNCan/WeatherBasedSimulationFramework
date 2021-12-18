@@ -27,7 +27,7 @@ namespace WBSF
 
 	CSBWHostBudBurst::CSBWHostBudBurst()
 	{
-		m_SDI = { 2.1616,1.8268,4.0,50 ,-6 ,26 ,10.7,0.7 ,167 ,9.47 };
+		//m_SDI = { 2.1616,1.8268,4.0,50 ,-6 ,26 ,10.7,0.7 ,167 ,9.47 };
 	}
 
 	CSBWHostBudBurst::~CSBWHostBudBurst()
@@ -46,7 +46,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		boost::math::weibull_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
+		boost::math::weibull_distribution<double> SDI_dist(m_P.SDI_mu, m_P.SDI_sigma);
 		//boost::math::beta_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
 
 
@@ -114,7 +114,7 @@ namespace WBSF
 						mean_T_day[dd].Tair = Tair_stat[MEAN];
 						mean_T_day[dd].PN = PN_stat[SUM];
 
-						if (m_P.m_model == FABRIZIO_MODEL_OLD)
+						if (m_P.m_version == V_ORIGINAL)
 						{
 							mean_T_day[dd].RC_G_Tair = P.RC_G(mean_T_day[dd].Tair);
 							mean_T_day[dd].RC_F_Tair = P.RC_F(mean_T_day[dd].Tair);
@@ -148,7 +148,7 @@ namespace WBSF
 			{
 				int year = weather[y].GetTRef().GetYear();
 				CTPeriod p;
-				//if (m_P.m_model == FABRIZIO_MODEL_OLD)
+				//if (m_P.m_version == FABRIZIO_MODEL_OLD)
 				//{
 					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 				//}
@@ -182,7 +182,7 @@ namespace WBSF
 			int year = weather[y].GetTRef().GetYear();
 
 			CTPeriod p;
-			//if (m_P.m_model== FABRIZIO_MODEL_OLD)
+			//if (m_P.m_version== FABRIZIO_MODEL_OLD)
 			//{
 				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 //			}
@@ -210,8 +210,8 @@ namespace WBSF
 			double Ndw_0 = P.NB_r * P.Bdw_0*(1 - def.previous);
 			static const double I_0 = 1.0;
 			double Budburst_thr = P.BB_thr*Mdw_0;
-			P.Budburst_switch = false;
-			P.Swell_switch = false;
+			//P.Budburst_switch = false;
+			//P.Swell_switch = false;
 
 
 			// State variables initial values[s st mdw bdw C I]
@@ -221,7 +221,9 @@ namespace WBSF
 					Mdw_0,
 					P.Bdw_0,
 					P.C_0,
-					I_0
+					I_0,
+					false,
+					false,
 			};
 
 			
@@ -245,7 +247,7 @@ namespace WBSF
 				
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
-				//if(m_P.m_model == FABRIZIO_MODEL_OLD)
+				//if(m_P.m_version == FABRIZIO_MODEL_OLD)
 					output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
 				//else
 					//output[TRef][O_ST_CONC] = P.St_min + x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
@@ -267,9 +269,9 @@ namespace WBSF
 				for (size_t t = 0; t < nbSteps; t++)
 				{
 					//Phenological switches
-					P.Budburst_switch |= (x.Mdw >= Budburst_thr);
+					x.Budburst_switch |= (x.Mdw >= Budburst_thr);
 					//P.Swell_switch |= x.S / (x.Mdw + x.Bdw) >= P.Sw_thres;
-					P.Swell_switch = TRef.GetYear() == p.End().GetYear();//swelling only at the second year
+					x.Swell_switch = TRef.GetYear() == p.End().GetYear();//swelling only at the second year
 
 					//double f = 1.0 - (t - 1.0) / (nbSteps - 1.0);
 					//CInput I = input[d] * f + input[d + 1] * (1 - f);
@@ -307,7 +309,7 @@ namespace WBSF
 					output[TRef][O_C_SINK] = outputEx.C_SINK;
 					output[TRef][O_PROD_I] = outputEx.Prod_I;
 					output[TRef][O_REMOVAL_I] = outputEx.Removal_I;
-					output[TRef][O_SWELL_SWITCH] = P.Swell_switch;
+					output[TRef][O_SWELL_SWITCH] = x.Swell_switch;
 					output[TRef][O_TAIR] = mean_T_day[d].Tair;
 					output[TRef][O_TSOIL] = mean_T_day[d].Tsoil;
 					output[TRef][O_PN] = mean_T_day[d].PN;

@@ -46,7 +46,11 @@ copy /Y ".\bin\Releasex64\Models\ASCE-ET2005.pdf" "..\Install\NRCan\Models\ASCE-
 copy /Y ".\bin\Releasex64\Models\BudBurst.mdl" "..\Install\NRCan\Models\BudBurst.mdl"
 copy /Y ".\bin\Releasex64\Models\BudBurst.dll" "..\Install\NRCan\Models\BudBurst.dll"
 copy /Y ".\bin\Releasex64\Models\BudBurstSBWHost.mdl" "..\Install\NRCan\Models\BudBurstSBWHost.mdl"
+copy /Y ".\bin\Releasex64\Models\BudBurstSBWHostEx.mdl" "..\Install\NRCan\Models\BudBurstSBWHostEx.mdl"
 copy /Y ".\bin\Releasex64\Models\BudBurstSBWHost.dll" "..\Install\NRCan\Models\BudBurstSBWHost.dll"
+copy /Y ".\bin\Releasex64\Models\BudBurstSaintAmant.mdl" "..\Install\NRCan\Models\BudBurstSaintAmant.mdl"
+copy /Y ".\bin\Releasex64\Models\BudBurstSaintAmant.dll" "..\Install\NRCan\Models\BudBurstSaintAmant.dll"
+
 
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.mdl" "..\Install\NRCan\Models\BlueStainIndex.mdl"
 copy /Y ".\bin\Releasex64\Models\BlueStainIndex.dll" "..\Install\NRCan\Models\BlueStainIndex.dll"

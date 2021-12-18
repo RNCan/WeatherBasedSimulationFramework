@@ -6,19 +6,20 @@
 namespace WBSF
 {
 
+	enum THostSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, RED_SPRUCE, NB_HOST_SPECIES };
 	enum TSDI { SDI_DHONT, SDI_AUGER, NB_SDI_TYPE };
 
 	enum TParameters
 	{
 		//Chill Units (endodormacy release)
-		To,			//Beginning of endodormancy 244 (Chuine et al., 2016)
-		Tlow,		//Threshold temperature below which CU is maximum 3.1 (Chuine et al., 2016)
-		Thigh,		//Threshold temperature above which CU is null 26.7 (Chuine et al., 2016)
-		CUcrit,		//Amount of Chilling Units to complete endodormancy stage 2298.8 (Chuine et al., 2016)
+		To,			//Beginning of endodormancy
+		Tlow,		//Threshold temperature below which CU is maximum (Richardson)
+		Thigh,		//Threshold temperature above which CU is null (Richardson)
+		CUcrit,		//Amount of Chilling Units to complete endodormancy stage 
 		// Forcing Units (ecodormancy release)
-		slp,		//Slope at the inflection point T50 0.244 (Charrier et al., 2011)
-		T50,		//Temperature inducing half of the maximal apparent growth rate 13.5 (Charrier et al., 2011)
-		FUcrit,		//Amount of Forcing Units to complete the ecodormancy stage 21.2 (Charrier et al., 2011)
+		slp,		//Slope at the inflection point T50 (sigmoid)
+		T50,		//Temperature inducing half of the maximal apparent growth rate (sigmoid)
+		FUcrit,		//Amount of Forcing Units to complete the ecodormancy stage
 		//Sugar synthesis
 		S_IN_DAYS, //number of days for mean temperature of sugar input
 		S_IN_PSI,//	sugar input scale
@@ -85,6 +86,8 @@ namespace WBSF
 		size_t m_SDI_type;
 		//double m_defoliation;
 
+
+		static const std::array < std::array<double, NB_PARAMS>, NB_HOST_SPECIES> P;
 
 		std::array<double, NB_PARAMS> m_P;
 		std::set<int> m_years;

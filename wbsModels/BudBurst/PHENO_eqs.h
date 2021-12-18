@@ -10,6 +10,7 @@ namespace WBSF
 	//SBW host Budburst
 	namespace HBB
 	{
+		enum TVersion { V_ORIGINAL, V_MODIFIED, NB_VERSIONS };
 		enum TSBWSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, RED_SPRUCE, NB_SBW_SPECIES };
 
 
@@ -20,17 +21,9 @@ namespace WBSF
 			return (T > Tmin && T < Tmax) ? (2 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha) - pow(T - Tmin, 2 * alpha)) / pow(Topt - Tmin, 2 * alpha) : 0;
 		}
 
-		enum TModel { FABRIZIO_MODEL_OLD, FABRIZIO_MODEL_NEW, NB_MODELS };
 
 
-		//static double RC2(double T, double Tmin, double Topt, double Tmax)
-		//{
-		//	double x = (Tmax - T) / (Tmax - Topt);
-		//	double y = (T - Tmin) / (Topt - Tmin);
-		//	double z = (Topt - Tmin) / (Tmax - Topt);
 
-		//	return (T > Tmin && T < Tmax) ? x* pow(y,z): 0;
-		//}
 
 		enum TBeta { SW_K_BETA, B_K_BETA, G_K1_BETA, G_K2_BETA, MOB_K2_BETA, MOB_K1_BETA, ACC_K_BETA, FH_K1_BETA, FH_K2_BETA, FD_K1_BETA, FD_K2_BETA, NB_K, NB_BINS = 1000 };
 		class CParameters
@@ -106,27 +99,16 @@ namespace WBSF
 			//double v_c;
 			double BB_thr;
 			double St_min;
-			//double Sw_thres;
-			TModel m_model;
 
-			//double Sw_kk;
-			//double B_kk;
-			//double G_kk1;
-			//double G_kk2;
-			//double Mob_kk2;
-			//double Mob_kk1;
-			//double Acc_kk;
-			//double FH_kk1;
-			//double FH_kk2;
-			//double FD_kk1;
-			//double FD_kk2;
+			size_t m_version;
 
-			bool Swell_switch;
-			bool Budburst_switch;
+
 			double G_v2;
 			double C_min;
 			double C_max;
 			size_t m_nbSteps;
+			double SDI_mu;
+			double SDI_sigma;
 
 			double RC_G(double T)const { return RC(T, G_minT, G_optT, G_maxT); }
 			double RC_F(double T)const { return RC(T, F_minT, F_optT, F_maxT); }
@@ -175,8 +157,90 @@ namespace WBSF
 			//std::array < std::array < double, 2>, NB_K> m_K;
 			std::array < double, NB_K> m_K;
 			std::array< std::array < double, NB_BINS + 1>, NB_K> m_beta_function;
+			 
 
+			bool operator==(const CParameters& in)const
+			{
+				bool bEqual = true;
+				if (fabs(S_0 - in.S_0) > 0.00000001)bEqual = false;
+				if (fabs(St_0 - in.St_0) > 0.00000001)bEqual = false;
+				if (fabs(C_0 - in.C_0) > 0.00000001)bEqual = false;
+				if (fabs(Bdw_0 - in.Bdw_0) > 0.00000001)bEqual = false;
+				if (fabs(Sw_v - in.Sw_v) > 0.00000001)bEqual = false;
+				if (fabs(Sw_k - in.Sw_k) > 0.00000001)bEqual = false;
+				if (fabs(Sw_eff - in.Sw_eff) > 0.00000001)bEqual = false;
+				if (fabs(Mob_v1 - in.Mob_v1) > 0.00000001)bEqual = false;
+				if (fabs(Mob_k1 - in.Mob_k1) > 0.00000001)bEqual = false;
+				if (fabs(FH_v1 - in.FH_v1) > 0.00000001)bEqual = false;
+				if (fabs(FH_k1 - in.FH_k1) > 0.00000001)bEqual = false;
+				if (fabs(Acc_v - in.Acc_v) > 0.00000001)bEqual = false;
+				if (fabs(Acc_k - in.Acc_k) > 0.00000001)bEqual = false;
+				if (fabs(Mob_v2 - in.Mob_v2) > 0.00000001)bEqual = false;
+				if (fabs(Mob_k2 - in.Mob_k2) > 0.00000001)bEqual = false;
+				if (fabs(FH_v2 - in.FH_v2) > 0.00000001)bEqual = false;
+				if (fabs(FH_k2 - in.FH_k2) > 0.00000001)bEqual = false;
+				if (fabs(G_v1 - in.G_v1) > 0.00000001)bEqual = false;
+				if (fabs(G_k1 - in.G_k1) > 0.00000001)bEqual = false;
+				if (fabs(G_k2 - in.G_k2) > 0.00000001)bEqual = false;
+				if (fabs(S_sigma - in.S_sigma) > 0.00000001)bEqual = false;
+				if (fabs(St_max - in.St_max) > 0.00000001)bEqual = false;
+				if (fabs(G_minT - in.G_minT) > 0.00000001)bEqual = false;
+				if (fabs(G_optT - in.G_optT) > 0.00000001)bEqual = false;
+				if (fabs(G_maxT - in.G_maxT) > 0.00000001)bEqual = false;
+				if (fabs(I_c - in.I_c) > 0.00000001)bEqual = false;
+				if (fabs(FD_v1 - in.FD_v1) > 0.00000001)bEqual = false;
+				if (fabs(FD_k1 - in.FD_k1) > 0.00000001)bEqual = false;
+				if (fabs(FD_v2 - in.FD_v2) > 0.00000001)bEqual = false;
+				if (fabs(FD_k2 - in.FD_k2) > 0.00000001)bEqual = false;
+				if (fabs(FD_muS - in.FD_muS) > 0.00000001)bEqual = false;
+				if (fabs(M_minT - in.M_minT) > 0.00000001)bEqual = false;
+				if (fabs(M_optT - in.M_optT) > 0.00000001)bEqual = false;
+				if (fabs(M_maxT - in.M_maxT) > 0.00000001)bEqual = false;
+				if (fabs(B_v - in.B_v) > 0.00000001)bEqual = false;
+				if (fabs(B_k - in.B_k) > 0.00000001)bEqual = false;
+				if (fabs(B_eff - in.B_eff) > 0.00000001)bEqual = false;
+				if (fabs(Def_mid - in.Def_mid) > 0.00000001)bEqual = false;
+				if (fabs(Def_slp - in.Def_slp) > 0.00000001)bEqual = false;
+				if (fabs(Def_min - in.Def_min) > 0.00000001)bEqual = false;
+				if (fabs(PAR_SLA - in.PAR_SLA) > 0.00000001)bEqual = false;
+				if (fabs(PAR_minT - in.PAR_minT) > 0.00000001)bEqual = false;
+				if (fabs(PAR_optT - in.PAR_optT) > 0.00000001)bEqual = false;
+				if (fabs(PAR_maxT - in.PAR_maxT) > 0.00000001)bEqual = false;
+				if (fabs(PAR_PS1 - in.PAR_PS1) > 0.00000001)bEqual = false;
+				if (fabs(PAR_PS2 - in.PAR_PS2) > 0.00000001)bEqual = false;
+				if (fabs(PAR_PS3 - in.PAR_PS3) > 0.00000001)bEqual = false;
+				if (fabs(Def_max - in.Def_max) > 0.00000001)bEqual = false;
+				if (fabs(bud_dw - in.bud_dw) > 0.00000001)bEqual = false;
+				if (fabs(buds_num - in.buds_num) > 0.00000001)bEqual = false;
+				if (fabs(C_DW_Ratio - in.C_DW_Ratio) > 0.00000001)bEqual = false;
+				if (fabs(NB_r - in.NB_r) > 0.00000001)bEqual = false;
+				if (fabs(F_minT - in.F_minT) > 0.00000001)bEqual = false;
+				if (fabs(F_optT - in.F_optT) > 0.00000001)bEqual = false;
+				if (fabs(F_maxT - in.F_maxT) > 0.00000001)bEqual = false;
+				if (fabs(S_min - in.S_min) > 0.00000001)bEqual = false;
+				if (fabs(S_max - in.S_max) > 0.00000001)bEqual = false;
+				if (fabs(S_mu - in.S_mu) > 0.00000001)bEqual = false;
+				if (fabs(BB_thr - in.BB_thr) > 0.00000001)bEqual = false;
+				if (fabs(St_min - in.St_min) > 0.00000001)bEqual = false;
+				if (m_version != in.m_version) bEqual = false;
+				if (fabs(G_v2 - in.G_v2) > 0.00000001)bEqual = false;
+				if (fabs(C_min - in.C_min) > 0.00000001)bEqual = false;
+				if (fabs(C_max - in.C_max) > 0.00000001)bEqual = false;
+				if (m_nbSteps != in.m_nbSteps)bEqual = false;
+				if (fabs(SDI_mu - in.SDI_mu) > 0.00000001)bEqual = false;
+				if (fabs(SDI_sigma - in.SDI_sigma) > 0.00000001)bEqual = false;
+				
+
+				return bEqual;
+			}
+
+			bool operator!=(const CParameters& in)const { return !operator==(in); }
 		};
+
+		extern const std::array < std::array<CParameters, NB_SBW_SPECIES>, NB_VERSIONS> PARAMETERS;
+		//extern const std::array<CParameters, NB_SBW_SPECIES> PARAMETERS_OLD;
+
+
 
 
 		class COldParam
@@ -249,21 +313,34 @@ namespace WBSF
 
 			bool operator !=(const CParameters& in)const { return !operator ==(in); }
 
-			
+
 
 		};
 
 
-		extern const std::array<CParameters, NB_SBW_SPECIES> PARAMETERS;
 
 		class CVariables
 		{
 		public:
 
-			CVariables operator+(const CVariables& in)const { return { S + in.S,St + in.St,Mdw + in.Mdw,Bdw + in.Bdw,C + in.C,I + in.I }; }
+
+			CVariables(double _S = 0, double _St = 0, double _Mdw = 0, double _Bdw = 0, double _C = 0, double _I = 0, bool _Swell_switch = false, bool _Budburst_switch = false)
+			{
+				S = _S;
+				St = _St;
+				Mdw = _Mdw;
+				Bdw = _Bdw;
+				C = _C;
+				I = _I;
+
+				Swell_switch = _Swell_switch;
+				Budburst_switch = _Budburst_switch;
+			}
+
+
+			CVariables operator+(const CVariables& in)const { return { S + in.S,St + in.St,Mdw + in.Mdw,Bdw + in.Bdw,C + in.C,I + in.I,in.Swell_switch, in.Budburst_switch }; }
 			CVariables operator/(double f)const { return { S / f, St / f,Mdw / f,Bdw / f,C / f,I / f }; }
 			void limitToZero();
-
 
 
 			double S;//Stem Sugar [mg]
@@ -273,6 +350,8 @@ namespace WBSF
 			double C;//Carbohydrates? [mg]
 			double I;//Inhibitor factor [0..1]
 
+			bool Swell_switch;
+			bool Budburst_switch;
 		};
 
 		class COutputEx

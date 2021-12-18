@@ -42,14 +42,14 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSBWHostBudBurstModel::CreateObject);
 
-	const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> CSBWHostBudBurstModel::SDI =
-	{ {
-		{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BALSAM_FIR
-		{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//WHITE_SPRUCE
-		{ 5.8284, 0.8331, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BLACK_SPRUCE
-		{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//NORWAY_SPUCE
-		{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//RED_SPRUCE
-	} };
+	//const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> CSBWHostBudBurstModel::SDI =
+	//{ {
+	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BALSAM_FIR
+	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//WHITE_SPRUCE
+	//	{ 5.8284, 0.8331, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BLACK_SPRUCE
+	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//NORWAY_SPUCE
+	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//RED_SPRUCE
+	//} };
 
 	CSBWHostBudBurstModel::CSBWHostBudBurstModel()
 	{
@@ -57,7 +57,7 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 		VERSION = "1.0.1 (2021)";
 
-		m_SDI = SDI[0];
+		//m_SDI = SDI[0];
 	}
 
 	CSBWHostBudBurstModel::~CSBWHostBudBurstModel()
@@ -75,10 +75,10 @@ namespace WBSF
 		m_species = parameters[c++].GetInt();
 		m_defoliation = parameters[c++].GetReal() / 100.0;
 
-		ASSERT(m_species < HBB::PARAMETERS.size());
+		ASSERT(m_species < HBB::PARAMETERS[0].size());
 
-		m_P = HBB::PARAMETERS[m_species];
-		m_SDI = SDI[m_species];
+		m_P = HBB::PARAMETERS[0][m_species];
+		//m_SDI = SDI[m_species];
 		if (parameters.size() == 2 + 46 + NB_SDI_PARAMS + 1)
 		{
 			m_P.Sw_v = parameters[c++].GetReal();
@@ -127,20 +127,21 @@ namespace WBSF
 			m_P.PAR_PS2 = parameters[c++].GetReal();
 			m_P.PAR_PS3 = parameters[c++].GetReal();
 			m_P.PAR_SLA = parameters[c++].GetReal();
-			m_P.m_model = HBB::TModel(parameters[c++].GetInt());
+			m_P.m_version = HBB::TVersion(parameters[c++].GetInt());
 
-
+			std::array<double, NB_SDI_PARAMS> SDI;
 			for (size_t i = 0; i < NB_SDI_PARAMS; i++)
-				m_SDI[i] = parameters[c++].GetReal();
+				SDI[i] = parameters[c++].GetReal();
 
-
-			m_P.G_v2 = m_SDI[ʎb];
-			m_P.C_min = m_SDI[Τᴴ¹];
-			m_P.C_max = m_SDI[Τᴴ²];
-			m_P.PAR_minT = m_SDI[ʎ0];
-			m_P.PAR_optT = m_SDI[ʎ1];
-			m_P.PAR_maxT = m_SDI[ʎ2];
-			m_P.m_nbSteps = m_SDI[ʎ3];
+			m_P.SDI_mu = SDI[μ];
+			m_P.SDI_sigma = SDI[ѕ];
+			m_P.G_v2 = SDI[ʎb];
+			m_P.C_min = SDI[Τᴴ¹];
+			m_P.C_max = SDI[Τᴴ²];
+			m_P.PAR_minT = SDI[ʎ0];
+			m_P.PAR_optT = SDI[ʎ1];
+			m_P.PAR_maxT = SDI[ʎ2];
+			m_P.m_nbSteps = SDI[ʎ3];
 
 			//m_P.Sw_kk = m_SDI[2];
 			//m_P.B_kk = m_SDI[3];
@@ -151,11 +152,22 @@ namespace WBSF
 			//m_P.FH_kk1 = m_SDI[8];
 			//m_P.FD_kk1 = m_SDI[9];
 
+			
+			ASSERT(m_species < HBB::PARAMETERS[0].size());
+
+			
+		}
+		else
+		{
+			HBB::TVersion version = HBB::TVersion(parameters[c++].GetInt());
+			m_P = HBB::PARAMETERS[version][m_species];
 		}
 
 
 		m_SDI_type = parameters[c++].GetInt();
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
+		ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
+
 
 		return msg;
 	}
@@ -197,7 +209,7 @@ namespace WBSF
 
 
 		model.m_P = m_P;
-		model.m_SDI = m_SDI;
+		//model.m_SDI = m_SDI;
 		model.m_SDI_type = (TSDI)m_SDI_type;
 
 		msg = model.Execute(m_weather, m_output, bModelEx);
@@ -307,77 +319,77 @@ namespace WBSF
 	void CSBWHostBudBurstModel::CalibrateSDI(CStatisticXY& stat)
 	{
 
-		if (m_SDI[Τᴴ¹] >= m_SDI[Τᴴ²])
-			return;
+		//if (m_SDI[Τᴴ¹] >= m_SDI[Τᴴ²])
+		//	return;
 
 
-		if (m_SAResult.empty())
-			return;
+		//if (m_SAResult.empty())
+		//	return;
 
-		if (!m_weather.IsHourly())
-			m_weather.ComputeHourlyVariables();
-
-
-
-		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
-		{
-			int year = m_weather[y].GetTRef().GetYear();
-			if (m_years.find(year) == m_years.end())
-				continue;
+		//if (!m_weather.IsHourly())
+		//	m_weather.ComputeHourlyVariables();
 
 
 
-			double sumDD = 0;
-			vector<double> CDD;
-			CTPeriod p;
-
-
-			p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-
-			CDD.resize(p.size(), 0);
-			CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_SDI[Τᴴ¹], m_SDI[Τᴴ²]);
-
-			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-			{
-				const CWeatherDay& wday = m_weather.GetDay(TRef);
-				size_t ii = TRef - p.Begin();
-				sumDD += DDModel.GetDD(wday);
-				CDD[ii] = sumDD;
-			}
+		//for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+		//{
+		//	int year = m_weather[y].GetTRef().GetYear();
+		//	if (m_years.find(year) == m_years.end())
+		//		continue;
 
 
 
-
-			for (size_t i = 0; i < m_SAResult.size(); i++)
-			{
-				size_t ii = m_SAResult[i].m_ref - p.Begin();
-				if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
-				{
-					double obs_y = m_SAResult[i].m_obs[0];
-
-					if (obs_y > -999)
-					{
-
-						double sim_y = 0;
+		//	double sumDD = 0;
+		//	vector<double> CDD;
+		//	CTPeriod p;
 
 
-						//boost::math::logistic_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
-						boost::math::weibull_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
-						sim_y = Round(cdf(SDI_dist, CDD[ii]) * MAX_STAGE, ROUND_VAL);
-						//double sim = m_SDI[ʎa] - m_SDI[ʎb] * cdf(begin_dist, sumDD), 0);
+		//	p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+
+		//	CDD.resize(p.size(), 0);
+		//	CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_SDI[Τᴴ¹], m_SDI[Τᴴ²]);
+
+		//	for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		//	{
+		//		const CWeatherDay& wday = m_weather.GetDay(TRef);
+		//		size_t ii = TRef - p.Begin();
+		//		sumDD += DDModel.GetDD(wday);
+		//		CDD[ii] = sumDD;
+		//	}
 
 
 
-						if (sim_y < 0.05)
-							sim_y = 0;
-						if (sim_y > MAX_STAGE - 0.05)
-							sim_y = MAX_STAGE;
 
-						stat.Add(obs_y, sim_y);
-					}
-				}
-			}
-		}//for all years
+		//	for (size_t i = 0; i < m_SAResult.size(); i++)
+		//	{
+		//		size_t ii = m_SAResult[i].m_ref - p.Begin();
+		//		if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
+		//		{
+		//			double obs_y = m_SAResult[i].m_obs[0];
+
+		//			if (obs_y > -999)
+		//			{
+
+		//				double sim_y = 0;
+
+
+		//				//boost::math::logistic_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
+		//				boost::math::weibull_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
+		//				sim_y = Round(cdf(SDI_dist, CDD[ii]) * MAX_STAGE, ROUND_VAL);
+		//				//double sim = m_SDI[ʎa] - m_SDI[ʎb] * cdf(begin_dist, sumDD), 0);
+
+
+
+		//				if (sim_y < 0.05)
+		//					sim_y = 0;
+		//				if (sim_y > MAX_STAGE - 0.05)
+		//					sim_y = MAX_STAGE;
+
+		//				stat.Add(obs_y, sim_y);
+		//			}
+		//		}
+		//	}
+		//}//for all years
 
 
 	}
@@ -446,7 +458,7 @@ namespace WBSF
 				model.m_defioliation[data_weather[y].GetTRef().GetYear()] = m_defoliation;
 
 			model.m_P = m_P;
-			model.m_SDI = m_SDI;
+			//model.m_SDI = m_SDI;
 			model.m_SDI_type = (TSDI)m_SDI_type;
 
 			CModelStatVector output;
@@ -478,7 +490,7 @@ namespace WBSF
 			//if ( (100.0*nbInvalidS/ output.size()) > m_SAResult.size()/2)
 				//return;
 			size_t last_day = 213;
-			//if (m_P.m_model == HBB::FABRIZIO_MODEL_NEW)
+			//if (m_P.m_version == HBB::FABRIZIO_MODEL_NEW)
 				//last_day = 243;
 
 
