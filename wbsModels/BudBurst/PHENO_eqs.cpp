@@ -66,12 +66,12 @@ namespace WBSF
 
 			for (size_t t = 0; t < NB_K; t++)
 			{
-				//boost::math::beta_distribution<double> K_dist(1, max(0.001, abs(m_K[t])));
+				boost::math::beta_distribution<double> K_dist(1, max(0.001, abs(m_K[t])));
 				for (size_t i = 0; i < NB_BINS + 1; i++)
 				{
 					double S = double(i) / NB_BINS;
-					//m_beta_function[t][i] = cdf(K_dist, m_K[t]<0?(1-S):S);
-					m_beta_function[t][i] = (m_K[t] < 0) ? 1 - S / (S + fabs(m_K[t])) : S / (S + fabs(m_K[t]));
+					m_beta_function[t][i] = cdf(K_dist, m_K[t]<0?(1-S):S);
+				//	m_beta_function[t][i] = (m_K[t] < 0) ? 1 - S / (S + fabs(m_K[t])) : S / (S + fabs(m_K[t]));
 				}
 			}
 
@@ -88,19 +88,20 @@ namespace WBSF
 
 
 
-			//size_t bin = value_to_bin( (v-v_min) / (v_max-v_min));
-			//return m_beta_function[t][bin];
+			size_t bin = value_to_bin( (v-v_min) / (v_max-v_min));
+			return m_beta_function[t][bin];
 
+			//double S = max(0.0, min(1.0, (v - v_min) / (v_max - v_min)));
 			//double S = (v - v_min) / (v_max - v_min);
 			//double S = (v - v_min); 
-			double S = v;
+			//double S = v;
 
 
 			//Mobilization y Accumulation 
 			//if (t == MOB_K1_BETA || t == FH_K1_BETA)
 				//S = (v - v_min) / (v_max - v_min);
 
-			return max(0.0, min(1.0, (m_K[t] < 0) ? 1 - S / (S + fabs(m_K[t])) : S / (S + fabs(m_K[t]))));
+			//return max(0.0, min(1.0, (m_K[t] < 0) ? 1 - S / (S + fabs(m_K[t])) : S / (S + fabs(m_K[t]))));
 		}
 
 		//CVariables PhenologyConiferEquationsOriginal(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
