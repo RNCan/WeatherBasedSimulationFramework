@@ -180,7 +180,6 @@
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
     <ClInclude Include="QualityControl.h" />
-    <ClInclude Include="UICMIP6.h" />
     <ClInclude Include="UIQualityControl.h" />
     <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
@@ -255,7 +254,6 @@
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="QualityControl.cpp" />
-    <ClCompile Include="UICMIP6.cpp" />
     <ClCompile Include="UIQualityControl.cpp" />
     <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />

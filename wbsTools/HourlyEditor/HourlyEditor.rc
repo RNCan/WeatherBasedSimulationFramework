@@ -17,7 +17,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutral resources
+// Neutre resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
@@ -180,8 +180,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,5,4
- PRODUCTVERSION 4,4,5,4
+ FILEVERSION 4,4,6,1
+ PRODUCTVERSION 4,4,6,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -198,21 +198,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.4.5.4"
+            VALUE "FileVersion", "4.4.6.1"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "ÉditeurHoraire"
-            VALUE "ProductVersion", "4.4.5.4"
+            VALUE "ProductVersion", "4.4.6.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Hourly weather data editor"
-            VALUE "FileVersion", "4.4.5.4"
+            VALUE "FileVersion", "4.4.6.1"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "HourlyEditor"
-            VALUE "ProductVersion", "4.4.5.4"
+            VALUE "ProductVersion", "4.4.6.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -221,12 +221,12 @@ BEGIN
     END
 END
 
-#endif    // Neutral resources
+#endif    // Neutre resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// French (Canada) resources
+// Français (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
@@ -610,12 +610,12 @@ BEGIN
     ID_GRAPH_TM_TYPE        "Type d'espace temporelle\nType temporelle"
 END
 
-#endif    // French (Canada) resources
+#endif    // Français (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
+// Anglais (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
@@ -945,7 +945,7 @@ BEGIN
     ID_GRAPH_TM_TYPE        "Temporal space type\nTemporal Type"
 END
 
-#endif    // English (Canada) resources
+#endif    // Anglais (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.8.4:19/11/2021	Rémi Saint-Amant	Add set variation from model input
+// 11.8.4:19/12/2021	Rémi Saint-Amant	Add set variation from model input
 //											Add second reduction factor in SA and avoid observation reduction
 //											Add skip loops in Simulated Annealing
 // 11.8.3:07/09/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3

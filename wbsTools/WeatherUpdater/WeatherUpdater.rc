@@ -14,7 +14,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutral resources
+// Neutre resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
@@ -252,8 +252,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,9,3,4
- PRODUCTVERSION 5,9,3,4
+ FILEVERSION 6,0,0,1
+ PRODUCTVERSION 6,0,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -270,21 +270,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "5.9.3.4"
+            VALUE "FileVersion", "6.0.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "5.9.3.4"
+            VALUE "ProductVersion", "6.0.0.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "5.9.3.4"
+            VALUE "FileVersion", "6.0.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "5.9.3.4"
+            VALUE "ProductVersion", "6.0.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -293,12 +293,12 @@ BEGIN
     END
 END
 
-#endif    // Neutral resources
+#endif    // Neutre resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// French (Canada) resources
+// Français (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
@@ -858,12 +858,12 @@ BEGIN
     ID_TASK_DELETE_TOOL     "Enlever une tâche outil\nEnlever"
 END
 
-#endif    // French (Canada) resources
+#endif    // Français (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
+// Anglais (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
@@ -1356,7 +1356,7 @@ BEGIN
     ID_TASK_DELETE_TOOL     "Remove a tool task\nRemove"
 END
 
-#endif    // English (Canada) resources
+#endif    // Anglais (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
