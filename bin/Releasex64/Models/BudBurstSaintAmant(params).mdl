@@ -46,8 +46,8 @@
             <Rect>45 170 65 340</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>-0.1</DefaultValue>
-            <MinValue>-30</MinValue>
-            <MaxValue>15</MaxValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -58,8 +58,8 @@
             <Rect>45 355 70 505</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>26.7</DefaultValue>
-            <MinValue>15</MinValue>
-            <MaxValue>30</MaxValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -493,7 +493,7 @@
         <OutputVariable>
             <Name>CU</Name>
             <Title>CU</Title>
-            <Units></Units>
+            <Units/>
             <Description>Chilling units</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -501,7 +501,7 @@
         <OutputVariable>
             <Name>FU</Name>
             <Title>FU</Title>
-            <Units></Units>
+            <Units/>
             <Description>Forcing units</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -509,7 +509,7 @@
         <OutputVariable>
             <Name>PS</Name>
             <Title>PS</Title>
-            <Units></Units>
+            <Units/>
             <Description>Physiological stage</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
@@ -524,6 +524,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit></Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>

@@ -8,18 +8,19 @@ namespace WBSF
 
 	enum THostSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, RED_SPRUCE, NB_HOST_SPECIES };
 	enum TSDI { SDI_DHONT, SDI_AUGER, NB_SDI_TYPE };
+	enum TRFunction { SIGMOID, CHUINE, RICHARDSON, UTAH, NB_EQUATIONS };
 
 	enum TParameters
 	{
 		//Chill Units (endodormacy release)
 		To,			//Beginning of endodormancy
-		Tlow,		//Threshold temperature below which CU is maximum (Richardson)
-		Thigh,		//Threshold temperature above which CU is null (Richardson)
-		CUcrit,		//Amount of Chilling Units to complete endodormancy stage 
+		CU_µ,		//Threshold temperature below which CU is maximum (Richardson)
+		CU_σ,		//Threshold temperature above which CU is null (Richardson)
+		CU_crit,		//Amount of Chilling Units to complete endodormancy stage 
 		// Forcing Units (ecodormancy release)
-		slp,		//Slope at the inflection point T50 (sigmoid)
-		T50,		//Temperature inducing half of the maximal apparent growth rate (sigmoid)
-		FUcrit,		//Amount of Forcing Units to complete the ecodormancy stage
+		FU_µ,		//Slope at the inflection point T50 (sigmoid)
+		FU_σ,		//Temperature inducing half of the maximal apparent growth rate (sigmoid)
+		FU_crit,		//Amount of Forcing Units to complete the ecodormancy stage
 		//Sugar synthesis
 		S_IN_DAYS, //number of days for mean temperature of sugar input
 		S_IN_PSI,//	sugar input scale
@@ -92,6 +93,11 @@ namespace WBSF
 		std::array<double, NB_PARAMS> m_P;
 		std::set<int> m_years;
 		CWeatherStation data_weather;
+
+
+		double ChillingResponce(double T)const;
+		double ForcingResponce(double T)const;
+
 	};
 
 }

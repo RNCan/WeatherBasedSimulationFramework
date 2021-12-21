@@ -101,27 +101,55 @@ namespace WBSF
 
 
 
-
-
-	//estimate of water Content (WC) g/gDM
-	//
-	double GetWC(CTRef TRef, const CWeatherYears& weather)
+	double CBudBurstSaintAmantModel::ChillingResponce(double T)const
 	{
-		//Adjusted R-squared:  0.4999 
-		//F - statistic: 36.99 on 1 and 35 DF, p - value : 6.023e-07
-		// 
-		//mean of the last 23 days
-		CStatistic stat;
-		for (size_t d = 0; d < 23; d++)
+		double R = 0;// 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ]));
+
+		switch (SIGMOID)
 		{
-			stat += weather.GetDay(TRef - d)[H_TNTX][MEAN];
-		}
+		case SIGMOID: R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); break;
+		//case CHUINE: R = 1 / (1 + exp(-((T - m_P[CU_µ]) / m_P[CU_σ¹] + Square(T - m_P[CU_µ]) / m_P[CU_σ²]))); break;
+		case RICHARDSON: R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); break;
+		//case UTAH:
+		//{
+		//	ASSERT(m_P[CU_P_MIN] >= -1.0 && m_P[CU_P_MIN] <= 0.0);
+		//	if (T < m_P[CU_T_MIN])
+		//	{
+		//		R = 1.0 / (1.0 + exp(-4 * ((T - m_P[CU_T_MIN]) / (m_P[CU_T_OPT] - m_P[CU_T_MIN]))));
+		//	}
+		//	else if (T >= m_P[CU_T_MIN] && T < m_P[CU_T_OPT])
+		//	{
+		//		R = 1 - 0.5 * Square(T - m_P[CU_T_OPT]) / Square(m_P[CU_T_OPT] - m_P[CU_T_MIN]);
+		//	}
+		//	else if (T >= m_P[CU_T_OPT] && T < m_P[CU_T_MAX])
+		//	{
+		//		R = 1 - (1 - m_P[CU_P_MIN]) * Square(T - m_P[CU_T_OPT]) / (2 * Square(m_P[CU_T_MAX] - m_P[CU_T_OPT]));
+		//	}
+		//	else
+		//	{
+		//		R = m_P[CU_P_MIN] + (1 - m_P[CU_P_MIN]) / (1.0 + exp(-4 * ((m_P[CU_T_MAX] - T) / (m_P[CU_T_MAX] - m_P[CU_T_OPT]))));
+		//	}
+		//
+		//
+		//	break;
+		//}
+		default: ASSERT(false);
+		};
 
-		double WC = stat[MEAN] * 0.034600 + 0.914589;
 
+		ASSERT(!_isnan(R) && _finite(R));
 
-		return WC;
+		return R;
 	}
+
+	double CBudBurstSaintAmantModel::ForcingResponce(double T)const
+	{
+		double R = 1 / (1 + exp(-(T - m_P[FU_µ]) / m_P[FU_σ]));
+		ASSERT(!_isnan(R) && _finite(R) && R >= 0);
+
+		return R;
+	}
+
 
 	//This method is call to compute solution
 	ERMsg CBudBurstSaintAmantModel::OnExecuteDaily()
@@ -257,28 +285,48 @@ namespace WBSF
 							double T_S_out_days = input[TRef - pp.Begin()].T_S_out_days[S_OUT_STAT];
 							double T_St_in_days = input[TRef - pp.Begin()].T_St_in_days[ST_IN_STAT];
 							double T_St_out_days = input[TRef - pp.Begin()].T_St_out_days[ST_OUT_STAT];
+							//double T_CU = mean_T_day[TRef - pp.Begin()].T_CU_days[CU_STAT];
+							//double T_FU = mean_T_day[TRef - pp.Begin()].T_FU_days[FU_STAT];
+
 							double T = weather[y][m][d][H_TNTX][MEAN];
 							//double sRad = weather[y][m][d][H_SRMJ][SUM];
 
 
 
-							if (CU < m_P[CUcrit])
+							//if (CU < m_P[CUcrit])
+							//{
+							//	CU += max(0.0, min(m_P[Thigh] - T, m_P[Thigh] - m_P[Tlow]));
+							//	CU = min(CU, m_P[CUcrit]);
+							//}
+							//else //if (FU < m_P[FUcrit])
+							//{
+							//	FU += 1 / (1 + exp(-m_P[slp] * (T - m_P[T50])));
+							//	FU = min(FU, m_P[FUcrit]);
+							//}
+							if (CU < m_P[CU_crit])
 							{
-								CU += max(0.0, min(m_P[Thigh] - T, m_P[Thigh] - m_P[Tlow]));
-								CU = min(CU, m_P[CUcrit]);
+								//CU += max(0.0, min(m_P[Thigh] - T_CU, m_P[Thigh] - m_P[Tlow]));
+								CU += ChillingResponce(T);
+								CU = min(CU, m_P[CU_crit]);
 							}
-							else //if (FU < m_P[FUcrit])
+							else
 							{
-								FU += 1 / (1 + exp(-m_P[slp] * (T - m_P[T50])));
-								FU = min(FU, m_P[FUcrit]);
+								//if (TMethod(m_P[METHOD]) == CHUINE_ALTERNATING_METHOD && m_P[FU_crit] == -1)
+								//{
+								//	m_P[FU_crit] = max(1.0, m_P[FUw] * exp(-m_P[FUz] * CU));
+								//}
+
+								FU += ForcingResponce(T);
+								FU = min(FU, m_P[FU_crit]);
 							}
+
 
 
 							ASSERT(CU >= 0 && CU <= m_P[CUcrit]);
 							ASSERT(FU >= 0 && FU <= m_P[FUcrit]);
 
 
-							double PS = CU / m_P[CUcrit] + FU / m_P[FUcrit];
+							double PS = CU / m_P[CU_crit] + FU / m_P[FU_crit];
 
 							ASSERT(PS >= 0 && PS <= 2);
 
@@ -408,8 +456,8 @@ namespace WBSF
 	void CBudBurstSaintAmantModel::CalibrateSDI(CStatisticXY& stat)
 	{
 
-		if (m_P[Tlow] >= m_P[Thigh])
-			return;
+		//if (m_P[Tlow] >= m_P[Thigh])
+			//return;
 
 
 		if (m_SAResult.empty())
