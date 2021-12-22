@@ -50,8 +50,8 @@ namespace WBSF
 	static const size_t PRJ_GEOCENTRIC_BASE = 100;
 	static const size_t PRJ_PROJECTED_BASE = 1000;
 	static const size_t PRJ_PROJECTED_END = 10000;
-	static const char* PRJ_WGS_84_WKT = "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9108\"]],AUTHORITY[\"EPSG\",\"4326\"]]";
-	static const char* PRJ_WGS_84_PROJ4 = "+proj=longlat";
+	static const char* PRJ_WGS_84_WKT = "GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\", 6378137, 298.257223563,LENGTHUNIT[\"metre\", 1]]],PRIMEM[\"Greenwich\", 0,ANGLEUNIT[\"degree\", 0.0174532925199433]],CS[ellipsoidal, 2],AXIS[\"geodetic latitude (Lat)\", north,ORDER[1],ANGLEUNIT[\"degree\", 0.0174532925199433]],AXIS[\"geodetic longitude (Lon)\", east,ORDER[2],ANGLEUNIT[\"degree\", 0.0174532925199433]],USAGE[SCOPE[\"unknown\"],AREA[\"World\"],BBOX[-90, -180, 90, 180]],ID[\"EPSG\", 4326]]";
+	static const char* PRJ_WGS_84_PROJ4 = "+proj=latlong +datum=WGS84";
 	
 
 	inline bool IsInit(size_t ID)		{ return ID != PRJ_NOT_INIT&&ID!=PRJ_UNKNOWN; }

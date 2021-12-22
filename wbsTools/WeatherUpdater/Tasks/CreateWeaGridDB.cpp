@@ -67,12 +67,68 @@ namespace WBSF
 
 		return str;
 	}
+	bool GDALGetCenter(GDALDataset* poDS, double* centerLonLat)
+	{
+		char* pszPrj;
+		double adfGeoTransform[6];
+		int xSize, ySize;
+		double xCenter, yCenter;
+		double lon, lat;
 
+		OGRSpatialReference oSourceSRS, oTargetSRS;
+		OGRCoordinateTransformation* poCT;
+
+		if (poDS == NULL)
+			return false;
+
+		xSize = poDS->GetRasterXSize();
+		ySize = poDS->GetRasterYSize();
+
+		if (poDS->GetGeoTransform(adfGeoTransform) != CE_None)
+			return false;
+
+		if (poDS->GetProjectionRef() == NULL)
+			return false;
+		else
+			pszPrj = (char*)poDS->GetProjectionRef();
+
+		oSourceSRS.importFromWkt(&pszPrj);
+		oTargetSRS.SetWellKnownGeogCS("WGS84");
+
+		poCT = OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS);
+		if (poCT == NULL)
+			return false;
+
+		xCenter = xSize / 2;
+		yCenter = ySize / 2;
+
+		lon = adfGeoTransform[0] + adfGeoTransform[1] * xCenter
+			+ adfGeoTransform[2] * yCenter;
+
+		lat = adfGeoTransform[3] + adfGeoTransform[4] * xCenter
+			+ adfGeoTransform[5] * yCenter;
+
+		if (!poCT->Transform(1, &lon, &lat)) {
+			OGRCoordinateTransformation::DestroyCT(poCT);
+			return false;
+		}
+
+		centerLonLat[0] = lon;
+		centerLonLat[1] = lat;
+
+		OGRCoordinateTransformation::DestroyCT(poCT);
+		return true;
+	}
 	ERMsg CCreateWeatherGridDB::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 
 		GDALSetCacheMax64(128 * 1024 * 1024);
+		
+
+		
+		CPLStringList paths ( OSRGetPROJSearchPaths() );
+		
 
 		string inputFilePath = Get(INPUT_FILEPATH);
 		if (inputFilePath.empty())
@@ -94,6 +150,9 @@ namespace WBSF
 		SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
 		callback.AddMessage(GetString(IDS_CREATE_DB));
 		callback.AddMessage(outputFilePath, 1);
+
+		
+
 
 		CGribsMap gribs;
 		msg += gribs.load(inputFilePath);

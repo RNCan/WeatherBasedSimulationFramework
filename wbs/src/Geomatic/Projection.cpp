@@ -63,6 +63,7 @@ namespace WBSF
 	{
 
 		m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(NULL);
+		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 		m_pProjPJ = NULL;
 		m_prjID = PRJ_NOT_INIT;
 
@@ -77,11 +78,7 @@ namespace WBSF
 
 	CProjection::CProjection(const char* prjStr, size_t prjID, const OGRSpatialReference& SR, projPJ pProjPJ)
 	{
-		//if (SR)
-		//{
 		m_pSpatialReference = SR.Clone();
-		//}
-		//m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(prjStr);
 		if (m_pSpatialReference)
 		{
 			m_prjID = prjID;
@@ -99,6 +96,7 @@ namespace WBSF
 		m_pProjPJ = NULL;
 		m_prjID = PRJ_NOT_INIT;
 		m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(NULL);
+		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 
 		if (in.IsInit())
 		{
@@ -366,6 +364,7 @@ namespace WBSF
 
 				//Register prj name
 				OGRSpatialReference spatialReference;
+				spatialReference.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 
 				if (FindSRS(prjStr, spatialReference, false))
 				{

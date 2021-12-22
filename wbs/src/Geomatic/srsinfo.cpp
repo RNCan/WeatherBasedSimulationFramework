@@ -89,6 +89,7 @@ namespace WBSF
 			if (oSRS.importFromWkt(&pszProjection) == CE_None) {
 				CPLDebug("gdalsrsinfo", "got SRS from GDAL");
 				bGotSRS = TRUE;
+				oSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 			}
 			GDALClose((GDALDatasetH)poGDALDS);
 			if (!bGotSRS)
@@ -144,6 +145,7 @@ namespace WBSF
 			else {
 				CPLDebug("gdalsrsinfo", "got SRS from ESRI .prj file");
 				bGotSRS = TRUE;
+				oSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 			}
 		}
 
@@ -160,6 +162,7 @@ namespace WBSF
 			else {
 				CPLDebug("gdalsrsinfo", "got SRS from user input");
 				bGotSRS = TRUE;
+				oSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 			}
 		}
 

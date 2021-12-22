@@ -45,8 +45,20 @@ void RegisterGDAL()
 	string path = GetApplicationPath() + "External";
 	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
 
-	path += "\\gdal-data";
+	path = GetApplicationPath() + "External\\gdal-data";
 	CPLSetConfigOption("GDAL_DATA", path.c_str());
+
+
+	
+	path = GetApplicationPath() + "External\\projlib";
+	CPLSetConfigOption("PROJ_LIB", path.c_str());
+
+	CPLStringList paths(OSRGetPROJSearchPaths());
+	paths.AddString(path.c_str());
+	OSRSetPROJSearchPaths(paths);
+	//CPLStringList new_paths(OSRGetPROJSearchPaths());
+
+
 
 	GDALAllRegister();
 }
