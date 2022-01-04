@@ -85,8 +85,10 @@
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API(debug)\$(TargetName)$(TargetExt)"
 copy "$(TargetDir)$(TargetName).pdb" "G:\Travaux\BioSIM_API(debug)\$(TargetName).pdb"
-copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Debug\net5.0\win-x64\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Debug\net5.0\win-x64\$(TargetName).pdb"
+copy "$(TargetPath)" "..\UnitTest\bin\$(IntDir)$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "..\UnitTest\bin\$(IntDir)$(TargetName).pdb"
+copy "$(TargetPath)" "..\UnitTest\bin\$(IntDir)$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "..\UnitTest\bin\$(IntDir)$(TargetName).pdb"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -120,10 +122,10 @@ copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API\$(TargetName)$(TargetExt)"
 copy "$(TargetDir)$(TargetName).pdb" "G:\Travaux\BioSIM_API\$(TargetName).pdb"
-copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Release\net5.0\win-x64\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Release\net5.0\win-x64\$(TargetName).pdb"
 copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIM-wrapper\runtimes\win-x64\native\$(TargetName)$(TargetExt)"
 copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIM-wrapper\runtimes\win-x64\native\$(TargetName).pdb"
+copy "$(TargetPath)" "..\UnitTest\bin\$(IntDir)$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "..\UnitTest\bin\$(IntDir)$(TargetName).pdb"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -9,24 +9,40 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BioSIM_API_Wrapper", "Wrapp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BioSIM_API_Console", "CLIConsole\BioSIM_API_Console.csproj", "{F3473083-6438-4DF7-92E4-058008CDEE75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Debug|x64.ActiveCfg = Debug|x64
 		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Debug|x64.Build.0 = Debug|x64
+		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Release|Any CPU.ActiveCfg = Release|x64
 		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Release|x64.ActiveCfg = Release|x64
 		{7B96251F-134D-4583-AF1B-4A8AAC83C56E}.Release|x64.Build.0 = Release|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Debug|x64.ActiveCfg = Debug|x64
 		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Debug|x64.Build.0 = Debug|x64
+		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Release|Any CPU.ActiveCfg = Release|x64
 		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Release|x64.ActiveCfg = Release|x64
 		{C6D44A41-B0D4-45AE-811E-3C74F64EFD58}.Release|x64.Build.0 = Release|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{F3473083-6438-4DF7-92E4-058008CDEE75}.Debug|x64.ActiveCfg = Debug|x64
 		{F3473083-6438-4DF7-92E4-058008CDEE75}.Debug|x64.Build.0 = Debug|x64
+		{F3473083-6438-4DF7-92E4-058008CDEE75}.Release|Any CPU.ActiveCfg = Release|x64
 		{F3473083-6438-4DF7-92E4-058008CDEE75}.Release|x64.ActiveCfg = Release|x64
 		{F3473083-6438-4DF7-92E4-058008CDEE75}.Release|x64.Build.0 = Release|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Debug|x64.ActiveCfg = Debug|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Debug|x64.Build.0 = Debug|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Release|Any CPU.ActiveCfg = Release|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Release|x64.ActiveCfg = Release|x64
+		{A7FC0CDB-4B5D-4858-B1EE-26CE52534902}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

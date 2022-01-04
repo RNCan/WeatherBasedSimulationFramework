@@ -72,10 +72,6 @@
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API(debug)\$(TargetName)$(TargetExt)"
 copy "$(TargetDir)$(TargetName).pdb" "G:\Travaux\BioSIM_API(debug)\$(TargetName).pdb"
-copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Debug\net5.0\win-x64\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Debug\net5.0\win-x64\$(TargetName).pdb"
-copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIM-wrapper\bin\x64\Debug\net5.0\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIM-wrapper\bin\x64\Debug\net5.0\$(TargetName).pdb"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -94,11 +90,8 @@ copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIM-wrapper\bin\
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "G:\Travaux\BioSIM_API\$(TargetName)$(TargetExt)"
 copy "$(TargetDir)$(TargetName).pdb" "G:\Travaux\BioSIM_API\$(TargetName).pdb"
-copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Release\net5.0\win-x64\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIMTests\bin\x64\Release\net5.0\win-x64\$(TargetName).pdb"
 copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIM-wrapper\lib\net5.0\$(TargetName)$(TargetExt)"
 copy "$(TargetPath)" "E:\BioSIM_web_API_prod\BioSIM-wrapper\bin\x64\Release\net5.0\$(TargetName)$(TargetExt)"
-copy "$(TargetDir)$(TargetName).pdb" "E:\BioSIM_web_API_prod\BioSIM-wrapper\bin\x64\Release\net5.0\$(TargetName).pdb"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
