@@ -54,7 +54,7 @@ namespace BioSIM_Wrapper
 
 	TeleIO^ WeatherGenerator::GetNormals(const String^ str_options)
 	{
-		WBSF::CTeleIO IO = m_Instance->Generate(string_to_stdstring(str_options));
+		WBSF::CTeleIO IO = m_Instance->GetNormals(string_to_stdstring(str_options));
 		return gcnew TeleIO(IO);
 	}
 

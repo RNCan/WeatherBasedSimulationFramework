@@ -16,7 +16,7 @@ namespace CLIConsole
             exe_path = System.IO.Path.GetDirectoryName(exe_path);
             Console.WriteLine("trying path: " + exe_path);
 
-            string[] arguments = Environment.GetCommandLineArgs();
+            string[] arguments = Environment.GetCommandLineArgs(); 
             string options = arguments[1];
             Console.WriteLine("trying options: " + options);
 
