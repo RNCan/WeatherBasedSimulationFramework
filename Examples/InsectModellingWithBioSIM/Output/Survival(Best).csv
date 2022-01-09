@@ -1,0 +1,5 @@
+"Variable","EqName","P","Eq","Math","AICc","maxLL","pos"
+"Egg","Survival_15","a1=-1.917345e-01 b1=5.577326e-03 a2=-9.987905e+00 b2=-1.691305e+00 c=1.194140e+00","a1*exp(b1*T) + a2*exp(b2*T) + c","k[0]+k[1]~e^{kk[1]~T} + k[2]~e^{kk[2]~T}",2446.11,-1217.98,2
+"Larva","Survival_02","a=-1.339984e+00 b=-4.435745e-01 c=1.453492e-02 d=2.098896e+00","1/(1+exp(a+b*T+c*T^d))","over(1, 1+e^{k[0]+k[1]*T+k[2]*T^{~kk}})",1627.15,-809.519,5
+"Prepupa","Survival_08","a=-8.846751e+01 b=7.478292e-02 c=8.354992e+01 d=1.016128e-08","1-exp(a+b*T+c/T^d)","1-e^{k[0]+k[1]*T+k[2]*T^{~-kk}}",589.766,-290.709,7
+"Pupa","Survival_13","a=9.952041e-01 Tl=3.501583e+00 Th=2.852509e+01 deltaT=1.887474e+00","ifelse(T>=Tl&T<=Th,a*(1-exp(-pmax(0,(T-Tl))/deltaT))*(1-exp(-pmax(0,(Th-T))/deltaT)),0)","{1-k~bgroup('(',1-e^{~-~over(T~-~T[L],Delta[T])},')')~bgroup('(',{1-e^{~-~over(T[H]~-~T,Delta[T])}}, ')')}",337.067,-164.287,1
