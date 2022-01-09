@@ -14,29 +14,29 @@
 
 #pragma warning( disable : 4251)
 
-
-namespace Core
-{
-	class DLL_EXPORT Entity
-	{
-	public:
-		const char* m_Name;
-
-
-		Entity(const char* name, float xPos, float yPos);
-
-		void Move(float deltaX, float deltaY);
-		inline float GetXPosition() const { return m_XPos; };
-		inline float GetYPosition() const { return m_YPos; };
-
-
-
-	private:
-		float m_XPos, m_YPos;
-	};
-
-
-}
+//
+//namespace Core
+//{
+//	class DLL_EXPORT Entity
+//	{
+//	public:
+//		const char* m_Name;
+//
+//
+//		Entity(const char* name, float xPos, float yPos);
+//
+//		void Move(float deltaX, float deltaY);
+//		inline float GetXPosition() const { return m_XPos; };
+//		inline float GetYPosition() const { return m_YPos; };
+//
+//
+//
+//	private:
+//		float m_XPos, m_YPos;
+//	};
+//
+//
+//}
 
 
 namespace WBSF
@@ -66,6 +66,38 @@ namespace WBSF
 	typedef std::shared_ptr<CModel> CModelPtr;
 
 
+	class CGlobalDLLData
+	{
+	public:
+
+		enum TParam { MODELS_PATH, AZURE_DLL, SHORE, DEM, NB_PAPAMS };
+		static const char* NAME[NB_PAPAMS];
+
+
+		CGlobalDLLData() {clear();}
+		void clear();
+		ERMsg parse(const std::string& str_init);
+
+
+		
+		std::string m_model_path;
+		std::string m_Azure_DLL_file_path;
+		std::string m_shore_file_path;
+		std::string m_DEM_file_path;
+
+	
+
+		CGDALDatasetExPtr m_pDEM;
+	};
+
+	class DLL_EXPORT CBioSIM_API_GlobalData
+	{
+	public:
+
+		//		BioSIM_API_DLL();
+		std::string InitGlobalData(const std::string& str_options);
+	};
+
 
 	//IO class between c++ and python
 	class DLL_EXPORT CTeleIO
@@ -93,16 +125,16 @@ namespace WBSF
 	};
 
 
-	class WeatherGeneratorInit
+	class CWeatherGeneratorInit
 	{
 
 	public:
 
 		//DEFAULT_ENDPOINTS_PROTOCOL, ENDPOINT_SUFFIX, 
-		enum TParam { ACCOUNT_NAME, ACCOUNT_KEY, CONTAINER_NAME, SHORE, NORMALS, DAILY, HOURLY, GRIBS, DEM, NB_PAPAMS };
+		enum TParam { ACCOUNT_NAME, ACCOUNT_KEY, CONTAINER_NAME,/* SHORE,*/ NORMALS, DAILY, HOURLY, GRIBS, /*DEM,*/ NB_PAPAMS };
 		static const char* NAME[NB_PAPAMS];
 
-		WeatherGeneratorInit();
+		CWeatherGeneratorInit();
 		void clear();
 		ERMsg parse(const std::string& options);
 		bool IsAzure()const { return !m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty(); }
@@ -111,23 +143,23 @@ namespace WBSF
 		std::string m_account_key;
 		std::string m_container_name;
 
-		std::string m_shore_name;
+		//std::string m_shore_name;
 		std::string m_normal_name;
 		std::string m_daily_name;
-		std::string m_DEM_name;
+		//std::string m_DEM_name;
 	};
 
 
 
 
-	class WeatherGeneratorOptions
+	class CWeatherGeneratorOptions
 	{
 	public:
 
 		enum TParam { VARIABLES, SOURCE_TYPE, GENERATION_TYPE, REPLICATIONS, KEY_ID, NAME, LATITUDE, LONGITUDE, ELEVATION, SLOPE, ORIENTATION, NB_NEAREST_NEIGHBOR, FIRST_YEAR, LAST_YEAR, NB_YEARS, SEED, NORMALS_INFO, COMPRESS, NB_PAPAMS };
 		static const char* PARAM_NAME[NB_PAPAMS];
 
-		WeatherGeneratorOptions();
+		CWeatherGeneratorOptions();
 		ERMsg parse(const std::string& options);
 		void GetWGInput(CWGInput& WGInput)const;
 
@@ -154,7 +186,7 @@ namespace WBSF
 
 	
 
-	class DLL_EXPORT WeatherGenerator
+	class DLL_EXPORT CWeatherGeneratorAPI
 	{
 
 	public:
@@ -162,7 +194,7 @@ namespace WBSF
 		enum TParam { SHORE, NORMALS, DAILY, HOURLY, GRIBS, DEM, NB_PAPAMS };
 		static const char* NAME[NB_PAPAMS];
 
-		WeatherGenerator(const std::string &);
+		CWeatherGeneratorAPI(const std::string &);
 		std::string Initialize(const std::string& str_options);
 		CTeleIO Generate(const std::string& str_options);
 		//CTeleIO GenerateGribs(const std::string& str_options);
@@ -172,17 +204,17 @@ namespace WBSF
 
 	protected:
 
-		WeatherGeneratorInit m_init;
+		CWeatherGeneratorInit m_init;
 
 		CNormalsDatabasePtr m_pNormalDB;
 		CDailyDatabasePtr m_pDailyDB;
 		//CHourlyDatabasePtr m_pHourlyDB;
 		//CSfcGribExtractorPtr m_pGribsDB;
 		//CSfcGribDatabasePtr m_pGribsDB;
-		CGDALDatasetExPtr m_pDEM;
+		//CGDALDatasetExPtr m_pDEM;
 
 		CWeatherGeneratorPtr m_pWeatherGenerator;
-
+		
 
 		ERMsg ComputeElevation(double latitude, double longitude, double& elevation);
 		void SaveNormals(std::ostream& out, const CNormalsStation& normals);
@@ -194,14 +226,14 @@ namespace WBSF
 	//Model
 
 	
-	class ModelExecutionOptions
+	class CModelExecutionOptions
 	{
 	public:
 
 		enum TParam { PARAMETERS, REPLICATIONS, SEED, COMPRESS, NB_PAPAMS };
 		static const char* PARAM_NAME[NB_PAPAMS];
 
-		ModelExecutionOptions();
+		CModelExecutionOptions();
 		ERMsg parse(const std::string& options);
 		ERMsg GetModelInput(const CModel& model, CModelInput& modelInput)const;
 
@@ -215,7 +247,7 @@ namespace WBSF
 
 	
 
-	class DLL_EXPORT ModelExecution
+	class DLL_EXPORT CModelExecutionAPI
 	{
 
 	public:
@@ -223,13 +255,13 @@ namespace WBSF
 		enum TParam { MODEL, NB_PAPAMS };
 		static const char* NAME[NB_PAPAMS];
 
-		ModelExecution(const std::string &);
+		CModelExecutionAPI(const std::string &);
 		std::string Initialize(const std::string& str_options);
 		CTeleIO Execute(const std::string& str_options, const CTeleIO& input);
 		std::string GetWeatherVariablesNeeded();
 		std::string GetDefaultParameters()const;
 		std::string Help()const;
-		std::string Test()const;
+		
 
 	protected:
 

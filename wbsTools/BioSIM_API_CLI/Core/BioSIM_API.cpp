@@ -11,7 +11,7 @@
 #include <iostream>
 #include "Basic/NormalsDatabase.h"
 #include "Basic/WeatherDefine.h"
-#include "Basic/DynamicRessource.h"
+
 #include "Basic/Shore.h"
 #include "basic/ModelStat.h"
 #include "Geomatic/UtilGDAL.h"
@@ -45,37 +45,29 @@ using namespace WBSF;
 using namespace WBSF::WEATHER;
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::NORMALS_DATA;
-extern HMODULE g_hDLL;
-
-
-
-
-namespace Core
-{
-	Entity::Entity(const char* name, float xPos, float yPos)
-		: m_Name(name), m_XPos(xPos), m_YPos(yPos)
-	{
-		std::cout << "Created the Entity object!" << std::endl;
-	}
-	void Entity::Move(float deltaX, float deltaY)
-	{
-		m_XPos += deltaX;
-		m_YPos += deltaY;
-		std::cout << "Moved " << m_Name << " to (" << m_XPos << ", " << m_YPos << ")." << std::endl;
-	}
-}
-
+//
+//namespace Core
+//{
+//	Entity::Entity(const char* name, float xPos, float yPos)
+//		: m_Name(name), m_XPos(xPos), m_YPos(yPos)
+//	{
+//		std::cout << "Created the Entity object!" << std::endl;
+//	}
+//	void Entity::Move(float deltaX, float deltaY)
+//	{
+//		m_XPos += deltaX;
+//		m_YPos += deltaY;
+//		std::cout << "Moved " << m_Name << " to (" << m_XPos << ", " << m_YPos << ")." << std::endl;
+//	}
+//}
+//
 
 
 
 namespace WBSF
 {
 
-
-	//static const std::string ACCOUNT_NAME = "";
-	//static const std::string ACCOUNT_KEY = "";
-	//static const std::string CONTAINER_NAME = "";
-
+	static std::unique_ptr<CGlobalDLLData> pGLOBAL_DLL_DATA;
 
 
 	static std::string get_string(ERMsg msg)
@@ -121,29 +113,173 @@ namespace WBSF
 	}
 
 
+	//******************************************************************************************************************************
+	//
+	const char* CGlobalDLLData::NAME[NB_PAPAMS] = { "ModelsPath", "Azure", "Shore", "DEM" };
+
+
+
+	void CGlobalDLLData::clear()
+	{
+		m_model_path.clear();
+		m_Azure_DLL_file_path.clear();
+		m_shore_file_path.clear();
+		m_DEM_file_path.clear();
+	}
+
+
+	ERMsg CGlobalDLLData::parse(const std::string& str_init)
+	{
+		ERMsg msg;
+
+		clear();
+
+		StringVector args(str_init, "&");
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			//StringVector option(args[i], "=");
+			string::size_type pos = args[i].find('=');
+			if (pos != string::npos)
+			{
+				string key = args[i].substr(0, pos);
+				string value = args[i].substr(pos + 1);
+
+				//auto it = std::find(begin(NAME), end(NAME), MakeUpper(option[0]));
+				//string str1 = option[0];
+				auto it = std::find_if(begin(NAME), end(NAME), [&str1 = key](const auto& str2) { return boost::iequals(str1, str2); });
+				if (it != end(NAME))
+				{
+					size_t o = distance(begin(NAME), it);
+					switch (o)
+					{
+					case MODELS_PATH: m_model_path = value; break;
+					case AZURE_DLL: m_Azure_DLL_file_path = value; break;
+					case SHORE: m_shore_file_path = value; break;
+					case DEM: m_DEM_file_path = value; break;
+					default: ASSERT(false);
+					}
+				}
+				else
+				{
+					msg.ajoute("Invalid options in argument " + to_string(i + 1) + "( " + args[i] + ")");
+				}
+			}
+			else
+			{
+				msg.ajoute("error in argument " + to_string(i + 1) + "( " + args[i] + ")");
+			}
+		}
+
+		return msg;
+	};
+
+	std::string CBioSIM_API_GlobalData::InitGlobalData(const std::string& str_init)
+	{
+		ERMsg msg;
+
+		if (pGLOBAL_DLL_DATA.get() == nullptr)
+			pGLOBAL_DLL_DATA.reset(new CGlobalDLLData);
+
+		msg = pGLOBAL_DLL_DATA->parse(str_init);
+
+		if (msg)
+		{
+			try
+			{
+				CCallback callback;
+
+				if (!pGLOBAL_DLL_DATA->m_model_path.empty())
+				{
+					if (!WBSF::IsPathEndOk(pGLOBAL_DLL_DATA->m_model_path))
+						pGLOBAL_DLL_DATA->m_model_path += "/";
+				}
+
+				if (!pGLOBAL_DLL_DATA->m_Azure_DLL_file_path.empty())
+				{
+
+					WBSF::CWeatherDatabase::set_azure_dll_filepath(pGLOBAL_DLL_DATA->m_Azure_DLL_file_path);
+				}
+
+
+				//if (!pGLOBAL_DLL_DATA->m_shore_file_path.empty())
+				//{
+
+					//m_CS.Enter();
+					/*if (CShore::GetShore().get() == nullptr)
+					{
+						if (m_init.IsAzure())
+						{
+							blob_client client(account, 16);
+
+							std::stringstream azure_stream;
+							auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_shore_name, 0, 0, azure_stream).get();
+							if (ret.success())
+							{
+								CApproximateNearestNeighborPtr pShore = make_shared<CApproximateNearestNeighbor>();
+
+								*pShore << azure_stream;
+								CShore::SetShore(pShore);
+							}
+							else
+							{
+								msg.ajoute("Failed to download shore, error: " + ret.error().code + ", " + ret.error().code_name);
+							}
+						}
+						else
+						{
+							msg += CShore::SetShore(m_init.m_shore_name);
+						}
+					}*/
+
+
+				msg += CShore::SetShore(pGLOBAL_DLL_DATA->m_shore_file_path);
+
+				//}
+
+				if (!pGLOBAL_DLL_DATA->m_DEM_file_path.empty())
+				{
+					pGLOBAL_DLL_DATA->m_pDEM.reset(new CGDALDatasetEx);
+					msg += pGLOBAL_DLL_DATA->m_pDEM->OpenInputImage(pGLOBAL_DLL_DATA->m_DEM_file_path);
+				}
+
+				
+			}
+			catch (...)
+			{
+				int i;
+				i = 0;
+			}
+		}
+
+		return get_string(msg);
+	}
+
+
+
+
 
 	//******************************************************************************************************************************
 
 	//"DefaultEndpointsProtocol","EndpointSuffix",
-	const char* WeatherGeneratorInit::NAME[NB_PAPAMS] = { "AccountName","AccountKey","ContainerName","Shore", "Normals", "Daily", "Hourly", "GRIBS", "DEM" };
+	const char* CWeatherGeneratorInit::NAME[NB_PAPAMS] = { "AccountName","AccountKey","ContainerName",/*"Shore",*/ "Normals", "Daily", "Hourly", "GRIBS"/*, "DEM"*/ };
 
-	WeatherGeneratorInit::WeatherGeneratorInit()
+	CWeatherGeneratorInit::CWeatherGeneratorInit()
 	{
 		clear();
 	}
 
-	void WeatherGeneratorInit::clear()
+	void CWeatherGeneratorInit::clear()
 	{
 		m_account_name.clear();
 		m_account_key.clear();
 		m_container_name.clear();
-		m_shore_name.clear();
+		//	m_shore_name.clear();
 		m_normal_name.clear();
 		m_daily_name.clear();
-		m_DEM_name.clear();
+		//m_DEM_name.clear();
 	}
 
-	ERMsg WeatherGeneratorInit::parse(const std::string& str_init)
+	ERMsg CWeatherGeneratorInit::parse(const std::string& str_init)
 	{
 		ERMsg msg;
 
@@ -172,10 +308,10 @@ namespace WBSF
 					case ACCOUNT_KEY:m_account_key = value; break;
 						//						case ENDPOINT_SUFFIX:
 					case CONTAINER_NAME:m_container_name = value; break;
-					case SHORE: m_shore_name = value; break;
+						//case SHORE: m_shore_name = value; break;
 					case NORMALS: m_normal_name = value; break;
 					case DAILY: m_daily_name = value; break;
-					case DEM:m_DEM_name = value; break;
+						//case DEM:m_DEM_name = value; break;
 					default: ASSERT(false);
 					}
 				}
@@ -197,7 +333,7 @@ namespace WBSF
 	//******************************************************************************************************************************
 
 
-	const char* WeatherGeneratorOptions::PARAM_NAME[NB_PAPAMS] =
+	const char* CWeatherGeneratorOptions::PARAM_NAME[NB_PAPAMS] =
 	{
 		"VARIABLES", "SOURCE", "GENERATION", "REPLICATIONS",
 		"ID", "NAME", "LATITUDE", "LONGITUDE", "ELEVATION", "SLOPE", "ORIENTATION",
@@ -205,7 +341,7 @@ namespace WBSF
 		"SEED", "NORMALS_INFO", "COMPRESS"
 	};
 
-	WeatherGeneratorOptions::WeatherGeneratorOptions()
+	CWeatherGeneratorOptions::CWeatherGeneratorOptions()
 	{
 		m_sourceType = 1;
 		m_generationType = 1;
@@ -225,7 +361,7 @@ namespace WBSF
 		m_compress = true;
 	}
 
-	ERMsg WeatherGeneratorOptions::parse(const string& str_options)
+	ERMsg CWeatherGeneratorOptions::parse(const string& str_options)
 	{
 		ERMsg msg;
 
@@ -339,7 +475,7 @@ namespace WBSF
 	}
 
 	//Load WGInput 
-	void WeatherGeneratorOptions::GetWGInput(CWGInput& WGInput)const
+	void CWeatherGeneratorOptions::GetWGInput(CWGInput& WGInput)const
 	{
 		//Load WGInput 
 		//CWGInput WGInput;
@@ -373,23 +509,20 @@ namespace WBSF
 
 	//******************************************************************************************************************************
 
+	CCriticalSection m_CS;//to protect shore 
 
-	WeatherGenerator::WeatherGenerator(const std::string &)
+
+	CWeatherGeneratorAPI::CWeatherGeneratorAPI(const std::string&)
 	{
-
 	}
 
-	std::string WeatherGenerator::Initialize(const std::string& str_init)
+
+
+	std::string CWeatherGeneratorAPI::Initialize(const std::string& str_init)
 	{
 		ERMsg msg;
 
-		CDynamicResources::set(g_hDLL);
-		char path[MAX_PATH] = { 0 }; 
-		if (GetModuleFileNameA(g_hDLL, path, sizeof(path)) != 0)
-		{
-			CWeatherDatabase::set_azure_dll_filepath(GetPath(path)+"azure_weather.dll");
-		}
-		
+
 
 		msg = m_init.parse(str_init);
 
@@ -401,8 +534,6 @@ namespace WBSF
 				CCallback callback;
 
 
-				GDALSetCacheMax64(128 * 1024 * 1024);
-				RegisterGDAL();
 
 				std::shared_ptr<storage_credential> cred;
 				std::shared_ptr<storage_account> account;
@@ -412,31 +543,37 @@ namespace WBSF
 					account = std::make_shared<storage_account>(m_init.m_account_name, cred, /* use_https */ true);
 				}
 
-				if (!m_init.m_shore_name.empty())
+				/*if (!m_init.m_shore_name.empty())
 				{
-					if (m_init.IsAzure())
+
+					m_CS.Enter();
+					if (CShore::GetShore().get() == nullptr)
 					{
-						blob_client client(account, 16);
-
-						std::stringstream azure_stream;
-						auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_shore_name, 0, 0, azure_stream).get();
-						if (ret.success())
+						if (m_init.IsAzure())
 						{
-							CApproximateNearestNeighborPtr pShore = make_shared<CApproximateNearestNeighbor>();
+							blob_client client(account, 16);
 
-							*pShore << azure_stream;
-							CShore::SetShore(pShore);
+							std::stringstream azure_stream;
+							auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_shore_name, 0, 0, azure_stream).get();
+							if (ret.success())
+							{
+								CApproximateNearestNeighborPtr pShore = make_shared<CApproximateNearestNeighbor>();
+
+								*pShore << azure_stream;
+								CShore::SetShore(pShore);
+							}
+							else
+							{
+								msg.ajoute("Failed to download shore, error: " + ret.error().code + ", " + ret.error().code_name);
+							}
 						}
 						else
 						{
-							msg.ajoute("Failed to download shore, error: " + ret.error().code + ", " + ret.error().code_name);
+							msg += CShore::SetShore(m_init.m_shore_name);
 						}
 					}
-					else
-					{
-						msg += CShore::SetShore(m_init.m_shore_name);
-					}
-				}
+					m_CS.Leave();
+				}*/
 				if (!m_init.m_normal_name.empty())
 				{
 					m_pNormalDB.reset(new CNormalsDatabase);
@@ -570,9 +707,9 @@ namespace WBSF
 							}
 							else if (IsEqual(GetFileExtension(m_init.m_daily_name), ".gz"))
 							{
-								
-								m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
-								m_pDailyDB->LoadAzureDLL();
+
+								//m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
+								//m_pDailyDB->LoadAzureDLL();
 
 								msg += m_pDailyDB->LoadFromBinary(m_init.m_daily_name);
 								if (msg)
@@ -585,7 +722,7 @@ namespace WBSF
 						}
 					}
 
-					if (!m_init.m_DEM_name.empty())
+					/*if (!m_init.m_DEM_name.empty())
 					{
 						if (m_init.IsAzure())
 						{
@@ -596,9 +733,9 @@ namespace WBSF
 							m_pDEM.reset(new CGDALDatasetEx);
 							msg += m_pDEM->OpenInputImage(m_init.m_DEM_name);
 						}
-					}
+					}*/
 				}
-				
+
 				if (msg)
 				{
 					m_pWeatherGenerator.reset(new CWeatherGenerator);
@@ -617,20 +754,20 @@ namespace WBSF
 	}
 
 
-	ERMsg WeatherGenerator::ComputeElevation(double latitude, double longitude, double& elevation)
+	ERMsg CWeatherGeneratorAPI::ComputeElevation(double latitude, double longitude, double& elevation)
 	{
 		ERMsg msg;
 
-		if (m_pDEM && m_pDEM->IsOpen())
+		if (pGLOBAL_DLL_DATA->m_pDEM && pGLOBAL_DLL_DATA->m_pDEM->IsOpen())
 		{
 			CGeoPoint pt(longitude, latitude, PRJ_WGS_84);
 
-			CGeoPointIndex xy = m_pDEM->GetExtents().CoordToXYPos(pt);
-			if (m_pDEM->GetExtents().IsInside(xy))
+			CGeoPointIndex xy = pGLOBAL_DLL_DATA->m_pDEM->GetExtents().CoordToXYPos(pt);
+			if (pGLOBAL_DLL_DATA->m_pDEM->GetExtents().IsInside(xy))
 			{
-				elevation = m_pDEM->ReadPixel(0, xy);
+				elevation = pGLOBAL_DLL_DATA->m_pDEM->ReadPixel(0, xy);
 
-				if (fabs(elevation - m_pDEM->GetNoData(0)) < 0.1)
+				if (fabs(elevation - pGLOBAL_DLL_DATA->m_pDEM->GetNoData(0)) < 0.1)
 				{
 					msg.ajoute("DEM is not available for the lat/lon coordinate.");
 				}
@@ -649,7 +786,7 @@ namespace WBSF
 	}
 
 
-	CTeleIO WeatherGenerator::Generate(const std::string& str_options)
+	CTeleIO CWeatherGeneratorAPI::Generate(const std::string& str_options)
 	{
 		ASSERT(m_pWeatherGenerator != nullptr);
 
@@ -661,7 +798,7 @@ namespace WBSF
 		try
 		{
 			CTimer timer(TRUE);
-			WeatherGeneratorOptions options;
+			CWeatherGeneratorOptions options;
 			msg = options.parse(str_options);
 
 			if (msg)
@@ -765,7 +902,7 @@ namespace WBSF
 	}
 
 
-	CTeleIO WeatherGenerator::GetNormals(const std::string& str_options)
+	CTeleIO CWeatherGeneratorAPI::GetNormals(const std::string& str_options)
 	{
 		ERMsg msg;
 		CCallback callback;
@@ -774,7 +911,7 @@ namespace WBSF
 		try
 		{
 			CTimer timer(TRUE);
-			WeatherGeneratorOptions options;
+			CWeatherGeneratorOptions options;
 			msg = options.parse(str_options);
 
 			if (msg)
@@ -829,11 +966,7 @@ namespace WBSF
 						boost::iostreams::copy(out, compressed);
 
 						output.m_compress = options.m_compress;
-						//if (options.m_compress)
 						output.m_data = compressed.str();
-						//else
-							//output.m_text = compressed.str();
-
 					}
 				}
 			}	// if (msg)
@@ -855,14 +988,16 @@ namespace WBSF
 	}
 
 
-	void WeatherGenerator::SaveNormals(std::ostream& out, const CNormalsStation& normals)
+	void CWeatherGeneratorAPI::SaveNormals(std::ostream& out, const CNormalsStation& normals)
 	{
+		string end_line = "\r\n";
+
 		//write header
 		out << "Month";
 		for (size_t f = 0; f != NB_FIELDS; f++)
 			out << ',' << GetFieldHeader(f);
 
-		out << endl;
+		out << end_line;
 
 		for (size_t m = 0; m != normals.size(); m++)
 		{
@@ -883,25 +1018,25 @@ namespace WBSF
 
 			}
 
-			out << line << endl;
+			out << line << end_line;
 		}
 	}
 
 
 	//******************************************************************************************************************************
-	const char* ModelExecutionOptions::PARAM_NAME[NB_PAPAMS] =
+	const char* CModelExecutionOptions::PARAM_NAME[NB_PAPAMS] =
 	{
 		"PARAMETERS", "REPLICATIONS", "SEED", "COMPRESS"
 	};
 
-	ModelExecutionOptions::ModelExecutionOptions()
+	CModelExecutionOptions::CModelExecutionOptions()
 	{
 		m_replications = 1;
 		m_seed = 0;
 		m_compress = true;
 	}
 
-	ERMsg ModelExecutionOptions::parse(const string& str_options)
+	ERMsg CModelExecutionOptions::parse(const string& str_options)
 	{
 		ERMsg msg;
 
@@ -939,7 +1074,7 @@ namespace WBSF
 	}
 
 	//Load WGInput 
-	ERMsg ModelExecutionOptions::GetModelInput(const CModel& model, CModelInput& modelInput)const
+	ERMsg CModelExecutionOptions::GetModelInput(const CModel& model, CModelInput& modelInput)const
 	{
 		ERMsg msg;
 
@@ -976,21 +1111,20 @@ namespace WBSF
 	//******************************************************************************************************************************
 
 
-	const char* ModelExecution::NAME[NB_PAPAMS] = { "MODEL" };
+	const char* CModelExecutionAPI::NAME[NB_PAPAMS] = { "MODEL" };
 
 
-	ModelExecution::ModelExecution(const std::string &)
+	CModelExecutionAPI::CModelExecutionAPI(const std::string&)
 	{
 
 	}
 
-	std::string ModelExecution::Initialize(const std::string& str_options)
+	std::string CModelExecutionAPI::Initialize(const std::string& str_options)
 	{
 		ERMsg msg;
 
 		try
 		{
-			CDynamicResources::set(g_hDLL);
 			CCallback callback;
 
 			StringVector args(str_options, "&");
@@ -1009,7 +1143,16 @@ namespace WBSF
 						{
 
 							m_pModel.reset(new CModel);
-							msg += m_pModel->Load(option[1]);
+
+							string model_file_path = option[1];
+							if(WBSF::GetPath(model_file_path).empty() && !pGLOBAL_DLL_DATA->m_model_path.empty())
+							{
+								model_file_path = pGLOBAL_DLL_DATA->m_model_path + model_file_path;
+								if(!IsEqualNoCase( GetFileExtension(model_file_path), ".mdl" ))
+									model_file_path += ".mdl";
+							}
+
+							msg += m_pModel->Load(model_file_path);
 							if (msg)
 								msg += m_pModel->LoadDLL();
 
@@ -1040,7 +1183,7 @@ namespace WBSF
 	}
 
 
-	CTeleIO ModelExecution::Execute(const std::string& str_options, const CTeleIO& input)
+	CTeleIO CModelExecutionAPI::Execute(const std::string& str_options, const CTeleIO& input)
 	{
 		ASSERT(m_pModel);
 
@@ -1057,7 +1200,7 @@ namespace WBSF
 		ERMsg msg;
 		CCallback callback;
 
-		ModelExecutionOptions options;
+		CModelExecutionOptions options;
 		msg += options.parse(str_options);
 		if (msg)
 		{
@@ -1115,7 +1258,7 @@ namespace WBSF
 				out.push(stream);
 
 				size_t m_seedType = 0; // RANDOM_FOR_ALL
-				size_t total_runs = simulationPoints.size()*options.m_replications;
+				size_t total_runs = simulationPoints.size() * options.m_replications;
 				size_t total_seeds = (m_seedType < 2) ? total_runs : options.m_replications;
 
 				CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
@@ -1139,7 +1282,7 @@ namespace WBSF
 						//get transfer info
 						size_t seed_pos = m_seedType < 2 ? s * options.m_replications + r : r;
 						CTransferInfoIn info;
-						FillTransferInfo(*m_pModel, simulationPoint, modelInput, seeds[seed_pos], s*options.m_replications + r, options.m_replications*simulationPoints.size(), info);
+						FillTransferInfo(*m_pModel, simulationPoint, modelInput, seeds[seed_pos], s * options.m_replications + r, options.m_replications * simulationPoints.size(), info);
 						CCommunicationStream::WriteInputStream(info, simulationPoint, inStream);
 
 						msg += m_pModel->RunModel(inStream, outStream);	// call DLL
@@ -1188,7 +1331,7 @@ namespace WBSF
 	}
 
 
-	void ModelExecution::FillTransferInfo(const CModel& model, const CLocation& locations, const CModelInput& modelInput, size_t seed, size_t r, size_t n_r, CTransferInfoIn& info)
+	void CModelExecutionAPI::FillTransferInfo(const CModel& model, const CLocation& locations, const CModelInput& modelInput, size_t seed, size_t r, size_t n_r, CTransferInfoIn& info)
 	{
 		ASSERT(model.GetTransferFileVersion() == CModel::VERSION_STREAM);
 
@@ -1211,7 +1354,7 @@ namespace WBSF
 		//		return info;
 	}
 
-	std::string ModelExecution::GetWeatherVariablesNeeded()
+	std::string CModelExecutionAPI::GetWeatherVariablesNeeded()
 	{
 		ASSERT(m_pModel);
 		if (m_pModel.get() == nullptr)
@@ -1223,7 +1366,7 @@ namespace WBSF
 	}
 
 
-	std::string ModelExecution::GetDefaultParameters()const
+	std::string CModelExecutionAPI::GetDefaultParameters()const
 	{
 		ASSERT(m_pModel);
 		if (m_pModel.get() == nullptr)
@@ -1245,7 +1388,7 @@ namespace WBSF
 		return ANSI_UTF8(params);
 	}
 
-	std::string ModelExecution::Help()const
+	std::string CModelExecutionAPI::Help()const
 	{
 		ASSERT(m_pModel);
 		if (m_pModel.get() == nullptr)
@@ -1257,10 +1400,6 @@ namespace WBSF
 	}
 
 
-	std::string ModelExecution::Test()const
-	{
-		return "123";
-	}
 
 	//**********************************************************************************************************************
 	ERMsg SaveWeather(const CSimulationPointVector& simulationPoints, CTeleIO& IO)

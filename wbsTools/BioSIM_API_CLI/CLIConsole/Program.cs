@@ -12,15 +12,25 @@ namespace CLIConsole
     {
         static void Main(string[] args)
         {
+            string[] arguments = Environment.GetCommandLineArgs();
+
             string exe_path = System.Reflection.Assembly.GetExecutingAssembly().Location;
             exe_path = System.IO.Path.GetDirectoryName(exe_path);
-            Console.WriteLine("trying path: " + exe_path);
+            Console.WriteLine("Application path: " + exe_path);
 
-            string[] arguments = Environment.GetCommandLineArgs(); 
-            string options = arguments[1];
+            //Initialized static data
+            string globa_data = arguments[1];
+            string options = arguments[2];
+            Console.WriteLine("trying options: " + globa_data);
             Console.WriteLine("trying options: " + options);
 
+
             var watch = System.Diagnostics.Stopwatch.StartNew();
+            string init = new BioSIM_API_GlobalData().InitGlobalData(globa_data);
+            watch.Stop();
+            Console.WriteLine("Time to initialize global data: " + watch.ElapsedMilliseconds + " ms");
+            watch.Restart();
+
 
 
             Console.WriteLine("Initialize Weather Generator");
@@ -37,7 +47,7 @@ namespace CLIConsole
 
                 Console.WriteLine("Initialize DegreeDay model");
                 ModelExecution model = new ModelExecution("Model1");
-                msg = model.Initialize("Model=" + exe_path + "\\Models\\DegreeDay (Annual).mdl");
+                msg = model.Initialize("Model=DegreeDay (Annual).mdl");
                 Console.WriteLine(msg);
 
                 watch.Stop();

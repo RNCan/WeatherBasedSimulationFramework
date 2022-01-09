@@ -1,8 +1,27 @@
 //Entity.cpp
 #include "BioSIM_API_Wrap.h"
+using namespace System::Runtime::InteropServices;
+
+
 
 namespace BioSIM_Wrapper
 {
+
+
+	//*********************************
+
+	BioSIM_API_GlobalData::BioSIM_API_GlobalData() :
+		ManagedObject(new WBSF::CBioSIM_API_GlobalData)
+	{
+	}
+
+	String^ BioSIM_API_GlobalData::InitGlobalData(const String^ str_options)
+	{
+		std::string options = string_to_stdstring(str_options);
+		return stdstring_to_string(m_Instance->InitGlobalData(options));
+	}
+
+	//***********************************************<
 	
 
 	TeleIO::TeleIO()
@@ -33,7 +52,7 @@ namespace BioSIM_Wrapper
 	//*********************************
 
 	WeatherGenerator::WeatherGenerator(const String^ name) :
-		ManagedObject(new WBSF::WeatherGenerator(string_to_stdstring(name)))
+		ManagedObject(new WBSF::CWeatherGeneratorAPI(string_to_stdstring(name)))
 	{
 	}
 
@@ -60,7 +79,7 @@ namespace BioSIM_Wrapper
 
 	//************************************************************************
 	ModelExecution::ModelExecution(const String^ name) :
-		ManagedObject(new WBSF::ModelExecution(string_to_stdstring(name)))
+		ManagedObject(new WBSF::CModelExecutionAPI(string_to_stdstring(name)))
 	{
 	}
 

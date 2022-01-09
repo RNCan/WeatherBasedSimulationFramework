@@ -13,7 +13,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <StartWorkingDirectory>G:\Travaux\BioSIM_API%28debug%29\</StartWorkingDirectory>
-    <StartArguments>"shore=G:/Travaux/BioSIM_API/Layers/Shore.ann&amp;Normals=G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB.bin.gz&amp;Daily=G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz"</StartArguments>
+    <StartArguments>"ModelsPath=G:/Travaux/BioSIM_API/Models/&amp;shore=G:/Travaux/BioSIM_API/Layers/Shore.ann&amp;DEM=G:/Travaux/BioSIM_API/DEM/Monde 30s%28SRTM30%29.tif"  "Normals=G:/Travaux/BioSIM_API/Weather/Normals/World 1991-2020.NormalsDB.bin.gz&amp;Daily=G:/Travaux/BioSIM_API/Weather/Daily/Canada-USA 2018-2019.DailyDB.bin.gz"</StartArguments>
     <StartAction>Program</StartAction>
     <StartProgram>G:\Travaux\BioSIM_API%28debug%29\BioSIM_API_Console.exe</StartProgram>
     <RemoteDebugEnabled>false</RemoteDebugEnabled>

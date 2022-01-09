@@ -24,7 +24,19 @@ namespace BioSIM_Wrapper
 	}
 
 	
+	
 
+	public ref class BioSIM_API_GlobalData : public ManagedObject<WBSF::CBioSIM_API_GlobalData>
+	{
+
+	public:
+		BioSIM_API_GlobalData();
+		String^ InitGlobalData(const String^ str_options);
+	};
+
+
+
+	
 
 	public ref class TeleIO
 	{
@@ -43,7 +55,7 @@ namespace BioSIM_Wrapper
 	};
 
 
-	public ref class WeatherGenerator : public ManagedObject<WBSF::WeatherGenerator>
+	public ref class WeatherGenerator : public ManagedObject<WBSF::CWeatherGeneratorAPI>
 	{
 
 	public:
@@ -58,7 +70,7 @@ namespace BioSIM_Wrapper
 	};
 
 
-	public ref class ModelExecution : public ManagedObject<WBSF::ModelExecution>
+	public ref class ModelExecution : public ManagedObject<WBSF::CModelExecutionAPI>
 	{
 
 	public:
