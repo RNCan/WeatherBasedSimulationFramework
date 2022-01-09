@@ -322,8 +322,8 @@ namespace WBSF
 
 
 
-							ASSERT(CU >= 0 && CU <= m_P[CUcrit]);
-							ASSERT(FU >= 0 && FU <= m_P[FUcrit]);
+							ASSERT(CU >= 0 && CU <= m_P[CU_crit]);
+							ASSERT(FU >= 0 && FU <= m_P[FU_crit]);
 
 
 							double PS = CU / m_P[CU_crit] + FU / m_P[FU_crit];

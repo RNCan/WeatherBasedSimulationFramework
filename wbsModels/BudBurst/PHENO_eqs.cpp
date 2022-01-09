@@ -140,6 +140,7 @@ namespace WBSF
 			double Ndw_0 = P.NB_r * P.Bdw_0 * (1 - def.previous);//Needle weight[g]
 			double Ndw = P.NB_r * (x.Bdw - P.Bdw_0 + x.Mdw) * (1 - def.current) + Ndw_0;//Needle weight[g]
 
+			//Photosynthesis
 			double PS = I.PN * Ndw * (1 - S_conc / P.S_max) * (1 + 3 * def.previous);
 			//double PS = I.PN * Ndw * max(0.0, 1 - S_conc / P.S_max) * (1 + 3 * def.previous);
 			//double PS = I.PN * Ndw * max(0.25, 1 - S_conc / ( 2*P.S_max)) * (1 + 3 * def.previous);
@@ -150,28 +151,26 @@ namespace WBSF
 			// Meristems
 			double Swelling_sink = I.RC_M_Tair * x.Swell_switch * !x.Budburst_switch * (1 - x.I / I_MAX);  // swelling demand
 			double Swelling = Swelling_sink * P.Sw_v * P.GetRatio(SW_K_BETA, S_conc, P.S_min, P.S_max);
-			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
 
 			// Shoot growth (both branch and needles)
-			double Growth_Bdw_Ndw_sink = (1 - x.I / I_MAX) * I.RC_G_Tair * x.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
-			double Growth_Bdw_Ndw = Growth_Bdw_Ndw_sink * P.B_v * P.GetRatio(B_K_BETA, S_conc, P.S_min, P.S_max);   // Shoots growth;
-			double Prod_Bdw = Growth_Bdw_Ndw * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
+			double Growth_sink = (1 - x.I / I_MAX) * I.RC_G_Tair * x.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
+			double Growth = Growth_sink * P.B_v * P.GetRatio(B_K_BETA, S_conc, P.S_min, P.S_max);   // Shoots growth;
 
 			// Growth other parts of the plant(roots and stem)
-			double C_SINK = max(0.0, P.G_v1 * x.C * P.GetRatio(G_K1_BETA, S_conc, P.S_min, P.S_max) * I.RC_G_Tsoil - Swelling - Growth_Bdw_Ndw);
-			double Translocation = C_SINK + /*P.G_v2**/P.GetRatio(G_K2_BETA, S_conc, P.S_min, P.S_max) * max(0.0, PS - Swelling - Growth_Bdw_Ndw);
-			double Mobilization_Stock = P.Mob_v2 * P.GetRatio(MOB_K2_BETA, x.C, P.C_min, P.C_max) * max(0.0, Growth_Bdw_Ndw + Swelling - PS);   // C Stock mobilization when[S] is very low
+			double C_SINK = max(0.0, P.G_v1 * x.C * P.GetRatio(G_K1_BETA, S_conc, P.S_min, P.S_max) * I.RC_G_Tsoil - Swelling - Growth);
+			double Translocation = C_SINK + /*P.G_v2**/P.GetRatio(G_K2_BETA, S_conc, P.S_min, P.S_max) * max(0.0, PS - Swelling - Growth);
+			double Mobilization_Stock = P.Mob_v2 * P.GetRatio(MOB_K2_BETA, x.C, P.C_min, P.C_max) * max(0.0, Growth + Swelling - PS);   // C Stock mobilization when[S] is very low
 
 			//Mobilization y Accumulation 
-			double Mobilization = P.Mob_v1 * P.GetRatio(MOB_K1_BETA, St_conc, P.St_min, P.St_max) * I.RC_M_Tair * (Swelling + Growth_Bdw_Ndw + Translocation); // Starch mobilization when[S] is very low
-			double Accumulation = P.Acc_v * P.GetRatio(ACC_K_BETA, S_conc, P.S_min, P.S_max) * (1 - (St_conc - P.St_min) / (P.St_max - P.St_min)) * I.RC_M_Tair * max(0.0, (PS - Growth_Bdw_Ndw - Swelling));
+			double Mobilization = P.Mob_v1 * P.GetRatio(MOB_K1_BETA, St_conc, P.St_min, P.St_max) * I.RC_M_Tair * (Swelling + Growth + Translocation); // Starch mobilization when[S] is very low
+			double Accumulation = P.Acc_v * P.GetRatio(ACC_K_BETA, S_conc, P.S_min, P.S_max) * (1 - (St_conc - P.St_min) / (P.St_max - P.St_min)) * I.RC_M_Tair * max(0.0, (PS - Growth - Swelling));
 			//double Accumulation = P.Acc_v * P.GetRatio(ACC_K_BETA, S_conc, P.S_min, P.S_max) * (1 - St_conc/ P.St_max) * I.RC_M_Tair * max(0.0, (PS - Growth_Bdw_Ndw - Swelling));
 
 
 			// Frost hardening
-			double Smax = P.S_max + (P.S_min - P.S_max) / (1 + exp(-P.S_sigma * (I.Tmax14Days - P.S_mu)));//Charrier 2018 use the mean maximum of the last 14 days 
-			double Frost_hardening_1 = max(0.0, P.FH_v1 * P.GetRatio(FH_K1_BETA, St_conc, P.St_min, P.St_max) * I.RC_F_Tair * (1 - S_conc / Smax));    // mobilization of S for frost protection
-			double Frost_hardening_2 = max(0.0, P.FH_v2 * P.GetRatio(FH_K2_BETA, x.C, P.C_min, P.C_max) * I.RC_F_Tair * (1 - S_conc / Smax) - Frost_hardening_1);    // mobilization of S for frost protection
+			double S_FH= P.S_max + (P.S_min - P.S_max) / (1 + exp(-P.S_sigma * (I.Tmax14Days - P.S_mu)));//Charrier 2018 use the mean maximum of the last 14 days 
+			double Frost_hardening_1 = max(0.0, P.FH_v1 * P.GetRatio(FH_K1_BETA, St_conc, P.St_min, P.St_max) * I.RC_F_Tair * (1 - S_conc / S_FH));    // mobilization of S for frost protection
+			double Frost_hardening_2 = max(0.0, P.FH_v2 * P.GetRatio(FH_K2_BETA, x.C, P.C_min, P.C_max) * I.RC_F_Tair * (1 - S_conc / S_FH) - Frost_hardening_1);    // mobilization of S for frost protection
 
 			// Frost dehardening
 			double deFH_switch = 1.0 / (1.0 + exp(-(S_conc - P.FD_muS)));
@@ -180,11 +179,13 @@ namespace WBSF
 			double Frost_dehardening_2 = P.FD_v2 * P.GetRatio(FD_K2_BETA, S_conc, P.S_min, P.S_max) * I.RC_M_Tair * deFH_switch;
 
 			//Growth inhibitor(I)
+			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
+			double Prod_Bdw = Growth * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
 			double Prod_I = P.I_c * (Prod_Bdw + Prod_Mdw);
 			double Removal_I = 0.04 * x.I * I.RC_F_Tair;
 
 			//Equations
-			double dS = PS + Mobilization + Mobilization_Stock - Accumulation - Swelling - Growth_Bdw_Ndw - Translocation + Frost_hardening_1 + Frost_hardening_2 - Frost_dehardening_1 - Frost_dehardening_2;
+			double dS = PS + Mobilization + Mobilization_Stock - Accumulation - Swelling - Growth - Translocation + Frost_hardening_1 + Frost_hardening_2 - Frost_dehardening_1 - Frost_dehardening_2;
 			double dSt = Accumulation - Mobilization - Frost_hardening_1 + Frost_dehardening_1;
 			double dMdw = Prod_Mdw;
 			double dBdw = Prod_Bdw;
@@ -199,7 +200,7 @@ namespace WBSF
 			outputEx.Accumulation = Accumulation;
 			outputEx.Swelling = Swelling;
 			outputEx.Translocation = Translocation;
-			outputEx.Growth_Bdw_Ndw = Growth_Bdw_Ndw;
+			outputEx.Growth_Bdw_Ndw = Growth;
 			outputEx.Frost_hardening1 = Frost_hardening_1;
 			outputEx.Frost_hardening2 = Frost_hardening_2;
 			outputEx.Frost_dehardening1 = Frost_dehardening_1;
@@ -223,6 +224,7 @@ namespace WBSF
 			static const double mg2g = 0.001;
 			static const double CH2O2C = 0.40641993115856;
 			static const double I_max = 1.0;
+			static const double R_I = 0.04;
 
 
 			double S_conc = x.S / (x.Mdw + x.Bdw);       // Sugars concentration [mg/g DW]
@@ -234,54 +236,55 @@ namespace WBSF
 			double Ndw = P.NB_r * (x.Bdw - P.Bdw_0 + x.Mdw) * (1 - def.current) + Ndw_0;//Needle weight[g]
 
 			double PS = I.PN * Ndw * (1 - S_conc / P.S_max) * (1 + 3 * def.previous);
-			_ASSERTE(PS >= 0);
+//			_ASSERTE(PS >= 0);
 
 
 			// Meristems
 			double RC_M_Tair = P.RC_M(I.Tair);// dehardening and meristem growth
-			double Swelling_sink = RC_M_Tair * x.Swell_switch * !x.Budburst_switch * (1 - x.I / I_max);  // swelling demand
-			double Swelling = Swelling_sink * P.Sw_v * (S_conc / ((P.Sw_k) + S_conc));
-			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
+			double Swelling = P.Sw_v * (S_conc / ((P.Sw_k) + S_conc))*RC_M_Tair * x.Swell_switch * !x.Budburst_switch * (1 - x.I / I_max);
+			
 
 			// Shoot growth (both branch and needles)
 			double RC_G_Tair = P.RC_G(I.Tair);// growth
-			double Growth_Bdw_Ndw_sink = (1 - x.I / I_max) * RC_G_Tair * x.Budburst_switch * (1 + P.NB_r);   // Shoots growth demand;
-			double Growth_Bdw_Ndw = Growth_Bdw_Ndw_sink * P.B_v * (S_conc / ((P.B_k) + S_conc));   // Shoots growth;
-			double Prod_Bdw = Growth_Bdw_Ndw * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
+			double Growth = P.B_v * (S_conc / ((P.B_k) + S_conc)) * RC_G_Tair * x.Budburst_switch * (1 + P.NB_r) * (1 - x.I / I_max);   // Shoots growth;
+
 
 			// Growth other parts of the plant(roots and stem)
 
 			double RC_G_Tsoil = P.RC_G(I.Tsoil);// growth
-			double C_SINK = max(0.0, P.G_v1 * x.C * (S_conc / (P.G_k1 + S_conc)) * RC_G_Tsoil - Swelling - Growth_Bdw_Ndw);
-			double Translocation = C_SINK + (S_conc / (P.G_k2 + S_conc)) * max(0.0, PS - Swelling - Growth_Bdw_Ndw);
-			double Mobilization_Stock = P.Mob_v2 * (x.C / (P.Mob_k2 + x.C)) * max(0.0, Growth_Bdw_Ndw + Swelling - PS);   // C Stock mobilization when[S] is very low
+			double C_SINK = max(0.0, P.G_v1 * x.C * (S_conc / (P.G_k1 + S_conc)) * RC_G_Tsoil - Swelling - Growth);
+			double Translocation = C_SINK + (S_conc / (P.G_k2 + S_conc)) * max(0.0, PS - Swelling - Growth);
+			double Mobilization_Stock = P.Mob_v2 * (x.C / (P.Mob_k2 + x.C)) * max(0.0, Growth + Swelling - PS);   // C Stock mobilization when[S] is very low
 
 			//Mobilization y Accumulation 
-			double Mobilization = P.Mob_v1 * (St_conc / ((P.Mob_k1) + St_conc)) * RC_M_Tair * (Swelling + Growth_Bdw_Ndw + Translocation); // Starch mobilization when[S] is very low
-			double Accumulation = P.Acc_v * (S_conc / ((P.Acc_k) + S_conc)) * (1 - St_conc / P.St_max) * RC_M_Tair * max(0.0, (PS - Growth_Bdw_Ndw - Swelling));
+			double Mobilization = P.Mob_v1 * (St_conc / ((P.Mob_k1) + St_conc)) * RC_M_Tair * (Swelling + Growth + Translocation); // Starch mobilization when[S] is very low
+			double Accumulation = P.Acc_v * (S_conc / ((P.Acc_k) + S_conc)) * (1 - St_conc / P.St_max) * RC_M_Tair * max(0.0, (PS - Growth - Swelling));
 
 
 			// Frost hardening
-			double Smax = P.S_max + (P.S_min - P.S_max) / (1 + exp(-P.S_sigma * (I.Tair - P.S_mu)));
+			//double S_FH = P.S_max + (P.S_min - P.S_max) / (1 + exp(-P.S_sigma * (I.Tair - P.S_mu)));
+			double S_FH = P.S_max + (P.S_min - P.S_max) / (1 + exp(-P.S_sigma * (I.Tair - P.F_optT)));
 			double RC_F_Tair = P.RC_F(I.Tair);
-			double Frost_hardening1 = max(0.0, P.FH_v1 * (St_conc / ((P.FH_k1) + St_conc)) * RC_F_Tair * (1 - S_conc / Smax));    // mobilization of S for frost protection
-			double Frost_hardening2 = max(0.0, P.FH_v2 * (x.C / ((P.FH_k2) + x.C)) * RC_F_Tair * (1 - S_conc / Smax) - Frost_hardening1);    // mobilization of S for frost protection
+			double Frost_hardening1 = max(0.0, P.FH_v1 * (St_conc / ((P.FH_k1) + St_conc)) * RC_F_Tair * (1 - S_conc / S_FH));    // mobilization of S for frost protection
+			double Frost_hardening2 = max(0.0, P.FH_v2 * (x.C / ((P.FH_k2) + x.C)) * RC_F_Tair * (1 - S_conc / S_FH) - Frost_hardening1);    // mobilization of S for frost protection
 			double deFH_switch = 1.0 / (1.0 + exp(-1.0 * (S_conc - P.FD_muS)));
-			double Frost_dehardening_1 = (P.FD_v1 * (S_conc / ((P.FD_k1) + S_conc)) * RC_M_Tair * (1 - St_conc / P.St_max)) * deFH_switch;    // mobilization of S for frost protection
-			double Frost_dehardening_2 = (P.FD_v2 * (S_conc / ((P.FD_k2) + S_conc)) * RC_M_Tair) * deFH_switch;
-			double Frost_dehardening = Frost_dehardening_1 + Frost_dehardening_2;
+			double Frost_dehardening1 = (P.FD_v1 * (S_conc / ((P.FD_k1) + S_conc)) * RC_M_Tair * (1 - St_conc / P.St_max)) * deFH_switch;    // mobilization of S for frost protection
+			double Frost_dehardening2 = (P.FD_v2 * (S_conc / ((P.FD_k2) + S_conc)) * RC_M_Tair) * deFH_switch;
+			//double Frost_dehardening = Frost_dehardening_1 + Frost_dehardening_2;
 
 
 			//Growth inhibitor(I)
+			double Prod_Mdw = Swelling * P.Sw_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C;
+			double Prod_Bdw = Growth * P.B_eff * (1 / P.C_DW_Ratio) * mg2g * CH2O2C / (1 + P.NB_r); // Only branch, No needles!
 			double Prod_I = P.I_c * (Prod_Bdw + Prod_Mdw);
-			double Removal_I = 0.04 * x.I * RC_F_Tair;
+			double Removal_I = R_I * x.I * RC_F_Tair;
 
 			//Equations
-			double dS = PS + Mobilization + Mobilization_Stock - Accumulation - Swelling - Growth_Bdw_Ndw - Translocation + Frost_hardening1 + Frost_hardening2 - Frost_dehardening;
-			double dSt = Accumulation - Mobilization - Frost_hardening1 + Frost_dehardening_1;
+			double dS = PS + Mobilization + Mobilization_Stock - Accumulation - Swelling - Growth - Translocation + Frost_hardening1 + Frost_hardening2 - Frost_dehardening1 - Frost_dehardening2;
+			double dSt = Accumulation - Mobilization - Frost_hardening1 + Frost_dehardening1;
 			double dMdw = Prod_Mdw;
 			double dBdw = Prod_Bdw;
-			double dC = Translocation - C_SINK - Mobilization_Stock - Frost_hardening2 + Frost_dehardening_2;
+			double dC = Translocation - C_SINK - Mobilization_Stock - Frost_hardening2 + Frost_dehardening2;
 			double dI = Prod_I - Removal_I;
 
 			outputEx.PS = PS;
@@ -290,11 +293,11 @@ namespace WBSF
 			outputEx.Accumulation = Accumulation;
 			outputEx.Swelling = Swelling;
 			outputEx.Translocation = Translocation;
-			outputEx.Growth_Bdw_Ndw = Growth_Bdw_Ndw;
+			outputEx.Growth_Bdw_Ndw = Growth;
 			outputEx.Frost_hardening1 = Frost_hardening1;
 			outputEx.Frost_hardening2 = Frost_hardening2;
-			outputEx.Frost_dehardening1 = Frost_dehardening_1;
-			outputEx.Frost_dehardening2 = Frost_dehardening_2;
+			outputEx.Frost_dehardening1 = Frost_dehardening1;
+			outputEx.Frost_dehardening2 = Frost_dehardening2;
 			outputEx.C_SINK = C_SINK;
 			outputEx.Prod_I = Prod_I;
 			outputEx.Removal_I = Removal_I;

@@ -94,7 +94,8 @@ namespace WBSF
 							//the conversion of total solar radiation to PAR is ~2.1, rather than 4.57. 
 							//As mentioned by others, that is an approximation, but a pretty good one.
 
-							double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS2, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
+							//double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS2, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
+							double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS1, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
 							double RC_PAR_T = P.RC_PAR(hData[H_TAIR]);
 
 							static const double umol2mgC = 0.029526111;
@@ -202,7 +203,7 @@ namespace WBSF
 
 
 			// Calculate current year Bud removal percentage
-			def.def = P.Def_min + (P.Def_max - P.Def_min) / (1 + pow((def.current * 100) / P.Def_mid, P.Def_slp));
+			def.def = P.Def_min + (1 - P.Def_min) / (1 + pow((def.current * 100) / P.Def_mid, P.Def_slp));
 
 
 			// Calculate intermediate variables
@@ -216,8 +217,8 @@ namespace WBSF
 
 			// State variables initial values[s st mdw bdw C I]
 			CVariables x0 = {
-					P.S_0 * (P.Bdw_0 + Mdw_0),
-					P.St_0 * (P.Bdw_0 + Mdw_0),
+					P.S_conc_0 * (P.Bdw_0 + Mdw_0),
+					P.St_conc_0 * (P.Bdw_0 + Mdw_0),
 					Mdw_0,
 					P.Bdw_0,
 					P.C_0,
@@ -258,8 +259,6 @@ namespace WBSF
 				output[TRef][O_INHIBITOR] = x.I; 
 				output[TRef][O_BUDBURST] = PS *100;//[%]
 				output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
-				output[TRef][O_SUGAR] = x.S;//[mg]
-				output[TRef][O_STARCH] = x.St;//[mg] 
 
 				
 				COutputEx outputEx;
@@ -270,8 +269,9 @@ namespace WBSF
 				{
 					//Phenological switches
 					x.Budburst_switch |= (x.Mdw >= Budburst_thr);
-					//P.Swell_switch |= x.S / (x.Mdw + x.Bdw) >= P.Sw_thres;
-					x.Swell_switch = TRef.GetYear() == p.End().GetYear();//swelling only at the second year
+					x.Swell_switch |= (x.S / (x.Mdw + x.Bdw) >= 80);
+					//x.Swell_switch = TRef.GetYear() == p.End().GetYear();//swelling only at the second year
+
 
 					//double f = 1.0 - (t - 1.0) / (nbSteps - 1.0);
 					//CInput I = input[d] * f + input[d + 1] * (1 - f);
@@ -295,6 +295,8 @@ namespace WBSF
 				
 				if (bModelEx)
 				{
+					output[TRef][O_SUGAR] = x.S;//[mg]
+					output[TRef][O_STARCH] = x.St;//[mg] 
 					output[TRef][O_PS] = outputEx.PS;
 					output[TRef][O_MOBILIZATION] = outputEx.Mobilization;
 					output[TRef][O_MOBILIZATION_STOCK] = outputEx.Mobilization_Stock;
@@ -319,13 +321,18 @@ namespace WBSF
 					output[TRef][O_RC_G_TSOIL] = mean_T_day[d].RC_G_Tsoil;
 				}
 			//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
-
-				
 			}
 
-			//update S_0 and St_0
-			P.S_0 = x0.S;
-			P.St_0 = x0.St;
+
+			//update S_conc_0 and St_conc_0
+			//double S_conc = max(P.S_min, min(P.S_max, x.S / (x.Mdw + x.Bdw)));       // Sugars concentration [mg/g DW]
+			//double St_conc = P.St_min + x.St / (x.Mdw + x.Bdw);     // Starch concentration [mg/g DW]
+
+			//P.S_conc_0 = x.S / (x.Mdw + x.Bdw);
+			//P.St_conc_0 = x.St / (x.Mdw + x.Bdw);
+
+			//P.S_conc_0 = x0.S;
+			//P.St_conc_0 = x0.St;
 
 		}
 

@@ -22,7 +22,7 @@ namespace WBSF
 	static const double MAX_SDI = 6;
 	//static const bool SDI_AGER = true; 
 
-	static const double MIN_STRACH = 5;//Deslauriers data 
+	static const double MIN_STRACH = 5;//Deslauriers data  
 	static const double MAX_STRACH = 70;//Deslauriers data 
 	static const double MIN_SUGAR = 7;//Deslauriers data 
 	static const double MAX_SUGAR = 85;//Schaberg
@@ -166,7 +166,7 @@ namespace WBSF
 
 		m_SDI_type = parameters[c++].GetInt();
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
-		ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
+		//ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
 
 
 		return msg;
