@@ -57,10 +57,10 @@ namespace WBSF
 		bool bRemove = time > time1 || time > time2;
 
 		//Remove Search
-		if (bRemove &&FileExists(filePath1))
+		if (bRemove && FileExists(filePath1))
 			msg += RemoveFile(filePath1);
 
-		if (bRemove &&FileExists(filePath2))
+		if (bRemove && FileExists(filePath2))
 			msg += RemoveFile(filePath2);
 
 		return msg;
@@ -614,7 +614,7 @@ namespace WBSF
 
 
 		size_t step = 0;
-		while (status.count() > nbStations&&msg)
+		while (status.count() > nbStations && msg)
 		{
 			step++;
 			callback.PushTask(FormatMsg(IDS_MSG_ELIMINATE_POINT, ToString(step)), searchResult.size() * 3);
@@ -668,7 +668,7 @@ namespace WBSF
 			std::sort(sorted_val.begin(), sorted_val.end());
 
 			//find pair
-			for (size_t i = 0; i < sorted_val.size() && status.count()>nbStations&&msg; i++)
+			for (size_t i = 0; i < sorted_val.size() && status.count()>nbStations && msg; i++)
 			{
 				size_t j = sorted_val[i].second;
 				if (status[j])
@@ -876,7 +876,7 @@ namespace WBSF
 			CWVariables WVars = GetWVariables(i, year);
 			bool bExclude = (bExcludeUnused && !station.UseIt());
 			bool bOutside = (!rect.IsRectEmpty() && !rect.PtInRect(station));
-			bool bMissingVariable = ((WVars&filter) != filter);
+			bool bMissingVariable = ((WVars & filter) != filter);
 
 			if (WVars.any() &&
 				!bExclude &&
@@ -900,7 +900,7 @@ namespace WBSF
 
 		//if no stations is farther than the distance with try to fin more stations
 		for (size_t f = 2; f < 20 && !searchResultArray.empty() && searchResultArray.back().m_distance < d && searchResultArray.size() < size(); f *= 2)
-			Search(searchResultArray, location, f*NB_MATCH_MAX, d, filter, year, bExcludeUnused, bUseElevation);
+			Search(searchResultArray, location, f * NB_MATCH_MAX, d, filter, year, bExcludeUnused, bUseElevation);
 
 	}
 
@@ -999,7 +999,7 @@ namespace WBSF
 
 
 
-	std::string CWeatherDatabase::GetUniqueName(const std::string & ID, const std::string & name)const
+	std::string CWeatherDatabase::GetUniqueName(const std::string& ID, const std::string& name)const
 	{
 		std::string newName = name;
 
@@ -1059,7 +1059,7 @@ namespace WBSF
 			if (m_hDll != nullptr)
 			{
 				load_azure_weather_years = (load_azure_weather_yearsF)GetProcAddress(m_hDll, "load_azure_weather_years");
-				if(load_azure_weather_years==NULL)
+				if (load_azure_weather_years == NULL)
 					msg.ajoute(FormatMsg(IDS_BSC_UNABLE_GETFUNC, "load_azure_weather_years", filePath));
 			}
 			else
@@ -1896,6 +1896,8 @@ namespace WBSF
 		//try to get the station from the cache
 		if (msg)
 		{
+			
+
 			CDHDatabaseBase& me = const_cast<CDHDatabaseBase&>(*this);
 			CWeatherStation* pStation = dynamic_cast<CWeatherStation*>(&station);
 			assert(pStation);
@@ -1904,27 +1906,31 @@ namespace WBSF
 			if (years.empty())
 				years = GetYears(index);
 
+			//Load DLL if azure storage
+			if (!m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty())
+				msg = me.LoadAzureDLL();
+
+
 			if (m_bUseCache && m_cache.exists(index))
 			{
-
-				
 				if (!me.m_cache.get(index).IsYearInit(years))
 				{
 					if (m_openMode == modeBinary)
 					{
-						msg = me.LoadAzureDLL();
-						if (msg)
-						{
-							for (auto it = years.begin(); it != years.end(); it++)
-							{
-								string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
-								CWeatherYears* pWeather = static_cast<CWeatherYears *>(&me.m_cache.get(index));
-								if(!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void *>(pWeather)))
-								{
-									msg.ajoute("Blob not found: " + blob_name);
-								}
-							}
-						}
+						msg = LoadBinary(static_cast<CWeatherStation*>(&me.m_cache.get(index)), years);
+						//msg = me.LoadAzureDLL();
+						//if (msg)
+						//{
+						//	for (auto it = years.begin(); it != years.end(); it++)
+						//	{
+						//		string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
+						//		CWeatherYears* pWeather = static_cast<CWeatherYears*>(&me.m_cache.get(index));
+						//		if (!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void*>(pWeather)))
+						//		{
+						//			msg.ajoute("Blob not found: " + blob_name);
+						//		}
+						//	}
+						//}
 					}
 					else
 					{
@@ -1951,20 +1957,7 @@ namespace WBSF
 			{
 				if (m_openMode == modeBinary)
 				{
-					msg = me.LoadAzureDLL();
-					if (msg)
-					{
-						for (auto it = years.begin(); it != years.end(); it++)
-						{
-							string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
-							CWeatherYears* pWeather = static_cast<CWeatherYears *>(pStation);
-							pWeather->CreateYear(*it);
-							if (!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void *>(pWeather)))
-							{
-								msg.ajoute("Blob not found: "+ blob_name);
-							}
-						}
-					}
+					msg = LoadBinary(pStation, years);
 				}
 				else
 				{
@@ -1983,6 +1976,80 @@ namespace WBSF
 	}
 
 
+
+	ERMsg CDHDatabaseBase::LoadBinary(CWeatherStation* pStation, const std::set<int>& years)const
+	{
+		assert(pStation);
+
+		ERMsg msg;
+		if (!m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty())
+		{
+			
+			if (msg)
+			{
+				for (auto it = years.begin(); it != years.end(); it++)
+				{
+					string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
+					CWeatherYears* pWeather = static_cast<CWeatherYears*>(pStation);
+					pWeather->CreateYear(*it);
+					if (!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void*>(pWeather)))
+					{
+						msg.ajoute("Blob not found: " + blob_name);
+					}
+				}
+			}
+		}
+		else
+		{
+			//load binary local file
+			for (auto it = years.begin(); it != years.end(); it++)
+			{
+				CWeatherYears* pWeather = static_cast<CWeatherYears*>(pStation);
+				pWeather->CreateYear(*it);
+
+				string DBName = GetPath() + GetFileTitle(m_filePath);
+				string blob_name = DBName + "/" + get_azure_data_file_name(*pStation, *it);
+				assert(!blob_name.empty());
+
+				ifstream local_stream;
+				local_stream.open(blob_name, ios::in | ios::binary);
+				if (local_stream.is_open())
+				{
+					try
+					{
+						boost::iostreams::filtering_istreambuf in;
+						in.push(boost::iostreams::gzip_decompressor());
+						in.push(local_stream);
+						std::istream incoming(&in);
+
+						//CWeatherYears* pWeather = static_cast<CWeatherYears*>(pWeather);
+
+						CTPeriod period;
+						CWVariables variable;
+
+						read_value(incoming, period);
+						read_value(incoming, variable);
+						assert(period.IsInit());
+
+						for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+							pWeather->Get(TRef).ReadStream(incoming, variable, false);
+
+
+					}
+					catch (const boost::iostreams::gzip_error& exception)
+					{
+						int error = exception.error();
+						if (error == boost::iostreams::gzip::zlib_error)
+						{
+							//check for all error code    
+							msg.ajoute(exception.what());
+						}
+					}
+				}
+			}
+		}
+		return msg;
+	}
 
 
 	//****************************************************************************
@@ -2280,7 +2347,7 @@ namespace WBSF
 			string filterName = filter.GetVariablesName('+');
 
 			msg = ERMsg();//reset it and add the new message
-			string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION, ToString(searchResultArray.size()), string(m_filePath.empty()?" ":GetFileName(m_filePath)), ToString(year), ToString(nbStation), filterName);
+			string error = FormatMsg(IDS_WG_NOTENOUGH_OBSERVATION, ToString(searchResultArray.size()), string(m_filePath.empty() ? " " : GetFileName(m_filePath)), ToString(year), ToString(nbStation), filterName);
 			msg.ajoute(error);
 		}
 
@@ -2404,10 +2471,10 @@ namespace WBSF
 					for (auto it = years.begin(); it != years.end(); it++)
 					{
 						string data_filepath = WBSF::GetPath(file_path) + GetFileTitle(file_path) + "/" + get_azure_data_file_name(station, *it);
-						WBSF::CreateMultipleDir(WBSF::GetPath(data_filepath)); 
+						WBSF::CreateMultipleDir(WBSF::GetPath(data_filepath));
 
 						data_filepath = WBSF::ANSI_2_ASCII(RemoveAccented(data_filepath));//remove all accent caracters;
-						
+
 
 						ofStream data_file;
 						msg = data_file.open(data_filepath, ios::out | ios::binary);
@@ -2495,7 +2562,7 @@ namespace WBSF
 				std::istream incoming(&in);
 
 				size_t version = 0;
-				incoming.read((char *)(&version), sizeof(version));
+				incoming.read((char*)(&version), sizeof(version));
 
 				if (version == GetVersion())
 				{

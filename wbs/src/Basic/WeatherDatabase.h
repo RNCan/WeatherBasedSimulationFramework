@@ -220,7 +220,7 @@ namespace WBSF
 		void CreateCanal(CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance);
 		ERMsg SaveAsBinary(const std::string& file_path)const;
 		ERMsg LoadFromBinary(const std::string& file_path);
-			
+		ERMsg LoadBinary(CWeatherStation* pStation, const std::set<int>& years)const;
 
 		ERMsg DeleteDatabase(const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
 		ERMsg RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
