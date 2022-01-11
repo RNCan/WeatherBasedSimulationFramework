@@ -116,12 +116,12 @@ namespace WBSF
 		size_t c = 0;
 		m_species = parameters[c++].GetInt();
 		m_SDI_type = parameters[c++].GetInt();
-
+		m_defoliation = parameters[c++].GetReal();
 
 		//ASSERT(m_species < HBB::PARAMETERS.size());
 
 
-		if (parameters.size() == 2 + NB_PARAMS)
+		if (parameters.size() == 3 + NB_PARAMS)
 		{
 			for (size_t i = 0; i < NB_PARAMS; i++)
 				m_P[i] = parameters[c++].GetReal();
@@ -248,6 +248,7 @@ namespace WBSF
 
 
 
+							//double Fdef = 1 - m_P[DEF_min] / (1 + exp(-(m_defoliation - m_P[DEF_µ]) / m_P[DEF_σ])); 
 
 							double PS = CU / m_P[CU_crit] + FU / m_P[FU_crit];
 							double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
@@ -269,7 +270,7 @@ namespace WBSF
 
 
 	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, NB_INPUTS2 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_DEFOL2, NB_INPUTS2 };
 	void CBudBurstChuineModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs" };
@@ -303,6 +304,8 @@ namespace WBSF
 				obs.m_ref.FromFormatedString(data[I_DATE2]);
 				obs.m_obs[0] = stod(data[I_SDI2]);
 				obs.m_obs.push_back(1);
+				obs.m_obs.push_back(stod(data[I_DEFOL2]));
+				
 
 				if (obs.m_obs[0] > -999)
 				{
@@ -366,6 +369,9 @@ namespace WBSF
 			ExecuteAllYears(data_weather, output);
 
 
+			//boost::math::beta_distribution<double> SDI_dist(m_P[muSDI], m_P[ѕigmaSDI]);
+			boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
+
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
 				if (output.IsInside(m_SAResult[i].m_ref))
@@ -373,7 +379,28 @@ namespace WBSF
 					if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
 						double obs_SDI = Round(m_SAResult[i].m_obs[0], 2);
-						double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
+						//double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
+						// 
+
+						double Fdef = 1;
+						if (m_P[Used_DEF] != 0)
+						{
+							double defol = m_SAResult[i].m_obs[2] > -999 ? m_SAResult[i].m_obs[2] : 0;
+							double Fdef = 1 - (1 - m_P[DEF_min]) / (1 + exp(-(defol - m_P[DEF_µ]) / m_P[DEF_σ]));
+						}
+
+						double CU = output[m_SAResult[i].m_ref][O_CU]; 
+						double FU = output[m_SAResult[i].m_ref][O_FU];
+						double PS = min(1.0,CU / (m_P[CU_crit] )) + min(1.0,(FU)/ (m_P[FU_crit] * Fdef));
+						
+						double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
+						double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+						double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+
+
+						double sim_SDI = Round(SDI, 2);
+
+
 						//for(size_t n=0; n< m_SAResult[i].m_obs[1]; n++)
 						stat.Add(obs_SDI, sim_SDI);
 					}

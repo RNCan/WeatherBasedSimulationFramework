@@ -178,8 +178,8 @@ namespace WBSF
 
 	void CBudBurstSaintAmantModel::ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output)
 	{
-		//boost::math::beta_distribution<double> SDI_dist(m_P[muSDI], m_P[ѕigmaSDI]);
-		boost::math::weibull_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
+		boost::math::beta_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
+		//boost::math::weibull_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
@@ -541,9 +541,12 @@ namespace WBSF
 			if ((m_P[S_IN_σ_PS] > -0.1 && m_P[S_IN_σ_PS] < 0.1) ||
 				(m_P[S_OUT_σ_PS] > -0.1 && m_P[S_OUT_σ_PS] < 0.1) ||
 				(m_P[ST_IN_σ_PS] > -0.1 && m_P[ST_IN_σ_PS] < 0.1) ||
-				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1))
+				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1) 
+				
+				)
 				return;
 
+			if (fabs(m_P[S_IN_σ_PS]) )
 
 			if (data_weather.GetNbYears() == 0)
 			{

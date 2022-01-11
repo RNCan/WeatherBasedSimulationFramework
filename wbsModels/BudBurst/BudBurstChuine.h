@@ -50,8 +50,14 @@ namespace WBSF
 		//SDI
 		SDI_µ,// physiological stage to SDI Weibull function
 		SDI_σ,// physiological stage to SDI Weibull function
-		
-		
+		//Defoliation
+		DEF_µ,
+		DEF_σ,
+		DEF_min,
+		Used_DEF,
+
+
+
 		NB_PARAMS
 	};
 
@@ -94,6 +100,7 @@ namespace WBSF
 
 		size_t m_species;
 		size_t m_SDI_type;
+		double m_defoliation;
 		
 		std::array<double, NB_PARAMS> m_P;
 
