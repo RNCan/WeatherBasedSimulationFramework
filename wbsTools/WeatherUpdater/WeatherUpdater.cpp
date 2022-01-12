@@ -1,3 +1,4 @@
+//6.0.1	11/01/2022	Rémi Saint-Amant	Bug correction in FTP tranfer
 //6.0.0	20/12/2021	Rémi Saint-Amant	Compile with VC 2019 and MFC dll version, Compile with GDAL 3.0.3
 //5.9.3 29/04/2021	Rémi Saint-Amant	Automaticly create gribs list in CanUS.
 //										Bug correction in HRRR 2d/3d options

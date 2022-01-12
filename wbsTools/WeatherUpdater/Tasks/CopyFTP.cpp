@@ -124,7 +124,7 @@ namespace WBSF
 
 			stript << "cd \"" << GetPath(Get(REMOTE)) << "\"" << endl;
 			stript << "lcd \"" << GetPath(Get(LOCAL)) << "\"" << endl;
-			stript << (direction == D_DOWNLOAD ? "get" : "set") << " \"" << GetFileName(Get(LOCAL)) << "\"" << endl;
+			stript << (direction == D_DOWNLOAD ? "get" : "put") << " \"" << GetFileName(Get(LOCAL)) << "\"" << endl;
 			stript << "exit" << endl;
 			stript.close();
 
@@ -137,10 +137,14 @@ namespace WBSF
 			//}
 
 
-			DWORD exitCode;
+			DWORD exitCode=0;
 			msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
 			if (msg && exitCode != 0)
+			{
 				msg.ajoute("FTPTransfer as exit with error code " + ToString((int)exitCode));
+				msg.ajoute("See log file: " + scriptFilePath + ".log");
+			}
+				
 
 			//if (msg)
 			//{
