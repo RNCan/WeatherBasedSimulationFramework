@@ -6,7 +6,7 @@
     <EXE>BudBurstChuine.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
-    <WindowRect>0 0 732 859</WindowRect>
+    <WindowRect>0 0 703 859</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -37,6 +37,18 @@
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 565 50 715</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>Method</Name>
@@ -415,11 +427,59 @@
             <Caption>SDI_sigma</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>575 45 595 195</Rect>
+            <Rect>550 215 570 365</Rect>
             <SeparatorPos>80</SeparatorPos>
             <DefaultValue>9.7</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DEF_mu</Name>
+            <Caption>DEF_mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>580 45 600 195</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DEF_sigma</Name>
+            <Caption>DEF_sigma</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>580 215 600 365</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DEF_min</Name>
+            <Caption>DEF_min</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>575 390 595 540</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.9</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DEF_max</Name>
+            <Caption>DEF_use_it</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>575 565 595 715</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

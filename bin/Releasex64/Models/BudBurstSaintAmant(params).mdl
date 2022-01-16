@@ -6,7 +6,7 @@
     <EXE>BudBurstSaintAmant.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
-    <WindowRect>0 0 906 859</WindowRect>
+    <WindowRect>0 0 544 859</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -154,7 +154,7 @@
             <Rect>150 530 170 680</Rect>
             <SeparatorPos>95</SeparatorPos>
             <DefaultValue>2.6</DefaultValue>
-            <MinValue>1</MinValue>
+            <MinValue>0.1</MinValue>
             <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -202,7 +202,7 @@
             <Rect>175 530 200 680</Rect>
             <SeparatorPos>95</SeparatorPos>
             <DefaultValue>1</DefaultValue>
-            <MinValue>1</MinValue>
+            <MinValue>0.1</MinValue>
             <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -262,7 +262,7 @@
             <Rect>280 535 300 685</Rect>
             <SeparatorPos>90</SeparatorPos>
             <DefaultValue>9.7</DefaultValue>
-            <MinValue>1</MinValue>
+            <MinValue>0.1</MinValue>
             <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -334,7 +334,7 @@
             <Rect>310 535 330 685</Rect>
             <SeparatorPos>90</SeparatorPos>
             <DefaultValue>3.77</DefaultValue>
-            <MinValue>1</MinValue>
+            <MinValue>0.1</MinValue>
             <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -451,7 +451,7 @@
             <Caption>a3</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>824 10 846 160</Rect>
+            <Rect>385 30 410 180</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
