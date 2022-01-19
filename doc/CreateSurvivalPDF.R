@@ -28,6 +28,7 @@ Resolution = 600;
 model_cex = rep(mySize[font_sel], length(equations))
 
 
+
 file_name = "E:/Project/doc/English/SurvivalEquations.pdf"
 
 pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
@@ -36,10 +37,10 @@ pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_s
 	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Survival Models"), family = myfont[font_sel], cex = 2.0)
 	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
 	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.86, adj=c(0.5,0.5), expression("2021"), family = myfont[font_sel], cex = 1.3)
+	text(0.5,0.86, adj=c(0.5,0.5), expression("Version 1.0.0 (2022)"), family = myfont[font_sel], cex = 1.3)
 
 	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],kk, kk[1],kk[2])), family = myfont[font_sel], cex = 1.5)
+	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[4],kk, kk[1],kk[2])), family = myfont[font_sel], cex = 1.5)
 	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
 	text(0.5,0.6, adj=c(0,0.5), expression(T~'°C'), family = myfont[font_sel], cex = 1.5)
 	text(0.1,0.55, adj=c(0,0.5), expression("Lower"), family = myfont[font_sel], cex = 1.5)
@@ -106,7 +107,7 @@ par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.
 dev.off()
 
 #As the name suggests, embed_fonts() will embed the fonts:
-embed_fonts(file_name, outfile=paste("E:/Project/doc/SurvivalEquations.pdf",sep=""))
+embed_fonts(file_name, outfile=file_name)
 
 
 
