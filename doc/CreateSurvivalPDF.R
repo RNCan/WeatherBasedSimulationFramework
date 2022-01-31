@@ -1,56 +1,52 @@
 cat("\014")
 rm(list=ls())
 graphics.off()
-library(stringi)
+
+library("extrafont")
 
 # Needed only on Windows - run once per R session
 # Adjust the path to match your installation of Ghostscript
-Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.53.1/bin/gswin64c.exe")
+Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.55.0/bin/gswin64c.exe")
 
-library(extrafont)
-loadfonts(quiet = TRUE)
 
-myfont <- c('Andalus','MV Boli', 'Times New Roman')
-mySize <- c(1.9,1.9,1.9)
-font_sel = 3
-
+mySize <- 1.9;
 
 sim <- read.csv("E:/Project/doc/CreateSurvivalPDF.csv")
-sim <- sim[!duplicated(sim$EqName),]
-pos <- !stri_detect_fixed(sim$EqName, "Survival_")
-sim <- sim[order(pos, sim$EqName),]
+#sim <- sim[!duplicated(sim$EqName),]
+#pos <- !stri_detect_fixed(sim$EqName, "Survival_")
+#sim <- sim[order(pos, sim$EqName),]
 
 equations <- unique(sim$EqName)
 Resolution = 600;
 
 
 
-model_cex = rep(mySize[font_sel], length(equations))
+model_cex = rep(mySize, length(equations))
 
 
 
 file_name = "E:/Project/doc/English/SurvivalEquations.pdf"
 
-pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = myfont[font_sel])
-	par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
+pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = "Times")
+	par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family="Times")
 	plot.new()
-	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Survival Models"), family = myfont[font_sel], cex = 2.0)
-	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = myfont[font_sel], cex = 1.8)
-	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.86, adj=c(0.5,0.5), expression("Version 1.0.0 (2022)"), family = myfont[font_sel], cex = 1.3)
+	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Survival Models"), family = "Times", cex = 2.0)
+	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = "Times", cex = 1.8)
+	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = "Times", cex = 1.5)
+	text(0.5,0.86, adj=c(0.5,0.5), expression("Version 1.0.0 (2022-01-31)"), family = "Times", cex = 1.3)
 
-	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[4],kk, kk[1],kk[2])), family = myfont[font_sel], cex = 1.5)
-	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.6, adj=c(0,0.5), expression(T~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.55, adj=c(0,0.5), expression("Lower"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.55, adj=c(0,0.5), expression(T[L]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.5, adj=c(0,0.5), expression("Optimum"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.5, adj=c(0,0.5), expression(T[o]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.1,0.45, adj=c(0,0.5), expression("Upper"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.45, adj=c(0,0.5), expression(T[H]~'°C'), family = myfont[font_sel], cex = 1.5)
-	text(0.0,0.3, adj=c(0,0.5), expression("Temperature scale"), family = myfont[font_sel], cex = 1.5)
-	text(0.5,0.3, adj=c(0,0.5), expression(list(Delta[T],~Delta[T[L]],~Delta[T[H]])), family = myfont[font_sel], cex = 1.5)
+	text(0.0,0.7, adj=c(0,0.5), expression("General Parameters"), family = "Times", cex = 1.5)
+	text(0.5,0.7, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[4],kk, kk[1],kk[2])), family = "Times", cex = 1.5)
+	text(0.0,0.6, adj=c(0,0.5), expression("Temperature"), family = "Times", cex = 1.5)
+	text(0.5,0.6, adj=c(0,0.5), expression(T~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.55, adj=c(0,0.5), expression("Lower"), family = "Times", cex = 1.5)
+	text(0.5,0.55, adj=c(0,0.5), expression(T[L]~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.5, adj=c(0,0.5), expression("Optimum"), family = "Times", cex = 1.5)
+	text(0.5,0.5, adj=c(0,0.5), expression(T[o]~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.45, adj=c(0,0.5), expression("Upper"), family = "Times", cex = 1.5)
+	text(0.5,0.45, adj=c(0,0.5), expression(T[H]~'°C'), family = "Times", cex = 1.5)
+	text(0.0,0.3, adj=c(0,0.5), expression("Temperature scale"), family = "Times", cex = 1.5)
+	text(0.5,0.3, adj=c(0,0.5), expression(list(Delta[T],~Delta[T[L]],~Delta[T[H]])), family = "Times", cex = 1.5)
 
 
 nbPlots=3
@@ -59,7 +55,7 @@ for( g in 1:nbPlots )
 	
 
 	#g=1
-	par(mfrow=c(6,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
+	par(mfrow=c(6,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family="Times")
 	for(i in (6*(g-1)+1):min(length(equations),6*g) )
 	{
 	print(i)
@@ -90,21 +86,24 @@ for( g in 1:nbPlots )
 		
 		
 		plot.new()
-		text(0.0,0.8, adj=c(0,0.8), sprintf("%02d%s%s", i, sep, e), family = myfont[font_sel], cex = 1.3)
-		text(1,0.5, adj=c(1,adj_y), ex, family = myfont[font_sel], cex = model_cex[i])
+		text(0.0,0.8, adj=c(0,0.8), sprintf("%02d%s%s", i, sep, e), family = "Times", cex = 1.3)
+		text(1,0.5, adj=c(1,adj_y), ex, family = "Times", cex = model_cex[i])
 		rm(list=unlist(L))
 	}
 }
 
 
-par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family=myfont[font_sel])
+par(mfrow=c(1,1), mar=c(0, 0, 0, 0), oma = c(2, 2, 2, 2), cex=1.0, cex.main = 0.7, cex.lab=1.1, cex.axis=1.0, family="Times")
 	plot.new()
 	
-	text(0.0,1.0, adj=c(0.0,0.0), "Reference", family = myfont[font_sel], cex = 1.5)
-	text(0.05,0.85, adj=c(0.0,0.0), "Sporleder M, Tonnang HEZ, Carhuapoma P, Gonzales JC, Juarez H, Kroschel J. 2013.\n    Insect Life Cycle Modeling (ILCYM) software a new tool for Regional and Global\n    Insect Pest Risk Assessments under Current and Future Climate Change Scenarios.\n    In: Peña JE, ed. Potential invasive pests of agricultural crops. Wallingford: CABI\n    https://doi.org/10.1079/9781845938291.0412", family = myfont[font_sel], cex = 1.)
+	text(0.0,1.0, adj=c(0.0,0.0), "Reference", family = "Times", cex = 1.5)
+	text(0.05,0.85, adj=c(0.0,0.0), "Sporleder M, Tonnang HEZ, Carhuapoma P, Gonzales JC, Juarez H, Kroschel J. 2013.\n    Insect Life Cycle Modeling (ILCYM) software a new tool for Regional and Global\n    Insect Pest Risk Assessments under Current and Future Climate Change Scenarios.\n    In: Peña JE, ed. Potential invasive pests of agricultural crops. Wallingford: CABI\n    https://doi.org/10.1079/9781845938291.0412", family = "Times", cex = 1.)
 
 
 dev.off()
+
+
+
 
 #As the name suggests, embed_fonts() will embed the fonts:
 embed_fonts(file_name, outfile=file_name)
