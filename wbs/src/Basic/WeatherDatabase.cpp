@@ -377,14 +377,15 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		station = m_zop[index];
-
-
 		if (m_openMode != modeBinary && m_zop.GetDataSection().GetFilePath().empty())
 		{
+			m_CS.Enter();
 			CWeatherDatabaseOptimization& zop = const_cast<CWeatherDatabaseOptimization&>(m_zop);
 			msg = zop.LoadData(GetOptimisationDataFilePath(m_filePath));
+			m_CS.Leave();
 		}
+
+		station = m_zop[index];
 
 		return msg;
 	}
@@ -1852,18 +1853,8 @@ namespace WBSF
 
 	static std::string get_azure_data_file_name(CWeatherStation& station, int year)
 	{
-		//std::string country = station.GetSSI("Country");
-		//std::string subAdmin = station.GetSSI("SubAdmin");
 		string name = station.GetDataFileName();
 		SetFileExtension(name, ".bin.gz");
-
-		//if (country.empty())
-			//country = "Ukn";
-
-//		country += "/";
-	//	if (!subAdmin.empty())
-		//	subAdmin += "/";
-
 		return to_string(year) + "/" + name;
 	}
 
@@ -1889,14 +1880,14 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_CS.Enter();
+
 
 		msg = CWeatherDatabase::Get(station, index);
 
 		//try to get the station from the cache
 		if (msg)
 		{
-			
+
 
 			CDHDatabaseBase& me = const_cast<CDHDatabaseBase&>(*this);
 			CWeatherStation* pStation = dynamic_cast<CWeatherStation*>(&station);
@@ -1911,47 +1902,55 @@ namespace WBSF
 				msg = me.LoadAzureDLL();
 
 
-			if (m_bUseCache && m_cache.exists(index))
+			if (m_bUseCache)
 			{
-				if (!me.m_cache.get(index).IsYearInit(years))
+				m_CS.Enter();
+				if (m_cache.exists(index))
+				{
+					if (!me.m_cache.get(index).IsYearInit(years))
+					{
+						if (m_openMode == modeBinary)
+						{
+							msg = LoadBinary(static_cast<CWeatherStation*>(&me.m_cache.get(index)), years);
+						}
+						else
+						{
+							std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
+							msg = me.m_cache.get(index).LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, years));
+						}
+
+					}
+
+
+					//station = me.m_cache.get(index);//copy location
+					pStation->SetHourly(me.m_cache.get(index).IsHourly());
+					pStation->SetFormat(me.m_cache.get(index).GetFormat());
+					//copy only wanted years
+					for (std::set<int> ::const_iterator it = years.begin(); it != years.end(); it++)
+					{
+						int year = *it;
+						pStation->CreateYear(year);
+						CWeatherYear& weatherYear = pStation->at(year);
+						weatherYear = me.m_cache.get(index).at(year);
+					}
+				}
+				else
 				{
 					if (m_openMode == modeBinary)
 					{
-						msg = LoadBinary(static_cast<CWeatherStation*>(&me.m_cache.get(index)), years);
-						//msg = me.LoadAzureDLL();
-						//if (msg)
-						//{
-						//	for (auto it = years.begin(); it != years.end(); it++)
-						//	{
-						//		string blob_name = m_DB_blob + "/" + get_azure_data_file_name(*pStation, *it);
-						//		CWeatherYears* pWeather = static_cast<CWeatherYears*>(&me.m_cache.get(index));
-						//		if (!load_azure_weather_years(m_account_name.c_str(), m_account_key.c_str(), m_container_name.c_str(), blob_name.c_str(), static_cast<void*>(pWeather)))
-						//		{
-						//			msg.ajoute("Blob not found: " + blob_name);
-						//		}
-						//	}
-						//}
+						msg = LoadBinary(pStation, years);
 					}
 					else
 					{
 						std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
-						msg = me.m_cache.get(index).LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, years));
+						msg = pStation->LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, yearsIn));
 					}
 
+					if (msg)
+						me.m_cache.put(index, *pStation);
 				}
 
-
-				//station = me.m_cache.get(index);//copy location
-				pStation->SetHourly(me.m_cache.get(index).IsHourly());
-				pStation->SetFormat(me.m_cache.get(index).GetFormat());
-				//copy only wanted years
-				for (std::set<int> ::const_iterator it = years.begin(); it != years.end(); it++)
-				{
-					int year = *it;
-					pStation->CreateYear(year);
-					CWeatherYear& weatherYear = pStation->at(year);
-					weatherYear = me.m_cache.get(index).at(year);
-				}
+				m_CS.Leave();
 			}
 			else
 			{
@@ -1964,13 +1963,10 @@ namespace WBSF
 					std::string dataFilePath = GetDataFilePath(station.GetDataFileName());
 					msg = pStation->LoadData(dataFilePath, MISSING, false, m_zop.GetDataSection().GetYearsSection(dataFilePath, yearsIn));
 				}
-
-				if (m_bUseCache && msg)
-					me.m_cache.put(index, *pStation);
 			}
 		}
 
-		m_CS.Leave();
+
 
 		return msg;
 	}
@@ -1984,7 +1980,7 @@ namespace WBSF
 		ERMsg msg;
 		if (!m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty())
 		{
-			
+
 			if (msg)
 			{
 				for (auto it = years.begin(); it != years.end(); it++)

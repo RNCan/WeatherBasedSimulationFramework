@@ -558,7 +558,7 @@ namespace WBSF
 		}
 
 		
-		//create poisson distribution from expected values
+		//create Poisson distribution from expected values
 		double expected = max(0.001, Ftˉ¹ - Ft);
 		boost::math::poisson_distribution<double> Poisson(expected);
 
@@ -2373,8 +2373,14 @@ namespace WBSF
 					msg += m_fecundity.load(inputFilePath);
 				}
 
+				//Load temperature profile
+				if (!m_TobsFileName.empty())
+				{
+					string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
+					msg += m_Tobs.load(TobsFilePath);
+				}
 
-				//generate fixed temperature profile
+				//complete by generating fixed temperature
 				if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
 				{
 					m_Tobs.generate(m_devTime);
@@ -2388,13 +2394,9 @@ namespace WBSF
 					m_Tobs.generate(m_fecundity);
 				}
 
-				if (!m_TobsFileName.empty())
-				{
-					string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
-					msg += m_Tobs.load(TobsFilePath);
-				}
+				
 
-				//verify that all temperature profile have anought data
+				//verify that all temperature profile have enough data
 				if (msg)
 				{
 					if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
@@ -3603,17 +3605,29 @@ namespace WBSF
 
 							if (m_devTime.m_bIndividual)//use individual time
 							{
+								// it can be a better solution to send the Time and Time-1: ToDo add Time Series Development fit
 								LL = Regniere2021DevRate(eq, sigma, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_TIME]);
 								LL *= m_devTime[i][I_N];
 							}
 							else//use mean+sd+n
 							{
-								//LL seem to not have to be mutiply by N!
+								//LL seem to not have to be multiply by N!
 								LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_Tobs[m_devTime[i].m_traitment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
 							}
 
-							if (!isfinite(LL) || isnan(LL))
+							//compute maximum rate and don't let it got 
+							
+
+
+
+							
+							if (!isfinite(LL) || isnan(LL) )
 								return;
+
+
+
+							
+
 
 							log_likelyhoude += LL;
 							N_likelyhoude += m_devTime[i][I_N];
@@ -3720,8 +3734,8 @@ namespace WBSF
 
 
 							//verifier avec Jacques????????
-							log_likelyhoude += LL* m_survival[i][I_N];
-							N_likelyhoude += m_survival[i][I_N];
+							log_likelyhoude += LL;// *m_survival[i][I_N];
+							N_likelyhoude++;// = m_survival[i][I_N];
 						}
 						else
 						{//RSS
@@ -3815,7 +3829,6 @@ namespace WBSF
 									stat.Add(sim, obs);*/
 							}
 						}
-
 					}
 				}
 			}
@@ -3827,10 +3840,44 @@ namespace WBSF
 		{
 			if (N_likelyhoude > 0)
 			{
+
+				//add penalty if over maximum
+				//if (m_fitType == F_DEV_TIME_WTH_SIGMA)
+				//{
+				//	TDevRateEquation eq = CDevRateEquation::eq(e);
+				//	CStatistic stat_obs;
+				//	const std::map<std::string, CStatisticEx>& all_stat = m_devTime.m_statsTime.at(var);
+				//	for (auto it = all_stat.begin(); it != all_stat.end(); it++)
+				//		stat_obs += it->second;
+				//
+				//	CStatistic stat_sim;
+				//	for (double T = 0; T < 40; T += 0.25)//problem if observation is not daily
+				//	{
+				//		double rate = max(0.0, CDevRateEquation::GetRate(eq, computation.m_XP, T));//daily rate
+				//		if (isfinite(rate) && !isnan(rate))
+				//			stat_sim += rate;
+				//	}
+				//
+				//	
+				//
+				//	double K = 1.1;
+				//	double max_rate_obs = 1 / stat_obs[LOWEST];
+				//	double max_rate_sim = stat_sim[HIGHEST];
+				//	
+				//	double k = max_rate_sim /( max_rate_obs*K);
+				//	if (k>1)
+				//		//log_likelyhoude *= (1+exp(-1/(k-1)) * k);
+				//		//log_likelyhoude *= (1+pow(log(k),5));
+				//		log_likelyhoude *= k;
+				//}
+
+
+
+
 				double k = computation.m_XP.size();
 				double n = N_likelyhoude;
 				double AIC = 2 * k - 2 * (log_likelyhoude);
-				double AICc = AIC + (2 * k*(k + 1) / (n - k - 1));// n/k < 40
+				double AICc = AIC + (2 * k*(k + 1) / max(1.0, n - k - 1));// n/k < 40
 
 				computation.m_AICCP = AICc;
 				computation.m_MLLP = log_likelyhoude;
