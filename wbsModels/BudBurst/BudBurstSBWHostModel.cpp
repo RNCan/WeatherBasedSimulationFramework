@@ -142,6 +142,8 @@ namespace WBSF
 			m_P.PAR_optT = SDI[ʎ1];
 			m_P.PAR_maxT = SDI[ʎ2];
 			m_P.m_nbSteps = SDI[ʎ3];
+			
+			m_bUseDefoliation = SDI[ʎa] != 0;
 
 			//m_P.Sw_kk = m_SDI[2];
 			//m_P.B_kk = m_SDI[3];
@@ -152,10 +154,10 @@ namespace WBSF
 			//m_P.FH_kk1 = m_SDI[8];
 			//m_P.FD_kk1 = m_SDI[9];
 
-			
+
 			ASSERT(m_species < HBB::PARAMETERS[0].size());
 
-			
+
 		}
 		else
 		{
@@ -201,7 +203,7 @@ namespace WBSF
 		}*/
 
 		for (size_t y = 0; y < m_weather.size(); y++)
-			model.m_defioliation[m_weather[y].GetTRef().GetYear()] = m_defoliation;
+			model.m_defioliation[m_weather[y].GetTRef().GetYear()-1] = m_defoliation;
 
 
 
@@ -229,12 +231,12 @@ namespace WBSF
 
 
 	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, NB_INPUTS2 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 
 
 	void CSBWHostBudBurstModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs" };
+		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
 
 		if (data.size() == NB_INPUTS1)
 		{
@@ -243,17 +245,32 @@ namespace WBSF
 
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE1]);
-				obs.m_obs[0] = stod(data[I_SDI1]);
-				obs.m_obs.push_back(stod(data[I_N1]));
-
-				if (obs.m_obs[0] > -999)
+				if (!m_bUseDefoliation || stod(data[I_DEFOL2]) > -999)
 				{
-					m_years.insert(obs.m_ref.GetYear());
+					obs.m_ref.FromFormatedString(data[I_DATE1]);
+					obs.m_obs[0] = stod(data[I_SDI1]);
+					obs.m_obs.push_back(stod(data[I_N1]));
+					obs.m_obs.push_back(stod(data[I_DEFOL2]));
+
+					if (obs.m_obs[0] > -999)
+					{
+						m_years.insert(obs.m_ref.GetYear());
+					}
+					if (obs.m_obs[2] > -999)//defoliation
+					{
+						if (m_defioliation_by_year.find(obs.m_ref.GetYear()) != m_defioliation_by_year.end())
+						{
+							//defoliation for a site must be always the same
+							ASSERT(m_defioliation_by_year[obs.m_ref.GetYear()] == obs.m_obs[2] / 100.0);
+						}
+
+						m_defioliation_by_year[obs.m_ref.GetYear()] = obs.m_obs[2] / 100.0;
+					}
+					
+
+
+					m_SAResult.push_back(obs);
 				}
-
-
-				m_SAResult.push_back(obs);
 			}
 		}
 		else if (data.size() == NB_INPUTS2)
@@ -266,11 +283,25 @@ namespace WBSF
 				obs.m_obs[0] = stod(data[I_SDI2]);
 				obs.m_obs.push_back(stod(data[I_STARCH2]));
 				obs.m_obs.push_back(stod(data[I_SUGAR2]));
-
-				if (obs.m_obs[0] > -999 || obs.m_obs[1] > -999 || obs.m_obs[2] > -999)
+				obs.m_obs.push_back(stod(data[I_DEFOL2]));
+				
+				if ((USE_SDI && obs.m_obs[0] > -999) ||
+					(USE_STARCH && obs.m_obs[1] > -999) ||
+					(USE_SUGAR && obs.m_obs[2] > -999))
 				{
 					m_years.insert(obs.m_ref.GetYear());
 				}
+
+				//if (obs.m_obs[3] > -999)//defoliation
+				//{
+				//	if (m_defioliation_by_year.find(obs.m_ref.GetYear()) != m_defioliation_by_year.end())
+				//	{
+				//		//defoliation for a site must be always the same
+				//		ASSERT(m_defioliation_by_year[obs.m_ref.GetYear()] == obs.m_obs[3] / 100.0);
+				//	}
+				//
+				//	m_defioliation_by_year[obs.m_ref.GetYear()] = obs.m_obs[3] / 100.0;
+				//}
 
 
 				m_SAResult.push_back(obs);
@@ -451,11 +482,17 @@ namespace WBSF
 			//weather[year - 1] = m_weather[year - 1];
 			//weather[year] = m_weather[year];
 
+			//number of year of defoliation must be the same but with one year lag. Ex. weather = 2015-2020, def=2014-2019
+			//ASSERT(m_defioliation_by_year.size()== data_weather.size());
 			CSBWHostBudBurst model;
 			model.m_species = m_species;
-
-			for (size_t y = 0; y < data_weather.size(); y++)
-				model.m_defioliation[data_weather[y].GetTRef().GetYear()] = m_defoliation;
+			if(m_bUseDefoliation)
+				model.m_defioliation = m_defioliation_by_year;
+			//for (size_t y = 0; y < data_weather.size(); y++)
+			//{
+				//model.m_defioliation[data_weather[y].GetTRef().GetYear()] = m_defoliation;
+			//}
+				
 
 			model.m_P = m_P;
 			//model.m_SDI = m_SDI;

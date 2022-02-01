@@ -36,6 +36,9 @@ namespace WBSF
 		size_t m_SDI_type;
 
 		HBB::CParameters m_P;
+		bool m_bUseDefoliation;
+		std::map<int, double> m_defioliation_by_year;
+		//std::map<int, double> m_defoliation;
 		//static const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> SDI;
 		//std::array<double, NB_SDI_PARAMS> m_SDI;
 		std::set<int> m_years;

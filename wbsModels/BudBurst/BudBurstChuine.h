@@ -97,12 +97,17 @@ namespace WBSF
 		
 		double ChillingResponce(double T)const;
 		double ForcingResponce(double T)const;
+		static std::array<double, 6> SDI_2_Sx(size_t SDI_type, double SDI);
+		static double Weibull(size_t stage, double  SDI, const std::array < double, 2>& p, size_t first_stage, size_t last_stage);
 
 		size_t m_species;
 		size_t m_SDI_type;
 		double m_defoliation;
 		
 		std::array<double, NB_PARAMS> m_P;
+		size_t m_CU_DAY_last;
+		size_t m_FU_DAY_last;
+
 
 
 		std::set<int> m_years;

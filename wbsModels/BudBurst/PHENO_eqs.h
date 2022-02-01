@@ -157,7 +157,7 @@ namespace WBSF
 			//std::array < std::array < double, 2>, NB_K> m_K;
 			std::array < double, NB_K> m_K;
 			std::array< std::array < double, NB_BINS + 1>, NB_K> m_beta_function;
-			 
+
 
 			bool operator==(const CParameters& in)const
 			{
@@ -229,7 +229,7 @@ namespace WBSF
 				if (m_nbSteps != in.m_nbSteps)bEqual = false;
 				if (fabs(SDI_mu - in.SDI_mu) > 0.00000001)bEqual = false;
 				if (fabs(SDI_sigma - in.SDI_sigma) > 0.00000001)bEqual = false;
-				
+
 
 				return bEqual;
 			}
@@ -338,10 +338,10 @@ namespace WBSF
 			}
 
 
-			CVariables operator+(const CVariables& in)const { return { S + in.S,St + in.St,Mdw + in.Mdw,Bdw + in.Bdw,C + in.C,I + in.I,Swell_switch||in.Swell_switch, Budburst_switch||in.Budburst_switch }; }
+			CVariables operator+(const CVariables& in)const { return { S + in.S,St + in.St,Mdw + in.Mdw,Bdw + in.Bdw,C + in.C,I + in.I,Swell_switch || in.Swell_switch, Budburst_switch || in.Budburst_switch }; }
 			CVariables operator/(double f)const { return { S / f, St / f,Mdw / f,Bdw / f,C / f,I / f, Swell_switch, Budburst_switch }; }
 			void limitToZero();
-			
+
 
 			double S;//Stem Sugar [mg]
 			double St;//Stem Starch[mg]
@@ -381,6 +381,14 @@ namespace WBSF
 		class CDefoliation
 		{
 		public:
+
+
+			CDefoliation(double p = 0, double c = 0, double d = 1)
+			{
+				previous = p;
+				current = c;
+				def = d;
+			}
 
 			double previous;
 			double current;

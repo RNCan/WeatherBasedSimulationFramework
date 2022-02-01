@@ -62,6 +62,12 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 		VERSION = "1.0.0 (2021)";
 		m_P = { 244,3.1,26.7,2298.8,0.244,13.46,21.5,8.00,7.69,0.0997,0.0888,0.0795,19.71,2.59,-217.3,-257.6,0.650,10,3.77,0.0464,-0.0633,0.856,2.64,-165.5,0.924,0.693 };
+
+		m_last_p_S_in = -1;
+		m_last_p_S_out = -1;
+		m_last_p_St_in = -1;
+		m_last_p_St_out = -1;
+
 	}
 
 
@@ -108,31 +114,31 @@ namespace WBSF
 		switch (SIGMOID)
 		{
 		case SIGMOID: R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); break;
-		//case CHUINE: R = 1 / (1 + exp(-((T - m_P[CU_µ]) / m_P[CU_σ¹] + Square(T - m_P[CU_µ]) / m_P[CU_σ²]))); break;
+			//case CHUINE: R = 1 / (1 + exp(-((T - m_P[CU_µ]) / m_P[CU_σ¹] + Square(T - m_P[CU_µ]) / m_P[CU_σ²]))); break;
 		case RICHARDSON: R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); break;
-		//case UTAH:
-		//{
-		//	ASSERT(m_P[CU_P_MIN] >= -1.0 && m_P[CU_P_MIN] <= 0.0);
-		//	if (T < m_P[CU_T_MIN])
-		//	{
-		//		R = 1.0 / (1.0 + exp(-4 * ((T - m_P[CU_T_MIN]) / (m_P[CU_T_OPT] - m_P[CU_T_MIN]))));
-		//	}
-		//	else if (T >= m_P[CU_T_MIN] && T < m_P[CU_T_OPT])
-		//	{
-		//		R = 1 - 0.5 * Square(T - m_P[CU_T_OPT]) / Square(m_P[CU_T_OPT] - m_P[CU_T_MIN]);
-		//	}
-		//	else if (T >= m_P[CU_T_OPT] && T < m_P[CU_T_MAX])
-		//	{
-		//		R = 1 - (1 - m_P[CU_P_MIN]) * Square(T - m_P[CU_T_OPT]) / (2 * Square(m_P[CU_T_MAX] - m_P[CU_T_OPT]));
-		//	}
-		//	else
-		//	{
-		//		R = m_P[CU_P_MIN] + (1 - m_P[CU_P_MIN]) / (1.0 + exp(-4 * ((m_P[CU_T_MAX] - T) / (m_P[CU_T_MAX] - m_P[CU_T_OPT]))));
-		//	}
-		//
-		//
-		//	break;
-		//}
+			//case UTAH:
+			//{
+			//	ASSERT(m_P[CU_P_MIN] >= -1.0 && m_P[CU_P_MIN] <= 0.0);
+			//	if (T < m_P[CU_T_MIN])
+			//	{
+			//		R = 1.0 / (1.0 + exp(-4 * ((T - m_P[CU_T_MIN]) / (m_P[CU_T_OPT] - m_P[CU_T_MIN]))));
+			//	}
+			//	else if (T >= m_P[CU_T_MIN] && T < m_P[CU_T_OPT])
+			//	{
+			//		R = 1 - 0.5 * Square(T - m_P[CU_T_OPT]) / Square(m_P[CU_T_OPT] - m_P[CU_T_MIN]);
+			//	}
+			//	else if (T >= m_P[CU_T_OPT] && T < m_P[CU_T_MAX])
+			//	{
+			//		R = 1 - (1 - m_P[CU_P_MIN]) * Square(T - m_P[CU_T_OPT]) / (2 * Square(m_P[CU_T_MAX] - m_P[CU_T_OPT]));
+			//	}
+			//	else
+			//	{
+			//		R = m_P[CU_P_MIN] + (1 - m_P[CU_P_MIN]) / (1.0 + exp(-4 * ((m_P[CU_T_MAX] - T) / (m_P[CU_T_MAX] - m_P[CU_T_OPT]))));
+			//	}
+			//
+			//
+			//	break;
+			//}
 		default: ASSERT(false);
 		};
 
@@ -183,71 +189,84 @@ namespace WBSF
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
-		deque<CMeanTInput> input(pp.GetNbDay());
-		for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
+		deque<CMeanTInput> input;
+
+
+		size_t p_S_in = size_t(m_P[S_IN_DAYS]);
+		size_t p_S_out = size_t(m_P[S_OUT_DAYS]);
+		size_t p_St_in = size_t(m_P[ST_IN_DAYS]);
+		size_t p_St_out = size_t(m_P[ST_OUT_DAYS]);
+
+		if (input.empty() || m_last_p_S_in != p_S_in || m_last_p_S_out != p_S_out || m_last_p_St_in != p_St_in || m_last_p_St_out != p_St_out)
 		{
-			for (size_t m = 0; m < weather[y].GetNbMonth(); m++)
+			m_last_p_S_in = p_S_in;
+			m_last_p_S_out = p_S_out;
+			m_last_p_St_in = p_St_in;
+			m_last_p_St_out = p_St_out;
+
+			input.resize(pp.GetNbDay());
+
+			for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
 			{
-				for (size_t d = 0; d < weather[y][m].GetNbDays(); d++, dd++)
+				for (size_t m = 0; m < weather[y].GetNbMonth(); m++)
 				{
-					array<CStatistic, 3> T_S_in_Days_stat;
-					array<CStatistic, 3> T_S_out_Days_stat;
-					array<CStatistic, 3> T_St_in_Days_stat;
-					array<CStatistic, 3> T_St_out_Days_stat;
-
-					CTRef TRef = weather[y][m][d].GetTRef();
-
-					size_t p_S_in = size_t(m_P[S_IN_DAYS]);
-					size_t p_S_out = size_t(m_P[S_OUT_DAYS]);
-					size_t p_St_in = size_t(m_P[ST_IN_DAYS]);
-					size_t p_St_out = size_t(m_P[ST_OUT_DAYS]);
-					size_t max_days = max(p_S_in, max(p_S_out, max(p_St_in, p_St_out)));
-					for (size_t i = 0; i < max_days; i++)//Charrier 2018 use the mean maximum of the last 14 days 
+					for (size_t d = 0; d < weather[y][m].GetNbDays(); d++, dd++)
 					{
+						array<CStatistic, 3> T_S_in_Days_stat;
+						array<CStatistic, 3> T_S_out_Days_stat;
+						array<CStatistic, 3> T_St_in_Days_stat;
+						array<CStatistic, 3> T_St_out_Days_stat;
 
-						if (i < p_S_in)
+						CTRef TRef = weather[y][m][d].GetTRef();
+
+
+						size_t max_days = max(p_S_in, max(p_S_out, max(p_St_in, p_St_out)));
+						for (size_t i = 0; i < max_days; i++)//Charrier 2018 use the mean maximum of the last 14 days 
 						{
-							T_S_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMIN];
-							T_S_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_in))[H_TAIR];
-							T_S_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMAX];
-						}
-						if (i < p_S_out)
-						{
-							T_S_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMIN];
-							T_S_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_out))[H_TAIR];
-							T_S_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMAX];
+
+							if (i < p_S_in)
+							{
+								T_S_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMIN];
+								T_S_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_in))[H_TAIR];
+								T_S_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMAX];
+							}
+							if (i < p_S_out)
+							{
+								T_S_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMIN];
+								T_S_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_out))[H_TAIR];
+								T_S_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMAX];
+							}
+
+							if (i < p_St_in)
+							{
+								T_St_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMIN];
+								T_St_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_in))[H_TAIR];
+								T_St_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMAX];
+							}
+							if (i < p_St_out)
+							{
+								T_St_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMIN];
+								T_St_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TAIR];
+								T_St_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMAX];
+							}
+
+
 						}
 
-						if (i < p_St_in)
+						for (size_t i = 0; i < 3; i++)
 						{
-							T_St_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMIN];
-							T_St_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_in))[H_TAIR];
-							T_St_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMAX];
-						}
-						if (i < p_St_out)
-						{
-							T_St_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMIN];
-							T_St_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TAIR];
-							T_St_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMAX];
+							input[dd].T_S_in_days[i] = T_S_in_Days_stat[i][MEAN];
+							input[dd].T_S_out_days[i] = T_S_out_Days_stat[i][MEAN];
+							input[dd].T_St_in_days[i] = T_St_in_Days_stat[i][MEAN];
+							input[dd].T_St_out_days[i] = T_St_out_Days_stat[i][MEAN];
 						}
 
 
 					}
-
-					for (size_t i = 0; i < 3; i++)
-					{
-						input[dd].T_S_in_days[i] = T_S_in_Days_stat[i][MEAN];
-						input[dd].T_S_out_days[i] = T_S_out_Days_stat[i][MEAN];
-						input[dd].T_St_in_days[i] = T_St_in_Days_stat[i][MEAN];
-						input[dd].T_St_out_days[i] = T_St_out_Days_stat[i][MEAN];
-					}
-
-
 				}
 			}
+
 		}
-
-
 
 
 		//double GFS = m_P[S_0]; //mg/gDM
@@ -285,37 +304,15 @@ namespace WBSF
 							double T_S_out_days = input[TRef - pp.Begin()].T_S_out_days[S_OUT_STAT];
 							double T_St_in_days = input[TRef - pp.Begin()].T_St_in_days[ST_IN_STAT];
 							double T_St_out_days = input[TRef - pp.Begin()].T_St_out_days[ST_OUT_STAT];
-							//double T_CU = mean_T_day[TRef - pp.Begin()].T_CU_days[CU_STAT];
-							//double T_FU = mean_T_day[TRef - pp.Begin()].T_FU_days[FU_STAT];
-
 							double T = weather[y][m][d][H_TNTX][MEAN];
-							//double sRad = weather[y][m][d][H_SRMJ][SUM];
 
-
-
-							//if (CU < m_P[CUcrit])
-							//{
-							//	CU += max(0.0, min(m_P[Thigh] - T, m_P[Thigh] - m_P[Tlow]));
-							//	CU = min(CU, m_P[CUcrit]);
-							//}
-							//else //if (FU < m_P[FUcrit])
-							//{
-							//	FU += 1 / (1 + exp(-m_P[slp] * (T - m_P[T50])));
-							//	FU = min(FU, m_P[FUcrit]);
-							//}
 							if (CU < m_P[CU_crit])
 							{
-								//CU += max(0.0, min(m_P[Thigh] - T_CU, m_P[Thigh] - m_P[Tlow]));
 								CU += ChillingResponce(T);
 								CU = min(CU, m_P[CU_crit]);
 							}
 							else
 							{
-								//if (TMethod(m_P[METHOD]) == CHUINE_ALTERNATING_METHOD && m_P[FU_crit] == -1)
-								//{
-								//	m_P[FU_crit] = max(1.0, m_P[FUw] * exp(-m_P[FUz] * CU));
-								//}
-
 								FU += ForcingResponce(T);
 								FU = min(FU, m_P[FU_crit]);
 							}
@@ -332,33 +329,23 @@ namespace WBSF
 
 
 
-							//double k1c = max(0.0, PS * m_P[dendo1c] + m_P[k1c_trans] )*exp(-Square(T_x_days - m_P[µ1c])) / (m_P[σ1c] * sqrt(2 * PI));
-							//double k2 = max(0.0, PS* m_P[dendo2] + m_P[k2_trans] )*exp(-Square(T_x_days - m_P[µ2])) / (m_P[σ2] * sqrt(2 * PI));
-							//double k1m = max(0.0, PS * m_P[dendo1m] + m_P[k1m_trans]) * exp(-Square(T_x_days - m_P[µ1m])) / (m_P[σ1m] * sqrt(2 * PI));
-							//double k3= max(0.0, PS * m_P[deco2] + m_P[deco1m]) * exp(-Square(T_x_days - m_P[mu1])) / (m_P[ѕigma1] * sqrt(2 * PI));
-
-
-							//double S_in_psi_max = m_P[S_IN_σ_PS] < 0 ? -1/ (m_P[S_IN_σ_PS] * sqrt(2 * PI)) : 0;
 							double S_in_psi_max = m_P[S_IN_σ_PS] < 0 ? 1 : 0;
 							double S_in_psi = m_P[S_IN_PSI] * max(0.0, min(1.0, S_in_psi_max + exp(-0.5 * Square((PS - m_P[S_IN_µ_PS]) / m_P[S_IN_σ_PS])) / (m_P[S_IN_σ_PS] * sqrt(2 * PI))));
 							double S_in_Rate = exp(-0.5 * Square((T_S_in_days - m_P[S_IN_µ_T]) / m_P[S_IN_σ_T])) / (m_P[S_IN_σ_T] * sqrt(2 * PI));
 							double S_in_k = S_in_psi * S_in_Rate;
 
-							//double S_out_psi_max = m_P[S_OUT_σ_PS] < 0 ? -1 / (m_P[S_OUT_σ_PS] * sqrt(2 * PI)) : 0;
 							double S_out_psi_max = m_P[S_OUT_σ_PS] < 0 ? 1 : 0;
 							double S_out_psi = m_P[S_OUT_PSI] * max(0.0, min(1.0, S_out_psi_max + exp(-0.5 * Square((PS - m_P[S_OUT_µ_PS]) / m_P[S_OUT_σ_PS])) / (m_P[S_OUT_σ_PS] * sqrt(2 * PI))));
 							double S_out_Rate = exp(-0.5 * Square((T_S_out_days - m_P[S_OUT_µ_T]) / m_P[S_OUT_σ_T])) / (m_P[S_OUT_σ_T] * sqrt(2 * PI));
 							double S_out_k = S_out_psi * S_out_Rate;
 
 
-							//double St_in_psi_max = m_P[ST_IN_σ_PS] < 0 ? -1 / (m_P[ST_IN_σ_PS] * sqrt(2 * PI)) : 0;
 							double St_in_psi_max = m_P[ST_IN_σ_PS] < 0 ? 1 : 0;
 							double St_in_psi = m_P[ST_IN_PSI] * max(0.0, min(1.0, St_in_psi_max + exp(-0.5 * Square((PS - m_P[ST_IN_µ_PS]) / m_P[ST_IN_σ_PS])) / (m_P[ST_IN_σ_PS] * sqrt(2 * PI))));
 							double St_in_Rate = exp(-0.5 * Square((T_St_in_days - m_P[ST_IN_µ_T]) / m_P[ST_IN_σ_T])) / (m_P[ST_IN_σ_T] * sqrt(2 * PI));
 							double St_in_k = St_in_psi * St_in_Rate;
 
 
-							//double St_out_psi_max = m_P[ST_OUT_σ_PS] < 0 ? -1 / (m_P[ST_OUT_σ_PS] * sqrt(2 * PI)) : 0;
 							double St_out_psi_max = m_P[ST_OUT_σ_PS] < 0 ? 1 : 0;
 							double St_out_psi = m_P[ST_OUT_PSI] * max(0.0, min(1.0, St_out_psi_max + exp(-0.5 * Square((PS - m_P[ST_OUT_µ_PS]) / m_P[ST_OUT_σ_PS])) / (m_P[ST_OUT_σ_PS] * sqrt(2 * PI))));
 							double St_out_Rate = exp(-0.5 * Square((T_St_out_days - m_P[ST_OUT_µ_T]) / m_P[ST_OUT_σ_T])) / (m_P[ST_OUT_σ_T] * sqrt(2 * PI));
@@ -379,8 +366,11 @@ namespace WBSF
 							ASSERT(Starch > 0);
 
 
-							double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
-							double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+							//double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
+							//double SDI_Auger = min(5.0, max(0.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
+							//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+
+							double SDI = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * 5;
 
 
 							output[TRef][O_S_CONC] = GFS;
@@ -388,7 +378,7 @@ namespace WBSF
 							output[TRef][O_CU] = CU;
 							output[TRef][O_FU] = FU;
 							output[TRef][O_PS] = PS;
-							output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+							output[TRef][O_SDI] = SDI;
 
 						}
 					}
@@ -400,16 +390,15 @@ namespace WBSF
 
 
 	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, NB_INPUTS2 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstSaintAmantModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs" };
+		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
 
 		if (data.size() == NB_INPUTS1)
 		{
 			if (data[I_SPECIES1] == SPECIES_NAME[m_species])
 			{
-
 				CSAResult obs;
 
 				obs.m_ref.FromFormatedString(data[I_DATE1]);
@@ -427,27 +416,39 @@ namespace WBSF
 		}
 		else if (data.size() == NB_INPUTS2)
 		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species])
+			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
 
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE2]);
-				obs.m_obs[0] = stod(data[I_SDI2]);
-				obs.m_obs.push_back(stod(data[I_STARCH2]));
-				obs.m_obs.push_back(stod(data[I_SUGAR2]));
-
-				if (obs.m_obs[0] > -999)
+				//if (m_P[Used_DEF] == 0 || stod(data[I_DEFOL2]) > -999)
 				{
-					m_years.insert(obs.m_ref.GetYear());
+					obs.m_ref.FromFormatedString(data[I_DATE2]);
+					obs.m_obs[0] = stod(data[I_SDI2]);
+					obs.m_obs.push_back(stod(data[I_STARCH2]));
+					obs.m_obs.push_back(stod(data[I_SUGAR2]));
+					obs.m_obs.push_back(stod(data[I_DEFOL2]));
+
+					
+						
+					
+
+					if ( (USE_SDI && obs.m_obs[0] > -999)||
+						 (USE_STARCH && obs.m_obs[1] > -999)||
+						 (USE_SUGAR && obs.m_obs[2] > -999))
+					{
+						m_years.insert(obs.m_ref.GetYear());
+					}
+
+					m_SAResult.push_back(obs);
 				}
-
-
-				m_SAResult.push_back(obs);
 			}
 		}
-
 	}
+
+
+
+
 
 
 
@@ -541,12 +542,12 @@ namespace WBSF
 			if ((m_P[S_IN_σ_PS] > -0.1 && m_P[S_IN_σ_PS] < 0.1) ||
 				(m_P[S_OUT_σ_PS] > -0.1 && m_P[S_OUT_σ_PS] < 0.1) ||
 				(m_P[ST_IN_σ_PS] > -0.1 && m_P[ST_IN_σ_PS] < 0.1) ||
-				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1) 
-				
+				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1)
+
 				)
 				return;
 
-			if (fabs(m_P[S_IN_σ_PS]) )
+			
 
 			if (data_weather.GetNbYears() == 0)
 			{

@@ -93,6 +93,11 @@ namespace WBSF
 		std::array<double, NB_PARAMS> m_P;
 		std::set<int> m_years;
 		CWeatherStation data_weather;
+		size_t m_last_p_S_in;
+		size_t m_last_p_S_out;
+		size_t m_last_p_St_in;
+		size_t m_last_p_St_out;
+
 
 
 		double ChillingResponce(double T)const;

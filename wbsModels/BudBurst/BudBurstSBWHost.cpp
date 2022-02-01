@@ -1,5 +1,5 @@
 ﻿//*********************************************************************
-//21/01/2020	1.0.0	Rémi Saint-Amant	Creation
+//21/01/2020	1.0.0	Rémi Saint-Amant	Creation 
 //*********************************************************************
 #include "BudBurstSBWHost.h"
 #include "PHENO_eqs.h"
@@ -22,7 +22,7 @@ namespace WBSF
 	static const size_t MAX_SDI_STAGE = 6;
 	//static const size_t NB_STEPS = 1;
 	static const bool USE_HOURLY_T_MEAN = false;
-	
+
 
 
 	CSBWHostBudBurst::CSBWHostBudBurst()
@@ -34,8 +34,72 @@ namespace WBSF
 	{
 	}
 
-	//This method is call to compute solution
 
+	double CSBWHostBudBurst::Weibull(size_t stage, double  SDI, const array < double, 2>& p, size_t first_stage, size_t last_stage)
+	{
+		//scale, shape
+		enum TParam { lambda, k };
+
+		double Fx = 0;
+		if(stage<last_stage)
+			Fx = 1.0 - exp(-pow(p[lambda] * (SDI-first_stage), p[k]));
+		else
+			Fx = exp(-pow(p[lambda] * (last_stage - SDI), p[k]));
+
+		return Fx;
+	}
+
+	double CSBWHostBudBurst::SDI_2_Sx(size_t SDI_type, double SDI, size_t F)
+	{
+		ASSERT(SDI_type < NB_SDI_TYPE);
+		ASSERT(F <= 6);
+
+		static const array< array< array< double, 2>, 6>, 2> P =
+		{ {
+			{{
+				{0.000, 0.000},//F1
+				{0.000, 0.000},//F2
+				{0.000, 0.000},//F3
+				{0.000, 0.000},//F4
+				{0.000, 0.000},//F5
+				{0.000, 0.000},//F6
+			}},
+			{{
+				{1.561, 1.501},//F1
+				{0.552, 3.022},//F2
+				{0.372, 4.365},//F3
+				{0.273, 6.994},//F4
+				{1.444, 1.390},//F5
+				{0.000, 00.000},//F6
+			}}
+		} };
+
+
+		size_t first_stage = 0;
+		size_t last_stage = (SDI_type == SDI_AUGER) ? 5 : 6;
+		if (F > last_stage)
+			return -999;
+
+		double Sx = -999;
+		if (F == 0)
+		{
+			Sx = 1 - Weibull(1, SDI, P[SDI_type][0], first_stage, last_stage);
+		}
+		else if (F == last_stage)
+		{
+			Sx = Weibull(last_stage, SDI, P[SDI_type][last_stage - 1], last_stage, last_stage);
+		}
+		else
+		{
+			double Sx1 = Weibull(F, SDI, P[SDI_type][F - 1], first_stage, last_stage);
+			double Sx2 = Weibull(F+1, SDI, P[SDI_type][F], first_stage, last_stage);
+			Sx = Sx1 - Sx2;
+		}
+		
+		return Sx * 100;
+	}
+
+	//This method is call to compute solution
 	ERMsg CSBWHostBudBurst::Execute(CWeatherStation& weather, CModelStatVector& output, bool bModelEx)
 	{
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
@@ -54,14 +118,14 @@ namespace WBSF
 		P.InitBeta();
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
-		output.Init(pp, bModelEx? NB_HBB_OUTPUTS_EX:NB_HBB_OUTPUTS, -999);
+		output.Init(pp, bModelEx ? NB_HBB_OUTPUTS_EX : NB_HBB_OUTPUTS, -999);
 
-		
+
 
 
 		//compute input
 		// Re sample Daily Climate
-		
+
 		if (mean_T_day.empty() || m_P_last != P)
 		{
 			m_P_last = P;
@@ -104,9 +168,9 @@ namespace WBSF
 							PN_stat += PN;
 
 							Tair_stat += hData[H_TAIR];
-							
-							
-							
+
+
+
 							RC_G_stat += P.RC_G(hData[H_TAIR]);
 							RC_F_stat += P.RC_F(hData[H_TAIR]);
 							RC_M_stat += P.RC_M(hData[H_TAIR]);
@@ -151,7 +215,7 @@ namespace WBSF
 				CTPeriod p;
 				//if (m_P.m_version == FABRIZIO_MODEL_OLD)
 				//{
-					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 				//}
 				/*else
 				{
@@ -183,34 +247,29 @@ namespace WBSF
 			int year = weather[y].GetTRef().GetYear();
 
 			CTPeriod p;
-			//if (m_P.m_version== FABRIZIO_MODEL_OLD)
-			//{
-				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
-//			}
-	//		else
-		//	{
-			//	p  = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
-			//}
-			
-			
-			
+			p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 			// in the original code, it was from August to September
 			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 
 			CDefoliation def;
-			def.previous = m_defioliation[year - 1];
-			def.current = m_defioliation[year];
+			if (!m_defioliation.empty())
+			{
+				def.previous = m_defioliation[year - 1];
+				def.current = m_defioliation[year];
+			}
+
 
 
 			// Calculate current year Bud removal percentage
+			ASSERT(def.current >= 0 && def.current < 1);
 			def.def = P.Def_min + (1 - P.Def_min) / (1 + pow((def.current * 100) / P.Def_mid, P.Def_slp));
 
 
 			// Calculate intermediate variables
-			double Mdw_0 = P.bud_dw * P.buds_num*def.def;
-			double Ndw_0 = P.NB_r * P.Bdw_0*(1 - def.previous);
+			double Mdw_0 = P.bud_dw * P.buds_num * def.def;
+			double Ndw_0 = P.NB_r * P.Bdw_0 * (1 - def.previous);
 			static const double I_0 = 1.0;
-			double Budburst_thr = P.BB_thr*Mdw_0;
+			double Budburst_thr = P.BB_thr * Mdw_0;
 			//P.Budburst_switch = false;
 			//P.Swell_switch = false;
 
@@ -227,8 +286,8 @@ namespace WBSF
 					false,
 			};
 
-			
-			
+
+
 
 
 
@@ -244,25 +303,26 @@ namespace WBSF
 				double PS = max(0.0, min(1.0, (x.Mdw - Mdw_0) / (Budburst_thr - Mdw_0)));
 				double SDI_Dhont = cdf(SDI_dist, PS) * MAX_SDI_STAGE;//0 .. 6;
 				double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+				double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
 
-				
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
-				//if(m_P.m_version == FABRIZIO_MODEL_OLD)
-					output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
-				//else
-					//output[TRef][O_ST_CONC] = P.St_min + x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
+				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
 				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
-				output[TRef][O_NEEDLE] = P.NB_r * (x.Bdw + x.Mdw - P.Bdw_0)*(1 - def.previous) + Ndw_0;  //[g];
-				output[TRef][O_C] = x.C;
-				output[TRef][O_INHIBITOR] = x.I; 
-				output[TRef][O_BUDBURST] = PS *100;//[%]
-				output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+				output[TRef][O_NEEDLE] = P.NB_r * (x.Bdw + x.Mdw - P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
+				output[TRef][O_S6] = SDI_2_Sx(m_SDI_type, SDI, 6);
+				output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
+				output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
+				output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
+				output[TRef][O_S2] = SDI_2_Sx(m_SDI_type, SDI, 2);
+				output[TRef][O_S1] = SDI_2_Sx(m_SDI_type, SDI, 1);
+				output[TRef][O_S0] = SDI_2_Sx(m_SDI_type, SDI, 0);
+				output[TRef][O_SDI] = SDI;
 
-				
+
 				COutputEx outputEx;
-				
+
 
 				size_t nbSteps = m_P.m_nbSteps;
 				for (size_t t = 0; t < nbSteps; t++)
@@ -290,11 +350,13 @@ namespace WBSF
 					x.limitToZero();
 				}
 
-				
 
-				
+
+
 				if (bModelEx)
 				{
+					output[TRef][O_C] = x.C;
+					output[TRef][O_INHIBITOR] = x.I;
 					output[TRef][O_SUGAR] = x.S;//[mg]
 					output[TRef][O_STARCH] = x.St;//[mg] 
 					output[TRef][O_PS] = outputEx.PS;
@@ -320,7 +382,7 @@ namespace WBSF
 					output[TRef][O_RC_M_TAIR] = mean_T_day[d].RC_M_Tair;
 					output[TRef][O_RC_G_TSOIL] = mean_T_day[d].RC_G_Tsoil;
 				}
-			//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
+				//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
 			}
 
 

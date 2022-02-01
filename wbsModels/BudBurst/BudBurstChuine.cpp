@@ -29,7 +29,7 @@ namespace WBSF
 		CModelFactory::RegisterModel(CBudBurstChuineModel::CreateObject);
 
 
-	enum TOutput { O_CU, O_FU, O_PS, O_SDI, NB_OUTPUTS };
+	enum TOutput { O_CU, O_FU, O_PS, O_F0, O_F1, O_F2, O_F3, O_F4, O_F5, O_F6, O_SDI, NB_OUTPUTS };
 
 
 	double CBudBurstChuineModel::ChillingResponce(double T)const
@@ -67,7 +67,7 @@ namespace WBSF
 		};
 
 
-		ASSERT(!_isnan(R) && _finite(R) );
+		ASSERT(!_isnan(R) && _finite(R));
 
 		return R;
 	}
@@ -98,6 +98,9 @@ namespace WBSF
 		m_SDI_type = SDI_DHONT;
 
 		m_P = { CHUINE_SEQUENTIAL_METHOD, 244,3.1,26.7,2298.8,0.244,13.46,21.5,8.00,7.69,0.0997,0.0888,0.0795,19.71,2.59,-217.3,-257.6,0.650,10,3.77,0.0464,-0.0633,0.856,2.64 };
+		m_CU_DAY_last=-1;
+		m_FU_DAY_last=-1;
+
 	}
 
 
@@ -148,17 +151,99 @@ namespace WBSF
 		return msg;
 	}
 
+	double CBudBurstChuineModel::Weibull(size_t stage, double  SDI, const array < double, 2>& p, size_t first_stage, size_t last_stage)
+	{
+		//scale, shape
+		enum TParam { lambda, k };
+
+		double Fx = -999;
+		if (stage < last_stage)
+			Fx = 1.0 - exp(-pow(p[lambda] * (SDI - first_stage), p[k]));
+		else if (stage == last_stage)
+			Fx = exp(-pow(p[lambda] * (last_stage - SDI), p[k]));
+
+		return Fx;
+	}
+
+	array<double, 6> CBudBurstChuineModel::SDI_2_Sx(size_t SDI_type, double SDI)
+	{
+		ASSERT(SDI_type < NB_SDI_TYPE);
+
+		static const array< array< array< double, 2>, 6>, 2> P =
+		{ {
+			{{
+				{0.000, 0.000},//F1
+				{0.000, 0.000},//F2
+				{0.000, 0.000},//F3
+				{0.000, 0.000},//F4
+				{0.000, 0.000},//F5
+				{0.000, 0.000},//F6
+			}},
+			{{
+				{1.561, 1.501},//F1
+				{0.552, 3.022},//F2
+				{0.372, 4.365},//F3
+				{0.273, 6.994},//F4
+				{1.444, 1.390},//F5
+				{0.000, 00.000},//F6
+			}}
+		} };
+
+
+		
+
+		size_t first_stage = 0;
+		size_t last_stage = (SDI_type == SDI_AUGER) ? 5 : 6;
+
+		//if (F > last_stage)
+			//return -999;
+		double F1 = Weibull(1, SDI, P[SDI_type][0], first_stage, last_stage);
+		double F2 = Weibull(2, SDI, P[SDI_type][1], first_stage, last_stage);
+		double F3 = Weibull(3, SDI, P[SDI_type][2], first_stage, last_stage);
+		double F4 = Weibull(4, SDI, P[SDI_type][3], first_stage, last_stage);
+		double F5 = Weibull(5, SDI, P[SDI_type][4], first_stage, last_stage);
+		double F6 = Weibull(6, SDI, P[SDI_type][5], first_stage, last_stage);
+
+
+
+
+		array<double, 6> Sx = { 1 - F1,F1 - F2,F2 - F3,F3 - F4, last_stage==5?F5:(F4 - F5), F6 };
+		/*if (F == 0)
+		{
+			Sx = 1 - Weibull(1, SDI, P[SDI_type][0], first_stage, last_stage);
+		}
+		else if (F == last_stage)
+		{
+			Sx = Weibull(last_stage, SDI, P[SDI_type][last_stage - 1], first_stage, last_stage);
+		}
+		else
+		{
+			double Sx1 = Weibull(F, SDI, P[SDI_type][F - 1], first_stage, last_stage);
+			double Sx2 = Weibull(F + 1, SDI, P[SDI_type][F], first_stage, last_stage);
+			Sx = Sx1 - Sx2;
+		}*/
+
+		return Sx;
+	}
 
 
 	void CBudBurstChuineModel::ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output)
 	{
-		//boost::math::beta_distribution<double> SDI_dist(m_P[muSDI], m_P[ѕigmaSDI]);
+		//boost::math::beta_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
 		boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
-		if (mean_T_day.empty())
+
+		size_t p_CU = size_t(m_P[CU_DAYS]);
+		size_t p_FU = size_t(m_P[FU_DAYS]);
+		if (mean_T_day.empty() || p_CU != m_CU_DAY_last || p_FU != m_FU_DAY_last )
 		{
+			m_CU_DAY_last = p_CU;
+			m_FU_DAY_last = p_FU;
+
+			
+
 			mean_T_day.resize(pp.GetNbDay());
 
 			for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
@@ -170,8 +255,7 @@ namespace WBSF
 						array<CStatistic, 3> T_CU_Days_stat;
 						array<CStatistic, 3> T_FU_Days_stat;
 
-						size_t p_CU = size_t(m_P[CU_DAYS]);
-						size_t p_FU = size_t(m_P[FU_DAYS]);
+						
 						size_t max_days = max(p_CU, p_FU);
 
 
@@ -231,8 +315,7 @@ namespace WBSF
 
 							if (CU < m_P[CU_crit])
 							{
-								//CU += max(0.0, min(m_P[Thigh] - T_CU, m_P[Thigh] - m_P[Tlow]));
-								CU += ChillingResponce(T_CU); 
+								CU += ChillingResponce(T_CU);
 								CU = min(CU, m_P[CU_crit]);
 							}
 							else
@@ -251,14 +334,23 @@ namespace WBSF
 							//double Fdef = 1 - m_P[DEF_min] / (1 + exp(-(m_defoliation - m_P[DEF_µ]) / m_P[DEF_σ])); 
 
 							double PS = CU / m_P[CU_crit] + FU / m_P[FU_crit];
-							double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
-							double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+							//double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
+							//double SDI_Auger = min(5.0, max(0.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
+							//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+							double SDI = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * 5;
 
-
-							output[TRef][O_CU] = CU; 
+							output[TRef][O_CU] = CU;
 							output[TRef][O_FU] = FU;
 							output[TRef][O_PS] = PS;
-							output[TRef][O_SDI] = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+							//output[TRef][O_F6] = SDI_2_Sx(m_SDI_type, SDI, 6);
+							//output[TRef][O_F5] = SDI_2_Sx(m_SDI_type, SDI, 5);
+							//output[TRef][O_F4] = SDI_2_Sx(m_SDI_type, SDI, 4);
+							//output[TRef][O_F3] = SDI_2_Sx(m_SDI_type, SDI, 3);
+							//output[TRef][O_F2] = SDI_2_Sx(m_SDI_type, SDI, 2);
+							//output[TRef][O_F1] = SDI_2_Sx(m_SDI_type, SDI, 1);
+							//output[TRef][O_F0] = SDI_2_Sx(m_SDI_type, SDI, 0);
+							output[TRef][O_SDI] = SDI;
+
 						}
 					}
 				}
@@ -270,10 +362,10 @@ namespace WBSF
 
 
 	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_DEFOL2, NB_INPUTS2 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstChuineModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs" };
+		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs"};
 
 		if (data.size() == NB_INPUTS1)
 		{
@@ -296,26 +388,28 @@ namespace WBSF
 		}
 		else if (data.size() == NB_INPUTS2)
 		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species])
+			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
 
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE2]);
-				obs.m_obs[0] = stod(data[I_SDI2]);
-				obs.m_obs.push_back(1);
-				obs.m_obs.push_back(stod(data[I_DEFOL2]));
-				
-
-				if (obs.m_obs[0] > -999)
+				//if (m_P[Used_DEF] == 0 || stod(data[I_DEFOL2]) > -999)
 				{
-					m_years.insert(obs.m_ref.GetYear());
-				}
+					obs.m_ref.FromFormatedString(data[I_DATE2]);
+					obs.m_obs[0] = stod(data[I_SDI2]);
+					obs.m_obs.push_back(stod(data[I_N2]));
+					obs.m_obs.push_back(stod(data[I_DEFOL2]));
 
-				m_SAResult.push_back(obs);
+
+					if (obs.m_obs[0] > -999)
+					{
+						m_years.insert(obs.m_ref.GetYear());
+					}
+
+					m_SAResult.push_back(obs);
+				}
 			}
 		}
-
 	}
 
 
@@ -370,7 +464,7 @@ namespace WBSF
 
 
 			//boost::math::beta_distribution<double> SDI_dist(m_P[muSDI], m_P[ѕigmaSDI]);
-			boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
+			//boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
@@ -379,26 +473,30 @@ namespace WBSF
 					if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
 						double obs_SDI = Round(m_SAResult[i].m_obs[0], 2);
-						//double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
+						double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
+
+
+						//if (output[CTRef(m_SAResult[i].m_ref.GetYear(), JULY, DAY_31)][O_SDI] < m_SDI_type == SDI_DHONT ? 6 : 5)
+							//sim_SDI = Rand(-999,999); 
 						// 
 
-						double Fdef = 1;
-						if (m_P[Used_DEF] != 0)
-						{
-							double defol = m_SAResult[i].m_obs[2] > -999 ? m_SAResult[i].m_obs[2] : 0;
-							double Fdef = 1 - (1 - m_P[DEF_min]) / (1 + exp(-(defol - m_P[DEF_µ]) / m_P[DEF_σ]));
-						}
-
-						double CU = output[m_SAResult[i].m_ref][O_CU]; 
-						double FU = output[m_SAResult[i].m_ref][O_FU];
-						double PS = min(1.0,CU / (m_P[CU_crit] )) + min(1.0,(FU)/ (m_P[FU_crit] * Fdef));
-						
-						double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
-						double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
-						double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
-
-
-						double sim_SDI = Round(SDI, 2);
+						//double Fdef = 1;
+						//if (m_P[Used_DEF] != 0)
+						//{
+						//	double defol = m_SAResult[i].m_obs[2] > -999 ? m_SAResult[i].m_obs[2] : 0;
+						//	double Fdef = 1 - (1 - m_P[DEF_min]) / (1 + exp(-(defol - m_P[DEF_µ]) / m_P[DEF_σ]));
+						//}
+						//
+						//double CU = output[m_SAResult[i].m_ref][O_CU];
+						//double FU = output[m_SAResult[i].m_ref][O_FU];
+						//double PS = min(1.0, CU / (m_P[CU_crit])) + min(1.0, (FU) / (m_P[FU_crit] * Fdef));
+						//
+						//double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
+						//double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+						//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+						//
+						//
+						//double sim_SDI = Round(SDI, 2);
 
 
 						//for(size_t n=0; n< m_SAResult[i].m_obs[1]; n++)
