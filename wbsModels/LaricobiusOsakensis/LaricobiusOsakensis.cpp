@@ -170,16 +170,12 @@ namespace WBSF
 		size_t s = GetStage();
 
 		double T = weather[H_TAIR];
-		//T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
-
 		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
 		if (s < AESTIVAL_DIAPAUSE_ADULT || s == ACTIVE_ADULT)
 		{
 			//Time step development rate
 			double r = Equations().GetRate(s, T) / nb_steps;
-
-			//double corr_r = (s == EGG || s == LARVAE) ? : 1;
 
 			//Relative development rate for this individual
 			double rr = m_RDR[s];
@@ -221,13 +217,7 @@ namespace WBSF
 
 			m_t += t;
 		}
-		//else//ACTIVE_ADULT
-		//{
-		//	double r = (1.0 / m_adult_longevity) / nb_steps;
-		//	ASSERT(r >= 0 && r < 1);
-
-		//	m_age += r;
-		//}
+	
 	}
 
 
@@ -313,7 +303,7 @@ namespace WBSF
 
 	//s: stage
 	//T: temperature for this time step
-	//r: devlopement rate for this time step
+	//r: development rate for this time step
 	bool CLaricobiusOsakensis::IsDeadByAttrition(size_t s, double T, double r)const
 	{
 		bool bDeath = false;

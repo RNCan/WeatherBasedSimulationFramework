@@ -118,17 +118,10 @@ namespace WBSF
 		 
 			
 			
-		//because the larval stage devrate and mortality was difficulte to estimate, we evaluate larval corrected by percent by stage 
+		//because the larval stage development rate and mortality was difficulty to estimate, we evaluate larval corrected by percent by stage 
 		static const double PROP_BY_STAGE[LOF::NB_STAGES] = { 1, 0.206, 0.203, 0.227, 0.364, 1, 1, 1, 1 };
-
-
-		//vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
-
 		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T)) / PROP_BY_STAGE[s];
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
-
-
-
 
 
 		return r;
@@ -167,9 +160,7 @@ namespace WBSF
 
 	double CLaricobiusOsakensisEquations::GetCreationCDD()const
 	{
-		//boost::math::logistic_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ]);
 		boost::math::weibull_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ]);
-		//boost::math::non_central_f_distribution<double> egg_creation_dist(m_CEC[μ], m_CEC[ѕ], m_CEC[ʎf]);
 		double CDD = boost::math::quantile(egg_creation_dist, m_randomGenerator.Rand(0.001, 0.999));
 
 		return CDD;
@@ -199,30 +190,62 @@ namespace WBSF
 
 	double CLaricobiusOsakensisEquations::GetDailySurvivalRate(size_t s, double T)const
 	{
+		//static const array<CSurvivalEquation::TSurvivalEquation, LOF::NB_STAGES> S_EQ =
+		//{
+		//	CSurvivalEquation::Survival_07, //egg
+		//	CSurvivalEquation::Survival_10, //L1
+		//	CSurvivalEquation::Survival_10, //L2
+		//	CSurvivalEquation::Survival_10, //L3
+		//	CSurvivalEquation::Survival_10, //L4
+		//	CSurvivalEquation::Survival_04,	//PrePupa
+		//	CSurvivalEquation::Survival_03,	//Pupa
+		//	//CSurvivalEquation::Survival_14,	//Pupa
+		//	CSurvivalEquation::Unknown,		//aestival diapause adult
+		//	CSurvivalEquation::Unknown,		// adult
+		//};
+		//
+		//
+		//static const array< vector<double>, LOF::NB_STAGES>  P_SUR =
+		//{ {
+		//	{ 7.101617e-01, -1.724674e-03, +2.814947e-01, +2.572669e-02},//egg
+		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L1
+		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L2
+		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L3
+		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L4
+		//	{ 9.907457e-01, +2.543370e-01, +3.333060e-06, +6.471209e+01 },//PrePupa
+		//	{ 1.439328e+02, +2.807616e+01, +1.602123e+01, +2.361705e+01 },//Pupa 03
+		//	//{ 9.926415e-01, +5.925242e+00, +2.626674e+01, 1.234955e+00 },//Pupa 14
+		//	{},
+		//	{}
+		//} };
+
 		static const array<CSurvivalEquation::TSurvivalEquation, LOF::NB_STAGES> S_EQ =
 		{
-			CSurvivalEquation::Survival_07, //egg
-			CSurvivalEquation::Survival_11, //L1
-			CSurvivalEquation::Survival_11, //L2
-			CSurvivalEquation::Survival_11, //L3
-			CSurvivalEquation::Survival_11, //L4
-			CSurvivalEquation::Survival_04,	//PrePupa
-			CSurvivalEquation::Survival_14,	//Pupa
+			CSurvivalEquation::Survival_01, //egg
+			CSurvivalEquation::Survival_01, //L1
+			CSurvivalEquation::Survival_01, //L2
+			CSurvivalEquation::Survival_01, //L3
+			CSurvivalEquation::Survival_01, //L4
+			CSurvivalEquation::Survival_01,	//PrePupa
+			CSurvivalEquation::Survival_01,	//Pupa
 			CSurvivalEquation::Unknown,		//aestival diapause adult
 			CSurvivalEquation::Unknown,		// adult
 		};
+		
 
 
 
+
+		
 		static const array< vector<double>, LOF::NB_STAGES>  P_SUR =
 		{ {
-			{ 7.101617e-01, -1.724674e-03, 2.814947e-01, 2.572669e-02},//egg
-			{ 1.107977e-02, +1.838004e+01, 1.000000e+03, 1.736085e+00 },//L1
-			{ 1.107977e-02, +1.838004e+01, 1.000000e+03, 1.736085e+00 },//L2
-			{ 1.107977e-02, +1.838004e+01, 1.000000e+03, 1.736085e+00 },//L3
-			{ 1.107977e-02, +1.838004e+01, 1.000000e+03, 1.736085e+00 },//L4
-			{ 9.907457e-01, +2.543370e-01, 3.333060e-06, 6.471209e+01 },//PrePupa
-			{ 9.952141e-01, +3.495538e+00, 2.853136e+01, 1.889230e+00 },//Pupa
+			{ -5.905523e+00, +1.299158e-01, -1.458741e-03 },//egg
+			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L1
+			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L2
+			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L3
+			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L4
+			{ -6.275259e+00, +2.962405e-01, -8.146790e-03 },//PrePupa
+			{ +8.135264e+00, -1.635274e+00, +5.088076e-02 },//Pupa
 			{},
 			{}
 		} };
