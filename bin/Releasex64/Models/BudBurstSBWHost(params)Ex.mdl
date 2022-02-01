@@ -688,14 +688,14 @@
         </InputVariable>
         <InputVariable>
             <Name>lam_a</Name>
-            <Caption>lam_a</Caption>
+            <Caption>Use defoliation</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>805 10 825 160</Rect>
-            <SeparatorPos>50</SeparatorPos>
-            <DefaultValue>167</DefaultValue>
-            <MinValue>-365</MinValue>
-            <MaxValue>365</MaxValue>
+            <Rect>45 615 65 765</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -767,6 +767,70 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>S0</Name>
+            <Title>S0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S1</Name>
+            <Title>S1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S2</Name>
+            <Title>S2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S3</Name>
+            <Title>S3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S4</Name>
+            <Title>S4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S5</Name>
+            <Title>S5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S6</Name>
+            <Title>S6</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>C</Name>
             <Title>C</Title>
             <Units/>
@@ -779,22 +843,6 @@
             <Title>I</Title>
             <Units/>
             <Description>Inhibitors</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Budburst</Name>
-            <Title>Budburst</Title>
-            <Units>%</Units>
-            <Description>Budburst progression</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>SDI</Name>
-            <Title>SDI</Title>
-            <Units/>
-            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -992,6 +1040,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit></Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>

@@ -23,8 +23,8 @@
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>2</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>4</MaxValue>
-            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+            <MaxValue>5</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce;Red/Black Spruce</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>SDI_Type</Name>
@@ -431,7 +431,7 @@
             <SeparatorPos>80</SeparatorPos>
             <DefaultValue>9.7</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>10</MaxValue>
+            <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -506,6 +506,62 @@
             <Name>PS</Name>
             <Title>PS</Title>
             <Units>g</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S0</Name>
+            <Title>S0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S1</Name>
+            <Title>S1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S2</Name>
+            <Title>S2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S3</Name>
+            <Title>S3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S4</Name>
+            <Title>S4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S5</Name>
+            <Title>S5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S6</Name>
+            <Title>S6</Title>
+            <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
