@@ -114,8 +114,8 @@ namespace WBSF
 		//boost::math::beta_distribution<double> SDI_dist(m_SDI[μ], m_SDI[ѕ]);
 
 
-		CParameters P = m_P;
-		P.InitBeta();
+		//CParameters P = m_P;
+		//P.InitBeta();
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
 		output.Init(pp, bModelEx ? NB_HBB_OUTPUTS_EX : NB_HBB_OUTPUTS, -999);
@@ -126,10 +126,12 @@ namespace WBSF
 		//compute input
 		// Re sample Daily Climate
 
-		if (mean_T_day.empty() || m_P_last != P)
+		if (m_mean_T_day.empty() || m_P_last != m_P)
 		{
-			m_P_last = P;
-			mean_T_day.resize(pp.GetNbDay());
+			
+
+			m_P_last = m_P;
+			m_mean_T_day.resize(pp.GetNbDay());
 
 			for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
 			{
@@ -159,11 +161,11 @@ namespace WBSF
 							//As mentioned by others, that is an approximation, but a pretty good one.
 
 							//double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS2, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
-							double RC_PAR_PS = P.PAR_PS1 * (1 - pow(1 - P.PAR_PS3 / P.PAR_PS1, 1 - PAR / P.PAR_PS2)) + abs(P.PAR_PS3);
-							double RC_PAR_T = P.RC_PAR(hData[H_TAIR]);
+							double RC_PAR_PS = m_P.PAR_PS1 * (1 - pow(1 - m_P.PAR_PS3 / m_P.PAR_PS1, 1 - PAR / m_P.PAR_PS2)) + abs(m_P.PAR_PS3);
+							double RC_PAR_T = m_P.RC_PAR(hData[H_TAIR]);
 
 							static const double umol2mgC = 0.029526111;
-							double PN = RC_PAR_PS * RC_PAR_T * 3600 * P.PAR_SLA;    // umolCO2 gDW - 1 h - 1
+							double PN = RC_PAR_PS * RC_PAR_T * 3600 * m_P.PAR_SLA;    // umolCO2 gDW - 1 h - 1
 							PN *= umol2mgC; // mgSugar gDW - 1 d - 1
 							PN_stat += PN;
 
@@ -171,38 +173,38 @@ namespace WBSF
 
 
 
-							RC_G_stat += P.RC_G(hData[H_TAIR]);
-							RC_F_stat += P.RC_F(hData[H_TAIR]);
-							RC_M_stat += P.RC_M(hData[H_TAIR]);
+							//RC_G_stat += m_P.RC_G(hData[H_TAIR]);
+							//RC_F_stat += m_P.RC_F(hData[H_TAIR]);
+							//RC_M_stat += m_P.RC_M(hData[H_TAIR]);
 						}
 
-						mean_T_day[dd].Tair = Tair_stat[MEAN];
-						mean_T_day[dd].PN = PN_stat[SUM];
+						m_mean_T_day[dd].Tair = Tair_stat[MEAN];
+						m_mean_T_day[dd].PN = PN_stat[SUM];
 
 						if (m_P.m_version == V_ORIGINAL)
 						{
-							mean_T_day[dd].RC_G_Tair = P.RC_G(mean_T_day[dd].Tair);
-							mean_T_day[dd].RC_F_Tair = P.RC_F(mean_T_day[dd].Tair);
-							mean_T_day[dd].RC_M_Tair = P.RC_M(mean_T_day[dd].Tair);
+							m_mean_T_day[dd].RC_G_Tair = m_P.RC_G(m_mean_T_day[dd].Tair);
+							m_mean_T_day[dd].RC_F_Tair = m_P.RC_F(m_mean_T_day[dd].Tair);
+							m_mean_T_day[dd].RC_M_Tair = m_P.RC_M(m_mean_T_day[dd].Tair);
 						}
 						else
 						{
-							mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
-							mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
-							mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
+							//m_mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
+							//m_mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
+							//m_mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
 						}
 
-						if (dd > 14)
-						{
-							CStatistic Tmax14Days_stat;
-							CTRef TRef = weather[y][m][d].GetTRef();
-							for (size_t i = 0; i < 14; i++)//Charrier 2018 use the mean maximum of the last 14 days 
-							{
-								Tmax14Days_stat += weather.GetDay(TRef - i)[H_TMAX];
-							}
+						//if (dd > 14)
+						//{
+						//	CStatistic Tmax14Days_stat;
+						//	CTRef TRef = weather[y][m][d].GetTRef();
+						//	for (size_t i = 0; i < 14; i++)//Charrier 2018 use the mean maximum of the last 14 days 
+						//	{
+						//		Tmax14Days_stat += weather.GetDay(TRef - i)[H_TMAX];
+						//	}
 
-							mean_T_day[dd].Tmax14Days = Tmax14Days_stat[MEAN];
-						}
+						//	m_mean_T_day[dd].Tmax14Days = Tmax14Days_stat[MEAN];
+						//}
 					}
 				}
 			}
@@ -213,15 +215,7 @@ namespace WBSF
 			{
 				int year = weather[y].GetTRef().GetYear();
 				CTPeriod p;
-				//if (m_P.m_version == FABRIZIO_MODEL_OLD)
-				//{
 				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
-				//}
-				/*else
-				{
-					p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
-				}*/
-				// 
 				// in the original code, it was from August to September
 				//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 
@@ -235,8 +229,8 @@ namespace WBSF
 				size_t dd = p.Begin() - pp.Begin();
 				for (size_t d = 0; d < p.size(); d++, dd++)
 				{
-					mean_T_day[dd].Tsoil = media + ampiezza * cos(PI * (d + 1 + shift) / 180);
-					mean_T_day[dd].RC_G_Tsoil = P.RC_G(mean_T_day[dd].Tsoil);
+					m_mean_T_day[dd].Tsoil = media + ampiezza * cos(PI * (d + 1 + shift) / 180);
+					m_mean_T_day[dd].RC_G_Tsoil = m_P.RC_G(m_mean_T_day[dd].Tsoil);
 				}
 			}
 		}
@@ -262,25 +256,25 @@ namespace WBSF
 
 			// Calculate current year Bud removal percentage
 			ASSERT(def.current >= 0 && def.current < 1);
-			def.def = P.Def_min + (1 - P.Def_min) / (1 + pow((def.current * 100) / P.Def_mid, P.Def_slp));
+			def.def = m_P.Def_min + (1 - m_P.Def_min) / (1 + pow((def.current * 100) / m_P.Def_mid, m_P.Def_slp));
 
 
 			// Calculate intermediate variables
-			double Mdw_0 = P.bud_dw * P.buds_num * def.def;
-			double Ndw_0 = P.NB_r * P.Bdw_0 * (1 - def.previous);
+			double Mdw_0 = m_P.bud_dw * m_P.buds_num * def.def;
+			double Ndw_0 = m_P.NB_r * m_P.Bdw_0 * (1 - def.previous);
 			static const double I_0 = 1.0;
-			double Budburst_thr = P.BB_thr * Mdw_0;
+			double Budburst_thr = m_P.BB_thr * Mdw_0;
 			//P.Budburst_switch = false;
 			//P.Swell_switch = false;
 
 
 			// State variables initial values[s st mdw bdw C I]
 			CVariables x0 = {
-					P.S_conc_0 * (P.Bdw_0 + Mdw_0),
-					P.St_conc_0 * (P.Bdw_0 + Mdw_0),
+					m_P.S_conc_0 * (m_P.Bdw_0 + Mdw_0),
+					m_P.St_conc_0 * (m_P.Bdw_0 + Mdw_0),
 					Mdw_0,
-					P.Bdw_0,
-					P.C_0,
+					m_P.Bdw_0,
+					m_P.C_0,
 					I_0,
 					false,
 					false,
@@ -310,7 +304,7 @@ namespace WBSF
 				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
 				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
-				output[TRef][O_NEEDLE] = P.NB_r * (x.Bdw + x.Mdw - P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
+				output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
 				output[TRef][O_S6] = SDI_2_Sx(m_SDI_type, SDI, 6);
 				output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
 				output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
@@ -335,7 +329,7 @@ namespace WBSF
 
 					//double f = 1.0 - (t - 1.0) / (nbSteps - 1.0);
 					//CInput I = input[d] * f + input[d + 1] * (1 - f);
-					CVariables dx = PhenologyConiferEquations(mean_T_day[d], x, P, def, outputEx);
+					CVariables dx = PhenologyConiferEquations(m_mean_T_day[d], x, m_P, def, outputEx);
 					x = x + dx / nbSteps;
 
 					//limit concentration to valid values
@@ -374,13 +368,13 @@ namespace WBSF
 					output[TRef][O_PROD_I] = outputEx.Prod_I;
 					output[TRef][O_REMOVAL_I] = outputEx.Removal_I;
 					output[TRef][O_SWELL_SWITCH] = x.Swell_switch;
-					output[TRef][O_TAIR] = mean_T_day[d].Tair;
-					output[TRef][O_TSOIL] = mean_T_day[d].Tsoil;
-					output[TRef][O_PN] = mean_T_day[d].PN;
-					output[TRef][O_RC_G_TAIR] = mean_T_day[d].RC_G_Tair;
-					output[TRef][O_RC_F_TAIR] = mean_T_day[d].RC_F_Tair;
-					output[TRef][O_RC_M_TAIR] = mean_T_day[d].RC_M_Tair;
-					output[TRef][O_RC_G_TSOIL] = mean_T_day[d].RC_G_Tsoil;
+					output[TRef][O_TAIR] = m_mean_T_day[d].Tair;
+					output[TRef][O_TSOIL] = m_mean_T_day[d].Tsoil;
+					output[TRef][O_PN] = m_mean_T_day[d].PN;
+					output[TRef][O_RC_G_TAIR] = m_mean_T_day[d].RC_G_Tair;
+					output[TRef][O_RC_F_TAIR] = m_mean_T_day[d].RC_F_Tair;
+					output[TRef][O_RC_M_TAIR] = m_mean_T_day[d].RC_M_Tair;
+					output[TRef][O_RC_G_TSOIL] = m_mean_T_day[d].RC_G_Tsoil;
 				}
 				//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
 			}

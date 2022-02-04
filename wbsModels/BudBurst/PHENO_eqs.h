@@ -402,7 +402,7 @@ namespace WBSF
 			CInput operator+(const CInput& in) { return { Tair + in.Tair,Tsoil + in.Tsoil, PN + in.PN }; }
 			CInput operator*(double f) { return { Tair * f,Tsoil * f,PN * f }; }
 			double Tair;
-			double Tmax14Days;
+			//double Tmax14Days;
 			double Tsoil;
 			double PN;
 			double RC_G_Tair;

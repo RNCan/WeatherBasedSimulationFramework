@@ -41,7 +41,7 @@ namespace WBSF
 		HBB::COldParam m_P_last;
 		HBB::CParameters m_P;
 		//std::array<double, NB_SDI_PARAMS > m_SDI;
-		std::deque<HBB::CInput> mean_T_day;
+		std::deque<HBB::CInput> m_mean_T_day;
 		
 		ERMsg Execute(CWeatherStation& weather, CModelStatVector& output, bool bModelEx = false);
 
