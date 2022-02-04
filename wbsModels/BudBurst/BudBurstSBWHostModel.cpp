@@ -275,7 +275,7 @@ namespace WBSF
 		}
 		else if (data.size() == NB_INPUTS2)
 		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species])
+			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
 				CSAResult obs;
 
