@@ -305,13 +305,13 @@ namespace WBSF
 				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
 				output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
-				output[TRef][O_S6] = SDI_2_Sx(m_SDI_type, SDI, 6);
-				output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
-				output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
-				output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
-				output[TRef][O_S2] = SDI_2_Sx(m_SDI_type, SDI, 2);
-				output[TRef][O_S1] = SDI_2_Sx(m_SDI_type, SDI, 1);
-				output[TRef][O_S0] = SDI_2_Sx(m_SDI_type, SDI, 0);
+				//output[TRef][O_S6] = SDI_2_Sx(m_SDI_type, SDI, 6);
+				//output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
+				//output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
+				//output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
+				//output[TRef][O_S2] = SDI_2_Sx(m_SDI_type, SDI, 2);
+				//output[TRef][O_S1] = SDI_2_Sx(m_SDI_type, SDI, 1);
+				//output[TRef][O_S0] = SDI_2_Sx(m_SDI_type, SDI, 0);
 				output[TRef][O_SDI] = SDI;
 
 

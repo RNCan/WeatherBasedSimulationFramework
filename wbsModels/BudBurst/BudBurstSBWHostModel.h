@@ -35,6 +35,7 @@ namespace WBSF
 		double m_defoliation;
 		size_t m_SDI_type;
 
+		CSBWHostBudBurst m_model;
 		HBB::CParameters m_P;
 		bool m_bUseDefoliation;
 		std::map<int, double> m_defioliation_by_year;

@@ -185,8 +185,8 @@ namespace WBSF
 
 
 
-		CSBWHostBudBurst model;
-		model.m_species = m_species;
+		
+		m_model.m_species = m_species;
 		/*for (size_t y = 0; y < m_weather.size(); y++)
 		{
 			static const double DEFOL[5][11] =
@@ -203,18 +203,18 @@ namespace WBSF
 		}*/
 
 		for (size_t y = 0; y < m_weather.size(); y++)
-			model.m_defioliation[m_weather[y].GetTRef().GetYear()-1] = m_defoliation;
+			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()-1] = m_defoliation;
 
 
 
 		bool bModelEx = m_info.m_modelName.find("Ex") != string::npos;
 
 
-		model.m_P = m_P;
+		m_model.m_P = m_P;
 		//model.m_SDI = m_SDI;
-		model.m_SDI_type = (TSDI)m_SDI_type;
+		m_model.m_SDI_type = (TSDI)m_SDI_type;
 
-		msg = model.Execute(m_weather, m_output, bModelEx);
+		msg = m_model.Execute(m_weather, m_output, bModelEx);
 
 
 		return msg;
@@ -484,22 +484,22 @@ namespace WBSF
 
 			//number of year of defoliation must be the same but with one year lag. Ex. weather = 2015-2020, def=2014-2019
 			//ASSERT(m_defioliation_by_year.size()== data_weather.size());
-			CSBWHostBudBurst model;
-			model.m_species = m_species;
+			
+			m_model.m_species = m_species;
 			if(m_bUseDefoliation)
-				model.m_defioliation = m_defioliation_by_year;
+				m_model.m_defioliation = m_defioliation_by_year;
 			//for (size_t y = 0; y < data_weather.size(); y++)
 			//{
 				//model.m_defioliation[data_weather[y].GetTRef().GetYear()] = m_defoliation;
 			//}
 				
 
-			model.m_P = m_P;
+			m_model.m_P = m_P;
 			//model.m_SDI = m_SDI;
-			model.m_SDI_type = (TSDI)m_SDI_type;
+			m_model.m_SDI_type = (TSDI)m_SDI_type;
 
 			CModelStatVector output;
-			model.Execute(data_weather, output);
+			m_model.Execute(data_weather, output);
 
 			//if (m_SAResult.front().m_obs.size() != 2)
 			//{
