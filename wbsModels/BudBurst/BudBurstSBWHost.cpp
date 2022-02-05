@@ -295,9 +295,11 @@ namespace WBSF
 			{
 
 				double PS = max(0.0, min(1.0, (x.Mdw - Mdw_0) / (Budburst_thr - Mdw_0)));
-				double SDI_Dhont = cdf(SDI_dist, PS) * MAX_SDI_STAGE;//0 .. 6;
-				double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
-				double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+				//double SDI_Dhont = cdf(SDI_dist, PS) * MAX_SDI_STAGE;//0 .. 6;
+				//double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
+				//double SDI_Auger = max(0.0, min(5.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
+				//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
+				double SDI = cdf(SDI_dist, PS) * 5;
 
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 

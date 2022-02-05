@@ -230,50 +230,50 @@ namespace WBSF
 
 
 
-	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
-
+	//enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 
 	void CSBWHostBudBurstModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
 
-		if (data.size() == NB_INPUTS1)
-		{
-			if (data[I_SPECIES1] == SPECIES_NAME[m_species])
-			{
+		//if (data.size() == NB_INPUTS1)
+		//{
+		//	if (data[I_SPECIES1] == SPECIES_NAME[m_species])
+		//	{
 
-				CSAResult obs;
+		//		CSAResult obs;
 
-				if (!m_bUseDefoliation || stod(data[I_DEFOL2]) > -999)
-				{
-					obs.m_ref.FromFormatedString(data[I_DATE1]);
-					obs.m_obs[0] = stod(data[I_SDI1]);
-					obs.m_obs.push_back(stod(data[I_N1]));
-					obs.m_obs.push_back(stod(data[I_DEFOL2]));
+		//		//if (!m_bUseDefoliation || stod(data[I_DEFEND_N2]) > -999)
+		//		{
+		//			obs.m_ref.FromFormatedString(data[I_DATE1]);
+		//			obs.m_obs[0] = stod(data[I_SDI1]);
+		//			obs.m_obs.push_back(stod(data[I_N1]));
+		//			obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
 
-					if (obs.m_obs[0] > -999)
-					{
-						m_years.insert(obs.m_ref.GetYear());
-					}
-					if (obs.m_obs[2] > -999)//defoliation
-					{
-						if (m_defioliation_by_year.find(obs.m_ref.GetYear()) != m_defioliation_by_year.end())
-						{
-							//defoliation for a site must be always the same
-							ASSERT(m_defioliation_by_year[obs.m_ref.GetYear()] == obs.m_obs[2] / 100.0);
-						}
+		//			if (obs.m_obs[0] > -999)
+		//			{
+		//				m_years.insert(obs.m_ref.GetYear());
+		//			}
+		//			//if (obs.m_obs[2] > -999)//defoliation
+		//			//{
+		//			//	if (m_defioliation_by_year.find(obs.m_ref.GetYear()) != m_defioliation_by_year.end())
+		//			//	{
+		//			//		//defoliation for a site must be always the same
+		//			//		ASSERT(m_defioliation_by_year[obs.m_ref.GetYear()] == obs.m_obs[2] / 100.0);
+		//			//	}
 
-						m_defioliation_by_year[obs.m_ref.GetYear()] = obs.m_obs[2] / 100.0;
-					}
-					
+		//			//	m_defioliation_by_year[obs.m_ref.GetYear()] = obs.m_obs[2] / 100.0;
+		//			//}
+		//			//
 
 
-					m_SAResult.push_back(obs);
-				}
-			}
-		}
-		else if (data.size() == NB_INPUTS2)
+		//			m_SAResult.push_back(obs);
+		//		}
+		//	}
+		//}
+		//else 
+		if (data.size() == NB_INPUTS2)
 		{
 			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
@@ -283,7 +283,7 @@ namespace WBSF
 				obs.m_obs[0] = stod(data[I_SDI2]);
 				obs.m_obs.push_back(stod(data[I_STARCH2]));
 				obs.m_obs.push_back(stod(data[I_SUGAR2]));
-				obs.m_obs.push_back(stod(data[I_DEFOL2]));
+				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
 				
 				if ((USE_SDI && obs.m_obs[0] > -999) ||
 					(USE_STARCH && obs.m_obs[1] > -999) ||
@@ -439,19 +439,19 @@ namespace WBSF
 		if (!m_SAResult.empty())
 		{
 
-			if (data_weather.GetNbYears() == 0)
+			if (m_data_weather.GetNbYears() == 0)
 			{
 				CTPeriod pp(CTRef((*m_years.begin()) - 1, JANUARY, DAY_01), CTRef(*m_years.rbegin(), DECEMBER, DAY_31));
 				pp = pp.Intersect(m_weather.GetEntireTPeriod(CTM::DAILY));
 				if (pp.IsInit())
 				{
-					((CLocation&)data_weather) = m_weather;
-					data_weather.SetHourly(m_weather.IsHourly());
-					//data_weather.CreateYears(pp);
+					((CLocation&)m_data_weather) = m_weather;
+					m_data_weather.SetHourly(m_weather.IsHourly());
+					//m_data_weather.CreateYears(pp);
 
 					for (int year = pp.GetFirstYear(); year <= pp.GetLastYear(); year++)
 					{
-						data_weather[year] = m_weather[year];
+						m_data_weather[year] = m_weather[year];
 					}
 				}
 				else
@@ -464,14 +464,14 @@ namespace WBSF
 
 
 			if (!m_weather.IsHourly())
-				data_weather.ComputeHourlyVariables();
+				m_data_weather.ComputeHourlyVariables();
 
-			CTPeriod pp(data_weather.GetEntireTPeriod(CTM::DAILY));
+			CTPeriod pp(m_data_weather.GetEntireTPeriod(CTM::DAILY));
 
 
-			//for (size_t yy = 1; yy < data_weather.GetNbYears(); yy++)
+			//for (size_t yy = 1; yy < m_data_weather.GetNbYears(); yy++)
 			//{
-				//int year = data_weather[yy].GetTRef().GetYear();
+				//int year = m_data_weather[yy].GetTRef().GetYear();
 				//if (m_years.find(year) == m_years.end())
 					//continue;
 
@@ -483,14 +483,14 @@ namespace WBSF
 			//weather[year] = m_weather[year];
 
 			//number of year of defoliation must be the same but with one year lag. Ex. weather = 2015-2020, def=2014-2019
-			//ASSERT(m_defioliation_by_year.size()== data_weather.size());
+			//ASSERT(m_defioliation_by_year.size()== m_data_weather.size());
 			
 			m_model.m_species = m_species;
 			if(m_bUseDefoliation)
 				m_model.m_defioliation = m_defioliation_by_year;
-			//for (size_t y = 0; y < data_weather.size(); y++)
+			//for (size_t y = 0; y < m_data_weather.size(); y++)
 			//{
-				//model.m_defioliation[data_weather[y].GetTRef().GetYear()] = m_defoliation;
+				//model.m_defioliation[m_data_weather[y].GetTRef().GetYear()] = m_defoliation;
 			//}
 				
 
@@ -499,7 +499,7 @@ namespace WBSF
 			m_model.m_SDI_type = (TSDI)m_SDI_type;
 
 			CModelStatVector output;
-			m_model.Execute(data_weather, output);
+			m_model.Execute(m_data_weather, output);
 
 			//if (m_SAResult.front().m_obs.size() != 2)
 			//{
