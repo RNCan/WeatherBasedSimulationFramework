@@ -1,0 +1,837 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstSBWHost</Title>
+    <Version>1.0</Version>
+    <ID>.hbb</ID>
+    <EXE>BudBurstSBWHost.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 884 862</WindowRect>
+    <SimulatedCategory>TN T TX R</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>40 10 60 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Sw_v</Name>
+            <Caption>Sw_v</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 10 120 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.28</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Sw_k</Name>
+            <Caption>Sw_k</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 185 120 335</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>1.789302375E-03</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Sw_eff</Name>
+            <Caption>Sw_eff</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 380 125 530</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>0.661015</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Mob_v1</Name>
+            <Caption>Mob_v1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>195 10 215 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1.0195</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Mob_k1</Name>
+            <Caption>Mob_k1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>195 185 215 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>220.837</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FH_v1</Name>
+            <Caption>FH_v1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 10 245 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1.05707</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FH_k1</Name>
+            <Caption>FH_k1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>225 185 245 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1.69442E-03</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Acc_v</Name>
+            <Caption>Acc_v</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>165 10 185 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1.14047</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Acc_k</Name>
+            <Caption>Acc_k</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>165 185 185 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>104.911</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Mob_v2</Name>
+            <Caption>Mob_v2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>390 5 410 155</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>1.02309</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Mob_k2</Name>
+            <Caption>Mob_k2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>385 185 405 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>106.747</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FH_v2</Name>
+            <Caption>FH_v2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 10 270 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>5.26354</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FH_k2</Name>
+            <Caption>FH_k2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 185 270 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>108.376</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_v1</Name>
+            <Caption>G_v1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>330 10 350 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.528052</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_k1</Name>
+            <Caption>G_k1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>330 185 350 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>222.18105</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_k2</Name>
+            <Caption>G_k2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>355 185 375 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>5.26675</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_sigma</Name>
+            <Caption>S_sigma</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>610 525 630 675</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.000905935</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_max</Name>
+            <Caption>St_max</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>635 175 655 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>92.3277</DefaultValue>
+            <MinValue>70</MinValue>
+            <MaxValue>200</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_minT</Name>
+            <Caption>G_minT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>490 10 510 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>5.10218</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_optT</Name>
+            <Caption>G_optT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>490 180 510 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>27.3528</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>G_maxT</Name>
+            <Caption>G_maxT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>490 350 510 500</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>41.7731</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>I_c</Name>
+            <Caption>I_c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>675 10 695 160</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>29.1557</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FD_v1</Name>
+            <Caption>FD_v1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 10 300 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>5.10557</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FD_k1</Name>
+            <Caption>FD_k1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 185 300 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>106.077</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FD_v2</Name>
+            <Caption>FD_v2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>305 10 325 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>9.78365</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FD_k2</Name>
+            <Caption>FD_k2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>305 185 325 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>106.046</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FD_muS</Name>
+            <Caption>FD_muS</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>610 685 630 835</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>35.8038</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>150</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>M_minT</Name>
+            <Caption>M_minT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 10 535 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>4.08174</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>M_optT</Name>
+            <Caption>M_optT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 180 535 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>14.7904</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>M_maxT</Name>
+            <Caption>M_maxT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 350 535 500</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>39.7261</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>F_minT</Name>
+            <Caption>F_minT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>540 10 560 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>-40</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>F_optT</Name>
+            <Caption>F_optT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>540 180 560 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>F_maxT</Name>
+            <Caption>F_maxT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>540 350 560 500</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>5.10218</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>B_v</Name>
+            <Caption>B_v</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>125 10 145 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>7.28038</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>B_k</Name>
+            <Caption>B_k</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>125 185 145 335</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>0.8127693</DefaultValue>
+            <MinValue>-1000</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>B_eff</Name>
+            <Caption>B_eff</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>130 380 150 530</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>0.6025</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_min</Name>
+            <Caption>S_min</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>610 5 630 155</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_max</Name>
+            <Caption>S_max</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>610 175 630 325</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>600</DefaultValue>
+            <MinValue>70</MinValue>
+            <MaxValue>600</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>S_mu</Name>
+            <Caption>S_mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>610 355 630 505</Rect>
+            <SeparatorPos>45</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>BB_thr</Name>
+            <Caption>BB_thr</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>700 10 720 160</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>1.5</MinValue>
+            <MaxValue>2.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>St_min</Name>
+            <Caption>St_min</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>635 5 655 155</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PAR_PS1</Name>
+            <Caption>PAR_PS1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 10 485 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>12.5</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PAR_PS2</Name>
+            <Caption>PAR_PS2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 180 485 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>3.5</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PAR_PS3</Name>
+            <Caption>PAR_PS3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 350 485 500</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>-0.1254</DefaultValue>
+            <MinValue>-0.5</MinValue>
+            <MaxValue>-0.01</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>PAR_SLA</Name>
+            <Caption>PAR_SLA</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>465 525 485 675</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>0.0044</DefaultValue>
+            <MinValue>0.00001</MinValue>
+            <MaxValue>0.9</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>model</Name>
+            <Caption>Model</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>45 195 70 420</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Original|Modified</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu</Name>
+            <Caption>mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>730 10 755 160</Rect>
+            <SeparatorPos>50</SeparatorPos>
+            <DefaultValue>3.33</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>s</Name>
+            <Caption>s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>725 170 750 320</Rect>
+            <SeparatorPos>45</SeparatorPos>
+            <DefaultValue>1.22</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th1</Name>
+            <Caption>Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>725 340 750 490</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>4.0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th2</Name>
+            <Caption>Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>725 505 750 655</Rect>
+            <SeparatorPos>40</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam0</Name>
+            <Caption>PAR_minT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>565 10 590 160</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>-6</DefaultValue>
+            <MinValue>-365</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam1</Name>
+            <Caption>PAR_optT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>565 180 585 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>26</DefaultValue>
+            <MinValue>-5000</MinValue>
+            <MaxValue>5000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam2</Name>
+            <Caption>PAR_maxT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>565 350 585 500</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>10.7</DefaultValue>
+            <MinValue>-4000</MinValue>
+            <MaxValue>4000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam3</Name>
+            <Caption>nb steps</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>45 440 70 590</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam_a</Name>
+            <Caption>Use defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 615 65 765</Rect>
+            <SeparatorPos>90</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>lam_b</Name>
+            <Caption>G_v2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>360 10 380 160</Rect>
+            <SeparatorPos>45</SeparatorPos>
+            <DefaultValue>9.47</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SDI_Type</Name>
+            <Caption>SDI_Type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 385 35 645</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S_conc</Name>
+            <Title>S_conc</Title>
+            <Units>mg/g DW</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>St_conc</Name>
+            <Title>St_conc</Title>
+            <Units>mm/g DW</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Mdw</Name>
+            <Title>Mdw</Title>
+            <Units>g</Units>
+            <Description>Meristem dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>STEMdw</Name>
+            <Title>STEMdw</Title>
+            <Units>g</Units>
+            <Description>Mdw+Bdw</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Ndw</Name>
+            <Title>Ndw</Title>
+            <Units>g</Units>
+            <Description>Needles dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S0</Name>
+            <Title>S0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S1</Name>
+            <Title>S1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S2</Name>
+            <Title>S2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S3</Name>
+            <Title>S3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S4</Name>
+            <Title>S4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S5</Name>
+            <Title>S5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S6</Name>
+            <Title>S6</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
