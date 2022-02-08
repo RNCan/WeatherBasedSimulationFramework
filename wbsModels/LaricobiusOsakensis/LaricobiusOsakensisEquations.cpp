@@ -104,15 +104,15 @@ namespace WBSF
 		static const array< vector<double>, LOF::NB_STAGES>  P_DEV =
 		{ {
 				//Non-linear
-				{ 4.034685e-02, 8.769218e-02, 3.000000e+00, 2.700000e+01, 9.286385e-01, 5.000079e-01 },//Egg
-				{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L1
-				{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L2
-				{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L3
-				{ 2.027189e-02, 8.476716e-02, 4.000000e+00, 2.700000e+01, 3.597608e-01, 5.000017e-01 },//L4
-				{ 9.052423e-02, 4.551370e-02, 4.000000e+00, 3.400000e+01, 4.999814e+01, 7.393725e+00 },//PrePupae
-				{ 9.747868e-03, 1.092349e-01, 0.000000e+00, 3.300000e+01, 1.000469e-01, 5.229575e-01 },//Pupae
-				{                                                                                    },//aestival diapause adult
-				{ 2.327918e-02, 1.065902e-01, 2.000000e+00, 9.996176e+01                             },//adult
+				{ 4.035e-02, 8.769e-02, 3, 27, 9.287e-01, 5.000e-01 },//Egg
+				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L1
+				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L2
+				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L3
+				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L4
+				{ 7.032e-02, 8.388e-02, 4, 34, 50.00e+01, 1.064e+01 },//PrePupae
+				{ 9.590e-03, 1.092e-01, 0, 32, 1.000e-01, 5.001e-01 },//Pupae
+				{                                                   },//aestival diapause adult
+				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                },//adult
 			} };
 
 		 
@@ -137,15 +137,15 @@ namespace WBSF
 		{
 			//Relative devlopement Time (individual varition): sigma
 			//Non-linear
-			{0.1350},//Egg
-			{0.1839},//L1
-			{0.1839},//L2
-			{0.1839},//L3
-			{0.1839},//L4
-			{0.2013},//PrePupae
-			{0.1278},//Pupae
-			{1.0000},//aestival diapause adult
-			{0.4007}//adult
+			{0.135},//Egg
+			{0.184},//L1
+			{0.184},//L2
+			{0.184},//L3
+			{0.184},//L4
+			{0.201},//PrePupae
+			{0.128},//Pupae
+			{1.000},//aestival diapause adult
+			{0.401}//adult
 		};
 
 		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
@@ -190,34 +190,7 @@ namespace WBSF
 
 	double CLaricobiusOsakensisEquations::GetDailySurvivalRate(size_t s, double T)const
 	{
-		//static const array<CSurvivalEquation::TSurvivalEquation, LOF::NB_STAGES> S_EQ =
-		//{
-		//	CSurvivalEquation::Survival_07, //egg
-		//	CSurvivalEquation::Survival_10, //L1
-		//	CSurvivalEquation::Survival_10, //L2
-		//	CSurvivalEquation::Survival_10, //L3
-		//	CSurvivalEquation::Survival_10, //L4
-		//	CSurvivalEquation::Survival_04,	//PrePupa
-		//	CSurvivalEquation::Survival_03,	//Pupa
-		//	//CSurvivalEquation::Survival_14,	//Pupa
-		//	CSurvivalEquation::Unknown,		//aestival diapause adult
-		//	CSurvivalEquation::Unknown,		// adult
-		//};
-		//
-		//
-		//static const array< vector<double>, LOF::NB_STAGES>  P_SUR =
-		//{ {
-		//	{ 7.101617e-01, -1.724674e-03, +2.814947e-01, +2.572669e-02},//egg
-		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L1
-		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L2
-		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L3
-		//	{ 9.852357e-01, +1.458991e+00, -1.182807e+00, -8.338351e-01, 6.071817e-02, 1.833383e+00 },//L4
-		//	{ 9.907457e-01, +2.543370e-01, +3.333060e-06, +6.471209e+01 },//PrePupa
-		//	{ 1.439328e+02, +2.807616e+01, +1.602123e+01, +2.361705e+01 },//Pupa 03
-		//	//{ 9.926415e-01, +5.925242e+00, +2.626674e+01, 1.234955e+00 },//Pupa 14
-		//	{},
-		//	{}
-		//} };
+
 
 		static const array<CSurvivalEquation::TSurvivalEquation, LOF::NB_STAGES> S_EQ =
 		{
@@ -231,21 +204,16 @@ namespace WBSF
 			CSurvivalEquation::Unknown,		//aestival diapause adult
 			CSurvivalEquation::Unknown,		// adult
 		};
-		
-
-
-
-
-		
+	
 		static const array< vector<double>, LOF::NB_STAGES>  P_SUR =
 		{ {
-			{ -5.905523e+00, +1.299158e-01, -1.458741e-03 },//egg
-			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L1
-			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L2
-			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L3
-			{ -1.086916e+00, -5.072153e-01, +2.208820e-02 },//L4
-			{ -6.275259e+00, +2.962405e-01, -8.146790e-03 },//PrePupa
-			{ +8.135264e+00, -1.635274e+00, +5.088076e-02 },//Pupa
+			{ -5.906e+00, +1.299e-01, -1.459e-03 },//egg
+			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L1
+			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L2
+			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L3
+			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L4
+			{ -6.276e+00, +2.963e-01, -8.149e-03 },//PrePupa
+			{ +8.134e+00, -1.635e+00, +5.088e-02 },//Pupa
 			{},
 			{}
 		} };
@@ -275,7 +243,7 @@ namespace WBSF
 		//1690.46,-840.107,5
 		static const double Fo = 100.4;
 		static const double sigma = 0.355;
-
+		
 		//double Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
 		//while (Fi < 2 || Fi>120)
 		//	Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
@@ -294,6 +262,11 @@ namespace WBSF
 		//AICc,maxLL
 		//1698.68,-839.968
 		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
+
+		 
+
+
+
 
 		static const vector<double> P_FEC = { 0.01518, 10.9, 6.535 };
 		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
