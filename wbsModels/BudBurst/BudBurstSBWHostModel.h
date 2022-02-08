@@ -34,6 +34,7 @@ namespace WBSF
 		size_t m_species;
 		double m_defoliation;
 		size_t m_SDI_type;
+		size_t m_nbSteps;
 
 		CSBWHostBudBurst m_model;
 		HBB::CParameters m_P;

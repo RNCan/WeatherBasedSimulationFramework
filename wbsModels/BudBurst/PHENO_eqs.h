@@ -10,8 +10,8 @@ namespace WBSF
 	//SBW host Budburst
 	namespace HBB
 	{
-		enum TVersion { V_ORIGINAL, V_MODIFIED, NB_VERSIONS };
-		enum TSBWSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, RED_SPRUCE, NB_SBW_SPECIES };
+		enum TVersion { V_ORIGINAL, V_RECALIBRATED, NB_VERSIONS };
+		enum TSBWSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, NB_SBW_SPECIES };
 
 
 		static double Alpha(double Tmin, double Topt, double Tmax) { return log(2.0) / log((Tmax - Tmin) / (Topt - Tmin)); }
@@ -50,7 +50,7 @@ namespace WBSF
 			double G_v1;
 			double G_k1;
 			double G_k2;
-			double S_sigma;
+			double FH_sigma;
 			double St_max;
 			double G_minT;
 			double G_optT;
@@ -81,7 +81,7 @@ namespace WBSF
 			//double a2;
 			//double b1;
 			//double b2;
-			double Def_max;
+			//double Def_max;
 			double bud_dw;
 			double buds_num;
 			double C_DW_Ratio;
@@ -92,21 +92,21 @@ namespace WBSF
 			double F_minT;
 			double F_optT;
 			double F_maxT;
-			double S_min;
-			double S_max;
+			double cS_min;
+			double cS_max;
 			//			double BBphase;
-			double S_mu;
+			//double S_mu;
 			//double v_c;
 			double BB_thr;
-			double St_min;
+			//double St_min;
 
-			size_t m_version;
+		//	size_t m_version;
 
 
-			double G_v2;
-			double C_min;
-			double C_max;
-			size_t m_nbSteps;
+			//double G_v2;
+			//double C_min;
+			//double C_max;
+			//size_t m_nbSteps;
 			double SDI_mu;
 			double SDI_sigma;
 
@@ -140,8 +140,8 @@ namespace WBSF
 				if (PAR_minT > PAR_optT || PAR_optT > PAR_maxT)
 					return false;
 
-				if (C_min > C_max)
-					return false;
+				//if (C_min > C_max)
+					//return false;
 
 				/*if (m_model == FABRIZIO_MODEL_NEW)
 				{
@@ -182,7 +182,7 @@ namespace WBSF
 				if (fabs(G_v1 - in.G_v1) > 0.00000001)bEqual = false;
 				if (fabs(G_k1 - in.G_k1) > 0.00000001)bEqual = false;
 				if (fabs(G_k2 - in.G_k2) > 0.00000001)bEqual = false;
-				if (fabs(S_sigma - in.S_sigma) > 0.00000001)bEqual = false;
+				if (fabs(FH_sigma - in.FH_sigma) > 0.00000001)bEqual = false;
 				if (fabs(St_max - in.St_max) > 0.00000001)bEqual = false;
 				if (fabs(G_minT - in.G_minT) > 0.00000001)bEqual = false;
 				if (fabs(G_optT - in.G_optT) > 0.00000001)bEqual = false;
@@ -209,7 +209,7 @@ namespace WBSF
 				if (fabs(PAR_PS1 - in.PAR_PS1) > 0.00000001)bEqual = false;
 				if (fabs(PAR_PS2 - in.PAR_PS2) > 0.00000001)bEqual = false;
 				if (fabs(PAR_PS3 - in.PAR_PS3) > 0.00000001)bEqual = false;
-				if (fabs(Def_max - in.Def_max) > 0.00000001)bEqual = false;
+				//if (fabs(Def_max - in.Def_max) > 0.00000001)bEqual = false;
 				if (fabs(bud_dw - in.bud_dw) > 0.00000001)bEqual = false;
 				if (fabs(buds_num - in.buds_num) > 0.00000001)bEqual = false;
 				if (fabs(C_DW_Ratio - in.C_DW_Ratio) > 0.00000001)bEqual = false;
@@ -217,16 +217,16 @@ namespace WBSF
 				if (fabs(F_minT - in.F_minT) > 0.00000001)bEqual = false;
 				if (fabs(F_optT - in.F_optT) > 0.00000001)bEqual = false;
 				if (fabs(F_maxT - in.F_maxT) > 0.00000001)bEqual = false;
-				if (fabs(S_min - in.S_min) > 0.00000001)bEqual = false;
-				if (fabs(S_max - in.S_max) > 0.00000001)bEqual = false;
-				if (fabs(S_mu - in.S_mu) > 0.00000001)bEqual = false;
+				if (fabs(cS_min - in.cS_min) > 0.00000001)bEqual = false;
+				if (fabs(cS_max - in.cS_max) > 0.00000001)bEqual = false;
+				//if (fabs(S_mu - in.S_mu) > 0.00000001)bEqual = false;
 				if (fabs(BB_thr - in.BB_thr) > 0.00000001)bEqual = false;
-				if (fabs(St_min - in.St_min) > 0.00000001)bEqual = false;
-				if (m_version != in.m_version) bEqual = false;
-				if (fabs(G_v2 - in.G_v2) > 0.00000001)bEqual = false;
-				if (fabs(C_min - in.C_min) > 0.00000001)bEqual = false;
-				if (fabs(C_max - in.C_max) > 0.00000001)bEqual = false;
-				if (m_nbSteps != in.m_nbSteps)bEqual = false;
+				//if (fabs(St_min - in.St_min) > 0.00000001)bEqual = false;
+				//if (m_version != in.m_version) bEqual = false;
+				//if (fabs(G_v2 - in.G_v2) > 0.00000001)bEqual = false;
+				//if (fabs(C_min - in.C_min) > 0.00000001)bEqual = false;
+				//if (fabs(C_max - in.C_max) > 0.00000001)bEqual = false;
+				//if (m_nbSteps != in.m_nbSteps)bEqual = false;
 				if (fabs(SDI_mu - in.SDI_mu) > 0.00000001)bEqual = false;
 				if (fabs(SDI_sigma - in.SDI_sigma) > 0.00000001)bEqual = false;
 
@@ -415,7 +415,7 @@ namespace WBSF
 
 
 
-		CVariables PhenologyConiferEquations(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx);
+		CVariables PhenologyConiferEquations(const CInput& I, const CVariables& x, const CParameters& P, const CDefoliation& def, COutputEx& outputEx, bool bEx);
 
 	}
 }

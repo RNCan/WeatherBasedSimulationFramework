@@ -39,7 +39,7 @@ namespace WBSF
 
 
 	static const double MIN_SDI = 0;
-	static const double MAX_SDI = 6;
+	static const double MAX_SDI = 5;
 	static const double MIN_STRACH = 5;//Deslauriers data 
 	static const double MAX_STRACH = 70;//Deslauriers data 
 	static const double MIN_SUGAR = 7;//Deslauriers data 
@@ -99,7 +99,8 @@ namespace WBSF
 			m_P = P[m_species];
 		}
 
-		m_SDI_type = parameters[c++].GetInt();
+		//m_SDI_type = parameters[c++].GetInt();
+		m_SDI_type = SDI_AUGER;
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
 
 		return msg;
@@ -111,11 +112,14 @@ namespace WBSF
 	{
 		double R = 0;// 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ]));
 
-		switch (SIGMOID)
-		{
-		case SIGMOID: R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); break;
+		//switch (RICHARDSON)
+		//{
+		//c//ase SIGMOID: R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); break;
 			//case CHUINE: R = 1 / (1 + exp(-((T - m_P[CU_µ]) / m_P[CU_σ¹] + Square(T - m_P[CU_µ]) / m_P[CU_σ²]))); break;
-		case RICHARDSON: R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); break;
+		//case RICHARDSON: 
+			
+			R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); 
+			//break;
 			//case UTAH:
 			//{
 			//	ASSERT(m_P[CU_P_MIN] >= -1.0 && m_P[CU_P_MIN] <= 0.0);
@@ -139,8 +143,8 @@ namespace WBSF
 			//
 			//	break;
 			//}
-		default: ASSERT(false);
-		};
+		//default: ASSERT(false);
+		//};
 
 
 		ASSERT(!_isnan(R) && _finite(R));
@@ -182,10 +186,49 @@ namespace WBSF
 
 	};
 
+	double CBudBurstSaintAmantModel::Weibull(size_t stage, double  SDI, const array < double, 2>& p, size_t first_stage, size_t last_stage)
+	{
+		//scale, shape
+		enum TParam { lambda, k };
+
+		double Fx = -999;
+		if (stage < last_stage)
+			Fx = 1.0 - exp(-pow(p[lambda] * (SDI - first_stage), p[k]));
+		else if (stage == last_stage)
+			Fx = exp(-pow(p[lambda] * (last_stage - SDI), p[k]));
+
+		return Fx;
+	}
+
+	array<double, 5> CBudBurstSaintAmantModel::SDI_2_Sx(double SDI, bool bCumul)
+	{
+		static const array< array< double, 2>, 5> P =
+		{ {
+			{1.561, 1.501},//F1
+			{0.552, 3.022},//F2
+			{0.372, 4.365},//F3
+			{0.273, 6.994},//F4
+			{1.444, 1.390},//F5
+		} };
+
+
+		double F1 = Weibull(1, SDI, P[0]);
+		double F2 = Weibull(2, SDI, P[1]);
+		double F3 = Weibull(3, SDI, P[2]);
+		double F4 = Weibull(4, SDI, P[3]);
+		double F5 = Weibull(5, SDI, P[4]);
+
+		array<double, 5> Sx = { 1 - F1, F1 - F2, F2 - F3, F3 - F4,  F5 };
+		if (bCumul)
+			Sx = { 1 - F1, F1, F2, F3,  F5 };
+
+		return Sx;
+	}
+
 	void CBudBurstSaintAmantModel::ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output)
 	{
-		boost::math::beta_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
-		//boost::math::weibull_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
+		//boost::math::beta_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
+		boost::math::weibull_distribution<double> SDI_dist(m_P[µ_SDI], m_P[σ_SDI]);
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
@@ -389,65 +432,37 @@ namespace WBSF
 
 
 
-	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
+
+
+
+	//enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstSaintAmantModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
-
-		if (data.size() == NB_INPUTS1)
+		if (data.size() == NB_INPUTS2)
 		{
-			if (data[I_SPECIES1] == SPECIES_NAME[m_species])
+			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE1]);
-				obs.m_obs[0] = stod(data[I_SDI1]);
-				obs.m_obs.push_back(stod(data[I_N1]));
+				obs.m_ref.FromFormatedString(data[I_DATE2]);
+				obs.m_obs[0] = stod(data[I_SDI2]);
+				obs.m_obs.push_back(stod(data[I_STARCH2]));
+				obs.m_obs.push_back(stod(data[I_SUGAR2]));
+				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
 
-				if (obs.m_obs[0] > -999)
+				if ((USE_SDI && obs.m_obs[0] > -999) ||
+					(USE_STARCH && obs.m_obs[1] > -999) ||
+					(USE_SUGAR && obs.m_obs[2] > -999))
 				{
 					m_years.insert(obs.m_ref.GetYear());
 				}
 
-
 				m_SAResult.push_back(obs);
 			}
 		}
-		else if (data.size() == NB_INPUTS2)
-		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
-			{
-
-				CSAResult obs;
-
-				//if (m_P[Used_DEF] == 0 || stod(data[I_DEFOL2]) > -999)
-				{
-					obs.m_ref.FromFormatedString(data[I_DATE2]);
-					obs.m_obs[0] = stod(data[I_SDI2]);
-					obs.m_obs.push_back(stod(data[I_STARCH2]));
-					obs.m_obs.push_back(stod(data[I_SUGAR2]));
-					obs.m_obs.push_back(stod(data[I_DEFOL2]));
-
-					
-						
-					
-
-					if ( (USE_SDI && obs.m_obs[0] > -999)||
-						 (USE_STARCH && obs.m_obs[1] > -999)||
-						 (USE_SUGAR && obs.m_obs[2] > -999))
-					{
-						m_years.insert(obs.m_ref.GetYear());
-					}
-
-					m_SAResult.push_back(obs);
-				}
-			}
-		}
 	}
-
-
-
 
 
 
@@ -594,48 +609,36 @@ namespace WBSF
 			{
 				if (output.IsInside(m_SAResult[i].m_ref))
 				{
-					if (m_SAResult.front().m_obs.size() == 2)
+					
+					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 213 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
-						if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
-						{
-							double obs_SDI = Round(m_SAResult[i].m_obs[0], 2);
-							double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
-							//for(size_t n=0; n< m_SAResult[i].m_obs[1]; n++)
-							stat.Add(obs_SDI, sim_SDI);
-						}
+						//double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
+						double obs_SDI = m_SAResult[i].m_obs[0]/5;//(m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
+						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI]/5;//(output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
+						stat.Add(obs_SDI, sim_SDI);
 					}
-					else
+
+					if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 && output[m_SAResult[i].m_ref][O_ST_CONC] > -999)
 					{
-						if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 213 && output[m_SAResult[i].m_ref][O_SDI] > -999)
-						{
-							double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
-							double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-							double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-							stat.Add(obs_SDI, sim_SDI);
-						}
+						double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 
-						if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 && output[m_SAResult[i].m_ref][O_ST_CONC] > -999)
-						{
-							double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-							double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						//if (!bSt_Valid)
+						//	sim_starch *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
 
-							//if (!bSt_Valid)
-							//	sim_starch *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
-
-							stat.Add(obs_starch, sim_starch);
-						}
+						stat.Add(obs_starch, sim_starch);
+					}
 
 
-						if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 && output[m_SAResult[i].m_ref][O_S_CONC] > -999)
-						{
-							double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
-							double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+					if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 && output[m_SAResult[i].m_ref][O_S_CONC] > -999)
+					{
+						double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+						double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 
-							//if (!bSt_Valid)
-							//	sim_GFS *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
+						//if (!bSt_Valid)
+						//	sim_GFS *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
 
-							stat.Add(obs_GFS, sim_GFS);
-						}
+						stat.Add(obs_GFS, sim_GFS);
 					}
 				}
 			}//for all results

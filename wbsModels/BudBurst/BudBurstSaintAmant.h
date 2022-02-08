@@ -103,6 +103,8 @@ namespace WBSF
 		double ChillingResponce(double T)const;
 		double ForcingResponce(double T)const;
 
+		static double Weibull(size_t stage, double  SDI, const std::array < double, 2>& p, size_t first_stage = 0, size_t last_stage = 5);
+		std::array<double, 5> SDI_2_Sx(double SDI, bool bCumul = false);
 	};
 
 }

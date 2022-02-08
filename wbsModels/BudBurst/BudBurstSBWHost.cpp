@@ -19,7 +19,7 @@ using namespace WBSF::HBB;
 namespace WBSF
 {
 
-	static const size_t MAX_SDI_STAGE = 6;
+	static const size_t MAX_SDI_STAGE = 5;
 	//static const size_t NB_STEPS = 1;
 	static const bool USE_HOURLY_T_MEAN = false;
 
@@ -27,6 +27,7 @@ namespace WBSF
 
 	CSBWHostBudBurst::CSBWHostBudBurst()
 	{
+		m_nbSteps = 1;
 		//m_SDI = { 2.1616,1.8268,4.0,50 ,-6 ,26 ,10.7,0.7 ,167 ,9.47 };
 	}
 
@@ -40,63 +41,38 @@ namespace WBSF
 		//scale, shape
 		enum TParam { lambda, k };
 
-		double Fx = 0;
-		if(stage<last_stage)
-			Fx = 1.0 - exp(-pow(p[lambda] * (SDI-first_stage), p[k]));
-		else
+		double Fx = -999;
+		if (stage < last_stage)
+			Fx = 1.0 - exp(-pow(p[lambda] * (SDI - first_stage), p[k]));
+		else if (stage == last_stage)
 			Fx = exp(-pow(p[lambda] * (last_stage - SDI), p[k]));
 
 		return Fx;
 	}
 
-	double CSBWHostBudBurst::SDI_2_Sx(size_t SDI_type, double SDI, size_t F)
+	array<double, 5> CSBWHostBudBurst::SDI_2_Sx(double SDI, bool bCumul)
 	{
-		ASSERT(SDI_type < NB_SDI_TYPE);
-		ASSERT(F <= 6);
-
-		static const array< array< array< double, 2>, 6>, 2> P =
+		static const array< array< double, 2>, 5> P =
 		{ {
-			{{
-				{0.000, 0.000},//F1
-				{0.000, 0.000},//F2
-				{0.000, 0.000},//F3
-				{0.000, 0.000},//F4
-				{0.000, 0.000},//F5
-				{0.000, 0.000},//F6
-			}},
-			{{
-				{1.561, 1.501},//F1
-				{0.552, 3.022},//F2
-				{0.372, 4.365},//F3
-				{0.273, 6.994},//F4
-				{1.444, 1.390},//F5
-				{0.000, 00.000},//F6
-			}}
+			{1.561, 1.501},//F1
+			{0.552, 3.022},//F2
+			{0.372, 4.365},//F3
+			{0.273, 6.994},//F4
+			{1.444, 1.390},//F5
 		} };
 
-
-		size_t first_stage = 0;
-		size_t last_stage = (SDI_type == SDI_AUGER) ? 5 : 6;
-		if (F > last_stage)
-			return -999;
-
-		double Sx = -999;
-		if (F == 0)
-		{
-			Sx = 1 - Weibull(1, SDI, P[SDI_type][0], first_stage, last_stage);
-		}
-		else if (F == last_stage)
-		{
-			Sx = Weibull(last_stage, SDI, P[SDI_type][last_stage - 1], last_stage, last_stage);
-		}
-		else
-		{
-			double Sx1 = Weibull(F, SDI, P[SDI_type][F - 1], first_stage, last_stage);
-			double Sx2 = Weibull(F+1, SDI, P[SDI_type][F], first_stage, last_stage);
-			Sx = Sx1 - Sx2;
-		}
 		
-		return Sx * 100;
+		double F1 = Weibull(1, SDI, P[0]);
+		double F2 = Weibull(2, SDI, P[1]);
+		double F3 = Weibull(3, SDI, P[2]);
+		double F4 = Weibull(4, SDI, P[3]);
+		double F5 = Weibull(5, SDI, P[4]);
+
+		array<double, 5> Sx = { 1 - F1, F1 - F2, F2 - F3, F3 - F4,  F5 };
+		if(bCumul)
+			Sx = { 1 - F1, F1, F2, F3,  F5 };
+
+		return Sx;
 	}
 
 	//This method is call to compute solution
@@ -181,18 +157,18 @@ namespace WBSF
 						m_mean_T_day[dd].Tair = Tair_stat[MEAN];
 						m_mean_T_day[dd].PN = PN_stat[SUM];
 
-						if (m_P.m_version == V_ORIGINAL)
-						{
+						//if (m_P.m_version == V_ORIGINAL)
+						//{
 							m_mean_T_day[dd].RC_G_Tair = m_P.RC_G(m_mean_T_day[dd].Tair);
 							m_mean_T_day[dd].RC_F_Tair = m_P.RC_F(m_mean_T_day[dd].Tair);
 							m_mean_T_day[dd].RC_M_Tair = m_P.RC_M(m_mean_T_day[dd].Tair);
-						}
-						else
-						{
+						//}
+						//else
+						//{
 							//m_mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
 							//m_mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
 							//m_mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
-						}
+						//}
 
 						//if (dd > 14)
 						//{
@@ -307,7 +283,7 @@ namespace WBSF
 				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
 				output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
-				//output[TRef][O_S6] = SDI_2_Sx(m_SDI_type, SDI, 6);
+				
 				//output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
 				//output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
 				//output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
@@ -320,8 +296,8 @@ namespace WBSF
 				COutputEx outputEx;
 
 
-				size_t nbSteps = m_P.m_nbSteps;
-				for (size_t t = 0; t < nbSteps; t++)
+				//size_t nbSteps = m_P.m_nbSteps;
+				for (size_t t = 0; t < m_nbSteps; t++)
 				{
 					//Phenological switches
 					x.Budburst_switch |= (x.Mdw >= Budburst_thr);
@@ -331,8 +307,8 @@ namespace WBSF
 
 					//double f = 1.0 - (t - 1.0) / (nbSteps - 1.0);
 					//CInput I = input[d] * f + input[d + 1] * (1 - f);
-					CVariables dx = PhenologyConiferEquations(m_mean_T_day[d], x, m_P, def, outputEx);
-					x = x + dx / nbSteps;
+					CVariables dx = PhenologyConiferEquations(m_mean_T_day[d], x, m_P, def, outputEx, bModelEx);
+					x = x + dx / m_nbSteps;
 
 					//limit concentration to valid values
 					//double S_conc = max(P.S_min, min(P.S_max, x.S / (x.Mdw + x.Bdw)));       // Sugars concentration [mg/g DW]

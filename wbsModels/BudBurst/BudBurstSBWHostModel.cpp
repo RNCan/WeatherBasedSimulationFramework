@@ -19,7 +19,7 @@ namespace WBSF
 
 
 	static const double MIN_SDI = 0;
-	static const double MAX_SDI = 6;
+	static const double MAX_SDI = 5;
 	//static const bool SDI_AGER = true; 
 
 	static const double MIN_STRACH = 5;//Deslauriers data  
@@ -42,22 +42,14 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CSBWHostBudBurstModel::CreateObject);
 
-	//const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> CSBWHostBudBurstModel::SDI =
-	//{ {
-	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BALSAM_FIR
-	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//WHITE_SPRUCE
-	//	{ 5.8284, 0.8331, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//BLACK_SPRUCE
-	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//NORWAY_SPUCE
-	//	{ 5.6553, 0.7802, 4.0, 50, -6, 26, 10.7, 0.7, 167, 9.47 },//RED_SPRUCE
-	//} };
-
+	
 	CSBWHostBudBurstModel::CSBWHostBudBurstModel()
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2021)";
-
-		//m_SDI = SDI[0];
+		VERSION = "1.0.2 (2022)";
+		m_SDI_type = SDI_AUGER;
+		m_nbSteps = 10;
 	}
 
 	CSBWHostBudBurstModel::~CSBWHostBudBurstModel()
@@ -97,7 +89,7 @@ namespace WBSF
 			m_P.G_v1 = parameters[c++].GetReal();
 			m_P.G_k1 = parameters[c++].GetReal();
 			m_P.G_k2 = parameters[c++].GetReal();
-			m_P.S_sigma = parameters[c++].GetReal();
+			m_P.FH_sigma = parameters[c++].GetReal();
 			m_P.St_max = parameters[c++].GetReal();
 			m_P.G_minT = parameters[c++].GetReal();
 			m_P.G_optT = parameters[c++].GetReal();
@@ -117,17 +109,20 @@ namespace WBSF
 			m_P.B_v = parameters[c++].GetReal();
 			m_P.B_k = parameters[c++].GetReal();
 			m_P.B_eff = parameters[c++].GetReal();
-			m_P.S_min = parameters[c++].GetReal();
-			m_P.S_max = parameters[c++].GetReal();
-			m_P.S_mu = parameters[c++].GetReal();
+			m_P.cS_min = parameters[c++].GetReal();
+			m_P.cS_max = parameters[c++].GetReal();
+			//	m_P.S_mu = 
+				parameters[c++].GetReal();
 			m_P.BB_thr = parameters[c++].GetReal();
-			m_P.St_min = parameters[c++].GetReal();
+			//m_P.St_min = 
+				parameters[c++].GetReal();
 
 			m_P.PAR_PS1 = parameters[c++].GetReal();
 			m_P.PAR_PS2 = parameters[c++].GetReal();
 			m_P.PAR_PS3 = parameters[c++].GetReal();
 			m_P.PAR_SLA = parameters[c++].GetReal();
-			m_P.m_version = HBB::TVersion(parameters[c++].GetInt());
+			HBB::TVersion version = HBB::TVersion(parameters[c++].GetInt());
+			
 
 			std::array<double, NB_SDI_PARAMS> SDI;
 			for (size_t i = 0; i < NB_SDI_PARAMS; i++)
@@ -135,13 +130,14 @@ namespace WBSF
 
 			m_P.SDI_mu = SDI[μ];
 			m_P.SDI_sigma = SDI[ѕ];
-			m_P.G_v2 = SDI[ʎb];
-			m_P.C_min = SDI[Τᴴ¹];
-			m_P.C_max = SDI[Τᴴ²];
+			//m_P.G_v2 = SDI[ʎb];
+			//m_P.C_min = SDI[Τᴴ¹];
+			//m_P.C_max = SDI[Τᴴ²];
 			m_P.PAR_minT = SDI[ʎ0];
 			m_P.PAR_optT = SDI[ʎ1];
 			m_P.PAR_maxT = SDI[ʎ2];
-			m_P.m_nbSteps = SDI[ʎ3];
+			//m_P.
+				m_nbSteps = SDI[ʎ3];
 			
 			m_bUseDefoliation = SDI[ʎa] != 0;
 
@@ -155,6 +151,13 @@ namespace WBSF
 			//m_P.FD_kk1 = m_SDI[9];
 
 
+			if (version == HBB::V_ORIGINAL)
+			{
+				m_P = HBB::PARAMETERS[HBB::V_ORIGINAL][m_species];
+				m_P.SDI_mu = SDI[μ];
+				m_P.SDI_sigma = SDI[ѕ];
+			}
+
 			ASSERT(m_species < HBB::PARAMETERS[0].size());
 
 
@@ -166,7 +169,8 @@ namespace WBSF
 		}
 
 
-		m_SDI_type = parameters[c++].GetInt();
+		//m_SDI_type = parameters[c++].GetInt();// no longer support Dhont.
+		m_SDI_type = SDI_AUGER;
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
 		//ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
 
@@ -187,9 +191,9 @@ namespace WBSF
 
 		
 		m_model.m_species = m_species;
-		/*for (size_t y = 0; y < m_weather.size(); y++)
+		for (size_t y = 0; y < m_weather.size(); y++)
 		{
-			static const double DEFOL[5][11] =
+			static const double DEFOL[5][10] =
 			{
 				{ 0,0,0,0,0,0,96.7,98.3,98.3,98.3 },
 				{0},
@@ -198,18 +202,18 @@ namespace WBSF
 				{0},
 			};
 
-			model.m_defioliation[m_weather[y].GetTRef().GetYear()] = DEFOL[m_species][y]/100.0;
+			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = DEFOL[m_species][y]/100.0;
 
-		}*/
+		}
 
-		for (size_t y = 0; y < m_weather.size(); y++)
-			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()-1] = m_defoliation;
+		//for (size_t y = 0; y < m_weather.size(); y++)
+			//m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = m_defoliation;
 
 
 
 		bool bModelEx = m_info.m_modelName.find("Ex") != string::npos;
 
-
+		m_model.m_nbSteps = m_nbSteps;
 		m_model.m_P = m_P;
 		//model.m_SDI = m_SDI;
 		m_model.m_SDI_type = (TSDI)m_SDI_type;
@@ -486,8 +490,8 @@ namespace WBSF
 			//ASSERT(m_defioliation_by_year.size()== m_data_weather.size());
 			
 			m_model.m_species = m_species;
-			if(m_bUseDefoliation)
-				m_model.m_defioliation = m_defioliation_by_year;
+			//if(m_bUseDefoliation)
+				//m_model.m_defioliation = m_defioliation_by_year;
 			//for (size_t y = 0; y < m_data_weather.size(); y++)
 			//{
 				//model.m_defioliation[m_data_weather[y].GetTRef().GetYear()] = m_defoliation;
@@ -499,7 +503,7 @@ namespace WBSF
 			m_model.m_SDI_type = (TSDI)m_SDI_type;
 
 			CModelStatVector output;
-			m_model.Execute(m_data_weather, output);
+			m_model.Execute(m_data_weather, output, false);
 
 			//if (m_SAResult.front().m_obs.size() != 2)
 			//{
@@ -558,7 +562,7 @@ namespace WBSF
 						if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < last_day && output[m_SAResult[i].m_ref][O_SDI] > -999)
 						{
 
-							double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
+							//double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
 							double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
 							double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
 

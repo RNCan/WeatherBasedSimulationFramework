@@ -85,7 +85,7 @@ namespace WBSF
 
 
 	static const double MIN_SDI = 0;
-	static const double MAX_SDI = 6;
+	static const double MAX_SDI = 5;
 
 
 	CBudBurstChuineModel::CBudBurstChuineModel()
@@ -337,7 +337,7 @@ namespace WBSF
 							//double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
 							//double SDI_Auger = min(5.0, max(0.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
 							//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
-							double SDI = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * 5;
+							double SDI = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;
 
 							output[TRef][O_CU] = CU;
 							output[TRef][O_FU] = FU;
