@@ -56,7 +56,7 @@ namespace WBSF
 		size_t GetMaxTime() const;
 	};
 
-
+	class CTobsSeries;
 	typedef std::vector<CDevRateDataRow> CDevRateDataRowVector;
 	class CDevRateData : public CDevRateDataRowVector
 	{
@@ -78,6 +78,8 @@ namespace WBSF
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsTime;
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsRate;
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsBrood;
+		std::map<std::string, CStatistic> m_statsRateByVariable;
+		std::map<std::string, CStatistic> m_statsTByVariable;
 		
 
 		bool m_bIndividual;
@@ -90,6 +92,7 @@ namespace WBSF
 		//void GetDefaultFSigmaBrood(const std::string& variable, double& Fo, double& sigma)const;
 		//double GetSigma(CComputationVariable& computation)const;
 		bool IsAllTConstant()const;
+		void compute_T_stats(const CTobsSeries& Tobs);
 		
 		static double ei(size_t n);
 		static double cv_2_sigma(double cv, size_t n);
@@ -112,11 +115,12 @@ namespace WBSF
 
 		ERMsg verify(const CDevRateData& data)const;
 		void generate(const CDevRateData& data);
+		void compute_stats();
 
 		bool have_var(DevRateInput::TTobsCol c)const { return get_pos(c) != NOT_INIT; }
 		size_t get_pos(DevRateInput::TTobsCol c)const;
 		std::vector< DevRateInput::TTobsCol> m_input_pos;
-
+		std::map<std::string, CStatistic> m_stat;
 		//bool IsAllFixed()const;
 	};
 
@@ -209,7 +213,7 @@ namespace WBSF
 		
 
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -239,6 +243,8 @@ namespace WBSF
 		std::array<double, 3> m_Tm;
 		bool m_bFixeF0;
 		std::array<double, 3> m_F0;
+		bool m_bLimitMaxRate;
+		std::array<double, 3> m_LimitMaxRateP;
 
 		bool m_bUseOutputAsInput;
 		std::string m_outputAsIntputFileName;
@@ -276,6 +282,8 @@ namespace WBSF
 
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void GetFValue(std::string s, size_t e, CComputationVariable& computation);
+		bool IsParamValid(CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P, const std::string& var);
+		bool IsRateValid(CDevRateEquation::TDevRateEquation model, const std::vector<double>& P, const std::string& var);
 
 		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);

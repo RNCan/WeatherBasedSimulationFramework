@@ -617,9 +617,14 @@
 #define IDC_FIT_TO_BY                   1311
 #define IDC_FIT_TM_BY                   1312
 #define IDC_OPTION_LAYER_PROPERTIES     1313
+#define IDC_FIT_LIMIT_MAX_RATE          1313
 #define IDC_PV_P_RANGE                  1315
 #define IDC_PV_FROM_MODEL_INPUT         1316
+#define IDC_FIT_F0_BY2                  1316
 #define IDC_NB_SKIP_LOOP                1317
+#define IDC_FIT_LIMIT_MAX_RATE_TMIN     1318
+#define IDC_FIT_LIMIT_MAX_RATE_TMAX     1319
+#define IDC_FIT_LIMIT_MAX_RATE_F        1320
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -985,7 +990,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1318
+#define _APS_NEXT_CONTROL_VALUE         1321
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

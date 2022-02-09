@@ -14,29 +14,7 @@
 
 #pragma warning( disable : 4251)
 
-//
-//namespace Core
-//{
-//	class DLL_EXPORT Entity
-//	{
-//	public:
-//		const char* m_Name;
-//
-//
-//		Entity(const char* name, float xPos, float yPos);
-//
-//		void Move(float deltaX, float deltaY);
-//		inline float GetXPosition() const { return m_XPos; };
-//		inline float GetYPosition() const { return m_YPos; };
-//
-//
-//
-//	private:
-//		float m_XPos, m_YPos;
-//	};
-//
-//
-//}
+
 
 
 namespace WBSF
@@ -70,7 +48,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TParam { MODELS_PATH, AZURE_DLL, SHORE, DEM, NB_PAPAMS };
+		enum TParam { MODELS_PATH, AZURE_DLL, SHORE, DEM, DAILY_CACHE_SIZE, NB_PAPAMS };
 		static const char* NAME[NB_PAPAMS];
 
 
@@ -84,6 +62,7 @@ namespace WBSF
 		std::string m_Azure_DLL_file_path;
 		std::string m_shore_file_path;
 		std::string m_DEM_file_path;
+		size_t m_daily_cache_size;
 
 	
 

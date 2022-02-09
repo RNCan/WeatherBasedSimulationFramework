@@ -115,7 +115,7 @@ namespace WBSF
 
 	//******************************************************************************************************************************
 	//
-	const char* CGlobalDLLData::NAME[NB_PAPAMS] = { "ModelsPath", "Azure", "Shore", "DEM" };
+	const char* CGlobalDLLData::NAME[NB_PAPAMS] = { "ModelsPath", "Azure", "Shore", "DEM", "DailyCacheSize"};
 
 
 
@@ -125,6 +125,7 @@ namespace WBSF
 		m_Azure_DLL_file_path.clear();
 		m_shore_file_path.clear();
 		m_DEM_file_path.clear();
+		m_daily_cache_size = 200;
 	}
 
 
@@ -156,6 +157,7 @@ namespace WBSF
 					case AZURE_DLL: m_Azure_DLL_file_path = value; break;
 					case SHORE: m_shore_file_path = value; break;
 					case DEM: m_DEM_file_path = value; break;
+					case DAILY_CACHE_SIZE: m_daily_cache_size = std::atoi(value.c_str()); break;
 					default: ASSERT(false);
 					}
 				}
@@ -232,9 +234,9 @@ namespace WBSF
 					}*/
 
 
+				
 				msg += CShore::SetShore(pGLOBAL_DLL_DATA->m_shore_file_path);
 
-				//}
 
 				if (!pGLOBAL_DLL_DATA->m_DEM_file_path.empty())
 				{
@@ -543,37 +545,7 @@ namespace WBSF
 					account = std::make_shared<storage_account>(m_init.m_account_name, cred, /* use_https */ true);
 				}
 
-				/*if (!m_init.m_shore_name.empty())
-				{
-
-					m_CS.Enter();
-					if (CShore::GetShore().get() == nullptr)
-					{
-						if (m_init.IsAzure())
-						{
-							blob_client client(account, 16);
-
-							std::stringstream azure_stream;
-							auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_shore_name, 0, 0, azure_stream).get();
-							if (ret.success())
-							{
-								CApproximateNearestNeighborPtr pShore = make_shared<CApproximateNearestNeighbor>();
-
-								*pShore << azure_stream;
-								CShore::SetShore(pShore);
-							}
-							else
-							{
-								msg.ajoute("Failed to download shore, error: " + ret.error().code + ", " + ret.error().code_name);
-							}
-						}
-						else
-						{
-							msg += CShore::SetShore(m_init.m_shore_name);
-						}
-					}
-					m_CS.Leave();
-				}*/
+	
 				if (!m_init.m_normal_name.empty())
 				{
 					m_pNormalDB.reset(new CNormalsDatabase);
@@ -643,7 +615,7 @@ namespace WBSF
 
 					if (!m_init.m_daily_name.empty())
 					{
-						m_pDailyDB.reset(new CDailyDatabase(200));
+						m_pDailyDB.reset(new CDailyDatabase(int(pGLOBAL_DLL_DATA->m_daily_cache_size)));
 
 
 						if (m_init.IsAzure())
@@ -707,10 +679,6 @@ namespace WBSF
 							}
 							else if (IsEqual(GetFileExtension(m_init.m_daily_name), ".gz"))
 							{
-
-								//m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
-								//m_pDailyDB->LoadAzureDLL();
-
 								msg += m_pDailyDB->LoadFromBinary(m_init.m_daily_name);
 								if (msg)
 									m_pDailyDB->CreateAllCanals();
@@ -721,19 +689,6 @@ namespace WBSF
 							}
 						}
 					}
-
-					/*if (!m_init.m_DEM_name.empty())
-					{
-						if (m_init.IsAzure())
-						{
-							blob_client client(account, 16);
-						}
-						else
-						{
-							m_pDEM.reset(new CGDALDatasetEx);
-							msg += m_pDEM->OpenInputImage(m_init.m_DEM_name);
-						}
-					}*/
 				}
 
 				if (msg)

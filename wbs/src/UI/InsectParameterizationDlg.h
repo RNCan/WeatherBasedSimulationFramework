@@ -57,6 +57,9 @@ namespace WBSF
 		std::array < CCFLEdit, 3>m_TmCtrl;
 		CButton			m_fixeF0Ctrl;
 		std::array<CCFLEdit, 3>		m_F0Ctrl;
+		CButton			m_limitMaxRateCtrl;
+		std::array<CCFLEdit, 3>		m_LimitMaxRatePCtrl;
+		
 
 		CButton			m_useOutputAsInputCtrl;
 		CCFLComboBox	m_outputAsInputCtrl;

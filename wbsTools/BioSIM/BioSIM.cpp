@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.8.5:19/01/2022	Rémi Saint-Amant	Change in survival equation, add Boatman_2017
+// 11.8.6:02/02/2022	Rémi Saint-Amant	Add LimitMaxRate, add Boatman_2017, Change in default Tb and Tmax range.
+// 11.8.5:19/01/2022	Rémi Saint-Amant	Change in survival equation
 // 11.8.5:08/01/2022	Rémi Saint-Amant	Bug correction in Regniere 1982 and Regniere 1987 equation to avoid developeemnt under Tb.
 // 11.8.4:19/12/2021	Rémi Saint-Amant	Add set variation from model input 
 //											Add second reduction factor in SA and avoid observation reduction

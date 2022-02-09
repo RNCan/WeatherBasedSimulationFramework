@@ -107,7 +107,7 @@ namespace BioSIM_Wrapper
 		IO_in.m_data.resize(input->data->Length);
 		for (size_t i = 0; i < input->data->Length; ++i)
 			IO_in.m_data[i] = input->data[int(i)];
-
+		
 
 		WBSF::CTeleIO IO_out = m_Instance->Execute(string_to_stdstring(str_options), IO_in);
 

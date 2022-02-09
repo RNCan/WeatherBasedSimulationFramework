@@ -460,11 +460,11 @@ namespace WBSF
 		computation.Initialize(m_ctrl.T(), m_ctrl.NEPS(), m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
 		msg += GetFValue(computation.m_XP, computation.m_FP, computation.m_SP, callback);
-		computation.m_initial_nb_values = computation.m_SP[NB_VALUE];
+		/*computation.m_initial_nb_values = computation.m_SP[NB_VALUE];
 		if (computation.m_initial_nb_values == 0)
 		{
 			msg.ajoute("Bad initial parameters. Set initial parameters that give valid solution.");
-		}
+		}*/
 
 		computation.m_NFCNEV++;
 
@@ -1373,6 +1373,7 @@ namespace WBSF
 							size_t x = 0;
 							do
 							{
+								x++;
 								//  Generate XP, the trial value of X. Note use of VM to choose XP.
 								for (int I = 0; I < m_tmp.m_X.size(); I++)
 								{
@@ -1393,7 +1394,7 @@ namespace WBSF
 
 								//  Evaluate the function with the trial point XP and return as FP.
 								msg += GetFValue(m_tmp.m_XP, m_tmp.m_FP, m_tmp.m_SP, callback);
-							} while (x<10 && m_tmp.m_SP[NB_VALUE] < size_t (ceil(4.0*m_tmp.m_initial_nb_values/5.0)) );//if no stat or too much elimination of observation (bad parameters), find new parameters
+							} while (x<10 && m_tmp.m_SP[NB_VALUE] == 0/*< size_t (ceil(4.0*m_tmp.m_initial_nb_values/5.0))*/ );//if no stat or too much elimination of observation (bad parameters), find new parameters
 
 							//add X value to extreme XP statistic
 							for (int i = 0; i < m_tmp.m_XP.size() && i < (int)m_tmp.m_XPstat.size(); i++)
@@ -1450,7 +1451,7 @@ namespace WBSF
 							{
 								NREJ = NREJ + 1;
 								//Eliminate this evaluation??
-								H--;
+								//H--;
 							}
 
 							m_tmp.m_NFCNEV++;
