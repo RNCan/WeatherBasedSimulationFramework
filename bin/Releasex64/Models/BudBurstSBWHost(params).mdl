@@ -727,16 +727,16 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>S_conc</Name>
-            <Title>S_conc</Title>
+            <Name>cS</Name>
+            <Title>cS</Title>
             <Units>mg/g DW</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>St_conc</Name>
-            <Title>St_conc</Title>
+            <Name>cSt</Name>
+            <Title>cSt</Title>
             <Units>mm/g DW</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -809,14 +809,6 @@
         <OutputVariable>
             <Name>S5</Name>
             <Title>S5</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>S6</Name>
-            <Title>S6</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

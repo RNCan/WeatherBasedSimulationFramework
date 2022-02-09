@@ -118,7 +118,7 @@
             <Rect>155 25 180 175</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>45</DefaultValue>
-            <MinValue>7</MinValue>
+            <MinValue>1</MinValue>
             <MaxValue>35</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -166,7 +166,7 @@
             <Rect>185 25 205 175</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>7</DefaultValue>
-            <MinValue>7</MinValue>
+            <MinValue>1</MinValue>
             <MaxValue>35</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -226,7 +226,7 @@
             <Rect>275 20 295 165</Rect>
             <SeparatorPos>95</SeparatorPos>
             <DefaultValue>45</DefaultValue>
-            <MinValue>7</MinValue>
+            <MinValue>1</MinValue>
             <MaxValue>35</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -274,7 +274,7 @@
             <Rect>320 20 340 170</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>25</DefaultValue>
-            <MinValue>7</MinValue>
+            <MinValue>1</MinValue>
             <MaxValue>35</MaxValue>
             <TextValue/>
         </InputVariable>

@@ -67,42 +67,98 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>S_conc</Name>
-            <Title>S_conc</Title>
+            <Name>cS</Name>
+            <Title>cS</Title>
             <Units>mg/g DW</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>St_conc</Name>
-            <Title>St_conc</Title>
+            <Name>cSt</Name>
+            <Title>cSt</Title>
             <Units>mm/g DW</Units>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Mdw</Name>
-            <Title>Mdw</Title>
+            <Name>M</Name>
+            <Title>M</Title>
             <Units>g</Units>
             <Description>Meristem dry weight</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>STEMdw</Name>
-            <Title>STEMdw</Title>
+            <Name>MB</Name>
+            <Title>MB</Title>
             <Units>g</Units>
-            <Description>Mdw+Bdw</Description>
+            <Description>Branch dry weight (including Meristem)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Ndw</Name>
-            <Title>Ndw</Title>
+            <Name>N</Name>
+            <Title>N</Title>
             <Units>g</Units>
             <Description>Needles dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S0</Name>
+            <Title>S0</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S1</Name>
+            <Title>S1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S2</Name>
+            <Title>S2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S3</Name>
+            <Title>S3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S4</Name>
+            <Title>S4</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S5</Name>
+            <Title>S5</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -119,22 +175,6 @@
             <Title>I</Title>
             <Units/>
             <Description>Inhibitors</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Budburst</Name>
-            <Title>Budburst</Title>
-            <Units>%</Units>
-            <Description>Budburst progression</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>SDI</Name>
-            <Title>SDI</Title>
-            <Units/>
-            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -332,6 +372,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit></Credit>
+    <Credit/>
     <HelpFileName/>
 </Model>
