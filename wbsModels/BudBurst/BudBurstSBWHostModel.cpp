@@ -49,7 +49,7 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 		VERSION = "1.0.2 (2022)";
 		m_SDI_type = SDI_AUGER;
-		m_nbSteps = 10;
+		m_nbSteps = 1;
 	}
 
 	CSBWHostBudBurstModel::~CSBWHostBudBurstModel()
@@ -151,12 +151,12 @@ namespace WBSF
 			//m_P.FD_kk1 = m_SDI[9];
 
 
-			if (version == HBB::V_ORIGINAL)
-			{
-				m_P = HBB::PARAMETERS[HBB::V_ORIGINAL][m_species];
-				m_P.SDI_mu = SDI[μ];
-				m_P.SDI_sigma = SDI[ѕ];
-			}
+			//if (version == HBB::V_ORIGINAL)
+			//{
+			//	m_P = HBB::PARAMETERS[HBB::V_ORIGINAL][m_species];
+			//	m_P.SDI_mu = SDI[μ];
+			//	m_P.SDI_sigma = SDI[ѕ];
+			//}
 
 			ASSERT(m_species < HBB::PARAMETERS[0].size());
 
@@ -166,7 +166,12 @@ namespace WBSF
 		{
 			HBB::TVersion version = HBB::TVersion(parameters[c++].GetInt());
 			m_P = HBB::PARAMETERS[version][m_species];
+
+			if (version == HBB::V_ORIGINAL)
+				m_nbSteps = 10;
 		}
+
+		
 
 
 		//m_SDI_type = parameters[c++].GetInt();// no longer support Dhont.
@@ -190,24 +195,23 @@ namespace WBSF
 
 
 		
-		m_model.m_species = m_species;
-		for (size_t y = 0; y < m_weather.size(); y++)
-		{
-			static const double DEFOL[5][10] =
-			{
-				{ 0,0,0,0,0,0,96.7,98.3,98.3,98.3 },
-				{0},
-				{0, 0, 0, 0, 0, 0, 8.3, 71.7, 71.7, 71.7},
-				{0},
-				{0},
-			};
-
-			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = DEFOL[m_species][y]/100.0;
-
-		}
-
+		//m_model.m_species = m_species;
 		//for (size_t y = 0; y < m_weather.size(); y++)
-			//m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = m_defoliation;
+		//{
+		//	static const double DEFOL[4][10] =
+		//	{
+		//		{ 0,0,0,0,0,0,96.7,98.3,98.3,98.3 },
+		//		{0},
+		//		{0, 0, 0, 0, 0, 0, 8.3, 71.7, 71.7, 71.7},
+		//		{0},
+		//	};
+		//
+		//	m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = DEFOL[m_species][y]/100.0;
+		//
+		//}
+
+		for (size_t y = 0; y < m_weather.size(); y++)
+			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = m_defoliation;
 
 
 
@@ -533,7 +537,7 @@ namespace WBSF
 			size_t last_day = 213;
 			//if (m_P.m_version == HBB::FABRIZIO_MODEL_NEW)
 				//last_day = 243;
-
+			 
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
