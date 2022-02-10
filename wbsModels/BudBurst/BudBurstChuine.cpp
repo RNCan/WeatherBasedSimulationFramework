@@ -415,6 +415,12 @@ namespace WBSF
 					return;
 			}
 
+			if (TRFunction(m_P[R_FUNCTION]) == RICHARDSON)
+			{
+				if (m_P[CU_Tlow] > m_P[CU_Thigh])
+					return;
+			}
+
 			if (!m_SDI_DOY_stat.IsInit())
 			{
 				const CSimulatedAnnealingVector& all_results = GetSimulatedAnnealingVector();
