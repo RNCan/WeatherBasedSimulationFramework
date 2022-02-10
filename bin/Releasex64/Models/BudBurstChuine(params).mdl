@@ -275,7 +275,7 @@
             <SeparatorPos>90</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>35</MaxValue>
+            <MaxValue>15</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -347,7 +347,7 @@
             <SeparatorPos>80</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>35</MaxValue>
+            <MaxValue>7</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>

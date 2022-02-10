@@ -240,7 +240,7 @@ namespace WBSF
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
 
-		size_t p_CU = size_t(m_P[CU_DAYS]);
+		size_t p_CU = size_t(m_P[FU_DAYS])* size_t(m_P[CU_DAYS]);
 		size_t p_FU = size_t(m_P[FU_DAYS]);
 		if (mean_T_day.empty() || p_CU != m_CU_DAY_last || p_FU != m_FU_DAY_last)
 		{
@@ -420,6 +420,10 @@ namespace WBSF
 				if (m_P[CU_Tlow] > m_P[CU_Thigh])
 					return;
 			}
+			
+			if (size_t(m_P[FU_DAYS]) * size_t(m_P[CU_DAYS]) > 45)
+				return;
+			
 
 			if (!m_SDI_DOY_stat.IsInit())
 			{
