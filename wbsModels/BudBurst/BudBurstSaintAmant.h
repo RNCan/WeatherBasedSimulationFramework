@@ -56,6 +56,21 @@ namespace WBSF
 		NB_PARAMS
 	};
 
+	class CMeanTInput
+	{
+	public:
+
+		std::array<double, 3> T_S_in;
+		std::array<double, 3> T_S_out;
+		std::array<double, 3> T_St_in;
+		std::array<double, 3> T_St_out;
+		std::array<double, 3> T_CU;
+		std::array<double, 3> T_FU;
+
+
+	};
+
+
 
 	class CBudBurstSaintAmantModel : public CBioSIMModelBase
 	{
@@ -97,7 +112,9 @@ namespace WBSF
 		size_t m_last_p_S_out;
 		size_t m_last_p_St_in;
 		size_t m_last_p_St_out;
-
+		size_t m_last_p_CU;
+		size_t m_last_p_FU;
+		std::deque<CMeanTInput> m_Tmean;
 
 
 		double ChillingResponce(double T)const;

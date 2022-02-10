@@ -24,6 +24,8 @@ namespace WBSF
 	static const bool USE_STARCH = true;
 	static const bool USE_SUGAR = true;
 
+	size_t CU_STAT = H_TAIR;
+	size_t FU_STAT = H_TAIR;
 	size_t S_IN_STAT = H_TMIN;
 	size_t S_OUT_STAT = H_TMAX;
 	size_t ST_IN_STAT = H_TMIN;
@@ -175,17 +177,6 @@ namespace WBSF
 	}
 
 
-	class CMeanTInput
-	{
-	public:
-
-		array<double, 3> T_S_in_days;
-		array<double, 3> T_S_out_days;
-		array<double, 3> T_St_in_days;
-		array<double, 3> T_St_out_days;
-
-	};
-
 	double CBudBurstSaintAmantModel::Weibull(size_t stage, double  SDI, const array < double, 2>& p, size_t first_stage, size_t last_stage)
 	{
 		//scale, shape
@@ -232,22 +223,27 @@ namespace WBSF
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
-		deque<CMeanTInput> input;
+		
 
 
 		size_t p_S_in = size_t(m_P[S_IN_DAYS]);
 		size_t p_S_out = size_t(m_P[S_OUT_DAYS]);
 		size_t p_St_in = size_t(m_P[ST_IN_DAYS]);
 		size_t p_St_out = size_t(m_P[ST_OUT_DAYS]);
+		size_t p_CU = 14;
+		size_t p_FU = 5;
 
-		if (input.empty() || m_last_p_S_in != p_S_in || m_last_p_S_out != p_S_out || m_last_p_St_in != p_St_in || m_last_p_St_out != p_St_out)
+		if (m_Tmean.empty() || m_last_p_S_in != p_S_in || m_last_p_S_out != p_S_out || m_last_p_St_in != p_St_in || m_last_p_St_out != p_St_out)
 		{
 			m_last_p_S_in = p_S_in;
 			m_last_p_S_out = p_S_out;
 			m_last_p_St_in = p_St_in;
 			m_last_p_St_out = p_St_out;
+			m_last_p_CU = p_CU;
+			m_last_p_FU = p_FU;
+			
 
-			input.resize(pp.GetNbDay());
+			m_Tmean.resize(pp.GetNbDay());
 
 			for (size_t y = 0, dd = 0; y < weather.GetNbYears(); y++)
 			{
@@ -259,6 +255,8 @@ namespace WBSF
 						array<CStatistic, 3> T_S_out_Days_stat;
 						array<CStatistic, 3> T_St_in_Days_stat;
 						array<CStatistic, 3> T_St_out_Days_stat;
+						array<CStatistic, 3> T_CU_days;
+						array<CStatistic, 3> T_FU_days;
 
 						CTRef TRef = weather[y][m][d].GetTRef();
 
@@ -270,45 +268,57 @@ namespace WBSF
 							if (i < p_S_in)
 							{
 								T_S_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMIN];
-								T_S_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_in))[H_TAIR];
+								T_S_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_in))[H_TNTX];
 								T_S_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_in))[H_TMAX];
 							}
 							if (i < p_S_out)
 							{
 								T_S_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMIN];
-								T_S_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_out))[H_TAIR];
+								T_S_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_S_out))[H_TNTX];
 								T_S_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_S_out))[H_TMAX];
 							}
 
 							if (i < p_St_in)
 							{
 								T_St_in_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMIN];
-								T_St_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_in))[H_TAIR];
+								T_St_in_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_in))[H_TNTX];
 								T_St_in_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_in))[H_TMAX];
 							}
 							if (i < p_St_out)
 							{
 								T_St_out_Days_stat[0] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMIN];
-								T_St_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TAIR];
+								T_St_out_Days_stat[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TNTX];
 								T_St_out_Days_stat[2] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMAX];
 							}
 
+							if (i < p_CU)
+							{
+								T_CU_days[0] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMIN];
+								T_CU_days[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TNTX];
+								T_CU_days[2] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMAX];
+							}
+
+							if (i < p_FU)
+							{
+								T_FU_days[0] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMIN];
+								T_FU_days[1] += weather.GetDay(TRef - min(dd, p_St_out))[H_TNTX];
+								T_FU_days[2] += weather.GetDay(TRef - min(dd, p_St_out))[H_TMAX];
+							}
 
 						}
 
 						for (size_t i = 0; i < 3; i++)
 						{
-							input[dd].T_S_in_days[i] = T_S_in_Days_stat[i][MEAN];
-							input[dd].T_S_out_days[i] = T_S_out_Days_stat[i][MEAN];
-							input[dd].T_St_in_days[i] = T_St_in_Days_stat[i][MEAN];
-							input[dd].T_St_out_days[i] = T_St_out_Days_stat[i][MEAN];
+							m_Tmean[dd].T_S_in[i] = T_S_in_Days_stat[i][MEAN];
+							m_Tmean[dd].T_S_out[i] = T_S_out_Days_stat[i][MEAN];
+							m_Tmean[dd].T_St_in[i] = T_St_in_Days_stat[i][MEAN];
+							m_Tmean[dd].T_St_out[i] = T_St_out_Days_stat[i][MEAN];
+							m_Tmean[dd].T_CU[i] = T_CU_days[i][MEAN];
+							m_Tmean[dd].T_FU[i] = T_FU_days[i][MEAN];
 						}
-
-
 					}
 				}
 			}
-
 		}
 
 
@@ -343,20 +353,25 @@ namespace WBSF
 
 						if (yyy == 1 || TRef.GetJDay() >= (m_P[To] - 1))
 						{
-							double T_S_in_days = input[TRef - pp.Begin()].T_S_in_days[S_IN_STAT];
-							double T_S_out_days = input[TRef - pp.Begin()].T_S_out_days[S_OUT_STAT];
-							double T_St_in_days = input[TRef - pp.Begin()].T_St_in_days[ST_IN_STAT];
-							double T_St_out_days = input[TRef - pp.Begin()].T_St_out_days[ST_OUT_STAT];
-							double T = weather[y][m][d][H_TNTX][MEAN];
+							double T_S_in_days = m_Tmean[TRef - pp.Begin()].T_S_in[S_IN_STAT];
+							double T_S_out_days = m_Tmean[TRef - pp.Begin()].T_S_out[S_OUT_STAT];
+							double T_St_in_days = m_Tmean[TRef - pp.Begin()].T_St_in[ST_IN_STAT];
+							double T_St_out_days = m_Tmean[TRef - pp.Begin()].T_St_out[ST_OUT_STAT];
+							
+							double T_CU = m_Tmean[TRef - pp.Begin()].T_CU[CU_STAT];
+							double T_FU = m_Tmean[TRef - pp.Begin()].T_FU[FU_STAT];
+							//double T = weather[y][m][d][H_TNTX][MEAN];
+							//double T_FU =weather[y][m][d][H_TNTX][MEAN];
+							//double T_CU =weather[y][m][d][H_TNTX][MEAN];
 
 							if (CU < m_P[CU_crit])
 							{
-								CU += ChillingResponce(T);
+								CU += ChillingResponce(T_CU);
 								CU = min(CU, m_P[CU_crit]);
 							}
 							else
 							{
-								FU += ForcingResponce(T);
+								FU += ForcingResponce(T_FU);
 								FU = min(FU, m_P[FU_crit]);
 							}
 

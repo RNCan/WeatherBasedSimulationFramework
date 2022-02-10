@@ -3,7 +3,8 @@
 //*********************************************************************
 #include "BudBurstChuine.h"
 #include "ModelBase/EntryPoint.h"
-#include "Basic\DegreeDays.h"
+#include "ModelBase/SimulatedAnnealingVector.h"
+#include "Basic/DegreeDays.h"
 #include <boost/math/distributions/weibull.hpp>
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/Rayleigh.hpp>
@@ -380,12 +381,9 @@ namespace WBSF
 				obs.m_obs[0] = stod(data[I_SDI2]);
 				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
 
-				if (obs.m_obs[2] > -999)
+				if (obs.m_obs[0] > -999)
 				{
 					m_years.insert(obs.m_ref.GetYear());
-
-					if (obs.m_obs[0] >= MIN_SDI_DOY && obs.m_obs[0] <= MAX_SDI_DOY)
-						m_SDI_DOY_stat += obs.m_ref.GetJDay();
 				}
 
 				m_SAResult.push_back(obs);
@@ -397,7 +395,7 @@ namespace WBSF
 	{
 		CTPeriod p(result.m_ref.GetYear(), JANUARY, DAY_01, result.m_ref.GetYear(), DECEMBER, DAY_31);
 		int pos = output.GetFirstIndex(O_SDI, ">", result.m_obs[0], 0, p);
-		return pos >= 0 ? output.GetFirstTRef() + pos : -999;
+		return pos >= 0 ? (output.GetFirstTRef() + pos).GetJDay() : -999;
 	}
 
 
@@ -417,13 +415,30 @@ namespace WBSF
 					return;
 			}
 
+			if (!m_SDI_DOY_stat.IsInit())
+			{
+				const CSimulatedAnnealingVector& all_results = GetSimulatedAnnealingVector();
+
+				for (auto it = all_results.begin(); it != all_results.end(); it++)
+				{
+					const CSAResultVector& results = (*it)->GetSAResult();
+					for (auto iit = results.begin(); iit != results.end(); iit++)
+					{
+						if (iit->m_obs[0] >= MIN_SDI_DOY && iit->m_obs[0] <= MAX_SDI_DOY)
+							m_SDI_DOY_stat += iit->m_ref.GetJDay();
+					}
+				}
+
+				
+			}
+
 
 			if (data_weather.GetNbYears() == 0)
 			{
 				CTPeriod pp((*m_years.begin()) - 1, JANUARY, DAY_01, *m_years.rbegin(), DECEMBER, DAY_31);
 				pp.Transform(m_weather.GetEntireTPeriod());
 				pp = pp.Intersect(m_weather.GetEntireTPeriod());
-				if (pp.IsInit())
+				if (pp.IsInit()) 
 				{
 					((CLocation&)data_weather) = m_weather;
 					data_weather.SetHourly(m_weather.IsHourly());
@@ -458,9 +473,9 @@ namespace WBSF
 				{
 					if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
-						double obs_SDI = m_SAResult[i].m_obs[0] / 5;
-						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI] / 5;
-						stat.Add(obs_SDI, sim_SDI);
+						double obs_SDI = m_SAResult[i].m_obs[0];
+						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI];
+						stat.Add(obs_SDI/MAX_SDI, sim_SDI / MAX_SDI);
 
 						if (obs_SDI >= MIN_SDI_DOY && obs_SDI <= MAX_SDI_DOY)
 						{
