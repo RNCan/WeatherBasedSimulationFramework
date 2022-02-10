@@ -115,7 +115,7 @@ namespace WBSF
 		size_t m_last_p_CU;
 		size_t m_last_p_FU;
 		std::deque<CMeanTInput> m_Tmean;
-
+		CStatistic m_SDI_DOY_stat;
 
 		double ChillingResponce(double T)const;
 		double ForcingResponce(double T)const;

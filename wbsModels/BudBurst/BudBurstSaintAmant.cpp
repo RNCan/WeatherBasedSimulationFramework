@@ -3,7 +3,8 @@
 //*********************************************************************
 #include "BudBurstSaintAmant.h"
 #include "ModelBase/EntryPoint.h"
-#include "Basic\DegreeDays.h"
+#include "ModelBase/SimulatedAnnealingVector.h"
+#include "Basic/DegreeDays.h"
 #include <boost/math/distributions/weibull.hpp>
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/Rayleigh.hpp>
@@ -23,13 +24,15 @@ namespace WBSF
 	static const bool USE_SDI = true;
 	static const bool USE_STARCH = true;
 	static const bool USE_SUGAR = true;
+	static const double MIN_SDI_DOY = 0.25;
+	static const double MAX_SDI_DOY = 4.75;
 
-	size_t CU_STAT = H_TAIR;
-	size_t FU_STAT = H_TAIR;
-	size_t S_IN_STAT = H_TMIN;
-	size_t S_OUT_STAT = H_TMAX;
-	size_t ST_IN_STAT = H_TMIN;
-	size_t ST_OUT_STAT = H_TMAX;
+	static const size_t CU_STAT = H_TAIR;
+	static const size_t FU_STAT = H_TAIR;
+	static const size_t S_IN_STAT = H_TMIN;
+	static const size_t S_OUT_STAT = H_TMAX;
+	static const size_t ST_IN_STAT = H_TMIN;
+	static const size_t ST_OUT_STAT = H_TMAX;
 
 
 	//this line link this model with the EntryPoint of the DLL
@@ -62,7 +65,7 @@ namespace WBSF
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.0 (2021)";
+		VERSION = "1.0.2 (2022)";
 		m_P = { 244,3.1,26.7,2298.8,0.244,13.46,21.5,8.00,7.69,0.0997,0.0888,0.0795,19.71,2.59,-217.3,-257.6,0.650,10,3.77,0.0464,-0.0633,0.856,2.64,-165.5,0.924,0.693 };
 
 		m_last_p_S_in = -1;
@@ -112,7 +115,7 @@ namespace WBSF
 
 	double CBudBurstSaintAmantModel::ChillingResponce(double T)const
 	{
-		double R =  1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ]));
+		double R =  1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); 
 		//switch (RICHARDSON)
 		//{
 		//c//ase SIGMOID: 	R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); 		// break;
@@ -229,8 +232,8 @@ namespace WBSF
 		size_t p_S_out = size_t(m_P[S_OUT_DAYS]);
 		size_t p_St_in = size_t(m_P[ST_IN_DAYS]);
 		size_t p_St_out = size_t(m_P[ST_OUT_DAYS]);
-		size_t p_CU = 14;
-		size_t p_FU = 5;
+		size_t p_CU = 1;
+		size_t p_FU = 1;
 
 		if (m_Tmean.empty() || m_last_p_S_in != p_S_in || m_last_p_S_out != p_S_out || m_last_p_St_in != p_St_in || m_last_p_St_out != p_St_out)
 		{
@@ -562,6 +565,13 @@ namespace WBSF
 	}
 
 
+	double GetSimDOY(const CModelStatVector& output, const CSAResult& result)
+	{
+		CTPeriod p(result.m_ref.GetYear(), JANUARY, DAY_01, result.m_ref.GetYear(), DECEMBER, DAY_31);
+		int pos = output.GetFirstIndex(O_SDI, ">", result.m_obs[0], 0, p);
+		return pos >= 0 ? (output.GetFirstTRef() + pos).GetJDay() : -999;
+	}
+
 
 	void CBudBurstSaintAmantModel::GetFValueDaily(CStatisticXY& stat)
 	{
@@ -577,6 +587,20 @@ namespace WBSF
 				return;
 
 			
+			if (!m_SDI_DOY_stat.IsInit())
+			{
+				const CSimulatedAnnealingVector& all_results = GetSimulatedAnnealingVector();
+
+				for (auto it = all_results.begin(); it != all_results.end(); it++)
+				{
+					const CSAResultVector& results = (*it)->GetSAResult();
+					for (auto iit = results.begin(); iit != results.end(); iit++)
+					{
+						if (iit->m_obs[0] >= MIN_SDI_DOY && iit->m_obs[0] <= MAX_SDI_DOY)
+							m_SDI_DOY_stat += iit->m_ref.GetJDay();
+					}
+				}
+			}
 
 			if (data_weather.GetNbYears() == 0)
 			{
@@ -626,10 +650,27 @@ namespace WBSF
 					
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 213 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
-						//double maxSDI = m_SDI_type == SDI_DHONT ? 6 : 5;
-						double obs_SDI = m_SAResult[i].m_obs[0]/5;//(m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI]/5;//(output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-						stat.Add(obs_SDI, sim_SDI);
+						
+						double obs_SDI = m_SAResult[i].m_obs[0];
+						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI];
+						stat.Add(obs_SDI / 5, sim_SDI / 5);
+
+						if (obs_SDI >= MIN_SDI_DOY && obs_SDI <= MAX_SDI_DOY)
+						{
+							double DOY = GetSimDOY(output, m_SAResult[i]);
+							if (DOY > -999)
+							{
+								double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								stat.Add(obs_DOY, sim_DOY);
+							}
+							else
+							{
+								stat.clear();
+								return;//reject this solution
+							}
+						}
+
 					}
 
 					if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 && output[m_SAResult[i].m_ref][O_ST_CONC] > -999)

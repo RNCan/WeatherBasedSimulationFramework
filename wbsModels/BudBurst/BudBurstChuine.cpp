@@ -18,11 +18,12 @@ using namespace WBSF::HOURLY_DATA;
 namespace WBSF
 {
 
-
-
-
-	size_t CU_STAT = H_TAIR;
-	size_t FU_STAT = H_TAIR;
+	static const double MIN_SDI = 0;
+	static const double MAX_SDI = 5;
+	static const double MIN_SDI_DOY = 0.25;
+	static const double MAX_SDI_DOY = 4.75;
+	static const size_t CU_STAT = H_TAIR;
+	static const size_t FU_STAT = H_TAIR;
 
 
 	//this line link this model with the EntryPoint of the DLL
@@ -85,13 +86,7 @@ namespace WBSF
 
 
 
-	static const double MIN_SDI = 0;
-	static const double MAX_SDI = 5;
-
-
-	static const double MIN_SDI_DOY = 0.25;
-	static const double MAX_SDI_DOY = 4.75;
-
+	
 
 	CBudBurstChuineModel::CBudBurstChuineModel()
 	{
@@ -404,10 +399,7 @@ namespace WBSF
 
 		if (!m_SAResult.empty())
 		{
-			if ((m_P[CU_σ_PS] > -0.1 && m_P[CU_σ_PS] < 0.1) ||
-				(m_P[FU_σ_PS] > -0.1 && m_P[FU_σ_PS] < 0.1))
-				return;
-
+			
 			if (TRFunction(m_P[R_FUNCTION]) == UTAH)
 			{
 				if ((m_P[CU_T_MIN] > m_P[CU_T_OPT]) ||
