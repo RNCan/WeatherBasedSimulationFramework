@@ -40,26 +40,26 @@
         </InputVariable>
         <InputVariable>
             <Name>Tlow</Name>
-            <Caption>Tlow</Caption>
+            <Caption>Mu</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>45 170 65 340</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>-0.1</DefaultValue>
-            <MinValue>-50</MinValue>
-            <MaxValue>50</MaxValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>Thigh</Name>
-            <Caption>Thigh</Caption>
+            <Caption>Sigma</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>45 355 70 505</Rect>
             <SeparatorPos>65</SeparatorPos>
-            <DefaultValue>26.7</DefaultValue>
-            <MinValue>-50</MinValue>
-            <MaxValue>50</MaxValue>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>-0.001</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -94,8 +94,8 @@
             <Rect>80 15 100 165</Rect>
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>9</DefaultValue>
-            <MinValue>-100</MinValue>
-            <MaxValue>100</MaxValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -371,7 +371,7 @@
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>0.39</DefaultValue>
             <MinValue>0.0001</MinValue>
-            <MaxValue>20</MaxValue>
+            <MaxValue>2</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
