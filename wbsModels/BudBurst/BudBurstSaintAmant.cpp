@@ -112,15 +112,14 @@ namespace WBSF
 
 	double CBudBurstSaintAmantModel::ChillingResponce(double T)const
 	{
-		double R = 0;// 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ]));
-
+		double R =  1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ]));
 		//switch (RICHARDSON)
 		//{
-		//c//ase SIGMOID: R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); break;
+		//c//ase SIGMOID: 	R = 1 / (1 + exp(-(T - m_P[CU_µ]) / m_P[CU_σ])); 		// break;
 			//case CHUINE: R = 1 / (1 + exp(-((T - m_P[CU_µ]) / m_P[CU_σ¹] + Square(T - m_P[CU_µ]) / m_P[CU_σ²]))); break;
 		//case RICHARDSON: 
 			
-			R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); 
+			//R = max(0.0, min(m_P[CU_σ] - T, m_P[CU_σ] - m_P[CU_µ])); 
 			//break;
 			//case UTAH:
 			//{
