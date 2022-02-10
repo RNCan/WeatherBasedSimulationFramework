@@ -111,6 +111,7 @@ namespace WBSF
 
 
 		std::set<int> m_years;
+		CStatistic m_SDI_DOY_stat;
 		CWeatherStation data_weather;
 		std::deque<CTmeanInput> mean_T_day;
 	};

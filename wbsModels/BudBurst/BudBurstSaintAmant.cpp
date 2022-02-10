@@ -435,7 +435,7 @@ namespace WBSF
 
 
 
-	//enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
+	
 	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstSaintAmantModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{

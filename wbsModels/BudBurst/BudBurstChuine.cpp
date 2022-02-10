@@ -88,18 +88,22 @@ namespace WBSF
 	static const double MAX_SDI = 5;
 
 
+	static const double MIN_SDI_DOY = 0.25;
+	static const double MAX_SDI_DOY = 4.75;
+
+
 	CBudBurstChuineModel::CBudBurstChuineModel()
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.0 (2021)";
+		VERSION = "1.0.2 (2022)";
 
 		m_species = 0;
-		m_SDI_type = SDI_DHONT;
+		m_SDI_type = SDI_AUGER;
 
 		m_P = { CHUINE_SEQUENTIAL_METHOD, 244,3.1,26.7,2298.8,0.244,13.46,21.5,8.00,7.69,0.0997,0.0888,0.0795,19.71,2.59,-217.3,-257.6,0.650,10,3.77,0.0464,-0.0633,0.856,2.64 };
-		m_CU_DAY_last=-1;
-		m_FU_DAY_last=-1;
+		m_CU_DAY_last = -1;
+		m_FU_DAY_last = -1;
 
 	}
 
@@ -190,7 +194,7 @@ namespace WBSF
 		} };
 
 
-		
+
 
 		size_t first_stage = 0;
 		size_t last_stage = (SDI_type == SDI_AUGER) ? 5 : 6;
@@ -207,7 +211,7 @@ namespace WBSF
 
 
 
-		array<double, 6> Sx = { 1 - F1,F1 - F2,F2 - F3,F3 - F4, last_stage==5?F5:(F4 - F5), F6 };
+		array<double, 6> Sx = { 1 - F1,F1 - F2,F2 - F3,F3 - F4, last_stage == 5 ? F5 : (F4 - F5), F6 };
 		/*if (F == 0)
 		{
 			Sx = 1 - Weibull(1, SDI, P[SDI_type][0], first_stage, last_stage);
@@ -237,12 +241,12 @@ namespace WBSF
 
 		size_t p_CU = size_t(m_P[CU_DAYS]);
 		size_t p_FU = size_t(m_P[FU_DAYS]);
-		if (mean_T_day.empty() || p_CU != m_CU_DAY_last || p_FU != m_FU_DAY_last )
+		if (mean_T_day.empty() || p_CU != m_CU_DAY_last || p_FU != m_FU_DAY_last)
 		{
 			m_CU_DAY_last = p_CU;
 			m_FU_DAY_last = p_FU;
 
-			
+
 
 			mean_T_day.resize(pp.GetNbDay());
 
@@ -255,7 +259,7 @@ namespace WBSF
 						array<CStatistic, 3> T_CU_Days_stat;
 						array<CStatistic, 3> T_FU_Days_stat;
 
-						
+
 						size_t max_days = max(p_CU, p_FU);
 
 
@@ -361,58 +365,40 @@ namespace WBSF
 
 
 
-	enum { I_SPECIES1, I_SOURCE1, I_SITE1, I_DATE1, I_SDI1, I_N1, NB_INPUTS1 };
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEFOL2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
+
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstChuineModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs"};
-
-		if (data.size() == NB_INPUTS1)
+		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
+		if (data.size() == NB_INPUTS2)
 		{
-			if (data[I_SPECIES1] == SPECIES_NAME[m_species])
+			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
 			{
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE1]);
-				obs.m_obs[0] = stod(data[I_SDI1]);
-				obs.m_obs.push_back(stod(data[I_N1]));
+				obs.m_ref.FromFormatedString(data[I_DATE2]);
+				obs.m_obs[0] = stod(data[I_SDI2]);
+				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
 
-				if (obs.m_obs[0] > -999)
+				if (obs.m_obs[2] > -999)
 				{
 					m_years.insert(obs.m_ref.GetYear());
-				}
 
+					if (obs.m_obs[0] >= MIN_SDI_DOY && obs.m_obs[0] <= MAX_SDI_DOY)
+						m_SDI_DOY_stat += obs.m_ref.GetJDay();
+				}
 
 				m_SAResult.push_back(obs);
 			}
 		}
-		else if (data.size() == NB_INPUTS2)
-		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
-			{
-
-				CSAResult obs;
-
-				//if (m_P[Used_DEF] == 0 || stod(data[I_DEFOL2]) > -999)
-				{
-					obs.m_ref.FromFormatedString(data[I_DATE2]);
-					obs.m_obs[0] = stod(data[I_SDI2]);
-					obs.m_obs.push_back(stod(data[I_N2]));
-					obs.m_obs.push_back(stod(data[I_DEFOL2]));
-
-
-					if (obs.m_obs[0] > -999)
-					{
-						m_years.insert(obs.m_ref.GetYear());
-					}
-
-					m_SAResult.push_back(obs);
-				}
-			}
-		}
 	}
 
-
+	double GetSimDOY(const CModelStatVector& output, const CSAResult& result)
+	{
+		CTPeriod p(result.m_ref.GetYear(), JANUARY, DAY_01, result.m_ref.GetYear(), DECEMBER, DAY_31);
+		int pos = output.GetFirstIndex(O_SDI, ">", result.m_obs[0], 0, p);
+		return pos >= 0 ? output.GetFirstTRef() + pos : -999;
+	}
 
 
 	void CBudBurstChuineModel::GetFValueDaily(CStatisticXY& stat)
@@ -472,8 +458,28 @@ namespace WBSF
 				{
 					if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 					{
-						double obs_SDI = Round(m_SAResult[i].m_obs[0], 2);
-						double sim_SDI = Round(output[m_SAResult[i].m_ref][O_SDI], 2);
+						double obs_SDI = m_SAResult[i].m_obs[0] / 5;
+						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI] / 5;
+						stat.Add(obs_SDI, sim_SDI);
+
+						if (obs_SDI >= MIN_SDI_DOY && obs_SDI <= MAX_SDI_DOY)
+						{
+							double DOY = GetSimDOY(output, m_SAResult[i]);
+							if (DOY > -999)
+							{
+								double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								stat.Add(obs_DOY, sim_DOY);
+							}
+							else
+							{
+								stat.clear();
+								return;//reject this solution
+							}
+						}
+						
+
+
 
 
 						//if (output[CTRef(m_SAResult[i].m_ref.GetYear(), JULY, DAY_31)][O_SDI] < m_SDI_type == SDI_DHONT ? 6 : 5)
@@ -500,7 +506,7 @@ namespace WBSF
 
 
 						//for(size_t n=0; n< m_SAResult[i].m_obs[1]; n++)
-						stat.Add(obs_SDI, sim_SDI);
+
 					}
 				}
 			}//for all results

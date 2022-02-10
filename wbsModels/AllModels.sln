@@ -174,6 +174,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpruceBudwormLysyk", "Spruc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpruceBudwormEldon", "SpruceBudworm\SBW-Eldon-Model.vcxproj", "{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSaintAmant", "BudBurst\BudBurstSaint-Amant.vcxproj", "{1C150463-16A5-4BB8-955A-4C483CA49D67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -870,6 +872,14 @@ Global
 		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|Win32.Build.0 = Release|Win32
 		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|x64.ActiveCfg = Release|x64
 		{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}.Release|x64.Build.0 = Release|x64
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Debug|Win32.Build.0 = Debug|Win32
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Debug|x64.ActiveCfg = Debug|x64
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Debug|x64.Build.0 = Debug|x64
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|Win32.ActiveCfg = Release|Win32
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|Win32.Build.0 = Release|Win32
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.ActiveCfg = Release|x64
+		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
