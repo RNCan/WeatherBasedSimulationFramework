@@ -475,16 +475,16 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>S_conc</Name>
-            <Title>S_conc</Title>
+            <Name>cS</Name>
+            <Title>cS</Title>
             <Units>mg/gDM</Units>
             <Description>Sugar (Glucose+Fructode+Sucrose) concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>St_conc</Name>
-            <Title>St_conc</Title>
+            <Name>cSt</Name>
+            <Title>cSt</Title>
             <Units>mg/gDM</Units>
             <Description>Starch concentration</Description>
             <TimeMode>4 0</TimeMode>
