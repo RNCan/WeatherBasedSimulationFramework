@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "ModelBase/BioSIMModelBase.h"
+#include "ModelBase/SimulatedAnnealingVector.h"
 #include "Basic/ModelStat.h"
 #include "BudBurstSBWHost.h"
 
@@ -40,9 +41,9 @@ namespace WBSF
 		HBB::CParameters m_P;
 		bool m_bUseDefoliation;
 		std::map<int, double> m_defioliation_by_year;
-		//std::map<int, double> m_defoliation;
-		//static const std::array < std::array<double, NB_SDI_PARAMS>, HBB::NB_SBW_SPECIES> SDI;
-		//std::array<double, NB_SDI_PARAMS> m_SDI;
+		CStatistic m_SDI_DOY_stat;
+
+		
 		std::set<int> m_years;
 		CWeatherStation m_data_weather;
 	};

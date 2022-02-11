@@ -29,10 +29,10 @@ namespace WBSF
 
 	static const size_t CU_STAT = H_TAIR;
 	static const size_t FU_STAT = H_TAIR;
-	static const size_t S_IN_STAT = H_TMIN;
-	static const size_t S_OUT_STAT = H_TMAX;
-	static const size_t ST_IN_STAT = H_TMIN;
-	static const size_t ST_OUT_STAT = H_TMAX;
+	static const size_t S_IN_STAT = H_TAIR;
+	static const size_t S_OUT_STAT = H_TAIR;
+	static const size_t ST_IN_STAT = H_TAIR;
+	static const size_t ST_OUT_STAT = H_TAIR;
 
 
 	//this line link this model with the EntryPoint of the DLL
