@@ -130,7 +130,7 @@ namespace WBSF
 
 			m_P.SDI_mu = SDI[μ];
 			m_P.SDI_sigma = SDI[ѕ];
-			//m_P.G_v2 = SDI[ʎb];
+			m_P.Bdw_0 = SDI[ʎb];
 			//m_P.C_min = SDI[Τᴴ¹];
 			//m_P.C_max = SDI[Τᴴ²];
 			m_P.PAR_minT = SDI[ʎ0];
@@ -376,10 +376,10 @@ namespace WBSF
 
 				if (_isnan(output[d][O_S_CONC]) || output[d][O_S_CONC] > 175 ||
 					_isnan(output[d][O_ST_CONC]) || output[d][O_ST_CONC] > 175 ||
-					_isnan(output[d][O_BRANCH]) || output[d][O_BRANCH] > 150)
+					_isnan(output[d][O_BRANCH]) || output[d][O_BRANCH] > 0.25)
 				{
-					return;
-					//nbInvalidS++;
+					//return;
+					nbInvalidS++;
 				}
 			}
 
@@ -389,21 +389,32 @@ namespace WBSF
 			{
 				if (output.IsInside(m_SAResult[i].m_ref))
 				{
+					if (output[m_SAResult[i].m_ref][O_SDI] == -999 ||
+						output[m_SAResult[i].m_ref][O_S_CONC] == -999 ||
+						output[m_SAResult[i].m_ref][O_ST_CONC] == -999 ||
+						output[m_SAResult[i].m_ref][O_BRANCH] == -999)
+					{
+						stat.clear();
+						return;
+					}
+
+
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 )
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_SDI] > -999);
 						ASSERT(m_SAResult[i].m_ref.GetJDay() < 213);
 
-						//double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-						//double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
+						double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
+						double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
 
-						double obs_SDI = (m_SAResult[i].m_obs[0] - m_stat[0][MEAN]) / m_stat[0][STD_DEV];
-						double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - m_stat[0][MEAN]) / m_stat[0][STD_DEV];
+						
+						//double obs_SDI = (m_SAResult[i].m_obs[0] - m_stat[0][MEAN]) / m_stat[0][STD_DEV];
+						//double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - m_stat[0][MEAN]) / m_stat[0][STD_DEV];
 
 						
 
-						//if (_isnan(sim_SDI) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
-							//sim_SDI = Rand(-1.0, 0.0);
+						if (_isnan(sim_SDI) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+							sim_SDI = Rand(-1.0, 0.0);
 
 
 						stat.Add(obs_SDI, sim_SDI);
@@ -413,12 +424,12 @@ namespace WBSF
 							double DOY = GetSimDOY(output, m_SAResult[i]);
 							if (DOY > -999)
 							{
-								//double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
-								//double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+								double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
 
 
-								double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[MEAN]) / m_SDI_DOY_stat[STD_DEV];
-								double sim_DOY = (DOY - m_SDI_DOY_stat[MEAN]) / m_SDI_DOY_stat[STD_DEV];
+								//double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[MEAN]) / m_SDI_DOY_stat[STD_DEV];
+								//double sim_DOY = (DOY - m_SDI_DOY_stat[MEAN]) / m_SDI_DOY_stat[STD_DEV];
 
 								stat.Add(obs_DOY, sim_DOY);
 							}
@@ -437,18 +448,18 @@ namespace WBSF
 						ASSERT(output[m_SAResult[i].m_ref][O_ST_CONC] > -999);
 
 						
-						//double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-						//double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 
-						double obs_starch = (m_SAResult[i].m_obs[1] - m_stat[1][MEAN]) / m_stat[1][STD_DEV];
-						double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - m_stat[1][MEAN]) / m_stat[1][STD_DEV];
+						//double obs_starch = (m_SAResult[i].m_obs[1] - m_stat[1][MEAN]) / m_stat[1][STD_DEV];
+						//double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - m_stat[1][MEAN]) / m_stat[1][STD_DEV];
 
 						
 
-						//if (_isnan(sim_starch) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
-							//sim_starch = Rand(-1.0, 0.0);
+						if (_isnan(sim_starch) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+							sim_starch = Rand(-1.0, 0.0);
 
-						for (size_t j = 0; j < 5; j++)
+						//for (size_t j = 0; j < 5; j++)
 							stat.Add(obs_starch, sim_starch);
 					}
 
@@ -458,18 +469,18 @@ namespace WBSF
 						ASSERT(output[m_SAResult[i].m_ref][O_S_CONC] > -999);
 
 						
-						//double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
-						//double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+						double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+						double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 
-						double obs_GFS = (m_SAResult[i].m_obs[2] - m_stat[2][MEAN]) / m_stat[2][STD_DEV];
-						double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - m_stat[2][MEAN]) / m_stat[2][STD_DEV];
+						//double obs_GFS = (m_SAResult[i].m_obs[2] - m_stat[2][MEAN]) / m_stat[2][STD_DEV];
+						//double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - m_stat[2][MEAN]) / m_stat[2][STD_DEV];
 
 						
 
-						//if (_isnan(sim_GFS) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
-							//sim_GFS *= Rand(-1.0, 0.0);
+						if (_isnan(sim_GFS) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+							sim_GFS *= Rand(-1.0, 0.0);
 
-						for (size_t j = 0; j < 5; j++)
+						//for (size_t j = 0; j < 5; j++)
 							stat.Add(obs_GFS, sim_GFS);
 					}
 
@@ -477,18 +488,18 @@ namespace WBSF
 					if (USE_MASS && m_SAResult[i].m_obs[3] > -999 )
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_BRANCH] > -999);
+						
 
+						double obs_B = (m_SAResult[i].m_obs[3] - MIN_MASS) / (MAX_MASS - MIN_MASS);
+						double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - MIN_MASS) / (MAX_MASS - MIN_MASS);
 
-						//double obs_B = (m_SAResult[i].m_obs[3] - MIN_MASS) / (MAX_MASS - MIN_MASS);
-						//double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - MIN_MASS) / (MAX_MASS - MIN_MASS);
+						//double obs_B = (m_SAResult[i].m_obs[3] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
+						//double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
 
-						double obs_B = (m_SAResult[i].m_obs[3] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
-						double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
+						if (_isnan(sim_B) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+							sim_B *= Rand(-1.0, 0.0);
 
-						//if (_isnan(sim_B) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
-							//sim_B *= Rand(-1.0, 0.0);
-
-						for (size_t j = 0; j < 5; j++)
+						//for (size_t j = 0; j < 5; j++)
 							stat.Add(obs_B, sim_B);
 					}
 				}
