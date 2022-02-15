@@ -235,7 +235,8 @@ namespace WBSF
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
 
-		size_t p_CU = size_t(size_t(m_P[FU_DAYS]) * m_P[CU_DAYS]);
+		//size_t p_CU = size_t(size_t(m_P[FU_DAYS]) * m_P[CU_DAYS]);
+		size_t p_CU = size_t(m_P[CU_DAYS]);
 		size_t p_FU = size_t(m_P[FU_DAYS]);
 		if (mean_T_day.empty() || p_CU != m_CU_DAY_last || p_FU != m_FU_DAY_last)
 		{
@@ -362,23 +363,27 @@ namespace WBSF
 
 
 
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
+	enum { I_SPECIES, I_SOURCE, I_SITE, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE, I_STARCH, I_SUGAR, I_MASS, I_SDI, I_N, I_DEF, I_DEF_END_N1, I_DEF_END_N, I_PROVINCE, I_TYPE, NB_INPUTS };
 	void CBudBurstChuineModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
-		if (data.size() == NB_INPUTS2)
+		if (data.size() == NB_INPUTS)
 		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
+			if (data[I_SPECIES] == SPECIES_NAME[m_species] && data[I_TYPE] == "C")
 			{
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE2]);
-				obs.m_obs[0] = stod(data[I_SDI2]);
-				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
+				obs.m_ref.FromFormatedString(data[I_DATE]);
+				obs.m_obs[0] = stod(data[I_SDI]);
+				
 
 				if (obs.m_obs[0] > -999)
 				{
-					m_years.insert(obs.m_ref.GetYear());
+					if (obs.m_ref.GetJDay() < 243)
+						m_years.insert(obs.m_ref.GetYear());
+					else
+						m_years.insert(obs.m_ref.GetYear() + 1);
+
 				}
 
 				m_SAResult.push_back(obs);
@@ -413,8 +418,8 @@ namespace WBSF
 					return;
 			}
 			
-			if (size_t(size_t(m_P[FU_DAYS]) * m_P[CU_DAYS]) > 45)
-				return;
+			//if (size_t(size_t(m_P[FU_DAYS]) * m_P[CU_DAYS]) > 45)
+				//return;
 			
 
 			if (!m_SDI_DOY_stat.IsInit())

@@ -24,7 +24,7 @@
             <DefaultValue>2</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>4</MaxValue>
-            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Red Spruce</TextValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>Defoliation</Name>

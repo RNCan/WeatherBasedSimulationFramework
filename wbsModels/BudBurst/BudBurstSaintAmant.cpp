@@ -29,10 +29,10 @@ namespace WBSF
 
 	static const size_t CU_STAT = H_TAIR;
 	static const size_t FU_STAT = H_TAIR;
-	static const size_t S_IN_STAT = H_TAIR;
-	static const size_t S_OUT_STAT = H_TAIR;
-	static const size_t ST_IN_STAT = H_TAIR;
-	static const size_t ST_OUT_STAT = H_TAIR;
+	static const size_t S_IN_STAT = H_TMIN;
+	static const size_t S_OUT_STAT = H_TMAX;
+	static const size_t ST_IN_STAT = H_TMIN;
+	static const size_t ST_OUT_STAT = H_TMAX;
 
 
 	//this line link this model with the EntryPoint of the DLL
@@ -453,27 +453,29 @@ namespace WBSF
 
 
 	
-	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE2, I_STARCH2, I_SUGAR2, I_SDI2, I_N2, I_DEF2, I_DEFEND_N12, I_DEFEND_N2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
+	enum { I_SPECIES, I_SOURCE, I_SITE, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE, I_STARCH, I_SUGAR, I_MASS, I_SDI, I_N, I_DEF, I_DEF_END_N1, I_DEF_END_N, I_PROVINCE, I_TYPE, NB_INPUTS };
 	void CBudBurstSaintAmantModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
-		if (data.size() == NB_INPUTS2)
+		if (data.size() == NB_INPUTS)
 		{
-			if (data[I_SPECIES2] == SPECIES_NAME[m_species] && data[I_TYPE2] == "C")
+			if (data[I_SPECIES] == SPECIES_NAME[m_species] && data[I_TYPE] == "C")
 			{
 				CSAResult obs;
 
-				obs.m_ref.FromFormatedString(data[I_DATE2]);
-				obs.m_obs[0] = stod(data[I_SDI2]);
-				obs.m_obs.push_back(stod(data[I_STARCH2]));
-				obs.m_obs.push_back(stod(data[I_SUGAR2]));
-				//obs.m_obs.push_back(stod(data[I_DEFEND_N2]));
+				obs.m_ref.FromFormatedString(data[I_DATE]);
+				obs.m_obs[0] = stod(data[I_SDI]);
+				obs.m_obs.push_back(stod(data[I_STARCH]));
+				obs.m_obs.push_back(stod(data[I_SUGAR]));
 
 				if ((USE_SDI && obs.m_obs[0] > -999) ||
 					(USE_STARCH && obs.m_obs[1] > -999) ||
-					(USE_SUGAR && obs.m_obs[2] > -999))
+					(USE_SUGAR && obs.m_obs[2] > -999) )
 				{
-					m_years.insert(obs.m_ref.GetYear());
+					if (obs.m_ref.GetJDay() < 243)
+						m_years.insert(obs.m_ref.GetYear());
+					else
+						m_years.insert(obs.m_ref.GetYear() + 1);
 				}
 
 				m_SAResult.push_back(obs);
@@ -677,11 +679,9 @@ namespace WBSF
 					{
 						double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 						double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-
-						//if (!bSt_Valid)
-						//	sim_starch *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
-
-						stat.Add(obs_starch, sim_starch);
+						
+						for (size_t j = 0; j < 5; j++)
+							stat.Add(obs_starch, sim_starch);
 					}
 
 
@@ -690,10 +690,8 @@ namespace WBSF
 						double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 						double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 
-						//if (!bSt_Valid)
-						//	sim_GFS *= Signe(Rand(-100, 100)) * exp(Rand(2.0, 3.0));
-
-						stat.Add(obs_GFS, sim_GFS);
+						for(size_t j=0; j<5; j++)
+							stat.Add(obs_GFS, sim_GFS);
 					}
 				}
 			}//for all results
