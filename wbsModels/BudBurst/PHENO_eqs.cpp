@@ -12,12 +12,12 @@ namespace WBSF
 	{
 
 
-		static const double S_MIN = 10;
-		static const double S_MAX = 90;
-		static const double ST_MIN = 5;
-		static const double ST_MAX = 80;
-		static const double C_MIN = 500;
-		static const double C_MAX = 5000;
+		//static const double S_MIN = 10;
+		//static const double S_MAX = 90;
+		//static const double ST_MIN = 5;
+		//static const double ST_MAX = 80;
+		//static const double C_MIN = 500;
+		//static const double C_MAX = 5000;
 
 
 

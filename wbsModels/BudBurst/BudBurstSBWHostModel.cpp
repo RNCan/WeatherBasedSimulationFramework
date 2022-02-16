@@ -33,9 +33,9 @@ namespace WBSF
 
 
 
-	static const bool USE_SDI = true;
-	static const bool USE_STARCH = true;
-	static const bool USE_SUGAR = true;
+	static const bool USE_SDI = false;
+	static const bool USE_STARCH = false;
+	static const bool USE_SUGAR = false;
 	static const bool USE_MASS = true;
 
 	//this line link this model with the EntryPoint of the DLL
@@ -270,6 +270,8 @@ namespace WBSF
 						m_years.insert(obs.m_ref.GetYear());
 					else
 						m_years.insert(obs.m_ref.GetYear()+1);
+
+					m_SAResult.push_back(obs);
 				}
 
 				//if (obs.m_obs[3] > -999)//defoliation
@@ -284,7 +286,7 @@ namespace WBSF
 				//}
 
 
-				m_SAResult.push_back(obs);
+				
 			}
 		}
 
@@ -394,8 +396,8 @@ namespace WBSF
 						output[m_SAResult[i].m_ref][O_ST_CONC] == -999 ||
 						output[m_SAResult[i].m_ref][O_BRANCH] == -999)
 					{
-						stat.clear();
-						return;
+						stat.clear(); 
+						return; 
 					}
 
 
@@ -413,7 +415,7 @@ namespace WBSF
 
 						
 
-						if (_isnan(sim_SDI) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+						if (_isnan(sim_SDI) || output[m_SAResult[i].m_ref][O_SDI] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_SDI = Rand(-1.0, 0.0);
 
 
@@ -433,11 +435,11 @@ namespace WBSF
 
 								stat.Add(obs_DOY, sim_DOY);
 							}
-							else
-							{
-								stat.clear();
-								return;//reject this solution
-							}
+							//else
+							//{
+							//	stat.clear();
+							//	return;//reject this solution
+							//}
 						}
 
 
@@ -456,7 +458,7 @@ namespace WBSF
 
 						
 
-						if (_isnan(sim_starch) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+						if (_isnan(sim_starch) || output[m_SAResult[i].m_ref][O_ST_CONC] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_starch = Rand(-1.0, 0.0);
 
 						//for (size_t j = 0; j < 5; j++)
@@ -477,7 +479,7 @@ namespace WBSF
 
 						
 
-						if (_isnan(sim_GFS) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+						if (_isnan(sim_GFS) || output[m_SAResult[i].m_ref][O_S_CONC] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_GFS *= Rand(-1.0, 0.0);
 
 						//for (size_t j = 0; j < 5; j++)
@@ -496,7 +498,7 @@ namespace WBSF
 						//double obs_B = (m_SAResult[i].m_obs[3] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
 						//double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
 
-						if (_isnan(sim_B) || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+						if (_isnan(sim_B) || output[m_SAResult[i].m_ref][O_BRANCH] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_B *= Rand(-1.0, 0.0);
 
 						//for (size_t j = 0; j < 5; j++)
