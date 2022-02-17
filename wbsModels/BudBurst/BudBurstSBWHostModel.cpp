@@ -33,9 +33,9 @@ namespace WBSF
 
 
 
-	static const bool USE_SDI = false;
-	static const bool USE_STARCH = false;
-	static const bool USE_SUGAR = false;
+	static const bool USE_SDI = true;
+	static const bool USE_STARCH = true;
+	static const bool USE_SUGAR = true;
 	static const bool USE_MASS = true;
 
 	//this line link this model with the EntryPoint of the DLL
@@ -391,16 +391,6 @@ namespace WBSF
 			{
 				if (output.IsInside(m_SAResult[i].m_ref))
 				{
-					if (output[m_SAResult[i].m_ref][O_SDI] == -999 ||
-						output[m_SAResult[i].m_ref][O_S_CONC] == -999 ||
-						output[m_SAResult[i].m_ref][O_ST_CONC] == -999 ||
-						output[m_SAResult[i].m_ref][O_BRANCH] == -999)
-					{
-						stat.clear(); 
-						return; 
-					}
-
-
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 )
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_SDI] > -999);
