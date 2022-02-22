@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.2	10/10/2018 Rémi Saint-Amant		Add -iFactor
 // 1.0.1	10/10/2018 Rémi Saint-Amant		Add window and weight
 // 1.0.0	27/06/2018	Rémi Saint-Amant	Creation
@@ -31,7 +32,7 @@ using namespace WBSF::Landsat;
 
 namespace WBSF
 {
-	const char* CLandsatIndices::VERSION = "1.0.2";
+	const char* CLandsatIndices::VERSION = "1.1.0";
 	
 
 	///*********************************************************************************************************************

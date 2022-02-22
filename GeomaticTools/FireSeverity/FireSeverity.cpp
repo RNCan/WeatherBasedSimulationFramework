@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.1	17/04/2019	Rémi Saint-Amant	Some bug correction, add debug
 // 1.0.0	31/01/2019	Rémi Saint-Amant	Creation
 
@@ -44,7 +45,7 @@ using namespace std;
 using namespace WBSF;
 using namespace WBSF::Landsat;
 
-static const char* version = "1.0.1";
+static const char* version = "1.1.0";
 
 std::string CFireSeverity::GetDescription()
 {

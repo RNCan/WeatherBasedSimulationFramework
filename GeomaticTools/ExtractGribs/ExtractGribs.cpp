@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.0	13/07/2018	Rémi Saint-Amant	Creation
 
 //-of VRT -stats -overview {2,4,8,16} -te 2058840 2790270 2397465 3074715 -period "2018-07-16-00" "2018-07-16-05" -var WNDS -var WNDD  -overwrite --config GDAL_CACHEMAX 1024 -co "compress=LZW" "D:\Travaux\Dispersal2018\Weather\Test.Gribs" "D:\Travaux\Dispersal2018\Weather\output2.vrt"
@@ -34,7 +35,7 @@ namespace WBSF
 {
 
 
-	const char* CExtractGribs::VERSION = "1.0.0";
+	const char* CExtractGribs::VERSION = "1.1.0";
 	const int CExtractGribs::NB_THREAD_PROCESS = 2;
 	enum TGEVar { GR_TAIR, GR_PRCP, GR_WNDU, GR_WNDV, GR_WNDS, GR_WNDD, NB_GE_VARIABLES };
 	static const char* VAR_NAME[NB_GE_VARIABLES] = { "TAIR", "PRCP", "WNDU", "WNDV", "WNDS", "WNDD" };

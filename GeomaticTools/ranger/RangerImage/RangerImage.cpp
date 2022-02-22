@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.1.3	12/05/2020	Rémi Saint-Amant	Use columns name as bands name
 // 1.1.2	06/05/2020	Rémi Saint-Amant	Bug correction in probability 
 // 1.1.1	14/02/2019	Rémi Saint-Amant	Update
@@ -44,7 +45,7 @@ using namespace WBSF;
 //-te 2025000 6952000 2226000 7154000 -multi -co compress=LZW -multi -blocksize 1024 1024 -stats -hist -co tiled=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 --config GDAL_CACHEMAX 1024 -ot int16 -dstnodata 255  -seed %seed% -overview {16} -overwrite -mask U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\LOSSmsk_BK2_BK1.tif -maskvalue 1 -iocpu 3 "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\test2_pv.classification.forest" "U:\GIS\#projets\LAQ\LAI\ANALYSE\20170815_Map_demo\test_code_remi_v1\BKP_9616_050_S7\RUN_RF\BK2_BK1_B123457.vrt" "U:\GIS\#documents\TestCodes\Ranger\Output\TestDeadLock.tif"
 //-te 2156430 7096950 2162160 7101150 
 
-static const char* version = "1.1.3";
+static const char* version = "1.2.0";
 static const int NB_THREAD_PROCESS = 2;
 
 

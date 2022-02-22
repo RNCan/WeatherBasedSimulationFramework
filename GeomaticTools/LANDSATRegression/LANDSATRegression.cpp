@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.2	04/07/2015	Rémi Saint-Amant	Bug correction in blocks
 // 1.0.1	03/07/2015	Rémi Saint-Amant	Bug correction in blocks
@@ -48,7 +49,7 @@ namespace WBSF
 	static int REG_STATS[NB_REGRESSION_STATS] = { NB_VALUE, SLOPE, RMSE, STAT_R² };
 
 
-	static const char* version = "1.0.3";
+	static const char* version = "1.1.0";
 	string CLANDSATRegression::GetDescription() { return  string("LANDSATRegression version ") + version + " (" + _T(__DATE__) + ")\n"; }
 	static const int NB_THREAD_PROCESS = 2;
 

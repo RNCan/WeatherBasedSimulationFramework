@@ -26,7 +26,7 @@ namespace WBSF
 	static const double MAX_SDI_DOY = 4.75;
 	static const double MIN_STRACH = 4.9;//from data   [1,99]
 	static const double MAX_STRACH = 116.0;//from data   [1,99]
-	static const double MIN_SUGAR = 8.2;//from data   [1,99]
+	static const double MIN_SUGAR = 8.2;//from data   [1,99] 
 	static const double MAX_SUGAR = 87.8;//from data   [1,99]
 	static const double MIN_MASS = 0.01506;//from data   [1,99]
 	static const double MAX_MASS = 0.1592;//from data   [1,99]
@@ -456,7 +456,7 @@ namespace WBSF
 					}
 
 
-					if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 )
+					if (USE_SUGAR && m_SAResult[i].m_obs[2] > -999 ) 
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_S_CONC] > -999);
 

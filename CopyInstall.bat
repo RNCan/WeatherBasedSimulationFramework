@@ -167,6 +167,8 @@ copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models\LaricobiusNigrinus.dll"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
+copy /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.dll" "..\Install\NRCan\Models\LaricobiusOsakensis.dll"
+copy /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.mdl" "..\Install\NRCan\Models\LaricobiusOsakensis.mdl"
 copy /Y ".\bin\Releasex64\Models\Leucopis.dll" "..\Install\NRCan\Models\Leucopis.dll"
 copy /Y ".\bin\Releasex64\Models\Leucopis spp.mdl" "..\Install\NRCan\Models\Leucopis spp.mdl"
 

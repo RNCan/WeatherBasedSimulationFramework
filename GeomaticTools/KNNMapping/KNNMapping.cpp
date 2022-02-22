@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 2.8.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.7.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.7.0	12/10/2017  Rémi Saint-Amant	Compile with GDAL 2.02. Accept header with double quotes.
 // 2.6.1	15/11/2016	Rémi Saint-Amant	Bug correction
@@ -79,7 +80,7 @@ using namespace std;
 using namespace WBSF;
 
 
-static const char* version = "2.7.1";
+static const char* version = "2.8.0";
 static const int NB_THREAD_PROCESS = 2;
 
 

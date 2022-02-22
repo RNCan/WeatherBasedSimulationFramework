@@ -1,4 +1,5 @@
 //ImagesCalculator.exe
+// 3.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 3.0.1	10/10/2018	Rémi Saint-Amant	Compile with VS 2017. Add -BLOCK_THREADS	
 // 3.0.0	03/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
 // 2.0.1	13/06/2015	Rémi Saint-Amant	Add -hist option
@@ -47,7 +48,7 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-static const char* version = "3.0.1";
+static const char* version = "3.1.0";
 
 
 using namespace std;
