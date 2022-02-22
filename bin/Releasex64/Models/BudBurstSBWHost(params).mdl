@@ -467,7 +467,7 @@
             <SeparatorPos>50</SeparatorPos>
             <DefaultValue>0.6025</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>100</MaxValue>
+            <MaxValue>500</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
