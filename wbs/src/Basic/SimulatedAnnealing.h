@@ -255,7 +255,9 @@ namespace WBSF
 			m_F = m_Fopt;
 			m_X = m_Xopt;
 			m_AICC = m_AICCopt;
-			
+			m_MLL = m_MLLopt;
+			m_n = m_n_opt;
+			m_k = m_k_opt;
 			
 
 			//reset bounding parameter stat each loop
@@ -274,6 +276,10 @@ namespace WBSF
 			m_F = missingValue;
 			m_FP = missingValue;
 			m_Fopt = missingValue;
+
+			m_n = m_n_P = m_n_opt = 0;
+			m_k = m_k_P = m_k_opt=0;
+			
 			m_AICC = m_AICCopt = m_AICCP = missingValue;
 			m_MLL = m_MLLP = m_MLLopt = missingValue;
 
@@ -312,6 +318,14 @@ namespace WBSF
 		double m_AICC;
 		double m_AICCP;
 		double m_AICCopt;
+
+		size_t m_n;
+		size_t m_n_P;
+		size_t m_n_opt;
+		
+		size_t m_k;
+		size_t m_k_P;
+		size_t m_k_opt;
 
 		double m_MLL;
 		double m_MLLP;

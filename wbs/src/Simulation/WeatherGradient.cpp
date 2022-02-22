@@ -878,7 +878,7 @@ namespace WBSF
 
 		//f *= correction;
 
-		//for optimisation if the factor is over 95% we take 100 and below 5% we take 0
+		//for optimization if the factor is over 95% we take 100 and below 5% we take 0
 		if (f > 0.95)
 			f = 1;
 
@@ -1138,7 +1138,7 @@ namespace WBSF
 						{
 							CSearchResultVector results;
 
-							//for a unknown reason, using elevation and shore in selection of gradient stations get better result in all situation
+							//for a unknown reason, using elevation in selection of gradient stations get better result in all situation
 							if (*it == -999)
 							{
 								msgTmp += m_pNormalDB->Search(results, m_target, nbStations, -1, v, -999, true, m_bUseNearestElev, m_bUseNearestShore);

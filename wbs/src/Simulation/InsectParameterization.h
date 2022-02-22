@@ -1,6 +1,6 @@
-//******************************************************************************
+﻿//******************************************************************************
 //  Project:		Weather-based simulation framework (WBSF)
-//	Programmer:     R�mi Saint-Amant
+//	Programmer:     Rémi Saint-Amant
 // 
 //  It under the terms of the GNU General Public License as published by
 //     the Free Software Foundation
@@ -28,9 +28,9 @@ namespace WBSF
 
 	namespace DevRateInput
 	{
-		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TRAITMENT, I_I, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, I_BROOD, I_MEAN_BROOD, I_BROOD_SD, I_RFR, I_Q_BROOD, NB_DEV_INPUT };
+		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TREATMENT, I_I, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, I_BROOD, I_MEAN_BROOD, I_BROOD_SD, I_RFR, I_Q_BROOD, NB_DEV_INPUT };
 		enum TTobsCol {C_UNKNOWN = -1, C_TID, C_T, NB_TOBS_COL };
-		enum TTemperature { T_UNKNOWN = -1, T_CONSTANT, T_MIN_MAX, T_SINUS, T_TRIANGULAR, T_HOBO, NB_TMP_TYPE };
+		enum TTemperature { T_UNKNOWN = -1, T_CONSTANT, T_TRANSFER, T_SQUARE, T_SINUS, T_TRIANGULAR, T_HOBO, NB_TMP_TYPE };
 		
 		extern const char* TTYPE_NAME[NB_TMP_TYPE];
 		TTemperature get_TType(const std::string& name);
@@ -38,26 +38,55 @@ namespace WBSF
 
 	
 
-	
+	typedef std::shared_ptr<std::vector<double>> TobsSeriesPtr;
 	class CDevRateDataRow : public std::map<DevRateInput::TDevTimeCol, double>
 	{
 	public:
 
 		std::string m_variable;
-		std::string m_traitment;
+		std::string m_treatment;
 		std::string m_i;
-		std::string GetProfile()const { return m_variable + "_" + m_traitment + "_" + m_i; }
+		std::string GetProfile()const { return m_variable + "_" + m_treatment + "_" + m_i; }
 		size_t m_type;
 
-		double GetT() const{ return (GetTmin() + GetTmax()) / 2; }
-		double GetTmin() const { return GetTminTmax(true); }
-		double GetTmax() const { return GetTminTmax(false); }
-		double GetTminTmax(bool bTmin) const;
-		size_t GetMaxTime() const;
+		double GetMaxTime() const;
+
+		//double T() const { ASSERT(T1() == T2());  return T1(); }
+		double T1() const { return T()[0]; }
+		double T2() const { return T()[1]; }
+		
+		double t1() const { return m_t1; }
+		double t2(bool bPrevious = false) const { return std::max(0.0, t(bPrevious) - t1());  }
+		double t(bool bPrevious = false) const { return bPrevious ? m_tˉ¹ : m_t;}
+
+		const std::vector<double>& T()const { ASSERT(m_Tobs.get());  return  *(m_Tobs.get()); }
+
+		
+		double GetT1T2(bool bT1) const;
+		double GetTime1() const;
+		double GetTime() const;
+
+
+		void SetTime1(double t1) { m_t1=t1; }
+		void SetTime(double t){  m_t=t; }
+		void SetTimeˉ¹(double tˉ¹) { m_tˉ¹ = tˉ¹; }
+		void SetTobs(const TobsSeriesPtr& TPtr) { m_Tobs = TPtr; }
+
+
+	protected:
+		
+		double m_t1;
+		double m_t;
+		double m_tˉ¹;
+		
+
+		TobsSeriesPtr m_Tobs;
+
 	};
 
 	class CTobsSeries;
 	typedef std::vector<CDevRateDataRow> CDevRateDataRowVector;
+	
 	class CDevRateData : public CDevRateDataRowVector
 	{
 	public:
@@ -93,12 +122,16 @@ namespace WBSF
 		//double GetSigma(CComputationVariable& computation)const;
 		bool IsAllTConstant()const;
 		void compute_T_stats(const CTobsSeries& Tobs);
+		void set_Tobs(const CTobsSeries& Tobs);
+
 		
 		static double ei(size_t n);
 		static double cv_2_sigma(double cv, size_t n);
 	};
 
 	typedef CDevRateData CFecundityData;
+
+	
 
 	class CTobsSeries :public std::map<std::string, std::vector<double>>
 	{
@@ -147,6 +180,8 @@ namespace WBSF
 
 		//std::vector< DevRateInput::TDevTimeCol> m_input_pos;
 		
+		
+
 	private:
 		std::map<std::string, CStatisticEx> m_stats;
 		
@@ -213,7 +248,7 @@ namespace WBSF
 		
 
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, AVOID_NULL_RATE_IN_TOBS, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -246,6 +281,7 @@ namespace WBSF
 		bool m_bLimitMaxRate;
 		std::array<double, 3> m_LimitMaxRateP;
 
+		bool m_bAvoidNullRateInTobs;
 		bool m_bUseOutputAsInput;
 		std::string m_outputAsIntputFileName;
 		bool m_bShowTrace;
@@ -282,8 +318,8 @@ namespace WBSF
 
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void GetFValue(std::string s, size_t e, CComputationVariable& computation);
-		bool IsParamValid(CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P, const std::string& var);
-		bool IsRateValid(CDevRateEquation::TDevRateEquation model, const std::vector<double>& P, const std::string& var);
+		bool IsParamValid( const std::string& var, CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P);
+		bool IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation model, const std::vector<double>& P);
 
 		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
@@ -296,6 +332,7 @@ namespace WBSF
 		CDevRateData m_devTime;
 		CSurvivalData m_survival;
 		CFecundityData m_fecundity;
+
 		//CDevRateEqFile m_dev_rate_eq;
 
 

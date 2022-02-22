@@ -83,6 +83,8 @@ namespace WBSF
 		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_TMAX, m_LimitMaxRatePCtrl[1]);
 		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_F, m_LimitMaxRatePCtrl[2]);
 
+		DDX_Control(pDX, IDC_FIT_AVOID_INF_TIME_IN_OBS_RANGE, m_avoidNullRateInTobsCtrl);
+
 
 		DDX_Control(pDX, IDC_FIT_TYPE, m_fitTypeCtrl);
 		DDX_Control(pDX, IDC_FIT_USE_OUTPUT_AS_INPUT, m_useOutputAsInputCtrl);
@@ -119,7 +121,8 @@ namespace WBSF
 				m_sa.m_LimitMaxRateP[i] = ToDouble(m_LimitMaxRatePCtrl[i].GetString());
 			}
 
-
+			
+			m_sa.m_bAvoidNullRateInTobs = m_avoidNullRateInTobsCtrl.GetCheck();
 			m_sa.m_bUseOutputAsInput = m_useOutputAsInputCtrl.GetCheck();
 			m_sa.m_outputAsIntputFileName = m_outputAsInputCtrl.GetString();
 			m_sa.m_bShowTrace = m_ShowTraceCtrl.GetCheck();
@@ -189,7 +192,7 @@ namespace WBSF
 			}
 
 
-
+			m_avoidNullRateInTobsCtrl.SetCheck(m_sa.m_bAvoidNullRateInTobs);
 			m_useOutputAsInputCtrl.SetCheck(m_sa.m_bUseOutputAsInput);
 			m_outputAsInputCtrl.SetWindowText(m_sa.m_outputAsIntputFileName);
 			m_ShowTraceCtrl.SetCheck(m_sa.m_bShowTrace);
@@ -277,6 +280,9 @@ namespace WBSF
 			m_F0Ctrl[i].EnableWindow(bOvip&&m_fixeF0Ctrl.GetCheck());
 			m_LimitMaxRatePCtrl[i].EnableWindow(bDev && m_limitMaxRateCtrl.GetCheck());
 		}
+
+
+		m_avoidNullRateInTobsCtrl.EnableWindow(bDev || bOvip);
 	}
 
 	void CInsectParameterizationDlg::OnEditSACtrl()

@@ -59,6 +59,8 @@ namespace WBSF
 		std::array<CCFLEdit, 3>		m_F0Ctrl;
 		CButton			m_limitMaxRateCtrl;
 		std::array<CCFLEdit, 3>		m_LimitMaxRatePCtrl;
+
+		CButton			m_avoidNullRateInTobsCtrl;
 		
 
 		CButton			m_useOutputAsInputCtrl;

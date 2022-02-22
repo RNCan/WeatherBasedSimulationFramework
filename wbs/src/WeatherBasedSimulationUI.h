@@ -601,6 +601,7 @@
 #define IDC_FIT_USE_OUTPUT_AS_INPUT     1296
 #define IDC_FIT_FIXE_TO                 1297
 #define IDC_FIT_TO                      1298
+#define IDC_FIT_AVOID_INF_TIME_IN_OBS_RANGE 1298
 #define IDC_FIT_EQ_FECUNDITY            1299
 #define IDC_FIT_FIXE_F0                 1300
 #define IDC_FIT_F0                      1301
