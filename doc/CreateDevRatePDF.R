@@ -14,34 +14,36 @@ Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.55.0/bin/gswin64c.exe")
 sim <- read.csv("E:/Project/doc/CreateDevRatePDF.csv")
 sim <- sim[order(sim$EqName),]
 sim <- sim[!duplicated(sim$EqName),]
+sim <- sim[sim$EqName!="Regniere_1982b"&sim$EqName!="Regniere_1987b",]
 
 equations <- unique(sim$EqName)
 Resolution = 600;
 
 
-
 mySize <- 1.9
-model_cex = rep(mySize, length(equations))
-model_cex[3] = model_cex[3]*1.4
-model_cex[10] = model_cex[10]*0.75
-model_cex[11] = model_cex[11]*0.65
-model_cex[13] = model_cex[13]*0.8
-model_cex[17] = model_cex[17]*0.9
-model_cex[18] = model_cex[18]*0.8
-model_cex[20] = model_cex[20]*1.1
-model_cex[23] = model_cex[23]*0.6
-model_cex[35] = model_cex[35]*0.9
-model_cex[37] = model_cex[37]*1.2
-model_cex[38] = model_cex[38]*1.0
-model_cex[39] = model_cex[39]*1.0
-model_cex[42] = model_cex[42]*1.0
-model_cex[43] = model_cex[43]*1.3
-model_cex[44] = model_cex[44]*0.9
-model_cex[45] = model_cex[45]*0.65
-model_cex[46] = model_cex[46]*0.9
+model_cex = as.list(rep(mySize, length(equations)))
+names(model_cex) = equations
+#model_cex[[equations]] = mySize
+#rep(mySize, length(equations))
+model_cex[["Angilletta_2006"]] = 	mySize*1.4
+model_cex[["Deva&Higgis"]] = 		mySize*0.65
+model_cex[["Hansen_2011"]] = 		mySize*0.8
+model_cex[["Hilbert&LoganIII"]] = 	mySize*0.9
+model_cex[["Johnson_1974"]] = 		mySize*0.8
+model_cex[["Kontodimas_2004"]] = 	mySize*1.1
+model_cex[["Lactin2_1995"]] = 		mySize*1.1
+model_cex[["Lobry&Rosso&Flandrois_1993"]] = mySize*0.6
+model_cex[["Regniere_2012"]] = mySize*0.9
+model_cex[["Saint-Amant_2022"]] = mySize*0.9
+model_cex[["Schoolfield_1981"]] = mySize*1.0
+model_cex[["Sharpe&DeMichele_1977"]] = mySize*1.0
+model_cex[["Stinner_1974"]] = mySize*1.0
+model_cex[["Taylor_1981"]] = mySize*1.3
+model_cex[["Wagner_1988"]] = mySize*0.9
+model_cex[["Wang&Engel_1998"]] = mySize*0.65
+model_cex[["Wang&Lan&Ding_1982"]] = mySize*0.9
 
-
-
+ 
 
 file_name = paste("E:/Project/doc/English/DevRateEquations.pdf",sep="")
 #
@@ -53,29 +55,31 @@ pdf(file=file_name, height=11, width=8.5, pointsize = 12, family = "Times")
 	text(0.5,1.0, adj=c(0.5,1.0), expression("BioSIM' Development Rate Models"), family = "Times", cex = 2.0)
 	text(0.5,.95, adj=c(0.5,0.95), expression("Standardized Parameters"), family = "Times", cex = 1.8)
 	text(0.5,0.89, adj=c(0.5,0.5), expression("Rémi Saint-Amant"), family = "Times", cex = 1.5)
-	text(0.5,0.86, adj=c(0.5,0.5), expression("Version 1.0.0 (2022-01-31)"), family = "Times", cex = 1.3)
+	text(0.5,0.86, adj=c(0.5,0.5), expression("Version 1.0.1 (2022-03-01)"), family = "Times", cex = 1.3)
 	
 	
 	text(0.0,0.7, adj=c(0,0.5), expression("Scale factor"), family = "Times", cex = 1.5)
 	text(0.5,0.7, adj=c(0,0.5), expression(psi), family = "Times", cex = 1.5)
-	text(0.0,0.6, adj=c(0,0.5), expression("General Parameters"), family = "Times", cex = 1.5)
-	text(0.5,0.6, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[3],k[4])), family = "Times", cex = 1.5)
-	text(0.0,0.65, adj=c(0,0.5), expression("Sharpe&all Parameters"), family = "Times", cex = 1.5)
-	text(0.5,0.65, adj=c(0,0.5), expression(list(H[A],H[L],T[L],T[k[L]],H[H],T[H],T[k[H]])), family = "Times", cex = 1.5)
-	text(0.0,0.55, adj=c(0,0.5), expression("Temperature"), family = "Times", cex = 1.5)
-	text(0.5,0.55, adj=c(0,0.5), expression(T~'°C'~~~~bgroup('(','or'~T[k]~'in Kelvin',')')), family = "Times", cex = 1.5)
-	text(0.1,0.50, adj=c(0,0.5), expression("Lower"), family = "Times", cex = 1.5)
-	text(0.5,0.50, adj=c(0,0.5), expression(T[b]~'°C'), family = "Times", cex = 1.5)
-	text(0.1,0.45, adj=c(0,0.5), expression("Optimum"), family = "Times", cex = 1.5)
-	text(0.5,0.45, adj=c(0,0.5), expression(T[o]~'°C'), family = "Times", cex = 1.5)
-	text(0.1,0.40, adj=c(0,0.5), expression("Upper"), family = "Times", cex = 1.5)
-	text(0.5,0.40, adj=c(0,0.5), expression(T[m]~'°C'), family = "Times", cex = 1.5)
-	text(0.1,0.35, adj=c(0,0.5), expression("Others"), family = "Times", cex = 1.5)
-	text(0.5,0.35, adj=c(0,0.5), expression(T[omega]), family = "Times", cex = 1.5)
-	text(0.0,0.3, adj=c(0,0.5), expression("Temperature scale"), family = "Times", cex = 1.5)
-	text(0.5,0.3, adj=c(0,0.5), expression(list(Delta[T],~Delta[T[b]],~Delta[T[m]])), family = "Times", cex = 1.5)
-	text(0.0,0.25, adj=c(0,0.5), expression("Intermediate computation"), family = "Times", cex = 1.5)
-	text(0.5,0.25, adj=c(0,0.5), expression(list(beta,~beta[1],~beta[2],~Omega)), family = "Times", cex = 1.5)
+	text(0.0,0.65, adj=c(0,0.5), expression("Sharpe&all parameters"), family = "Times", cex = 1.5)
+	text(0.5,0.65, adj=c(0,0.5), expression(list(H[A],H[L],T[L],T[k[L]],H[H],T[H],T[k[H]],T[k[o]])), family = "Times", cex = 1.5)
+	text(0.0,0.60, adj=c(0,0.5), expression("Sharpe&all parameters scale factor"), family = "Times", cex = 1.5)
+	text(0.5,0.60, adj=c(0,0.5), expression("F = 10 000"), family = "Times", cex = 1.5)
+	text(0.0,0.55, adj=c(0,0.5), expression("General parameters"), family = "Times", cex = 1.5)
+	text(0.5,0.55, adj=c(0,0.5), expression(list(k,k[0],k[1],k[2],k[3],k[4])), family = "Times", cex = 1.5)
+	text(0.0,0.50, adj=c(0,0.5), expression("Temperature"), family = "Times", cex = 1.5)
+	text(0.5,0.50, adj=c(0,0.5), expression(T~'°C'~~~~bgroup('(','or'~T[k]~'in Kelvin',')')), family = "Times", cex = 1.5)
+	text(0.1,0.45, adj=c(0,0.5), expression("Lower"), family = "Times", cex = 1.5)
+	text(0.5,0.45, adj=c(0,0.5), expression(T[b]~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.40, adj=c(0,0.5), expression("Optimum"), family = "Times", cex = 1.5)
+	text(0.5,0.40, adj=c(0,0.5), expression(T[o]~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.35, adj=c(0,0.5), expression("Upper"), family = "Times", cex = 1.5)
+	text(0.5,0.35, adj=c(0,0.5), expression(T[m]~'°C'), family = "Times", cex = 1.5)
+	text(0.1,0.30, adj=c(0,0.5), expression("Others"), family = "Times", cex = 1.5)
+	text(0.5,0.30, adj=c(0,0.5), expression(T[omega]), family = "Times", cex = 1.5)
+	text(0.0,0.25, adj=c(0,0.5), expression("Temperature scale"), family = "Times", cex = 1.5)
+	text(0.5,0.25, adj=c(0,0.5), expression(list(Delta[T],~Delta[T[b]],~Delta[T[m]])), family = "Times", cex = 1.5)
+	text(0.0,0.20, adj=c(0,0.5), expression("Intermediate computation"), family = "Times", cex = 1.5)
+	text(0.5,0.20, adj=c(0,0.5), expression(list(beta,~beta[1],~beta[2],~Omega)), family = "Times", cex = 1.5)
 	
 
 nbPlots=8
@@ -101,14 +105,10 @@ for( g in 1:nbPlots )
 		
 		ex <- parse(text = simS$Math)
 		
-		
-		
-		
-		
-		at_bottom = c("Deva&Higgis", "Hansen ( 2011 )", "Johnson_1974","Regniere_2012", "Wang&Engel_1998", "Wang&Lan&Ding_1982", "Lobry&Rosso&Flandrois_1993")
+		at_bottom = c("Deva&Higgis", "Hansen_2011", "Johnson_1974","Regniere_2012", "Wang&Engel_1998", "Wang&Lan&Ding_1982", "Lobry&Rosso&Flandrois_1993")
 		adj_y = ifelse(e %in% at_bottom,0.8,0.55)
 		
-		if(e=="Saint-Amant_2021")e = 'Saint–Amant_2021'#strange problem with some font
+		#if(e=="Saint-Amant_2021")e = 'Saint–Amant_2021'#strange problem with some font
 			
 		name = strsplit(e, "_")[[1]][1]
 		year = strsplit(e, "_")[[1]][2]
@@ -119,7 +119,7 @@ for( g in 1:nbPlots )
 		
 		plot.new()
 		text(0.0,0.8, adj=c(0,0.8), sprintf("%s%s%s", sep, name, year), family = "Times", cex = 1.3)
-		text(1,0.5, adj=c(1,adj_y), ex, family = "Times", cex = model_cex[i])
+		text(1,0.5, adj=c(1,adj_y), ex, family = "Times", cex = model_cex[[e]])
 
 		rm(list=unlist(L))
 	}
