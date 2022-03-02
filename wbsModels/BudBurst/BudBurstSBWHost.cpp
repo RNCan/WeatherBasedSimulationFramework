@@ -75,6 +75,19 @@ namespace WBSF
 		return Sx;
 	}
 
+	double CSBWHostBudBurst::Weight2Length(size_t s, double w)
+	{
+		static const double P[4][2] =
+		{
+			{0.02391980, 0.0263593}, //bf
+			{0.01003552, 0.0410578}, //ws
+			{0.01037097, 0.0321163}, //bs
+			{0.01003552, 0.0410578}  //ns same as ws
+		};
+
+		return max(4.15, (log(max(1.0, w / P[s][1])) / P[s][2]));
+	}
+
 	//This method is call to compute solution
 	ERMsg CSBWHostBudBurst::Execute(CWeatherStation& weather, CModelStatVector& output, bool bModelEx)
 	{
@@ -240,9 +253,7 @@ namespace WBSF
 			double Ndw_0 = m_P.NB_r * m_P.Bdw_0 * (1 - def.previous);
 			static const double I_0 = 1.0;
 			double Budburst_thr = m_P.BB_thr * Mdw_0;
-			//P.Budburst_switch = false;
-			//P.Swell_switch = false;
-
+			
 
 			// State variables initial values[s st mdw bdw C I]
 			CVariables x0 = {
@@ -271,19 +282,32 @@ namespace WBSF
 			{
 
 				double PS = max(0.0, min(1.0, (x.Mdw - Mdw_0) / (Budburst_thr - Mdw_0)));
+				//double PS = max(0.0, min(1.0, (x.Mdw /(Budburst_thr*Mdw_0)));
 				//double SDI_Dhont = cdf(SDI_dist, PS) * MAX_SDI_STAGE;//0 .. 6;
 				//double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
 				//double SDI_Auger = max(0.0, min(5.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
 				//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
 				double SDI = cdf(SDI_dist, PS) * 5;
+				double current_branch_mass = (x.Bdw + x.Mdw) - (m_P.Bdw_0);//[g]
+				//+Mdw_0
+
+				//Bdw_0 = branch mass at the beginning of the simulation including the mass of the last years but excluding buds
+				//Bdw = current year branch mass including the mass of the last years but excluding buds
+				//Mdw0 = mass of 3 buds at the beginning of the simulation
+				//Mdw = mass of 3 buds during the simulation
 
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
 				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
-				output[TRef][O_MERISTEMS] = x.Mdw;//[g]
-				output[TRef][O_BRANCH] = x.Bdw + x.Mdw;//[g]
-				output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
-				
+				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, current_branch_mass));//[g]
+				output[TRef][O_BUDS_MASS] = x.Mdw;//[g]
+				output[TRef][O_BRANCH_MASS] = x.Bdw - m_P.Bdw_0;//[g]
+				output[TRef][O_NEEDLE_MASS] = PS<1?0: m_P.NB_r * current_branch_mass * (1 - def.previous);  //[g];
+				//output[TRef][O_MERISTEMS] = x.Mdw;//[g]
+				//output[TRef][O_BRANCH] = (x.Bdw + x.Mdw);//[g]
+				//output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
+
+
 				//output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
 				//output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
 				//output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
@@ -327,6 +351,7 @@ namespace WBSF
 
 				if (bModelEx)
 				{
+					
 					output[TRef][O_C] = x.C;
 					output[TRef][O_INHIBITOR] = x.I;
 					output[TRef][O_SUGAR] = x.S;//[mg]

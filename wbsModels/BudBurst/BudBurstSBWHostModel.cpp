@@ -28,9 +28,9 @@ namespace WBSF
 	static const double MAX_STRACH = 116.0;//from data   [1,99]
 	static const double MIN_SUGAR = 8.2;//from data   [1,99] 
 	static const double MAX_SUGAR = 87.8;//from data   [1,99]
-	static const double MIN_MASS = 0.01506;//from data   [1,99]
-	static const double MAX_MASS = 0.1592;//from data   [1,99]
-
+	//static const double MIN_MASS = 0.01506;//from data   [1,99]
+	//static const double MAX_MASS = 0.1592;//from data   [1,99]
+	static const double MAX_DOY_DATA = 213-1;
 
 
 	static const bool USE_SDI = true;
@@ -271,6 +271,9 @@ namespace WBSF
 					else
 						m_years.insert(obs.m_ref.GetYear()+1);
 
+					//if (USE_MASS && obs.m_obs[3] > -999) 
+						//obs.m_obs[3] += 0.125;//add 0.125 for previous year branch mass
+
 					m_SAResult.push_back(obs);
 				}
 
@@ -378,7 +381,7 @@ namespace WBSF
 
 				if (_isnan(output[d][O_S_CONC]) || output[d][O_S_CONC] > 175 ||
 					_isnan(output[d][O_ST_CONC]) || output[d][O_ST_CONC] > 175 ||
-					_isnan(output[d][O_BRANCH]) || output[d][O_BRANCH] > 0.25)
+					_isnan(output[d][O_BRANCH_MASS]) || output[d][O_BRANCH_MASS] > 0.25)
 				{
 					//return;
 					nbInvalidS++;
@@ -389,7 +392,7 @@ namespace WBSF
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
-				if (output.IsInside(m_SAResult[i].m_ref))
+				if (output.IsInside(m_SAResult[i].m_ref) && m_SAResult[i].m_ref.GetJDay() < MAX_DOY_DATA)
 				{
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 )
 					{
@@ -480,19 +483,22 @@ namespace WBSF
 					if (USE_MASS && m_SAResult[i].m_obs[3] > -999 )
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_BRANCH] > -999);
+
+						//add 0.125 for previous year branch mass
+						double BranchBuds = output[m_SAResult[i].m_ref][O_BRANCH_MASS]+ output[m_SAResult[i].m_ref][O_BUDS_MASS];
 						
 
-						double obs_B = (m_SAResult[i].m_obs[3] - MIN_MASS) / (MAX_MASS - MIN_MASS);
-						double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - MIN_MASS) / (MAX_MASS - MIN_MASS);
+						//double obs_BM = (m_SAResult[i].m_obs[3] - MIN_MASS) / (MAX_MASS - MIN_MASS);
+						//double sim_BM = (BranchBuds - MIN_MASS) / (MAX_MASS - MIN_MASS);
 
-						//double obs_B = (m_SAResult[i].m_obs[3] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
-						//double sim_B = (output[m_SAResult[i].m_ref][O_BRANCH] - m_stat[3][MEAN]) / m_stat[3][STD_DEV];
+						double obs_BM = (m_SAResult[i].m_obs[3] - m_stat[3][LOWEST]) / m_stat[3][RANGE];
+						double sim_BM = (BranchBuds - m_stat[3][LOWEST]) / m_stat[3][RANGE];
 
-						if (_isnan(sim_B) || output[m_SAResult[i].m_ref][O_BRANCH] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
-							sim_B *= Rand(-1.0, 0.0);
+						if (_isnan(sim_BM) || output[m_SAResult[i].m_ref][O_BUDS_MASS] == -999 || output[m_SAResult[i].m_ref][O_BRANCH_MASS] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
+							sim_BM *= Rand(-1.0, 0.0);
 
 						//for (size_t j = 0; j < 5; j++)
-							stat.Add(obs_B, sim_B);
+							stat.Add(obs_BM, sim_BM);
 					}
 				}
 
