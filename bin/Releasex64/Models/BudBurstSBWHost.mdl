@@ -70,7 +70,7 @@
             <Name>cS</Name>
             <Title>cS</Title>
             <Units>mg/g DW</Units>
-            <Description/>
+            <Description>Sugar concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -78,29 +78,37 @@
             <Name>cSt</Name>
             <Title>cSt</Title>
             <Units>mm/g DW</Units>
-            <Description/>
+            <Description>Starch concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>M</Name>
-            <Title>M</Title>
+            <Name>BranchLength</Name>
+            <Title>BranchLength</Title>
+            <Units>mm</Units>
+            <Description>Branch length</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+		<OutputVariable>
+            <Name>BudsMass</Name>
+            <Title>BudsMass</Title>
             <Units>g</Units>
-            <Description>Meristem dry weight</Description>
+            <Description>Buds(3) dry weight</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MB</Name>
-            <Title>MB</Title>
+            <Name>BranchMass</Name>
+            <Title>BranchMass</Title>
             <Units>g</Units>
-            <Description>Branch dry weight (including Meristem)</Description>
+            <Description>Branch dry weight (exluding buds)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>N</Name>
-            <Title>N</Title>
+            <Name>NeedleMass</Name>
+            <Title>NeedleMass</Title>
             <Units>g</Units>
             <Description>Needles dry weight</Description>
             <TimeMode>4 0</TimeMode>

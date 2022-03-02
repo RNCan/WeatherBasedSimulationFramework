@@ -700,14 +700,14 @@
         </InputVariable>
         <InputVariable>
             <Name>lam_b</Name>
-            <Caption>G_v2</Caption>
+            <Caption>Bdw_0</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>360 10 380 160</Rect>
+            <Rect>770 15 790 165</Rect>
             <SeparatorPos>45</SeparatorPos>
-            <DefaultValue>9.47</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>365</MaxValue>
+            <DefaultValue>0.125</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>0.25</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -730,7 +730,7 @@
             <Name>cS</Name>
             <Title>cS</Title>
             <Units>mg/g DW</Units>
-            <Description/>
+            <Description>Sugar concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -738,29 +738,37 @@
             <Name>cSt</Name>
             <Title>cSt</Title>
             <Units>mm/g DW</Units>
-            <Description/>
+            <Description>Starch concentration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Mdw</Name>
-            <Title>Mdw</Title>
+            <Name>BranchLength</Name>
+            <Title>BranchLength</Title>
+            <Units>mm</Units>
+            <Description>Branch length</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BudsMass</Name>
+            <Title>BudsMass</Title>
             <Units>g</Units>
-            <Description>Meristem dry weight</Description>
+            <Description>Buds(3) dry weight</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>STEMdw</Name>
-            <Title>STEMdw</Title>
+            <Name>BranchMass</Name>
+            <Title>BranchMass</Title>
             <Units>g</Units>
-            <Description>Mdw+Bdw</Description>
+            <Description>Branch dry weight (exluding buds)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Ndw</Name>
-            <Title>Ndw</Title>
+            <Name>NeedleMass</Name>
+            <Title>NeedleMass</Title>
             <Units>g</Units>
             <Description>Needles dry weight</Description>
             <TimeMode>4 0</TimeMode>
