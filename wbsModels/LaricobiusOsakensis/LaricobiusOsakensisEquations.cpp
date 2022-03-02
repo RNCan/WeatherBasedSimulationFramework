@@ -104,11 +104,11 @@ namespace WBSF
 		static const array< vector<double>, LOF::NB_STAGES>  P_DEV =
 		{ {
 				//Non-linear
-				{ 4.035e-02, 8.769e-02, 3, 27, 9.287e-01, 5.000e-01 },//Egg
-				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L1
-				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L2
-				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L3
-				{ 2.027e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L4
+				{ 3.962e-02, 8.769e-02, 3, 27, 9.287e-01, 5.000e-01 },//Egg
+				{ 1.959e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L1
+				{ 1.959e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L2
+				{ 1.959e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L3
+				{ 1.959e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L4
 				{ 7.032e-02, 8.388e-02, 4, 34, 50.00e+01, 1.064e+01 },//PrePupae
 				{ 9.590e-03, 1.092e-01, 0, 32, 1.000e-01, 5.001e-01 },//Pupae
 				{                                                   },//aestival diapause adult
@@ -243,11 +243,7 @@ namespace WBSF
 		//1690.46,-840.107,5
 		static const double Fo = 100.4;
 		static const double sigma = 0.355;
-		
-		//double Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
-		//while (Fi < 2 || Fi>120)
-		//	Fi = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
-
+	
 		boost::math::lognormal_distribution<double> fecondity(log(Fo) - WBSF::Square(sigma) / 2.0, sigma);
 		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Rand(0.001, 0.999));
 
@@ -262,11 +258,6 @@ namespace WBSF
 		//AICc,maxLL
 		//1698.68,-839.968
 		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
-
-		 
-
-
-
 
 		static const vector<double> P_FEC = { 0.01518, 10.9, 6.535 };
 		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
