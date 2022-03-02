@@ -189,11 +189,9 @@ namespace WBSF
 				return NAN;
 
 
-
-
 			//multiplication of all daily survival
 			double t1 = info.t1();
-			double t2 = info.t2();// max(0.0, info.at(I_MEAN_TIME) - t1);
+			double t2 = info.t2();
 
 			ASSERT(t1 >= 0);
 			ASSERT(t2 >= 0);
@@ -420,7 +418,7 @@ namespace WBSF
 			double T = info.T()[0];
 			double rateD = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T));//daily rate
 
-			if (isnan(rateD))
+			if (isinf(rateD) || isnan(rateD))
 				return NAN;
 
 
@@ -443,7 +441,7 @@ namespace WBSF
 			double rateD1 = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T1));//daily rate
 			double rateD2 = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T2));//daily rate
 
-			if (isnan(rateD1) || isnan(rateD2))
+			if (isinf(rateD1) || isinf(rateD2) || isnan(rateD1) || isnan(rateD2))
 				return NAN;
 
 
@@ -465,16 +463,16 @@ namespace WBSF
 			ASSERT(T.size() == 24);
 
 			double mean_rateH = 0;
-			double rateH[24] = { 0 };
+			double rateH24[24] = { 0 };
 			for (size_t h = 0; h < 24; h++)
 			{
-				double r = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//hourly rate
+				double rateH = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//hourly rate
 
-				if (isnan(r))
+				if (isinf(rateH) || isnan(rateH))
 					return NAN;
 
-				rateH[h] = r;
-				mean_rateH += r / 24.0;
+				rateH24[h] = rateH;
+				mean_rateH += rateH;
 			}
 
 			//there is probably a way to optimized that
@@ -498,10 +496,10 @@ namespace WBSF
 					//WARNING: do not remove the strange formulations of double division
 					//because in this way, the inf and -inf is correctly managed
 					if (th < t)
-						xi += rateH[h];
+						xi += rateH24[h];
 
 					if (th < tˉ¹)
-						xiˉ¹ += rateH[h];
+						xiˉ¹ += rateH24[h];
 				}
 			}
 		}
@@ -524,7 +522,7 @@ namespace WBSF
 					ASSERT(t * 24 + h < T.size());
 					double rateH = max(LOWER_RATE_THRESHOLD, CDevRateEquation::GetRate(e, X, T[td * 24 + h])) / 24.0;//hourly rate
 
-					if (isnan(rateH))
+					if (isinf(rateH) || isnan(rateH))
 						return NAN;
 
 					//WARNING: do not remove the strange formulations of double division
@@ -539,10 +537,12 @@ namespace WBSF
 				}
 			}
 		}
-
+		
 		//compute probability of changing stage between ti-1 and ti
 		boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-		double p = cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹);
+		double p = (isfinite(xi) && isfinite(xiˉ¹))? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹): DBL_MIN;
+		
+		
 		return log(max(DBL_MIN, p));//max: avoid log of 0
 	}
 
@@ -1408,7 +1408,7 @@ namespace WBSF
 		return max_time;
 	}
 
-	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T", "I", "Start", "Time","MeanTime","TimeSD","N", "RDT", "qTime", "Rate", "RDR", "qRate", "Survival", "Brood", "MeanBrood", "BroodSD", "RFR", "qBrood" };
+	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T", "I", "Start", "Time","MeanTime","TimeSD","N", "W", "RDT", "qTime", "Rate", "RDR", "qRate", "Survival", "Brood", "MeanBrood", "BroodSD", "RFR", "qBrood" };
 	TDevTimeCol CDevRateData::get_input(const std::string& name)
 	{
 		TDevTimeCol col = I_UNKNOWN;
@@ -1530,6 +1530,10 @@ namespace WBSF
 
 				if (!have_var(I_N))
 					row[I_N] = 1.0;
+
+				if (!have_var(I_WEIGHT))
+					row[I_WEIGHT] = 1.0;
+				
 
 				if (!have_var(I_I))
 					row[I_I] = size() + 1.0;
@@ -3217,7 +3221,7 @@ namespace WBSF
 
 						sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
 						if (bLogLikelyhoude)
-							file << "Variable,EqName,P,Eq,Math,AICc,maxLL" << endl;
+							file << "Variable,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
 						else
 							file << "Variable,EqName,P,Eq,Math,R2" << endl;
 
@@ -3272,7 +3276,7 @@ namespace WBSF
 									file << output[i].m_variable << "," << name << "," << P << ",\"" << R_eq << "\",\"" << R_math << "\",";
 
 									if (bLogLikelyhoude)
-										file << output[i].m_computation.m_AICCopt << "," << output[i].m_computation.m_MLLopt;
+										file << output[i].m_computation.m_n_opt << "," << output[i].m_computation.m_k_opt << "," << output[i].m_computation.m_MLLopt << "," << output[i].m_computation.m_AICCopt;
 									else if (output[i].m_computation.m_Fopt != m_ctrl.GetVMiss())
 										file << output[i].m_computation.m_Sopt[STAT_R²];
 									else
@@ -4172,7 +4176,7 @@ namespace WBSF
 								// it can be a better solution to send the Time and Time-1: ToDo add Time Series Development fit
 								LL = Regniere2021DevRate(eq, sigma, computation.m_XP,*it);
 								n = it->at(I_N);
-								LL *= n;
+								LL *= n* it->at(I_WEIGHT);
 							}
 							else//use mean+sd+n
 							{
@@ -4187,7 +4191,7 @@ namespace WBSF
 							//compute maximum rate and don't let it got 
 
 
-							if (/*!isfinite(LL) || */isnan(LL))
+							if (isnan(LL))
 								return;
 
 
