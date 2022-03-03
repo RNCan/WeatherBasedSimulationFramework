@@ -33,9 +33,9 @@ namespace WBSF
 	static const double MAX_DOY_DATA = 213-1;
 
 
-	static const bool USE_SDI = false;
-	static const bool USE_STARCH = false;
-	static const bool USE_SUGAR = false;
+	static const bool USE_SDI = true;
+	static const bool USE_STARCH = true;
+	static const bool USE_SUGAR = true;
 	static const bool USE_MASS = true;
 
 	//this line link this model with the EntryPoint of the DLL
