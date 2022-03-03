@@ -269,7 +269,7 @@ namespace WBSF
 			if (m_info.m_inputParameters[i].IsVariable())
 			{
 				std::string value;
-				value = ToString(paramArray[j]);
+				value = ToString(paramArray[j], -1);
 				m_info.m_inputParameters[i].SetString(value);
 				j++;
 			}

@@ -66,7 +66,7 @@ namespace WBSF
 		CTRef GetTRef()const;
 
 		void SetString(const std::string& value){ m_value = value; }
-		void Set(float value){ m_value = ToString(value); }
+		void Set(double value){ m_value = ToString(value, -1); }
 
 		bool IsVariable()const{ return m_bIsVariable; }
 	};

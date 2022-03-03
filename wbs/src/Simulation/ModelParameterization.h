@@ -78,7 +78,7 @@ namespace WBSF
 
 		const CSAControl& GetControl()const { return m_ctrl; }
 		void SetControl(CSAControl& control) { m_ctrl = control; }
-		const std::vector<double>& GetOptimalValue() const{ return m_tmp.m_Xopt; }
+		const std::vector<double>& GetOptimalValue() const{ return m_computation.m_Xopt; }
 
 		const std::string& GetResultFileName()const{ return m_resultFileName; }
 		void SetResultFileName(const std::string& in){ m_resultFileName = in; }
@@ -129,7 +129,7 @@ namespace WBSF
 		//size_t m_locSize;
 
 		//computation variable
-		CComputationVariable m_tmp;
+		CComputationVariable m_computation;
 		CModelInput m_modelInput;
 		CParametersVariationsDefinition m_parametersVariations;
 		CSAParameterVector m_parameters;

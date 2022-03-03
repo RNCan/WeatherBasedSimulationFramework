@@ -55,8 +55,8 @@ namespace WBSF
 
 		void SetValue(bool value){	m_value = ToString(value);	}
 		void SetValue(__int32 value)		{			m_value = ToString(value);		}
-		void SetValue(float value)		{			m_value = ToString(value, 5);		}
-		void SetValue(double value)		{			m_value = ToString(value, 10);		}
+		void SetValue(float value)		{			m_value = ToString(value, -1);		}
+		void SetValue(double value)		{			m_value = ToString(value, -1);		}
 
 		void SetValue(const std::string& value){ m_value = value; }
 		void SetStr(const std::string& value)		{			m_value = value;		}
