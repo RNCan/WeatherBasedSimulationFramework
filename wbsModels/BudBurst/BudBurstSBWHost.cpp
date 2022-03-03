@@ -73,15 +73,15 @@ namespace WBSF
 
 	double CSBWHostBudBurst::Weight2Length(size_t s, double w)
 	{
-		static const double P[4][2] =
+		static const double P[4][3] =
 		{
-			{0.02391980, 0.0263593}, //bf
-			{0.01003552, 0.0410578}, //ws
-			{0.01037097, 0.0321163}, //bs
-			{0.01003552, 0.0410578}  //ns same as ws
+			{0.08549597,0.01620422,0.07651639}, //bf
+			{0.02346452,0.03186635,0.02499458}, //ws
+			{0.04147310,0.02063873,0.05423485}, //bs
+			{0.02346452,0.03186635,0.02499458}  //ns same as ws
 		};
 
-		return max(4.15, (log(max(1.0, w / P[s][1])) / P[s][2]));
+		return (log(max(1.0, (w + P[s][3])/ P[s][1])) / P[s][2]);
 	}
 
 	//This method is call to compute solution
@@ -304,7 +304,7 @@ namespace WBSF
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
 				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
-				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, x.Bdw - m_P.Bdw_0));//[g]
+				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, x.Bdw - m_P.Bdw_0 + x.Mdw));//[g]
 				output[TRef][O_BUDS_MASS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH_MASS] = x.Bdw - m_P.Bdw_0;//[g]
 				output[TRef][O_NEEDLE_MASS] = PS<1?0: m_P.NB_r * current_branch_mass * (1 - def.previous);  //[g];
