@@ -37,6 +37,7 @@ namespace WBSF
 		size_t m_species;
 		TSDI m_SDI_type;
 		size_t m_nbSteps;
+		HBB::TVersion m_version;
 
 		std::map<int, double> m_defioliation;
 		HBB::COldParam m_P_last;

@@ -20,15 +20,11 @@ namespace WBSF
 {
 
 	static const size_t MAX_SDI_STAGE = 5;
-	//static const size_t NB_STEPS = 1;
-	static const bool USE_HOURLY_T_MEAN = false;
-
-
+	
 
 	CSBWHostBudBurst::CSBWHostBudBurst()
 	{
 		m_nbSteps = 1;
-		//m_SDI = { 2.1616,1.8268,4.0,50 ,-6 ,26 ,10.7,0.7 ,167 ,9.47 };
 	}
 
 	CSBWHostBudBurst::~CSBWHostBudBurst()
@@ -162,26 +158,26 @@ namespace WBSF
 
 
 
-							//RC_G_stat += m_P.RC_G(hData[H_TAIR]);
-							//RC_F_stat += m_P.RC_F(hData[H_TAIR]);
-							//RC_M_stat += m_P.RC_M(hData[H_TAIR]);
+							RC_G_stat += m_P.RC_G(hData[H_TAIR]);
+							RC_F_stat += m_P.RC_F(hData[H_TAIR]);
+							RC_M_stat += m_P.RC_M(hData[H_TAIR]);
 						}
 
 						m_mean_T_day[dd].Tair = Tair_stat[MEAN];
 						m_mean_T_day[dd].PN = PN_stat[SUM];
 
-						//if (m_P.m_version == V_ORIGINAL)
-						//{
+						if (m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
+						{
 							m_mean_T_day[dd].RC_G_Tair = m_P.RC_G(m_mean_T_day[dd].Tair);
 							m_mean_T_day[dd].RC_F_Tair = m_P.RC_F(m_mean_T_day[dd].Tair);
 							m_mean_T_day[dd].RC_M_Tair = m_P.RC_M(m_mean_T_day[dd].Tair);
-						//}
-						//else
-						//{
-							//m_mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
-							//m_mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
-							//m_mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
-						//}
+						}
+						else
+						{
+							m_mean_T_day[dd].RC_G_Tair = RC_G_stat[MEAN];
+							m_mean_T_day[dd].RC_F_Tair = RC_F_stat[MEAN];
+							m_mean_T_day[dd].RC_M_Tair = RC_M_stat[MEAN];
+						}
 
 						//if (dd > 14)
 						//{
@@ -204,7 +200,11 @@ namespace WBSF
 			{
 				int year = weather[y].GetTRef().GetYear();
 				CTPeriod p;
-				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+				if(m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
+					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+				else if(m_version == V_MODIFIED)
+					p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+
 				// in the original code, it was from August to September
 				//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 
@@ -230,7 +230,12 @@ namespace WBSF
 			int year = weather[y].GetTRef().GetYear();
 
 			CTPeriod p;
-			p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+//			p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+			if (m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
+				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+			else if (m_version == V_MODIFIED)
+				p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+
 			// in the original code, it was from August to September
 			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 

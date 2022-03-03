@@ -10,7 +10,7 @@ namespace WBSF
 	//SBW host Budburst
 	namespace HBB
 	{
-		enum TVersion { V_ORIGINAL, V_RECALIBRATED, NB_VERSIONS };
+		enum TVersion { V_ORIGINAL, V_RECALIBRATED, V_MODIFIED, NB_VERSIONS };
 		enum TSBWSpecies { BALSAM_FIR, WHITE_SPRUCE, BLACK_SPRUCE, NORWAY_SPUCE, NB_SBW_SPECIES };
 
 

@@ -128,7 +128,7 @@ namespace WBSF
 			m_P.PAR_PS2 = parameters[c++].GetReal();
 			m_P.PAR_PS3 = parameters[c++].GetReal();
 			m_P.PAR_SLA = parameters[c++].GetReal();
-			HBB::TVersion version = HBB::TVersion(parameters[c++].GetInt());
+			m_version = HBB::TVersion(parameters[c++].GetInt());
 
 
 			std::array<double, NB_SDI_PARAMS> SDI;
@@ -171,10 +171,10 @@ namespace WBSF
 		}
 		else
 		{
-			HBB::TVersion version = HBB::TVersion(parameters[c++].GetInt());
-			m_P = HBB::PARAMETERS[version][m_species];
+			m_version = HBB::TVersion(parameters[c++].GetInt());
+			m_P = HBB::PARAMETERS[m_version][m_species];
 
-			if (version == HBB::V_ORIGINAL)
+			if (m_version == HBB::V_ORIGINAL)
 				m_nbSteps = 10;
 		}
 
@@ -228,6 +228,7 @@ namespace WBSF
 		m_model.m_SDI_type = (TSDI)m_SDI_type;
 		m_model.m_nbSteps = m_nbSteps;
 		m_model.m_P = m_P;
+		m_model.m_version = m_version;
 		//model.m_SDI = m_SDI;
 		
 
@@ -373,10 +374,9 @@ namespace WBSF
 			CTPeriod pp(m_data_weather.GetEntireTPeriod(CTM::DAILY));
 
 			m_model.m_species = m_species;
-
-
 			m_model.m_P = m_P;
-			m_model.m_SDI_type = (TSDI)m_SDI_type;
+			//m_model.m_SDI_type = (TSDI)m_SDI_type;
+			m_model.m_version = m_version;
 
 			CModelStatVector output;
 			m_model.Execute(m_data_weather, output, false);
@@ -396,6 +396,9 @@ namespace WBSF
 				}
 			}
 
+			size_t max_doy_data = 213-1;
+			if (m_version == HBB::V_MODIFIED)
+				max_doy_data = 244-1;
 			//size_t last_day = 213;
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
