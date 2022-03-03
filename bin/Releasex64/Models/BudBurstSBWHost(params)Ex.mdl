@@ -580,7 +580,7 @@
         </InputVariable>
         <InputVariable>
             <Name>model</Name>
-            <Caption>Model</Caption>
+            <Caption>Version</Caption>
             <Description/>
             <Type>5</Type>
             <Rect>45 195 70 420</Rect>
@@ -588,7 +588,7 @@
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
-            <TextValue>Original|Modified</TextValue>
+            <TextValue>Original|Recalibrate|Modified</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>mu</Name>

@@ -48,7 +48,7 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
-            <TextValue>Original|Recalibrate</TextValue>
+            <TextValue>Original|Recalibrate|Modified</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>SDI_Type</Name>
@@ -90,7 +90,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>BudsMass</Name>
             <Title>BudsMass</Title>
             <Units>g</Units>
