@@ -288,7 +288,7 @@ namespace WBSF
 				//double SDI_Auger = max(0.0, min(5.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
 				//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
 				double SDI = cdf(SDI_dist, PS) * 5;
-				double current_branch_mass = (x.Bdw + x.Mdw) - (m_P.Bdw_0);//[g]
+				double current_branch_mass = (x.Bdw + x.Mdw) - (m_P.Bdw_0+ Mdw_0);//[g]
 				//+Mdw_0
 
 				//Bdw_0 = branch mass at the beginning of the simulation including the mass of the last years but excluding buds
@@ -299,7 +299,7 @@ namespace WBSF
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
 				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
-				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, current_branch_mass));//[g]
+				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, x.Bdw - m_P.Bdw_0));//[g]
 				output[TRef][O_BUDS_MASS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH_MASS] = x.Bdw - m_P.Bdw_0;//[g]
 				output[TRef][O_NEEDLE_MASS] = PS<1?0: m_P.NB_r * current_branch_mass * (1 - def.previous);  //[g];
