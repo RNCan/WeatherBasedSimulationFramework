@@ -408,7 +408,7 @@ namespace WBSF
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 )
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_SDI] > -999);
-						ASSERT(m_SAResult[i].m_ref.GetJDay() < 213);
+						ASSERT(m_SAResult[i].m_ref.GetJDay() < max_doy_data);
 
 						//double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
 						//double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
