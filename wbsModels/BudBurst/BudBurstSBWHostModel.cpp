@@ -139,8 +139,8 @@ namespace WBSF
 			m_P.SDI_mu = SDI[μ];
 			m_P.SDI_sigma = SDI[ѕ];
 			m_P.Bdw_0 = SDI[ʎb];
-			//m_P.C_min = SDI[Τᴴ¹];
-			//m_P.C_max = SDI[Τᴴ²];
+			m_P.S_conc_0 = SDI[Τᴴ¹];
+			m_P.St_conc_0 = SDI[Τᴴ²];
 			m_P.PAR_minT = SDI[ʎ0];
 			m_P.PAR_optT = SDI[ʎ1];
 			m_P.PAR_maxT = SDI[ʎ2];
@@ -403,9 +403,9 @@ namespace WBSF
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
-				if (output.IsInside(m_SAResult[i].m_ref) && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
+				if (output.IsInside(m_SAResult[i].m_ref) )
 				{
-					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 )
+					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_SDI] > -999);
 						ASSERT(m_SAResult[i].m_ref.GetJDay() < max_doy_data);
@@ -475,7 +475,7 @@ namespace WBSF
 					}
 
 
-					if (USE_MASS && m_SAResult[i].m_obs[3] > -999 )
+					if (USE_MASS && m_SAResult[i].m_obs[3] > -999 && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_BRANCH_MASS] > -999);
 
@@ -510,7 +510,7 @@ namespace WBSF
 							stat.Add(obs_BM, sim_BM);
 					}
 
-					if (USE_LENGTH && m_SAResult[i].m_obs[4] > -999)
+					if (USE_LENGTH && m_SAResult[i].m_obs[4] > -999 && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_BRANCH_LENGTH] > -999);
 						
