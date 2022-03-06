@@ -398,12 +398,12 @@ namespace WBSF
 
 			size_t max_doy_data = 213-1;
 			if (m_version == HBB::V_MODIFIED)
-				max_doy_data = 244-1;
+				max_doy_data = 277-1;
 			//size_t last_day = 213;
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
-				if (output.IsInside(m_SAResult[i].m_ref) )
+				if (output.IsInside(m_SAResult[i].m_ref) && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
 				{
 					if (USE_SDI && m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < max_doy_data)
 					{

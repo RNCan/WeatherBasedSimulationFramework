@@ -29,7 +29,7 @@ namespace WBSF
 
 	CGrowingSeasonModel::CGrowingSeasonModel()
 	{
-		// initialise your variable here (optionnal)
+		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = 6;
 		VERSION = "1.2.0 (2016)";
 

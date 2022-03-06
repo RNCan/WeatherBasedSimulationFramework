@@ -203,7 +203,8 @@ namespace WBSF
 				if(m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
 					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 				else if(m_version == V_MODIFIED)
-					p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+					//p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+					p = CTPeriod(CTRef(year - 1, OCTOBER, DAY_01), CTRef(year, SEPTEMBER, DAY_30));
 
 				// in the original code, it was from August to September
 				//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
@@ -234,7 +235,8 @@ namespace WBSF
 			if (m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
 				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 			else if (m_version == V_MODIFIED)
-				p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+				p = CTPeriod(CTRef(year - 1, OCTOBER, DAY_01), CTRef(year, SEPTEMBER, DAY_30));
+				//p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
 
 			// in the original code, it was from August to September
 			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
@@ -293,7 +295,7 @@ namespace WBSF
 				//double SDI_Auger = max(0.0, min(5.0, -0.1767 + 5.5566 * (exp(-pow((6 - SDI_Dhont) / 1.9977, 1.1469)))));
 				//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
 				double SDI = cdf(SDI_dist, PS) * 5;
-				double current_branch_mass = (x.Bdw + x.Mdw) - (m_P.Bdw_0+ Mdw_0);//[g]
+				double current_branch_mass = (x.Bdw + x.Mdw) - (m_P.Bdw_0);//[g]
 				//+Mdw_0
 
 				//Bdw_0 = branch mass at the beginning of the simulation including the mass of the last years but excluding buds
