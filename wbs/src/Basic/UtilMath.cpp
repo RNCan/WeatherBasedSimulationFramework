@@ -1483,6 +1483,8 @@ namespace WBSF
 
 	//**************************************************************
 	const double CMathEvaluation::EPSILON = 0.000001;
+	const char* CMathEvaluation::OPERATOR_STR[NB_OPERATORS] = { "==", "!=", ">=", "<=", ">", "<" };
+
 	CMathEvaluation::CMathEvaluation(const char* strIn)
 	{
 		ASSERT(strIn != NULL);
@@ -1495,28 +1497,31 @@ namespace WBSF
 		m_value = ToValue<double>(str.substr(pos));
 	}
 
-	short CMathEvaluation::GetOp(const string& str)
+	CMathEvaluation::TOperation CMathEvaluation::GetOp(const string& str)
 	{
-		short op = UNKNOWN;
+		TOperation op = UNKNOWN;
 
+		for (size_t i = 0; i < NB_OPERATORS; i++)
+			if (str == OPERATOR_STR[i])
+				op = (TOperation)i;
 
-		if (str == "==")
-			op = EQUAL;
-		else if (str == "!=")
-			op = NOT_EQUAL;
-		else if (str == ">=")
-			op = GREATER_EQUAL;
-		else if (str == "<=")
-			op = LOWER_EQUAL;
-		else if (str == ">")
-			op = GREATER;
-		else if (str == "<")
-			op = LOWER;
+		//if (str == "==")
+		//	op = EQUAL;
+		//else if (str == "!=")
+		//	op = NOT_EQUAL;
+		//else if (str == ">=")
+		//	op = GREATER_EQUAL;
+		//else if (str == "<=")
+		//	op = LOWER_EQUAL;
+		//else if (str == ">")
+		//	op = GREATER;
+		//else if (str == "<")
+		//	op = LOWER;
 
 		return op;
 	}
 
-	bool CMathEvaluation::Evaluate(double value1, short op, double value2)
+	bool CMathEvaluation::Evaluate(double value1, TOperation op, double value2)
 	{
 		bool bRep = false;
 		switch (op)

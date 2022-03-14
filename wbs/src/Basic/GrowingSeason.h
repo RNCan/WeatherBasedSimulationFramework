@@ -19,48 +19,80 @@ namespace WBSF
 	class CGSInfo
 	{
 	public:
+
+		enum TDirection { GET_FIRST, GET_LAST, NB_DIRECTIONS };
+		enum TTemperature { TT_TMIN, TT_TMEAN, TT_TMAX/*, TT_TNOON*/, NB_TT_TEMPERATURE };
 		
-		enum TTemperature{ TT_TMIN, TT_TMEAN, TT_TMAX, TT_TNOON, NB_TT_TEMPERATURE };
-		size_t	m_type;
-		size_t	m_nbDays;
+
+
+		TDirection		m_d;
+		TTemperature	m_TT;
+		char	m_op;
 		double	m_threshold;
+		double	m_nbDays;
+		
 
 
+		CGSInfo(TDirection d= GET_LAST, TTemperature TT = TT_TMIN, char op = '<', double threshold = 0, double nbDays = 1);
 		double GetGST(const CWeatherDay& data)const;
-		CTRef GetFirst(CWeatherYear& weather, char sign = '>')const;
-		CTRef GetLast(CWeatherYear& weather, char sign = '>')const;
-	};
-	
+		double GetGST(const CHourlyData& data)const;
 
-	class CGrowingSeason
+		CTRef GetFirst(const CWeatherYear& weather, size_t first_month, size_t last_month, int shift)const;
+		CTRef GetLast(const CWeatherYear& weather, size_t first_month, size_t last_month, int shift)const;
+
+		CTRef GetEvent(const CWeatherYear& weather, size_t first_month, size_t last_month, int shift)const
+		{
+			return (m_d == GET_FIRST) ? GetFirst(weather, first_month, last_month, shift) : GetLast(weather, first_month, last_month, shift);
+		}
+	};
+
+	enum {O_GS_BEGIN, O_GS_END, O_GS_LENGTH, O_GS_NB_OUTPUTS };
+	class CEventPeriod
 	{
 	public:
-		
-		
+
 		CGSInfo		m_begin;
 		CGSInfo		m_end;
-		
-
-		CGrowingSeason(size_t TtypeBegin = CGSInfo::TT_TMIN, size_t nbDaysBegin = 3, double threasholdBegin = 0, size_t TtypeEnd = CGSInfo::TT_TMIN, size_t nbDaysEnd = 3, double threasholdEnd = 0)
-		{
-			m_begin.m_type = TtypeBegin;
-			m_begin.m_nbDays = nbDaysBegin;
-			m_begin.m_threshold = threasholdBegin;
-			m_end.m_type = TtypeEnd;
-			m_end.m_nbDays = nbDaysEnd;
-			m_end.m_threshold = threasholdEnd;
-		}
-
-		
 
 		//General method
 		void Execute(const CWeatherStation& station, CModelStatVector& output)const;
 		void Transform(const CTTransformation& TT, const CModelStatVector& input, CTStatMatrix& output);
-		
 
-		CTPeriod GetGrowingSeason(const CWeatherYear& weather)const;
-		CTPeriod GetFrostFreePeriod(const CWeatherYear& weather)const;
-		
+
+		virtual CTPeriod GetPeriod(const CWeatherYear& weather)const;
 	};
+
+	class CGrowingSeason: public CEventPeriod
+	{
+	public:
+
+		static const CGSInfo DEFAULT_BEGIN;
+		static const CGSInfo DEFAULT_END;
+		
+		CGrowingSeason(const CGSInfo& begin = DEFAULT_BEGIN, const CGSInfo& end = DEFAULT_END)
+		{
+			m_begin = begin;
+			m_end = end;
+		}
+	};
+
+
+	class CFrostFreePeriod : public CEventPeriod
+	{
+	public:
+
+		static const CGSInfo DEFAULT_BEGIN;
+		static const CGSInfo DEFAULT_END;
+
+
+		CFrostFreePeriod(const CGSInfo& begin = DEFAULT_BEGIN, const CGSInfo& end = DEFAULT_END)
+		{
+			m_begin = begin;
+			m_end = end;
+		}
+
+	};
+
+
 
 }

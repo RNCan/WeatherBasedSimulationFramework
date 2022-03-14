@@ -239,19 +239,19 @@ namespace WBSF
 	class CMathEvaluation
 	{
 	public:
-		enum TOperation{ UNKNOWN = -1, EQUAL, NOT_EQUAL, GREATER_EQUAL, LOWER_EQUAL, GREATER, LOWER };
-
-
+		enum TOperation{ UNKNOWN = -1, EQUAL, NOT_EQUAL, GREATER_EQUAL, LOWER_EQUAL, GREATER, LOWER, NB_OPERATORS };
+		static const char* OPERATOR_STR[NB_OPERATORS];
+		
 
 		CMathEvaluation(const char* str);
 		bool Evaluate(double value)const{ return Evaluate(value, m_op, m_value); }
 
-		static short GetOp(const std::string& str);
-		static bool Evaluate(double value1, short op, double value2);
+		static TOperation GetOp(const std::string& str);
+		static bool Evaluate(double value1, TOperation op, double value2);
 
-	private:
+	protected:
 
-		short m_op;
+		TOperation m_op;
 		double m_value;
 
 		static const double EPSILON;
