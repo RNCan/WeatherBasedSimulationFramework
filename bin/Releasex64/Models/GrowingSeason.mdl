@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>GrowingSeason</Title>
-    <Version>1.0</Version>
+    <Version>1.1</Version>
     <ID>.gs</ID>
     <EXE>GrowingSeason.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Growing season is define as the period between the last n1 consecutive days when T1(Tmin, Tmean or Tmax) is under a threashold1 in the spring and the first n2 consecutive days when T2 (Tmin, Tmean or Tmax) is under a threashold2  in the fall</Description>
-    <WindowRect>0 0 211 250</WindowRect>
+    <WindowRect>0 0 187 1157</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -15,11 +15,59 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
+            <Name>DirectionBegin</Name>
+            <Caption>DirectionBegin</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 170</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>First time|Last time</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>TypeBegin</Name>
+            <Caption>TypeBegin</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 185 30 380</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Tmin|Tmean|Tmax|</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>OperatorBegin</Name>
+            <Caption>OperatorBegin</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 390 30 540</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Smaller|Greater</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdBegin</Name>
+            <Caption>ThresholdBegin</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>10 555 30 770</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
             <Name>NbDaysBegin</Name>
             <Caption>NbDaysBegin</Caption>
             <Description/>
             <Type>1</Type>
-            <Rect>10 10 30 225</Rect>
+            <Rect>10 790 30 1005</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>3</DefaultValue>
             <MinValue>1</MinValue>
@@ -27,23 +75,47 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>TypeBegin</Name>
-            <Caption>TypeBegin</Caption>
+            <Name>DirectionEnd</Name>
+            <Caption>DirectionEnd</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>30 10 50 225</Rect>
+            <Rect>80 10 100 170</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>First time|Last time</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>TypeEnd</Name>
+            <Caption>TypeEnd</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>80 185 100 380</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>3</MaxValue>
-            <TextValue>Tmin|Tmean|Tmax|Tnoon</TextValue>
+            <TextValue>Tmin|Tmean|Tmax</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>ThresholdBegin</Name>
-            <Caption>ThresholdBegin</Caption>
+            <Name>OperatorEnd</Name>
+            <Caption>OperatorEnd</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>80 390 100 540</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Smaller|Greater</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdEnd</Name>
+            <Caption>ThresholdEnd</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>50 10 75 225</Rect>
+            <Rect>80 555 100 770</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>-10</MinValue>
@@ -55,35 +127,11 @@
             <Caption>NbDaysEnd</Caption>
             <Description/>
             <Type>1</Type>
-            <Rect>75 10 95 225</Rect>
+            <Rect>80 790 100 1005</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>3</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>50</MaxValue>
-            <TextValue/>
-        </InputVariable>
-        <InputVariable>
-            <Name>TypeEnd</Name>
-            <Caption>TypeEnd</Caption>
-            <Description/>
-            <Type>5</Type>
-            <Rect>95 10 120 225</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>3</MaxValue>
-            <TextValue>Tmin|Tmean|Tmax|Tnoon</TextValue>
-        </InputVariable>
-        <InputVariable>
-            <Name>ThresholdEnd</Name>
-            <Caption>ThresholdEnd</Caption>
-            <Description/>
-            <Type>2</Type>
-            <Rect>120 10 140 225</Rect>
-            <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>-10</MinValue>
-            <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

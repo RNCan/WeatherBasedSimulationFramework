@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>ClimaticSB</Title>
-    <Version>2.0</Version>
+    <Version>2.1</Version>
     <ID>.cqc</ID>
     <EXE>ClimaticQc.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>This model compute annual climatic variable froom temperature and precipitation only</Description>
+    <Description>This model compute annual climatic variable from temperature and precipitation only</Description>
     <WindowRect>0 0 77 401</WindowRect>
     <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -122,7 +122,7 @@
             <Name>GrowingSeasonLength</Name>
             <Title>Growing season length</Title>
             <Units>day</Units>
-            <Description>Length of growing season. Growing season is define as the period between the last 3 consecutives days with frost (Tmin&lt;0) in the spring and the first 3 consecutives days with frost (Tmin&lt;0) in the fall</Description>
+            <Description>Length of growing season. Growing season is define as the period between the first 3 consecutives days without frost (Tmin&gt;0) in the spring and the first 3 consecutives days with frost (Tmin&lt;0) in the fall</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
@@ -208,6 +208,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit/>
+    <Credit>2022-03-14, growing season definition has changed</Credit>
     <HelpFileName/>
 </Model>
