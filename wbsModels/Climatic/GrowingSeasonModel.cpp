@@ -13,7 +13,7 @@
 #include "GrowingSeasonModel.h"
 
 
-using namespace WBSF::HOURLY_DATA; 
+using namespace WBSF::HOURLY_DATA;
 
 namespace WBSF
 {
@@ -22,7 +22,7 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CGrowingSeasonModel::CreateObject);
 
-	enum TOutput { O_FIRST_DAY, O_LAST_DAY, O_GS_LENGTH, NB_OUTPUT };
+	//enum TOutput { O_FIRST_DAY, O_LAST_DAY, O_GS_LENGTH, NB_OUTPUT };
 
 	//typedef CModelStatVectorTemplate<NB_OUTPUT> CStatVector;
 
@@ -30,16 +30,16 @@ namespace WBSF
 	CGrowingSeasonModel::CGrowingSeasonModel()
 	{
 		// initialize your variable here (optional)
-		NB_INPUT_PARAMETER = 6;
-		VERSION = "1.2.0 (2016)";
+		NB_INPUT_PARAMETER = 10;
+		VERSION = "1.2.1 (2022)";
 
 
-		m_Ttype[BEGIN] = CGSInfo::TT_TMIN;
-		m_threshold[BEGIN] = 0;
-		m_nbDays[BEGIN] = 3;
-		m_Ttype[END] = CGSInfo::TT_TMIN;
-		m_threshold[END] = 0;
-		m_nbDays[END] = 3;
+		//m_Ttype[BEGIN] = CGSInfo::TT_TMIN;
+		//m_threshold[BEGIN] = 0;
+		//m_nbDays[BEGIN] = 3;
+		//m_Ttype[END] = CGSInfo::TT_TMIN;
+		//m_threshold[END] = 0;
+		//m_nbDays[END] = 3;
 
 	}
 
@@ -51,16 +51,33 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		enum TShift { INCLUDE_NB_DAYS, EXCLUDE_NB_DAYS, NB_SHIFT };
 
 		//transfer your parameter here
-		short c = 0;
+		size_t c = 0;
 
-		m_nbDays[BEGIN] = parameters[c++].GetInt();
-		m_Ttype[BEGIN] = parameters[c++].GetInt();
-		m_threshold[BEGIN] = parameters[c++].GetReal();
-		m_nbDays[END] = parameters[c++].GetInt();
-		m_Ttype[END] = parameters[c++].GetInt();
-		m_threshold[END] = parameters[c++].GetReal();
+		m_begin.m_d = (CGSInfo::TDirection)parameters[c++].GetInt();
+		m_begin.m_TT = (CGSInfo::TTemperature)parameters[c++].GetInt();
+		m_begin.m_op = (parameters[c++].GetInt() == 0) ? '<' : '>';
+		m_begin.m_threshold = parameters[c++].GetReal();
+		m_begin.m_nbDays = parameters[c++].GetInt();
+		//m_begin.m_first_month = GetInfo().m_loc.m_lat > 0 ? JANUARY : JULY;
+		//m_begin.m_last_month = GetInfo().m_loc.m_lat > 0 ? JUNE : DECEMBER;
+		//size_t shiftType1 = parameters[c++].GetInt();
+		//m_begin.m_shift = shiftType1 == INCLUDE_NB_DAYS ? (m_begin.m_d == CGSInfo::GET_FIRST ? -int(m_begin.m_nbDays) : int(m_begin.m_nbDays)) : 0;
+
+		m_end.m_d = (CGSInfo::TDirection)parameters[c++].GetInt();
+		m_end.m_TT = (CGSInfo::TTemperature)parameters[c++].GetInt();
+		m_end.m_op = (parameters[c++].GetInt() == 0) ? '<' : '>';
+		m_end.m_threshold = parameters[c++].GetReal();
+		m_end.m_nbDays = parameters[c++].GetInt();
+		//m_end.m_first_month = GetInfo().m_loc.m_lat > 0 ? JULY : JANUARY;
+		//m_end.m_last_month = GetInfo().m_loc.m_lat > 0 ? DECEMBER : JUNE;
+
+		//size_t shiftType2 = parameters[c++].GetInt();
+		//m_end.m_shift = shiftType2 == INCLUDE_NB_DAYS ? (m_end.m_d == CGSInfo::GET_FIRST ? -int(m_end.m_nbDays) : int(m_end.m_nbDays)) : 0;
+
+
 		ASSERT(c == NB_INPUT_PARAMETER);
 
 		return msg;
@@ -71,30 +88,44 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
 
-		//Init class member
-		CGrowingSeason GS(m_Ttype[BEGIN], m_nbDays[BEGIN], m_threshold[BEGIN], m_Ttype[END], m_nbDays[END], m_threshold[END]);
-		
+		//size_t m_D[NB_INPUT];
+		//size_t m_TT[NB_INPUT];
+		//char   m_op[NB_INPUT];
+		//double m_threshold[NB_INPUT];
+		//size_t m_nbDays[NB_INPUT];
+		//size_t m_first_month[NB_INPUT];//-1 = default (January/July for north and July/January for south hemisphere
+		//size_t m_last_month[NB_INPUT];//-1 = default (June/December for north and December/June for south hemisphere
+		//size_t m_shiftType;
+
+
+		//CGSInfo begin(m_Ttype[BEGIN], m_nbDays[BEGIN], m_threshold[BEGIN], m_Ttype[END], m_nbDays[END], m_threshold[END]);
+		//CGSInfo end(m_Ttype[BEGIN], m_nbDays[BEGIN], m_threshold[BEGIN], m_Ttype[END], m_nbDays[END], m_threshold[END])
+
+		////Init class member
+		CGrowingSeason GS(m_begin, m_end);
+
+
 		//Create output from result
 		//CModelStatVector output;// (m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)));
-//		GS.Execute(m_weather, output);
+		GS.Execute(m_weather, m_output);
+		//always output as daily values????
+		//m_output.Transform(CTM(CTM::DAILY), 0);
+		//m_output.Transform(CTM(CTM::DAILY), 1);
 
 
-		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), NB_OUTPUT);
-		for (size_t y = 0; y < m_weather.size(); y++)
-		{
-			CTPeriod p = GS.GetGrowingSeason(m_weather[y]); 
-			p.Transform(CTM(CTM::DAILY));
+		//m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), NB_OUTPUT);
+		//for (size_t y = 0; y < m_weather.size(); y++)
+		//{
+		//	CTPeriod p = GS.GetGrowingSeason(m_weather[y]); 
+		//	p.Transform(CTM(CTM::DAILY));
+		//
+		//	m_output[y][O_FIRST_DAY] = p.Begin().GetRef();//p.Begin().Get__int32();
+		//	m_output[y][O_LAST_DAY] = p.End().GetRef();//p.End().Get__int32(); 
+		//	m_output[y][O_GS_LENGTH] = p.GetLength();
+		//}
 
-			m_output[y][O_FIRST_DAY] = p.Begin().GetRef();//p.Begin().Get__int32();
-			m_output[y][O_LAST_DAY] = p.End().GetRef();//p.End().Get__int32(); 
-			m_output[y][O_GS_LENGTH] = p.GetLength();
-		}
-
-		//set output
-		//SetOutput(output);
-
+		
 
 		return msg;
 	}

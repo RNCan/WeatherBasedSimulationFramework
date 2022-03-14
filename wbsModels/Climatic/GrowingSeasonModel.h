@@ -22,10 +22,8 @@ namespace WBSF
 
 	private:
 
-
-		short m_nbDays[NB_INPUT];
-		short m_Ttype[NB_INPUT];
-		double m_threshold[NB_INPUT];
+		CGSInfo m_begin;
+		CGSInfo m_end;
 	};
 
 }

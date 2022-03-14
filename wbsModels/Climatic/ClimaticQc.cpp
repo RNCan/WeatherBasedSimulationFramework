@@ -1,5 +1,6 @@
 ﻿//**********************************************************************
-// 10/09/2018	4.0.1	Rémi Saint-Amant    Daylight VPD change to toeal VPD
+// 09/03/2022	4.1.0	Rémi Saint-Amant    Use of new Growing Season and FrostFree class
+// 10/09/2018	4.0.1	Rémi Saint-Amant    Daylight VPD change to total VPD
 // 10/09/2018	4.0.0	Rémi Saint-Amant    Change in units of aridity, pet 
 //											mean of VPD instead of summation
 //											Add PET as output
@@ -52,7 +53,7 @@ namespace WBSF
 	CClimaticQc::CClimaticQc()
 	{
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "4.0.0 (2018)";
+		VERSION = "4.1.0 (2022)";
 
 		// initialise your variable here (optionnal)
 		m_threshold = 0;
@@ -106,6 +107,14 @@ namespace WBSF
 		DD.Transform(CTM(CTM::ANNUAL), SUM);
 
 		CGrowingSeason GS;
+		GS.m_begin.m_d = CGSInfo::GET_FIRST;
+		GS.m_begin.m_TT = CGSInfo::TT_TMIN;
+		GS.m_begin.m_op = '>';
+		GS.m_begin.m_threshold = 0;
+		GS.m_begin.m_nbDays = 3;
+
+
+		CFrostFreePeriod  FF;
 
 		CThornthwaiteET TPET;
 		CModelStatVector PET;
@@ -124,11 +133,11 @@ namespace WBSF
 			double Tmean = m_weather[y][H_TAIR][MEAN];
 			double Tmax = m_weather[y][H_TMAX][MEAN];
 
-			CTPeriod FFPeriod = GS.GetFrostFreePeriod(m_weather[y]);
+			CTPeriod FFPeriod = FF.GetPeriod(m_weather[y]);
 			size_t dayWithoutFrost = m_weather[y].GetNbDays() - GetNbFrostDay(m_weather[y]);
 			ASSERT(dayWithoutFrost >= 0 && dayWithoutFrost <= m_weather[y].GetNbDays());
 
-			CTPeriod growingSeason = GS.GetGrowingSeason(m_weather[y]);
+			CTPeriod growingSeason = GS.GetPeriod(m_weather[y]);
 			double pptGS = m_weather[y](H_PRCP, growingSeason)[SUM];
 			double TmeanGS = m_weather[y](H_TAIR, growingSeason)[MEAN];
 			double meanJuly = m_weather[y][JULY][H_TAIR][MEAN];

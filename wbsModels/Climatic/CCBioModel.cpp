@@ -1,4 +1,5 @@
 //**********************************************************************
+// 09/03/2022	2.6.0	Rémi Saint-Amant    Use of new Growing season ans ForsFree class
 // 11/09/2018	2.5.1	Rémi Saint-Amant    Compile with VS 2017
 // 20/09/2016	2.5.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	2.4.0	Rémi Saint-Amant	Using Weather-based simulation framework (WBSF)
@@ -29,7 +30,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "2.5.1 (2018)";
+		VERSION = "2.6.0 (2022)";
 	}
 
 	CCCBioModel::~CCCBioModel()
@@ -109,6 +110,7 @@ namespace WBSF
 		CDD0.Execute(m_weather, DD0);
 
 		CGrowingSeason GS;
+		CFrostFreePeriod  FF;
 		
 		
 
@@ -125,10 +127,9 @@ namespace WBSF
 		{
 			int year = m_weather.GetFirstYear() + int(y);
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM::MONTHLY);
-			CTPeriod GSp = GS.GetGrowingSeason(m_weather[y]);
-			CTPeriod Fp = GS.GetFrostFreePeriod(m_weather[y]);
-			//CTPeriod Fp = m_weather[y].GetFrostFreePeriod();
-			//CTPeriod GSp = m_weather[y].GetGrowingSeason();
+			CTPeriod GSp = GS.GetPeriod(m_weather[y]);//definition have probably change since the first version
+			CTPeriod FFp = FF.GetPeriod(m_weather[y]);
+			
 
 			CStatistic ETStat = ET.GetStat(0, p);
 			m_output[y][O_ANNUAL_TMIN] = m_weather[y][H_TMIN][MEAN];
@@ -151,10 +152,10 @@ namespace WBSF
 			m_output[y][O_ANNUAL_CDD] = GetCoolingDD(m_weather[y], 0);
 
 			//frost free period
-			m_output[y][O_ANNUAL_FSDAY] = Fp.Begin().GetJDay() + 1;
-			m_output[y][O_ANNUAL_FFDAY] = Fp.End().GetJDay() + 1;
-			m_output[y][O_ANNUAL_FPP] = Fp.GetLength();
-			m_output[y][O_ANNUAL_FDD] = DD0.GetStat(0, Fp)[SUM]; //m_weather[y].GetDD(0, Fp);
+			m_output[y][O_ANNUAL_FSDAY] = FFp.Begin().GetJDay() + 1;
+			m_output[y][O_ANNUAL_FFDAY] = FFp.End().GetJDay() + 1;
+			m_output[y][O_ANNUAL_FPP] = FFp.GetLength();
+			m_output[y][O_ANNUAL_FDD] = DD0.GetStat(0, FFp)[SUM]; //m_weather[y].GetDD(0, Fp);
 
 			
 			//growing season period
