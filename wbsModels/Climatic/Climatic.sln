@@ -52,7 +52,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily vs Normals", "Daily v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "WinterThawModel.vcxproj", "{D3ED03EE-74D3-4B43-948D-CC9E2F6B1D8E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTestModels", "..\UnitTest\UnitTestModels.vcxproj", "{9B4E8F45-3044-443E-9F2C-463D878CA260}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{9B4E8F45-3044-443E-9F2C-463D878CA260}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
