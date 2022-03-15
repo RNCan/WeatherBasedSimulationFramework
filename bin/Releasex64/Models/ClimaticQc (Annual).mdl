@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>ClimaticSB</Title>
-    <Version>2.1</Version>
+    <Version>2.2</Version>
     <ID>.cqc</ID>
     <EXE>ClimaticQc.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>This model compute annual climatic variable from temperature and precipitation only</Description>
-    <WindowRect>0 0 77 401</WindowRect>
+    <WindowRect>0 0 130 527</WindowRect>
     <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -20,11 +20,23 @@
             <Description>Threshold of degree day summation</Description>
             <Type>2</Type>
             <Rect>10 10 30 260</Rect>
-            <SeparatorPos>185</SeparatorPos>
+            <SeparatorPos>125</SeparatorPos>
             <DefaultValue>5</DefaultValue>
             <MinValue>-40</MinValue>
             <MaxValue>40</MaxValue>
             <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>GrowingSeasonType</Name>
+            <Caption>Growing season begin</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>40 10 60 470</Rect>
+            <SeparatorPos>125</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>First 3 consecutives days without frost (Tmin&gt;0) in spring|Last 3 consecutives days with frost (Tmin&lt;0) in spring</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>0 0</OutputTypeMode>

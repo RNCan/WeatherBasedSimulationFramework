@@ -52,11 +52,12 @@ namespace WBSF
 
 	CClimaticQc::CClimaticQc()
 	{
-		NB_INPUT_PARAMETER = 1;
-		VERSION = "4.1.0 (2022)";
+		NB_INPUT_PARAMETER = 2;
+		VERSION = "4.1.1 (2022)";
 
-		// initialise your variable here (optionnal)
+		// initialize your variable here (optional)
 		m_threshold = 0;
+		m_growing_season_type = FIRST_TIME_GREATER;
 	}
 
 	CClimaticQc::~CClimaticQc()
@@ -93,6 +94,23 @@ namespace WBSF
 		/*O_MEAN_DAYLIGHT_VPD*/O_MEAN_TOTAL_VPD, O_MEAN_UVPD, O_PET, O_ARIDITY, O_SNOW_RATIO, O_ANNUAL_SNOW, O_TOTAL_RAD, O_GS_RAD, NB_OUTPUTS
 	};
 
+	//this method is call to load your parameter in your variable
+	ERMsg CClimaticQc::ProcessParameters(const CParameterVector& parameters)
+	{
+		ERMsg message;
+
+		//transfer your parameter here
+		int c = 0;
+		m_threshold = parameters[c++].GetReal();
+		m_growing_season_type = (TGrowingSeason)parameters[c++].GetInt();
+		ASSERT(m_growing_season_type < NB_GS_TYPE);
+
+
+
+		return message;
+	}
+
+
 	ERMsg CClimaticQc::OnExecuteAnnual()
 	{
 		ERMsg message;
@@ -107,12 +125,24 @@ namespace WBSF
 		DD.Transform(CTM(CTM::ANNUAL), SUM);
 
 		CGrowingSeason GS;
-		GS.m_begin.m_d = CGSInfo::GET_FIRST;
-		GS.m_begin.m_TT = CGSInfo::TT_TMIN;
-		GS.m_begin.m_op = '>';
-		GS.m_begin.m_threshold = 0;
-		GS.m_begin.m_nbDays = 3;
 
+
+		if (m_growing_season_type == FIRST_TIME_GREATER)
+		{
+			GS.m_begin.m_d = CGSInfo::GET_FIRST;
+			GS.m_begin.m_TT = CGSInfo::TT_TMIN;
+			GS.m_begin.m_op = '>';
+			GS.m_begin.m_threshold = 0;
+			GS.m_begin.m_nbDays = 3;
+		}
+		else//LAST_TIME_SMALLER
+		{
+			GS.m_begin.m_d = CGSInfo::GET_LAST;
+			GS.m_begin.m_TT = CGSInfo::TT_TMIN;
+			GS.m_begin.m_op = '<';
+			GS.m_begin.m_threshold = 0;
+			GS.m_begin.m_nbDays = 3;
+		}
 
 		CFrostFreePeriod  FF;
 
@@ -143,17 +173,17 @@ namespace WBSF
 			double meanJuly = m_weather[y][JULY][H_TAIR][MEAN];
 
 
-			
-			
-			
 
-			
+
+
+
+
 
 			double UVPD = GetUtilDeficitPressionVapeur(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
 			//double VPD = GetDaylightVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
 			double VPD = GetTotalVaporPressureDeficit(m_weather[y]) * 10.0;//[kPa] -> [hPa](mBar)
 
-			
+
 
 			double PETa = 0;
 			double ar = 0;
@@ -250,9 +280,9 @@ namespace WBSF
 
 			if (Tmin > 0 && Tmax > 0)
 			{
-				double T1 = 7.5*Tmax / (237.3 + Tmax);
-				double T2 = 7.5*Tmin / (237.3 + Tmin);
-				udpv += 0.6108*(pow(10., T1) - pow(10., T2));//[kPa]
+				double T1 = 7.5 * Tmax / (237.3 + Tmax);
+				double T2 = 7.5 * Tmin / (237.3 + Tmin);
+				udpv += 0.6108 * (pow(10., T1) - pow(10., T2));//[kPa]
 			}
 		}
 
@@ -260,7 +290,7 @@ namespace WBSF
 		return udpv[MEAN];
 	}
 
-	
+
 	double CClimaticQc::GetTotalVaporPressureDeficit(const CWeatherYear& weather)
 	{
 		CStatistic tdpv;
@@ -275,9 +305,9 @@ namespace WBSF
 
 			if (Tmin > 0 && Tmax > 0)
 			{
-				double T1 = 7.5*Tmax / (237.3 + Tmax);
-				double T2 = 7.5*Tmin / (237.3 + Tmin);
-				tdpv += 0.6108*(pow(10., T1) - pow(10., T2));//[kPa]
+				double T1 = 7.5 * Tmax / (237.3 + Tmax);
+				double T2 = 7.5 * Tmin / (237.3 + Tmin);
+				tdpv += 0.6108 * (pow(10., T1) - pow(10., T2));//[kPa]
 			}
 		}
 
@@ -328,19 +358,7 @@ namespace WBSF
 
 	//udpv2 += svp*(1-day[DAILY_DATA::RELH]/100);
 
-	//this method is call to load your parameter in your variable
-	ERMsg CClimaticQc::ProcessParameters(const CParameterVector& parameters)
-	{
-		ERMsg message;
 
-		//transfer your parameter here
-		int c = 0;
-		m_threshold = parameters[c++].GetReal();
-		//	m_snowModelType = parameters[c++].GetInt();
-
-
-		return message;
-	}
 
 	//Saturation vapor pressure at daylight temperature[kPa]
 	double GetDaylightVaporPressureDeficit(const CWeatherYear& weather)
