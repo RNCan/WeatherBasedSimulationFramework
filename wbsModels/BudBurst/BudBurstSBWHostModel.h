@@ -44,6 +44,7 @@ namespace WBSF
 		std::map<int, double> m_defioliation_by_year;
 		CStatistic m_SDI_DOY_stat;
 		std::array<CStatistic, 4> m_stat;
+		bool m_bCumul;
 
 		
 		std::set<int> m_years;

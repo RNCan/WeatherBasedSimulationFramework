@@ -20,11 +20,12 @@ namespace WBSF
 {
 
 	static const size_t MAX_SDI_STAGE = 5;
-	
+
 
 	CSBWHostBudBurst::CSBWHostBudBurst()
 	{
 		m_nbSteps = 1;
+		m_bCumul = false;
 	}
 
 	CSBWHostBudBurst::~CSBWHostBudBurst()
@@ -46,7 +47,7 @@ namespace WBSF
 		return Fx;
 	}
 
-	array<double, 5> CSBWHostBudBurst::SDI_2_Sx(double SDI, bool bCumul)
+	array<double, 6> CSBWHostBudBurst::SDI_2_Sx(double SDI, bool bCumul)
 	{
 		static const array< array< double, 2>, 5> P =
 		{ {
@@ -57,31 +58,56 @@ namespace WBSF
 			{1.444, 1.390},//F5
 		} };
 
-		
+
 		double F1 = Weibull(1, SDI, P[0]);
 		double F2 = Weibull(2, SDI, P[1]);
 		double F3 = Weibull(3, SDI, P[2]);
 		double F4 = Weibull(4, SDI, P[3]);
 		double F5 = Weibull(5, SDI, P[4]);
 
-		array<double, 5> Sx = { 1 - F1, F1 - F2, F2 - F3, F3 - F4,  F5 };
-		if(bCumul)
-			Sx = { 1 - F1, F1, F2, F3,  F5 };
+		array<double, 6> Sx = { 0 };
+
+		if (bCumul)
+			Sx = { 1 - F1, F1, F2, F3, F4, F5 };
+		else
+			Sx = { 1 - F1, F1 - F2, F2 - F3, F3 - F4, F4 - F5, F5 };
 
 		return Sx;
 	}
 
-	double CSBWHostBudBurst::Weight2Length(size_t s, double w)
-	{
-		static const double P[4][3] =
-		{
-			{0.08548114, 0.01620569, 0.07649309}, //bf
-			{0.02345253, 0.03187149, 0.02497838}, //ws
-			{0.04148479, 0.02063676, 0.05425486}, //bs
-			{0.02345253, 0.03187149, 0.02497838}  //ns same as ws!
-		};
 
-		return log(max(1.0, (w + P[s][3])/ P[s][1])) / P[s][2];
+	double CSBWHostBudBurst::Weight2Length(size_t s, double w, TW2L type)
+	{
+		ASSERT(type < NB_W2L);
+
+		double l = 0;
+		if (type == W2L_LORENA)
+		{
+			static const double P[4][2] =
+			{
+				{0.03823901, 0.02170693},//bf
+				{0.01003552, 0.04105784},//ws
+				{0.01106281, 0.03137205},//bs
+				{0.01003552, 0.04105784},//ns same as ws!
+			};
+
+			l = log(max(1.0, w / P[s][1])) / P[s][2];
+		}
+		else if (type == W2L_REMI)
+		{
+			static const double P[4][3] =
+			{
+				{0.08548114, 0.01620569, 0.07649309}, //bf
+				{0.02345253, 0.03187149, 0.02497838}, //ws
+				{0.04148479, 0.02063676, 0.05425486}, //bs
+				{0.02345253, 0.03187149, 0.02497838}  //ns same as ws!
+			};
+
+			l = log(max(1.0, (w + P[s][3]) / P[s][1])) / P[s][2];
+		}
+
+
+		return l;
 	}
 
 	//This method is call to compute solution
@@ -113,7 +139,7 @@ namespace WBSF
 
 		if (m_mean_T_day.empty() || m_P_last != m_P)
 		{
-			
+
 
 			m_P_last = m_P;
 			m_mean_T_day.resize(pp.GetNbDay());
@@ -200,9 +226,9 @@ namespace WBSF
 			{
 				int year = weather[y].GetTRef().GetYear();
 				CTPeriod p;
-				if(m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
+				if (m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
 					p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
-				else if(m_version == V_MODIFIED)
+				else if (m_version == V_MODIFIED)
 					//p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
 					p = CTPeriod(CTRef(year - 1, OCTOBER, DAY_01), CTRef(year, SEPTEMBER, DAY_30));
 
@@ -231,15 +257,15 @@ namespace WBSF
 			int year = weather[y].GetTRef().GetYear();
 
 			CTPeriod p;
-//			p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
+			//			p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 			if (m_version == V_ORIGINAL || m_version == V_RECALIBRATED)
 				p = CTPeriod(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, JULY, DAY_31));
 			else if (m_version == V_MODIFIED)
 				p = CTPeriod(CTRef(year - 1, OCTOBER, DAY_01), CTRef(year, SEPTEMBER, DAY_30));
-				//p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
+			//p = CTPeriod(CTRef(year - 1, SEPTEMBER, DAY_01), CTRef(year, AUGUST, DAY_31));
 
-			// in the original code, it was from August to September
-			//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
+		// in the original code, it was from August to September
+		//CTPeriod p(CTRef(year - 1, AUGUST, DAY_01), CTRef(year, AUGUST, DAY_31));
 
 			CDefoliation def;
 			if (!m_defioliation.empty())
@@ -260,7 +286,7 @@ namespace WBSF
 			double Ndw_0 = m_P.NB_r * m_P.Bdw_0 * (1 - def.previous);
 			static const double I_0 = 1.0;
 			double Budburst_thr = m_P.BB_thr * Mdw_0;
-			
+
 
 			// State variables initial values[s st mdw bdw C I]
 			CVariables x0 = {
@@ -306,21 +332,23 @@ namespace WBSF
 
 				output[TRef][O_S_CONC] = x.S / (x.Mdw + x.Bdw);//Sugars concentration [mg/g DW] 
 				output[TRef][O_ST_CONC] = x.St / (x.Mdw + x.Bdw);// Starch concentration [mg/g DW]
-				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, x.Bdw - m_P.Bdw_0 + x.Mdw));//[g]
+				output[TRef][O_BRANCH_LENGTH] = max(2.3, Weight2Length(m_species, x.Bdw - m_P.Bdw_0 + x.Mdw, W2L_REMI));//[g]
 				output[TRef][O_BUDS_MASS] = x.Mdw;//[g]
 				output[TRef][O_BRANCH_MASS] = x.Bdw - m_P.Bdw_0;//[g]
-				output[TRef][O_NEEDLE_MASS] = PS<1?0: m_P.NB_r * current_branch_mass * (1 - def.previous);  //[g];
+				output[TRef][O_NEEDLE_MASS] = PS < 1 ? 0 : m_P.NB_r * current_branch_mass * (1 - def.previous);  //[g];
 				//output[TRef][O_MERISTEMS] = x.Mdw;//[g]
 				//output[TRef][O_BRANCH] = (x.Bdw + x.Mdw);//[g]
 				//output[TRef][O_NEEDLE] = m_P.NB_r * (x.Bdw + x.Mdw - m_P.Bdw_0) * (1 - def.previous) + Ndw_0;  //[g];
 
 
-				//output[TRef][O_S5] = SDI_2_Sx(m_SDI_type, SDI, 5);
-				//output[TRef][O_S4] = SDI_2_Sx(m_SDI_type, SDI, 4);
-				//output[TRef][O_S3] = SDI_2_Sx(m_SDI_type, SDI, 3);
-				//output[TRef][O_S2] = SDI_2_Sx(m_SDI_type, SDI, 2);
-				//output[TRef][O_S1] = SDI_2_Sx(m_SDI_type, SDI, 1);
-				//output[TRef][O_S0] = SDI_2_Sx(m_SDI_type, SDI, 0);
+				array<double, 6> Sx = SDI_2_Sx(SDI, m_bCumul);
+
+				output[TRef][O_S5] = Round(Sx[5] * 100, 1);
+				output[TRef][O_S4] = Round(Sx[4] * 100, 1);
+				output[TRef][O_S3] = Round(Sx[3] * 100, 1);
+				output[TRef][O_S2] = Round(Sx[2] * 100, 1);
+				output[TRef][O_S1] = Round(Sx[1] * 100, 1);
+				output[TRef][O_S0] = Round(Sx[0] * 100, 1);
 				output[TRef][O_SDI] = SDI;
 
 
@@ -358,7 +386,7 @@ namespace WBSF
 
 				if (bModelEx)
 				{
-					
+
 					output[TRef][O_C] = x.C;
 					output[TRef][O_INHIBITOR] = x.I;
 					output[TRef][O_SUGAR] = x.S;//[mg]

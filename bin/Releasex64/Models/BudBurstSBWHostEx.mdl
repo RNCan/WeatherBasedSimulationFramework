@@ -6,7 +6,7 @@
     <EXE>BudBurstSBWHost.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
-    <WindowRect>0 0 172 862</WindowRect>
+    <WindowRect>0 0 137 862</WindowRect>
     <SimulatedCategory>TN T TX R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -31,7 +31,7 @@
             <Caption>Defoliation</Caption>
             <Description/>
             <Type>2</Type>
-            <Rect>40 10 60 160</Rect>
+            <Rect>210 5 230 155</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -43,24 +43,36 @@
             <Caption>Version</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>65 10 90 235</Rect>
+            <Rect>35 10 60 235</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
-            <TextValue>Original|Recalibrate|Modified</TextValue>
+            <TextValue>Original|Recalibrate</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>SDI_Type</Name>
             <Caption>SDI_Type</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>95 10 120 270</Rect>
+            <Rect>235 5 260 265</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumulative</Name>
+            <Caption>Cumulative</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>65 10 85 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
@@ -90,7 +102,7 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
-		<OutputVariable>
+        <OutputVariable>
             <Name>BudsMass</Name>
             <Title>BudsMass</Title>
             <Units>g</Units>

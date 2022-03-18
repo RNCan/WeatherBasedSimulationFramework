@@ -24,6 +24,7 @@ namespace WBSF
 	static const double MAX_SDI = 5;
 	static const double MIN_SDI_DOY = 0.25;
 	static const double MAX_SDI_DOY = 4.75;
+	
 	//static const double MIN_STRACH = 4.9;//from data   [1,99]
 	//static const double MAX_STRACH = 116.0;//from data   [1,99]
 	//static const double MIN_SUGAR = 8.2;//from data   [1,99] 
@@ -34,6 +35,7 @@ namespace WBSF
 
 
 	static const bool USE_SDI = true;
+	static const bool USE_SDI_DOY = true;
 	static const bool USE_STARCH = true;
 	static const bool USE_SUGAR = true;
 	static const bool USE_MASS = true;
@@ -51,6 +53,9 @@ namespace WBSF
 		VERSION = "1.0.3 (2022)";
 		m_SDI_type = SDI_AUGER;
 		m_nbSteps = 1;
+		m_defoliation = 0;
+		m_version = HBB::V_RECALIBRATED;
+		m_bCumul = false;
 	}
 
 	CSBWHostBudBurstModel::~CSBWHostBudBurstModel()
@@ -66,7 +71,10 @@ namespace WBSF
 		//transfer your parameter here
 		size_t c = 0;
 		m_species = parameters[c++].GetInt();
-		m_defoliation = parameters[c++].GetReal() / 100.0;
+		//m_defoliation = parameters[c++].GetReal() / 100.0;
+		parameters[c++].GetReal();
+		m_defoliation = 0;//Defoliation mo longer used
+
 
 		ASSERT(m_species < HBB::PARAMETERS[0].size());
 
@@ -183,10 +191,12 @@ namespace WBSF
 
 
 		//m_SDI_type = parameters[c++].GetInt();// no longer support Dhont.
+		parameters[c++].GetInt();
 		m_SDI_type = SDI_AUGER;
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
 		//ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
 
+		m_bCumul = parameters[c++].GetBool();
 
 		return msg;
 	}
@@ -230,6 +240,7 @@ namespace WBSF
 		m_model.m_nbSteps = m_nbSteps;
 		m_model.m_P = m_P;
 		m_model.m_version = m_version;
+		m_model.m_bCumul = m_bCumul;
 		//model.m_SDI = m_SDI;
 		
 
@@ -271,7 +282,7 @@ namespace WBSF
 				obs.m_obs.push_back(stod(data[I_B_LENGTH]));
 				
 
-				if ((USE_SDI && obs.m_obs[0] > -999) ||
+				if (((USE_SDI || USE_SDI_DOY ) && obs.m_obs[0] > -999) ||
 					(USE_STARCH && obs.m_obs[1] > -999) ||
 					(USE_SUGAR && obs.m_obs[2] > -999) ||
 					(USE_MASS && obs.m_obs[3] > -999) || 
@@ -377,6 +388,7 @@ namespace WBSF
 			m_model.m_P = m_P;
 			//m_model.m_SDI_type = (TSDI)m_SDI_type;
 			m_model.m_version = m_version;
+			m_model.m_bCumul = m_bCumul;
 
 			CModelStatVector output;
 			m_model.Execute(m_data_weather, output, false);
@@ -423,7 +435,7 @@ namespace WBSF
 
 						stat.Add(obs_SDI, sim_SDI);
 
-						if (m_SAResult[i].m_obs[0] >= MIN_SDI_DOY && m_SAResult[i].m_obs[0] <= MAX_SDI_DOY)
+						if (USE_SDI_DOY && m_SAResult[i].m_obs[0] >= MIN_SDI_DOY && m_SAResult[i].m_obs[0] <= MAX_SDI_DOY)
 						{
 							double DOY = GetSimDOY(output, m_SAResult[i]);
 							if (DOY > -999)
@@ -445,8 +457,8 @@ namespace WBSF
 						double obs_cSt = (m_SAResult[i].m_obs[1] - m_stat[1][LOWEST]) / m_stat[1][RANGE];
 						double sim_cSt = (output[m_SAResult[i].m_ref][O_ST_CONC] - m_stat[1][LOWEST]) / m_stat[1][RANGE];
 
-						//double obs_starch = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-						//double sim_starch = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						//double obs_cSt = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
+						//double sim_cSt = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
 
 						if (_isnan(sim_cSt) || output[m_SAResult[i].m_ref][O_ST_CONC] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_cSt = Rand(-1.0, 0.0);
@@ -461,8 +473,8 @@ namespace WBSF
 						ASSERT(output[m_SAResult[i].m_ref][O_S_CONC] > -999);
 
 						
-						//double obs_GFS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
-						//double sim_GFS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+						//double obs_cS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
+						//double sim_cS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 						
 						double obs_cS = (m_SAResult[i].m_obs[2] - m_stat[2][LOWEST]) / m_stat[2][RANGE];
 						double sim_cS = (output[m_SAResult[i].m_ref][O_S_CONC] - m_stat[2][LOWEST]) / m_stat[2][RANGE];

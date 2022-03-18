@@ -583,7 +583,7 @@
             <Caption>Version</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>45 195 70 420</Rect>
+            <Rect>40 195 65 420</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
@@ -721,6 +721,18 @@
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue>Dhont|Auger</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumulative</Name>
+            <Caption>Cumulative</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>70 10 90 350</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
