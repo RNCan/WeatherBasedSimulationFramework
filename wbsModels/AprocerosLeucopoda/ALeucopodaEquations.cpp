@@ -9,7 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
-// 25/08/2020   Rémi Saint-Amant    Creation 
+// 2020-08-25   Rémi Saint-Amant    Creation 
 //*****************************************************************************
 #include "ALeucopodaEquations.h"
 #include <boost/math/distributions.hpp>
@@ -25,12 +25,9 @@ namespace WBSF
 
 	using namespace TZZ;
 
-//	const double CAprocerosLeucopodaEquations::OVP[NB_OVP_PARAMS] = { 271.9, 98.3, 2.1, 20.2 };//logistic distribution
+
 	const double CAprocerosLeucopodaEquations::EWD[NB_EWD_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };//logistic distribution
 	const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 885.8, 40.96, -2.9, 999 };//logistic distribution
-	////weibull distribution
-	
-		
 
 
 	CAprocerosLeucopodaEquations::CAprocerosLeucopodaEquations(const CRandomGenerator& RG) :
@@ -62,7 +59,7 @@ namespace WBSF
 	{
 		ASSERT(s >= 0 && s < NB_STAGES);
 
-		
+
 
 		static const CDevRateEquation::TDevRateEquation P_EQ[TZZ::NB_STAGES] =
 		{
@@ -116,7 +113,7 @@ namespace WBSF
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
 		while (RDR < 0.2 || RDR>2.6)//base on individual observation
 			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
-			//RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));//?????
+		//RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));//?????
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
@@ -149,39 +146,48 @@ namespace WBSF
 	//*****************************************************************************
 	//survival
 
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 
 	double CAprocerosLeucopodaEquations::GetDailySurvivalRate(size_t s, double T)const
 	{
 		static const CSurvivalEquation::TSurvivalEquation S_EQ[TZZ::NB_STAGES] =
 		{
-			CSurvivalEquation::Survival_11,//egg
-			CSurvivalEquation::Survival_13,//Larva
-			CSurvivalEquation::Survival_13,//Prepupa
-			CSurvivalEquation::Survival_03,//Pupa
-			//CSurvivalEquation::Survival_14//One Generation
+			CSurvivalEquation::Survival_01,//egg
+			CSurvivalEquation::Survival_01,//Larva
+			CSurvivalEquation::Survival_01,//Prepupa
+			CSurvivalEquation::Survival_01,//Pupa
+//			CSurvivalEquation::Survival_11,//egg
+//			CSurvivalEquation::Survival_11,//Larva
+//			CSurvivalEquation::Survival_11,//Prepupa
+//			CSurvivalEquation::Survival_11,//Pupa
+
+			
+
 		};
 
 		static const double P_SURVIVAL[TZZ::NB_STAGES][6] =
 		{
-			{+1.048685e+01, +7.239125e+00, 1.061997e+01, 1.838892e+01},//egg
-			{+9.890030e-01, +4.270433e+00, 2.890500e+01, 1.309499e+00},//Larva
-			{+1.001395e+00, +8.179520e-05, 2.972283e+01, 2.061866e+00},//Prepupa
-			{+9.999908e+02, +7.756760e+01, 1.602210e+01, 3.985772e+01},//Pupa
-			//{-4.919063e+01, -4.188890e-01, 2.683336e+01, 1.608391e+02, 5.625771e+00}//One Generation
+			{+2.821737e+00, -6.107132e-01, 1.640952e-02},//egg
+			{+5.191147e+00, -1.221510e+00, 3.646663e-02},//Larva
+			{-1.011495e+01, +7.023644e-02, 9.873714e-03},//Prepupa
+			{+1.720485e+01, -3.396854e+00, 1.051049e-01},//Pupa
+			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//egg
+			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Larva
+			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Prepupa
+			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Pupa
 		};
 
 
 		vector<double> p(begin(P_SURVIVAL[s]), end(P_SURVIVAL[s]));
 
-		double sr = (s<ADULT)?max(0.0, min( 1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T))):1;
+		double sr = (s < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T))) : 1;
 
 		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 
@@ -198,7 +204,7 @@ namespace WBSF
 	{
 		//boost::math::weibull_distribution<double> emerging_dist(m_EAS[ʎ], m_EAS[к]);
 		boost::math::logistic_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
-		
+
 
 
 		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
@@ -243,7 +249,7 @@ namespace WBSF
 		_ASSERTE(!_isnan(lambda) && _finite(lambda));
 
 		double brood = 0;
-		if(t>= to)
+		if (t >= to)
 			brood = round(Fi * (exp(-lambda * (t - to)) - exp(-lambda * ((t - to + delta_t)))));
 
 		return brood;

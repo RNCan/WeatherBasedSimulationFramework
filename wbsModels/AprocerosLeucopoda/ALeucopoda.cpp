@@ -5,7 +5,8 @@
 //
 // Description: the CAprocerosLeucopoda represents a group of TZZ insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 17/10/2020   Rémi Saint-Amant    Creation
+// 2022-03-20	Rémi Saint-Amant    Bug correction in emergence
+// 2020-10-17   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
 #include "ALeucopodaEquations.h"
@@ -39,7 +40,7 @@ namespace WBSF
 		int year = creationDate.GetYear();
 		//m_creationDate = GetCreationDate(year);
 		m_adult_emergence = GetAdultEmergence(year);
-		m_bDiapause = age==PUPA;
+		m_bDiapause = false;// age == PUPA;
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
@@ -169,8 +170,7 @@ namespace WBSF
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-//		if (m_dropToGroundDate.IsInit())
-	//		return;
+		
 
 
 		CTZZHost* pHost = GetHost();
@@ -206,7 +206,7 @@ namespace WBSF
 			//m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
 
 		//evaluate attrition once a day
-		if (GetStand()->m_bApplyAttrition)
+		if (GetStand()->m_bApplyAttrition&&m_generation>0)
 		{
 			if (IsDeadByAttrition(s, T, r))
 				m_bDeadByAttrition = true;
@@ -245,14 +245,18 @@ namespace WBSF
 
 		ASSERT(IsCreated(weather.GetTRef()));
 
+		if (weather.GetTRef() < m_adult_emergence)
+			return;
+
+
 		//if (!IsCreated(weather.GetTRef()))
 			//return;
 
-		if (m_bDiapause && !m_dropToGroundDate.IsInit() && weather.GetTRef() >= m_adult_emergence)
+		/*if (m_bDiapause && !m_dropToGroundDate.IsInit() && weather.GetTRef() >= m_adult_emergence)
 		{
 			m_bDiapause = false;
 			m_age = ADULT;
-		}
+		}*/
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&IsAlive() && m_age < DEAD_ADULT && !m_bDiapause; step++)
@@ -295,7 +299,7 @@ namespace WBSF
 				ASSERT(m_age >= ADULT);
 				CTZZStand* pStand = GetStand(); ASSERT(pStand);
 
-				double gSurvival = 1;// GetStand()->m_bApplyAttrition ? pStand->m_generationSurvival : 1;//100% of survival by default
+				double gSurvival = pStand->m_generationSurvival;
 				double scaleFactor = m_broods * m_scaleFactor*gSurvival;
 				CIndividualPtr object = make_shared<CAprocerosLeucopoda>(m_pHost, weather.GetTRef(), EGG, FEMALE, true, m_generation + 1, scaleFactor);
 				m_pHost->push_front(object);
@@ -324,11 +328,9 @@ namespace WBSF
 		{
 			size_t s = GetStage();
 
-			//Preliminary assessment of the cold tolerance of Laricobius Osakensis, a winter - active predator of the hemlock woolly adelgid from western canada
-			//Leland M.Humble
-			static const double COLD_TOLERENCE_T[NB_STAGES] = { -99, -99, -99, -99.0, -99.0 };
-			//Toland:L. Osakensis was -13.6 oC (± 0.5) with temperatures that ranged from -6 oC to -21 oC.
-			if (weather[H_TMIN][MEAN] < COLD_TOLERENCE_T[s])
+			static const double COLD_TOLERENCE_T[NB_STAGES] = { 0, 0, 0, 0, 0 };
+			//ATTENTION remettre zéro!!
+			if (!m_bDiapause && m_generation>1 && weather[H_TMIN][MEAN] < COLD_TOLERENCE_T[s])
 			{
 				m_status = DEAD;
 				m_death = FROZEN;
@@ -372,7 +374,7 @@ namespace WBSF
 			size_t s = GetStage();
 			ASSERT(s <= DEAD_ADULT);
 
-			if (IsAlive() || (s == DEAD_ADULT))
+			if ((IsAlive() && !m_bDiapause) || (s == DEAD_ADULT))
 				stat[S_EGG + s] += m_scaleFactor;
 
 

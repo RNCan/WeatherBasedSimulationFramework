@@ -2,16 +2,9 @@
 // 26/01/2021	1.0.0	Rémi Saint-Amant   Creation
 //***********************************************************
 #include "ALeucopodaModel.h"
-//#include "ALeucopodaEquations.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic\DegreeDays.h"
-//#include "Leucopoda.h"
-//#include <boost/math/distributions/weibull.hpp>
-//#include <boost/math/distributions/beta.hpp>
-//#include <boost/math/distributions/Rayleigh.hpp>
 #include <boost/math/distributions/logistic.hpp>
-//#include <boost/math/distributions/exponential.hpp>
-//#include <boost/math/distributions/lognormal.hpp>
 #include "ModelBase/SimulatedAnnealingVector.h"
 
 using namespace WBSF::HOURLY_DATA;
@@ -42,9 +35,10 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.0 (2021)";
+		VERSION = "1.0.1 (2022)";
 
-		m_generationSurvival = 1;
+		m_bApplyAttrition = false;
+		m_generationSurvival = 0.5;
 //		m_bCumul = false;
 //		m_stage = 0;
 	//	m_T = 0;
@@ -83,7 +77,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		size_t c = 0;
+		size_t c = 0; 
 
 		//		m_stage = parameters[c++].GetInt() + 1;
 			//	m_T = parameters[c++].GetInt()+1;
@@ -167,7 +161,7 @@ namespace WBSF
 	{
 		//Create stand
 		CTZZStand stand(this);
-		stand.m_bApplyAttrition = true;
+		stand.m_bApplyAttrition = m_bApplyAttrition;
 		stand.m_generationSurvival = m_generationSurvival;
 
 		
