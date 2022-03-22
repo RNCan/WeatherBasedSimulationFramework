@@ -38,7 +38,7 @@ namespace WBSF
 		VERSION = "1.0.1 (2022)";
 
 		m_bApplyAttrition = false;
-		m_generationSurvival = 0.5;
+		m_generationSurvival = 0.15;
 //		m_bCumul = false;
 //		m_stage = 0;
 	//	m_T = 0;
