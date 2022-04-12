@@ -6,7 +6,7 @@
     <EXE>BudBurstSBWHost.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
-    <WindowRect>0 0 155 862</WindowRect>
+    <WindowRect>0 0 155 423</WindowRect>
     <SimulatedCategory>TN T TX R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -63,17 +63,6 @@
             <TextValue>Dhont|Auger</TextValue>
         </InputVariable>
         <InputVariable>
-            <Name>Cumulative</Name>
-            <Caption>Cumulative</Caption>
-            <Description/>
-            <Type>0</Type>
-            <Rect>65 10 85 350</Rect>
-            <SeparatorPos>65</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <TextValue/>
-        </InputVariable><InputVariable>
             <Name>Cumulative</Name>
             <Caption>Cumulative</Caption>
             <Description/>

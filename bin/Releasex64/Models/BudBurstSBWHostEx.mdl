@@ -6,7 +6,7 @@
     <EXE>BudBurstSBWHost.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Compute budburst for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
-    <WindowRect>0 0 137 862</WindowRect>
+    <WindowRect>0 0 137 448</WindowRect>
     <SimulatedCategory>TN T TX R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -43,7 +43,7 @@
             <Caption>Version</Caption>
             <Description/>
             <Type>5</Type>
-            <Rect>35 10 60 235</Rect>
+            <Rect>35 10 60 350</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>

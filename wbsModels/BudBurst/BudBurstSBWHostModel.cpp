@@ -84,10 +84,10 @@ namespace WBSF
 		string str1 = ToString(test, 10);
 		string str2 = ToString(test);
 
-
+		std::array<double, NB_SDI_PARAMS> SDI;
 
 		//m_SDI = SDI[m_species];
-		if (parameters.size() == 2 + 46 + NB_SDI_PARAMS + 1)
+		if (parameters.size() == 2 + 46 + NB_SDI_PARAMS + 2)
 		{
 			m_P.Sw_v = parameters[c++].GetReal();
 			m_P.Sw_k = parameters[c++].GetReal();
@@ -140,7 +140,7 @@ namespace WBSF
 			m_version = HBB::TVersion(parameters[c++].GetInt());
 
 
-			std::array<double, NB_SDI_PARAMS> SDI;
+			
 			for (size_t i = 0; i < NB_SDI_PARAMS; i++)
 				SDI[i] = parameters[c++].GetReal();
 
@@ -197,6 +197,15 @@ namespace WBSF
 		//ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
 
 		m_bCumul = parameters[c++].GetBool();
+
+
+		//version temporaire
+		//ASSERT(false);
+		//m_P = HBB::PARAMETERS[m_version][m_species];
+		//m_P.SDI_mu = SDI[μ];
+		//m_P.SDI_sigma = SDI[ѕ];
+
+
 
 		return msg;
 	}
