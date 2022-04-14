@@ -74,8 +74,13 @@ namespace WBSF
 		{
 			const CWeatherYear& weatherYear = weather[y];
 
-			CGrowingSeason GS(CGSInfo::TT_TMIN, 3, 0, CGSInfo::TT_TMIN, 3, 0);
-			CTPeriod p = GS.GetGrowingSeason(weatherYear);
+			CGSInfo begin(CGSInfo::GET_LAST, CGSInfo::TT_TMIN, '<', 0, 3);
+			CGSInfo end(CGSInfo::GET_FIRST, CGSInfo::TT_TMIN, '<', 0, 3);
+			CGrowingSeason GS(begin, end);
+			CTPeriod p = GS.GetPeriod(weather[y]);
+
+
+			//CTPeriod p = GS.GetGrowingSeason(weatherYear);
 			p.Transform(CTM::DAILY);
 
 			//est-ce que c'est la même chose qu'avant???
