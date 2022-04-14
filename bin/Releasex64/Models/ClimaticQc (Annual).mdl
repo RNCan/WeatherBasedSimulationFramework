@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>ClimaticSB</Title>
+    <Title>ClimaticQC</Title>
     <Version>2.2</Version>
     <ID>.cqc</ID>
     <EXE>ClimaticQc.dll</EXE>

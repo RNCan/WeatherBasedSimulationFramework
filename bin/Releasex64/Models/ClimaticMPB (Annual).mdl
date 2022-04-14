@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>ClimaticMPB</Title>
+    <Version>1.0</Version>
+    <ID>.cMPB</ID>
+    <EXE>ClimaticMPB.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>This model compute annual climatic variable from temperature and precipitation only</Description>
+    <WindowRect>0 0 130 527</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>NbDaysLowestMinus20</Name>
+            <Title>NbDaysLowestMinus20</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LowestMinus20Percent</Name>
+            <Title>LowestMinus20Percent</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NbDaysGreater32</Name>
+            <Title>NbDaysGreater32</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Greater32Percent</Name>
+            <Title>Greater32Percent</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>2022-03-14, growing season definition has changed</Credit>
+    <HelpFileName/>
+</Model>
