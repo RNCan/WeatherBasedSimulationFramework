@@ -407,11 +407,10 @@ namespace WBSF
 									}
 									else if (variables[c] == H_SRAD)
 									{
-										ASSERT(units[c] == "(KJ/m2)" || units[c] == "(W/m2)");
-										if( units[c] == "(KJ/m2)")
-											value *= 1000.0f / (3600 * 24);//convert KJ/m² --> W/m²
+										ASSERT(units[c] == "(KJ/m2)" );
+										value *= 1000.0f / 3600 ;//convert KJ/m²s --> W/m²h
 
-										ASSERT(value >= -0.01 && value <= 1000);
+										ASSERT(value >= -0.1 && value <= 3500);
 										value = max(0.0f, value );
 									}
 									else if (variables[c] == H_PRES)
