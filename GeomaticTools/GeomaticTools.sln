@@ -75,6 +75,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointsExtractorLayer", "Poi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeLiVa", "Deliva\Deliva.vcxproj", "{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HorizonImage", "HorizonImage\HorizonImage.vcxproj", "{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -369,6 +371,14 @@ Global
 		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|Win32.Build.0 = Release|Win32
 		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|x64.ActiveCfg = Release|x64
 		{C02BB125-9DBA-42AD-9583-5F9B189FDDD5}.Release|x64.Build.0 = Release|x64
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Debug|Win32.Build.0 = Debug|Win32
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Debug|x64.ActiveCfg = Debug|x64
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Debug|x64.Build.0 = Debug|x64
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Release|Win32.ActiveCfg = Release|Win32
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Release|Win32.Build.0 = Release|Win32
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Release|x64.ActiveCfg = Release|x64
+		{5F60E63D-DD24-4DF0-8296-7A2FDA48688B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
