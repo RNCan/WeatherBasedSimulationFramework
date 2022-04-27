@@ -2170,6 +2170,9 @@ namespace WBSF
 										if (v == H_SRAD && bFredericton && WBSF::as<float>(strValue) > 1000)//Fredericton some data 10 *????
 											QAValue = -1;
 
+										if (v == H_SRAD && strQA=="4")//Remove radiation when QA == 4, srad always equal zero
+											QAValue = -1;
+
 										if (QAValue > 0 || (v == H_SRAD && QAValue == 0))
 										{
 											float value = WBSF::as<float>(strValue);
