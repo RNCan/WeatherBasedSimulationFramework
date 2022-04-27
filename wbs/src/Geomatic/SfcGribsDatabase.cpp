@@ -15,6 +15,7 @@
 #include "Basic/Callback.h"
 #include "Basic/UtilStd.h"
 #include "Basic/CSV.h"
+#include "Basic/DailyDatabase.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/GDAL.h"
 #include "Geomatic/SfcGribsDatabase.h"
@@ -175,7 +176,7 @@ namespace WBSF
 
 					string abs_file_path = GetAbsolutePath(path, (*loop)[1]);
 					me[TRef] = abs_file_path;
-					
+
 				}
 			}
 
@@ -200,7 +201,7 @@ namespace WBSF
 			for (const_iterator it = begin(); it != end(); it++)
 			{
 				string format = it->first.GetType() == CTM::HOURLY ? "%Y-%m-%d-%H" : "%Y-%m-%d";
-				string date = it->first.GetFormatedString(format) ;
+				string date = it->first.GetFormatedString(format);
 				file << date << "," << GetRelativePath(path, it->second) << endl;
 			}
 
@@ -299,6 +300,10 @@ namespace WBSF
 								{
 									s >> m_variables;
 								}
+								else if (tmp[0] == "Period")
+								{
+									s >> m_period;
+								}
 							}
 						}
 
@@ -324,7 +329,6 @@ namespace WBSF
 			for (const_iterator it = begin(); it != end(); it++)
 			{
 				file << it->first.GetFormatedString("%Y-%m-%d-%H") << ",";
-				//for (vector<CFileStamp>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
 				{
 					file << it->second.m_filePath << ",";
 					file << it->second.m_time << ",";
@@ -343,7 +347,7 @@ namespace WBSF
 				file << "Locations=" << m_loc_file_path << endl;
 				file << "NbPoints=" << m_nb_points << endl;
 				file << "Variables=" << m_variables << endl;
-
+				file << "Period=" << m_period << endl;
 				file.close();
 			}
 		}
@@ -385,26 +389,17 @@ namespace WBSF
 		invalid.clear();
 		for (CGribsMap::const_iterator it = gribs.begin(); it != gribs.end(); it++)
 		{
-			const_iterator it_find = find(it->first);
-			if (it_find != end())
+			if (!m_period.IsInit() || m_period.IsInside(it->first))
 			{
-				const CFileStamp& info_old = it_find->second;
-				//for (vector<string>::const_iterator iit = it->second.begin(); iit != it->second.end(); iit++)
-				//{
-				CFileStamp info_new;
-				msg += info_new.SetFileStamp(it->second);
-				if (msg)
+				const_iterator it_find = find(it->first);
+				if (it_find != end())
 				{
+					const CFileStamp& info_old = it_find->second;
+					CFileStamp info_new;
+					msg += info_new.SetFileStamp(it->second);
+					if (msg)
+					{
 
-					if (info_new.m_filePath != info_old.m_filePath ||
-						info_new.m_time != info_old.m_time)
-					{
-						invalid.insert(it->first);
-					}
-					/*vector<CFileStamp>::const_iterator iit_find = std::find_if(it_find->second.begin(), it_find->second.end(), [info_new](const CFileStamp& m)->bool { return m.m_filePath == info_new.m_filePath; });
-					if (iit_find != it_find->second.end())
-					{
-						const CFileStamp& info_old = *iit_find;
 						if (info_new.m_filePath != info_old.m_filePath ||
 							info_new.m_time != info_old.m_time)
 						{
@@ -414,18 +409,13 @@ namespace WBSF
 					else
 					{
 						invalid.insert(it->first);
-					}*/
+					}
+
 				}
-				//}
 				else
 				{
 					invalid.insert(it->first);
 				}
-
-			}
-			else
-			{
-				invalid.insert(it->first);
 			}
 		}
 
@@ -518,7 +508,7 @@ namespace WBSF
 
 						if (fabs(U - m_noData[v]) > 0.1 && fabs(V - m_noData[v]) > 0.1)
 						{
-							data[H_WNDS] = (float)sqrt(U*U + V * V) * 3600.0 / 1000.0;
+							data[H_WNDS] = (float)sqrt(U * U + V * V) * 3600.0 / 1000.0;
 							data[H_WNDD] = (float)GetWindDirection(U, V, true);
 						}
 
@@ -547,7 +537,7 @@ namespace WBSF
 						ASSERT(m_units[v] == "[kg/(m^2 s)]");
 						double prcp = block(block_ij.m_x, block_ij.m_y)->at(H_PRATE)->get_value(xy.m_x, xy.m_y);
 						if (fabs(prcp - m_noData[v]) > 0.1)
-							data[H_PRCP] = float(3600*prcp);
+							data[H_PRCP] = float(3600 * prcp);
 					}
 
 
@@ -594,10 +584,42 @@ namespace WBSF
 						{
 							switch (v)
 							{
-								//case H_PRCP:	ASSERT(m_units[v]=="kg/(m^2)"); data[v] = float(data[v]*3600.0); break; //[kg/(m²s)] --> [mm/hour]
-							case H_WNDS:	ASSERT(m_units[v] == "[m/s]"); value = float(value * 3600.0 / 1000.0); break; //[m/s] --> [km/h]
-							case H_PRES:	ASSERT(m_units[v] == "[Pa]"); value = float(value / 100.0); break; //[Pa] --> [hPa]
-							case H_SNDH:	ASSERT(m_units[v] == "[m]"); value = float(value / 100.0); break; //[m] --> [cm]	
+							case H_TMIN:
+							case H_TAIR:
+							case H_TMAX:
+							case H_TDEW: ASSERT(m_units[v] == "[C]"); break;
+							case H_PRCP:
+							{
+								ASSERT(m_units[v] == "[mm]" || m_units[v] == "[kg/(m^2)]");
+								//data[v] = float(data[v] * 3600.0);
+								break; //[kg/(m²s)] --> [mm/hour]
+							}
+							case H_RELH: ASSERT(m_units[v] == "[%]"); break;
+							case H_WNDS:
+							{
+								ASSERT(m_units[v] == "[m/s]" || m_units[v] == "[km/h]");
+								if (m_units[v] == "[m/s]")
+									value = float(value * 3600.0 / 1000.0);
+
+								break; //[m/s] --> [km/h]
+							}
+							case H_SRAD: ASSERT(m_units[v] == "[W/(m^2)]"); break;
+							case H_PRES:
+							{
+								ASSERT(m_units[v] == "[hPa]" || m_units[v] == "[Pa]");
+								if (m_units[v] == "[Pa]")
+									value = float(value / 100.0);
+								break; //[Pa] --> [hPa]
+							}
+							case H_SNOW: ASSERT(m_units[v] == "[mm]"); break;
+							case H_SNDH:
+							{
+								ASSERT(m_units[v] == "[cm]" || m_units[v] == "[m]");
+								if (m_units[v] == "[m]")
+									value = float(value / 100.0);
+								break; //[m] --> [cm]	
+							}
+							case H_SWE: ASSERT(m_units[v] == "[mm]"); break;
 							}
 							data.SetStat((TVarH)v, value);
 						}
@@ -613,7 +635,7 @@ namespace WBSF
 						{
 							//data[H_WNDS] = (float)sqrt(U*U + V * V) * 3600.0 / 1000.0;
 							//data[H_WNDD] = (float)GetWindDirection(U, V, true);
-							data.SetStat(H_WNDS, (float)sqrt(U*U + V * V) * 3600.0 / 1000.0);
+							data.SetStat(H_WNDS, (float)sqrt(U * U + V * V) * 3600.0 / 1000.0);
 							data.SetStat(H_WNDD, (float)GetWindDirection(U, V, true));
 						}
 
@@ -804,7 +826,7 @@ namespace WBSF
 						string strLevel = tmp[5];
 						size_t var = get_var(strVar);
 
-						if (var < NB_VAR_GRIBS  && m_variables_to_load.test(var))
+						if (var < NB_VAR_GRIBS && m_variables_to_load.test(var))
 						{
 							bool bScf = false;
 							if (strType == "SFC" || strType == "TGL" || strType == "HTGL")
@@ -860,7 +882,7 @@ namespace WBSF
 							//description.empty();
 
 							size_t var = get_var(strVar);
-							if (var < NB_VAR_GRIBS  && m_variables_to_load.test(var) && !description.empty())
+							if (var < NB_VAR_GRIBS && m_variables_to_load.test(var) && !description.empty())
 							{
 								bool bSfc = false;
 
@@ -989,14 +1011,14 @@ namespace WBSF
 						}
 						else
 						{
-							CDataBlock block_tmp(nXBlockSize*nYBlockSize, type);
+							CDataBlock block_tmp(nXBlockSize * nYBlockSize, type);
 							poBand->ReadBlock(int(i), int(j), block_tmp.data());
 							poBand->FlushBlock(int(i), int(j));
 							poBand->FlushCache();
 							CSfcBlock* pBlockData = new CSfcBlock(nXBlockSize, nYBlockSize);
 							for (size_t y = 0; y < nYBlockSize; y++)
 								for (size_t x = 0; x < nXBlockSize; x++)
-									block(i, j)->at(v)->set_value(x, y, block_tmp.get_value(y*nXBlockSize + x));
+									block(i, j)->at(v)->set_value(x, y, block_tmp.get_value(y * nXBlockSize + x));
 						}
 					}
 
@@ -1330,7 +1352,7 @@ namespace WBSF
 							z = zz;
 					}
 
-					size_t pos = ptArray[j].m_y*extents.m_xSize + ptArray[j].m_x;
+					size_t pos = ptArray[j].m_y * extents.m_xSize + ptArray[j].m_x;
 					CGeoPoint pt2 = extents.XYPosToCoord(ptArray[j]);
 					pt2.Reproject(WEA_2_GEO);
 					tmp[pos] = CLocation(locations[i].m_name, to_string(ptArray[j].m_y) + "_" + to_string(ptArray[j].m_x), pt2.m_lat, pt2.m_lon, z);
@@ -1353,25 +1375,56 @@ namespace WBSF
 	//*********************************************************************************************************
 	//CSfcGribDatabase
 
-	const int CSfcGribDatabase::VERSION = 1;
-	const char* CSfcGribDatabase::XML_FLAG = "HourlyDatabase";
-	const char* CSfcGribDatabase::DATABASE_EXT = ".HourlyDB";
-	const char* CSfcGribDatabase::OPT_EXT = ".Hzop";
-	const char* CSfcGribDatabase::DATA_EXT = ".csv";
-	const char* CSfcGribDatabase::META_EXT = ".HourlyHdr.csv";
-	const CTM CSfcGribDatabase::DATA_TM = CTM(CTM::HOURLY);
+	//const int CSfcGribDatabase::VERSION = 1;
+	//const char* CSfcGribDatabase::XML_FLAG = "HourlyDatabase";
+	//const char* CSfcGribDatabase::DATABASE_EXT = ".HourlyDB";
+	//const char* CSfcGribDatabase::OPT_EXT = ".Hzop";
+	//const char* CSfcGribDatabase::DATA_EXT = ".csv";
+	//const char* CSfcGribDatabase::META_EXT = ".HourlyHdr.csv";
+	//const CTM CSfcGribDatabase::DATA_TM = CTM(CTM::HOURLY);
+
+	std::shared_ptr < CDHDatabaseBase> CSfcGribDatabase::GetDatabase(const std::string& filePath)
+	{
+		string ext = GetFileExtension(filePath);
+
+		std::shared_ptr < CDHDatabaseBase> pDB = nullptr;
+		if (IsEqualNoCase(ext, ".HourlyDB"))
+		{
+			pDB.reset(new CHourlyDatabase);
+		}
+		else if (IsEqualNoCase(ext, ".DailyDB"))
+		{
+			pDB.reset(new CDailyDatabase);
+		}
+		else
+		{
+			ASSERT(false);
+		}
+
+		return pDB;
+	}
 
 	ERMsg CSfcGribDatabase::CreateDatabase(const std::string& filePath)
 	{
 		ERMsg msg;
 
-		CSfcGribDatabase DB;
+
+		std::shared_ptr < CDHDatabaseBase> pDB = GetDatabase(filePath);
+
+		msg = pDB->Open(filePath, CDailyDatabase::modeWrite);
+		if (msg)
+		{
+			pDB->Close();
+			ASSERT(FileExists(filePath));
+		}
+
+		/*CSfcGribDatabase DB;
 		msg = DB.Open(filePath, modeWrite);
 		if (msg)
 		{
 			DB.Close();
 			ASSERT(FileExists(filePath));
-		}
+		}*/
 
 		return msg;
 	}
@@ -1379,20 +1432,63 @@ namespace WBSF
 
 	//strategy to get static method
 	int CSfcGribDatabase::GetVersion(const std::string& filePath) { return ((CDHDatabaseBase&)CSfcGribDatabase()).GetVersion(filePath); }
-	ERMsg CSfcGribDatabase::DeleteDatabase(const std::string&  outputFilePath, CCallback& callback) { return ((CDHDatabaseBase&)CSfcGribDatabase()).DeleteDatabase(outputFilePath, callback); }
-	ERMsg CSfcGribDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback) { return ((CDHDatabaseBase&)CSfcGribDatabase()).RenameDatabase(inputFilePath, outputFilePath, callback); }
+	ERMsg CSfcGribDatabase::DeleteDatabase(const std::string& filePath, CCallback& callback)
+	{
+		std::shared_ptr < CDHDatabaseBase> pDB = GetDatabase(filePath);
+		return pDB->DeleteDatabase(filePath, callback);
+		//return ((CDHDatabaseBase&)CSfcGribDatabase()).DeleteDatabase(outputFilePath, callback); 
+	}
+	ERMsg CSfcGribDatabase::RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback)
+	{
+		ASSERT(IsEqualNoCase(GetFileExtension(inputFilePath), GetFileExtension(outputFilePath)));
 
 
+		std::shared_ptr < CDHDatabaseBase> pDB = GetDatabase(inputFilePath);
+		return pDB->RenameDatabase(inputFilePath, outputFilePath, callback);
+		//return ((CDHDatabaseBase&)CSfcGribDatabase()).RenameDatabase(inputFilePath, outputFilePath, callback); 
+	}
+
+	ERMsg CSfcGribDatabase::Open(const std::string& filePath, UINT flag, CCallback& callback, bool bSkipVerify)
+	{
+		ERMsg msg;
+
+		string ext = GetFileExtension(filePath);
+
+
+		if (IsEqualNoCase(ext, ".HourlyDB"))
+		{
+			m_pDB.reset(new CHourlyDatabase);
+		}
+		else if (IsEqualNoCase(ext, ".DailyDB"))
+		{
+			m_pDB.reset(new CDailyDatabase);
+		}
+
+		msg = m_pDB->Open(filePath, flag, callback, bSkipVerify);
+
+		return msg;
+	}
+
+	ERMsg CSfcGribDatabase::Close(bool bSave, CCallback& callback)
+	{
+		return m_pDB->Close(bSave, callback);
+	}
 
 	ERMsg CSfcGribDatabase::Update(const CGribsMap& gribs, const CLocationVector& locationsIn, CCallback& callback)
 	{
-		ASSERT(IsOpen());
+		ASSERT(m_pDB->IsOpen());
 
 		ERMsg msg;
 
 		//callback.AddMessage("Create/Update Grib database");
 		//callback.AddMessage(m_filePath, 1);
 
+		CTPeriod Gribs_period = gribs.GetEntireTPeriod();
+		if (!m_period.IsInit())
+			m_period = Gribs_period;
+
+		ASSERT(Gribs_period.GetTM() == m_period.GetTM());
+		m_bIsHourly = Gribs_period.GetTM() == CTM::HOURLY;
 		CLocationVector locations;
 
 		if (m_nb_points == 0)
@@ -1449,21 +1545,26 @@ namespace WBSF
 
 
 		CIncementalDB incremental;
+		incremental.m_grib_file_path = gribs.get_file_path();
+		incremental.m_loc_file_path = locationsIn.GetFilePath();
+		incremental.m_nb_points = m_nb_points;
+		incremental.m_variables = m_variables;
+		incremental.m_period = m_period;
 		CWeatherStationVector stations;
 
 
 		if (m_bIncremental)
 		{
-			if (FileExists(m_filePath))
-				msg = incremental.load(m_filePath);
+			if (FileExists(m_pDB->GetFilePath()))
+				msg = incremental.load(m_pDB->GetFilePath());
 
-			if (!empty() && size() != locations.size())
+			if (!m_pDB->empty() && m_pDB->size() != locations.size())
 			{
-				msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(size()) + "). Do not use incremental.");
+				msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(m_pDB->size()) + "). Do not use incremental.");
 				return msg;
 			}
 
-			if (!empty() && incremental.m_variables != m_variables)
+			if (!m_pDB->empty() && incremental.m_variables != m_variables)
 			{
 				msg.ajoute("The variable to extract from gribs is not the same as the previous execution. Do not use incremental.");
 				return msg;
@@ -1472,14 +1573,14 @@ namespace WBSF
 			stations.resize(locations.size());
 			for (size_t i = 0; i < locations.size(); i++)
 			{
-				if (size() == locations.size())
+				if (m_pDB->size() == locations.size())
 				{
-					msg += Get(stations[i], i);
+					msg += m_pDB->Get(stations[i], i);
 				}
 				else
 				{
 					((CLocation&)stations[i]) = locations[i];
-					stations[i].SetHourly(true);
+					stations[i].SetHourly(m_bIsHourly);
 				}
 			}
 		}
@@ -1489,19 +1590,25 @@ namespace WBSF
 			for (size_t i = 0; i < locations.size(); i++)
 			{
 				((CLocation&)stations[i]) = locations[i];
-				stations[i].SetHourly(true);
+				stations[i].SetHourly(m_bIsHourly);
 			}
 		}
 
 		std::set<CTRef> invalid;
 		msg = incremental.GetInvalidTRef(gribs, invalid);
 
+		callback.AddMessage("Input gribs: " + gribs.get_file_path());
+		callback.AddMessage("Gribs period: " + Gribs_period.GetFormatedString() );
 		callback.AddMessage("Nb input locations: " + to_string(locationsIn.size()));
 		if (m_nb_points > 0)
 			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points) + " nearest: " + to_string(locations.size()));
+
+		size_t HD_factor = m_bIsHourly ? 24 : 1;
 		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
-		callback.AddMessage("Nb input hours: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / 24)) + " days)");
-		callback.AddMessage("Nb hours to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / 24)) + " days)");
+		
+		callback.AddMessage("Period: " + (m_period.IsInit()?m_period.GetFormatedString():"Entire gribs period") );
+		callback.AddMessage("Nb inputs: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / HD_factor)) + " days)");
+		callback.AddMessage("Nb elements to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / HD_factor)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));
 
 
@@ -1514,7 +1621,7 @@ namespace WBSF
 				stations[i].CreateYears(p);
 
 			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_filePath) + "\" (extracting " + to_string(invalid.size()) + " hours)";
+			string feed = "Create/Update Grib database \"" + GetFileName(m_pDB->GetFilePath()) + "\" (extracting " + to_string(invalid.size()) + " hours)";
 			callback.PushTask(feed, invalid.size());
 			callback.AddMessage(feed);
 
@@ -1523,7 +1630,7 @@ namespace WBSF
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
 				tmp.push_back(*it);
 
-#pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
+			//#pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
 			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
 			{
 #pragma omp flush(msg)
@@ -1543,16 +1650,16 @@ namespace WBSF
 			{
 				if (msg)
 				{
-					//if (it->HaveData())//do not remove station without data because they will krash in set function
+					//if (it->HaveData())//do not remove station without data because they will crash in set function
 					//{
 						//Force write file name in the file
-						it->SetDataFileName(it->GetDataFileName());
-						it->UseIt(true);
+					it->SetDataFileName(it->GetDataFileName());
+					it->UseIt(true);
 
-						msg = Set(std::distance(stations.begin(), it), *it);
+					msg = m_pDB->Set(std::distance(stations.begin(), it), *it);
 
-						if (msg)
-							nbStationAdded++;
+					if (msg)
+						nbStationAdded++;
 					//}
 				}
 
@@ -1566,8 +1673,9 @@ namespace WBSF
 				incremental.m_loc_file_path = locationsIn.GetFilePath();
 				incremental.m_nb_points = m_nb_points;
 				incremental.m_variables = m_variables;
+				incremental.m_period = m_period;
 				incremental.Update(gribs);
-				msg = incremental.save(m_filePath);
+				msg = incremental.save(m_pDB->GetFilePath());
 			}
 
 			callback.PopTask();
@@ -1610,6 +1718,7 @@ namespace WBSF
 				var.reset(H_WNDS);
 				var.reset(H_WNDD);
 			}
+			//if(var.test(H_TAIR)&&)
 
 			sfcDS.m_variables_to_load = var;
 
@@ -1620,13 +1729,32 @@ namespace WBSF
 				pt.Reproject(GEO_2_WEA);
 				if (sfcDS.GetExtents().IsInside(pt))
 				{
-					CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, stations[i]);
-					CHourlyData& data = stations[i].GetHour(localTRef);
-					if (m_nb_points == 0)
-						sfcDS.get_weather(pt, data);//estimate weather at location
-					else
-						sfcDS.get_nearest(pt, data);//get weather for this grid point
+					if (TRef.GetTM() == CTM::HOURLY)
+					{
+						CTRef localTRef = CTimeZones::UTCTRef2LocalTRef(TRef, stations[i]);
+						CHourlyData& data = stations[i].GetHour(localTRef);
+						if (m_nb_points == 0)
+							sfcDS.get_weather(pt, data);//estimate weather at location
+						else
+							sfcDS.get_nearest(pt, data);//get weather for this grid point
 
+						if (data[H_TMIN] == -999 && data[H_TAIR] != -999 && m_variables.test(H_TMIN))
+							data[H_TMIN] = data[H_TAIR];
+						if (data[H_TMAX] == -999 && data[H_TAIR] != -999 && m_variables.test(H_TMAX))
+							data[H_TMAX] = data[H_TAIR];
+					}
+					else
+					{
+						//CWeatherDay data(;
+						CWeatherDay& data = stations[i].GetDay(TRef);
+						if (m_nb_points == 0)
+							sfcDS.get_weather(pt, data);//estimate weather at location
+						else
+							sfcDS.get_nearest(pt, data);//get weather for this grid point
+
+						if (data[H_TMIN].IsInit() && data[H_TMAX].IsInit() && !data[H_TAIR].IsInit() && m_variables.test(H_TAIR))
+							data[H_TAIR] = data[H_TNTX];
+					}
 
 					msg += callback.StepIt(0);
 				}
@@ -1655,4 +1783,15 @@ namespace WBSF
 
 		return out;
 	}
+
+	ERMsg CSfcGribDatabase::Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius, CWVariables filter, int year, bool bExcludeUnused, bool bUseElevation, bool bUseShoreDistance)const
+	{
+		return m_pDB->Search(searchResultArray, station, nbStation, searchRadius, filter, year, bExcludeUnused, bUseElevation, bUseShoreDistance);
+	}
+
+	ERMsg CSfcGribDatabase::GetStations(CWeatherStationVector& stationArray, const CSearchResultVector& results, int year)const
+	{
+		return m_pDB->GetStations(stationArray, results, year);
+	}
+
 }

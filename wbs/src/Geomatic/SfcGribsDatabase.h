@@ -55,13 +55,13 @@ namespace WBSF
 	};
 
 	//*****************************************************************************************************************
-	class CIncementalDB : public std::map<CTRef, /*std::vector<*/CFileStamp/*>*/>
+	class CIncementalDB : public std::map<CTRef, CFileStamp>
 	{
 	public:
 		ERMsg load(const std::string& file_path);
 		ERMsg save(const std::string& file_path)const;
 
-		//ERMsg GetInvalidPeriod(const std::string& gribs_file_path, CTPeriod& p_invalid)const;
+		
 		ERMsg GetInvalidPeriod(const CGribsMap& gribs, CTPeriod& p_invalid)const;
 		ERMsg GetInvalidTRef(const CGribsMap& gribs, std::set<CTRef>& invalid)const;
 		ERMsg Update(const CGribsMap& gribs);
@@ -71,6 +71,7 @@ namespace WBSF
 		std::string m_loc_file_path;
 		size_t m_nb_points;
 		GribVariables m_variables;
+		CTPeriod m_period;
 	};
 
 
@@ -206,27 +207,27 @@ namespace WBSF
 
 	typedef std::shared_ptr<CSfcDatasetCached> CSfcDatasetCachedPtr;
 
-	class CSfcGribDatabase : public CDHDatabaseBase
+	class CSfcGribDatabase //: public CDHDatabaseBase
 	{
 	public:
 
-		static const int   VERSION;
-		static const char* XML_FLAG;
-		static const char* DATABASE_EXT;
-		static const char* OPT_EXT;
-		static const char* DATA_EXT;
-		static const char* META_EXT;
-		static const CTM   DATA_TM;
-		virtual int GetVersion()const { return VERSION; }
-		virtual const char* GetXMLFlag()const { return XML_FLAG; }
-		virtual const char* GetDatabaseExtension()const { return DATABASE_EXT; }
-		virtual const char* GetOptimizationExtension()const { return OPT_EXT; }
-		virtual const char* GetDataExtension()const { return DATA_EXT; }
-		virtual const char* GetHeaderExtension()const { return META_EXT; }
-		virtual const CTM	GetDataTM()const { return DATA_TM; }
-		virtual const char	GetDBType()const { return 'H'; }
-
-
+		//static const int   VERSION;
+		//static const char* XML_FLAG;
+		//static const char* DATABASE_EXT;
+		//static const char* OPT_EXT;
+		//static const char* DATA_EXT;
+		//static const char* META_EXT;
+		//static const CTM   DATA_TM;
+		//virtual int GetVersion()const { return VERSION; }
+		//virtual const char* GetXMLFlag()const { return XML_FLAG; }
+		//virtual const char* GetDatabaseExtension()const { return DATABASE_EXT; }
+		//virtual const char* GetOptimizationExtension()const { return OPT_EXT; }
+		//virtual const char* GetDataExtension()const { return DATA_EXT; }
+		//virtual const char* GetHeaderExtension()const { return META_EXT; }
+		//virtual const CTM	GetDataTM()const { return DATA_TM; }
+		//virtual const char	GetDBType()const { return 'H'; }
+		
+		
 		static const char* META_DATA[NB_VAR_GRIBS][NB_META];
 
 
@@ -235,8 +236,9 @@ namespace WBSF
 		bool m_bIncremental;
 		GribVariables m_variables;
 		int m_nbMaxThreads;
+		CTPeriod m_period;
 
-		CSfcGribDatabase(int cacheSize = 200) : CDHDatabaseBase(cacheSize)
+		CSfcGribDatabase() //: CDHDatabaseBase(cacheSize)
 		{
 			m_nb_points = 0;
 			m_bIncremental = true;
@@ -250,8 +252,19 @@ namespace WBSF
 		static ERMsg RenameDatabase(const std::string& inputFilePath, const std::string& outputFilePath, CCallback& callback = DEFAULT_CALLBACK);
 		static GribVariables get_var(CWVariables m_variables);
 
+		ERMsg Open(const std::string& filePath, UINT flag, CCallback& callback= DEFAULT_CALLBACK, bool bSkipVerify=false);
 		ERMsg Update(const CGribsMap& gribs, const CLocationVector& locations, CCallback& callback);
 		ERMsg ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback);
+		ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius = -1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true, bool bUseShoreDistance = true)const;
+		ERMsg GetStations(CWeatherStationVector& stationArray, const CSearchResultVector& results, int year)const;
+		ERMsg Close(bool bSave = true, CCallback& callback = DEFAULT_CALLBACK);
+
+	protected:
+
+		static std::shared_ptr < CDHDatabaseBase> GetDatabase(const std::string& filePath);
+
+		bool m_bIsHourly;
+		std::shared_ptr < CDHDatabaseBase> m_pDB;
 	};
 
 	typedef std::shared_ptr<CSfcGribDatabase> CSfcGribDatabasePtr;

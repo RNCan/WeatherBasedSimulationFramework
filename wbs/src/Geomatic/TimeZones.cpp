@@ -261,29 +261,37 @@ namespace WBSF
 	
 	__int64 CTimeZones::LocalTime2UTCTime(__int64 time, const CGeoPoint& pt)
 	{
-		//__int64 delta = GetDelta(time, pt);
+		
 		__int64 time_zone = GetTimeZone(pt);
 		return time - time_zone;
 	}
 	__int64 CTimeZones::UTCTime2LocalTime(__int64 time, const CGeoPoint& pt)
 	{
-		//__int64 delta = GetDelta(time, pt);
 		__int64 time_zone = GetTimeZone(pt);
 		return time + time_zone;
 	}
 
 	CTRef CTimeZones::LocalTRef2UTCTRef(CTRef TRef, const CGeoPoint& pt)
 	{
-		//__int64 delta = GetDelta(TRef, pt);
-		__int64 time_zone = GetTimeZone(pt);
-		return TRef - int(time_zone / 3600);//can get problems with timezone at mid hour
+		if (TRef.GetTM() == CTM::HOURLY)
+		{
+			__int64 time_zone = GetTimeZone(pt);
+			TRef -= int(time_zone / 3600);//can get problems with timezone at mid hour
+		}
+
+		return TRef;
 	}
 
 	CTRef CTimeZones::UTCTRef2LocalTRef(CTRef TRef, const CGeoPoint& pt)
 	{
-		//__int64 delta = GetDelta(TRef, pt);
-		__int64 time_zone = GetTimeZone(pt);
-		return TRef + int(time_zone /3600);
+
+		if (TRef.GetTM() == CTM::HOURLY)
+		{
+			__int64 time_zone = GetTimeZone(pt);
+			TRef += int(time_zone / 3600);
+		}
+
+		return TRef;
 		
 	}
 

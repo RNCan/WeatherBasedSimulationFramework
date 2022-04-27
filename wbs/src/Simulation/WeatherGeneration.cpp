@@ -646,9 +646,9 @@ namespace WBSF
 
 				std::string outputPath = GetPath(fileManager);//Generate output path
 				string file_path = GetDBFilePath(outputPath);//Generate DB file path
-				SetFileExtension(file_path, CSfcGribDatabase::DATABASE_EXT);
+				SetFileExtension(file_path, WGInput.IsHourly() ? CHourlyDatabase::DATABASE_EXT : CDailyDatabase::DATABASE_EXT);
 
-				msg = pGribDB->Open(file_path, CSfcGribDatabase::modeEdit, callback, true);
+				msg = pGribDB->Open(file_path, CHourlyDatabase::modeEdit, callback, true);
 				if (msg)
 					msg = pGribDB->Update(gribs, locations, callback);
 
@@ -656,7 +656,7 @@ namespace WBSF
 					msg = pGribDB->Close(true, callback);
 
 				if (msg)
-					msg = pGribDB->Open(file_path, CSfcGribDatabase::modeRead, callback, true);
+					msg = pGribDB->Open(file_path, CHourlyDatabase::modeRead, callback, true);
 			}
 		}
 
