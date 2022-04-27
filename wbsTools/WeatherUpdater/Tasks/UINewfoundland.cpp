@@ -36,8 +36,8 @@ namespace WBSF
 	const char* CUINewfoundland::SERVER_PATH = "/NLWeather/";
 
 	//*********************************************************************
-	const char* CUINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear" };
-	const size_t CUINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING };
+	const char* CUINewfoundland::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "UsderName", "Password", "WorkingDir", "FirstYear", "LastYear", "Network" };
+	const size_t CUINewfoundland::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_STRING, T_PASSWORD, T_PATH, T_STRING, T_STRING, T_STRING_SELECT };
 	const UINT CUINewfoundland::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NEWFOUNDLAND_P;
 	const UINT CUINewfoundland::DESCRIPTION_TITLE_ID = ID_TASK_NEWFOUNDLAND;
 
@@ -56,9 +56,10 @@ namespace WBSF
 	std::string CUINewfoundland::Option(size_t i)const
 	{
 		string str;
-		//switch (i)
-		//{
-		//};
+		switch (i)
+		{
+		case NETWORK:	str = "Department of Fisheries, Forestry and Agriculture (DFFA)|Water Resources Management Division (WRMD)"; break;
+		};
 		return str;
 	}
 
@@ -74,6 +75,30 @@ namespace WBSF
 		};
 
 		return str;
+	}
+
+	std::bitset<CUINewfoundland::NB_NETWORKS> CUINewfoundland::GetNetWork()const
+	{
+		std::bitset<NB_NETWORKS> network;
+
+		StringVector str(Get(NETWORK), "|;,");
+		if (str.empty())
+		{
+			network.set();
+		}
+		else
+		{
+			//StringVector net("DFFA|WRMD", "|");
+			for (size_t i = 0; i < str.size(); i++)
+			{
+				if (str[i].find("DFFA")!=string::npos)
+					network.set(DFFA_NETWORK);
+				if (str[i].find("WRMD") != string::npos)
+					network.set(WRMD_NETWORK);
+			}
+		}
+
+		return network;
 	}
 
 	//****************************************************
@@ -108,6 +133,36 @@ namespace WBSF
 
 
 	ERMsg CUINewfoundland::Execute(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string workingDir = GetDir(WORKING_DIR);
+		msg = CreateMultipleDir(workingDir);
+
+		std::bitset<CUINewfoundland::NB_NETWORKS> networks = GetNetWork();
+		
+		callback.PushTask("Update Newfoundland (" + ToString(networks.count()) + " networks)", networks.count());
+		
+		if (networks.test(0))
+		{
+			msg += ExecuteDFFA(callback);
+			msg += callback.StepIt();
+		}
+
+		//now download WRMD stations
+		if (networks.test(1))
+		{
+			msg += ExecutePublicWRMD(callback);
+			msg += callback.StepIt();
+		}
+
+		callback.PopTask();
+
+		return msg;
+	}
+
+
+	ERMsg CUINewfoundland::ExecuteDFFA(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -193,10 +248,7 @@ namespace WBSF
 		callback.AddMessage("Number of file downloaded: " + ToString(nbDownloads));
 		callback.PopTask();
 
-
-		//now downlaod WRMD stations
-		msg += ExecutePublicWRMD(callback);
-
+		
 		return msg;
 	}
 
@@ -204,7 +256,7 @@ namespace WBSF
 	static TVarH GetVar(const string& header)
 	{
 		static const char* VAR_NAME[NB_COLUMS] = { "STAT_NUM", "WSC_NUM", "NST_DATI", "AIR_TEMP", "REL_HUMIDITY", "ATMOS_PRES", "DEW_POINT", "PRECIP_TB", "RAIN", "SNOW", "SNOW_DEPTH", "SNOW_DEPTH_NEW", "RAD_SOLAR", "SUNSHINE_HRS", "WIND_SPEED", "WIND_DIR", "WIND_SPEED_GUST", "WIND_DIR_GUST", "SOIL_MOIS", "BATT_VOLTAGE", "AIR_TEMP_SCND", "SWE_TL","SWE_K", "WIND_CHILL","HUMIDEX","WATER_TEMP" };
-		static const TVarH VAR[NB_COLUMS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_PRES, H_PRCP, H_TDEW, H_SKIP, H_SKIP, H_SNDH, H_SKIP, H_SRAD, H_SKIP, H_WNDS, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SWE, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
+		static const TVarH VAR[NB_COLUMS] = { H_SKIP, H_SKIP, H_SKIP, H_TAIR, H_RELH, H_PRES, H_TDEW, H_PRCP, H_SKIP, H_SKIP, H_SNDH, H_SKIP, H_SRAD, H_SKIP, H_WNDS, H_WNDD, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SWE, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
 
 
 		TVarH var = H_SKIP;
@@ -265,7 +317,10 @@ namespace WBSF
 
 					string line;
 					getline(file, line);//skip warning
+					
 					CSVIterator loop(file);
+					StringVector units;
+					units.Tokenize(loop->GetLastLine(), ",", false);
 					++loop; //skip units.
 
 					for (; loop != CSVIterator(); ++loop)
@@ -279,6 +334,8 @@ namespace WBSF
 								TVarH var = GetVar(loop.Header()[c]);
 								variables.push_back(var);
 							}
+
+							ASSERT(variables.size() == units.size());
 						}
 
 
@@ -316,19 +373,61 @@ namespace WBSF
 
 							for (size_t c = 0; c < loop->size(); c++)
 							{
-								if (variables[c] != H_SKIP && !loop->at(c).empty())
+								if (variables[c] != H_SKIP && !loop->at(c).empty() && loop->at(c) != "-100.0000")
 								{
 									float value = ToFloat(loop->at(c));
 
+									if (variables[c] == H_TAIR)
+									{
+										if (value == -8190)
+											value = -999;
 
-									if (variables[c] == H_SRAD)
-										value *= 1000.0f / (3600 * 24);//convert KJ/m² --> W/m²
+										ASSERT(units[c] == "(C)");
+										ASSERT(value ==-999 || value>=-60&& value<=60);
+									}
+									else if (variables[c] == H_TDEW)
+									{
+										ASSERT(units[c] == "(C)");
+										ASSERT(value >= -60 && value <= 60);
+									}
+									else if (variables[c] == H_RELH)
+									{
+										ASSERT(units[c] == "(%)");
+										ASSERT(value >= 0 && value <= 100);
+									}
+									else if (variables[c] == H_WNDS)
+									{
+										ASSERT(units[c] == "(km/h)");
+										ASSERT(value >= 0 && value <= 120);
+									}
+									else if (variables[c] == H_WNDD)
+									{
+										ASSERT(units[c] == "(Degrees)");
+										ASSERT(value >= 0 && value <= 360);
+									}
+									else if (variables[c] == H_SRAD)
+									{
+										ASSERT(units[c] == "(KJ/m2)" || units[c] == "(W/m2)");
+										if( units[c] == "(KJ/m2)")
+											value *= 1000.0f / (3600 * 24);//convert KJ/m² --> W/m²
+
+										ASSERT(value >= -0.01 && value <= 1000);
+										value = max(0.0f, value );
+									}
 									else if (variables[c] == H_PRES)
+									{
+										ASSERT(units[c] == "(KPa)" );
 										value *= 10;//convert kPa --> hPa
+										ASSERT(value >= 900 && value <= 1100);
+									}
 									else if (variables[c] == H_SNDH)
-										value = max(0.0, value*100.0);//convert m --> cm
+									{
+										ASSERT(units[c] == "(m)");
+										value = max(0.0, value * 100.0);//convert m --> cm
+										ASSERT(value >= 0 && value <= 200);
+									}
 
-									if (data.GetHour(TRef)[variables[c]] == -999)
+									if (data.GetHour(TRef)[variables[c]] == -999 && value != -999)
 										data.GetHour(TRef).SetStat(variables[c], value);
 								}
 							}

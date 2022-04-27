@@ -16,8 +16,8 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateGribsList::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End" };
-	const size_t CCreateGribsList::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE };
+	const char* CCreateGribsList::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input1", "Input2", "Input3", "Forecast1", "Forecast2", "Forecast3", "OutputFilePath", "Begin", "End", "Type"};
+	const size_t CCreateGribsList::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_DATE, T_DATE, T_COMBO_INDEX };
 	const UINT CCreateGribsList::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_GRIBS_P;
 	const UINT CCreateGribsList::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_GRIBS_LIST;
 
@@ -40,13 +40,14 @@ namespace WBSF
 
 		switch (i)
 		{
-		case INPUT1:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
-		case INPUT2:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
-		case INPUT3:	str = GetUpdaterList(CUpdaterTypeMask(true, false, false, false, true)); break;
-		case FORECAST1:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
-		case FORECAST2:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
-		case FORECAST3:	str = GetUpdaterList(CUpdaterTypeMask(true, false, true, false, true)); break;
+		case INPUT1:	str = GetUpdaterList(CUpdaterTypeMask(true, true, false, false, true)); break;
+		case INPUT2:	str = GetUpdaterList(CUpdaterTypeMask(true, true, false, false, true)); break;
+		case INPUT3:	str = GetUpdaterList(CUpdaterTypeMask(true, true, false, false, true)); break;
+		case FORECAST1:	str = GetUpdaterList(CUpdaterTypeMask(true, true, true, false, true)); break;
+		case FORECAST2:	str = GetUpdaterList(CUpdaterTypeMask(true, true, true, false, true)); break;
+		case FORECAST3:	str = GetUpdaterList(CUpdaterTypeMask(true, true, true, false, true)); break;
 		case OUTPUT:	str = GetString(IDS_STR_FILTER_GRIBS); break;
+		case TYPE: str = "Hourly|Daily"; break;
 		};
 
 		return str;
@@ -61,6 +62,7 @@ namespace WBSF
 		{
 		case FIRST_DATE:	
 		case LAST_DATE:		str = CTRef::GetCurrentTRef().GetFormatedString("%Y-%m-%d"); break; //str = CTRef::GetCurrentTRef(CTM::HOURLY).GetFormatedString(); break;
+		case TYPE: str = "0"; break;
 		};
 
 		return str;
@@ -73,6 +75,10 @@ namespace WBSF
 		StringVector t2(Get(LAST_DATE), "-/");
 		if (t1.size() == 3 && t2.size() == 3)
 			p = CTPeriod(CTRef(ToInt(t1[0]), ToSizeT(t1[1]) - 1, ToSizeT(t1[2]) - 1, FIRST_HOUR), CTRef(ToInt(t2[0]), ToSizeT(t2[1]) - 1, ToSizeT(t2[2]) - 1, LAST_HOUR));
+
+		if (as<size_t>(TYPE) != 0)
+			p = p.as(CTM::DAILY);
+
 
 		return p;
 	}
@@ -173,9 +179,18 @@ namespace WBSF
 				msg += callback.StepIt(0);
 			}
 
-			callback.AddMessage("Nb gribs added: " + ToString(nbGrib) + " (" + to_string(Round(nbGrib / 24, 1)) + " days)");
-			if(nbMissing>0)
-				callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " (" + to_string(Round(nbMissing / 24, 1)) + " days)" + " missing image for the period");
+			if (p.GetTM() == CTM::HOURLY)
+			{
+				callback.AddMessage("Nb gribs added: " + ToString(nbGrib) + " (" + to_string(Round(nbGrib / 24, 1)) + " days)");
+				if (nbMissing > 0)
+					callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " (" + to_string(Round(nbMissing / 24, 1)) + " days)" + " missing image for the period");
+			}
+			else
+			{
+				callback.AddMessage("Nb gribs added: " + ToString(nbGrib) + " (" + to_string(Round(nbGrib, 1)) + " days)");
+				if (nbMissing > 0)
+					callback.AddMessage("WARNING: there are " + to_string(nbMissing) + " (" + to_string(Round(nbMissing, 1)) + " days)" + " missing image for the period");
+			}
 
 		}
 		

@@ -23,8 +23,8 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 	//*********************************************************************
-	const char* CCreateWeatherGridDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GribsFilePath", "LocationsFilePath", "OutputFilePath", "Variables", "NbPoints", "Incremental" };
-	const size_t CCreateWeatherGridDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING_SELECT, T_STRING, T_BOOL };
+	const char* CCreateWeatherGridDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GribsFilePath", "LocationsFilePath", "OutputFilePath", "Variables", "NbPoints", "FirstYear", "LastYear", "Incremental" };
+	const size_t CCreateWeatherGridDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_FILEPATH, T_FILEPATH, T_FILEPATH, T_STRING_SELECT, T_STRING, T_STRING, T_STRING, T_BOOL };
 	const UINT CCreateWeatherGridDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_WEAGRID_P;
 	const UINT CCreateWeatherGridDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_WEAGRID;
 
@@ -63,6 +63,8 @@ namespace WBSF
 		switch (i)
 		{
 		case NB_POINTS:		str = "4"; break;
+		case FIRST_YEAR:	str = "2020"; break;
+		case LAST_YEAR:		str = "2020"; break;
 		};
 
 		return str;
@@ -146,11 +148,7 @@ namespace WBSF
 
 		msg = CreateMultipleDir(GetPath(outputFilePath));
 
-		//SetFileExtension(outputFilePath, (outputType == OT_HOURLY) ? CHourlyDatabase::DATABASE_EXT : CDailyDatabase::DATABASE_EXT);
-		SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
-		callback.AddMessage(GetString(IDS_CREATE_DB));
-		callback.AddMessage(outputFilePath, 1);
-
+		
 		
 
 
@@ -158,16 +156,23 @@ namespace WBSF
 		msg += gribs.load(inputFilePath);
 
 
+
 		CLocationVector locations;
 		if (msg)
 			msg += locations.Load(Get(LOCATIONS_FILEPATH));
 
+
+		SetFileExtension(outputFilePath, (gribs.GetEntireTPeriod().GetTM()==CTM::HOURLY) ? CHourlyDatabase::DATABASE_EXT : CDailyDatabase::DATABASE_EXT);
+		//SetFileExtension(outputFilePath, CHourlyDatabase::DATABASE_EXT);
+		callback.AddMessage(GetString(IDS_CREATE_DB));
+		callback.AddMessage(outputFilePath, 1);
 
 
 		CSfcGribDatabase grib;
 		grib.m_nb_points = as<size_t>(NB_POINTS);
 		grib.m_bIncremental = as<bool>(INCREMENTAL);
 		grib.m_variables = GetVariables(Get(VARIABLES));
+		grib.m_period = CTPeriod(CTRef(as<int>(FIRST_YEAR), JANUARY, DAY_01, 0), CTRef(as<int>(LAST_YEAR), DECEMBER, DAY_31, 23)).Transform(gribs.GetEntireTPeriod());
 		grib.m_nbMaxThreads = omp_get_num_procs();
 
 		if (!grib.m_bIncremental)

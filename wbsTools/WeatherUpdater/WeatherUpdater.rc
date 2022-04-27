@@ -14,7 +14,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutre resources
+// Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
@@ -146,6 +146,7 @@ BEGIN
     SEPARATOR
     BUTTON      ID_TASK_CMIP5
     BUTTON      ID_TASK_GPCP
+    BUTTON      ID_TASK_ERA5
     SEPARATOR
     BUTTON      ID_TASK_DELETE_UPDATE
 END
@@ -220,6 +221,7 @@ BEGIN
     BUTTON      ID_TASK_RTMA
     BUTTON      ID_TASK_CMIP5
     BUTTON      ID_TASK_GPCP
+    BUTTON      ID_TASK_ERA5
     BUTTON      ID_TASK_CREATE_HOURLY
     BUTTON      ID_TASK_CREATE_DAILY
     BUTTON      ID_TASK_CREATE_NORMALS
@@ -252,8 +254,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,0,1,1
- PRODUCTVERSION 6,0,1,1
+ FILEVERSION 6,0,2,2
+ PRODUCTVERSION 6,0,2,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -270,21 +272,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "6.0.1.1"
+            VALUE "FileVersion", "6.0.2.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "6.0.1.1"
+            VALUE "ProductVersion", "6.0.2.2"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "6.0.1.1"
+            VALUE "FileVersion", "6.0.2.2"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "6.0.1.1"
+            VALUE "ProductVersion", "6.0.2.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -293,12 +295,12 @@ BEGIN
     END
 END
 
-#endif    // Neutre resources
+#endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Français (Canada) resources
+// French (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
@@ -722,7 +724,7 @@ BEGIN
     IDS_UPDATER_NOVASCOTIA_P 
                             "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
     IDS_UPDATER_NEWFOUNDLAND_P 
-                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année"
+                            "Nom d'usager|Mot de passe|Répertoire de travail|Première année|Dernière année|Réseau"
     IDS_UPDATER_WU_P        "Répertoire de travail|Première année|Dernière année|Type de données|IDs des stations|Mettre à jour les métadata manquantes"
 END
 
@@ -741,6 +743,7 @@ BEGIN
     IDS_UPDATER_CMIP5_P     "Nom d'usagé|Mot de passe|Répertoire de travail|Modèle|Fichier de sortie"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
+    IDS_UPDATER_ERA5_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
     IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
@@ -750,10 +753,10 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Fichier d'entrée|Fichier de sortie|Première année|Dernière année|Nombre d'années minimum|Appliquer des cc|Fichier MMG|Période de référence|Periode future|Nb voisins|Distance maximale [km]|Puissance"
-    IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|"
+    IDS_TOOL_CREATE_GRIBS_P "Tâche de données 1|Tâche de données 2|Tâche de données 3|Tâche de prévision 1|Tâche de prévision 2|Tâche de prévision 3|Fichier de sortie|Première date|Dernière date|Type"
     IDS_TOOL_CREATE_MMG_P   "Tâche de données|Fichier de sortie"
     IDS_TOOL_CREATE_WEAGRID_P 
-                            "Fichier Gribs|Fichier de localisations|Fichier de sortie|Variables|Nb points|Incrémental"
+                            "Fichier Gribs|Fichier de localisations|Fichier de sortie|Variables|Nb points|Première année|Dernière année|Incrémental"
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Type"
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
@@ -827,6 +830,7 @@ BEGIN
     ID_TASK_HRRR            "Télécharger les grilles hautes résolutons HRRR (État-Unis)\nGrilles 3D HRRR (États-Unis)"
     ID_TASK_CMIP5           "Télécharger les données quotidiennes CMIP5 (GCM) via pcmdi\nCMIP5"
     ID_TASK_GPCP            "Télécharger les données quotidiennes  ""Global Precipitation Climatology Project (CGCP)"" via la nasa\nGPCP"
+    ID_TASK_ERA5            "Télécharger les données quotidiennes  ERA5\nERA5"
     ID_TASK_CREATE_HOURLY   "Créer une base de données horaires\nCréer BD horaires"
     ID_TASK_CREATE_DAILY    "Créer une base de données quotidiennes\nCréer BD quotidiennes"
     ID_TASK_CREATE_NORMALS  "Créer une base de données normales\nCréer DB normales"
@@ -836,11 +840,11 @@ BEGIN
     ID_TASK_MERGE_DB        "Fusionner deux bases de données météorologiques\nFusionner"
     ID_TASK_APPEND_DB       "Réunir 2 bases de données dans une même (déplacements de fichiers seulement)\nRéunir"
     ID_TASK_CROP_DB         "Rogner une base de données météorologiques\nRognier"
-    ID_TASK_QUALITY_CONTROL "Appliquer un controle de qualité sur des bases de données météo\nControle de qualité"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_QUALITY_CONTROL "Appliquer un controle de qualité sur des bases de données météo\nControle de qualité"
     ID_TASK_CREATE_CANUS    "Créer une grille Canada/USA à partir de HRDPS and HRRR\nCréer grille CanUS"
     ID_TASK_CREATE_WEAGRID  "Créer une base de données météo (horaire/quotidien) à partir d'un fichier Gribs\nCréer BD météo"
     ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
@@ -858,12 +862,12 @@ BEGIN
     ID_TASK_DELETE_TOOL     "Enlever une tâche outil\nEnlever"
 END
 
-#endif    // Français (Canada) resources
+#endif    // French (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Anglais (Canada) resources
+// English (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
@@ -1222,7 +1226,7 @@ BEGIN
     IDS_UPDATER_NOVASCOTIA_P 
                             "User Name|Password|Working directory|First year|Last year"
     IDS_UPDATER_NEWFOUNDLAND_P 
-                            "User Name|Password|Working directory|First year|Last year"
+                            "User Name|Password|Working directory|First year|Last year|Network"
     IDS_UPDATER_WU_P        "Working directory|First year|Last year|Data type|Stations IDs|Update missing metadata"
 END
 
@@ -1241,6 +1245,7 @@ BEGIN
     IDS_UPDATER_CMIP5_P     "User name|Password|Working directory|Model|Output file path"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
+    IDS_UPDATER_ERA5_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
@@ -1250,10 +1255,10 @@ STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
                             "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
-    IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date"
+    IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date|Type"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_WEAGRID_P 
-                            "Gribs file|Locations file|Output file|Variables|Nb points|Incremental"
+                            "Gribs file|Locations file|Output file|Variables|Nb points|First date|Last date|Incremental"
     IDS_TOOL_MERGE_DB_P     "Input file 1|Input file 2|Output file path|Max distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input file 1|Input file 2|Output file|Type"
     IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
@@ -1326,7 +1331,8 @@ BEGIN
     ID_TASK_HRDPS           "Download high resolution HRDPS (Canada) 3D gribs\nHRDPS 3D Gribs"
     ID_TASK_HRRR            "Download high resolution HRRR (USA) 3D gribs\nHRRR 3D Gribs"
     ID_TASK_CMIP5           "Download daily CMIP5 (GCM) data via pcmdi\nCMIP5"
-    ID_TASK_GPCP            "Download daily  Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+    ID_TASK_GPCP            "Download daily Global Precipitation Climatology Project (CGCP) data via the nasa\nGPCP"
+    ID_TASK_ERA5            "Download daily ERA5\nERA5"
     ID_TASK_CREATE_HOURLY   "Create hourly database\nCreate Hourly DB"
     ID_TASK_CREATE_DAILY    "Create daily database\nCreate Daily DB"
     ID_TASK_CREATE_NORMALS  "Create normals database\nCreate Normals DB"
@@ -1335,11 +1341,11 @@ BEGIN
     ID_TASK_MERGE_DB        "Merge two weather databases\nMerge"
     ID_TASK_APPEND_DB       "Append one databases into an other database (move files)\nAppend"
     ID_TASK_CROP_DB         "Crop weather database\nCrop"
-    ID_TASK_QUALITY_CONTROL "Appply quality control on weather database\nQuality Controle"
 END
 
 STRINGTABLE
 BEGIN
+    ID_TASK_QUALITY_CONTROL "Appply quality control on weather database\nQuality Controle"
     ID_TASK_CREATE_CANUS    "Create Canada/USA grib from HRDPS and HRRR\nCreate CanUS Grid"
     ID_TASK_CREATE_WEAGRID  "Create weather database (hourly/daily) from Gribs file\nWeather DB"
     ID_TASK_ZIP_UNZIP       "Zip/Unzip files\nZip/Unzip"
@@ -1356,7 +1362,7 @@ BEGIN
     ID_TASK_DELETE_TOOL     "Remove a tool task\nRemove"
 END
 
-#endif    // Anglais (Canada) resources
+#endif    // English (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

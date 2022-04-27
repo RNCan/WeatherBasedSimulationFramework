@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 		enum TNetwork { DFFA_NETWORK, WRMD_NETWORK, NB_NETWORKS};
-		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NB_ATTRIBUTES };
+		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, FIRST_YEAR, LAST_YEAR, NETWORK, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUINewfoundland); }
@@ -45,9 +45,11 @@ namespace WBSF
 		std::string GetStationsListFilePath(size_t n)const;
 		std::string GetOutputFilePath(size_t network, const std::string& fileTitle, int year)const;
 		std::string GetOutputFilePath(int year)const;
+		ERMsg ExecuteDFFA(CCallback& callback);
 		ERMsg ExecutePublicWRMD(CCallback& callback);
 
 
+		std::bitset<CUINewfoundland::NB_NETWORKS> CUINewfoundland::GetNetWork()const;
 		ERMsg UpdateStationList(CCallback& callback);
 		ERMsg ReadDataFile(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;
 

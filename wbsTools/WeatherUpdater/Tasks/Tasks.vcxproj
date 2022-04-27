@@ -172,6 +172,7 @@
     <ClInclude Include="CreateNormalsDB.h" />
     <ClInclude Include="CreateRadarAnimation.h" />
     <ClInclude Include="CreateWeaGridDB.h" />
+    <ClInclude Include="ERA5.h" />
     <ClInclude Include="HRCanUS.h" />
     <ClInclude Include="HRDPA.h" />
     <ClInclude Include="HRDPS.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="UIGHCN.h" />
     <ClInclude Include="UIGSOD.h" />
     <ClInclude Include="UIISDLite.h" />
+    <ClInclude Include="UIReanalysis.h" />
     <ClInclude Include="UIRTMA.h" />
     <ClInclude Include="UISaskatchewan.h" />
     <ClInclude Include="UISnowTel.h" />
@@ -246,6 +248,7 @@
     <ClCompile Include="CreateNormalsDB.cpp" />
     <ClCompile Include="CreateRadarAnimation.cpp" />
     <ClCompile Include="CreateWeaGridDB.cpp" />
+    <ClCompile Include="ERA5.cpp" />
     <ClCompile Include="HRCanUS.cpp" />
     <ClCompile Include="HRDPA.cpp" />
     <ClCompile Include="HRDPS.cpp" />
@@ -303,6 +306,7 @@
     <ClCompile Include="UIGHCN.cpp" />
     <ClCompile Include="UIGSOD.cpp" />
     <ClCompile Include="UIISDLite.cpp" />
+    <ClCompile Include="UIReanalysis.cpp" />
     <ClCompile Include="UIRTMA.cpp" />
     <ClCompile Include="UISaskatchewan.cpp" />
     <ClCompile Include="UISnowTel.cpp" />

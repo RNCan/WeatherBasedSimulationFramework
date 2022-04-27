@@ -227,6 +227,12 @@
     <ClInclude Include="QualityControl.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ERA5.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIReanalysis.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -443,6 +449,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="QualityControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ERA5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIReanalysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
