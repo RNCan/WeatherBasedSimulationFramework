@@ -2152,6 +2152,7 @@ namespace WBSF
 
 					CTRef UTCTRef(year, m, d, h);
 					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCTRef, station);
+					CSun sun(station.m_lat, station.m_lon);
 
 					if (TRef.GetYear() >= firstYear && TRef.GetYear() <= lastYear)
 					{
@@ -2170,10 +2171,15 @@ namespace WBSF
 										if (v == H_SRAD && bFredericton && WBSF::as<float>(strValue) > 1000)//Fredericton some data 10 *????
 											QAValue = -1;
 
+										
 										if (v == H_SRAD && strQA=="4")//Remove radiation when QA == 4, srad always equal zero
 											QAValue = -1;
-
-										if (QAValue > 0 || (v == H_SRAD && QAValue == 0))
+										
+										bool bDaylight = TRef.GetHour() >= floor(sun.GetSunrise(TRef)) && TRef.GetHour() <= ceil(sun.GetSunset(TRef));
+										if (v == H_SRAD && strQA == "0" && bDaylight)//Remove radiation when QA == 0 during daylight
+											QAValue = -1;
+										
+										if (QAValue > 0)
 										{
 											float value = WBSF::as<float>(strValue);
 											if (v == H_SRAD && value < 0)
