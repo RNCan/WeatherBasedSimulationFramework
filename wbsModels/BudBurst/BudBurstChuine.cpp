@@ -86,7 +86,7 @@ namespace WBSF
 
 
 
-	
+
 
 	CBudBurstChuineModel::CBudBurstChuineModel()
 	{
@@ -229,8 +229,8 @@ namespace WBSF
 
 	void CBudBurstChuineModel::ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output)
 	{
-		//boost::math::beta_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
-		boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
+		boost::math::beta_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
+		//boost::math::weibull_distribution<double> SDI_dist(m_P[SDI_µ], m_P[SDI_σ]);
 
 
 		CTPeriod pp(weather.GetEntireTPeriod(CTM::DAILY));
@@ -362,8 +362,8 @@ namespace WBSF
 
 
 
-
-	enum { I_SPECIES, I_SOURCE, I_SITE, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE, I_STARCH, I_SUGAR, I_MASS, I_SDI, I_N, I_DEF, I_DEF_END_N1, I_DEF_END_N, I_PROVINCE, I_TYPE, NB_INPUTS };
+	enum { I_SPECIES, I_SOURCE, I_SITE, I_LATITUDE, I_LONGITUDE, I_ELEVATION, I_DATE, I_STARCH, I_SUGAR, I_B_LENGTH, I_B_MASS, I_N_MASS, I_SDI, I_N, I_DEF, I_DEF_END_N1, I_DEF_END_N, I_PROVINCE, I_TYPE, NB_INPUTS };
+	enum { I_SPECIES2, I_SOURCE2, I_SITE2, I_LATITUDE2, I_LONGITUDE2, I_ELEVATION2, I_YEAR2, I_BUDBURST2, I_PROVINCE2, I_TYPE2, NB_INPUTS2 };
 	void CBudBurstChuineModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
@@ -371,11 +371,12 @@ namespace WBSF
 		{
 			if (data[I_SPECIES] == SPECIES_NAME[m_species] && data[I_TYPE] == "C")
 			{
+				m_bSDI = true;
 				CSAResult obs;
 
 				obs.m_ref.FromFormatedString(data[I_DATE]);
 				obs.m_obs[0] = stod(data[I_SDI]);
-				
+
 
 				if (obs.m_obs[0] > -999)
 				{
@@ -389,13 +390,29 @@ namespace WBSF
 				m_SAResult.push_back(obs);
 			}
 		}
+		else if (NB_INPUTS2)
+		{
+			m_bSDI = false;
+			CSAResult obs;
+
+			obs.m_ref = CTRef(stoi(data[I_YEAR2]));
+			obs.m_obs[0] = stod(data[I_BUDBURST2]);
+
+
+			if (obs.m_obs[0] > -999)
+			{
+				m_years.insert(obs.m_ref.GetYear());
+			}
+
+			m_SAResult.push_back(obs);
+		}
 	}
 
 	double GetSimDOY(const CModelStatVector& output, const CSAResult& result)
 	{
 		CTPeriod p(result.m_ref.GetYear(), JANUARY, DAY_01, result.m_ref.GetYear(), DECEMBER, DAY_31);
 		int pos = output.GetFirstIndex(O_SDI, ">", result.m_obs[0], 0, p);
-		return pos >= 0 ? (output.GetFirstTRef() + pos).GetJDay() : -999;
+		return pos >= 0 ? double((output.GetFirstTRef() + pos).GetJDay()) : -999.0;
 	}
 
 
@@ -404,7 +421,7 @@ namespace WBSF
 
 		if (!m_SAResult.empty())
 		{
-			
+
 			if (TRFunction(m_P[R_FUNCTION]) == UTAH)
 			{
 				if ((m_P[CU_T_MIN] > m_P[CU_T_OPT]) ||
@@ -417,10 +434,10 @@ namespace WBSF
 				if (m_P[CU_Tlow] > m_P[CU_Thigh])
 					return;
 			}
-			
+
 			//if (size_t(size_t(m_P[FU_DAYS]) * m_P[CU_DAYS]) > 45)
 				//return;
-			
+
 
 			if (!m_SDI_DOY_stat.IsInit())
 			{
@@ -436,7 +453,7 @@ namespace WBSF
 					}
 				}
 
-				
+
 			}
 
 
@@ -445,7 +462,7 @@ namespace WBSF
 				CTPeriod pp((*m_years.begin()) - 1, JANUARY, DAY_01, *m_years.rbegin(), DECEMBER, DAY_31);
 				pp.Transform(m_weather.GetEntireTPeriod());
 				pp = pp.Intersect(m_weather.GetEntireTPeriod());
-				if (pp.IsInit()) 
+				if (pp.IsInit())
 				{
 					((CLocation&)data_weather) = m_weather;
 					data_weather.SetHourly(m_weather.IsHourly());
@@ -476,59 +493,59 @@ namespace WBSF
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{
-				if (output.IsInside(m_SAResult[i].m_ref))
+
+				if (m_bSDI)
 				{
-					if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
+					if (output.IsInside(m_SAResult[i].m_ref))
 					{
-						double obs_SDI = m_SAResult[i].m_obs[0];
-						double sim_SDI = output[m_SAResult[i].m_ref][O_SDI];
-						stat.Add(obs_SDI/MAX_SDI, sim_SDI / MAX_SDI);
-
-						if (obs_SDI >= MIN_SDI_DOY && obs_SDI <= MAX_SDI_DOY)
+						if (m_SAResult[i].m_obs[0] > -999 && m_SAResult[i].m_ref.GetJDay() < 244 && output[m_SAResult[i].m_ref][O_SDI] > -999)
 						{
-							double DOY = GetSimDOY(output, m_SAResult[i]);
-							if (DOY > -999)
+							double obs_SDI = m_SAResult[i].m_obs[0];
+							double sim_SDI = output[m_SAResult[i].m_ref][O_SDI];
+							stat.Add(obs_SDI / MAX_SDI, sim_SDI / MAX_SDI);
+
+							if (obs_SDI >= MIN_SDI_DOY && obs_SDI <= MAX_SDI_DOY)
 							{
-								double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
-								double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
-								stat.Add(obs_DOY, sim_DOY);
+								double DOY = GetSimDOY(output, m_SAResult[i]);
+								if (DOY > -999)
+								{
+									double obs_DOY = (m_SAResult[i].m_ref.GetJDay() - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+									double sim_DOY = (DOY - m_SDI_DOY_stat[LOWEST]) / m_SDI_DOY_stat[RANGE];
+									stat.Add(obs_DOY, sim_DOY);
+								}
+								else
+								{
+									stat.clear();
+									return;//reject this solution
+								}
 							}
-							else
-							{
-								stat.clear();
-								return;//reject this solution
-							}
+
+
 						}
-						
+					}
+				}
+				else
+				{
+					if (output.IsInside(m_SAResult[i].m_ref.as(CTM::DAILY, CTRef::MID_TREF)))
+					{
+						if (m_SAResult[i].m_obs[0] > -999 )
+						{
+							CSAResult tmp;
+							tmp.m_ref = m_SAResult[i].m_ref;
+							tmp.m_obs[0] = 4.5;
 
+							double sim_BB = GetSimDOY(output, tmp);
 
+							//if (BB_DOY > -999)
+							//{
+							//	CTRef TRef;
+							//	TRef.SetRef(int(BB_DOY), CTM(CTM::DAILY));
 
-
-						//if (output[CTRef(m_SAResult[i].m_ref.GetYear(), JULY, DAY_31)][O_SDI] < m_SDI_type == SDI_DHONT ? 6 : 5)
-							//sim_SDI = Rand(-999,999); 
-						// 
-
-						//double Fdef = 1;
-						//if (m_P[Used_DEF] != 0)
-						//{
-						//	double defol = m_SAResult[i].m_obs[2] > -999 ? m_SAResult[i].m_obs[2] : 0;
-						//	double Fdef = 1 - (1 - m_P[DEF_min]) / (1 + exp(-(defol - m_P[DEF_µ]) / m_P[DEF_σ]));
-						//}
-						//
-						//double CU = output[m_SAResult[i].m_ref][O_CU];
-						//double FU = output[m_SAResult[i].m_ref][O_FU];
-						//double PS = min(1.0, CU / (m_P[CU_crit])) + min(1.0, (FU) / (m_P[FU_crit] * Fdef));
-						//
-						//double SDI_Dhont = cdf(SDI_dist, max(0.0, min(1.0, PS - 1))) * MAX_SDI;//0 .. 6;
-						//double SDI_Auger = max(0.0, min(5.0, exp(log(5) * (SDI_Dhont - 2.5) / (5.6 - 2.5)) - 0.33));//0 .. 5;
-						//double SDI = m_SDI_type == SDI_DHONT ? SDI_Dhont : SDI_Auger;
-						//
-						//
-						//double sim_SDI = Round(SDI, 2);
-
-
-						//for(size_t n=0; n< m_SAResult[i].m_obs[1]; n++)
-
+								double obs_BB = m_SAResult[i].m_obs[0];
+							//	double sim_BB = TRef.GetJDay();
+								stat.Add(obs_BB, sim_BB);
+							//}
+						}
 					}
 				}
 			}//for all results

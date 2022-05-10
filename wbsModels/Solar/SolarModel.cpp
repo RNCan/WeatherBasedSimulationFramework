@@ -1,5 +1,6 @@
 ﻿//**************************************************************************************************************
-// 13/06/2019	1.0.0	Rémi Saint-Amant	Create from articles Vermunt 2011
+// 25/03/2022	1.0.1	Rémi Saint-Amant	Update with VS 2019
+// 13/06/2019	1.0.0	Rémi Saint-Amant	Creation
 //**************************************************************************************************************
 
 #include "ModelBase/EntryPoint.h"
@@ -26,7 +27,7 @@ namespace WBSF
 	CSolarModel::CSolarModel()
 	{
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.0.0 (2020)";
+		VERSION = "1.0.1 (2022)";
 	}
 
 

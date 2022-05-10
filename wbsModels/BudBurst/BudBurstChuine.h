@@ -109,7 +109,7 @@ namespace WBSF
 		size_t m_FU_DAY_last;
 
 
-
+		bool m_bSDI;
 		std::set<int> m_years;
 		CStatistic m_SDI_DOY_stat;
 		CWeatherStation data_weather;

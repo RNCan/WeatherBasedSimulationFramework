@@ -194,7 +194,7 @@ namespace WBSF
 		parameters[c++].GetInt();
 		m_SDI_type = SDI_AUGER;
 		ASSERT(m_SDI_type < NB_SDI_TYPE);
-		//ASSERT(m_P == HBB::PARAMETERS[m_P.m_version][m_species]);
+		
 
 		m_bCumul = parameters[c++].GetBool();
 
@@ -329,7 +329,7 @@ namespace WBSF
 	{
 		CTPeriod p(result.m_ref.GetYear(), JANUARY, DAY_01, result.m_ref.GetYear(), DECEMBER, DAY_31);
 		int pos = output.GetFirstIndex(O_SDI, ">", result.m_obs[0], 0, p);
-		return pos >= 0 ? (output.GetFirstTRef() + pos).GetJDay() : -999;
+		return pos >= 0 ? double((output.GetFirstTRef() + pos).GetJDay()) : -999.0;
 	}
 
 
