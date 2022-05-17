@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.8.8:22/02/2022	Rémi Saint-Amant	Correction in InsectParametrisation for HOBO data
+// 11.8.8:22/02/2022	Rémi Saint-Amant	Don't trunck small value in simulated annealing
+//											Correction in InsectParametrisation for HOBO data
 //											Add Saint-Amant_2022 DevEq. Add avoid null dev. 
 //											Code optimization of InsecParam.
 // 11.8.6:02/02/2022	Rémi Saint-Amant	Add LimitMaxRate, add Boatman_2017, Change in default Tb and Tmax range.

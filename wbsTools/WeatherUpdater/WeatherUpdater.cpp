@@ -1,3 +1,4 @@
+//6.0.3	17/05/2022	Rémi Saint-Amant	Update SOPFEU FTP download
 //6.0.2	27/04/2022	Rémi Saint-Amant	Add support daily gribs 
 //										Add ERA5 conversion task
 //										bug correction in NL weather data

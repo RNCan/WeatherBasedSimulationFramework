@@ -14,7 +14,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutral resources
+// Neutre resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
@@ -274,8 +274,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,8,6,2
- PRODUCTVERSION 11,8,6,2
+ FILEVERSION 11,8,7,2
+ PRODUCTVERSION 11,8,7,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -292,23 +292,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.8.6.2"
+            VALUE "FileVersion", "11.8.7.2"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2021"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.8.6.2"
+            VALUE "ProductVersion", "11.8.7.2"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.8.6.2"
+            VALUE "FileVersion", "11.8.7.2"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2021"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.8.6.2"
+            VALUE "ProductVersion", "11.8.7.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -317,12 +317,12 @@ BEGIN
     END
 END
 
-#endif    // Neutral resources
+#endif    // Neutre resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// French (Canada) resources
+// Français (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
@@ -844,12 +844,12 @@ BEGIN
     ID_PRINT_GRAPH          "Imprimer graphique\nImprimer graphique"
 END
 
-#endif    // French (Canada) resources
+#endif    // Français (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
+// Anglais (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
@@ -1366,7 +1366,7 @@ BEGIN
     ID_PRINT_GRAPH          "Print chart\nPrint Chart"
 END
 
-#endif    // English (Canada) resources
+#endif    // Anglais (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
