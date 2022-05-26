@@ -3376,8 +3376,8 @@ namespace WBSF
 		size_t x = 0;
 		static const size_t NB_TRY_I = 100;
 
-		GetFValue(s, e, computation);
-		while (x < NB_TRY_I && computation.m_FP == m_ctrl.GetVMiss())//try to find valid parameters when initial parameters is invalid
+		bool bValid = GetFValue(s, e, computation);
+		while (x < NB_TRY_I && !bValid)//try to find valid parameters when initial parameters is invalid
 		{
 			//  Generate XP, the trial value of X. Note use of VM to choose XP.
 			for (size_t i = 0; i < computation.m_X.size(); i++)
@@ -3385,14 +3385,14 @@ namespace WBSF
 				computation.m_XP[i] = max(parameters[i].m_bounds.GetLowerBound(), min(parameters[i].m_bounds.GetUpperBound(), parameters[i].m_initialValue * RandLogNormal(0, double(x) / NB_TRY_I)));
 			}
 
-			GetFValue(s, e, computation);
+			bValid = GetFValue(s, e, computation);
 			x++;
 		}
 
 		//try with random values
 		static const size_t NB_TRY_II = 1000;
 		x = 0;
-		while (x < NB_TRY_II && computation.m_FP == m_ctrl.GetVMiss())//try to find valid parameters when initial parameters is invalid
+		while (x < NB_TRY_II && !bValid)//try to find valid parameters when initial parameters is invalid
 		{
 			//  Generate XP, the trial value of X. Note use of VM to choose XP.
 			for (size_t i = 0; i < computation.m_X.size(); i++)
@@ -3400,7 +3400,7 @@ namespace WBSF
 				computation.m_XP[i] = parameters[i].m_bounds.GetLowerBound() + parameters[i].m_bounds.GetExtent() * Randu();
 			}
 
-			GetFValue(s, e, computation);
+			bValid = GetFValue(s, e, computation);
 			x++;
 		}
 
@@ -3906,6 +3906,7 @@ namespace WBSF
 						
 						
 						size_t x = 0;
+						bool bValid = true;
 						do
 						{
 							x++;
@@ -3928,8 +3929,8 @@ namespace WBSF
 							}
 
 							//  Evaluate the function with the trial point XP and return as FP.
-							GetFValue(s, e, computation);
-						} while (x < 10 && computation.m_FP == m_ctrl.GetVMiss());//if parameters rejected, find new parameters
+							bValid = GetFValue(s, e, computation);
+						} while (x < 10 && !bValid);//if parameters rejected, find new parameters
 
 
 						//add X value to extreme XP statistic
@@ -4137,7 +4138,7 @@ namespace WBSF
 		return bValid;
 	}
 
-	void CInsectParameterization::GetFValue(string var, size_t e, CComputationVariable& computation)
+	bool CInsectParameterization::GetFValue(string var, size_t e, CComputationVariable& computation)
 	{
 		//bool bValid = false;
 		bool bLogLikelyhoude = m_ctrl.m_statisticType == LIKELIHOOD;
@@ -4192,7 +4193,7 @@ namespace WBSF
 
 
 							if (isnan(LL))
-								return;
+								return false;
 
 
 							log_likelyhoude += LL;
@@ -4256,7 +4257,7 @@ namespace WBSF
 							}
 
 							if (!isfinite(LL) || isnan(LL))
-								return;
+								return false;
 
 							//log_likelyhoude += LL;
 							//N_likelyhoude++;
@@ -4269,7 +4270,7 @@ namespace WBSF
 							{
 								double mean_time = GetTimeStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_treatment]);
 								if (!isfinite(mean_time) || isnan(mean_time) || mean_time < -1E8 || mean_time>1E8)
-									return;
+									return false;
 
 								double obs = 1.0 / m_devTime[i][I_MEAN_TIME];//apply the same approximation
 								double sim = 1.0 / mean_time;//apply the same approximation
@@ -4298,7 +4299,7 @@ namespace WBSF
 							//maximum likelihood
 							double LL = Regniere2021Survival(eq, computation.m_XP, m_survival[i]);
 							if (!isfinite(LL) || isnan(LL))
-								return;
+								return false;
 
 							log_likelyhoude += LL;
 							N_likelyhoude++;
@@ -4312,7 +4313,7 @@ namespace WBSF
 								double sim = GetSurvival(eq, computation.m_XP, m_survival[i]);
 
 								if (!isfinite(sim) || isnan(sim) || sim < -1E8 || sim>1E8)
-									return;
+									return false;
 
 								for (size_t n = 0; n < m_survival[i][I_N]; n++)
 									stat.Add(sim, obs);
@@ -4353,7 +4354,7 @@ namespace WBSF
 							}
 
 							if (!isfinite(LL) || isnan(LL))
-								return;
+								return false;
 
 							log_likelyhoude += LL;
 							N_likelyhoude += m_fecundity[i][I_N];
@@ -4431,6 +4432,7 @@ namespace WBSF
 		}
 
 		//file.close();
+		return true;
 	}
 
 

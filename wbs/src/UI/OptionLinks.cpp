@@ -196,7 +196,7 @@ namespace WBSF
 	static const char* DEFAULT_APP_TITLE[CAppLinkPropertyGridCtrl::NB_LINKS] =
 	{
 		"BioSIM11", "ShowMap", "HourlyEditor", "DailyEditor", "NormalsEditor", "ModelEditor",
-		"MatchStation", "WeatherUpdater", "FTPTransfer", "TDate", "MergeFiles",
+		"MatchStation", "WeatherUpdater", "WinSCP", "TDate", "MergeFiles",
 		"Notepad", "NotePad", "Excel", "Calc", "QGIS", "Rscript",
 	};
 

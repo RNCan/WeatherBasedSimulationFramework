@@ -82,9 +82,11 @@ namespace WBSF
 			m_stats.clear();
 			m_msg = ERMsg::OK;		//for error
 			m_nbTaskCompleted = 0;//for progression
+			m_bValid.clear();
 		}
 
 		CStatisticXYVector m_stats;
+		std::vector<unsigned __int64> m_bValid;
 
 		ERMsg m_msg;		//for error
 		unsigned __int64 m_nbTaskCompleted;//for progression
@@ -839,20 +841,25 @@ namespace WBSF
 			unsigned __int64 locNo = 0;
 			outStream->Read(&locNo, sizeof(locNo));
 			ASSERT(locNo < (long)gSession.m_stats.size());
+			ASSERT(locNo < (long)gSession.m_bValid.size());
 
-			ERMsg msg;
-			if (msg)
-			{
-				int sizeofStat = sizeof(gSession.m_stats[locNo]);
-				outStream->Read(&(gSession.m_stats[locNo]), sizeof(gSession.m_stats[locNo]));
-				gSession.m_nbTaskCompleted++;
+			outStream->Read(&(gSession.m_bValid[locNo]), sizeof(gSession.m_bValid[locNo]));
+
+			//ERMsg msg;
+			//if (msg)
+			//{
+			int sizeofStat = sizeof(gSession.m_stats[locNo]);
+			outStream->Read(&(gSession.m_stats[locNo]), sizeof(gSession.m_stats[locNo]));
+
+				
+			gSession.m_nbTaskCompleted++;
 
 
-			}
-			else
-			{
-				gSession.m_msg = msg;
-			}
+			//}
+			//else
+			//{
+				//gSession.m_msg = msg;
+			//}
 		}
 		catch (...)
 		{
@@ -896,6 +903,8 @@ namespace WBSF
 				//callback.SetNbStep(locations.size());
 
 				gSession.m_stats.resize(locations.size());
+				gSession.m_bValid.resize(locations.size());
+				
 				for (size_t l = 0; l < locations.size() && msg; l++)
 				{
 					CSimulationPoint simulationPoint;
@@ -972,7 +981,11 @@ namespace WBSF
 		ERMsg msg;
 
 		for (size_t i = 0; i < gSession.m_stats.size(); i++)
+		{
 			gSession.m_stats[i].clear();
+			gSession.m_bValid[i] = true;
+		}
+			
 
 
 #pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) if(m_model.GetThreadSafe())
@@ -1023,18 +1036,20 @@ namespace WBSF
 
 		if (msg)
 		{
-			//stat.resize(1);
-			//stat[0].Reset();
+			bool bValid = true;
 			stat.Reset();
 			F = m_ctrl.GetVMiss();
 
 			for (size_t i = 0; i < gSession.m_stats.size(); i++)
+			{
+				bValid &= bool(gSession.m_bValid[i]);
 				stat += gSession.m_stats[i];
+			}
 
 			//  If the function is to be minimized, switch the sign of the function.
 			//  Note that all intermediate and final output switches the sign back
 			//  to eliminate any possible confusion for the user.
-			if (stat[NB_VALUE] > 0)
+			if (bValid)
 				F = m_ctrl.GetFinalFValue(stat);
 		}
 

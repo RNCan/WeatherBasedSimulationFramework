@@ -383,11 +383,12 @@ namespace WBSF
 			//LeaveCriticalSection(&CS);
 
 			CStatisticXY stat;
-			sd.m_modelVector[locNo]->GetFValue(paramArray, stat);
+			unsigned __int64 bValid = unsigned __int64(sd.m_modelVector[locNo]->GetFValue(paramArray, stat));
 
 			//write outputStream
 			outStream->Write(&sessionId, sizeof(sessionId));
 			outStream->Write(&locNo, sizeof(locNo));
+			outStream->Write(&bValid, sizeof(bValid));
 			outStream->Write(&stat, sizeof(stat));
 
 

@@ -259,7 +259,7 @@ namespace WBSF
 		}
 	}
 
-	void CBioSIMModelBase::GetFValue(const std::vector<double>& paramArray, CStatisticXY& stat)
+	bool CBioSIMModelBase::GetFValue(const std::vector<double>& paramArray, CStatisticXY& stat)
 	{
 		Randomize((unsigned int)m_info.m_seed);
 		InitRandomGenerator(m_info.m_seed);
@@ -278,18 +278,19 @@ namespace WBSF
 		ProcessParameters(m_info.m_inputParameters);
 
 		InitializeStat(stat);
-		 
-		for (size_t i = 0; i < m_info.m_repCounter.GetTotal(); i++)
+		
+		bool bValid = true;
+		for (size_t i = 0; i < m_info.m_repCounter.GetTotal()&& bValid; i++)
 		{
 			CStatisticXY statTmp;
 
 			switch (m_info.m_TM.Type())
 			{
-			case CTM::HOURLY: GetFValueHourly(statTmp); break;
-			case CTM::DAILY: GetFValueDaily(statTmp); break;
-			case CTM::MONTHLY: GetFValueMonthly(statTmp); break;
-			case CTM::ANNUAL: GetFValueAnnual(statTmp); break;
-			case CTM::ATEMPORAL: GetFValueAtemporal(statTmp); break;
+			case CTM::HOURLY: bValid &= GetFValueHourly(statTmp); break;
+			case CTM::DAILY: bValid &= GetFValueDaily(statTmp); break;
+			case CTM::MONTHLY: bValid &= GetFValueMonthly(statTmp); break;
+			case CTM::ANNUAL: bValid &= GetFValueAnnual(statTmp); break;
+			case CTM::ATEMPORAL: bValid &= GetFValueAtemporal(statTmp); break;
 			default: _ASSERTE(false);
 			}
 
@@ -297,7 +298,7 @@ namespace WBSF
 		}
 
 
-		FinalizeStat(stat);
+		return bValid && FinalizeStat(stat);
 	}
 	//
 	//void CBioSIMModelBase::SaveTemporalReference(CTRef d)

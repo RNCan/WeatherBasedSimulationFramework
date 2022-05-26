@@ -106,13 +106,13 @@ namespace WBSF
 		virtual void AddAtemporalResult(const StringVector& header, const StringVector& data){}
 
 		virtual void InitializeStat(CStatisticXY& stat){}
-		virtual void GetFValue(const std::vector<double>& paramArray, CStatisticXY& stat);
-		virtual void GetFValueHourly(CStatisticXY& stat){ ASSERT(false); }
-		virtual void GetFValueDaily(CStatisticXY& stat){ ASSERT(false); }
-		virtual void GetFValueMonthly(CStatisticXY& stat){ ASSERT(false); }
-		virtual void GetFValueAnnual(CStatisticXY& stat){ ASSERT(false); }
-		virtual void GetFValueAtemporal(CStatisticXY& stat){ ASSERT(false); }
-		virtual void FinalizeStat(CStatisticXY& stat){}
+		virtual bool GetFValue(const std::vector<double>& paramArray, CStatisticXY& stat);
+		virtual bool GetFValueHourly(CStatisticXY& stat) { ASSERT(false); return true;  }
+		virtual bool GetFValueDaily(CStatisticXY& stat){ ASSERT(false); return true;}
+		virtual bool GetFValueMonthly(CStatisticXY& stat){ ASSERT(false); return true;}
+		virtual bool GetFValueAnnual(CStatisticXY& stat){ ASSERT(false); return true;}
+		virtual bool GetFValueAtemporal(CStatisticXY& stat){ ASSERT(false); return true;}
+		virtual bool FinalizeStat(CStatisticXY& stat){ return true; }
 
 
 

@@ -317,7 +317,7 @@ namespace WBSF
 	protected:
 
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		void GetFValue(std::string s, size_t e, CComputationVariable& computation);
+		bool GetFValue(std::string s, size_t e, CComputationVariable& computation);
 		bool IsParamValid( const std::string& var, CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P);
 		bool IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation model, const std::vector<double>& P);
 
