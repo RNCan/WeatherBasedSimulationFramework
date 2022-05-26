@@ -188,7 +188,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("FTPTransfer...", NOT_INIT);
+		/*callback.PushTask("FTPTransfer...", NOT_INIT);
 
 		string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
 
@@ -198,6 +198,45 @@ namespace WBSF
 		msg = WinExecWait(command, GetTempPath(), show, &exitCode);
 		if (msg && exitCode != 0)
 			msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)));
+
+		callback.PopTask();*/
+
+
+		
+		//msg = CreateMultipleDir(outputFilePath);
+
+		callback.PushTask("GSOD FTP Transfer", NOT_INIT);
+		
+		string workingDir = GetPath(outputFilePath);
+		string scriptFilePath = workingDir + m_name + "_script.txt";
+		WBSF::RemoveFile(scriptFilePath + ".log");
+
+
+		ofStream stript;
+		msg = stript.open(scriptFilePath);
+		if (msg)
+		{
+			stript << "open ftp:anonymous:public@" << server << endl;
+
+			stript << "cd \"" << GetPath(inputFilePath) << "\"" << endl;
+			stript << "lcd \"" << GetPath(outputFilePath) << "\"" << endl;
+			stript << "get" << " \"" << GetFileName(outputFilePath) << "\"" << endl;
+			stript << "exit" << endl;
+			stript.close();
+
+			UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
+			bool bShow = as<bool>(SHOW_PROGRESS);
+			string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
+
+			DWORD exitCode = 0;
+			msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
+			if (msg && exitCode != 0)
+			{
+				msg.ajoute("WinSCP as exit with error code " + ToString((int)exitCode));
+				msg.ajoute("See log file: " + scriptFilePath + ".log");
+			}
+
+		}
 
 		callback.PopTask();
 
@@ -214,7 +253,8 @@ namespace WBSF
 	
 		DWORD exitCode = 0;
 		string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
-		msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
+		UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
+		msg = WinExecWait(command, outputPath, show, &exitCode);
 
 		if (msg && exitCode != 0)
 			msg.ajoute("7za.exe as exit with error code " + ToString(int(exitCode)));
@@ -243,7 +283,7 @@ namespace WBSF
 
 		//load station list
 		
-		//same as isd-lite, so use isd-lite instead
+		//same as isd-lite, so use isd-lite instead 
 		CUIISDLite ISDLite;
 		ISDLite.SetProjectPath(GetProjectPath());
 		ISDLite.SetParameters(GetParameters());

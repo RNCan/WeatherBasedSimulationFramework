@@ -575,42 +575,44 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		callback.PushTask("FTPTransfer...", NOT_INIT);
 
-		string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
+		callback.PushTask("GHCND FTP Transfer", NOT_INIT);
 
-		UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
+		string workingDir = GetPath(outputFilePath);
+		string scriptFilePath = workingDir + m_name + "_script.txt";
+		WBSF::RemoveFile(scriptFilePath + ".log");
 
-		DWORD exitCode = 0;
-		msg = WinExecWait(command, GetTempPath(), show, &exitCode);
-		if (msg && exitCode != 0)
-			msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)));
+
+		ofStream stript;
+		msg = stript.open(scriptFilePath);
+		if (msg)
+		{
+			stript << "open ftp:anonymous:public@" << server << endl;
+
+			stript << "cd \"" << GetPath(inputFilePath) << "\"" << endl;
+			stript << "lcd \"" << GetPath(outputFilePath) << "\"" << endl;
+			stript << "get" << " \"" << GetFileName(outputFilePath) << "\"" << endl;
+			stript << "exit" << endl;
+			stript.close();
+
+			UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
+			bool bShow = as<bool>(SHOW_PROGRESS);
+			string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
+
+			DWORD exitCode = 0;
+			msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
+			if (msg && exitCode != 0)
+			{
+				msg.ajoute("WinSCP as exit with error code " + ToString((int)exitCode));
+				msg.ajoute("See log file: " + scriptFilePath + ".log");
+			}
+
+		}
 
 		callback.PopTask();
-
 		return msg;
 	}
 
-	ERMsg CUIGHCND::sevenZ(const string& filePathZip, const string& workingDir, CCallback& callback)
-	{
-		ERMsg msg;
-
-		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
-
-		string command = GetApplicationPath() + "External\\7za.exe x \"" + filePathZip + "\" -y";
-		//UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
-
-		DWORD exitCode = 0;
-		msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);
-		if (msg && exitCode != 0)
-			msg.ajoute("7za.exe as exit with error code " + ToString(int(exitCode)));
-
-
-		callback.PopTask();
-
-
-		return msg;
-	}
 
 	ERMsg CUIGHCND::Execute(CCallback& callback)
 	{
@@ -662,15 +664,10 @@ namespace WBSF
 					callback.AddMessage("Download " + fileName + " ...");
 
 					msg = FTPDownload(SERVER_NAME, fileList[i].m_filePath, zipFilePath.c_str(), callback);
-
-					//unzip it
 					if (msg)
 					{
-						if (msg)
-						{
-							curI++;
-							msg += callback.StepIt();
-						}
+						curI++;
+						msg += callback.StepIt();
 					}
 				}
 			}

@@ -643,12 +643,12 @@ BEGIN
     IDS_SERVER_BUSY         "ATTENTION : Le server est très occupé. Incapable de télécharger la liste complète des fichiers. Téléchargement partiel."
     IDS_NO_CC_ENTRY         "Aucune valeur de changement climatique n'est disponible pour la station %1"
     IDS_MERGE_TYPE          "Prendre valeur BD1|Moyenne BD1 et BD2|Prendre valeur BD2"
-    IDS_DOWNLOAD            "Téléchargement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+    IDS_DOWNLOAD            "Téléchargement d'un fichier avec WinSCP...\r\nCela peut prendre plusieurs minutes."
     IDS_WARNING_CORRUPT_FILE "ATTENTION : Le fichier ""%1"" est corrompue."
     IDS_GSOD_OPTIMISATION   "Création des fichiers d'optimisation"
     IDS_GET_STATION_LIST    "Recherche de la liste des stations"
     IDS_PRIORITY_RULES      "Plus grande quantité de données|Le plus grand nombre d'années|Les plus vieilles données|les plus récentes données"
-    IDS_UPLOAD              "Téléversement d'un fichier avec FTPTransfer...\r\nCela peut prendre plusieurs minutes."
+    IDS_UPLOAD              "Téléversement d'un fichier avec WinSCP...\r\nCela peut prendre plusieurs minutes."
 END
 
 STRINGTABLE

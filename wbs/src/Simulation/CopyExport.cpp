@@ -268,13 +268,47 @@ namespace WBSF
 
 			string server = GetServerName(WBSF::GetPath(m_outputFilePath));
 			string path = GetServerPath(WBSF::GetPath(m_outputFilePath));
-			string command = GetApplicationPath() + "FTPTransfer.exe -Server \"" + server + "\" -Remote \"" + path + "\" -Local \"" + filePathIn + "\" -Passive -Upload";
+			
+
+			string workingDir = WBSF::GetPath(filePathIn);
+			string scriptFilePath = workingDir + GetFileTitle(filePathIn) + "_script.txt";
+			WBSF::RemoveFile(scriptFilePath + ".log");
 
 
-			DWORD exitCode = 0;
-			msg = WinExecWait(command.c_str(), GetTempPath().c_str(), m_bShowFTPTransfer);
-			if (msg && exitCode != 0)
-				msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)));
+			ofStream stript;
+			msg = stript.open(scriptFilePath);
+			if (msg)
+			{
+				stript << "open ftp:"+ m_userName +":"+ m_password +"@" << server << endl;
+
+				stript << "cd \"" << WBSF::GetPath(path) << "\"" << endl;
+				stript << "lcd \"" << WBSF::GetPath(filePathIn) << "\"" << endl;
+				stript << "put" << " \"" << GetFileName(filePathIn) << "\"" << endl;
+				stript << "exit" << endl;
+				stript.close();
+
+				UINT show = /*APP_VISIBLE && */m_bShowFTPTransfer ? SW_SHOW : SW_HIDE;
+				bool bShow = m_bShowFTPTransfer;
+				string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
+
+				DWORD exitCode = 0;
+				msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
+				if (msg && exitCode != 0)
+				{
+					msg.ajoute("WinSCP as exit with error code " + ToString((int)exitCode));
+					msg.ajoute("See log file: " + scriptFilePath + ".log");
+				}
+
+			}
+
+			
+			//string command = GetApplicationPath() + "FTPTransfer.exe -Server \"" + server + "\" -Remote \"" + path + "\" -Local \"" + filePathIn + "\" -Passive -Upload";
+
+
+			//DWORD exitCode = 0;
+			//msg = WinExecWait(command.c_str(), GetTempPath().c_str(), m_bShowFTPTransfer);
+			//if (msg && exitCode != 0)
+//				msg.ajoute("FTPTransfer as exit with error code " + ToString(int(exitCode)));
 		}
 
 

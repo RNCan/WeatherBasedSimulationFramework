@@ -597,7 +597,7 @@ namespace WBSF
 							if (IsValid(v, value))
 								stations[ID][TRef].SetStat(v, value);
 						}
-					}//for all coluns
+					}//for all columns
 
 					//verify temperature
 					float Tmin = stations[ID].GetHour(TRef)[H_TMIN];
