@@ -6,6 +6,7 @@
 //
 // Descrition: the CWSpruceBudworm represent one western spruce budworm insect. 
 //*****************************************************************************
+// 08/07/2022   Rémi Saint-Amant	Compile with VC 2019
 // 11/04/2018   Rémi Saint-Amant	Many bugs correction
 // 21/01/2016   Rémi Saint-Amant	Update with BioSIM 11.0
 // 11/03/2013   Jacques Régnière    Update synchrony equations

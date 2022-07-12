@@ -19,6 +19,7 @@
 //				model. The other is base developement rate.(a revoir)
 //
 //*****************************************************************************
+// 08/07/2022   3.2.2   Rémi Saint-Amant	Compile with VC 2019
 // 06/04/2018   3.2.1   Rémi Saint-Amant	Annual model bug correction
 // 01/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
 // 29/08/2017	3.1.3	Rémi Saint-Amant    Revised model
@@ -68,7 +69,7 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.2.1 (2018)";
+		VERSION = "3.2.2 (2022)";
 
 		m_bApplyMortality = true;
 		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
