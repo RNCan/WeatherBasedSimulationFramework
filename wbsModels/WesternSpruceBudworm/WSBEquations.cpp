@@ -4,9 +4,10 @@
 // Class: CWSBDevelopment
 //          
 //
-// Descrition: the CWSBDevelopment can compute daily western spruce budworm devlopement rate
-//             CWSBTableLookup is an optimisation table lookup
+// Description: the CWSBDevelopment can compute daily western spruce budworm development rate
+//             CWSBTableLookup is an optimization table lookup
 //*****************************************************************************
+// 12/07/2022   Rémi Saint-Amant	Parameters correction HA L3 (9738 instead of 97380)
 // 21/01/2016   Rémi Saint-Amant	Update with BioSIM 11.0
 // 12/10/2012   Rémi Saint-Amant    Update with new template
 // 28/01/2011	Rémi Saint-Amant    Add Attrition 
@@ -34,7 +35,7 @@ namespace WBSF
 		0.158, 11443, -59715., +283.900, 99958, 308.2,	//Egg
 		0.217, 18186, -58752., +276.700, 99941, 300.7,	//L2o
 		0.173, 12707, -50000., +277.400, 98106, 307.8,	//L2
-		0.263,  9738, -100000, +285.100, 91262, 306.7,	//L3
+		0.263,  9738, -100000, +285.100, 91262, 306.7,	//L3, Bug corrected by RSA, 2022-07-12 (9738 instead of 97380)
 		0.330, 13271, -99659., +283.700, 91301, 306.2,	//L4
 		0.303, 13031, -99659., +273.000, 91292, 305.5,	//L5
 		0.187, 12651, -99659., +274.000, 91276, 304.0,	//L6
