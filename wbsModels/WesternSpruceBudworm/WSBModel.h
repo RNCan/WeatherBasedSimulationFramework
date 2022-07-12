@@ -28,9 +28,9 @@ namespace WBSF
 		void ComputeRegularStat(CModelStatVector& stat, CModelStatVector& output);
 		//void ComputeCumulativeStat(CModelStatVector& stat, CModelStatVector& output)
 
-		void AddDailyResult(const StringVector& header, const StringVector& data);
-		void GetFValueDaily(CStatisticXY& stat);
-		void GetFValueDailyEmergence(CStatisticXY& stat);
+		virtual void AddDailyResult(const StringVector& header, const StringVector& data) override;
+		virtual bool GetFValueDaily(CStatisticXY& stat) override;
+		void GetFValueDailyEmergence(CStatisticXY& stat) ;
 		void GetFValueDailyStage(CStatisticXY& stat);
 		void GetFValueDailyAI(CStatisticXY& stat);
 

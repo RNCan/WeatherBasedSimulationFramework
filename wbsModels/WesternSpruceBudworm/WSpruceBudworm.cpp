@@ -121,7 +121,7 @@ namespace WBSF
 				m_eggAge += 1.0 / nbSteps;
 
 			//If we became OVER_WINTER this year, then we stop the 
-			//developement until the next year
+			//development until the next year
 			if (!((s == L2o && m_OWDate.GetYear() == weather.GetTRef().GetYear()) || (s == L3 && m_generation == 1)))
 				m_age += RR;
 
@@ -148,7 +148,7 @@ namespace WBSF
 
 			double eggLeft = m_potentialFecundity - m_totalBroods;
 			double broods = eggLeft*CWSBOviposition::GetRate(T, eggLeft);
-			//Don't apply survival here. Survival must be apply in brouding
+			//Don't apply survival here. Survival must be apply in brooding
 			m_broods += broods;
 			m_totalBroods += broods;
 

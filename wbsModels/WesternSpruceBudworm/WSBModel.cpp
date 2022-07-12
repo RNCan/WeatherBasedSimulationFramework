@@ -143,7 +143,7 @@ namespace WBSF
 		GetDailyStat(stat);
 
 
-		//fill ouptut matrix
+		//fill output matrix
 		ComputeRegularStat(stat, m_output);
 
 		return msg;
@@ -398,9 +398,9 @@ namespace WBSF
 
 	}
 
-	void CWSBModel::GetFValueDaily(CStatisticXY& stat)
+	bool CWSBModel::GetFValueDaily(CStatisticXY& stat)
 	{
-		ERMsg msg;
+	//	ERMsg msg;
 
 
 		if (m_SAResult.size() > 0)
@@ -435,6 +435,8 @@ namespace WBSF
 			default: ASSERT(false);
 			}
 		}
+
+		return true;
 	}
 
 	void CWSBModel::GetFValueDailyEmergence(CStatisticXY& stat)
