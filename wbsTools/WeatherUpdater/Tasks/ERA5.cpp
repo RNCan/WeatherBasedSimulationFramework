@@ -28,10 +28,10 @@ namespace WBSF
 	{}
 
 
-	enum TERA5Var { ERA5_TMIN, ERA5_TMAX, ERA5_PRCP, ERA5_TDEW, ERA5_RELH, ERA5_WNDS, ERA5_SRAD, ERA5_PRES, ERA5_SNOW, ERA5_SNDH, ERA5_SWE, ERA5_GHGT, NB_ERA5_VARS };
-	static const  size_t VARS_ERA5[NB_ERA5_VARS] = { H_TMIN, H_TMAX, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_SRAD, H_PRES, H_SNOW, H_SNDH, H_SWE, H_GHGT };
-	static const char* SUB_DIR[NB_ERA5_VARS] = { "tmin","tmax", "prcptot", "tdmean", "rhmean", "wsmean", "ssrmean","spmean", "sftot", "sdmean", "swemean", "z"};
-	//static const char* UNITS[NB_ERA5_VARS] = { "[C]", "[C]", "[mm]", "[C]","[%]","[km/h]","[W/(m^2)]","[hPa]","[mm]","[cm]","[mm]", "m"};
+	enum TERA5Var { ERA5_TMIN, ERA5_TMAX, ERA5_PRCP, ERA5_TDEW, ERA5_RELH, ERA5_WNDS, ERA5_WNDD, ERA5_SRAD, ERA5_PRES, ERA5_SNOW, ERA5_SNDH, ERA5_SWE, ERA5_GHGT, NB_ERA5_VARS };
+	static const  size_t VARS_ERA5[NB_ERA5_VARS] = { H_TMIN, H_TMAX, H_PRCP, H_TDEW, H_RELH, H_WNDS, H_WNDD, H_SRAD, H_PRES, H_SNOW, H_SNDH, H_SWE, H_GHGT };
+	static const char* SUB_DIR[NB_ERA5_VARS] = { "tmin","tmax", "prcptot", "tdmean", "rhmean", "wsmean", "wdmean", "ssrmean","spmean", "sftot", "sdmean", "swemean", "z"};
+	//static const char* UNITS[NB_ERA5_VARS] = { "[C]", "[C]", "[mm]", "[C]","[%]","[km/h]","[°]","[W/(m^2)]","[hPa]","[mm]","[cm]","[mm]", "m"};
 
 	const char* ERA5_META_DATA[NB_ERA5_VARS][NB_META] =
 	{
@@ -41,9 +41,9 @@ namespace WBSF
 		{ "2[m] HTGL \"Dew point temperature [C]\"","Dew point temperature [C]","DPT","2-HTGL","[C]" },
 		{ "2[m] HTGL \"Relative humidity [%]\"","Relative humidity [%]","RH","2-HTGL","[%]" },
 		{ "10[m] HTGL \"Wind speed [km/h]\"","Wind speed [km/h]","WIND","10-HTGL","[km/h]" },
-		//{ "10[m] HTGL \"Wind direction (from which blowing) [deg true]\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
+		{ "10[m] HTGL \"Wind direction (from which blowing) [deg true]\"","Wind direction (from which blowing) [deg true]","WDIR","10-HTGL","[deg true]" },
 		{ "0[-] SFC \"Downward short-wave radiation flux [W/(m^2)]\"","Downward short-wave radiation flux [W/(m^2)]","DSWRF","0-SFC","[W/(m^2)]" },
-		{ "0[-] SFC \"Pressure [Pa]\"","Pressure [Pa]","PRES","0-SFC","[Pa]" },
+		{ "0[-] SFC \"Pressure [hPa]\"","Pressure [hPa]","PRES","0-SFC","[hPa]" },
 		{ "0[-] SFC \"Total snowfall [mm]\"","Total snowfall [mm]","ASNOW","0-SFC","[mm]" },
 		{ "0[-] SFC \"Snow depth [cm]\"","Snow depth [cm]","SNOD","0-SFC","[cm]" },
 		{ "0[-] SFC \"Water equivalent of accumulated snow depth [mm]\"","Water equivalent of accumulated snow depth [mm]","WEASD","0-SFC","[mm]" },
@@ -66,7 +66,7 @@ namespace WBSF
 
 		ASSERT(m_first_year <= m_last_year);
 
-		size_t nb_years = m_last_year - m_first_year + 1;
+		size_t nb_years = m_last_year - m_first_year + 1; 
 		callback.PushTask("Create ERA5: " + ToString(nb_years) + " year", nb_years);
 
 		for (size_t y = 0; y < nb_years&&msg; y++)
@@ -156,12 +156,17 @@ namespace WBSF
 						vector<float> data(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
 						pBandin->RasterIO(GF_Read, 0, 0, DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), &(data[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
 
-						//replace no data
-						/*for (size_t xy = 0; xy < data.size(); xy++)
+						//replace small values of snow by 0
+						if (v == ERA5_SNOW)
 						{
-							if (fabs(data[xy] - no_data_in) < 0.1)
-								data[xy] = no_data;
-						}*/
+							for (size_t xy = 0; xy < data.size(); xy++)
+							{
+								if (data[xy] < 0.001)
+									data[xy] = 0;
+							}
+						}
+						
+
 						if (DSin[v].GetRasterYSize() == DSout.GetRasterYSize())
 						{
 							pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
