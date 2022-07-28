@@ -923,7 +923,8 @@ namespace WBSF
 		/* ==================================================================== */
 		for (size_t b = 0; b < GetRasterCount(); b++)
 		{
-			const GDALRasterBand* pBand = GetRasterBand(b);
+			const GDALRasterBand* pBand = GetRasterBand(b); 
+			
 
 			if (pBand->GetDescription() != NULL
 				&& strlen(pBand->GetDescription()) > 0)

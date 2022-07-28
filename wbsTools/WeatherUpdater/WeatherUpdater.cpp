@@ -1,3 +1,6 @@
+//6.0.7	15/07/2022	Rémi Saint-Amant	Compile with GDAL 3.5.1
+//6.0.6	12/07/2022	Rémi Saint-Amant	Compile with GDAL 3.5.0
+//6.0.4	26/05/2022	Rémi Saint-Amant	Replace FTPTransfer by WinSCP 
 //6.0.3	17/05/2022	Rémi Saint-Amant	Update SOPFEU FTP download
 //6.0.2	27/04/2022	Rémi Saint-Amant	Add support daily gribs 
 //										Add ERA5 conversion task

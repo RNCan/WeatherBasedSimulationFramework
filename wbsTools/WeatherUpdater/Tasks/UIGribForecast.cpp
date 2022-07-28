@@ -361,7 +361,7 @@ namespace WBSF
 			msg = oFile.open(file_path_vrt);
 			if (msg)
 			{
-				oFile << "<VRTDataset rasterXSize=\"" + to_string(DS1.GetRasterXSize()) + "\" rasterYSize=\"" + to_string(DS1.GetRasterYSize()) + "\">" << endl;
+				oFile << "<VRTDataset rasterXSize=\"" + to_string(DS1.GetRasterXSize()) + "\" rasterYSize=\"" + to_string(DS1.GetRasterYSize()) + "\">" << endl; 
 				oFile << "  <SRS>" + prj_WKT + "</SRS>" << endl;
 				oFile << FormatA("  <GeoTransform>%lf, %lf, %lf, %lf, %lf, %lf</GeoTransform>", GT[0], GT[1], GT[2], GT[3], GT[4], GT[5]) << endl;
 
@@ -382,7 +382,10 @@ namespace WBSF
 					oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[b]["GRIB_COMMENT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[b]["GRIB_ELEMENT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << meta_data[b]["GRIB_SHORT_NAME"] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
+					if (meta_data[b]["GRIB_ELEMENT"] == "TMP")
+						oFile << "      <MDI key=\"GRIB_UNIT\">" << "[K]" << "</MDI>" << endl;
+					else
+						oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_FORECAST_SECONDS\">" << meta_data[b]["GRIB_FORECAST_SECONDS"] << "</MDI>" << endl;
 					oFile << "    </Metadata>" << endl;
 
@@ -934,39 +937,11 @@ namespace WBSF
 				size_t m = WBSF::as<size_t>(dates[i].substr(4, 2)) - 1;
 				size_t d = WBSF::as<size_t>(dates[i].substr(6, 2)) - 1;
 				CTRef date(year, m, d);
-
-				if (date - today > delete_after)
+				
+				if (today - date > delete_after)
 				{
-					//					StringVector filesListTmp = GetFilesList(workingDir + dates[i] + "/*.tif");;
 					dirList.push_back(workingDir + dates[i]);
 				}
-				//		{
-				//			filesList.push_back(filesListTmp[f]);
-				//		}
-
-			//if (year >= 2000 && year <= 2099 && m < 12 && d < 31)
-			//{
-			//	bool bRemoveDir = true;
-
-			//	StringVector filesListTmp = GetFilesList(workingDir + dates[i] + "/*.tif");
-			//	for (size_t f = 0; f < filesListTmp.size(); f++)
-			//	{
-			//		CTRef TRefUTC = GetTRef(filesListTmp[f]);
-			//		int passHours = nowUTC - TRefUTC;
-
-			//		if (passHours > delete_after)
-			//		{
-			//			filesList.push_back(filesListTmp[f]);
-			//		}
-			//		else
-			//		{
-			//			bRemoveDir = false;
-			//		}
-			//	}
-
-			//	if (bRemoveDir)
-			//		dirList.push_back(workingDir + dates[i]);
-			//}//if valid date
 			}//for all dates
 
 			string comment = string("Remove old ") + PRODUCT_NAME[product] + " forecast (" + to_string(dirList.size()) + " directories)";
@@ -988,21 +963,6 @@ namespace WBSF
 				msg += callback.StepIt();
 			}
 
-			//string comment = string("Remove old ") + PRODUCT_NAME[product] + " forecast (" + to_string(filesList.size()) + " files)";
-			//callback.PushTask(comment, filesList.size());
-			//callback.AddMessage(comment);
-
-			//for (size_t i = 0; i != filesList.size() && msg; i++)
-			//{
-			//	msg += RemoveFile(filesList[i]);
-			//	msg += callback.StepIt();
-			//}
-
-			////remove directory
-			//for (size_t i = 0; i != dirList.size() && msg; i++)
-			//{
-			//	WBSF::RemoveDirectory(dirList[i]);
-			//}
 
 			callback.PopTask();
 		}

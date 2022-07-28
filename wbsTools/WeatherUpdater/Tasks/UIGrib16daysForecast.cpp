@@ -88,7 +88,7 @@ namespace WBSF
 	//Load station definition list section
 	ERMsg CUIGrib16daysForecast::Execute(CCallback& callback)
 	{
-		ERMsg msg;
+		ERMsg msg; 
 
 		size_t serverType = as<size_t>(SERVER_TYPE);
 		if (serverType == HTTP_SERVER)
@@ -1072,6 +1072,8 @@ namespace WBSF
 			string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 			msg += WinExecWait(command);
 			msg += RemoveFile(outputFilePath + "2");
+			//try to delete .aux.xml
+			RemoveFile(outputFilePath + "2.aux.xml");
 		}
 
 		msg += RemoveFile(inputFilePath);

@@ -28,7 +28,7 @@ namespace WBSF
 	//CWSBDevelopment class 
 
 
-	//development rate parameters (10 stage, 6 parameters)
+	//development rate parameters (9 stages, 6 parameters)
 	const double CWSBTableLookup::DEFAULT_P[NB_STAGES][6] =
 	{//Revised 2011-08-06from SAS output (JR)	
 		//rho25	HA		HL		TL		HH		TH

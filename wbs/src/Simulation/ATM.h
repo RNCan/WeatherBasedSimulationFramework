@@ -642,6 +642,7 @@ namespace WBSF
 		//statistic of simulation
 		std::array<CStatistic, 1 > m_stats;
 		std::array<std::array<size_t, NB_LEVELS>, NB_ATM_VARIABLES_EX> m_bands;
+		std::vector<std::string> m_units;
 		std::map < size_t, double > m_fixedElevationLevel;
 	};
 

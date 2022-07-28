@@ -1,6 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
-// 11.8.8:22/02/2022	Rémi Saint-Amant	Don't trunck small value in simulated annealing
+// 11.8.10:15/07/2022	Rémi Saint-Amant	Compile with GDAL 3.0.5.1
+// 11.8.9:12/07/2022	Rémi Saint-Amant	Compile with GDAL 3.0.5.0
+// 11.8.8:26/05/2022	Rémi Saint-Amant	replace FTPTransfer by WinSCP
+// 11.8.7:22/02/2022	Rémi Saint-Amant	Don't trunck small value in simulated annealing
 //											Correction in InsectParametrisation for HOBO data
 //											Add Saint-Amant_2022 DevEq. Add avoid null dev. 
 //											Code optimization of InsecParam.

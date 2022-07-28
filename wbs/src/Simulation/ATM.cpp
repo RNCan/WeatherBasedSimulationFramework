@@ -80,6 +80,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
+	const char* DEFAULT_UNITS[NB_ATM_VARIABLES_EX] = { "[C]", "[hPa]", "[mm]", "[m/s]", "[m/s]", "[m/s]", "[C]", "[Pa/s]", "[m]", "[%]" };
 
 
 
@@ -310,7 +311,7 @@ namespace WBSF
 	void CSBWMoth::live(CTRef TRef)
 	{
 		ASSERT(TRef.GetType() == CTM::DAILY);
-		ASSERT(!m_world.is_over_water(m_pt));
+		//ASSERT(!m_world.is_over_water(m_pt));
 		ASSERT(m_state != FINISHED);
 
 		//The median hour after sunset that give the nearest temperature is 40 minutes after sunset
@@ -2810,7 +2811,7 @@ namespace WBSF
 				callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
 				//init all moths : broods and liffoff time. 
 
-#pragma omp parallel for num_threads(m_nb_max_threads)
+//#pragma omp parallel for num_threads(m_nb_max_threads)
 				for (__int64 i = 0; i < (__int64)moths.size(); i++)
 				{
 #pragma omp flush(msg)
@@ -2820,7 +2821,7 @@ namespace WBSF
 						moths[i]->live(TRef);
 
 						//brood and shedule flight
-						if (moths[i]->init_new_night(TRef))
+						if (moths[i]->init_new_night(TRef)) 
 						{
 #pragma omp critical
 
@@ -3938,38 +3939,7 @@ namespace WBSF
 	}
 
 
-	std::mutex CGDALDatasetCached::m_mutex;
-	CGDALDatasetCached::CGDALDatasetCached()
-	{
-		array<size_t, NB_LEVELS> unknownPos;
-		unknownPos.fill(UNKNOWN_POS);
-		m_bands.fill(unknownPos);
-	}
-
-	double CGDALDatasetCached::GetPixel(const CGeoPoint3DIndex& xyz)const
-	{
-		if (!m_extents.IsInside(xyz))
-			return -9999;
-
-		if (xyz.m_z == -1)
-			return -9999;
-
-
-		CGeoBlock3DIndex ijk = m_extents.GetBlockIndex(xyz);
-		CGeoPointIndex xy = xyz - m_extents.GetBlockRect(ijk.m_x, ijk.m_y).UpperLeft();
-		ASSERT(m_extents.GetBlockExtents(ijk.m_x, ijk.m_y).GetPosRect().IsInside(xy));
-
-		CGDALDatasetCached& me = const_cast<CGDALDatasetCached&>(*this);
-		if (!IsCached(ijk))
-			me.LoadBlock(ijk);
-
-		assert(m_data[ijk.m_z][ijk.m_y][ijk.m_x]);
-		assert(IsBlockInside(ijk));
-
-		return m_data[ijk.m_z][ijk.m_y][ijk.m_x]->GetValue(xy.m_x, xy.m_y);
-
-	}
-
+	
 	CBlockData::CBlockData(int nXBlockSize, int nYBlockSize, int dataType)
 	{
 		int dataSize = GDALGetDataTypeSize((GDALDataType)dataType) / sizeof(char);
@@ -4090,6 +4060,16 @@ namespace WBSF
 		return level;
 	}
 
+	///////////////////////////////////////////////////////////
+
+	std::mutex CGDALDatasetCached::m_mutex;
+	CGDALDatasetCached::CGDALDatasetCached()
+	{
+		array<size_t, NB_LEVELS> unknownPos;
+		unknownPos.fill(UNKNOWN_POS);
+		m_bands.fill(unknownPos);
+	}
+
 	ERMsg CGDALDatasetCached::OpenInputImage(const std::string& filePath, bool bOpenInv, bool bSurfaceOnly)
 	{
 		ERMsg msg;
@@ -4129,6 +4109,7 @@ namespace WBSF
 								if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
 								{
 									m_bands[var][level] = i;
+									m_units[i] = DEFAULT_UNITS[var];
 								}
 							}
 							else
@@ -4214,7 +4195,10 @@ namespace WBSF
 									level = NOT_INIT;
 
 								if (level < 38)
+								{
 									m_bands[var][level] = i;
+									m_units[i] = DEFAULT_UNITS[var];
+								}
 							}
 						}
 
@@ -4284,6 +4268,7 @@ namespace WBSF
 									if (level < m_bands[var].size())
 									{
 										m_bands[var][level] = i;
+										m_units[i] = strUnit;
 
 									}
 								}
@@ -4313,6 +4298,7 @@ namespace WBSF
 		if (CGDALDatasetEx::IsOpen())
 		{
 			m_data.resize(boost::extents[0][0][0]);
+			m_units.clear();
 			Dataset()->FlushCache();
 			CGDALDatasetEx::Close();
 		}
@@ -4325,6 +4311,7 @@ namespace WBSF
 		{
 			CGDALDatasetCached& me = const_cast<CGDALDatasetCached&>(*this);
 			me.m_data.resize(boost::extents[GetRasterCount()][m_extents.YNbBlocks()][m_extents.XNbBlocks()]);
+			me.m_units.resize(GetRasterCount());
 		}
 	}
 
@@ -4387,7 +4374,16 @@ namespace WBSF
 					pBlockTmp = pBlockData;
 				}
 
+				if (m_units[ijk.m_z] == "[K]")
+				{
+					//convert Kelvin into Celcius
+					for (size_t pos = 0; pos < nXBlockSize * nYBlockSize; pos++)
+						pBlockTmp->SetValue(pos, pBlockTmp->GetValue(pos)-273.15);
+
+				}
+
 				m_data[ijk.m_z][ijk.m_y][ijk.m_x].reset(pBlockTmp);
+				
 
 			}
 
@@ -4415,6 +4411,29 @@ namespace WBSF
 		return it != m_fixedElevationLevel.end();
 	}
 
+	double CGDALDatasetCached::GetPixel(const CGeoPoint3DIndex& xyz)const
+	{
+		if (!m_extents.IsInside(xyz))
+			return -9999;
+
+		if (xyz.m_z == -1)
+			return -9999;
+
+
+		CGeoBlock3DIndex ijk = m_extents.GetBlockIndex(xyz);
+		CGeoPointIndex xy = xyz - m_extents.GetBlockRect(ijk.m_x, ijk.m_y).UpperLeft();
+		ASSERT(m_extents.GetBlockExtents(ijk.m_x, ijk.m_y).GetPosRect().IsInside(xy));
+
+		CGDALDatasetCached& me = const_cast<CGDALDatasetCached&>(*this);
+		if (!IsCached(ijk))
+			me.LoadBlock(ijk);
+
+		assert(m_data[ijk.m_z][ijk.m_y][ijk.m_x]);
+		assert(IsBlockInside(ijk));
+
+		return m_data[ijk.m_z][ijk.m_y][ijk.m_x]->GetValue(xy.m_x, xy.m_y);
+
+	}
 	//***************************************************************************************************************
 	//class CWRFDatabase
 

@@ -600,12 +600,15 @@ namespace WBSF
 
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
-						oFile << "    <Description>" << new_description << "</Description>" << endl;
+						oFile << "    <Description>" << new_description << "</Description>" << endl; 
 						oFile << "    <Metadata>" << endl;
 						oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[b]["GRIB_COMMENT"] << "</MDI>" << endl;
 						oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[b]["GRIB_ELEMENT"] << "</MDI>" << endl;
 						oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << meta_data[b]["GRIB_SHORT_NAME"] << "</MDI>" << endl;
-						oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
+						if (meta_data[b]["GRIB_ELEMENT"] == "TMP")
+							oFile << "      <MDI key=\"GRIB_UNIT\">" << "[K]" << "</MDI>" << endl;
+						else
+							oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
 						oFile << "      <MDI key=\"GRIB_FORECAST_SECONDS\">" << meta_data[b]["GRIB_FORECAST_SECONDS"] << "</MDI>" << endl;
 						oFile << "    </Metadata>" << endl;
 

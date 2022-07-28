@@ -363,7 +363,7 @@ namespace WBSF
 				CProjectionPtr pProjection;
 
 				//Register prj name
-				OGRSpatialReference spatialReference;
+				OGRSpatialReference spatialReference; 
 				spatialReference.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 
 				if (FindSRS(prjStr, spatialReference, false))
