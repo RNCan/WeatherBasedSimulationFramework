@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AppendWeather.h" />
+    <ClInclude Include="CMIP6.h" />
     <ClInclude Include="ClipWeather.h" />
     <ClInclude Include="ConvertDB.h" />
     <ClInclude Include="CopyFTP.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="MDDELCC.h" />
     <ClInclude Include="MFFP.h" />
     <ClInclude Include="QualityControl.h" />
+    <ClInclude Include="UICMIP6.h" />
     <ClInclude Include="UIQualityControl.h" />
     <ClInclude Include="RCM4_25km.h" />
     <ClInclude Include="SOPFEU.h" />
@@ -236,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppendWeather.cpp" />
+    <ClCompile Include="CMIP6.cpp" />
     <ClCompile Include="ClipWeather.cpp" />
     <ClCompile Include="ConvertDB.cpp" />
     <ClCompile Include="CopyFTP.cpp" />
@@ -257,6 +260,7 @@
     <ClCompile Include="MDDELCC.cpp" />
     <ClCompile Include="MFFP.cpp" />
     <ClCompile Include="QualityControl.cpp" />
+    <ClCompile Include="UICMIP6.cpp" />
     <ClCompile Include="UIQualityControl.cpp" />
     <ClCompile Include="RCM4_25km.cpp" />
     <ClCompile Include="SOPFEU.cpp" />

@@ -669,7 +669,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Densité de la neige|Ruissellement à la surface|Snow depth water equivalent|HPBL|PTYPE|SKINT"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Densité de la neige|Ruissellement à la surface|Snow depth water equivalent|HPBL|PTYPE|SKINT|Indice climatique thermique universel"
     IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed|Max wind gust|Min wind gust|wind gust"
     IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|MU_VT_LI|SHWINX"
     IDS_HRDPS_VAR_ISBY      "Geopotential height"
@@ -736,7 +736,7 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Répertoire de travail|Noyaux dynamiques"
     IDS_UPDATER_RAP_P       "Répertoire de travail|Souces|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Produit|Server|Afficher WinSCP (si FTP)|Télécharger précipitation"
     IDS_UPDATER_NAM_P       "Répertoire de travail|Souces|Serveur|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)"
-    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA|Mise à jour historique (jours)"
+    IDS_UPDATER_HRDPS_P     "Répertoire de travail|Variables (surface)|Variables (au sol)|Variables (isobares)|Variables (autres)|Hauteur au sol|Isobares|Utiliser HRPDA|Mise à jour des GeoTIFF historique (jours)"
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Mise à jour historique (jours)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Prévision max (heures)|Supprimer après (jours)"
@@ -766,7 +766,7 @@ BEGIN
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Tâche d'image radar|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
-    IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour historique (jours)"
+    IDS_TOOL_CREATE_CANUS_P "Répertoire HRDPS|Répertoire HRRR|Répertoire de sortie|Mise à jour des GeoTIFF historique (jours)"
     IDS_UPDATER_LONG_FORECAST_P 
                             "Répertoire de travail|Type|Serveur|Début (heures)|Fin (heures)|Supprimer après (heures)|Afficher WinSCP"
     IDS_UPDATER_GRIB_HISTORICAL_P 
@@ -1160,7 +1160,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Snow density|Surface water runoff amount|Snow depth water equivalent|HPBL|PTYPE|SKINT"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Snow density|Surface water runoff amount|Snow depth water equivalent|HPBL|PTYPE|SKINT|Universal thermal climate index"
     IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed|Max wind gust|Min wind gust|wind gust"
     IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|MU_VT_LI|SHWINX"
     IDS_HRDPS_VAR_ISBY      "Geopotential height"
@@ -1238,7 +1238,7 @@ BEGIN
     IDS_UPDATER_HIRESW_P    "Working directory|Dynamical cores"
     IDS_UPDATER_RAP_P       "Working directory|Sources|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Product|Server|Show WinSCP (if FTP)|Download precipitation"
     IDS_UPDATER_NAM_P       "Working directory|Sources|Server|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)"
-    IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA|Update historical (days)"
+    IDS_UPDATER_HRDPS_P     "Working directory|Variables(surface)|Variables (ground)|Variables (isobars)|Variables (others)|Ground height|Isobars|Use HRDPA|Update historical GeoTIFF (days)"
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Update historical (days)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Product|Surface/3D|Variables|Max forecast (hours)|Delete after (days)"
@@ -1268,7 +1268,7 @@ BEGIN
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Radar task|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
-    IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical (days)"
+    IDS_TOOL_CREATE_CANUS_P "HRDPS  directory|HRRR directory|Output directory|Update historical GeoTIFF (days)"
     IDS_UPDATER_LONG_FORECAST_P 
                             "Working directory|Type|Server|Begin (hours)|End (hours)|Delete after (hours)|Show WinSCP"
     IDS_UPDATER_GRIB_HISTORICAL_P 

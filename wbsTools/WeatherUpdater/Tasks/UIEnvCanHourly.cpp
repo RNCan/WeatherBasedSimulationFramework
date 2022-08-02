@@ -51,6 +51,13 @@ namespace WBSF
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanHourly::CLASS_NAME(), (createF)CUIEnvCanHourly::create);
 
 
+
+	//SWOB partner network
+	const char* PARTNER_NETWORK_NAME[] = { "bc-env-aq/","bc-env-snow/","bc-forestry/","bc-tran/","dfo-ccg-lighthouse/","dfo-moored-buoys/","nl-water/","nt-forestry/","nt-water/",
+"on-firewx/","on-grca/","on-mto/","on-trca/","qc-pom/","sk-forestry/","tc-pom/","yt-avalanche/","yt-firewx/","yt-gov/","yt-water/" };
+
+
+
 	CUIEnvCanHourly::CUIEnvCanHourly(void)
 	{}
 

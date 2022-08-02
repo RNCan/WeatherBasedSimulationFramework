@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "HRDPA.h"
+#include "Basic/CallCurl.h"
 #include "Basic/FileStamp.h"
 #include "Geomatic/gdalbasic.h"
 #include "UI/Common/SYShowMessage.h"
@@ -64,13 +65,13 @@ namespace WBSF
 			DS.Close();
 			bDownload = false;
 		}
-		else
+		/*else
 		{
 			CTRef TRef = GetTRef(filePath);
 			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
 			if (now - TRef > m_max_hours)
 				bDownload = false;
-		}
+		}*/
 
 
 		return bDownload;
@@ -103,12 +104,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
+		//CInternetSessionPtr pSession;
+		//CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (!msg)
-			return msg;
+		//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//if (!msg)
+			//return msg;
 
 		callback.AddMessage("Updating HRDPA/RDPA");
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
@@ -120,15 +121,17 @@ namespace WBSF
 		string type = m_type == TYPE_06HOURS ? "06" : "24";
 		string product = m_product == RDPA ? "RDPA" : "HRDPA";
 
-		string URL = SERVER_PATH + type + "/*.grib2";
+		string URL = string("https://") + SERVER_NAME + "/" + SERVER_PATH + type + "/*.grib2";
 		ReplaceString(URL, "%1", product);
 		WBSF::MakeLower(URL);
 
 		CFileInfoVector fileListTmp;
-		msg = UtilWWW::FindFiles(pConnection, URL, fileListTmp);
 
-		pConnection->Close();
-		pSession->Close();
+		//msg = UtilWWW::FindFiles(pConnection, URL, fileListTmp);
+		msg = UtilWWW::FindFilesCurl(URL, fileListTmp);
+
+		//pConnection->Close();
+		//pSession->Close();
 
 		CFileInfoVector fileList;
 		for (CFileInfoVector::const_iterator it = fileListTmp.begin(); it != fileListTmp.end(); it++)
@@ -165,60 +168,67 @@ namespace WBSF
 			msg += callback.StepIt(0);
 		}
 
+		//CCallcURL cURL;
+
+
 		callback.AddMessage("Number of images to download after clearing: " + ToString(fileList.size()));
 		callback.PushTask("Download " + product + " precipitation images (" + ToString(fileList.size()) + ")", fileList.size());
 
 		size_t posI = 0;
 		size_t nbDownload = 0;
-		size_t nbTry = 0;
+		///size_t nbTry = 0;
 		for (size_t i = posI; i < fileList.size() && msg; i++)
 		{
-			nbTry++;
+			//nbTry++;
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-			msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-			if (msg)
+			//CInternetSessionPtr pSession;
+			//CHttpConnectionPtr pConnection;
+			//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			//if (msg)
 			{
-				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-				pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 15000);
+				//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+				//pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 15000);
 
-				try
+				//try
+				//{
+				string filePath = GetOutputFilePath(GetFileName(fileList[i].m_filePath));
+				CreateMultipleDir(GetPath(filePath));
+
+				
+				msg = CopyFileCurl(fileList[i].m_filePath, filePath);
+				if (msg && GoodGrib(filePath))
 				{
-					string filePath = GetOutputFilePath(GetFileName(fileList[i].m_filePath));
-					CreateMultipleDir(GetPath(filePath));
-					msg = UtilWWW::CopyFile(pConnection, fileList[i].m_filePath, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE);
-					if (msg && GoodGrib(filePath))
+					string filePathOut = filePath;
+					SetFileExtension(filePathOut, ".tif");
+
+					nbDownload++;
+					posI++;
+					//convert grib into tif and use the same projection as HRDPS
+					string argument = "-ot Float32 -dstnodata 9999 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+
+					//remove +k=90 : no longer supported by PROJ4, RSA 02-08-2022
+					argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";
+					argument += " \"" + filePath + "\" \"" + filePathOut + "\"";
+
+					string command = "\"" + GetApplicationPath() + "External\\GDALWarp.exe\" " + argument;
+					msg += WinExecWait(command);
+					if (msg)
 					{
-						string filePathOut = filePath;
-						SetFileExtension(filePathOut, ".tif");
-
-						nbDownload++;
-						posI++;
-						//convert grib into tif and use the same projection as HRDPS
-						string argument = "-ot Float32 -dstnodata 9999 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
-						argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +k=90 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";
-						argument += " \"" + filePath + "\" \"" + filePathOut + "\"";
-
-						string command = "\"" + GetApplicationPath() + "External\\GDALWarp.exe\" " + argument;
-						msg += WinExecWait(command);
-						if (msg)
-						{
-							ASSERT(FileExists(filePathOut));
-							msg += RemoveFile(filePath);
-							HRDPAFiles.push_back(filePathOut);
-						}
-
+						ASSERT(FileExists(filePathOut));
+						msg += RemoveFile(filePath);
+						HRDPAFiles.push_back(filePathOut);
 					}
-					else
-					{
-						callback.AddMessage("corrupt file, remove: " + filePath);
-						msg = WBSF::RemoveFile(filePath);
-					}
-
-					msg += callback.StepIt();
 
 				}
+				else
+				{
+					callback.AddMessage("corrupt file, remove: " + filePath);
+					msg = WBSF::RemoveFile(filePath);
+				}
+
+				msg += callback.StepIt();
+
+				/*}
 				catch (CException* e)
 				{
 					if (nbTry < 5)
@@ -233,7 +243,7 @@ namespace WBSF
 				}
 
 				pConnection->Close();
-				pSession->Close();
+				pSession->Close();*/
 			}
 		}
 

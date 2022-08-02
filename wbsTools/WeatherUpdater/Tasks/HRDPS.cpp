@@ -59,7 +59,7 @@ namespace WBSF
 	{}
 
 
-	
+
 	//*********************************************************************
 
 
@@ -120,34 +120,36 @@ namespace WBSF
 
 		HH = NOT_INIT;
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
+		//CInternetSessionPtr pSession;
+		//CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (msg)
+		//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//if (msg)
+		//{
+		vector<pair<CTRef, size_t>> latest;
+		for (size_t h = 0; h < 24; h += 6)
 		{
-			vector<pair<CTRef, size_t>> latest;
-			for (size_t h = 0; h < 24; h += 6)
+			string remotePath = string("https://") + SERVER_NAME + "/" + GetRemoteFilePath(h, 0, "*P000-00.grib2");
+
+			CFileInfoVector fileListTmp;
+			if (FindFilesCurl(remotePath, fileListTmp) && !fileListTmp.empty())
 			{
-				string remotePath = GetRemoteFilePath(h, 0, "*P000-00.grib2");
-
-				CFileInfoVector fileListTmp;
-				if (FindFiles(pConnection, remotePath, fileListTmp) && !fileListTmp.empty())
-				{
-					for (size_t i = 0; i < fileListTmp.size(); i++)
-						latest.push_back(make_pair(GetTRef(fileListTmp[i].m_filePath, false), h));
-				}
+				for (size_t i = 0; i < fileListTmp.size(); i++)
+					latest.push_back(make_pair(GetTRef(fileListTmp[i].m_filePath, false), h));
 			}
-
-			sort(latest.begin(), latest.end());
-
-			if (!latest.empty())
-				HH = latest.back().second;
-
 		}
+
+		sort(latest.begin(), latest.end());
+
+		if (!latest.empty())
+			HH = latest.back().second;
+
+		//}
 
 		return msg;
 	}
+
+
 	ERMsg CHRDPS::Execute(CCallback& callback)
 	{
 		GDALSetCacheMax64(128 * 1024 * 1024);
@@ -205,47 +207,55 @@ namespace WBSF
 		CFileInfoVector dir2;
 
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
+		//CInternetSessionPtr pSession;
+		//CHttpConnectionPtr pConnection;
 
-		msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (!msg)
-			return msg;
+		//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//if (!msg)
+			//return msg;
 
 
-		try
+		//try
+		//{
+		msg = FindDirectoriesCurl(string("https://") + SERVER_NAME + "/" + SERVER_PATH, dir1, callback);// 00, 06, 12, 18
+
+		for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 		{
-			msg = FindDirectories(pConnection, SERVER_PATH, dir1);// 00, 06, 12, 18
-
-			for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
+			string last_dir = GetLastDirName(it1->m_filePath);
+			if (last_dir.length() == 2)
 			{
-				size_t HH = as<size_t>(GetLastDirName(it1->m_filePath));
+				//size_t HH = as<size_t>();
 
 
 				CFileInfoVector tmp;
-				msg = FindDirectories(pConnection, it1->m_filePath, tmp);//000 to ~048
+				msg = FindDirectoriesCurl(it1->m_filePath, tmp, callback);//000 to ~048
 				for (CFileInfoVector::const_iterator it2 = tmp.begin(); it2 != tmp.end() && msg; it2++)
 				{
-					string path = it2->m_filePath;
-					path = GetPath(path.substr(0, path.length() - 1));
-					size_t HH = as<size_t>(GetLastDirName(path));
-					size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+					string last_dir = GetLastDirName(it2->m_filePath);
+					if (last_dir.length() == 3)
+					{
+						//string path = it2->m_filePath;
+						//path = GetPath(path.substr(0, path.length() - 1));
+						size_t HH = as<size_t>(GetLastDirName(it1->m_filePath));
+						size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
 
-					bool bDownload = m_bForecast ? (HH == lastestHH) : (hhh < 7);
-					if (bDownload)
-						dir2.push_back(*it2);
+						bool bDownload = m_bForecast ? (HH == lastestHH) : (hhh < 7);
+						if (bDownload)
+							dir2.push_back(*it2);
+					}
 				}
-				
+
 				msg += callback.StepIt();
 			}
 		}
-		catch (CException* e)
-		{
-			msg = UtilWin::SYGetMessage(*e);
-		}
+		//}
+		//catch (CException* e)
+		//{
+		//	msg = UtilWin::SYGetMessage(*e);
+		//}
 
-		pConnection->Close();
-		pSession->Close();
+		//pConnection->Close();
+		//pSession->Close();
 
 		callback.PopTask();
 
@@ -256,84 +266,84 @@ namespace WBSF
 		{
 
 			callback.PushTask(string("Get files list from: ") + SERVER_PATH + " (" + to_string(dir2.size()) + " directories)", dir2.size());
-			size_t nbTry = 0;
+			//size_t nbTry = 0;
 
 			CFileInfoVector::const_iterator it2 = dir2.begin();
 			while (it2 != dir2.end() && msg)
 			{
-				nbTry++;
+				//nbTry++;
 
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				//CInternetSessionPtr pSession;
+				//CHttpConnectionPtr pConnection;
+				//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
-				if (msg)
+				//if (msg)
+				//{
+					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+					//try
+					//{
+				while (it2 != dir2.end() && msg)
 				{
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-					try
+					size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
+
+					CFileInfoVector fileListTmp;
+					msg = FindFilesCurl(it2->m_filePath + "*.grib2", fileListTmp);
+					for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 					{
-						while (it2 != dir2.end() && msg)
+						string fileName = GetFileName(it->m_filePath);
+						string outputFilePath = GetOutputFilePath(fileName);
+						size_t var = GetHRDPSVariable(fileName);
+						size_t level = GetLevel(fileName);
+						CTRef TRefUTC = GetTRef(fileName, true);
+						int forecastHours = TRefUTC - nowUTC;
+
+						if (var < m_variables.size())
 						{
-							size_t hhh = as<size_t>(GetLastDirName(it2->m_filePath));
-							
-							CFileInfoVector fileListTmp;
-							msg = FindFiles(pConnection, it2->m_filePath + "*.grib2", fileListTmp);
-							for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
+							if (m_variables.test(var))
 							{
-								string fileName = GetFileName(it->m_filePath);
-								string outputFilePath = GetOutputFilePath(fileName);
-								size_t var = GetHRDPSVariable(fileName);
-								size_t level = GetLevel(fileName);
-								CTRef TRefUTC = GetTRef(fileName, true);
-								int forecastHours = TRefUTC - nowUTC;
+								bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
+								bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
+								bool bKeep3 = m_bForecast ? (forecastHours >= 0 && forecastHours <= m_max_hours) : (var == APCP_SFC || var == DSWRF_SFC || hhh < 6);
 
-								if (var < m_variables.size())
+								if (bKeep1 && bKeep2 && bKeep3)
 								{
-									if (m_variables.test(var))
+									if (NeedDownload(outputFilePath))
 									{
-										bool bKeep1 = !m_variables.Is(var, HRDPS_TGL) || m_heights.find(level) != m_heights.end();
-										bool bKeep2 = !m_variables.Is(var, HRDPS_ISBL) || m_levels.find(level) != m_levels.end();
-										bool bKeep3 = m_bForecast ? (forecastHours >= 0 && forecastHours <= m_max_hours) : (var == APCP_SFC || var == DSWRF_SFC || hhh < 6);
-
-										if (bKeep1 && bKeep2 && bKeep3)
-										{
-											if (NeedDownload(outputFilePath))
-											{
-												fileList.push_back(*it);
-											}
-										}
-									}//if wanted variable
-								}//Humm new variable
-								else
-								{
-									callback.AddMessage("Unknowns HRDPS var: " + fileName);
+										fileList.push_back(*it);
+									}
 								}
-							}//for all files
-						
-
-							msg += callback.StepIt();
-							it2++;
-							nbTry = 0;
-						}//for all directory
-
-					}
-					catch (CException* e)
-					{
-						if (nbTry < 5)
-						{
-							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							msg += WaitServer(30, callback);
-						}
+							}//if wanted variable
+						}//Humm new variable
 						else
 						{
-							msg = UtilWin::SYGetMessage(*e);
+							callback.AddMessage("Unknowns HRDPS var: " + fileName);
 						}
-					}
+					}//for all files
 
-					pConnection->Close();
-					pSession->Close();
 
-				}
+					msg += callback.StepIt();
+					it2++;
+					//nbTry = 0;
+				}//for all directory
+
+			//}
+			//catch (CException* e)
+			//{
+			//	if (nbTry < 5)
+			//	{
+			//		callback.AddMessage(UtilWin::SYGetMessage(*e));
+			//		msg += WaitServer(30, callback);
+			//	}
+			//	else
+			//	{
+			//		msg = UtilWin::SYGetMessage(*e);
+			//	}
+			//}
+			//
+			//pConnection->Close();
+			//pSession->Close();
+
+			//}
 			}
 
 			callback.PopTask();
@@ -348,59 +358,59 @@ namespace WBSF
 			callback.AddMessage("Number of HRDPS gribs to download: " + ToString(fileList.size()));
 
 			size_t nbDownload = 0;
-			size_t nbTry = 0;
+			//size_t nbTry = 0;
 			CFileInfoVector::iterator it = fileList.begin();
 			while (it != fileList.end() && msg)
 			{
-				nbTry++;
+				//nbTry++;
 
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				//CInternetSessionPtr pSession;
+				//CHttpConnectionPtr pConnection;
+				//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
-				if (msg)
+				//if (msg)
+				//{
+					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+					//pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 15000);
+
+					//try
+					//{
+				while (it != fileList.end() && msg)
 				{
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
-					pSession->SetOption(INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, 15000);
+					string fileName = GetFileName(it->m_filePath);
+					string outputFilePath = GetOutputFilePath(fileName);
 
-					try
+					CreateMultipleDir(GetPath(outputFilePath));
+					msg = CopyFileCurl(it->m_filePath, outputFilePath);
+					if (msg)
 					{
-						while (it != fileList.end() && msg)
-						{
-							string fileName = GetFileName(it->m_filePath);
-							string outputFilePath = GetOutputFilePath(fileName);
+						ASSERT(GoodGrib(outputFilePath));
+						nbDownload++;
+						it++;
+						//nbTry = 0;
+						msg += callback.StepIt();
+						string tif_file_path = GetGeotiffFilePath(outputFilePath);
 
-							CreateMultipleDir(GetPath(outputFilePath));
-							msg = CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_EXISTING_CONNECT);
-							if (msg)
-							{
-								ASSERT(GoodGrib(outputFilePath));
-								nbDownload++;
-								it++;
-								nbTry = 0;
-								msg += callback.StepIt();
-								string tif_file_path = GetGeotiffFilePath(outputFilePath);
-
-								date_to_update.insert(GetFileTitle(tif_file_path).substr(6, 8));
-							}
-						}
+						date_to_update.insert(GetFileTitle(tif_file_path).substr(6, 8));
 					}
-					catch (CException* e)
-					{
-						if (nbTry < 5)
-						{
-							callback.AddMessage(UtilWin::SYGetMessage(*e));
-							msg += WaitServer(30, callback);
-						}
-						else
-						{
-							msg = UtilWin::SYGetMessage(*e);
-						}
-					}
-
-					pConnection->Close();
-					pSession->Close();
 				}
+				//}
+				//catch (CException* e)
+				//{
+				//	if (nbTry < 5)
+				//	{
+				//		callback.AddMessage(UtilWin::SYGetMessage(*e));
+				//		msg += WaitServer(30, callback);
+				//	}
+				//	else
+				//	{
+				//		msg = UtilWin::SYGetMessage(*e);
+				//	}
+				//}
+				//
+				//pConnection->Close();
+				//pSession->Close();
+			//}
 
 			}
 
@@ -936,7 +946,7 @@ namespace WBSF
 						var_out.set(H_TMAX);
 					}
 
-					callback.PushTask("Create daily GeoTiff for " + year + "-" + month + "-" + day + ": " + ToString(filesList.size()) + " hours", var_in.count()*filesList.size());
+					callback.PushTask("Create daily GeoTiff for " + year + "-" + month + "-" + day + ": " + ToString(filesList.size()) + " hours", var_in.count() * filesList.size());
 
 					float no_data_out = 9999;
 
@@ -973,7 +983,7 @@ namespace WBSF
 										float no_data_in = DSin[i].GetNoData(b);
 										GDALRasterBand* pBandin = DSin[i].GetRasterBand(b);
 
-										vector<float> data(DSin[i].GetRasterXSize()*DSin[i].GetRasterYSize());
+										vector<float> data(DSin[i].GetRasterXSize() * DSin[i].GetRasterYSize());
 										pBandin->RasterIO(GF_Read, 0, 0, DSin[i].GetRasterXSize(), DSin[i].GetRasterYSize(), &(data[0]), DSin[i].GetRasterXSize(), DSin[i].GetRasterYSize(), GDT_Float32, 0, 0);
 										pBandin->FlushCache();
 
@@ -995,7 +1005,7 @@ namespace WBSF
 
 								if (v == H_TAIR)
 								{
-									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									vector<float> data(DSout.GetRasterXSize() * DSout.GetRasterYSize(), no_data_out);
 									ASSERT(data.size() == stat.size());
 
 									//add min and max
@@ -1020,7 +1030,7 @@ namespace WBSF
 
 								{
 									size_t stat_type = (v == H_PRCP/* || v == H_SRAD*/) ? SUM : MEAN;
-									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									vector<float> data(DSout.GetRasterXSize() * DSout.GetRasterYSize(), no_data_out);
 									ASSERT(data.size() == stat.size());
 
 									for (size_t xy = 0; xy < data.size(); xy++)
@@ -1041,7 +1051,7 @@ namespace WBSF
 
 								if (v == H_TAIR)
 								{
-									vector<float> data(DSout.GetRasterXSize()*DSout.GetRasterYSize(), no_data_out);
+									vector<float> data(DSout.GetRasterXSize() * DSout.GetRasterYSize(), no_data_out);
 									ASSERT(data.size() == stat.size());
 
 									for (size_t xy = 0; xy < data.size(); xy++)
@@ -1102,7 +1112,7 @@ namespace WBSF
 
 		std::set<std::string> date_to_update;
 
-		
+
 		callback.PushTask("Get historical HRDPS to update (" + to_string(m_update_last_n_days) + " days)", m_update_last_n_days);
 		callback.AddMessage("Get historical HRDPS files to update (" + to_string(m_update_last_n_days) + " days)");
 
@@ -1110,7 +1120,7 @@ namespace WBSF
 		CTRef TRef = CTRef::GetCurrentTRef(CTM::DAILY);
 		for (size_t d = 0; d < nb_days; d++)
 		{
-			string filter0 = FormatA("%s%04d\\%02d\\%02d\\*", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1 );
+			string filter0 = FormatA("%s%04d\\%02d\\%02d\\*", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
 			StringVector hours = WBSF::GetDirectoriesList(filter0);
 			for (StringVector::const_iterator it4 = hours.begin(); it4 != hours.end() && msg; it4++)
 			{
@@ -1125,7 +1135,7 @@ namespace WBSF
 					if (!WBSF::GetFilesList(filter1, 2, true).empty() || !WBSF::GetFilesList(filter2, 2, true).empty())
 					{
 						string tifFilePath = FormatA("%s%04d\\%02d\\%02d\\HRDPS_%04d%02d%02d%02d-%03d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, h1, h2);
-						
+
 						CGDALDatasetEx DS;
 						if (DS.OpenInputImage(tifFilePath))
 						{
@@ -1138,7 +1148,7 @@ namespace WBSF
 								callback.AddMessage("Remove invalid HRDPS GeoTiff " + tifFilePath);
 								msg += RemoveFile(tifFilePath);
 							}
-							
+
 							date_to_update.insert(TRef.GetFormatedString("%Y%m%d"));
 						}
 					}
@@ -1286,7 +1296,7 @@ namespace WBSF
 		ERMsg msg;
 		StringVector filesList = GetFilesList(GetOutputFilePath("*"));//don't put extensionbea cause of the 2.5km trouble
 
-		
+
 		return msg;
 	}
 
@@ -1295,7 +1305,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		
+
 		ASSERT(!station.m_ID.empty());
 		ASSERT(station.m_lat != -999);
 		ASSERT(station.m_lon != -999);
@@ -1507,7 +1517,7 @@ namespace WBSF
 	{
 		"4LFTX_SFC", "ALBDO_SFC", "APCP_SFC", "DLWRF_SFC", "DSWRF_SFC", "HGT_SFC", "ICEC_SFC", "LAND_SFC", "LHTFL_SFC", "NLWRS_SFC", "NSWRS_SFC", "PRATE_SFC",
 		"PRES_SFC", "SHOWA_SFC", "SHTFL_SFC", "SNOD_SFC", "SPFH_SFC", "TCDC_SFC", "TSOIL_SFC", "WEAFR_SFC", "WEAPE_SFC", "WEARN_SFC", "WEASN_SFC", "WTMP_SFC",
-		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC", "GUST_MAX_SFC", "GUST_MIN_SFC", "SDEN_SFC", "SFCWRO_SFC", "SDWE_SFC", "HPBL_SFC", "PTYPE_SFC", "SKINT_SFC",
+		"GUST_SFC","ICETK_SFC","RH_SFC","SOILVIC_SFC", "GUST_MAX_SFC", "GUST_MIN_SFC", "SDEN_SFC", "SFCWRO_SFC", "SDWE_SFC", "HPBL_SFC", "PTYPE_SFC", "SKINT_SFC", "UTCI_SFC",
 		"DEN_TGL", "DEPR_TGL", "DPT_TGL", "RH_TGL", "SPFH_TGL", "TMP_TGL", "UGRD_TGL", "VGRD_TGL", "WDIR_TGL", "WIND_TGL","GUST_MAX_TGL","GUST_MIN_TGL","GUST_TGL",
 		"ABSV_ISBL", "DEPR_ISBL", "HGT_ISBL", "RH_ISBL", "SPFH_ISBL", "TMP_ISBL", "UGRD_ISBL", "VGRD_ISBL", "VVEL_ISBL", "WDIR_ISBL", "WIND_ISBL", "MU-VT-LI_ISBL", "SHWINX_ISBL",
 		"HGT_ISBY",
@@ -1575,7 +1585,7 @@ namespace WBSF
 		ASSERT(var < NB_HRDPS_VARIABLES);
 
 		size_t c = NOT_INIT;
-		for (size_t i = 0; i < NB_HRDPS_CATEGORY&&c == NOT_INIT; i++)
+		for (size_t i = 0; i < NB_HRDPS_CATEGORY && c == NOT_INIT; i++)
 		{
 			if (var >= CAT_RANGE[i][0] && var < CAT_RANGE[i][1])
 				c = i;
@@ -1596,7 +1606,7 @@ namespace WBSF
 	{
 		string& name = TrimConst(in);
 		size_t vv = NOT_INIT;
-		for (size_t v = 0; v < NB_HRDPS_VARIABLES&&vv == NOT_INIT; v++)
+		for (size_t v = 0; v < NB_HRDPS_VARIABLES && vv == NOT_INIT; v++)
 		{
 			if (WBSF::IsEqual(name, NAME[v]))
 				vv = v;
@@ -1608,7 +1618,7 @@ namespace WBSF
 	size_t CHRDPSVariables::GetCategory(const std::string& name)
 	{
 		size_t vv = NOT_INIT;
-		for (size_t v = 0; v < NB_HRDPS_CATEGORY&&vv == NOT_INIT; v++)
+		for (size_t v = 0; v < NB_HRDPS_CATEGORY && vv == NOT_INIT; v++)
 		{
 			if (WBSF::IsEqual(name, CATEGORY[v]))
 				vv = v;

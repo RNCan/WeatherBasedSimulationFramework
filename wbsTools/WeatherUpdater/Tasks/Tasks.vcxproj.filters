@@ -233,6 +233,12 @@
     <ClInclude Include="UIReanalysis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UICMIP6.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMIP6.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -455,6 +461,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UIReanalysis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UICMIP6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMIP6.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

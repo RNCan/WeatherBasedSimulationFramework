@@ -28,6 +28,7 @@ namespace WBSF
 		//proptree param
 		std::string GetOutputFilePath(const std::string& fileName)const;
 		bool NeedDownload(const CFileInfo& info, const std::string& filePath)const;
+		//bool NeedDownload(const std::string& filePath)const { return !GoodGrib(filePath); }
 
 		static const UINT DESCRIPTION_TITLE_ID;
 		static const char* SERVER_NAME;
