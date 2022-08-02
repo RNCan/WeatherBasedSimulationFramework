@@ -62,6 +62,11 @@ namespace UtilWWW
 	bool IsFileUpToDate(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& localFilePath, bool bLookFileSize = true, bool bLookFileTime = true);
 	//ERMsg GetPageText(CHttpConnectionPtr& pConnection, const std::string& page, std::string& text, bool replaceAccent = false, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE);
 
-	
+	//***
+	//cURL
+	ERMsg FindFilesCurl(const std::string& URL, WBSF::CFileInfoVector& fileList);
+	ERMsg FindDirectoriesCurl(const std::string& _URL, WBSF::CFileInfoVector& fileList, WBSF::CCallback& callback);
+	ERMsg CopyFileCurl(const std::string& URL, std::string& outputFilePath, bool bShowCurl = false);;
+
 }
 

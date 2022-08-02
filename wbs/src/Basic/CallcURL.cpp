@@ -12,11 +12,26 @@
 
 #include "stdafx.h"
 #include "Basic/CallcURL.h"
+#include "Basic/UtilStd.h"
 
 using namespace std;
 
 namespace WBSF
 {
+
+	CCallcURL::CCallcURL(const std::string& exe_filepath, DWORD bufsize)
+	{
+		
+		m_exe_filepath = exe_filepath;
+		m_bufsize = bufsize;
+
+		if (m_exe_filepath.empty())
+			m_exe_filepath = GetApplicationPath() + "External\\curl.exe";
+	}
+
+	
+
+
 	ERMsg CCallcURL::get_text(const std::string& arg, std::string& str_out)
 	{
 		ERMsg msg;
@@ -30,7 +45,30 @@ namespace WBSF
 	}
 
 
-	
+	ERMsg CCallcURL::copy_file(const std::string& URL, std::string& output_filepath, bool bShowCurl)
+	{
+		ERMsg msg;
+
+
+		//string strHeaders = "-H \"Content-Type: application/x-www-form-urlencoded\"";
+		string argument = "-s -k \"" + URL + "\" --output \"" + output_filepath + "\"";
+		string command= "\"" + m_exe_filepath + "\" " + argument;
+
+
+		DWORD exit_code;
+		msg = WinExecWait(command, "", bShowCurl ? SW_SHOW : SW_HIDE, &exit_code);
+		if (exit_code != 0 && !FileExists(output_filepath))
+		{
+
+			msg.ajoute("Unable to download file:");
+			msg.ajoute(output_filepath);
+			
+		}
+
+		return msg;
+	}
+
+
 
 	ERMsg CCallcURL::CallApp(const std::string& cmdline, std::string& str, DWORD BUFSIZE)
 	{
@@ -87,7 +125,7 @@ namespace WBSF
 			//close handles
 			CloseHandle(g_hChildStd_OUT_Rd);
 			CloseHandle(g_hChildStd_ERR_Rd);
-			
+
 		}
 
 		return msg;
@@ -172,7 +210,7 @@ namespace WBSF
 		DWORD dwRead;
 		//CHAR chBuf[BUFSIZE] = { 0 };
 		std::string chBuf;
-		chBuf.resize(BUFSIZE,0);
+		chBuf.resize(BUFSIZE, 0);
 
 		BOOL bSuccess = FALSE;
 
@@ -188,11 +226,11 @@ namespace WBSF
 
 			//read data
 			bSuccess = ReadFile(g_hChildStd_OUT_Rd, &(chBuf[0]), BUFSIZE, &dwRead, NULL);
-			
+
 			if (!bSuccess)
 				break;
 
-			str.append( chBuf.c_str(), dwRead);
+			str.append(chBuf.c_str(), dwRead);
 		}
 
 		return msg;

@@ -15,6 +15,7 @@
 #include "Basic/Registry.h"
 #include "Basic/UtilTime.h"
 #include "Basic/decode_html_entities_utf8.h"
+#include "Basic/CallcURL.h"
 
 #include "UtilWWW.h"
 #include "SYShowMessage.h"
@@ -227,6 +228,12 @@ namespace UtilWWW
 
 
 		return msg;
+	}
+	
+	ERMsg CopyFileCurl(const std::string& URL, std::string& outputFilePath, bool bShowCurl)
+	{
+		CCallcURL cURL;
+		return cURL.copy_file(URL, outputFilePath, bShowCurl);
 	}
 
 	ERMsg CopyFile(CHttpConnectionPtr& pConnection, const CString& URL, const CString& outputFilePath, DWORD flags, BOOL bThrow, WBSF::CCallback& callback)
@@ -529,7 +536,7 @@ namespace UtilWWW
 		BOOL bWorking = finder.FindFile(URL, INTERNET_FLAG_EXISTING_CONNECT);//, INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_RELOAD
 		DWORD errNum = GetLastError();
 
-		while (bWorking&&msg)
+		while (bWorking && msg)
 		{
 			bWorking = finder.FindNextFile();
 			errNum = GetLastError();
@@ -660,6 +667,69 @@ namespace UtilWWW
 		return msg;
 	}
 
+	ERMsg FindFilesCurl(const string& URL, CFileInfoVector& fileList)
+	{
+		ASSERT(URL.find("://") != string::npos);
+
+
+		ERMsg msg;
+
+		std::string path = WBSF::GetPath(URL);
+		std::string filterName = WBSF::GetFileName(URL);
+
+
+		string argument = "-s -k \"" + path;
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
+		string source;
+		msg = cURL.get_text(argument, source);
+
+
+		if (msg)
+		{
+
+			std::string::size_type posBegin = source.find("<a href=");
+			while (posBegin != std::string::npos)
+			{
+				std::string fileName = FindString(source, "<a href=\"", "\">", posBegin);
+				if (WBSF::Match(filterName.c_str(), fileName.c_str()))
+				{
+
+					std::string filePath = path + fileName;
+
+					CFileInfo info;
+					//memset( &info, 0, sizeof(info) );
+					info.m_filePath = filePath;
+
+					std::string str = FindString(source, "</a>", "\n", posBegin);
+					WBSF::Trim(str);
+					std::string::size_type pos = 0;
+					std::string date = WBSF::Tokenize(str, " ", pos, true);
+					if (pos != std::string::npos)
+					{
+						std::string time = WBSF::Tokenize(str, " ", pos, true);
+						if (pos != std::string::npos)
+						{
+							std::string size = WBSF::Tokenize(str, " ", pos, true);
+							std::remove(size.begin(), size.end(), 'M');
+							std::remove(size.begin(), size.end(), 'K');
+							info.m_time = GetTime(date, time);
+							info.m_size = WBSF::ToInt(size);
+						}
+					}
+
+					fileList.push_back(info);
+				}
+
+				posBegin = source.find("<a href=", posBegin);
+			}
+		}
+
+
+		return msg;
+	}
+
 
 	ERMsg FindFiles(CHttpConnectionPtr& pConnect, const CString& URL, CFileInfoVector& fileList, BOOL bThrow)
 	{
@@ -728,9 +798,70 @@ namespace UtilWWW
 		return msg;
 	}
 
+
+	ERMsg FindDirectoriesCurl(const string& URL, CFileInfoVector& fileList, WBSF::CCallback& callback)
+	{
+		ASSERT(URL.find("://")!=string::npos);//URL begin with http:// or https://
+
+		ERMsg msg;
+
+		//string URL = WBSF::UTF8((LPCTSTR)_URL);
+		//string URL = _URL;
+		//if (!URL.empty() && URL.front() != '/')
+			//URL.insert(URL.begin(), '/');
+
+
+		string argument = "-s -k \"" + URL;
+		string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL(exe);
+
+		string source;
+		msg = cURL.get_text(argument, source);
+
+		if (msg)
+		{
+			std::string::size_type posBegin = source.find("<a href=");
+			while (posBegin != std::string::npos && msg)
+			{
+				string fileName = FindString(source, "<a href=\"", "\">", posBegin);
+
+				if (WBSF::Match("*/", fileName.c_str()))
+				{
+					string relPath = WBSF::GetRelativePath(URL, fileName);
+
+
+					if (fileName != "./" && fileName != "../" &&
+						fileName != ".\\" && fileName != "..\\" &&
+						relPath != "..\\")
+					{
+						std::string filePath = URL + fileName;
+
+						CFileInfo info;
+						info.m_filePath = UtilWin::ToUTF8(filePath);
+
+						std::string str = FindString(source, "</a>", "\n", posBegin);
+						string::size_type pos = 0;
+						string date = WBSF::Tokenize(str, " ", pos);
+						if (pos != string::npos)
+						{
+							string time = WBSF::Tokenize(str, " ", pos);
+							info.m_time = GetTime(date, time);
+						}
+
+						fileList.push_back(info);
+					}
+				}
+
+				posBegin = source.find("<a href=", posBegin);
+				msg += callback.StepIt(0);
+			}
+		}
+
+		return msg;
+	}
+
 	ERMsg FindDirectories(CHttpConnectionPtr& pConnect, const CString& _URL, CFileInfoVector& fileList, BOOL bThrow, WBSF::CCallback& callback)
 	{
-
 		ERMsg msg;
 
 
@@ -920,6 +1051,9 @@ namespace UtilWWW
 	{
 		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, bThrow, callback);
 	}
+	
+
+
 	ERMsg CopyFile(CFtpConnectionPtr& pConnection, const std::string& URL, const std::string& outputFilePath, DWORD flags, BOOL bThrow)
 	{
 		return CopyFile(pConnection, UtilWin::Convert(URL), UtilWin::Convert(outputFilePath), flags, bThrow);
@@ -928,6 +1062,7 @@ namespace UtilWWW
 	{
 		return FindFiles(pConnect, UtilWin::Convert(URL), fileList, bThrow);
 	}
+
 	ERMsg FindFiles(CFtpConnectionPtr& pConnect, const std::string& URL, CFileInfoVector& fileList, BOOL bThrow, WBSF::CCallback& callback)
 	{
 		return FindFiles(pConnect, UtilWin::Convert(URL), fileList, bThrow, callback);
