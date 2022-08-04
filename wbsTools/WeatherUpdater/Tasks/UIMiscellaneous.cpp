@@ -600,7 +600,7 @@ namespace WBSF
 		}
 		else
 		{
-			pos = m_stations.FindByID(ID);
+			pos = m_stations.FindPosByID(ID);
 			if (pos != NOT_INIT)
 			{
 				station = m_stations[pos];
@@ -744,7 +744,7 @@ namespace WBSF
 
 				for (auto it = m_weatherStations.begin(); it != m_weatherStations.end(); it++)
 				{
-					auto it2 = m_stations.FindByID(it->first);
+					auto it2 = m_stations.FindPosByID(it->first);
 					if (it2 != NOT_INIT)
 						stationList.push_back(it->first);
 					else
@@ -1151,7 +1151,7 @@ namespace WBSF
 						string title = GetFileTitle(fileList[y][m][d][f]);
 						string ID = title.substr(8, 4);
 
-						int pos = (int)m_stations.FindByID(ID);
+						int pos = (int)m_stations.FindPosByID(ID);
 						if (pos >= m_stations.size())
 						{
 							if (missing_info.find(ID) == missing_info.end())

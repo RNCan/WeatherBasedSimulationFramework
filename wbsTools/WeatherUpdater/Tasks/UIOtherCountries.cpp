@@ -394,7 +394,7 @@ namespace WBSF
 
 		if (n == IRELAND_HISTORICAL)
 		{
-			size_t pos = m_stations[n].FindByID(ID);
+			size_t pos = m_stations[n].FindPosByID(ID);
 			ASSERT(pos != NOT_INIT);
 
 			int close_year = ToInt(m_stations[n][pos].GetSSI("close_year"));
@@ -452,7 +452,7 @@ namespace WBSF
 
 				if (type == HOURLY_WEATHER)
 				{
-					size_t pos = m_stations[n].FindByID(ID);
+					size_t pos = m_stations[n].FindPosByID(ID);
 					ASSERT(pos != NOT_INIT);
 					string name = TrimConst(m_stations[n][pos].GetSSI("slug"));
 					ASSERT(!name.empty());
@@ -699,7 +699,7 @@ namespace WBSF
 			for (size_t ii = 0; ii < stationList.size(); ii++)
 			{
 
-				size_t pos = m_stations[n].FindByID(stationList[ii]);
+				size_t pos = m_stations[n].FindPosByID(stationList[ii]);
 				ASSERT(pos != NOT_INIT);
 
 				int close_year = ToInt(m_stations[n][pos].GetSSI("close_year"));
@@ -730,7 +730,7 @@ namespace WBSF
 
 		
 		//Get station information
-		size_t it = m_stations[n].FindByID(ID);
+		size_t it = m_stations[n].FindPosByID(ID);
 		ASSERT(it != NOT_INIT);
 
 

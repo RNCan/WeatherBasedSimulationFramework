@@ -439,7 +439,7 @@ namespace WBSF
 		if (!TM.IsDaily())//MDDELCC can only create daily database
 			return msg;
 
-		size_t it = m_stations.FindByID(ID);
+		size_t it = m_stations.FindPosByID(ID);
 		if (it == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));

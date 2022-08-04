@@ -462,6 +462,53 @@ namespace WBSF
 		m_variables_to_load.set();//load all variables by default
 	}
 
+
+	double CovertUnit(size_t v, const string& units, double value)
+	{
+		switch (v)
+		{
+		case H_TMIN:
+		case H_TAIR:
+		case H_TMAX:
+		case H_TDEW: ASSERT(units == "[C]"); break;
+		case H_PRCP:
+		{
+			ASSERT(units == "[mm]" || units == "[kg/(m^2)]");
+			//data[v] = float(data[v] * 3600.0);
+			break; //[kg/(m²s)] --> [mm/hour]
+		}
+		case H_RELH: ASSERT(units == "[%]"); break;
+		case H_WNDS:
+		{
+			ASSERT(units == "[m/s]" || units == "[km/h]");
+			if (units == "[m/s]")
+				value = float(value * 3600.0 / 1000.0);
+
+			break; //[m/s] --> [km/h]
+		}
+		case H_SRAD: ASSERT(units == "[W/(m^2)]"); break;
+		case H_PRES:
+		{
+			ASSERT(units == "[hPa]" || units == "[Pa]");
+			if (units == "[Pa]")
+				value = float(value / 100.0);
+			break; //[Pa] --> [hPa]
+		}
+		case H_SNOW: ASSERT(units == "[mm]"); break;
+		case H_SNDH:
+		{
+			ASSERT(units == "[cm]" || units == "[m]");
+			if (units == "[m]")
+				value = float(value / 100.0);
+			break; //[m] --> [cm]	
+		}
+		case H_SWE: ASSERT(units == "[mm]"); break;
+		}
+
+		return value;
+	}
+
+
 	void CSfcDatasetCached::get_weather(const CGeoPointIndex& in_xy, CHourlyData& data)const
 	{
 		if (m_extents.IsInside(in_xy))
@@ -487,13 +534,8 @@ namespace WBSF
 						float noData = (float)GetNoData(m_bands[v]);
 						if (fabs(value - m_noData[v]) > 0.1)
 						{
-							switch (v)
-							{
-								//case H_PRCP:	ASSERT(m_units[v]=="kg/(m^2)"); data[v] = float(data[v]*3600.0); break; //[kg/(m²s)] --> [mm/hour]
-							case H_WNDS:	ASSERT(m_units[v] == "[m/s]"); value = float(value * 3600.0 / 1000.0); break; //[m/s] --> [km/h]
-							case H_PRES:	ASSERT(m_units[v] == "[Pa]"); value = float(value / 100.0); break; //[Pa] --> [hPa]
-							case H_SNDH:	ASSERT(m_units[v] == "[m]"); value = float(value / 100.0); break; //[m] --> [cm]	
-							}
+							value = CovertUnit(v, m_units[v], value);
+
 							data[v] = value;
 						}
 					}
@@ -582,45 +624,46 @@ namespace WBSF
 						float noData = (float)GetNoData(m_bands[v]);
 						if (fabs(value - m_noData[v]) > 0.1)
 						{
-							switch (v)
-							{
-							case H_TMIN:
-							case H_TAIR:
-							case H_TMAX:
-							case H_TDEW: ASSERT(m_units[v] == "[C]"); break;
-							case H_PRCP:
-							{
-								ASSERT(m_units[v] == "[mm]" || m_units[v] == "[kg/(m^2)]");
-								//data[v] = float(data[v] * 3600.0);
-								break; //[kg/(m²s)] --> [mm/hour]
-							}
-							case H_RELH: ASSERT(m_units[v] == "[%]"); break;
-							case H_WNDS:
-							{
-								ASSERT(m_units[v] == "[m/s]" || m_units[v] == "[km/h]");
-								if (m_units[v] == "[m/s]")
-									value = float(value * 3600.0 / 1000.0);
+							value = CovertUnit(v, m_units[v], value);
+							//switch (v)
+							//{
+							//case H_TMIN:
+							//case H_TAIR:
+							//case H_TMAX:
+							//case H_TDEW: ASSERT(m_units[v] == "[C]"); break;
+							//case H_PRCP:
+							//{
+							//	ASSERT(m_units[v] == "[mm]" || m_units[v] == "[kg/(m^2)]");
+							//	//data[v] = float(data[v] * 3600.0);
+							//	break; //[kg/(m²s)] --> [mm/hour]
+							//}
+							//case H_RELH: ASSERT(m_units[v] == "[%]"); break;
+							//case H_WNDS:
+							//{
+							//	ASSERT(m_units[v] == "[m/s]" || m_units[v] == "[km/h]");
+							//	if (m_units[v] == "[m/s]")
+							//		value = float(value * 3600.0 / 1000.0);
 
-								break; //[m/s] --> [km/h]
-							}
-							case H_SRAD: ASSERT(m_units[v] == "[W/(m^2)]"); break;
-							case H_PRES:
-							{
-								ASSERT(m_units[v] == "[hPa]" || m_units[v] == "[Pa]");
-								if (m_units[v] == "[Pa]")
-									value = float(value / 100.0);
-								break; //[Pa] --> [hPa]
-							}
-							case H_SNOW: ASSERT(m_units[v] == "[mm]"); break;
-							case H_SNDH:
-							{
-								ASSERT(m_units[v] == "[cm]" || m_units[v] == "[m]");
-								if (m_units[v] == "[m]")
-									value = float(value / 100.0);
-								break; //[m] --> [cm]	
-							}
-							case H_SWE: ASSERT(m_units[v] == "[mm]"); break;
-							}
+							//	break; //[m/s] --> [km/h]
+							//}
+							//case H_SRAD: ASSERT(m_units[v] == "[W/(m^2)]"); break;
+							//case H_PRES:
+							//{
+							//	ASSERT(m_units[v] == "[hPa]" || m_units[v] == "[Pa]");
+							//	if (m_units[v] == "[Pa]")
+							//		value = float(value / 100.0);
+							//	break; //[Pa] --> [hPa]
+							//}
+							//case H_SNOW: ASSERT(m_units[v] == "[mm]"); break;
+							//case H_SNDH:
+							//{
+							//	ASSERT(m_units[v] == "[cm]" || m_units[v] == "[m]");
+							//	if (m_units[v] == "[m]")
+							//		value = float(value / 100.0);
+							//	break; //[m] --> [cm]	
+							//}
+							//case H_SWE: ASSERT(m_units[v] == "[mm]"); break;
+							//}
 							data.SetStat((TVarH)v, value);
 						}
 					}
@@ -1598,7 +1641,7 @@ namespace WBSF
 		msg = incremental.GetInvalidTRef(gribs, invalid);
 
 		callback.AddMessage("Input gribs: " + gribs.get_file_path());
-		callback.AddMessage("Gribs period: " + Gribs_period.GetFormatedString() );
+		callback.AddMessage("Gribs period: " + ReplaceString(Gribs_period.GetFormatedString(), "|", ","));
 		callback.AddMessage("Nb input locations: " + to_string(locationsIn.size()));
 		if (m_nb_points > 0)
 			callback.AddMessage("Nb grid locations to extract with " + to_string(m_nb_points) + " nearest: " + to_string(locations.size()));
@@ -1606,7 +1649,7 @@ namespace WBSF
 		size_t HD_factor = m_bIsHourly ? 24 : 1;
 		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
 		
-		callback.AddMessage("Period: " + (m_period.IsInit()?m_period.GetFormatedString():"Entire gribs period") );
+		callback.AddMessage("Period: " + ReplaceString(m_period.GetFormatedString(),"|",","));
 		callback.AddMessage("Nb inputs: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / HD_factor)) + " days)");
 		callback.AddMessage("Nb elements to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / HD_factor)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));

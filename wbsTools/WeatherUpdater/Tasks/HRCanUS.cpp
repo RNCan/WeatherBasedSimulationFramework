@@ -314,6 +314,8 @@ namespace WBSF
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
 						RemoveFile(file_path_out + "2");
+						if (FileExists(file_path_out + "2.aux.xml"))
+							RemoveFile(file_path_out + "2.aux.xml");
 					}
 
 				}//if input images open
@@ -524,6 +526,8 @@ namespace WBSF
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
 						msg += RemoveFile(file_path_out + "2");
+						if (FileExists(file_path_out + "2.aux.xml"))
+							RemoveFile(file_path_out + "2.aux.xml");
 					}
 
 					callback.PopTask();

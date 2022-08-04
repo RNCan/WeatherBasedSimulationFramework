@@ -224,7 +224,7 @@ namespace WBSF
 				{
 					CLocation location = LocationFromLine(line);
 					//make a manual correction if any
-					size_t corr_pos = correction.FindByID(location.m_ID);
+					size_t corr_pos = correction.FindPosByID(location.m_ID);
 					bool bManualCorrection = corr_pos != NOT_INIT;
 					if (bManualCorrection)
 					{
@@ -236,13 +236,13 @@ namespace WBSF
 					{
 						if (location.IsValid(true))
 						{
-							size_t invalid_pos = old_invalid_Stations.FindByID(location.m_ID);
+							size_t invalid_pos = old_invalid_Stations.FindPosByID(location.m_ID);
 							bool bInvalid = invalid_pos != NOT_INIT;
 							bool bNeedExtration = true;
 
 
 							//find the old station information if any
-							size_t oldPos = old_locations.FindByID(location.m_ID);
+							size_t oldPos = old_locations.FindPosByID(location.m_ID);
 							if (!bInvalid && !bManualCorrection && oldPos != NOT_INIT)
 							{
 								bool bDiffLat = fabs(location.m_lat - old_locations[oldPos].m_lat) > 0.001;

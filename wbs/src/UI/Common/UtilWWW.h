@@ -27,6 +27,7 @@ namespace UtilWWW
 	CString GetServerName( const CString& path);
 	CString GetServerPath( const CString& path);
 	ERMsg GetPageText(CHttpConnectionPtr& pConnection, const std::string& page, std::string& text, bool replaceAccent = false, DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE);
+	ERMsg GetPageTextCurl(const std::string& page, std::string& text);
 	bool IsFileUpToDate(const WBSF::CFileInfo& ftpFile, const CString& localFile, bool bLookFileSize = true, bool bLookFileTime = true);
 	bool IsFileUpToDate(CFtpConnectionPtr& pConnection, const CString& ftpFile, const CString& localFilePath, bool bLookFileSize=true, bool bLookFileTime=true);
 	bool GetFileInfo(CFtpConnectionPtr& pConnect, const CString& filePath, WBSF::CFileInfo& info);

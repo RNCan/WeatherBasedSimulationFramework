@@ -815,7 +815,7 @@ namespace WBSF
 	void CUIEnvCanDaily::GetStationInformation(const std::string& ID, CLocation& station)const
 	{
 
-		size_t i = m_stations.FindByID(ID);
+		size_t i = m_stations.FindPosByID(ID);
 		if (i < m_stations.size())
 			station = m_stations[i];
 	}

@@ -500,7 +500,7 @@ namespace WBSF
 		ASSERT(tmp.size() == 2);
 		size_t n = WBSF::as <size_t>(tmp[0]);
 		string ID = tmp[1];
-		size_t it = m_stations[n].FindByID(ID);
+		size_t it = m_stations[n].FindPosByID(ID);
 		ASSERT(it != NOT_INIT);
 
 		((CLocation&)station) = m_stations[n][it];

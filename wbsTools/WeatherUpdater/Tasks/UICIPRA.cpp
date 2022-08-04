@@ -314,7 +314,7 @@ namespace WBSF
 	{
 		string name;
 
-		size_t pos = m_stations.FindByID(ID);
+		size_t pos = m_stations.FindPosByID(ID);
 		if (pos < m_stations.size())
 			name = m_stations[pos].m_name.c_str();
 

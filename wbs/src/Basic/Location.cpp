@@ -762,12 +762,29 @@ namespace WBSF
 		return msg;
 	}
 
-	size_t CLocationVector::FindByID(const std::string& ID)const
+	size_t CLocationVector::FindPosByID(const std::string& ID, bool bCase)const
 	{
-		CLocationVector::const_iterator it = std::find_if(begin(), end(), FindLocationByID(ID));
+		CLocationVector::const_iterator it = std::find_if(begin(), end(), FindLocationByID(ID, bCase));
 		return (it == end()) ? UNKNOWN_POS : it - begin();
 	}
+	CLocationVector::const_iterator CLocationVector::FindByID( const std::string& ID, bool bCase)const
+	{
+		return std::find_if(begin(), end(), FindLocationByID(ID, bCase));
+	}
 
+	CLocationVector::iterator CLocationVector::FindByName( const std::string& name, bool bCase)
+	{
+		return std::find_if(begin(), end(), FindLocationByName(name, bCase));
+	}
+	CLocationVector::const_iterator CLocationVector::FindByName(const std::string& name, bool bCase)const
+	{
+		return std::find_if(begin(), end(), FindLocationByName(name, bCase));
+	}
+
+	CLocationVector::iterator CLocationVector::FindByID(const std::string& ID, bool bCase)
+	{
+		return std::find_if(begin(), end(), FindLocationByID(ID, bCase));
+	}
 	CLocationVector::const_iterator CLocationVector::FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const
 	{
 		return std::find_if(begin(), end(), FindLocationBySSI(SSI, value, bCase));

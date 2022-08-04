@@ -1,3 +1,5 @@
+//6.0.8	03/08/2022	Rémi Saint-Amant	Add SWOB partners
+//										Bug correction in HRDPA
 //6.0.7	15/07/2022	Rémi Saint-Amant	Compile with GDAL 3.5.1
 //6.0.6	12/07/2022	Rémi Saint-Amant	Compile with GDAL 3.5.0
 //6.0.4	26/05/2022	Rémi Saint-Amant	Replace FTPTransfer by WinSCP 
@@ -5,13 +7,13 @@
 //6.0.2	27/04/2022	Rémi Saint-Amant	Add support daily gribs 
 //										Add ERA5 conversion task
 //										bug correction in NL weather data
-//6.0.1	11/01/2022	Rémi Saint-Amant	Bug correction in FTP tranfer
+//6.0.1	11/01/2022	Rémi Saint-Amant	Bug correction in FTP transfer
 //6.0.0	20/12/2021	Rémi Saint-Amant	Compile with VC 2019 and MFC dll version, Compile with GDAL 3.0.3
-//5.9.3 29/04/2021	Rémi Saint-Amant	Automaticly create gribs list in CanUS.
+//5.9.3 29/04/2021	Rémi Saint-Amant	Automatically create gribs list in CanUS.
 //										Bug correction in HRRR 2d/3d options
 //										Extract Country, SubDivision for NOAA product
 //										Add NL WRMD 
-//										Automaticly clean up abberation in Manitoba data
+//										Automatically clean up aberration in Manitoba data
 //5.9.2 14/04/2021	Rémi Saint-Amant	Make update of long forecast
 //5.9.1 19/03/2021	Rémi Saint-Amant	Bug correction to avoid invalid elevation (-999)
 //										Remove all SSI and add Network, Country and SubDivision in SSI
@@ -30,7 +32,7 @@
 //5.8.1 12/11/2019	Rémi Saint-Amant	Update of historical daily and hourly Env Can download
 //5.8.0	07/10/2019	Rémi Saint-Amant	Bug correction in clean up years when create normals 
 //5.7.9 29/08/2019	Rémi Saint-Amant	Update NAM and RAP update. Add RAP UCAR.
-//										Change inanimation RADAR images
+//										Change animation RADAR images
 //										Add HRRR precipitation
 //										Add RAP precipitation
 //										Shift prcp and srad of HRDPS of one hour
@@ -67,9 +69,9 @@
 //5.5.2	05/05/2018	Rémi Saint-Amant	Bug correction in SM. support station name with coma
 //										Add Ireland weather
 //5.5.1	29/03/2018	Rémi Saint-Amant	Bug correction in MesoWest. Take the last day of the month
-//										Better management of internet exception
+//										Better management of Internet exception
 //										Bug correction in HRDPS
-//5.5.0	29/03/2018	Rémi Saint-Amant	Select rain (mm) intead of Snow (cm) in EnvCan data
+//5.5.0	29/03/2018	Rémi Saint-Amant	Select rain (mm) instead of Snow (cm) in EnvCan data
 //										Don't send error when EnvCan coordinate is missing
 //5.4.8	19/03/2018	Rémi Saint-Amant	Compile with VS 2017
 //										Add CWEEDS extraction
@@ -79,7 +81,7 @@
 //										Bug correction in province selection in WeatherFarm
 //										Bug correction in SWOB data
 //5.4.5	09/01/2018	Rémi Saint-Amant	Remove LANGUAGE 9, 1. 
-//5.4.4 22/11/2017	Rémi Saint-Amant	Bug correction in daily convertion from version 3 to version 4. 
+//5.4.4 22/11/2017	Rémi Saint-Amant	Bug correction in daily conversion from version 3 to version 4. 
 //5.4.3 31/10/2017  Rémi Saint-Amant	Bug correction in NewBruncwick
 //5.4.2 10/10/2017  Rémi Saint-Amant	Recompilation from backup after hard drive crash
 //5.4.1 12/09/2017	Rémi Saint-Amant	Bug correction in HRDPS gribs creation
@@ -96,11 +98,11 @@
 //										Stations coordinate for CIPRA in atlantic 
 //5.3.1 10/02/2017  Rémi Saint-Amant	Add CUIMiscellaneous and virtual station
 //										Change in icon selection of the task
-//										Better TaskFactory. Fing task by ID
+//										Better TaskFactory. Find task by ID
 //5.3.0 16/11/2016	Rémi Saint-Amant	New database format with .csv header
 //										Bug correction in hourly to daily conversion
-//5.2.3	28/10/2016	Rémi Saint-Amant	Important bug correction in convertion to version 10. Remove Tair causing many problems
-//										Add save coordinat eof all station into the.csv file
+//5.2.3	28/10/2016	Rémi Saint-Amant	Important bug correction in conversion to version 10. Remove Tair causing many problems
+//										Add save coordinate eof all station into the.csv file
 //5.2.2	16/10/2016	Rémi Saint-Amant	Add NEWA 
 //5.2.1	05/10/2016	Rémi Saint-Amant	Bug correction when creating a new project
 //5.2.0	20/09/2016	Rémi Saint-Amant	Change Tair and Trng by Tmin and Tmax
@@ -120,10 +122,10 @@
 //										Add of BC via PCCI
 //5.0.1 10/04/2016	Rémi Saint-Amant	Bug correction on Window 10  
 //5.0.0 01/03/2016	Rémi Saint-Amant	New version with the WBSF and new user interface 
-//4.1.2 13/11/2015	Rémi Saint-Amant	Add use of TRng in weatehr database, Add BC PAWS and Snowtel
+//4.1.2 13/11/2015	Rémi Saint-Amant	Add use of TRng in weather database, Add BC PAWS and Snowtel
 //4.1.1	21/07/2015	Rémi Saint-Amant	Add historical Radar image download
 //4.1.0	15/07/2015	Rémi Saint-Amant	Add Radar image download
-//4.0.9	24/06/2015	Rémi Saint-Amant	Add Extract loc from weather database and generalyze loc
+//4.0.9	24/06/2015	Rémi Saint-Amant	Add Extract loc from weather database and generalize loc
 //4.0.8 07/05/2015  Rémi Saint-Amant	Add loop in the Mesonet-Quebec updater, use dot by default as decimal séparator
 //										Many bugs correction in the NormalFromDaily algo
 //4.0.6	07/04/2015	Rémi Saint-Amant	Bug correction with oe
@@ -131,13 +133,13 @@
 //4.0.4 17/03/2015	Rémi Saint-Amant	Many bugs corrections
 //4.0.3 15/01/2015	Rémi Saint-Amant	Bug correction in relative path 
 //4.0.0	15/01/2015	Rémi Saint-Amant	New WeatherStations struct. New name. WeatherUpdater
-//3.0.5 15/10/2014	Rémi Saint-Amant	Bug correction in EnvCan elevation highert than 1000 meters
+//3.0.5 15/10/2014	Rémi Saint-Amant	Bug correction in EnvCan elevation higher than 1000 meters
 //3.0.5 15/10/2014	Rémi Saint-Amant	Bug correction in ISD-Lite and GSOD
 //3.0.4 06/10/2014  Rémi Saint-Amant	New ISD-Lite and GSOD station list
-//3.0.3 08/08/2014	Rémi Saint-Amant	New province abreviation for Canada
+//3.0.3 08/08/2014	Rémi Saint-Amant	New province abbreviation for Canada
 //3.0.2 16/07/2014	Rémi Saint-Amant	Add GCM10km climatic change task. some bug correction.
 //3.0.1 06/06/2014	Rémi Saint-Amant	Add new Env. Can. hourly forecast.  
-//3.0.0 16/03/2014	Rémi Saint-Amant	Completly new version in 64 bits with VS 2013.
+//3.0.0 16/03/2014	Rémi Saint-Amant	Completely new version in 64 bits with VS 2013.
 //2.5.4 30/07/2013	Rémi Saint-Amant	Update with New Environment Canada site.
 //2.5.2 22/05/2013	Rémi Saint-Amant	Add date in the forecast info
 //2.5.1 06/05/2013	Rémi Saint-Amant	Add, SMEX et SWEB. New forecast.
@@ -156,17 +158,17 @@
 //1.8.0 06/02/2010	Rémi Saint-Amant	Add FAOCLim and GHCND task. New normal merge algo.
 //1.7.3 27/05/2009	Rémi Saint-Amant	Add Europe paleoClimatic task
 //1.7.2 14/05/2009  Rémi Saint-Amant	Add Zipping and copy to FTP server task
-//1.7.1 12/05/2009	Rémi Saint-Amant	Add forecast to MRNF québec weatehr station. Chnage structure of the list file
-//1.7.0 28/04/2009	Rémi Saint-Amant	Add forecast to Environnement Canada. EC HTML Update.
+//1.7.1 12/05/2009	Rémi Saint-Amant	Add forecast to MRNF Québec weather station. Change structure of the list file
+//1.7.0 28/04/2009	Rémi Saint-Amant	Add forecast to Environment Canada. EC HTML Update.
 //1.6.4	24/03/2009	Rémi Saint-Amant	OURANOS Climatic change MRCC
 //1.6.3 26/01/2009	Rémi Saint-Amant	Correction of a bug in the download of Québec weather
-//1.6.2 06/01/2009	Rémi Saint-Amant	Put the FTP actif and not passif. 
+//1.6.2 06/01/2009	Rémi Saint-Amant	Put the FTP active and not passive. 
 //1.6.1 09/10/2008  Rémi Saint-Amant	Compile with Visual studio 2008.
 //1.6.0 01/02/2008  Rémi Saint-Amant	New NOAA download from FTP site and packDB 
-//										Correction of a bug in the EnvCan pack DB and the complet flag
+//										Correction of a bug in the EnvCan pack DB and the complete flag
 //1.4.1 13/09/2007  Rémi Saint-Amant	New SnowTel download
 //										Correction of a problem with focus window and menu
-//										Add Copy/Paste functionnality
+//										Add Copy/Paste functionality
 //										Solve memory leak problem with vld.h
 //1.3.0	05/04/2007	Rémi Saint-Amant	New LOC file format
 

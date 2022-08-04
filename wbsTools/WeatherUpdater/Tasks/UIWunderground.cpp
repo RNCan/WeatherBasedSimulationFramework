@@ -228,7 +228,7 @@ namespace WBSF
 //					loc.m_name = loc.m_ID;
 
 //				bool bNetatmo = WBSF::Find("Netatmo", loc.GetSSI("StationType"), false);
-//				if (!bNetatmo && stationList2.FindByID(loc.m_ID) == NOT_INIT)
+//				if (!bNetatmo && stationList2.FindPosByID(loc.m_ID) == NOT_INIT)
 //					stationList1.push_back(loc);
 
 
@@ -819,7 +819,7 @@ namespace WBSF
 		StringVector toUpdated;
 		for (auto it = stationListID.begin(); it != stationListID.end() && msg; it++)
 		{
-			size_t pos = locations.FindByID(*it);
+			size_t pos = locations.FindPosByID(*it);
 			if (pos == NOT_INIT)
 				toUpdated.push_back(*it);
 		}
@@ -908,7 +908,7 @@ namespace WBSF
 
 		for (auto it = stationListID.begin(); it != stationListID.end() && msg; it++)
 		{
-			size_t pos = locations.FindByID(*it);
+			size_t pos = locations.FindPosByID(*it);
 			if (pos != NOT_INIT)
 			{
 				stationList.insert(stationList.end(), locations[pos]);
@@ -1004,7 +1004,7 @@ namespace WBSF
 		}
 
 
-		size_t pos = m_stations.FindByID(ID);
+		size_t pos = m_stations.FindPosByID(ID);
 		if (pos == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));

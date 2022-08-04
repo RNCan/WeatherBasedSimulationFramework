@@ -513,7 +513,7 @@ namespace WBSF
 					string forecastID = DBF[shapeNo][Findex].GetElement();
 
 					CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
-					size_t index = zop.FindByID(forecastID);
+					size_t index = zop.FindPosByID(forecastID);
 					if (index < zop.size())
 					{
 						CWeatherStation st(true);
@@ -558,7 +558,7 @@ namespace WBSF
 		else
 		{
 			CWeatherDatabaseOptimization const& zop = m_DB.GetOptimization();
-			size_t index = zop.FindByID(ID);
+			size_t index = zop.FindPosByID(ID);
 			if (index < zop.size())
 			{
 				msg = m_DB.Get(station, index);

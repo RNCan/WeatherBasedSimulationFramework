@@ -574,7 +574,7 @@ namespace WBSF
 				//if (ID != "cqgt")
 					//continue;
 
-				size_t pos = m_stationsList.FindByID(ID);
+				size_t pos = m_stationsList.FindPosByID(ID);
 				if (pos != NOT_INIT)
 				{
 					CTRef TRef = CTimeZones::UTCTRef2LocalTRef(UTCRef, m_stationsList[pos]);

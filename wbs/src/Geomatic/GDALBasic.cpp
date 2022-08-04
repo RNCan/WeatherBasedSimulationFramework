@@ -7,7 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //	
 //******************************************************************************
-// 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
+// 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework 
 //******************************************************************************
 #include "stdafx.h"
 #include <float.h>

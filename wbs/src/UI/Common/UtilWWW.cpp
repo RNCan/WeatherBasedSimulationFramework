@@ -70,6 +70,12 @@ namespace UtilWWW
 		return serverPath;
 	}
 
+	ERMsg GetPageTextCurl(const std::string& URL, std::string& source)
+	{
+		CCallcURL cURL;
+		return cURL.get_text(URL, source);
+	}
+
 	ERMsg GetPageText(CHttpConnectionPtr& pConnection, const std::string& URLIn, std::string& text, bool bConvert, DWORD flags)
 	{
 
@@ -824,10 +830,12 @@ namespace UtilWWW
 			while (posBegin != std::string::npos && msg)
 			{
 				string fileName = FindString(source, "<a href=\"", "\">", posBegin);
+				size_t count = std::count_if(fileName.begin(), fileName.end(), [](char c) {return c == '/'; });
 
-				if (WBSF::Match("*/", fileName.c_str()))
+				if (WBSF::Match("*/", fileName.c_str()) && count==1)
 				{
 					string relPath = WBSF::GetRelativePath(URL, fileName);
+					//bool bParent = WBSF::Find(URL, relPath);
 
 
 					if (fileName != "./" && fileName != "../" &&

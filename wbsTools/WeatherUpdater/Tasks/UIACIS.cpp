@@ -1286,7 +1286,7 @@ namespace WBSF
 		size_t type = as <size_t>(DATA_TYPE);
 
 
-		size_t pos = m_stations.FindByID(ID);
+		size_t pos = m_stations.FindPosByID(ID);
 		if (pos == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));

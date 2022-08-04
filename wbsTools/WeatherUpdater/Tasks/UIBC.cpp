@@ -462,7 +462,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		size_t pos = m_stations.FindByID(stationID);
+		size_t pos = m_stations.FindPosByID(stationID);
 		if (pos == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, stationID));

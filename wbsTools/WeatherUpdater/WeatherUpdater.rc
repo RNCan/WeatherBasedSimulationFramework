@@ -254,8 +254,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,0,7,3
- PRODUCTVERSION 6,0,7,3
+ FILEVERSION 6,0,8,3
+ PRODUCTVERSION 6,0,8,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -272,21 +272,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "6.0.7.3"
+            VALUE "FileVersion", "6.0.8.3"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "6.0.7.3"
+            VALUE "ProductVersion", "6.0.8.3"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "6.0.7.3"
+            VALUE "FileVersion", "6.0.8.3"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "6.0.7.3"
+            VALUE "ProductVersion", "6.0.8.3"
         END
     END
     BLOCK "VarFileInfo"
@@ -685,7 +685,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Répertoire de travail|Première année|Dernière année|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau|Nb jours max (Swob)"
+    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau|Partenaires SWOB|Télécharger SWOB pendant x jours (0=depuis la dernìère maj)"
 END
 
 STRINGTABLE
@@ -1188,7 +1188,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Working directory|First year|Last year|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network|Max SWOB download (days)"
+    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network|SWOB Partner|download SWOB until x days (0=since last update)"
 END
 
 STRINGTABLE

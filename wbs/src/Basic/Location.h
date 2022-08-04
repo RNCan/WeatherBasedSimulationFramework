@@ -185,39 +185,42 @@ namespace WBSF
 	{
 	public:
 
-		FindLocationByName(const std::string& name) :m_name(name)
+		FindLocationByName(const std::string& name, bool bCase = false) :m_name(name), m_bCase(bCase)
 		{}
 
-		bool operator ()(const CLocation& in)const{ return in.m_name == m_name; }
+		bool operator ()(const CLocation& in)const{ return WBSF::IsEqual(in.m_name, m_name, m_bCase); }
 
 	protected:
 		std::string m_name;
+		bool m_bCase;
 	};
 
 	class FindLocationByID
 	{
 	public:
 
-		FindLocationByID(const std::string& ID) :m_ID(ID)
+		FindLocationByID(const std::string& ID, bool bCase=false) :m_ID(ID), m_bCase(bCase)
 		{}
 
-		bool operator ()(const CLocation& in)const{ return in.m_ID == m_ID; }
+		bool operator ()(const CLocation& in)const{ return WBSF::IsEqual(in.m_ID,m_ID, m_bCase); }
 
 	protected:
 		std::string m_ID;
+		bool m_bCase;
 	};
 
 	class FindLocationByDataFileName
 	{
 	public:
 
-		FindLocationByDataFileName(const std::string& dataFileName) :m_dataFileName(dataFileName)
+		FindLocationByDataFileName(const std::string& dataFileName, bool bCase = false) :m_dataFileName(dataFileName), m_bCase(bCase)
 		{}
 
-		bool operator ()(const CLocation& in)const{ return in.GetDataFileName() == m_dataFileName; }
+		bool operator ()(const CLocation& in)const{ return WBSF::IsEqual(in.GetDataFileName(), m_dataFileName, m_bCase); }
 
 	protected:
 		std::string m_dataFileName;
+		bool m_bCase;
 	};
 
 	class FindLocationBySSI
@@ -292,9 +295,13 @@ namespace WBSF
 
 		StringVector GetSSIHeader()const{ return empty() ? StringVector() : front().GetSSIHeader(); }
 
-		size_t FindByID(const std::string& ID)const; 
-		CLocationVector::const_iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase)const;
-		CLocationVector::iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase);
+		size_t FindPosByID(const std::string& ID, bool bCase=false)const;
+		CLocationVector::const_iterator FindByID(const std::string& ID, bool bCase = false)const;
+		CLocationVector::iterator FindByID(const std::string& ID, bool bCase = false);
+		CLocationVector::const_iterator FindByName(const std::string& ID, bool bCase = false)const;
+		CLocationVector::iterator FindByName(const std::string& ID, bool bCase = false);
+		CLocationVector::const_iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase = false)const;
+		CLocationVector::iterator FindBySSI(const std::string& SSI, const std::string& value, bool bCase = false);
 		
 
 		StringVector GetHeaderFromData()const;

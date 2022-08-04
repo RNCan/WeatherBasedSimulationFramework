@@ -728,7 +728,7 @@ namespace WBSF
 			return msg;
 		}*/
 
-		size_t pos = m_stations.FindByID(ID);
+		size_t pos = m_stations.FindPosByID(ID);
 		if (pos == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));

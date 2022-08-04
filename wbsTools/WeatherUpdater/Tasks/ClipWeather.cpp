@@ -200,8 +200,8 @@ namespace WBSF
 
 			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
-			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
-			bool bLocNotExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
+			bool bLocInclude = locInclude.size() == 0 || locInclude.FindPosByID(location.m_ID) != NOT_INIT;
+			bool bLocNotExclude = locExclude.FindPosByID(location.m_ID) == NOT_INIT;
 			if (bRect&&bShape&&bLocInclude&&bLocNotExclude&&years.size() > 0)
 			{
 				CWeatherStation station;
@@ -304,8 +304,8 @@ namespace WBSF
 
 			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(location);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(location);
-			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(location.m_ID) != NOT_INIT;
-			bool bLocNotExclude = locExclude.FindByID(location.m_ID) == NOT_INIT;
+			bool bLocInclude = locInclude.size() == 0 || locInclude.FindPosByID(location.m_ID) != NOT_INIT;
+			bool bLocNotExclude = locExclude.FindPosByID(location.m_ID) == NOT_INIT;
 			if (bRect&&bShape&&bLocInclude&&bLocNotExclude)
 			{
 				set<int> years = inputDailyDB.GetYears(i);
@@ -418,8 +418,8 @@ namespace WBSF
 			CGeoPoint pt(station.m_lon, station.m_lat, PRJ_WGS_84);
 			bool bRect = boundingBox.IsRectEmpty() || boundingBox.PtInRect(station);
 			bool bShape = shapefile.GetNbShape() == 0 || shapefile.IsInside(pt);
-			bool bLocInclude = locInclude.size() == 0 || locInclude.FindByID(station.m_ID) != NOT_INIT;
-			bool bLocExclude = locExclude.FindByID(station.m_ID) == NOT_INIT;
+			bool bLocInclude = locInclude.size() == 0 || locInclude.FindPosByID(station.m_ID) != NOT_INIT;
+			bool bLocExclude = locExclude.FindPosByID(station.m_ID) == NOT_INIT;
 			if (bRect&&bShape&&bLocInclude&&bLocExclude)
 			{
 				msg = outputDB.Add(station);

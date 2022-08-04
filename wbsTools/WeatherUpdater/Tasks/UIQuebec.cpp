@@ -309,7 +309,7 @@ namespace WBSF
 		ERMsg msg;
 		//string workingDir = GetWorkingDir(n);
 
-		size_t pos = m_stations.FindByID(ID);
+		size_t pos = m_stations.FindPosByID(ID);
 		ASSERT(pos != NOT_INIT);
 
 		((CLocation&)station) = m_stations[pos];
@@ -491,11 +491,11 @@ namespace WBSF
 							lines.push_back(line);
 						}
 
-						if (locations2.FindByID(coord.m_ID) == NOT_INIT)
+						if (locations2.FindPosByID(coord.m_ID) == NOT_INIT)
 							locations2.push_back(coord);
 
 						ASSERT(!ID.empty());
-						size_t loc_pos = locations.FindByID(ID);
+						size_t loc_pos = locations.FindPosByID(ID);
 
 						if (loc_pos == NOT_INIT)
 						{

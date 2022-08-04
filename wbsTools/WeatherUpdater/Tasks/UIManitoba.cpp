@@ -367,7 +367,7 @@ namespace WBSF
 		string ID = NID.substr(2);
 
 		//Get station information
-		size_t it = m_stations.FindByID(ID);
+		size_t it = m_stations.FindPosByID(ID);
 		ASSERT(it != NOT_INIT);
 
 		((CLocation&)station) = m_stations[it];
@@ -1267,7 +1267,7 @@ namespace WBSF
 			//save data
 			for (auto it1 = m_agri2Stations.begin(); it1 != m_agri2Stations.end(); it1++)
 			{
-				size_t pos = m_stations.FindByID(it1->first);
+				size_t pos = m_stations.FindPosByID(it1->first);
 				if (pos != NOT_INIT)
 					((CLocation&)it1->second) = m_stations[pos];
 				else

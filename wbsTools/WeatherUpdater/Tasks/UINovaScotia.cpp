@@ -220,7 +220,7 @@ namespace WBSF
 		ERMsg msg;
 
 		//Get station information
-		size_t it = m_stations.FindByID(ID);
+		size_t it = m_stations.FindPosByID(ID);
 		ASSERT(it != NOT_INIT);
 
 		((CLocation&)station) = m_stations[it];

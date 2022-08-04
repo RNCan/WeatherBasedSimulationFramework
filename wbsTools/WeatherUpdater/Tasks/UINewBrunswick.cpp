@@ -1441,7 +1441,7 @@ namespace WBSF
 		ASSERT(tmp.size() == 2);
 		size_t n = ToSizeT(tmp[0]);
 		string ID = tmp[1];
-		size_t it = m_stations.FindByID(ID);
+		size_t it = m_stations.FindPosByID(ID);
 		if (it == NOT_INIT)
 		{
 			msg.ajoute(FormatMsg(IDS_NO_STATION_INFORMATION, ID));

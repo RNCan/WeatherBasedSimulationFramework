@@ -638,7 +638,7 @@ namespace WBSF
 							data[m][SPEH_MN] = MISSING;
 							data[m][RELH_MN] = MISSING;
 							data[m][RELH_SD] = MISSING;
-							//dew point is lost in convertion. Not mather because they never hused
+							//dew point is lost in conversion. Not mater because they never used
 						}
 					}
 				}
