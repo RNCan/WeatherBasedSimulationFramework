@@ -672,55 +672,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		/*map<string, CTRef> lastUpdate;
-		ifStream ifile;
-		ifile.open("D:/Travaux/WeatherUpdater/EnvCan/Hourly/SWOB-Partners/LastUpdate.csv");
-		for (CSVIterator loop(ifile, ",", true); loop != CSVIterator(); ++loop)
-		{
-			if (loop->size() == 2)
-			{
-				string ID = (*loop)[0];
-				CTRef TRef;
-				TRef.FromFormatedString((*loop)[1], "%Y-%m-%d-%H");
-				lastUpdate[ID] = TRef;
-			}
-		}
-
-		ifile.close();
-
-
-
-		string infoFilePath = GetSWOBStationsListFilePath(N_SWOB_PARTNERS);
-		CLocationVector locations;
-		locations.Load(infoFilePath);
-
-		StringVector list = WBSF::GetFilesList("D:/Travaux/WeatherUpdater/EnvCan/Hourly/SWOB-Partners/2022/*.csv", 2, true);
-		for (size_t i = 0; i < list.size(); i++)
-		{
-			string IATA_ID = GetFileTitle(list[i]);
-			CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
-			if (it_location == locations.end())
-				it_location = locations.FindByID(IATA_ID, false);
-
-			ASSERT(it_location != locations.end());
-			if (it_location != locations.end())
-			{
-				string new_name = list[i];
-				SetFileTitle(new_name, it_location->m_ID);
-				RenameFile(list[i], new_name);
-
-				if (lastUpdate.find(IATA_ID) != lastUpdate.end())
-					lastUpdate[it_location->m_ID] = lastUpdate[IATA_ID];
-			}
-
-		}
-
-		UpdateLastUpdate(N_SWOB_PARTNERS, lastUpdate);
-
-		return msg;*/
-
-
-
 		std::bitset<NB_NETWORKS> network = GetNetWork();
 
 		for (size_t n = 0; n < network.size(); n++)
@@ -1520,7 +1471,6 @@ namespace WBSF
 		callback.AddMessage("");
 
 		string infoFilePath = GetSWOBStationsListFilePath(network);
-		//if (!FileExists(infoFilePath))
 		msg = UpdateSWOBLocations(network, callback);
 
 		CLocationVector locations;
@@ -1812,8 +1762,6 @@ namespace WBSF
 				if (msg)
 				{
 					StringVector partners_network(Get(PARTNERS_NETWORK), "|;,");
-					//StringVector all_partners_network(GetAllPartnersNetworkString(), "|;,");
-
 					for (auto it = dir_network.begin(); it != dir_network.end(); it++)
 					{
 						string p_network = GetLastDirName(it->m_filePath);
@@ -1880,8 +1828,7 @@ namespace WBSF
 						size_t last_update_days = maxDays;
 						if (maxDays == 0)
 						{
-							last_update_days = 31;
-
+							last_update_days = 100;//all days
 
 							auto findIt = lastUpdate.find(p_network);
 							if (findIt != lastUpdate.end())
@@ -1929,6 +1876,9 @@ namespace WBSF
 											if (maxDays == 0)
 											{
 												auto findIt = lastUpdate.find(ID);
+												if (findIt == lastUpdate.end())//to update with old code
+													auto findIt = lastUpdate.find(IATA_ID);
+
 												if (findIt != lastUpdate.end())
 													last_update_TRef = findIt->second.as(CTM::DAILY);
 											}
@@ -2155,13 +2105,7 @@ namespace WBSF
 
 		for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
 		{
-			//string IATA_ID;
-
-			//string p_network = network == N_SWOB ? string("EnvCan") : GetParnerNetwork(it2->m_filePath);
-			//if (p_network != "yt-water" && p_network != "nl-water")
-			//{
-			string  IATA_ID = it1->first;//GetLastDirName(GetPath(it1->second.front().m_filePath));
-			//}
+			string  IATA_ID = it1->first;
 
 
 			auto it_location = locations.FindBySSI("IATA", IATA_ID);
