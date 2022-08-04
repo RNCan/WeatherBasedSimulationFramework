@@ -1169,6 +1169,15 @@ namespace WBSF
 				if (FileExists(filePath))
 					msg = ReadSWOBData(filePath, TM, station, callback);
 
+				//read also files with IATA name
+				if (network == N_SWOB)
+				{
+					string filePath = GetOutputFilePath(network, station.GetSSI("Province"), year, m, station.GetSSI("IATA"));
+					if (FileExists(filePath))
+						msg = ReadSWOBData(filePath, TM, station, callback);
+				}
+				
+
 				msg += callback.StepIt(0);
 			}
 		}
