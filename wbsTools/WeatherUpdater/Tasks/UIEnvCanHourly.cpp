@@ -1045,55 +1045,6 @@ namespace WBSF
 		return msg;
 	}
 
-	/*std::bitset<CUIEnvCanHourly::NB_NETWORKS> CUIEnvCanHourly::GetStationInformation(const string& ID, CLocation& station)const
-	{
-		std::bitset<CUIEnvCanHourly::NB_NETWORKS> network = GetNetWork();
-
-		if (network[N_HISTORICAL])
-		{
-			size_t i = m_stations.FindPosByID(ID);
-			if (i < m_stations.size())
-				station = m_stations[i];
-			else
-				network.reset(N_HISTORICAL);
-		}
-
-		if (network[N_SWOB])
-		{
-			size_t pos = m_SWOBstations.FindPosByID(ID);
-			if (pos != NOT_INIT)
-			{
-				network.set();
-				if (station.IsInit())
-					station.SetSSI("IATA", m_SWOBstations[pos].GetSSI("IATA"));
-				else
-					station = m_SWOBstations[pos];
-			}
-			else
-			{
-				network.reset(N_SWOB);
-			}
-		}
-
-		if (network[N_SWOB_PARTNERS])
-		{
-			size_t pos = m_SWOB_partners_stations.FindPosByID(ID);
-			if (pos != NOT_INIT)
-			{
-				network.set();
-				if (station.IsInit())
-					station.SetSSI("IATA", m_SWOB_partners_stations[pos].GetSSI("IATA"));
-				else
-					station = m_SWOB_partners_stations[pos];
-			}
-			else
-			{
-				network.reset(N_SWOB_PARTNERS);
-			}
-		}
-
-		return network;
-	}*/
 
 	CLocation CUIEnvCanHourly::GetStationInformation(string network, const string& ID)const
 	{
@@ -2047,7 +1998,7 @@ namespace WBSF
 			msg = oFile.open(station_partner_network_filepath);
 			if (msg)
 			{
-				oFile << "IATA,Network" << endl;
+				oFile << "KeyID,Network" << endl;
 				for (auto it = station_partners_network.begin(); it != station_partners_network.end(); it++)
 				{
 					oFile << it->first << "," << it->second << endl;
