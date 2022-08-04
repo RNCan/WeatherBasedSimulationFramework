@@ -313,8 +313,9 @@ namespace WBSF
 
 		static const short SEL_ROW_PER_PAGE = 100;
 
-		CProvinceSelection selection;
-		selection.FromString(Get(PROVINCE));
+		//CProvinceSelection selection;
+		//selection.FromString(Get(PROVINCE));
+		CProvinceSelection selection(Get(PROVINCE));
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		callback.PushTask(GetString(IDS_LOAD_STATION_LIST), selection.any() ? selection.count() : CProvinceSelection::NB_PROVINCES);
@@ -1435,8 +1436,8 @@ namespace WBSF
 	"min_air_temp_pst24hrs", "max_air_temp_pst24hrs", "pcpn_amt_pst24hrs"
 	};
 
-	
-		
+
+
 
 	const char* CUIEnvCanHourly::DEFAULT_UNIT[NB_SWOB_VARIABLES] =
 	{
@@ -1659,8 +1660,6 @@ namespace WBSF
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
 
-				//auto it_p_network = station_partners_network.find(location.GetSSI("IATA"));
-				//if (it_p_network == station_partners_network.end())
 				auto it_p_network = station_partners_network.find(location.m_ID);
 
 				if (it_p_network != station_partners_network.end())
@@ -1743,12 +1742,13 @@ namespace WBSF
 		if (msg)
 		{
 
-			vector<string> URLs;
+			vector<string> networks_URL;
 			string URL = string("https://") + SERVER_NAME[network] + "/observations/swob-ml/";
 
+			//select networks
 			if (network == N_SWOB)
 			{
-				URLs.push_back(URL);
+				networks_URL.push_back(URL);
 			}
 			else if (network == N_SWOB_PARTNERS)
 			{
@@ -1769,10 +1769,8 @@ namespace WBSF
 
 						if (partners_network.empty() || n != UNKNOWN_POS)
 						{
-							URLs.push_back(it->m_filePath);
+							networks_URL.push_back(it->m_filePath);
 						}
-
-
 
 						//warning if new network
 						auto it_network = find_if(begin(PARTNERS_NETWORK_NAME), end(PARTNERS_NETWORK_NAME), [p_network](const char* name) {return IsEqual(p_network, name); });
@@ -1784,23 +1782,70 @@ namespace WBSF
 				}
 			}
 
-
+			//for each networks, select dates to update
 			CFileInfoVector dir1;
 			if (msg)
 			{
-				for (size_t i = 0; i < URLs.size() && msg; i++)
+				for (size_t i = 0; i < networks_URL.size() && msg; i++)
 				{
-
-					CFileInfoVector dir_tmp;
-					msg = FindDirectoriesCurl(URLs[i], dir_tmp, callback);// date
+					CFileInfoVector dates_URL;
+					msg = FindDirectoriesCurl(networks_URL[i], dates_URL, callback);// date
 					if (msg)
 					{
-						dir1.insert(dir1.end(), dir_tmp.begin(), dir_tmp.end());
-					}
+						//	dir1.insert(dir1.end(), dir_tmp.begin(), dir_tmp.end());
+						for (CFileInfoVector::const_iterator it1 = dates_URL.begin(); it1 != dates_URL.end() && msg; it1++)
+						{
+							string YYYYMMDD = GetLastDirName(it1->m_filePath);
+							bool bOnlyDigit = std::all_of(YYYYMMDD.begin(), YYYYMMDD.end(), [](unsigned char c) { return std::isdigit(c); });
+							if (YYYYMMDD.size() == 8 && bOnlyDigit)
+							{
+								string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->m_filePath);
 
-				}
+								int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
+								size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
+								size_t d = WBSF::as<size_t>(YYYYMMDD.substr(6, 2)) - 1;
+								CTRef TRef(year, m, d);
 
-			}
+								size_t last_update_days = maxDays;
+								if (maxDays == 0)
+								{
+									last_update_days = 100;//all days
+									if (p_network.empty())
+									{
+										size_t last_update_days_prov = 0;
+										//select the oldest update for a selected province
+										for (size_t p = 0; p < NB_PROVINCES; p++)
+										{
+											if (selection[p])
+											{
+												auto findIt = lastUpdate.find("SWOB-" + CProvinceSelection::GetName(p));
+												if (findIt != lastUpdate.end())
+													last_update_days_prov = max(last_update_days_prov, size_t(max(0, now - findIt->second.as(CTM::DAILY) + 1)));
+												else
+													last_update_days_prov = 100;
+											}
+										}
+
+										if (last_update_days_prov != 0)
+											last_update_days=last_update_days_prov;
+									}
+									else
+									{
+										auto findIt = lastUpdate.find(p_network);
+										if (findIt != lastUpdate.end())
+											last_update_days = max(0, now - findIt->second.as(CTM::DAILY) + 1);
+									}
+								}
+
+								if (max(0, now - TRef) <= last_update_days)
+								{
+									dir1.push_back(*it1);
+								}
+							}//valid date
+						}//for all dates
+					}//if msg
+				}//for all networks
+			}//if message
 
 
 			if (msg)
@@ -1811,112 +1856,93 @@ namespace WBSF
 
 				for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 				{
+					string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->m_filePath);
 					string YYYYMMDD = GetLastDirName(it1->m_filePath);
+					int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
+					size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
+					size_t d = WBSF::as<size_t>(YYYYMMDD.substr(6, 2)) - 1;
+					CTRef TRef(year, m, d);
 
-					if (YYYYMMDD.size() == 8 &&
-						std::all_of(YYYYMMDD.begin(), YYYYMMDD.end(), [](unsigned char c) { return std::isdigit(c); }))
+
+
+					if (p_network != "yt-water" && p_network != "nl-water")
 					{
-						string p_network = network == N_SWOB ? string("EnvCan") : GetParnerNetwork(it1->m_filePath);
 
-						int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
-						size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
-						size_t d = WBSF::as<size_t>(YYYYMMDD.substr(6, 2)) - 1;
+						CFileInfoVector dirTmp;
+						msg = FindDirectoriesCurl(it1->m_filePath, dirTmp, callback);//stations
 
-
-						CTRef TRef(year, m, d);
-
-						size_t last_update_days = maxDays;
-						if (maxDays == 0)
+						for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
 						{
-							last_update_days = 100;//all days
+							string IATA_ID = GetLastDirName(it2->m_filePath);
 
-							auto findIt = lastUpdate.find(p_network);
-							if (findIt != lastUpdate.end())
-								last_update_days = max(0, now - findIt->second.as(CTM::DAILY) + 1);
-						}
+							CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
+							if (it_location == locations.end())
+								it_location = locations.FindByID(IATA_ID, false);
 
-						if (max(0, now - TRef) <= last_update_days)
-						{
-							if (p_network != "yt-water" && p_network != "nl-water")
+
+							if (it_location != locations.end())
 							{
+								string prov = it_location->GetSSI("Province");
+								string ID = it_location->m_ID;
 
-								CFileInfoVector dirTmp;
-								msg = FindDirectoriesCurl(it1->m_filePath, dirTmp, callback);//stations
-
-								for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
+								if (network == N_SWOB_PARTNERS)
 								{
-									string IATA_ID = GetLastDirName(it2->m_filePath);
+									string p_network = GetParnerNetwork(it2->m_filePath);
+									station_partners_network[ID] = p_network;
 
-									CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
-									if (it_location == locations.end())
-										it_location = locations.FindByID(IATA_ID, false);
+									//update network
+									it_location->SetSSI("Network", p_network);
+								}
 
+								if (prov.empty() || selection.at(prov))
+								{
 
-									if (it_location != locations.end())
+									CTRef last_update_TRef;
+									if (maxDays == 0)
 									{
-										string prov = it_location->GetSSI("Province");
-										string ID = it_location->m_ID;
+										auto findIt = lastUpdate.find(ID);
+										if (findIt == lastUpdate.end())//to update with old code
+											auto findIt = lastUpdate.find(IATA_ID);
 
-										if (network == N_SWOB_PARTNERS)
-										{
-											string p_network = GetParnerNetwork(it2->m_filePath);
-											station_partners_network[ID] = p_network;
-
-											//update network
-											it_location->SetSSI("Network", p_network);
-										}
-
-
-
-
-										if (prov.empty() || selection.at(prov))
-										{
-
-											CTRef last_update_TRef;
-											if (maxDays == 0)
-											{
-												auto findIt = lastUpdate.find(ID);
-												if (findIt == lastUpdate.end())//to update with old code
-													auto findIt = lastUpdate.find(IATA_ID);
-
-												if (findIt != lastUpdate.end())
-													last_update_TRef = findIt->second.as(CTM::DAILY);
-											}
-
-											if (!last_update_TRef.IsInit() || TRef >= last_update_TRef)
-											{
-												dir2.push_back(*it2);
-
-												dates.insert(YYYYMMDD);
-												stationsID.insert(IATA_ID);
-
-											}
-										}
+										if (findIt != lastUpdate.end())
+											last_update_TRef = findIt->second.as(CTM::DAILY);
 									}
-									else
+
+
+									if (!last_update_TRef.IsInit() || TRef >= last_update_TRef)
 									{
-										missingID.insert(IATA_ID);
+										dir2.push_back(*it2);
+
+										dates.insert(YYYYMMDD);
+										stationsID.insert(IATA_ID);
+
 									}
 								}
 							}
 							else
 							{
-								dir2.push_back(*it1);
-								dates.insert(YYYYMMDD);
-
-								//all station in the same directory
-								CFileInfoVector files;
-								msg = FindFilesCurl(it1->m_filePath + "*-AUTO-swob.xml", files);//stations
-								for (CFileInfoVector::const_iterator it2 = files.begin(); it2 != files.end(); it2++)
-								{
-									StringVector tmp(GetFileTitle(it2->m_filePath), "-");
-									ASSERT(tmp.size() == 11 || tmp.size() == 13);
-									string IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
-									stationsID.insert(IATA_ID);
-								}
+								missingID.insert(IATA_ID);
 							}
-						}//if smaller than nb max days
-					}//if date
+						}
+					}
+					else
+					{
+						dir2.push_back(*it1);
+						dates.insert(YYYYMMDD);
+
+						//all station in the same directory
+						CFileInfoVector files;
+						msg = FindFilesCurl(it1->m_filePath + "*-AUTO-swob.xml", files);//stations
+						for (CFileInfoVector::const_iterator it2 = files.begin(); it2 != files.end(); it2++)
+						{
+							StringVector tmp(GetFileTitle(it2->m_filePath), "-");
+							ASSERT(tmp.size() == 11 || tmp.size() == 13);
+							string IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
+							stationsID.insert(IATA_ID);
+						}
+					}
+
+
 
 					msg += callback.StepIt();
 				}//if msg
@@ -1934,7 +1960,7 @@ namespace WBSF
 			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
 			{
 
-				string p_network = network == N_SWOB ? string("EnvCan") : GetParnerNetwork(it2->m_filePath);
+				string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it2->m_filePath);
 
 
 				CFileInfoVector fileListTmp;
@@ -1953,7 +1979,7 @@ namespace WBSF
 					{
 						IATA_ID = GetLastDirName(it2->m_filePath);
 					}
-					else //if (p_network == "yt-water" || p_network == "nl-water")
+					else
 					{
 						StringVector tmp(GetFileTitle(it->m_filePath), "-");
 						ASSERT(tmp.size() == 11 || tmp.size() == 13);
@@ -2189,14 +2215,42 @@ namespace WBSF
 		if (msg)
 		{
 			CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY);
-
-			//update last network  download
-			for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
+			if (network == N_SWOB)
 			{
-				string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
-				string p_network = network == N_SWOB ? string("EnvCan") : GetParnerNetwork(it1->second.front().m_filePath);
-				lastUpdate[p_network] = now;
+				CProvinceSelection selection(Get(PROVINCE));
+
+				//select the oldest update for a selected province
+				for (size_t p = 0; p < NB_PROVINCES; p++)
+				{
+					if (selection[p])
+					{
+						string p_network = "SWOB-" + CProvinceSelection::GetName(p);
+						lastUpdate[p_network] = now;
+					}
+				}
+
 			}
+			else
+			{
+				string partners_network = Get(PARTNERS_NETWORK);
+				if (partners_network.empty())
+					partners_network = GetAllPartnersNetworkString();
+
+				StringVector p_networks(partners_network, "|;,");
+				for (size_t n = 0; n < p_networks.size(); n++)
+				{
+					lastUpdate[p_networks[n]] = now;
+				}
+			}
+			//update last network  download
+			//for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
+			//{
+			//	string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
+			//	string prov = ;
+			//	string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->second.front().m_filePath);
+
+			//	lastUpdate[p_network] = now;
+			//}
 		}
 
 
@@ -2314,7 +2368,7 @@ namespace WBSF
 				static set<string> variables;
 				zen::XmlDoc doc = zen::parse(source);
 
-				
+
 				zen::XmlIn in(doc.root());
 				for (zen::XmlIn child = in["om:member"]["om:Observation"]["om:result"]["elements"]["element"]; child && msg; child.next())
 				{
@@ -2339,10 +2393,10 @@ namespace WBSF
 						for (size_t i = 0; i < NB_SWOB_VARIABLES && type == NOT_INIT; i++)
 							if (name == SWOB_VARIABLE_NAME[i])
 								type = i;
-						
-//if default name is missing, use other near equivalent variable
-						
-						
+
+						//if default name is missing, use other near equivalent variable
+
+
 						if (type != NOT_INIT)
 						{
 							data[0] = ToString(TRef.GetYear());
@@ -2364,7 +2418,7 @@ namespace WBSF
 									float val = WBSF::as<float>(value);
 									val *= 1000.0f / 3600.0f;//convert KJ/m² --> W/m²
 									data[type * 2 + 4] = ToString(val);
-									
+
 								}
 								else
 								{
@@ -2391,7 +2445,7 @@ namespace WBSF
 								type_equivalent = SWOB_SNW_DPTH;
 							else if (name == "snw_dpth_wtr_equiv_1" || name == "snw_dpth_wtr_equiv_2")
 								type_equivalent = SWOB_SNW_DPTH_WTR_EQUI;
-							
+
 							if (type_equivalent != NOT_INIT)
 							{
 								data_equivalent[0] = ToString(TRef.GetYear());
@@ -2424,10 +2478,10 @@ namespace WBSF
 							data[3] = data_equivalent[3];
 
 						}
-						
+
 					}
 				}
-							
+
 			}
 			catch (const zen::XmlParsingError& e)
 			{
@@ -2504,7 +2558,7 @@ namespace WBSF
 										if (v == H_SRAD && strQA == "0" && bDaylight)//Remove radiation when QA == 0 during daylight
 											QAValue = -1;
 
-										
+
 										if (QAValue > 0)
 										{
 											float value = WBSF::as<float>(strValue);
@@ -2610,7 +2664,7 @@ namespace WBSF
 						//ASSERT(loop->size() == (NB_SWOB_VARIABLES * 2 + 4)|| loop->size() == (NB_SWOB_VARIABLES * 2 + 4-1));
 
 						size_t NEW_SWE_COL = 4 * 2 + 4;
-						
+
 						for (size_t i = 0; i < loop->size() && i < (NB_SWOB_VARIABLES * 2 + 4); i++)
 						{
 							//variable replace 2022-08-04 to avoid changing the number of columns
@@ -2618,7 +2672,7 @@ namespace WBSF
 							if (i != NEW_SWE_COL || loop.Header()[NEW_SWE_COL] == SWOB_VARIABLE_NAME[4])//Replace wind unused var by SWE
 								data[d][h][i] = (*loop)[i];
 						}
-							
+
 					}
 				}
 			}
