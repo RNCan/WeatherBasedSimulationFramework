@@ -1975,6 +1975,9 @@ namespace WBSF
 						string ID = it_location->m_ID;
 
 						auto findIt = lastUpdate.find(ID);
+						if (findIt == lastUpdate.end())//to update with old code
+							auto findIt = lastUpdate.find(IATA_ID);
+
 						if (findIt != lastUpdate.end())
 							last_update_TRef = findIt->second;
 					}
