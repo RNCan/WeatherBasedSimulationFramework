@@ -1212,16 +1212,35 @@ namespace WBSF
 			//remove all precipitation greater than HOURLY_PRCP_MAX
 			float max_prcp = as<float>(HOURLY_PRCP_MAX);
 			CTPeriod p = station.GetEntireTPeriod();
+			CTPeriod invalid_p;
+			CStatistic invalid_prcp;
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CHourlyData& hData = station.GetHour(TRef);
 				if (hData[H_PRCP] >= max_prcp)
 				{
-					callback.AddMessage("Invalid precipitation: "+ToString(hData[H_PRCP],1)+ ", "+station.m_ID + ", " + station.m_name + "," + TRef.GetFormatedString());
+					//callback.AddMessage("Invalid precipitation: "+ToString(hData[H_PRCP],1)+ ", "+station.m_ID + ", " + station.m_name + "," + TRef.GetFormatedString());
+					invalid_prcp += hData[H_PRCP];
 					hData[H_PRCP] = -999;
+					if(!invalid_p.IsInit())
+						invalid_p.Begin() = TRef;
+					invalid_p.End() = TRef;
+				}
+				else
+				{
+					if (invalid_p.IsInit())
+					{
+						callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + ", " + station.m_ID + ", " + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2"));
+						invalid_p.clear();
+					}
 				}
 			}
 
+			if (invalid_p.IsInit())
+			{
+				callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + ", " + station.m_ID + ", " + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2"));
+				invalid_p.clear();
+			}
 
 			CWAllVariables vars;
 			vars.reset(H_ADD1);
