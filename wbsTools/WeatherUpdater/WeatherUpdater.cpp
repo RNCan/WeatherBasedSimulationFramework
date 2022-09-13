@@ -1,3 +1,6 @@
+//6.0.9	13/09/2022	Rémi Saint-Amant	Improvement in ERA5 and CMIP6
+//										Using daily gribs
+//										Add maximum valid precipitation for ENvCanH
 //6.0.8	03/08/2022	Rémi Saint-Amant	Add SWOB partners
 //										Bug correction in HRDPA
 //6.0.7	15/07/2022	Rémi Saint-Amant	Compile with GDAL 3.5.1
