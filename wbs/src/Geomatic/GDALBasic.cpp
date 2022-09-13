@@ -289,8 +289,6 @@ namespace WBSF
 				XNodes bandsDef;
 				if (m_bVRT)
 				{
-
-					//ERMsg msgTmp = load(filePath, xmlDataset);
 					ifStream file;
 
 					if (file.open(filePath))

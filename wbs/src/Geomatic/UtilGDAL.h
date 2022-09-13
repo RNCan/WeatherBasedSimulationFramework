@@ -297,7 +297,6 @@ namespace WBSF
 		bool m_bNeedUsage;
 		bool m_bNeedIOFileInfo;
 		bool m_bVersion;
-		//	bool m_bVRTDirect;
 		bool m_bExtents;
 		bool m_bRes;
 		bool m_bTap;

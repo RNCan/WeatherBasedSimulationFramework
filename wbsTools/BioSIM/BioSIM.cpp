@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // version de BioSIM
+// 11.8.11:30/08/2022	Rémi Saint-Amant	Add use of daily gribs.
 // 11.8.10:15/07/2022	Rémi Saint-Amant	Compile with GDAL 3.0.5.1
 // 11.8.9:12/07/2022	Rémi Saint-Amant	Compile with GDAL 3.0.5.0
 // 11.8.8:26/05/2022	Rémi Saint-Amant	replace FTPTransfer by WinSCP

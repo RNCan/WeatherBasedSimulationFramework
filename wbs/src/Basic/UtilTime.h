@@ -62,7 +62,7 @@ namespace WBSF
 
 	inline static size_t GetNbDayPerMonth(int year, size_t month)
 	{
-		_ASSERTE(year >= YEAR_NOT_INIT && year <= 2101);
+		_ASSERTE(year >= YEAR_NOT_INIT && year <= 2301);
 		_ASSERTE(month >= 0 && month < 12);
 
 		size_t nbDay = _DAYS_IN_MONTH[month];

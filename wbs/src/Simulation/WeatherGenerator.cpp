@@ -70,7 +70,7 @@ namespace WBSF
 
 
 
-	int old_Sol9(float inlatit, float inelev, float inslope, float inazimuth, float *expin)
+	int old_Sol9(float inlatit, float inelev, float inslope, float inazimuth, float* expin)
 	{
 		static const float midpnt[12] = { 15.5,  45.0,  74.5, 105.0, 135.5, 166.0,
 			196.5, 227.5, 258.0, 288.5, 319.0, 349.5 };
@@ -143,15 +143,15 @@ namespace WBSF
 			st2 = (float)(2 * temp1);
 			ct2 = (float)cos(st2);
 			st2 = (float)sin(st2);
-			declin = 0.006918f - 0.399912f*ct1 + 0.070257f*st1 -
-				0.006758f*ct2 + 0.000907f*st2 -
-				(float)(0.002697*cos(3 * temp1) + 0.001480f*sin(3 * temp1));
+			declin = 0.006918f - 0.399912f * ct1 + 0.070257f * st1 -
+				0.006758f * ct2 + 0.000907f * st2 -
+				(float)(0.002697 * cos(3 * temp1) + 0.001480f * sin(3 * temp1));
 
 			// earth axis declination, varies by time of year, can be approximated
 			//using the above formula, based on julian day 
 
-			eq_time = (float)(0.000075 + 0.001868*ct1 - 0.032077*st1 -
-				0.014615*ct2 - 0.040849*st2);
+			eq_time = (float)(0.000075 + 0.001868 * ct1 - 0.032077 * st1 -
+				0.014615 * ct2 - 0.040849 * st2);
 			// eq_time is in radians, used for calculating solar altitude, azimuth
 
 			// compute sin(declin) and cos(declin)
@@ -162,7 +162,7 @@ namespace WBSF
 			beam_en = 0.0;
 
 			for (time = time_start; time <= time_stop + time_step / 2.; time += time_step) {
-				lap_time = (float)(time*0.261799388);
+				lap_time = (float)(time * 0.261799388);
 				// time by pi/12 = time in radians (2pi rads/24 hours)
 
 				if (lap_time > 3.141592654)
@@ -171,8 +171,8 @@ namespace WBSF
 					lap_time = (float)(lap_time + 3.141592654);
 
 				lap_time = lap_time + long_cor + eq_time;
-				sol_alt = (float)(asin(sin_declin *sin_latit +
-					cos_declin * cos_latit *cos(lap_time)));
+				sol_alt = (float)(asin(sin_declin * sin_latit +
+					cos_declin * cos_latit * cos(lap_time)));
 				if (sol_alt > 0) {
 					sol_zen = (float)(1.570795 - sol_alt);
 					sin_sol_zen = (float)sin(sol_zen);
@@ -180,28 +180,28 @@ namespace WBSF
 					interim = (float)((sin_declin *
 						cos_latit -
 						cos_declin * sin_latit
-						*cos(lap_time))
+						* cos(lap_time))
 						/ cos(sol_alt));
 					if (interim > 1.) interim = 1.;
 					if (interim < -1.) interim = -1.;
 					sol_azim = (float)(6.28318 - acos(interim));
 					opt_path = (float)(1 / (sin(sol_alt) +
-						0.15*pow((sol_alt*RAD2DEG
+						0.15 * pow((sol_alt * RAD2DEG
 							+ 3.885), -1.253)));
 					//  optical path length, longer for lower horizon angles 
 
 					if (vis_fact == 0)            // clear sky, 23 km viz 
-						trans = 0.4237 - 0.00821*
+						trans = 0.4237 - 0.00821 *
 						pow((6.0 - elev / 1000.), 2) +
-						(0.5055 + 0.00595*
-							pow((6.5 - elev / 1000.), 2))*
-						exp(-(0.2711 + 0.01858*
+						(0.5055 + 0.00595 *
+							pow((6.5 - elev / 1000.), 2)) *
+						exp(-(0.2711 + 0.01858 *
 							pow((2.5 - elev / 1000.), 2))
 							/ cos_sol_zen);
 
 					beam = flux_exo_atm * exp(-trans * opt_path);
 
-					dif_irrad = beam * 0.136*pow(cos(slope), 2);
+					dif_irrad = beam * 0.136 * pow(cos(slope), 2);
 					//				there are a number of ways to calculate diffuse/direct ratios,
 					//				basically different empirical models under different sky
 					//				conditions.  Note, this is only clear sky, and is a value
@@ -211,8 +211,8 @@ namespace WBSF
 					//				for which I have citations, one of which looks at tropical vs
 					//				temperate vs. boreal diffuse radiation 
 
-					cosi = (cos_sol_zen*cos(slope) +
-						sin_sol_zen * sin(slope)*
+					cosi = (cos_sol_zen * cos(slope) +
+						sin_sol_zen * sin(slope) *
 						cos(sol_azim - azimuth));
 
 					//				i is the incidence angle between surface normal and incoming
@@ -247,9 +247,9 @@ namespace WBSF
 		float maxt_elev = 4.0f, range95 = 28.1f;
 		int month, ni, i;
 
-		cos2lat = (float)cos(TWO_PI*latit / 360.f);
+		cos2lat = (float)cos(TWO_PI * latit / 360.f);
 		cos2lat = cos2lat * cos2lat;
-		sin2lat = (float)sin(TWO_PI*latit / 360.f);
+		sin2lat = (float)sin(TWO_PI * latit / 360.f);
 		sin2lat = sin2lat * sin2lat;
 
 		for (month = 0; month < 12; ++month)
@@ -258,7 +258,7 @@ namespace WBSF
 		ni = 0;
 		for (i = 0; i < 8; ++i) {
 			//compute the slope corresponding to each aspect 
-			slope = psi / (cos2lat*phi[i] + sin2lat * cos_asp[i]);
+			slope = psi / (cos2lat * phi[i] + sin2lat * cos_asp[i]);
 
 			if (slope <= 47. && slope >= 0.) {
 				ni = ni + 1;
@@ -293,7 +293,7 @@ namespace WBSF
 
 		int nPhi = ((fOrientation < 135) || (fOrientation >= 255)) ? 1 : -1;
 
-		return fPente * (fCosLat2*nPhi + fSinLat2 * cos((fOrientation - 15) / DEG_PER_RAD));
+		return fPente * (fCosLat2 * nPhi + fSinLat2 * cos((fOrientation - 15) / DEG_PER_RAD));
 
 	}
 
@@ -418,7 +418,7 @@ namespace WBSF
 			m_gradients.m_lastYear = m_tgi.m_lastYear;
 			m_gradients.SetObservedDatabase(GetObservedDatabase());
 		}
-		
+
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
 
@@ -435,7 +435,7 @@ namespace WBSF
 		//shore is only used to select nearest gradient stations
 		m_gradients.m_bUseShore = false;//m_tgi.m_bUseShore;
 		m_gradients.m_bUseNearestShore = false;
-		m_gradients.m_bUseNearestElev= true;
+		m_gradients.m_bUseNearestElev = true;
 		m_gradients.m_target = m_target;
 
 		msg = m_gradients.CreateGradient(callback);
@@ -457,7 +457,7 @@ namespace WBSF
 				ASSERT(variables1 == variables2);
 				bRep = variables1 == variables2;
 
-				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&bRep; v++)
+				for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && bRep; v++)
 				{
 					if (variables1[v])
 					{
@@ -636,7 +636,7 @@ namespace WBSF
 						msg = ComputePressure(m_simulationPoints[0]);
 
 					//fill wind direction because not integrated yet into the kernel generator
-					if (msg && bWD && !bWDcomplet  && !m_tgi.m_bNoFillMissing)
+					if (msg && bWD && !bWDcomplet && !m_tgi.m_bNoFillMissing)
 						msg = ComputeWindDirection(m_simulationPoints[0]);
 
 					//3- if they are missing mandatory variables, complete with normals 
@@ -736,7 +736,7 @@ namespace WBSF
 										if (!IsMissing(((*itD)[h][H_TMIN])))
 											(*itD)[h].SetStat(H_TMIN, (*itD)[h][H_TMIN] + float(exposureIndex[m] * ((*itD)[h][H_TMIN] - Tmin)));
 
-										if(!IsMissing(((*itD)[h][H_TAIR])))
+										if (!IsMissing(((*itD)[h][H_TAIR])))
 											(*itD)[h].SetStat(H_TAIR, (*itD)[h][H_TAIR] + float(exposureIndex[m] * ((*itD)[h][H_TAIR] - Tmin)));
 
 										if (!IsMissing(((*itD)[h][H_TMAX])))
@@ -1063,7 +1063,7 @@ namespace WBSF
 	//	return msg;
 	//}
 
-	ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint&  simulationPoint, CWVariables variables)
+	ERMsg CWeatherGenerator::ComputeSnow(CSimulationPoint& simulationPoint, CWVariables variables)
 	{
 		ERMsg msg;
 
@@ -1182,7 +1182,7 @@ namespace WBSF
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
 			CDataInterface& data = simulationPoint[TRef];
-			
+
 			if (!data[H_PRES].IsInit())
 			{
 				data.SetStat(H_PRES, pa / 100);		//pressure [hPa]
@@ -1234,10 +1234,10 @@ namespace WBSF
 		ASSERT(((CLocation&)simulationPoint) == m_target);
 
 		ERMsg msg;
-		
+
 		if (m_tgi.m_searchRadius[H_TAIR] == 0)
 		{
-			msg.ajoute("Search radius of temperature can't be zero for hourly simulation. Defautl is no maximum (-999)");
+			msg.ajoute("Search radius of temperature can't be zero for hourly simulation. Default is no maximum (-999)");
 			return msg;
 		}
 
@@ -1252,7 +1252,7 @@ namespace WBSF
 			//first step: get direct observations variables
 			for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)
 			{
-				if (((bTair&&v == H_TAIR) || m_tgi.m_variables[v]) && (v != H_TMIN && v != H_TMAX))
+				if (((bTair && v == H_TAIR) || m_tgi.m_variables[v]) && (v != H_TMIN && v != H_TMAX))
 				{
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
@@ -1269,8 +1269,6 @@ namespace WBSF
 					{
 
 						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
-						//if (!results.empty() && m_tgi.XVal())
-							//results.erase(results.begin());
 						if (msgG && !msg)//if we find grib data, we remove error on hourly database
 							msg = ERMsg();
 
@@ -1285,13 +1283,13 @@ namespace WBSF
 							msg = ERMsg();
 					}
 
-					if (msg && results.size() > 0)
+					if (msg && (!results.empty() || !resultsG.empty()))
 					{
 						CWeatherStationVector stations;
 						CWeatherStationVector stationsG;
 						msg = m_pHourlyDB->GetStations(stations, results, year);
 						// Get observation from gribs
-						if (m_tgi.UseGribs())
+						if (msg && m_tgi.UseGribs())
 							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
 
 						if (msg)
@@ -1301,9 +1299,7 @@ namespace WBSF
 							//stationsG.FillGaps();//no internal completion for grib product
 
 							stationsG.ApplyCorrections(m_gradients);
-							//for(size_t i=0; i< stationsG.size(); i++)
 							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
-
 							stationsG.clear();
 
 							stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
@@ -1313,7 +1309,7 @@ namespace WBSF
 					msg += callback.StepIt(0);
 				}
 			}//for all category
-			
+
 			//second step: get extra observation variables to compute derivable variables
 			if (msg)
 			{
@@ -1346,14 +1342,13 @@ namespace WBSF
 						{
 
 							ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
-							//if (!results.empty() && m_tgi.XVal())
-								//results.erase(results.begin());
 							if (msgG && !msg)//if we find grib data, we remove error on hourly database
 								msg = ERMsg();
 
 							CWeatherStationVector stationsG;
 							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
 						}
+
 
 						if (!msg)
 						{
@@ -1373,12 +1368,13 @@ namespace WBSF
 								msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), GetFileName(m_pHourlyDB->GetFilePath()), vars));
 						}
 
-						if (msg && results.size() > 0)
+						//if (msg && results.size() > 0)
+						if (msg && (!results.empty() || !resultsG.empty()))
 						{
 							CWeatherStationVector stations;
 							CWeatherStationVector stationsG;
 							msg = m_pHourlyDB->GetStations(stations, results, year);
-							if (m_tgi.UseGribs())
+							if (msg && m_tgi.UseGribs())
 								msg = m_pGribDB->GetStations(stationsG, resultsG, year);
 
 							if (msg)
@@ -1387,18 +1383,14 @@ namespace WBSF
 								stations.ApplyCorrections(m_gradients);//apply gradient to weather data
 
 								stationsG.ApplyCorrections(m_gradients);
-								for (size_t i = 0; i < stationsG.size(); i++)
-									stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
-
+								//for (size_t i = 0; i < stationsG.size(); i++)
+								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
 								stationsG.clear();
 
 								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}
 						}
-						/*else if (v == H_TRNG)
-						{
-						msg = ERMsg();
-						}*/
+
 
 						msg += callback.StepIt(0);
 					}//is it a needed variables to derivate variables
@@ -1440,7 +1432,7 @@ namespace WBSF
 		ERMsg msg;
 
 		int currentYear = CTRef::GetCurrentTRef().GetYear();
-		
+
 		//CWVariables mVariables = m_tgi.GetMandatoryVariables();
 
 		for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
@@ -1453,6 +1445,7 @@ namespace WBSF
 				if (m_tgi.m_variables[v] && v != H_TAIR)
 				{
 					CSearchResultVector results;
+					CSearchResultVector resultsG;
 
 					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 
@@ -1463,8 +1456,18 @@ namespace WBSF
 					if (!msg && year > currentYear)
 						msg = ERMsg();
 
-					//if (!msg && v == H_TAIR)//Tair = (Tmin + Tmax)/2 in daily data
-					//msg = ERMsg();
+					if (m_tgi.UseGribs())
+					{
+
+						ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
+
+						if (msgG && !msg)//if we find grib data, we remove error on hourly database
+							msg = ERMsg();
+
+						CWeatherStationVector stationsG;
+						msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+					}
+
 
 					if (!msg)
 					{
@@ -1473,16 +1476,29 @@ namespace WBSF
 							msg = ERMsg();
 					}
 
-					if (msg && results.size() > 0)
+//					if (msg && results.size() > 0)
+					if (msg && (!results.empty() || !resultsG.empty()))
 					{
-						CDailyStationVector stationsVector;
-						msg = m_pDailyDB->GetStations(stationsVector, results, year);
+						CDailyStationVector stations;
+						CDailyStationVector stationsG;
+
+						msg = m_pDailyDB->GetStations(stations, results, year);
+
+						// Get observation from gribs
+						if (msg && m_tgi.UseGribs())
+							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+
 
 						if (msg)
 						{
-							stationsVector.FillGaps();//internal completion
-							stationsVector.ApplyCorrections(m_gradients);
-							stationsVector.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
+							stations.FillGaps();//internal completion
+							stations.ApplyCorrections(m_gradients);
+
+							stationsG.ApplyCorrections(m_gradients);
+							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
+							stationsG.clear();
+
+							stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 						}
 					}
 
@@ -1510,6 +1526,8 @@ namespace WBSF
 					if (neededVariables[v] && v != H_TAIR)
 					{
 						CSearchResultVector results;
+						CSearchResultVector resultsG;
+
 						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
@@ -1518,6 +1536,16 @@ namespace WBSF
 						if (!msg && year > currentYear)
 							msg = ERMsg();
 
+						if (m_tgi.UseGribs())
+						{
+
+							ERMsg msgG = m_pGribDB->Search(resultsG, m_target, m_tgi.m_nbGribPoints, -999, v, year, true, true, m_tgi.m_bUseShore);
+							if (msgG && !msg)//if we find grib data, we remove error on hourly database
+								msg = ERMsg();
+
+							CWeatherStationVector stationsG;
+							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+						}
 
 						if (!msg && m_tgi.m_allowedDerivedVariables[v])
 						{
@@ -1546,14 +1574,27 @@ namespace WBSF
 
 						}
 
-						if (msg && results.size() > 0)
+						if (msg && (!results.empty()|| !resultsG.empty()))
 						{
 							CWeatherStationVector stations;
+							CDailyStationVector stationsG;
+
 							msg = m_pDailyDB->GetStations(stations, results, year);
+
+							if (msg && m_tgi.UseGribs())
+								msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+
+
 							if (msg)
 							{
 								stations.FillGaps();//internal completion
 								stations.ApplyCorrections(m_gradients);
+
+								stationsG.ApplyCorrections(m_gradients);
+								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
+								stationsG.clear();
+
+
 								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}
 						}
@@ -1614,7 +1655,7 @@ namespace WBSF
 		assert(simulationPointVector.size() == m_nbReplications);
 
 		//generate daily/hourly data 
-		for (size_t r = 0; r < m_nbReplications&&msg; r++)
+		for (size_t r = 0; r < m_nbReplications && msg; r++)
 		{
 			if (simulationPointVector[r].empty())
 			{
@@ -1814,13 +1855,13 @@ namespace WBSF
 		//remove forecast only for the next 60 days
 		//do not let forecast taffect simulation with CC database 
 		CTRef today = CTRef::GetCurrentTRef(simulationPoint.GetTM());
-		CTRef end = today + (60*(simulationPoint.IsHourly()?24:1));// simulationPoint.GetEntireTPeriod().End();
+		CTRef end = today + (60 * (simulationPoint.IsHourly() ? 24 : 1));// simulationPoint.GetEntireTPeriod().End();
 
 		if (today < end)
 		{
 			for (CTRef Tref = today + 1; Tref <= end; Tref++)
 			{
-				if( simulationPoint.IsYearInit(Tref.GetYear()) )
+				if (simulationPoint.IsYearInit(Tref.GetYear()))
 					simulationPoint[Tref].Reset();
 			}
 		}
@@ -1831,7 +1872,7 @@ namespace WBSF
 	//exposition 
 
 
-	
+
 
 
 
@@ -1867,7 +1908,7 @@ namespace WBSF
 	}
 
 
-	int CWeatherGenerator::Sol9(double inlatit, double inelev, double inslope, double inazimuth, double *expin)
+	int CWeatherGenerator::Sol9(double inlatit, double inelev, double inslope, double inazimuth, double* expin)
 	{
 
 		//  Provided by Paul Bolstad. Modified (efficiency and
@@ -1938,15 +1979,15 @@ namespace WBSF
 			st2 = (2 * temp1);
 			ct2 = cos(st2);
 			st2 = sin(st2);
-			declin = 0.006918 - 0.399912*ct1 + 0.070257*st1 -
-				0.006758*ct2 + 0.000907*st2 -
-				(0.002697*cos(3 * temp1) + 0.001480*sin(3 * temp1));
+			declin = 0.006918 - 0.399912 * ct1 + 0.070257 * st1 -
+				0.006758 * ct2 + 0.000907 * st2 -
+				(0.002697 * cos(3 * temp1) + 0.001480 * sin(3 * temp1));
 
 			// earth axis declination, varies by time of year, can be approximated
 			//using the above formula, based on julian day 
 
-			eq_time = (0.000075 + 0.001868*ct1 - 0.032077*st1 -
-				0.014615*ct2 - 0.040849*st2);
+			eq_time = (0.000075 + 0.001868 * ct1 - 0.032077 * st1 -
+				0.014615 * ct2 - 0.040849 * st2);
 			// eq_time is in radians, used for calculating solar altitude, azimuth
 
 			// compute sin(declin) and cos(declin)
@@ -1958,7 +1999,7 @@ namespace WBSF
 
 			for (time = time_start; time <= time_stop + time_step / 2.; time += time_step)
 			{
-				lap_time = (time*0.261799388);
+				lap_time = (time * 0.261799388);
 				// time by pi/12 = time in radians (2pi rads/24 hours)
 
 				if (lap_time > 3.141592654)
@@ -1967,8 +2008,8 @@ namespace WBSF
 					lap_time = (lap_time + 3.141592654);
 
 				lap_time = lap_time + long_cor + eq_time;
-				sol_alt = (asin(sin_declin *sin_latit +
-					cos_declin * cos_latit *cos(lap_time)));
+				sol_alt = (asin(sin_declin * sin_latit +
+					cos_declin * cos_latit * cos(lap_time)));
 
 				if (sol_alt > 0)
 				{
@@ -1978,28 +2019,28 @@ namespace WBSF
 					interim = ((sin_declin *
 						cos_latit -
 						cos_declin * sin_latit
-						*cos(lap_time))
+						* cos(lap_time))
 						/ cos(sol_alt));
 					if (interim > 1.) interim = 1.;
 					if (interim < -1.) interim = -1.;
 					sol_azim = (6.28318 - acos(interim));
 					opt_path = (1 / (sin(sol_alt) +
-						0.15*pow((sol_alt*RAD2DEG
+						0.15 * pow((sol_alt * RAD2DEG
 							+ 3.885), -1.253)));
 					//  optical path length, longer for lower horizon angles 
 
 					if (vis_fact == 0)            // clear sky, 23 km viz 
-						trans = 0.4237 - 0.00821*
+						trans = 0.4237 - 0.00821 *
 						pow((6.0 - elev / 1000.), 2) +
-						(0.5055 + 0.00595*
-							pow((6.5 - elev / 1000.), 2))*
-						exp(-(0.2711 + 0.01858*
+						(0.5055 + 0.00595 *
+							pow((6.5 - elev / 1000.), 2)) *
+						exp(-(0.2711 + 0.01858 *
 							pow((2.5 - elev / 1000.), 2))
 							/ cos_sol_zen);
 
 					beam = flux_exo_atm * exp(-trans * opt_path);
 
-					dif_irrad = beam * 0.136*pow(cos(slope), 2);
+					dif_irrad = beam * 0.136 * pow(cos(slope), 2);
 					//				there are a number of ways to calculate diffuse/direct ratios,
 					//				basically different empirical models under different sky
 					//				conditions.  Note, this is only clear sky, and is a value
@@ -2009,8 +2050,8 @@ namespace WBSF
 					//				for which I have citations, one of which looks at tropical vs
 					//				temperate vs. boreal diffuse radiation 
 
-					cosi = (cos_sol_zen*cos(slope) +
-						sin_sol_zen * sin(slope)*
+					cosi = (cos_sol_zen * cos(slope) +
+						sin_sol_zen * sin(slope) *
 						cos(sol_azim - azimuth));
 
 					//				i is the incidence angle between surface normal and incoming

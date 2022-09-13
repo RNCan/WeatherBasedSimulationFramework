@@ -34,7 +34,7 @@ using namespace WBSF::WEATHER;
 namespace WBSF
 {
 
-	
+
 
 	const char* CMonthlyMeanGrid::FILE_NAME[NB_FIELDS] = { "Tmin.tif", "Tmax.tif", "TminTmax.tif", "Tmin_SD.tif", "Tmax_SD.tif", "A1.tif", "A2.tif", "B1.tif", "B2.tif", "Prcp.tif", "Prcp_SD.tif", "SpeH.tif", "RelH.tif", "RelH_SD.tif", "WndS.tif", "WndS_SD.tif" };
 
@@ -90,13 +90,13 @@ namespace WBSF
 	}
 
 	ERMsg CMonthlyMeanGrid::Load(const std::string& filePath)
-	{ 
+	{
 		ERMsg msg;
 		msg = zen::LoadXML(filePath, "MontlyMeanGrids", "1", *this);
 		if (msg)
-			m_filePath = filePath; 
+			m_filePath = filePath;
 
-		return msg; 
+		return msg;
 	}
 
 	ERMsg CMonthlyMeanGrid::Save(const std::string& filePath)
@@ -112,14 +112,14 @@ namespace WBSF
 	ERMsg CMonthlyMeanGrid::Open(const std::string& filePath, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		CPLSetConfigOption("GDAL_CACHEMAX", "2048");
 
 		msg = Load(filePath);
-		if (msg) 
+		if (msg)
 		{
 			callback.PushTask("Open MMG", m_supportedVariables.count());
-			for (size_t v = 0; v < NB_FIELDS&&msg; v++)
+			for (size_t v = 0; v < NB_FIELDS && msg; v++)
 			{
 				std::string filePath = GetFilePath(v);
 				if (!filePath.empty())
@@ -159,7 +159,7 @@ namespace WBSF
 	}
 
 
-	float CMonthlyMeanGrid::GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d)
+	float CMonthlyMeanGrid::GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d)const
 	{
 		ASSERT(m_firstYear != -1);
 		ASSERT(pts.size() == d.size());
@@ -168,13 +168,14 @@ namespace WBSF
 		if (!m_grid[v].IsOpen())
 			return MISSING;
 
+		CMonthlyMeanGrid& me = const_cast<CMonthlyMeanGrid&>(*this);
 
 		size_t band = (year - m_firstYear) * 12 + m;
-		return (float)m_grid[v].GetWindowMean(band, (int)nbNeighbor, power, pts, d);
+		return (float)me.m_grid[v].GetWindowMean(band, (int)nbNeighbor, power, pts, d);
 	}
 
 
-	bool CMonthlyMeanGrid::GetMonthlyMean(int firstYear, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS], CCallback& callback)
+	bool CMonthlyMeanGrid::GetMonthlyMean(int firstYear, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NB_FIELDS], CCallback& callback)const
 	{
 		ASSERT(firstYear >= m_firstYear && firstYear <= m_lastYear);
 
@@ -182,13 +183,13 @@ namespace WBSF
 		bool bRep = true;
 		CStatistic MMStat[12][NB_FIELDS];
 
-		
-		for (size_t y = 0; y < nbYears&&msg; y++)
+
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
-			for (size_t m = 0; m < 12&&msg; m++)
+			for (size_t m = 0; m < 12 && msg; m++)
 			{
-				for (size_t v = 0; v < NB_FIELDS&&msg; v++)
+				for (size_t v = 0; v < NB_FIELDS && msg; v++)
 				{
 					size_t vv = v;
 					//there are never mmg for PRCP_SD, we use the value of PRCP_TT
@@ -227,67 +228,89 @@ namespace WBSF
 		return bRep;
 	}
 
+	bool CMonthlyMeanGrid::GetMonthlyValues(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, std::vector< std::array<std::array<float,NB_FIELDS>,12>>& values, CCallback& callback)const
+	{
+		ASSERT(firstYear >= m_firstYear && firstYear <= m_lastYear);
 
-	//int N2D(int f)
-	//{
-	//	int v=-1;
-	//	switch(f)
-	//	{
-	//	case TMIN_MN: v=DAILY_DATA::TMIN; break;
-	//	case TMAX_MN: v=DAILY_DATA::TMAX; break;
-	//	case PRCP_TT: v=DAILY_DATA::PRCP; break;
-	//	case TDEW_MN: v=DAILY_DATA::TDEW; break;
-	//	case RELH_MN: v=DAILY_DATA::RELH; break;
-	//	case WNDS_MN: v=DAILY_DATA::WNDS; break;
-	//	default : v=-1;
-	//	}
-	//	return v;
-	//}
+		ERMsg msg;
 
-	//
-	//int N2H(int f)
-	//{
-	//	int v = -1;
-	//	switch (f)
-	//	{
-	//	case TMIN_MN: v = H_TAIR; break;
-	//	case TMAX_MN: v = H_TAIR; break;
-	//	case PRCP_TT: v = H_PRCP; break;
-	//	case TDEW_MN: v = H_TDEW; break;
-	//	case RELH_MN: v = H_RELH; break;
-	//	case WNDS_MN: v = H_WNDS; break;
-	//	default: v = -1;
-	//	}
-	//	return v;
-	//}
-	//
-	//
-	//short H2N(short v)
-	//{
-	//	ASSERT(v >= 0 && v<NB_VAR_H);
-	//
-	//	short n = -1;
-	//	switch (v)
-	//	{
-	//	case H_TAIR: n = TMIN_MN; break;
-	//	case H_PRCP: n = PRCP_TT; break;
-	//	case H_TDEW: n = SPEH_MN; break;
-	//	case H_RELH: n = RELH_MN; break;
-	//	case H_WNDS: n = WNDS_MN; break;
-	//	default: break;
-	//	}
-	//
-	//	return n;
-	//}
 
+		CGeoPointIndexVector pts;
+		std::vector<double> d;
+		if (!GetNearestPoints(nbNeighbor, maxDistance, power, ptIn, pts, d))
+			return false;
+
+		values.resize(nbYears);
+		for (size_t y = 0; y < nbYears && msg; y++)
+		{
+			int year = firstYear + int(y);
+			for (size_t m = 0; m < 12 && msg; m++)
+			{
+				for (size_t f = 0; f < NB_FIELDS && msg; f++)
+				{
+					values[y][m][f] = GetMonthlyMean(f, year, m, nbNeighbor, power, pts, d);
+					msg += callback.StepIt(0);
+				}
+			}
+		}
+		
+		return msg;
+	}
+
+	bool CMonthlyMeanGrid::GetNearestPoints(size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, CGeoPointIndexVector& pts, std::vector<double>& d)const
+	{
+		ASSERT(m_grid[TMIN_MN].IsOpen());
+
+		CGeoPoint pt(ptIn);
+		if (pt.GetPrjID() != m_grid[TMIN_MN].GetPrjID())
+		{
+			pt.Reproject(CProjectionTransformationManager::Get(pt.GetPrjID(), m_grid[TMIN_MN].GetPrjID()));
+		}
+
+		CGeoPointIndex index = m_grid[TMIN_MN].GetExtents().CoordToXYPos(pt);
+
+		if (index.m_x < 0 || index.m_x >= m_grid[TMIN_MN]->GetRasterXSize() || index.m_y < 0 || index.m_y >= m_grid[TMIN_MN]->GetRasterYSize())
+			return false;
+
+
+		
+		CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
+
+		int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
+		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
+
+		
+		for (size_t i = 0; i < pts.size(); i++)
+		{
+			CGeoPoint pti = extents.XYPosToCoord(pts[i]);
+			double di = max(0.000001, pt.GetDistance(pti));
+			if (di < maxDistance)
+				d.push_back(di);
+		}
+
+		pts.erase(pts.begin() + d.size(), pts.end());
+
+		if (pts.empty())
+			return false;
+
+		return true;
+	}
+
+	bool CMonthlyMeanGrid::GetNormals(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, double monthlyMean[12][NB_FIELDS], CCallback& callback)
+	{
+		ASSERT(m_grid[TMIN_MN].IsOpen());
+
+		CGeoPointIndexVector pts;
+		std::vector<double> d;
+		if (!GetNearestPoints(nbNeighbor, maxDistance, power, ptIn, pts, d))
+			return false;
+	
+		return GetMonthlyMean(firstYear, nbYears, nbNeighbor, power, pts, d, monthlyMean, callback);
+	}
 
 	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& stationIn, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
-
-		//ca ne fonctionne pas correctement pour la precipitation et wind speed?
-		const CMonthlyMeanGrid& me = *this;
-
 
 		CGeoPoint pt(stationIn);
 		if (pt.GetPrjID() != m_grid[TMIN_MN].GetPrjID())
@@ -307,7 +330,7 @@ namespace WBSF
 		CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
 
 		int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
-		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts); 
+		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
 
 		std::vector<double> d;
 		for (size_t i = 0; i < pts.size(); i++)
@@ -326,7 +349,7 @@ namespace WBSF
 
 		double refMonthlyMean[12][NB_FIELDS] = { 0 };
 		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
-		
+
 		if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
 			return false;
 
@@ -348,18 +371,18 @@ namespace WBSF
 				//never take into account the leap year. Too much problem to convert unleap an leap year
 				for (size_t d = 0; d < WBSF::GetNbDayPerMonth(m); d++)
 				{
-					for (TVarH v = H_FIRST_VAR; v<NB_VAR_H; ((int&)v)++)
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; ((int&)v)++)
 					{
 						size_t f = V2F(v);
 
-						if (f!=-1 && stationIn[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
+						if (f != -1 && stationIn[y][m][d][v].IsInit() && !IsMissing(ccMonthlyMean[m][f]) && !IsMissing(refMonthlyMean[m][f]))
 						{
 							if (v == HOURLY_DATA::H_TMIN)
 							{
 								//const CStatistic& statIn = stationIn[y][m][d][TMIN];
 								CStatistic statOut = stationIn[y][m][d][H_TMIN][MEAN] + (ccMonthlyMean[m][TMIN_MN] - refMonthlyMean[m][TMIN_MN]);
 								stationII[y][m][d][HOURLY_DATA::H_TMIN] = statOut[MEAN];
-								
+
 							}
 							else if (v == HOURLY_DATA::H_TMAX)
 							{
@@ -398,10 +421,10 @@ namespace WBSF
 
 										stationII[y][m][d][H_RELH] = Hr;
 
-										
+
 										//we compute the best Tdew as we can. A vérifier... 
 										double Pv = Hr2Pv(TminII, TmaxII, Hr);
-										double Td = WBSF::Pv2Td(Pv/1000);
+										double Td = WBSF::Pv2Td(Pv / 1000);
 										stationII[y][m][d][H_TDEW] = Td;
 									}
 								}
@@ -412,7 +435,7 @@ namespace WBSF
 
 								//convert Hr to Hs with station temperature
 								double Hr = stationIn[y][m][d][H_RELH][MEAN];
-								Hr = max(0.0, min(100.0, (Hr*ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
+								Hr = max(0.0, min(100.0, (Hr * ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
 								stationII[y][m][d][H_RELH] = Hr;
 
 								//we compute the best Tdew as we can. A vérifier... 
@@ -453,7 +476,7 @@ namespace WBSF
 
 		ASSERT(stationII.IsValid());
 		stationIn = stationII;
-		
+
 
 		return true;
 	}
@@ -538,7 +561,7 @@ namespace WBSF
 
 		return true;
 	}
-	 
+
 	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
 		ASSERT(m_grid[TMIN_MN].IsOpen());
@@ -863,11 +886,11 @@ namespace WBSF
 		{
 			if (m_CCPeriodIndex[iii])
 				ii++;
-			
-			if (ii==i)
-				II=iii;
+
+			if (ii == i)
+				II = iii;
 		}
-			
+
 		ASSERT(II < m_CCPeriodIndex.size());
 		return II;
 	}
@@ -960,7 +983,7 @@ namespace WBSF
 								if (m_bApplyCC)
 								{
 									//now adjust standard deviation if they are present
-									
+
 									MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
 								}
 
@@ -979,16 +1002,16 @@ namespace WBSF
 						msg += callback.StepIt();
 					}//if msg
 				}//for all station
-				
+
 
 				if (m_bApplyCC)
-					outputDB.SetPeriod(GetFirstYear(p), GetLastYear(p)); 
+					outputDB.SetPeriod(GetFirstYear(p), GetLastYear(p));
 				else
 					outputDB.SetPeriod(m_firstYear, m_lastYear);
 
 				outputDB.Close();
 				callback.PopTask();
-				
+
 
 
 				if (msg)
@@ -1012,11 +1035,11 @@ namespace WBSF
 
 	void CNormalFromDaily::CleanUpYears(CWeatherStation& dailyStation, int firstYear, int lastYear)
 	{
-		
+
 		for (auto it = dailyStation.begin(); it != dailyStation.end();)
 		{
 			int year = it->first;
-		
+
 			if (year >= firstYear && year <= lastYear)//bug correction by RSA 2019-10-07
 			{
 				if (it->second->HaveData())

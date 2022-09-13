@@ -45,58 +45,6 @@ namespace WBSF
 	const int CPointsReduction::NB_THREAD_PROCESS = 2;
 
 
-	//template <class T>
-	//std::string TestToString(T val, int pres = -1)
-	//{
-	//	std::string str;
-	//	bool bReal = std::is_same<T, float>::value || std::is_same<T, double>::value;
-	//	if (bReal)
-	//	{
-	//		std::ostringstream st;
-	//		st.imbue(std::locale("C"));
-	//		if (pres < 0)
-	//		{
-	//			st << val;
-	//		}
-	//		else
-	//		{
-	//			st << std::fixed << std::setprecision(pres) << val;
-	//		}
-
-	//		str = st.str();
-	//		size_t pos = str.find('.');
-	//		if (pos != std::string::npos)//if it's a real;
-	//		{
-	//			int i = (int)str.length() - 1;
-	//			while (i >= 0 && str[i] == '0')
-	//				i--;
-
-	//			if (i >= 0 && str[i] == '.') i--;
-	//			str = str.substr(0, i + 1);
-	//			if (str.empty())
-	//				str = "0";
-	//		}
-	//	}
-	//	else
-	//	{
-	//		std::ostringstream st;
-	//		st.imbue(std::locale("C"));
-	//		if (pres < 0)
-	//		{
-	//			st << val;
-	//		}
-	//		else
-	//		{
-	//			st << std::setfill(' ') << std::setw(pres) << val;
-	//		}
-
-	//		str = st.str();
-	//	}
-
-
-
-	//	return str;
-	//}
 
 	CPointsReductionOption::CPointsReductionOption() :
 		CBaseOptions(false)
@@ -108,11 +56,15 @@ namespace WBSF
 		for (int i = 0; i < sizeof(DEFAULT_OPTIONS) / sizeof(char*); i++)
 			AddOption(DEFAULT_OPTIONS[i]);
 
-
+		m_maxN = NOT_INIT;
+		m_sort = 0;
 		m_distanceMin = 5000;
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-d", 1, "distance [km]", false, "Minimum distance between points. 5 km by default." },
+			{ "-s", 1, "sort by", false, "sort by 1=latitude, 2=longitude 3=elevation. Use negative sign(-) to revert sort" },
+			{ "-maxN", 1, "points", false, "maximum number of points. If the reexamining points is greater than maxN, extra elimination at random" },
+			
 			{ "-X", 1, "str", false, "File header title for X coordinates. \"X\" by default." },
 			{ "-Y", 1, "str", false, "File header title for Y coordinates. \"Y\" by default." },
 			//			{ "-prec", 1, "precision", false, "Output precision. 4 by default." },
@@ -143,9 +95,9 @@ namespace WBSF
 	{
 		ERMsg msg = CBaseOptions::ParseOption(argc, argv);
 
-		if (msg && m_filesPath.size() != 3)
+		if (msg && m_filesPath.size() != 2)
 		{
-			msg.ajoute("Invalid argument line. 3 files are needed: image file, the coordinates (CSV) and destination (CSV).\n");
+			msg.ajoute("Invalid argument line. 2 files are needed: input and output coordinates file (CSV).\n");
 			msg.ajoute("Argument found: ");
 			for (size_t i = 0; i < m_filesPath.size(); i++)
 				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
@@ -171,6 +123,16 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-d"))
 		{
 			m_distanceMin = ToDouble(argv[++i]) * 1000;
+		}
+		else if (IsEqual(argv[i], "-s"))
+		{
+			m_sort = ToInt(argv[++i]);
+			if (m_sort < -3 || m_sort>3)
+				msg.ajoute("Bad sort");
+		}
+		else if (IsEqual(argv[i], "-maxN"))
+		{
+			m_maxN = ToInt(argv[++i]);
 		}
 		else
 		{
@@ -204,93 +166,81 @@ namespace WBSF
 		//GDALAllRegister();
 
 		CLocationVector locations;
-		
+
 
 		msg = OpenAll(locations);
 
 		if (msg)
 		{
 			if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-				printf("Reduce %I64u points with %d threads using distance min of %0.1lf...", locations.size(), m_options.m_bMulti ? m_options.m_CPU : 1, m_options.m_distanceMin);
+				printf("Reduce %I64u points using distance min of %0.1lf km ...\n", locations.size(),  m_options.m_distanceMin/1000);
 
 
 			CGeoExtents extents = m_options.GetExtents();
-			m_options.m_xxFinal = int(extents.YNbBlocks()*extents.XNbBlocks()*locations.size());
+			m_options.m_xxFinal = int(extents.YNbBlocks() * extents.XNbBlocks() * locations.size());
 
 			//**************************************
 
 			omp_set_nested(1);//for IOCPU
-			boost::dynamic_bitset<size_t> treated(locations.size());
-
-			//callback.PushTask("Generate Well Distributed Station", c);
+			switch (m_options.m_sort)
+			{
+			case -3: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_lat > s2.m_lat; }); break;
+			case -2: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_lon > s2.m_lon; }); break;
+			case -1: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_elev > s2.m_elev; }); break;
+			case 0:break;
+			case 1: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_lat < s2.m_lat; }); break;
+			case 2: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_lon < s2.m_lon; }); break;
+			case 3: std::sort(locations.begin(), locations.end(), [](const CLocation& s1, const CLocation& s2) { return s1.m_elev < s2.m_elev; }); break;
+			}
+			
 
 			CApproximateNearestNeighbor ann;
 			ann.set(locations, false, false);
 
 
 			boost::dynamic_bitset<size_t> status(locations.size());
-			//status.resize(locations.size());
 			status.set();
 
-			//callback.PushTask("Eliminate points: " + ToString(locations.size()), locations.size());
-
-			//#pragma omp parallel for num_threads( m_optionss.m_CPU ) if (m_optionss.m_bMulti)
-			for (__int64 i = 0; i < (__int64)locations.size(); i++)
+			for (size_t i = 0; i < locations.size(); i++)
 			{
-
-
-				bool bStatus = true;
-#pragma omp critical(UpdateStatus)
-				{
-#pragma omp flush
-					bStatus = status[i];
-				}
-				
-
-				if (bStatus)
+				if (status[i])
 				{
 					CSearchResultVector result;
 					SearchD(ann, result, locations[i], m_options.m_distanceMin);
 
-					//#pragma critical ELIMINATION
-					//			if (status[i])
-					//		{
-					//#pragma critical ELIMINATION
-#pragma omp critical(UpdateStatus)
+					for (size_t ii = 0; ii < result.size(); ii++)
 					{
-						for (size_t ii = 0; ii < result.size(); ii++)
-						{
-
-							status.reset(ii);
-						}
-						//}
-
-#pragma omp flush
+						if (result[ii].m_index > i)
+							status.reset(result[ii].m_index);
 					}
-					//msg += callback.StepIt();
 				}
-			}
+			}//for all locations
 
-			//callback.PopTask();
 
-			//add noData to untreated line
-			//std::ostringstream st;
-			//st << std::fixed << std::setprecision(m_options.m_precision) << m_options.m_dstNodata;
-			/*string strNodata = TestToString(m_options.m_dstNodata, m_options.m_precision);
-			for (size_t i = 0; i < ioFile.size(); i++)
+
+			//save location
+			
+			CLocationVector locations_out(status.count());
+			for (size_t i = 0, ii = 0; i < locations.size(); i++)
+				if (status.test(i))
+					locations_out[ii++] = locations[i];
+
+			printf("Number of remaining points %I64u\n", locations_out.size());
+			if (m_options.m_maxN != NOT_INIT&& locations_out.size() > m_options.m_maxN)
 			{
-			if (!treated[i])
-			{
-			for (size_t z = 0; z < bandHolder[0].GetRasterCount(); z++)
-			ioFile[i] += ',' + strNodata;
-			}
-			}*/
+				while (locations_out.size() > m_options.m_maxN)
+					locations_out.erase(locations_out.begin() + size_t(WBSF::Rand(0, locations_out.size() - 1)));
 
+				printf("Number of remaining points after limiting to maxN %I64u\n", locations_out.size());
+			}
+			
+
+			
+			msg = locations_out.Save(m_options.m_filesPath[OUTPUT_FILE_PATH]);
+
+			
 			m_options.m_timerWrite.Start();
-			//msg = ioFileIn.Save(m_options.m_filesPath[OUTPUT_FILE_PATH]);
 			m_options.m_timerWrite.Stop();
-
-			//CloseAll();
 		}
 
 
@@ -352,7 +302,7 @@ namespace WBSF
 
 
 
-	
+
 	void CPointsReduction::SearchD(CApproximateNearestNeighbor& ann, CSearchResultVector& searchResultArray, const CLocation& location, double d)
 	{
 		searchResultArray.clear();
@@ -364,7 +314,7 @@ namespace WBSF
 
 		//if no stations is farther than the distance with try to fin more stations
 		for (size_t f = 2; !tmp.empty() && tmp.back().m_distance < d && tmp.size() < ann.size(); f *= 2)
-			ann.search(location, f*NB_MATCH_MAX, tmp);
+			ann.search(location, f * NB_MATCH_MAX, tmp);
 
 		searchResultArray.reserve(tmp.size());
 		for (size_t i = 0; i < tmp.size(); i++)
@@ -377,5 +327,5 @@ namespace WBSF
 		//m_nbStationStat += searchResultArray.size();
 	}
 
-	
-	}
+
+}

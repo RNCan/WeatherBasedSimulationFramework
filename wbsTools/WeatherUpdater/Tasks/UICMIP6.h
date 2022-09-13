@@ -26,7 +26,8 @@ namespace WBSF
 	typedef std::shared_ptr < netCDF::NcFile > NcFilePtr;
 	typedef std::array< std::vector<float>, NORMALS_DATA::NB_FIELDS> CMonthlyVariables;
 	typedef std::vector<CMonthlyVariables> CMonthlyVariableVector;
-	typedef boost::dynamic_bitset<size_t> CLandWaterBitset;
+	//typedef std::vector<float> CLandWater;
+	//typedef std::vector<float> COrog;
 	typedef std::map<std::string, std::vector<std::string>> CMIP6FileList;
 	
 	//typedef std::array<NcFilePtr, CUICMIP6::NB_VARIABLES> NcFilePtrArray;
@@ -41,14 +42,15 @@ namespace WBSF
 		enum TVariable { V_TMIN, V_TMAX, V_PRCP, V_SPEH, V_WNDS, NB_CMIP6_VARIABLES };
 
 		typedef std::vector<float> COneVariableLayer;
-		typedef std::array< std::array < COneVariableLayer, NB_CMIP6_VARIABLES>, 30> COneMonthData;
+		typedef std::vector< std::array < COneVariableLayer, NB_CMIP6_VARIABLES>> COneMonthData;
 
 		//enum TRCP { RCP26, RCP45, RCP60, RCP85, NB_RCP };
-		enum TAttributes { USER_NAME, PASSWORD, WORKING_DIR, MODEL, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, FREQUENCY, MODEL, SSP, MIN_LAND_WATER, NB_ATTRIBUTES };
 		static const char* VARIABLES_NAMES[NB_CMIP6_VARIABLES];
 		//static const char* RCP_NAME[NB_RCP];
-		static void ComputeMontlyStatistic(size_t i, const COneMonthData& data, CMonthlyVariables& montlhyStat);
+		static void ComputeMontlyStatistic(size_t i, size_t ii, const COneMonthData& data, CMonthlyVariables& montlhyStat);
 		static size_t GetVar(std::string name);
+		
 
 		static std::string GetProjectionWKT();
 		static const char* CLASS_NAME();
@@ -62,12 +64,13 @@ namespace WBSF
 		virtual TType ClassType()const;
 		virtual UINT GetTitleStringID()const { return ATTRIBUTE_TITLE_ID; }
 		virtual UINT GetDescriptionStringID()const { return DESCRIPTION_TITLE_ID; }
-		virtual bool IsDaily()const { return true; }
-		virtual bool IsMMG()const { return true; }
+		virtual bool IsDaily()const override { return true; }
+		virtual bool IsMMG()const override { return true; }
+		virtual bool IsGribs()const override { return true; }
 
-		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK);
-		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback);
-
+		virtual ERMsg Execute(CCallback& callback = DEFAULT_CALLBACK)override;
+		virtual ERMsg CreateMMG(std::string filePathOut, CCallback& callback)override;
+		virtual ERMsg GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)override;
 
 		virtual size_t GetNbAttributes()const { return NB_ATTRIBUTES; }
 		virtual size_t Type(size_t i)const { ASSERT(i < NB_ATTRIBUTES);  return ATTRIBUTE_TYPE[i]; }
@@ -79,23 +82,42 @@ namespace WBSF
 	protected:
 
 		//ERMsg ExportPoint(std::string filePath, int rcp, CGeoPoint pt, CCallback& callback);
-		CLandWaterBitset m_landWaterMask;
+		//CLandWaterMask m_landWaterMask;
 
 		//static CGeoExtents GetExtents();
 
 		//ERMsg GetDEM(CMatrix<float>& DEM);
-		ERMsg GetFileList(std::string model, std::string ssp, CMonthlyMeanGrid& MMG, CCallback& callback);
-		ERMsg GetMapOptions(std::string orog_file_path, CBaseOptions& options);
+		//ERMsg GetFileList(std::string model, std::string ssp, CMonthlyMeanGrid& MMG, CCallback& callback);
+		
 		void ConvertData(size_t v, std::vector<float>& data)const;
-		ERMsg GetMMGForSSP(std::string model, std::string ssp, CGeoExtents extents , CMonthlyVariableVector& dataOut, CCallback& callback);
-		ERMsg GetLandWaterProfile(std::string sftlf_file_path, CLandWaterBitset& landWaterMask);
-		ERMsg GetFileList(std::string model, std::string ssp, CMIP6FileList& fileList)const;
+		ERMsg GetMMGForSSP(std::string model, std::string ssp, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, CMonthlyVariableVector& dataOut, CCallback& callback);
+		//ERMsg GetMMGForSSP2(std::string model, std::string ssp, CGeoExtents extents, CLandWaterMask landWaterMask, float minLandWater, CMonthlyVariableVector& dataOut, CCallback& callback);
+		
+		ERMsg GetFileList(std::string model, std::string ssp, std::string ripf, std::string frequency, const CTPeriod& valid_period, CMIP6FileList& fileList)const;
+		ERMsg save_sftlf(std::string sftlf_filepath, std::string new_sftlf_filepath);
 
+		ERMsg CreateDailyGribs(CCallback& callback);
+		ERMsg CreateMonthlyGribs(std::string filepath_out, std::string ripf, CCallback& callback);
+		//ERMsg SaveInput(std::string sftlf_file_path, CLandWaterMask& landWaterMask);
+		ERMsg save_orog(std::string orog_file_path, std::string new_orog_filepath, const std::vector<float>& sftlf, float minLandWater);
+		
+		ERMsg get_orog(std::string orog_filepath, std::vector<float>& data, float new_no_data);
+		ERMsg load_geotif(std::string filepath, std::vector<float>& data);
+		ERMsg get_sftlf(std::string sftlf_filepath, std::vector<float>& data) { return load_geotif(sftlf_filepath, data); }
+
+		ERMsg load_orog_sftlf(std::vector<float>& orog, std::vector<float>& sftlf, float no_data_out, CCallback& callback);
+		CBaseOptions GetMapOption()const;
+		ERMsg GetMapOptions(std::string orog_file_path, CBaseOptions& options)const;
+
+		ERMsg GetMonthlyData(const CMIP6FileList& fileList, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, float no_data_out, COneMonthData& data, CCallback& callback);
+
+
+		static CTPeriod get_period(const std::string& period);
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-		static const char* MODELS_NAME;
+		
 
 	};
 

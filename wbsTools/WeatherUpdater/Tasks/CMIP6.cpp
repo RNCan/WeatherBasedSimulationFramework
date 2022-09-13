@@ -336,7 +336,7 @@ namespace WBSF
 				ConvertData(data);
 
 
-				//fill daily struct; put the data from North to South 
+				//fill daily struck; put the data from North to South 
 				for (size_t i = 0; i < data[0].size(); i++)
 				{
 

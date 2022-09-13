@@ -19,6 +19,7 @@ namespace WBSF
 {
 	class CWeatherStation;
 	class CNormalsStation;
+	
 
 	//file with extension MMG for climatic change anomalies
 	class CMonthlyMeanGrid
@@ -66,12 +67,15 @@ namespace WBSF
 		std::string GetVariablesUsed()const;
 		void SetVariablesUsed(std::string str);
 
+
+
+		bool GetMonthlyMean(int year, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback)const;
+		float GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d)const;
+		bool GetNormals(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback);
+		bool GetNearestPoints(size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, CGeoPointIndexVector& pts, std::vector<double>& d)const;
+		bool GetMonthlyValues(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, std::vector< std::array<std::array<float, NORMALS_DATA::NB_FIELDS>, 12>>& values, CCallback& callback)const;
+
 	protected:
-
-		bool GetMonthlyMean(int year, size_t nbYears, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d, double monthlyMean[12][NORMALS_DATA::NB_FIELDS], CCallback& callback);
-		float GetMonthlyMean(size_t v, int year, size_t m, size_t nbNeighbor, double power, const CGeoPointIndexVector& pts, const std::vector<double>& d);
-		
-
 
 		std::string m_filePath;
 		CGDALDatasetEx m_grid[NORMALS_DATA::NB_FIELDS];

@@ -189,7 +189,12 @@
 #include "UI/Common/ProgressStepDlg.h"
 #include "Geomatic/TimeZones.h"
 #include "Geomatic/UtilGDAL.h"
-//#include "l.fra\afxres.rc" 
+
+
+
+
+//#include "E:\Project\external\gdal\include\ogr_spatialref.h"
+
 
 
 #include <gdiplus.h>
@@ -309,11 +314,14 @@ BOOL CWeatherUpdaterApp::InitInstance()
 
 	CTRef::SetFormat(format);
 
+	//init GDAL
+	RegisterGDAL();
+	
+
 	VERIFY(CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann"));
 	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
 
-	//init GDAL
-	RegisterGDAL();
+	
 
 	//CUIWunderground wu;
 	//ERMsg msg = wu.Execute(CCallback::DEFAULT_CALLBACK);

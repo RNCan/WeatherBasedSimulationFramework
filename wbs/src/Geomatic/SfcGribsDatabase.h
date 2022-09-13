@@ -207,26 +207,9 @@ namespace WBSF
 
 	typedef std::shared_ptr<CSfcDatasetCached> CSfcDatasetCachedPtr;
 
-	class CSfcGribDatabase //: public CDHDatabaseBase
+	class CSfcGribDatabase 
 	{
 	public:
-
-		//static const int   VERSION;
-		//static const char* XML_FLAG;
-		//static const char* DATABASE_EXT;
-		//static const char* OPT_EXT;
-		//static const char* DATA_EXT;
-		//static const char* META_EXT;
-		//static const CTM   DATA_TM;
-		//virtual int GetVersion()const { return VERSION; }
-		//virtual const char* GetXMLFlag()const { return XML_FLAG; }
-		//virtual const char* GetDatabaseExtension()const { return DATABASE_EXT; }
-		//virtual const char* GetOptimizationExtension()const { return OPT_EXT; }
-		//virtual const char* GetDataExtension()const { return DATA_EXT; }
-		//virtual const char* GetHeaderExtension()const { return META_EXT; }
-		//virtual const CTM	GetDataTM()const { return DATA_TM; }
-		//virtual const char	GetDBType()const { return 'H'; }
-		
 		
 		static const char* META_DATA[NB_VAR_GRIBS][NB_META];
 
@@ -258,6 +241,8 @@ namespace WBSF
 		ERMsg Search(CSearchResultVector& searchResultArray, const CLocation& station, size_t nbStation, double searchRadius = -1, CWVariables filter = CWVariables(), int year = YEAR_NOT_INIT, bool bExcludeUnused = true, bool bUseElevation = true, bool bUseShoreDistance = true)const;
 		ERMsg GetStations(CWeatherStationVector& stationArray, const CSearchResultVector& results, int year)const;
 		ERMsg Close(bool bSave = true, CCallback& callback = DEFAULT_CALLBACK);
+
+		const CDHDatabaseBase* GetDB()const { return m_pDB.get(); }
 
 	protected:
 

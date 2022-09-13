@@ -41,8 +41,8 @@ namespace WBSF
 	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weather.gc.ca", "dd.weather.gc.ca"/*"dd.weatheroffice.gc.ca"*/ };
 	//*********************************************************************
 
-	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "PartnerNetwork", "MaxSwobDays" };
-	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING };
+	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "PartnerNetwork", "MaxSwobDays", "HourlyPrcpMax"};
+	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING, T_STRING };
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
 	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
 
@@ -232,6 +232,7 @@ namespace WBSF
 		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case MAX_SWOB_DAYS: str = "0"; break;
+		case HOURLY_PRCP_MAX: str = "100"; break;
 		};
 
 		return str;
@@ -1127,7 +1128,7 @@ namespace WBSF
 					if (FileExists(filePath))
 						msg = ReadSWOBData(filePath, TM, station, callback);
 				}
-				
+
 
 				msg += callback.StepIt(0);
 			}
@@ -1208,6 +1209,20 @@ namespace WBSF
 
 		if (msg)
 		{
+			//remove all precipitation greater than HOURLY_PRCP_MAX
+			float max_prcp = as<float>(HOURLY_PRCP_MAX);
+			CTPeriod p = station.GetEntireTPeriod();
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				CHourlyData& hData = station.GetHour(TRef);
+				if (hData[H_PRCP] >= max_prcp)
+				{
+					callback.AddMessage("Invalid precipitation: "+ToString(hData[H_PRCP],1)+ ", "+station.m_ID + ", " + station.m_name + "," + TRef.GetFormatedString());
+					hData[H_PRCP] = -999;
+				}
+			}
+
+
 			CWAllVariables vars;
 			vars.reset(H_ADD1);
 			vars.reset(H_ADD2);
@@ -1216,7 +1231,6 @@ namespace WBSF
 			//verify station is valid
 			if (station.HaveData())
 			{
-
 				msg = station.IsValid();
 			}
 		}
@@ -1229,6 +1243,7 @@ namespace WBSF
 			station.SetSSI("SubDivision", "SD");
 		}
 
+		
 		return msg;
 	}
 
@@ -1609,7 +1624,6 @@ namespace WBSF
 					MakeLower(IATA);
 					ReplaceString(IATA, " ", "_");
 					location.SetSSI("IATA", IATA);
-					//location.m_ID = "dfo_" + location.m_ID;
 				}
 
 
@@ -1787,7 +1801,7 @@ namespace WBSF
 										}
 
 										if (last_update_days_prov != 0)
-											last_update_days=last_update_days_prov;
+											last_update_days = last_update_days_prov;
 									}
 									else
 									{
@@ -2501,34 +2515,65 @@ namespace WBSF
 							if (v != H_SKIP)
 							{
 								string strValue = swob[d][h][vv * 2 + 4];
-								if (!strValue.empty() && strValue != "MSNG")
+								string strQA = swob[d][h][vv * 2 + 1 + 4];
+
+								if (vv == SWOB_PCPN_AMT_PST1HR )//many partner station seem to have pcpn at 0 but have rnfl non zero
 								{
-									string strQA = swob[d][h][vv * 2 + 1 + 4];
-									if (!strQA.empty())//is it valid or not?
+									string str_rnfl = swob[d][h][SWOB_RNFL_AMT_PST1HR * 2 + 4];
+									string str_str_rnfl_QA = swob[d][h][SWOB_RNFL_AMT_PST1HR * 2 + 1 + 4];
+
+									//use max of pcpn and rnfl
+									if (strValue.empty() || strValue == "MSNG" || strQA.empty())
 									{
-										int QAValue = WBSF::as<int>(strQA);
-										if (v == H_SRAD && bFredericton && WBSF::as<float>(strValue) > 1000)//Fredericton some data 10 *????
-											QAValue = -1;
-
-
-										if (v == H_SRAD && strQA == "4")//Remove radiation when QA == 4, srad always equal zero
-											QAValue = -1;
-
-										bool bDaylight = TRef.GetHour() >= floor(sun.GetSunrise(TRef)) && TRef.GetHour() <= ceil(sun.GetSunset(TRef));
-										if (v == H_SRAD && strQA == "0" && bDaylight)//Remove radiation when QA == 0 during daylight
-											QAValue = -1;
-
-
-										if (QAValue > 0)
+										if (!str_rnfl.empty() && str_rnfl != "MSNG" && str_str_rnfl_QA == "100")
 										{
-											float value = WBSF::as<float>(strValue);
-											if (v == H_SRAD && value < 0)
-												value = 0;
+											//float rnfl = WBSF::as<float>(str_rnfl);
+											//int rnfl_QA = WBSF::as<int>(str_str_rnfl_QA);
 
-											station[TRef].SetStat(v, value);
-										}//if valid value
+											//if (QAValue == 100 && rnfl_QA == 100 && value == 0 && rnfl > 0)
+											//{
+												//replace precipitation by rainfall
+												//value = rnfl;
+											//}
+											strValue = str_rnfl;
+											strQA = str_str_rnfl_QA;
+										}
 									}
-								}//if not missing
+									else if(strValue == "0.0" && strQA=="100" && str_str_rnfl_QA=="100")
+									{
+										//some network like bc-forest have precipitation at zero but have rainfall
+										strValue = str_rnfl;
+										strQA = str_str_rnfl_QA;
+									}
+								}
+
+								if (!strValue.empty() && strValue != "MSNG" && !strQA.empty())
+								{
+									float value = WBSF::as<float>(strValue);
+									int QAValue = WBSF::as<int>(strQA);
+									if (v == H_SRAD && bFredericton && WBSF::as<float>(strValue) > 1000)//Fredericton some data 10 *????
+										QAValue = -1;
+
+
+									if (v == H_SRAD && strQA == "4")//Remove radiation when QA == 4, srad always equal zero
+										QAValue = -1;
+
+									bool bDaylight = TRef.GetHour() >= floor(sun.GetSunrise(TRef)) && TRef.GetHour() <= ceil(sun.GetSunset(TRef));
+									if (v == H_SRAD && strQA == "0" && bDaylight)//Remove radiation when QA == 0 during daylight
+										QAValue = -1;
+
+
+
+									if (QAValue > 0)
+									{
+
+										if (v == H_SRAD && value < 0)
+											value = 0;
+
+										station[TRef].SetStat(v, value);
+									}//if valid value
+								}
+
 							}//if it's a valid var
 						}//for all variables
 

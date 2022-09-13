@@ -38,9 +38,7 @@ void RegisterGDAL()
 {
 	char test[255] = { 0 };
 	const char* pTest = CPLGetConfigOption("GDAL_DRIVER_PATH", test);
-	
 	const char* pTest2 = CPLGetConfigOption("GDAL_DATA", test);
-
 
 	string path = GetApplicationPath() + "External";
 	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
@@ -56,9 +54,6 @@ void RegisterGDAL()
 	CPLStringList paths(OSRGetPROJSearchPaths());
 	paths.AddString(path.c_str());
 	OSRSetPROJSearchPaths(paths);
-	//CPLStringList new_paths(OSRGetPROJSearchPaths());
-
-
 
 	GDALAllRegister();
 }

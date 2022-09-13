@@ -198,6 +198,12 @@ namespace WBSF
 			{
 				//open for verification
 				msg += grib.Open(outputFilePath, CDailyDatabase::modeRead, callback);
+				if (msg)
+				{
+					ASSERT(grib.GetDB() != nullptr);
+					callback.AddMessage("Number of station in database: " + to_string(grib.GetDB()->size()));
+				}
+				
 				grib.Close();
 			}
 		}
@@ -229,143 +235,7 @@ namespace WBSF
 		return variables;
 	}
 
-	/*ERMsg CCreateWeatherGridDB::ExtractStation(CTRef TRef, const std::string& file_path, CWeatherStationVector& stations, CCallback& callback)
-	{
-		ERMsg msg;
-
-		string str = Get(VARIABLES);
-		GribVariable variables = GetVariables(str);
-
-		CSfcDatasetCached sfcDS;
-		sfcDS.set_variables(variables);
-
-		msg = sfcDS.open(file_path, true);
-		if (msg)
-		{
-			CProjectionTransformation GEO_2_WEA(PRJ_WGS_84, sfcDS.GetPrjID());
-			for (size_t i = 0; i < stations.size() && msg; i++)
-			{
-				CGeoPoint pt = stations[i];
-				pt.Reproject(GEO_2_WEA);
-				if (sfcDS.GetExtents().IsInside(pt))
-				{
-					CHourlyData& data = stations[i].GetHour(TRef);
-					sfcDS.get_weather(pt, data);
-
-					msg += callback.StepIt();
-				}
-			}
-
-			sfcDS.close();
-		}
-
-		return msg;
-	}*/
-	//ERMsg CCreateWeatherGridDB::CreateDatabase(const std::string& outputFilePath, CTaskPtr& pTask, CTaskPtr& pForecastTask, CCallback& callback)const
-	//{
-	//	ERMsg msg;
-
-	//	CTimer timer(true);
-	//	CTimer timerRead;
-	//	CTimer timerWrite;
-
-	//	
-	//	callback.AddMessage(GetString(IDS_CREATE_DB));
-	//	callback.AddMessage(outputFilePath, 1);
-
-	//	//Get the data for each station
-	//	CDailyDatabase dailyDB;
-	//	msg = dailyDB.Open(outputFilePath, CDailyDatabase::modeWrite);
-	//	if (!msg)
-	//		return msg;
-
-	//	int nbStationAdded = 0;
-
-	//	StringVector stationList;
-	//	msg = pTask->GetStationList(stationList, callback);
-
-	//	if (msg)
-	//	{
-	//		callback.PushTask(GetString(IDS_CREATE_DB) + GetFileName(outputFilePath) + " (Extracting " + ToString(stationList.size()) + " stations)", stationList.size());
-
-
-	//		for (size_t i = 0; i < stationList.size() && msg; i++)
-	//		{
-	//			CWeatherStation station;
-
-	//			timerRead.Start();
-	//			ERMsg messageTmp = pTask->GetWeatherStation(stationList[i], CTM(CTM::DAILY), station, callback);
-	//			timerRead.Stop();
-
-	//			if (messageTmp)
-	//			{
-	//				CleanSparse(station);
-
-	//				if (station.HaveData())
-	//				{
-	//					string newName = dailyDB.GetUniqueName(station.m_name);
-	//					if (newName != station.m_name)
-	//					{
-	//						station.m_name = newName;
-	//						station.SetDataFileName("");
-	//					}
-
-	//					//Force write file name in the file
-	//					station.SetDataFileName(station.GetDataFileName());
-	//					station.UseIt(true);
-
-	//					//Get forecast
-	//					if (pForecastTask)
-	//						msg += pForecastTask->GetWeatherStation("", CTM(CTM::DAILY), station, callback);
-	//					
-
-	//					timerWrite.Start();
-	//					messageTmp = dailyDB.Add(station);
-	//					timerWrite.Stop();
-
-	//					if (messageTmp)
-	//						nbStationAdded++;
-	//				}
-	//			}
-	//			else
-	//			{
-	//				if (callback.GetUserCancel())
-	//					msg += messageTmp;
-	//			}
-
-	//			if (!messageTmp)
-	//				callback.AddMessage(messageTmp, 1);
-
-	//			msg += callback.StepIt();
-
-	//		}
-
-	//		msg += dailyDB.Close();
-	//		timer.Stop();
-	//		callback.PopTask();
-
-
-	//		if (msg)
-	//		{
-	//			msg = dailyDB.Open(outputFilePath, CDailyDatabase::modeRead, callback);
-	//			dailyDB.Close();
-	//		}
-
-	//		if (msg)
-	//		{
-	//			callback.AddMessage(GetString(IDS_STATION_ADDED) + ToString(nbStationAdded), 1);
-	//			callback.AddMessage(FormatMsg(IDS_BSC_TIME_READ, SecondToDHMS(timerRead.Elapsed())));
-	//			callback.AddMessage(FormatMsg(IDS_BSC_TIME_WRITE, SecondToDHMS(timerWrite.Elapsed())));
-	//			callback.AddMessage(FormatMsg(IDS_BSC_TOTAL_TIME, SecondToDHMS(timer.Elapsed())));
-	//		}
-
-
-	//	}
-
-	//	return msg;
-	//}
-
-
+	
 
 	static size_t GetDefaultStat(size_t v)
 	{

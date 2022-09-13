@@ -1165,6 +1165,8 @@ namespace WBSF
 
 	}
 
+
+
 	void CSfcDatasetCached::get_weather(const CGeoPoint& pt, CWeatherDay& data)const
 	{
 		static const double POWER = 1;
@@ -1649,7 +1651,7 @@ namespace WBSF
 		size_t HD_factor = m_bIsHourly ? 24 : 1;
 		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
 		
-		callback.AddMessage("Period: " + ReplaceString(m_period.GetFormatedString(),"|",","));
+		callback.AddMessage("Period: " + m_period.GetFormatedString("%1 to %2")+" ("+ to_string(m_period.size()) + (m_bIsHourly ? " hours)":" days)"));
 		callback.AddMessage("Nb inputs: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / HD_factor)) + " days)");
 		callback.AddMessage("Nb elements to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / HD_factor)) + " days)");
 		callback.AddMessage("Incremental: " + string(m_bIncremental ? "yes" : "no"));
@@ -1664,7 +1666,7 @@ namespace WBSF
 				stations[i].CreateYears(p);
 
 			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_pDB->GetFilePath()) + "\" (extracting " + to_string(invalid.size()) + " hours)";
+			string feed = "Create/Update Grib database \"" + GetFileName(m_pDB->GetFilePath()) + "\" (extracting " + to_string(invalid.size()) + (m_bIsHourly? " days)" :" days)");
 			callback.PushTask(feed, invalid.size());
 			callback.AddMessage(feed);
 

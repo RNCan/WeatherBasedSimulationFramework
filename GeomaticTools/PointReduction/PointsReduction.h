@@ -24,6 +24,8 @@ namespace WBSF
 		double m_distanceMin;
 		std::string m_XHeader;
 		std::string m_YHeader;
+		int m_sort;
+		size_t m_maxN;
 //		int m_precision;
 	};
 

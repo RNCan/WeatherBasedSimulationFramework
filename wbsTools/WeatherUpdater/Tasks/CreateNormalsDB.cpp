@@ -50,7 +50,7 @@ namespace WBSF
 		case NORMAL_PERIOD: 
 		{
 			//str = " ";
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 4; i++)
 			{
 				if (!str.empty())
 					str += "|";
@@ -59,7 +59,7 @@ namespace WBSF
 			}
 				
 
-			str += FormatA("|2003-2017");//special case for Quebec database
+			//str += FormatA("|2003-2017");//special case for Quebec database
 			break;
 		}
 		case FUTUR_PERIOD:
@@ -84,11 +84,11 @@ namespace WBSF
 
 		switch (i)
 		{
-		case FIRST_YEAR:	str = "1981"; break;
-		case LAST_YEAR:		str = "2010"; break;
+		case FIRST_YEAR:	str = "1991"; break;
+		case LAST_YEAR:		str = "2020"; break;
 		case NB_YEARS_MIN:	str = "10"; break;
 		case APPLY_CLIMATIC_CHANGE:	str = "0"; break;
-		case NORMAL_PERIOD:	str = "1981-2010"; break;
+		case NORMAL_PERIOD:	str = "1991-2020"; break;
 		case FUTUR_PERIOD:	str = "3|4|5|6|7|8|9|10|11"; break;
 		case NB_NEIGHBOR:	str = "3"; break;
 		case MAX_DISTANCE:	str = "500"; break;
