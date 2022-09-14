@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 
 #include "UICMIP6.h"
-#include "CMIP6.h"
+//#include "CMIP6.h"
 #include <boost\multi_array.hpp>
 #include "Basic/units.hpp"
 #include "Basic/Statistic.h"
@@ -234,9 +234,9 @@ namespace WBSF
 		CTPeriod valid_period(CTRef(first_year, JANUARY, DAY_01), CTRef(last_year, DECEMBER, DAY_31));
 
 
-		int firstYear = FIRST_YEAR;
-		int lastYear = LAST_YEAR;
-		int nbYears = lastYear - firstYear + 1;
+		//int firstYear = FIRST_YEAR;
+		//int lastYear = LAST_YEAR;
+		int nbYears = last_year - first_year + 1;
 
 		string sftlf_filepath = working_dir + "sftlf_fx_" + model + ".nc";
 		string new_sftlf_filepath = working_dir + "sftlf_fx_" + model + ".tif";
@@ -263,8 +263,8 @@ namespace WBSF
 
 
 		CMonthlyMeanGrid MMG;
-		MMG.m_firstYear = firstYear;
-		MMG.m_lastYear = lastYear;
+		MMG.m_firstYear = first_year;
+		MMG.m_lastYear = last_year;
 
 		MMG.m_supportedVariables[TMIN_MN] = true;
 		MMG.m_supportedVariables[TMAX_MN] = true;
@@ -337,25 +337,6 @@ namespace WBSF
 		}
 
 
-
-		/*callback.PushTask("Close MMG", nb_grib_open);
-
-		for (size_t v = 0; v < grid.size() && msg; v++)
-		{
-			if (grid[v].IsOpen())
-			{
-				grid[v].Close();
-				msg += callback.StepIt();
-			}
-		}
-
-		callback.PopTask();*/
-
-		//msg += callback.StepIt();
-
-
-
-		//callback.PopTask();
 
 		return msg;
 
@@ -588,13 +569,28 @@ namespace WBSF
 
 		COneMonthData daily_data;
 		CTRef next_TRef;
+		bool bWarningFixed30DaysData = false;
+		bool bWarningMissingFeb29 = false;
+
+
 
 		//open files
 		for (auto it = fileList.begin(); it != fileList.end() && msg; it++)
 		{
 			string i_period = it->first;
 			CTPeriod period = get_period(i_period);
-			//size_t ddd = 0;
+			CTPeriod intersect = valid_period.Intersect(period);
+
+			double x_min = -999;
+
+			size_t nbLat = 0;
+			size_t nbLon = 0;
+			size_t nbdays = 0;
+
+			bool bIsMissingFeb29 = false;
+			size_t leap_correction = 0;// NOT_INIT;
+			bool bIsFixed30DaysData = false;
+
 
 			NcFilePtrArray ncFiles;
 
@@ -607,6 +603,60 @@ namespace WBSF
 					size_t v = GetVar(varList[i]);
 					ncFiles[v] = NcFilePtr(new NcFile(varList[i], NcFile::read));
 
+					if (i == 0)
+					{
+						auto timeGrid = ncFiles[v]->getDim("time");
+						auto latGrid = ncFiles[v]->getDim("lat");
+						auto lonGrid = ncFiles[v]->getDim("lon");
+
+						nbdays = timeGrid.getSize();
+						nbLat = latGrid.getSize();
+						nbLon = lonGrid.getSize();
+
+
+						if (nbdays != period.size())
+						{
+							size_t nbLeapdays = 0;
+							for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
+								if (TRef.GetMonth() == FEBRUARY && TRef.GetDay() == DAY_29)
+									nbLeapdays++;
+
+							if (nbdays + nbLeapdays == period.size())
+							{
+								bIsMissingFeb29 = true;
+
+								//compute all leap year since the beginning of th period)
+								for (CTRef TRef = period.Begin(); TRef < intersect.Begin(); TRef++)
+									if (TRef.GetMonth() == FEBRUARY && TRef.GetDay() == DAY_29)
+										leap_correction++;
+
+
+
+								if (!bWarningMissingFeb29)
+								{
+									bWarningMissingFeb29 = true;
+									callback.AddMessage("WARNING: input files have missing February 29");
+								}
+							}
+							else
+							{
+								if (nbdays == period.as(CTM::MONTHLY).size() * 30)
+								{
+									bIsFixed30DaysData = true;
+
+									if (!bWarningFixed30DaysData)
+									{
+										bWarningFixed30DaysData = true;
+										callback.AddMessage("WARNING: input files have fixed 30 days by months");
+									}
+								}
+								else
+								{
+									msg.ajoute("Incompatible netCDF time size (" + to_string(nbdays) + "for period size " + to_string(period.size()));
+								}
+							}
+						}
+					}
 					msg += callback.StepIt(0);
 				}
 				catch (exceptions::NcException& e)
@@ -622,17 +672,17 @@ namespace WBSF
 
 				auto timeGrid = ncFiles.front()->getDim("time");
 				size_t nbDays = timeGrid.getSize();
-				size_t nbMonths = period.as(CTM::MONTHLY).size();
-				ASSERT(nbDays == period.size());
+				size_t nbMonths = intersect.as(CTM::MONTHLY).size();
+				//ASSERT(nbDays == period.size());
 
-				CTPeriod intersect = valid_period.Intersect(period);
+				//CTPeriod intersect = valid_period.Intersect(period);
 				callback.PushTask(string("Create data for period ") + intersect.GetFormatedString("%1 to %2"), intersect.size());
 
 				for (size_t mm = 0; mm < nbMonths && msg; mm++)
 				{
 
-					CTRef montly_Tref = period.Begin().as(CTM::MONTHLY) + mm;
-					if (valid_period.as(CTM::MONTHLY).IsInside(montly_Tref))
+					CTRef montly_Tref = intersect.Begin().as(CTM::MONTHLY) + mm;
+					//if (valid_period.as(CTM::MONTHLY).IsInside(montly_Tref))
 					{
 						CTPeriod daily_period = CTPeriod(montly_Tref.as(CTM::DAILY, CTRef::FIRST_TREF), montly_Tref.as(CTM::DAILY, CTRef::LAST_TREF));
 
@@ -648,48 +698,72 @@ namespace WBSF
 						double x_min = -999;
 						for (CTRef TRef = next_TRef.IsInit() ? next_TRef : daily_period.Begin(); TRef <= daily_period.End() && TRef <= period.End() && msg; TRef++)
 						{
-							size_t d = (size_t)(TRef - daily_period.Begin());
-							size_t dd = TRef - period.Begin();
-
-							ASSERT(d < daily_data.size());
-							ASSERT(daily_data[d].size() == ncFiles.size());
-
-
-							for (size_t v = 0; v < ncFiles.size() && msg; v++)
+							
+							if (bIsMissingFeb29)
 							{
-								try
+								if (TRef.GetMonth() == FEBRUARY && TRef.GetDay() == DAY_29)
+									leap_correction++;
+							}
+
+							//if (intersect.IsInside(TRef))
+							//{
+								size_t d = (size_t)(TRef - daily_period.Begin());
+								size_t dd = TRef - period.Begin();
+								if (bIsMissingFeb29)
 								{
-									auto timeGrid = ncFiles[v]->getDim("time");
-									auto latGrid = ncFiles[v]->getDim("lat");
-									auto lonGrid = ncFiles[v]->getDim("lon");
-									ASSERT(timeGrid.getSize() == nbDays);
+									ASSERT(dd > 0 || leap_correction == 0);
+									dd -= leap_correction;
+								}
+								else if (bIsFixed30DaysData)
+								{
+									size_t mm = TRef.as(CTM::MONTHLY) - period.as(CTM::MONTHLY).Begin();
+									dd = mm * 30 + min(size_t(DAY_30), TRef.GetDay());
+								}
+								//size_t dd = TRef - period.Begin();
 
-									size_t nbLat = latGrid.getSize();
-									size_t nbLon = lonGrid.getSize();
-									ASSERT(dd < timeGrid.getSize());
+								ASSERT(d < daily_data.size());
+								ASSERT(daily_data[d].size() == ncFiles.size());
 
-									if (x_min == -999)
+
+								for (size_t v = 0; v < ncFiles.size() && msg; v++)
+								{
+									try
 									{
-										NcVar& var_lon = ncFiles[v]->getVar("lon");
-										vector < double> x(nbLon);
-										var_lon.getVar(&(x[0]));
-										x_min = x.front();
+										auto timeGrid = ncFiles[v]->getDim("time");
+										auto latGrid = ncFiles[v]->getDim("lat");
+										auto lonGrid = ncFiles[v]->getDim("lon");
+										ASSERT(timeGrid.getSize() == nbDays);
+
+										size_t nbLat = latGrid.getSize();
+										size_t nbLon = lonGrid.getSize();
+										//ASSERT(dd < timeGrid.getSize());
+
+										if (x_min == -999)
+										{
+											NcVar& var_lon = ncFiles[v]->getVar("lon");
+											vector < double> x(nbLon);
+											var_lon.getVar(&(x[0]));
+											x_min = x.front();
+										}
+
+
+
+										vector<size_t> startp = { {dd, 0, 0 } };
+										vector<size_t> countp = { { 1, nbLat, nbLon } };
+
+										NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
+										var.getVar(startp, countp, &(daily_data[d][v][0]));
+									}
+									catch (exceptions::NcException& e)
+									{
+										msg.ajoute(e.what());
+										//msg.ajoute(string("period: ") + i_period + ", variable: " + VARIABLES_NAMES[v]);
+										msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
 									}
 
-
-									vector<size_t> startp = { {dd, 0, 0 } };
-									vector<size_t> countp = { { 1, nbLat, nbLon } };
-
-									NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
-									var.getVar(startp, countp, &(daily_data[d][v][0]));
+									ConvertData(v, daily_data[d][v]);
 								}
-								catch (exceptions::NcException& e)
-								{
-									msg.ajoute(e.what());
-								}
-
-								ConvertData(v, daily_data[d][v]);
-							}
+							//}
 
 							msg += callback.StepIt();
 
@@ -1144,7 +1218,7 @@ namespace WBSF
 								if (!bWarningMissingFeb29)
 								{
 									bWarningMissingFeb29 = true;
-									callback.AddMessage("WARNING: some or all input files have missing February 29");
+									callback.AddMessage("WARNING: input files have missing February 29");
 								}
 							}
 							else
@@ -1156,7 +1230,7 @@ namespace WBSF
 									if (!bWarningFixed30DaysData)
 									{
 										bWarningFixed30DaysData = true;
-										callback.AddMessage("WARNING: some or all input files have fixed 30 days by months");
+										callback.AddMessage("WARNING: input files have fixed 30 days by months");
 									}
 								}
 								else

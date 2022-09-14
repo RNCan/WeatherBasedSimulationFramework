@@ -635,6 +635,7 @@ namespace WBSF
 			if (msg)
 			{
 				pGribDB = make_shared<CSfcGribDatabase>();
+				pGribDB->m_period = WGInput.GetTPeriod();
 				pGribDB->m_nb_points = WGInput.m_nbGribPoints;
 				pGribDB->m_bIncremental = true;
 				pGribDB->m_variables = CSfcGribDatabase::get_var(WGInput.m_variables);

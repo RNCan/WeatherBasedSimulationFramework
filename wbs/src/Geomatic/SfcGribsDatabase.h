@@ -58,12 +58,24 @@ namespace WBSF
 	class CIncementalDB : public std::map<CTRef, CFileStamp>
 	{
 	public:
+
+		void clear()
+		{
+			std::map<CTRef, CFileStamp>::clear();
+			m_grib_file_path.clear();
+			m_loc_file_path.clear();
+			m_nb_points=0;
+			m_variables.reset();
+			m_period.clear();
+			m_locations.clear();
+		}
+
 		ERMsg load(const std::string& file_path);
 		ERMsg save(const std::string& file_path)const;
 
 		
-		ERMsg GetInvalidPeriod(const CGribsMap& gribs, CTPeriod& p_invalid)const;
-		ERMsg GetInvalidTRef(const CGribsMap& gribs, std::set<CTRef>& invalid)const;
+		ERMsg GetInvalidPeriod(const CGribsMap& gribs, const CTPeriod& period, CTPeriod& p_invalid)const;
+		ERMsg GetInvalidTRef(const CGribsMap& gribs, const CTPeriod& period, std::set<CTRef>& invalid)const;
 		ERMsg Update(const CGribsMap& gribs);
 		static ERMsg Delete(const std::string& file_path);
 
@@ -72,6 +84,8 @@ namespace WBSF
 		size_t m_nb_points;
 		GribVariables m_variables;
 		CTPeriod m_period;
+		CLocationVector m_locations;
+
 	};
 
 
