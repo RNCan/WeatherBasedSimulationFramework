@@ -160,7 +160,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AppendWeather.h" />
-    <ClInclude Include="CMIP6.h" />
     <ClInclude Include="ClipWeather.h" />
     <ClInclude Include="ConvertDB.h" />
     <ClInclude Include="CopyFTP.h" />
@@ -238,7 +237,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppendWeather.cpp" />
-    <ClCompile Include="CMIP6.cpp" />
     <ClCompile Include="ClipWeather.cpp" />
     <ClCompile Include="ConvertDB.cpp" />
     <ClCompile Include="CopyFTP.cpp" />
