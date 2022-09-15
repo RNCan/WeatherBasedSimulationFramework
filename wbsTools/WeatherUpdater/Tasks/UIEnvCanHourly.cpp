@@ -1230,7 +1230,7 @@ namespace WBSF
 				{
 					if (invalid_p.IsInit())
 					{
-						callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + ", " + station.m_ID + ", " + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2"));
+						callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + "," + station.m_ID + "," + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2") + "," + to_string(invalid_p.size()) );
 						invalid_p.clear();
 					}
 				}
@@ -1238,7 +1238,7 @@ namespace WBSF
 
 			if (invalid_p.IsInit())
 			{
-				callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + ", " + station.m_ID + ", " + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2"));
+				callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + "," + station.m_ID + "," + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2") + "," + to_string(invalid_p.size()));
 				invalid_p.clear();
 			}
 

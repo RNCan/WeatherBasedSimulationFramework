@@ -38,8 +38,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUICMIP6::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Frequency", "Model", "SSP", "MinLandWater" };
-	const size_t CUICMIP6::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_COMBO_STRING, T_COMBO_STRING, T_COMBO_STRING, T_STRING };
+	const char* CUICMIP6::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadData", "CreateGribs", "FirstYear", "LastYear", "Frequency", "Model", "SSP", "MinLandWater" };
+	const size_t CUICMIP6::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL, T_BOOL, T_STRING, T_STRING, T_COMBO_STRING, T_COMBO_STRING, T_COMBO_STRING, T_STRING };
 	const UINT CUICMIP6::ATTRIBUTE_TITLE_ID = IDS_UPDATER_CMIP5_P;
 	const UINT CUICMIP6::DESCRIPTION_TITLE_ID = ID_TASK_CMIP5;
 
@@ -86,9 +86,11 @@ namespace WBSF
 		{
 
 		case WORKING_DIR:		str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "CMIP6\\"; break;
+		case DOWNLOAD_DATA: 	str = "1"; break;
+		case CREATE_GRIBS:  	str = "0"; break;
 		case FIRST_YEAR:		str = "1851"; break;
 		case LAST_YEAR:			str = "2100"; break;
-		case FREQUENCY:			str = "Daily"; break;
+		case FREQUENCY:			str = "Monthly"; break;
 		case MODEL:				str = "MIROC-ES2L"; break;
 		case SSP:				str = "ssp245"; break;
 		case MIN_LAND_WATER:    str = "50.0"; break;
@@ -118,8 +120,14 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		bool bDownload = as<bool>(DOWNLOAD_DATA);
+		if (bDownload)
+		{
+			msg.ajoute("Download of CMPI6 data is not implemented yet");
+		}
+			
 
-		bool bCreateGribs = false;
+		bool bCreateGribs = as<bool>(CREATE_GRIBS);
 		if (bCreateGribs)
 		{
 			if (Get(FREQUENCY) == "Daily")
@@ -213,7 +221,7 @@ namespace WBSF
 		}
 
 
-		msg.ajoute("Download of CMPI6 data is not implemented yet");
+		
 
 
 		return msg;

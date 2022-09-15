@@ -44,10 +44,9 @@ namespace WBSF
 		typedef std::vector<float> COneVariableLayer;
 		typedef std::vector< std::array < COneVariableLayer, NB_CMIP6_VARIABLES>> COneMonthData;
 
-		//enum TRCP { RCP26, RCP45, RCP60, RCP85, NB_RCP };
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, FREQUENCY, MODEL, SSP, MIN_LAND_WATER, NB_ATTRIBUTES };
+		
+		enum TAttributes { WORKING_DIR, DOWNLOAD_DATA, CREATE_GRIBS, FIRST_YEAR, LAST_YEAR, FREQUENCY, MODEL, SSP, MIN_LAND_WATER, NB_ATTRIBUTES };
 		static const char* VARIABLES_NAMES[NB_CMIP6_VARIABLES];
-		//static const char* RCP_NAME[NB_RCP];
 		static void ComputeMontlyStatistic(size_t i, size_t ii, const COneMonthData& data, CMonthlyVariables& montlhyStat);
 		static size_t GetVar(std::string name);
 		
