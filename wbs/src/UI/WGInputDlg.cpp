@@ -680,15 +680,18 @@ namespace WBSF
 					if (msg && exit_code != 0)
 						msg.ajoute("WinSCP.exe was unable to download file: " + generateWUProjectDlg.m_FTP_file_path);
 
-					if (exit_code == 0 && FileExists(file_path_zip))
+					//FileExists(file_path_zip) do not work on .tar file
+					ifStream is;
+					if (exit_code == 0 && is.open(file_path_zip))
 					{
+						is.close();
 						//call 7z
 
 						//unzip only .csv file because they are smaller than the zip file
 						string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
 						msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
 
-						if (msg && exit_code == 0)
+						if (msg && exit_code == 0) 
 						{
 							//reload all database
 							FillNormalsDBNameList();

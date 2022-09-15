@@ -2309,7 +2309,7 @@ namespace WBSF
 			m_pParser->enableAutoVarDefinition(true);
 			m_pParser->compile(convert(m_formula).c_str());
 		}
-		catch (MTParserException e)
+		catch (MTParserException e) 
 		{
 			msg.ajoute(UTF8(e.m_description.c_str()));
 		}
