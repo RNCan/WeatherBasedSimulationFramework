@@ -125,7 +125,7 @@ namespace WBSF
 		for (size_t i = 1; i < resultArray.size(); i++)
 			period.Inflate(resultArray[i]->GetMetadata().GetTPeriod());
 		info.SetTPeriod(period);
-		
+
 
 
 		switch (m_dimensionAppend)
@@ -223,11 +223,11 @@ namespace WBSF
 
 		return msg;
 	}
-	
+
 	void AdjustPeriod(CNewSectionData& section, CTPeriod period)
 	{
 		ASSERT(section.GetTPeriod().GetTM() == period.GetTM());
-		
+
 		CNewSectionData newsection(period.size(), section.GetXSize(), period.Begin());
 		for (CTRef TRef = period.Begin(); TRef <= period.End(); TRef++)
 		{
@@ -297,23 +297,31 @@ namespace WBSF
 
 			callback.PushTask("Merge", nbSection);
 
+		
 
 			for (size_t i = 0; i < resultArray.size() && msg; i++)
 			{
 				size_t nbSection = resultArray[i]->GetNbSection();
-				for (size_t s = 0; s < nbSection&&msg; s++)
+				for (size_t s = 0; s < nbSection && msg; s++)
 				{
 					CNewSectionData section;
 					resultArray[i]->GetSection(s, section);
-					
+
 					if (section.GetTPeriod() != period)
 					{
 						//adjust period to get the same shape as the output period
 						AdjustPeriod(section, period);
 					}
 
+					size_t l = resultArray[i]->GetMetadata().GetLno(s);
+					size_t p = resultArray[i]->GetMetadata().GetPno(s);
+					size_t r = resultArray[i]->GetMetadata().GetRno(s);
 
-					result.AddSection(section);
+					l = (m_dimensionAppend == LOCATION) ? i : l;
+					p = (m_dimensionAppend == PARAMETER) ? i : p;
+					r = (m_dimensionAppend == REPLICATION) ? i : r;
+					size_t no = result.GetSectionNo(l, p, r);
+					result.SetSection(no, section);
 
 					msg += callback.StepIt();
 				}
@@ -327,7 +335,7 @@ namespace WBSF
 
 			callback.PushTask("Merge", nbSection);
 
-			for (size_t s = 0; s < nbSection&&msg; s++)
+			for (size_t s = 0; s < nbSection && msg; s++)
 			{
 				CNewSectionData section0;
 				resultArray[0]->GetSection(s, section0);
@@ -426,7 +434,7 @@ namespace WBSF
 			filter2.reset();
 			filter2.set(m_dimensionAppend);
 
-			
+
 			executable.front()->GetParentInfo(fileManager, info, filter);
 			if (filter[VARIABLE] && m_dimensionAppend == VARIABLE)
 			{
@@ -466,7 +474,7 @@ namespace WBSF
 				}
 
 				//always append time
-				if (filter[TIME_REF] )//&& m_dimensionAppend == TIME_REF
+				if (filter[TIME_REF])//&& m_dimensionAppend == TIME_REF
 				{
 					if (!info.m_period.IsInit() || info.m_period.GetTM() == info2.m_period.GetTM())
 						info.m_period.Inflate(info2.m_period);
@@ -477,7 +485,7 @@ namespace WBSF
 					for (size_t j = 0; j < info2.m_variables.size(); j++)
 					{
 						std::string name = info2.m_variables[j].m_name;
-						if(m_bAddName)
+						if (m_bAddName)
 							name += "_" + executable[i]->GetName();
 
 						std::replace(name.begin(), name.end(), ' ', '_');
@@ -486,7 +494,7 @@ namespace WBSF
 						if (m_bAddName)
 							info2.m_variables[j].m_title += executable[i]->GetName();
 					}
-					
+
 					info.m_variables.insert(info.m_variables.end(), info2.m_variables.begin(), info2.m_variables.end());
 				}
 			}
