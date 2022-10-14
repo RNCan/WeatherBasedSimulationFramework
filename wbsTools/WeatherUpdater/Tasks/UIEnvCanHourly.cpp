@@ -1217,21 +1217,28 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CHourlyData& hData = station.GetHour(TRef);
-				if (hData[H_PRCP] >= max_prcp)
+				if (max_prcp <= 0)
 				{
-					//callback.AddMessage("Invalid precipitation: "+ToString(hData[H_PRCP],1)+ ", "+station.m_ID + ", " + station.m_name + "," + TRef.GetFormatedString());
-					invalid_prcp += hData[H_PRCP];
-					hData[H_PRCP] = -999;
-					if(!invalid_p.IsInit())
-						invalid_p.Begin() = TRef;
-					invalid_p.End() = TRef;
+					hData[H_PRCP] = -999;//remove precipitation
 				}
 				else
 				{
-					if (invalid_p.IsInit())
+					if (hData[H_PRCP] >= max_prcp)
 					{
-						callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + "," + station.m_ID + "," + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2") + "," + to_string(invalid_p.size()) );
-						invalid_p.clear();
+						//callback.AddMessage("Invalid precipitation: "+ToString(hData[H_PRCP],1)+ ", "+station.m_ID + ", " + station.m_name + "," + TRef.GetFormatedString());
+						invalid_prcp += hData[H_PRCP];
+						hData[H_PRCP] = -999;
+						if (!invalid_p.IsInit())
+							invalid_p.Begin() = TRef;
+						invalid_p.End() = TRef;
+					}
+					else
+					{
+						if (invalid_p.IsInit())
+						{
+							callback.AddMessage("Invalid precipitation: " + ToString(invalid_prcp[MEAN], 1) + "," + station.m_ID + "," + station.m_name + "," + invalid_p.GetFormatedString("%1 to %2") + "," + to_string(invalid_p.size()));
+							invalid_p.clear();
+						}
 					}
 				}
 			}
