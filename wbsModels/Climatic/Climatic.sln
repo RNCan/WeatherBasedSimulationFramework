@@ -54,6 +54,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinterThaw", "WinterThawMod
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{9B4E8F45-3044-443E-9F2C-463D878CA260}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CaroleCoursolle", "CaroleCoursolle.vcxproj", "{3B943767-87FD-4D23-8433-4CAF4C1D9930}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -268,6 +270,14 @@ Global
 		{9B4E8F45-3044-443E-9F2C-463D878CA260}.Release|Win32.Build.0 = Release|Win32
 		{9B4E8F45-3044-443E-9F2C-463D878CA260}.Release|x64.ActiveCfg = Release|x64
 		{9B4E8F45-3044-443E-9F2C-463D878CA260}.Release|x64.Build.0 = Release|x64
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Debug|Win32.Build.0 = Debug|Win32
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Debug|x64.ActiveCfg = Debug|x64
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Debug|x64.Build.0 = Debug|x64
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Release|Win32.ActiveCfg = Release|Win32
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Release|Win32.Build.0 = Release|Win32
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Release|x64.ActiveCfg = Release|x64
+		{3B943767-87FD-4D23-8433-4CAF4C1D9930}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
