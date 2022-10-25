@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CaroleCoursolle</Title>
+    <Version>1.0</Version>
+    <ID>.ccm</ID>
+    <EXE>CaroleCoursolle.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 115 358</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Number of years (0=all)</Name>
+            <Caption>Number of years (0=all)</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>10 10 30 305</Rect>
+            <SeparatorPos>175</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>MAT</Name>
+            <Title>MAT</Title>
+            <Units>°C</Units>
+            <Description>mean annual air temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MCMT</Name>
+            <Title>MCMT</Title>
+            <Units>°C</Units>
+            <Description>mean coldest month temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EMT</Name>
+            <Title>EMT</Title>
+            <Units>°C</Units>
+            <Description>Mean extreme minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MWMT</Name>
+            <Title>MWMT</Title>
+            <Units>°C</Units>
+            <Description>mean warmest month temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EFFP</Name>
+            <Title>EFFP</Title>
+            <Units>DOY</Units>
+            <Description>end of frost free period</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NFFD</Name>
+            <Title>NFFD</Title>
+            <Units/>
+            <Description>number of frost free days</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CHDD_0</Name>
+            <Title>CHDD_0</Title>
+            <Units/>
+            <Description>chilling degree days under 0 (from August first)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

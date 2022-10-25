@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>ChillingDegreeDays</Title>
+    <Version>1.0</Version>
+    <ID>.chdd</ID>
+    <EXE>ChillingDegreeDay.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 217 358</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Threshold</Name>
+            <Caption>Threshold (°C)</Caption>
+            <Description>The temperature below which accumulation begin.</Description>
+            <Type>2</Type>
+            <Rect>30 15 50 280</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>FirstDate</Name>
+            <Caption>First Date (mm/dd)</Caption>
+            <Description>First date (mm/dd) of accumlation for each years</Description>
+            <Type>3</Type>
+            <Rect>90 15 110 280</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>10/01</DefaultValue>
+            <MinValue>01/01</MinValue>
+            <MaxValue>12/31</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>LastDate</Name>
+            <Caption>Last Date (mm/dd)</Caption>
+            <Description>Last date (mm/dd) of accumlation for each years</Description>
+            <Type>3</Type>
+            <Rect>115 15 135 280</Rect>
+            <SeparatorPos>150</SeparatorPos>
+            <DefaultValue>04/30</DefaultValue>
+            <MinValue>01/01</MinValue>
+            <MaxValue>12/31</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>CHDD</Name>
+            <Title>CHDD</Title>
+            <Units/>
+            <Description>chilling degree days </Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
