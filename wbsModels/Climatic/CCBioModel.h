@@ -30,14 +30,7 @@ namespace WBSF
 
 		double GetWBALsea(const CWeatherYear& weather, const CModelStatVector& HamonPET);
 		double GetMonthlyDifference(const CWeatherYear& weather);
-		//double GetPETsea(const CModelStatVector& HamonPET);
-		//double GetPETsum(const CModelStatVector& HamonPET);
 		double GetCoolingDD(const CWeatherYear& weather, double threshold);
 		double GetCoolingDD(const CWeatherMonth& weather, double threshold);
-
-
-		int GetFrostDay(int year, const double& th);
-		int GetDaysBelow(int year, const double& th);
-		
 	};
 }

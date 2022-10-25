@@ -1031,7 +1031,7 @@ namespace WBSF
 
 
 
-	void CWetnessDurationModel::GetFValueHourly(CStatisticXY& stat)
+	bool CWetnessDurationModel::GetFValueHourly(CStatisticXY& stat)
 	{
 
 		if (m_SAResult.size() > 0)
@@ -1061,6 +1061,8 @@ namespace WBSF
 			//		
 			//}
 		}
+
+		return true;
 	}
 
 
@@ -1218,7 +1220,7 @@ namespace WBSF
 	}
 
 
-	void CWetnessDurationModel::GetFValueDaily(CStatisticXY& stat)
+	bool CWetnessDurationModel::GetFValueDaily(CStatisticXY& stat)
 	{
 
 		if (m_SAResult.size() > 0)
@@ -1262,6 +1264,8 @@ namespace WBSF
 			//	HxGridTestConnection();
 			//}
 		}
+
+		return true;
 	}
 
 	//********************************************************************************************************************
@@ -1285,7 +1289,7 @@ namespace WBSF
 	}
 
 
-	void CWetnessDurationModel::GetFValueMonthly(CStatisticXY& stat)
+	bool CWetnessDurationModel::GetFValueMonthly(CStatisticXY& stat)
 	{
 		if (m_SAResult.size() > 0)
 		{
@@ -1305,6 +1309,8 @@ namespace WBSF
 
 			}
 		}
+
+		return true;
 	}
 
 

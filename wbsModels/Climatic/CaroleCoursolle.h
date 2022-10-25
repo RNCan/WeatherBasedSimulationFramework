@@ -5,7 +5,6 @@
 namespace WBSF
 {
 
-	class CHamonPET;
 	class CCCModel : public CBioSIMModelBase
 	{
 	public:
@@ -14,30 +13,32 @@ namespace WBSF
 		CCCModel();
 		virtual ~CCCModel();
 
-		//virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg OnExecuteMonthly();
+		
 		static CBioSIMModelBase* CreateObject(){ return new CCCModel; }
 
-	private:
+	protected:
 
-		double GetTsea(const CWeatherMonth& weather);
-		double GetTsea(const CWeatherYear& weather);
-		double GetPsea(const CWeatherMonth& weather);
-		double GetPsea(const CWeatherYear& weather);
-		void GetPwv(std::vector<double>& Pwv, std::vector<size_t>& Pwm);
-		void GetPdv(std::vector<double>& Pdv, std::vector<size_t>& Pdm);
+		size_t m_nb_years;
 
-		double GetWBALsea(const CWeatherYear& weather, const CModelStatVector& HamonPET);
-		double GetMonthlyDifference(const CWeatherYear& weather);
-		//double GetPETsea(const CModelStatVector& HamonPET);
-		//double GetPETsum(const CModelStatVector& HamonPET);
-		double GetCoolingDD(const CWeatherYear& weather, double threshold);
-		double GetCoolingDD(const CWeatherMonth& weather, double threshold);
+		double MAT(const CWeatherYear& weather);
+		double MCMT(const CWeatherYear& weather);
+		double EMT(const CWeatherYear& weather);
+		double MWMT(const CWeatherYear& weather);
+		double EFFP(const CWeatherYear& weather);
+		double NFFP(const CWeatherYear& weather);
+		double CHDD(const CWeatherYear& weather, double threshold=0);
 
 
-		int GetFrostDay(int year, const double& th);
-		int GetDaysBelow(int year, const double& th);
-		
+		/*double MAT(const CWeatherYears& weather, const CTPeriod& p);
+		double MCMT(const CWeatherYears& weather, const CTPeriod& p);
+		double EMT(const CWeatherYears& weather, const CTPeriod& p);
+		double MWMT(const CWeatherYears& weather, const CTPeriod& p);
+		double EFFP(const CWeatherYears& weather, const CTPeriod& p);
+		double NFFP(const CWeatherYears& weather, const CTPeriod& p);
+		double CHDD(const CWeatherYears& weather, double threshold, const CTPeriod& p);*/
+
+
 	};
 }

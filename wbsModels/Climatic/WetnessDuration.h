@@ -33,9 +33,9 @@ namespace WBSF
 		virtual void AddHourlyResult(const StringVector& header, const StringVector& data);
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data);
 		virtual void AddMonthlyResult(const StringVector& header, const StringVector& data);
-		virtual void GetFValueHourly(CStatisticXY& stat);
-		virtual void GetFValueDaily(CStatisticXY& stat);
-		virtual void GetFValueMonthly(CStatisticXY& stat);
+		virtual bool GetFValueHourly(CStatisticXY& stat);
+		virtual bool GetFValueDaily(CStatisticXY& stat);
+		virtual bool GetFValueMonthly(CStatisticXY& stat);
 		
 		void ExecuteDaily(CWetnessDurationStat& dailyStat);
 		void ExecuteHourly(CWetnessDurationStat& stat);
