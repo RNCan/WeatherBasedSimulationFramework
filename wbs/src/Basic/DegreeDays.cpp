@@ -6,17 +6,12 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 26-10-2022	Rémi Saint-Amant	Add Baskerville-Emin calculation
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 
 
-//1- le type
-//2- time step: daily, hourly
-//3- Cut-off
 
-
-//Comment faire une référence sur 
-//addVANTAGE Pro 6.0 Extensions and Crops
 
 //Average
 //The Averaging m_method uses a daily average temperature (historically daily minimum and maximum temperatures). The average is
@@ -132,11 +127,12 @@ namespace WBSF
 		{
 		case DAILY_AVERAGE:		DD = GetAverageDD(in); break;
 		case DAILY_AVERAGE_ADJUSTED: DD = GetAverageAdjustedDD(in); break;
-		case MODIFIED_ALLEN_WAVE:DD = GetModifiedAllenWaveDD(in); break;
 		case SINGLE_TRIANGLE:	DD = GetTriangleDD(in); break;
 		case DOUBLE_TRIANGLE:	DD = GetDoubleTriangleDD(in); break;
 		case SINGLE_SINE:		DD = GetSineDD(in); break;
 		case DOUBLE_SINE:		DD = GetDoubleSineDD(in); break;
+		case MODIFIED_ALLEN_WAVE:DD = GetModifiedAllenWaveDD(in); break;
+		case BASKERVILLE_EMIN:	DD = GetBaskervilleEminDD(in); break;
 		default: ASSERT(false);
 		}
 
@@ -312,6 +308,57 @@ namespace WBSF
 		return DD;
 	}
 
+	
+	double CDegreeDays::GetBaskervilleEminDD(const CWeatherDay& in)const
+	{
+		/*if (m_lowerThreshold != 50)
+		{
+			CWeatherDay test;
+			test.Initialize(CTRef(2003, JULY, DAY_01), (CWeatherMonth*)(in.GetParent()));
+			test[H_TMIN] = 34;
+			test[H_TAIR] = 47;
+			test[H_TMAX] = 60;
+			const_cast<CDegreeDays*>(this)->m_lowerThreshold = 50;
+			double tt = GetBaskervilleEminDD(test);
+		}*/
+
+
+		ASSERT(m_lowerThreshold <= m_upperThreshold);
+		ASSERT(m_upperThreshold>=999);//upper threshold not supported
+		ASSERT(in[H_TMIN].IsInit() && in[H_TMAX].IsInit());
+
+		double DD = 0;
+		if (GetTmax(in) < m_lowerThreshold)
+		{
+			DD = 0;
+		}
+		else if (GetTmin(in) > m_lowerThreshold)
+		{
+			DD = GetTnTx(in) - m_lowerThreshold;
+		}
+		else
+		{
+			double W = (GetTmax(in) - GetTmin(in)) / 2.0;
+			double A = max(-1.0, min(1.0, asin((m_lowerThreshold - GetTnTx(in)) / W)));
+
+			DD = max(0.0, ((W * cos(A)) - ((m_lowerThreshold - GetTnTx(in)) * ((PI / 2.0) - A))) / PI);
+		}
+		
+
+
+		/*double x1 = max(0.0, min(GetTnTx(in), m_upperThreshold) - m_lowerThreshold);
+		double x2 = min(0.0, m_upperThreshold - GetTnTx(in));
+
+		switch (m_cutoffType)
+		{
+		case HORIZONTAL_CUTOFF: DD = x1; break;
+		case INTERMEDIATE_CUTOFF:DD = max(0.0, x1 + x2); break;
+		case VERTICAL_CUTOFF:DD = (GetTnTx(in) <= m_upperThreshold) ? x1 : 0; break;
+		default: ASSERT(false);
+		}*/
+
+		return DD;
+	}
 
 	//*********************************************
 	//static
@@ -650,10 +697,3 @@ namespace WBSF
 	
 
 }//namespace WBSF
-
-
-//Fig. 1. Linear relationships between median developmental rate(days1) and temperature(C) for each life stage and
-//egg to adult.Regression model : y  a  bx, where y is developmental rate(days1) and x is temperature.Egg: y0.0907
-//0.0165x, SEof b0.0041, P0.026, R20.85; larvae: y0.01510.0048x, SEof b0.0003, P0.001, R20.99; prepupa:
-//y  0.0132  0.0047x, SE of b  0.0004, P  0.001, R2  0.98; pupa: y  0.0144  0.0047x, SE of b  0.0004, P  0.008,
-//R2  0.98; egg to adult : y  0.0056  0.0015x, SE of b  0.0002, P  0.013, R2  0.97.

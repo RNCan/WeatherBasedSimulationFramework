@@ -27,7 +27,7 @@ namespace WBSF
 		enum TOuput{ S_DD, NB_OUTPUT };
 		static const char HEADER[];
 		
-		enum TDailyMethod{ DAILY_AVERAGE, DAILY_AVERAGE_ADJUSTED, SINGLE_TRIANGLE, DOUBLE_TRIANGLE, SINGLE_SINE, DOUBLE_SINE, ALLEN_WAVE = DOUBLE_SINE, MODIFIED_ALLEN_WAVE, NB_DAILY_METHOD };
+		enum TDailyMethod{ DAILY_AVERAGE, DAILY_AVERAGE_ADJUSTED, SINGLE_TRIANGLE, DOUBLE_TRIANGLE, SINGLE_SINE, DOUBLE_SINE, ALLEN_WAVE = DOUBLE_SINE, MODIFIED_ALLEN_WAVE, BASKERVILLE_EMIN, NB_DAILY_METHOD };
 		enum THourlyMethod{ BIOSIM_HOURLY, NB_HOURLY_METHOD };
 		enum TCutoff{ HORIZONTAL_CUTOFF, INTERMEDIATE_CUTOFF, VERTICAL_CUTOFF, NB_CUTOFF };
 
@@ -66,6 +66,7 @@ namespace WBSF
 		double GetDoubleTriangleDD(const CWeatherDay& in)const;
 		double GetSineDD(const CWeatherDay& in)const;
 		double GetDoubleSineDD(const CWeatherDay& in)const;
+		double GetBaskervilleEminDD(const CWeatherDay& in)const;
 
 
 		//usefull method
