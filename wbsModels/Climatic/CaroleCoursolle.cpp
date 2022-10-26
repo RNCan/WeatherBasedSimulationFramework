@@ -34,19 +34,19 @@ namespace WBSF
 	{}
 
 	
-	//a.Température annuelle moyenne(MAT : mean annual air temperature)
-	//b.Température moyenne du mois le plus froid(MCMT : mean coldest month temperature)
-	//c.Température moyenne minimal(EMT : extreme minimum temperature)
-	//d.Température moyenne du mois le plus chaud(MWMT : mean warmest month temperature)
-	//e.Jour julien moyen du premier gel à l’automne(eFFP : end of frost free period)
-	//f.Nombre moyen de jours sans gel(NFFD : number of frost free days)
-	//g.Jours juliens de froid(< 0°C) moyen(O_CHDD_0 : chilling degree days) à partir du 1 août
+	//MAT : mean annual air temperature
+	//MCMT : mean coldest month temperature
+	//EMT : mean of annual extreme minimum temperature
+	//MWMT : mean warmest month temperature
+	//BFFP : begin of frost free period
+	//EFFP : end of frost free period
+	//FFPL : frost free period length (days)
+	//NFFD : number of frost free days
+	//O_CHDD0 : chilling degree days (< 0°C) from August first
+	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, NB_ANNUAL_STATS };
+	
 
-
-	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_EFFP, O_NFFD, O_CHDD_0, NB_ANNUAL_STATS };
-	//	typedef CModelStatVectorTemplate<NB_ANNUAL_STATS> CAnnualStatVector;
-
-			//this method is call to load your parameter in your variable
+	//this method is call to load your parameter in your variable
 	ERMsg CCCModel::ProcessParameters(const CParameterVector& parameters)
 	{
 		ERMsg msg;
@@ -87,9 +87,11 @@ namespace WBSF
 			output[y][O_MCMT] = MCMT(m_weather[y]);
 			output[y][O_EMT] = EMT(m_weather[y]);
 			output[y][O_MWMT] = MWMT(m_weather[y]);
+			output[y][O_BFFP] = FFp.Begin().GetJDay() + 1;//Base 1
 			output[y][O_EFFP] = FFp.End().GetJDay() + 1;//Base 1
-			output[y][O_NFFD] = FFp.GetNbDay();
-			output[y][O_CHDD_0] = CHDD(m_weather[y]);
+			output[y][O_FFPL] = FFp.GetNbDay();
+			output[y][O_NFFD] = NFFD(m_weather[y]);
+			output[y][O_CHDD0] = CHDD(m_weather[y]);
 		}
 
 
@@ -157,9 +159,23 @@ namespace WBSF
 		return maxT;
 	}
 
+	//NFFD: Total number of frost day
+	double CCCModel::NFFD(const CWeatherYear& weather)
+	{
+		size_t NFFD = 0;
+		for (size_t d = 0; d < weather.GetNbDays(); d++)
+		{
+			double T = weather.GetDay(d)[H_TMIN][LOWEST];
+			if (T < 0)
+				NFFD++;
+		}
+
+		return NFFD;
+	}
+
 
 	
-	//CHDD_0 : chilling degree days under 0 (from August first)
+	//CHDD0 : chilling degree days under 0 (from August first)
 	double CCCModel::CHDD(const CWeatherYear& weather, double threshold)
 	{
 		int year = weather.GetTRef().GetYear();

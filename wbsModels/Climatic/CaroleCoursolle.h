@@ -22,13 +22,12 @@ namespace WBSF
 
 		size_t m_nb_years;
 
-		double MAT(const CWeatherYear& weather);
-		double MCMT(const CWeatherYear& weather);
-		double EMT(const CWeatherYear& weather);
-		double MWMT(const CWeatherYear& weather);
-		double EFFP(const CWeatherYear& weather);
-		double NFFP(const CWeatherYear& weather);
-		double CHDD(const CWeatherYear& weather, double threshold=0);
+		static double MAT(const CWeatherYear& weather);
+		static double MCMT(const CWeatherYear& weather);
+		static double EMT(const CWeatherYear& weather);
+		static double MWMT(const CWeatherYear& weather);
+		static double NFFD(const CWeatherYear& weather);
+		static double CHDD(const CWeatherYear& weather, double threshold=0);
 
 
 		/*double MAT(const CWeatherYears& weather, const CTPeriod& p);
