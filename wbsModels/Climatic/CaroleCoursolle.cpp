@@ -40,7 +40,7 @@ namespace WBSF
 	//MWMT : mean warmest month temperature
 	//BFFP : begin of frost free period
 	//EFFP : end of frost free period
-	//FFPL : frost free period length (days)
+	//FFPL : frost free period length (days) 
 	//NFFD : number of frost free days
 	//O_CHDD0 : chilling degree days (< 0°C) from August first
 	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, NB_ANNUAL_STATS };
