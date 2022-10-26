@@ -159,14 +159,14 @@ namespace WBSF
 		return maxT;
 	}
 
-	//NFFD: Total number of frost day
+	//NFFD: Total number of frost free day
 	double CCCModel::NFFD(const CWeatherYear& weather)
 	{
 		size_t NFFD = 0;
 		for (size_t d = 0; d < weather.GetNbDays(); d++)
 		{
 			double T = weather.GetDay(d)[H_TMIN][LOWEST];
-			if (T < 0)
+			if (T > 0)
 				NFFD++;
 		}
 
