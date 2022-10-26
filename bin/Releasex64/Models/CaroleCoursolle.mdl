@@ -63,6 +63,14 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>BFFP</Name>
+            <Title>BFFP</Title>
+            <Units>DOY</Units>
+            <Description>Begin of fros free period</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>EFFP</Name>
             <Title>EFFP</Title>
             <Units>DOY</Units>
@@ -71,16 +79,24 @@
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
+            <Name>FFPL</Name>
+            <Title>FFPL</Title>
+            <Units>days</Units>
+            <Description>Frost free period length</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>NFFD</Name>
             <Title>NFFD</Title>
-            <Units/>
-            <Description>number of frost free days</Description>
+            <Units>days</Units>
+            <Description>total number of frost free days</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>1</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>CHDD_0</Name>
-            <Title>CHDD_0</Title>
+            <Name>CHDD0</Name>
+            <Title>CHDD0</Title>
             <Units/>
             <Description>chilling degree days under 0 (from August first)</Description>
             <TimeMode>4 0</TimeMode>
