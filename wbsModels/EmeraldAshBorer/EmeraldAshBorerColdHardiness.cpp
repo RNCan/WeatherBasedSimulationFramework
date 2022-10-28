@@ -256,7 +256,7 @@ namespace WBSF
 				{
 					phase = DESACCLIMATATION;
 				}
-				output[TRef][O_H_WT] = wT;
+				output[TRef][O_H_WT] = wT; 
 				output[TRef][O_H_SCP] = cur_SCP;
 				output[TRef][O_H_MORTALITY] = mortality * 100;
 				output[TRef][O_H_DIFF_TMIN_SCP] = output[TRef][O_TBARK] - output[TRef][O_H_SCP];
@@ -323,7 +323,7 @@ namespace WBSF
 		return (1.0 - 1.0 / (1.0 + exp(-k * pow(x - x0, p))));
 	}
 
-	void CEmeraldAshBorerColdHardinessModel::GetFValueDaily(CStatisticXY& stat)
+	bool CEmeraldAshBorerColdHardinessModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -341,7 +341,7 @@ namespace WBSF
 					double simV = logistic(m_SAResult[i].m_obs[1], m_λ, m_wTº);
 					stat.Add(obsV, simV);
 				}
-				return;
+				return true;
 			}
 
 
@@ -367,5 +367,7 @@ namespace WBSF
 
 			}
 		}
+
+		return true;
 	}
 }
