@@ -325,7 +325,7 @@ namespace WBSF
 							lastAlive[g][s] = end();
 							bErase = true;
 						}
-						else
+						else 
 						{
 							//let the old one throws away and try to find with this one
 							lastAlive[g][s] = it;
