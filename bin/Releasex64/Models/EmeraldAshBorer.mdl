@@ -2,11 +2,11 @@
 <Model version="3">
     <Title>Emerald Ahs Borer</Title>
     <Version>1.0</Version>
-    <ID/>
+    <ID>.nul</ID>
     <EXE>EmeraldAshBorer.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Emerald Ahs Borer phenology</Description>
-    <WindowRect>0 0 100 250</WindowRect>
+    <WindowRect>0 0 408 400</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -18,64 +18,8 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>Eggs</Name>
-            <Title>Eggs</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>L1</Name>
-            <Title>L1</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>L2</Name>
-            <Title>L2</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>L3</Name>
-            <Title>L3</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>L4</Name>
-            <Title>L4</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>PrePupa</Name>
-            <Title>PrePupa</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
             <Name>Pupa</Name>
             <Title>Pupa</Title>
-            <Units/>
-            <Description/>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Teneral</Name>
-            <Title>Teneral</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -102,6 +46,38 @@
             <Title>Emergence</Title>
             <Units/>
             <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulEmergence</Name>
+            <Title>CumulEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult</Name>
+            <Title>CumulAdult</Title>
+            <Units/>
+            <Description>Cumulative adult (under the curve)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDDe</Name>
+            <Title>CDDe</Title>
+            <Units/>
+            <Description>Cumulative degree days for emergence</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDDd</Name>
+            <Title>CDDd</Title>
+            <Units/>
+            <Description>Cumulative degree days for dead adult</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

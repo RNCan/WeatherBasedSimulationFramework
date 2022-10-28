@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Emerald Ahs Borer</Title>
+    <Version>1.0</Version>
+    <ID>.eab</ID>
+    <EXE>EmeraldAshBorer.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Emerald Ahs Borer phenology</Description>
+    <WindowRect>0 0 408 400</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>15 15 35 165</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu1</Name>
+            <Caption>mu1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>70 195 95 345</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>239.6</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>s1</Name>
+            <Caption>s1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 195 125 345</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>41.4</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>delta</Name>
+            <Caption>delta</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 5 130 155</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>91</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th1</Name>
+            <Caption>Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 10 70 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>2.9</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th2</Name>
+            <Caption>Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 100 160</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>19.1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>longevity0</Name>
+            <Caption>longevity0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>160 10 185 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1250</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>5000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>longevity1</Name>
+            <Caption>longevity1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>185 10 205 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>longevity2</Name>
+            <Caption>longevity2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>205 10 230 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>91</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>longevity3</Name>
+            <Caption>longevity3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>230 10 250 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>longevity4</Name>
+            <Caption>longevity4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>250 10 270 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Emergence</Name>
+            <Title>Emergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulEmergence</Name>
+            <Title>CumulEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult</Name>
+            <Title>CumulAdult</Title>
+            <Units/>
+            <Description>Cumulative adult (under the curve)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDDe</Name>
+            <Title>CDDe</Title>
+            <Units/>
+            <Description>Cumulative degree days for emergence</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDDd</Name>
+            <Title>CDDd</Title>
+            <Units/>
+            <Description>Cumulative degree days for dead adult</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>WARNING: this model was never validated</Copyright>
+    <Credit>Developed by Remi Saint-Amant from Lyons 2004 publication&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
