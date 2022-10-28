@@ -26,6 +26,9 @@ namespace WBSF
 
 	protected:
 
+		size_t m_distribution_e;
+		size_t m_distribution_d;
+
 //		bool m_bCumul;
 		std::array<double, NB_PARAMS> m_adult_emerg;
 		std::array<double, NB_PARAMS> m_adult_dead;

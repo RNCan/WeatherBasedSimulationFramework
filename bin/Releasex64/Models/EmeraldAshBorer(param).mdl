@@ -15,16 +15,16 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>Cumul</Name>
-            <Caption>Cumul</Caption>
+            <Name>Distribution</Name>
+            <Caption>Distribution</Caption>
             <Description/>
-            <Type>0</Type>
-            <Rect>15 15 35 165</Rect>
+            <Type>5</Type>
+            <Rect>15 15 35 345</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <TextValue/>
+            <MaxValue>6</MaxValue>
+            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>mu1</Name>
@@ -35,7 +35,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>239.6</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>50000</MaxValue>
+            <MaxValue>5000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -47,7 +47,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>41.4</DefaultValue>
             <MinValue>0.001</MinValue>
-            <MaxValue>1000</MaxValue>
+            <MaxValue>5000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -88,7 +88,7 @@
         </InputVariable>
         <InputVariable>
             <Name>longevity0</Name>
-            <Caption>longevity0</Caption>
+            <Caption>mu2</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>160 10 185 190</Rect>
@@ -100,19 +100,19 @@
         </InputVariable>
         <InputVariable>
             <Name>longevity1</Name>
-            <Caption>longevity1</Caption>
+            <Caption>s2</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>185 10 205 190</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>50</DefaultValue>
             <MinValue>0.001</MinValue>
-            <MaxValue>1000</MaxValue>
+            <MaxValue>5000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
             <Name>longevity2</Name>
-            <Caption>longevity2</Caption>
+            <Caption>delta</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>205 10 230 190</Rect>
@@ -124,7 +124,7 @@
         </InputVariable>
         <InputVariable>
             <Name>longevity3</Name>
-            <Caption>longevity3</Caption>
+            <Caption>th1</Caption>
             <Description/>
             <Type>2</Type>
             <Rect>230 10 250 190</Rect>
@@ -136,15 +136,15 @@
         </InputVariable>
         <InputVariable>
             <Name>longevity4</Name>
-            <Caption>longevity4</Caption>
+            <Caption>Distribution dead</Caption>
             <Description/>
-            <Type>2</Type>
-            <Rect>250 10 270 190</Rect>
+            <Type>5</Type>
+            <Rect>250 10 270 335</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>50</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>50</MaxValue>
-            <TextValue/>
+            <MaxValue>6</MaxValue>
+            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
