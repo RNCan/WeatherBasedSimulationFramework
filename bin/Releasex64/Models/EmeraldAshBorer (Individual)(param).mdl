@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Emerald Ahs Borer (Individual)</Title>
+    <Version>1.0</Version>
+    <ID>.eabi</ID>
+    <EXE>EmeraldAshBorerI.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Emerald Ahs Borer phenology</Description>
+    <WindowRect>0 0 408 400</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>sigma</Name>
+            <Caption>sigma</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>10 10 32 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.2</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>0.8</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_factor</Name>
+            <Caption>psy_factor</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>32 10 54 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adults</Name>
+            <Title>Adults</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Emergence</Name>
+            <Title>Emergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulEmergence</Name>
+            <Title>CumulEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CumulAdult</Name>
+            <Title>CumulAdult</Title>
+            <Units/>
+            <Description>Cumulative adult (under the curve)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright>WARNING: this model was never validated</Copyright>
+    <Credit>Developed by Remi Saint-Amant from Lyons 2004 publication&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
