@@ -326,11 +326,9 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EmeraldAshBorer.cpp" />
-    <ClCompile Include="TreeMicroClimate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EmeraldAshBorer.h" />
-    <ClInclude Include="TreeMicroClimate.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

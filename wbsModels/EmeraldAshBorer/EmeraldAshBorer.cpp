@@ -70,11 +70,13 @@ namespace WBSF
 
 	public:
 
-		enum TType { NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, NB_DISTRIBUTIONS };
+		enum TType { NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, MODIFIED_LOGISTIC, NB_DISTRIBUTIONS };
 
 		CModelDistribution(TType type, double p1, double p2)
 		{
 			m_type = type;
+			m_p1 = p1;
+			m_p2 = p2;
 
 			switch (m_type)
 			{
@@ -85,6 +87,8 @@ namespace WBSF
 			case GAMMA:		   p_fisher_f_distribution.reset(new boost::math::fisher_f_distribution<double>(p1, p2)); break;
 			case FISHER:	   p_extreme_value_distribution.reset(new boost::math::extreme_value_distribution<double>(p1, p2)); break;
 			case EXTREME_VALUE:p_gamma_distribution.reset(new boost::math::gamma_distribution<double>(p1, p2)); break;
+			case MODIFIED_LOGISTIC: break;
+			default:ASSERT(false);
 			}
 
 		}
@@ -102,6 +106,8 @@ namespace WBSF
 			case GAMMA:		   CDF = cdf(*p_fisher_f_distribution, v); break;
 			case FISHER:	   CDF = cdf(*p_extreme_value_distribution, v); break;
 			case EXTREME_VALUE:CDF = cdf(*p_gamma_distribution, v); break;
+			case MODIFIED_LOGISTIC:CDF = 1 / (1 + exp(-(v - m_p1) / sqrt(m_p2 * v))); break;
+			default:ASSERT(false);
 			}
 
 			return CDF;
@@ -114,6 +120,8 @@ namespace WBSF
 	protected:
 
 		TType m_type;
+		double m_p1;
+		double m_p2;
 
 		std::unique_ptr<boost::math::normal_distribution<double>> p_normal_distribution;
 		std::unique_ptr<boost::math::lognormal_distribution<double>> p_lognormal_distribution;
@@ -134,13 +142,36 @@ namespace WBSF
 		VERSION = "2.0.0 (2022)";
 
 
-		
-		m_distribution_e = CModelDistribution::FISHER;
-		m_adult_emerg =  { 268.318,71.2378, 60, 12.5, 30.0 } ;
-		
-		m_distribution_d = CModelDistribution::FISHER;
-		m_adult_dead = { 152.733,55.6577, 60, 16, 50};
-	
+
+		//m_distribution_e = CModelDistribution::FISHER;
+		//m_adult_emerg = { CModelDistribution::FISHER, 268.318,71.2378, 60, 12.5, 30.0, 0, 1 };
+
+		//m_distribution_d = CModelDistribution::FISHER;
+		//m_adult_dead = { CModelDistribution::FISHER, 152.733,55.6577, 60, 16, 50, 0, 1 };
+
+		m_adult_emerg = { CModelDistribution::MODIFIED_LOGISTIC, 423.84,13.676,60,10.2,28.7,0,1 };
+		m_adult_dead = { CModelDistribution::MODIFIED_LOGISTIC, 1247.5,4.6753,60,4.0,31, 0, 1 };
+
+
+
+
+
+
+		/*<Parameter Name = "mu1">275.173 < / Parameter >
+		< Parameter Name = "a1">10.4325 < / Parameter >
+		< Parameter Name = "delta">60 < / Parameter >
+		< Parameter Name = "Th1">13.1524 < / Parameter >
+		< Parameter Name = "Th2">28.409 < / Parameter >
+
+
+
+		< Parameter Name = "mu2">253.586 < / Parameter >
+		< Parameter Name = "delta2">60 < / Parameter >
+		< Parameter Name = "a2">0.0545667 < / Parameter >
+		< Parameter Name = "ThL">8.30619 < / Parameter >
+		< Parameter Name = "ThH">11.471 < / Parameter >
+				*/
+
 	}
 
 	CEmeraldAshBorerModel::~CEmeraldAshBorerModel()
@@ -152,21 +183,14 @@ namespace WBSF
 		ERMsg msg;
 
 		size_t c = 0;
-		//m_bCumul = 
-		
 
-		if (parameters.size() == 1 + 2 * NB_PARAMS)
+		if (parameters.size() == 2 * NB_PARAMS)
 		{
-			m_distribution_e = parameters[c++].GetInt();
-
 			for (size_t p = 0; p < NB_PARAMS; p++)
 				m_adult_emerg[p] = parameters[c++].GetFloat();
 
-			for (size_t p = 0; p < NB_PARAMS-1; p++)
+			for (size_t p = 0; p < NB_PARAMS - 1; p++)
 				m_adult_dead[p] = parameters[c++].GetFloat();
-
-			m_distribution_d = parameters[c++].GetInt();
-
 		}
 
 		return msg;
@@ -260,9 +284,9 @@ namespace WBSF
 		if (output.empty())
 			output.Init(weather.GetEntireTPeriod(), NB_OUTPUTS, 0);
 
-		
-		CModelDistribution emerge_dist(CModelDistribution::TType(m_distribution_e), m_adult_emerg[μ], m_adult_emerg[ѕ]);
-		CModelDistribution dead_dist(CModelDistribution::TType(m_distribution_d), m_adult_dead[μ], m_adult_dead[ѕ]);
+
+		CModelDistribution emerge_dist(CModelDistribution::TType(m_adult_emerg[d_type]), m_adult_emerg[μ], m_adult_emerg[ѕ]);
+		CModelDistribution dead_dist(CModelDistribution::TType(m_adult_dead[d_type]), m_adult_dead[μ], m_adult_dead[ѕ]);
 
 		int year = weather.GetTRef().GetYear();
 
@@ -280,16 +304,21 @@ namespace WBSF
 				bColdEvent = true;
 
 
-			double emergence = Round(100 * emerge_dist.get_cdf( CDDe[TRef][0]), 1);
-			if (emergence < 1.0)
+			//double logis = 1 / pow((1 + m_adult_emerg[alpha] * exp(-(CDDe[TRef][0]-m_adult_emerg[μ])/ m_adult_emerg[ѕ])), 1/ m_adult_emerg[beta]);
+			//double logis_e = 1 / (1 + exp(-(CDDe[TRef][0] - m_adult_emerg[μ]) / pow(m_adult_emerg[alpha] * CDDe[TRef][0], m_adult_emerg[beta])));
+			//double emergence = Round(100 * logis_e, 1);
+			double emergence = Round(100 * emerge_dist.get_cdf(CDDe[TRef][0]), 1);
+			if (emergence <= 0.1)
 				emergence = 0.0;
-			if (emergence > 99.0)
+			if (emergence >= 99.9)
 				emergence = 100.0;
-			
-			double dead = bColdEvent?100:Round(100 * dead_dist.get_cdf(CDDd[TRef][0]), 1);
-			if (dead < 1.0)
+
+			double dead = bColdEvent ? 100 : Round(100 * dead_dist.get_cdf(CDDd[TRef][0]), 1);
+			//double logis_d = 1 / (1 + exp(-(CDDd[TRef][0] - m_adult_dead[μ]) / pow(m_adult_dead[alpha] * CDDd[TRef][0], m_adult_dead[beta])));
+			//double dead = bColdEvent ? 100 : Round(100 * logis_d, 1);
+			if (dead <= 0.1)
 				dead = 0.0;
-			if (dead > 99.0)
+			if (dead >= 99.9)
 				dead = 100.0;
 
 
@@ -319,8 +348,8 @@ namespace WBSF
 	enum TInput { I_EMERGENCE, I_CUMUL_EMERGENCE, I_CATCH, I_CUMUL_CATCH };
 	void CEmeraldAshBorerModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		ASSERT(data.size() == 6); 
-		 
+		ASSERT(data.size() == 6);
+
 		CSAResult obs;
 
 		obs.m_ref.FromFormatedString(data[1]);
@@ -331,7 +360,8 @@ namespace WBSF
 		obs.m_obs[I_CUMUL_CATCH] = stod(data[5]);//Catch
 
 		m_years.insert(obs.m_ref.GetYear());
-
+		//m_DOY[obs.m_ref.GetYear()] += obs.m_ref.GetJDay();
+		m_DOY += obs.m_ref.GetJDay();
 
 		m_SAResult.push_back(obs);
 
@@ -429,19 +459,48 @@ namespace WBSF
 
 
 
+	double CEmeraldAshBorerModel::GetSimDOY(size_t s, CTRef TRefO, double obs, const CModelStatVector& output)
+	{
+		ASSERT(obs > -999);
 
+		double DOY = -999;
+
+
+
+		//if (obs > 0.01 && obs < 99.99)
+		//if (obs >= 100)
+			//obs = 99.99;//to avoid some problem of truncation
+
+		long index = output.GetFirstIndex(s, ">=", obs, 1, CTPeriod(TRefO.GetYear(), JANUARY, DAY_01, TRefO.GetYear(), DECEMBER, DAY_31));
+		if (index >= 1)
+		{
+			double obsX1 = output.GetFirstTRef().GetJDay() + index;
+			double obsX2 = output.GetFirstTRef().GetJDay() + index + 1;
+
+			double obsY1 = output[index][s];
+			double obsY2 = output[index + 1][s];
+			if (obsY2 != obsY1)
+			{
+				double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
+				double obsX = obsX1 + (obs - obsY1) * slope;
+				ASSERT(!_isnan(obsX) && _finite(obsX));
+
+				DOY = obsX;
+			}
+
+		}
+
+		return DOY;
+	}
+
+	double  CEmeraldAshBorerModel::GetDOYPercent(double DOY)const
+	{
+		//ASSERT(m_DOY.find(year) != m_DOY.end());
+		//return value can be negative of greater than 100%
+		return 100 * (DOY - m_DOY[LOWEST]) / m_DOY[RANGE];
+	}
 	bool CEmeraldAshBorerModel::CalibrateEmergence(CStatisticXY& stat)
 	{
-		//if (m_SAResult.size() < 4)
-			//return true;
-
-		//boost::math::lognormal_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-		//boost::math::weibull_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-		//boost::math::beta_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-		//boost::math::exponential_distribution<double> emerge_dist(m_P[ѕ]);
-		//boost::math::rayleigh_distribution<double> emerge_dist(m_P[ѕ]);
-
-
 		double Ne = 0;
 		double Nc = 0;
 		for (size_t i = 0; i < m_SAResult.size(); i++)
@@ -453,37 +512,9 @@ namespace WBSF
 		}
 
 
-
-		//CModelStatVector Pe;
-		//GetPobsUni(I_EMERGENCE, m_adult_emerg, Pe);
-
-		//CModelStatVector Pc;
-		//GetPobsUni(I_CATCH, m_adult_dead, Pc);
-
-		//array<boost::math::logistic_distribution<double>,4> emerge_dist(mu, S);
-		//array<boost::math::logistic_distribution<double>, 4> emerge_dist = { {m_P[μ1], m_P[ѕ1], m_P[μ1], m_P[ѕ1]} };
-
-		//boost::math::weibull_distribution<double> emerge_dist(mu, S);
-		//boost::math::logistic_distribution<double> emerge_dist(m_adult_emerg[μ], m_adult_emerg[ѕ]);
-
-		//boost::math::weibull_distribution<double> emerge_dist(mu, S);
-		//boost::math::logistic_distribution<double> dead_dist(m_adult_dead[μ], m_adult_dead[ѕ]);
-
 		for (auto it = m_years.begin(); it != m_years.end(); it++)
 		{
 			int year = *it;
-			//ASSERT(m_weather.IsYearInit(year));
-
-			//CModelStatVector CDDe;
-			//GetCDD(m_adult_emerg, m_weather[year], CDDe);
-			//CModelStatVector CDDd;
-			//GetCDD(m_adult_dead, m_weather[year], CDDd);
-
-			////compute adult alive and cumulative adult alive
-			//CModelStatVector adult(m_weather[year].GetEntireTPeriod(CTM::DAILY), 2, 0);
-			//{
-
-			//}
 
 			CModelStatVector output;
 			ExecuteDaily(m_weather[year], output);
@@ -499,11 +530,26 @@ namespace WBSF
 						double obs = m_SAResult[i].m_obs[I_CUMUL_EMERGENCE];
 						double sim = output[m_SAResult[i].m_ref][O_CUMUL_EMERGENCE];
 
-						for (size_t ii = 0; ii < log(5 * Ne); ii++)
+						for (size_t ii = 0; ii < log(3 * Ne); ii++)
 							stat.Add(obs, sim);
 
 						ASSERT(obs >= 0 && obs <= 100);
 						ASSERT(sim >= 0 && sim <= 100);
+
+
+						if (obs >= 0.5 && obs <= 99.5)
+						{
+
+							double sim_DOY = GetSimDOY(O_CUMUL_EMERGENCE, m_SAResult[i].m_ref, obs, output);
+							if (sim_DOY > -999)
+							{
+								double obs_DOYp = GetDOYPercent(m_SAResult[i].m_ref.GetJDay());
+								double sim_DOYp = GetDOYPercent(sim_DOY);
+
+								for (size_t ii = 0; ii < log(3 * Ne); ii++)
+									stat.Add(obs_DOYp, sim_DOYp);
+							}
+						}
 					}
 
 					//flies catch 
@@ -514,6 +560,21 @@ namespace WBSF
 
 						for (size_t ii = 0; ii < log(Nc); ii++)
 							stat.Add(obs, sim);
+
+
+						if (obs >= 0.5 && obs <= 99.5)
+						{
+
+							double sim_DOY = GetSimDOY(O_CUMUL_ADULT, m_SAResult[i].m_ref, obs, output);
+							if (sim_DOY > -999)
+							{
+								double obs_DOYp = GetDOYPercent(m_SAResult[i].m_ref.GetJDay());
+								double sim_DOYp = GetDOYPercent(sim_DOY);
+
+								for (size_t ii = 0; ii < log(3 * Ne); ii++)
+									stat.Add(obs_DOYp, sim_DOYp);
+							}
+						}
 					}
 				}
 			}//for all results

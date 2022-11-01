@@ -6,7 +6,7 @@
 namespace WBSF
 {
 
-	enum TParameters { μ, ѕ, delta, Τᴴ¹, Τᴴ², NB_PARAMS};
+	enum TParameters { d_type, μ, ѕ, delta, Τᴴ¹, Τᴴ², alpha, beta, NB_PARAMS};
 
 	class CEmeraldAshBorerModel : public CBioSIMModelBase
 	{
@@ -26,13 +26,15 @@ namespace WBSF
 
 	protected:
 
-		size_t m_distribution_e;
-		size_t m_distribution_d;
+		//size_t m_distribution_e;
+		//size_t m_distribution_d;
 
 //		bool m_bCumul;
 		std::array<double, NB_PARAMS> m_adult_emerg;
 		std::array<double, NB_PARAMS> m_adult_dead;
 		std::set<int> m_years;
+		//std::map<int, CStatistic> m_DOY;
+		CStatistic m_DOY;
 		
 
 		bool IsParamValid()const;
@@ -42,7 +44,10 @@ namespace WBSF
 		void GetPobsUni(size_t, const std::array<double, NB_PARAMS>& param, CModelStatVector& P);
 		bool CalibrateEmergence(CStatisticXY& stat);
 		void ComputeCumul(CSAResultVector& SAResult);
+		double GetDOYPercent(double DOY)const;
 
+
+		static double GetSimDOY(size_t s, CTRef TRefO, double obs, const CModelStatVector& output);
 
 	};
 }

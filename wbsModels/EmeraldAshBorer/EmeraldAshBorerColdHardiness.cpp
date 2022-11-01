@@ -256,7 +256,7 @@ namespace WBSF
 				{
 					phase = DESACCLIMATATION;
 				}
-				output[TRef][O_H_WT] = wT; 
+				output[TRef][O_H_WT] = wT;
 				output[TRef][O_H_SCP] = cur_SCP;
 				output[TRef][O_H_MORTALITY] = mortality * 100;
 				output[TRef][O_H_DIFF_TMIN_SCP] = output[TRef][O_TBARK] - output[TRef][O_H_SCP];
