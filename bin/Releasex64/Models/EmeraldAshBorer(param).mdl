@@ -24,7 +24,7 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>6</MaxValue>
-            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue</TextValue>
+            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue|Modified Logistic</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>mu1</Name>
@@ -35,7 +35,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>239.6</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>5000</MaxValue>
+            <MaxValue>50000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -87,7 +87,43 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>longevity0</Name>
+            <Name>a1</Name>
+            <Caption>a1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>160 195 185 375</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b1</Name>
+            <Caption>b1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>190 195 210 375</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Distribution2</Name>
+            <Caption>Distribution dead</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>135 5 155 330</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>6</MaxValue>
+            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue|Modified Logistic</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu2</Name>
             <Caption>mu2</Caption>
             <Description/>
             <Type>2</Type>
@@ -99,7 +135,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>longevity1</Name>
+            <Name>s2</Name>
             <Caption>s2</Caption>
             <Description/>
             <Type>2</Type>
@@ -111,7 +147,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>longevity2</Name>
+            <Name>delta2</Name>
             <Caption>delta</Caption>
             <Description/>
             <Type>2</Type>
@@ -123,7 +159,7 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>longevity3</Name>
+            <Name>ThL</Name>
             <Caption>th1</Caption>
             <Description/>
             <Type>2</Type>
@@ -135,16 +171,40 @@
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>longevity4</Name>
-            <Caption>Distribution dead</Caption>
+            <Name>ThH</Name>
+            <Caption>ThH</Caption>
             <Description/>
-            <Type>5</Type>
-            <Rect>250 10 270 335</Rect>
+            <Type>2</Type>
+            <Rect>250 10 270 190</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>0</DefaultValue>
+            <DefaultValue>50</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>6</MaxValue>
-            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue</TextValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a2</Name>
+            <Caption>a2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>315 10 340 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b2</Name>
+            <Caption>b2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>340 10 360 190</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
