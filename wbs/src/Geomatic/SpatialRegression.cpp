@@ -115,8 +115,6 @@ namespace WBSF
 
 		double E = 1;
 		const double var[NB_TERMS] = { x , y , elev, expo, shore, x*x, y*y, elev*elev, expo*expo, shore*shore };
-		//const double var[NB_TERMS] = { x/1000.0, y / 1000.0, elev, expo, shore/1000.0, x*x / 1000000.0, y*y / 1000000.0, elev*elev, expo*expo, shore*shore/1000000.0 };
-//		const double var[NB_TERMS] = { Signe(x)*sqrt(abs(x)), Signe(y)*sqrt(abs(y)), Signe(elev)*sqrt(abs(elev)), Signe(expo)*sqrt(abs(expo)), Signe(shore)*sqrt(abs(shore)), x, y, elev, expo, shore , pow(x,1.5), pow(y,1.5), pow(elev,1.5), pow(expo,1.5), pow(shore,1.5)};
 
 		for (size_t i = 0; i < NB_TERMS; i++)
 		{
@@ -159,17 +157,7 @@ namespace WBSF
 				str += GetName(i);
 			}
 		}
-		/*
-				for (size_t i = 0; i < NB_TERMS; i++)
-				{
-					if (m_v & (1 << i))
-					{
-						if (!str.empty())
-							str += "*";
-
-						str += GetName(i);
-					}
-				}*/
+		
 
 		return str;
 	}
@@ -276,7 +264,8 @@ namespace WBSF
 			for (size_t i = 0; i < m_param.size(); i++)
 			{
 				str += (m_param[i] > 0) ? " + " : " - ";
-				str += ToString(abs(m_param[i]), 8) + "*" + at(i).GetName();
+				//str += ToString(abs(m_param[i]), 8) + "*" + at(i).GetName();
+				str += FormatA( "%.8g", abs(m_param[i])) + "*" + at(i).GetName();
 			}
 		}
 
@@ -330,7 +319,7 @@ namespace WBSF
 		bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
 		bool bUseShore = m_param.m_bUseShore;
 
-		callback.PushTask("Straight foreward optimization", NOT_INIT);
+		callback.PushTask("Straight forward optimization", NOT_INIT);
 
 		CGeoRegression regression;
 
@@ -393,7 +382,7 @@ namespace WBSF
 		bool bUseExpo = m_param.m_bUseExposition && m_pPts->HaveExposition();
 		bool bUseShore = m_param.m_bUseShore;
 
-		callback.PushTask("Foreward optimization", NOT_INIT);
+		callback.PushTask("Forward optimization", NOT_INIT);
 
 
 		CGeoRegression regression;
@@ -426,7 +415,7 @@ namespace WBSF
 							//if the term isn't in the model, test the improvement achieved by adding it.
 							if (!alreadyIn)
 							{
-								//add thid term
+								//add this term
 								CGeoRegression regression2 = regression;
 								regression2.push_back(CTerm(order[i]));
 
@@ -495,7 +484,7 @@ namespace WBSF
 		double global_bestR² = adjR²;
 
 
-		//remove non-relevent term
+		//remove non-relevant term
 		bool bContinueRemove = true;
 		while (bContinueRemove&&msg)
 		{
@@ -591,7 +580,7 @@ namespace WBSF
 							//if the term isn't in the model, test the improvement achieved by adding it.
 							if (!alreadyIn)
 							{
-								//add thid term
+								//add this term
 								CGeoRegression regression2 = regression;
 								regression2.push_back(CTerm(order[i]));
 
@@ -617,7 +606,7 @@ namespace WBSF
 					global_bestR² = best_R²;
 					regression.push_back(CTerm(best_j));
 
-					//remove non-relevent term
+					//remove non-relevant term
 					bool bContinueRemove = true;
 					while (bContinueRemove&&msg)
 					{
@@ -726,12 +715,7 @@ namespace WBSF
 
 	double CSpatialRegression::Evaluate(const CGridPoint& pt, int iXval)const
 	{
-		/*if (iXval >= 0 && m_param.m_XvalPoints > 0)
-		{
-			int l = (int)ceil((iXval) / m_inc);
-			if (int(l*m_inc) == iXval)
-				return m_param.m_noData;
-		}*/
+		
 
 		double value = m_prePostTransfo.InvertTransform(m_regression.GetF(pt), m_param.m_noData);
 
