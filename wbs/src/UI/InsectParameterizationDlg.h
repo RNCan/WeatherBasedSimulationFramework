@@ -51,14 +51,17 @@ namespace WBSF
 
 		CButton			m_fixeTbCtrl;
 		std::array<CCFLEdit, 3> m_TbCtrl;
-		CButton			m_fixeToCtrl;
-		std::array < CCFLEdit, 3>m_ToCtrl;
 		CButton			m_fixeTmCtrl;
 		std::array < CCFLEdit, 3>m_TmCtrl;
 		CButton			m_fixeF0Ctrl;
-		std::array<CCFLEdit, 3>		m_F0Ctrl;
+		CCFLEdit		m_F0Ctrl;
 		CButton			m_limitMaxRateCtrl;
-		std::array<CCFLEdit, 3>		m_LimitMaxRatePCtrl;
+		CCFLEdit		m_LimitMaxRatePCtrl;
+
+		CButton			m_ConstrainTloCtrl;
+		std::array < CCFLEdit, 2>m_TloCtrl;
+		CButton			m_ConstrainThiCtrl;
+		std::array < CCFLEdit, 2>m_ThiCtrl;
 
 		CButton			m_avoidNullRateInTobsCtrl;
 		

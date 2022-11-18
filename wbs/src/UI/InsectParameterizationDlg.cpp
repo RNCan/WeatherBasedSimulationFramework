@@ -65,23 +65,26 @@ namespace WBSF
 		DDX_Control(pDX, IDC_FIT_TB_FROM, m_TbCtrl[0]);
 		DDX_Control(pDX, IDC_FIT_TB_TO, m_TbCtrl[1]);
 		DDX_Control(pDX, IDC_FIT_TB_BY, m_TbCtrl[2]);
-		DDX_Control(pDX, IDC_FIT_FIXE_TO, m_fixeToCtrl);
-		DDX_Control(pDX, IDC_FIT_TO_FROM, m_ToCtrl[0]);
-		DDX_Control(pDX, IDC_FIT_TO_TO, m_ToCtrl[1]);
-		DDX_Control(pDX, IDC_FIT_TO_BY, m_ToCtrl[2]);
 		DDX_Control(pDX, IDC_FIT_FIXE_TM, m_fixeTmCtrl);
 		DDX_Control(pDX, IDC_FIT_TM_FROM, m_TmCtrl[0]);
 		DDX_Control(pDX, IDC_FIT_TM_TO, m_TmCtrl[1]);
 		DDX_Control(pDX, IDC_FIT_TM_BY, m_TmCtrl[2]);
+
+		DDX_Control(pDX, IDC_FIT_LIMIT_TB, m_ConstrainTloCtrl);
+		DDX_Control(pDX, IDC_FIT_LIMIT_TLO_FROM, m_TloCtrl[0]);
+		DDX_Control(pDX, IDC_FIT_LIMIT_TLO_TO, m_TloCtrl[1]);
+
+		DDX_Control(pDX, IDC_FIT_LIMIT_TM, m_ConstrainThiCtrl);
+		DDX_Control(pDX, IDC_FIT_LIMIT_THI_FROM, m_ThiCtrl[0]);
+		DDX_Control(pDX, IDC_FIT_LIMIT_THI_TO, m_ThiCtrl[1]);
+
+
 		DDX_Control(pDX, IDC_FIT_FIXE_F0, m_fixeF0Ctrl);
-		DDX_Control(pDX, IDC_FIT_F0_FROM, m_F0Ctrl[0]);
-		DDX_Control(pDX, IDC_FIT_F0_TO, m_F0Ctrl[1]);
-		DDX_Control(pDX, IDC_FIT_F0_BY, m_F0Ctrl[2]);
+		DDX_Control(pDX, IDC_FIT_F0_FROM, m_F0Ctrl);
+		
 
 		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE, m_limitMaxRateCtrl);
-		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_TMIN, m_LimitMaxRatePCtrl[0]);
-		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_TMAX, m_LimitMaxRatePCtrl[1]);
-		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_F, m_LimitMaxRatePCtrl[2]);
+		DDX_Control(pDX, IDC_FIT_LIMIT_MAX_RATE_F, m_LimitMaxRatePCtrl);
 
 		DDX_Control(pDX, IDC_FIT_AVOID_INF_TIME_IN_OBS_RANGE, m_avoidNullRateInTobsCtrl);
 
@@ -107,7 +110,7 @@ namespace WBSF
 			
 	
 			m_sa.m_bFixeTb = m_fixeTbCtrl.GetCheck();
-			m_sa.m_bFixeTo = m_fixeToCtrl.GetCheck();
+
 			m_sa.m_bFixeTm = m_fixeTmCtrl.GetCheck();
 			m_sa.m_bFixeF0 = m_fixeF0Ctrl.GetCheck();
 			m_sa.m_bLimitMaxRate = m_limitMaxRateCtrl.GetCheck();
@@ -115,13 +118,22 @@ namespace WBSF
 			for (size_t i = 0; i < 3; i++)
 			{
 				m_sa.m_Tb[i] = ToDouble(m_TbCtrl[i].GetString());
-				m_sa.m_To[i] = ToDouble(m_ToCtrl[i].GetString());
 				m_sa.m_Tm[i] = ToDouble(m_TmCtrl[i].GetString());
-				m_sa.m_F0[i] = ToDouble(m_F0Ctrl[i].GetString());
-				m_sa.m_LimitMaxRateP[i] = ToDouble(m_LimitMaxRatePCtrl[i].GetString());
 			}
 
-			
+			m_sa.m_bConstrainTlo = m_ConstrainTloCtrl.GetCheck();
+			m_sa.m_Tlo[0] = ToDouble(m_TloCtrl[0].GetString());
+			m_sa.m_Tlo[1] = ToDouble(m_TloCtrl[1].GetString());
+
+			m_sa.m_bConstrainThi = m_ConstrainThiCtrl.GetCheck();
+			m_sa.m_Thi[0] = ToDouble(m_ThiCtrl[0].GetString());
+			m_sa.m_Thi[1] = ToDouble(m_ThiCtrl[1].GetString());
+
+
+
+			m_sa.m_F0 = ToDouble(m_F0Ctrl.GetString());
+			m_sa.m_LimitMaxRateP = ToDouble(m_LimitMaxRatePCtrl.GetString());
+
 			m_sa.m_bAvoidNullRateInTobs = m_avoidNullRateInTobsCtrl.GetCheck();
 			m_sa.m_bUseOutputAsInput = m_useOutputAsInputCtrl.GetCheck();
 			m_sa.m_outputAsIntputFileName = m_outputAsInputCtrl.GetString();
@@ -177,7 +189,6 @@ namespace WBSF
 			//m_calibSigmaCtrl.SetCheck(m_sa.m_bCalibSigma);
 			//m_fixeSigmaCtrl.SetCheck(m_sa.m_bFixeSigma);
 			m_fixeTbCtrl.SetCheck(m_sa.m_bFixeTb);
-			m_fixeToCtrl.SetCheck(m_sa.m_bFixeTo);
 			m_fixeTmCtrl.SetCheck(m_sa.m_bFixeTm);
 			m_fixeF0Ctrl.SetCheck(m_sa.m_bFixeF0);
 			m_limitMaxRateCtrl.SetCheck(m_sa.m_bLimitMaxRate);
@@ -185,11 +196,19 @@ namespace WBSF
 			for (size_t i = 0; i < 3; i++)
 			{
 				m_TbCtrl[i].SetString(ToString(m_sa.m_Tb[i]));
-				m_ToCtrl[i].SetString(ToString(m_sa.m_To[i]));
 				m_TmCtrl[i].SetString(ToString(m_sa.m_Tm[i]));
-				m_F0Ctrl[i].SetString(ToString(m_sa.m_F0[i]));
-				m_LimitMaxRatePCtrl[i].SetString(ToString(m_sa.m_LimitMaxRateP[i]));
 			}
+
+			m_ConstrainTloCtrl.SetCheck(m_sa.m_bConstrainTlo);
+			m_TloCtrl[0].SetString(ToString(m_sa.m_Tlo[0]));
+			m_TloCtrl[1].SetString(ToString(m_sa.m_Tlo[1]));
+
+			m_ConstrainThiCtrl.SetCheck(m_sa.m_bConstrainThi);
+			m_ThiCtrl[0].SetString(ToString(m_sa.m_Thi[0]));
+			m_ThiCtrl[1].SetString(ToString(m_sa.m_Thi[1]));
+
+			m_F0Ctrl.SetString(ToString(m_sa.m_F0));
+			m_LimitMaxRatePCtrl.SetString(ToString(m_sa.m_LimitMaxRateP));
 
 
 			m_avoidNullRateInTobsCtrl.SetCheck(m_sa.m_bAvoidNullRateInTobs);
@@ -206,8 +225,9 @@ namespace WBSF
 		ON_BN_CLICKED(IDC_FIT_SA, &OnEditSACtrl)
 		ON_BN_CLICKED(IDC_FIT_EQ_OPTIONS, &OnEditEqOptions)
 		ON_BN_CLICKED(IDC_FIT_FIXE_TB, &UpdateCtrl)
-		ON_BN_CLICKED(IDC_FIT_FIXE_TO, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_FIXE_TM, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_LIMIT_TB, &UpdateCtrl)
+		ON_BN_CLICKED(IDC_FIT_LIMIT_TM, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_FIXE_F0, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_LIMIT_MAX_RATE, &UpdateCtrl)
 		ON_BN_CLICKED(IDC_FIT_USE_OUTPUT_AS_INPUT, &UpdateCtrl)
@@ -254,7 +274,7 @@ namespace WBSF
 	{
 		size_t type = (size_t)m_fitTypeCtrl.GetCurSel();
 
-		bool bDev = type == CInsectParameterization::F_DEV_TIME_WTH_SIGMA || type == CInsectParameterization::F_DEV_TIME_ONLY;
+		bool bDev = type == CInsectParameterization::F_DEV_TIME;
 		bool bSurvival = type == CInsectParameterization::F_SURVIVAL;
 		bool bOvip = type == CInsectParameterization::F_FECUNDITY;
 
@@ -266,7 +286,6 @@ namespace WBSF
 		m_outputAsInputCtrl.EnableWindow(m_useOutputAsInputCtrl.GetCheck());
 
 		m_fixeTbCtrl.EnableWindow(bDev||bOvip);
-		m_fixeToCtrl.EnableWindow(bDev||bOvip);
 		m_fixeTmCtrl.EnableWindow(bDev||bOvip);
 		m_fixeF0Ctrl.EnableWindow(bOvip);
 		m_limitMaxRateCtrl.EnableWindow(bDev || bOvip);
@@ -275,12 +294,20 @@ namespace WBSF
 		for (size_t i = 0; i < 3; i++)
 		{
 			m_TbCtrl[i].EnableWindow((bDev||bOvip)&&m_fixeTbCtrl.GetCheck());
-			m_ToCtrl[i].EnableWindow((bDev||bOvip)&&m_fixeToCtrl.GetCheck());
 			m_TmCtrl[i].EnableWindow((bDev||bOvip)&&m_fixeTmCtrl.GetCheck());
-			m_F0Ctrl[i].EnableWindow(bOvip&&m_fixeF0Ctrl.GetCheck());
-			m_LimitMaxRatePCtrl[i].EnableWindow(bDev && m_limitMaxRateCtrl.GetCheck());
 		}
 
+		m_ConstrainTloCtrl.EnableWindow(bDev || bOvip);
+		m_TloCtrl[0].EnableWindow((bDev || bOvip) && m_ConstrainTloCtrl.GetCheck());
+		m_TloCtrl[1].EnableWindow((bDev || bOvip) && m_ConstrainTloCtrl.GetCheck());
+		
+		m_ConstrainThiCtrl.EnableWindow(bDev || bOvip);
+		m_ThiCtrl[0].EnableWindow((bDev || bOvip) && m_ConstrainThiCtrl.GetCheck());
+		m_ThiCtrl[1].EnableWindow((bDev || bOvip) && m_ConstrainThiCtrl.GetCheck());
+
+
+		m_F0Ctrl.EnableWindow(bOvip && m_fixeF0Ctrl.GetCheck());
+		m_LimitMaxRatePCtrl.EnableWindow(bDev && m_limitMaxRateCtrl.GetCheck());
 
 		m_avoidNullRateInTobsCtrl.EnableWindow(bDev || bOvip);
 	}

@@ -626,6 +626,13 @@
 #define IDC_FIT_LIMIT_MAX_RATE_TMIN     1318
 #define IDC_FIT_LIMIT_MAX_RATE_TMAX     1319
 #define IDC_FIT_LIMIT_MAX_RATE_F        1320
+#define IDC_FIT_LIMIT_TB                1321
+#define IDC_FIT_LIMIT_TB2               1322
+#define IDC_FIT_LIMIT_TM                1322
+#define IDC_FIT_LIMIT_THI_FROM          1323
+#define IDC_FIT_LIMIT_THI_TO            1324
+#define IDC_FIT_LIMIT_TLO_FROM          1325
+#define IDC_FIT_LIMIT_TLO_TO            1326
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -991,7 +998,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        245
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1321
+#define _APS_NEXT_CONTROL_VALUE         1327
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

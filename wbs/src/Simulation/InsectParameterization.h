@@ -43,11 +43,14 @@ namespace WBSF
 	{
 	public:
 
+		CDevRateDataRow();
+
 		std::string m_variable;
 		std::string m_treatment;
 		std::string m_i;
 		std::string GetProfile()const { return m_variable + "_" + m_treatment + "_" + m_i; }
 		size_t m_type;
+		bool m_bIndividual;
 
 		double GetMaxTime() const;
 
@@ -58,6 +61,7 @@ namespace WBSF
 		double t1() const { return m_t1; }
 		double t2(bool bPrevious = false) const { return std::max(0.0, t(bPrevious) - t1());  }
 		double t(bool bPrevious = false) const { return bPrevious ? m_tˉ¹ : m_t;}
+		size_t GetH1() const;
 
 		const std::vector<double>& T()const { ASSERT(m_Tobs.get());  return  *(m_Tobs.get()); }
 
@@ -96,6 +100,8 @@ namespace WBSF
 
 		CDevRateData();
 		virtual ~CDevRateData();
+		void clear();
+
 
 		ERMsg load(const std::string& file_path);
 		ERMsg load(std::istream& io);
@@ -109,6 +115,8 @@ namespace WBSF
 		std::map<std::string, std::map<std::string, CStatisticEx>> m_statsBrood;
 		std::map<std::string, CStatistic> m_statsRateByVariable;
 		std::map<std::string, CStatistic> m_statsTByVariable;
+
+		std::map<std::string, std::map<std::string, vector<size_t>>> m_pos;
 		
 
 		bool m_bIndividual;
@@ -243,12 +251,14 @@ namespace WBSF
 		static const char* DATA_DESCRIPTOR;
 		enum TDevRateCalibOn { CO_TIME, CO_RATE, NB_CALIB_ON };
 		enum TFeedback { LOOP, ITERATION, CYCLE };
-		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL,  F_FECUNDITY, NB_FIT_TYPE };
+		enum TFit { F_DEV_TIME, F_SURVIVAL,  F_FECUNDITY, NB_FIT_TYPE };
+		//_WTH_SIGMA
+		//F_DEV_TIME_ONLY, 
 
 		
 
 		enum TMember {
-			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TO, TO_VALUE, FIXE_TM, TM_VALUE, FIXE_F0, F0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, AVOID_NULL_RATE_IN_TOBS, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
+			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME, OUTPUT_FILE_NAME, CONTROL, FIXE_TB, TB_VALUE, FIXE_TM, TM_VALUE, COUNSTRAIN_T_LO, T_LO_VALUES, COUNSTRAIN_T_HI, T_HI_VALUES, FIXE_F0, F0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, AVOID_NULL_RATE_IN_TOBS, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME, SHOW_TRACE,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -272,14 +282,20 @@ namespace WBSF
 		//bool m_bCalibSigma;
 		bool m_bFixeTb;
 		std::array<double,3> m_Tb;
-		bool m_bFixeTo;
-		std::array<double, 3> m_To;
 		bool m_bFixeTm;
 		std::array<double, 3> m_Tm;
 		bool m_bFixeF0;
-		std::array<double, 3> m_F0;
+		double m_F0;
 		bool m_bLimitMaxRate;
-		std::array<double, 3> m_LimitMaxRateP;
+		double m_LimitMaxRateP;
+
+
+		bool m_bConstrainTlo;
+		std::array<double, 2> m_Tlo;
+		bool m_bConstrainThi;
+		std::array<double, 2> m_Thi;
+
+
 
 		bool m_bAvoidNullRateInTobs;
 		bool m_bUseOutputAsInput;
