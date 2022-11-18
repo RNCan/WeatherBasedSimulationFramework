@@ -196,6 +196,7 @@
     <ClCompile Include="..\src\ModelBase\InputParam.cpp" />
     <ClCompile Include="..\src\ModelBase\Model.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelBaseError.cpp" />
+    <ClCompile Include="..\src\ModelBase\ModelDistribution.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelInput.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelInputParameter.cpp" />
     <ClCompile Include="..\src\ModelBase\ModelOutputVariable.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="..\src\ModelBase\InputParam.h" />
     <ClInclude Include="..\src\ModelBase\Model.h" />
     <ClInclude Include="..\src\ModelBase\ModelBaseError.h" />
+    <ClInclude Include="..\src\ModelBase\ModelDistribution.h" />
     <ClInclude Include="..\src\ModelBase\ModelInput.h" />
     <ClInclude Include="..\src\ModelBase\ModelInputParameter.h" />
     <ClInclude Include="..\src\ModelBase\ModelOutputVariable.h" />

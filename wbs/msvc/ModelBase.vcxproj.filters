@@ -88,6 +88,9 @@
     <ClCompile Include="..\src\ModelBase\SurvivalEquation.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ModelBase\ModelDistribution.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -175,6 +178,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ModelBase\SurvivalEquation.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ModelBase\ModelDistribution.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
