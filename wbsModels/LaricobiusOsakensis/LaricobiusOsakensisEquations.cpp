@@ -135,7 +135,7 @@ namespace WBSF
 	{
 		static const double SIGMA[NB_STAGES] =
 		{
-			//Relative devlopement Time (individual varition): sigma
+			//Relative development Time (individual variation): sigma
 			//Non-linear
 			{0.135},//Egg
 			{0.184},//L1

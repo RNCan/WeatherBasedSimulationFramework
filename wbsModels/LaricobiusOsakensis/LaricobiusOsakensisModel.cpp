@@ -459,7 +459,7 @@ namespace WBSF
 
 
 
-	void CLaricobiusOsakensisModel::GetFValueDaily(CStatisticXY& stat)
+	bool CLaricobiusOsakensisModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		//return CalibrateCumulativeEggCreation(stat);
 
@@ -532,5 +532,7 @@ namespace WBSF
 				}//have data
 			}
 		}
+
+		return true;
 	}
 }
