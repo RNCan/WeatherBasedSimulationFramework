@@ -24,6 +24,7 @@ namespace WBSF
 		
 		m_exe_filepath = exe_filepath;
 		m_bufsize = bufsize;
+		m_timeout = 0;
 
 		if (m_exe_filepath.empty())
 			m_exe_filepath = GetApplicationPath() + "External\\curl.exe";
@@ -51,7 +52,13 @@ namespace WBSF
 
 
 		//string strHeaders = "-H \"Content-Type: application/x-www-form-urlencoded\"";
-		string argument = "-s -k \"" + URL + "\" --output \"" + output_filepath + "\"";
+		string argument = string(bShowCurl ? "" : "-s ") + "-k ";
+		if (m_timeout > 0)
+			argument += "--connect-timeout " + to_string(m_timeout) + " ";
+		
+		argument += "\"" + URL + "\" --output \"" + output_filepath + "\"";
+		//--max-time
+
 		string command= "\"" + m_exe_filepath + "\" " + argument;
 
 
