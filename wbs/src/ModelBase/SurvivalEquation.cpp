@@ -247,6 +247,7 @@ namespace WBSF
 			s = 1.0;
 		}
 
+	//	ASSERT(s >= 0 && s <= 1);
 		return s;
 	}
 
