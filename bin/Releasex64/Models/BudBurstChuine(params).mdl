@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
-    <Title>BudBurstSaintAmant</Title>
+    <Title>BudBurstChuine</Title>
     <Version>1.0</Version>
     <ID>.Isa</ID>
     <EXE>BudBurstChuine.dll</EXE>
@@ -82,7 +82,7 @@
             <Rect>45 10 65 160</Rect>
             <SeparatorPos>65</SeparatorPos>
             <DefaultValue>244</DefaultValue>
-            <MinValue>214</MinValue>
+            <MinValue>0</MinValue>
             <MaxValue>365</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -263,7 +263,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>57</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>1000</MaxValue>
+            <MaxValue>10000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -323,7 +323,7 @@
             <SeparatorPos>90</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>2</MaxValue>
+            <MaxValue>40</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -431,7 +431,7 @@
             <SeparatorPos>80</SeparatorPos>
             <DefaultValue>0.5</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>2</MaxValue>
+            <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -569,6 +569,14 @@
         <OutputVariable>
             <Name>SDI</Name>
             <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI_Auger</Name>
+            <Title>SDI_Auger</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
