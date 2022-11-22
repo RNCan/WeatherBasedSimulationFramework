@@ -210,14 +210,6 @@ namespace WBSF
 	//survival
 
 
-
-
-
-
-
-
-
-
 	double CSpottedLanternflyEquations::GetDailySurvivalRate(size_t s, double T)const
 	{
 
@@ -233,12 +225,6 @@ namespace WBSF
 			CSurvivalEquation::Unknown,		// Dead
 		};
 	
-
-
-
-
-
-
 		static const array< vector<double>, NB_STAGES>  P_SUR =
 		{ {
 			{0.002164923, 20.43299, 28.53151, 2.200288},//egg
@@ -249,13 +235,6 @@ namespace WBSF
 			{ 0 },//Adult
 			{ 0 },//Dead
 		} };
-
-
-
-
-
-
-
 
 		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], P_SUR[s], T)));
 

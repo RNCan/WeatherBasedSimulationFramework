@@ -25,7 +25,10 @@ namespace WBSF
 		NB_INPUT_PARAMETER = -1;
 		VERSION = "1.0.0 (2022)";
 
+		
 		m_bApplyAttrition = true;
+		m_bApplyFrost = true;
+		m_bCumul = true;
 
 		//Correction factor: fitted curve don't estimate fields observation accurately
 		m_psy = { {1,1.44,1.48,1.69,1.48,1,1} };
@@ -44,7 +47,9 @@ namespace WBSF
 		size_t c = 0;
 		m_bApplyAttrition = parameters[c++].GetBool();
 		m_bApplyFrost = parameters[c++].GetBool();
-		
+		m_bCumul = parameters[c++].GetBool();
+
+
 		if (parameters.size() == NB_CDD_PARAMS + NB_PSY + 2)
 		{
 			for (size_t p = 0; p < NB_CDD_PARAMS; p++)
@@ -127,14 +132,26 @@ namespace WBSF
 		}
 
 
-		//CStatistic stat = output.GetStat(S_EGG_HATCH, p);
-		//if (stat.IsInit() && stat[SUM] > 0)
-		//{
-		//	output[p.Begin()][O_CUMUL_EGG_HATCH] = 0;
-		//	for (CTRef TRef = p.Begin() + 1; TRef <= p.End(); TRef++)
-		//		output[TRef][O_CUMUL_EGG_HATCH] = output[TRef - 1][O_CUMUL_EGG_HATCH] + 100 * output[TRef][S_EGG_HATCH] / stat[SUM];
-		//}
+		if (m_bCumul)
+		{
+			
+			for (size_t s = 0; s < NB_STAGES; s++)
+			{
+				size_t ss = (s == 0) ? S_EGG_HATCH : S_EGG + s;
+				CStatistic stat = output.GetStat(ss, p);
+				if (stat.IsInit() && stat[SUM] > 0)
+				{
+					double S = stat[(s != DEAD_ADULT) ? SUM : HIGHEST];
+					output[p.Begin()][s] = 100*output[p.Begin()][ss] / S;
+					for (CTRef TRef = p.Begin() + 1; TRef <= p.End(); TRef++)
+						output[TRef][s] = ((s != DEAD_ADULT) ? output[TRef - 1][s]:0) + 100 * output[TRef][ss] / S;
+				}
+			}
 
+			//for (size_t s = 0; s < DEAD_ADULT; s++)
+				//output = ;
+		}
+		
 		//stat = output.GetStat(S_ADULT, p);
 		//if (stat.IsInit() && stat[SUM] > 0)
 		//{
@@ -315,7 +332,7 @@ namespace WBSF
 		//		Nd += m_SAResult[i].m_obs[I_EGG_HATCH];
 		//}
 
-
+		m_bCumul = true;
 		for (auto it = m_years.begin(); it != m_years.end(); it++)
 		{
 			int year = *it;
@@ -324,11 +341,14 @@ namespace WBSF
 			ExecuteDaily(m_weather[year], output);
 			GetEggHacth(m_EOD, m_weather[year], output);
 
+			
+
+			
 			CTPeriod p = output.GetTPeriod();
 			CModelStatVector cumcul_output(p, DEAD_ADULT, 0);
 
 
-			for (size_t s = 0; s < DEAD_ADULT; s++)
+			/*for (size_t s = 0; s < DEAD_ADULT; s++)
 			{
 				size_t ss = (s == 0) ? S_EGG_HATCH : S_EGG + s;
 				CStatistic stat = output.GetStat(ss, p);
@@ -338,7 +358,7 @@ namespace WBSF
 					for (CTRef TRef = p.Begin() + 1; TRef <= p.End(); TRef++)
 						cumcul_output[TRef][s] = cumcul_output[TRef - 1][s] + 100 * output[TRef][ss] / stat[SUM];
 				}
-			}
+			}*/
 
 			for (size_t i = 0; i < m_SAResult.size(); i++)
 			{

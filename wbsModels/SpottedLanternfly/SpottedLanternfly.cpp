@@ -105,10 +105,6 @@ namespace WBSF
 		//Time step development rate
 		double r = Equations().GetRate(s, T) / nb_steps;
 
-		//CModelDistribution::get_cdf(CDD[TRef][0], params);
-		//if (s == ADULT)
-			//r = r*GetStand()->m_psy_factor;
-
 		//Relative development rate for this individual
 		double rr = m_RDR[s];
 		r *= rr;
@@ -116,15 +112,6 @@ namespace WBSF
 		//correction factor
 		double rrr = Equations().m_psy[s];
 		r *= rrr;
-
-		//
-		//if (s == EGG)
-		//{
-		//	//let effecte of not endded diapause
-		//	double rrrr = GetStand()->m_EOD_CDF[weather.GetTRef().GetJDay()][0];
-		//	r *= rrrr;
-		//}
-
 
 		ASSERT(r >= 0 && r < 1);
 
@@ -137,6 +124,8 @@ namespace WBSF
 			if (IsDeadByAttrition(s, T, r))
 				m_bDeadByAttrition = true;
 		}
+
+
 		//if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
 		//{
 		//	double to = 0;
@@ -242,14 +231,14 @@ namespace WBSF
 						}
 					}
 				}
-				else
+				/*else
 				{
 					if (weather[H_TMIN][MEAN] < -5)
 					{
 						m_status = DEAD;
 						m_death = FROZEN;
 					}
-				}
+				}*/
 
 			}
 		}
@@ -263,16 +252,19 @@ namespace WBSF
 	{
 		bool bDeath = false;
 
-		//if (s!=EGG || T >= 5 && T < 40)//observed temperature range
+		if (T >= 0)//under zero is manage by the frost mortality
 		{
 			//daily survival
 			double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+			//overall survival
+			double Time = 1 / Equations().GetRate(s, T);//time(days)
+			double S = pow(ds, Time);
 
 			//time step survival
-			double S = pow(ds, r);
+			double SS = pow(S, r);
 
 			//Computes attrition (probability of survival in a given time step, based on development rate)
-			if (RandomGenerator().RandUniform() > S)
+			if (RandomGenerator().RandUniform() > SS)
 				bDeath = true;
 		}
 
@@ -393,7 +385,10 @@ namespace WBSF
 
 		//winter survival
 		double S = CModelDistribution::get_cdf(weather[JANUARY][H_TMIN][MEAN], CModelDistribution::GOMPERTZ2, -3.375384, 0.2685411);
+		//double S = CModelDistribution::get_cdf(max(0.0, -weather[JANUARY][H_TMIN][MEAN]), CModelDistribution::WEIBULL, 12.387019, 2.959794);
 		
+
+
 		//daily January survival
 		m_overwinter_s = pow(S, 1.0 / 31.0);
 	}

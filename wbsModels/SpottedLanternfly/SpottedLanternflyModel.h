@@ -43,6 +43,7 @@ namespace WBSF
 
 		bool m_bApplyAttrition;
 		bool m_bApplyFrost;
+		bool m_bCumul;
 //		bool IsParamValid()const;
 	};
 
