@@ -45,7 +45,7 @@ namespace WBSF
 		typedef std::vector< std::array < COneVariableLayer, NB_CMIP6_VARIABLES>> COneMonthData;
 
 		
-		enum TAttributes { WORKING_DIR, DOWNLOAD_DATA, CREATE_GRIBS, FIRST_YEAR, LAST_YEAR, FREQUENCY, MODEL, SSP, MIN_LAND_WATER, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, DOWNLOAD_DATA, CREATE_GRIBS, FIRST_YEAR, LAST_YEAR, FREQUENCY, MODEL, SSP, MIN_LAND_WATER, SHOW_CURL, NB_ATTRIBUTES };
 		static const char* VARIABLES_NAMES[NB_CMIP6_VARIABLES];
 		static void ComputeMontlyStatistic(size_t i, size_t ii, const COneMonthData& data, CMonthlyVariables& montlhyStat);
 		static size_t GetVar(std::string name);
@@ -80,13 +80,13 @@ namespace WBSF
 
 	protected:
 
-		//ERMsg ExportPoint(std::string filePath, int rcp, CGeoPoint pt, CCallback& callback);
-		//CLandWaterMask m_landWaterMask;
 
-		//static CGeoExtents GetExtents();
+		ERMsg CUICMIP6::ApplyCC(CCallback& callback);
 
-		//ERMsg GetDEM(CMatrix<float>& DEM);
-		//ERMsg GetFileList(std::string model, std::string ssp, CMonthlyMeanGrid& MMG, CCallback& callback);
+
+		ERMsg Download(CCallback& callback);
+		ERMsg DownloadFix(std::string prefix, CCallback& callback);
+		ERMsg DownloadData(CCallback& callback);
 		
 		void ConvertData(size_t v, std::vector<float>& data)const;
 		ERMsg GetMMGForSSP(std::string model, std::string ssp, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, CMonthlyVariableVector& dataOut, CCallback& callback);

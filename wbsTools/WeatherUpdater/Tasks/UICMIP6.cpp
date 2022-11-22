@@ -5,6 +5,8 @@
 #include <boost\multi_array.hpp>
 #include "Basic/units.hpp"
 #include "Basic/Statistic.h"
+#include "Basic\json\json11.hpp"
+#include "Basic\CallcURL.h"
 #include "Simulation/MonthlyMeanGrid.h"
 #include "UI/Common/SYShowMessage.h"
 #include "Geomatic/SfcGribsDatabase.h"
@@ -38,8 +40,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CUICMIP6::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadData", "CreateGribs", "FirstYear", "LastYear", "Frequency", "Model", "SSP", "MinLandWater" };
-	const size_t CUICMIP6::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL, T_BOOL, T_STRING, T_STRING, T_COMBO_STRING, T_COMBO_STRING, T_COMBO_STRING, T_STRING };
+	const char* CUICMIP6::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DownloadData", "CreateGribs", "FirstYear", "LastYear", "Frequency", "Model", "SSP", "MinLandWater", "ShowCURL"};
+	const size_t CUICMIP6::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_BOOL, T_BOOL, T_STRING, T_STRING, T_COMBO_STRING, T_COMBO_STRING, T_COMBO_STRING, T_STRING, T_BOOL };
 	const UINT CUICMIP6::ATTRIBUTE_TITLE_ID = IDS_UPDATER_CMIP5_P;
 	const UINT CUICMIP6::DESCRIPTION_TITLE_ID = ID_TASK_CMIP5;
 
@@ -67,9 +69,10 @@ namespace WBSF
 		{
 		case WORKING_DIR:		str = GetString(IDS_STR_FILTER_NC); break;
 		case FREQUENCY:			str = "Daily|Monthly"; break;
-		case MODEL:				str = "ACCESS-CM2|ACCESS-ESM1-5|BCC-CSM2-MR|CanESM5|CMCC-ESM2|EC-Earth3|GFDL-ESM4|INM-CM5-0|MIROC6|MPI-ESM1-2-HR|MRI-ESM2-0|NorESM2-MM|TaiESM1|UKESM1-0-LL"; break;
+		case MODEL:				str = "ACCESS-ESM1-5|BCC-CSM2-MR|CanESM5|CMCC-ESM2|EC-Earth3|GFDL-ESM4|INM-CM5-0|MIROC6|MPI-ESM1-2-HR|MRI-ESM2-0|NorESM2-MM|TaiESM1|UKESM1-0-LL"; break;
 		case SSP:				str = "ssp126|ssp245|ssp370|ssp585"; break;
 		case MIN_LAND_WATER:    str = "50.0"; break;
+		
 		};
 
 		return str;
@@ -94,7 +97,7 @@ namespace WBSF
 		case MODEL:				str = "MIROC-ES2L"; break;
 		case SSP:				str = "ssp245"; break;
 		case MIN_LAND_WATER:    str = "50.0"; break;
-
+		case SHOW_CURL:			str = "0"; break;
 		};
 
 		return str;
@@ -115,17 +118,27 @@ namespace WBSF
 		return title.substr(title.length() - 17);
 	}
 
+	ERMsg CUICMIP6::ApplyCC(CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		return msg;
+	}
 
 	ERMsg CUICMIP6::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 
+		//return ApplyCC(callback);
+
 		bool bDownload = as<bool>(DOWNLOAD_DATA);
 		if (bDownload)
 		{
-			msg.ajoute("Download of CMPI6 data is not implemented yet");
+			msg = Download(callback);
+			//msg.ajoute("Download of CMPI6 data is not implemented yet");
 		}
-			
+
 
 		bool bCreateGribs = as<bool>(CREATE_GRIBS);
 		if (bCreateGribs)
@@ -135,97 +148,429 @@ namespace WBSF
 			else
 			{
 
-				CLocationVector loc;
-				//msg = loc.Load("D:\\Travaux\\CMIP6\\Loc\\NormalsCanada-USA1981-2010subset100kmClean.csv");
-				msg = loc.Load("D:\\Travaux\\CMIP6\\Loc\\Dayton.csv");
+				//CLocationVector loc;
+				////msg = loc.Load("D:\\Travaux\\CMIP6\\Loc\\NormalsCanada-USA1981-2010subset100kmClean.csv");
+				//msg = loc.Load("D:\\Travaux\\CMIP6\\Loc\\Dayton.csv");
 
-				ofStream out;
-				//msg += out.open("D:\\Travaux\\CMIP6\\Output\\replications.csv");
-				//out << "KeyID,ripf,Month,Variable,Value" << endl;
-				msg += out.open("D:\\Travaux\\CMIP6\\Output\\replications_Dayton.csv");
-				out << "KeyID,r,i,p,f,Year,Month,Tmin,Tmax,Prcp,SpeH,WindS" << endl;
-
-
-				string model = "CanESM5";
-				string ssp = "ssp245";
-				string filepath_out = "G:\\MMG\\Replication.mmg";
-
-				string ripf = FormatA("r%di%dp%df%d", 1, 1, 1, 1);
-				CreateMonthlyGribs(filepath_out, ripf, callback);
-				
-				//static const char* REPLICATION[6] = { "r10i1p1f1", "r10i1p2f1", "r11i1p1f1", "r11i1p2f1", "r12i1p1f1", "r12i1p2f1" };
-				for (size_t r = 1; r < 20 && msg; r++)
-				{
-					for (size_t p = 1; p < 3 && msg; p++)
-					{
-						string ripf = FormatA("r%di%dp%df%d", r, 1, p, 1);
-						//msg += CreateMonthlyGribs(filepath_out, ripf, callback);
+				//ofStream out;
+				////msg += out.open("D:\\Travaux\\CMIP6\\Output\\replications.csv");
+				////out << "KeyID,ripf,Month,Variable,Value" << endl;
+				//msg += out.open("D:\\Travaux\\CMIP6\\Output\\replications_Dayton.csv");
+				//out << "KeyID,r,i,p,f,Year,Month,Tmin,Tmax,Prcp,SpeH,WindS" << endl;
 
 
-						if (msg)
-						{
-							//Create csv file
-							string filePathOut = filepath_out;
-							WBSF::SetFileTitle(filePathOut, WBSF::GetFileTitle(filePathOut) + "_" + model + "_" + ssp + "_" + ripf);
+				//string model = "CanESM5";
+				//string ssp = "ssp245";
+				//string filepath_out = "G:\\MMG\\Replication.mmg";
+
+				//string ripf = FormatA("r%di%dp%df%d", 1, 1, 1, 1);
+				//CreateMonthlyGribs(filepath_out, ripf, callback);
+				//
+				////static const char* REPLICATION[6] = { "r10i1p1f1", "r10i1p2f1", "r11i1p1f1", "r11i1p2f1", "r12i1p1f1", "r12i1p2f1" };
+				//for (size_t r = 1; r < 20 && msg; r++)
+				//{
+				//	for (size_t p = 1; p < 3 && msg; p++)
+				//	{
+				//		string ripf = FormatA("r%di%dp%df%d", r, 1, p, 1);
+				//		//msg += CreateMonthlyGribs(filepath_out, ripf, callback);
 
 
-							CMonthlyMeanGrid MMG;
-							if (MMG.Open(filePathOut, callback))
-							{
-								for (size_t l = 0; l < loc.size() && msg; l++)
-								{
-									//double monthlyMean[12][NORMALS_DATA::NB_FIELDS];
-									//if (MMG.GetNormals(1981, 30, 4, 500000, 2, loc[l], monthlyMean, callback))
-									//for (size_t y = 0; y < 30 && msg; y++)
-									//{
-										//int year = int(1981 + y);
-										//for (size_t m = 0; m < 12 && msg; m++)
-										//{
-											/*for (size_t f = 0; f < NB_FIELDS && msg; f++)
-											{
-												if (f == TMIN_MN || f == TMAX_MN || f == PRCP_TT || f == SPEH_MN || f == WNDS_MN)
-												{
-													string var_name = GetFieldHeader(f);
-													if (f == SPEH_MN)
-														var_name = "SPEH_MN";
-													string tmp = FormatA("%s,%s,%2d,%s,%.3lg", loc[l].m_ID.c_str(), ripf.c_str(), m + 1, var_name.c_str(), monthlyMean[m][f]);
-													out << tmp << endl;
-												}
-											}*/
-											//}
-									std::vector< std::array<std::array<float, NORMALS_DATA::NB_FIELDS>, 12>> values;
-									if (MMG.GetMonthlyValues(1981, 30, 4, 500000, 2, loc[l], values, callback))
-									{
-										for (size_t y = 0; y < 30 && msg; y++)
-										{
+				//		if (msg)
+				//		{
+				//			//Create csv file
+				//			string filePathOut = filepath_out;
+				//			WBSF::SetFileTitle(filePathOut, WBSF::GetFileTitle(filePathOut) + "_" + model + "_" + ssp + "_" + ripf);
 
-											int year = int(1981 + y);
-											for (size_t m = 0; m < 12 && msg; m++)
-											{
-												string tmp = FormatA("%s,%d,%d,%d,%d,%4d,%02d,%.2f,%.2f,%.2f,%.2f,%.2f", loc[l].m_ID.c_str(), r, 1, p, 1, year, m + 1, values[y][m][TMIN_MN], values[y][m][TMAX_MN], values[y][m][PRCP_TT], values[y][m][SPEH_MN], values[y][m][WNDS_MN]);
-												out << tmp << endl;
-												msg += callback.StepIt(0);
-											}//for all month
-										}//for all year
-									}//if msg
 
-								}//for all loc
-							}
-						}
-					}
-				}
+				//			CMonthlyMeanGrid MMG;
+				//			if (MMG.Open(filePathOut, callback))
+				//			{
+				//				for (size_t l = 0; l < loc.size() && msg; l++)
+				//				{
+				//					//double monthlyMean[12][NORMALS_DATA::NB_FIELDS];
+				//					//if (MMG.GetNormals(1981, 30, 4, 500000, 2, loc[l], monthlyMean, callback))
+				//					//for (size_t y = 0; y < 30 && msg; y++)
+				//					//{
+				//						//int year = int(1981 + y);
+				//						//for (size_t m = 0; m < 12 && msg; m++)
+				//						//{
+				//							/*for (size_t f = 0; f < NB_FIELDS && msg; f++)
+				//							{
+				//								if (f == TMIN_MN || f == TMAX_MN || f == PRCP_TT || f == SPEH_MN || f == WNDS_MN)
+				//								{
+				//									string var_name = GetFieldHeader(f);
+				//									if (f == SPEH_MN)
+				//										var_name = "SPEH_MN";
+				//									string tmp = FormatA("%s,%s,%2d,%s,%.3lg", loc[l].m_ID.c_str(), ripf.c_str(), m + 1, var_name.c_str(), monthlyMean[m][f]);
+				//									out << tmp << endl;
+				//								}
+				//							}*/
+				//							//}
+				//					std::vector< std::array<std::array<float, NORMALS_DATA::NB_FIELDS>, 12>> values;
+				//					if (MMG.GetMonthlyValues(1981, 30, 4, 500000, 2, loc[l], values, callback))
+				//					{
+				//						for (size_t y = 0; y < 30 && msg; y++)
+				//						{
 
-				out.close();
+				//							int year = int(1981 + y);
+				//							for (size_t m = 0; m < 12 && msg; m++)
+				//							{
+				//								string tmp = FormatA("%s,%d,%d,%d,%d,%4d,%02d,%.2f,%.2f,%.2f,%.2f,%.2f", loc[l].m_ID.c_str(), r, 1, p, 1, year, m + 1, values[y][m][TMIN_MN], values[y][m][TMAX_MN], values[y][m][PRCP_TT], values[y][m][SPEH_MN], values[y][m][WNDS_MN]);
+				//								out << tmp << endl;
+				//								msg += callback.StepIt(0);
+				//							}//for all month
+				//						}//for all year
+				//					}//if msg
+
+				//				}//for all loc
+				//			}
+				//		}
+				//	}
+				//}
+
+				//out.close();
 			}
 
 		}
 
 
-		
+
 
 
 		return msg;
 	}
+
+	ERMsg CUICMIP6::Download(CCallback& callback)
+	{
+		ERMsg msg;
+
+		//https://handle-esgf.dkrz.de/lp/21.14100/5db1dcab-86d0-3249-814b-c0840a3fb0e0
+		//https://handle-esgf.dkrz.de/lp/21.14100/313f4894-5008-492e-a888-a2a2b10260e6
+		//https://handle-esgf.dkrz.de/lp/21.14100/313f4894-5008-492e-a888-a2a2b10260e6
+
+
+		msg += DownloadFix("sftlf", callback);
+		msg += DownloadFix("orog", callback);
+		msg += DownloadData(callback);
+
+		return msg;
+	}
+
+	using namespace json11;
+	
+	bool GoodHDF(const string& filepath)
+	{
+		bool bGood = false;
+		ifStream stream;
+		if (stream.open(filepath))
+		{
+			char test[5] = { 0 };
+			stream.read(&(test[0]), 4);
+			stream.close();
+			if (string(test) == "‰HDF")
+				bGood = true;
+
+			stream.close();
+		}
+
+		return bGood;
+	}
+
+	ERMsg CUICMIP6::DownloadFix(string prefix, CCallback& callback)
+	{
+		ERMsg msg;
+
+		string model = Get(MODEL);
+		string working_dir = GetDir(WORKING_DIR);
+
+		string output_filepath = working_dir + model + "\\" + prefix + "_fx_" + model + ".nc";
+
+		if (!FileExists(output_filepath))
+		{
+			CreateMultipleDir(GetPath(output_filepath));
+
+			CCallcURL cURL;
+			string URL = "https://esgf-node.llnl.gov/esg-search/search?project=CMIP6&offset=0&limit=10&type=Dataset&format=application%2Fsolr%2Bjson&facets=activity_id%2C+data_node%2C+source_id%2C+institution_id%2C+source_type%2C+experiment_id%2C+sub_experiment_id%2C+nominal_resolution%2C+variant_label%2C+grid_label%2C+table_id%2C+frequency%2C+realm%2C+variable_id%2C+cf_standard_name&latest=true&replica=false&query=*&experiment_id=hist-1950,historical,piControl,ssp585,ssp460,ssp370,ssp245,ssp126&source_id=" + model + "&table_id=fx&variable_id=" + prefix;
+
+			string responce;
+			msg = cURL.get_text(URL, responce);
+
+			string error;
+			const Json& root = Json::parse(responce, error);
+			if (error.empty())
+			{
+				//ROOT.response.docs[0]
+
+				ASSERT(root["response"]["docs"].type() == Json::ARRAY);
+				const std::vector<Json>& file_list = root["response"]["docs"].array_items();
+
+				ASSERT(file_list.size() >= 1);
+				//for (Json::array::const_iterator it = file_list.begin(); it != file_list.end() && msg; it++)
+
+				Json::array::const_iterator it = file_list.begin();
+				/*ASSERT((*it)["dataset_id_template_"].type() == Json::ARRAY);
+				ASSERT((*it)["directory_format_template_"].type() == Json::ARRAY);
+				ASSERT((*it)["dataset_id_template_"].array_items().size() == 1);
+				ASSERT((*it)["directory_format_template_"].array_items().size() == 1);
+				*/
+				
+				/*string template_id = (*it)["dataset_id_template_"][0].string_value();
+				template_id = ReplaceString(template_id, "%(", "|");
+				template_id = ReplaceString(template_id, ")s", "|");
+				StringVector tmp(template_id, "|");
+				string dataset;
+				for (size_t i = 0; i < tmp.size(); i++)
+				{
+					if (tmp[i] == ".")
+					{
+						dataset += ".";
+					}
+					else
+					{
+						ASSERT((*it)[tmp[i]].type() == Json::ARRAY);
+						const std::vector<Json>& item = (*it)[tmp[i]].array_items();
+						ASSERT(item.size()==1);
+						dataset += item[0].string_value();
+					}
+				}*/
+				/*string dataset = (*it)["master_id"].string_value();
+
+				string template_id = (*it)["directory_format_template_"][0].string_value();
+				template_id = ReplaceString(template_id, "%(", "|");
+				template_id = ReplaceString(template_id, ")s", "|");
+				StringVector tmp = StringVector(template_id, "|");
+				string directory;
+				for (size_t i = 0; i < tmp.size(); i++)
+				{
+					if (tmp[i] == "/")
+					{
+						directory += "/";
+					}
+					else if (tmp[i] == "root")
+					{
+					}
+					else
+					{
+						if ((*it)[tmp[i]].type() == Json::ARRAY)
+						{
+							const std::vector<Json>& item = (*it)[tmp[i]].array_items();
+							ASSERT(item.size() == 1);
+							directory += item[0].string_value();
+						}
+						else if ((*it)[tmp[i]].type() == Json::STRING)
+						{
+							directory += (*it)[tmp[i]].string_value();
+						}
+					}
+				}
+
+				
+				string server = (*it)["data_node"].string_value();
+				string base_url = "/thredds/fileServer";
+				string URL = "https://" + server + base_url + directory + dataset;*/
+				//data_node
+				{
+
+
+					ASSERT((*it)["url"].type() == Json::ARRAY);
+					const std::vector<Json>& urls = (*it)["url"].array_items();
+
+					string orog_url1 = urls[0].string_value();
+					StringVector tmp(orog_url1, "/");
+					ASSERT(tmp.size() > 2 && tmp[0] == "http:");
+					string server = tmp[1];
+
+
+					string str_xml;
+					msg = cURL.get_text("-k --connect-timeout 5 " + orog_url1, str_xml);
+					if (str_xml.find("Service Unavailable") != string::npos)
+						msg.ajoute("Service Unavailable");
+
+					if (msg)
+					{
+						try
+						{
+
+							zen::XmlDoc doc = zen::parse(str_xml);
+
+							string base_url = "thredds/fileServer/";
+							string nc_url;
+
+
+							zen::XmlIn in(doc.root());
+							for (zen::XmlIn child = in["dataset"]["dataset"]; child && nc_url.empty() && msg; child.next())
+							{
+
+								string str;
+								if (child.attribute("urlPath", str))
+								{
+									nc_url = str;
+								}
+
+							}
+
+
+							if (!server.empty() && !base_url.empty() && !nc_url.empty())
+							{
+								string URL = "https://" + server + "/" + base_url + nc_url;
+
+								msg = cURL.copy_file(URL, output_filepath, as<bool>(SHOW_CURL));
+								if (msg)
+								{
+									if (!GoodHDF(output_filepath))
+									{
+										msg.ajoute("Invalid NetCDF file:" + output_filepath);
+									}
+								}
+							}
+						}
+						catch (const zen::XmlParsingError& e)
+						{
+							// handle error
+							msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+						}
+					}
+				}
+			}//if error
+			else
+			{
+				msg.ajoute(error);
+			}
+
+		}
+
+		return msg;
+	}
+
+
+
+	ERMsg CUICMIP6::DownloadData(CCallback& callback)
+	{
+		ERMsg msg;
+
+		string model = Get(MODEL);
+		string working_dir = GetDir(WORKING_DIR);
+
+
+
+
+
+
+		CCallcURL cURL;
+
+		string variant_lable="r1i1p1f1";
+
+		string URL = "https://esgf-node.llnl.gov/esg-search/search?project=CMIP6&offset=0&limit=50&type=Dataset&format=application%2Fsolr%2Bjson&facets=activity_id,+data_node,+source_id,+institution_id,+source_type,+experiment_id,+sub_experiment_id,+nominal_resolution,+variant_label,+grid_label,+table_id,+frequency,+realm,+variable_id,+cf_standard_name&latest=true&replica=false&query=*&experiment_id=ssp585,ssp370,ssp126,ssp245,historical&frequency=mon&source_id=" + model + "&table_id=Amon&variable_id=tasmin,tasmax,sfcWind,huss,pr&variant_label="+variant_lable;
+
+		string responce;
+		msg = cURL.get_text(URL, responce);
+
+
+		string server;
+		vector<string> nc_url;
+
+		string error;
+		const Json& root = Json::parse(responce, error);
+		if (error.empty())
+		{
+			//ROOT.response.docs[0]
+
+			ASSERT(root["response"]["docs"].type() == Json::ARRAY);
+			const std::vector<Json>& file_list = root["response"]["docs"].array_items();
+
+
+
+			if (file_list.size() == 25)
+			{
+				for (Json::array::const_iterator it = file_list.begin(); it != file_list.end() && msg; it++)
+				{
+
+					ASSERT((*it)["url"].type() == Json::ARRAY);
+					const std::vector<Json>& urls = (*it)["url"].array_items();
+
+					string orog_url1 = urls[0].string_value();
+					StringVector tmp(orog_url1, "/");
+					ASSERT(tmp.size() > 2 && tmp[0] == "http:");
+					ASSERT(server.empty() || server == tmp[1]);
+					server = tmp[1];
+
+
+					string str_xml;
+					cURL.m_timeout = 5;
+					msg = cURL.get_text("-k --connect-timeout 5 " + orog_url1, str_xml);
+					if (str_xml.find("Service Unavailable") != string::npos)
+						msg.ajoute("Service Unavailable");
+
+					if (msg)
+					{
+						try
+						{
+							zen::XmlDoc doc = zen::parse(str_xml);
+
+							zen::XmlIn in(doc.root());
+							for (zen::XmlIn child = in["dataset"]["dataset"]; child && msg; child.next())
+							{
+
+								string str;
+								if (child.attribute("urlPath", str))
+								{
+									nc_url.push_back(str);
+								}
+							}
+						}
+						catch (const zen::XmlParsingError& e)
+						{
+							// handle error
+							msg.ajoute("Error parsing XML file: col=" + ToString(e.col) + ", row=" + ToString(e.row));
+						}
+					}
+				}
+			}//if 25 ssp(5) * var(5)
+
+		}//if error
+		else
+		{
+			msg.ajoute(error);
+		}
+
+
+
+		if (!nc_url.empty())
+		{
+			callback.PushTask(string("Download data for ") + model, nc_url.size());
+			for (size_t i = 0; i < nc_url.size() && msg; i++)
+			{
+				string base_url = "thredds/fileServer/";
+				string URL = "https://" + server + "/" + base_url + nc_url[i];
+
+				string file_name = GetFileName(nc_url[i]);
+				string output_filepath = working_dir + model + "\\NetCDF\\" + file_name;
+				CreateMultipleDir(GetPath(output_filepath));
+
+				if (!FileExists(output_filepath))
+				{
+					msg = cURL.copy_file(URL, output_filepath, as<bool>(SHOW_CURL));
+					if (msg)
+					{
+						if (!GoodHDF(output_filepath))
+						{
+							msg.ajoute("Invalid NetCDF file:" + output_filepath);
+							msg += RemoveFile(output_filepath);
+						}
+					}
+					msg += callback.StepIt();
+				}
+			}
+
+			callback.PopTask();
+		}
+
+
+
+		return msg;
+	}
+
+
 
 	ERMsg CUICMIP6::CreateMMG(string filePathOut, CCallback& callback)
 	{
@@ -255,7 +600,7 @@ namespace WBSF
 
 		//Load land/water profile
 		vector<float> landWaterMask;
-		msg = get_sftlf(new_sftlf_filepath, landWaterMask);
+		msg += get_sftlf(new_sftlf_filepath, landWaterMask);
 
 		string orog_filepath = working_dir + "orog_fx_" + model + ".nc";
 		string new_orog_filepath = working_dir + "orog_fx_" + model + ".tif";
@@ -264,9 +609,17 @@ namespace WBSF
 			msg += save_orog(orog_filepath, new_orog_filepath, landWaterMask, minLandWater);
 
 
+		if (!msg)
+			return msg;
+
+
+
 		CBaseOptions options;
 		msg = GetMapOptions(new_orog_filepath, options);
 		options.m_nbBands = 12 * nbYears;
+
+		if (!msg)
+			return msg;
 
 
 
@@ -706,7 +1059,7 @@ namespace WBSF
 						double x_min = -999;
 						for (CTRef TRef = next_TRef.IsInit() ? next_TRef : daily_period.Begin(); TRef <= daily_period.End() && TRef <= period.End() && msg; TRef++)
 						{
-							
+
 							if (bIsMissingFeb29)
 							{
 								if (TRef.GetMonth() == FEBRUARY && TRef.GetDay() == DAY_29)
@@ -715,62 +1068,62 @@ namespace WBSF
 
 							//if (intersect.IsInside(TRef))
 							//{
-								size_t d = (size_t)(TRef - daily_period.Begin());
-								size_t dd = TRef - period.Begin();
-								if (bIsMissingFeb29)
-								{
-									ASSERT(dd > 0 || leap_correction == 0);
-									dd -= leap_correction;
-								}
-								else if (bIsFixed30DaysData)
-								{
-									size_t mm = TRef.as(CTM::MONTHLY) - period.as(CTM::MONTHLY).Begin();
-									dd = mm * 30 + min(size_t(DAY_30), TRef.GetDay());
-								}
-								//size_t dd = TRef - period.Begin();
+							size_t d = (size_t)(TRef - daily_period.Begin());
+							size_t dd = TRef - period.Begin();
+							if (bIsMissingFeb29)
+							{
+								ASSERT(dd > 0 || leap_correction == 0);
+								dd -= leap_correction;
+							}
+							else if (bIsFixed30DaysData)
+							{
+								size_t mm = TRef.as(CTM::MONTHLY) - period.as(CTM::MONTHLY).Begin();
+								dd = mm * 30 + min(size_t(DAY_30), TRef.GetDay());
+							}
+							//size_t dd = TRef - period.Begin();
 
-								ASSERT(d < daily_data.size());
-								ASSERT(daily_data[d].size() == ncFiles.size());
+							ASSERT(d < daily_data.size());
+							ASSERT(daily_data[d].size() == ncFiles.size());
 
 
-								for (size_t v = 0; v < ncFiles.size() && msg; v++)
+							for (size_t v = 0; v < ncFiles.size() && msg; v++)
+							{
+								try
 								{
-									try
+									auto timeGrid = ncFiles[v]->getDim("time");
+									auto latGrid = ncFiles[v]->getDim("lat");
+									auto lonGrid = ncFiles[v]->getDim("lon");
+									ASSERT(timeGrid.getSize() == nbDays);
+
+									size_t nbLat = latGrid.getSize();
+									size_t nbLon = lonGrid.getSize();
+									//ASSERT(dd < timeGrid.getSize());
+
+									if (x_min == -999)
 									{
-										auto timeGrid = ncFiles[v]->getDim("time");
-										auto latGrid = ncFiles[v]->getDim("lat");
-										auto lonGrid = ncFiles[v]->getDim("lon");
-										ASSERT(timeGrid.getSize() == nbDays);
-
-										size_t nbLat = latGrid.getSize();
-										size_t nbLon = lonGrid.getSize();
-										//ASSERT(dd < timeGrid.getSize());
-
-										if (x_min == -999)
-										{
-											NcVar& var_lon = ncFiles[v]->getVar("lon");
-											vector < double> x(nbLon);
-											var_lon.getVar(&(x[0]));
-											x_min = x.front();
-										}
-
-
-
-										vector<size_t> startp = { {dd, 0, 0 } };
-										vector<size_t> countp = { { 1, nbLat, nbLon } };
-
-										NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
-										var.getVar(startp, countp, &(daily_data[d][v][0]));
-									}
-									catch (exceptions::NcException& e)
-									{
-										msg.ajoute(e.what());
-										//msg.ajoute(string("period: ") + i_period + ", variable: " + VARIABLES_NAMES[v]);
-										msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
+										NcVar& var_lon = ncFiles[v]->getVar("lon");
+										vector < double> x(nbLon);
+										var_lon.getVar(&(x[0]));
+										x_min = x.front();
 									}
 
-									ConvertData(v, daily_data[d][v]);
+
+
+									vector<size_t> startp = { {dd, 0, 0 } };
+									vector<size_t> countp = { { 1, nbLat, nbLon } };
+
+									NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
+									var.getVar(startp, countp, &(daily_data[d][v][0]));
 								}
+								catch (exceptions::NcException& e)
+								{
+									msg.ajoute(e.what());
+									//msg.ajoute(string("period: ") + i_period + ", variable: " + VARIABLES_NAMES[v]);
+									msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
+								}
+
+								ConvertData(v, daily_data[d][v]);
+							}
 							//}
 
 							msg += callback.StepIt();
@@ -1784,3 +2137,5 @@ namespace WBSF
 
 
 }
+
+

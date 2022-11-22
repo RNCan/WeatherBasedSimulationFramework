@@ -1017,9 +1017,13 @@ namespace WBSF
 				{
 
 					StringVector partners_network(Get(PARTNERS_NETWORK), "|;,");
-
-
 					msg += m_SWOB_partners_stations.Load(GetSWOBStationsListFilePath(n));
+					string filePath = workingDir + NETWORK_NAME[PARTNERS_NETWORK] + "\\MissingStations.csv";
+					CLocationVector missingLoc;
+					if (missingLoc.Load(filePath))
+						m_SWOB_partners_stations.insert(m_SWOB_partners_stations.end(), missingLoc.begin(), missingLoc.end());
+
+
 					for (CLocationVector::const_iterator it = m_SWOB_partners_stations.begin(); it != m_SWOB_partners_stations.end() && msg; it++)
 					{
 						string prov = it->GetSSI("Province");
@@ -1027,7 +1031,7 @@ namespace WBSF
 						auto it_p_network = partners_network.Find(p_network);
 
 
-						if (selection.at(prov) && (partners_network.empty() || it_p_network != UNKNOWN_POS))
+						if (/*selection.at(prov) && */(partners_network.empty() || it_p_network != UNKNOWN_POS))
 						{
 							tmpList.insert(network + "\\" + it->m_ID);
 						}
@@ -1938,7 +1942,31 @@ namespace WBSF
 							StringVector tmp(GetFileTitle(it2->m_filePath), "-");
 							ASSERT(tmp.size() == 11 || tmp.size() == 13);
 							string IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
-							stationsID.insert(IATA_ID);
+
+
+							CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
+							if (it_location == locations.end())
+								it_location = locations.FindByID(IATA_ID, false);
+
+
+							if (it_location != locations.end())
+							{
+								string prov = it_location->GetSSI("Province");
+								string ID = it_location->m_ID;
+
+								string p_network = GetParnerNetwork(it2->m_filePath);
+								station_partners_network[ID] = p_network;
+
+								//update network
+								it_location->SetSSI("Network", p_network);
+
+								stationsID.insert(IATA_ID);
+							}
+							else
+							{
+								missingID.insert(IATA_ID);
+							}
+
 						}
 					}
 
@@ -1995,6 +2023,7 @@ namespace WBSF
 						if (it_location == locations.end())
 							it_location = locations.FindByID(IATA_ID, false);
 
+						//ASSERT(it_location != locations.end());
 						if (it_location != locations.end())
 						{
 							string prov = it_location->GetSSI("Province");
@@ -2009,8 +2038,9 @@ namespace WBSF
 						}
 						else
 						{
-							callback.AddMessage("Missing location ID: " + IATA_ID);
-							callback.AddMessage(it->m_filePath);
+							ASSERT(missingID.find(IATA_ID) != missingID.end());
+							//	callback.AddMessage("Missing location ID: " + IATA_ID);
+							//	callback.AddMessage(it->m_filePath);
 						}
 					}
 
@@ -2062,51 +2092,52 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (network == N_SWOB)//no equivalent in SWOB partners
+		//if (network == N_SWOB)//no equivalent in SWOB partners
+		//{
+		string workingDir = GetDir(WORKING_DIR);
+		callback.PushTask(string("Get missing ") + NETWORK_NAME[network] + " location(" + ToString(missingID.size()) + " stations)", missingID.size());
+
+		string filePath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
+		CLocationVector missingLoc;
+
+		if (FileExists(filePath))
+			msg = missingLoc.Load(filePath);
+
+
+
+		callback.AddMessage("Update missing stations information: ");
+		for (set<string>::const_iterator it = missingID.begin(); it != missingID.end() && msg; it++)
 		{
-			string workingDir = GetDir(WORKING_DIR);
-			callback.PushTask(string("Get missing ") + NETWORK_NAME[network] + " location(" + ToString(missingID.size()) + " stations)", missingID.size());
+			callback.AddMessage(*it, 2);
 
-			string filePath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
-			CLocationVector missingLoc;
+			map<string, CFileInfoVector>::const_iterator it1 = fileList.find(*it);
+			ASSERT(it1 != fileList.end());
 
-			if (FileExists(filePath))
-				msg = missingLoc.Load(filePath);
-
-
-
-			callback.AddMessage("Update missing stations information: ");
-			for (set<string>::const_iterator it = missingID.begin(); it != missingID.end() && msg; it++)
+			if (it1 != fileList.end())
 			{
-				callback.AddMessage(*it, 2);
+				string source;
+				string URL = it1->second.front().m_filePath;
+				msg = GetPageTextCurl("-s -k \"" + URL + "\"", source);
 
-				map<string, CFileInfoVector>::const_iterator it1 = fileList.find(*it);
-				ASSERT(it1 != fileList.end());
-
-				if (it1 != fileList.end())
+				if (msg)
 				{
-					string source;
-					msg = GetPageTextCurl(it1->second.front().m_filePath, source);
+					WBSF::ReplaceString(source, "'", " ");
 
+					CLocation location;
+					msg = GetSWOBLocation(source, location);
 					if (msg)
 					{
-						WBSF::ReplaceString(source, "'", " ");
-
-						CLocation location;
-						msg = GetSWOBLocation(source, location);
-						if (msg)
-						{
-							location.SetSSI("IATA", *it);
-							locations.push_back(location);
-							missingLoc.push_back(location);
-						}
+						location.SetSSI("IATA", *it);
+						locations.push_back(location);
+						missingLoc.push_back(location);
 					}
-
-					ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
 				}
 
-				msg += callback.StepIt();
+				ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
 			}
+
+			msg += callback.StepIt();
+			//}
 
 			missingLoc.Save(filePath);
 			callback.PopTask();
@@ -2157,7 +2188,8 @@ namespace WBSF
 			for (CFileInfoVector::const_iterator it2 = it1->second.begin(); it2 != it1->second.end() && msg; it2++)
 			{
 				string source;
-				msg = GetPageTextCurl(it2->m_filePath, source);
+				string URL = it2->m_filePath;
+				msg = GetPageTextCurl("-s -k \"" + URL + "\"", source);
 
 
 				if (msg)
@@ -2268,32 +2300,40 @@ namespace WBSF
 	string CUIEnvCanHourly::GetProvinceFormID(const string& ID)
 	{
 		string prov;
-		ASSERT(ID.length() == 7);
-
-		int i = WBSF::as<int>(ID.substr(0, 2));
-		switch (i)
+		if (ID.length() == 7)
 		{
-		case 10:
-		case 11: prov = CProvinceSelection::GetName(CProvinceSelection::BC); break;
-		case 21: prov = CProvinceSelection::GetName(CProvinceSelection::YT); break;
-		case 22: prov = CProvinceSelection::GetName(CProvinceSelection::NWT); break;
-		case 23: prov = CProvinceSelection::GetName(CProvinceSelection::NU); break;
-		case 24: prov = CProvinceSelection::GetName(CProvinceSelection::NU); break;
-		case 25: prov = CProvinceSelection::GetName(CProvinceSelection::NWT); break;
-		case 30: prov = CProvinceSelection::GetName(CProvinceSelection::ALTA); break;
-		case 40: prov = CProvinceSelection::GetName(CProvinceSelection::SASK); break;
-		case 50: prov = CProvinceSelection::GetName(CProvinceSelection::MAN); break;
-		case 60:
-		case 61: prov = CProvinceSelection::GetName(CProvinceSelection::ONT); break;
-		case 70:
-		case 71: prov = CProvinceSelection::GetName(CProvinceSelection::QUE); break;
-		case 81: prov = CProvinceSelection::GetName(CProvinceSelection::NB); break;
-		case 82: prov = CProvinceSelection::GetName(CProvinceSelection::NS); break;
-		case 83: prov = CProvinceSelection::GetName(CProvinceSelection::PEI); break;
-		case 84:
-		case 85: prov = CProvinceSelection::GetName(CProvinceSelection::NFLD); break;
-		case 90: prov = CProvinceSelection::GetName(CProvinceSelection::ONT); break;
-		default:ASSERT(false);
+			
+			int i = WBSF::as<int>(ID.substr(0, 2));
+			switch (i)
+			{
+			case 10:
+			case 11: prov = CProvinceSelection::GetName(CProvinceSelection::BC); break;
+			case 21: prov = CProvinceSelection::GetName(CProvinceSelection::YT); break;
+			case 22: prov = CProvinceSelection::GetName(CProvinceSelection::NWT); break;
+			case 23: prov = CProvinceSelection::GetName(CProvinceSelection::NU); break;
+			case 24: prov = CProvinceSelection::GetName(CProvinceSelection::NU); break;
+			case 25: prov = CProvinceSelection::GetName(CProvinceSelection::NWT); break;
+			case 30: prov = CProvinceSelection::GetName(CProvinceSelection::ALTA); break;
+			case 40: prov = CProvinceSelection::GetName(CProvinceSelection::SASK); break;
+			case 50: prov = CProvinceSelection::GetName(CProvinceSelection::MAN); break;
+			case 60:
+			case 61: prov = CProvinceSelection::GetName(CProvinceSelection::ONT); break;
+			case 70:
+			case 71: prov = CProvinceSelection::GetName(CProvinceSelection::QUE); break;
+			case 81: prov = CProvinceSelection::GetName(CProvinceSelection::NB); break;
+			case 82: prov = CProvinceSelection::GetName(CProvinceSelection::NS); break;
+			case 83: prov = CProvinceSelection::GetName(CProvinceSelection::PEI); break;
+			case 84:
+			case 85: prov = CProvinceSelection::GetName(CProvinceSelection::NFLD); break;
+			case 90: prov = CProvinceSelection::GetName(CProvinceSelection::ONT); break;
+			default:ASSERT(false);
+			}
+		}
+		else
+		{
+			//Parter
+			prov = ID.substr(0, 2);
+			ASSERT(CProvinceSelection::GetProvince(prov) != NOT_INIT);
 		}
 
 		ASSERT(!prov.empty());

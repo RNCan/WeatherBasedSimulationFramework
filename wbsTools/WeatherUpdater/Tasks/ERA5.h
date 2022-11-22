@@ -31,6 +31,7 @@ namespace WBSF
 
 		int m_first_year;
 		int m_last_year;
+		size_t m_frequency;
 		std::string m_workingDir;
 		
 		std::string GetWorkingDir()const { return m_workingDir; }

@@ -34,8 +34,8 @@ namespace WBSF
 	
 
 	//*********************************************************************
-	const char* CUIReanalysis::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DataType", "FirstYear", "LastYear", "BoundingBox" };
-	const size_t CUIReanalysis::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_GEORECT };
+	const char* CUIReanalysis::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Frequency", "FirstYear", "LastYear", "BoundingBox" };
+	const size_t CUIReanalysis::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_GEORECT };
 	const UINT CUIReanalysis::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ERA5_P;
 	const UINT CUIReanalysis::DESCRIPTION_TITLE_ID = ID_TASK_ERA5;
 
@@ -60,6 +60,7 @@ namespace WBSF
 		switch (i)
 		{
 		case PRODUCT: str = "ERA5"; break;
+		case FREQUENCY:	str = "Hourly|Daily"; break;
 		};
 		return str;
 	}
@@ -72,6 +73,7 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Reanalysis\\"; break;
 		case PRODUCT: str = "0"; break;
+		case FREQUENCY: str = "1"; break;
 		case FIRST_YEAR:  str = "1950"; break;
 		case LAST_YEAR:	str = "2020"; break;
 		case BOUNDING_BOX: str = ToString(DEFAULT_BOUDINGBOX); break;
@@ -90,9 +92,8 @@ namespace WBSF
 		ERA5.m_workingDir = GetDir(WORKING_DIR);
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
-		//msg = CreateMultipleDir(workingDir);
-		//msg.ajoute("not implemented yet");
-
+		ERA5.m_frequency = as<size_t>(FREQUENCY);
+		
 		return ERA5.Execute(callback);
 	}
 
@@ -104,37 +105,39 @@ namespace WBSF
 		ERA5.m_workingDir = GetDir(WORKING_DIR);
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
-
+		ERA5.m_frequency = as<size_t>(FREQUENCY);
 
 		return ERA5.GetGribsList(p, gribsList, callback);
 	}
-//
-//	ERMsg CUIReanalysis::GetStationList(StringVector& stationList, CCallback& callback)
-//	{
-//		ERMsg msg;
-//
-//		size_t type = as<size_t>(DATA_TYPE);
-//		if (type == DATA_DAILY)
-//			msg = GetStationListD(stationList, callback);
-//		else if (type == DATA_MONTHLY)
-//			msg = GetStationListM(stationList, callback);
-//
-//		return msg;
-//	}
-//	
-//	ERMsg CUIReanalysis::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
-//	{
-//		ERMsg msg;
-//
-//		size_t type = as<size_t>(DATA_TYPE);
-//		if (type == DATA_DAILY)
-//			msg = GetWeatherStationD(ID, TM, station, callback);
-//		else if (type == DATA_MONTHLY)
-//			msg = GetWeatherStationM(ID, TM, station, callback);
-//
-//		return msg;
-//	}
-//
+
+	ERMsg CUIReanalysis::GetStationList(StringVector& stationList, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CERA5 ERA5;
+		ERA5.m_workingDir = GetDir(WORKING_DIR);
+		ERA5.m_first_year = as<int>(FIRST_YEAR);
+		ERA5.m_last_year = as<int>(LAST_YEAR);
+		ERA5.m_frequency = as<size_t>(FREQUENCY);
+
+		return ERA5.GetStationList(stationList, callback);
+	}
+	
+	ERMsg CUIReanalysis::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	{
+		ERMsg msg;
+
+		
+		CERA5 ERA5;
+		ERA5.m_workingDir = GetDir(WORKING_DIR);
+		ERA5.m_first_year = as<int>(FIRST_YEAR);
+		ERA5.m_last_year = as<int>(LAST_YEAR);
+		ERA5.m_frequency = as<size_t>(FREQUENCY);
+
+		return ERA5.GetWeatherStation(ID, TM, station, callback);
+		
+	}
+
 //	ERMsg CUIReanalysis::GetStationListD(StringVector& stationList, CCallback& callback)
 //	{
 //		ERMsg msg;

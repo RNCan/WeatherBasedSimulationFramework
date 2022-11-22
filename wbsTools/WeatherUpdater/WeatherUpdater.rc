@@ -254,8 +254,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,0,9,4
- PRODUCTVERSION 6,0,9,4
+ FILEVERSION 6,1,0,1
+ PRODUCTVERSION 6,1,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -272,21 +272,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "6.0.9.4"
+            VALUE "FileVersion", "6.1.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "6.0.9.4"
+            VALUE "ProductVersion", "6.1.0.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "6.0.9.4"
+            VALUE "FileVersion", "6.1.0.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "6.0.9.4"
+            VALUE "ProductVersion", "6.1.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -740,10 +740,10 @@ BEGIN
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Mise à jour historique (jours)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Prévision max (heures)|Supprimer après (jours)"
-    IDS_UPDATER_CMIP5_P     "Répertoire de travail|Télécharger les données|Créer les fichier Gribs|Première année|Dernière année|Fréquence|Modèle|SSP|MinLandWater"
+    IDS_UPDATER_CMIP5_P     "Répertoire de travail|Télécharger les données|Créer les fichier Gribs|Première année|Dernière année|Fréquence|Modèle|SSP|MinLandWater|Afficher cURL"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
-    IDS_UPDATER_ERA5_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
+    IDS_UPDATER_ERA5_P      "Répertoire de travail|Produit|Frequence|Première année|Dernière année|cadre de sélection"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
     IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
@@ -1242,10 +1242,10 @@ BEGIN
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Update historical (days)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Product|Surface/3D|Variables|Max forecast (hours)|Delete after (days)"
-    IDS_UPDATER_CMIP5_P     "Working directory|Download data|Create Grib files|First year|Last year|Frequency|Model|SSP|MinLandWater"
+    IDS_UPDATER_CMIP5_P     "Working directory|Download data|Create Grib files|First year|Last year|Frequency|Model|SSP|MinLandWater|Show cURL"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
-    IDS_UPDATER_ERA5_P      "Working directory|Type|First year|Last year|Bounding Box"
+    IDS_UPDATER_ERA5_P      "Working directory|Product|Fequency|First year|Last year|Bounding Box"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"
