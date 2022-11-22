@@ -41,7 +41,7 @@ namespace WBSF
 	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weather.gc.ca", "dd.weather.gc.ca"/*"dd.weatheroffice.gc.ca"*/ };
 	//*********************************************************************
 
-	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "PartnerNetwork", "MaxSwobDays", "HourlyPrcpMax"};
+	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "PartnerNetwork", "MaxSwobDays", "HourlyPrcpMax" };
 	const size_t CUIEnvCanHourly::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_STRING_SELECT, T_STRING, T_STRING };
 	const UINT CUIEnvCanHourly::ATTRIBUTE_TITLE_ID = IDS_UPDATER_EC_HOURLY_P;
 	const UINT CUIEnvCanHourly::DESCRIPTION_TITLE_ID = ID_TASK_EC_HOURLY;
@@ -1217,7 +1217,7 @@ namespace WBSF
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CHourlyData& hData = station.GetHour(TRef);
-				if (max_prcp <= 0)
+				if (max_prcp <= 0.01)
 				{
 					hData[H_PRCP] = -999;//remove precipitation
 				}
@@ -1269,7 +1269,7 @@ namespace WBSF
 			station.SetSSI("SubDivision", "SD");
 		}
 
-		
+
 		return msg;
 	}
 
@@ -1995,17 +1995,23 @@ namespace WBSF
 						if (it_location == locations.end())
 							it_location = locations.FindByID(IATA_ID, false);
 
-						ASSERT(it_location != locations.end());
+						if (it_location != locations.end())
+						{
+							string prov = it_location->GetSSI("Province");
+							string ID = it_location->m_ID;
 
-						string prov = it_location->GetSSI("Province");
-						string ID = it_location->m_ID;
+							auto findIt = lastUpdate.find(ID);
+							if (findIt == lastUpdate.end())//to update with old code
+								auto findIt = lastUpdate.find(IATA_ID);
 
-						auto findIt = lastUpdate.find(ID);
-						if (findIt == lastUpdate.end())//to update with old code
-							auto findIt = lastUpdate.find(IATA_ID);
-
-						if (findIt != lastUpdate.end())
-							last_update_TRef = findIt->second;
+							if (findIt != lastUpdate.end())
+								last_update_TRef = findIt->second;
+						}
+						else
+						{
+							callback.AddMessage("Missing location ID: " + IATA_ID);
+							callback.AddMessage(it->m_filePath);
+						}
 					}
 
 					CTRef TRef = GetSWOBTRef(fileName, bLighthouse);
@@ -2543,7 +2549,7 @@ namespace WBSF
 								string strValue = swob[d][h][vv * 2 + 4];
 								string strQA = swob[d][h][vv * 2 + 1 + 4];
 
-								if (vv == SWOB_PCPN_AMT_PST1HR )//many partner station seem to have pcpn at 0 but have rnfl non zero
+								if (vv == SWOB_PCPN_AMT_PST1HR)//many partner station seem to have pcpn at 0 but have rnfl non zero
 								{
 									string str_rnfl = swob[d][h][SWOB_RNFL_AMT_PST1HR * 2 + 4];
 									string str_str_rnfl_QA = swob[d][h][SWOB_RNFL_AMT_PST1HR * 2 + 1 + 4];
@@ -2565,7 +2571,7 @@ namespace WBSF
 											strQA = str_str_rnfl_QA;
 										}
 									}
-									else if(strValue == "0.0" && strQA=="100" && str_str_rnfl_QA=="100")
+									else if (strValue == "0.0" && strQA == "100" && str_str_rnfl_QA == "100")
 									{
 										//some network like bc-forest have precipitation at zero but have rainfall
 										strValue = str_rnfl;
