@@ -53,8 +53,14 @@ namespace WBSF
 
 
 	//SWOB partners network
-	const char* PARTNERS_NETWORK_NAME[] = { "bc-env-aq","bc-env-snow","bc-forestry","bc-tran","dfo-ccg-lighthouse","dfo-moored-buoys","nl-water","nt-forestry","nt-water",
+	static const size_t NB_PARTNER_NETWORK = 19;
+	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-env-aq","bc-env-snow","bc-forestry","bc-tran","dfo-ccg-lighthouse","dfo-moored-buoys","nl-water","nt-forestry","nt-water",
 		"on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-gov","yt-water" };
+
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC_ENV-AQ","BC_ENV-ASW","BC_WMB","BC_TRAN","DFO","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
+		"ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","yt-gov","YT-DE-WRB" };
+
+	
 
 	string GetAllPartnersNetworkString()
 	{
@@ -63,13 +69,87 @@ namespace WBSF
 		return oss.str();
 	}
 
-	string GetParnerNetwork(string  filePath)
+	string GetNetwork(string  filepath)
 	{
-		StringVector tmp(filePath, "/");
-		assert(tmp.size() >= 7 && tmp.size() <= 9);
+		string network;
+		if (filepath.find("partners") != string::npos)
+		{
+			StringVector tmp(filepath, "/");
+			assert(tmp.size() >= 7 && tmp.size() <= 9);
 
-		return tmp[5];
+			network = tmp[5];
+		}
+
+		return network;
 	}
+
+	string GetID(string filepath)
+	{
+		string ID;
+		if (filepath.find("partners") != string::npos)
+		{
+			StringVector tmp(filepath, "/");
+			assert(tmp.size() >= 7 && tmp.size() <= 9);
+
+			string p_network = GetNetwork(filepath);
+			auto it_network = find_if(begin(PARTNERS_NETWORK_NAME), end(PARTNERS_NETWORK_NAME), [p_network](const char* name) {return IsEqual(p_network, name); });
+			ASSERT(it_network != end(PARTNERS_NETWORK_NAME));
+			size_t network_i = std::distance(begin(PARTNERS_NETWORK_NAME), it_network);
+			ASSERT(network_i< NB_PARTNER_NETWORK);
+
+
+			string network = PARTNERS_NETWORK_ID[network_i];
+			
+			if (p_network == "yt-water")
+			{
+				StringVector tmp(GetFileTitle(filepath), "-");
+				ASSERT( tmp.size() == 13);
+				
+				string stID = tmp[7] + "-" + tmp[8];
+
+				ID = network + "_" + stID;
+			}
+			else if( p_network == "nl-water")
+			{
+				StringVector tmp(GetFileTitle(filepath), "-");
+				ASSERT(tmp.size() == 11);
+				
+				string stID = tmp[7];
+
+				ID = network + "_" + stID;
+			}
+			else if (p_network == "qc-pom"|| p_network == "yt-firewx" || p_network == "yt-avalanche")
+			{
+				string stID = tmp[7];
+
+				ID = tmp[7];
+			}
+			else if (p_network == "on-mto")
+			{
+				//remove RON and add -
+				string stID = tmp[7];
+				ASSERT(stID.length() >= 7);
+				stID = stID.substr(3, 2) + "-" + stID.substr(5);
+				
+				ID = network + "_" + stID;
+			}
+			else
+			{
+				string stID = tmp[7];
+
+				ID = network + "_" + stID;
+			}
+		}
+		else
+		{
+			StringVector tmp(filepath, "/");
+			assert(tmp.size() == 6);
+			ID = tmp[5];
+		}
+
+		return MakeUpper(ID);
+	}
+
 
 	enum TSWOBStationColumns { C_ID_MSC, C_NAME, C_LATITUDE, C_LONGITUDE, C_ELEVATION, C_PROVINCE, C_DATA_PROVIDER, C_DATASET_NETWORK, C_AUTO_MAN, C_ID_IATA, C_ID_WMO, NB_SWOB_COLUMNS, C_UNUSED = NB_SWOB_COLUMNS };
 
@@ -571,8 +651,6 @@ namespace WBSF
 
 		string URL = FormatA(webPageDataFormat, ID, year, m + 1, d + 1);
 
-		//	try
-			//{
 
 		string argument = "-s -k \"" + URL + "\"";
 		string exe = GetApplicationPath() + "External\\curl.exe";
@@ -633,12 +711,6 @@ namespace WBSF
 				}
 			}
 		}
-		//}
-		//catch (CException* e)
-		//{
-			//if an error occur: try again
-		//	msg = UtilWin::SYGetMessage(*e);
-		//}
 
 		return msg;
 	}
@@ -1479,9 +1551,10 @@ namespace WBSF
 		string infoFilePath = GetSWOBStationsListFilePath(network);
 		msg = UpdateSWOBLocations(network, callback);
 
-		CLocationVector locations;
+
 		if (msg)
 		{
+			CLocationVector locations;
 			msg = locations.Load(infoFilePath);
 			if (msg)
 			{
@@ -1492,13 +1565,13 @@ namespace WBSF
 
 
 				map<string, CFileInfoVector> fileList;
-				set<string> missingID;
-				msg = GetSWOBList(network, locations, fileList, missingID, callback);
+				//set<string> missingID;
+				msg = GetSWOBList(network, locations, fileList, callback);
 
 				if (msg)
 				{
-					if (!missingID.empty())
-						msg = UpdateMissingLocation(network, locations, fileList, missingID, callback);
+					//					if (!missingID.empty())
+						//					msg = UpdateMissingLocation(network, locations, fileList, missingID, callback);
 
 
 					if (msg)
@@ -1560,8 +1633,8 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		map<string, string> station_partners_network;
-		string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
+		//map<string, string> station_partners_network;
+		/*string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
 		if (FileExists(station_partner_network_filepath))
 		{
 			ifStream ifile;
@@ -1574,7 +1647,7 @@ namespace WBSF
 				}
 			}
 			ifile.close();
-		}
+		}*/
 
 
 		string infoFilePath = GetSWOBStationsListFilePath(network);
@@ -1653,7 +1726,12 @@ namespace WBSF
 					string IATA = location.GetSSI("IATA");
 					MakeLower(IATA);
 					ReplaceString(IATA, " ", "_");
-					location.SetSSI("IATA", IATA);
+					
+					string ID = location.m_ID;
+					location.m_ID = "DFO_" +MakeUpper(IATA);
+
+					location.SetSSI("IATA", ID);
+					
 				}
 
 
@@ -1664,10 +1742,10 @@ namespace WBSF
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
 
-				auto it_p_network = station_partners_network.find(location.m_ID);
+				/*auto it_p_network = station_partners_network.find(location.m_ID);
 
 				if (it_p_network != station_partners_network.end())
-					location.SetSSI(SSI_NAME[C_DATASET_NETWORK], station_partners_network[location.m_ID]);
+					location.SetSSI(SSI_NAME[C_DATASET_NETWORK], station_partners_network[location.m_ID]);*/
 
 				ASSERT(!location.m_name.empty());
 				ASSERT(!location.m_ID.empty());
@@ -1683,9 +1761,11 @@ namespace WBSF
 
 	}
 
-	ERMsg CUIEnvCanHourly::GetSWOBList(size_t network, CLocationVector& locations, map<string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback)
+	ERMsg CUIEnvCanHourly::GetSWOBList(size_t network, CLocationVector& locations, map<string, CFileInfoVector>& fileList, CCallback& callback)
 	{
 		ASSERT(network == N_SWOB || network == N_SWOB_PARTNERS);
+
+		//std::set<std::string>& missingID,
 
 		ERMsg msg;
 
@@ -1694,10 +1774,10 @@ namespace WBSF
 		size_t maxDays = as<size_t>(MAX_SWOB_DAYS);
 		CTRef now = CTRef::GetCurrentTRef();
 		map<string, CTRef> lastUpdate;
-		map<string, string> station_partners_network;
+		//map<string, string> station_partners_network;
 
 
-		string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
+		/*string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
 		if (FileExists(station_partner_network_filepath))
 		{
 			ifStream ifile;
@@ -1710,7 +1790,7 @@ namespace WBSF
 				}
 			}
 			ifile.close();
-		}
+		}*/
 
 
 		string lastUpdateFilePath = workingDir + NETWORK_NAME[network] + "\\LastUpdate.csv";
@@ -1803,7 +1883,7 @@ namespace WBSF
 							bool bOnlyDigit = std::all_of(YYYYMMDD.begin(), YYYYMMDD.end(), [](unsigned char c) { return std::isdigit(c); });
 							if (YYYYMMDD.size() == 8 && bOnlyDigit)
 							{
-								string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->m_filePath);
+								string p_network = GetNetwork(it1->m_filePath);
 
 								int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
 								size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
@@ -1854,13 +1934,19 @@ namespace WBSF
 
 			if (msg)
 			{
+				CLocationVector missingLoc;
+				string missing_filepath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
+				if (FileExists(missing_filepath))
+					msg = missingLoc.Load(missing_filepath);
+
+
 				callback.PushTask("Get days stations to update from: " + URL + " (" + to_string(dir1.size()) + " days)", dir1.size());
 
 
 
 				for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 				{
-					string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->m_filePath);
+					string p_network = GetNetwork(it1->m_filePath);
 					string YYYYMMDD = GetLastDirName(it1->m_filePath);
 					int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
 					size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
@@ -1877,12 +1963,26 @@ namespace WBSF
 
 						for (CFileInfoVector::const_iterator it2 = dirTmp.begin(); it2 != dirTmp.end(); it2++)
 						{
-							string IATA_ID = GetLastDirName(it2->m_filePath);
+							string ID = GetID(it2->m_filePath);//GetLastDirName(it2->m_filePath);
 
-							CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
+							CLocationVector::iterator it_location = locations.FindByID(ID, false); ;
+
+							//if (it_location == locations.end())
+							//	it_location = locations.FindBySSI("IATA", IATA_ID, false);
+
+
 							if (it_location == locations.end())
-								it_location = locations.FindByID(IATA_ID, false);
+							{
+								callback.AddMessage("Add missing station: "+ ID);
 
+								CLocation location = GetMissingLocation(it2->m_filePath);
+								ASSERT(location.IsInit());
+
+								locations.push_back(location);
+								it_location = locations.FindByID(ID, false);
+								ASSERT(it_location != locations.end());
+								missingLoc.push_back(location);
+							}//unknown locations
 
 							if (it_location != locations.end())
 							{
@@ -1891,22 +1991,22 @@ namespace WBSF
 
 								if (network == N_SWOB_PARTNERS)
 								{
-									string p_network = GetParnerNetwork(it2->m_filePath);
-									station_partners_network[ID] = p_network;
+									string p_network = GetNetwork(it2->m_filePath);
+									//station_partners_network[ID] = p_network;
 
 									//update network
 									it_location->SetSSI("Network", p_network);
 								}
 
-								if (prov.empty() || selection.at(prov))
+								if (network == N_SWOB_PARTNERS || prov.empty() || selection.at(prov))
 								{
 
 									CTRef last_update_TRef;
 									if (maxDays == 0)
 									{
 										auto findIt = lastUpdate.find(ID);
-										if (findIt == lastUpdate.end())//to update with old code
-											auto findIt = lastUpdate.find(IATA_ID);
+										//if (findIt == lastUpdate.end())//to update with old code
+											//auto findIt = lastUpdate.find(IATA_ID);
 
 										if (findIt != lastUpdate.end())
 											last_update_TRef = findIt->second.as(CTM::DAILY);
@@ -1918,14 +2018,15 @@ namespace WBSF
 										dir2.push_back(*it2);
 
 										dates.insert(YYYYMMDD);
-										stationsID.insert(IATA_ID);
+										stationsID.insert(ID);
 
 									}
 								}
 							}
 							else
 							{
-								missingID.insert(IATA_ID);
+								callback.AddMessage("Unable to get location info for: " + ID);
+								//missingID.insert(IATA_ID);
 							}
 						}
 					}
@@ -1939,32 +2040,45 @@ namespace WBSF
 						msg = FindFilesCurl(it1->m_filePath + "*-AUTO-swob.xml", files);//stations
 						for (CFileInfoVector::const_iterator it2 = files.begin(); it2 != files.end(); it2++)
 						{
-							StringVector tmp(GetFileTitle(it2->m_filePath), "-");
-							ASSERT(tmp.size() == 11 || tmp.size() == 13);
-							string IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
+							//StringVector tmp(GetFileTitle(it2->m_filePath), "-");
+							//ASSERT(tmp.size() == 11 || tmp.size() == 13);
+							//string IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
+							string ID = GetID(it2->m_filePath);
+							CLocationVector::iterator it_location = locations.FindByID(ID, false);
+							//CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
+							//if (it_location == locations.end())
+							//	it_location = locations.FindByID(IATA_ID, false);
 
-
-							CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
 							if (it_location == locations.end())
-								it_location = locations.FindByID(IATA_ID, false);
+							{
+								callback.AddMessage("Add missing station: " + ID);
 
+								CLocation location = GetMissingLocation(it2->m_filePath);
+								ASSERT(location.IsInit());
+
+								locations.push_back(location);
+								it_location = locations.FindByID(ID, false);
+								ASSERT(it_location != locations.end());
+								missingLoc.push_back(location);
+							}//unknown station
 
 							if (it_location != locations.end())
 							{
-								string prov = it_location->GetSSI("Province");
+								//string prov = it_location->GetSSI("Province");
 								string ID = it_location->m_ID;
 
-								string p_network = GetParnerNetwork(it2->m_filePath);
-								station_partners_network[ID] = p_network;
+								string p_network = GetNetwork(it2->m_filePath);
+								//station_partners_network[ID] = p_network;
 
 								//update network
 								it_location->SetSSI("Network", p_network);
 
-								stationsID.insert(IATA_ID);
+								stationsID.insert(ID);
 							}
 							else
 							{
-								missingID.insert(IATA_ID);
+								callback.AddMessage("Unable to get location info for: " + ID);
+								//missingID.insert(IATA_ID);
 							}
 
 						}
@@ -1976,7 +2090,15 @@ namespace WBSF
 				}//if msg
 
 				callback.PopTask();
+
+				if (msg)
+				{
+					msg = missingLoc.Save(missing_filepath);
+				}
 			}//if msg
+
+			
+
 		}
 
 		if (msg)
@@ -1988,7 +2110,7 @@ namespace WBSF
 			for (CFileInfoVector::const_iterator it2 = dir2.begin(); it2 != dir2.end() && msg; it2++)
 			{
 
-				string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it2->m_filePath);
+				//string p_network = GetNetwork(it2->m_filePath);
 
 
 				CFileInfoVector fileListTmp;
@@ -2002,56 +2124,50 @@ namespace WBSF
 
 				for (CFileInfoVector::iterator it = fileListTmp.begin(); it != fileListTmp.end() && msg; it++)
 				{
-					string IATA_ID;
-					if (p_network != "yt-water" && p_network != "nl-water")
-					{
-						IATA_ID = GetLastDirName(it2->m_filePath);
-					}
-					else
-					{
-						StringVector tmp(GetFileTitle(it->m_filePath), "-");
-						ASSERT(tmp.size() == 11 || tmp.size() == 13);
-						IATA_ID = tmp.size() == 11 ? tmp[7] : tmp[7] + "-" + tmp[8];
-						//hour_count[IATA_ID].fill(0);
-					}
+					string ID = GetID(it->m_filePath);
+					//string IATA_ID;
 
-					string fileName = GetFileName(it->m_filePath);
+
+					
 					CTRef last_update_TRef;
 					if (maxDays == 0)
 					{
-						CLocationVector::iterator it_location = locations.FindBySSI("IATA", IATA_ID, false);
-						if (it_location == locations.end())
-							it_location = locations.FindByID(IATA_ID, false);
+						CLocationVector::iterator it_location = locations.FindByID(ID, false); 
+						
+						//locations.FindBySSI("IATA", IATA_ID, false);
+						//if (it_location == locations.end())
+							//it_location = locations.FindByID(IATA_ID, false);
 
 						//ASSERT(it_location != locations.end());
 						if (it_location != locations.end())
 						{
-							string prov = it_location->GetSSI("Province");
+							//string prov = it_location->GetSSI("Province");
 							string ID = it_location->m_ID;
 
 							auto findIt = lastUpdate.find(ID);
-							if (findIt == lastUpdate.end())//to update with old code
-								auto findIt = lastUpdate.find(IATA_ID);
+							//if (findIt == lastUpdate.end())//to update with old code
+							//	auto findIt = lastUpdate.find(IATA_ID);
 
 							if (findIt != lastUpdate.end())
 								last_update_TRef = findIt->second;
 						}
 						else
 						{
-							ASSERT(missingID.find(IATA_ID) != missingID.end());
+							//ASSERT(missingID.find(IATA_ID) != missingID.end());
 							//	callback.AddMessage("Missing location ID: " + IATA_ID);
 							//	callback.AddMessage(it->m_filePath);
 						}
 					}
 
+					string fileName = GetFileName(it->m_filePath);
 					CTRef TRef = GetSWOBTRef(fileName, bLighthouse);
 					if (!last_update_TRef.IsInit() || TRef >= last_update_TRef)
 					{
 
-						if (hour_count[IATA_ID][TRef.GetHour()] == 0)//support one file by hour per station
+						if (hour_count[ID][TRef.GetHour()] == 0)//support one file by hour per station
 						{
-							fileList[IATA_ID].push_back(*it);
-							hour_count[IATA_ID][TRef.GetHour()]++;
+							fileList[ID].push_back(*it);
+							hour_count[ID][TRef.GetHour()]++;
 						}
 					}
 
@@ -2068,34 +2184,37 @@ namespace WBSF
 
 
 		//save station ID partner network file
-		if (msg && network == N_SWOB_PARTNERS)
-		{
-			ofStream oFile;
-			msg = oFile.open(station_partner_network_filepath);
-			if (msg)
-			{
-				oFile << "KeyID,Network" << endl;
-				for (auto it = station_partners_network.begin(); it != station_partners_network.end(); it++)
-				{
-					oFile << it->first << "," << it->second << endl;
-				}
+		//if (msg && network == N_SWOB_PARTNERS)
+		//{
+		//	/*ofStream oFile;
+		//	msg = oFile.open(station_partner_network_filepath);
+		//	if (msg)
+		//	{
+		//		oFile << "KeyID,Network" << endl;
+		//		for (auto it = station_partners_network.begin(); it != station_partners_network.end(); it++)
+		//		{
+		//			oFile << it->first << "," << it->second << endl;
+		//		}
 
-				oFile.close();
-			}
+		//		oFile.close();
+		//	}*/
 
-		}
+		//}
+
+		
+
 
 		return msg;
 	}
 
-	ERMsg CUIEnvCanHourly::UpdateMissingLocation(size_t network, CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback)
+	/*ERMsg CUIEnvCanHourly::UpdateMissingLocation(size_t network, CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//if (network == N_SWOB)//no equivalent in SWOB partners
-		//{
+
 		string workingDir = GetDir(WORKING_DIR);
-		callback.PushTask(string("Get missing ") + NETWORK_NAME[network] + " location(" + ToString(missingID.size()) + " stations)", missingID.size());
+		callback.PushTask(string("Get missing ") + NETWORK_NAME[network] + " location (" + ToString(missingID.size()) + " stations)", missingID.size());
+		callback.AddMessage(string("Get missing ") + NETWORK_NAME[network] + " location (" + ToString(missingID.size()) + " stations)");
 
 		string filePath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
 		CLocationVector missingLoc;
@@ -2124,7 +2243,7 @@ namespace WBSF
 					WBSF::ReplaceString(source, "'", " ");
 
 					CLocation location;
-					msg = GetSWOBLocation(source, location);
+					msg = GetSWOBLocation(URL, source, location);
 					if (msg)
 					{
 						location.SetSSI("IATA", *it);
@@ -2133,18 +2252,59 @@ namespace WBSF
 					}
 				}
 
+
 				ASSERT(locations.FindBySSI("IATA", *it, false) != locations.end());
 			}
 
 			msg += callback.StepIt();
-			//}
-
-			missingLoc.Save(filePath);
-			callback.PopTask();
 		}
 
 
+		missingLoc.Save(filePath);
+		callback.PopTask();
+
 		return msg;
+	}*/
+
+	CLocation CUIEnvCanHourly::GetMissingLocation(std::string filepath)
+	{
+		CLocation location;
+
+		
+		
+		string URL = filepath;
+
+		string p_network = GetNetwork(filepath);
+		if (p_network != "yt-water" && p_network != "nl-water")
+		{
+			bool bLighthouse = Find(filepath, "dfo-ccg-lighthouse");
+			string filter = bLighthouse ? "*.xml" : "*-AUTO-swob.xml";
+
+			CFileInfoVector fileListTmp;
+			if (FindFilesCurl(filepath + filter, fileListTmp) && !fileListTmp.empty())
+			{
+				URL = fileListTmp.front().m_filePath;
+			}
+		}
+			
+
+		ASSERT(!URL.empty());
+
+		string source;
+		if (GetPageTextCurl("-s -k \"" + URL + "\"", source))
+		{
+			WBSF::ReplaceString(source, "'", " ");
+
+				
+			if (GetSWOBLocation(source, location))
+			{
+				ASSERT(location.m_ID == GetID(filepath));
+				location.m_ID = GetID(filepath);
+			}
+		}//msg
+		
+
+		return location;
 	}
 
 	ERMsg CUIEnvCanHourly::DownloadSWOB(size_t network, const CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, CCallback& callback)
@@ -2302,7 +2462,7 @@ namespace WBSF
 		string prov;
 		if (ID.length() == 7)
 		{
-			
+
 			int i = WBSF::as<int>(ID.substr(0, 2));
 			switch (i)
 			{
@@ -2388,6 +2548,7 @@ namespace WBSF
 
 
 			location.SetSSI("Province", GetProvinceFormID(location.m_ID));
+
 		}
 		catch (const zen::XmlParsingError& e)
 		{

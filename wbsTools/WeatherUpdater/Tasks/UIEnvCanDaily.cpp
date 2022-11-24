@@ -357,14 +357,6 @@ namespace WBSF
 		//update coordinates
 		callback.PushTask("Update coordinates", stationList.size());
 
-		//CInternetSessionPtr pSession;
-		//CHttpConnectionPtr pConnection;
-
-		//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 1, callback);
-		//if (!msg)
-		//	return msg;
-
-
 		for (CLocationVector::iterator it = stationList.begin(); it != stationList.end(); it++)
 		{
 			//this station doesn't exist, we add it
@@ -398,8 +390,6 @@ namespace WBSF
 			msg += callback.StepIt();
 		}
 
-		//pConnection->Close();
-		//pSession->Close();
 		callback.PopTask();
 
 		return msg;
@@ -499,52 +489,6 @@ namespace WBSF
 	//************************************************************************************************************
 	//data section
 
-	//ERMsg CUIEnvCanDaily::CopyStationDataPage(CHttpConnectionPtr& pConnection, __int64 ID, int year, const string& filePath, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	static const char pageDataFormat[] =
-	//	{
-	//		"climate_data/bulk_data_e.html?"
-	//		"format=csv&"
-	//		"stationID=%d&"
-	//		"Year=%d&"
-	//		"Month=1&"
-	//		"Day=1&"
-	//		"timeframe=2&"
-	//		"submit=Download+Data"
-	//	};
-
-	//	string URL = FormatA(pageDataFormat, ID, year);
-	//	UtilWWW::CopyFile(pConnection, URL, filePath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE| INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
-	//	//string source;
-	//	//msg = GetPageText(pConnection, URL, source);
-	//	//if (msg)
-	//	//{
-	//	//	string::size_type posBegin = source.find("\"Date/Time\"", 0);
-	//	//	ASSERT(posBegin != string::npos);
-
-	//	//	if (posBegin != string::npos)
-	//	//	{
-	//	//		ofStream file;
-	//	//		msg = file.open(filePath);
-
-	//	//		if (msg)
-	//	//		{
-	//	//			file << source.substr(posBegin);
-	//	//			file.close();
-	//	//		}
-	//	//	}
-	//	//	else
-	//	//	{
-	//	//		callback.AddMessage("Unable to load data from page with ID = " + ToString(ID) + ", year = " + ToString(year));
-	//	//		msg = WaitServer(10, callback);
-	//	//	}
-	//	//}
-
-
-	//	return msg;
-	//}
 
 	ERMsg CUIEnvCanDaily::DownloadStation(const CLocation& info, CCallback& callback)
 	{
@@ -591,19 +535,7 @@ namespace WBSF
 				string internalID = info.GetSSI("InternalID");
 				string filePath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
 				CreateMultipleDir(GetPath(filePath));
-				/*try
-				{
-					msg += CopyStationDataPage(pConnection, ToLong(internalID), year, filePath, callback);
-				}
-				catch (CException* e)
-				{
-					if (nbFilesToDownload > 10)
-						callback.PopTask();
-
-					throw e;
-				}
-*/
-
+				
 				static const char pageDataFormat[] =
 				{
 					"https://climate.weather.gc.ca/climate_data/bulk_data_e.html?"

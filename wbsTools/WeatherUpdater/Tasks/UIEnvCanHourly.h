@@ -89,8 +89,10 @@ namespace WBSF
 		//std::string GetSWOBPartnersStationsListFilePath()const;
 		ERMsg UpdateSWOBLocations(size_t network, CCallback& callback);
 		ERMsg GetSWOBLocation(const std::string& filePath, CLocation& location);
-		ERMsg GetSWOBList(size_t network, CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
-		ERMsg UpdateMissingLocation(size_t network, CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
+		ERMsg GetSWOBList(size_t network, CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
+		CLocation GetMissingLocation(std::string filepath);
+		//std::set<std::string>& missingID, 
+//		ERMsg UpdateMissingLocation(size_t network, CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
 		ERMsg DownloadSWOB(size_t network, const CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
 		ERMsg ReadSWOBData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback);
 		ERMsg ParseSWOB(CTRef TRef, const std::string& source, SWOBDataHour& data, CCallback& callback);
