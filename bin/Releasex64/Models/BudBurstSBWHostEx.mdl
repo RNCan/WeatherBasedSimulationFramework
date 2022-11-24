@@ -390,6 +390,14 @@
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
+        <OutputVariable>
+            <Name>BB_switch</Name>
+            <Title>BB_switch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
     <Credit/>
