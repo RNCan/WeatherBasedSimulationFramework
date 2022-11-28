@@ -1101,7 +1101,7 @@ namespace WBSF
 
 					StringVector partners_network(Get(PARTNERS_NETWORK), "|;,");
 					msg += m_SWOB_partners_stations.Load(GetSWOBStationsListFilePath(n));
-					string filePath = workingDir + NETWORK_NAME[PARTNERS_NETWORK] + "\\MissingStations.csv";
+					string filePath = workingDir + NETWORK_NAME[N_SWOB_PARTNERS] + "\\MissingStations.csv";
 					CLocationVector missingLoc;
 					if (missingLoc.Load(filePath))
 						m_SWOB_partners_stations.insert(m_SWOB_partners_stations.end(), missingLoc.begin(), missingLoc.end());
