@@ -153,7 +153,7 @@ namespace WBSF
 		{
 			//string box;
 //			if(m_bounding_box.m_xMax!=-90|| m_bounding_box.m_yMin!=-180||m_bounding_box.m_xMin!=90||m_bounding_box.m_yMax!=180)
-			string box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_xMax, m_bounding_box.m_yMin, m_bounding_box.m_xMin, m_bounding_box.m_yMax);
+			string box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
 			string date = " --startyear " + to_string(TRef.GetYear()) + " --months " + to_string(TRef.GetMonth() + 1) + " --day " + to_string(TRef.GetDay() + 1);
 
 			string argument = "hourly --variables " + all_variables + date + box + " --levels surface --threads 6 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
