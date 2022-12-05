@@ -20,7 +20,7 @@ namespace WBSF
 		enum TProduct { DATA_ERA5};
 		enum TFrequency{ DATA_HOURY, DATA_DAILY	};
 		
-		enum TAttributes { WORKING_DIR, PRODUCT, FREQUENCY, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, PRODUCT, FREQUENCY, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, SHOW_DONWLOAD, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIReanalysis); }
 

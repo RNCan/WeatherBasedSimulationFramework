@@ -743,7 +743,7 @@ BEGIN
     IDS_UPDATER_CMIP5_P     "Répertoire de travail|Télécharger les données|Créer les fichier Gribs|Première année|Dernière année|Fréquence|Modèle|SSP|MinLandWater|Afficher cURL"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
-    IDS_UPDATER_ERA5_P      "Répertoire de travail|Produit|Frequence|Première année|Dernière année|cadre de sélection"
+    IDS_UPDATER_ERA5_P      "Répertoire de travail|Produit|Frequence|Première année|Dernière année|cadre de sélection|Afficher téléchargement"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité quotidienne minimum (%)|Exhaustivité mensuel minimum (%)|Exhaustivité annualle minimum (%)"
     IDS_TOOL_CREATE_DAILY_P "Tâche de données|Tâche prévisions|Tâche prévisions long terme|Fichier de sortie|Première année|Dernière année|Rectangle|Exhaustivité mensuelle minimum (%)|Exhaustivité annualle minimum (%)"
@@ -1245,7 +1245,7 @@ BEGIN
     IDS_UPDATER_CMIP5_P     "Working directory|Download data|Create Grib files|First year|Last year|Frequency|Model|SSP|MinLandWater|Show cURL"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
-    IDS_UPDATER_ERA5_P      "Working directory|Product|Fequency|First year|Last year|Bounding Box"
+    IDS_UPDATER_ERA5_P      "Working directory|Product|Fequency|First year|Last year|Bounding Box|Show download"
     IDS_TOOL_CREATE_HOURLY_P 
                             "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum daily completeness (%)|Minimum monthly completeness (%)|Minimum annual completeness (%)"
     IDS_TOOL_CREATE_DAILY_P "Data Task|Forecast Task|Long Forecast Task|Output File|First year|Last year|Bounding Box|Minimum monthly completeness (%)|Minimum annual completeness (%)"

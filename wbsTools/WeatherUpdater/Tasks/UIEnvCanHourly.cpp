@@ -1111,12 +1111,14 @@ namespace WBSF
 					{
 						string prov = it->GetSSI("Province");
 						string p_network = it->GetSSI("Network");
-						auto it_p_network = partners_network.Find(p_network);
-
-
-						if (/*selection.at(prov) && */(partners_network.empty() || it_p_network != UNKNOWN_POS))
+						if (!p_network.empty())
 						{
-							tmpList.insert(network + "\\" + it->m_ID);
+							size_t it_p_network = partners_network.Find(p_network);
+
+							if ((partners_network.empty() || it_p_network != UNKNOWN_POS))
+							{
+								tmpList.insert(network + "\\" + it->m_ID);
+							}
 						}
 
 
@@ -1644,21 +1646,12 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		//map<string, string> station_partners_network;
-		/*string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
+		string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
+
+		CParnerNetwork station_partners_network;
 		if (FileExists(station_partner_network_filepath))
-		{
-			ifStream ifile;
-			if (ifile.open(station_partner_network_filepath))
-			{
-				for (CSVIterator loop(ifile, ",", true); loop != CSVIterator(); ++loop)
-				{
-					if (loop->size() == 2)
-						station_partners_network[(*loop)[0]] = (*loop)[1];
-				}
-			}
-			ifile.close();
-		}*/
+			msg += station_partners_network.load(station_partner_network_filepath);
+
 
 
 		string infoFilePath = GetSWOBStationsListFilePath(network);
@@ -1753,10 +1746,10 @@ namespace WBSF
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
 
-				/*auto it_p_network = station_partners_network.find(location.m_ID);
+				auto it_p_network = station_partners_network.find(location.m_ID);
 
 				if (it_p_network != station_partners_network.end())
-					location.SetSSI(SSI_NAME[C_DATASET_NETWORK], station_partners_network[location.m_ID]);*/
+					location.SetSSI(SSI_NAME[C_DATASET_NETWORK], station_partners_network[location.m_ID]);
 
 				ASSERT(!location.m_name.empty());
 				ASSERT(!location.m_ID.empty());
@@ -1927,10 +1920,17 @@ namespace WBSF
 
 			if (msg)
 			{
+				string station_partner_network_filepath = workingDir + NETWORK_NAME[network] + "\\StationPartnersNetwork.csv";
+
+				CParnerNetwork station_partners_network;
+				if (FileExists(station_partner_network_filepath))
+					msg += station_partners_network.load(station_partner_network_filepath);
+
+
 				CLocationVector missingLoc;
 				string missing_filepath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
 				if (FileExists(missing_filepath))
-					msg = missingLoc.Load(missing_filepath);
+					msg += missingLoc.Load(missing_filepath);
 
 
 				callback.PushTask("Get days stations to update from: " + URL + " (" + to_string(dir1.size()) + " days)", dir1.size());
@@ -1988,7 +1988,7 @@ namespace WBSF
 								if (network == N_SWOB_PARTNERS)
 								{
 									string p_network = GetNetwork(it2->m_filePath);
-									//station_partners_network[ID] = p_network;
+									station_partners_network[ID] = p_network;
 
 									//update network
 									it_location->SetSSI("Network", p_network);
@@ -2062,7 +2062,7 @@ namespace WBSF
 								string ID = it_location->m_ID;
 
 								string p_network = GetNetwork(it2->m_filePath);
-								//station_partners_network[ID] = p_network;
+								station_partners_network[ID] = p_network;
 
 								//update network
 								it_location->SetSSI("Network", p_network);
@@ -2087,7 +2087,8 @@ namespace WBSF
 
 				if (msg)
 				{
-					msg = missingLoc.Save(missing_filepath);
+					msg += missingLoc.Save(missing_filepath);
+					msg += station_partners_network.save(station_partner_network_filepath);
 				}
 			}//if msg
 
@@ -2174,26 +2175,6 @@ namespace WBSF
 
 			callback.PopTask();
 		}//if msg
-
-
-		//save station ID partner network file
-		//if (msg && network == N_SWOB_PARTNERS)
-		//{
-		//	/*ofStream oFile;
-		//	msg = oFile.open(station_partner_network_filepath);
-		//	if (msg)
-		//	{
-		//		oFile << "KeyID,Network" << endl;
-		//		for (auto it = station_partners_network.begin(); it != station_partners_network.end(); it++)
-		//		{
-		//			oFile << it->first << "," << it->second << endl;
-		//		}
-
-		//		oFile.close();
-		//	}*/
-
-		//}
-
 
 
 

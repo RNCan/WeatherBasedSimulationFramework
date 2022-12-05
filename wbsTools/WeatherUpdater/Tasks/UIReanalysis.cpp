@@ -34,8 +34,8 @@ namespace WBSF
 	
 
 	//*********************************************************************
-	const char* CUIReanalysis::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Frequency", "FirstYear", "LastYear", "BoundingBox" };
-	const size_t CUIReanalysis::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_GEORECT };
+	const char* CUIReanalysis::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Frequency", "FirstYear", "LastYear", "BoundingBox", "ShowDownload" };
+	const size_t CUIReanalysis::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_STRING, T_STRING, T_GEORECT, T_BOOL };
 	const UINT CUIReanalysis::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ERA5_P;
 	const UINT CUIReanalysis::DESCRIPTION_TITLE_ID = ID_TASK_ERA5;
 
@@ -77,6 +77,7 @@ namespace WBSF
 		case FIRST_YEAR:  str = "1950"; break;
 		case LAST_YEAR:	str = "2020"; break;
 		case BOUNDING_BOX: str = ToString(DEFAULT_BOUDINGBOX); break;
+		case SHOW_DONWLOAD:str = "0"; break;
 		};
 
 		return str;
@@ -93,7 +94,12 @@ namespace WBSF
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
 		ERA5.m_frequency = as<size_t>(FREQUENCY);
+		ERA5.m_show_download = as<bool> (SHOW_DONWLOAD);
+		ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX); 
+		ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+
 		
+
 		return ERA5.Execute(callback);
 	}
 

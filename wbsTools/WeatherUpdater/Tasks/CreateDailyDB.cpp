@@ -201,8 +201,8 @@ namespace WBSF
 
 					if (station.HaveData())
 					{
-						station.m_name = WBSF::UTF8_ANSI(station.m_name);//try to remove UTF8 caracters
-						station.m_name = RemoveAccented(station.m_name);//remove all accent caracters;
+						station.m_name = WBSF::UTF8_ANSI(station.m_name);//try to remove UTF8 characters
+						station.m_name = RemoveAccented(station.m_name);//remove all accent characters;
 
 						//remove the added number "2" at the end of the name
 						if (!station.m_name.empty() && station.m_name.back() == '2')

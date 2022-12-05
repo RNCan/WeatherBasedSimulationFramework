@@ -5,6 +5,7 @@
 //#include "EnvCanLocationMap.h"
 #include "UI/Common/UtilWWW.h"
 #include "TaskBase.h"
+#include "basic/csv.h"
 
 //namespace cctz{ class time_zone; }
 
@@ -17,9 +18,51 @@ namespace WBSF
 	class CUIEnvCanHourly : public CTaskBase
 	{
 	public:
-		
-		
-	
+
+
+		class CParnerNetwork : public std::map<std::string, std::string>
+		{
+		public:
+			
+			ERMsg load(const std::string& filepath)
+			{
+				ERMsg msg;
+				
+				ifStream ifile;
+				if (ifile.open(filepath))
+				{
+					for (CSVIterator loop(ifile, ",", true); loop != CSVIterator(); ++loop)
+					{
+						if (loop->size() == 2)
+							insert( make_pair( (*loop)[0], (*loop)[1]));
+					}
+
+					ifile.close();
+				}
+				
+				return msg;
+			}
+
+			ERMsg save(const std::string& filepath)
+			{
+				ERMsg msg;
+				ofStream oFile;
+				msg = oFile.open(filepath);
+				if (msg)
+				{
+					oFile << "KeyID,Network" << std::endl;
+					for (auto it = begin(); it != end(); it++)
+					{
+						oFile << it->first << "," << it->second << std::endl;
+					}
+
+					oFile.close();
+				}
+
+				return msg;
+			};
+
+		};
 
 		enum TSWOBVar{
 			SWOB_STN_PRES, SWOB_AIR_TEMP, SWOB_REL_HUM, SWOB_MAX_WND_SPD_10M_PST1HR, SWOB_SNW_DPTH_WTR_EQUI,

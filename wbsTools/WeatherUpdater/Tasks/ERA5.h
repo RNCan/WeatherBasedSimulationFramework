@@ -33,6 +33,8 @@ namespace WBSF
 		int m_last_year;
 		size_t m_frequency;
 		std::string m_workingDir;
+		bool m_show_download;
+		CGeoRect m_bounding_box;
 		
 		std::string GetWorkingDir()const { return m_workingDir; }
 		void SetWorkingDir(const std::string& in){ m_workingDir= in; }
@@ -48,7 +50,9 @@ namespace WBSF
 		static CTRef GetRemoteTRef(const std::string& filePath);
 		static CTRef GetLocalTRef(std::string filePath);
 
+		ERMsg DownloadERA5(CTRef TRef, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(const std::string& inputFilePath, int year, CCallback& callback)const;
+		ERMsg CERA5::CreateDailyGeotiff(CTRef TRef, CCallback& callback)const;
 		//ERMsg CreateDailyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
 		//ERMsg CreateDailyGeotiff(StringVector& filesList, const std::string& file_path_out, CCallback& callback)const;
 
