@@ -165,9 +165,10 @@ namespace WBSF
 
 		if (msg)
 		{
+			string box = WBSF::FormatA("%.0lfW-%.0lfW_%.0lfN-%.0lfN", abs(m_bounding_box.m_xMin), abs(m_bounding_box.m_xMax), abs(m_bounding_box.m_yMin), abs(m_bounding_box.m_yMax));
 			for (size_t v = 0; v < NB_ERA5_VARS_HOURLY && msg; v++)
 			{
-				string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly.grb";
+				string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly_"+ box +".grb";
 				if (!FileExists(output_filepath1))
 					msg.ajoute("File does't exist: " + output_filepath1);
 
