@@ -1231,6 +1231,10 @@ namespace WBSF
 		assert(m_tgi.m_nbHourlyStations > 0);
 		assert(m_tgi.m_variables.any());
 		assert(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+
+		if (!((CLocation&)simulationPoint).IsInit())
+			(CLocation&)simulationPoint = m_target;
+
 		ASSERT(((CLocation&)simulationPoint) == m_target);
 
 		ERMsg msg;
@@ -1427,6 +1431,11 @@ namespace WBSF
 		ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_variables.any());
 		ASSERT(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+
+
+		if (!((CLocation&)simulationPoint).IsInit())
+			(CLocation&)simulationPoint = m_target;
+
 		ASSERT(((CLocation&)simulationPoint) == m_target);
 
 		ERMsg msg;

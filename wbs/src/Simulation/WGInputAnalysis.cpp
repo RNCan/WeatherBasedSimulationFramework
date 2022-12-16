@@ -41,7 +41,7 @@ namespace WBSF
 	//CWGInputAnalysis
 
 	//LOWEST, HIGHEST, , STAT_R² 
-	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
+	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { NB_VALUE, MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
 	const char* CWGInputAnalysis::XML_FLAG = "WGInputAnalysis";
 	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
