@@ -25,7 +25,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "1.0.0 (2022)";
+		VERSION = "1.0.1 (2022)";
 
 		m_nb_years = 1;//Annual;
 	}
@@ -42,8 +42,10 @@ namespace WBSF
 	//EFFP : end of frost free period
 	//FFPL : frost free period length (days) 
 	//NFFD : number of frost free days
-	//O_CHDD0 : chilling degree days (< 0°C) from August first
-	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, NB_ANNUAL_STATS };
+	//CHDD0 : chilling degree days (< 0°C) from August 1st
+	//CHDD5 : chilling degree days (< 5°C) from August 1st
+	//CDD5: cumulative degree-days over 5°C (Daily Average after January 1st)
+	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, O_CHDD5, NB_ANNUAL_STATS };
 	
 
 	//this method is call to load your parameter in your variable
@@ -91,7 +93,9 @@ namespace WBSF
 			output[y][O_EFFP] = FFp.End().GetJDay() + 1;//Base 1
 			output[y][O_FFPL] = FFp.GetNbDay();
 			output[y][O_NFFD] = NFFD(m_weather[y]);
-			output[y][O_CHDD0] = CHDD(m_weather[y]);
+			output[y][O_CHDD0] = CHDD(m_weather[y], 0);
+			output[y][O_CHDD5] = CHDD(m_weather[y], 5);
+			//output[y][O_CDD5] = CDD5(m_weather[y]);
 		}
 
 
@@ -193,6 +197,27 @@ namespace WBSF
 		return FDD;
 	}
 
+
+	
+	double CCCModel::CDD5(const CWeatherYear& weather, double threshold)
+	{
+		CDegreeDays model(CDegreeDays::DAILY_AVERAGE, threshold);
+
+		CModelStatVector output;
+		model.Execute(weather, output);
+
+		//CTTransformation TT(output.GetTPeriod(), CTM::ANNUAL);
+		//CTStatMatrix stats(output, TT);
+
+		CTPeriod pp= output.GetTPeriod();
+
+		double CDD = 0;
+		for (CTRef TRef = pp.Begin(); TRef <= pp.End(); TRef++)
+			CDD += output[TRef][CDegreeDays::S_DD];
+
+
+		return CDD;// stats[CDegreeDays::S_DD][SUM];
+	}
 
 
 }

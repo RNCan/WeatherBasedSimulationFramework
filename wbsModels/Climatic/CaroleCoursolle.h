@@ -28,15 +28,9 @@ namespace WBSF
 		static double MWMT(const CWeatherYear& weather);
 		static double NFFD(const CWeatherYear& weather);
 		static double CHDD(const CWeatherYear& weather, double threshold=0);
+		double CDD5(const CWeatherYear& weather, double threshold = 5);
 
-
-		/*double MAT(const CWeatherYears& weather, const CTPeriod& p);
-		double MCMT(const CWeatherYears& weather, const CTPeriod& p);
-		double EMT(const CWeatherYears& weather, const CTPeriod& p);
-		double MWMT(const CWeatherYears& weather, const CTPeriod& p);
-		double EFFP(const CWeatherYears& weather, const CTPeriod& p);
-		double NFFP(const CWeatherYears& weather, const CTPeriod& p);
-		double CHDD(const CWeatherYears& weather, double threshold, const CTPeriod& p);*/
+	
 
 
 	};

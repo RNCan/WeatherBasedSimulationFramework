@@ -98,7 +98,15 @@
             <Name>CHDD0</Name>
             <Title>CHDD0</Title>
             <Units/>
-            <Description>chilling degree days under 0 (from August first)</Description>
+            <Description>Cumulative chilling degree days under 0°C (from August 1st)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CHDD5</Name>
+            <Title>CHDD5</Title>
+            <Units/>
+            <Description>Cumulative chilling degree days under 5°C (from August 1st)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
