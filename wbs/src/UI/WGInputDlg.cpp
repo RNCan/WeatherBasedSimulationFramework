@@ -12,6 +12,16 @@
 //****************************************************************************
 #include "stdafx.h"
 
+//#include <locale>
+//#include <codecvt>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <locale>
+#include <iomanip>
+#include <codecvt>
+#include <cstdint>
+
 #include "FileManager/FileManager.h"
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"
@@ -652,8 +662,13 @@ namespace WBSF
 			CreateMultipleDir(tmp_path);
 			CreateMultipleDir(wea_path);
 
-
+			
+			
 			ofStream stript;
+			//std::locale utf8_locale(std::locale(), new gel::stdx::utf8cvt<true>);
+			//std::locale utf8_locale(std::locale(), ::new utf8cvt<false>);
+			std::locale utf8_locale = std::locale(std::locale::classic(), ::new std::codecvt_utf8<size_t>());
+			stript.imbue(utf8_locale);
 			msg = stript.open(scriptFilePath);
 			if (msg)
 			{
@@ -664,15 +679,15 @@ namespace WBSF
 
 				stript << "open ftp://anonymous:anonymous%40example.com@ftp.cfl.scf.rncan.gc.ca" << endl;
 
-				stript << "cd " << generateWUProjectDlg.m_FTP_path << endl;
-				stript << "lcd \"" << tmp_path << "\"" << endl;
-				stript << "get " << generateWUProjectDlg.m_FTP_file_name << endl;
+				stript << "cd " << WBSF::ANSI_UTF8(generateWUProjectDlg.m_FTP_path) << endl;
+				stript << "lcd \"" << WBSF::ANSI_UTF8(tmp_path) << "\"" << endl;
+				stript << "get " << WBSF::ANSI_UTF8(generateWUProjectDlg.m_FTP_file_name) << endl;
 				stript << "exit" << endl;
 				stript.close();
 
 				//call WinSCP
 				bool bShow = true;
-				string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+				string command = "\"" + GetApplicationPath() + "External\\WinSCP.com\" " + string(bShow ? "/console " : "") + "/timeout=300 /passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 				DWORD exit_code = 0;
 				msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 				if (msg)
@@ -680,28 +695,37 @@ namespace WBSF
 					if (msg && exit_code != 0)
 						msg.ajoute("WinSCP.exe was unable to download file: " + generateWUProjectDlg.m_FTP_file_path);
 
-					//FileExists(file_path_zip) do not work on .tar file
-					ifStream is;
-					if (exit_code == 0 && is.open(file_path_zip))
+					
+					
+
+					
+					
+					if (msg)
 					{
-						is.close();
-						//call 7z
-
-						//unzip only .csv file because they are smaller than the zip file
-						string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
-						msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
-
-						if (msg && exit_code == 0) 
+						if (FileExists(file_path_zip))
 						{
-							//reload all database
-							FillNormalsDBNameList();
-							FillDailyDBNameList();
-							FillHourlyDBNameList();
-							FillGribsDBNameList();
+							//call 7z
+
+							//unzip only .csv file because they are smaller than the zip file
+							string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
+							msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
+
+							if (msg && exit_code == 0)
+							{
+								//reload all database
+								FillNormalsDBNameList();
+								FillDailyDBNameList();
+								FillHourlyDBNameList();
+								FillGribsDBNameList();
+							}
+							else
+							{
+								msg.ajoute("7za.exe was unable to unzip file: " + file_path_zip);
+							}
 						}
 						else
 						{
-							msg.ajoute("7za.exe was unable to unzip file: " + file_path_zip);
+							msg.ajoute("File was not downloaded: " + file_path_zip);
 						}
 					}
 				}//if msg
