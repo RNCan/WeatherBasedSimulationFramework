@@ -1041,36 +1041,9 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		@return    true if the file exists, else false
 
 		*/
-	inline bool FileExists(const std::string& filePath)
-	{
-		bool bExists = false;
-		struct stat buf;
-		if (stat(filePath.c_str(), &buf) != -1)
-		{
-			if( !(buf.st_mode & S_IFDIR) )
-				bExists = true;
-		}
-
-		return bExists;
-	}
-
-
-	inline bool DirectoryExists(std::string path)
-	{
-		//std::string tmp(path);
-		while (IsPathEndOk(path))
-			path = path.substr(0, path.length() - 1);
-
-		DWORD ftyp = GetFileAttributesA(path.c_str());
-		if (ftyp == INVALID_FILE_ATTRIBUTES)
-			return false;  //something is wrong with your path!
-
-		if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-			return true;   // this is a directory!
-
-		return false;    // this is not a directory!
-	}
-
+	bool FileExists(const std::string& filePath);
+	bool DirectoryExists(std::string path);
+	
 	enum TFileNameType { FILE_TITLE, FILE_NAME, FILE_PATH };
 	ERMsg GetFileInfo(const std::string& filePath, CFileInfo& info);
 	CFileInfo GetFileInfo(const std::string& filePath);

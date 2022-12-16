@@ -542,6 +542,29 @@ namespace WBSF
 		return filePath;
 	}
 
+	bool FileExists(const std::string& filePath)
+	{
+		bool bExists = !(INVALID_FILE_ATTRIBUTES == GetFileAttributesA(filePath.c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND);
+		return bExists;
+	}
+
+
+	bool DirectoryExists(std::string path)
+	{
+		//std::string tmp(path);
+		while (IsPathEndOk(path))
+			path = path.substr(0, path.length() - 1);
+
+		DWORD ftyp = GetFileAttributesA(path.c_str());
+		if (ftyp == INVALID_FILE_ATTRIBUTES)
+			return false;  //something is wrong with your path!
+
+		if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+			return true;   // this is a directory!
+
+		return false;    // this is not a directory!
+	}
+
 	std::string GetApplicationPath()
 	{
 		//Get full path with decoration
