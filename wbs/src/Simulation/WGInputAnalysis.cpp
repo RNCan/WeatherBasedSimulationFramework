@@ -791,6 +791,7 @@ namespace WBSF
 						}
 
 						//add only once
+						section[0][S_N] = all[STATISTICS[S_N]];
 						section[0][S_STAT_R²] = all[STATISTICS[S_STAT_R²]];
 						size_t sectionNo = resultDB.GetSectionNo(l, ff, 0);
 						resultDB.SetSection(sectionNo, section);
@@ -808,7 +809,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -970,7 +971,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -1108,7 +1109,7 @@ namespace WBSF
 			if (variables[v])
 			{
 				std::string str = std::string(GetVariableName(v));
-				str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 
@@ -1226,6 +1227,7 @@ namespace WBSF
 					}
 
 					//add only once
+					section[0][S_N] = allMonths[STATISTICS[S_N]];
 					section[0][S_RMSE] = allMonths[STATISTICS[S_RMSE]];
 					section[0][S_STAT_R²] = allMonths[STATISTICS[S_STAT_R²]];
 
@@ -1245,7 +1247,7 @@ namespace WBSF
 			if (variables[NORMALS_DATA::F2V(f)])
 			{
 				std::string str = std::string(NORMALS_DATA::GetFieldTitle(f));
-				str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[f][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[f][STATISTICS[s]], 4);
 
@@ -1382,7 +1384,8 @@ namespace WBSF
 						}
 					}
 
-					//add only once
+					//set only once for N and R²
+					section[0][S_N] = all[STATISTICS[S_N]];
 					section[0][S_STAT_R²] = all[STATISTICS[S_STAT_R²]];
 
 					//for all statistics
@@ -1401,7 +1404,7 @@ namespace WBSF
 			if (variables[v])
 			{
 				std::string str = std::string(GetVariableName(v));
-				str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
+				//str += "\t" + ToString(overallStat[v][NB_VALUE], 4);
 				for (size_t s = 0; s < S_NB_STAT; s++)
 					str += "\t" + ToString(overallStat[v][STATISTICS[s]], 4);
 

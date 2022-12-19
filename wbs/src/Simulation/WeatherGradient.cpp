@@ -815,12 +815,14 @@ namespace WBSF
 				for (size_t m = 0; m < 12; m++)
 					m_gradient[z][g][m].fill(0);
 
-				//for (size_t t = 0; t < NB_CORRECTION_TYPES; t++)
-				//{
-					//m_factor[t][z][g].fill(0);
-				//}
+				/*for (size_t t = 0; t < NB_CORRECTION_TYPES; t++)
+				{
+					m_factor[t][z][g].fill(0);
+				}*/
 			}
 		}
+
+		m_factor.clear();
 	}
 
 
@@ -1079,7 +1081,7 @@ namespace WBSF
 		reset_data();
 
 
-		//commflic in multiThread
+		//conflict in multiThread
 		size_t nbVar = 0;
 		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&msg; v++)
 		{
@@ -1109,24 +1111,6 @@ namespace WBSF
 				bool bContinue = true;
 				for (size_t z = 0; z < NB_SCALE_GRADIENT&&msg&&bContinue; z++)
 				{
-					//vector<double> sum (GetNbCorrectionType(), 0 );
-
-					//map<int, double> sum;
-
-					//m_factor[z][g].resize(GetNbCorrectionType(), 0);
-					//for (size_t y = 0; y < years.size(); y++)
-					/*for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
-					{
-						m_factor[*it][z][g].fill(0);
-
-						for (size_t zz = 0; zz < z; zz++)
-							for (size_t s = 0; s < nbSpaces; s++)
-								sum[*it] += m_factor[*it][zz][g][s] / nbSpaces;
-					}*/
-
-					//if (sum[0] < 1 || (sum.size() == 2 && sum[1] < 1) || m_bForceComputeAllScale)
-					//{
-					
 					if (z < CONTINENTAL_GRADIENT)
 					{
 
@@ -1155,11 +1139,6 @@ namespace WBSF
 							}
 
 							//compute factor
-					//for (size_t t = 0; t < GetNbCorrectionType(); t++)
-
-							//for (set<int>::const_iterator it = years.begin(); it != years.end(); it++)
-							//{
-
 							for (size_t s = 0; s < GetNbSpaces(); s++)
 							{
 								double f = GetFactor(z, g, s, results);
