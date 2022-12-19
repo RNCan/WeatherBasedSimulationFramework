@@ -544,8 +544,15 @@ namespace WBSF
 
 	bool FileExists(const std::string& filePath)
 	{
-		bool bExists = !(INVALID_FILE_ATTRIBUTES == GetFileAttributesA(filePath.c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND);
-		return bExists;
+		DWORD ftyp = GetFileAttributesA(filePath.c_str());
+		if (ftyp == INVALID_FILE_ATTRIBUTES)
+			return false;  //something is wrong with your path!
+
+		if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+			return false;   // this is a directory, not a file
+
+		//bool bExists = !(INVALID_FILE_ATTRIBUTES == GetFileAttributesA(filePath.c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND);
+		return true;
 	}
 
 
