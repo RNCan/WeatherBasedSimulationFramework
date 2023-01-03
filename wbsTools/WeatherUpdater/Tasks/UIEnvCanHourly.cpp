@@ -1562,7 +1562,10 @@ namespace WBSF
 		callback.AddMessage("");
 
 		string infoFilePath = GetSWOBStationsListFilePath(network);
-		msg = UpdateSWOBLocations(network, callback);
+
+		//le fichier est corrompu en date du 20 décembre 2022
+		if(network==N_SWOB)//reéativer plus tard
+			msg = UpdateSWOBLocations(network, callback);
 
 
 		if (msg)
@@ -1677,8 +1680,10 @@ namespace WBSF
 			array<size_t, NB_SWOB_COLUMNS> columns;
 
 
+			//le fichie est corrompu en date du 20 décembre 2022
 			CLocationVector locations;
-			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
+			//for (CSVIterator loop(file, ",;", true, true); loop != CSVIterator() && msg; ++loop)
+			for (CSVIterator loop(file, ";", true, true); loop != CSVIterator() && msg; ++loop)
 			{
 				if (locations.empty())
 				{
