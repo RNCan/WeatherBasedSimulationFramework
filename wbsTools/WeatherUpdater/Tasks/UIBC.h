@@ -54,7 +54,7 @@ namespace WBSF
 		ERMsg sevenZ(const std::string& filePathZip, const std::string& workingDir, CCallback& callback);
 
 		ERMsg LoadStationList(CCallback& callback);
-		ERMsg UpdateStationList(UtilWWW::CHttpConnectionPtr& pConnection, CCallback& callback)const;
+		ERMsg UpdateStationList(CCallback& callback)const;
 		ERMsg ReadData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback)const;
 
 		CLocationVector m_stations;
@@ -73,7 +73,7 @@ namespace WBSF
 		static const char* NETWORK_TILE[NB_NETWORKS];
 		static const size_t NETWOK_ID_TO_ENUM[20];
 		static const char* TYPE_NAME[NB_TYPES];
-		static const bool AVAILABILITY[NB_NETWORKS][NB_TYPES];
+		static const bool HISTORICAL[NB_NETWORKS][NB_TYPES];
 		static const bool ACTIVE[NB_NETWORKS][NB_TYPES];
 
 	};
