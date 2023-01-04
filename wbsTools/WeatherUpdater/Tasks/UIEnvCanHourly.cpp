@@ -53,12 +53,15 @@ namespace WBSF
 
 
 	//SWOB partners network
-	static const size_t NB_PARTNER_NETWORK = 19;
-	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-env-aq","bc-env-snow","bc-forestry","bc-tran","dfo-ccg-lighthouse","dfo-moored-buoys","nl-water","nt-forestry","nt-water",
-		"on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-gov","yt-water" };
+	static const size_t NB_PARTNER_NETWORK = 22;
+	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","dfo-moored-buoys","nl-water","nt-forestry","nt-water",
+		"nb-firewx","on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-gov","yt-water" };
 
-	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC_ENV-AQ","BC_ENV-ASW","BC_WMB","BC_TRAN","DFO","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
-		"ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","yt-gov","YT-DE-WRB" };
+	
+    
+
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
+		"NB-DNRED","ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","yt-gov","YT-DE-WRB" };
 
 
 
@@ -1111,11 +1114,11 @@ namespace WBSF
 					{
 						string prov = it->GetSSI("Province");
 						string p_network = it->GetSSI("Network");
-						if (!p_network.empty())
+						//if (!p_network.empty())
 						{
 							size_t it_p_network = partners_network.Find(p_network);
 
-							if ((partners_network.empty() || it_p_network != UNKNOWN_POS))
+							//if ((partners_network.empty() || it_p_network != UNKNOWN_POS))
 							{
 								tmpList.insert(network + "\\" + it->m_ID);
 							}
