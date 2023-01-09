@@ -276,13 +276,18 @@ namespace WBSF
 							}
 							else
 							{
-								msg = sevenZ(filePathZip, ouputPath, callback);
+								ERMsg msgTmp = sevenZ(filePathZip, ouputPath, callback);
 
-								if (msg)
+								if (msgTmp)
 								{
-									RemoveFile(filePathZip);
 									nbDownload++;
 								}
+								else
+								{
+									callback.AddMessage("WARNING: unable to unzip " + filePathZip);
+								}
+
+								RemoveFile(filePathZip);
 							}
 
 							msg += callback.StepIt();
