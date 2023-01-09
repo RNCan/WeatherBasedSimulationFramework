@@ -38,7 +38,7 @@ namespace WBSF
 	//http://beta.weatheroffice.gc.ca/observations/swob-ml/20170622/CACM/2017-06-22-0300-CACM-AUTO-swob.xml
 	//https://climate.weather.gc.ca/historical_data/search_historic_data_stations_e.html?searchType=stnProv&timeframe=1&lstProvince=QC&optLimit=yearRange&StartYear=2020&EndYear=2020&Year=2020&Month=9&Day=29&selRowPerPage=100&startRow=1&
 
-	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weather.gc.ca", "dd.weather.gc.ca"/*"dd.weatheroffice.gc.ca"*/ };
+	const char* CUIEnvCanHourly::SERVER_NAME[NB_NETWORKS] = { "climate.weather.gc.ca","dd.weather.gc.ca", "dd.weather.gc.ca"/*"hpfx.collab.science.gc.ca"*/ };
 	//*********************************************************************
 
 	const char* CUIEnvCanHourly::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Province", "Network", "PartnerNetwork", "MaxSwobDays", "HourlyPrcpMax" };
@@ -1567,8 +1567,8 @@ namespace WBSF
 		string infoFilePath = GetSWOBStationsListFilePath(network);
 
 		//le fichier est corrompu en date du 20 décembre 2022
-		if(network==N_SWOB)//reéativer plus tard
-			msg = UpdateSWOBLocations(network, callback);
+		//if(network==N_SWOB)//reéativer plus tard
+		msg = UpdateSWOBLocations(network, callback);
 
 
 		if (msg)
@@ -1685,8 +1685,8 @@ namespace WBSF
 
 			//le fichie est corrompu en date du 20 décembre 2022
 			CLocationVector locations;
-			//for (CSVIterator loop(file, ",;", true, true); loop != CSVIterator() && msg; ++loop)
-			for (CSVIterator loop(file, ";", true, true); loop != CSVIterator() && msg; ++loop)
+			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
+			//for (CSVIterator loop(file, ";", true, true); loop != CSVIterator() && msg; ++loop)
 			{
 				if (locations.empty())
 				{
