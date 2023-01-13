@@ -298,11 +298,11 @@ namespace WBSF
 			callback.PushTask("Merge", nbSection);
 
 		
-
+			size_t ss = 0;
 			for (size_t i = 0; i < resultArray.size() && msg; i++)
 			{
 				size_t nbSection = resultArray[i]->GetNbSection();
-				for (size_t s = 0; s < nbSection && msg; s++)
+				for (size_t s = 0; s < nbSection && msg; s++,ss++)
 				{
 					CNewSectionData section;
 					resultArray[i]->GetSection(s, section);
@@ -316,10 +316,10 @@ namespace WBSF
 					size_t l = resultArray[i]->GetMetadata().GetLno(s);
 					size_t p = resultArray[i]->GetMetadata().GetPno(s);
 					size_t r = resultArray[i]->GetMetadata().GetRno(s);
-
-					l = (m_dimensionAppend == LOCATION) ? i : l;
-					p = (m_dimensionAppend == PARAMETER) ? i : p;
-					r = (m_dimensionAppend == REPLICATION) ? i : r;
+					
+					l = (m_dimensionAppend == LOCATION) ? result.GetMetadata().GetLno(ss) : l;
+					p = (m_dimensionAppend == PARAMETER) ? result.GetMetadata().GetPno(ss) : p;
+					r = (m_dimensionAppend == REPLICATION) ? result.GetMetadata().GetRno(ss) : r;
 					size_t no = result.GetSectionNo(l, p, r);
 					result.SetSection(no, section);
 
