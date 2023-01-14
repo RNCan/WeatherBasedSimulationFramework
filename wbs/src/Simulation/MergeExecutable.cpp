@@ -297,12 +297,15 @@ namespace WBSF
 
 			callback.PushTask("Merge", nbSection);
 
-		
-			size_t ss = 0;
+
+			//size_t ss = 0;
+			size_t base_l = 0;
+			size_t base_p = 0;
+			size_t base_r = 0;
 			for (size_t i = 0; i < resultArray.size() && msg; i++)
 			{
 				size_t nbSection = resultArray[i]->GetNbSection();
-				for (size_t s = 0; s < nbSection && msg; s++,ss++)
+				for (size_t s = 0; s < nbSection && msg; s++)
 				{
 					CNewSectionData section;
 					resultArray[i]->GetSection(s, section);
@@ -316,15 +319,22 @@ namespace WBSF
 					size_t l = resultArray[i]->GetMetadata().GetLno(s);
 					size_t p = resultArray[i]->GetMetadata().GetPno(s);
 					size_t r = resultArray[i]->GetMetadata().GetRno(s);
-					
-					l = (m_dimensionAppend == LOCATION) ? result.GetMetadata().GetLno(ss) : l;
-					p = (m_dimensionAppend == PARAMETER) ? result.GetMetadata().GetPno(ss) : p;
-					r = (m_dimensionAppend == REPLICATION) ? result.GetMetadata().GetRno(ss) : r;
-					size_t no = result.GetSectionNo(l, p, r);
+
+
+					size_t no = result.GetSectionNo(base_l + l, base_p + p, base_r + r);
 					result.SetSection(no, section);
+
 
 					msg += callback.StepIt();
 				}
+
+				if (m_dimensionAppend == LOCATION)
+					base_l += resultArray[i]->GetDimension()[LOCATION];
+				if (m_dimensionAppend == PARAMETER)
+					base_p += resultArray[i]->GetDimension()[PARAMETER];
+				if (m_dimensionAppend == REPLICATION)
+					base_r += resultArray[i]->GetDimension()[REPLICATION];
+
 			}
 
 			callback.PopTask();
