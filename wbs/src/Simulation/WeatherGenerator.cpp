@@ -400,7 +400,7 @@ namespace WBSF
 		ASSERT(m_tgi.m_firstYear <= 0 || (m_tgi.m_firstYear >= 1800 && m_tgi.m_firstYear <= 2100));
 		ASSERT(m_tgi.m_lastYear == 0 || (m_tgi.m_lastYear >= 1800 && m_tgi.m_lastYear <= 2100));
 		ASSERT(m_tgi.m_nbNormalsStations > 0);
-		ASSERT(m_tgi.m_nbDailyStations > 0);
+		//ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_seed >= CRandomGenerator::RANDOM_SEED && m_tgi.m_seed <= CRandomGenerator::FIXE_SEED);
 		ASSERT(m_tgi.m_albedo >= 0 && m_tgi.m_albedo <= 1);
 		ASSERT(m_nbReplications > 0);
@@ -416,8 +416,19 @@ namespace WBSF
 		{
 			m_gradients.m_firstYear = m_tgi.m_firstYear;
 			m_gradients.m_lastYear = m_tgi.m_lastYear;
-			m_gradients.SetObservedDatabase(GetObservedDatabase());
+			
+			if (m_tgi.UseHourly() || m_tgi.UseDaily())
+			{
+				m_gradients.SetObservedDatabase(GetObservedDatabase());
+			}
+			else if (m_tgi.UseGribs())
+			{
+				ASSERT(m_pGribDB->GetDB());
+				
+				m_gradients.SetObservedDatabase(CWeatherDatabasePtr(m_pGribDB->GetDBPrt()));
+			}
 		}
+		else 
 
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
@@ -586,11 +597,11 @@ namespace WBSF
 		{
 			msg = GetHourly(m_simulationPoints[0], callback);
 		}
-		else if (m_tgi.IsDaily())
+		else if (m_tgi.IsDaily() )
 		{
 			msg = GetDaily(m_simulationPoints[0], callback);
 		}
-
+		
 
 
 		//******************************************************************
@@ -1228,9 +1239,10 @@ namespace WBSF
 		assert(m_tgi.m_generationType == CWGInput::GENERATE_HOURLY);
 		assert(m_tgi.m_firstYear > 0);
 		assert(m_tgi.GetNbYears() > 0);
-		assert(m_tgi.m_nbHourlyStations > 0);
+		//assert(m_tgi.m_nbHourlyStations > 0);
 		assert(m_tgi.m_variables.any());
 		assert(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+		ASSERT(m_tgi.UseHourly() || m_tgi.UseGribs());
 
 		if (!((CLocation&)simulationPoint).IsInit())
 			(CLocation&)simulationPoint = m_target;
@@ -1261,7 +1273,10 @@ namespace WBSF
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
 
-					msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+					
+					if (m_tgi.UseHourly())
+						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
 
@@ -1291,18 +1306,23 @@ namespace WBSF
 					{
 						CWeatherStationVector stations;
 						CWeatherStationVector stationsG;
-						msg = m_pHourlyDB->GetStations(stations, results, year);
+
+						if (!results.empty())
+						{
+							msg = m_pHourlyDB->GetStations(stations, results, year);
+							stations.FillGaps();//internal completion
+							stations.ApplyCorrections(m_gradients);
+						}
+
 						// Get observation from gribs
-						if (msg && m_tgi.UseGribs())
+						if (msg && !resultsG.empty())
+						{
 							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+							stationsG.ApplyCorrections(m_gradients);
+						}
 
 						if (msg)
 						{
-							stations.FillGaps();//internal completion
-							stations.ApplyCorrections(m_gradients);
-							//stationsG.FillGaps();//no internal completion for grib product
-
-							stationsG.ApplyCorrections(m_gradients);
 							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
 							stationsG.clear();
 
@@ -1334,7 +1354,11 @@ namespace WBSF
 					{
 						CSearchResultVector results;
 						CSearchResultVector resultsG;
-						msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+
+						if ( m_tgi.UseHourly())
+							msg = m_pHourlyDB->Search(results, m_target, m_tgi.GetNbHourlyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+
+
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
@@ -1369,25 +1393,36 @@ namespace WBSF
 							}
 
 							if (!vars.empty())
-								msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), GetFileName(m_pHourlyDB->GetFilePath()), vars));
+							{
+								
+								if (m_tgi.UseHourly())
+									msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), m_tgi.m_hourlyDBName, vars));
+								if (m_tgi.UseGribs())
+									msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), m_tgi.m_gribsDBName, vars));
+							}
 						}
 
-						//if (msg && results.size() > 0)
+						
 						if (msg && (!results.empty() || !resultsG.empty()))
 						{
 							CWeatherStationVector stations;
 							CWeatherStationVector stationsG;
-							msg = m_pHourlyDB->GetStations(stations, results, year);
-							if (msg && m_tgi.UseGribs())
+
+							if (!results.empty())
+							{
+								msg = m_pHourlyDB->GetStations(stations, results, year);
+								stations.FillGaps();//internal completion
+								stations.ApplyCorrections(m_gradients);//apply gradient to weather data
+							}
+
+							if (msg && !resultsG.empty())
+							{
 								msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+								stationsG.ApplyCorrections(m_gradients);
+							}
 
 							if (msg)
 							{
-								stations.FillGaps();//internal completion
-								stations.ApplyCorrections(m_gradients);//apply gradient to weather data
-
-								stationsG.ApplyCorrections(m_gradients);
-								//for (size_t i = 0; i < stationsG.size(); i++)
 								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
 								stationsG.clear();
 
@@ -1428,9 +1463,10 @@ namespace WBSF
 	{
 		ASSERT(m_tgi.m_firstYear > 0);
 		ASSERT(m_tgi.GetNbYears() > 0);
-		ASSERT(m_tgi.m_nbDailyStations > 0);
+		//ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_variables.any());
 		ASSERT(m_tgi.XVal() == 0 || m_tgi.XVal() == 1);
+		ASSERT(m_tgi.UseDaily() || m_tgi.UseGribs());
 
 
 		if (!((CLocation&)simulationPoint).IsInit())
@@ -1455,8 +1491,9 @@ namespace WBSF
 				{
 					CSearchResultVector results;
 					CSearchResultVector resultsG;
-
-					msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+					
+					if(m_tgi.m_nbDailyStations>0)
+						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
 
 					if (!results.empty() && m_tgi.XVal())
 						results.erase(results.begin());
@@ -1485,25 +1522,29 @@ namespace WBSF
 							msg = ERMsg();
 					}
 
-//					if (msg && results.size() > 0)
+
 					if (msg && (!results.empty() || !resultsG.empty()))
 					{
 						CDailyStationVector stations;
 						CDailyStationVector stationsG;
 
-						msg = m_pDailyDB->GetStations(stations, results, year);
+						if (!results.empty())
+						{
+							msg = m_pDailyDB->GetStations(stations, results, year);
+							stations.FillGaps();//internal completion
+							stations.ApplyCorrections(m_gradients);
+						}
 
 						// Get observation from gribs
-						if (msg && m_tgi.UseGribs())
+						if (msg && !resultsG.empty())
+						{
 							msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+							stationsG.ApplyCorrections(m_gradients);
+						}
 
 
 						if (msg)
 						{
-							stations.FillGaps();//internal completion
-							stations.ApplyCorrections(m_gradients);
-
-							stationsG.ApplyCorrections(m_gradients);
 							stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
 							stationsG.clear();
 
@@ -1537,7 +1578,9 @@ namespace WBSF
 						CSearchResultVector results;
 						CSearchResultVector resultsG;
 
-						msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+						if (m_tgi.m_nbDailyStations > 0)
+							msg = m_pDailyDB->Search(results, m_target, m_tgi.GetNbDailyToSearch(), m_tgi.m_searchRadius[v], v, year, true, true, m_tgi.m_bUseShore);
+
 						if (!results.empty() && m_tgi.XVal())
 							results.erase(results.begin());
 
@@ -1579,7 +1622,12 @@ namespace WBSF
 							}
 
 							if (!vars.empty())
-								msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), GetFileName(m_pDailyDB->GetFilePath()), vars));
+							{
+								if (m_tgi.UseDaily())
+									msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), m_tgi.m_dailyDBName, vars));
+								if (m_tgi.UseGribs())
+									msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), m_tgi.m_gribsDBName, vars));
+							}
 
 						}
 
@@ -1588,21 +1636,24 @@ namespace WBSF
 							CWeatherStationVector stations;
 							CDailyStationVector stationsG;
 
-							msg = m_pDailyDB->GetStations(stations, results, year);
+							if (!results.empty())
+							{
+								msg = m_pDailyDB->GetStations(stations, results, year);
+								stations.FillGaps();//internal completion
+								stations.ApplyCorrections(m_gradients);
+							}
 
-							if (msg && m_tgi.UseGribs())
+							if (msg && !resultsG.empty())
+							{
 								msg = m_pGribDB->GetStations(stationsG, resultsG, year);
+								stationsG.ApplyCorrections(m_gradients);
+							}
 
 
 							if (msg)
 							{
-								stations.FillGaps();//internal completion
-								stations.ApplyCorrections(m_gradients);
-
-								stationsG.ApplyCorrections(m_gradients);
 								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
 								stationsG.clear();
-
 
 								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);
 							}

@@ -600,7 +600,7 @@ namespace WBSF
 
 		//open daily database
 		CDailyDatabasePtr dailyDB;
-		if (msg && WGInput.IsDaily())
+		if (msg && WGInput.UseDaily())
 		{
 			dailyDB.reset(new CDailyDatabase);
 			msg = dailyDB->Open(DFilePath, CDailyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
@@ -610,7 +610,7 @@ namespace WBSF
 
 
 		CHourlyDatabasePtr hourlyDB;
-		if (msg && WGInput.IsHourly())
+		if (msg && WGInput.UseHourly())
 		{
 			hourlyDB.reset(new CHourlyDatabase);
 			msg = hourlyDB->Open(HFilePath, CHourlyDatabase::modeRead, callback, WGInput.m_bSkipVerify);
