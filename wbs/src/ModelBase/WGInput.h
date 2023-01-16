@@ -132,8 +132,8 @@ namespace WBSF
 		bool UseGribs()const{ return IsObservation() && m_bUseGribs; }
 		bool IsDaily()const{ return (m_sourceType == FROM_OBSERVATIONS) && m_generationType == GENERATE_DAILY; }
 		bool IsHourly()const{ return (m_sourceType == FROM_OBSERVATIONS) && m_generationType == GENERATE_HOURLY; }
-		bool UseDaily()const{ return IsDaily(); }
-		bool UseHourly()const{ return IsHourly(); }
+		bool UseDaily()const{ return IsDaily() && m_nbDailyStations>0; }
+		bool UseHourly()const{ return IsHourly()&& m_nbHourlyStations>0; }
 		size_t GetNbYears()const{ return m_sourceType == FROM_DISAGGREGATIONS ? m_nbNormalsYears : m_lastYear - m_firstYear + 1; }
 		int GetFirstYear()const{ return m_sourceType == FROM_DISAGGREGATIONS ? 1 - int(m_nbNormalsYears) : m_firstYear; }
 		int GetLastYear()const{ return m_sourceType == FROM_DISAGGREGATIONS ? 0 : m_lastYear; }

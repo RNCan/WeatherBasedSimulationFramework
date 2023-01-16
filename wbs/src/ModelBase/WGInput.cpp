@@ -240,12 +240,12 @@ namespace WBSF
 		{
 			if (m_generationType == GENERATE_DAILY)
 			{
-				if (m_dailyDBName.empty())
+				if (m_dailyDBName.empty()&&!m_bUseGribs)
 					msg.ajoute(GetString(IDS_BSC_NO_DAILY_DATABASE));
 			}
 			else if (m_generationType == GENERATE_HOURLY)
 			{
-				if (m_hourlyDBName.empty())
+				if (m_hourlyDBName.empty()&&!m_bUseGribs)
 					msg.ajoute(GetString(IDS_BSC_NO_HOURLY_DATABASE));
 			}
 		}
