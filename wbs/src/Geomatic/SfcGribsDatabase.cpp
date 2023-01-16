@@ -332,7 +332,7 @@ namespace WBSF
 		msg = file.open(file_path + ".inc.csv");
 		if (msg)
 		{
-			string format = m_period.GetTM().IsHourly()?"%Y-%m-%d-%H": "%Y-%m-%d";
+			string format = m_period.GetTM().IsHourly() ? "%Y-%m-%d-%H" : "%Y-%m-%d";
 
 			file << "Date,Name,LastUpdate,Size,Attribute" << endl;
 			for (const_iterator it = begin(); it != end(); it++)
@@ -360,10 +360,10 @@ namespace WBSF
 				file.close();
 			}
 
-			
-			
+
+
 			msg += m_locations.Save(file_path + ".inc.loc");
-			
+
 		}
 
 		return msg;
@@ -444,11 +444,11 @@ namespace WBSF
 		ASSERT(gribs.GetEntireTPeriod().GetTM() == m_period.GetTM());
 
 		ERMsg msg;
-		
+
 		CIncementalDB& me = *this;
 		for (auto it = gribs.begin(); it != gribs.end() && msg; it++)
 		{
-			
+
 
 			if (m_period.IsInside(it->first))
 			{
@@ -1499,14 +1499,26 @@ namespace WBSF
 		return m_pDB->Close(bSave, callback);
 	}
 
+
+	template <class T>
+	class CGeoBlockHash;
+
+	template<>
+	class CGeoBlockHash<CGeoBlockIndex>
+	{
+	public:
+		std::size_t operator()(CGeoBlockIndex const& s) const
+		{
+			return s.m_x ^ (s.m_y << 1);
+		}
+	};
+
+
 	ERMsg CSfcGribDatabase::Update(const CGribsMap& gribs, const CLocationVector& locationsIn, CCallback& callback)
 	{
 		ASSERT(m_pDB->IsOpen());
 
 		ERMsg msg;
-
-		//callback.AddMessage("Create/Update Grib database");
-		//callback.AddMessage(m_filePath, 1);
 
 		CTPeriod Gribs_period = gribs.GetEntireTPeriod();
 		if (!m_period.IsInit())
@@ -1514,9 +1526,16 @@ namespace WBSF
 
 		if (Gribs_period.GetTM() != m_period.GetTM())
 		{
-			msg.ajoute("Mismatch Hourly/Daily");
+			msg.ajoute("Gribs mismatch Hourly/Daily");
 			return msg;
 		}
+
+		if (!Gribs_period.IsIntersect(m_period))
+		{
+			msg.ajoute("Period to simulate doesn't intersect Gribs period");
+			return msg;
+		}
+
 
 		m_bIsHourly = Gribs_period.GetTM() == CTM::HOURLY;
 		CLocationVector cells_points;
@@ -1570,22 +1589,25 @@ namespace WBSF
 		}
 
 
+
+		/*if (memory_required > memory_available)
+		{
+			msg.ajoute("Not enough memory to execute " + to_string(m_period.GetNbYears() )+ " years");
+		}*/
+
 		if (!msg)
 			return msg;
 
 
 		CIncementalDB incremental;
-		//incremental.m_grib_file_path = gribs.get_file_path();
-		//incremental.m_loc_file_path = locationsIn.GetFilePath();
-		//incremental.m_nb_points = m_nb_points;
-		//incremental.m_variables = m_variables;
-		//incremental.m_period = m_period;
-		//incremental.m_locations = locationsIn;
 
-		CWeatherStationVector stations;
+
+		//CWeatherStationVector stations;
 		bool bIncremental = m_bIncremental;
 		std::set<CTRef> invalid;
-		
+
+
+
 
 		if (bIncremental)
 		{
@@ -1597,26 +1619,19 @@ namespace WBSF
 
 				if (!m_pDB->empty() && incremental.m_locations != locationsIn)
 				{
-					//msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(m_pDB->size()) + "). Do not use incremental.");
-					//return msg;
-					callback.AddMessage("Location' points to extract (" + to_string(locationsIn.size()) + ") from gribs is not the same as the previous execution (" + to_string(incremental.m_locations) + "). Incremental was reset.");
+					callback.AddMessage("Location' points to extract (" + to_string(locationsIn.size()) + ") from gribs is not the same as the previous execution (" + to_string(incremental.m_locations.size()) + "). Incremental was reset.");
 					bIncremental = false;
 				}
 
 				if (!m_pDB->empty() && incremental.m_nb_points != m_nb_points)
 				{
-					//msg.ajoute("The number of location to extract (" + to_string(locations.size()) + ") from gribs is not the same as the previous execution (" + to_string(m_pDB->size()) + "). Do not use incremental.");
-					//return msg;
 					callback.AddMessage("Number of nearest cells to used has change (" + to_string(incremental.m_nb_points) + " to " + to_string(m_nb_points) + "). Incremental was reset.");
 					bIncremental = false;
 				}
 
 				if (!m_pDB->empty() && incremental.m_variables != m_variables)
 				{
-					//		msg.ajoute("The variable to extract from gribs is not the same as the previous execution. Do not use incremental.");
-						//	return msg;
 					callback.AddMessage("The variables to extract from gribs is not the same as the previous execution. Incremental was reset.");
-
 					bIncremental = false;
 				}
 
@@ -1627,7 +1642,7 @@ namespace WBSF
 					msg += m_pDB->Close(false);
 					msg += m_pDB->DeleteDatabase(file_path, callback);
 					msg += m_pDB->Open(file_path, CHourlyDatabase::modeEdit, callback, true);
-					
+
 					if (!msg)
 						return msg;
 
@@ -1639,47 +1654,42 @@ namespace WBSF
 			{
 				bIncremental = false;
 			}
-
-
-			
-
 		}
 
 		if (bIncremental)
 		{
-			stations.resize(cells_points.size());
+			/*stations.resize(cells_points.size());
 			for (size_t i = 0; i < cells_points.size(); i++)
 			{
 				ASSERT(m_pDB->size() == cells_points.size());
-				//{
-					msg += m_pDB->Get(stations[i], i);
-				/*}
-				else
-				{
-					((CLocation&)stations[i]) = cells_points[i];
-					stations[i].SetHourly(m_bIsHourly);
-				}*/
-			}
+
+				msg += m_pDB->Get(stations[i], i);
+			}*/
 
 			msg = incremental.GetInvalidTRef(gribs, m_period, invalid);
 		}
 		else
 		{
 			incremental.clear();
-			stations.resize(cells_points.size());
+			//stations.resize(cells_points.size());
 			for (size_t i = 0; i < cells_points.size(); i++)
 			{
-				((CLocation&)stations[i]) = cells_points[i];
-				stations[i].SetHourly(m_bIsHourly);
+				//((CLocation&)stations[i]) = cells_points[i];
+				//stations[i].SetHourly(m_bIsHourly);
+				CWeatherStation station;
+				((CLocation&)station) = cells_points[i];
+				station.SetHourly(m_bIsHourly);
+				m_pDB->Add(station);
 			}
 
-			for (CTRef TRef= m_period.Begin(); TRef <= m_period.End(); TRef++)
+			for (CTRef TRef = m_period.Begin(); TRef <= m_period.End(); TRef++)
 			{
 				invalid.insert(TRef);
 			}
 		}
 
-		
+
+
 
 		callback.AddMessage("Input gribs: " + gribs.get_file_path());
 		callback.AddMessage("Gribs period: " + ReplaceString(Gribs_period.GetFormatedString(), "|", ","));
@@ -1689,8 +1699,8 @@ namespace WBSF
 
 		size_t HD_factor = m_bIsHourly ? 24 : 1;
 		callback.AddMessage("Nb variables: " + to_string(m_variables.count()));
-		
-		callback.AddMessage("Period: " + m_period.GetFormatedString("%1 to %2")+" ("+ to_string(m_period.size()) + (m_bIsHourly ? " hours)":" days)"));
+
+		callback.AddMessage("Period: " + m_period.GetFormatedString("%1 to %2") + " (" + to_string(m_period.size()) + (m_bIsHourly ? " hours)" : " days)"));
 		callback.AddMessage("Nb inputs: " + to_string(gribs.size()) + " (" + to_string(int(gribs.size() / HD_factor)) + " days)");
 		callback.AddMessage("Nb elements to update: " + to_string(invalid.size()) + " (" + to_string(int(invalid.size() / HD_factor)) + " days)");
 		callback.AddMessage("Incremental: " + string(bIncremental ? "yes" : "no"));
@@ -1700,69 +1710,195 @@ namespace WBSF
 		{
 
 			//create all data for multi-thread
-			CTPeriod p(*invalid.begin(), *invalid.rbegin());
-			for (size_t i = 0; i < stations.size(); i++)
-				stations[i].CreateYears(p);
+			//CTPeriod p(*invalid.begin(), *invalid.rbegin());
+			//for (size_t i = 0; i < stations.size(); i++)
+				//stations[i].CreateYears(p);
 
-			size_t nbStationAdded = 0;
-			string feed = "Create/Update Grib database \"" + GetFileName(m_pDB->GetFilePath()) + "\" (extracting " + to_string(invalid.size()) + (m_bIsHourly? " days)" :" days)");
-			callback.PushTask(feed, invalid.size());
-			callback.AddMessage(feed);
 
 			//convert set into vector for multi-thread
 			vector<CTRef> tmp;
 			for (std::set<CTRef>::const_iterator it = invalid.begin(); it != invalid.end() && msg; it++)
-				tmp.push_back(*it);
-
-			//#pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
-			for (__int64 i = 0; i < (__int64)tmp.size(); i++)
 			{
-#pragma omp flush(msg)
-				if (msg)
-				{
-					CTRef TRef = tmp[i];
-					msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
-					msg += callback.StepIt();
-#pragma omp flush(msg)
-
-				}
+				if (gribs.find(*it) != gribs.end())
+					tmp.push_back(*it);
 			}
 
-			callback.PopTask();
-			callback.PushTask("Save weather to disk", stations.size());
-			for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
+			if (false)
 			{
-				if (msg)
+				//
+				//				//#pragma omp parallel for shared(msg) num_threads(min(2,m_nbMaxThreads))
+				//				for (__int64 i = 0; i < (__int64)tmp.size(); i++)
+				//				{
+				//#pragma omp flush(msg)
+				//					if (msg)
+				//					{
+				//						CTRef TRef = tmp[i];
+				//						msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
+				//						msg += callback.StepIt();
+				//#pragma omp flush(msg)
+				//
+				//					}
+				//				}
+				//
+				//				callback.PopTask();
+				//				callback.PushTask("Save weather to disk", stations.size());
+				//				for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
+				//				{
+				//					if (msg)
+				//					{
+				//						//Force write file name in the file
+				//						it->SetDataFileName(it->GetDataFileName());
+				//						it->UseIt(true);
+				//
+				//						msg = m_pDB->Set(std::distance(stations.begin(), it), *it);
+				//
+				//						if (msg)
+				//							nbStationAdded++;
+				//					}
+				//
+				//					msg += callback.StepIt();
+				//				}
+			}
+			else
+			{
+				if (!tmp.empty())
 				{
-					//Force write file name in the file
-					it->SetDataFileName(it->GetDataFileName());
-					it->UseIt(true);
+					//open th first image and assume all image have the same structure.
 
-					msg = m_pDB->Set(std::distance(stations.begin(), it), *it);
-
+					CSfcDatasetCached sfcDS;
+					sfcDS.m_variables_to_load = m_variables;
+					msg = sfcDS.open(gribs.at(tmp[0]), true);
 					if (msg)
-						nbStationAdded++;
+					{
+						CGeoExtents extents = sfcDS.GetExtents();
+						sfcDS.Close();
+
+						//std::vector<std::pair<int, int>> block_list = extents.GetBlockList();
+						//
+						
+						double memory_required = 2*sizeof(CWeatherDay) * m_period.GetNbYears() * 366.0* (m_bIsHourly ? 24 : 1)  / 1000000;//Mb
+						double memory_available = GetTotalSystemMemory() / 1000000 * 9 / 10;//Mb
+						size_t max_points = memory_available / memory_required;
+
+
+						unordered_map<CGeoBlockIndex, CLocationVector, CGeoBlockHash<CGeoBlockIndex>> blocks_tmp;
+						deque<CLocationVector> blocks;
+
+						for (size_t i = 0; i < cells_points.size(); i++)
+						{
+							CGeoPointIndex pt = extents.CoordToXYPos(cells_points[i]);
+							CGeoBlockIndex bi = extents.GetBlockIndex(pt);
+							cells_points[i].SetSSI("StationPos", to_string(i));
+							blocks_tmp[bi].push_back(cells_points[i]);
+						}
+
+						//re-split block too big
+						size_t cur_i=0;
+						for (auto it = blocks_tmp.begin(); it != blocks_tmp.end(); it++)
+						{
+							for (size_t i = 0; i < it->second.size(); i++)
+							{
+								if (!blocks.empty() && blocks[cur_i].size() >= max_points)
+									cur_i++;
+
+								if (cur_i == blocks.size())
+									blocks.resize(blocks.size() + 1);
+
+								blocks[cur_i].push_back(it->second[i]);
+							}
+						}
+						
+
+						size_t nbStationAdded = 0;
+						string feed = "Create/Update Grib database \"" + GetFileName(m_pDB->GetFilePath()) + "\" (extracting " + to_string(blocks.size()) + " block)";
+						callback.PushTask(feed, blocks.size());
+						callback.AddMessage(feed);
+
+						for (size_t b = 0; b != blocks.size()&&msg; b++)
+						{
+							string feed = "extracting " + to_string(tmp.size()) + (m_bIsHourly ? " hours" : " days");
+							callback.PushTask(feed, tmp.size());
+							//callback.AddMessage(feed);
+
+							CWeatherStationVector stations;
+							if (bIncremental)
+							{
+								for (size_t i = 0; i < blocks[b].size(); i++)
+								{
+									size_t station_pos = ToSizeT(blocks[b][i].GetSSI("StationPos"));
+									msg += m_pDB->Get(stations[i], station_pos);
+								}
+							}
+							else
+							{
+
+								stations.resize(blocks[b].size());
+								for (size_t i = 0; i < blocks[b].size(); i++)
+								{
+									((CLocation&)stations[i]) = blocks[b][i];
+									stations[i].SetHourly(m_bIsHourly);
+								}
+
+							}
+
+
+							for (__int64 i = 0; i < (__int64)tmp.size(); i++)
+							{
+								if (msg)
+								{
+									CTRef TRef = tmp[i];
+
+
+									msg += ExtractStation(TRef, gribs.at(TRef), stations, callback);
+									msg += callback.StepIt();
+
+								}
+							}
+
+							callback.PopTask();
+							callback.PushTask("Save weather block to disk", stations.size());
+							for (CWeatherStationVector::iterator it = stations.begin(); it != stations.end() && msg; it++)
+							{
+								if (msg)
+								{
+									//Force write file name in the file
+									it->SetDataFileName(it->GetDataFileName());
+									it->UseIt(true);
+
+									size_t station_pos = ToSizeT((*it).GetSSI("StationPos"));
+									msg = m_pDB->Set(station_pos, *it);
+									//std::distance(stations.begin(), it)
+
+									if (msg)
+										nbStationAdded++;
+								}
+
+								msg += callback.StepIt();
+							}
+
+							callback.PopTask();
+							msg += callback.StepIt();
+						}
+					}
 				}
 
-				msg += callback.StepIt();
+
+				if (msg)
+				{
+					//update incremental even if incremental is not activate yet
+					incremental.m_grib_file_path = gribs.get_file_path();
+					incremental.m_loc_file_path = locationsIn.GetFilePath();
+					incremental.m_nb_points = m_nb_points;
+					incremental.m_variables = m_variables;
+					incremental.m_period = m_period;
+					incremental.m_locations = locationsIn;
+
+					incremental.Update(gribs);
+					msg = incremental.save(m_pDB->GetFilePath());
+				}
+
+				callback.PopTask();
 			}
-
-			if (msg)
-			{
-				//update incremental even if incremental is not activate yet
-				incremental.m_grib_file_path = gribs.get_file_path();
-				incremental.m_loc_file_path = locationsIn.GetFilePath();
-				incremental.m_nb_points = m_nb_points;
-				incremental.m_variables = m_variables;
-				incremental.m_period = m_period;
-				incremental.m_locations = locationsIn;
-
-				incremental.Update(gribs);
-				msg = incremental.save(m_pDB->GetFilePath());
-			}
-
-			callback.PopTask();
-
 		}
 
 		return msg;
@@ -1848,6 +1984,7 @@ namespace WBSF
 
 		return msg;
 	}
+
 
 	GribVariables CSfcGribDatabase::get_var(CWVariables variables)
 	{

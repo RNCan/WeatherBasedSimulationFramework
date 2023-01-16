@@ -257,6 +257,7 @@ namespace WBSF
 		ERMsg Close(bool bSave = true, CCallback& callback = DEFAULT_CALLBACK);
 
 		const CDHDatabaseBase* GetDB()const { return m_pDB.get(); }
+		std::shared_ptr < CDHDatabaseBase>& GetDBPrt() { return m_pDB; }
 
 	protected:
 
