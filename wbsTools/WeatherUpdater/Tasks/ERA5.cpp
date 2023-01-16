@@ -79,7 +79,7 @@ namespace WBSF
 		{
 			int year = int(m_first_year + y);
 
-			callback.PushTask("Create ERA5: " + ToString(365) + " days", 365);
+			callback.PushTask("Create ERA5 for year " + to_string(year) + ": " + ToString(GetNbDaysPerYear(year)) + " days", GetNbDaysPerYear(year));
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
 				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
@@ -89,7 +89,7 @@ namespace WBSF
 					if (!FileExists(output_file_path))
 					{
 						msg += DownloadERA5(TRef, callback);
-						if(msg)
+						if (msg)
 							msg += CreateDailyGeotiff(TRef, callback);
 					}
 
@@ -110,6 +110,12 @@ namespace WBSF
 
 
 	enum TERA5VarH { H_ERA5_TAIR, H_ERA5_PRCP, H_ERA5_TDEW, H_ERA5_WNDU, H_ERA5_WNDV, H_ERA5_SRAD, H_ERA5_PRES, H_ERA5_SNOWFALL, H_ERA5_SWE, H_ERA5_SNOW_DENSITY, H_ERA5_GEOPOTENTIAL, NB_ERA5_VARS_HOURLY };
+	//enum TERA5VarH { H_ERA5_SRAD, NB_ERA5_VARS_HOURLY };
+
+	//static const array<string, NB_ERA5_VARS_HOURLY> ERA5_NAME_H =
+	//{
+	//	"surface_net_solar_radiation"
+	//};
 
 	static const array<string, NB_ERA5_VARS_HOURLY> ERA5_NAME_H =
 	{
@@ -118,6 +124,20 @@ namespace WBSF
 		"mean_surface_downward_short_wave_radiation_flux", "surface_pressure",
 		"snowfall","snow_depth", "snow_density", "geopotential"
 	};
+
+	//static const array<string, NB_ERA5_VARS_HOURLY> ERA5_NAME_H =
+	//{
+	//	"2m_temperature", "total_precipitation", "2m_dewpoint_temperature",
+	//	"10m_u_component_of_wind", "10m_v_component_of_wind",
+	//	"surface_net_solar_radiation", "surface_pressure",
+	//	"snowfall","snow_depth", "snow_density", "geopotential"
+	//};
+
+
+	//mean_surface_downward_short_wave_radiation_flux
+	//"Surface solar radiation downwards"
+	//"surface_net_solar_radiation"
+
 
 	ERMsg CERA5::DownloadERA5(CTRef TRef, CCallback& callback)const
 	{
@@ -151,10 +171,13 @@ namespace WBSF
 
 		if (msg)
 		{
-			//string box;
-//			if(m_bounding_box.m_xMax!=-90|| m_bounding_box.m_yMin!=-180||m_bounding_box.m_xMin!=90||m_bounding_box.m_yMax!=180)
-			string box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
+			string box;
+			if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
+				box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
+
 			string date = " --startyear " + to_string(TRef.GetYear()) + " --months " + to_string(TRef.GetMonth() + 1) + " --day " + to_string(TRef.GetDay() + 1);
+			if (TRef.GetYear() < 1979)
+				date += " --prelimbe";
 
 			string argument = "hourly --variables " + all_variables + date + box + " --levels surface --threads 6 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
 			string command = "era5cli.exe " + argument;
@@ -165,10 +188,19 @@ namespace WBSF
 
 		if (msg)
 		{
-			string box = WBSF::FormatA("%.0lfW-%.0lfW_%.0lfN-%.0lfN", abs(m_bounding_box.m_xMin), abs(m_bounding_box.m_xMax), abs(m_bounding_box.m_yMin), abs(m_bounding_box.m_yMax));
+			string box;
+			if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
+			{
+				char a1 = m_bounding_box.m_xMin < 0 ? 'W' : 'E';
+				char a2 = m_bounding_box.m_xMax < 0 ? 'W' : 'E';
+				char a3 = m_bounding_box.m_yMin < 0 ? 'S' : 'N';
+				char a4 = m_bounding_box.m_yMax < 0 ? 'S' : 'N';
+				box = WBSF::FormatA("_%.0lf%c-%.0lf%c_%.0lf%c-%.0lf%c", abs(m_bounding_box.m_xMin), a1, abs(m_bounding_box.m_xMax), a2, abs(m_bounding_box.m_yMin), a3, abs(m_bounding_box.m_yMax), a4);
+			}
+
 			for (size_t v = 0; v < NB_ERA5_VARS_HOURLY && msg; v++)
 			{
-				string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly_"+ box +".grb";
+				string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly" + box + ".grb";
 				if (!FileExists(output_filepath1))
 					msg.ajoute("File does't exist: " + output_filepath1);
 
@@ -178,8 +210,8 @@ namespace WBSF
 					//msg = CreateMultipleDir(GetPath(output_filepath2));
 					if (FileExists(output_filepath2))
 						msg += RemoveFile(output_filepath2);
-					
-					if(msg)
+
+					if (msg)
 						msg += WBSF::RenameFile(output_filepath1, output_filepath2);
 				}
 			}
@@ -217,7 +249,7 @@ namespace WBSF
 		if (msg)
 		{
 			//size_t nb_days = DSin[0].GetRasterCount();
-			callback.PushTask("Create ERA5 for day " + TRef.GetFormatedString(), NB_ERA5_VARS_HOURLY*24);
+			callback.PushTask("Create ERA5 for day " + TRef.GetFormatedString(), NB_ERA5_VARS_HOURLY * 24);
 
 			float no_data = 9999;// GetDefaultNoData(GDT_Int16);
 			CBaseOptions options;
@@ -236,7 +268,7 @@ namespace WBSF
 			options.m_createOptions.push_back("BLOCKXSIZE=256");
 			options.m_createOptions.push_back("BLOCKYSIZE=256");
 
-			
+
 			msg = CreateMultipleDir(GetPath(output_file_path));
 
 			CGDALDatasetEx DSout;
@@ -247,8 +279,8 @@ namespace WBSF
 				size_t size_xy = DSin[0].GetRasterXSize() * DSin[0].GetRasterYSize();
 				array<vector<float>, NB_ERA5_VARS> data;
 				vector<CStatistic> data_T(size_xy);
-				vector<CStatistic> data_u(size_xy);
-				vector<CStatistic> data_v(size_xy);
+				vector<CStatisticEx> data_u(size_xy);
+				vector<CStatisticEx> data_v(size_xy);
 				for (size_t v = 0; v < NB_ERA5_VARS; v++)
 				{
 					data[v].resize(size_xy);
@@ -331,10 +363,14 @@ namespace WBSF
 							}
 							case H_ERA5_SRAD:
 							{
+								double factor = (ERA5_NAME_H[H_ERA5_SRAD] == "surface_net_solar_radiation") ? 3600.0: 1.0;
+				
+				
 								ASSERT(data[ERA5_SRAD].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data[ERA5_SRAD][xy] += data_h[xy] / 24;
+				
+									data[ERA5_SRAD][xy] += data_h[xy] / (factor*24);
 								}
 								break;
 							}
@@ -415,10 +451,20 @@ namespace WBSF
 
 				for (size_t xy = 0; xy < data_u.size(); xy++)
 				{
-					double u = data_u[xy][MEAN];
-					double v = data_v[xy][MEAN];
-					data[ERA5_WNDS][xy] = sqrt(Square(u) + Square(v));
-					data[ERA5_WNDD][xy] = GetWindDirection(u, v);//approximation of wind direction
+					//do not take directional wind speed but radial wind speed.
+					ASSERT(data_u[xy].size() == data_v[xy].size());
+					for (size_t h = 0; h < data_u[xy].size(); h++)
+					{
+						data[ERA5_WNDS][xy] += sqrt(Square(data_u[xy](h)) + Square(data_v[xy](h))) / data_u[xy].size();
+						data[ERA5_WNDD][xy] += GetWindDirection(data_u[xy](h), data_v[xy](h)) / data_u[xy].size();//approximation of wind direction
+					}
+
+					//double u = data_u[xy][MEAN];
+					//double v = data_v[xy][MEAN];
+					//data[ERA5_WNDS][xy] = sqrt(Square(u) + Square(v));
+
+					//data[ERA5_WNDS][xy] = sqrt(Square(u) + Square(v));
+					//data[ERA5_WNDD][xy] = GetWindDirection(u, v);//approximation of wind direction
 
 					data[ERA5_TMIN][xy] = data_T[xy][LOWEST];
 					data[ERA5_TMAX][xy] = data_T[xy][HIGHEST];
@@ -428,9 +474,9 @@ namespace WBSF
 				{
 
 					GDALRasterBand* pBandout = DSout.GetRasterBand(v);
-	
+
 					pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[v][0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-					
+
 					pBandout->SetDescription(ERA5_META_DATA[v][M_DESC]);
 					pBandout->SetMetadataItem("GRIB_COMMENT", ERA5_META_DATA[v][M_COMMENT]);
 					pBandout->SetMetadataItem("GRIB_ELEMENT", ERA5_META_DATA[v][M_ELEMENT]);
@@ -438,7 +484,7 @@ namespace WBSF
 					pBandout->SetMetadataItem("GRIB_UNIT", ERA5_META_DATA[v][M_UNIT]);
 					DSout->FlushCache();
 				}
-				
+
 
 				DSout.Close();
 			}//if open output

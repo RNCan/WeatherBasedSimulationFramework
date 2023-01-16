@@ -18,7 +18,7 @@ using namespace UtilWWW;
 namespace WBSF
 {
 
-	
+
 
 	CRegionArray CRegionSelection::REGION_NAME;
 
@@ -264,42 +264,44 @@ namespace WBSF
 				CFileInfoVector fileList;
 
 				//open a connection on the server
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-				msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				//CInternetSessionPtr pSession;
+				//CHttpConnectionPtr pConnection;
+				//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 				if (msg)
 				{
-					pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+					//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
 					//Load files list
-					size_t nbTry = 0;
-					while (fileList.empty() && msg)
-					{
-						nbTry++;
+					//size_t nbTry = 0;
+					//while (fileList.empty() && msg)
+					//{
+						//nbTry++;
 
-						try
-						{
-							msg += UtilWWW::FindFiles(pConnection, URL + "TRANSMIT.*.xml", fileList);
-						}
-						catch (CException* e)
-						{
-							if (nbTry < 5)
-							{
-								callback.AddMessage(UtilWin::SYGetMessage(*e));
-								msg = WaitServer(10, callback);
-							}
-							else
-							{
-								msg = UtilWin::SYGetMessage(*e);
-							}
-						}
-					}
+						//try
+						//{
+					string remotePath = string("https://") + SERVER_NAME + "/" + URL + "TRANSMIT.*.xml";
+					msg += UtilWWW::FindFilesCurl(remotePath, fileList);
+
+					//}
+					//catch (CException* e)
+					//{
+						//if (nbTry < 5)
+						//{
+						//	callback.AddMessage(UtilWin::SYGetMessage(*e));
+						//	msg = WaitServer(10, callback);
+						//}
+						//else
+						//{
+						//	msg = UtilWin::SYGetMessage(*e);
+						//}
+					//}
+				//}
 
 					ClearList(fileList);
 					CreateMultipleDir(outputPath);
-					pConnection->Close();
-					pSession->Close();
+					//pConnection->Close();
+					//pSession->Close();
 				}
 
 
@@ -317,48 +319,48 @@ namespace WBSF
 
 						nbTry++;
 
-						CInternetSessionPtr pSession;
-						CHttpConnectionPtr pConnection;
-						msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+						//CInternetSessionPtr pSession;
+						//CHttpConnectionPtr pConnection;
+						//msg = GetHttpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
 
 						if (msg)
 						{
-							pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
+							//pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 15000);
 
-							try
+							//try
+							//{
+							while (it != fileList.end() && msg)
 							{
-								while (it != fileList.end() && msg)
-								{
-									string fileName = GetFileName(it->m_filePath);
-									string ID = fileName.substr(0, 8);
-									string outputFilePath = outputPath + fileName;
+								string fileName = GetFileName(it->m_filePath);
+								string ID = fileName.substr(0, 8);
+								string outputFilePath = outputPath + fileName;
 
-									msg += UtilWWW::CopyFile(pConnection, it->m_filePath, outputFilePath, INTERNET_FLAG_EXISTING_CONNECT);
-									if (msg)
-									{
-										ASSERT(FileExists(outputFilePath));
-										it++;
-										nbDownload++;
-										nbTry = 0;
-										msg += callback.StepIt();
-									}
+								msg += UtilWWW::CopyFileCurl(it->m_filePath, outputFilePath);
+								if (msg)
+								{
+									ASSERT(FileExists(outputFilePath));
+									it++;
+									nbDownload++;
+									nbTry = 0;
+									msg += callback.StepIt();
 								}
 							}
-							catch (CException* e)
-							{
-								if (nbTry < 5)
-								{
-									callback.AddMessage(UtilWin::SYGetMessage(*e));
-									msg = WaitServer(10, callback);
-								}
-								else
-								{
-									msg = UtilWin::SYGetMessage(*e);
-								}
-							}
+							//}
+							//catch (CException* e)
+							//{
+							//	if (nbTry < 5)
+							//	{
+							//		callback.AddMessage(UtilWin::SYGetMessage(*e));
+							//		msg = WaitServer(10, callback);
+							//	}
+							//	else
+							//	{
+							//		msg = UtilWin::SYGetMessage(*e);
+							//	}
+							//}
 
-							pConnection->Close();
-							pSession->Close();
+							//pConnection->Close();
+							//pSession->Close();
 
 						}
 					}
@@ -406,7 +408,7 @@ namespace WBSF
 					sort(filesInfo.begin(), filesInfo.end(), [](const CFileInfo& lhs, const CFileInfo& rhs) {return lhs.m_time < rhs.m_time; });
 
 					//sorting file by name will sort by time
-					for (CFileInfoVector::const_iterator it = filesInfo.begin(); it != filesInfo.end()&&msg; it++)
+					for (CFileInfoVector::const_iterator it = filesInfo.begin(); it != filesInfo.end() && msg; it++)
 					{
 						msg = ReadData(it->m_filePath, stations, callback);
 						msg += callback.StepIt(0);
@@ -706,14 +708,14 @@ namespace WBSF
 			if (pElem)
 			{
 				auto forecast = pElem->getChildren("meteocode-forecast");
-				for (auto it = forecast.first; it != forecast.second&&msg; it++)
+				for (auto it = forecast.first; it != forecast.second && msg; it++)
 				{
 					auto locations = it->getChildren("location");
 					const zen::XmlElement* pData = it->getChild("parameters");
 					if (locations.first != locations.second && pData)
 					{
 						//for all location with this data
-						for (auto it2 = locations.first; it2 != locations.second&&msg; it2++)
+						for (auto it2 = locations.first; it2 != locations.second && msg; it2++)
 						{
 							zen::XmlIn in(*it2);
 

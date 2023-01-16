@@ -378,7 +378,7 @@ namespace WBSF
 			if (GoodGrib(inputFilePath))
 			{
 				DSin1.m_variables_to_load.reset(H_PRCP);
-				DSin1.m_variables_to_load.reset(H_WNDS);//use computed wind speed and direction frpom U and V
+				DSin1.m_variables_to_load.reset(H_WNDS);//use computed wind speed and direction from U and V
 				DSin1.m_variables_to_load.reset(H_SNOW);//no data available
 				DSin1.m_variables_to_load.reset(H_SWE);//no data available
 				msg += DSin1.open(inputFilePath, true);
