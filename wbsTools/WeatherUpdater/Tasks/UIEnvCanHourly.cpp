@@ -53,15 +53,15 @@ namespace WBSF
 
 
 	//SWOB partners network
-	static const size_t NB_PARTNER_NETWORK = 22;
-	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","dfo-moored-buoys","nl-water","nt-forestry","nt-water",
-		"nb-firewx","on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-gov","yt-water" };
+	static const size_t NB_PARTNER_NETWORK = 20;
+	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","nl-water","nt-forestry","nt-water",
+		"nb-firewx","on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-water" };
 
 	
     
 
-	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
-		"NB-DNRED","ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","yt-gov","YT-DE-WRB" };
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
+		"NB-DNRED","ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
 
 
 
@@ -2321,8 +2321,8 @@ namespace WBSF
 		callback.AddMessage("Number of " + network_name + " stations to download: " + ToString(fileList.size()) + " (nb hours stations = " + ToString(nbDayStation) + ")");
 
 		map<string, CTRef> lastUpdate;
-		int nbDownload = 0;
-
+		size_t nbDownload = 0;
+		size_t nb_stations_updated = 0;
 		for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
 		{
 			string  IATA_ID = it1->first;
@@ -2391,9 +2391,18 @@ namespace WBSF
 			if (msgSaved)
 			{
 				lastUpdate[ID] = lastTRef;
-			}
+				nb_stations_updated++;
 
-			callback.AddMessage(msgSaved);
+				//save last update at each 15 stations
+				if ((nb_stations_updated % 15) == 0)
+					msg += UpdateLastUpdate(network, lastUpdate);
+
+			}
+			else
+			{
+				
+				callback.AddMessage(msgSaved);
+			}
 
 			callback.PopTask();
 			msg += callback.StepIt();
@@ -2434,18 +2443,9 @@ namespace WBSF
 					lastUpdate[p_networks[n]] = now;
 				}
 			}
-			//update last network  download
-			//for (map<string, CFileInfoVector>::const_iterator it1 = fileList.begin(); it1 != fileList.end() && msg; it1++)
-			//{
-			//	string ID = GetLastDirName(GetPath(it1->second.front().m_filePath));
-			//	string prov = ;
-			//	string p_network = network == N_SWOB ? string("") : GetParnerNetwork(it1->second.front().m_filePath);
-
-			//	lastUpdate[p_network] = now;
-			//}
 		}
 
-
+		//save at the end including network update.
 		msg += UpdateLastUpdate(network, lastUpdate);
 		return msg;
 	}
@@ -2993,6 +2993,13 @@ namespace WBSF
 
 			ofStream ofile;
 			msg = ofile.open(lastUpdateFilePath);
+			for(size_t t=0; t<5&& !msg; t++)
+			{
+				//wait 10 second and retry
+				WaitServer(10);//remove error
+				msg = ofile.open(lastUpdateFilePath);
+			}
+
 			if (msg)
 			{
 				ofile << "ID,LastUpdate" << endl;
