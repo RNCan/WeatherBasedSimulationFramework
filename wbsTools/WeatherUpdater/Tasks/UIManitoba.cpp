@@ -1129,7 +1129,7 @@ namespace WBSF
 		int firstYear = as<int>(FIRST_YEAR);
 		int lastYear = as<int>(LAST_YEAR);
 		size_t nbYears = lastYear - firstYear + 1;
-		//		CTRef currentTRef = CTRef::GetCurrentTRef();
+		
 
 		fileList.clear();
 		try
@@ -1276,8 +1276,7 @@ namespace WBSF
 		}//if msg
 
 		callback.AddMessage(GetString(IDS_NB_STATIONS) + ToString(m_agri2Stations.size()), 1);
-		//callback.PopTask();
-
+		
 		return msg;
 	}
 
@@ -1307,8 +1306,6 @@ namespace WBSF
 			return msg;
 
 
-
-
 		string workingDir = GetDir(WORKING_DIR);
 		msg = CreateMultipleDir(workingDir);
 
@@ -1320,26 +1317,11 @@ namespace WBSF
 		callback.AddMessage("");
 
 		string fileName = "wx_last48.csv";
-		//string remoteFilePath = SERVER_PATH[FIRE] + fileName;
 		string outputFilePath = workingDir + fileName;
 
 
 		int nbRun = 0;
 		bool bDownloaded = false;
-
-		//while (!bDownloaded && nbRun < 5 && msg)
-//		{
-			//nbRun++;
-
-			//CInternetSessionPtr pSession;
-			//CHttpConnectionPtr pConnection;
-
-			//ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-			//if (msgTmp)
-			//{
-				//try
-				//{
-				//	msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
 
 		string URL = "https://www.gov.mb.ca/conservation_fire/Wx-Display/weatherview/data/wx_last48.csv";
 		msg = CopyFileCurl(URL, outputFilePath);
@@ -1353,29 +1335,7 @@ namespace WBSF
 			msg += callback.StepIt();
 			bDownloaded = true;
 		}
-		//}
-		//catch (CException* e)
-		//{
-			//msgTmp = UtilWin::SYGetMessage(*e);
-		//}
-
-
-		//clean connection
-		//pConnection->Close();
-		//pSession->Close();
-	//}
-	//else
-	//{
-	//	if (nbRun > 1 && nbRun < 5)
-	//	{
-	//		msg += WaitServer(10, callback);
-	//	}
-	//}
-//}
-
-//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
-//callback.PopTask();
-
+	
 		return msg;
 	}
 
@@ -1445,6 +1405,9 @@ namespace WBSF
 						if (cPos < NB_VAR_H && (*loop)[v] != "NULL")
 						{
 							double value = ToDouble((*loop)[v]);
+							if (cPos == H_TMIN || cPos == H_TAIR || cPos == H_TMAX && value < -60 || value >= 60)
+								value = -999;
+
 							if (value > -99)
 							{
 								stat.Add(TRef, cPos, value);
@@ -1907,6 +1870,10 @@ namespace WBSF
 						}
 
 						double value = ToDouble((*loop)[1]);
+						if (vars[i] == H_TMIN || vars[i] == H_TAIR || vars[i] == H_TMAX && value < -60 || value >= 60)
+							value = -999;
+
+
 						if (value > -99)
 						{
 
