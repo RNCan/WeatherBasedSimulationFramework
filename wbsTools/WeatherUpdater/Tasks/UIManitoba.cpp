@@ -147,7 +147,7 @@ namespace WBSF
 
 	const char* CUIManitoba::NETWORK_ABVR[NB_NETWORKS] = { "Agri", "Agri2", "Fire", "Hydro", "Potato" };
 	const char* CUIManitoba::SERVER_NAME[NB_NETWORKS] = { "web43.gov.mb.ca", "mbagweather.ca", "www.gov.mb.ca", "www.hydro.mb.ca", "www.mbpotatoes.ca" };
-	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "partners/CanAg/", "sd/fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
+	const char* CUIManitoba::SERVER_PATH[NB_NETWORKS] = { "climate/", "partners/CanAg/", "conservation_fire/Wx-Display/weatherview/data/", "hydrologicalData/static/stations/", "/" };
 
 	size_t CUIManitoba::GetNetwork(const string& network)
 	{
@@ -272,7 +272,7 @@ namespace WBSF
 		string tstr = type == HOURLY_WEATHER ? "hourly" : "daily";
 		callback.PushTask("Download " + tstr + " Manitoba Data (" + ToString(network.count()) + " networks)", network.count());
 
-		for (size_t n = 0; n < NB_NETWORKS; n++)
+		for (size_t n = 0; n < NB_NETWORKS && msg; n++)
 		{
 			if (network[n])
 			{
@@ -288,11 +288,11 @@ namespace WBSF
 
 				switch (n)
 				{
-				case AGRI: msg = ExecuteAgri(callback); break;
-				case AGRI2: msg = ExecuteAgri2(callback); break;
-				case FIRE: msg = ExecuteFire(callback); break;
-				case HYDRO:	msg = ExecuteHydro(callback); break;
-				case POTATO: msg = ExecutePotato(callback); break;
+				case AGRI: msg += ExecuteAgri(callback); break;
+				case AGRI2: msg += ExecuteAgri2(callback); break;
+				case FIRE: msg += ExecuteFire(callback); break;
+				case HYDRO:	msg += ExecuteHydro(callback); break;
+				case POTATO: msg += ExecutePotato(callback); break;
 				default: ASSERT(false);
 				}
 
@@ -385,7 +385,7 @@ namespace WBSF
 		station.m_name = PurgeFileName(station.m_name);
 
 		//now extract data 
-		for (size_t y = 0; y < nbYears&&msg; y++)
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
 
@@ -437,7 +437,7 @@ namespace WBSF
 					data[H_TMAX] = -999;
 				}
 
-				if (data[H_TDEW] > -999 && (data[H_TDEW] < -60 || data[H_TDEW] > 60)) 
+				if (data[H_TDEW] > -999 && (data[H_TDEW] < -60 || data[H_TDEW] > 60))
 				{
 					data[H_TDEW] = -999;
 					data[H_RELH] = -999;
@@ -462,7 +462,7 @@ namespace WBSF
 					data[H_TMAX].Reset();
 				}
 
-				if (!data[H_TDEW].empty() && (data[H_TDEW][MEAN] < -60 || data[H_TDEW][MEAN] > 60)) 
+				if (!data[H_TDEW].empty() && (data[H_TDEW][MEAN] < -60 || data[H_TDEW][MEAN] > 60))
 				{
 					data[H_TDEW] = -999;
 					data[H_RELH] = -999;
@@ -883,7 +883,7 @@ namespace WBSF
 
 		while (nbRun < 5 && curY < nbYears && msg)
 		{
-			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size()*nbYears * 12 : stationsList.size()*(nbYears - 1) * 12 + stationsList.size()*(currentTRef.GetMonth() + 1);
+			size_t totalFiles = (lastYear < currentTRef.GetYear()) ? stationsList.size() * nbYears * 12 : stationsList.size() * (nbYears - 1) * 12 + stationsList.size() * (currentTRef.GetMonth() + 1);
 			callback.PushTask("Download Manitoba agriculture data (" + ToString(totalFiles) + " station-month)", totalFiles);
 
 			nbRun++;
@@ -892,7 +892,7 @@ namespace WBSF
 			{
 				pSession->SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 45000);//let more time to get the data...
 
-				for (size_t y = curY; y < nbYears &&msg; y++)
+				for (size_t y = curY; y < nbYears && msg; y++)
 				{
 					int year = firstYear + int(y);
 					size_t nbMonths = year < currentTRef.GetYear() ? 12 : currentTRef.GetMonth() + 1;
@@ -1204,7 +1204,7 @@ namespace WBSF
 		m_agri2Stations.clear();
 
 		StringVector fileList;
-		for (size_t y = 0; y < nbYears&& msg; y++)
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
 			string filePath = GetOutputFilePath(AGRI2, DAILY_WEATHER, "*.txt", year);
@@ -1320,60 +1320,61 @@ namespace WBSF
 		callback.AddMessage("");
 
 		string fileName = "wx_last48.csv";
-		string remoteFilePath = SERVER_PATH[FIRE] + fileName;
+		//string remoteFilePath = SERVER_PATH[FIRE] + fileName;
 		string outputFilePath = workingDir + fileName;
 
 
 		int nbRun = 0;
 		bool bDownloaded = false;
 
-		while (!bDownloaded && nbRun < 5 && msg)
+		//while (!bDownloaded && nbRun < 5 && msg)
+//		{
+			//nbRun++;
+
+			//CInternetSessionPtr pSession;
+			//CHttpConnectionPtr pConnection;
+
+			//ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+			//if (msgTmp)
+			//{
+				//try
+				//{
+				//	msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
+
+		string URL = "https://www.gov.mb.ca/conservation_fire/Wx-Display/weatherview/data/wx_last48.csv";
+		msg = CopyFileCurl(URL, outputFilePath);
+		//split data in seperate files
+		if (msg)
 		{
-			nbRun++;
+			ASSERT(FileExists(outputFilePath));
+			msg = SplitFireData(outputFilePath, callback);
+			RemoveFile(outputFilePath);
 
-			CInternetSessionPtr pSession;
-			CHttpConnectionPtr pConnection;
-
-			ERMsg msgTmp = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-			if (msgTmp)
-			{
-				try
-				{
-					msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_TRANSFER_BINARY);
-
-
-					//split data in seperate files
-					if (msgTmp)
-					{
-						ASSERT(FileExists(outputFilePath));
-						msg = SplitFireData(outputFilePath, callback);
-						RemoveFile(outputFilePath);
-
-						msg += callback.StepIt();
-						bDownloaded = true;
-					}
-				}
-				catch (CException* e)
-				{
-					msgTmp = UtilWin::SYGetMessage(*e);
-				}
-
-
-				//clean connection
-				pConnection->Close();
-				pSession->Close();
-			}
-			else
-			{
-				if (nbRun > 1 && nbRun < 5)
-				{
-					msg += WaitServer(10, callback);
-				}
-			}
+			msg += callback.StepIt();
+			bDownloaded = true;
 		}
+		//}
+		//catch (CException* e)
+		//{
+			//msgTmp = UtilWin::SYGetMessage(*e);
+		//}
 
-		//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
-		//callback.PopTask();
+
+		//clean connection
+		//pConnection->Close();
+		//pSession->Close();
+	//}
+	//else
+	//{
+	//	if (nbRun > 1 && nbRun < 5)
+	//	{
+	//		msg += WaitServer(10, callback);
+	//	}
+	//}
+//}
+
+//callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(curI), 1);
+//callback.PopTask();
 
 		return msg;
 	}
@@ -1494,15 +1495,16 @@ namespace WBSF
 
 		size_t nbDownload = 0;
 
-		CInternetSessionPtr pSession;
-		CHttpConnectionPtr pConnection;
-		msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-		if (msg)
+		//CInternetSessionPtr pSession;
+		//CHttpConnectionPtr pConnection;
+		//msg = GetHttpConnection(SERVER_NAME[FIRE], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+		//if (msg)
 		{
-
-			//http://www.gov.mb.ca/sd/fire/Wx-Display/weatherview/stns_geojson.js
+			//https://www.gov.mb.ca/conservation_fire/Wx-Display/weatherview/stns_geojson.js
 			string str;
-			msg = UtilWWW::GetPageText(pConnection, "sd/fire/Wx-Display/weatherview/stns_geojson.js", str);
+			string URL = "https://www.gov.mb.ca/conservation_fire/Wx-Display/weatherview/stns_geojson.js";
+			msg = GetPageTextCurl("-s -k \"" + URL + "\"", str);
+			//msg = UtilWWW::GetPageText(pConnection, "sd/fire/Wx-Display/weatherview/stns_geojson.js", str);
 			if (msg)
 			{
 				str = str.substr(13, str.size() - 14 - 1);
@@ -1548,8 +1550,8 @@ namespace WBSF
 			}//if msg
 		}//if msg
 
-		pConnection->Close();
-		pSession->Close();
+		//pConnection->Close();
+		//pSession->Close();
 
 		//lat/lon is valid
 		ASSERT(locations.IsValid(true));
@@ -1625,7 +1627,7 @@ namespace WBSF
 
 
 
-	void ExcelSerialDateToDMY(double fSerialDate, int &nYear, size_t &nMonth, size_t &nDay, size_t &nHour, size_t &nMinute)
+	void ExcelSerialDateToDMY(double fSerialDate, int& nYear, size_t& nMonth, size_t& nDay, size_t& nHour, size_t& nMinute)
 	{
 
 		int nSerialDate = int(fSerialDate);
@@ -1702,131 +1704,133 @@ namespace WBSF
 			string fileName = type == HOURLY_WEATHER ? "ContinuousWeek.xls" : "DayMeanYear.xls";
 
 
-			callback.PushTask("Update Manitoba Hydro weather data (" + ToString(locations.size()) + " stations)", locations.size()*NB_MAN_VARS);
-			size_t curI = 0;
-			int nbRun = 0;
+			callback.PushTask("Update Manitoba Hydro weather data (" + ToString(locations.size()) + " stations)", locations.size() * NB_MAN_VARS);
+			//size_t curI = 0;
+			//int nbRun = 0;
 			//bool bDownloaded = false;
 			size_t nbDownload = 0;
 
-			while (curI < locations.size() && nbRun < 5 && msg)
+			//while (curI < locations.size() && nbRun < 5 && msg)
+			//{
+				//nbRun++;
+
+				//CInternetSessionPtr pSession;
+				//CHttpConnectionPtr pConnection;
+
+				//ERMsg msgTmp = GetHttpConnection(SERVER_NAME[HYDRO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
+				//if (msgTmp)
+				//{
+					//TRY
+					//{
+
+			for (size_t i = 0; i < locations.size() && msg; i++)
 			{
-				nbRun++;
-
-				CInternetSessionPtr pSession;
-				CHttpConnectionPtr pConnection;
-
-				ERMsg msgTmp = GetHttpConnection(SERVER_NAME[HYDRO], pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5, callback);
-				if (msgTmp)
+				if (locations[i].UseIt())
 				{
-					TRY
+
+					StringVector filePath;
+					string ID = locations[i].m_ID;
+					//string ID = "05UH737";
+					for (size_t v = 0; v < NB_MAN_VARS && msg; v++)
 					{
-
-						for (size_t i = curI; i < locations.size() && msg; i++)
+						if (HYDRO_VAR[v] != NOT_INIT)
 						{
-							if (locations[i].UseIt())
+							string remoteFilePath = string("https://") + SERVER_NAME[HYDRO]+"/hydrologicalData/static/stations/" + ID + "/Parameter/" + HYDRO_VAR_NAME[v] + "/" + fileName;
+							string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[HYDRO] + "\\" + HYDRO_VAR_NAME[v] + "_" + fileName;
+
+							if (FileExists(outputFilePath))
+								msg += RemoveFile(outputFilePath);
+
+							//msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY);
+							
+							msg += CopyFileCurl(remoteFilePath, outputFilePath);
+
+							//split data in separate files
+							if (msg && FileExists(outputFilePath))
 							{
-
-								StringVector filePath;
-								string ID = locations[i].m_ID;
-								//string ID = "05UH737";
-								for (size_t v = 0; v < NB_MAN_VARS&&msg; v++)
+								ifStream file;
+								if (file.open(outputFilePath))
 								{
-									if (HYDRO_VAR[v] != NOT_INIT)
+									string str = file.GetText();
+									file.close();
+
+									if (str.find("Not Found") == NOT_INIT)
 									{
-										string remoteFilePath = "hydrologicalData/static/stations/" + ID + "/Parameter/" + HYDRO_VAR_NAME[v] + "/" + fileName;
-										string outputFilePath = GetDir(WORKING_DIR) + SUBDIR_NAME[HYDRO] + "\\" + HYDRO_VAR_NAME[v] + "_" + fileName;
+										string tmpFilePath = outputFilePath;
+										SetFileExtension(tmpFilePath, ".csv");
 
-										if (FileExists(outputFilePath))
-											msg += RemoveFile(outputFilePath);
+										if (FileExists(tmpFilePath))
+											msg += RemoveFile(tmpFilePath);
 
-										msgTmp += CopyFile(pConnection, remoteFilePath, outputFilePath, INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_TRANSFER_BINARY);
-
-										//split data in seperate files
-										if (msgTmp && FileExists(outputFilePath))
+										if (msg)
 										{
-											ifStream file;
-											if (file.open(outputFilePath))
-											{
-												string str = file.GetText();
-												file.close();
+											string xls2csv = GetApplicationPath() + "External\\xls2csv.exe";
+											string command = xls2csv + " \"" + outputFilePath + "\" \"" + tmpFilePath + "\"";
+											WinExecWait(command);
 
-												if (str.find("Sorry, the page was not found") == NOT_INIT)
-												{
-													string tmpFilePath = outputFilePath;
-													SetFileExtension(tmpFilePath, ".csv");
-
-													if (FileExists(tmpFilePath))
-														msg += RemoveFile(tmpFilePath);
-
-													if (msg)
-													{
-														string xls2csv = GetApplicationPath() + "External\\xls2csv.exe";
-														string command = xls2csv + " \"" + outputFilePath + "\" \"" + tmpFilePath + "\"";
-														WinExecWait(command);
-
-														if (FileExists(tmpFilePath))
-															filePath.push_back(tmpFilePath);
-														else
-															msg.ajoute("Unable to convert " + GetFileName(outputFilePath) + " to " + GetFileName(tmpFilePath));
-													}
-												}
-												else
-												{
-													ASSERT(FileExists(outputFilePath));
-													RemoveFile(outputFilePath);
-												}
-											}//if valid file
-										}//if file exist
-									}//for all variables
-
-									msg += callback.StepIt();
-
-								}//for all var
-
-								if (msg && !filePath.empty())
-								{
-									nbDownload++;
-									msg += SplitHydroData(locations[i].m_ID, filePath, callback);
-									if (msg)
-									{
-										//remove files
-										for (size_t i = 0; i < filePath.size(); i++)
-										{
-											//delete .csv file
-											msg += RemoveFile(filePath[i]);
-											//delete .xls file
-											msg = RemoveFile(SetFileExtension(filePath[i], ".xls"));
+											if (FileExists(tmpFilePath))
+												filePath.push_back(tmpFilePath);
+											else
+												msg.ajoute("Unable to convert " + GetFileName(outputFilePath) + " to " + GetFileName(tmpFilePath));
 										}
-
 									}
-								}
-							}//if used it
-							else
+									else
+									{
+										ASSERT(FileExists(outputFilePath));
+										RemoveFile(outputFilePath);
+									}
+								}//if valid file
+							}//if file exist
+						}//for all variables
+
+						msg += callback.StepIt();
+
+					}//for all var
+
+					if (msg && !filePath.empty())
+					{
+						nbDownload++;
+						msg += SplitHydroData(locations[i].m_ID, filePath, callback);
+						if (msg)
+						{
+							//remove files
+							for (size_t i = 0; i < filePath.size(); i++)
 							{
-								msg += callback.StepIt(NB_MAN_VARS);
+								//delete .csv file
+								msg += RemoveFile(filePath[i]);
+								//delete .xls file
+								msg = RemoveFile(SetFileExtension(filePath[i], ".xls"));
 							}
 
-							curI++;
-						}//for all stations
+						}
 					}
-						CATCH_ALL(e)
-					{
-						msgTmp = UtilWin::SYGetMessage(*e);
-					}
-					END_CATCH_ALL
-
-						//clean connection
-						pConnection->Close();
-					pSession->Close();
-				}
+				}//if used it
 				else
 				{
-					if (nbRun > 1 && nbRun < 5)
-					{
-						msg += WaitServer(10, callback);
-					}
+					msg += callback.StepIt(NB_MAN_VARS);
 				}
-			}
+
+				//curI++;
+			}//for all stations
+		//}
+		//	CATCH_ALL(e)
+		//{
+			//msgTmp = UtilWin::SYGetMessage(*e);
+		//}
+		//END_CATCH_ALL
+
+			//clean connection
+			//pConnection->Close();
+		//pSession->Close();
+	//}
+	//else
+	//{
+	//	if (nbRun > 1 && nbRun < 5)
+	//	{
+	//		msg += WaitServer(10, callback);
+	//	}
+	//}
+//}
 
 
 			callback.AddMessage(GetString(IDS_NB_FILES_DOWNLOADED) + ToString(nbDownload), 1);
@@ -2144,7 +2148,7 @@ namespace WBSF
 
 				size_t index = UNKNOWN_POS;
 				zen::XmlElement::ChildIter th = ths.first;
-				for (size_t i = 0; th != ths.second&&index == -1; i++, ++th)
+				for (size_t i = 0; th != ths.second && index == -1; i++, ++th)
 				{
 					string header;
 					th->getValue(header);

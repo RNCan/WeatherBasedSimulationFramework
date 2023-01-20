@@ -14,7 +14,7 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TAttributes { WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, UPDATE_STATIONS_LIST, IGNORE_ENV_CAN, MONTH_LAG, NB_ATTRIBUTES };
+		enum TAttributes { WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, UPDATE_STATIONS_LIST, IGNORE_ENV_CAN, MONTH_LAG, USER_NAME, PASSWORD, NB_ATTRIBUTES };
 		//USER_NAME, PASSWORD, 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIACIS); }
@@ -43,23 +43,23 @@ namespace WBSF
 
 	protected:
 
-		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
+		ERMsg DownloadStationList(CCallback& callback = DEFAULT_CALLBACK)const;
 		double GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)const;
 
 		ERMsg DownloadStation(CCallback& callback);
 		ERMsg DownloadMonth(UtilWWW::CHttpConnectionPtr& pConnection, int year, size_t m, const std::string& ID, const std::string& filePath, CCallback& callback);
 		ERMsg VerifyUserPass(CCallback& callback);
-		ERMsg ReadDataFile(const std::string& filePath, CWeatherStation& station);
-
+		//ERMsg ReadDataFile(const std::string& filePath, CWeatherStation& station);
+		//ERMsg ReadData(std::stringstream& stream, CWeatherYears data);
 
 		static bool IsInclude(const CLocation& station);
 		bool NeedUpdate(const CLocation& station, int year, size_t m = LAST_MONTH);
-		ERMsg DownloadStationListII(CLocationVector& stationList, CCallback& callback)const;
+		ERMsg DownloadStationListII(CCallback& callback)const;
 		std::string GetSessiosnID(UtilWWW::CHttpConnectionPtr& pConnection);
 		
 		ERMsg DownloadStationHourly(CCallback& callback);
 		ERMsg DownloadStationDaily(CCallback& callback);
-		ERMsg SaveData(size_t type, const std::string& filePath, const std::string& str, CCallback& callback);
+		ERMsg SaveDataCSV(size_t type, const std::string& filePath, const std::string& str, CCallback& callback);
 
 
 		std::string GetStationListFilePath()const;

@@ -714,7 +714,7 @@ BEGIN
     IDS_UPDATER_OTHER_COUNTRY_P 
                             "Répertoire de travail|Reseau|Compté (si Irlande)|Première année|Dernière année|Type de données"
     IDS_UPDATER_BC_P        "Répertoire de travail|Type|Première année|Dernière année|Mise à jours des coordonnées|Ignoré les stations d'Environnement Canada"
-    IDS_UPDATER_ALBERTA_P   "Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais"
+    IDS_UPDATER_ALBERTA_P   "Répertoire de travail|Type de de données|Première année|Dernière année|Mettre à jour la liste des stations|Ignorer les stations disponibles par Environnement Canada|1 mois de délais|Nom d'usager|Mot de passe"
     IDS_UPDATER_SASKATCHEWAN_P "Répertoire de travail|Télécharger archive"
     IDS_UPDATER_MANITOBA_P  "Répertoire de travail|Première année|Dernière année|Réseau|Type de données"
     IDS_UPDATER_ONTARIO_P   "Répertoire de travail|Première année|Dernière année|Réseau"
@@ -1216,7 +1216,7 @@ BEGIN
     IDS_UPDATER_OTHER_COUNTRY_P 
                             "Working directory|Network|County (if Ireland)|First year|Last year|Type de données"
     IDS_UPDATER_BC_P        "Working directory|type|First year|Last year|Update coordinates|Ignor Environnement Canada stations"
-    IDS_UPDATER_ALBERTA_P   "Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag"
+    IDS_UPDATER_ALBERTA_P   "Working directory|Data Type|First year|Last year|Update stations list|Ignor stations available throuth Environnement Canada|1 month lag|User Name|Password"
     IDS_UPDATER_SASKATCHEWAN_P "Working directory|Download Archive"
     IDS_UPDATER_MANITOBA_P  "Working directory|First year|Last year|Network|Data type"
     IDS_UPDATER_ONTARIO_P   "Working directory|First year|Last year|Network"
