@@ -28,7 +28,8 @@ namespace WBSF
 		static double MWMT(const CWeatherYear& weather);
 		static double NFFD(const CWeatherYear& weather);
 		static double CHDD(const CWeatherYear& weather, double threshold=0);
-		double CDD5(const CWeatherYear& weather, double threshold = 5);
+		static double CDD5(const CWeatherYear& weather, double threshold = 5);
+		static double PPT5(const CWeatherYear& weather);
 
 	
 

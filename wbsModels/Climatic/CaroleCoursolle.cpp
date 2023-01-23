@@ -25,7 +25,7 @@ namespace WBSF
 	{
 		//specify the number of input parameter
 		NB_INPUT_PARAMETER = 1;
-		VERSION = "1.0.1 (2022)";
+		VERSION = "1.0.2 (2023)";
 
 		m_nb_years = 1;//Annual;
 	}
@@ -45,7 +45,9 @@ namespace WBSF
 	//CHDD0 : chilling degree days (< 0°C) from August 1st
 	//CHDD5 : chilling degree days (< 5°C) from August 1st
 	//CDD5: cumulative degree-days over 5°C (Daily Average after January 1st)
-	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, O_CHDD5, NB_ANNUAL_STATS };
+	//PPT: total annul precipitation
+	//PPT5: total precipitation from May to September
+	enum TAnnualStat { O_MAT, O_MCMT, O_EMT, O_MWMT, O_BFFP, O_EFFP, O_FFPL, O_NFFD, O_CHDD0, O_CHDD5, O_PPT, O_PPT5, NB_ANNUAL_STATS };
 	
 
 	//this method is call to load your parameter in your variable
@@ -95,6 +97,9 @@ namespace WBSF
 			output[y][O_NFFD] = NFFD(m_weather[y]);
 			output[y][O_CHDD0] = CHDD(m_weather[y], 0);
 			output[y][O_CHDD5] = CHDD(m_weather[y], 5);
+			output[y][O_PPT] = m_weather[y].GetStat(H_PRCP)[SUM];
+			output[y][O_PPT5] = PPT5(m_weather[y]);
+			
 			//output[y][O_CDD5] = CDD5(m_weather[y]);
 		}
 
@@ -115,7 +120,7 @@ namespace WBSF
 			}
 
 			for (size_t v = 0; v < NB_ANNUAL_STATS; v++)
-				m_output[y][v] = stats[v];
+				m_output[y][v] = stats[v][MEAN];
 		}
 
 
@@ -220,4 +225,16 @@ namespace WBSF
 	}
 
 
+	
+	double CCCModel::PPT5(const CWeatherYear& weather)
+	{
+		double sumP = 0;
+		for (size_t m = MAY; m <= SEPTEMBER; m++)
+		{
+			sumP += weather[m].GetStat(H_PRCP)[SUM];
+			
+		}
+
+		return sumP;
+	}
 }
