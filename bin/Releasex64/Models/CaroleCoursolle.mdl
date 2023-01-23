@@ -7,7 +7,7 @@
     <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 115 358</WindowRect>
-    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -107,6 +107,22 @@
             <Title>CHDD5</Title>
             <Units/>
             <Description>Cumulative chilling degree days under 5°C (from August 1st)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PPT</Name>
+            <Title>PPT</Title>
+            <Units>mm</Units>
+            <Description>Total annual precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PPT5</Name>
+            <Title>PPT5</Title>
+            <Units>mm</Units>
+            <Description>totalprecipitation from May to September</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
