@@ -428,7 +428,7 @@ namespace WBSF
 				m_gradients.SetObservedDatabase(CWeatherDatabasePtr(m_pGribDB->GetDBPrt()));
 			}
 		}
-		else 
+		
 
 
 		m_gradients.m_variables = m_tgi.GetNormalMandatoryVariables();
