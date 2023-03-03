@@ -26,7 +26,7 @@ namespace WBSF
 		static CBioSIMModelBase* CreateObject() { return new CAprocerosLeucopodaModel; }
 
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueDaily(CStatisticXY& stat)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
 
 	protected:
 
@@ -40,7 +40,7 @@ namespace WBSF
 		void ExecuteDaily(int year, const CWeatherYears& weather, std::vector<CModelStatVector>& output);
 
 		bool IsParamValid()const;
-
+		bool m_bCumul;
 
 		//CSAResultVector m_SY;
 	};

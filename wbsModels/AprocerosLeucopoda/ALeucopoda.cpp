@@ -22,6 +22,29 @@ using namespace WBSF::TZZ;
 namespace WBSF
 {
 
+	class COverheat2: public COverheat
+	{
+	public:
+
+		COverheat2(double overheat = 1)
+		{
+			m_overheat = overheat;
+		}
+		
+		virtual double GetTmax(const CWeatherDay& weather)const;
+
+	protected:
+
+		double m_overheat;
+	};
+
+	double COverheat2::GetTmax(const CWeatherDay& weather)const
+	{
+		if (m_overheat == 1)//by optimisation, avoid compute statistic
+			return weather[H_TMAX][MEAN];
+
+		return weather[H_TNTX][MEAN] + weather[H_TRNG2][MEAN]/2 * m_overheat;
+	}
 	//*********************************************************************************
 	//CAprocerosLeucopoda class
 
@@ -165,25 +188,27 @@ namespace WBSF
 	// Input:	weather: weather of the hour
 	//			timeStep: timeStep [h]
 	//*****************************************************************************
-	void CAprocerosLeucopoda::Live(const CHourlyData& weather, size_t timeStep)
+	void CAprocerosLeucopoda::Live(const CWeatherDay& weatherD, size_t h, size_t timeStep)
 	{
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-		
+		//COverheat2 overheat(2.0);
 
 
 		CTZZHost* pHost = GetHost();
 		CTZZStand* pStand = GetStand();
 
 		double nb_steps = (24.0 / timeStep);
-		size_t h = weather.GetTRef().GetHour();
+		//size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
 
-		double T = weather[H_TAIR];
+		//double T = overheat.GetT(weatherD, h);
+		double T = weatherD[h][H_TAIR];
+		
 		//T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
 
-		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
+		//double day_length = weatherD.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
 
 			//Time step development rate
@@ -215,7 +240,7 @@ namespace WBSF
 		
 
 		if (!m_adult_emergence.IsInit() && m_age >= ADULT)
-			m_adult_emergence = weather.GetTRef().as(CTM::DAILY);
+			m_adult_emergence = weatherD.GetTRef().as(CTM::DAILY);
 
 		/*else if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
@@ -262,7 +287,8 @@ namespace WBSF
 		for (size_t step = 0; step < nbSteps&&IsAlive() && m_age < DEAD_ADULT && !m_bDiapause; step++)
 		{
 			size_t h = step * GetTimeStep();
-			Live(weather[h], GetTimeStep());
+			//Live(weather[h], GetTimeStep());
+			Live(weather, h, GetTimeStep());
 
 			if (GetStage() == PUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 260)
 			{
@@ -347,13 +373,26 @@ namespace WBSF
 		bool bDeath = false;
 
 		//daily survival
-		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+		//double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+
+		////time step survival
+		//double S = pow(ds, r);
+
+		////Computes attrition (probability of survival in a given time step, based on development rate)
+		//if (RandomGenerator().RandUniform() > S)
+		//	bDeath = true;
+
+		//daily survival
+		double ds = max(0.15, GetStand()->m_equations.GetDailySurvivalRate(s, T));
+		//overall survival
+		double Time = 1 / Equations().GetRate(s, T);//time(days)
+		double S = pow(ds, Time);
 
 		//time step survival
-		double S = pow(ds, r);
+		double SS = pow(S, r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > S)
+		if (RandomGenerator().RandUniform() > SS)
 			bDeath = true;
 
 		return bDeath;

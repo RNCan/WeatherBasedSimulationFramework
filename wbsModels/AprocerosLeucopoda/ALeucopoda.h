@@ -45,7 +45,7 @@ namespace WBSF
 		~CAprocerosLeucopoda(void);
 
 		virtual void OnNewDay(const CWeatherDay& weather)override;
-		virtual void Live(const CHourlyData& weather, size_t dt)override;
+		void Live(const CWeatherDay& weather, size_t h, size_t dt);
 		virtual void Live(const CWeatherDay& weather)override;
 		virtual void Brood(const CWeatherDay& weather)override;
 		virtual void Die(const CWeatherDay& weather)override;

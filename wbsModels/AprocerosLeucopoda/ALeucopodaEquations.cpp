@@ -27,23 +27,17 @@ namespace WBSF
 
 
 	const double CAprocerosLeucopodaEquations::EWD[NB_EWD_PARAMS] = { 264, 18.9, -191.9, 100, -30, 22.0 };//logistic distribution
-	const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 885.8, 40.96, -2.9, 999 };//logistic distribution
 
+	//equation calibrate with Germany 2014
+	//const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 885.8, 40.96, -2.9, 999 };//logistic distribution
+	//equation calibrate with larval g1 at Québec city 2022 (Lafrenière)
+	const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 360.6, 1.81, -0.3, 999 };//logistic distribution
+	
+		
 
 	CAprocerosLeucopodaEquations::CAprocerosLeucopodaEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, TZZ::NB_STAGES, -20, 30, 0.25)
+		CEquationTableLookup(RG, TZZ::NB_STAGES, -20, 40, 0.25)
 	{
-
-		/*for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
-			{
-				m_RDR[s][p] = RDR[s][p];
-			}
-		}*/
-
-		//for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-		//	m_OVP[p] = OVP[p];
 
 		for (size_t p = 0; p < NB_EWD_PARAMS; p++)
 			m_EWD[p] = EWD[p];
@@ -64,28 +58,44 @@ namespace WBSF
 		static const CDevRateEquation::TDevRateEquation P_EQ[TZZ::NB_STAGES] =
 		{
 			//Non-linear
-			CDevRateEquation::Regniere_2012,//Egg		
-			CDevRateEquation::Regniere_2012,//Larva		
-			CDevRateEquation::Regniere_2012,//Prepupa	
-			CDevRateEquation::Regniere_2012,//Pupa		
-			CDevRateEquation::Lactin2_1995,//Adult longevity	
+			CDevRateEquation::Briere2_1999,//Egg		
+			CDevRateEquation::Briere2_1999,//Larva		
+			CDevRateEquation::Briere2_1999,//Prepupa	
+			CDevRateEquation::Briere2_1999,//Pupa		
+			CDevRateEquation::Briere2_1999,//Adult longevity
+			//CDevRateEquation::Lactin2_1995,//Adult longevity	
 		};
 
 		static const double P_DEV[TZZ::NB_STAGES][6] =
 		{
 			//parameters
-			{4.766301e-02, 7.908493e-02, 7.000000e+00, 3.200000e+01, 2.168413e-01, 5.000062e-01},//egg
-			{1.267821e-02, 9.799551e-02, 5.000000e+00, 3.200000e+01, 1.000016e-01, 3.001337e+00},//Larva
-			{1.211711e-01, 7.678359e-02, 7.000000e+00, 2.700000e+01, 1.748349e-01, 7.239888e-01},//Prepupa
-			{6.297599e-02, 8.857761e-02, 7.000000e+00, 3.000000e+01, 2.480182e-01, 5.000042e-01},//Pupa
-			{8.431380e-02, 1.484822e-01, 1.000000e+02, 6.731093e+00},//Adults
+			//{4.766301e-02, 7.908493e-02, 7.000000e+00, 3.200000e+01, 2.168413e-01, 5.000062e-01},//egg
+			//{1.267821e-02, 9.799551e-02, 5.000000e+00, 3.200000e+01, 1.000016e-01, 3.001337e+00},//Larva
+			//{1.211711e-01, 7.678359e-02, 7.000000e+00, 2.700000e+01, 1.748349e-01, 7.239888e-01},//Prepupa
+			//{6.297599e-02, 8.857761e-02, 7.000000e+00, 3.000000e+01, 2.480182e-01, 5.000042e-01},//Pupa
+			//{0.05698138,0.07912117, 9.295232, 32.05075,0.1,0.5000051       },
+			//{0.01288983,0.07141857,-0.7084399,28.01328,49.87554,0.5000132},
+			//{0.1413632 ,0.07802057, 9.149103, 25.79851,0.1000013,0.5000042  },
+			//{0.07509025,0.08925997, 9.112521, 29.98488,0.1000002,0.5001782 },
+			{0.0001758183,9.999999,-8.949422,39.75},
+			{6.732698e-05,9.999959,-9.375635,39.75},
+			{0.0003353867,9.999592,-16.85975,39.75},   
+			{0.0002921427,9.999999,-5.830057,39.75},  
+			{0.0001497986,9.998879,-27.15193,100.0},
+			//			{8.431380e-02, 1.484822e-01, 1.000000e+02, 6.731093e+00},//Adults
 		};
 
 
+		//model was adjusted to Quebec observation 2021-2022. 
+		//3 factors can explain this difference between European an North America 
+		//1- Insects adaptation for North America climate
+		//2- Host effect
+		//3- Bias caused by laboratory rearing
+		static const double BOOST_FACTOR = 1.2;
 
 		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
 
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T))* BOOST_FACTOR;
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -100,13 +110,22 @@ namespace WBSF
 	{
 		static const double SIGMA[NB_STAGES] =
 		{
-			//Relative devlopement Time (individual varition): sigma
+			//Relative development Time (individual variation): sigma
 			//Non-linear
-			{0.102458},//Egg
-			{0.157012},//Larva
-			{0.202788},//Prepupae
-			{0.117576},//Pupae
-			{0.253597},//Adult
+			//{0.102458},//Egg
+			//{0.157012},//Larva
+			//{0.202788},//Prepupae
+			//{0.117576},//Pupae
+			//0.102458,
+			//0.157012,
+			//0.202788,
+			//0.117576,
+			0.102458,
+			0.157012,
+			0.202788,
+			0.117576,
+			0.102458
+			//0.253597,//Adult
 		};
 
 		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
@@ -160,28 +179,25 @@ namespace WBSF
 		static const CSurvivalEquation::TSurvivalEquation S_EQ[TZZ::NB_STAGES] =
 		{
 			CSurvivalEquation::Survival_01,//egg
-			CSurvivalEquation::Survival_01,//Larva
+			CSurvivalEquation::Survival_12,//Larva
 			CSurvivalEquation::Survival_01,//Prepupa
 			CSurvivalEquation::Survival_01,//Pupa
-//			CSurvivalEquation::Survival_11,//egg
-//			CSurvivalEquation::Survival_11,//Larva
-//			CSurvivalEquation::Survival_11,//Prepupa
-//			CSurvivalEquation::Survival_11,//Pupa
-
-			
-
 		};
 
 		static const double P_SURVIVAL[TZZ::NB_STAGES][6] =
 		{
-			{+2.821737e+00, -6.107132e-01, 1.640952e-02},//egg
-			{+5.191147e+00, -1.221510e+00, 3.646663e-02},//Larva
-			{-1.011495e+01, +7.023644e-02, 9.873714e-03},//Prepupa
-			{+1.720485e+01, -3.396854e+00, 1.051049e-01},//Pupa
-			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//egg
-			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Larva
-			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Prepupa
-			//{4.369530e-03, 2.081998e+01, 4.554699, 1.426475},//Pupa
+			//{+2.821737e+00, -6.107132e-01, 1.640952e-02},//egg
+			//{+5.191147e+00, -1.221510e+00, 3.646663e-02},//Larva
+			//{-1.011495e+01, +7.023644e-02, 9.873714e-03},//Prepupa
+			//{+1.720485e+01, -3.396854e+00, 1.051049e-01},//Pupa
+			//{2.821737e+00 ,-6.107132e-01 ,1.640952e-02}, //
+			//{5.191147e+00 , -1.221510e+00, 3.646663e-02},//
+			//{-1.011495e+01, 7.023644e-02 , 9.873714e-03},//
+			//{1.720485e+01 ,-3.396854e+00 ,1.051049e-01}, //
+			{2.353567e+00 , -5.518595e-01, 1.474152e-02},
+			{1.113231e+01 , 3.305863e+01 , 7.795624e+01, 1.012803e+01},
+			{-3.038607e+01, -9.310410e+00, 3.210279e-01},
+			{-2.293128e+01, -8.371444e+00, 2.841417e-01},
 		};
 
 

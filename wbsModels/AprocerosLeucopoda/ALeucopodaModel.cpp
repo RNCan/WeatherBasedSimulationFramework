@@ -35,11 +35,12 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2022)";
+		VERSION = "1.0.2 (2023)";
 
-		m_bApplyAttrition = false;
-		m_generationSurvival = 0.15;
-//		m_bCumul = false;
+		
+		m_bCumul = false;
+		m_bApplyAttrition = true;
+		m_generationSurvival = 0.4;
 //		m_stage = 0;
 	//	m_T = 0;
 
@@ -82,8 +83,12 @@ namespace WBSF
 		//		m_stage = parameters[c++].GetInt() + 1;
 			//	m_T = parameters[c++].GetInt()+1;
 
-		//m_bCumul = parameters[c++].GetBool();
-		if (parameters.size() == m_EWD.size() + m_EAS.size() + 1)
+		m_bCumul = parameters[c++].GetBool();
+		m_bApplyAttrition = parameters[c++].GetBool();
+		m_generationSurvival = parameters[c++].GetReal();
+
+
+		if (parameters.size() == m_EWD.size() + m_EAS.size()+3)
 		{
 			//entering winter diapause  parameters
 			for (size_t p = 0; p < m_EWD.size(); p++)
@@ -126,9 +131,10 @@ namespace WBSF
 		//we also manager the possibility to have only one year
 		for (size_t y = 0; y < m_weather.size(); y++)
 		{
+			int year = m_weather[y].GetTRef().GetYear();
 			//one output by generation
 			vector<CModelStatVector> outputs;
-			ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, outputs);
+			ExecuteDaily(year, m_weather, outputs);
 
 
 			//merge generations vector into one output vector (max of 5 generations)
@@ -151,6 +157,30 @@ namespace WBSF
 				
 				m_output[TRef][O_IN_DIAPAUSE] = diapause[SUM];
 				m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
+			}
+
+			if (m_bCumul)
+			{
+				for (size_t g = 0, ss = 0; g < maxG; g++)
+				{
+					size_t s_i = (g == 0) ? PUPA : EGG;
+					for (size_t s = s_i; s < NB_OUTPUT_ONE_G; s++, ss++)
+					{
+						if (ss>0 && (s != O_DEAD_ADULT || s != O_BROOD || s != O_DEAD_ATTRITION))
+						{
+							CStatistic stat_g1 = m_output.GetStat(ss, p);
+							if (stat_g1.IsInit() && stat_g1[SUM] > 0)
+							{
+								double cumul_output = m_output[0][ss] * 100 / stat_g1[SUM];//when first day is not 0
+								for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
+								{
+									m_output[d][ss] = m_output[d - 1][ss] + m_output[d][ss] * 100 / stat_g1[SUM];
+									_ASSERTE(!_isnan(m_output[d][ss]));
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -403,6 +433,9 @@ namespace WBSF
 	bool CAprocerosLeucopodaModel::IsParamValid()const
 	{
 		bool bValid = true;
+		if (m_EAS[Τᴴ¹] > m_EAS[Τᴴ²])
+			bValid = false;
+
 
 		return bValid;
 	}
@@ -549,7 +582,7 @@ namespace WBSF
 	//	return e * cv*(1 - p[0] * sqrt(e - ei(n))) / (p[1] + cv * (1 - p[2] * sqrt(e - ei(n))));
 	//}
 
-	void CAprocerosLeucopodaModel::GetFValueDaily(CStatisticXY& stat)
+	bool CAprocerosLeucopodaModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		
 		ASSERT(!m_SAResult.empty() );
@@ -559,7 +592,7 @@ namespace WBSF
 			//pStand->m_equations.m_EAS[p] = m_EAS[p];
 
 		if (!IsParamValid())
-			return;
+			return false;
 
 
 		//boost::math::lognormal_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
@@ -575,36 +608,37 @@ namespace WBSF
 		//CModelStatVector CDD; 
 		//GetCDD(m_weather, CDD);
 
-		double n = 0;
+		//double n = 0;
 
-		for (size_t i = 0; i < m_SAResult.size(); i++)
-			n += m_SAResult[i].m_obs[I_N];
+		//for (size_t i = 0; i < m_SAResult.size(); i++)
+		//	n += m_SAResult[i].m_obs[I_N];
 
 
-		CModelStatVector CDD;
-		GetCDD(m_weather, CDD);
-		//GetPobs(P);
+		//CModelStatVector CDD;
+		//GetCDD(m_weather, CDD);
+		////GetPobs(P);
 
-		
-		boost::math::logistic_distribution<double> emerge_dist(m_EAS[μ], m_EAS[ѕ]);
-		
+		//
+		//boost::math::logistic_distribution<double> emerge_dist(m_EAS[μ], m_EAS[ѕ]);
+		//
+
+		m_bCumul = true;
+		OnExecuteDaily();
 
 		for (size_t i = 0; i < m_SAResult.size(); i++)
 		{
 			size_t s = m_SAResult[i].m_obs[I_STAGE];
 			
 			
-			double GDD = CDD[m_SAResult[i].m_ref][CDegreeDays::S_DD];
+			//double GDD = CDD[m_SAResult[i].m_ref][CDegreeDays::S_DD];
 			double obs = m_SAResult[i].m_obs[I_CUMUL];
-			//ASSERT(obs >= 0 && obs <= 100);
-
-			double sim = Round(100 * cdf(emerge_dist, max(0.0, GDD)), 1);
-			//for (size_t ii = 0; ii < log(n); ii++)
+			double sim = m_output[m_SAResult[i].m_ref][6];//Larve Generation 1
+			
 			stat.Add(obs, sim);
 
 		}//for all results
 
-		return;
+		return true;
 
 
 		//bool bZero = false;
