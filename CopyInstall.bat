@@ -26,6 +26,7 @@ copy /Y ".\bin\Releasex64\msvcp140.dll" "..\Install\NRCan\msvcp140.dll"
 copy /Y ".\bin\Releasex64\vcomp140.dll" "..\Install\NRCan\vcomp140.dll"
 copy /Y ".\bin\Releasex64\msvcp140_1.dll" "..\Install\NRCan\msvcp140_1.dll"
 copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
+copy /Y ".\bin\Releasex64\mfc140u.dll" "..\Install\NRCan\mfc140u.dll"
 
 copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\AllenWave.dll" "..\Install\NRCan\Models\AllenWave.dll"
