@@ -3,7 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
-// 02/03/2023	3.2.3	Rémi Saint-Amant	Output Progeny and WinterSurvival. Bug correction in overwintering energy mortality.
+// 31/05/2023	3.2.3	Rémi Saint-Amant	Output Progeny and WinterSurvival. Bug correction in overwintering energy mortality.
 // 02/03/2021	3.2.1	Rémi Saint-Amant	Bug correction in overwintering energy mortality
 // 06/12/2019	3.2.0	Rémi Saint-Amant	Bug correction when adult reach max adult longevity 
 // 12/07/2019	3.1.9	Rémi Saint-Amant	Add sex as enum and not size_t
