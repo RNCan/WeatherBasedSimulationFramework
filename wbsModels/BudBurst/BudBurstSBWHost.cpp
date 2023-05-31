@@ -413,8 +413,9 @@ namespace WBSF
 					output[TRef][O_RC_F_TAIR] = m_mean_T_day[d].RC_F_Tair;
 					output[TRef][O_RC_M_TAIR] = m_mean_T_day[d].RC_M_Tair;
 					output[TRef][O_RC_G_TSOIL] = m_mean_T_day[d].RC_G_Tsoil;
+					output[TRef][O_BUDBURST] = x.Budburst_switch;
 				}
-				//output[TRef][O_BUDBURST] = min(100.0, round((x.Mdw - Mdw_0)*10000) / round((Budburst_thr - Mdw_0) * 10000) * 100);//[%]
+				
 			}
 
 

@@ -46,7 +46,7 @@ namespace WBSF
 	static const double OVIPOSITING_STAGE_AGE = 0.1; //change by RSA 16-05-2018, was 0.05
 	static const double MINIMUM_AGE_LIFTOFF[2] = { 0.15, 0 };
 	
-	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
+	const double CSpruceBudworm::POTENTIAL_FECUNDITY = 200;
 	//const bool CSpruceBudworm::ALWAYSE_APPLY_ADULT_ATTRITION = true;
 
 	//*****************************************************************************
@@ -74,9 +74,9 @@ namespace WBSF
 		
 		if (m_sex == FEMALE)
 		{
-			m_Fº = Round(Equations().get_Fº(m_A));		//generate fecondity without defoliation
-			m_Fᴰ = Round((1.0 - 0.0054*m_D)*m_Fº, 0);	//compute fecondity with defoliation
-			m_F = m_Fᴰ;	//set current fecondity
+			m_Fº = Round(Equations().get_Fº(m_A));		//generate fecundity without defoliation
+			m_Fᴰ = Round((1.0 - 0.0054*m_D)*m_Fº, 0);	//compute fecundity with defoliation
+			m_F = m_Fᴰ;	//set current fecundity
 		} 
 
 		m_ξ = Equations().get_ξ(m_sex, m_A);			//generater weight term error
@@ -108,6 +108,8 @@ namespace WBSF
 			CIndividual::operator=(in);
 			m_OWEnergy = in.m_OWEnergy;
 			m_bMissingEnergyAlreadyApplied = in.m_bMissingEnergyAlreadyApplied;
+			m_bKillByAttrition = in.m_bMissingEnergyAlreadyApplied;
+
 
 			m_overwinteringDate = in.m_overwinteringDate;
 			m_emergingL2oDate = in.m_emergingL2oDate;
@@ -136,10 +138,10 @@ namespace WBSF
 
 			// Each individual created gets the following attributes
 			// Initial energy Level, the same for everyone
-			static const double ALPHA0 = 2.1571;
-			m_OWEnergy = ALPHA0;
-			m_bMissingEnergyAlreadyApplied = false;
-			m_bKillByAttrition = false;
+			//static const double ALPHA0 = 2.1571;
+			//m_OWEnergy = ALPHA0;
+			//m_bMissingEnergyAlreadyApplied = false;
+			//m_bKillByAttrition = false;
 		}
 
 		return *this;
@@ -709,6 +711,11 @@ namespace WBSF
 				bDead = true;
 
 			m_bMissingEnergyAlreadyApplied = true;
+			if (!bDead)
+			{
+				int g;
+				g = 0;
+			}
 		}
 
 		return bDead;

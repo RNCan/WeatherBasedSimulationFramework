@@ -20,8 +20,8 @@ namespace WBSF
 		static WBSF::CBioSIMModelBase* CreateObject(){ return new CSpruceBudwormModel; }
 
 		//function for simulated annealing
-		virtual void AddDailyResult(const StringVector& header, const StringVector& data);
-		virtual void GetFValueDaily(CStatisticXY& stat);
+		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
 
 	protected:
 

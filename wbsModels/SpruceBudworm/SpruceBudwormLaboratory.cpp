@@ -30,7 +30,7 @@ namespace WBSF
 	static const double OVIPOSITING_STAGE_AGE = 0.1; //change by RSA 16-05-2018, was 0.05
 	static const double MINIMUM_AGE_LIFTOFF[2] = { 0.15, 0 };
 	
-	const double CSpruceBudworm::POTENTIAL_FECONDITY = 200;
+	const double CSpruceBudworm::POTENTIAL_FECUNDITY = 200;
 	//const bool CSpruceBudworm::ALWAYSE_APPLY_ADULT_ATTRITION = true;
 
 	//*****************************************************************************
@@ -58,12 +58,12 @@ namespace WBSF
 		
 		if (m_sex == FEMALE)
 		{
-			m_Fº = Round(Equations().get_Fº(m_A));		//generate fecondity without defoliation
-			m_Fᴰ = Round((1.0 - 0.0054*m_D)*m_Fº, 0);	//compute fecondity with defoliation
-			m_F = m_Fᴰ;	//set current fecondity
+			m_Fº = Round(Equations().get_Fº(m_A));		//generate fecundity without defoliation
+			m_Fᴰ = Round((1.0 - 0.0054*m_D)*m_Fº, 0);	//compute fecundity with defoliation
+			m_F = m_Fᴰ;	//set current fecundity
 		} 
 
-		m_ξ = Equations().get_ξ(m_sex, m_A);			//generater weight term error
+		m_ξ = Equations().get_ξ(m_sex, m_A);			//generate weight term error
 		m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;//compute weight
 		
 		m_p_exodus = Equations().get_p_exodus();		//generate exodus liftoff position
@@ -1075,7 +1075,7 @@ namespace WBSF
 
 	//			//
 	//			double Mº = Equations().get_M(m_A, 1);//initial weight of mean gravid female
-	//			double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_FECONDITY);//actual weight of mean actual female
+	//			double Mᴬ = Equations().get_M(m_A, 1 - m_totalBroods / POTENTIAL_fecundity);//actual weight of mean actual female
 	//			double RM = Mᴬ / Mº; //ratio of actual vs initial weight female
 	//			double M = m_M*RM;	//actual weight is initial weight x ratio
 	//			double Vᴸ = K* sqrt(M) / m_A;//compute Vᴸ with actual weight

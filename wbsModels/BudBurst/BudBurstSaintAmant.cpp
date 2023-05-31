@@ -575,7 +575,7 @@ namespace WBSF
 	}
 
 
-	void CBudBurstSaintAmantModel::GetFValueDaily(CStatisticXY& stat)
+	bool CBudBurstSaintAmantModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		//return CalibrateSDI(stat); 
 		if (!m_SAResult.empty())
@@ -586,7 +586,7 @@ namespace WBSF
 				(m_P[ST_OUT_σ_PS] > -0.1 && m_P[ST_OUT_σ_PS] < 0.1)
 
 				)
-				return;
+				return false;
 
 			
 			if (!m_SDI_DOY_stat.IsInit())
@@ -622,7 +622,7 @@ namespace WBSF
 				{
 					//remove these obs, no input weather
 					m_SAResult.clear();
-					return;
+					return false;
 				}
 
 			}
@@ -639,7 +639,7 @@ namespace WBSF
 				{
 					if (output[d][O_S_CONC] > 2 * MAX_SUGAR || output[d][O_ST_CONC] > 2 * MAX_STRACH)
 					{
-						return;//invalid solution
+						return false;//invalid solution
 					}
 				}
 			}
@@ -669,7 +669,7 @@ namespace WBSF
 							else
 							{
 								stat.clear();
-								return;//reject this solution
+								return false;//reject this solution
 							}
 						}
 
@@ -697,6 +697,8 @@ namespace WBSF
 			}//for all results
 		//}
 		}
+
+		return true;
 	}
 
 

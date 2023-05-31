@@ -3,6 +3,7 @@
 //
 // Description: CSpruceBudwormModel is a BioSIM model
 //*****************************************************************************
+// 02/03/2023	3.2.3	Rémi Saint-Amant	Output Progeny and WinterSurvival. Bug correction in overwintering energy mortality.
 // 02/03/2021	3.2.1	Rémi Saint-Amant	Bug correction in overwintering energy mortality
 // 06/12/2019	3.2.0	Rémi Saint-Amant	Bug correction when adult reach max adult longevity 
 // 12/07/2019	3.1.9	Rémi Saint-Amant	Add sex as enum and not size_t
@@ -46,8 +47,8 @@ namespace WBSF
 	extern char DAILY_HEADER[] = "L2o,L2,L3,L4,L5,L6,Pupa,Adult,DeadAdult,OvipositingAdult,Brood,Egg,L1,L2o2,L22,AverageInstar,MaleEmergence,FemaleEmergence,MaleFlight,FemaleFlight";
 	typedef CModelStatVectorTemplate<NB_STATS, DAILY_HEADER> CDailyOutput;
 
-	enum TOutputAnnual{ O_GROWTH_RATE, NB_ANNUAL_OUTPUT };
-	extern char ANNUAL_HEADER[] = "GROWTH_RATE";
+	enum TOutputAnnual{ O_GROWTH_RATE, O_PROGENY_RATE, O_WINTER_SURV, NB_ANNUAL_OUTPUT };
+	extern char ANNUAL_HEADER[] = "GROWTH_RATE|PROGENY_RATE|WINTER_SURV";
 	typedef CModelStatVectorTemplate<NB_ANNUAL_OUTPUT, ANNUAL_HEADER> CAnnualOutput;
 
 	CSpruceBudwormModel::CSpruceBudwormModel()
@@ -55,7 +56,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 8;
-		VERSION = "3.2.1 (2021)";
+		VERSION = "3.2.3 (2023)";
 
 		// initialize your variables here (optional)
 		m_bApplyAttrition = true;
@@ -89,7 +90,7 @@ namespace WBSF
 		m_bApplyAdultAttrition = parameters[c++].GetBool();
 		m_adult_longivity_max = parameters[c++].GetInt();
 
-		//overwrite fixe if availble in the locations file
+		//overwrite fix if available in the locations file
 		std::string fixeAI = m_info.m_loc.GetSSI("FixeAI");
 		std::string fixeDate = m_info.m_loc.GetSSI("FixeDate");
 		if (!fixeAI.empty() ||
@@ -127,7 +128,7 @@ namespace WBSF
 			else
 			{
 				//if only one is present, need to send an error
-				msg.ajoute("Both field (FixeDate, FixeAI) in location file need to be present to set a valid AI fixe");
+				msg.ajoute("Both field (FixeDate, FixeAI) in location file need to be present to set a valid AI fix");
 				msg.ajoute(std::string(fixeAI.empty()?"FixeAI":"FixeDate") + " is missing");
 			}
 
@@ -139,13 +140,13 @@ namespace WBSF
 			{
 				if (m_fixDate.GetYear() != m_weather.GetFirstYear())
 				{
-					msg.ajoute("Invalid AI fixe date. Fixe year ("+to_string(m_fixDate.GetYear() )+") must be the same as simulation year(" + to_string(m_weather.GetFirstYear()) + ")");
+					msg.ajoute("Invalid AI fix date. fix year ("+to_string(m_fixDate.GetYear() )+") must be the same as simulation year(" + to_string(m_weather.GetFirstYear()) + ")");
 				}
 
 			}
 			else
 			{
-				msg.ajoute("AI fixe can only be use with one year simulation");
+				msg.ajoute("AI fix can only be use with one year simulation");
 			}
 
 			/*if (m_fixAI < 2 || m_fixAI>9)
@@ -172,18 +173,30 @@ namespace WBSF
 
 		for (size_t y = 0; y < m_weather.size() - 1; y++)
 		{
+			//CStatistic statBrood;
+			//CTPeriod p1 = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+			//for (CTRef d = p1.Begin(); d <= p1.End(); d++)
+			
+
+
 			CStatistic statL22;
 			CTPeriod p = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY));
 			for (CTRef d = p.Begin(); d <= p.End(); d++)
 				statL22 += stat[d][S_L22];
 
 			
-			if (statL22.IsInit())
-			{
-				double gr = statL22[HIGHEST];
-				ASSERT(gr >= 0 && gr<3000);
-				stateA[y][O_GROWTH_RATE] = gr / 100; //initial population is 100 insect
-			}
+			double gr = statL22[HIGHEST];
+			double L2o2 = stat[p.Begin()][S_L2o2];
+			//if (statL22.IsInit())
+
+			//here we take the highest because we stop the development at L22. So L22 is cumulative here.
+			ASSERT(gr >= 0 && gr < 3000);
+			stateA[y][O_GROWTH_RATE] = gr / 100; //initial population is 100 insect
+			stateA[y][O_PROGENY_RATE] = L2o2 / 100;
+
+			if(L2o2 > 0)
+				stateA[y][O_WINTER_SURV] = gr / L2o2;
+
 		}
 
 		SetOutput(stateA);
@@ -233,7 +246,7 @@ namespace WBSF
 			pTree->m_nbMinObjects = 100;
 			pTree->m_nbMaxObjects = 1000;
 			pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 400, 100, L2o, RANDOM_SEX, m_bFertility, 0));
-			//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 100, L2o, RANDOM_SEX, m_bFertility, 0));
+			//pTree->Initialize<CSpruceBudworm>(CInitialPopulation(p.Begin(), 0, 1, 1, L2o, FEMALE, m_bFertility, 0));
 
 			//add tree to stand			
 			stand.m_host.push_front(pTree);
@@ -297,7 +310,7 @@ namespace WBSF
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}
 
-	void CSpruceBudwormModel::GetFValueDaily(CStatisticXY& stat)
+	bool CSpruceBudwormModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 		CModelStatVector statSim;
@@ -346,5 +359,7 @@ namespace WBSF
 				}
 			}
 		}
+
+		return true;
 	}
 }

@@ -92,9 +92,9 @@ namespace WBSF
 
 		//member
 		double m_relativeDevRate[SBW::NB_STAGES]; //Individual's relative development rates in 9 stages
-		double m_Fº;			//initial fecondity without defoliation
-		double m_Fᴰ;			//initial fecondity with defoliation
-		double m_F;				//current fecondity
+		double m_Fº;			//initial fecundity without defoliation
+		double m_Fᴰ;			//initial fecundity with defoliation
+		double m_F;				//current fecundity
 		double m_ξ;				//weight variability
 
 		CTRef m_overwinteringDate;			//When individual pass from L2 to L2o, they must stop develop until next spring
@@ -115,7 +115,7 @@ namespace WBSF
 
 		static const double WHITE_SPRUCE_FACTOR[SBW::NB_STAGES];
 		static const double SURVIVAL_RATE[SBW::NB_STAGES];
-		static const double POTENTIAL_FECONDITY;
+		static const double POTENTIAL_FECUNDITY;
 		static double GetEnergyLost(double T);
 
 	};

@@ -12,8 +12,9 @@ using namespace WBSF::HOURLY_DATA;
 namespace WBSF
 {
 	enum SeasonalVariables { V_WINTER_TMIN, V_SPRING_T, V_SUMMER_T, V_FALL_T, V_SPRING_P, V_WINTER_P, NB_SEASONAL_VARIABLES };
-//	enum TOutput { O_SPTt, O_FTPt, O_SPPt1, O_WNPt1, O_MinWNTt1, O_SPTt2, O_SMPt2, O_SPBII, NB_OUTPUTS };
-	enum TDailyOutput { O_TMIN, O_TMAX, O_T1, O_T2, O_T3, O_P1, O_P2, O_P3, NB_OUTPUTS };
+
+	enum TOutput { O_TMIN, O_TMAX, O_T1, O_T2, O_T3, O_P1, O_P2, O_P3, NB_OUTPUTS };
+	enum TOutputM2 { O_SPTt, O_FTPt, O_SPPt1, O_WNPt1, O_MinWNTt1, O_SPTt2, O_SMPt2, O_SPBII, NB_OUTPUTS2 };
 	//enum TDailyOutput { O_TMIN, O_TMAX, O_T1, O_T2, O_T3, O_P1, O_P2, O_P3, NB_DAILY_OUTPUTS};
 	
 
@@ -58,8 +59,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//CModelStatVector seasonal_variable;
-		//ComputeSeasonalVariable(m_weather, seasonal_variable);
+		
 
 		//This is where the model is actually executed
 
@@ -70,102 +70,141 @@ namespace WBSF
 		//lnMinWNTt􀀀1(log winter min temperature one year ago)       0.0047 0.0017 0.007
 		//lnSPTt􀀀2(log average spring temperature two years ago)     0.0096 0.0049 0.049
 		//lnSMTt􀀀2(log average summer temperature two years ago)     0.0218
-
-
-		//static const array<double, 7> P =
-		//{
-		//	0.0154,0.0141,0.0010,0.0011,0.0047,0.0096,0.0218
-		//};
-
-		if (!m_weather.IsHourly())
-			m_weather.ComputeHourlyVariables();
-
-		//This is where the model is actually executed
-		
-		static const array <double, 3> K =
+		if (true)
 		{
-			0.221,// 15 cm
-			0.154,// (mean)45 cm(mean)
-			0.077// 51 cm
-		};
 
-
-		CTPeriod p_h = m_weather.GetEntireTPeriod(CTM(CTM::HOURLY));
-		CModelStatVector T;
-		T.Init(p_h, 3, -999);
-
-		for (size_t h = 0; h < p_h.size(); h++)
-		{
-			const CHourlyData& data = m_weather.GetHour(p_h.Begin() + h);
-			for (size_t v = 0; v < 3; v++)
+			static const array<double, 7> P =
 			{
-				if (h == 0)
+				0.0154,0.0141,0.0010,0.0011,0.0047,0.0096,0.0218
+			};
+
+			CModelStatVector seasonal_variable;
+			ComputeSeasonalVariable(m_weather, seasonal_variable);
+
+			CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+			m_output.Init(p, NB_OUTPUTS, -9999);
+
+			for (size_t y = 0; y < p.GetNbYears(); y++)
+			{
+				m_output[y][O_SPTt] = seasonal_variable[y][V_SPRING_T];
+				m_output[y][O_FTPt] = seasonal_variable[y][V_FALL_T];
+				if (y >= 1)
 				{
-					T[h][v] = data[H_TAIR] + 4;
+					m_output[y][O_SPPt1] = seasonal_variable[y - 1][V_SPRING_P];
+					m_output[y][O_WNPt1] = seasonal_variable[y - 1][V_WINTER_P];
+					m_output[y][O_MinWNTt1] = seasonal_variable[y - 1][V_WINTER_TMIN];
 				}
-				else
+
+
+
+				if (y >= 2)
 				{
-					double deltaT = data[H_TAIR] - T[h - 1][v];
-					T[h][v] = T[h - 1][v] + K[v] * deltaT;
+					m_output[y][O_SPTt2] = seasonal_variable[y - 2][V_SPRING_T];
+					m_output[y][O_SMPt2] = seasonal_variable[y - 2][V_SUMMER_T];
+
+					m_output[y][O_SPBII] = P[0] * seasonal_variable[y][V_SPRING_T];
+					m_output[y][O_SPBII] += P[1] * seasonal_variable[y][V_FALL_T];
+					m_output[y][O_SPBII] += P[2] * seasonal_variable[y - 1][V_SPRING_P];
+					m_output[y][O_SPBII] += P[3] * seasonal_variable[y - 1][V_WINTER_P];
+					m_output[y][O_SPBII] += P[4] * seasonal_variable[y - 1][V_WINTER_TMIN];
+					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SPRING_T];
+					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SUMMER_T];
 				}
 			}
 		}
-
-	
-
-		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
-		m_output.Init(p, NB_OUTPUTS, -9999);
-
-		for (size_t y = 0; y < p.GetNbYears(); y++)
+		else
 		{
-			CTPeriod pyh = m_weather[y].GetEntireTPeriod(CTM(CTM::HOURLY));
-			
-			array<CStatistic, 3> stat;
-			for (CTRef TRef = pyh.Begin(); TRef <= pyh.End(); TRef++)
+			if (!m_weather.IsHourly())
+				m_weather.ComputeHourlyVariables();
+
+			//This is where the model is actually executed
+
+			static const array <double, 3> K =
 			{
+				0.221,// 15 cm
+				0.154,// (mean)45 cm(mean)
+				0.077// 51 cm
+			};
+
+
+			CTPeriod p_h = m_weather.GetEntireTPeriod(CTM(CTM::HOURLY));
+			CModelStatVector T;
+			T.Init(p_h, 3, -999);
+
+			for (size_t h = 0; h < p_h.size(); h++)
+			{
+				const CHourlyData& data = m_weather.GetHour(p_h.Begin() + h);
 				for (size_t v = 0; v < 3; v++)
-					stat[v] += T[TRef][v];
-			}
-
-			m_output[y][O_TMIN] = m_weather[y].GetStat(H_TMIN)[LOWEST];
-			m_output[y][O_TMAX] = m_weather[y].GetStat(H_TMAX)[HIGHEST];
-			for (size_t v = 0; v < 3; v++)
-			{
-				double T = stat[v][LOWEST];
-				m_output[y][O_T1 + v] = T;
-				double P = max(0.0, -0.00425 * T * T - 0.0888 * T - 0.305);
-				m_output[y][O_P1 + v] = P;
-			}
-
-			//int year = p[y].GetYear();
-
-			//for (size_t v = 0; v < NB_SEASONAL_VARIABLES; v++)
-				//m_output[y][v] = seasonal_variable[y][v];
-			/*m_output[y][O_SPTt] = seasonal_variable[y][V_SPRING_T];
-			m_output[y][O_FTPt] = seasonal_variable[y][V_FALL_T];
-			if (y >= 1)
-			{
-				m_output[y][O_SPPt1] = seasonal_variable[y - 1][V_SPRING_P];
-				m_output[y][O_WNPt1] = seasonal_variable[y - 1][V_WINTER_P];
-				m_output[y][O_MinWNTt1] = seasonal_variable[y - 1][V_WINTER_TMIN];
+				{
+					if (h == 0)
+					{
+						T[h][v] = data[H_TAIR] + 4;
+					}
+					else
+					{
+						double deltaT = data[H_TAIR] - T[h - 1][v];
+						T[h][v] = T[h - 1][v] + K[v] * deltaT;
+					}
+				}
 			}
 
 
 
-			if (y >= 2)
-			{
-				m_output[y][O_SPTt2] = seasonal_variable[y - 2][V_SPRING_T];
-				m_output[y][O_SMPt2] = seasonal_variable[y - 2][V_SUMMER_T];
+			CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+			m_output.Init(p, NB_OUTPUTS, -9999);
 
-				m_output[y][O_SPBII] = P[0] * seasonal_variable[y][V_SPRING_T];
-				m_output[y][O_SPBII] += P[1] * seasonal_variable[y][V_FALL_T];
-				m_output[y][O_SPBII] += P[2] * seasonal_variable[y - 1][V_SPRING_P];
-				m_output[y][O_SPBII] += P[3] * seasonal_variable[y - 1][V_WINTER_P];
-				m_output[y][O_SPBII] += P[4] * seasonal_variable[y - 1][V_WINTER_TMIN];
-				m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SPRING_T];
-				m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SUMMER_T];
-			}*/
+			for (size_t y = 0; y < p.GetNbYears(); y++)
+			{
+				CTPeriod pyh = m_weather[y].GetEntireTPeriod(CTM(CTM::HOURLY));
+
+				array<CStatistic, 3> stat;
+				for (CTRef TRef = pyh.Begin(); TRef <= pyh.End(); TRef++)
+				{
+					for (size_t v = 0; v < 3; v++)
+						stat[v] += T[TRef][v];
+				}
+
+				m_output[y][O_TMIN] = m_weather[y].GetStat(H_TMIN)[LOWEST];
+				m_output[y][O_TMAX] = m_weather[y].GetStat(H_TMAX)[HIGHEST];
+				for (size_t v = 0; v < 3; v++)
+				{
+					double T = stat[v][LOWEST];
+					m_output[y][O_T1 + v] = T;
+					double P = max(0.0, -0.00425 * T * T - 0.0888 * T - 0.305);
+					m_output[y][O_P1 + v] = P;
+				}
+
+				//int year = p[y].GetYear();
+
+				//for (size_t v = 0; v < NB_SEASONAL_VARIABLES; v++)
+					//m_output[y][v] = seasonal_variable[y][v];
+				/*m_output[y][O_SPTt] = seasonal_variable[y][V_SPRING_T];
+				m_output[y][O_FTPt] = seasonal_variable[y][V_FALL_T];
+				if (y >= 1)
+				{
+					m_output[y][O_SPPt1] = seasonal_variable[y - 1][V_SPRING_P];
+					m_output[y][O_WNPt1] = seasonal_variable[y - 1][V_WINTER_P];
+					m_output[y][O_MinWNTt1] = seasonal_variable[y - 1][V_WINTER_TMIN];
+				}
+
+
+
+				if (y >= 2)
+				{
+					m_output[y][O_SPTt2] = seasonal_variable[y - 2][V_SPRING_T];
+					m_output[y][O_SMPt2] = seasonal_variable[y - 2][V_SUMMER_T];
+
+					m_output[y][O_SPBII] = P[0] * seasonal_variable[y][V_SPRING_T];
+					m_output[y][O_SPBII] += P[1] * seasonal_variable[y][V_FALL_T];
+					m_output[y][O_SPBII] += P[2] * seasonal_variable[y - 1][V_SPRING_P];
+					m_output[y][O_SPBII] += P[3] * seasonal_variable[y - 1][V_WINTER_P];
+					m_output[y][O_SPBII] += P[4] * seasonal_variable[y - 1][V_WINTER_TMIN];
+					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SPRING_T];
+					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SUMMER_T];
+				}*/
+			}
 		}
+
 
 		return msg;
 	}

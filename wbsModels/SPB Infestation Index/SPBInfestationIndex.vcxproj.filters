@@ -10,15 +10,9 @@
     <ClCompile Include="SPBInfestationIndexModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SeasonalVariables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPBInfestationIndexModel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeasonalVariables.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

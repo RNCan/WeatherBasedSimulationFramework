@@ -16,20 +16,24 @@ namespace WBSF
 		CBudBurst();
 		virtual ~CBudBurst();
 
+		virtual ERMsg OnExecuteDaily()override;
 		virtual ERMsg OnExecuteAnnual()override;
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
+		void AddDailyResult(const StringVector& header, const StringVector& data)override;
 		virtual void AddAnnualResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueAnnual(CStatisticXY& stat)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
+		virtual bool GetFValueAnnual(CStatisticXY& stat)override;
 
 
 		static CBioSIMModelBase* CreateObject() { return new CBudBurst; }
 	
 	protected:
 
+		CTRef ExecuteDaily(CWeatherYear& weather, CModelStatVector& output);
 		ERMsg OnExecuteAnnualMaple();
-		ERMsg OnExecuteAnnualOther(size_t species, CWeatherStation& weather, CModelStatVector& output);
+		bool OnExecuteAnnualOther(CWeatherStation& weather, CModelStatVector& output);
 		std::set<int> m_years;
-		CWeatherStation data_weather;
+		CWeatherStation m_data_weather;
 
 
 
@@ -40,6 +44,7 @@ namespace WBSF
 		double m_thresholdT;
 		double m_thresholdCD;
 
+		CStatistic m_BB_DOY_stat;
 	};
 
 }

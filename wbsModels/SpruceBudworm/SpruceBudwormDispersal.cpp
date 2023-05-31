@@ -71,7 +71,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the DLL
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = 3;
-		VERSION = "1.1.2 (2019)";
+		VERSION = "1.1.3 (2023)";
 
 		m_nbMoths = 10;
 		m_defoliation = 0;
@@ -100,7 +100,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		//becasue we don't have a lot of object, we randomize each time
+		//because we don't have a lot of object, we randomize each time
 		InitRandomGenerator(0);
 		Randomize((unsigned int)0);//init old random number just in case
 

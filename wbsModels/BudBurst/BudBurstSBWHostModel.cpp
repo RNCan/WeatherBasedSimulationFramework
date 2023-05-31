@@ -1,4 +1,5 @@
 ﻿//*********************************************************************
+//2022-11-23	1.0.4	Rémi Saint-Amant	New parameters for bs and bf
 //2022-02-15	1.0.3	Rémi Saint-Amant	Add branch weight in calibration, new min/max
 //2022-02-01	1.0.2	Rémi Saint-Amant	Compile with new model
 //2021-01-01	1.0.0	Rémi Saint-Amant	Creation
@@ -50,7 +51,7 @@ namespace WBSF
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.3 (2022)";
+		VERSION = "1.0.4 (2022)";
 		m_SDI_type = SDI_AUGER;
 		m_nbSteps = 1;
 		m_defoliation = 0;
@@ -73,18 +74,13 @@ namespace WBSF
 		m_species = parameters[c++].GetInt();
 		//m_defoliation = parameters[c++].GetReal() / 100.0;
 		parameters[c++].GetReal();
-		m_defoliation = 0;//Defoliation mo longer used
+		m_defoliation = 0;//Defoliation no longer used
 
 
 		ASSERT(m_species < HBB::PARAMETERS[0].size());
 
 		m_P = HBB::PARAMETERS[0][m_species];
-
-		double test = 0.000000012;
-		string str1 = ToString(test, 10);
-		string str2 = ToString(test);
-
-		std::array<double, NB_SDI_PARAMS> SDI;
+		
 
 		//m_SDI = SDI[m_species];
 		if (parameters.size() == 2 + 46 + NB_SDI_PARAMS + 2)
@@ -140,7 +136,7 @@ namespace WBSF
 			m_version = HBB::TVersion(parameters[c++].GetInt());
 
 
-			
+			std::array<double, NB_SDI_PARAMS> SDI;
 			for (size_t i = 0; i < NB_SDI_PARAMS; i++)
 				SDI[i] = parameters[c++].GetReal();
 
@@ -277,7 +273,7 @@ namespace WBSF
 		static const char* SPECIES_NAME[] = { "bf", "ws", "bs", "ns", "rs", "rbs" };
 
 		
-		if (data.size() == NB_INPUTS)
+		if (data.size() == NB_INPUTS) 
 		{
 			if (data[I_SPECIES] == SPECIES_NAME[m_species] && data[I_TYPE] == "C")
 			{
@@ -333,11 +329,11 @@ namespace WBSF
 	}
 
 
-	void CSBWHostBudBurstModel::GetFValueDaily(CStatisticXY& stat)
+	bool CSBWHostBudBurstModel::GetFValueDaily(CStatisticXY& stat)
 	{
 
 		if (!m_P.is_valid())
-			return;
+			return false;
 
 		if (!m_SAResult.empty())
 		{
@@ -383,7 +379,7 @@ namespace WBSF
 				{
 					//remove these obs, no input weather
 					m_SAResult.clear();
-					return;
+					return false;
 				}
 			}
 
@@ -546,6 +542,8 @@ namespace WBSF
 			}//for all results
 		//}
 		}
+
+		return true;
 	}
 
 

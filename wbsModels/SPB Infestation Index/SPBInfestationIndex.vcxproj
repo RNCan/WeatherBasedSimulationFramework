@@ -241,11 +241,9 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SeasonalVariables.cpp" />
     <ClCompile Include="SPBInfestationIndexModel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SeasonalVariables.h" />
     <ClInclude Include="SPBInfestationIndexModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
