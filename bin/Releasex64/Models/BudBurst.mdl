@@ -10,7 +10,7 @@
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
-    <NbYearMin>2</NbYearMin>
+    <NbYearMin>1</NbYearMin>
     <NbYearMax>999</NbYearMax>
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
@@ -24,7 +24,7 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <TextValue>Sugar Maple</TextValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce</TextValue>
         </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>0 0</OutputTypeMode>
