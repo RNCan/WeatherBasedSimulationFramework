@@ -72,48 +72,59 @@ namespace WBSF
 	};
 
 
-	class CBudBurstChuineModel : public CBioSIMModelBase
+	class CShootDevelopmentIndexModel : public CBioSIMModelBase
 	{
 	public:
 
+		enum TInput { INPUT1, INPUT2, INPUT3, INPUT4, INPUT5, NB_INPUTS };
 
-		CBudBurstChuineModel();
-		virtual ~CBudBurstChuineModel();
+		CShootDevelopmentIndexModel();
+		virtual ~CShootDevelopmentIndexModel();
 
 		virtual ERMsg OnExecuteDaily()override;
+		//virtual ERMsg OnExecuteAnnual()override;
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueDaily(CStatisticXY& stat)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
 
 
-		static CBioSIMModelBase* CreateObject() { return new CBudBurstChuineModel; }
+		static CBioSIMModelBase* CreateObject() { return new CShootDevelopmentIndexModel; }
 
 		
 		//void ExecuteOneYear(size_t y, CWeatherYears& weather, CModelStatVector& output);
-		void ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output);
+		ERMsg ExecuteAllYears(CWeatherYears& weather, CModelStatVector& output);
 
 	protected:
 
 		
 		double ChillingResponce(double T)const;
 		double ForcingResponce(double T)const;
-		static std::array<double, 6> SDI_2_Sx(size_t SDI_type, double SDI);
-		static double Weibull(size_t stage, double  SDI, const std::array < double, 2>& p, size_t first_stage, size_t last_stage);
+		
+		
 
 		size_t m_species;
-		size_t m_SDI_type;
+		bool m_bCumulative;
 		double m_defoliation;
 		
 		std::array<double, NB_PARAMS> m_P;
 		size_t m_CU_DAY_last;
 		size_t m_FU_DAY_last;
 
-
-		bool m_bSDI;
+		
+		size_t m_inputType;
 		std::set<int> m_years;
 		CStatistic m_SDI_DOY_stat;
 		CWeatherStation data_weather;
 		std::deque<CTmeanInput> mean_T_day;
+		std::string m_normals_filepath;
+
+		//std::map<int, CStatistic> m_Tjan;
+		CStatistic m_Tjan;
+		//std::deque<double> m_X;
+
+		static double Weibull(size_t stage, double  SDI, const std::array < double, 2>& p, size_t first_stage = 0, size_t last_stage = 5);
+		static std::array<double, 6> SDI_2_Sx(double SDI, bool bCumul);
+
 	};
 
 }

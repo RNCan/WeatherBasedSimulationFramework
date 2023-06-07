@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿//Creation from Fabrizio Carteni MathLab code, see article : https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18974
+
+#pragma once
 
 #include "ModelBase/BioSIMModelBase.h"
 #include "ModelBase/SimulatedAnnealingVector.h"

@@ -1,9 +1,11 @@
 ﻿//*********************************************************************
+//2023-06-01	1.0.5	Rémi Saint-Amant	New Compile
 //2022-11-23	1.0.4	Rémi Saint-Amant	New parameters for bs and bf
 //2022-02-15	1.0.3	Rémi Saint-Amant	Add branch weight in calibration, new min/max
 //2022-02-01	1.0.2	Rémi Saint-Amant	Compile with new model
-//2021-01-01	1.0.0	Rémi Saint-Amant	Creation
+//2021-01-01	1.0.0	Rémi Saint-Amant	Creation from Fabrizio Carteni MathLab code, see article : https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18974
 //*********************************************************************
+
 #include "BudBurstSBWHostModel.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic\DegreeDays.h"
@@ -25,15 +27,6 @@ namespace WBSF
 	static const double MAX_SDI = 5;
 	static const double MIN_SDI_DOY = 0.25;
 	static const double MAX_SDI_DOY = 4.75;
-	
-	//static const double MIN_STRACH = 4.9;//from data   [1,99]
-	//static const double MAX_STRACH = 116.0;//from data   [1,99]
-	//static const double MIN_SUGAR = 8.2;//from data   [1,99] 
-	//static const double MAX_SUGAR = 87.8;//from data   [1,99]
-	//static const double MIN_MASS = 0.01506;//from data   [1,99]
-	//static const double MAX_MASS = 0.1592;//from data   [1,99]
-	//static const double MAX_DOY_DATA = 213-1;
-
 
 	static const bool USE_SDI = true;
 	static const bool USE_SDI_DOY = true;
@@ -51,7 +44,7 @@ namespace WBSF
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.4 (2022)";
+		VERSION = "1.0.5 (2023)";
 		m_SDI_type = SDI_AUGER;
 		m_nbSteps = 1;
 		m_defoliation = 0;
@@ -153,22 +146,6 @@ namespace WBSF
 
 			m_bUseDefoliation = SDI[ʎa] != 0;
 
-			//m_P.Sw_kk = m_SDI[2];
-			//m_P.B_kk = m_SDI[3];
-			//m_P.G_kk1 = m_SDI[4];
-			//m_P.G_kk2 = m_SDI[5];
-			//m_P.Mob_kk1 = m_SDI[6];
-			//m_P.Acc_kk = m_SDI[7];
-			//m_P.FH_kk1 = m_SDI[8];
-			//m_P.FD_kk1 = m_SDI[9];
-
-
-			//if (version == HBB::V_ORIGINAL)
-			//{
-			//	m_P = HBB::PARAMETERS[HBB::V_ORIGINAL][m_species];
-			//	m_P.SDI_mu = SDI[μ];
-			//	m_P.SDI_sigma = SDI[ѕ];
-			//}
 
 			ASSERT(m_species < HBB::PARAMETERS[0].size());
 
@@ -195,14 +172,6 @@ namespace WBSF
 		m_bCumul = parameters[c++].GetBool();
 
 
-		//version temporaire
-		//ASSERT(false);
-		//m_P = HBB::PARAMETERS[m_version][m_species];
-		//m_P.SDI_mu = SDI[μ];
-		//m_P.SDI_sigma = SDI[ѕ];
-
-
-
 		return msg;
 	}
 
@@ -217,22 +186,6 @@ namespace WBSF
 
 
 
-
-		//m_model.m_species = m_species;
-		//for (size_t y = 0; y < m_weather.size(); y++)
-		//{
-		//	static const double DEFOL[4][10] =
-		//	{
-		//		{ 0,0,0,0,0,0,96.7,98.3,98.3,98.3 },
-		//		{0},
-		//		{0, 0, 0, 0, 0, 0, 8.3, 71.7, 71.7, 71.7},
-		//		{0},
-		//	};
-		//
-		//	m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = DEFOL[m_species][y]/100.0;
-		//
-		//}
-
 		for (size_t y = 0; y < m_weather.size(); y++)
 			m_model.m_defioliation[m_weather[y].GetTRef().GetYear()] = m_defoliation;
 
@@ -246,7 +199,7 @@ namespace WBSF
 		m_model.m_P = m_P;
 		m_model.m_version = m_version;
 		m_model.m_bCumul = m_bCumul;
-		//model.m_SDI = m_SDI;
+
 		
 
 		msg = m_model.Execute(m_weather, m_output, bModelEx);
@@ -301,19 +254,6 @@ namespace WBSF
 					m_SAResult.push_back(obs);
 				}
 
-				//if (obs.m_obs[3] > -999)//defoliation
-				//{
-				//	if (m_defioliation_by_year.find(obs.m_ref.GetYear()) != m_defioliation_by_year.end())
-				//	{
-				//		//defoliation for a site must be always the same
-				//		ASSERT(m_defioliation_by_year[obs.m_ref.GetYear()] == obs.m_obs[3] / 100.0);
-				//	}
-				//
-				//	m_defioliation_by_year[obs.m_ref.GetYear()] = obs.m_obs[3] / 100.0;
-				//}
-
-
-				
 			}
 		}
 
@@ -427,12 +367,8 @@ namespace WBSF
 						ASSERT(output[m_SAResult[i].m_ref][O_SDI] > -999);
 						ASSERT(m_SAResult[i].m_ref.GetJDay() < max_doy_data);
 
-						//double obs_SDI = (m_SAResult[i].m_obs[0] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-						//double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - MIN_SDI) / (MAX_SDI - MIN_SDI);
-
 						double obs_SDI = (m_SAResult[i].m_obs[0] - m_stat[0][LOWEST]) / m_stat[0][RANGE];
 						double sim_SDI = (output[m_SAResult[i].m_ref][O_SDI] - m_stat[0][LOWEST]) / m_stat[0][RANGE];
-						
 
 						if (_isnan(sim_SDI) || output[m_SAResult[i].m_ref][O_SDI] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_SDI = Rand(-1.0, 0.0);
@@ -451,8 +387,6 @@ namespace WBSF
 								stat.Add(obs_DOY, sim_DOY);
 							}
 						}
-
-
 					}
 
 					if (USE_STARCH && m_SAResult[i].m_obs[1] > -999 )
@@ -461,10 +395,7 @@ namespace WBSF
 
 						double obs_cSt = (m_SAResult[i].m_obs[1] - m_stat[1][LOWEST]) / m_stat[1][RANGE];
 						double sim_cSt = (output[m_SAResult[i].m_ref][O_ST_CONC] - m_stat[1][LOWEST]) / m_stat[1][RANGE];
-
-						//double obs_cSt = (m_SAResult[i].m_obs[1] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-						//double sim_cSt = (output[m_SAResult[i].m_ref][O_ST_CONC] - MIN_STRACH) / (MAX_STRACH - MIN_STRACH);
-
+				
 						if (_isnan(sim_cSt) || output[m_SAResult[i].m_ref][O_ST_CONC] == -999 || (nbInvalidS > 0 && i < min(nbInvalidS, m_SAResult.size() / 2)))
 							sim_cSt = Rand(-1.0, 0.0);
 
@@ -477,9 +408,6 @@ namespace WBSF
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_S_CONC] > -999);
 
-						
-						//double obs_cS = (m_SAResult[i].m_obs[2] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
-						//double sim_cS = (output[m_SAResult[i].m_ref][O_S_CONC] - MIN_SUGAR) / (MAX_SUGAR - MIN_SUGAR);
 						
 						double obs_cS = (m_SAResult[i].m_obs[2] - m_stat[2][LOWEST]) / m_stat[2][RANGE];
 						double sim_cS = (output[m_SAResult[i].m_ref][O_S_CONC] - m_stat[2][LOWEST]) / m_stat[2][RANGE];
@@ -496,25 +424,11 @@ namespace WBSF
 					{
 						ASSERT(output[m_SAResult[i].m_ref][O_BRANCH_MASS] > -999);
 
-						//Compare the mass gain
-						//remove the first value of the branch (buds mass Mdw_0) from the branch mass
-						//double Mdw_0 = output[CTRef(m_SAResult[i].m_ref.GetYear(), JANUARY, DAY_01)][O_BUDS_MASS]; 
-						//double M = output[m_SAResult[i].m_ref][O_BUDS_MASS];
-						//double BM = output[m_SAResult[i].m_ref][O_BRANCH_MASS] + M - Mdw_0;
-						//
-						//
-						//double Bdw_0 = m_stat[3][LOWEST];
-						//double obs_BM = (m_SAResult[i].m_obs[3] - Bdw_0) / (m_stat[3][RANGE] - Bdw_0);//Mass gain
-						//double sim_BM = (BM - (m_stat[3][LOWEST]- Bdw_0) ) / (m_stat[3][RANGE]- Bdw_0);//mass gain
-
-
-						//double Mdw_0 = output[CTRef(m_SAResult[i].m_ref.GetYear(), JANUARY, DAY_01)][O_BUDS_MASS];
 						double M = output[m_SAResult[i].m_ref][O_BUDS_MASS];
 						double B = output[m_SAResult[i].m_ref][O_BRANCH_MASS];
 						double BM =  B + M;
 
 
-						//double Bdw_0 = m_stat[3][LOWEST];
 						double obs_BM = m_SAResult[i].m_obs[3] /m_stat[3][RANGE];//Mass gain
 						double sim_BM = BM/m_stat[3][RANGE];//mass gain
 
@@ -540,7 +454,6 @@ namespace WBSF
 				}
 
 			}//for all results
-		//}
 		}
 
 		return true;

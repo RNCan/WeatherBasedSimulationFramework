@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿//Creation from Fabrizio Carteni MathLab code, see article : https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18974
+
+#pragma once
+
 
 #include <math.h>
 #include <array>
@@ -77,36 +80,16 @@ namespace WBSF
 			double PAR_PS1;
 			double PAR_PS2;
 			double PAR_PS3;
-			//double a1;
-			//double a2;
-			//double b1;
-			//double b2;
-			//double Def_max;
 			double bud_dw;
 			double buds_num;
 			double C_DW_Ratio;
-			//double mg2g;
-			//double CH2O2C;
 			double NB_r;
-			//double I_max;
 			double F_minT;
 			double F_optT;
 			double F_maxT;
 			double cS_min;
 			double cS_max;
-			//			double BBphase;
-			//double S_mu;
-			//double v_c;
 			double BB_thr;
-			//double St_min;
-
-		//	size_t m_version;
-
-
-			//double G_v2;
-			//double C_min;
-			//double C_max;
-			//size_t m_nbSteps;
 			double SDI_mu;
 			double SDI_sigma;
 
@@ -116,9 +99,6 @@ namespace WBSF
 			double RC_PAR(double T)const { return RC(T, PAR_minT, PAR_optT, PAR_maxT); }
 
 
-			//double S_ratio(double S_conc) const { return std::max(0.001, std::min(0.999, (S_conc - S_min) / (S_max - S_min))); }
-			//double St_ratio(double St_conc) const { return std::max(0.001, std::min(0.999, (St_conc - St_min) / (St_max - St_min))); }
-			//double C_ratio(double C) const { return std::max(0.001, std::min(0.999, C / 3000)); }
 			void InitBeta();
 			size_t value_to_bin(double v)const { return std::max(size_t(0), std::min(size_t(NB_BINS), size_t(std::round(v * NB_BINS)))); }
 			double GetBeta(size_t t, double v)const { return m_beta_function[t][value_to_bin(v)]; }
@@ -139,17 +119,6 @@ namespace WBSF
 
 				if (PAR_minT > PAR_optT || PAR_optT > PAR_maxT)
 					return false;
-
-				//if (C_min > C_max)
-					//return false;
-
-				/*if (m_model == FABRIZIO_MODEL_NEW)
-				{
-					if ((m_P[CU_σ_PS] > -0.1 && m_P[CU_σ_PS] < 0.1) ||
-						(m_P[FU_σ_PS] > -0.1 && m_P[FU_σ_PS] < 0.1))
-						return false;
-				}*/
-
 
 				return true;
 			}
@@ -209,7 +178,6 @@ namespace WBSF
 				if (fabs(PAR_PS1 - in.PAR_PS1) > 0.00000001)bEqual = false;
 				if (fabs(PAR_PS2 - in.PAR_PS2) > 0.00000001)bEqual = false;
 				if (fabs(PAR_PS3 - in.PAR_PS3) > 0.00000001)bEqual = false;
-				//if (fabs(Def_max - in.Def_max) > 0.00000001)bEqual = false;
 				if (fabs(bud_dw - in.bud_dw) > 0.00000001)bEqual = false;
 				if (fabs(buds_num - in.buds_num) > 0.00000001)bEqual = false;
 				if (fabs(C_DW_Ratio - in.C_DW_Ratio) > 0.00000001)bEqual = false;
@@ -219,14 +187,7 @@ namespace WBSF
 				if (fabs(F_maxT - in.F_maxT) > 0.00000001)bEqual = false;
 				if (fabs(cS_min - in.cS_min) > 0.00000001)bEqual = false;
 				if (fabs(cS_max - in.cS_max) > 0.00000001)bEqual = false;
-				//if (fabs(S_mu - in.S_mu) > 0.00000001)bEqual = false;
 				if (fabs(BB_thr - in.BB_thr) > 0.00000001)bEqual = false;
-				//if (fabs(St_min - in.St_min) > 0.00000001)bEqual = false;
-				//if (m_version != in.m_version) bEqual = false;
-				//if (fabs(G_v2 - in.G_v2) > 0.00000001)bEqual = false;
-				//if (fabs(C_min - in.C_min) > 0.00000001)bEqual = false;
-				//if (fabs(C_max - in.C_max) > 0.00000001)bEqual = false;
-				//if (m_nbSteps != in.m_nbSteps)bEqual = false;
 				if (fabs(SDI_mu - in.SDI_mu) > 0.00000001)bEqual = false;
 				if (fabs(SDI_sigma - in.SDI_sigma) > 0.00000001)bEqual = false;
 
@@ -238,10 +199,6 @@ namespace WBSF
 		};
 
 		extern const std::array < std::array<CParameters, NB_SBW_SPECIES>, NB_VERSIONS> PARAMETERS;
-		//extern const std::array<CParameters, NB_SBW_SPECIES> PARAMETERS_OLD;
-
-
-
 
 		class COldParam
 		{

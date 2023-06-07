@@ -1,5 +1,5 @@
 ﻿//*********************************************************************
-//21/01/2020	1.0.0	Rémi Saint-Amant	Creation 
+//21/01/2020	1.0.0	Rémi Saint-Amant	Creation from Fabrizio Carteni MathLab code, see article : https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18974
 //*********************************************************************
 #include "BudBurstSBWHost.h"
 #include "PHENO_eqs.h"
