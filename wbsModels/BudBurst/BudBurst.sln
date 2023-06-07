@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSBWHost", "BudBurst
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSaintAmant", "BudBurstSaint-Amant.vcxproj", "{1C150463-16A5-4BB8-955A-4C483CA49D67}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShootDevelopmentIndex", "ShootDevelopmentIndex.vcxproj", "{95D42E7A-E623-487A-A53D-28DF6BE18676}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -61,6 +63,14 @@ Global
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|Win32.Build.0 = Release|Win32
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.ActiveCfg = Release|x64
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.Build.0 = Release|x64
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Debug|Win32.Build.0 = Debug|Win32
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Debug|x64.ActiveCfg = Debug|x64
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Debug|x64.Build.0 = Debug|x64
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Release|Win32.ActiveCfg = Release|Win32
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Release|Win32.Build.0 = Release|Win32
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Release|x64.ActiveCfg = Release|x64
+		{95D42E7A-E623-487A-A53D-28DF6BE18676}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
