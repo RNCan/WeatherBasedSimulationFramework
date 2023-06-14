@@ -596,6 +596,11 @@ namespace WBSF
 					station.m_ID = ID;
 					pos = std::distance(m_stations.begin(), it2);
 				}
+				
+				//station.SetSSI("Provider", "SOPFEU");
+				station.SetSSI("Network", it2->GetSSI("Provenance"));
+				station.SetSSI("Country", "Canada");
+				station.SetSSI("SubDivision", it2->GetSSI("Province"));
 			}
 		}
 		else
@@ -1083,7 +1088,22 @@ namespace WBSF
 								double  value = ToDouble(var);
 								if (VAR_TYPE[i] == H_TMIN || VAR_TYPE[i] == H_TAIR || VAR_TYPE[i] == H_TMAX || VAR_TYPE[i] == H_TDEW)
 								{
-									if (value < -60 || value > 60)
+									if (value < -50 || value > 50)
+										value = -999;
+								}
+								if (VAR_TYPE[i] == H_PRCP)
+								{
+									if (value < 0 || value > 50)//max of 50 mm/h
+										value = -999;
+								}
+								if (VAR_TYPE[i] == H_WNDS)
+								{
+									if (value < 0 || value > 100)
+										value = -999;
+								}
+								if (VAR_TYPE[i] == H_WNDD)
+								{
+									if (value < 0 || value > 360)
 										value = -999;
 								}
 
