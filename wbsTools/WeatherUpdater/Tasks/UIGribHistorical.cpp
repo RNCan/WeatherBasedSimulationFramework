@@ -373,6 +373,7 @@ namespace WBSF
 										
 										if (HH == 0)
 										{
+											size_t nb_gribs = 0;
 											for (size_t HH = 0; HH <= 6&&msg; HH++)
 											{
 												string inputPath = GetInputFilePath(product, dimension, curTRef, HH);
@@ -381,22 +382,38 @@ namespace WBSF
 
 
 												msg += CopyFile(pConnection, inputPath, outputPath, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD | INTERNET_FLAG_EXISTING_CONNECT | INTERNET_FLAG_DONT_CACHE, true, callback);
+												if (GoodGrib(outputPath))
+												{
+													nb_gribs++;
+												}
+												else
+												{
+													WBSF::RemoveFile(outputPath);
+												}
 											}
 
 
 											if (msg)
 											{
-												msg += CreateHourlyPrcp(product, dimension, curTRef, callback);
+												if(nb_gribs==6)//create hourly precipitation only if all 6 files exist
+													msg += CreateHourlyPrcp(product, dimension, curTRef, callback);
+
 												if (msg)
 												{
 													for (size_t HH = 0; HH < 6; HH++)
 													{
 														string outputPath = GetOutputFilePath(product, dimension, curTRef, HH, ".grb2");
-														string prcpOutputPath = GetOutputFilePath(product, dimension, curTRef, HH, "_prcp.tif");
+														
+														if (FileExists(outputPath) )
+														{
+															string prcpOutputPath = GetOutputFilePath(product, dimension, curTRef, HH, "_prcp.tif");
+															if (!FileExists(prcpOutputPath))
+																prcpOutputPath.clear();
 
-														msg += CreateHourlyGeotiff(outputPath, prcpOutputPath, callback);
-														if(msg)
-															nbDownloaded++;
+															msg += CreateHourlyGeotiff(outputPath, prcpOutputPath, callback);
+															if (msg)
+																nbDownloaded++;
+														}
 													}
 												}
 											}
@@ -544,14 +561,14 @@ namespace WBSF
 		CGDALDatasetEx DS1;
 		msg += DS1.OpenInputImage(inputFilePath);
 		CGDALDatasetEx DS2;
-		msg += DS2.OpenInputImage(inputPrcpFilePath);
+		if(!inputPrcpFilePath.empty())
+			msg += DS2.OpenInputImage(inputPrcpFilePath);
 
 		if (msg)
 		{
-			ASSERT(DS1.GetRasterXSize() == DS2.GetRasterXSize());
-			ASSERT(DS1.GetRasterYSize() == DS2.GetRasterYSize());
-			//			CBaseOptions options1;
-				//		DS1.UpdateOption(options1);
+			ASSERT(!DS2.IsOpen() || DS1.GetRasterXSize() == DS2.GetRasterXSize());
+			ASSERT(!DS2.IsOpen() || DS1.GetRasterYSize() == DS2.GetRasterYSize());
+
 			string prj_WKT = DS1.GetPrj()->GetWKT();
 
 			double GT[6] = { 0 };
@@ -628,52 +645,57 @@ namespace WBSF
 				}
 
 				//add prcp
-				DS2.GetBandsMetaData(meta_data);
-				//find precipitation band
-				size_t in_b = NOT_INIT;
-				for (size_t i = 0; i < meta_data.size() && in_b == NOT_INIT; i++)
+				if (DS2.IsOpen())
 				{
-					string var = meta_data[i]["GRIB_ELEMENT"];
-					if (var.find("APCP") != string::npos)
-						in_b = i;
+					DS2.GetBandsMetaData(meta_data);
+					//find precipitation band
+					size_t in_b = NOT_INIT;
+					for (size_t i = 0; i < meta_data.size() && in_b == NOT_INIT; i++)
+					{
+						string var = meta_data[i]["GRIB_ELEMENT"];
+						if (var.find("APCP") != string::npos)
+							in_b = i;
+					}
+
+					if (in_b != NOT_INIT)
+					{
+						string new_description = meta_data[in_b]["description"];
+						StringVector description(meta_data[in_b]["description"], "=");
+						if (description.size() == 2)
+							new_description = description[0] + " \"" + meta_data[in_b]["GRIB_COMMENT"] + "\"";
+
+						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
+						oFile << "    <Description>" << new_description << "</Description>" << endl;
+						oFile << "    <Metadata>" << endl;
+						oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[in_b]["GRIB_COMMENT"] << "</MDI>" << endl;
+						oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[in_b]["GRIB_ELEMENT"] << "</MDI>" << endl;
+						oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << meta_data[in_b]["GRIB_SHORT_NAME"] << "</MDI>" << endl;
+						oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[in_b]["GRIB_UNIT"] << "</MDI>" << endl;
+						oFile << "      <MDI key=\"GRIB_FORECAST_SECONDS\">" << meta_data[in_b]["GRIB_FORECAST_SECONDS"] << "</MDI>" << endl;
+						oFile << "    </Metadata>" << endl;
+
+						oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
+						oFile << "    <ComplexSource>" << endl;
+						oFile << "      <SourceFilename relativeToVRT=\"1\">" << GetFileName(inputPrcpFilePath) << "</SourceFilename>" << endl;
+						oFile << "      <SourceBand>" + to_string(in_b + 1) + "</SourceBand>" << endl;
+						oFile << "      <SourceProperties RasterXSize=\"" + to_string(DS2.GetRasterXSize()) + "\" RasterYSize=\"" + to_string(DS2.GetRasterYSize()) + "\" DataType=\"Float64\" BlockXSize=\"" + to_string(DS2.GetRasterXSize()) + "\" BlockYSize=\"1\" />" << endl;
+						oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" + to_string(DS2.GetRasterXSize()) + "\" ySize=\"" + to_string(DS2.GetRasterYSize()) + "\" />" << endl;
+						oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"" + to_string(DS2.GetRasterXSize()) + "\" ySize=\"" + to_string(DS2.GetRasterYSize()) + "\" />" << endl;
+						oFile << "      <NODATA>9999</NODATA>" << endl;
+						oFile << "    </ComplexSource>" << endl;
+						oFile << "  </VRTRasterBand>" << endl;
+
+						
+					}
 				}
 
-				if (in_b != NOT_INIT)
-				{
-					string new_description = meta_data[in_b]["description"];
-					StringVector description(meta_data[in_b]["description"], "=");
-					if (description.size() == 2)
-						new_description = description[0] + " \"" + meta_data[in_b]["GRIB_COMMENT"] + "\"";
-
-					oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
-					oFile << "    <Description>" << new_description << "</Description>" << endl;
-					oFile << "    <Metadata>" << endl;
-					oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[in_b]["GRIB_COMMENT"] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[in_b]["GRIB_ELEMENT"] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << meta_data[in_b]["GRIB_SHORT_NAME"] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[in_b]["GRIB_UNIT"] << "</MDI>" << endl;
-					oFile << "      <MDI key=\"GRIB_FORECAST_SECONDS\">" << meta_data[in_b]["GRIB_FORECAST_SECONDS"] << "</MDI>" << endl;
-					oFile << "    </Metadata>" << endl;
-
-					oFile << "    <NoDataValue>9999</NoDataValue>" << endl;
-					oFile << "    <ComplexSource>" << endl;
-					oFile << "      <SourceFilename relativeToVRT=\"1\">" << GetFileName(inputPrcpFilePath) << "</SourceFilename>" << endl;
-					oFile << "      <SourceBand>" + to_string(in_b + 1) + "</SourceBand>" << endl;
-					oFile << "      <SourceProperties RasterXSize=\"" + to_string(DS2.GetRasterXSize()) + "\" RasterYSize=\"" + to_string(DS2.GetRasterYSize()) + "\" DataType=\"Float64\" BlockXSize=\"" + to_string(DS2.GetRasterXSize()) + "\" BlockYSize=\"1\" />" << endl;
-					oFile << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" + to_string(DS2.GetRasterXSize()) + "\" ySize=\"" + to_string(DS2.GetRasterYSize()) + "\" />" << endl;
-					oFile << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"" + to_string(DS2.GetRasterXSize()) + "\" ySize=\"" + to_string(DS2.GetRasterYSize()) + "\" />" << endl;
-					oFile << "      <NODATA>9999</NODATA>" << endl;
-					oFile << "    </ComplexSource>" << endl;
-					oFile << "  </VRTRasterBand>" << endl;
-
-					oFile << "</VRTDataset>" << endl;
-				}
-
+				oFile << "</VRTDataset>" << endl;
 				oFile.close();
 			}
 
 			DS1.Close();
-			DS2.Close();
+			if(DS2.IsOpen())
+				DS2.Close();
 		}//if msg
 
 		return msg;
@@ -706,7 +728,8 @@ namespace WBSF
 
 
 		msg += RemoveFile(inputFilePath);
-		msg += RemoveFile(inputPrcpFilePath);
+		if(!inputPrcpFilePath.empty())
+			msg += RemoveFile(inputPrcpFilePath);
 		msg += RemoveFile(file_path_vrt);
 
 

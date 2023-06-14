@@ -1,3 +1,5 @@
+//6.1.2 14/06/2023	Rémi Saint-Amant	Change in SOPFEU historical to remove invalid data
+//										Change in GribHistorical to ignore absence of gribs
 //6.1.1 20/01/2023	Rémi Saint-Amant	Change in Alberta and Manitoba provider
 //6.1.0 13/09/2022	Rémi Saint-Amant	Bug correction in SWOB partner when station info is missing
 //6.0.9	13/09/2022	Rémi Saint-Amant	Improvement in ERA5 and CMIP6
