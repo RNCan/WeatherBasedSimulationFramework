@@ -66,7 +66,7 @@ sim = read.csv(GetBioSIMOutputFilePath())
 dev_rate = read.csv(GetFilePath("output/DevTime(Best).csv"))
 
 
-MAX_TIME = c(80,60,50,40);
+#MAX_TIME = c(80,60,50,40);
 variables = unique(sim$Variable)
 file_title = unlist(strsplit(basename(GetBioSIMOutputFilePath()), "\\."))[1]
 

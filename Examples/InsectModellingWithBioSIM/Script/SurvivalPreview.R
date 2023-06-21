@@ -71,7 +71,7 @@ print(best_model)
 
 variables = sort(unique(sim$Variable))
 
-MAX_S = c(1,1,1.02,1)
+#MAX_S = c(1,1,1.02,1)
 
 for( vv in 1:length(variables) )
 {
@@ -88,7 +88,7 @@ for( vv in 1:length(variables) )
 
 	T <- seq(0,35,0.5)
 	xLim = range(T)
-	yLim<-range(MAX_S[vv],extendrange(range(obsS$s, na.rm=TRUE), f=0.6))
+	yLim = pmax(0, pmin(1.4,extendrange(range(obsS$s, na.rm=TRUE), f=1.5)));
 	
 	file_title = unlist(strsplit(basename(sim_file_path), "\\."))[1]
 	png(file=GetFilePath(paste("Images/",file_title,"_",v,".png",sep='')), height=8.5, width=8.5, units = "in", res = Resolution, pointsize = 11)
