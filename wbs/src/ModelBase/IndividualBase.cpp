@@ -270,7 +270,7 @@ namespace WBSF
 		double nbBugsAlive = GetNbSpecimenAlive();
 		if (nbObjectsAlive > 0)
 		{
-			if (nbObjectsAlive < m_nbMinObjects && (nbBugsAlive / nbObjectsAlive) >= 2)
+			if (nbObjectsAlive < m_nbMinObjects && (nbBugsAlive / nbObjectsAlive) >= 2 && m_nbPacked>0)
 			{
 				UnpackPopulation();
 				m_nbPacked--;
