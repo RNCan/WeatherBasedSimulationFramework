@@ -20,8 +20,8 @@ namespace WBSF
 		LFTX_SFC, ALBDO_SFC, APCP_SFC, DLWRF_SFC, DSWRF_SFC, HGT_SFC, ICEC_SFC, LAND_SFC, LHTFL_SFC, NLWRS_SFC, NSWRS_SFC, PRATE_SFC,
 		PRES_SFC, SHOWA_SFC, SHTFL_SFC, SNOD_SFC, SPFH_SFC, TCDC_SFC, TSOIL_SFC, WEAFR_SFC, WEAPE_SFC, WEARN_SFC, WEASN_SFC,
 		WTMP_SFC, GUST_SFC, ICETK_SFC, RH_SFC, SOILVIC_SFC, GUST_MAX_SFC, GUST_MIN_SFC, SDEN_SFC, SFCWRO_SFC, SDWE_SFC, HPBL_SFC, PTYPE_SFC, SKINT_SFC, UTCI_SFC, LAST_SFC,
-		DEN_TGL = LAST_SFC, DEPR_TGL, DPT_TGL, RH_TGL, SPFH_TGL, TMP_TGL, UGRD_TGL, VGRD_TGL, WDIR_TGL, WIND_TGL, GUST_MAX_TGL, GUST_MIN_TGL, GUST_TGL, LAST_TGL,
-		ABSV_ISBL = LAST_TGL, DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, MU_VT_LI_ISBL, SHWINX_ISBL, LAST_ISBL,
+		DEN_AGL = LAST_SFC, DEPR_AGL, DPT_AGL, RH_AGL, SPFH_AGL, TMP_AGL, UGRD_AGL, VGRD_AGL, WDIR_AGL, WIND_AGL, GUST_MAX_AGL, GUST_MIN_AGL, GUST_AGL, LAST_AGL,
+		ABSV_ISBL = LAST_AGL, DEPR_ISBL, HGT_ISBL, RH_ISBL, SPFH_ISBL, TMP_ISBL, UGRD_ISBL, VGRD_ISBL, VVEL_ISBL, WDIR_ISBL, WIND_ISBL, MU_VT_LI_ISBL, SHWINX_ISBL, LAST_ISBL,
 		HGT_ISBY = LAST_ISBL, LAST_ISBY,
 		CAPE_ETAL = LAST_ISBY, HLCY_ETAL, LAST_ETAL,
 		CWAT_EATM = LAST_ETAL, LAST_EATM,
@@ -32,7 +32,7 @@ namespace WBSF
 		NB_HRDPS_VARIABLES = LAST_NTAT
 	};
 
-	enum THRDPSCategory { HRDPS_SFR, HRDPS_TGL, HRDPS_ISBL, HRDPS_ISBY, HRDPS_ETAL, HRDPS_EATM, HRDPS_MSL, HRDPS_DBLY, HRDPS_DBLL, HRDPS_NTAT, NB_HRDPS_CATEGORY };
+	enum THRDPSCategory { HRDPS_SFR, HRDPS_AGL, HRDPS_ISBL, HRDPS_ISBY, HRDPS_ETAL, HRDPS_EATM, HRDPS_MSL, HRDPS_DBLY, HRDPS_DBLL, HRDPS_NTAT, NB_HRDPS_CATEGORY };
 
 	class CHRDPSVariables : public std::bitset<NB_HRDPS_VARIABLES>
 	{
@@ -158,6 +158,9 @@ namespace WBSF
 		ERMsg GetPrcpHourToUpdate(std::set<std::string> date_to_update, std::vector < CPrcpHourToUpdate>& hour_to_update, CCallback& callback)const;
 		ERMsg CreateHourlyPrcp(std::set<std::string> outputPath, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg CreateHourlySRad(std::set<std::string> outputPath, CCallback& callback)const;
+		ERMsg CreateGeoTIFF(const std::string& file_path)const;
+		ERMsg CreateHourlyGeoTIFF_fromVRT(std::map< std::string, StringVector> to_update_map, CCallback& callback);
+		ERMsg CreateHourlyGeoTIFF_fromImage(std::map< std::string, StringVector> to_update_map, CCallback& callback);
 		
 		static CTRef GetTRef(std::string title, bool bAddForecast);
 		static ERMsg Clean(int delete_after, std::string workingDir, CCallback& callback);

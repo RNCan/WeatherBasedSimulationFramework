@@ -50,10 +50,10 @@ namespace WBSF
 		switch (i)
 		{
 		case HRDPS_VARS_SFC: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_SFR); break;
-		case HRDPS_VARS_TGL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_TGL); break;
+		case HRDPS_VARS_AGL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_AGL); break;
 		case HRDPS_VARS_ISBL: str = CHRDPSVariables::GetHRDPSSelectionString(HRDPS_ISBL); break;
 		case HRDPS_VARS_OTHERS: for(size_t c= HRDPS_ISBY; c< NB_HRDPS_CATEGORY; c++)str += CHRDPSVariables::GetHRDPSSelectionString(c); break;
-		case HRDPS_TGL_HEIGHTS: str = "2|10|40|80|120"; break;
+		case HRDPS_AGL_HEIGHTS: str = "2|10|40|80|120"; break;
 		case HRDPS_ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050"; break;
 		};
 		return str;
@@ -67,10 +67,10 @@ namespace WBSF
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "HRDPS\\"; break;
 		case HRDPS_VARS_SFC: str = "APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC|"; break;
-		case HRDPS_VARS_TGL: str = "DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL"; break;
+		case HRDPS_VARS_AGL: str = "DPT_AGL|RH_AGL|TMP_AGL|WDIR_AGL|WIND_AGL"; break;
 		case HRDPS_VARS_ISBL: str = "----"; break;
 		case HRDPS_VARS_OTHERS: str = "----"; break;
-		case HRDPS_TGL_HEIGHTS: str = "2|10"; break;
+		case HRDPS_AGL_HEIGHTS: str = "2|10"; break;
 		case HRDPS_ISBL_LEVELS: str = "1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750"; break;
 		case COMPUTE_HOURLY_PRCP: str = "1"; break;
 		case UPDATE_LAST_N_DAYS:  str = "0"; break;
@@ -104,7 +104,7 @@ namespace WBSF
 		HRDPS.m_bCreateDailyGeotiff = false;//create daily CanUS instead
 
 		CHRDPSVariables sfc (Get(HRDPS_VARS_SFC));
-		CHRDPSVariables tlg (Get(HRDPS_VARS_TGL));
+		CHRDPSVariables alg (Get(HRDPS_VARS_AGL));
 		CHRDPSVariables isbl( Get(HRDPS_VARS_ISBL));
 		CHRDPSVariables others (Get(HRDPS_VARS_OTHERS));
 
@@ -112,8 +112,8 @@ namespace WBSF
 			//sfc.set(APCP_SFC);
 
 
-		HRDPS.m_variables = (sfc| tlg| isbl| others);
-		HRDPS.m_heights = Get(HRDPS_TGL_HEIGHTS);
+		HRDPS.m_variables = (sfc| alg| isbl| others);
+		HRDPS.m_heights = Get(HRDPS_AGL_HEIGHTS);
 		HRDPS.m_levels = Get(HRDPS_ISBL_LEVELS);
 		
 

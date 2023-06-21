@@ -657,10 +657,10 @@ namespace WBSF
 		HRDPS.m_bCreateDailyGeotiff = false;//create daily CanUS instead
 
 
-		if (variable == D_SURFACE)
+		if (dimension == D_SURFACE)
 		{
 			CHRDPSVariables sfc("APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC");
-			CHRDPSVariables tlg("DPT_TGL|RH_TGL|TMP_TGL|WDIR_TGL|WIND_TGL");
+			CHRDPSVariables tlg("DPT_AGL|RH_AGL|TMP_AGL|WDIR_AGL|WIND_AGL");
 
 			HRDPS.m_variables = (sfc | tlg);
 			HRDPS.m_heights.FromString("2|10");
@@ -668,8 +668,8 @@ namespace WBSF
 		else
 		{
 			CHRDPSVariables sfc("APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC");
-			CHRDPSVariables tlg("DPT_TGL|RH_TGL|TMP_TGL");
-			CHRDPSVariables isbl("UGRD_ISBL|VGRD_ISBL|VVEL_ISBL");
+			CHRDPSVariables tlg("DPT_AGL|RH_AGL|TMP_AGL");
+			CHRDPSVariables isbl("TMP_ISBL|UGRD_ISBL|VGRD_ISBL|VVEL_ISBL");
 
 
 			HRDPS.m_variables = (sfc | tlg | isbl);
