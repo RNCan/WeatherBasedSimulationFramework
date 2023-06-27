@@ -733,8 +733,8 @@ namespace WBSF
 		msg += RemoveFile(file_path_vrt);
 
 
-		//verify tha geotif is valid
-		if (!GoodGeotiff(file_path_tif))
+		//verify that geotif is valid
+		if (FileExists(file_path_tif) && !GoodGeotiff(file_path_tif))
 		{
 			msg.ajoute("Invalid hourly file:" + file_path_tif);
 			msg += RemoveFile(file_path_tif);
