@@ -143,7 +143,7 @@ namespace WBSF
 			CWGInput WGInput;
 			msg = parent.GetWGInput(fileManager, WGInput);
 
-			//find daily file apth if any
+			//find daily file path if any
 
 			if (msg && WGInput.UseDaily())
 			{
@@ -344,7 +344,7 @@ namespace WBSF
 				info.m_variables.push_back(CModelOutputVariableDef("DeltaElev", "DeltaElev", "m", "Difference of elevation"));
 				info.m_variables.push_back(CModelOutputVariableDef("DeltaShore", "DeltaShore", "m", "Difference of shore distance"));
 				info.m_variables.push_back(CModelOutputVariableDef("Virtual Distance", "Virtual Distance", "km", "Distance including delta elevation and delta shore"));
-				info.m_variables.push_back(CModelOutputVariableDef("Weight", "Weight", "%", "Theorical Weigth"));
+				info.m_variables.push_back(CModelOutputVariableDef("Weight", "Weight", "%", "Theoretical Weight"));
 			}
 			else if (m_kind == ESTIMATE_ERROR_NORMALS || m_kind == ESTIMATE_ERROR_OBSERVATIONS || m_kind == KERNEL_VALIDATION || m_kind == XVALIDATION_NORMALS || m_kind == XVALIDATION_OBSERVATIONS)
 			{
@@ -692,7 +692,7 @@ namespace WBSF
 		}
 
 		if (WGInput.GetNbYears() < 10)
-			callback.AddMessage("WARNING: nb years lesser thant 10");
+			callback.AddMessage("WARNING: number years lesser than 10");
 
 
 		CStatistic::SetVMiss(VMISS);
@@ -708,8 +708,6 @@ namespace WBSF
 			{
 				size_t l = locPos[ll];
 
-				//for (size_t l = 0; l < locations.size() && msg; l++)
-				//{
 				vector< array < array < CStatisticXY, NB_FIELDS>, 12>> stationStat(WGin.GetNbReplications());
 				for (size_t c = 0; c < NB_CATEGORIES && msg; c++)//for all categories
 				{
@@ -730,7 +728,7 @@ namespace WBSF
 							CNormalsStation obsStation;
 							WG.GetNormalDB()->Get(obsStation, weatherStationsI[0].m_index);
 
-							// init the loc part of WGInput
+							// initialize the location part of WGInput
 							WG.SetTarget(obsStation);
 							msg = WG.Generate(callback);//create data
 
@@ -748,8 +746,6 @@ namespace WBSF
 											for (size_t m = 0; m < 12; m++)
 											{
 												stationStat[r][m][f].Add(simStation[m][f], obsStation[m][f]);
-//#pragma omp critical(SAVE_STATS)
-	//											overallStat[f].Add(simStation[m][f], obsStation[m][f]);
 											}
 										}
 									}
@@ -1138,8 +1134,6 @@ namespace WBSF
 		CStatisticXY overallStat[NORMALS_DATA::NB_FIELDS];
 
 		//limit category to basic variable
-		//CWVariables variables = WGInput.m_variables;
-		//bitset<NB_CATEGORIES> categories = GetCategory(variables);
 		bitset<NB_CATEGORIES> categories = GetCategories(WGInput.m_variables);
 		CWVariables variables = GetCategoryVariables(categories);
 
@@ -1583,7 +1577,7 @@ namespace WBSF
 
 		CWVariables variables = WG.GetWGInput().m_variables;
 
-		callback.PushTask("Getting number of obsevations", locations.size());
+		callback.PushTask("Getting number of observations", locations.size());
 
 		for (size_t l = 0; l < locations.size() && msg; l++)
 		{
@@ -1655,7 +1649,7 @@ namespace WBSF
 			msg = pWeatherDB->Open(DBFilePath, CWeatherDatabase::modeRead, callback, WGInput.m_bSkipVerify);
 			if (msg && !pWeatherDB->GetYears().empty())
 			{
-				callback.PushTask("Completness of obsevations", pWeatherDB->size());
+				callback.PushTask("Completeness of observations", pWeatherDB->size());
 
 				int begin = *pWeatherDB->GetYears().begin();
 				int end = *pWeatherDB->GetYears().rbegin();
@@ -1737,7 +1731,7 @@ namespace WBSF
 		}
 
 
-		//find daily file apth if any
+		//find daily file path if any
 		std::string DFilePath;
 		if (msg && WGInput.UseDaily())
 		{

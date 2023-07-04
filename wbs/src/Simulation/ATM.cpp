@@ -2805,11 +2805,11 @@ namespace WBSF
 
 
 			//moth will live with a default temperature of 17°C when there is no data
-			//but no flight will be sheduled
+			//but no flight will be schedule
 			if (msg)
 			{
-				callback.PushTask("Live and shedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
-				//init all moths : broods and liffoff time. 
+				callback.PushTask("Live and schedule flight for: " + TRef.GetFormatedString() + " (" + ToString(moths.size()) + " moths)", moths.size());
+				//init all moths : broods and liftoff time. 
 
 //#pragma omp parallel for num_threads(m_nb_max_threads)
 				for (__int64 i = 0; i < (__int64)moths.size(); i++)
@@ -2820,12 +2820,12 @@ namespace WBSF
 						//make old
 						moths[i]->live(TRef);
 
-						//brood and shedule flight
+						//brood and schedule flight
 						if (moths[i]->init_new_night(TRef)) 
 						{
 #pragma omp critical
 
-							flyers.push_back(moths[i]);//add moth that have flight sheduled
+							flyers.push_back(moths[i]);//add moth that have flight schedule
 						}
 
 						//report live state

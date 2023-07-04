@@ -199,7 +199,7 @@ namespace WBSF
 		outputVar.clear();
 		ASSERT(NB_ATM_OUTPUT == 35);
 		outputVar.push_back(CModelOutputVariableDef("FlightNo", "FlightNo", "", "Flight numero for this moth", CTM(CTM::ATEMPORAL), 5));
-		outputVar.push_back(CModelOutputVariableDef("Age", "Age", "[0..1]", "Phisiological age", CTM(CTM::ATEMPORAL), 5));
+		outputVar.push_back(CModelOutputVariableDef("Age", "Age", "[0..1]", "Physiological age", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("Sex", "Sex", "m=0|f=1", "Sex of moth", CTM(CTM::ATEMPORAL), 0));
 		outputVar.push_back(CModelOutputVariableDef("A", "A", "cm²", "Forewing surface area", CTM(CTM::ATEMPORAL), 5));
 		outputVar.push_back(CModelOutputVariableDef("M", "M", "g", "Dry weight", CTM(CTM::ATEMPORAL), 5));
