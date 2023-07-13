@@ -1,5 +1,6 @@
 ﻿//***********************************************************
-// 06/03/20202	3.0.1	Rémi Saint-Amant   recompile
+// 12/07/2023	3.0.2	Rémi Saint-Amant   Bug correction of input parameters
+// 06/03/2020	3.0.1	Rémi Saint-Amant   recompile
 // 20/09/2016	1.2.0	Rémi Saint-Amant   WBSF
 //***********************************************************
 #include "ForestTentCaterpillarModel.h"
@@ -28,7 +29,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "3.0.1 (2020)";
+		VERSION = "3.0.2 (2023)";
 	}
 
 	CForestTentCaterpillarModel::~CForestTentCaterpillarModel()
@@ -44,7 +45,7 @@ namespace WBSF
 		int c = 0;
 
 		m_type = parameters[c++].GetInt();
-		m_treeKind = parameters[c++].GetInt();
+		m_treeKind = 0;// parameters[c++].GetInt(); not implemented yet
 		//m_threshold = parameters[c++].GetBool();
 		//m_firsdtDay = parameters[c++].GetBool();
 		//m_sumDD= parameters[c++].GetBool();
@@ -85,7 +86,7 @@ namespace WBSF
 				begin = CTRef(year + 1, FIRST_MONTH, FIRST_DAY);
 				threshold = 2.2;
 				sumDD = 222.2;
-				break;//orginal
+				break;//original
 			case REMI_PARAMETER:
 				begin = CTRef(year, NOVEMBER, DAY_06);
 				threshold = 3.6;
@@ -335,7 +336,7 @@ namespace WBSF
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}
 
-	void CForestTentCaterpillarModel::GetFValueDaily(CStatisticXY& stat)
+	bool CForestTentCaterpillarModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 		CModelStatVector statSim;
@@ -384,6 +385,8 @@ namespace WBSF
 				}
 			}
 		}
+
+		return true;
 	}
 
 }

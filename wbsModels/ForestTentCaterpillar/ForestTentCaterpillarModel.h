@@ -26,7 +26,7 @@ namespace WBSF
 
 		//function for simulated annealing
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueDaily(CStatisticXY& stat)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
 
 
 		static CBioSIMModelBase* CreateObject(){ return new CForestTentCaterpillarModel; }
