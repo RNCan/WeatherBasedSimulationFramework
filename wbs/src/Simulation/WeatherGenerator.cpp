@@ -680,6 +680,10 @@ namespace WBSF
 								if (msg)
 									msg = ComputeSnow(m_simulationPoints[r], m_tgi.m_variables);
 
+								//fill pressure because not integrated yet into the kernel generator
+								if (msg && bPr )
+									msg = ComputePressure(m_simulationPoints[r]);
+
 								if (msg)
 									msg = ComputeWindDirection(m_simulationPoints[r]);
 
