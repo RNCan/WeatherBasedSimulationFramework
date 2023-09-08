@@ -55,14 +55,14 @@ namespace WBSF
 
 		m_scenesSize = SCENES_SIZE;
 		m_indice = I_NBR;
-		m_rings = 0.5;
+		m_rings = 0;
 
 		m_firstYear = 0;
 		m_bDebug = false;
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
 
-		AddOption("-RGB");
+		//AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
 			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 6 by default."},
@@ -75,7 +75,7 @@ namespace WBSF
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Modifier", 1, "modifier", false, "Modifier to assure that disturbance is always positive. Can be 1 or -1. -1 by default for NBR."},
 			{ "-Indice", 1, "indice", false, "Select indice to run model. Indice can be NBR, NDVI, NDMI, NDWI, TCB, TCG, TCW, NBR2, EVI, EVI2, SAVI, MSAVI, SR, CL, HZ, LSWI, VIgreen. NBR by default"  },
-			{ "-Windows", 1, "ring", false, "Compute window mean around the pixel. n is the number of rings. 0 = 1x1, 1 = 3x3, 2 = 5x5 etc. But can also be a float to get the mean between 2 rings. For example 0.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 0.5 by default." },
+			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Debug",  0,"",false,"Output debug information."},
@@ -182,6 +182,13 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-Window"))
 		{
 			m_rings = atof(argv[++i]);
+			if (m_rings < 1)
+			{
+				msg.ajoute(to_string(m_rings) + " is not a valid window radius. Radius must be >= 1.");
+			}
+
+			m_rings -= 1;//convert radius to rings
+
 		}
 		else if (IsEqual(argv[i], "-ValidityMask"))
 		{
@@ -233,7 +240,7 @@ namespace WBSF
 
 
 
-		CBandsHolderMT bandHolder(3, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
+		CBandsHolderMT bandHolder(floor(m_options.m_rings)*2+1, m_options.m_memoryLimit, m_options.m_IOCPU, NB_THREAD_PROCESS);
 
 		if (maskDS.IsOpen())
 			bandHolder.SetMask(maskDS.GetSingleBandHolder(), m_options.m_maskDataUsed);
