@@ -21,7 +21,7 @@ namespace WBSF
 	public:
 
 		enum TDirection { GET_FIRST, GET_LAST, NB_DIRECTIONS };
-		enum TTemperature { TT_TMIN, TT_TMEAN, TT_TMAX/*, TT_TNOON*/, NB_TT_TEMPERATURE };
+		enum TTemperature { TT_TMIN, TT_TMEAN, TT_TMAX, TT_TNOON, NB_TT_TEMPERATURE };
 		
 
 

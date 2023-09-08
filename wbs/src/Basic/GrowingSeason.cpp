@@ -6,6 +6,8 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 24-07-2023	Rémi Saint-Amant	Reintroduce TT_NOON for FWI model
+//									Remove hourly growing season.
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 
@@ -108,7 +110,7 @@ namespace WBSF
 		case TT_TMIN:	T = data[H_TMIN][MEAN]; break;
 		case TT_TMEAN:	T = data[H_TNTX][MEAN]; break;
 		case TT_TMAX:	T = data[H_TMAX][MEAN]; break;
-			//case TT_TNOON:  T = data[12][H_TAIR]; break;
+		case TT_TNOON:  ASSERT(data.IsHourly());  T = data[12][H_TAIR]; break;
 		default: ASSERT(false);
 		}
 		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
@@ -118,6 +120,7 @@ namespace WBSF
 
 	double CGSInfo::GetGST(const CHourlyData& data)const
 	{
+		ASSERT(false); //no more used
 		ASSERT(m_TT >= 0 && m_TT < NB_TT_TEMPERATURE);
 
 		double T = -999;
@@ -128,6 +131,7 @@ namespace WBSF
 		case TT_TMIN:	T = data[H_TMIN]; break;
 		case TT_TMEAN:	T = data[H_TAIR]; break;
 		case TT_TMAX:	T = data[H_TMAX]; break;
+		case TT_TNOON:  T = data[H_TAIR]; break;
 		default: ASSERT(false);
 		}
 		ASSERT(T > -999);//hourly values must be computed for TT_TNOON
@@ -146,7 +150,7 @@ namespace WBSF
 		ASSERT(last_month < 12);
 
 
-		CTPeriod p = weather.GetEntireTPeriod();
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 
 		p.Begin().m_month = first_month;
 		p.Begin().m_day = DAY_01;
@@ -159,7 +163,7 @@ namespace WBSF
 		size_t nb_valid = 0;
 		for (CTRef TRef = p.Begin(); TRef <= p.End() && !firstTRef.IsInit(); TRef++)
 		{
-			if (weather.IsHourly())
+			/*if (weather.IsHourly())
 			{
 				const CHourlyData& wData = weather.GetHour(TRef);
 
@@ -173,7 +177,7 @@ namespace WBSF
 					firstTRef = TRef + shift;
 			}
 			else
-			{
+			{*/
 				const CWeatherDay& wDay = weather.GetDay(TRef);
 				bool bValid = (m_op == '>') ? GetGST(wDay) > m_threshold:GetGST(wDay) < m_threshold;
 				if (bValid)
@@ -183,7 +187,7 @@ namespace WBSF
 
 				if (nb_valid >= m_nbDays)
 					firstTRef = TRef + shift;
-			}
+			//}
 		}
 
 		return firstTRef;
@@ -201,7 +205,7 @@ namespace WBSF
 
 		CTRef lastTRef;
 
-		CTPeriod p = weather.GetEntireTPeriod();
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 
 		p.Begin().m_month = first_month;
 		p.Begin().m_day = DAY_01;
@@ -212,7 +216,7 @@ namespace WBSF
 		size_t nb_valid = 0;
 		for (CTRef TRef = p.End(); TRef >= p.Begin() && !lastTRef.IsInit(); TRef--)
 		{
-			if (weather.IsHourly())
+			/*if (weather.IsHourly())
 			{
 				const CHourlyData& wData = weather.GetHour(TRef);
 
@@ -226,7 +230,7 @@ namespace WBSF
 					lastTRef = TRef + (int)Round(m_nbDays * 24-1) + shift;
 			}
 			else
-			{
+			{*/
 				const CWeatherDay& wDay = weather.GetDay(TRef);
 				bool bValid = (m_op == '>') ? GetGST(wDay) > m_threshold:GetGST(wDay) < m_threshold;
 				if (bValid)
@@ -236,7 +240,7 @@ namespace WBSF
 
 				if (nb_valid >= m_nbDays)
 					lastTRef = TRef + (int)Round(m_nbDays-1) + shift;
-			}
+			//}
 		}
 
 		return lastTRef;
@@ -247,6 +251,13 @@ namespace WBSF
 
 	void CEventPeriod::Execute(const CWeatherStation& weather, CModelStatVector& output)const
 	{
+		if( m_begin.m_TT == CGSInfo::TT_TNOON || m_end.m_TT == CGSInfo::TT_TNOON)
+		{
+			ASSERT(weather.IsHourly());//For TNOON option, weather must be hourly
+		}
+
+
+
 		output.Init(weather.GetEntireTPeriod(CTM(CTM::ANNUAL)), O_GS_NB_OUTPUTS);
 
 		for (size_t y = 0; y < weather.size(); y++)
