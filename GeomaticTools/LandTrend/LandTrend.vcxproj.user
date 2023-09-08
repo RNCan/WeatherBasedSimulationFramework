@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>E:\Landsat\Landsat(LandTrend)\input\Landsat.vrt E:\Landsat\Landsat(LandTrend)\output\out.vrt -VRT -overwrite</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>E:\Landsat\Landsat(LandTrend)\input\Landsat.vrt E:\Landsat\Landsat(LandTrend)\output\out.vrt -VRT -overwrite</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-of VRT -overwrite -co "COMPRESS=LZW"   -te 1787046.9 6773844.0 1787608.9 6774208.5 "E:\Landsat\Landsat(LandTrend)\Input\landsat.vrt" "E:\Landsat\Landsat(LandTrend)\Output\Output.vrt"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-of VRT -overwrite -co "COMPRESS=LZW"   -te 1787046.9 6773844.0 1787608.9 6774208.5 "E:\Landsat\Landsat(LandTrend)\Input\landsat.vrt" "E:\Landsat\Landsat(LandTrend)\Output\Output.vrt"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
