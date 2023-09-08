@@ -1380,7 +1380,7 @@ namespace WBSF
 
 	StringVector::const_iterator FindStringExact(const StringVector& list, const std::string& value, bool bCaseSensitive)
 	{
-		if (bCaseSensitive)
+		if (!bCaseSensitive)
 			return find_if(list.begin(), list.end(), StringComparator(value));
 
 		return find(list.begin(), list.end(), value);
