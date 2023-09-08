@@ -221,12 +221,6 @@
     <ClCompile Include="LandTrendUtil.cpp">
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">None</DebugInformationFormat>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="LandTrendCore.cpp">
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">None</DebugInformationFormat>
     </ClCompile>
@@ -235,7 +229,6 @@
     <ClInclude Include="LandTrend.h" />
     <ClInclude Include="mpfit.h" />
     <ClInclude Include="LandTrendUtil.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="LandTrendCore.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
