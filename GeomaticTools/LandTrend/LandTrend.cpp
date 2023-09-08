@@ -9,20 +9,18 @@
 //"E:\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "E:\Landsat\Landsat(2000-2018)\Output\test2.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -Debug -SpikeThreshold 0.75 -FitMethod 1
 
 
-#include "stdafx.h"
+#include "LandTrend.h"
 #include <math.h>
 #include <array>
 #include <utility>
 #include <iostream>
 
 
-
-#include "LandTrend.h"
 #include "LandTrendUtil.h"
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-//#include "Geomatic/LandsatCloudsCleaner.h"
+
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 

@@ -3,12 +3,11 @@
 //									 
 //***********************************************************************
 
-#include "stdafx.h"
-#include <iostream>
 #include "LandTrend.h"
-//#include <Basic/Timer.h>
-//#include <Basic/UtilSTD.h>
 #include "LandTrendCore.h"
+#include <stdio.h>
+#include <tchar.h>
+#include <iostream>
 
 
 

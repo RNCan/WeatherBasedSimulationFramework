@@ -1,6 +1,10 @@
 //***********************************************************************
 #pragma once
 
+#define NOMINMAX 
+
+#include <SDKDDKVer.h>
+
 //#include "boost\dynamic_bitset.hpp"
 #include <boost\dynamic_bitset.hpp>
 #include <deque>
