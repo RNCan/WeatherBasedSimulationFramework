@@ -355,7 +355,7 @@ namespace WBSF
 			}
 		}
 
-		if (m_options.m_bCreateImage)
+		if (msg&&m_options.m_bCreateImage)
 		{
 			CLandTrendOption options(m_options);
 			//options.m_nbBands = options.max_vertices();
@@ -386,7 +386,7 @@ namespace WBSF
 			msg += outputDS.CreateImage(filePath, options);
 		}
 
-		if (m_options.m_bDebug)
+		if (msg&&m_options.m_bDebug)
 		{
 			CLandTrendOption options(m_options);
 			options.m_nbBands = options.max_vertices() * 2 + 1;
