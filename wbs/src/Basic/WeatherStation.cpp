@@ -6,7 +6,8 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
-// 11-09-2018	Rémi Saint-Amant	Resolve comfusion in unit of vapor pressure.
+// 24-07-2023	Rémi Saint-Amant	in ComputeHourlyTdew, Kr is alway 12 to alway get the same Tdew with or without SRad
+// 11-09-2018	Rémi Saint-Amant	Resolve confusion in unit of vapor pressure.
 //									thread safe correction in GetData() if hourly object
 //									Correction of bug in generation or hourly prcp from daily
 // 22-04-2017	Rémi Saint-Amant	After some test, AllenWave seem to give better result than algo devlopped
@@ -39,9 +40,6 @@ using namespace WBSF::WEATHER;
 using namespace WBSF::GRADIENT;
 
 
-
-//static std::mutex STATISTIC_MUTEX;
-
 enum TAgregation { ACCUMUL_12_00, ACCUMUL_18_00, ACCUMUL_18_18, ACCUMUL_22_22, ACCUMUL_00_00 };
 static const size_t DAILY_AGREGATION = ACCUMUL_00_00;
 
@@ -64,7 +62,7 @@ namespace WBSF
 		if (LAI >= 0)
 		{
 			double Kg = (Rn > 0) ? 0.4 : 1.8;
-			Ghr = Kg * Rn*exp(-0.5*LAI);
+			Ghr = Kg * Rn * exp(-0.5 * LAI);
 		}
 		else
 		{
@@ -138,7 +136,7 @@ namespace WBSF
 		double OH = 0;
 		if (m_overheat != 0 && weather[H_TMIN].IsInit() && weather[H_TMAX].IsInit())
 		{
-			double Fo = 0.5*(1 + cos((double(hourTmax) - h) / 12.0*PI));
+			double Fo = 0.5 * (1 + cos((double(hourTmax) - h) / 12.0 * PI));
 			double maxOverheat = weather[H_TRNG2][MEAN] * m_overheat;
 			OH = maxOverheat * Fo;
 		}
@@ -909,7 +907,7 @@ namespace WBSF
 		case H_VPD:		stat = !WEATHER::IsMissing(at(H_TAIR)) && !WEATHER::IsMissing(at(H_TDEW)) ? max(0.0, eᵒ(at(H_TAIR)) - eᵒ(at(H_TDEW))) : WEATHER::MISSING; break; //[kPa]
 		case H_TNTX:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? at(H_TAIR) : WEATHER::MISSING; break;
 		case H_TRNG2:	stat = !WEATHER::IsMissing(at(H_TAIR)) ? 0 : WEATHER::MISSING; break;
-		case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? at(H_SRAD)*3600.0 / 1000000 : WEATHER::MISSING; break; //[MJ/m²]
+		case H_SRMJ:	stat = !WEATHER::IsMissing(at(H_SRAD)) ? at(H_SRAD) * 3600.0 / 1000000 : WEATHER::MISSING; break; //[MJ/m²]
 		default:ASSERT(false);
 		}
 
@@ -1150,7 +1148,7 @@ namespace WBSF
 		_ASSERTE(!IsMissing(Tmax) && !IsMissing(Tmean));
 
 		static const double TDAYCOEF = 0.45;  // (dim) daylight air temperature coefficient (dim) 
-		return ((Tmax - Tmean)*TDAYCOEF) + Tmean;
+		return ((Tmax - Tmean) * TDAYCOEF) + Tmean;
 	}
 
 	double CWeatherDay::GetTdaylight()const
@@ -1592,7 +1590,7 @@ namespace WBSF
 			size_t nbStep = size_t(24.0 / step);
 			for (size_t s = 0; s < nbStep; s++)
 			{
-				size_t h = size_t(s*step);
+				size_t h = size_t(s * step);
 				double T = overheat.GetT(*this, h, 13);
 				t.push_back((float)T);
 			}
@@ -1628,7 +1626,7 @@ namespace WBSF
 			int nbStep = int(24.0 / step);
 			for (int s = 0; s < nbStep; s++)
 			{
-				int h = int(s*step);
+				int h = int(s * step);
 
 				double Tair = -999;
 				if (D < 3)
@@ -1676,7 +1674,7 @@ namespace WBSF
 				}
 				else
 				{
-					float value = m_dailyStat[v].IsInit()? m_dailyStat[v][MEAN]: -999;
+					float value = m_dailyStat[v].IsInit() ? m_dailyStat[v][MEAN] : -999;
 					write_value(stream, value);
 				}
 			}
@@ -1698,19 +1696,19 @@ namespace WBSF
 				}
 				else
 				{
-					float value= -999;
+					float value = -999;
 					read_value(stream, value);
 					if (value != -999)
 						m_dailyStat[v] = value;
 				}
 
-				
+
 				u++;
 			}
-				
+
 		}
 
-		
+
 	}
 
 
@@ -1808,7 +1806,7 @@ namespace WBSF
 			short nbHourBefor12 = 0;
 			short nbHourAfter12 = 0;
 
-			if (bBefor12&&bAfter12 || !bBefor12 && !bAfter12)
+			if (bBefor12 && bAfter12 || !bBefor12 && !bAfter12)
 			{
 				if (stats[1][SUM] >= 9.6)
 				{
@@ -1858,13 +1856,13 @@ namespace WBSF
 			if (bBefor12 || bAfter12)
 			{
 				for (size_t h = 0; h < nbHourBefor12; h++)
-					me[h][H_PRCP] = (float)int(10.0*(stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+					me[h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
 
 				for (size_t h = nbHourBefor12; h < 12; h++)
 					me[h][H_PRCP] = 0;
 
 				for (size_t h = 0; h < nbHourAfter12; h++)
-					me[23 - h][H_PRCP] = (float)int(10.0*(stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+					me[23 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
 
 				for (size_t h = nbHourAfter12; h < 12; h++)
 					me[23 - h][H_PRCP] = 0;
@@ -1887,13 +1885,13 @@ namespace WBSF
 			else
 			{
 				for (size_t h = 0; h < nbHourBefor12; h++)
-					me[11 - h][H_PRCP] = (float)int(10.0*(stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+					me[11 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
 
 				for (size_t h = nbHourBefor12; h < 12; h++)
 					me[11 - h][H_PRCP] = 0;
 
 				for (size_t h = 0; h < nbHourAfter12; h++)
-					me[12 + h][H_PRCP] = (float)int(10.0*(stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+					me[12 + h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
 
 				for (size_t h = nbHourAfter12; h < 12; h++)
 					me[12 + h][H_PRCP] = 0;
@@ -1942,19 +1940,20 @@ namespace WBSF
 		CStatistic stats[3] = { dp[H_TDEW], me[H_TDEW], dn[H_TDEW] };
 
 		const CWeatherMonth* pMonth = static_cast<CWeatherMonth*>(GetParent());
-		double SRADmean = pMonth->GetStat(H_SRMJ)[MEAN];
-		double Kr = SRADmean > 8.64 ? 6 : 12;
+		//double SRADmean = pMonth->GetStat(H_SRMJ)[MEAN];
+		//double Kr = SRADmean > 8.64 ? 6 : 12;
+		//always used Kr = 12 because SRAD is not always define. For stability
+		static const double Kr = 12;
 
 		for (size_t h = 0; h < 24; h++)
 		{
-
 			//*****************************************************************************************
 			//Tdew
 			double Td1 = h < 12 ? stats[0][MEAN] : stats[1][MEAN];
 			double Td2 = h < 12 ? stats[1][MEAN] : stats[2][MEAN];
 
 			//parameters are estimate from the mean of best Tdew and RH
-			double Tdp = 0.761*sin((h - 1.16)*PI / Kr - 3 * PI / 4);
+			double Tdp = 0.761 * sin((h - 1.16) * PI / Kr - 3 * PI / 4);
 			double moduloTd = double((h + 12) % 24);
 
 			if (!IsMissing(me[h][H_TAIR]))
@@ -1962,11 +1961,6 @@ namespace WBSF
 				double Tdew = min((double)me[h][H_TAIR], Td1 + moduloTd / 24 * (Td2 - Td1) + Tdp);
 				me[h][H_TDEW] = (float)Tdew;
 			}
-
-			//*****************************************************************************************
-			//RH
-			//double RH = Td2Hr(me[h][H_TAIR], me[h][H_TDEW]);
-			//me[h][H_RELH] = (float)RH;
 		}
 
 	}
@@ -2011,8 +2005,8 @@ namespace WBSF
 		double m_a[2] = { -2.20524, 0.35608 };
 		double m_b[2] = { -1.70917, 0.56297 };
 
-		double t = 2 * PI*h / 24;
-		return m_a[n - 1] * cos(n*t) + m_b[n - 1] * sin(n*t);
+		double t = 2 * PI * h / 24;
+		return m_a[n - 1] * cos(n * t) + m_b[n - 1] * sin(n * t);
 
 	}
 
@@ -2093,19 +2087,19 @@ namespace WBSF
 		if (!me[H_SRAD].IsInit())
 			return;
 
-		const CLocation & loc = GetLocation();
+		const CLocation& loc = GetLocation();
 
 		array<CStatistic, 24> hourlySolarAltitude;
 
 
-		double δ = 23.45* (PI / 180) * sin(2 * PI*(284 + GetTRef().GetJDay() + 1) / 365);
+		double δ = 23.45 * (PI / 180) * sin(2 * PI * (284 + GetTRef().GetJDay() + 1) / 365);
 		double ϕ = Deg2Rad(loc.m_lat);
 
 		for (size_t t = 0; t < 3600 * 24; t += 60)
 		{
 			size_t h = size_t(Round(double(t) / 3600.0)) % 24;//take centered on the hour
-			double w = 2 * PI*(double(t) / 3600 - 12) / 24;
-			double solarAltitude = max(0.0, sin(ϕ)*sin(δ) + cos(ϕ)*cos(δ)*cos(w));
+			double w = 2 * PI * (double(t) / 3600 - 12) / 24;
+			double solarAltitude = max(0.0, sin(ϕ) * sin(δ) + cos(ϕ) * cos(δ) * cos(w));
 
 			hourlySolarAltitude[h] += solarAltitude;
 		}
@@ -2392,7 +2386,7 @@ namespace WBSF
 		CWVariablesCounter count = GetVariablesCount();
 		size_t nbRefs = GetNbDays() * (IsHourly() ? 24 : 1);
 
-		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H&&bCompte; v++)
+		for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && bCompte; v++)
 		{
 			assert(count[v].first <= nbRefs);
 			if (variables[v] && count[v].first < nbRefs)
@@ -2518,7 +2512,7 @@ namespace WBSF
 										str[m] += separator;
 
 										CStatistic stat = itD->GetStat(TVarH(format[v].m_var));//Tair and Trng are transformed into Tmin and Tmax
-										
+
 										if (stat.IsInit())
 											str[m] += FormatA(format[v].m_var < H_ADD1 ? "%.1lf" : "%.3lf", stat[format[v].m_stat]);
 										else
@@ -2838,7 +2832,7 @@ namespace WBSF
 
 		return years;
 	}
-	
+
 	CTRef CWeatherYears::GetLastTref(const std::string& filepath)
 	{
 		CTRef TRef;
@@ -2883,7 +2877,7 @@ namespace WBSF
 		if (msg)
 		{
 			msg = SaveData(file, TM, separator);
-			
+
 		}//msg
 
 		return msg;
@@ -2904,7 +2898,7 @@ namespace WBSF
 		CWeatherFormat format(TM, variable);//get default format
 		return SaveData(file, TM, format, separator);
 	}
-	
+
 	ERMsg CWeatherYears::SaveData(ostream& file, CTM TM, const CWeatherFormat& format, char separator)const
 	{
 		ERMsg msg;
@@ -3494,7 +3488,7 @@ namespace WBSF
 							{
 								me[y][m][d][h][v] = copy[y][m][d][h][v];
 								//if H_TMIN or H_TMAX is required, use H_TAIR: RSA 2020/01/31
-								if(IsMissing(me[y][m][d][h][v]) && (v==H_TMIN||v==H_TMAX) )
+								if (IsMissing(me[y][m][d][h][v]) && (v == H_TMIN || v == H_TMAX))
 									me[y][m][d][h][v] = copy[y][m][d][h][H_TAIR];
 							}
 						}
@@ -4135,3 +4129,5 @@ namespace WBSF
 
 
 }//namespace WBSF
+
+
