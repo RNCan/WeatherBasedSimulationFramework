@@ -183,6 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Geomatic\GDALBasic.cpp" />
+    <ClCompile Include="..\src\Geomatic\LandsatDataset2.cpp" />
     <ClCompile Include="..\src\Geomatic\MODISDataset.cpp" />
     <ClCompile Include="..\src\Geomatic\SfcGribsDatabase.cpp" />
     <ClCompile Include="..\src\Geomatic\GridInterpol.cpp" />
@@ -190,7 +191,7 @@
     <ClCompile Include="..\src\Geomatic\ImageParser.cpp" />
     <ClCompile Include="..\src\Geomatic\IWD.cpp" />
     <ClCompile Include="..\src\Geomatic\LandsatCloudsCleaner.cpp" />
-    <ClCompile Include="..\src\Geomatic\LandsatDataset.cpp" />
+    <ClCompile Include="..\src\Geomatic\LandsatDataset1.cpp" />
     <ClCompile Include="..\src\Geomatic\OGRBasic.cpp" />
     <ClCompile Include="..\src\Geomatic\PrePostTransfo.cpp" />
     <ClCompile Include="..\src\Geomatic\Projection.cpp" />
@@ -221,6 +222,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\Geomatic\GDALBasic.h" />
     <ClInclude Include="..\src\Geomatic\GDAL.h" />
+    <ClInclude Include="..\src\Geomatic\LandsatDataset2.h" />
     <ClInclude Include="..\src\Geomatic\MODISDataset.h" />
     <ClInclude Include="..\src\Geomatic\SfcGribsDatabase.h" />
     <ClInclude Include="..\src\Geomatic\GridInterpol.h" />
@@ -228,7 +230,7 @@
     <ClInclude Include="..\src\Geomatic\ImageParser.h" />
     <ClInclude Include="..\src\Geomatic\IWD.h" />
     <ClInclude Include="..\src\Geomatic\LandsatCloudsCleaner.h" />
-    <ClInclude Include="..\src\Geomatic\LandsatDataset.h" />
+    <ClInclude Include="..\src\Geomatic\LandsatDataset1.h" />
     <ClInclude Include="..\src\Geomatic\OGRBasic.h" />
     <ClInclude Include="..\src\Geomatic\PrePostTransfo.h" />
     <ClInclude Include="..\src\Geomatic\Projection.h" />

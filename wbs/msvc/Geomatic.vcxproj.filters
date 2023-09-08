@@ -32,7 +32,7 @@
     <ClCompile Include="..\src\Geomatic\LandsatCloudsCleaner.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Geomatic\LandsatDataset.cpp">
+    <ClCompile Include="..\src\Geomatic\LandsatDataset1.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Geomatic\OGRBasic.cpp">
@@ -101,6 +101,9 @@
     <ClCompile Include="..\src\Geomatic\MODISDataset.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Geomatic\LandsatDataset2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx\stdafx.h">
@@ -124,7 +127,7 @@
     <ClInclude Include="..\src\Geomatic\LandsatCloudsCleaner.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Geomatic\LandsatDataset.h">
+    <ClInclude Include="..\src\Geomatic\LandsatDataset1.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Geomatic\OGRBasic.h">
@@ -200,6 +203,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Geomatic\MODISDataset.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Geomatic\LandsatDataset2.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
