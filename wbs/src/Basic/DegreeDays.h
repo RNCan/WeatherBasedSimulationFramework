@@ -50,12 +50,16 @@ namespace WBSF
 
 
 		//General method
-		void Execute(const CWeatherYears& station, CModelStatVector& output);
-		void Execute(const CWeatherYear& weather, CModelStatVector& output);
-	
+		void Execute(const CWeatherYears& station, CModelStatVector& output)const;
+		void Execute(const CWeatherYear& weather, CModelStatVector& output)const;
+		
+
+
 		double GetDD(const CWeatherDay& in)const;
 		double GetDD(const CWeatherMonth& in, const CTPeriod& p = CTPeriod())const;
 		double GetDD(const CWeatherYear& in, const CTPeriod& p = CTPeriod())const;
+		void GetCDD(size_t To, const CWeatherYears& weather, CModelStatVector& output)const;
+		void GetCDD(size_t To, const CWeatherYear& weather, CModelStatVector& output)const;
 
 
 		//specific method

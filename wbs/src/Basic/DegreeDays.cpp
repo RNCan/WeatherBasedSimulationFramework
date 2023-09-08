@@ -628,7 +628,7 @@ namespace WBSF
 		return ahdd;
 	}
 
-	void CDegreeDays::Execute(const CWeatherYears& weather, CModelStatVector& output)
+	void CDegreeDays::Execute(const CWeatherYears& weather, CModelStatVector& output)const
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);// (TM);
 		output.Init(p, NB_OUTPUT, 0, HEADER);
@@ -639,7 +639,7 @@ namespace WBSF
 			output[TRef][S_DD] = dd;
 		}
 	}
-	void CDegreeDays::Execute(const CWeatherYear& weather, CModelStatVector& output)
+	void CDegreeDays::Execute(const CWeatherYear& weather, CModelStatVector& output)const
 	{
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
 		output.Init(p, NB_OUTPUT, 0, HEADER);
@@ -652,6 +652,33 @@ namespace WBSF
 	}
 
 
+	void CDegreeDays::GetCDD(size_t To, const CWeatherYears& weather, CModelStatVector& output)const
+	{
+		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);// (TM);
+		output.Init(p, NB_OUTPUT, 0, HEADER);
+
+		for (size_t y = 0; y < weather.GetNbYears(); y++)
+		{
+			GetCDD(To, weather[y], output);
+		}
+	}
+
+	void CDegreeDays::GetCDD(size_t To, const CWeatherYear& weather, CModelStatVector& output)const
+	{
+		//CTZZStand* pStand = GetStand();
+		CModelStatVector DD;
+		Execute(weather, DD);
+
+		if(output.empty())
+			output.Init(DD.GetTPeriod(), 1, 0);
+
+		CTPeriod p = weather.GetEntireTPeriod();
+		p.Begin() = p.Begin() + int(To);
+		output[p.Begin()][0] = DD[p.Begin()][CDegreeDays::S_DD];
+
+		for (CTRef TRef = p.Begin() + 1; TRef <= p.End(); TRef++)
+			output[TRef][0] = output[TRef - 1][0] + DD[TRef][CDegreeDays::S_DD];
+	}
 
 	//***********************************************************************************************************************
 	const char CDegreeHours::HEADER[] = "DH";
