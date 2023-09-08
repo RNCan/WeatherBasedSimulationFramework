@@ -4,8 +4,8 @@
 //***********************************************************************
 // version
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
-// 1.1.4	29/06/2018 Rémi Saint-Amant		Add -Rename
-// 1.1.3	29/06/2018 Rémi Saint-Amant		Add -Virtual
+// 1.1.4	29/06/2018  Rémi Saint-Amant	Add -Rename
+// 1.1.3	29/06/2018  Rémi Saint-Amant	Add -Virtual
 // 1.1.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.1.1	15/11/2017	Rémi Saint-Amant	remove multi-thread : bad performance
 // 1.1.0	02/11/2017	Rémi Saint-Amant	Compile with GDAL 2.02
@@ -27,12 +27,14 @@
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
-#include "Geomatic/LandsatCloudsCleaner.h"
+
+//#include "Geomatic/LandsatCloudsCleaner.h"
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat2;
+
 
 namespace WBSF
 {
@@ -163,7 +165,7 @@ namespace WBSF
 		GDALAllRegister();
 
 		CLandsatDataset inputDS;
-		CLandsatCloudCleaner cloudsCleaner;
+		//CLandsatCloudCleaner cloudsCleaner;
 		CBandsHolderMT bandHolder(1, m_options.m_memoryLimit, m_options.m_IOCPU, m_options.m_BLOCK_THREADS);
 		CGDALDatasetEx maskDS;
 		vector<CGDALDatasetEx> outputDS;
@@ -387,7 +389,7 @@ namespace WBSF
 				//string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
 				//if (subName.empty())
 					//subName = FormatA("%02d", z+1);
-				string subName = inputDS.GetSubname(z, m_options.m_rename);
+				/*string subName = inputDS.GetSubname(z, m_options.m_rename);
 
 				string uniqueSubName = subName;
 				size_t i = 1;
@@ -397,7 +399,10 @@ namespace WBSF
 				subnames.insert(uniqueSubName);
 
 
-				filePath = path + GetFileTitle(filePath) + "_" + uniqueSubName + "_RGB.tif";
+				filePath = path + GetFileTitle(filePath) + "_" + uniqueSubName + "_RGB.tif";*/
+
+				string subName = inputDS.GetSubname(z);
+				filePath = path + GetFileTitle(filePath) + "_" + subName + "_RGB.tif"; 
 
 				msg += outputDS[zz].CreateImage(filePath, options);
 			}

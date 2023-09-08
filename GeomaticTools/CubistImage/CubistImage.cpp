@@ -28,7 +28,7 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
@@ -37,7 +37,7 @@
 #include "Cubistdefns.h"
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 extern CaseNo		MaxCase;
 extern String		FileStem;

@@ -30,7 +30,7 @@
 
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -141,7 +141,7 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
-			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			m_corr8 = Landsat1::GetCorr8(argv[++i]);
 			if (m_corr8 == NO_CORR8)
 				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}

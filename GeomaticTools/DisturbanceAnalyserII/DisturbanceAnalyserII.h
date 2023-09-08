@@ -3,7 +3,7 @@
 #include <bitset>
 #include "Basic/UtilTime.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 namespace WBSF
 {
@@ -38,9 +38,9 @@ namespace WBSF
 		virtual ERMsg ParseOption(int argc, char* argv[]);
 		virtual ERMsg ProcessOption(int& i, int argc, char* argv[]);
 
-		CIndiciesVector m_despike;
+		Landsat1::CIndiciesVector m_despike;
 
-		Landsat::TIndices m_indice;
+		Landsat1::TIndices m_indice;
 		std::array<size_t, 2> m_scenes;
 
 		size_t m_rings;
@@ -68,7 +68,7 @@ namespace WBSF
 		typedef std::array<CSee5Tree&, NB_MODELS> CSee5Trees;
 		std::string GetDescription() { return  std::string("DisturbanceAnalyserII version ") + VERSION + " (" + __DATE__ + ")"; }
 
-		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& segmentsDS, CGDALDatasetEx& breaksDS);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& segmentsDS, CGDALDatasetEx& breaksDS);
 
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
 		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CSee5TreeMT& DT123, CSee5TreeMT& DT12, OutputData& outputData, SegmentData& segmentsData, BreakData& breaksData);

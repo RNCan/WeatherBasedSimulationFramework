@@ -27,7 +27,7 @@
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/See5hooks.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
@@ -35,7 +35,7 @@
 
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 
 

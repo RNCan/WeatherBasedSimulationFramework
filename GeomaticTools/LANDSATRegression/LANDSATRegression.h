@@ -12,7 +12,7 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 namespace WBSF
@@ -32,7 +32,7 @@ namespace WBSF
 
 
 
-		CIndiciesVector m_despike;
+		Landsat1::CIndiciesVector m_despike;
 
 		double m_RFactor;
 		std::string m_beginFilePath;

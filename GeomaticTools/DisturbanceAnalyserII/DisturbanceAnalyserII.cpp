@@ -30,7 +30,7 @@
 #include "gdal_priv.h"
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -45,7 +45,7 @@ namespace WBSF
 	CDisturbanceAnalyserIIOption::CDisturbanceAnalyserIIOption()
 	{
 		m_outputType = GDT_Int16;
-		m_indice = Landsat::I_NBR;
+		m_indice = Landsat1::I_NBR;
 		m_scenesSize = SCENES_SIZE;
 		m_scenes = { { NOT_INIT, NOT_INIT } };
 		m_rings = 0;
@@ -134,7 +134,7 @@ namespace WBSF
 
 
 
-		Landsat::INDICES_FACTOR(m_iFactor);
+		Landsat1::INDICES_FACTOR(m_iFactor);
 
 		return msg;
 	}
@@ -260,7 +260,7 @@ namespace WBSF
 			cout << "Output:  " << m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH] << endl;
 			cout << "From:    " << m_options.m_filesPath[CDisturbanceAnalyserIIOption::INPUT_FILE_PATH] << endl;
 			cout << "Model:   " << m_options.m_filesPath[CDisturbanceAnalyserIIOption::MODEL_FILE_PATH] << endl;
-			cout << "Indices: " << Landsat::GetIndiceName(m_options.m_indice) << endl;
+			cout << "Indices: " << Landsat1::GetIndiceName(m_options.m_indice) << endl;
 
 			if (!m_options.m_maskName.empty())
 				cout << "Mask:   " << m_options.m_maskName << endl;
@@ -954,8 +954,8 @@ namespace WBSF
 	//			{
 	//				string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
 	//				std::string filePath = m_options.m_filesPath[CDisturbanceAnalyserIIOption::OUTPUT_FILE_PATH];
-	//				filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat::GetIndiceName(i) + ".vrt";
-	//				msg += inputDS.CreateIndices(z, filePath, (Landsat::TIndices)i);
+	//				filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat1::GetIndiceName(i) + ".vrt";
+	//				msg += inputDS.CreateIndices(z, filePath, (Landsat1::TIndices)i);
 
 	//				//Input : le vrt de nos 30 ans Landsat + le dd5, DEM, slope.Le Seuil du despike(ex. 0.75) et le seuil de tolérance(ex. 0.1)
 	//				//En output : une couche de dNBR par années avec du No Data supprimé par le despike. .

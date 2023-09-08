@@ -65,7 +65,7 @@
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/See5hooks.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 #pragma warning(disable: 4275 4251)
@@ -74,7 +74,7 @@
 
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
  
 
@@ -294,7 +294,7 @@ public:
 		//for (__int64 z = first_image; z <= last_image; z++)
 		//{
 		//	bool bValid = (z >= 0 && z<(__int64)size()) && at(z).IsValid() && at(z).IsInit();
-		//	for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+		//	for (size_t j = 0; j < Landsat1::SCENES_SIZE; j++)
 		//		CVal(block, c++) = (ContValue)(bValid ? at(z).at(j) : NO_IMAGE_NO_DATA);
 		//	
 		//}//for
@@ -331,7 +331,7 @@ public:
 				bool bValid = at(z).IsValid() && !IsSpiking(z);
 				if (bValid)
 				{
-					for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+					for (size_t j = 0; j < Landsat1::SCENES_SIZE; j++)
 						CVal(block, c++) = (ContValue)(at(z).at(j));
 				}
 				else
@@ -343,7 +343,7 @@ public:
 			}
 			else
 			{
-				for (size_t j = 0; j < Landsat::SCENES_SIZE; j++)
+				for (size_t j = 0; j < Landsat1::SCENES_SIZE; j++)
 					CVal(block, c++) = (ContValue)(NO_IMAGE_NO_DATA);
 			}
 		}//for
@@ -731,7 +731,7 @@ ERMsg CDisterbanceAnalyser::OpenAll(CGDALDatasetEx& landsatDS, CGDALDatasetEx& p
 			{
 				
 				for (size_t b = 0; b < SCENES_SIZE; b++)
-					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + Landsat::GetBandName(b) + ".tif|";
+					options.m_VRTBandsName += GetFileTitle(exportPath) + string("_T") + FormatA("%+d", s - 2) + string("_") + Landsat1::GetBandName(b) + ".tif|";
 			}
 
 			msg += exportBandsDS[i].CreateImage(exportPath, options);

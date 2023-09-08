@@ -2,7 +2,7 @@
 
 #include "Basic/UtilTime.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 namespace WBSF
 {
@@ -36,7 +36,7 @@ namespace WBSF
 		std::array<int, 2> m_bust;
 		bool m_bVirtual;
 
-		std::vector<CBandStats> m_stats;
+		std::vector<Landsat1::CBandStats> m_stats;
 	};
 
 

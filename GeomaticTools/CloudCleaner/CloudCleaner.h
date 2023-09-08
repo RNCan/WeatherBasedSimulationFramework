@@ -2,7 +2,7 @@
 
 
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 #include "boost/dynamic_bitset.hpp"
 #include "RangerLib/RangerLib.h"
 
@@ -10,7 +10,7 @@
 namespace WBSF
 {
 	enum TSuspicious { CLOUDS, SHADOW, NB_SUSPICIOUS };
-	typedef std::vector<CLandsatPixel>CLandsatPixelVector;
+	typedef std::vector<Landsat1::CLandsatPixel>CLandsatPixelVector;
 	typedef std::deque< std::vector<__int16>> DebugData;
 	typedef std::deque< std::vector<__int16>> RFCodeData;
 	typedef std::vector< CLandsatPixelVector > LansatData;
@@ -39,7 +39,7 @@ namespace WBSF
 		virtual ERMsg ProcessOption(int& i, int argc, char* argv[]);
 
 
-		bool IsB1Trigged(std::array <CLandsatPixel, 4>& p, size_t t, size_t fm)
+		bool IsB1Trigged(std::array <Landsat1::CLandsatPixel, 4>& p, size_t t, size_t fm)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
@@ -50,17 +50,17 @@ namespace WBSF
 			if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 				return false;
 
-			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
-			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
-			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat::B1] - p[fm][Landsat::B1] < m_B1threshold[t]) : true;
+			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat1::B1] - p[fm][Landsat1::B1] < m_B1threshold[t]) : true;
+			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat1::B1] - p[fm][Landsat1::B1] < m_B1threshold[t]) : true;
+			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat1::B1] - p[fm][Landsat1::B1] < m_B1threshold[t]) : true;
 
 			bool t4 = false;
 			bool t5 = false;
 
 			if (p[3].IsInit())
 			{
-				t4 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::B1] - p[3][Landsat::B1] < m_B1threshold[t]) : true;
-				t5 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::B1] - p[3][Landsat::B1] < m_B1threshold[t]) : true;
+				t4 = p[c0].IsInit() ? ((__int32)p[c0][Landsat1::B1] - p[3][Landsat1::B1] < m_B1threshold[t]) : true;
+				t5 = p[c2].IsInit() ? ((__int32)p[c2][Landsat1::B1] - p[3][Landsat1::B1] < m_B1threshold[t]) : true;
 			}
 
 			bool t6 = (t1 && t2) != (t4 && t5);
@@ -73,7 +73,7 @@ namespace WBSF
 
 
 
-		bool IsTCBTrigged(std::array <CLandsatPixel, 4>& p, size_t t, size_t fm)
+		bool IsTCBTrigged(std::array <Landsat1::CLandsatPixel, 4>& p, size_t t, size_t fm)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
@@ -84,18 +84,18 @@ namespace WBSF
 			if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 				return false;
 
-			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat::I_TCB] - p[fm][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-			//bool t4 = (p[3].IsInit() && t == T_PRIMARY )? ((__int32)p[fm][Landsat::I_TCB] < m_TCBthreshold[2]) : false;
+			bool t1 = p[c0].IsInit() ? ((__int32)p[c0][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
+			bool t2 = p[c2].IsInit() ? ((__int32)p[c2][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
+			bool t3 = p[3].IsInit() ? ((__int32)p[3][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
+			//bool t4 = (p[3].IsInit() && t == T_PRIMARY )? ((__int32)p[fm][Landsat1::I_TCB] < m_TCBthreshold[2]) : false;
 
 			bool t4 = false;
 			bool t5 = false;
 
 			if (p[3].IsInit())
 			{
-				t4 = p[c0].IsInit() ? ((__int32)p[c0][Landsat::I_TCB] - p[3][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-				t5 = p[c2].IsInit() ? ((__int32)p[c2][Landsat::I_TCB] - p[3][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
+				t4 = p[c0].IsInit() ? ((__int32)p[c0][Landsat1::I_TCB] - p[3][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
+				t5 = p[c2].IsInit() ? ((__int32)p[c2][Landsat1::I_TCB] - p[3][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
 			}
 
 			bool t6 = (t1 && t2) != (t4 && t5);
@@ -106,7 +106,7 @@ namespace WBSF
 		}
 
 
-		bool DoubleCloud(std::array <CLandsatPixel, 4>& p, size_t t, size_t fm)
+		bool DoubleCloud(std::array <Landsat1::CLandsatPixel, 4>& p, size_t t, size_t fm)
 		{
 			return false;
 
@@ -120,45 +120,45 @@ namespace WBSF
 			if (!p[c0].IsInit() || !p[c2].IsInit())
 				return false;
 
-			bool t1 = p[c0].IsInit() ? ((__int32)p[3][Landsat::B1] - p[c0][Landsat::B1] < m_B1threshold[t]) : true;
-			bool t2 = p[c2].IsInit() ? ((__int32)p[3][Landsat::B1] - p[c2][Landsat::B1] < m_B1threshold[t]) : true;
+			bool t1 = p[c0].IsInit() ? ((__int32)p[3][Landsat1::B1] - p[c0][Landsat1::B1] < m_B1threshold[t]) : true;
+			bool t2 = p[c2].IsInit() ? ((__int32)p[3][Landsat1::B1] - p[c2][Landsat1::B1] < m_B1threshold[t]) : true;
 
-			bool t3 = p[c0].IsInit() ? ((__int32)p[3][Landsat::I_TCB] - p[c0][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
-			bool t4 = p[c2].IsInit() ? ((__int32)p[3][Landsat::I_TCB] - p[c2][Landsat::I_TCB] > m_TCBthreshold[t]) : true;
+			bool t3 = p[c0].IsInit() ? ((__int32)p[3][Landsat1::I_TCB] - p[c0][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
+			bool t4 = p[c2].IsInit() ? ((__int32)p[3][Landsat1::I_TCB] - p[c2][Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
 
 			return (t1 && t2) || (t3 && t4);
 		}
 
-		bool IsB1TriggedRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r, size_t t = T_PRIMARY)
+		bool IsB1TriggedRef(const Landsat1::CLandsatPixel& p, std::vector <Landsat1::CLandsatPixel>& r, size_t t = T_PRIMARY)
 		{
 			if (!p.IsInit())
 				return false;
 
 			bool t3 = false;
 			for (size_t i = 0; i < r.size(); i++)
-				t3 |= r[i].IsInit() ? ((__int32)r[i][Landsat::B1] - p[Landsat::B1] < m_B1threshold[t]) : true;
+				t3 |= r[i].IsInit() ? ((__int32)r[i][Landsat1::B1] - p[Landsat1::B1] < m_B1threshold[t]) : true;
 
 			return t3;
 		}
 
-		bool IsTCBTriggedRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r, size_t t = T_PRIMARY)
+		bool IsTCBTriggedRef(const Landsat1::CLandsatPixel& p, std::vector <Landsat1::CLandsatPixel>& r, size_t t = T_PRIMARY)
 		{
 			if (!p.IsInit())
 				return false;
 
 			bool t3 = false;
 			for (size_t i = 0; i < r.size(); i++)
-				t3 |= r[i].IsInit() ? ((__int32)r[i][Landsat::I_TCB] - p[Landsat::I_TCB] > m_TCBthreshold[t]) : true;
+				t3 |= r[i].IsInit() ? ((__int32)r[i][Landsat1::I_TCB] - p[Landsat1::I_TCB] > m_TCBthreshold[t]) : true;
 
 			return t3;
 		}
 		
-		__int32 GetB1Trigger(std::array <CLandsatPixel, 4>& p, size_t fm);
-		__int32 GetTCBTrigger(std::array <CLandsatPixel, 4>& p, size_t fm);
+		__int32 GetB1Trigger(std::array <Landsat1::CLandsatPixel, 4>& p, size_t fm);
+		__int32 GetTCBTrigger(std::array <Landsat1::CLandsatPixel, 4>& p, size_t fm);
 		//__int32 GetB1TriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
 		//__int32 GetTCBTriggerRef(const CLandsatPixel& p, std::vector <CLandsatPixel>& r);
 
-		int GetDebugFlag(std::array <CLandsatPixel, 4>& p, size_t t = T_PRIMARY, size_t fm = 1)
+		int GetDebugFlag(std::array <Landsat1::CLandsatPixel, 4>& p, size_t t = T_PRIMARY, size_t fm = 1)
 		{
 			size_t c0 = (fm == 0) ? 1 : 0;
 			size_t c2 = (fm == 2) ? 1 : 2;
@@ -209,15 +209,15 @@ namespace WBSF
 		static size_t GetPrevious(const CLandsatPixelVector& landsat, size_t z);
 		static size_t GetNext(const CLandsatPixelVector& landsat, size_t z);
 		static size_t get_m(size_t z1, const CLandsatPixelVector& data);
-		static std::array <CLandsatPixel, 4> GetP(size_t z1, CLandsatPixelVector& data, const CLandsatPixel& median);
-		static std::vector <CLandsatPixel> GetR(CLandsatWindow& windowRef, size_t x, size_t y);
+		static std::array <Landsat1::CLandsatPixel, 4> GetP(size_t z1, CLandsatPixelVector& data, const Landsat1::CLandsatPixel& median);
+		static std::vector <Landsat1::CLandsatPixel> GetR(Landsat1::CLandsatWindow& windowRef, size_t x, size_t y);
 
 
 		std::string GetDescription();
 		ERMsg Execute();
 
 
-		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& medianDS, CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS/*, CGDALDatasetEx& JDDS*/);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& medianDS, Landsat1::CLandsatDataset& outputDS, CGDALDatasetEx& DTCodeDS, CGDALDatasetEx& debugDS/*, CGDALDatasetEx& JDDS*/);
 		void ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder);
 		void ReadBlockM(size_t xBlock, size_t yBlock, CBandsHolder& bandHolderM);
 		void FindSuspicious(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const CBandsHolder& bandHolderM, SuspectBitset& suspects1, SuspectBitset& suspects2);

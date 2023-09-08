@@ -28,7 +28,7 @@ using namespace WBSF;
 //
 //		string title = WBSF::GetFileTitle(new_file_path);
 //		size_t pos = title.find_last_of("_");
-//		title = title.substr(0, pos) + "_" + Landsat::GetSceneName(i % 9);
+//		title = title.substr(0, pos) + "_" + Landsat1::GetSceneName(i % 9);
 //		WBSF::SetFileTitle(new_file_path, title);
 //		
 //		ASSERT(WBSF::FileExists(old_file_path));
@@ -48,7 +48,7 @@ using namespace WBSF;
 //
 //		string title = WBSF::GetFileTitle(new_file_path);
 //		size_t pos = title.find_last_of("_");
-//		title = title.substr(0, pos) + "_" + Landsat::GetSceneName(i%9);
+//		title = title.substr(0, pos) + "_" + Landsat1::GetSceneName(i%9);
 //		WBSF::SetFileTitle(new_file_path, title);
 //
 //		ASSERT(WBSF::FileExists(old_file_path));
@@ -68,7 +68,7 @@ using namespace WBSF;
 //
 //		string title = WBSF::GetFileTitle(new_file_path);
 //		size_t pos = title.find_last_of("_");
-//		title = title.substr(0, pos) + "_" + Landsat::GetSceneName(i % 9);
+//		title = title.substr(0, pos) + "_" + Landsat1::GetSceneName(i % 9);
 //		WBSF::SetFileTitle(new_file_path, title);
 //
 //		ASSERT(WBSF::FileExists(old_file_path));
@@ -88,7 +88,7 @@ using namespace WBSF;
 //		for (size_t i = 0; i < 9; i++)
 //			for (size_t y = 0; y < 3; y++)
 //			{
-//				StringVector list2 = WBSF::GetFilesList(string("D:\\Travaux\\MergeImage\\input\\" + to_string(2015 + y) + "\\*_") + Landsat::GetSceneName(i) + ".tif");
+//				StringVector list2 = WBSF::GetFilesList(string("D:\\Travaux\\MergeImage\\input\\" + to_string(2015 + y) + "\\*_") + Landsat1::GetSceneName(i) + ".tif");
 //				list[i].insert(list[i].end(), list2.begin(), list2.end());
 //			}
 //				

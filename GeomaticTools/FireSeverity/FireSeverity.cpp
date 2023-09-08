@@ -27,7 +27,7 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 
@@ -43,7 +43,7 @@
 
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 static const char* version = "1.1.0";
 
@@ -56,7 +56,7 @@ std::string CFireSeverity::GetDescription()
 CFireSeverityOption::CFireSeverityOption()
 {
 	m_outputType = GDT_Int16;
-	m_scenesSize = Landsat::SCENES_SIZE;
+	m_scenesSize = Landsat1::SCENES_SIZE;
 	m_scenesLoaded = { NOT_INIT ,NOT_INIT };
 	m_scenesTreated = { NOT_INIT ,NOT_INIT };
 	m_buffer = 8;

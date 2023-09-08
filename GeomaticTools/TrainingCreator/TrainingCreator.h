@@ -1,6 +1,6 @@
 //***********************************************************************
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 #include <boost\dynamic_bitset.hpp>
 
 namespace WBSF
@@ -36,7 +36,7 @@ namespace WBSF
 
 		int GetNbPixels()const { return m_nbPixels[0] + m_nbPixels[1] + 1 + (m_bAddMedian?1:0); }
 
-		size_t nbBandExport()const { return m_bExportAllBand ? Landsat::SCENES_SIZE : Landsat::QA; }
+		size_t nbBandExport()const { return m_bExportAllBand ? Landsat1::SCENES_SIZE : Landsat1::QA; }
 	};
 
 
@@ -56,11 +56,11 @@ namespace WBSF
 		std::string GetDescription(){ return  std::string("TrainingCreator version ") + VERSION + " (" + __DATE__ + ")"; }
 		ERMsg Execute();
 
-		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& refDS, CGeoCoordTimeFile& iFile, CGeoCoordTimeFile& oFile);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, Landsat1::CLandsatDataset& refDS, CGeoCoordTimeFile& iFile, CGeoCoordTimeFile& oFile);
 		static bool AtLeastOnePointIn(const CGeoExtents& blockExtents, const CGeoCoordTimeFile& inputFile);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CBandsHolder& bandHolderRef);
 		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CBandsHolder& bandHolderRef, CGeoCoordTimeFile& iFile, CGeoCoordTimeFile& oFile, boost::dynamic_bitset<size_t>& treated);
-		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& refDS);
+		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, Landsat1::CLandsatDataset& refDS);
 
 		CTrainingCreatorOption m_options;
 

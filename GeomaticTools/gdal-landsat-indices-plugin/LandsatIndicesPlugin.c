@@ -47,7 +47,7 @@ void GDALRegister_LandsatIndices(void)
     const char PLUGINNAME[]="LandsatIndices";
 
     if (! GDAL_CHECK_VERSION(PLUGINNAME))
-        return;
+        return; 
 
 	GDALRegisterLandsatIndices();
     CPLDebug("LandsatIndices", "Plugin %s %s", PLUGINNAME, "$Revision: $");

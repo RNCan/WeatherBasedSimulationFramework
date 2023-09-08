@@ -4,7 +4,7 @@
 #include "Basic/UtilTime.h"
 //#include "Basic/Mtrx.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 namespace WBSF
@@ -32,8 +32,8 @@ namespace WBSF
 		//double m_TCBthreshold[2];
 		
 		
-		void InitFileInfo(CLandsatDataset& inputDS);
-		std::vector<CLandsatFileInfo> m_info;
+		void InitFileInfo(Landsat1::CLandsatDataset& inputDS);
+		std::vector<Landsat1::CLandsatFileInfo> m_info;
 
 		//static const char* DEBUG_NAME[NB_DEBUG_BANDS];
 	};
@@ -52,7 +52,7 @@ namespace WBSF
 
 		std::string GetDescription();
 
-		ERMsg OpenAll(CGDALDatasetEx& breaksDS, CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS);
+		ERMsg OpenAll(CGDALDatasetEx& breaksDS, Landsat1::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, Landsat1::CLandsatDataset& outputDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder1, CBandsHolder& bandHolder2);
 		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder1, CBandsHolder& bandHolder2, OutputData& outputData);
 		void WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData);

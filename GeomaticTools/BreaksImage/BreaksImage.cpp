@@ -30,7 +30,7 @@
 
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -285,7 +285,7 @@ namespace WBSF
 			{
 				for (size_t z = 0; z < inputDS.GetSceneSize(); z++)
 				{
-					options.m_VRTBandsName += title + "_brk" + FormatA("%02d", i+1) + "_" + Landsat::GetBandName(z) + ".tif|";
+					options.m_VRTBandsName += title + "_brk" + FormatA("%02d", i+1) + "_" + Landsat1::GetBandName(z) + ".tif|";
 				}
 			}
 

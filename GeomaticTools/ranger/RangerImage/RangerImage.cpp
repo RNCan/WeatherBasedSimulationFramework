@@ -26,7 +26,7 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 #include "RangerLib/RangerLib.h"
 
@@ -37,7 +37,7 @@
 
 using namespace std;
 using namespace WBSF;
-//using namespace WBSF::Landsat;
+//using namespace WBSF::Landsat1;
 
  //exemple_train_remi.regression.forest
 //-seed 1234 -co COMPRESS=LZW -stats -overwrite -multi -IOCPU 3 "D:\Travaux\Ranger\Training\exemple_train_remi.regression.forest" "D:\Travaux\Ranger\Input\L8_006028_20150717_ext.vrt" "D:\Travaux\Ranger\Output\test.tif"

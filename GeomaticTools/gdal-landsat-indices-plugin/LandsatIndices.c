@@ -90,7 +90,7 @@ CPLErr NBR(void **papoSources, int nSources, void *pData,
 	// ---- Return success ----
 	return CE_None;
 }
-
+ 
 CPLErr NBR2(void **papoSources, int nSources, void *pData,
 	int nXSize, int nYSize,
 	GDALDataType eSrcType, GDALDataType eBufType,

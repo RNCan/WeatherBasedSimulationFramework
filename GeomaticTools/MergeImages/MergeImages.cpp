@@ -77,7 +77,7 @@
 #include "gdal_priv.h"
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -179,7 +179,7 @@ namespace WBSF
 			m_outputType = GDT_Int16;
 
 		//set global factor indices 
-		Landsat::INDICES_FACTOR(m_iFactor);
+		Landsat1::INDICES_FACTOR(m_iFactor);
 
 		return msg;
 	}
@@ -224,7 +224,7 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
-			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			m_corr8 = Landsat1::GetCorr8(argv[++i]);
 			if (m_corr8 == NO_CORR8)
 				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
@@ -267,7 +267,7 @@ namespace WBSF
 
 
 		if (b < SCENES_SIZE)
-			str += string("_") + Landsat::GetBandName(b);
+			str += string("_") + Landsat1::GetBandName(b);
 
 		return str;
 	}

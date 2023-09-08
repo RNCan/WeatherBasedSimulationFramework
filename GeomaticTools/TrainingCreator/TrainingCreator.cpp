@@ -39,7 +39,7 @@
 
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 
 namespace WBSF
@@ -581,7 +581,7 @@ namespace WBSF
 				{
 					for (size_t j = 0; j < m_options.nbBandExport(); j++)
 					{
-						string title = "t" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
+						string title = "t" + std::to_string(i + 1) + "_" + Landsat1::GetBandName(j);
 
 					//	if (!inputDS.GetInternalName((int)i).empty())
 							//title = GetFileTitle(inputDS.GetInternalName((int)i));
@@ -597,7 +597,7 @@ namespace WBSF
 					{
 						for (size_t j = 0; j < m_options.nbBandExport(); j++)
 						{
-							string title = "r" + std::to_string(i + 1) + "_" + Landsat::GetBandName(j);
+							string title = "r" + std::to_string(i + 1) + "_" + Landsat1::GetBandName(j);
 
 							//if (!inputDS.GetInternalName((int)i).empty())
 								//title = GetFileTitle(inputDS.GetInternalName((int)i));

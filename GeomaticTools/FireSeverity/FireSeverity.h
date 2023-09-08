@@ -2,7 +2,7 @@
 
 
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 #include "boost/dynamic_bitset.hpp"
 #include "RangerLib/RangerLib.h"
 
@@ -18,7 +18,7 @@ namespace WBSF
 	typedef std::deque< std::array< std::vector<__int16>, NB_OUTPUTS>> OutputData;
 	typedef std::deque< std::array< std::vector<__int16>, NB_DEBUGS>> DebugData;
 	
-	typedef std::vector< CLandsatPixelVector > LansatData;
+	typedef std::vector< Landsat1::CLandsatPixelVector > LansatData;
 	typedef std::vector < std::map<std::pair<__int16, __int16>, CStatistic>> BufferStat;
 	typedef std::vector < std::pair<std::array<size_t, NB_FB_TYPE1>, std::array<boost::dynamic_bitset<size_t>, NB_FB_TYPE2>>> FireBitset;
 	
@@ -56,8 +56,8 @@ namespace WBSF
 		ERMsg Execute();
 
 		
-		ERMsg OpenAll(CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
-		ERMsg LoadFires(CLandsatDataset& lansatDS, CGDALDatasetEx& fireDS, FireBitset& fires, std::vector <bool>& bHaveFire);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& lansatDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& fireDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
+		ERMsg LoadFires(Landsat1::CLandsatDataset& lansatDS, CGDALDatasetEx& fireDS, FireBitset& fires, std::vector <bool>& bHaveFire);
 		void ReadBlock(size_t xBlock, size_t yBlock, CBandsHolder& bandHolder);
 		void ComputeBufferStat(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const FireBitset& fires, BufferStat& bufferStat);
 		void ProcessBlock(size_t xBlock, size_t yBlock, const CBandsHolder& bandHolder, const FireBitset& fire, const BufferStat& bufferStat, OutputData& output, DebugData& debug);
@@ -67,16 +67,16 @@ namespace WBSF
 		
 		CFireSeverityOption m_options;
 		
-		static size_t GetPrevious(size_t z, size_t x, size_t y, const CLandsatWindow& window);
-		static size_t GetNext(size_t z, size_t x, size_t y, const CLandsatWindow& window);
+		static size_t GetPrevious(size_t z, size_t x, size_t y, const Landsat1::CLandsatWindow& window);
+		static size_t GetNext(size_t z, size_t x, size_t y, const Landsat1::CLandsatWindow& window);
 		
 		static std::string GetScenesDateFormat(const std::vector<CTPeriod>& p);
-		static __int16 GetNbMissing(__int16 JD_base, std::array <CLandsatPixel, 2> p);
-		static __int16 GetDeltaNBR(__int16 JD_base, std::array <CLandsatPixel, 2> p);
-		static std::array<__int16, 2> GetZscore(const std::array <CLandsatPixel, 2>& p);
+		static __int16 GetNbMissing(__int16 JD_base, std::array <Landsat1::CLandsatPixel, 2> p);
+		static __int16 GetDeltaNBR(__int16 JD_base, std::array <Landsat1::CLandsatPixel, 2> p);
+		static std::array<__int16, 2> GetZscore(const std::array <Landsat1::CLandsatPixel, 2>& p);
 		static __int16 GetFireSeverity(__int16 dNBR);
 		static int GetYear(const std::string& name);
-		static size_t FindLayerIndex(CLandsatDataset& lansatDS, int year);
+		static size_t FindLayerIndex(Landsat1::CLandsatDataset& landsatDS, int year);
 	};
 
 }

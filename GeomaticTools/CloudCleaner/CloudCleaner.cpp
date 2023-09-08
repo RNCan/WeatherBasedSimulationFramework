@@ -60,7 +60,7 @@
 #include "Basic/UtilMath.h"
 #include "Basic/OpenMP.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 
@@ -76,7 +76,7 @@
 
 using namespace std;
 using namespace WBSF;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 
 
@@ -96,7 +96,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 {
 	m_nbPixel = 0;
 	m_nbPixelDT = 0;
-	m_scenesSize = Landsat::SCENES_SIZE;
+	m_scenesSize = Landsat1::SCENES_SIZE;
 	m_bDebug = false;
 	m_bOutputCode = false;
 	m_B1threshold = { -175, -80};
@@ -126,7 +126,7 @@ CCloudCleanerOption::CCloudCleanerOption()
 		{ "-FillMissing", 0, "", false, "Fill also missing pixels when -FillClouds is activated." },
 		{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
 		{ "-PeriodTreated", 2, "Begin End", false, "Select the period (YYYY-MM-DD YYYY-MM-DD) to clean cloud. The entire period are selected by default. " },
-		{ "-Dmax", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther thant this maximum buffer will be reset. 9 by default." },
+		{ "-Dmax", 1, "nbPixels", false, "Set maximum buffer distance around primary suspicious pixels to keep secondary suspicious pixels. All secondary pixel farther than this maximum buffer will be reset. 9 by default." },
 		{ "-Buffer", 1, "nbPixels", false, "Set suspicious buffer around suspicious pixels before Ranger. 1 by default." },
 		{ "-BufferEx", 2, "primary secondary", false, "After Ranger, set all suspicious pixels around cloud pixels as cloud. 1 1 by default." },
 		{ "-MedianFile", 1, "path", false, "Use median image file instead of computing median on the fly." },
@@ -515,7 +515,7 @@ ERMsg CCloudCleaner::OpenAll(CLandsatDataset& landsatDS, CGDALDatasetEx& maskDS,
 
 			for (size_t b = 0; b < SCENES_SIZE; b++)
 			{
-				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat::GetBandName(b) + ".tif|";
+				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat1::GetBandName(b) + ".tif|";
 			}
 		}
 
@@ -661,7 +661,7 @@ ERMsg CCloudCleaner::Execute()
 
 		if (iv != 21 && iv != 28)
 		{
-			msg.ajoute("Bad Random Forest models. Number of independant variable (" + to_string(iv) + ") excluding virtual vars (" + to_string(forests[0][0]->get_virtual_cols_name().size()) + ") must be 21 or 28 (when median is used).");
+			msg.ajoute("Bad Random Forest models. Number of independent variable (" + to_string(iv) + ") excluding virtual vars (" + to_string(forests[0][0]->get_virtual_cols_name().size()) + ") must be 21 or 28 (when median is used).");
 		}
 
 		/*if (forests[0][0]->getNumIndependentVariables() != forests[0][1]->getNumIndependentVariables() ||
@@ -1248,7 +1248,7 @@ void CCloudCleaner::FindClouds(size_t xBlock, size_t yBlock, const CBandsHolder&
 	if (m_options.m_bUseMedian)
 	{
 		for (size_t b = B1; b < QA; b++)
-			vars.push_back(string("t4_") + Landsat::GetBandName(b));
+			vars.push_back(string("t4_") + Landsat1::GetBandName(b));
 	}
 
 	if (m_options.m_bOutputCode)
@@ -2081,9 +2081,9 @@ __int32 CCloudCleanerOption::GetB1Trigger(std::array <CLandsatPixel, 4>& p, size
 	if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 		return -32768;
 
-	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
-	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
-	__int32 t3 = p[3].IsInit() ? (p[3][Landsat::B1] - p[fm][Landsat::B1]) : -32767;
+	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat1::B1] - p[fm][Landsat1::B1]) : -32767;
+	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat1::B1] - p[fm][Landsat1::B1]) : -32767;
+	__int32 t3 = p[3].IsInit() ? (p[3][Landsat1::B1] - p[fm][Landsat1::B1]) : -32767;
 
 	return min(max(t1, t2), t3);
 }
@@ -2099,9 +2099,9 @@ __int32 CCloudCleanerOption::GetTCBTrigger(std::array <CLandsatPixel, 4>& p, siz
 	if (!p[c0].IsInit() && !p[c2].IsInit() && !p[3].IsInit())
 		return -32768;
 
-	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
-	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
-	__int32 t3 = p[3].IsInit() ? (p[3][Landsat::I_TCB] - p[fm][Landsat::I_TCB]) : 32767;
+	__int32 t1 = p[c0].IsInit() ? (p[c0][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB]) : 32767;
+	__int32 t2 = p[c2].IsInit() ? (p[c2][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB]) : 32767;
+	__int32 t3 = p[3].IsInit() ? (p[3][Landsat1::I_TCB] - p[fm][Landsat1::I_TCB]) : 32767;
 
 
 

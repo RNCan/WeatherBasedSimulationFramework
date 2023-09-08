@@ -2,7 +2,7 @@
 
 #include "Basic/UtilTime.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset2.h"
 
 namespace WBSF
 {
@@ -36,7 +36,7 @@ namespace WBSF
 		std::array<int, 2> m_bust;
 		bool m_bVirtual;
 
-		std::vector<CBandStats> m_stats;
+		std::vector< Landsat2::CBandStats> m_stats;
 	};
 
 
@@ -48,11 +48,11 @@ namespace WBSF
 
 		std::string GetDescription() { return  std::string("Landsat2RGB version ") + VERSION + " (" + __DATE__ + ")"; }
 
-		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, std::vector<CGDALDatasetEx>& outputDS);
+		ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, std::vector<CGDALDatasetEx>& outputDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
 		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, size_t z, OutputData& outputData);
 		void WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, OutputData& outputData);
-		ERMsg CreateVirtual(CLandsatDataset& inputDS);
+		ERMsg CreateVirtual(Landsat2::CLandsatDataset& inputDS);
 		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, std::vector<CGDALDatasetEx>& outputDS);
 		
 

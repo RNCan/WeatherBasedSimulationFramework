@@ -2,7 +2,7 @@
 #include "Basic/UtilTime.h"
 #include "Basic/Mtrx.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 namespace WBSF
@@ -32,8 +32,8 @@ namespace WBSF
 
 		/*bool IsTrigged(vector<pair<CLandsatPixel, size_t>>::iterator it1, vector<pair<CLandsatPixel, size_t>>::iterator it2)
 		{
-			bool t1 = abs((*it1).first[Landsat::B1] - (*it2).first[Landsat::B1]) > m_B1threshold;
-			bool t2 = abs((*it1).first[Landsat::I_TCB] - (*it2).first[Landsat::I_TCB]) > m_TCBthreshold;
+			bool t1 = abs((*it1).first[Landsat1::B1] - (*it2).first[Landsat1::B1]) > m_B1threshold;
+			bool t2 = abs((*it1).first[Landsat1::I_TCB] - (*it2).first[Landsat1::I_TCB]) > m_TCBthreshold;
 
 			return t1||t2;
 		}*/
@@ -44,7 +44,7 @@ namespace WBSF
 
 		size_t m_mergeType;
 		size_t m_medianType;
-		Landsat::TCorr8 m_corr8;
+		Landsat1::TCorr8 m_corr8;
 		
 		bool m_bDebug;
 		bool m_bExportStats;
@@ -52,8 +52,8 @@ namespace WBSF
 		__int32 m_meanMax;
 		__int16 m_meanIdeal;
 
-		void InitFileInfo(CLandsatDataset& inputDS);
-		std::vector<CLandsatFileInfo> m_info;
+		void InitFileInfo(Landsat1::CLandsatDataset& inputDS);
+		std::vector<Landsat1::CLandsatFileInfo> m_info;
 
 	};
 	
@@ -72,7 +72,7 @@ namespace WBSF
 		std::string GetDescription() { return  std::string("MergeImages version ") + VERSION + " (" + __DATE__ + ")"; }
 		void InitMemory(size_t sceneSize, CGeoSize blockSize, OutputData& outputData, DebugData& debugData, StatData& statsData);
 
-		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, Landsat1::CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 		//ERMsg OpenOutput(CLandsatDataset& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 		std::string GetBandFileTitle(const std::string& filePath, size_t b);
 
@@ -81,7 +81,7 @@ namespace WBSF
 		void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS, OutputData& outputData, DebugData& debugData, StatData& statsData);
 		void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, CGDALDatasetEx& statsDS);
 
-		static __int16 GetCriterion(CLandsatPixel& pixel, size_t type);
+		static __int16 GetCriterion(Landsat1::CLandsatPixel& pixel, size_t type);
 		static size_t get_iz(const Test1Vector& imageList, size_t type1, const Test1Vector& imageList2, size_t type2);
 		static Test1Vector::const_iterator get_it(const Test1Vector& imageList, size_t type);
 		static Test1Vector::const_iterator get_it(const Test1Vector& imageList, size_t type1, const Test1Vector& imageList2, size_t type2);

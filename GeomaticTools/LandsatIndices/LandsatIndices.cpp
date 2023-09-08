@@ -28,7 +28,7 @@
 #include "gdal_priv.h"
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -129,7 +129,7 @@ namespace WBSF
 
 		m_outputType = GDT_Int16;
 
-		Landsat::INDICES_FACTOR(m_iFactor);
+		Landsat1::INDICES_FACTOR(m_iFactor);
 
 		return msg;
 	}
@@ -204,7 +204,7 @@ namespace WBSF
 				{
 					if (!indices.empty())
 						indices += ", ";
-					indices += Landsat::GetIndiceName(i);
+					indices += Landsat1::GetIndiceName(i);
 				}
 			}
 
@@ -398,7 +398,7 @@ namespace WBSF
 				{
 					if (m_options.m_indices.test(i))
 					{
-						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat::GetIndiceName(i) + ".tif|";
+						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat1::GetIndiceName(i) + ".tif|";
 					}
 				}
 			}
@@ -510,7 +510,7 @@ namespace WBSF
 							if (m_options.m_indices.test(i))
 							{
 								size_t xy = (size_t)y*blockSize.m_x + x;
-								outputData[zz][ii][xy] = pixel[Landsat::TIndices(i)];
+								outputData[zz][ii][xy] = pixel[Landsat1::TIndices(i)];
 								ii++;
 							}
 						}
@@ -598,8 +598,8 @@ namespace WBSF
 				{
 					string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
 					std::string filePath = m_options.m_filesPath[CLandsatIndicesOption::OUTPUT_FILE_PATH];
-					filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat::GetIndiceName(i) + ".vrt";
-					msg += inputDS.CreateIndices(z, filePath, (Landsat::TIndices)i);
+					filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat1::GetIndiceName(i) + ".vrt";
+					msg += inputDS.CreateIndices(z, filePath, (Landsat1::TIndices)i);
 
 					//Input : le vrt de nos 30 ans Landsat + le dd5, DEM, slope.Le Seuil du despike(ex. 0.75) et le seuil de tolérance(ex. 0.1)
 					//En output : une couche de dNBR par années avec du No Data supprimé par le despike. .

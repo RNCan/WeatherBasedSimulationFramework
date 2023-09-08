@@ -31,7 +31,7 @@
 #include "gdal_priv.h"
 
 using namespace std;
-using namespace WBSF::Landsat;
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
@@ -108,7 +108,7 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-corr8"))
 		{
-			m_corr8 = Landsat::GetCorr8(argv[++i]);
+			m_corr8 = Landsat1::GetCorr8(argv[++i]);
 			if (m_corr8 == NO_CORR8)
 				msg.ajoute("Invalid -Corr8 type. Type can be \"Canada\", \"Australia\" or \"USA\"");
 		}
@@ -339,7 +339,7 @@ namespace WBSF
 				subnames.insert(uniqueSubName);
 				for (size_t b = 0; b < SCENES_SIZE; b++)
 				{
-					options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat::GetBandName(b)+".tif|";
+					options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat1::GetBandName(b)+".tif|";
 				}
 			}
 

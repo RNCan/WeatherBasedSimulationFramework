@@ -4,7 +4,7 @@
 #include "Basic/UtilTime.h"
 //#include "Basic/Mtrx.h"
 #include "Geomatic/GDALBasic.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 
 namespace WBSF
@@ -28,7 +28,7 @@ namespace WBSF
 
 		
 		bool m_bDebug;
-		Landsat::TCorr8 m_corr8;
+		Landsat1::TCorr8 m_corr8;
 		TMean m_meanType;
 		bool m_bBestMedian;
 		bool m_bRemoveWorstQA;
@@ -39,8 +39,8 @@ namespace WBSF
 		//double m_TCBthreshold[2];
 		
 		
-		void InitFileInfo(CLandsatDataset& inputDS);
-		std::vector<CLandsatFileInfo> m_info;
+		void InitFileInfo(Landsat1::CLandsatDataset& inputDS);
+		std::vector<Landsat1::CLandsatFileInfo> m_info;
 
 		static const char* DEBUG_NAME[NB_DEBUG_BANDS];
 	};
@@ -60,7 +60,7 @@ namespace WBSF
 		std::string GetDescription();
 		void AllocateMemory(size_t sceneSize, CGeoSize blockSize, OutputData& outputData);
 
-		ERMsg OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CLandsatDataset& outputDS, CGDALDatasetEx& debugDS);
+		ERMsg OpenAll(Landsat1::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, Landsat1::CLandsatDataset& outputDS, CGDALDatasetEx& debugDS);
 		void ReadBlock(int xBlock, int yBlock, CBandsHolder& bandHolder);
 		void ProcessBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, OutputData& outputData, DebugData& debugData);
 		void WriteBlock(int xBlock, int yBlock, CBandsHolder& bandHolder, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData);
