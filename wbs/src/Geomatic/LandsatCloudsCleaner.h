@@ -11,7 +11,7 @@
 #include "basic/ERMsg.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/See5hooks.h"
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 
 namespace WBSF
 {
@@ -19,7 +19,7 @@ namespace WBSF
 	{
 	public:
 
-		std::vector<AttValue> GetDataRecord(int t, const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+		std::vector<AttValue> GetDataRecord(int t, const Landsat1::CLandsatPixel& pixel1, const Landsat1::CLandsatPixel& pixel2)const;
 	};
 
 
@@ -28,7 +28,7 @@ namespace WBSF
 	public:
 
 
-		int GetDTCode(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const;
+		int GetDTCode(const Landsat1::CLandsatPixel& pixel1, const Landsat1::CLandsatPixel& pixel2)const;
 		bool IsFirstCloud(int DTCode)const;
 		bool IsSecondCloud(int DTCode)const;
 		bool IsCloud(int DTCode)const;

@@ -27,7 +27,7 @@
 #include "Geomatic/GDAL.h"
 #include "Geomatic/ProjectionTransformation.h"
 #include "Geomatic/GDALBasic.h"
-#include "geomatic/LandsatDataset.h"
+#include "geomatic/LandsatDataset1.h"
 
 #include "WeatherBasedSimulationString.h"
 
@@ -114,12 +114,12 @@ namespace WBSF
 
 			if (m_bMultipleImages)
 			{
-				//build vrt before closing to remove empty bands
-				BuildVRT(options);
-
-
 				for (size_t i = 0; i < m_poDatasetVector.size(); i++)
 					CloseVRTBand(i);
+
+				//build vrt must be done after closing images to have valid images.
+				BuildVRT(options);
+
 
 				m_poDatasetVector.clear();
 				m_bMultipleImages = false;
@@ -728,6 +728,8 @@ namespace WBSF
 			GDALDriver* poDriverOut = m_poDataset->GetDriver();
 			options.m_format = poDriverOut->GetDescription();
 		}
+		
+		
 
 		//short 
 		if (options.m_outputType == GDT_Unknown)
@@ -780,7 +782,18 @@ namespace WBSF
 			options.m_extents.m_xBlockSize = m_extents.m_xBlockSize;
 
 		if (options.m_extents.m_yBlockSize == 0)
+		{
 			options.m_extents.m_yBlockSize = m_extents.m_yBlockSize;
+			if (options.m_extents.m_yBlockSize > 1)
+			{
+				if( options.m_createOptions.Find("TILED", false, false) ==-1)
+					options.m_createOptions.push_back("TILED=YES");
+				if (options.m_createOptions.Find("BLOCKXSIZE", false, false) == -1)
+					options.m_createOptions.push_back("BLOCKXSIZE=" + to_string(options.m_extents.m_xBlockSize));
+				if (options.m_createOptions.Find("BLOCKYSIZE", false, false) == -1)
+					options.m_createOptions.push_back("BLOCKYSIZE=" + to_string(options.m_extents.m_yBlockSize));
+			}
+		}
 
 		if (!options.m_period.IsInit())
 			options.m_period = GetPeriod();
@@ -815,6 +828,18 @@ namespace WBSF
 			//take dst no data by default
 			options.m_dstNodataEx = options.m_dstNodata;
 		}
+
+
+		//Add same compression if not specified
+		//if (options.m_createOptions.Find("COMPRESS", false, false) == -1)
+		//{
+		//	char** test = const_cast<GDALRasterBand*>(GetRasterBand(0))->GetMetadata("IMAGE_STRUCTURE");
+		//	const char* pVal = const_cast<GDALRasterBand*>(GetRasterBand(0))->GetMetadataItem("IMAGE_STRUCTURE");
+		//	//const char* pVal = m_poDataset->GetMetadataItem("COMPRESSION");
+		//	
+		//	if(pVal!=NULL)
+		//		options.m_createOptions.push_back("COMPRESS="+ string(pVal));
+		//}
 	}
 
 
@@ -1507,7 +1532,7 @@ namespace WBSF
 		m_bandNo = i;
 		m_bDontLoadContantBand = false;
 		m_bConstantBand = false;
-		m_captor = Landsat::GetCaptorFromName(GetFileTitle(bandName));
+		m_captor = Landsat1::GetCaptorFromName(GetFileTitle(bandName));
 
 		if (pDataset)
 		{

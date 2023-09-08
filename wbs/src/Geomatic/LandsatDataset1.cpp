@@ -15,22 +15,24 @@
 #pragma warning(disable: 4275 4251)
 #include "gdal_priv.h"
 
-#include "Geomatic/LandsatDataset.h"
+#include "Geomatic/LandsatDataset1.h"
 #include "basic/zenXml.h"
 
 
 using namespace std;
-
+using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
 
+	
+
 	static double G_INDICES_FACTOR = 1000;
-	double Landsat::INDICES_FACTOR() { return G_INDICES_FACTOR; }
-	void Landsat::INDICES_FACTOR(double f) { G_INDICES_FACTOR = f; }
+	double Landsat1::INDICES_FACTOR() { return G_INDICES_FACTOR; }
+	void Landsat1::INDICES_FACTOR(double f) { G_INDICES_FACTOR = f; }
 
 
-	const char* Landsat::GetBandName(size_t s)
+	const char* Landsat1::GetBandName(size_t s)
 	{
 		static const char* BANDS_NAME[SCENES_SIZE] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD" };
 
@@ -39,7 +41,7 @@ namespace WBSF
 
 	}
 
-	const char* Landsat::GetIndiceName(size_t i)
+	const char* Landsat1::GetIndiceName(size_t i)
 	{
 		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "QA", "JD", "NBR", "NDVI", "NDMI","NDWI",  "TCB", "TCG", "TCW", "NBR2", "EVI", "EVI2", "SAVI", "MSAVI", "SR", "CL", "HZ", "LSWI", "VIgreen" };
 		ASSERT(i < NB_INDICES);
@@ -50,7 +52,7 @@ namespace WBSF
 
 
 
-	Landsat::TLandsatFormat Landsat::GetFormatFromName(const string& title)
+	Landsat1::TLandsatFormat Landsat1::GetFormatFromName(const string& title)
 	{
 		TLandsatFormat format = F_UNKNOWN;
 		if (!title.empty())
@@ -72,7 +74,7 @@ namespace WBSF
 		return format;
 	}
 
-	__int16 Landsat::GetCaptorFromName(const string& title)
+	__int16 Landsat1::GetCaptorFromName(const string& title)
 	{
 		__int16 captor = -32768;
 		if (!title.empty())
@@ -92,7 +94,7 @@ namespace WBSF
 		return captor;
 	}
 
-	CTRef Landsat::GetTRefFromName(const string& title)
+	CTRef Landsat1::GetTRefFromName(const string& title)
 	{
 		CTRef TRef;
 
@@ -120,7 +122,7 @@ namespace WBSF
 
 		return TRef;
 	}
-	__int16 Landsat::GetPathFromName(const string& title)
+	__int16 Landsat1::GetPathFromName(const string& title)
 	{
 		__int16 path = -32768;
 
@@ -136,7 +138,7 @@ namespace WBSF
 
 		return path;
 	}
-	__int16 Landsat::GetRowFromName(const string& title)
+	__int16 Landsat1::GetRowFromName(const string& title)
 	{
 		__int16 row = -32768;
 
@@ -153,7 +155,7 @@ namespace WBSF
 		return row;
 	}
 
-	Landsat::TIndices Landsat::GetIndiceType(const std::string& str)
+	Landsat1::TIndices Landsat1::GetIndiceType(const std::string& str)
 	{
 		TIndices type = I_INVALID;
 		for (size_t i = 0; i < NB_INDICES&&type == I_INVALID; i++)
@@ -163,7 +165,7 @@ namespace WBSF
 		return type;
 	}
 
-	Landsat::TDomain Landsat::GetIndiceDomain(const std::string& str)
+	Landsat1::TDomain Landsat1::GetIndiceDomain(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_INDICES] = { "PRE", "POS", "AND", "OR" };
 		TDomain domain = D_INVALID;
@@ -174,7 +176,7 @@ namespace WBSF
 		return domain;
 	}
 
-	Landsat::TOperator Landsat::GetIndiceOperator(const std::string& str)
+	Landsat1::TOperator Landsat1::GetIndiceOperator(const std::string& str)
 	{
 		static const char* MODE_NAME[NB_OPERATORS] = { "<", ">" };
 		TOperator op = O_INVALID;
@@ -185,7 +187,7 @@ namespace WBSF
 		return op;
 	}
 
-	Landsat::TCorr8 Landsat::GetCorr8(const std::string& str)
+	Landsat1::TCorr8 Landsat1::GetCorr8(const std::string& str)
 	{
 		static const char* TYPE_NAME[NB_CORR8_TYPE] = { "CANADA", "AUSTRALIA", "USA" };
 		TCorr8 corr8 = NO_CORR8;
@@ -199,7 +201,7 @@ namespace WBSF
 	}
 
 
-	using namespace WBSF::Landsat;
+	
 
 	ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOptions& options)
 	{
@@ -440,7 +442,7 @@ namespace WBSF
 			}
 
 			if (b != NOT_INIT)
-				subName += string("_") + Landsat::GetBandName(b);
+				subName += string("_") + Landsat1::GetBandName(b);
 		}
 
 		return subName;
@@ -455,7 +457,7 @@ namespace WBSF
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetBandName(b%SCENES_SIZE));
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat1::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
@@ -466,7 +468,7 @@ namespace WBSF
 		if (!title.empty())
 			title = title.substr(common.length());
 		else
-			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat::GetBandName(b%SCENES_SIZE));
+			title = FormatA("%d_%s", int(b / SCENES_SIZE) + 1, Landsat1::GetBandName(b%SCENES_SIZE));
 
 		return title;
 	}
@@ -619,7 +621,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CLandsatDataset::CreateIndices(size_t iz, const std::string filePath, Landsat::TIndices type)
+	ERMsg CLandsatDataset::CreateIndices(size_t iz, const std::string filePath, Landsat1::TIndices type)
 	{
 		ERMsg msg;
 
@@ -917,7 +919,7 @@ namespace WBSF
 		fill(noData);
 	}
 
-	LandsatDataType CLandsatPixel::operator[](const Landsat::TIndices& i)const
+	LandsatDataType CLandsatPixel::operator[](const Landsat1::TIndices& i)const
 	{
 		LandsatDataType val = (__int16)WBSF::GetDefaultNoData(GDT_Int16);
 		if (IsInit(i))
@@ -1048,7 +1050,7 @@ namespace WBSF
 		return bIsValid;
 	}
 
-	void CLandsatPixel::correction8to7(Landsat::TCorr8 type)
+	void CLandsatPixel::correction8to7(Landsat1::TCorr8 type)
 	{
 		ASSERT(type < NB_CORR8_TYPE);
 

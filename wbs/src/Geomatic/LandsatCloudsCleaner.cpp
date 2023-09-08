@@ -23,7 +23,7 @@ namespace WBSF
 {
 
 
-	std::vector<AttValue> CLandsatDecisionTree::GetDataRecord(int t, const CLandsatPixel& img1, const CLandsatPixel& img2)const
+	std::vector<AttValue> CLandsatDecisionTree::GetDataRecord(int t, const Landsat1::CLandsatPixel& img1, const Landsat1::CLandsatPixel& img2)const
 	{
 		//int t = omp_get_thread_num();
 		assert(t >= 0 && t < (int)size());
@@ -40,13 +40,13 @@ namespace WBSF
 				else
 					DVal(block, ii) = 0;
 			}
-			else if (i > 0 && i <= Landsat::SCENES_SIZE)//First image
+			else if (i > 0 && i <= Landsat1::SCENES_SIZE)//First image
 			{
 				CVal(block, ii) = (ContValue)img1[i - 1];
 			}
-			else if (i > Landsat::SCENES_SIZE && i <= 2 * Landsat::SCENES_SIZE)//second image
+			else if (i > Landsat1::SCENES_SIZE && i <= 2 * Landsat1::SCENES_SIZE)//second image
 			{
-				CVal(block, ii) = (ContValue)img2[i - Landsat::SCENES_SIZE - 1];
+				CVal(block, ii) = (ContValue)img2[i - Landsat1::SCENES_SIZE - 1];
 			}
 			else//virtual bands 
 			{
@@ -70,7 +70,7 @@ namespace WBSF
 //130 - t2 Cloud
 //150 - t2 Haze and Shadow ans smoke 
 
-	int CLandsatCloudCleaner::GetDTCode(const CLandsatPixel& pixel1, const CLandsatPixel& pixel2)const
+	int CLandsatCloudCleaner::GetDTCode(const Landsat1::CLandsatPixel& pixel1, const Landsat1::CLandsatPixel& pixel2)const
 	{
 		int t = omp_get_thread_num();
 		assert(t >= 0 && t < (int)size());

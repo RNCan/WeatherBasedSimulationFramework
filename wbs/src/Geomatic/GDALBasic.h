@@ -44,7 +44,7 @@ namespace WBSF
 	typedef std::map<std::string, std::string> MetaData;
 	typedef std::vector<MetaData> MetaDataVector;
 	typedef std::vector<std::map<std::string, std::string>> BandsMetaData;
-
+	typedef unsigned __int8 Color8;
 
 	class CDataWindow
 	{
@@ -188,6 +188,19 @@ namespace WBSF
 		bool IsInit()const {return m_sceneSize!= 0;}
 		size_t GetNbScenes()const{ return size() / m_sceneSize; }
 		size_t GetSceneSize()const{ return m_sceneSize; }
+
+		bool IsValid(size_t i, int x, int y)const
+		{
+			assert(((i + 1) * m_sceneSize - 1) < size());
+			//const_iterator it1 = begin() + i * m_sceneSize;
+
+			bool bValid = true;
+			for (size_t z = 0; z < m_sceneSize && bValid; z++)
+				bValid = at(i * m_sceneSize + z)->IsValid(x,y);
+
+			return bValid;
+		}
+
 
 		template <class T>
 		bool IsValid(size_t i, const T& pixel)const
