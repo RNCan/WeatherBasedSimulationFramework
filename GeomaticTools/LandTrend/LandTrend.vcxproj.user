@@ -9,7 +9,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-Window 4 -of VRT -overwrite -co "COMPRESS=LZW"   -te 1785302.6 6779127.3 1790023.2 6782188.5 "E:\Landsat\Landsat(LandTrend)\Input\landsat.vrt" "E:\Landsat\Landsat(LandTrend)\Output\Output.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-of VRT -overwrite -co "COMPRESS=LZW"   -te 1035786.6 6786894.5 1048386.6 6795065.3 "E:\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "E:\Landsat\Landsat(2000-2018)\Output\Output.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

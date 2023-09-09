@@ -26,7 +26,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	 
 
-
+	 
 	//Create a mergeImages object
 	CLandTrend LandTrend;
 

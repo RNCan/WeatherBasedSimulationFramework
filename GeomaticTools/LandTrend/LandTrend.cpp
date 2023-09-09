@@ -30,6 +30,9 @@
 
 using namespace std;
 using namespace WBSF::Landsat2;
+using namespace LTR;
+
+
 
 namespace WBSF
 {
@@ -518,7 +521,7 @@ namespace WBSF
 					//Get pixel
 					CRealArray years = ::convert(allpos(window.size()));
 					CRealArray data(window.size());
-					std::valarray<bool> goods(window.size());
+					CBoolArray goods(window.size());
 
 					ASSERT(validity.size() == window.size());
 
@@ -531,7 +534,7 @@ namespace WBSF
 						//	
 						//	
 						//	
-						//	if (z>0 && z < window.size() - 1)//if not at the begin or the end
+						//	if (z < window.size() - 1)//if not at the begin or the end
 						//	{
 						//		
 						//		size_t previous_pos = window.GetPrevious(z, x, y);
@@ -541,13 +544,20 @@ namespace WBSF
 						//		CLandsatPixel next;
 
 						//		if (previous_pos != -1)
+						//		{
 						//			previous = window.GetPixel(previous_pos, x, y);
+						//		}
+						//		else
+						//		{
+						//			//take median of the first 5 images
+						//		}
+
 						//		if (next_pos != -1)
 						//			next = window.GetPixel(next_pos, x, y);
 
 						//		std::array <Landsat2::CLandsatPixel, 3> p = { previous, pixel, next };
-						//		bool bCloud = IsB1Trigged(p, -175);
-						//		bool bShadow = IsTCBTrigged(p, 600);
+						//		bool bCloud = IsB1Trigged(p, -125);
+						//		bool bShadow = IsTCBTrigged(p, 750);
 
 						//		if (bCloud || bShadow)
 						//			pixel.Reset();
@@ -564,76 +574,79 @@ namespace WBSF
 					}
 
 					
-					//compute LandTrend for this time series indice
-					CBestModelInfo result = fit_trajectory_v2(years, data, goods,
-						m_options.m_minneeded, m_options.m_srcNodata, m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
-						m_options.m_max_segments, m_options.m_recovery_threshold, 2,
-						m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, TFitMethod(m_options.m_fit_method));
-
-
-
-					//if need output
-					if (!outputData.empty() && result.ok)
+					if (goods.max())//at least one valid pixel
 					{
-						//create output image doing a regression for each band by segment
-						for (size_t s = 0; s < SCENES_SIZE; s++)//foir all bands
+						//compute LandTrend for this time series indice
+						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
+							m_options.m_minneeded, m_options.m_srcNodata, m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
+							m_options.m_max_segments, m_options.m_recovery_threshold, 2,
+							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, TFitMethod(m_options.m_fit_method));
+
+
+
+						//if need output
+						if (!outputData.empty() && result.ok)
 						{
-							
-							CVectices V = result.vertices;
-							CRealArray X(window.size());
-							CRealArray Y(window.size());
-							for (size_t z = 0; z < window.size(); z++)
+							//create output image doing a regression for each band by segment
+							for (size_t s = 0; s < SCENES_SIZE; s++)//foir all bands
 							{
-								X[z] = z;
-								Y[z] = window.GetPixel(z, x, y)[s];
+
+								CVectices V = result.vertices;
+								CRealArray X(window.size());
+								CRealArray Y(window.size());
+								for (size_t z = 0; z < window.size(); z++)
+								{
+									X[z] = z;
+									Y[z] = window.GetPixel(z, x, y)[s];
+								}
+
+								CRealArray yfit(Y.size());
+								for (size_t i = 0; i < V.size() - 1; i++)//for all segement
+								{
+									//we need to remove bad data from vertices
+									CBoolArray G = subset(goods, V[i], V[i + 1]);
+
+									CRealArray xx = subset(X, V[i], V[i + 1])[G];
+									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
+									ASSERT(xx.size() == yy.size());
+									ASSERT(xx.size() > 0);
+
+									if (xx.size() >= 2)
+									{
+										//if we've done desawtooth, it's possible that all of the
+										//  values in a segment have same value, in which case regress
+										//  would choke, so deal with that.
+
+										RegressP P = Regress(xx, yy);
+
+										yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
+									}
+									else
+									{
+										//if only one point, take this yfit value
+										yfit[get_slice(V[i], V[i + 1])] = yy[0];
+									}
+
+								}
+
+								for (size_t z = 0; z < window.size(); z++)
+								{
+									outputData[z * SCENES_SIZE + s][xy] = yfit[z];
+								}
 							}
 
-							CRealArray yfit(Y.size());
-							for (size_t i = 0; i < V.size() - 1; i++)//for all segement
+							//if output debug
+							if (!debugData.empty())
 							{
-								//we need to remove bad data from vertices
-								std::valarray<bool> G = subset(goods, V[i], V[i + 1]);
-
-								CRealArray xx = subset(X, V[i], V[i + 1])[G];
-								CRealArray yy = subset(Y, V[i], V[i + 1])[G];
-								ASSERT(xx.size() == yy.size());
-								ASSERT(xx.size() > 0);
-
-								if(xx.size()>=2)
+								debugData[0][xy] = (__int16)result.vertvals.size();
+								for (size_t s = result.vertvals.size() - 1; s < result.vertvals.size(); s--)
 								{
-									//if we've done desawtooth, it's possible that all of the
-									//  values in a segment have same value, in which case regress
-									//  would choke, so deal with that.
-
-									RegressP P = Regress(xx, yy);
-
-									yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
+									debugData[s * 2 + 1][xy] = (__int16)(m_options.m_firstYear + result.vertices[s]);
+									debugData[s * 2 + 2][xy] = (__int16)result.vertvals[s];
 								}
-								else
-								{
-									//if only one point, take this yfit value
-									yfit[get_slice(V[i], V[i + 1])] = yy[0];
-								}
-								
-							}
-
-							for (size_t z = 0; z < window.size(); z++)
-							{
-								outputData[z * SCENES_SIZE + s][xy] = yfit[z];
 							}
 						}
-
-					//if output debug
-						if (!debugData.empty())
-						{
-							debugData[0][xy] = (__int16)result.vertvals.size();
-							for (size_t s = result.vertvals.size()-1; s < result.vertvals.size(); s--)
-							{
-								debugData[s * 2 + 1][xy] = (__int16)(m_options.m_firstYear + result.vertices[s]);
-								debugData[s * 2 + 2][xy] = (__int16)result.vertvals[s];
-							}
-						}
-					}
+					}//if al leat one valid pixel
 
 #pragma omp atomic 
 					m_options.m_xx++;
