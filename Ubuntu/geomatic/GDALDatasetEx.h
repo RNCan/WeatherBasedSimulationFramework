@@ -428,9 +428,9 @@ public:
     virtual void ReadBlock(size_t i, size_t j, CRasterWindow& block)const;
     virtual void ReadBlock(const CGeoExtents& window_extents, CRasterWindow& window_data, int rings =0, int IOCPU=1, size_t first_scene = NOT_INIT, size_t last_scene = NOT_INIT)const;
 
-    void BuildOverviews(const std::vector<int>& list, bool bQuiet);
-    void ComputeStats(bool bQuiet);
-    void ComputeHistogram(bool bQuiet);
+    void BuildOverviews(const std::vector<int>& list, bool bQuiet, int CPU = 1);
+    void ComputeStats(bool bQuiet, int CPU = 1);
+    void ComputeHistogram(bool bQuiet, int CPU = 1);
     CGeoExtents ComputeLoadExtent(const CGeoExtents& extents, const CGeoExtents& iExtents, int rings=0)const;
 
     int GetRasterXSize()const;

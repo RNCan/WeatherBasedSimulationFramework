@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-multi -Window 10 -co COMPRESS=LZW -of VRT -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-multi -stats -hist -Overview {2,4,8,16} -co COMPRESS=LZW -of GTIFF -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
