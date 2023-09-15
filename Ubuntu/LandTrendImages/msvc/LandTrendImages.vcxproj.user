@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-multi -CPU -1 -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 -of VRT -overwrite "E:\Landsat\Landsat(LandTrend)\Input\Landsat.vrt" "E:\Landsat\Landsat(LandTrend)\Output\Output.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-te 1794606 6769814 1794858 6770000 -Window 1.5 -co COMPRESS=LZW -of VRT -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-multi -CPU -1 -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 -of VRT -overwrite "E:\Landsat\Landsat(LandTrend)\Input\Landsat.vrt" "E:\Landsat\Landsat(LandTrend)\Output\Output.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-multi -Window 10 -co COMPRESS=LZW -of VRT -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

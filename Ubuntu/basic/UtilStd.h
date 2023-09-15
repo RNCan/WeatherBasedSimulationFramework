@@ -990,7 +990,7 @@ inline std::string& SetFileName(std::string& str, const std::string& newFileTitl
     return str;
 }
 
-
+bool GDALStyleProgressBar(double dfComplete);
 inline std::string GetFileTitle(const std::string& str)
 {
     std::string::size_type pos = str.find_last_of("\\/");

@@ -67,7 +67,7 @@ public:
 
     std::string GetDescription()
     {
-        return  std::string("LandTrend version ") + VERSION + " (" + __DATE__ + ")";
+        return  std::string("LandTrendImages version ") + VERSION + " (" + __DATE__ + ")";
     }
 
     ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, Landsat2::CLandsatDataset& outputDS, CGDALDatasetEx& debugDS);

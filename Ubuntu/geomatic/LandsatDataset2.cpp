@@ -212,13 +212,16 @@ ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOp
     if (msg)
     {
         //temporal section
-        assert(options.m_scenesSize == SCENES_SIZE);
+        assert(options.GetSceneSize() == SCENES_SIZE);
 
-        if ((GetRasterCount() % options.m_scenesSize) == 0)
+        if ((GetRasterCount() % options.GetSceneSize()) == 0)
         {
+
+            
             // bool bFindPeriod = false;
-            size_t nbScenes = size_t(GetRasterCount() / options.m_scenesSize);
-            m_scenesPeriod.resize(nbScenes);
+            //size_t nbScenes = size_t(GetRasterCount() / options.GetSceneSize());
+            //m_scenes_def = options.m_scenes_def;
+//            m_scenesPeriod.resize(nbScenes);
             //for (size_t s = 0; s < nbScenes; s++)
             //{
             //	//CTPeriod period;
@@ -259,7 +262,7 @@ ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOp
         }
         else
         {
-            msg.ajoute("ERROR: input image bands count (" + ToString(int(GetRasterCount())) + ") must be a multiple of LANDSAT scene size (" + ToString(int(options.m_scenesSize)) + ")");
+            msg.ajoute("ERROR: input image bands count (" + ToString(int(GetRasterCount())) + ") must be a multiple of LANDSAT scene size (" + ToString(int(options.GetSceneSize())) + ")");
         }
 
         //InitFileInfo();
@@ -287,16 +290,16 @@ ERMsg CLandsatDataset::OpenInputImage(const std::string& filePath, const CBaseOp
 
 ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
 {
-    assert(options.m_nbBands % SCENES_SIZE == 0);
+    assert(options.m_nbBands % options.GetSceneSize() == 0);
 
     ERMsg msg;
 
     if (options.m_VRTBandsName.empty())
     {
-        size_t nbImages = options.m_nbBands / SCENES_SIZE;
+        size_t nbImages = options.m_nbBands / options.GetSceneSize();
         for (size_t i = 0; i < nbImages; i++)
         {
-            for (size_t b = 0; b < size_t(options.m_scenesSize); b++)
+            for (size_t b = 0; b < size_t(options.GetSceneSize()); b++)
             {
                 string name = GetFileTitle(filePath);
                 if (nbImages > 1)
@@ -481,28 +484,28 @@ void CLandsatDataset::Close(const CBaseOptions& options)
         if (m_bOpenUpdate)
         {
             //update scene period size before closing to correctly buildt VRT without empty bands
-            size_t nbScenes = size_t(GetRasterCount() / options.m_scenesSize);
-            m_scenesPeriod.resize(nbScenes);
+            //size_t nbScenes = size_t(GetRasterCount() / options.GetSceneSize());
+            //m_scenesPeriod.resize(nbScenes);
 
 
-            if (options.m_RGBType != CBaseOptions::NO_RGB)
-            {
-
-                //size_t nbImages = GetRasterCount() / SCENES_SIZE;
-                for (size_t i = 0; i < nbScenes; i++)
-                {
-                    string title = GetFileTitle(GetInternalName(i * SCENES_SIZE));
-                    //string commonName = WBSF::TrimConst(GetCommonBandName(i*SCENES_SIZE),"_");
-                    string filePath = m_filePath;
-                    //string title = GetFileTitle(filePath);
-                    SetFileTitle(filePath, title.substr(0, title.length() - 2) + "RGB");
-//                    ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
-//                    if (!msg)
-//                    {
-//                        //cout << msg.get;
-//                    }
-                }
-            }
+//            if (options.m_RGBType != CBaseOptions::NO_RGB)
+//            {
+//
+//                //size_t nbImages = GetRasterCount() / SCENES_SIZE;
+//                for (size_t i = 0; i < nbScenes; i++)
+//                {
+//                    string title = GetFileTitle(GetInternalName(i * SCENES_SIZE));
+//                    //string commonName = WBSF::TrimConst(GetCommonBandName(i*SCENES_SIZE),"_");
+//                    string filePath = m_filePath;
+//                    //string title = GetFileTitle(filePath);
+//                    SetFileTitle(filePath, title.substr(0, title.length() - 2) + "RGB");
+////                    ERMsg msg = CreateRGB(i, filePath, options.m_RGBType);
+////                    if (!msg)
+////                    {
+////                        //cout << msg.get;
+////                    }
+//                }
+//            }
         }
 
         CGDALDatasetEx::Close(options);
@@ -875,7 +878,12 @@ LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind,
     if (n_rings1 == n_rings2)
     {
         assert(n_rings1 == n_rings && n_rings2 == n_rings);
-        CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings);
+        CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings1);
+       // CLandsatPixel px = GetPixelMedian(z, z, x, y, n_rings1);
+        //CStatistic stat_i;
+        //if (px.IsInit())
+          //  stat_i = px[ind];
+
         if (stat_i.IsInit())
         {
             val = LandsatDataType(stat_i[MEAN]);
@@ -884,7 +892,16 @@ LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind,
     else
     {
         assert((n_rings2 - n_rings1) == 1);
-
+       /* CLandsatPixel px1 = GetPixelMedian(z, z, x, y, n_rings1);
+        CLandsatPixel px2 = GetPixelMedian(z, z, x, y, n_rings2);
+        CStatistic stat_i1;
+        if(px1 .IsInit())
+            stat_i1 = px1[ind];
+        
+        CStatistic stat_i2;
+           if (px2.IsInit())
+            stat_i2 = px2[ind];*/
+        
         CStatistic stat_i1 = GetPixelIndiceI(z, ind, x, y, n_rings1);
         CStatistic stat_i2 = GetPixelIndiceI(z, ind, x, y, n_rings2);
 

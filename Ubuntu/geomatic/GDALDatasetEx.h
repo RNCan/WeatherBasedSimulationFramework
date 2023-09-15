@@ -426,7 +426,7 @@ public:
     virtual void UpdateOption(CBaseOptions& options)const;
     virtual void Close(const CBaseOptions& options = CBaseOptions());
     virtual void ReadBlock(size_t i, size_t j, CRasterWindow& block)const;
-    virtual void ReadBlock(const CGeoExtents& window_extents, CRasterWindow& window_data, int rings =0, int IOCPU=1, size_t first_layer = NOT_INIT, size_t nb_layer = NOT_INIT)const;
+    virtual void ReadBlock(const CGeoExtents& window_extents, CRasterWindow& window_data, int rings =0, int IOCPU=1, size_t first_scene = NOT_INIT, size_t last_scene = NOT_INIT)const;
 
     void BuildOverviews(const std::vector<int>& list, bool bQuiet);
     void ComputeStats(bool bQuiet);
@@ -546,11 +546,12 @@ public:
     //temporal section
     size_t GetSceneSize()const
     {
-        return m_scenesPeriod.size()>0 ? GetRasterCount() / m_scenesPeriod.size() : 1;
+        return m_scenes_def.empty() ? 1 : m_scenes_def.size(); // m_scenes_def.size() > 0 ? GetRasterCount() / m_scenesPeriod.size() : 1;
     }
     size_t GetNbScenes()const
     {
-        return m_scenesPeriod.size() > 0 ? m_scenesPeriod.size(): GetRasterCount();
+        //return m_scenes_def.size() > 0 ? m_scenesPeriod.size(): GetRasterCount();
+        return m_scenes_def.empty() ? GetRasterCount() : GetRasterCount() / m_scenes_def.size();
     }
 //		const std::vector<CTPeriod>& GetScenePeriod()const{ return m_scenesPeriod; }
 //
@@ -587,7 +588,7 @@ protected:
     std::vector<GDALDataset*> m_poDatasetVector;
 
     //temporal section of the dataset
-    std::vector<size_t> m_scenesPeriod;//one period per scenes
+    std::vector<size_t> m_scenes_def;//one band by 
 
 };
 

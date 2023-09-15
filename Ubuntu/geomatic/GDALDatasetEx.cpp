@@ -10,7 +10,7 @@
 // 14-09-2023   Rémi Saint-Amant	Port un Linux
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
-//#include "stdafx.h"
+
 #include <float.h>
 #include <limits.h>
 #include <iostream>
@@ -91,7 +91,7 @@ void CGDALDatasetEx::Close(const CBaseOptions& options)
         m_internalExtents.clear();
         m_internalName.clear();
         //			m_virtualBands.clear();
-        m_scenesPeriod.clear();
+        m_scenes_def.clear();
 
         //this vector is intended to keep each band of a VRT file open for writing
         assert(m_poDataset == NULL);
@@ -219,9 +219,17 @@ ERMsg CGDALDatasetEx::OpenInputImage(const string& filePath, const CBaseOptions&
     ERMsg msg;
 
     msg = WBSF::OpenInputImage(filePath, &m_poDataset, options.m_srcNodata, options.m_bUseDefaultNoData, options.m_bReadOnly);
+    if ( msg && 
+        (options.m_scene_extents[0] != NOT_INIT && options.m_scene_extents[0] >= GetNbScenes()) ||
+        (options.m_scene_extents[1] != NOT_INIT && options.m_scene_extents[1] >= GetNbScenes()))
+        msg.ajoute("Scenes {" + to_string(options.m_scene_extents[0] + 1) + ", " + to_string(options.m_scene_extents[1] + 1) + "} must be in range {1, " + to_string(GetNbScenes()) + "}");
+
+
     if (msg)
     {
+
         m_extents = WBSF::GetExtents(m_poDataset);
+        m_scenes_def = options.m_scenes_def;
 
         const char* desc = m_poDataset->GetDriver()->GetDescription();
         m_bVRT = strcmp(desc, "VRT") == 0;
@@ -629,6 +637,9 @@ ERMsg CGDALDatasetEx::CreateImage(const string& filePath, const CBaseOptions& op
         m_filePath = filePath;
         m_extents = options.m_extents;
         m_bOpenUpdate = true;
+        
+        //m_scenesSize = options.m_scenesSize;
+        m_scenes_def = options.m_scenes_def;
         //Dataset()->GetAccess() == GA_Update;
     }
 
@@ -782,18 +793,12 @@ double CGDALDatasetEx::ReadPixel(size_t i, int x, int y)const
 }
 
 
+
 //Read block by internal block size
-//Can be different that block size in metadata
 void CGDALDatasetEx::ReadBlock(size_t i, size_t j, CRasterWindow& block)const
 {
-    //		m_mutex.lock();
-    //if (!is_cached(i, j))
-    //{
-    //  block(i, j).reset(new CSfcWeatherBlock);
-
     CGeoExtents extents = GetExtents().GetBlockExtents(int(i), int(j));
     CGeoRectIndex dataRect = GetExtents().GetBlockRect(int(i), int(j));
-    //CGeoRectIndex windowRect = dataRect;
 
     block.resize(GetRasterCount(), extents);
     for (size_t b = 0; b < GetRasterCount(); b++)
@@ -809,130 +814,80 @@ void CGDALDatasetEx::ReadBlock(size_t i, size_t j, CRasterWindow& block)const
             int nXBlockSize, nYBlockSize = 0;
             poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
 
-
-            //int nXBlockSize = m_extents.m_xBlockSize;
-            //int nYBlockSize = m_extents.m_yBlockSize;
             assert(nXBlockSize == m_extents.m_xBlockSize);
             assert(nYBlockSize == m_extents.m_yBlockSize);
             GDALDataType type = poBand->GetRasterDataType();
-
-            // #pragma omp critical(READ_BLOCK)
-            // {
-            //CSfcBlock* pBlockData = ;
-            //block(i, j)->at(b).reset(new CSfcBlock(nXBlockSize, nYBlockSize));
-
-            //block[b].resize(extents);
             if (type == GDT_Int16)
             {
                 if (nXBlockSize == m_extents.m_xBlockSize && nYBlockSize == m_extents.m_yBlockSize)
                     poBand->ReadBlock(int(i), int(j), block[b].data());
-                //else
-                //poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data(), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, 0, 0);
-                //poBand->FlushBlock(int(i), int(j));
-                //poBand->FlushCache();
             }
             else
             {
                 poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data(), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, 0, 0);
-                //CDataBlock block_tmp(nXBlockSize * nYBlockSize, type);
-                //poBand->ReadBlock(int(i), int(j), block_tmp.data());
-                //poBand->FlushBlock(int(i), int(j));
-                //poBand->FlushCache();
-                //CSfcBlock* pBlockData = new CSfcBlock(nXBlockSize, nYBlockSize);
-                //for (size_t y = 0; y < size_t(nYBlockSize); y++)
-                //for (size_t x = 0; x < size_t(nXBlockSize); x++)
-                //block[b].data()[y * nXBlockSize + x] = DataType(block_tmp.get_value(y * nXBlockSize + x));
             }
-            //  }
-
-            //if (type == GDT_Float64)
-            //{
-
-            //}
-
-            //readTime.Stop();
-            //m_stats[0] += readTime.Elapsed();
         }
     }
-    //}
-    //	m_mutex.unlock();
-    //    assert(is_cached(i, j));
 }
 
-//void CGDALDatasetEx::ReadBlock(CGeoExtents extents, CRasterWindow& block)const
-//{
-//	//		m_mutex.lock();
-//	//if (!is_cached(i, j))
-//	//{
-//	//  block(i, j).reset(new CSfcWeatherBlock);
 
-//	CGeoExtents extents = GetExtents().GetBlockExtents(int(i), int(j));
-//	CGeoRectIndex dataRect = extents.GetBlockRect(int(i), int(j));
-//	//CGeoRectIndex windowRect = dataRect;
+void CGDALDatasetEx::ReadBlock(const CGeoExtents& windowExtents, CRasterWindow& window_data, int rings, int IOCPU, size_t first_scene, size_t last_scene)const
+{
+    assert(first_scene<GetNbScenes() && last_scene < GetNbScenes());
 
-//	block.resize(GetRasterCount(), extents);
-//	for (size_t b = 0; b < GetRasterCount(); b++)
-//	{
-//		const CGeoExtents& iExtents = GetInternalExtents(b);
-//		if (extents.IsIntersect(iExtents))
-//		{
-//			GDALRasterBand* poBand = m_poDataset->GetRasterBand(int(b) + 1);//one base in direct load
+    if (first_scene == NOT_INIT)
+        first_scene = 0;
+    if (last_scene == NOT_INIT)
+        last_scene = GetNbScenes();
+    
+    assert(first_scene <= last_scene);
+  
+    size_t totalMem = 0;
 
-//			block[i].resize(extents, DataType(poBand->GetNoDataValue()));
+    size_t first_layer = first_scene * GetSceneSize();
+    //size_t last_layer = (last_scene +1)* GetSceneSize();
+    size_t nb_layer = (last_scene - first_scene + 1)* GetSceneSize() ;
+
+    int nb_non_empty = 0;
+    window_data.resize(nb_layer, windowExtents);
+//#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
+    for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)
+    {
+        size_t i = first_layer + ii;
+        CGeoExtents iExtents = GetInternalExtents(i);
+        CGeoExtents loadExtents = ComputeLoadExtent(windowExtents, iExtents, rings);
+        if (!loadExtents.IsEmpty())
+        {
+            CGeoRectIndex windowRect = m_extents.CoordToXYPos(windowExtents); //portion of valid map in extents coordinate
+            CGeoRectIndex loadRect = m_extents.CoordToXYPos(loadExtents); //get map rect to load in map coordinate
+
+            if (!windowRect.IsRectEmpty() && !loadRect.IsRectEmpty())
+            {
+                assert(loadRect.m_x >= 0 && loadRect.m_x <= GetRasterXSize());
+                assert(loadRect.m_y >= 0 && loadRect.m_y <= GetRasterYSize());
+                assert(loadRect.m_xSize >= 0 && loadRect.m_xSize <= GetRasterXSize());
+                assert(loadRect.m_ySize >= 0 && loadRect.m_ySize <= GetRasterYSize());
+                assert(loadRect.Width() >= windowRect.Width());
+                assert(loadRect.Height() >= windowRect.Height());
+
+                window_data[ii].resize(loadRect, windowRect, windowExtents, DataType(GetNoData(i)));
+                GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
+                pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data(), loadRect.m_xSize, loadRect.m_ySize, GDT_Int16, 0, 0);
+
+                #pragma omp atomic 
+                    nb_non_empty++;
+            }
+        }
+
+        totalMem += window_data.size() * sizeof(DataType);
+
+    }
+
+    if (nb_non_empty==0)
+        window_data.clear();
+}
 
 
-//			int nXBlockSize, nYBlockSize = 0;
-//			poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
-
-
-//			//int nXBlockSize = m_extents.m_xBlockSize;
-//			//int nYBlockSize = m_extents.m_yBlockSize;
-//			assert(nXBlockSize == m_extents.m_xBlockSize);
-//			assert(nYBlockSize == m_extents.m_yBlockSize);
-//			GDALDataType type = poBand->GetRasterDataType();
-
-//			// #pragma omp critical(READ_BLOCK)
-//			// {
-//			//CSfcBlock* pBlockData = ;
-//			//block(i, j)->at(b).reset(new CSfcBlock(nXBlockSize, nYBlockSize));
-
-//			block[b].resize(extents);
-//			if (type == GDT_Int16)
-//			{
-//				if (nXBlockSize == m_extents.m_xBlockSize && nYBlockSize == m_extents.m_yBlockSize)
-//					poBand->ReadBlock(int(i), int(j), block[b].data());
-//				else
-//					poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data(), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, 0, 0);
-//				//poBand->FlushBlock(int(i), int(j));
-//				//poBand->FlushCache();
-//			}
-//			else
-//			{
-//				poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data(), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, 0, 0);
-//				//CDataBlock block_tmp(nXBlockSize * nYBlockSize, type);
-//				//poBand->ReadBlock(int(i), int(j), block_tmp.data());
-//				//poBand->FlushBlock(int(i), int(j));
-//				//poBand->FlushCache();
-//				//CSfcBlock* pBlockData = new CSfcBlock(nXBlockSize, nYBlockSize);
-//				//for (size_t y = 0; y < size_t(nYBlockSize); y++)
-//					//for (size_t x = 0; x < size_t(nXBlockSize); x++)
-//						//block[b].data()[y * nXBlockSize + x] = DataType(block_tmp.get_value(y * nXBlockSize + x));
-//			}
-//			//  }
-
-//			//if (type == GDT_Float64)
-//			//{
-
-//			//}
-
-//			//readTime.Stop();
-//			//m_stats[0] += readTime.Elapsed();
-//		}
-//	}
-//	//}
-//	//	m_mutex.unlock();
-////    assert(is_cached(i, j));
-//}, CRasterWindow&
 CGeoExtents CGDALDatasetEx::ComputeLoadExtent(const CGeoExtents& window_extents, const CGeoExtents& iExtents, int rings)const
 {
     assert(!window_extents.IsRectEmpty());
@@ -960,134 +915,6 @@ CGeoExtents CGDALDatasetEx::ComputeLoadExtent(const CGeoExtents& window_extents,
     loadExtents.IntersectExtents(m_extents);
     return loadExtents;
 }
-
-void CGDALDatasetEx::ReadBlock(const CGeoExtents& windowExtents, CRasterWindow& window_data, int rings, int IOCPU, size_t first_layer, size_t nb_layer)const
-{
-    //CGeoExtents windowExtents = windowExtentsIn;
-    //windowExtents.IntersectExtents(m_extents);
-//		assert(m_extents.IsInside(windowExtents));
-
-
-    if (first_layer == NOT_INIT)
-        first_layer = 0;
-    if (nb_layer == NOT_INIT)
-        nb_layer = GetRasterCount();
-
-    assert(first_layer + nb_layer <= GetRasterCount());
-    //if (m_pMaskBandHolder.get())
-    //{
-    //	m_pMaskBandHolder->SetMaskDataUsed(m_maskDataUsed);
-    //	m_pMaskBandHolder->SetExtents(extents);
-    //	m_pMaskBandHolder->Init(m_maxWindowSize);
-    //	if (m_pMaskBandHolder->GetDataRect().IsRectEmpty())//if one band of the scene is empty we skip this image
-    //	{
-    //		m_bEmpty = true;
-    //		return;
-    //	}
-    //	else
-    //	{
-    //		const DataVector* pData = m_pMaskBandHolder->GetData();
-    //		ASSERT(pData);
-
-    //		bool bEmpty = true;
-    //		for (size_t i = 0; i < pData->size() && bEmpty; i++)
-    //		{
-    //			if ((*pData).at(i) == m_maskDataUsed)
-    //				bEmpty = false;
-    //		}
-
-    //		if (bEmpty)
-    //		{
-    //			m_bEmpty = true;
-    //			return;
-    //		}
-    //	}
-
-    //}
-
-    //	bool bTemporal = m_bandTRef.size()==m_bandHolder.size();
-    size_t totalMem = 0;
-
-    //load bands
-    //int64_t nbScenes = nb_layer - first_layer;
-    //int scenesSize = 1;
-
-
-
-    bool bEmpty = true;
-    window_data.resize(GetRasterCount(), windowExtents);
-//#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
-    for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)
-    {
-        size_t i = first_layer + ii;
-        //for (int j = 0; j < scenesSize; j++)
-        //{
-        //m_bandHolder[i * scenesSize + j]->ExcludeBand(bTemporal && m_scenesPeriod[i].IsInit() && !p.IsIntersect(m_scenesPeriod[i]));
-        //m_bandHolder[i * scenesSize + j]->SetExtents(extents);
-        //m_bandHolder[i * scenesSize + j]->Init(m_maxWindowSize);
-
-        CGeoExtents iExtents = GetInternalExtents(i);
-        //CGeoExtents = extents;
-        CGeoExtents loadExtents = ComputeLoadExtent(windowExtents, iExtents, rings);
-
-        //windowExtents.IntersectExtents(m_extents);
-
-
-        if (!loadExtents.IsEmpty())
-        {
-            //CGeoRectIndex windowRect = extents.CoordToXYPos(windowExtents); //portion of valid map in extents coordinate
-            CGeoRectIndex windowRect = m_extents.CoordToXYPos(windowExtents); //portion of valid map in extents coordinate
-            CGeoRectIndex loadRect = m_extents.CoordToXYPos(loadExtents); //get map rect to load in map coordinate
-            //windowRect.IntersectRect(loadRect);//Limit window rect to loadRect
-
-            if (!windowRect.IsRectEmpty() && !loadRect.IsRectEmpty())
-            {
-                //ASSERT(loadRect.Width() <= m_dataRect.Width());
-                //ASSERT(loadRect.Height() <= m_dataRect.Height());
-                assert(loadRect.m_x >= 0 && loadRect.m_x <= GetRasterXSize());
-                assert(loadRect.m_y >= 0 && loadRect.m_y <= GetRasterYSize());
-                assert(loadRect.m_xSize >= 0 && loadRect.m_xSize <= GetRasterXSize());
-                assert(loadRect.m_ySize >= 0 && loadRect.m_ySize <= GetRasterYSize());
-                //assert(loadRect.m_xSize * loadRect.m_ySize >= windowExtents.m_xSize * windowExtents.m_ySize);
-                //m_data.resize(loadRect.Height()*loadRect.Width());
-                //m_data.resize(max(loadRect.m_xSize*loadRect.m_ySize, m_dataRect.Height()*m_dataRect.Width()));
-
-                //assert(data.size() == dataRect.Width() * dataRect.Height());
-
-                /*if (loadRect.m_xSize > windowRect.Width())
-                	loadRect.m_xSize = windowRect.Width();
-
-                if (loadRect.m_ySize > windowRect.Height())
-                	loadRect.m_ySize = windowRect.Height();*/
-
-                assert(loadRect.Width() >= windowRect.Width());
-                assert(loadRect.Height() >= windowRect.Height());
-
-                window_data[i].resize(loadRect, windowRect, windowExtents, DataType(GetNoData(i)));
-                GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
-                //pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, &(data[0]), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, NULL, NULL);
-                pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[i].data(), loadRect.m_xSize, loadRect.m_ySize, GDT_Int16, 0, 0);
-
-                //#pragma omp atomic
-                bEmpty = false;
-            }
-        }
-
-        totalMem += window_data.size() * sizeof(DataType);
-        //}
-    }
-
-    if (bEmpty)
-        window_data.clear();
-    //for (size_t i = 0; i < m_bandHolder.size() && m_bEmpty; i++)
-    //{
-    //	CGeoRectIndex rect = m_bandHolder[i]->GetDataRect();
-    //	m_bEmpty = rect.IsRectEmpty();
-    //}
-
-
-}
-
 void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
 {
     assert(GetRasterCount() > 0);
@@ -1184,11 +1011,16 @@ void CGDALDatasetEx::UpdateOption(CBaseOptions& options)const
     if (options.m_bTap)
         options.m_extents.AlignTo(m_extents);
 
+    //scenes selection
+    if (options.m_scene_extents[0] == NOT_INIT)
+        options.m_scene_extents[0] = 0;
+    if (options.m_scene_extents[1] == NOT_INIT)
+        options.m_scene_extents[1] = GetNbScenes()-1;
 
     if (options.m_dstNodata == MISSING_NO_DATA)
     {
         //if there is no output nodata and there is no image input nodata then
-        //All types excep Byte will used the minimum value of the type
+        //All types except Byte will used the minimum value of the type
         if (options.m_bUseDefaultNoData)
             options.m_dstNodata = WBSF::GetDefaultNoData(options.m_outputType);
     }

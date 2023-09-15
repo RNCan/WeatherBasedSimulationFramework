@@ -45,8 +45,8 @@ CLandsat2RGBOption::CLandsat2RGBOption()
 
     m_RGBType = NATURAL;
     m_outputType = GDT_Byte;
-    m_scenesSize = SCENES_SIZE;
-    m_scenes = { { NOT_INIT, NOT_INIT } };
+    m_scenes_def = { B1,B2,B3,B4,B5,B7 };
+    //m_scenes = { { NOT_INIT, NOT_INIT } };
     m_dstNodata = 255;
     m_bust = { { 0, 255 } };
     m_bVirtual = false;
@@ -165,7 +165,7 @@ ERMsg CLandsat2RGB::Execute()
 
     if (m_options.m_bCreateImage)
     {
-        size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+        size_t nbScenedProcess = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
         CGeoExtents extents = m_options.GetExtents();
         m_options.ResetBar(nbScenedProcess * extents.m_xSize * extents.m_ySize);
         vector<pair<int, int>> XYindex = extents.GetBlockList(); //extents.GetBlockList(5, 5);
@@ -178,7 +178,7 @@ ERMsg CLandsat2RGB::Execute()
             {
                 for (size_t b = B1; b <= B3; b++)
                 {
-                    size_t z = (m_options.m_scenes[0] + zz) * SCENES_SIZE + b;
+                    size_t z = (m_options.m_scene_extents[0] + zz) * SCENES_SIZE + b;
                     GDALRasterBand* pBand = inputDS.GetRasterBand(z);
                     pBand->GetStatistics(false, true, &m_options.m_stats[zz][b].m_min, &m_options.m_stats[zz][b].m_max, &m_options.m_stats[zz][b].m_mean, &m_options.m_stats[zz][b].m_sd);
                 }
@@ -197,7 +197,7 @@ ERMsg CLandsat2RGB::Execute()
             ReadBlock(inputDS, xBlock, yBlock, block_data);
             for (size_t zz = 0; zz < nbScenedProcess; zz++)
             {
-                size_t z = m_options.m_scenes[0] + zz;
+                size_t z = m_options.m_scene_extents[0] + zz;
 
                 OutputData outputData;
                 ProcessBlock(xBlock, yBlock, block_data, z, outputData);
@@ -264,18 +264,13 @@ ERMsg CLandsat2RGB::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, ve
         //CProjectionPtr pPrj = inputDS.GetPrj();
         //string prjName = pPrj ? pPrj->GetName() : "Unknown";
 
-        if (m_options.m_scenes[0] == NOT_INIT)
+       /* if (m_options.m_scenes[0] == NOT_INIT)
             m_options.m_scenes[0] = 0;
 
         if (m_options.m_scenes[1] == NOT_INIT)
-            m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
+            m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;*/
 
-        if (m_options.m_scenes[0] >= inputDS.GetNbScenes() || m_options.m_scenes[1] >= inputDS.GetNbScenes())
-            msg.ajoute("Scenes {" + to_string(m_options.m_scenes[0] + 1) + ", " + to_string(m_options.m_scenes[1] + 1) + "} must be in range {1, " + to_string(inputDS.GetNbScenes()) + "}");
-
-        if (m_options.m_scenes[0] > m_options.m_scenes[1])
-            msg.ajoute("First scene (" + to_string(m_options.m_scenes[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_options.m_scenes[1] + 1) + ")");
-
+        
         //	const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
 
         //set the period to the period in the scene selection
@@ -292,6 +287,7 @@ ERMsg CLandsat2RGB::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, ve
         //cout << "    Projection     = " << prjName << endl;
         cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
         cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
+        cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
         //			cout << "    Entire period  = " << inputDS.GetPeriod().GetFormatedString() << " (nb scenes = " << inputDS.GetNbScenes() << ")" << endl;
         //		cout << "    Loaded period  = " << period.GetFormatedString() << " (nb scenes = " << nbSceneLoaded << ")" << endl;
 
@@ -316,14 +312,14 @@ ERMsg CLandsat2RGB::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, ve
 
     if (msg && m_options.m_bCreateImage)
     {
-        size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+        size_t nbScenedProcess = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
 
         outputDS.resize(nbScenedProcess);
         //replace the common part by the new name
         set<string> subnames;
         for (size_t zz = 0; zz < nbScenedProcess; zz++)
         {
-            size_t z = m_options.m_scenes[0] + zz;
+            size_t z = m_options.m_scene_extents[0] + zz;
 
             CLandsat2RGBOption options(m_options);
             string filePath = options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];
@@ -344,9 +340,14 @@ ERMsg CLandsat2RGB::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, ve
         {
             cout << endl;
             cout << "Open output images..." << endl;
-            cout << "    Nb images      = " << nbScenedProcess << endl;
+            
             cout << "    Size           = " << m_options.m_extents.m_xSize << " cols x " << m_options.m_extents.m_ySize << " rows x  3 bands" << endl;
             cout << "    Extents        = X:{" << ToString(m_options.m_extents.m_xMin) << ", " << ToString(m_options.m_extents.m_xMax) << "}  Y:{" << ToString(m_options.m_extents.m_yMin) << ", " << ToString(m_options.m_extents.m_yMax) << "}" << endl;
+            cout << "    Nb images      = " << nbScenedProcess << endl;
+
+//            cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
+  //          cout << "    Scene size     = " << m_options.GetSceneSize() << endl;
+    //        cout << "    Nb. Scenes     = " << nbScenedProcess << endl;
         }
 
 
@@ -364,7 +365,7 @@ void CLandsat2RGB::ReadBlock(Landsat2::CLandsatDataset& inputDS, int xBlock, int
         m_options.m_timerRead.start();
 
         CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-        inputDS.CGDALDatasetEx::ReadBlock(extents, block_data, 1, m_options.m_IOCPU, m_options.m_scenes[0], m_options.m_scenes[1]- m_options.m_scenes[0]+1);
+        inputDS.CGDALDatasetEx::ReadBlock(extents, block_data, 1, m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
         m_options.m_timerRead.stop();
     }
 }
@@ -374,7 +375,7 @@ void CLandsat2RGB::ProcessBlock(int xBlock, int yBlock, Landsat2::CLandsatWindow
 {
     CGeoExtents extents = m_options.GetExtents();
     CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
-    size_t zz = z - m_options.m_scenes[0];
+    size_t zz = z - m_options.m_scene_extents[0];
 
     if (window.empty())
     {
@@ -485,10 +486,10 @@ ERMsg CLandsat2RGB::CreateVirtual(CLandsatDataset& inputDS)
 {
     ERMsg msg;
 
-    size_t nbScenedProcess = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
+    size_t nbScenedProcess = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
     for (size_t zz = 0; zz < nbScenedProcess; zz++)
     {
-        size_t z = m_options.m_scenes[0] + zz;
+        size_t z = m_options.m_scene_extents[0] + zz;
 
         string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
         std::string filePath = m_options.m_filesPath[CLandsat2RGBOption::OUTPUT_FILE_PATH];

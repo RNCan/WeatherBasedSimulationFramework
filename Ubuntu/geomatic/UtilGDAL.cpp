@@ -1452,10 +1452,11 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
     {"-tap",0,"",false,"(target aligned pixels) align the coordinates of the extent of the output file to the grid of the input file, such that the aligned extent includes the minimum extent."},
     {"-ts",2,"",false,"set output file resolution (in target geo-referenced units)"},
     {"-tr",2,"",false,"set output file size in pixels and lines. If width or height is set to 0, the other dimension will be guessed from the computed resolution."},
-    {"-b",1,"bandNo",true,"Select an input band band for output. Bands are numbered from 1. Multiple -b switches may be used to select a set of input bands to write to the output file, or to reorder bands."},
+    //{"-b",1,"bandNo",true,"Select an input band band for output. Bands are numbered from 1. Multiple -b switches may be used to select a set of input bands to write to the output file, or to reorder bands."},
+    {"-ty",1,"firstScene lastScene",false,"Select scenes. scenes are numbered from 1."},
     {"-mask",1,"name",false,"Specify an input mask. Use all value different than nodata by default."},
     {"-maskValue",1,"value",false,"Select a value in the mask to treat. By default all valid data are treat."},
-    {"-multi",0,"",false,"Use multithreaded implementation. Multiple threads will be used to process chunks of image and perform input/output operation simultaneously."},
+    {"-multi",0,"",false,"Use multi threaded implementation. Multiple threads will be used to process chunks of image and perform input/output operation simultaneously."},
     {"-CPU",1,"nbCPU",false,"Number of CPUs to used when computation. If the number is negative, then CPU define the number of free CPU. CPUs = AllCPU/BLOCK_CPU by default. Only  used when -multi is define."},
     {"-IOCPU",1,"nbCPU",false,"number of CPUs used to read files. If the number is negative, then CPU define the number of free CPU. Only one thread is assigned by default. Only  used when -multi is define."},
     {"-BLOCK_THREADS",1,"threads",false,"Number of threads used to process blocks. 2 by default. Only used when -multi is define. "},
@@ -1467,11 +1468,8 @@ const COptionDef CBaseOptions::OPTIONS_DEF[] =
     {"-Overview",1,"{level1,level2,...}",false,"Build overview with this list of integral overview levels to build."},
     {"-stats",0,"",false,"Build statistics inside output images."},
     {"-hist", 0, "", false, "Report histogram information for all bands." },
-    //{ "-TTF", 1, "type", false, "Temporal type format. Can be \"Jday1970\" or \"YYYYMMDD\". \"YYYYMMDD\" need output in Int32. \"Jday1970\" by default." },
     { "-SceneSize", 1, "size", false, "Number of images associate per scene. " },
-    //{ "-TT", 1, "type", false, "The temporal transformation allow user to merge images in different time period segment. The available types are: OverallYears, ByYears, ByMonths and None. None can be use to subset part of the input image. ByYears and ByMonths merge the images by years or by months. NONE by default." },
-    //{ "-Period", 2, "begin end", false, "Output period image. Format of date must be \"yyyy-mm-dd\". When ByYear is specify, the beginning and ending date is apply for each year in the period [first year, last year]." },
-    //{ "-RGB", 1, "t", false, "Create RGB virtual layer (.VRT) file for landsat images. Type can be \"Natural\", \"LandWater\" or \"TrueColor\". " },
+    //-SceneSize msu be replace by SceneDef B1 B2 ...
     { "-RemoveEmpty", 0, "", false, "Remove empty bands (bands without data) when building VRT. Entire Landsat scene will be remove when one band is empty. " },
     { "-Rename", 1, "format", false, "Add at the end of output file, the mean image date. See strftime for option. %%F for YYYY-MM-DD. Use %%J for julian day since 1970 and %P for path/row." },
     { "-iFactor", 1, "f", false, "Multiplicator for indices that need multiplication to output in integer. 1000 by default." },
@@ -1560,7 +1558,9 @@ void CBaseOptions::Reset()
     m_nbBands = UNKNOWN_POS;
     m_xRes = 0;
     m_yRes = 0;
-    m_bandsToUsed.clear();
+    //m_bandsToUsed.clear();
+    m_scene_extents = { NOT_INIT, NOT_INIT };
+    m_scenes_def.clear();
     m_maskDataUsed = DefaultNoData;
     m_CPU = 0;//select all cpu by default
     m_IOCPU = 1;//by default take only one thread for IO
@@ -1584,9 +1584,8 @@ void CBaseOptions::Reset()
     m_bRemoveEmptyBand = false;
     m_rename.clear();
 
-    //m_TTF = JDAY1970;
-    m_scenesSize = 0; //number of image per scene
-    //m_TM = CTM::DAILY;
+
+    //m_scenesSize = 0; //number of image per scene
     m_bOpenBandAtCreation = true;
     m_RGBType = NO_RGB;
     m_iFactor = 1000;
@@ -1802,6 +1801,17 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
         i++;
         m_extents.NormalizeRect();
     }
+    else if (IsEqual(argv[i], "-ty"))
+    {
+        m_scene_extents[0] = atoi(argv[i + 1])-1;
+        i++;
+        m_scene_extents[1] = atoi(argv[i + 1])-1;
+        i++;
+
+        if (m_scene_extents[0] > m_scene_extents[1])
+            msg.ajoute("First scene (" + to_string(m_scene_extents[0] + 1) + ") must be smaller or equal to the last scene (" + to_string(m_scene_extents[1] + 1) + ")");
+
+    }
     else if (IsEqual(argv[i], "-tap"))
     {
         m_bTap = true;
@@ -1827,11 +1837,6 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
         m_extents.m_xBlockSize = atoi(argv[i + 1]);
         i++;
         m_extents.m_yBlockSize = atoi(argv[i + 1]);
-        i++;
-    }
-    else if (IsEqual(argv[i], "-b"))
-    {
-        m_bandsToUsed.push_back(atoi(argv[i + 1]));
         i++;
     }
     else if (IsEqual(argv[i], "-mask"))
@@ -1908,51 +1913,6 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
     {
         m_bCreateImage = false;
     }
-    //	else if (IsEqual(argv[i], "-TTF"))
-    //	{
-    //		string str(argv[++i]);
-    //
-    //		if (IsEqualNoCase(str, TEMPORAL_REF_NAME[JDAY1970]))
-    //			m_TTF = JDAY1970;
-    //		else if (IsEqualNoCase(str, TEMPORAL_REF_NAME[YYYYMMDD]))
-    //			m_TTF = YYYYMMDD;
-    //		else msg.ajoute("Bad temporal type format. temporal type format must be \"JDay1970\" or \"YYYYMMDD\"");
-    //	}
-    //	else if (IsEqual(argv[i], "-TTF"))
-    //	{
-    //		m_scenesSize = stoi(argv[++i]);
-    //		assert(m_scenesSize >= 1);
-    //	}
-    //	else if (IsEqual(argv[i], "-TT"))
-    //	{
-    //		switch (GetTTType(argv[++i]))
-    //		{
-    //		case TT_OVERALL_YEARS: m_TM = CTM(CTM::ANNUAL, CTM::OVERALL_YEARS); break;
-    //		case TT_BY_YEARS: m_TM = CTM::ANNUAL; break;
-    //		case TT_BY_MONTHS: m_TM = CTM::MONTHLY; break;
-    //		case TT_NONE: m_TM = CTM::DAILY; break;
-    //		default: msg.ajoute("ERROR: Invalid -TT option: valide type are \"OverallYears\", \"ByYears\", \"ByMonths\" or \"None\".");
-    //		}
-    //	}
-    //	else if (IsEqual(argv[i], "-Period") )
-    //	{
-    //		m_period.Begin().FromFormatedString(argv[++i], "", "-", 1);//in 1 base
-    //		m_period.End().FromFormatedString(argv[++i], "", "-", 1);
-    //	}
-    //	else if (IsEqual(argv[i], "-RGB"))
-    //	{
-    //		string str = argv[++i];
-    //
-    //		m_RGBType = NO_RGB;
-    //		for (size_t i = 0; i < NB_RGB && m_RGBType == NO_RGB; i++)
-    //			if (IsEqualNoCase(str, RGB_NAME[i]))
-    //				m_RGBType = static_cast<TRGBTye>(i);
-    //
-    //
-    //		if(m_RGBType == NO_RGB)
-    //			msg.ajoute("Bad RGB type format. RGB type format must be \"Natural\", \"LandWater\" or \"TrueColor\"");
-    //
-    //	}
     else if (IsEqual(argv[i], "-iFactor"))
     {
         m_iFactor = stof(argv[++i]);
@@ -1965,7 +1925,7 @@ ERMsg CBaseOptions::ProcessOption(int& i, int argc, char* argv[])
     {
         m_bNeedHelp = true;
     }
-    else if (IsEqual(argv[i], "-???"))//|| IsEqual(argv[i],"-IOFileInfo")
+    else if (IsEqual(argv[i], "-???"))
     {
         m_bNeedIOFileInfo = true;
     }
@@ -2059,15 +2019,16 @@ void CBaseOptions::UpdateBar()
             #pragma omp flush(m_xx)
             #pragma omp flush(m_xxx)
 
-            size_t nbX = (size_t)round(80.0 * m_xx / m_xxFinal);
+            GDALStyleProgressBar(double (m_xx )/ m_xxFinal);
+            /*size_t nbX = (size_t)round(80.0 * m_xx / m_xxFinal);
 
             while (m_xxx < nbX)
             {
                 cout << ".";
                 m_xxx++;
-            }
+            }*/
 
-            cout.flush();
+            //cout.flush();
 
             #pragma omp flush(m_xxx)
         }

@@ -32,7 +32,7 @@ namespace WBSF
 			//return ((r && !g && !b) || (!r && g && !b) || (!r && !g && b));//XOR operation at 3
 		}
 		
-		std::array<size_t, 2> m_scenes;
+		//std::array<size_t, 2> m_scenes;
 		std::array<int, 2> m_bust;
 		bool m_bVirtual;
 

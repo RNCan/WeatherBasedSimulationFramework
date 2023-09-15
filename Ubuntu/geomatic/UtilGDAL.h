@@ -8,7 +8,7 @@
 //******************************************************************************
 #pragma once
 
-//#include <float.h>
+
 #include <boost/timer/timer.hpp>
 #include "external/ERMsg/ERMsg.h"
 #include "basic/UtilStd.h"
@@ -228,25 +228,15 @@ typedef std::vector< CIOFileInfoDef > CIOFileInfoDefVector;
 class CBaseOptions
 {
 public:
-
-    //enum TTemporalRef { JDAY1970, YYYYMMDD, NB_SOURCES };
-    //static const char* TEMPORAL_REF_NAME[NB_SOURCES];
-//		static int GetTRefIndex(int type, CTRef Tref);
-    //static CTRef GetTRef(int type, int index);
-
+    
     enum TRGBTye { NO_RGB=-1, NATURAL, LANDWATER, TRUE_COLOR, NB_RGB };
     static const char* RGB_NAME[NB_RGB];
-
-    //enum TTT			{ TT_UNKNOWN = -1, TT_OVERALL_YEARS, TT_BY_YEARS, TT_BY_MONTHS, TT_NONE, NB_TT };
-    //static const char* TT_TYPE_NAME[NB_TT];
-    //static short GetTTType(const char* str);
 
     static const COptionDef OPTIONS_DEF[];
     static const char* DEFAULT_OPTIONS[];
     static int GetOptionIndex(const char* name);
 
     CBaseOptions(bool bAddDefaultOption = true);
-    //CBaseOptions(const CGDALDatasetEx& inputDS){UpdateOption(inputDS);}
 
     void Reset();
     void AddOption(const char* name);
@@ -262,9 +252,7 @@ public:
     virtual std::string GetUsage()const;
     virtual std::string GetHelp()const;
     virtual std::string GetIOFileInfo()const;
-    //virtual void UpdateOption(const CGDALDatasetEx& inputDS);
-//		int GetTRefIndex(CTRef TRef)const{ return TRef.IsInit() ? GetTRefIndex(m_TTF, TRef) : int(m_dstNodata); }
-    //	CTRef GetTRef(int index)const{ return GetTRef(m_TTF, index); }
+
     bool IsVRT()const
     {
         return IsEqualNoCase(m_format, "VRT");
@@ -285,15 +273,14 @@ public:
     double m_dstNodataEx;
     double m_memoryLimit;
     CGeoExtents m_extents;
+    std::array<size_t, 2> m_scene_extents;
     double m_xRes;
     double m_yRes;
-//		CTPeriod m_period;
-    //	CTM m_TM;
     TRGBTye m_RGBType;
     double m_iFactor;
 
     std::vector<std::string> m_filesPath;
-    std::vector<int> m_bandsToUsed;
+    //std::vector<int> m_bandsToUsed;
     size_t m_nbBands;
     std::string m_prj;
     std::string m_maskName;
@@ -320,9 +307,10 @@ public:
     bool m_bComputeHistogram;
     bool m_bRemoveEmptyBand;
     std::string m_rename;
+    std::vector<size_t> m_scenes_def;//define the number of band by scene;
 
-    int m_TTF; //temporal type format for temporal dataset
-    int m_scenesSize;
+    //int m_TTF; //temporal type format for temporal dataset
+    //int m_scenesSize;
     bool m_bOpenBandAtCreation;
     std::string m_VRTBandsName;
 
@@ -336,9 +324,12 @@ public:
         m_extents = extents;
     }
 
-//		CTPeriod GetTTPeriod()const;
-    //	CTPeriod GetTTSegment(size_t s);
+    
 
+    size_t GetSceneSize()const 
+    {
+        return m_scenes_def.empty() ? 1 : m_scenes_def.size();
+    }
     //common timer used
     boost::timer::cpu_timer m_timerRead;
     boost::timer::cpu_timer m_timerProcess;
