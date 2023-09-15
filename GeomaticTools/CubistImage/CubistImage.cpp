@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 2.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.0.0	29/09/2018	Rémi Saint-Amant	Creation from DisturbanceAnalyser
 
@@ -52,7 +53,7 @@ extern String		**AttValName;
 extern DiscrValue	*MaxAttVal;
 
 
-static const char* version = "2.1.0";
+static const char* version = "2.2.0";
 
 
 enum TFilePath { CubistImage_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 2.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.0.4    06/12/2019	Rémi Saint-Amant	Add process of no data
 // 2.0.3    29/01/2019	Rémi Saint-Amant	Remove option -wm that cause strange result
@@ -39,7 +40,7 @@ using namespace WBSF::Landsat1;
 
 
 
-static const char* version = "2.1.0";
+static const char* version = "2.2.0";
 
 
 enum TFilePath { SEE5_FILE_PATH, INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };

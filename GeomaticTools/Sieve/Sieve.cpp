@@ -1,4 +1,5 @@
 //***********************************************************************
+// 2.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 2.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.0.0  22/01/2018		Rémi Saint-Amant	Update with new framework
@@ -37,7 +38,7 @@ using namespace std;
 namespace WBSF
 {
 
-	static const char* version = "2.1.0";
+	static const char* version = "2.2.0";
 
 
 	enum TFilePath { INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };

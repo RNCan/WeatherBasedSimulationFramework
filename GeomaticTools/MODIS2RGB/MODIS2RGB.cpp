@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.0.0	03/12/2020	Rémi Saint-Amant	Creation
 
 
@@ -28,7 +29,7 @@ using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
-	const char* CMODIS2RGB::VERSION = "1.0.0";
+	const char* CMODIS2RGB::VERSION = "1.1.0";
 	//const int CMODIS2RGB::NB_THREAD_PROCESS = 2;
 
 	static const double P_MIN = 0.0;

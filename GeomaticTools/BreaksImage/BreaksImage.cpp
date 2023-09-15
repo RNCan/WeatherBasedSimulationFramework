@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.3	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.2	29/11/2017  Rémi Saint-Amant	Load optimisation
@@ -36,7 +37,7 @@ namespace WBSF
 {
 
 
-	const char* CBreaksImage::VERSION = "1.1.0";
+	const char* CBreaksImage::VERSION = "1.2.0";
 	std::string CBreaksImage::GetDescription(){ return  std::string("BreaksImage version ") + CBreaksImage::VERSION + " (" + __DATE__ + ")"; }
 	const int CBreaksImage::NB_THREAD_PROCESS = 2;
 

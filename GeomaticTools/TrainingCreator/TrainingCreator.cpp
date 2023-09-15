@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.1    04/02/2019	Rémi Saint-Amant	Some bug correction
 // 1.0.0	20/09/2018	Rémi Saint-Amant	Creation 
@@ -44,7 +45,7 @@ using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
-	const char* CTrainingCreator::VERSION = "1.1.0";
+	const char* CTrainingCreator::VERSION = "1.2.0";
 	const int CTrainingCreator::NB_THREAD_PROCESS = 2;
 	const char * CTrainingCreator::CONDITION_NAME[NB_CONDITION] = { "AllValid", "AtLeastOneValid", "AtLeastOneMissing", "AllMissing" };
 

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.2	22/02/2019	Rémi Saint-Amant	bug correction in last segment
 // 1.0.1	01/02/2019	Rémi Saint-Amant	Add export by segment
@@ -34,7 +35,7 @@ using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
-	const char* CDisturbanceAnalyserII::VERSION = "1.1.0";
+	const char* CDisturbanceAnalyserII::VERSION = "1.2.0";
 	typedef CDecisionTreeBlock CSee5TreeBlock;
 	typedef CDecisionTreeBaseEx CSee5Tree;
 	typedef CDecisionTree CSee5TreeMT;

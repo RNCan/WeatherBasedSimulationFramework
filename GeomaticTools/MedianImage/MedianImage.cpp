@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.3.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.1.4	11/10/2018	Rémi Saint-Amant	add -BLOCK_THREADS
 // 1.1.3	20/09/2018	Rémi Saint-Amant	bestMedian use B3, B4, B5 instead of all bands
@@ -36,7 +37,7 @@ namespace WBSF
 {
 
 
-	const char* CMedianImage::VERSION = "1.2.0";
+	const char* CMedianImage::VERSION = "1.3.0";
 	std::string CMedianImage::GetDescription() { return  std::string("MedianImage version ") + CMedianImage::VERSION + " (" + __DATE__ + ")"; }
 	//const int CMedianImage::NB_THREAD_PROCESS = 2;
 

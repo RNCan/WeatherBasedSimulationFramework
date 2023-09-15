@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version
-// 2021-11-24	1.0.0	Rémi Saint-Amant	Creation from old windows version
+// 1.1.0	2023-09-13	Rémi Saint-Amant	Compile with GDAL 3.7.1
+// 1.0.0	2021-11-24	Rémi Saint-Amant	Creation from old windows version
 
 #include "stdafx.h" 
 #include <float.h>
@@ -39,7 +40,7 @@ namespace WBSF
 
 
 
-	const char* CDeriveLiDARVariable::VERSION = "1.0.0";
+	const char* CDeriveLiDARVariable::VERSION = "1.1.0";
 	const int CDeriveLiDARVariable::NB_THREAD_PROCESS = 2;
 
 

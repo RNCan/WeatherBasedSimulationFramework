@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.3.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.1.4	29/06/2018  Rémi Saint-Amant	Add -Rename
 // 1.1.3	29/06/2018  Rémi Saint-Amant	Add -Virtual
@@ -38,7 +39,7 @@ using namespace WBSF::Landsat2;
 
 namespace WBSF
 {
-	const char* CLandsat2RGB::VERSION = "1.2.0";
+	const char* CLandsat2RGB::VERSION = "1.3.0";
 	//const int CLandsat2RGB::NB_THREAD_PROCESS = 2;
 
 

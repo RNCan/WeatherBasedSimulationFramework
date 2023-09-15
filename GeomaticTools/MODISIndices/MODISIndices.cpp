@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.0.0	06/12/2020	Rémi Saint-Amant	Creation
 
 
@@ -29,7 +30,7 @@ using namespace WBSF::MODIS;
 
 namespace WBSF
 {
-	const char* CMODISIndices::VERSION = "1.0.2";
+	const char* CMODISIndices::VERSION = "1.1.2";
 	
 
 	///*********************************************************************************************************************

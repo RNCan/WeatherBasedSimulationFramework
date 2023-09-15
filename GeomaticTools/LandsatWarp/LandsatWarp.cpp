@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.3.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.1.3	22/02/2019	Rémi Saint-Amant	Add -corr8 options
 // 1.1.2	29/09/2018	Rémi Saint-Amant	Add option -RemoveEmpty and -Rename 
@@ -37,7 +38,7 @@ namespace WBSF
 {
 
 
-	const char* CLandsatWarp::VERSION = "1.2.0";
+	const char* CLandsatWarp::VERSION = "1.3.0";
 	const int CLandsatWarp::NB_THREAD_PROCESS = 2;
 
 

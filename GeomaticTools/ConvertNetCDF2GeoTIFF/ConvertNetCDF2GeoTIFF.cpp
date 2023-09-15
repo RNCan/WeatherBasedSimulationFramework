@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.0	13/07/2018	Rémi Saint-Amant	Creation
 
@@ -35,7 +36,7 @@ namespace WBSF
 {
 
 
-	const char* CConvertNetCDF2GeoTIFF::VERSION = "1.1.0";
+	const char* CConvertNetCDF2GeoTIFF::VERSION = "1.2.0";
 	const int CConvertNetCDF2GeoTIFF::NB_THREAD_PROCESS = 2;
 	enum TGEVar { GR_TAIR, GR_PRCP, GR_WNDU, GR_WNDV, GR_WNDS, GR_WNDD, NB_GE_VARIABLES };
 	static const char* VAR_NAME[NB_GE_VARIABLES] = { "TAIR", "PRCP", "WNDU", "WNDV", "WNDS", "WNDD" };

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.1.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.0.0	28/03/2022	Rémi Saint-Amant	Creation
 
 
@@ -34,7 +35,7 @@ namespace WBSF
 	T square(const T& x) { return x * x; }
 
 
-	const char* CHorizonImage::VERSION = "1.0.0";
+	const char* CHorizonImage::VERSION = "1.1.0";
 	std::string CHorizonImage::GetDescription() { return  std::string("HorizonImage version ") + CHorizonImage::VERSION + " (" + __DATE__ + ")"; }
 
 	//*********************************************************************************************************************

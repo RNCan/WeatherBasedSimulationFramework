@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.1	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 1.0.0	01/11/2017	Rémi Saint-Amant	Creation
@@ -31,7 +32,7 @@ using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
-	const char* CSegmentation::VERSION = "1.1.0";
+	const char* CSegmentation::VERSION = "1.2.0";
 	const size_t CSegmentation::NB_THREAD_PROCESS = 2;
 	//static const int NB_TOTAL_STATS = CSegmentationOption::NB_STATS*SCENES_SIZE;
 

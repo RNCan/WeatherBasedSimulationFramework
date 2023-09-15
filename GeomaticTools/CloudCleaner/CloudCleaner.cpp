@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 2.3.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 2.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.1.7	04/02/2018	Rémi Saint-Amant	Use loadPeriod for traitPeriod when not specified
 // 2.1.6    12/10/2018	Rémi Saint-Amant	change in trigger. remove pixel/median comparison.
@@ -80,7 +81,7 @@ using namespace WBSF::Landsat1;
 
 
 
-static const char* version = "2.2.0";
+static const char* version = "2.3.0";
 static const __int16 NOT_TRIGGED_CODE = (__int16)::GetDefaultNoData(GDT_Int16);
 static const CLandsatPixel NO_PIXEL;
 const char* CCloudCleanerOption::DEBUG_NAME[NB_DBUG] = { "_flag","_nbScenes", "_fill", "_model", "_delta_B1", "_delta_TCB" };

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 3.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 3.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 3.0.6    22/02/2018  Rémi Saint-Amant    Bug correction. reactivate -coor8
 // 3.0.5	11/10/2018	Rémi Saint-Amant	add -BLOCK_THREADS, -iFactor
@@ -81,7 +82,7 @@ using namespace WBSF::Landsat1;
 
 namespace WBSF
 {
-	const char* CMergeImages::VERSION = "3.1.0";
+	const char* CMergeImages::VERSION = "3.2.0";
 	static const int NB_TOTAL_STATS = CMergeImagesOption::NB_STATS*SCENES_SIZE;
 
 	//*********************************************************************************************************************

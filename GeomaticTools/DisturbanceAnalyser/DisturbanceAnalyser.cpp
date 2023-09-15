@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version 
+// 1.5.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 2.4.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 2.3.2	22/05/2018	Rémi Saint-Amant	Compile with VS 2017
 // 2.3.1	27/11/2017	Rémi Saint-Amant	Bug correction
@@ -78,7 +79,7 @@ using namespace WBSF::Landsat1;
 
  
 
-static const char* version = "2.4.0";
+static const char* version = "2.5.0";
 static const int NB_THREAD_PROCESS = 2; 
 static const int FIRE_CODE = 1;
 //static const int OTHER_CODE = 100;
