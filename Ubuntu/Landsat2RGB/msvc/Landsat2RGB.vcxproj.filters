@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="basic">
+      <UniqueIdentifier>{5cf63ec2-4b1d-44af-85d3-98d25dc45610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{1d054d01-c28d-4160-aa39-563d179e3884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geomatic">
+      <UniqueIdentifier>{cc7cc2ae-84d7-46f6-86d3-ed1cc750e5ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\basic\GeoBasic.cpp">
+      <Filter>basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basic\Statistic.cpp">
+      <Filter>basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basic\UtilMath.cpp">
+      <Filter>basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basic\UtilStd.cpp">
+      <Filter>basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geomatic\GDALDatasetEx.cpp">
+      <Filter>geomatic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geomatic\LandsatDataset2.cpp">
+      <Filter>geomatic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geomatic\LandTrendCore.cpp">
+      <Filter>geomatic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geomatic\LandTrendUtil.cpp">
+      <Filter>geomatic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geomatic\UtilGDAL.cpp">
+      <Filter>geomatic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\ERMsg\Ererreur.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\ERMsg\Erexcept.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\mpfit\mpfit.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\pugixml\pugixml.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\ERMsg\Syenvmsg.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\ERMsg\Symessag.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\tinyxml2\tinyxml2.cpp">
+      <Filter>external</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\basic\GeoBasic.h">
+      <Filter>basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\basic\OpenMP.h">
+      <Filter>basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\basic\Statistic.h">
+      <Filter>basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\basic\UtilMath.h">
+      <Filter>basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\basic\UtilStd.h">
+      <Filter>basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\GDAL.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\GDALDatasetEx.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\LandsatDataset2.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\LandTrendCore.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\LandTrendUtil.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geomatic\UtilGDAL.h">
+      <Filter>geomatic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Ererreur.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Erexcept.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\ERMsg.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\mpfit\mpfit.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\pugixml\pugiconfig.hpp">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\pugixml\pugixml.hpp">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Sycptref.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Sycptref.hpp">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Syenvmsg.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\ERMsg\Symessag.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\tinyxml2\tinyxml2.h">
+      <Filter>external</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
