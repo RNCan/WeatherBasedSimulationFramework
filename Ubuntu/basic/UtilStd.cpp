@@ -1027,7 +1027,7 @@ ERMsg WinExecWait(const std::string& command, std::string inputDir, bool bShow, 
 			msg.ajoute(std::string("Unable to execute command: ") + command);
 		}
 #else
-
+        system(command.c_str());
 #endif
 
 
