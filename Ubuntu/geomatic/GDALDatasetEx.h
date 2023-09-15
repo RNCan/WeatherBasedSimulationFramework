@@ -426,7 +426,7 @@ public:
     virtual void UpdateOption(CBaseOptions& options)const;
     virtual void Close(const CBaseOptions& options = CBaseOptions());
     virtual void ReadBlock(size_t i, size_t j, CRasterWindow& block)const;
-    virtual void ReadBlock(const CGeoExtents& window_extents, CRasterWindow& window_data, int rings =0, int IOCPU=1, size_t first_scene = NOT_INIT, size_t nb_scene = NOT_INIT)const;
+    virtual void ReadBlock(const CGeoExtents& window_extents, CRasterWindow& window_data, int rings =0, int IOCPU=1, size_t first_layer = NOT_INIT, size_t nb_layer = NOT_INIT)const;
 
     void BuildOverviews(const std::vector<int>& list, bool bQuiet);
     void ComputeStats(bool bQuiet);

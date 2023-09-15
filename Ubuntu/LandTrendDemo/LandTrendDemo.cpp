@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "LandTrendCore.h"
+#include "geomatic/LandTrendCore.h"
 
 
 

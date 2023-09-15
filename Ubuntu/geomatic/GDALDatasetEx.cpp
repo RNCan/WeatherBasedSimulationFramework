@@ -289,12 +289,9 @@ ERMsg CGDALDatasetEx::OpenInputImage(const string& filePath, const CBaseOptions&
                     for (size_t b = 0; b < GetRasterCount(); b++, it++)
                     {
                         string name;
-                        // string virtualBandEquation;
 
                         CGeoExtents extents = m_extents;
-                        //assert(false);//todo
-                        //if (m_bVRT)
-                        //{
+
                         assert(!it->child("ComplexSource").empty());
 
                         xml_node source = it->child("ComplexSource");
@@ -341,13 +338,12 @@ ERMsg CGDALDatasetEx::OpenInputImage(const string& filePath, const CBaseOptions&
 
                                 extents = CGeoExtents(m_extents.XYPosToCoord(rect), size, blockSize);
                             }
-
-
-                            m_internalExtents[b]=extents;
-                            m_internalName[b]=name;
-
                         }
+                                                    m_internalExtents[b] = extents;
+        m_internalName[b] = name;
+
                     }
+
 
                 }
                 else
@@ -758,8 +754,14 @@ ERMsg CGDALDatasetEx::BuildVRT(const CBaseOptions& options)
         file.close();
     }
 
-    string command = "gdalbuildvrt -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (options.m_bQuiet ? " -q" : "");
+    #if _MSVC
+    string command = "gdalbuildvrt.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (options.m_bQuiet ? " -q" : "");
     msg = WinExecWait(command);
+    #else
+        string command = "gdalbuildvrt -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (options.m_bQuiet ? " -q" : "");
+        system(command.c_str());
+    #endif
+
 
     return msg;
 }
@@ -959,19 +961,19 @@ CGeoExtents CGDALDatasetEx::ComputeLoadExtent(const CGeoExtents& window_extents,
     return loadExtents;
 }
 
-void CGDALDatasetEx::ReadBlock(const CGeoExtents& windowExtents, CRasterWindow& window_data, int rings, int IOCPU, size_t first_scene, size_t nb_scene)const
+void CGDALDatasetEx::ReadBlock(const CGeoExtents& windowExtents, CRasterWindow& window_data, int rings, int IOCPU, size_t first_layer, size_t nb_layer)const
 {
     //CGeoExtents windowExtents = windowExtentsIn;
     //windowExtents.IntersectExtents(m_extents);
 //		assert(m_extents.IsInside(windowExtents));
 
 
-    if (first_scene == NOT_INIT)
-        first_scene = 0;
-    if (nb_scene == NOT_INIT)
-        nb_scene = GetNbScenes();
-    
-    assert(first_scene + nb_scene <= GetNbScenes());
+    if (first_layer == NOT_INIT)
+        first_layer = 0;
+    if (nb_layer == NOT_INIT)
+        nb_layer = GetRasterCount();
+
+    assert(first_layer + nb_layer <= GetRasterCount());
     //if (m_pMaskBandHolder.get())
     //{
     //	m_pMaskBandHolder->SetMaskDataUsed(m_maskDataUsed);
@@ -1015,9 +1017,9 @@ void CGDALDatasetEx::ReadBlock(const CGeoExtents& windowExtents, CRasterWindow& 
     bool bEmpty = true;
     window_data.resize(GetRasterCount(), windowExtents);
 //#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
-    for (int64_t ii = 0; ii < int64_t(nb_scene* GetSceneSize()); ii++)
+    for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)
     {
-        size_t i = first_scene*GetSceneSize() + ii;
+        size_t i = first_layer + ii;
         //for (int j = 0; j < scenesSize; j++)
         //{
         //m_bandHolder[i * scenesSize + j]->ExcludeBand(bTemporal && m_scenesPeriod[i].IsInit() && !p.IsIntersect(m_scenesPeriod[i]));

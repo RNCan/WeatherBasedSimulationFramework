@@ -14,13 +14,5 @@
 
 #define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 
-#if _MSC_VER
-
-#include "gdal/include/gdal_priv.h"
-#include "gdal/include/ogr_spatialref.h"
-
-#else
-
 #include "gdal/gdal_priv.h"
 #include "gdal/ogr_spatialref.h"
-#endif

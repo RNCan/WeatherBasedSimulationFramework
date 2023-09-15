@@ -22,12 +22,6 @@
 #include <stdarg.h>
 #include "basic/UtilStd.h"
 
-#if _MSC_VER
-#define NOMINMAX
-#include <windows.h>
-#include <processthreadsapi.h>
-#endif
-
 using namespace std;
 
 using boost::tokenizer;
@@ -995,41 +989,33 @@ ERMsg WinExecWait(const std::string& command, std::string inputDir, bool bShow, 
 {
     ERMsg msg;
 
-#if _MSC_VER
-		while (IsPathEndOk(inputDir))
-			inputDir = inputDir.substr(0, inputDir.length() - 1);
-
-		STARTUPINFOA si = { 0 };
-		si.cb = sizeof(si);
-		si.dwFlags = STARTF_USESHOWWINDOW;
-		si.wShowWindow = bShow?SW_SHOW:SW_HIDE;
-
-		PROCESS_INFORMATION pi = { 0 };
-
-		//std::wstring wdir(UTF16(inputDir));
-		//std::wstring wcommand = UTF16(command);
-		LPCSTR pDir = inputDir.empty() ? NULL : inputDir.c_str();
-
-		if (::CreateProcessA(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, FALSE, NULL, NULL, pDir, &si, &pi))
-		{
-			::CloseHandle(pi.hThread);
-			::WaitForSingleObject(pi.hProcess, INFINITE);
-
-            if (pExitCode != NULL)
-            {
-               // DWORD E=0;
-                //::GetExitCodeProcess(pi.hProcess, &E);
-            }
-		}
-		else
-		{
-			//msg = GetLastErrorMessage();
-			msg.ajoute(std::string("Unable to execute command: ") + command);
-		}
-#else
-        system(command.c_str());
-#endif
-
+//		while (IsPathEndOk(inputDir))
+//			inputDir = inputDir.substr(0, inputDir.length() - 1);
+//
+//		STARTUPINFO si = { 0 };
+//		si.cb = sizeof(si);
+//		si.dwFlags = STARTF_USESHOWWINDOW;
+//		si.wShowWindow = uCmdShow;
+//
+//		PROCESS_INFORMATION pi = { 0 };
+//
+//		std::wstring wdir(UTF16(inputDir));
+//		std::wstring wcommand = UTF16(command);
+//		LPCWSTR pDir = wdir.empty() ? NULL : wdir.c_str();
+//
+//		if (::CreateProcessW(NULL, &(wcommand[0]), NULL, NULL, FALSE, NULL, NULL, pDir, &si, &pi))
+//		{
+//			::CloseHandle(pi.hThread);
+//			::WaitForSingleObject(pi.hProcess, INFINITE);
+//
+//			if (pExitCode != NULL)
+//				::GetExitCodeProcess(pi.hProcess, pExitCode);
+//		}
+//		else
+//		{
+//			msg = GetLastErrorMessage();
+//			msg.ajoute(std::string("Unable to execute command: ") + command);
+//		}
 
     return msg;
 }

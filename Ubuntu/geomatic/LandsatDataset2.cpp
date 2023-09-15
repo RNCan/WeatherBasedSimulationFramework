@@ -875,7 +875,7 @@ LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind,
     if (n_rings1 == n_rings2)
     {
         assert(n_rings1 == n_rings && n_rings2 == n_rings);
-        CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings1);
+        CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings);
         if (stat_i.IsInit())
         {
             val = LandsatDataType(stat_i[MEAN]);

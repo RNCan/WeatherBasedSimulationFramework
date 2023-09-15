@@ -16,7 +16,7 @@
 					<Add option="-m64" />
 					<Add option="-g" />
 					<Add option="-fopenmp" />
-					<Add directory="../../external" />
+					<Add directory=".." />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
@@ -40,14 +40,13 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="LandTrendCore.cpp" />
-		<Unit filename="LandTrendCore.h" />
+		<Unit filename="../external/mpfit/mpfit.cpp" />
+		<Unit filename="../external/mpfit/mpfit.h" />
+		<Unit filename="../geomatic/LandTrendCore.cpp" />
+		<Unit filename="../geomatic/LandTrendCore.h" />
+		<Unit filename="../geomatic/LandTrendUtil.cpp" />
+		<Unit filename="../geomatic/LandTrendUtil.h" />
 		<Unit filename="LandTrendDemo.cpp" />
-		<Unit filename="LandTrendUtil.cpp" />
-		<Unit filename="LandTrendUtil.h" />
-		<Unit filename="external/mpfit.cpp" />
-		<Unit filename="external/mpfit.h" />
-		<Unit filename="version.h" />
 		<Extensions>
 			<AutoVersioning>
 				<Scheme minor_max="10" build_max="0" rev_max="0" rev_rand_max="10" build_times_to_increment_minor="100" />
