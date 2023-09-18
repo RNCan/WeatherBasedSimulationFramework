@@ -50,11 +50,11 @@ public:
     //size_t m_maxLayers;
     int m_firstYear;
     //bool m_bExportBreaks;
-    bool m_bDebug;
+    bool m_bBreaks;
 };
 
 typedef std::deque < std::vector< Landsat2::LandsatDataType>> OutputData;
-typedef std::deque < std::vector< Landsat2::LandsatDataType>> DebugData;
+typedef std::deque < std::vector< Landsat2::LandsatDataType>> BreaksData;
 
 typedef std::pair<double, size_t> NBRPair;
 typedef std::vector<NBRPair> NBRVector;
@@ -70,11 +70,11 @@ public:
         return  std::string("LandTrendImages version ") + VERSION + " (" + __DATE__ + ")";
     }
 
-    ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, Landsat2::CLandsatDataset& outputDS, CGDALDatasetEx& debugDS);
+    ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, Landsat2::CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS);
     void ReadBlock(Landsat2::CLandsatDataset& inputDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& bandHolder);
-    void ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& bandHolder, const std::deque<boost::dynamic_bitset<>>& validity, OutputData& outputData, DebugData& debugData);
-    void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData);
-    void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS);
+    void ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& bandHolder, const std::deque<boost::dynamic_bitset<>>& validity, OutputData& outputData, BreaksData& breaksData);
+    void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreaksData& breaksData);
+    void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
 
     CLandTrendOption m_options;
 

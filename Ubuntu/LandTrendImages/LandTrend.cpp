@@ -60,7 +60,7 @@ namespace WBSF
 		m_rings = 0;
 
 		m_firstYear = 0;
-		m_bDebug = false;
+		m_bBreaks = false;
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
 
@@ -81,7 +81,7 @@ namespace WBSF
 			//{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
 			//le code ne fonctinnera pas. Il faut que cette couche soit intégrer dans CGDALDatasetEx
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
-			{ "-Debug",  0,"",false,"Output debug information."},
+			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
 			{ "srcfile", 0, "", false, "Input image file path." },
 			{ "dstfile", 0, "", false, "Output image file path." }
 		};
@@ -99,7 +99,7 @@ namespace WBSF
 		{
 			{ "Input Image", "srcfile", "", "nbYears", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B7: Landsat band 7|... for all scenes", "" },
 			{ "Output Image", "dstfile", "", "nbYears", "Same as input", "" },
-			{ "Optional Output Image", "dstfile_debug","1","NbOutputLayers=(MaxSegments+1)*2+1","Nb vertices: number of vertices found|vert1: vertice1. Year if FirstYear is define|fit1: fit of vertice1|... for all vertices"}
+			{ "Optional Output Image", "dstfile_breaks","1","NbOutputLayers=(MaxSegments+1)*2+1","Nb vertices: number of vertices found|vert1: vertice1. Year if FirstYear is define|fit1: fit of vertice1|... for all vertices"}
 		};
 
 		for (size_t i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
@@ -198,9 +198,9 @@ namespace WBSF
 		{
 			m_ValidityMask = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-Debug"))
+		else if (IsEqual(argv[i], "-Breaks"))
 		{
-			m_bDebug = true;
+			m_bBreaks = true;
 		}
 		else
 		{
@@ -242,9 +242,9 @@ namespace WBSF
 		CGDALDatasetEx maskDS;
 		CLandsatDataset outputDS;
 		CGDALDatasetEx validityDS;
-		CGDALDatasetEx debugDS;
+		CGDALDatasetEx breaksDS;
 
-		msg = OpenAll(inputDS, maskDS, validityDS, outputDS, debugDS);
+		msg = OpenAll(inputDS, maskDS, validityDS, outputDS, breaksDS);
 		if (!msg)
 			return msg;
 
@@ -256,16 +256,16 @@ namespace WBSF
 
 
 		//load validity mask;
-		deque<boost::dynamic_bitset<>> validity(outputDS.GetNbScenes());
+		deque<boost::dynamic_bitset<>> validity(inputDS.GetNbScenes());
 		for (size_t ii = 0; ii < validity.size(); ii++)
 		{
 			size_t i = m_options.m_scene_extents[0] + ii;
-			validity[ii].resize(outputDS.GetRasterXSize() * outputDS.GetRasterYSize(), true);
+			validity[ii].resize(inputDS.GetRasterXSize() * inputDS.GetRasterYSize(), true);
 
 			if (validityDS.IsOpen())
 			{
-				assert(validityDS.GetRasterCount() == outputDS.GetRasterCount());
-				assert(validityDS.GetRasterXSize() * validityDS.GetRasterYSize() == outputDS.GetRasterXSize() * outputDS.GetRasterYSize());
+				assert(validityDS.GetRasterCount() == inputDS.GetRasterCount());
+				assert(validityDS.GetRasterXSize() * validityDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
 				vector<char> tmp(validityDS.GetRasterXSize() * validityDS.GetRasterYSize());
 				GDALRasterBand* pBand = validityDS.GetRasterBand(i);
 				pBand->RasterIO(GF_Read, 0, 0, validityDS.GetRasterXSize(), validityDS.GetRasterYSize(), &(tmp[0]), validityDS.GetRasterXSize(), validityDS.GetRasterYSize(), GDT_Byte, 0, 0);
@@ -296,20 +296,20 @@ namespace WBSF
 
 			Landsat2::CLandsatWindow inputData;
 			OutputData outputData;
-			DebugData debugData;
+			BreaksData breaksData;
 			ReadBlock(inputDS, xBlock, yBlock, inputData);
-			ProcessBlock(xBlock, yBlock, inputData, validity, outputData, debugData);
-			WriteBlock(xBlock, yBlock, outputDS, debugDS, outputData, debugData);
+			ProcessBlock(xBlock, yBlock, inputData, validity, outputData, breaksData);
+			WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 		}//for all blocks
 
-		CloseAll(inputDS, maskDS, outputDS, debugDS);
+		CloseAll(inputDS, maskDS, outputDS, breaksDS);
 
 		return msg;
 	}
 
 
 
-	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, CLandsatDataset& outputDS, CGDALDatasetEx& debugDS)
+	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS)
 	{
 		ERMsg msg;
 
@@ -403,16 +403,19 @@ namespace WBSF
 			msg += outputDS.CreateImage(filePath, options);
 		}
 
-		if (msg && m_options.m_bDebug)
+		if (msg && m_options.m_bBreaks)
 		{
 			CLandTrendOption options(m_options);
 			options.m_nbBands = options.max_vertices() * 2 + 1;
 
 			if (!m_options.m_bQuiet)
-				cout << "Open debug images..." << endl;
+			{
+				cout << "Open breaks images..." << endl;
+				cout << "    NbBands        = " << options.m_nbBands << endl;
+			}
 
 			string filePath = options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH];
-			SetFileTitle(filePath, GetFileTitle(filePath) + "_debug");
+			SetFileTitle(filePath, GetFileTitle(filePath) + "_Breaks");
 			options.m_VRTBandsName = GetFileTitle(filePath) + "_nbVert.tif|";
 			for (size_t s = 0; s < options.max_vertices(); s++)
 			{
@@ -420,7 +423,7 @@ namespace WBSF
 				options.m_VRTBandsName += GetFileTitle(filePath) + FormatA("_Fit%02d.tif|", s + 1);
 			}
 
-			msg += debugDS.CreateImage(filePath, options);
+			msg += breaksDS.CreateImage(filePath, options);
 		}
 
 		return msg;
@@ -477,7 +480,7 @@ namespace WBSF
 		return (t1 && t2);
 	}
 
-	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, const deque<boost::dynamic_bitset<>>& validity, OutputData& outputData, DebugData& debugData)
+	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, const deque<boost::dynamic_bitset<>>& validity, OutputData& outputData, BreaksData& breaksData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -502,11 +505,11 @@ namespace WBSF
 			for (size_t s = 0; s < outputData.size(); s++)
 				outputData[s].insert(outputData[s].begin(), blockSize.m_x * blockSize.m_y, DataType(m_options.m_dstNodata));
 		}
-		if (m_options.m_bDebug)
+		if (m_options.m_bBreaks)
 		{
-			debugData.resize(m_options.max_vertices() * 2 + 1);
-			for (size_t s = 0; s < debugData.size(); s++)
-				debugData[s].insert(debugData[s].begin(), blockSize.m_x * blockSize.m_y, DataType(m_options.m_dstNodata));
+			breaksData.resize(m_options.max_vertices() * 2 + 1);
+			for (size_t s = 0; s < breaksData.size(); s++)
+				breaksData[s].insert(breaksData[s].begin(), blockSize.m_x * blockSize.m_y, DataType(m_options.m_dstNodata));
 		}
 
 #pragma omp critical(ProcessBlock)
@@ -593,65 +596,68 @@ namespace WBSF
 
 
 						//if need output
-						if (!outputData.empty() && result.ok)
+						if (result.ok)
 						{
-							//create output image doing a regression for each band by segment
-							for (size_t s = 0; s < SCENES_SIZE; s++)//for all bands
+							if (!outputData.empty())
 							{
-
-								CVectices V = result.vertices;
-								CRealArray X(window.size());
-								CRealArray Y(window.size());
-								for (size_t z = 0; z < window.size(); z++)
+								//create output image doing a regression for each band by segment
+								for (size_t s = 0; s < SCENES_SIZE; s++)//for all bands
 								{
-									X[z] = REAL_TYPE(z);
-									Y[z] = window.GetPixel(z, x, y)[s];
-								}
 
-								CRealArray yfit(Y.size());
-								for (size_t i = 0; i < V.size() - 1; i++)//for all segmentx
-								{
-									//we need to remove bad data from vertices
-									CBoolArray G = subset(goods, V[i], V[i + 1]);
-
-									CRealArray xx = subset(X, V[i], V[i + 1])[G];
-									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
-									assert(xx.size() == yy.size());
-									assert(xx.size() > 0);
-									xx = CRealArray(xx[yy != no_data]);
-									yy = CRealArray(yy[yy != no_data]);
-									if (xx.size() >= 2)
+									CVectices V = result.vertices;
+									CRealArray X(window.size());
+									CRealArray Y(window.size());
+									for (size_t z = 0; z < window.size(); z++)
 									{
-										//if we've done desawtooth, it's possible that all of the
-										//  values in a segment have same value, in which case regress
-										//  would choke, so deal with that.
-
-										RegressP P = Regress(xx, yy);
-
-										yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
-									}
-									else if (xx.size() == 1)
-									{
-										//if only one point, take this yfit value
-										yfit[get_slice(V[i], V[i + 1])] = yy[0];
+										X[z] = REAL_TYPE(z);
+										Y[z] = window.GetPixel(z, x, y)[s];
 									}
 
-								}
+									CRealArray yfit(Y.size());
+									for (size_t i = 0; i < V.size() - 1; i++)//for all segmentx
+									{
+										//we need to remove bad data from vertices
+										CBoolArray G = subset(goods, V[i], V[i + 1]);
 
-								for (size_t z = 0; z < window.size(); z++)
-								{
-									outputData[z * SCENES_SIZE + s][xy] = DataType(yfit[z]);
+										CRealArray xx = subset(X, V[i], V[i + 1])[G];
+										CRealArray yy = subset(Y, V[i], V[i + 1])[G];
+										assert(xx.size() == yy.size());
+										assert(xx.size() > 0);
+										xx = CRealArray(xx[yy != no_data]);
+										yy = CRealArray(yy[yy != no_data]);
+										if (xx.size() >= 2)
+										{
+											//if we've done desawtooth, it's possible that all of the
+											//  values in a segment have same value, in which case regress
+											//  would choke, so deal with that.
+
+											RegressP P = Regress(xx, yy);
+
+											yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
+										}
+										else if (xx.size() == 1)
+										{
+											//if only one point, take this yfit value
+											yfit[get_slice(V[i], V[i + 1])] = yy[0];
+										}
+
+									}
+
+									for (size_t z = 0; z < window.size(); z++)
+									{
+										outputData[z * SCENES_SIZE + s][xy] = DataType(yfit[z]);
+									}
 								}
 							}
 
-							//if output debug
-							if (!debugData.empty())
+							//if output breaks
+							if (!breaksData.empty())
 							{
-								debugData[0][xy] = (LandsatDataType)result.vertvals.size();
+								breaksData[0][xy] = (LandsatDataType)result.vertvals.size();
 								for (size_t s = result.vertvals.size() - 1; s < result.vertvals.size(); s--)
 								{
-									debugData[s * 2 + 1][xy] = (LandsatDataType)(m_options.m_firstYear + result.vertices[s]);
-									debugData[s * 2 + 2][xy] = (LandsatDataType)result.vertvals[s];
+									breaksData[s * 2 + 1][xy] = (LandsatDataType)(m_options.m_firstYear + result.vertices[s]);
+									breaksData[s * 2 + 2][xy] = (LandsatDataType)result.vertvals[s];
 								}
 							}
 						}
@@ -670,7 +676,7 @@ namespace WBSF
 	}
 
 
-	void CLandTrend::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS, OutputData& outputData, DebugData& debugData)
+	void CLandTrend::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreaksData& breaksData)
 	{
 #pragma omp critical(BlockIO)
 		{
@@ -702,30 +708,30 @@ namespace WBSF
 				}
 			}
 
-			if (debugDS.IsOpen())
+			if (breaksDS.IsOpen())
 			{
-				CGeoExtents extents = debugDS.GetExtents();
-				CGeoRectIndex debugRect = extents.GetBlockRect(xBlock, yBlock);
+				CGeoExtents extents = breaksDS.GetExtents();
+				CGeoRectIndex breaksRect = extents.GetBlockRect(xBlock, yBlock);
 
-				assert(debugRect.m_x >= 0 && debugRect.m_x < debugDS.GetRasterXSize());
-				assert(debugRect.m_y >= 0 && debugRect.m_y < debugDS.GetRasterYSize());
-				assert(debugRect.m_xSize > 0 && debugRect.m_xSize <= debugDS.GetRasterXSize());
-				assert(debugRect.m_ySize > 0 && debugRect.m_ySize <= debugDS.GetRasterYSize());
+				assert(breaksRect.m_x >= 0 && breaksRect.m_x < breaksDS.GetRasterXSize());
+				assert(breaksRect.m_y >= 0 && breaksRect.m_y < breaksDS.GetRasterYSize());
+				assert(breaksRect.m_xSize > 0 && breaksRect.m_xSize <= breaksDS.GetRasterXSize());
+				assert(breaksRect.m_ySize > 0 && breaksRect.m_ySize <= breaksDS.GetRasterYSize());
 
-				for (size_t z = 0; z < debugData.size(); z++)
+				for (size_t z = 0; z < breaksData.size(); z++)
 				{
-					GDALRasterBand* pBand = debugDS.GetRasterBand(z);
-					if (!debugData.empty())
+					GDALRasterBand* pBand = breaksDS.GetRasterBand(z);
+					if (!breaksData.empty())
 					{
-						assert(outputData.size() == outputDS.GetRasterCount());
+						assert(breaksData.size() == breaksDS.GetRasterCount());
 
-						for (int y = 0; y < debugRect.Height(); y++)
-							pBand->RasterIO(GF_Write, debugRect.m_x, debugRect.m_y, debugRect.Width(), debugRect.Height(), &(debugData[z][0]), debugRect.Width(), debugRect.Height(), GDT_Int16, 0, 0);
+						for (int y = 0; y < breaksRect.Height(); y++)
+							pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &(breaksData[z][0]), breaksRect.Width(), breaksRect.Height(), GDT_Int16, 0, 0);
 					}
 					else
 					{
-						LandsatDataType noData = (LandsatDataType)outputDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, debugRect.m_x, debugRect.m_y, debugRect.Width(), debugRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+						LandsatDataType noData = (LandsatDataType)breaksDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
 					}
 				}
 			}
@@ -735,7 +741,7 @@ namespace WBSF
 		}
 	}
 
-	void CLandTrend::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& debugDS)
+	void CLandTrend::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS)
 	{
 		inputDS.Close();
 		maskDS.Close();
@@ -743,7 +749,7 @@ namespace WBSF
 		m_options.m_timerWrite.start();
 
 		outputDS.Close(m_options);
-		debugDS.Close(m_options);
+		breaksDS.Close(m_options);
 
 
 		m_options.m_timerWrite.stop();
