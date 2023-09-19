@@ -4,7 +4,7 @@
 //***********************************************************************
 #include "stdafx.h"
 #include <iostream>
-#include "PointsExtractor.h"
+#include "PointsExtractorLayer.h"
 
 using namespace std;
 using namespace WBSF;
