@@ -550,9 +550,8 @@ namespace WBSF
 	//	return log(max(DBL_MIN, p));//max: avoid log of 0
 	//}
 
-	bool Regniere2021DevRate(TDevRateEquation  e, double sigma, const vector<double>& X, const CDevRateDataRow& info, map<double, double>& t_xi)
+	bool Regniere2021DevRate(TDevRateEquation  e, const vector<double>& X, const CDevRateDataRow& info, map<double, double>& t_xi)
 	{
-		ASSERT(sigma > 0);
 
 		const vector<double>& T = info.T();
 
@@ -661,10 +660,6 @@ namespace WBSF
 			}
 
 		}
-		//compute probability of changing stage between ti-1 and ti
-		//boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-		//double p = (isfinite(xi) && isfinite(xiˉ¹)) ? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹) : DBL_MIN;
-		//return log(max(DBL_MIN, p));//max: avoid log of 0
 
 		return true;
 	}
@@ -746,12 +741,12 @@ namespace WBSF
 		//1E-20: avoid division by zero
 		double sim_time = 1.0 / max(1E-20, stat_rate[MEAN]);
 
-		//if (time_SD <= 0)//support when n  =1
-			//time_SD = 1;
 		//compute probability 
-		boost::math::normal_distribution<double> Normal(0, time_SD / sqrt(n));
+		boost::math::normal_distribution<double> Normal(0, time_SD / sqrt(n));//In c++, Normals need SD
 
+		ASSERT(isfinite(sim_time));
 		double p = pdf(Normal, obs_time - sim_time);
+
 		return log(max(DBL_MIN, p));
 	}
 
@@ -1063,34 +1058,6 @@ namespace WBSF
 	{
 		double to = 0;
 		double Fo = X[X.size() - 2];
-		//double sigma_f = computation.m_XP.back();
-		//double Fo = computation.m_XP.back();
-	//	boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5*Square(sigma_f), sigma_f);
-		//double Fi = quantile(LogNormal, qi);
-
-
-
-		//double O = GetOviposition(e, to, computation, T, mean_time);
-
-		//if (!isfinite(O) || isnan(O))
-		//	return O;
-
-		//double expected = max(0.001, min(1e10, (mean_time - to) * O));//limit to a very low expected when zero survival
-		//boost::math::poisson_distribution<double> Poisson(expected);
-
-		////compute probability of surviving
-		//double p = pdf(Poisson, broods_obs);
-		//return log(p);
-
-
-		////1E-20: avoid division by zero
-		//double sim_time = 1.0 / max(1E-20, stat_rate[MEAN]);
-
-		////compute probability of changing stage between ti-1 and ti
-		//boost::math::normal_distribution<double> Normal(0, time_SD / sqrt(n));
-
-		//double p = max(1e-200, pdf(Normal, mean_time - sim_time));
-		//return log(p);
 
 		double sim_broods = 0;
 		CStatistic stat_lambda;
@@ -2804,15 +2771,17 @@ namespace WBSF
 //		m_bConverge01 = false;
 	//	m_bCalibSigma = false;
 
-
+		//Warning: parameters for Mean+SD+n need more accuracy than the individual one.
 		m_ctrl.Reset();
 		m_ctrl.m_bMax = true;
 		m_ctrl.m_statisticType = LIKELIHOOD;
-		m_ctrl.m_MAXEVL = 1000000;
-		m_ctrl.m_NS = 15;
-		m_ctrl.m_NT = 20;
-		m_ctrl.m_T = 10;
-		m_ctrl.m_RT = 0.5;
+		m_ctrl.m_MAXEVL = 10000000;
+		m_ctrl.m_NS = 60;
+		m_ctrl.m_NT = 30;
+		m_ctrl.m_T = 200;
+		m_ctrl.m_RT = 0.85;
+		//m_ctrl.m_RT2 = 0.75;
+		m_ctrl.m_EPS = 0.0001;
 
 
 		m_Tobs.clear();
@@ -4381,7 +4350,7 @@ namespace WBSF
 	{
 		bool bValid = true;
 
-		
+
 		if (m_bConstrainTlo)
 		{
 			CStatistic stat_sim;
@@ -4402,12 +4371,12 @@ namespace WBSF
 			bValid &= stat_sim[LOWEST] <= 0 && stat_sim[HIGHEST] > 0;
 		}
 
-		
+
 		if (m_bConstrainThi)
 		{
 			CStatistic stat_sim;
 
-		
+
 			for (double T = m_Thi[0]; T < m_Thi[1]; T += 0.25)
 			{
 				double rate = CDevRateEquation::GetRate(eq, P, T);//daily rate
@@ -4493,194 +4462,70 @@ namespace WBSF
 
 			double sigma = computation.m_XP.back();
 
-			if (true)
+			//for all treatment
+			for (auto it = m_devTime.m_pos[var].begin(); it != m_devTime.m_pos[var].end(); it++)
 			{
-				//for all treatment
-				for (auto it = m_devTime.m_pos[var].begin(); it != m_devTime.m_pos[var].end(); it++)
+				const vector<size_t>& pos = it->second;
+				if (m_devTime.m_bIndividual)//use individual time
 				{
-					const vector<size_t>& pos = it->second;
-					if (m_devTime.m_bIndividual)//use individual time
+
+					map<double, double> t_xi;
+					for (auto iit = pos.begin(); iit != pos.end(); iit++)
 					{
-
-						map<double, double> t_xi;
-						for (auto iit = pos.begin(); iit != pos.end(); iit++)
+						if (iit == pos.begin())
 						{
-							if (iit == pos.begin())
-							{
-								ASSERT(m_devTime[*iit].t(true) > 0);
-								t_xi[m_devTime[*iit].t(true)] = 0;
-							}
-
-							ASSERT(m_devTime[*iit].t() > 0);
-							t_xi[m_devTime[*iit].t()] = 0;
+							ASSERT(m_devTime[*iit].t(true) > 0);
+							t_xi[m_devTime[*iit].t(true)] = 0;
 						}
 
-						if (!Regniere2021DevRate(eq, sigma, computation.m_XP, m_devTime[pos.front()], t_xi))
-							return false;
-
-						//compute probability of changing stage between ti-1 and ti
-						boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-
-
-						//for (auto it = m_devTime.begin(); it != m_devTime.end(); it++)
-						for (auto iit = pos.begin(); iit != pos.end(); iit++)
-						{
-							double xi = t_xi[m_devTime[*iit].t()];
-							double xiˉ¹ = t_xi[m_devTime[*iit].t(true)];
-
-
-							double p = (isfinite(xi) && isfinite(xiˉ¹)) ? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹) : DBL_MIN;
-							double LL = log(max(DBL_MIN, p));//max: avoid log of 0
-							double n = m_devTime[*iit].at(I_N);
-							LL *= n;///??????
-
-							log_likelyhoude += LL;
-							N_likelyhoude += n;
-						}
+						ASSERT(m_devTime[*iit].t() > 0);
+						t_xi[m_devTime[*iit].t()] = 0;
 					}
-					else//use mean
-					{
-						for (auto iit = pos.begin(); iit != pos.end(); iit++)
-						{
-							if (m_devTime[*iit][I_MEAN_TIME] > 0)//Use only non NA
-							{
-								//LL seem to not have to be multiply by N!
-								log_likelyhoude += Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_devTime[*iit]);
-								N_likelyhoude += 1;
-							}
-						}
 
+					if (!Regniere2021DevRate(eq, computation.m_XP, m_devTime[pos.front()], t_xi))
+						return false;
+
+					//compute probability of changing stage between ti-1 and ti
+					boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
+
+
+					//for (auto it = m_devTime.begin(); it != m_devTime.end(); it++)
+					for (auto iit = pos.begin(); iit != pos.end(); iit++)
+					{
+						double xi = t_xi[m_devTime[*iit].t()];
+						double xiˉ¹ = t_xi[m_devTime[*iit].t(true)];
+
+
+						double p = (isfinite(xi) && isfinite(xiˉ¹)) ? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹) : DBL_MIN;
+						double LL = log(max(DBL_MIN, p));//max: avoid log of 0
+						double n = m_devTime[*iit].at(I_N);
+						LL *= n;///??????
+
+						log_likelyhoude += LL;
+						N_likelyhoude += n;
 					}
 				}
-			}
-			else
-			{
-
-
-				//for (__int64 i = 0; i < (__int64)m_devTime.size(); i++)
-				for (auto it = m_devTime.begin(); it != m_devTime.end(); it++)
+				else//use mean
 				{
-					//if (WBSF::IsEqualNoCase(it->m_variable, var))//take double of the time
-					if (it->m_variable == var)
+					for (auto iit = pos.begin(); iit != pos.end(); iit++)
 					{
-						if (bLogLikelyhoude)//use likelihood method
+						if (m_devTime[*iit][I_MEAN_TIME] > 0)//Use only non NA
 						{
-							//double LL = 0;
-							//size_t n = 0;
+							//LL seem to not have to be multiply by N!
+							double LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_devTime[*iit]);
+							double n = m_devTime[*iit].at(I_N);
 
-							//if (m_devTime.m_bIndividual)//use individual time
-							//{
-							//	// it can be a better solution to send the Time and Time-1: ToDo add Time Series Development fit
-							//	LL = Regniere2021DevRate(eq, sigma, computation.m_XP, *it);
-							//	n = it->at(I_N);
-							//	LL *= n * it->at(I_WEIGHT);
-							//}
-							//else//use mean+sd+n
-							//{
-							//	//LL seem to not have to be multiply by N!
-							//	//if(m_devTime[i][I_TIME_SD]>0)//do not used when n=1
-							//	LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, *it);
-							//	//else
-							//		//LL = Regniere2021DevRate(eq, sigma, computation.m_XP, m_devTime[i]);
-							//	n = 1;
-							//}
-
-							////compute maximum rate and don't let it got 
-
-
-							//if (isnan(LL))
-							//	return false;
-
-
-							//log_likelyhoude += LL;
-							//N_likelyhoude += n;
+							log_likelyhoude += LL;
+							//N_likelyhoude += 1;
+							N_likelyhoude += n;//validate with Jacques
 						}
-						else//use least square method
-						{
-							//if (m_devTime.m_bIndividual)//use individual time
-							//{
-							//	double rate = GetRateStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_treatment], m_devTime[i][I_TIME]);
-							//	if (!isfinite(rate) || isnan(rate))
-							//		return;
+					}
 
-							//	boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-							//	double RDR = quantile(LogNormal, m_devTime[i][I_Q_RATE]);
-							//	double sim = rate * RDR;
-							//	double obs = m_devTime[i][I_RATE];
-							//	for (size_t n = 0; n < m_devTime[i][I_N]; n++)
-							//		stat.Add(sim, obs);
-							//}
-							//else//use mean+sd+n 
-							//{
-							//	double mean_time = GetTimeStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_treatment]);
-							//	if (!isfinite(mean_time) || isnan(mean_time))
-							//		return;
-
-							//	double obs = 1 / m_devTime[i][I_MEAN_TIME];//apply the same approximation
-							//	double sim = 1 / mean_time;//apply the same approximation
-
-							//	for (size_t n = 0; n < m_devTime[i][I_N]; n++)
-							//		stat.Add(sim, obs);
-							//}
-						}
-					}//if valid
-				}//for
+				}
 			}
+
 
 		}
-		//else if (m_fitType == F_DEV_TIME_ONLY)//base on mean rate only (no sigma)
-		//{
-
-		//	TDevRateEquation eq = CDevRateEquation::eq(e);
-		//	if (CDevRateEquation::IsParamValid(eq, computation.m_XP))
-		//	{
-		//		for (__int64 i = 0; i < (__int64)m_devTime.size(); i++)
-		//		{
-		//			//if (WBSF::IsEqualNoCase(m_devTime[i].m_variable, var))
-		//			if (m_devTime[i].m_variable == var)
-		//			{
-		//				if (bLogLikelyhoude)
-		//				{
-
-		//					double LL = 0;
-		//					if (m_devTime.m_bIndividual)//use individual time
-		//					{
-		//						//ASSERT(false);
-		//						//LL = Regniere2021DevRateMeanSDn(eq, computation, m_Tobs[m_devTime[i].m_treatment], m_devTime[i][I_MEAN_TIME], m_devTime[i][I_TIME_SD], m_devTime[i][I_N]);
-		//					}
-		//					else
-		//					{
-		//						LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_devTime[i]);
-		//					}
-
-		//					if (!isfinite(LL) || isnan(LL))
-		//						return false;
-
-		//					//log_likelyhoude += LL;
-		//					//N_likelyhoude++;
-		//					log_likelyhoude += LL/* * m_devTime[i][I_N]*/;
-		//					N_likelyhoude += m_devTime[i][I_N];
-		//				}
-		//				else
-		//				{
-		//					if (m_devTime[i][I_MEAN_TIME] > 0)
-		//					{
-		//						double mean_time = GetTimeStat(eq, computation.m_XP, m_Tobs[m_devTime[i].m_treatment]);
-		//						if (!isfinite(mean_time) || isnan(mean_time) || mean_time < -1E8 || mean_time>1E8)
-		//							return false;
-
-		//						double obs = 1.0 / m_devTime[i][I_MEAN_TIME];//apply the same approximation
-		//						double sim = 1.0 / mean_time;//apply the same approximation
-
-
-		//						for (size_t n = 0; n < m_devTime[i][I_N]; n++)
-		//							stat.Add(sim, obs);
-		//					}
-		//				}
-		//			}//if valid
-		//		}//for
-		//	}
-		//}
 		else if (m_fitType == F_SURVIVAL)
 		{
 			TSurvivalEquation eq = CSurvivalEquation::eq(e);
