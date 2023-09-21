@@ -1789,4 +1789,24 @@ namespace WBSF
 		}
 	}
 
+
+	CStatisticEx CDataWindow::GetWindowStat(int x, int y, int n_rings)const
+	{
+		CStatisticEx stat;
+		for (int yy = -n_rings; yy <= n_rings; yy++)
+		{
+			for (int xx = -n_rings; xx <= n_rings; xx++)
+			{
+				if (IsInside(x + xx, y + yy))
+				{
+					if (IsValid(x + xx, y + yy))
+					{
+						stat += at(x + xx, y + yy);
+					}
+				}
+			}
+		}
+
+		return stat;
+	}
 }

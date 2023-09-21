@@ -63,12 +63,11 @@ int main(int argc, char* argv[])
 
     timer.stop();
 
-
-
-    LandTrend.m_options.PrintTime();
-
     if (!LandTrend.m_options.m_bQuiet)
-        cout << endl << "Total time = " << SecondToDHMS(timer.elapsed().wall/1e9) << endl;
+    {
+        LandTrend.m_options.PrintTime();
+        cout << endl << "Total time = " << SecondToDHMS(timer.elapsed().wall / 1e9) << endl;
+    }
 
 
 

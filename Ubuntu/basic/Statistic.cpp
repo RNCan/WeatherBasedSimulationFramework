@@ -39,11 +39,10 @@ namespace WBSF
 static double STAT_VMISS = -9999999.0;
 //static const double EPSILON_DATA = 0.00001;
 
-
-const char* CStatistic::NAME[NB_STATXY_TYPE_EX] =
+const std::array<const char*, NB_STATXY_TYPE_EX> CStatistic::NAME=
 {
-    "Lowest", "Mean", "Sum", "Sum2", "StandardDeviation (N-1)", "StandardDeviation (N)", "StandardError", "CoeficientOfVariation", "Variance", "Highest", "TotalSumOfsquares", "QuadraticMean", "Range", "NbValue",
-    "MeanAbsoluteDeviation", "Skewness", "Kurtosis", "Median", "Mode", "Lo", "Q¹", "Q³", "Hi", "IQR",
+    "Lowest", "Mean", "Sum", "Sum2", "StandardDeviation", "StandardDeviation_N", "StandardError", "CoeficientOfVariation", "Variance", "Highest", "TotalSumOfsquares", "QuadraticMean", "Range", "NbValue",
+    "MeanAbsoluteDeviation", "Skewness", "Kurtosis", "Median", "Mode", "Lo", "Q1", "Q3", "Hi", "IQR",
     "MeanX", "MeanY", "Intercept", "Slope", "Covariance", "Correlation", "Bias", "MeanAbsolutError", "RootMeansquareError", "ResidualSumOfsquare", "CoeficientOfDetermination", "CoeficientOfCorrelation", "R2",
     "TheilSenIntercept", "TheilSenSlope", "Likelihood"
     //, "LogLikelihood2"

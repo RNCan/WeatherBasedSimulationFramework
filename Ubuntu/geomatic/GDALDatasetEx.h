@@ -190,6 +190,8 @@ public:
         return m_extents;
     }
 
+    CStatisticEx GetWindowStat(int x, int y, int n_rings)const;
+    
 protected:
 
     //does the pixel is used. this layer is a mask layer
@@ -299,6 +301,7 @@ public:
         return m_extents;
     }
 
+    
 protected:
 
     size_t m_sceneSize;
