@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM
+// 11.8.15:20/09/2023	Rémi Saint-Amant	Change in default optimization parameters of parametrization curve
 // 11.8.14:13/01/2023	Rémi Saint-Amant	Bug correction in merge component for location, parameters and replication dim
 // 11.8.13:14/12/2022	Rémi Saint-Amant	Bug correction when download with WinCSP, file must be in UTF8. New version of WindSCP.
 // 11.8.12:28/09/2022	Rémi Saint-Amant	Bug correction in merge for parameters and replication dim.
