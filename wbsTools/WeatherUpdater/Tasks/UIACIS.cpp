@@ -1200,8 +1200,10 @@ namespace WBSF
 
 				string source;
 				msg = GetPageText(pConnection, pageURL, source, false, FLAGS);
-
-				if (!source.empty() && source.find("No Records Were Found") == string::npos && source.find("ACIS Error") == string::npos)
+				if (!source.empty() && 
+					source.find("No Records Were Found") == string::npos && 
+					source.find("ACIS Error") == string::npos && 
+					source.find("Page Not Found") == string::npos)
 				{
 					try
 					{

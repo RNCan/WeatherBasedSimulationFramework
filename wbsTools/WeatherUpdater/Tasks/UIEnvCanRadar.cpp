@@ -46,7 +46,7 @@ namespace WBSF
 		{ "WTP", "CASHR", "Holyrood (St. John's)", "-56.348300196 49.324926196 -50.0023250342, 45.1729382328" },
 		{ "WHN", "CASJL", "Jimmy Lake (Cold Lake)", "-113.711924973 56.9286079503 -106.239864469 52.7805952563" },
 		{ "WKR", "CASKR", "King City (Toronto)", "" },
-		{ "WMB", "CASLC", "Lac Castor (Saguenay)", "-73.9371157616 50.5745075074 -67.4182258339 46.438482943" },
+		{ "WMB", "CASMA", "Lac Castor (Saguenay)", "-73.9371157616 50.5745075074 -67.4182258339 46.438482943" },
 		{ "XLA", "CASLA", "Landrienne (Rouyn-Noranda)", "-81.0739843691 50.5393250609 -74.5533055035 46.4323210456" },
 		{ "XME", "CASMM", "Marble Mountain (Corner Brook)", "-61.1134121488 50.9354754337 -54.5607311707 46.7759959048" },
 		{ "XMB", "CASMB", "Marion Bridge (Sydney)", "" },
