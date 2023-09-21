@@ -10,7 +10,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TATTRIBUTE { INPUT, FORECAST1, FORECAST2, OUTPUT_FILEPATH, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, MONTHLY_COMPLETENESS, ANNUAL_COMPLETENESS, NB_ATTRIBUTES };
+		enum TATTRIBUTE { INPUT, FORECAST1, FORECAST2, OUTPUT_FILEPATH, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, MONTHLY_COMPLETENESS, ANNUAL_COMPLETENESS, VALIDATION, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CCreateDailyDB); }
 
@@ -32,6 +32,8 @@ namespace WBSF
 		virtual std::string Option(size_t i)const;
 		virtual std::string Default(size_t i)const;
 
+		
+		ERMsg BasicValidation(CWeatherStation& station, std::ofstream& log_file, CCallback& callback = DEFAULT_CALLBACK)const;
 	protected:
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
@@ -42,6 +44,8 @@ namespace WBSF
 
 		void CleanSparse(CWeatherStation& station)const;
 		ERMsg CreateDatabase(const std::string& outputFilepath, CTaskPtr& pTask, CTaskPtr& pForecastTask1, CTaskPtr& pForecastTask2, CCallback& callback = DEFAULT_CALLBACK)const;
+
+		static bool IsBasicCheckValid(size_t v, float value);
 	};
 
 }

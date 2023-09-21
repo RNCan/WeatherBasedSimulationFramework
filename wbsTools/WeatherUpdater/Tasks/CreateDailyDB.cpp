@@ -17,8 +17,8 @@ namespace WBSF
 {
 	//*********************************************************************
 
-	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "LongForecast","OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness" };
-	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING };
+	const char* CCreateDailyDB::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "Input", "Forecast", "LongForecast","OutputFilePath", "FirstYear", "LastYear", "BoundingBox", "MonthlyCompleteness", "AnnualCompleteness", "Validation" };
+	const size_t CCreateDailyDB::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_UPDATER, T_UPDATER, T_UPDATER, T_FILEPATH, T_STRING, T_STRING, T_GEORECT, T_STRING, T_STRING, T_BOOL };
 	const UINT CCreateDailyDB::ATTRIBUTE_TITLE_ID = IDS_TOOL_CREATE_DAILY_P;
 	const UINT CCreateDailyDB::DESCRIPTION_TITLE_ID = ID_TASK_CREATE_DAILY;
 
@@ -62,6 +62,7 @@ namespace WBSF
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		case MONTHLY_COMPLETENESS:	str = "80"; break;
 		case ANNUAL_COMPLETENESS:	str = "25"; break;
+		case VALIDATION: str = "1"; break;
 		};
 
 		return str;
@@ -155,6 +156,22 @@ namespace WBSF
 		//Get the data for each station
 		CDailyDatabase dailyDB;
 		msg = dailyDB.Open(outputFilePath, CDailyDatabase::modeWrite);
+
+		ofStream log_file;
+		if (msg && as<bool>(VALIDATION))
+		{
+			string log_filepath = outputFilePath;
+			SetFileExtension(log_filepath, ".validation.csv");
+			
+			if (msg)
+			{
+				msg = log_file.open(log_filepath);
+				if (msg)
+					log_file << "ID,Name,Date,Variable,Error,Value" << endl;
+			}
+		}
+
+		
 		if (!msg)
 			return msg;
 
@@ -196,10 +213,15 @@ namespace WBSF
 						station.GetStat(H_TAIR);//compute daily stat
 						station.SetHourly(false);//remove hourly values
 					}
+					
+					if(as<bool>(VALIDATION))
+						msg += BasicValidation(station, log_file, callback);
 
-					CleanSparse(station);
 
-					if (station.HaveData())
+					if(msg)
+						CleanSparse(station);
+
+					if (msg && station.HaveData())
 					{
 						station.m_name = WBSF::UTF8_ANSI(station.m_name);//try to remove UTF8 characters
 						station.m_name = RemoveAccented(station.m_name);//remove all accent characters;
@@ -272,6 +294,9 @@ namespace WBSF
 			}
 		}
 
+		if (as<bool>(VALIDATION))
+			log_file.close();
+
 		pTask->Finalize(TOOLS, callback);
 
 		return msg;
@@ -287,6 +312,7 @@ namespace WBSF
 
 		return s;
 	}
+
 
 	void CCreateDailyDB::CleanSparse(CWeatherStation& station)const
 	{
@@ -395,6 +421,168 @@ namespace WBSF
 			station.ResetStat();
 		}
 
+	}
+
+	
+	ERMsg CCreateDailyDB::BasicValidation(CWeatherStation& station, ofstream& log_file, CCallback& callback)const
+	{
+		ASSERT(station.IsDaily());
+		ERMsg msg;
+
+		bool bInvalidData = false;
+		for (size_t y = 0; y < station.size() && msg; y++)
+		{
+			for (size_t m = 0; m < station[y].size() && msg; m++)//for all months
+			{
+				for (size_t d = 0; d < station[y][m].size() && msg; d++)//for all days
+				{
+					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H && msg; v++)//for all variables
+					{
+
+						if (station[y][m][d][v].IsInit())
+						{
+							float value = station[y][m][d][v][MEAN];
+
+							if (v == H_RELH && value > 100 && value <= 105)
+							{
+								value = 100;
+								station[y][m][d].SetStat(v, value);
+							}
+
+							if (v == H_SNDH && value < 0)
+							{
+								value = 0;
+								station[y][m][d].SetStat(v, value);
+							}
+							
+							bool bValid = IsBasicCheckValid(v, value);
+							if (!bValid)
+							{
+								log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Outliers" << "," << ToString(value) << endl;
+								station[y][m][d].SetStat(v, CStatistic());//reset
+								bInvalidData = true;
+							}
+							else
+							{
+								if (v == H_TMIN || v == H_TAIR || v == H_TMAX)
+								{
+									//Value(0) is at least 25°C larger or at least 25°C smaller than value(21) and value(1)
+									const CWeatherDay& prev = station[y][m][d].GetPrevious();
+									const CWeatherDay& next = station[y][m][d].GetNext();
+									if (prev[v].IsInit() && next[v].IsInit())
+									{
+										if(abs(value-prev[v][MEAN])>25 && abs(value - next[v][MEAN]) > 25)
+										{
+											//string warning = "Warning: spike data" + station.m_name + " (" + station.m_ID + ") " + station[y][m][d].GetTRef().GetFormatedString() + " " + GetVariableAbvr(v) + " " + ToString(value);
+											//callback.AddMessage(warning);
+
+											log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Spike" << "," << ToString(value) << endl;
+											station[y][m][d].SetStat(H_TMIN, CStatistic());//reset
+											station[y][m][d].SetStat(H_TAIR, CStatistic());//reset
+											station[y][m][d].SetStat(H_TMAX, CStatistic());//reset
+											bInvalidData = true;
+
+										}
+										else
+										{
+											bool bValid = true;
+											if (v == H_TMIN && prev[H_TAIR].IsInit() && next[H_TAIR].IsInit())
+											{
+												if (value <= min(prev[H_TAIR][MEAN], next[H_TAIR][MEAN]) - 40)
+													bValid = false;
+											}
+											
+											if (bValid && v == H_TMIN && prev[H_TMAX].IsInit() && next[H_TMAX].IsInit())
+											{
+												if (value <= min(prev[H_TMAX][MEAN], next[H_TMAX][MEAN]) - 40)
+													bValid = false;
+											}
+
+											if (bValid && v == H_TAIR && prev[H_TMIN].IsInit() && next[H_TMIN].IsInit())
+											{
+												if (value >= max(prev[H_TMIN][MEAN], next[H_TMIN][MEAN]) + 40)
+													bValid = false;
+											}
+											if (bValid && v == H_TAIR && prev[H_TMAX].IsInit() && next[H_TMAX].IsInit())
+											{
+												if (value <= min(prev[H_TMAX][MEAN], next[H_TMAX][MEAN]) - 40)
+													bValid = false;
+											}
+
+											if (bValid && v == H_TMAX && prev[H_TMIN].IsInit() && next[H_TMIN].IsInit())
+											{
+												if (value >= max(prev[H_TMIN][MEAN], next[H_TMIN][MEAN]) + 40)
+													bValid = false;
+											}
+
+											if (bValid && v == H_TMAX && prev[H_TAIR].IsInit() && next[H_TAIR].IsInit())
+											{
+												if (value >= max(prev[H_TAIR][MEAN], next[H_TAIR][MEAN]) + 40)
+													bValid = false;
+											}
+
+											if( !bValid )
+											{
+												log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Inconsistency" << "," << ToString(value) << endl;
+												//string warning = "Warning: spike data" + station.m_name + " (" + station.m_ID + ") " + station[y][m][d].GetTRef().GetFormatedString() + " " + GetVariableAbvr(v) + " " + ToString(value);
+												//callback.AddMessage(warning);
+
+												station[y][m][d].SetStat(H_TMIN, CStatistic());//reset
+												station[y][m][d].SetStat(H_TAIR, CStatistic());//reset
+												station[y][m][d].SetStat(H_TMAX, CStatistic());//reset
+												bInvalidData = true;
+											}
+										}
+									}
+								}
+
+
+								
+							}
+						}
+
+						msg += callback.StepIt(0);
+					}
+				}//for all days
+			}//for all months
+
+			//msg += callback.StepIt();
+		}//for all years
+
+		if (bInvalidData)
+		{
+			string warning = "Warning: invalid data for station: " + station.m_name + " (" + station.m_ID + ") ";
+			callback.AddMessage(warning);
+		}
+
+		return msg;
+	}
+
+	bool CCreateDailyDB::IsBasicCheckValid(size_t v, float value)
+	{
+		bool bValid = true;
+
+		switch (v)
+		{
+		case H_TMIN:
+		case H_TAIR:
+		case H_TMAX:
+		case H_TDEW: bValid = value >= -60 && value <= 60; break;
+		case H_PRCP: bValid = value >= 0 && value <= 250; break;
+		case H_RELH: bValid = value >= 0 && value <= 100; break;
+		case H_WNDS:
+		case H_WND2: bValid = value >= 0 && value <= 200; break;
+		case H_WNDD: bValid = value >= 0 && value <= 360; break;
+		case H_SRAD: bValid = value >= 0 && value <= 400; break;
+		case H_PRES: bValid = value >= 800 && value <= 1200; break;
+		case H_SNOW: bValid = value >= 0 && value <= 500; break;
+		case H_SNDH: bValid = value >= 0 && value <= 5000; break;
+		case H_SWE:	 bValid = value >= 0 && value <= 5000; break;
+		default: ASSERT(false);
+
+		}
+
+		return bValid;
 	}
 
 

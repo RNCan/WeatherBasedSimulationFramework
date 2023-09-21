@@ -156,7 +156,7 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj.lib;titanlib.lib;wbs_d.lib;wbsUI_d.lib;external_d.lib;mosa_d.lib</AdditionalDependencies>
-      <DelayLoadDLLs>gdal305.dll;proj_7_2.dll;netcdf.dll;mosa_d.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal.dll;proj_7_2.dll;netcdf.dll;mosa_d.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
@@ -239,7 +239,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\External\gdal\lib$(PlatformArchitecture);..\..\External\lib$(PlatformArchitecture);..\..\wbs\lib$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>version.lib;gdal_i.lib;proj.lib;titanlib.lib;ws2_32.lib;wbs.lib;wbsUI.lib;external.lib;mosa.lib</AdditionalDependencies>
-      <DelayLoadDLLs>gdal305.dll;proj_7_2.dll;netcdf.dll;mosa.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdal.dll;proj_7_2.dll;netcdf.dll;mosa.dll</DelayLoadDLLs>
       <StackReserveSize>1000000</StackReserveSize>
     </Link>
     <Midl>
