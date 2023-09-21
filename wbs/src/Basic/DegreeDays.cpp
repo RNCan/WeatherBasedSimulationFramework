@@ -669,10 +669,10 @@ namespace WBSF
 		CModelStatVector DD;
 		Execute(weather, DD);
 
+		CTPeriod p = DD.GetTPeriod();
 		if(output.empty())
-			output.Init(DD.GetTPeriod(), 1, 0);
-
-		CTPeriod p = weather.GetEntireTPeriod();
+			output.Init(p, 1, 0);
+		
 		p.Begin() = p.Begin() + int(To);
 		output[p.Begin()][0] = DD[p.Begin()][CDegreeDays::S_DD];
 
