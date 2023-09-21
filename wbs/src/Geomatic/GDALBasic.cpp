@@ -847,7 +847,7 @@ namespace WBSF
 	void CGDALDatasetEx::BuildOverviews(const vector<int>& list, bool bQuiet)
 	{
 		if (IsOpen())
-		{
+		{ 
 			//pszResampling 	one of "NEAREST", "GAUSS", "CUBIC", "AVERAGE", "MODE", "AVERAGE_MAGPHASE" or "NONE" controlling the downsampling method applied.
 			//nOverviews 	number of overviews to build.
 			//panOverviewList 	the list of overview decimation factors to build.

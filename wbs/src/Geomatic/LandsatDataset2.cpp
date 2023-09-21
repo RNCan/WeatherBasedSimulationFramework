@@ -875,24 +875,34 @@ namespace WBSF
 		int n_rings2 = (int)ceil(n_rings);
 		ASSERT((n_rings - n_rings1) >= 0);
 		ASSERT((n_rings2 - n_rings) >= 0);
-		ASSERT((n_rings2 - n_rings1) == 1);
-
-		CStatistic stat_i1 = GetPixelIndiceI(z, ind, x, y, n_rings1);
-		CStatistic stat_i2 = GetPixelIndiceI(z, ind, x, y, n_rings2);
-
-		if (stat_i1.IsInit() && stat_i2.IsInit())
+		
+		if (n_rings2 == n_rings1)
 		{
-			val = stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1);
+			CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings1);
+			if (stat_i.IsInit())
+			{
+				val = stat_i[MEAN];
+			}
 		}
-		else if (stat_i1.IsInit())
+		else
 		{
-			val = stat_i1[MEAN];
-		}
-		else if (stat_i2.IsInit())
-		{
-			val = stat_i2[MEAN];
-		}
+			ASSERT((n_rings2 - n_rings1) == 1);
+			CStatistic stat_i1 = GetPixelIndiceI(z, ind, x, y, n_rings1);
+			CStatistic stat_i2 = GetPixelIndiceI(z, ind, x, y, n_rings2);
 
+			if (stat_i1.IsInit() && stat_i2.IsInit())
+			{
+				val = stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1);
+			}
+			else if (stat_i1.IsInit())
+			{
+				val = stat_i1[MEAN];
+			}
+			else if (stat_i2.IsInit())
+			{
+				val = stat_i2[MEAN];
+			}
+		}
 		return val;
 	}
 
@@ -968,7 +978,7 @@ namespace WBSF
 		ASSERT((n_rings - n_rings1) >= 0);
 		ASSERT((n_rings2 - n_rings) >= 0);
 		ASSERT((n_rings2 - n_rings1) == 1);
-		if(n_rings1== n_rings2)
+		if (n_rings1 == n_rings2)
 			return GetPixelMedian(f, l, x, y, n_rings1);
 
 		CLandsatPixel i1 = GetPixelMedian(f, l, x, y, n_rings1);
@@ -1021,15 +1031,15 @@ namespace WBSF
 		for (size_t z = 0; z < size(); z++)
 		{
 			for (size_t s = 0; s < median.size(); s++)
-				out[z][s] = median[s] * ((double)fit_ind[z]/ median_ind);
+				out[z][s] = median[s] * ((double)fit_ind[z] / median_ind);
 		}
 
 		return out;
 	}
 
-	
 
-	
+
+
 
 	//****************************************************************************************************************
 
