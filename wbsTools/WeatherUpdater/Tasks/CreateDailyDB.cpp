@@ -458,7 +458,7 @@ namespace WBSF
 							bool bValid = IsBasicCheckValid(v, value);
 							if (!bValid)
 							{
-								log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Outliers" << "," << ToString(value) << endl;
+								log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString("%Y-%m-%d") << "," << GetVariableAbvr(v) << "," << "Outliers" << "," << ToString(value) << endl;
 								station[y][m][d].SetStat(v, CStatistic());//reset
 								bInvalidData = true;
 							}
@@ -476,7 +476,7 @@ namespace WBSF
 											//string warning = "Warning: spike data" + station.m_name + " (" + station.m_ID + ") " + station[y][m][d].GetTRef().GetFormatedString() + " " + GetVariableAbvr(v) + " " + ToString(value);
 											//callback.AddMessage(warning);
 
-											log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Spike" << "," << ToString(value) << endl;
+											log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString("%Y-%m-%d") << "," << GetVariableAbvr(v) << "," << "Spike" << "," << ToString(value) << endl;
 											station[y][m][d].SetStat(H_TMIN, CStatistic());//reset
 											station[y][m][d].SetStat(H_TAIR, CStatistic());//reset
 											station[y][m][d].SetStat(H_TMAX, CStatistic());//reset
@@ -523,7 +523,7 @@ namespace WBSF
 
 											if( !bValid )
 											{
-												log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString() << "," << GetVariableAbvr(v) << "," << "Inconsistency" << "," << ToString(value) << endl;
+												log_file << station.m_ID << "," << station.m_name << "," << station[y][m][d].GetTRef().GetFormatedString("%Y-%m-%d") << "," << GetVariableAbvr(v) << "," << "Inconsistency" << "," << ToString(value) << endl;
 												//string warning = "Warning: spike data" + station.m_name + " (" + station.m_ID + ") " + station[y][m][d].GetTRef().GetFormatedString() + " " + GetVariableAbvr(v) + " " + ToString(value);
 												//callback.AddMessage(warning);
 
