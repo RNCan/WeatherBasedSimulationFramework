@@ -1,4 +1,5 @@
 //**********************************************************************
+//28/09/2023	1.3.3	Rémi Saint-Amant	Compilation with VS 2019
 //02/05/2018	1.3.2	Rémi Saint-Amant	Compilation with VS 2017
 //28/11/2017	1.3.1	Rémi Saint-Amant	Compilation with BioSIM 11
 //27/03/2013			Rémi Saint-Amant	New compilation
@@ -34,7 +35,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is use to determine if the dll
 		//use the same number of parameter than the model interface
 		NB_INPUT_PARAMETER = 0;
-		VERSION = "1.3.2 (2018)";
+		VERSION = "1.3.3 (2023)";
 
 	}
 

@@ -1,9 +1,9 @@
 ﻿//*********************************************************************
-//14/09/2011	Rémi Saint-Amant	Update paramater with paper "Mapping landscap-scale voltinism of spruce beetle"
+//14/09/2011	Rémi Saint-Amant	Update parameter with paper "Mapping landscape-scale voltinism of spruce beetle"
 //26/01/2010	Rémi Saint-Amant	New equation 
 //22/05/2008	Rémi Saint-Amant	Return 0 and not VMISS when we don't find Flight peak 
 //19/03/2007	Rémi Saint-Amant	Return VMISS and not -999 when we don't find Flight peak 
-//15/02/2007	Rémi Saint-Amant	Creation from matlab(.m) file 
+//15/02/2007	Rémi Saint-Amant	Creation from Matlab(.m) file 
 //*********************************************************************
 #include "SpruceBeetle.h"
 #include "Basic/WeatherStation.h"
@@ -136,14 +136,14 @@ namespace WBSF
 		// 6- Compute peak flight:	examine the temperature record for Year 2 for the condition matches the integer value.
 		m_peak = GetFlightPeak(weatherYear2, m_day15);
 
-		if (m_peak == NOT_INIT)//if no peak flight is fount we retrun false
+		if (m_peak == NOT_INIT)//if no peak flight is fount we return false
 			return false;
 
 		// 7- Beginning 40 days after the estimated date of peak flight (from step 6), we count the cumulative hours above 17°C.
 		//    Because BioSIM uses daily maxima and minima, we must apply a sine-wave curve to these values.
 		m_Hr17 = GetHr17(weatherYear2, m_peak + 40);
 
-		// 8- We apply Eq [4] for the combinaison of aspect (NORTH, SOUTH) and height(LOW, MEDIUM, HIGHT)
+		// 8- We apply Eq [4] for the combination of aspect (NORTH, SOUTH) and height(LOW, MEDIUM, HIGHT)
 		//    Eq [4]: Logitij = -4.5273 + 0.01128(Hr17) - 0.8714(N) + 0.8954(H) - 1.5644(L)
 		//    NH = north bole aspect, 4.6 m
 		//    NM = north bole aspect, 1.8 m
