@@ -2,12 +2,12 @@
 <Model version="3">
     <Title>Soil Temperature</Title>
     <Version>1.0</Version>
-    <ID>.Tsoil</ID>
+    <ID>.Ts</ID>
     <EXE>SoilTemperature.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
     <WindowRect>0 0 159 250</WindowRect>
-    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <SimulatedCategory>TN T TX SD</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
     <NbYearMin>1</NbYearMin>
@@ -33,19 +33,19 @@
             <Type>2</Type>
             <Rect>32 10 54 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>5</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>LAImax</Name>
-            <Caption>LAImax  [m²/m²]</Caption>
-            <Description>Annaul maximum LAI</Description>
+            <Name>Litter</Name>
+            <Caption>Litter [cm]</Caption>
+            <Description>Annual mean litter</Description>
             <Type>2</Type>
             <Rect>54 10 76 160</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>5</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>

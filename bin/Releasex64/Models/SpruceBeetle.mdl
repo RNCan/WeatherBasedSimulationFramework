@@ -6,7 +6,7 @@
     <EXE>SpruceBeetle.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description>Temperature-based model for predicting univoltine brood proportions in spruce beetle (Coleoptera: Scolytidae)&#x0A;&#x0A;&#x0A;&#x0A;</Description>
-    <WindowRect>0 0 82 250</WindowRect>
+    <WindowRect>0 0 113 376</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -15,15 +15,15 @@
     <ThreadSafe>true</ThreadSafe>
     <InputVariableArray>
         <InputVariable>
-            <Name>NoInput</Name>
-            <Caption>No Input</Caption>
+            <Name>flight_peak</Name>
+            <Caption>Flight Peak (0=auto-detect)</Caption>
             <Description/>
-            <Type>8</Type>
-            <Rect>10 10 30 225</Rect>
-            <SeparatorPos>100</SeparatorPos>
+            <Type>1</Type>
+            <Rect>10 10 30 310</Rect>
+            <SeparatorPos>230</SeparatorPos>
             <DefaultValue>0</DefaultValue>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <MinValue>0</MinValue>
+            <MaxValue>366</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -67,6 +67,54 @@
             <Title>Proportion univoltine</Title>
             <Units>%</Units>
             <Description>Proportion of brood univoltism.</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NorthHigh</Name>
+            <Title>NorthHigh</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NorthMedium</Name>
+            <Title>NorthMedium</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>NorthLow</Name>
+            <Title>NorthLow</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SouthHigh</Name>
+            <Title>SouthHigh</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SouthMedium</Name>
+            <Title>SouthMedium</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SouthLow</Name>
+            <Title>SouthLow</Title>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
