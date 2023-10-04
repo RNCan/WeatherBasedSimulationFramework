@@ -125,19 +125,19 @@ namespace WBSF
 		
 		static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::ALLEN_WAVE;
 		CDegreeDays DDmodel(DD_METHOD, GetStand()->m_equations.m_EAS[Τᴴ¹], GetStand()->m_equations.m_EAS[Τᴴ²]);
+		
 		CModelStatVector GDD;
 		DDmodel.Execute(weather_station[year], GDD);
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !adult_emergence.IsInit(); TRef++)
 		{
-			//const CWeatherDay& wday = weather_station.GetDay(TRef);
-			//double T = wday[H_TNTX][MEAN];
-			//T = CAprocerosLeucopoda::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			if (TRef.GetJDay() >= GetStand()->m_equations.m_EAS[Tᴼ])//0 base
+			{
+				double DD = GDD[TRef][CDegreeDays::S_DD];
+				CDD += DD;
+			}
 
-			//double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);
-			double DD = GDD[TRef][CDegreeDays::S_DD];
-			CDD += DD;
 			if (CDD >= adult_emerging_CDD)
 			{
 				adult_emergence = TRef;

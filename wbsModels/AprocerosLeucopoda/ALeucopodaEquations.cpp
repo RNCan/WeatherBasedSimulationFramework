@@ -132,7 +132,7 @@ namespace WBSF
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
 		while (RDR < 0.2 || RDR>2.6)//base on individual observation
 			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
-		//RDR = exp(SIGMA[s] * boost::math::quantile(RDR_dist, m_randomGenerator.Randu()));//?????
+	
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
@@ -182,6 +182,7 @@ namespace WBSF
 			CSurvivalEquation::Survival_12,//Larva
 			CSurvivalEquation::Survival_01,//Prepupa
 			CSurvivalEquation::Survival_01,//Pupa
+			CSurvivalEquation::Unknown		//Adult
 		};
 
 		static const double P_SURVIVAL[TZZ::NB_STAGES][6] =
@@ -198,6 +199,7 @@ namespace WBSF
 			{1.113231e+01 , 3.305863e+01 , 7.795624e+01, 1.012803e+01},
 			{-3.038607e+01, -9.310410e+00, 3.210279e-01},
 			{-2.293128e+01, -8.371444e+00, 2.841417e-01},
+			{0,0,0}
 		};
 
 

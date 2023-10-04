@@ -37,12 +37,15 @@ namespace WBSF
 		bool m_bApplyAttrition;
 
 		void GetCDD(const CWeatherYears& weather, CModelStatVector& output);
+		ERMsg ExecuteDaily(CWeatherStation& weather);
 		void ExecuteDaily(int year, const CWeatherYears& weather, std::vector<CModelStatVector>& output);
 
 		bool IsParamValid()const;
 		bool m_bCumul;
 
 		//CSAResultVector m_SY;
+		std::set<int> m_years;
+		CWeatherStation m_data_weather;
 	};
 
 }

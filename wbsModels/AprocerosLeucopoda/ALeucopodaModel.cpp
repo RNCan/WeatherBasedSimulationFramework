@@ -1,11 +1,14 @@
 ﻿//***********************************************************
+// 26/01/2023	1.0.3	Rémi Saint-Amant   Calibrate adult emergence with many stages data
 // 26/01/2021	1.0.0	Rémi Saint-Amant   Creation
 //***********************************************************
 #include "ALeucopodaModel.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic\DegreeDays.h"
+#include "Basic\Utilstd.h"
 #include <boost/math/distributions/logistic.hpp>
 #include "ModelBase/SimulatedAnnealingVector.h"
+
 
 using namespace WBSF::HOURLY_DATA;
 using namespace std;
@@ -35,7 +38,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.2 (2023)";
+		VERSION = "1.0.3 (2023)";
 
 		
 		m_bCumul = false;
@@ -113,34 +116,34 @@ namespace WBSF
 
 	ERMsg CAprocerosLeucopodaModel::OnExecuteDaily()
 	{
+		return ExecuteDaily(m_weather);
+	}
+
+	ERMsg CAprocerosLeucopodaModel::ExecuteDaily(CWeatherStation& weather)
+	{
 		ERMsg msg;
 
-		/*	if (m_weather.GetNbYears() < 2)
-			{
-				msg.ajoute("Laricobius nigrinus model need at least 2 years of data");
-				return msg;
-			}*/
 
-		if (!m_weather.IsHourly())
-			m_weather.ComputeHourlyVariables();
+		if (!weather.IsHourly())
+			weather.ComputeHourlyVariables();
 
 		//This is where the model is actually executed
-		m_output.Init(m_weather.GetEntireTPeriod(CTM(CTM::DAILY)), NB_DAILY_OUTPUTS, 0);
+		m_output.Init(weather.GetEntireTPeriod(CTM(CTM::DAILY)), NB_DAILY_OUTPUTS, 0);
 
 		//we simulate 2 years at a time. 
 		//we also manager the possibility to have only one year
-		for (size_t y = 0; y < m_weather.size(); y++)
+		for (size_t y = 0; y < weather.size(); y++)
 		{
-			int year = m_weather[y].GetTRef().GetYear();
+			int year = weather[y].GetTRef().GetYear();
 			//one output by generation
 			vector<CModelStatVector> outputs;
-			ExecuteDaily(year, m_weather, outputs);
+			ExecuteDaily(year, weather, outputs);
 
 
 			//merge generations vector into one output vector (max of 5 generations)
 			size_t maxG = min(NB_GENERATIONS_MAX, outputs.size());
 
-			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+			CTPeriod p = weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 			{
 				CStatistic diapause;
@@ -156,7 +159,7 @@ namespace WBSF
 
 				
 				m_output[TRef][O_IN_DIAPAUSE] = diapause[SUM];
-				m_output[TRef][O_D_DAY_LENGTH] = m_weather.GetDayLength(TRef) / 3600.;
+				m_output[TRef][O_D_DAY_LENGTH] = weather.GetDayLength(TRef) / 3600.;
 			}
 
 			if (m_bCumul)
@@ -315,50 +318,33 @@ namespace WBSF
 
 	}
 
-	//enum TSpecies { S_LA_G1, S_LA_G2, S_LP, S_LN };
+	size_t GetStage(std::string name)
+	{
+		static const array<char*, NB_STAGES> STAGE_NAME = { {"EGG", "LARVA", "PREPUPA", "PUPA", "ADULT"} };
+		
+		auto it = find(STAGE_NAME.begin(), STAGE_NAME.end(), MakeUpper(name));
+		return distance(STAGE_NAME.begin(), it);
+	}
+
+
+
 	enum TInput { I_KEYID, I_DATE, I_STAGE, I_GENERATION, I_N, I_CUMUL, NB_INPUTS };
 	void CAprocerosLeucopodaModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		//KeyID	Date	Stage	Generation	N	Cumul
 		ASSERT(data.size() == NB_INPUTS);
-		//SYC	site	Year	collection	col_date	emerge_date	daily_count	species	n_days P Time
-		//if (stoi(data[I_VARIABLE]) == m_stage && stoi(data[I_T]) == m_T)
-		//{
+
 		CSAResult obs;
 		obs.m_ref.FromFormatedString(data[I_DATE]);
 		obs.m_obs.resize(NB_INPUTS);
 		for (size_t i = 2; i < NB_INPUTS; i++)
 		{
 			if (i == I_STAGE)
-				obs.m_obs[i] = 0;
+				obs.m_obs[i] = GetStage(data[i]);
 			else
 				obs.m_obs[i] = stod(data[i]);
 		}
-			
-		//CSAResult obs;
 
-		//CStatistic egg_creation_date;
-
-		
-		//obs.m_obs.resize(3);
-		//obs.m_obs[0] = 0;
-		//obs.m_obs[1] = stod(data[I_GENERATION]);
-		//obs.m_obs[2] = stod(data[I_CUMUL]);
-		////obs.m_obs[I_S] = ;
-		////obs.m_obs[I_P] = stod(data[10]);
-		////obs.m_obs[I_CDD] = stod(data[11]);
-		////obs.m_obs[I_P] = stod(data[12]);
-
-
-		//if (data[7] == "LA" && data[8] == "1")
-		//	obs.m_obs[I_S] = S_LA_G1;
-		//else if (data[7] == "LA" && data[8] == "2")
-		//	obs.m_obs[I_S] = S_LA_G2;
-		//else if (data[7] == "LP")
-		//	obs.m_obs[I_S] = S_LP;
-		//else if (data[7] == "LN")
-		//	obs.m_obs[I_S] = S_LN;
-
+		m_years.insert(obs.m_ref.GetYear());
 		m_SAResult.push_back(obs);
 	}
 
@@ -444,143 +430,11 @@ namespace WBSF
 
 
 
-	//static const int ROUND_VAL = 4;
-	//CTRef CAprocerosLeucopodaModel::GetEmergence(const CWeatherYear& weather)
-	//{
-	//	CTPeriod p = weather.GetEntireTPeriod(CTM(CTM::DAILY));
+	size_t GetStageIndex(const std::vector<double>& obs)
+	{
+		return obs[I_GENERATION] * NB_OUTPUT_ONE_G + obs[I_STAGE] - PUPA;
+	}
 
-	//	double sumDD = 0;
-	//	for (CTRef TRef = p.Begin()+172; TRef <= p.End()&& TRef<= p.Begin() + int(m_ADE[ʎ0]); TRef++)
-	//	{
-	//		//size_t ii = TRef - p.Begin();
-	//		const CWeatherDay& wday = m_weather.GetDay(TRef);
-	//		double T = wday[H_TNTX][MEAN];
-	//		T = Round(max(m_ADE[ʎa], T), ROUND_VAL);
-
-	//		double DD = min(0.0, T - m_ADE[ʎb]);//DD is negative
-
-	//		//if (ii < m_ADE[ʎ0])
-	//			sumDD += DD;
-	//	}
-
-
-	//	boost::math::logistic_distribution<double> begin_dist(m_ADE[ʎ2], m_ADE[ʎ3]);
-	//	int begin = (int)Round(m_ADE[ʎ0] + m_ADE[ʎ1] * cdf(begin_dist, sumDD), 0);
-	//	return  p.Begin() + begin;
-	//}
-	//enum TPout {P_CDD, P_CE, LA_G1= P_CE, P_LA_G2, P_LP, P_LN, NB_P};//CE = cumulative emergence
-	//void CAprocerosLeucopodaModel::GetPobs(CModelStatVector& P)
-	//{
-	//	string ID = GetInfo().m_loc.m_ID;
-	//	string SY = ID.substr(0, ID.length() - 2);
-
-	//	//compute CDD for all temperature rprofile
-	//	array< double, 4> total = { 0 };
-	//	vector<tuple<double, CTRef, double, bool, size_t>> d;
-	//	const CSimulatedAnnealingVector& SA = GetSimulatedAnnealingVector();
-
-	//	for (size_t i = 0; i < SA.size(); i++)
-	//	{
-	//		string IDi = SA[i]->GetInfo().m_loc.m_ID;
-	//		string SYi = IDi.substr(0, IDi.length() - 2);
-	//		if (SYi == SY)
-	//		{
-	//			CModelStatVector CDD;
-	//			GetCDD(SA[i]->m_weather, CDD);
-	//			const CSAResultVector& v = SA[i]->GetSAResult();
-	//			for (size_t ii = 0; ii < v.size(); ii++)
-	//			{
-	//				d.push_back(make_tuple(CDD[v[ii].m_ref][0], v[ii].m_ref, v[ii].m_obs[I_N], IDi == ID, v[ii].m_obs[I_S]));
-	//				total[v[ii].m_obs[I_S]] += v[ii].m_obs[I_N];
-	//			}
-	//		}
-	//	}
-
-	//	sort(d.begin(), d.end());
-
-	//	P.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_P, 0);
-	//	array< double, 4> sum = { 0 };
-	//	for (size_t i = 0; i < d.size(); i++)
-	//	{
-	//		size_t s = std::get<4>(d[i]);
-	//		sum[s] += std::get<2>(d[i]);
-	//		if (std::get<3>(d[i]))
-	//		{
-	//			CTRef Tref = std::get<1>(d[i]);
-	//			/*double obsP = -999;
-	//			for (size_t k = 0; k < m_SAResult.size(); k++)
-	//				if (m_SAResult[k].m_ref == Tref)
-	//					obsP = m_SAResult[k].m_obs[I_P];*/
-
-
-	//			double CDD = std::get<0>(d[i]);
-	//			double p = Round(100 * sum[s] / total[s], 1);
-	//			
-	//			P[Tref][P_CDD] = CDD;
-	//			P[Tref][P_CE + s] = p;
-	//		}
-	//	}
-	//}
-
-	//void CAprocerosLeucopodaModel::CalibrateEmergence(CStatisticXY& stat)
-	//{
-	//	if (m_SAResult.empty())
-	//		return;
-
-	//	//boost::math::lognormal_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-
-
-
-	//	//boost::math::weibull_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-	//	//boost::math::beta_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
-	//	//boost::math::exponential_distribution<double> emerge_dist(m_P[ѕ]);
-	//	//boost::math::rayleigh_distribution<double> emerge_dist(m_P[ѕ]);
-
-
-	//	//CModelStatVector CDD; 
-	//	//GetCDD(m_weather, CDD);
-
-	//	double n = 0;
-
-	//	for (size_t i = 0; i < m_SAResult.size(); i++)
-	//		n += m_SAResult[i].m_obs[I_N];
-
-
-	//	CModelStatVector P;
-	//	GetPobs(P);
-
-	//	//array<boost::math::logistic_distribution<double>,4> emerge_dist(mu, S);
-	//	//		array<boost::math::logistic_distribution<double>, 4> emerge_dist = { {m_P[μ1], m_P[ѕ1], m_P[μ1], m_P[ѕ1]} };
-
-	//	for (size_t i = 0; i < m_SAResult.size(); i++)
-	//	{
-	//		size_t s = m_SAResult[i].m_obs[I_S];
-	//		double mu = m_P[μ1 + 2 * s];
-	//		double S = m_P[ѕ1 + 2 * s];
-
-	//		boost::math::logistic_distribution<double> emerge_dist(mu, S);
-
-	//		double CDD = P[m_SAResult[i].m_ref][P_CDD];
-	//		double obs = P[m_SAResult[i].m_ref][P_CE+s];
-	//		ASSERT(obs >= 0 && obs <= 100);
-
-	//		double sim = Round(100 * cdf(emerge_dist, max(0.0, CDD)), 1);
-	//		for (size_t ii = 0; ii < log(n); ii++)
-	//			stat.Add(obs, sim);
-
-	//	}//for all results
-
-	//	return;
-
-	//}
-
-	//static double ei(size_t n) { return pow(1.0 + 1.0 / n, n); }
-	//static double cv_2_sigma(double cv, size_t n)
-	//{
-	//	static const double e = exp(1);
-	//	static const double p[3] = { 0.528196, 2.373248, 3.493202 };//with 10 000 replication
-	//	return e * cv*(1 - p[0] * sqrt(e - ei(n))) / (p[1] + cv * (1 - p[2] * sqrt(e - ei(n))));
-	//}
 
 	bool CAprocerosLeucopodaModel::GetFValueDaily(CStatisticXY& stat)
 	{
@@ -594,6 +448,29 @@ namespace WBSF
 		if (!IsParamValid())
 			return false;
 
+		if (m_data_weather.GetNbYears() == 0)
+		{
+			CTPeriod pp(CTRef(*m_years.begin(), JANUARY, DAY_01), CTRef(*m_years.rbegin(), DECEMBER, DAY_31));
+			pp = pp.Intersect(m_weather.GetEntireTPeriod(CTM::DAILY));
+			if (pp.IsInit())
+			{
+				((CLocation&)m_data_weather) = m_weather;
+				m_data_weather.SetHourly(m_weather.IsHourly());
+				//m_data_weather.CreateYears(pp);
+
+				for (int year = pp.GetFirstYear(); year <= pp.GetLastYear(); year++)
+				{
+					m_data_weather[year] = m_weather[year];
+				}
+			}
+			else
+			{
+				//remove these obs, no input weather
+				ASSERT(false);
+				m_SAResult.clear();
+				return true;
+			}
+		}
 
 		//boost::math::lognormal_distribution<double> emerge_dist(m_P[μ], m_P[ѕ]);
 
@@ -623,7 +500,7 @@ namespace WBSF
 		//
 
 		m_bCumul = true;
-		OnExecuteDaily();
+		ExecuteDaily(m_data_weather);
 
 		for (size_t i = 0; i < m_SAResult.size(); i++)
 		{
@@ -632,7 +509,7 @@ namespace WBSF
 			
 			//double GDD = CDD[m_SAResult[i].m_ref][CDegreeDays::S_DD];
 			double obs = m_SAResult[i].m_obs[I_CUMUL];
-			double sim = m_output[m_SAResult[i].m_ref][6];//Larve Generation 1
+			double sim = m_output[m_SAResult[i].m_ref][GetStageIndex(m_SAResult[i].m_obs)];//Larve Generation 1
 			
 			stat.Add(obs, sim);
 

@@ -16,7 +16,7 @@ namespace WBSF
 		enum TRDR { σ, NB_RDR_PARAMS }; //relative development parameter
 		//enum TOvip{ μ, ѕ, Τᴴ¹, Τᴴ², NB_OVP_PARAMS };//longevity/ovipositing parameters
 		enum TEWD{ ʎ0, ʎ1, ʎ2, ʎ3, ʎa, ʎb, NB_EWD_PARAMS };//entering winter diapause 
-		enum TEAS{ μ, ѕ, Τᴴ¹, Τᴴ², NB_EAS_PARAMS };//Emerging Adult from Soil (spring)
+		enum TEAS{ μ, ѕ, Τᴴ¹, Τᴴ², Tᴼ, NB_EAS_PARAMS };//Emerging Adult from Soil (spring)
 		//Τᴴ, ʎ, к
 	}
 
@@ -28,16 +28,9 @@ namespace WBSF
 	{
 	public:
 
-		//static const double RDR[LOF::NB_STAGES][LOF::NB_RDR_PARAMS]; //relative development parameter
-		
-		//static const double OVP[TZZ::NB_OVP_PARAMS];//longevity/oviposition parameters
 		static const double EWD[TZZ::NB_EWD_PARAMS];//entering winter diapause default parameters
 		static const double EAS[TZZ::NB_EAS_PARAMS];//Emerging Adult from Soil (spring) default  parameters
 		
-		
-		//double m_OVP[TZZ::NB_OVP_PARAMS];//longevity/oviposition parameters
-//		double m_EWD[TZZ::NB_EWD_PARAMS];//entering winter diapause  parameters
-	//	double m_EAS[TZZ::NB_EAS_PARAMS];//Emerging Adult from Soil (spring) parameters
 		std::array<double, TZZ::NB_EWD_PARAMS> m_EWD;//entering winter diapause  parameters
 		std::array<double, TZZ::NB_EAS_PARAMS> m_EAS;//Emerging Adult from Soil (spring) parameters
 
