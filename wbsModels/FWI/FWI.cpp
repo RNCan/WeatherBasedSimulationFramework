@@ -669,8 +669,10 @@ namespace WBSF
 		CSnowAnalysis snow;
 		CTRef TRefSnow = snow.GetFirstSnowTRef(weather);
 
-		CGrowingSeason GS(0, 0, 0, m_TtypeEnd, m_nbDaysEnd, m_thresholdEnd);
-		CTPeriod p = GS.GetGrowingSeason(weather);
+		CGSInfo start(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeStart), '>', m_thresholdStart, m_nbDaysStart);
+		CGSInfo end(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeEnd), '<', m_thresholdEnd, m_nbDaysEnd);
+		CGrowingSeason GS(start, end);
+		CTPeriod p = GS.GetPeriod(weather);
 
 		//find freeze-up
 		CTRef TRefFreezeUp = p.End();
@@ -720,10 +722,13 @@ namespace WBSF
 		else
 		{
 			//no snow
-			//Find 3 consecutives days where noon temperature is above m_thresholdStart (12°C)
+			//Find 3 consecutive days where noon temperature is above m_thresholdStart (12°C)
 			//firstDay = GetFirstDay3xThreshold(weather[y]); 
-			CGrowingSeason GS(m_nbDaysStart, m_TtypeStart, m_thresholdStart, 0, 0, 0);
-			CTPeriod p = GS.GetGrowingSeason(weather[y]);
+			CGSInfo start(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeStart), '>', m_thresholdStart, m_nbDaysStart);
+			CGSInfo end(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeEnd), '<', m_thresholdEnd, m_nbDaysEnd);
+			CGrowingSeason GS(start, end);
+
+			CTPeriod p = GS.GetPeriod(weather[y]);
 			//firstDay = p.Begin().GetJDay();
 			//firstDay = weather[y].GetFir.GetFirstDayThreshold(m_nbDaysStart, m_TtypeStart, m_thresholdStart, '>').GetJDay();
 

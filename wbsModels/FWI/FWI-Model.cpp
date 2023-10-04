@@ -1,4 +1,5 @@
 //*********************************************************************
+//24/07/2023	3.2.3	Rémi Saint-Amant    Update with new Growing season calculation
 //19/10/2020	3.2.2	Rémi Saint-Amant    Add wind direction
 //09/10/2020	3.2.1	Rémi Saint-Amant    Add hourly computation. Use of noon to noon prcp in FWI computation
 //											Add Van Wagner type and fbp mode
@@ -8,11 +9,11 @@
 //10/05/2017	3.1.1	Rémi Saint-Amant    recompile
 //20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 //12/02/2016	3.0.0	Rémi Saint-Amant	Using WBSF. Hourly model.
-//06/02/2012	2.3		Rémi Saint-Amant	Correction of a bug in strating date
+//06/02/2012	2.3		Rémi Saint-Amant	Correction of a bug in starting date
 //18/05/2011    2.2     Rémi Saint-Amant	Use of new FWI class
 //11/03/2009	1.1		Rémi Saint-Amant	Change input order and add startThreshold 
 //05/03/2009	1.0		Rémi Saint-Amant	Compile with new FWI kernel
-//27/02/2009	----	Rémi Saint-Amant	Include new variable for montly model
+//27/02/2009	----	Rémi Saint-Amant	Include new variable for monthly model
 //25/11/2008	----	Rémi Saint-Amant	Add Annual model
 //12/12/2007	----	Rémi Saint-Amant	Creation
 //*********************************************************************
@@ -45,9 +46,9 @@ namespace WBSF
 
 	CFWIModel::CFWIModel() 
 	{
-		// initialise your variable here (optionnal)
+		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER=10;
-		VERSION = "3.2.2 (2020)";
+		VERSION = "3.2.3 (2023)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;
