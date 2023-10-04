@@ -188,7 +188,7 @@ namespace WBSF
 
 		//From observation, 0.5 and 2.3
 		while (RDR < 0.5 || RDR > 2.3)
-			RDR = exp(sigma * boost::math::quantile(dist, m_randomGenerator.Randu()));
+			RDR = boost::math::quantile(dist, m_randomGenerator.Randu());
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
