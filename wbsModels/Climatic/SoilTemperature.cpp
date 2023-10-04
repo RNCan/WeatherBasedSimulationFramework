@@ -1,11 +1,14 @@
 ﻿//**********************************************************************
 // 26/09/2023	1.0.1	Rémi Saint-Amant	Add overheating and snow protection. 
+//											No longer used mean average over 11 days period
 // 02/10/2019	1.0.0	Rémi Saint-Amant	Creation
 //**********************************************************************
 
 //Calibrated with 32 station 2013-2022 from U.S. Climate Reference Network
 //Correction apply for snow depth, overheating and litter
-//
+//Model base on Kang 2000: Predicting spatial and temporal patterns of soil temperature
+//based on topography, surface cover and air temperature
+//but with many modifications to take effect of snow.
 
 #include <valarray>
 #include <iostream>
