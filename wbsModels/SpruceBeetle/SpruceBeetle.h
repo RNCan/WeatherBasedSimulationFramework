@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace WBSF
 {
@@ -30,8 +30,15 @@ namespace WBSF
 		size_t m_peak;
 		size_t m_Hr17;
 		double m_propTree;
+		double m_πNH;
+		double m_πNM;
+		double m_πNL;
+		double m_πSH;
+		double m_πSM;
+		double m_πSL;
 
 
+		size_t m_flight_peak;
 	private:
 
 

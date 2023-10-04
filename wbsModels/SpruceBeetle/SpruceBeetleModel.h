@@ -14,10 +14,14 @@ namespace WBSF
 		CSpruceBeetleModel();
 		virtual ~CSpruceBeetleModel();
 
-		virtual ERMsg OnExecuteAnnual();
-		virtual ERMsg ProcessParameter(const CParameterVector& parameters);
+		virtual ERMsg OnExecuteAnnual()override;
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 		static CBioSIMModelBase* CreateObject(){ return new CSpruceBeetleModel; }
 
+
+	protected:
+
+		size_t m_flight_peak;
 	};
 
 

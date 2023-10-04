@@ -24,12 +24,15 @@ namespace WBSF
 
 	CSpruceBeetle::CSpruceBeetle()
 	{
+		//Input
+		m_flight_peak = NOT_INIT;
+
+		//Output
 		m_pri15 = 0;
 		m_day15 = 0;
 		m_peak = 0;
 		m_Hr17 = 0;
 		m_propTree = 0;
-
 	}
 
 	CSpruceBeetle::~CSpruceBeetle()
@@ -87,8 +90,8 @@ namespace WBSF
 			double Trange = wDay[H_TRNG2][MEAN];
 			for (size_t h = 0; h < 24; h++)
 			{
-				double cosH = cos(3.14159265*(h + 8) / 12);
-				double temp = Tmean + (Trange / 2)*cosH;
+				double cosH = cos(3.14159265 * (h + 8) / 12);
+				double temp = Tmean + (Trange / 2) * cosH;
 				if (temp >= 17)
 					Hr17++;
 			}
@@ -100,11 +103,11 @@ namespace WBSF
 	// return the Univoltine Brood Proportion
 	double CSpruceBeetle::GetUnivoltineBroodProportion(size_t Hr17, int mod)
 	{
-		int N = mod&NORTH ? 1 : 0;	//1 if north, 0 otherwise
-		int H = mod&HIGH ? 1 : 0;	//1 if height is 4.6m, 0 otherwise
-		int L = mod&LOW ? 1 : 0;	//1 if height is ground level, 0 otherwise
+		int N = mod & NORTH ? 1 : 0;	//1 if north, 0 otherwise
+		int H = mod & HIGH ? 1 : 0;	//1 if height is 4.6m, 0 otherwise
+		int L = mod & LOW ? 1 : 0;	//1 if height is ground level, 0 otherwise
 
-		double logit = INTERCEPT + SLOPE*Hr17 + NORTH_EFFECT*N + HIGT_EFFECT*H + LOW_EFFECT*L;
+		double logit = INTERCEPT + SLOPE * Hr17 + NORTH_EFFECT * N + HIGT_EFFECT * H + LOW_EFFECT * L;
 		return  1 / (1 + exp(-logit));
 	}
 
@@ -119,7 +122,7 @@ namespace WBSF
 
 		// 2- Estimate the proportion (logit scale, "logitVi") of parent beetles on the univoltine cycle (Eq [2])
 		//	  Eq [2]: LogitVi = -8.442 + 0.06784 * Pri15 
-		double logitVi = -8.442 + 0.06784*m_pri15;
+		double logitVi = -8.442 + 0.06784 * m_pri15;
 
 		// 3- Back-transform the logit into original scale (Eq [3], "parentVoltinism");
 		//	  Eq [3]: Voltinism = 1/(1 + exp(-LogitVi))
@@ -128,13 +131,16 @@ namespace WBSF
 		// 4- Solve Eq [1] for Logit = 0 using the "voltinism" value from above;
 		//	  Eq [1]: LogitEi = -2.5729 + 0.2116(Day15) - 2.9977(Voltinism)
 		//	  then, Day15 = [ 2.5729 + 2.9977(Voltinism) ]/0.2116;
-		double day15tmp = (2.5729 + 2.9977*parentVoltinism) / 0.2116;
+		double day15tmp = (2.5729 + 2.9977 * parentVoltinism) / 0.2116;
 
 		// 5- Round-up to the nearest integer the solution to step 4 
 		m_day15 = int(ceil(day15tmp));
 
 		// 6- Compute peak flight:	examine the temperature record for Year 2 for the condition matches the integer value.
-		m_peak = GetFlightPeak(weatherYear2, m_day15);
+		if (m_flight_peak == NOT_INIT)
+			m_peak = GetFlightPeak(weatherYear2, m_day15);
+		else
+			m_peak = m_flight_peak;
 
 		if (m_peak == NOT_INIT)//if no peak flight is fount we return false
 			return false;
@@ -151,17 +157,17 @@ namespace WBSF
 		//    SH = south bole aspect, 4.6 m
 		//    SM = etc.
 
-		double πNH = GetUnivoltineBroodProportion(m_Hr17, NORTH | HIGH);
-		double πNM = GetUnivoltineBroodProportion(m_Hr17, NORTH | MEDIUM);
-		double πNL = GetUnivoltineBroodProportion(m_Hr17, NORTH | LOW);
-		double πSH = GetUnivoltineBroodProportion(m_Hr17, SOUTH | HIGH);
-		double πSM = GetUnivoltineBroodProportion(m_Hr17, SOUTH | MEDIUM);
-		double πSL = GetUnivoltineBroodProportion(m_Hr17, SOUTH | LOW);
+		m_πNH = GetUnivoltineBroodProportion(m_Hr17, NORTH | HIGH);
+		m_πNM = GetUnivoltineBroodProportion(m_Hr17, NORTH | MEDIUM);
+		m_πNL = GetUnivoltineBroodProportion(m_Hr17, NORTH | LOW);
+		m_πSH = GetUnivoltineBroodProportion(m_Hr17, SOUTH | HIGH);
+		m_πSM = GetUnivoltineBroodProportion(m_Hr17, SOUTH | MEDIUM);
+		m_πSL = GetUnivoltineBroodProportion(m_Hr17, SOUTH | LOW);
 
 
 		// 9- Finally, Eq [5] is applied to derive tree or stand-level univoltine proportions.
 		//    Eq [5]: 0.34(πNH) + 0.34(πSH) + 0.11(πNM) + 0.11(πSM) + 0.05(πNL) + 0.05(πSL)
-		m_propTree = 0.34*πNH + 0.34*πSH + 0.11*πNM + 0.11*πSM + 0.05*πNL + 0.05*πSL;
+		m_propTree = 0.34 * m_πNH + 0.34 * m_πSH + 0.11 * m_πNM + 0.11 * m_πSM + 0.05 * m_πNL + 0.05 * m_πSL;
 
 
 		return true;
