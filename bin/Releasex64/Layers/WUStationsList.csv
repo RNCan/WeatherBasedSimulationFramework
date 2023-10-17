@@ -1,4 +1,5 @@
-KeyID,Name,Latitude,Longitude,Elevation,city,StationType,tzName,GoldStar,County,SubDivisions,Country
-ISAINTAL79,Rang de l'Eglise Nord,46.736359,-72.061455,78,Saint-Alban,AcuRite Pro Weather Center,America/Montreal,0,Portneuf,Quebec,CA
-ISAINT1358,Le venteux Christinois,46.827,-71.914,145,Sainte-Christine-d'Auvergne,Ambient Weather WS-800-IP,America/Montreal,0,Portneuf,Quebec,CA
-ISAINT544,Station 1616,46.908001,-71.816002,145,Saint-Raymond,Ambient Weather WS-2902,America/Montreal,0,Portneuf,Quebec,CA
+KeyID,Name,Latitude,Longitude,Elevation,city,StationType,tzName,GoldStar,County,SubDivisions,Country,SubDivision
+ISAINTAL79,Rang de l'Eglise Nord,46.736359,-72.061455,78,Saint-Alban,AcuRite Pro Weather Center,America/Montreal,0,Portneuf,Quebec,CA,
+ISAINT1358,Le venteux Christinois,46.827,-71.914,145,Sainte-Christine-d'Auvergne,Ambient Weather WS-800-IP,America/Montreal,0,Portneuf,Quebec,CA,
+ISAINT544,Station 1616,46.908001,-71.816002,145,Saint-Raymond,Ambient Weather WS-2902,America/Montreal,0,Portneuf,Quebec,CA,
+IQUEBECS44,Village,46.735722,-71.450394,59,Saint-Augustin-de-Desmaures,Davis Vantage Pro2 (Wireless),America/Montreal,1,Agglomeration de Quebec,,CA,QUEBEC
