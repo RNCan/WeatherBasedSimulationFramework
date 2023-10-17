@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>JapaneseBeetle</Title>
+    <Version>1.0</Version>
+    <ID>.PJN(param)</ID>
+    <EXE>JapaneseBeetle.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 832 439</WindowRect>
+    <SimulatedCategory>TN T TX SD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>15 205 35 355</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b0</Name>
+            <Caption>b0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.18</DefaultValue>
+            <MinValue>0.000001</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b1</Name>
+            <Caption>b1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 95 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.19</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b2</Name>
+            <Caption>b2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>95 10 120 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>11</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b12</Name>
+            <Caption>b12</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 235 120 420</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>24</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b3</Name>
+            <Caption>b3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>120 10 140 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>37</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b4</Name>
+            <Caption>b4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>140 10 160 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>2.33</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b5</Name>
+            <Caption>b5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>170 10 195 225</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b6</Name>
+            <Caption>b6</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>210 160 230 425</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>12</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>12</MaxValue>
+            <TextValue>NORMALS;LOG_NORMAL;LOGISTIC;WEIBULL;GAMMA;FISHER;EXTREME_VALUE;RAYLEIGH;MODIFIED_LOGISTIC;GOMPERTZ1;GOMPERTZ2;FRECHET;LOG_LOGISTIC</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>b7</Name>
+            <Caption>b7</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>235 180 260 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>345</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b8</Name>
+            <Caption>b8</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>260 180 280 330</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>7.5</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b13</Name>
+            <Caption>b13</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>285 185 310 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b9</Name>
+            <Caption>b9</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 185 340 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>151</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b10</Name>
+            <Caption>b10</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>345 185 365 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>15</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b11</Name>
+            <Caption>b11</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>370 185 395 335</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>21.7</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue>0</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>adult_long</Name>
+            <Caption>adult_long</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>340 10 360 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>30.7</DefaultValue>
+            <MinValue>20</MinValue>
+            <MaxValue>60</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>adult_sd</Name>
+            <Caption>adult_sd</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>360 10 380 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0.45</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>egg_a</Name>
+            <Caption>AdultMortality</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>380 10 405 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>agg_b</Name>
+            <Caption>L3 sigma</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>405 10 425 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>litter</Name>
+            <Caption>litter</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>450 10 470 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>moisture_a</Name>
+            <Caption>moisture_a</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>625 10 645 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>90</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>moisture_b</Name>
+            <Caption>moisture_b</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>645 10 670 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>moisture_c</Name>
+            <Caption>moisture_c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>670 10 690 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>0.01</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>CalibrationType </Name>
+            <Caption>Type of calibration</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>425 10 450 350</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2</MaxValue>
+            <TextValue>Emergence;Catch;Emergence+Catch</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_egg</Name>
+            <Caption>psy_egg</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>470 10 490 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_L1</Name>
+            <Caption>psy_L1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>490 10 515 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_L2</Name>
+            <Caption>psy_L2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 10 535 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_L3</Name>
+            <Caption>psy_L3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>535 10 560 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_Pupa</Name>
+            <Caption>psy_Pupa</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>560 10 580 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_Adult</Name>
+            <Caption>psy_Adult</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>580 10 600 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>psy_dead</Name>
+            <Caption>psy_dead</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>600 10 625 185</Rect>
+            <SeparatorPos>80</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0.1</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tsoil</Name>
+            <Title>Tsoil</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SnDh</Name>
+            <Title>SnDh</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PSMI</Name>
+            <Title>PSMI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Egg</Name>
+            <Title>Egg</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L1</Name>
+            <Title>L1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L2</Name>
+            <Title>L2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>L3</Name>
+            <Title>L3</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Pupa</Name>
+            <Title>Pupa</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Adult</Name>
+            <Title>Adult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAdult</Name>
+            <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods</Name>
+            <Title>Broods</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggHatch</Name>
+            <Title>EggHatch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AdultEmergence</Name>
+            <Title>AdultEmergence</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD</Name>
+            <Title>CDD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AdultCatchCDD</Name>
+            <Title>AdultCatchCDD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAttrition</Name>
+            <Title>DeadAttrition</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrosen</Name>
+            <Title>DeadFrosen</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
