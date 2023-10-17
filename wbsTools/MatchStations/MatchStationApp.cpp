@@ -1,3 +1,4 @@
+// 4.4.7	08-09-2023	Rémi Saint-Amant	Build with GDAL 3.7.1
 // 4.4.6	20/12/2021	Rémi Saint-Amant	Compile with GDAL 3.0.5 
 // 4.4.5	02/08/2021	Rémi Saint-Amant	Compile with VC 2019 and MFC dll version
 // 4.4.4	16/06/2021	Rémi Saint-Amant	Correction in grid cell height

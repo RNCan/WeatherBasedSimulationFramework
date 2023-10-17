@@ -187,6 +187,9 @@ namespace WBSF
 
 			for (size_t i = 0; i < stationList.size() && msg; i++)
 			{
+				//if (stationList[i] != "2/KIPPN")
+					//continue;
+				
 				CWeatherStation station;
 
 				timerRead.Start();
@@ -441,7 +444,8 @@ namespace WBSF
 
 						if (station[y][m][d][v].IsInit())
 						{
-							float value = station[y][m][d][v][MEAN];
+							TStat stats_type = v == H_TMIN ? LOWEST : v == H_TMAX ? HIGHEST : v == H_PRCP ? SUM : MEAN;
+							float value = station[y][m][d][v][stats_type];
 
 							if (v == H_RELH && value > 100 && value <= 105)
 							{
@@ -539,11 +543,22 @@ namespace WBSF
 
 								
 							}
-						}
+						}//is init
 
 						msg += callback.StepIt(0);
-					}
+					}//for all variables
 				}//for all days
+
+				TVarH v = H_PRCP;
+				CStatistic stat = station[y][m].GetStat(H_PRCP);
+				
+				if (stat.IsInit() && stat[SUM] > 2000)
+				{
+					log_file << station.m_ID << "," << station.m_name << "," << station[y][m].GetTRef().GetFormatedString("%Y-%m") << "," << GetVariableAbvr(v) << "," << "MontrhlyPrcpOutliers" << "," << ToString(stat[SUM]) << endl;
+					for (size_t d = 0; d < station[y][m].size() && msg; d++)//for all days
+						station[y][m][d].SetStat(H_PRCP, CStatistic());//reset
+					bInvalidData = true;
+				}
 			}//for all months
 
 			//msg += callback.StepIt();
@@ -568,7 +583,7 @@ namespace WBSF
 		case H_TAIR:
 		case H_TMAX:
 		case H_TDEW: bValid = value >= -60 && value <= 60; break;
-		case H_PRCP: bValid = value >= 0 && value <= 250; break;
+		case H_PRCP: bValid = value >= 0 && value <= 450; break;//450 seem a resonable value for Canada
 		case H_RELH: bValid = value >= 0 && value <= 100; break;
 		case H_WNDS:
 		case H_WND2: bValid = value >= 0 && value <= 200; break;

@@ -437,6 +437,11 @@ namespace WBSF
 					data[H_TMAX] = -999;
 				}
 
+				if (data[H_PRCP] > 60)
+				{
+					data[H_PRCP] = -999;
+				}
+
 				if (data[H_TDEW] > -999 && (data[H_TDEW] < -60 || data[H_TDEW] > 60))
 				{
 					data[H_TDEW] = -999;
@@ -449,34 +454,58 @@ namespace WBSF
 					data[H_WNDD] = -999;
 				}
 
+				
+
 			}
 			else
 			{
 				CWeatherDay& data = station.GetDay(TRef);
 				if ((!data[H_TMIN].empty() && (data[H_TMIN][LOWEST] < -60 || data[H_TMIN][HIGHEST] > 60)) ||
 					(!data[H_TAIR].empty() && (data[H_TAIR][LOWEST] < -60 || data[H_TAIR][HIGHEST] > 60)) ||
-					(!data[H_TMAX].empty() && (data[H_TMAX][LOWEST] < -60 || data[H_TMAX][HIGHEST] > 60)))
+					(!data[H_TMAX].empty() && (data[H_TMAX][LOWEST] < -60 || data[H_TMAX][HIGHEST] > 60)) )
 				{
-					data[H_TMIN].Reset();
-					data[H_TAIR].Reset();
-					data[H_TMAX].Reset();
+					data[H_TMIN].clear();
+					data[H_TAIR].clear();
+					data[H_TMAX].clear();
+				}
+				
+				if ((!data[H_TMIN].empty() && !data[H_TAIR].empty() && !data[H_TMAX].empty() ) &&
+					(fabs( data[H_TAIR][MEAN] - data[H_TAIR][LOWEST]) <0.1 && (fabs(data[H_TAIR][MEAN] - data[H_TMAX][HIGHEST]) < 0.1)))
+				{
+					data[H_TMIN].clear();
+					data[H_TAIR].clear();
+					data[H_TMAX].clear();
 				}
 
+				if (!data[H_PRCP].empty() && data[H_PRCP][SUM] > 250)
+				{
+					data[H_PRCP].clear();
+				}
 				if (!data[H_TDEW].empty() && (data[H_TDEW][MEAN] < -60 || data[H_TDEW][MEAN] > 60))
 				{
-					data[H_TDEW] = -999;
-					data[H_RELH] = -999;
+					data[H_TDEW].clear();
+					data[H_RELH].clear();
 				}
 
 				if (!data[H_WNDS].empty() && (data[H_WNDS][MEAN] < 0 || data[H_WNDS][MEAN] > 110))
 				{
-					data[H_WNDS] = -999;
-					data[H_WNDD] = -999;
+					data[H_WNDS].clear();
+					data[H_WNDD].clear();
 				}
 			}
 		}
 
-
+		//Verify daily precipitation
+		if (station.IsHourly())
+		{
+			CTPeriod pd = station.GetEntireTPeriod(CTM::DAILY);
+			for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+			{
+				CWeatherDay& data = station.GetDay(TRef);
+				if (data[H_PRCP].IsInit() && data[H_PRCP][SUM] > 250)
+					data[H_PRCP].clear();
+			}
+		}
 
 
 		//verify station is valid
