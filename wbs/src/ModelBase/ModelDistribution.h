@@ -33,13 +33,13 @@ namespace WBSF
 	class CModelStatVector;
 
 	
-	enum TCDDParam { CDD_DIST, CDD_P1, CDD_P2, CDD_DELTA, CDD_Τᴴ¹, CDD_Τᴴ², NB_CDD_PARAMS };
+	enum TCDDParam { CDD_DIST, CDD_P1, CDD_P2, CDD_P3, CDD_DELTA, CDD_Τᴴ¹, CDD_Τᴴ², NB_CDD_PARAMS };
 
 	class CModelDistribution
 	{
 	public:
 		
-		enum TType { NOT_INIT=-1, NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, NB_DISTRIBUTIONS };
+		enum TType { NOT_INIT=-1, NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, LOG_LOGISTIC, NB_DISTRIBUTIONS };
 
 		//CModelDistribution(TType type, double p1, double p2);
 
@@ -48,8 +48,8 @@ namespace WBSF
 		//double get_pdf(double v)const;
 		//double get_quantile(double x)const;
 
-		static double get_cdf(double x, TType type, double p1, double p2, double p3 = NAN);
-		static double get_quantile(double x, TType type, double p1, double p2, double p3 = NAN);
+		static double get_cdf(double x, TType type, double p1, double p2, double p3=0);
+		static double get_quantile(double x, TType type, double p1, double p2, double p3=0);
 
 		static double get_cdf(double x, const std::array<double, NB_CDD_PARAMS>& P);
 		static double get_quantile(double x, const std::array<double, NB_CDD_PARAMS>& P);

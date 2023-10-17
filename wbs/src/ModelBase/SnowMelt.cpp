@@ -45,7 +45,7 @@ namespace WBSF
 
 
 		m_lon = -100;//-100 is an arbitrary value
-		ComputeTtTmelt();//update longitude dependant parameters
+		ComputeTtTmelt();//update longitude dependent parameters
 
 		//clear all results
 		m_result.clear();
@@ -54,7 +54,7 @@ namespace WBSF
 	//Update m_Tt and m_Tmelt from longitude
 	//m_alphaTt and m_betaTt was evaluated from Canadian weather observation
 	//m_alphaTmelt and m_betaTmelt was evaluated from Canadian weather observation
-	//because of this dependance on the longitude, this model can only used in North America
+	//because of this dependence on the longitude, this model can only used in North America
 	void CSnowMelt::ComputeTtTmelt()
 	{
 		m_Tt = m_alphaTt + m_betaTt*m_lon;

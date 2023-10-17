@@ -109,7 +109,7 @@ namespace WBSF
 
 	bool CIndividual::CanPack(const CIndividualPtr& in)const
 	{
-		return GetHost() == in->GetHost() && (abs(GetCreationDate() - in->GetCreationDate()) < 60) && m_broods == 0 && m_totalBroods == 0 && in->m_broods == 0 && in->m_totalBroods == 0;
+		return GetHost() == in->GetHost() && (abs(GetCreationDate() - in->GetCreationDate()) < 60) && m_broods == 0 && m_totalBroods == 0 && in->m_broods == 0 && in->m_totalBroods == 0&&m_sex==in->m_sex;
 	}
 
 	void CIndividual::Pack(const CIndividualPtr& in)

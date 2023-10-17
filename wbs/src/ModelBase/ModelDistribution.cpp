@@ -119,6 +119,9 @@ namespace WBSF
 	double CModelDistribution::get_cdf(double x, TType type, double p1, double p2, double p3)
 	{
 		double v = 0;
+
+		
+
 		switch (type)
 		{
 		case NORMALS:
@@ -141,8 +144,9 @@ namespace WBSF
 		}
 		case WEIBULL:
 		{
+			x = max(0.0, x - p3);
 			boost::math::weibull_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
+			v = cdf(distribution, max(0.0, x));
 			break;
 		}
 		case GAMMA:
@@ -181,13 +185,13 @@ namespace WBSF
 		}
 		case GOMPERTZ1:
 		{
-			v = 1 - exp(-p1 * (exp(p2 * x) - 1));
+			x = max(0.0, x - p3);
+			v = 1 - exp(-p1 * (exp(p2 * max(0.0, x)) - 1));
 			break;
 		}
 		case GOMPERTZ2:
 		{
-			//if (x > 0)
-				//v = -(log(-log(x)) - p1) /p2; 
+			x = max(0.0, x - p3);
 			v = exp(-exp(p1 - p2 * x));
 			break;
 		}
@@ -201,6 +205,15 @@ namespace WBSF
 			double z = (x - p1) / p2;
 			return exp(-pow(z, -p3));
 		}
+		case LOG_LOGISTIC:
+		{
+			assert(p1 > 0.0 && p2 > 0.0);
+
+			//exp(log(x) * p2 + p1) / (1 + exp(log(x) * p2 + p1));
+			return 1 / (1 + pow(x / p1, -p2));
+		}
+
+	
 		default:assert(false);
 		}
 
@@ -234,7 +247,7 @@ namespace WBSF
 		case WEIBULL:
 		{
 			boost::math::weibull_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
+			v = p3 + quantile(distribution, max(0.0,x));
 			break;
 		}
 		case GAMMA:
@@ -274,19 +287,25 @@ namespace WBSF
 		case GOMPERTZ1:
 		{
 			if (x > 0)
-				v = log(1.0 - log(x) / p1) / p2;
+				v = p3 + log(1.0 - log(max(0.0, x)) / p1) / p2;
 			break;
 		}
 		case GOMPERTZ2:
 		{
 			if (x > 0)
-				v = -(log(-log(x)) - p1) / p2;
+				v = p3  -(log(-log(x)) - p1) / p2;
 			break;
 		}
 		case FRECHET:
 		{
 			v = p1 + p2 * pow(-log(x), -1.0 / p3);
 		}
+		case LOG_LOGISTIC:
+		{
+			assert(p1 > 0.0 && p2 > 0.0);
+			return (p2 / p1) * pow(x / p1,p2 - 1.0) / Square(1.0 + pow(x / p1 , p2));
+		}
+
 		default:assert(false);
 		}
 
@@ -297,13 +316,13 @@ namespace WBSF
 	double CModelDistribution::get_cdf(double x, const std::array<double, NB_CDD_PARAMS>& P)
 	{
 		assert(size_t(P[CDD_DIST]) < NB_DISTRIBUTIONS);
-		return get_cdf(x, TType(P[CDD_DIST]), P[CDD_P1], P[CDD_P2]);
+		return get_cdf(x, TType(P[CDD_DIST]), P[CDD_P1], P[CDD_P2], P[CDD_P3]);
 	}
 
 	double CModelDistribution::get_quantile(double x, const std::array<double, NB_CDD_PARAMS>& P)
 	{
 		assert(size_t(P[CDD_DIST]) < NB_DISTRIBUTIONS);
-		return get_quantile(x, TType(P[CDD_DIST]), P[CDD_P1], P[CDD_P2]);
+		return get_quantile(x, TType(P[CDD_DIST]), P[CDD_P1], P[CDD_P2], P[CDD_P3]);
 	}
 
 
@@ -311,7 +330,9 @@ namespace WBSF
 	{
 		CDegreeDays DDmodel(CDegreeDays::MODIFIED_ALLEN_WAVE, params[CDD_Τᴴ¹], params[CDD_Τᴴ²]);
 
-		CModelStatVector DD_daily;
+		DDmodel.GetCDD(params[CDD_DELTA], weather, CDD);
+
+		/*CModelStatVector DD_daily;
 		DDmodel.Execute(weather, DD_daily);
 
 		if (CDD.empty())
@@ -322,7 +343,7 @@ namespace WBSF
 
 		CDD[p.Begin()][0] = DD_daily[p.Begin()][CDegreeDays::S_DD];
 		for (CTRef TRef = p.Begin() + 1; TRef <= p.End(); TRef++)
-			CDD[TRef][0] = CDD[TRef - 1][0] + DD_daily[TRef][CDegreeDays::S_DD];
+			CDD[TRef][0] = CDD[TRef - 1][0] + DD_daily[TRef][CDegreeDays::S_DD];*/
 
 
 	}

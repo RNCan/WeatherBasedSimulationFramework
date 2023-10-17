@@ -44,12 +44,13 @@ namespace WBSF
 		}
 
 		double GetRate(size_t s, double t)const
-		{
+		{//HaveChange()
 			Init();
 			return m_lookupTable[GetTIndex(t)][s];
 		}
 
 		virtual double ComputeRate(size_t e, double t)const = 0;
+		virtual bool HaveChange()const { return false; }
 
 		//Save the table to a file
 		ERMsg Save(const char* filePath);
