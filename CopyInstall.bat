@@ -166,6 +166,9 @@ copy /Y ".\bin\Releasex64\Models\Insect Development Database II.csv"  "..\Instal
 copy /Y ".\bin\Releasex64\Models\Insect Development Database II.dll"  "..\Install\NRCan\Models\Insect Development Database II.dll" 
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\Jackpine Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
+::copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.dll" "..\Install\NRCan\Models\JapaneseBeetle.dll"
+::copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.mdl" "..\Install\NRCan\Models\JapaneseBeetle.mdl"
+
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models\LaricobiusNigrinus.dll"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
 copy /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.dll" "..\Install\NRCan\Models\LaricobiusOsakensis.dll"
@@ -212,7 +215,8 @@ copy /Y ".\bin\Releasex64\Models\Soil Moisture Index QL(Monthly).mdl" "..\Instal
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index QL(Daily).mdl" "..\Install\NRCan\Models\Soil Moisture Index QL(Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index QL.dll" "..\Install\NRCan\Models\Soil Moisture Index QL.dll"
 copy /Y ".\bin\Releasex64\Models\Soil Moisture Index.dll" "..\Install\NRCan\Models\Soil Moisture Index.dll"
-
+copy /Y ".\bin\Releasex64\Models\SoilTemperature.mdl" "..\Install\NRCan\Models\SoilTemperature.mdl"
+copy /Y ".\bin\Releasex64\Models\SoilTemperature.dll" "..\Install\NRCan\Models\SoilTemperature.dll"
 
 copy /Y ".\bin\Releasex64\Models\Solar.mdl" "..\Install\NRCan\Models\Solar.mdl"
 copy /Y ".\bin\Releasex64\Models\Solar.dll" "..\Install\NRCan\Models\Solar.dll"
