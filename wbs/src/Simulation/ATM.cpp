@@ -4374,11 +4374,16 @@ namespace WBSF
 					pBlockTmp = pBlockData;
 				}
 
-				if (m_units[ijk.m_z] == "[K]")
+				if (m_units[ijk.m_z] == "[K]"|| m_units[ijk.m_z] == "[C]")
+				//unit is not alway correct
 				{
 					//convert Kelvin into Celcius
+					//convert all values greather than 100 (assuming Kelvin)
 					for (size_t pos = 0; pos < nXBlockSize * nYBlockSize; pos++)
-						pBlockTmp->SetValue(pos, pBlockTmp->GetValue(pos)-273.15);
+					{
+						if (pBlockTmp->GetValue(pos) > 100)
+							pBlockTmp->SetValue(pos, pBlockTmp->GetValue(pos) - 273.15);
+					}
 
 				}
 
