@@ -166,8 +166,8 @@ copy /Y ".\bin\Releasex64\Models\Insect Development Database II.csv"  "..\Instal
 copy /Y ".\bin\Releasex64\Models\Insect Development Database II.dll"  "..\Install\NRCan\Models\Insect Development Database II.dll" 
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.dll" "..\Install\NRCan\Models\Jackpine Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Jackpine Budworm.mdl" "..\Install\NRCan\Models\Jackpine Budworm.mdl"
-::copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.dll" "..\Install\NRCan\Models\JapaneseBeetle.dll"
-::copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.mdl" "..\Install\NRCan\Models\JapaneseBeetle.mdl"
+copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.dll" "..\Install\NRCan\Models\JapaneseBeetle.dll"
+copy /Y ".\bin\Releasex64\Models\JapaneseBeetle.mdl" "..\Install\NRCan\Models\JapaneseBeetle.mdl"
 
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models\LaricobiusNigrinus.dll"
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
