@@ -174,12 +174,16 @@ namespace WBSF
 
 			std::array<CSfcDatasetCached, 2> DSin;
 			//create and open reprojected can
+			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+			string projlib_path = GetApplicationPath() + "External\\projlib";
+
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 			string argument = "-te -2700000 -1600000 3300000 3200000 -tr 2500 2500 -r cubic -te_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -t_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -overwrite \"";
-			string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + argument + file_path_in_can + "\" \"" + file_path_tmp1 + "\"";
+			string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + file_path_in_can + "\" \"" + file_path_tmp1 + "\"";
 			msg += WinExecWait(command);
 			msg += callback.StepIt(0);
 
-			command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + argument + file_path_in_usa + "\" \"" + file_path_tmp2 + "\"";
+			command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + file_path_in_usa + "\" \"" + file_path_tmp2 + "\"";
 			msg += WinExecWait(command);
 			msg += callback.StepIt(0);
 
@@ -310,8 +314,15 @@ namespace WBSF
 					if (msg)
 					{
 						//convert with gdal_translate to optimize size
-						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
-						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
+						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+						//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
+						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+						string projlib_path = GetApplicationPath() + "External\\projlib";
+
+						//-stats : do not include stat to avoid the creation of the xml file
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
 						RemoveFile(file_path_out + "2");
 						if (FileExists(file_path_out + "2.aux.xml"))
@@ -522,8 +533,16 @@ namespace WBSF
 
 					if (msg)
 					{
-						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";// -a_srs \"" + prj_str ;
-						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
+						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";// -a_srs \"" + prj_str ;
+						//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
+						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+						string projlib_path = GetApplicationPath() + "External\\projlib";
+
+						//-stats : do not include stat to avoid the creation of the xml file
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
+
 						msg += WinExecWait(command);
 						msg += RemoveFile(file_path_out + "2");
 						if (FileExists(file_path_out + "2.aux.xml"))

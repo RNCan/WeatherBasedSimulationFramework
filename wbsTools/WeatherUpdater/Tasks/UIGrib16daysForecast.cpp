@@ -1068,8 +1068,16 @@ namespace WBSF
 		if (msg)
 		{
 			//copy the file to fully use compression with GDAL_translate
-			string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
-			string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+			//string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+			//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+			string projlib_path = GetApplicationPath() + "External\\projlib";
+
+			//-stats : do not include stat to avoid the creation of the xml file
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+			string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+			string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+
 			msg += WinExecWait(command);
 			msg += RemoveFile(outputFilePath + "2");
 			//try to delete .aux.xml

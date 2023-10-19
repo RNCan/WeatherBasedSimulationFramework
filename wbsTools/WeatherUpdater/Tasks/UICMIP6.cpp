@@ -1249,8 +1249,16 @@ namespace WBSF
 
 		string tif_filepath = sftlf_filepath + ".tif";
 		//convert nc into GeoTIFF
-		string argument = "-a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64 \"" + sftlf_filepath + "\" \"" + tif_filepath + "\"";
-		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+		string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+		string projlib_path = GetApplicationPath() + "External\\projlib";
+
+		//-stats : do not include stat to avoid the creation of the xml file
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+		string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";
+		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + sftlf_filepath + "\" \"" + tif_filepath + "\"";;
+
+		//string argument = "-a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64 \"" + sftlf_filepath + "\" \"" + tif_filepath + "\"";
+		//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 		msg += WinExecWait(command);
 
 
@@ -1344,8 +1352,17 @@ namespace WBSF
 
 		string tif_filepath = orog_filepath + ".tif";
 		//convert nc into GeoTIFF
-		string argument = "-a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64 \"" + orog_filepath + "\" \"" + tif_filepath + "\"";
-		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+		string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+		string projlib_path = GetApplicationPath() + "External\\projlib";
+
+		//-stats : do not include stat to avoid the creation of the xml file
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+		string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";
+		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + orog_filepath + "\" \"" + tif_filepath + "\"";
+
+		//convert nc into GeoTIFF
+		//string argument = "-a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64 \"" + orog_filepath + "\" \"" + tif_filepath + "\"";
+		//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 		msg += WinExecWait(command);
 
 		if (msg)

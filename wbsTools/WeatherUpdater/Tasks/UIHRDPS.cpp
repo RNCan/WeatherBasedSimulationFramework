@@ -113,13 +113,18 @@ namespace WBSF
 
 
 		HRDPS.m_variables = (sfc| alg| isbl| others);
-		HRDPS.m_heights = Get(HRDPS_AGL_HEIGHTS);
-		HRDPS.m_levels = Get(HRDPS_ISBL_LEVELS);
+		
+		
 		
 
-		if (HRDPS.m_heights.empty())
+		if (!Get(HRDPS_AGL_HEIGHTS).empty())
+			HRDPS.m_heights = Get(HRDPS_AGL_HEIGHTS);
+		else
 			HRDPS.m_heights.FromString("2|10|40|80|120"); 
-		if (HRDPS.m_levels.empty())
+
+		if (!Get(HRDPS_ISBL_LEVELS).empty())
+			HRDPS.m_levels = Get(HRDPS_ISBL_LEVELS);
+		else
 			HRDPS.m_levels.FromString("1015|1000|0985|0970|0950|0925|0900|0875|0850|0800|0750|0700|0650|0600|0550|0500|0450|0400|0350|0300|0275|0250|0225|0200|0175|0150|0100|0050");
 
 		msg = HRDPS.Execute(callback);

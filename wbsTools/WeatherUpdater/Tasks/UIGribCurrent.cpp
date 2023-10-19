@@ -413,10 +413,10 @@ namespace WBSF
 					oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[b]["GRIB_COMMENT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[b]["GRIB_ELEMENT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_SHORT_NAME\">" << meta_data[b]["GRIB_SHORT_NAME"] << "</MDI>" << endl;
-					if(meta_data[b]["GRIB_ELEMENT"] == "TMP")
-						oFile << "      <MDI key=\"GRIB_UNIT\">" << "[K]" << "</MDI>" << endl;
-					else 
-						oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
+					//if(meta_data[b]["GRIB_ELEMENT"] == "TMP")
+					//	oFile << "      <MDI key=\"GRIB_UNIT\">" << "[K]" << "</MDI>" << endl;
+					//else 
+					oFile << "      <MDI key=\"GRIB_UNIT\">" << meta_data[b]["GRIB_UNIT"] << "</MDI>" << endl;
 					oFile << "      <MDI key=\"GRIB_FORECAST_SECONDS\">" << meta_data[b]["GRIB_FORECAST_SECONDS"] << "</MDI>" << endl;
 					oFile << "    </Metadata>" << endl;
 
@@ -488,9 +488,14 @@ namespace WBSF
 		string file_path_tif = inputFilePath;
 		SetFileExtension(file_path_tif, ".tif");
 
+
+		string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+		string projlib_path = GetApplicationPath() + "External\\projlib";
+
 		//-stats : do not include stat to avoid the creation of the xml file
-		string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";// -a_srs \"" + prj4 + "\"";
-		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+		string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 		msg += WinExecWait(command);
 
 
@@ -605,9 +610,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+		string projlib_path = GetApplicationPath() + "External\\projlib";
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 
-		string argument = "-e \"prcp=max(0,round( (i2b1-i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + inputFilePath1 + "\" \"" + inputFilePath2 + "\" \"" + outputFilePath + "\"";
-		string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+		string argument = "-e \"prcp=max(0,round( (i2b1-i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+		string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument + " \"" + inputFilePath1 + "\" \"" + inputFilePath2 + "\" \"" + outputFilePath + "\"";
 		msg += WinExecWait(command);
 		msg += callback.StepIt(0);
 
@@ -659,15 +667,16 @@ namespace WBSF
 
 		if (dimension == D_SURFACE)
 		{
-			CHRDPSVariables sfc("APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC");
+			CHRDPSVariables sfc("HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC");
 			CHRDPSVariables tlg("DPT_AGL|RH_AGL|TMP_AGL|WDIR_AGL|WIND_AGL");
 
 			HRDPS.m_variables = (sfc | tlg);
 			HRDPS.m_heights.FromString("2|10");
+			HRDPS.m_levels.clear();
 		}
 		else
 		{
-			CHRDPSVariables sfc("APCP_SFC|DSWRF_SFC|HGT_SFC|PRES_SFC|SNOD_SFC|TCDC_SFC");
+			CHRDPSVariables sfc("HGT_SFC|PRES_SFC");//APCP_SFC|DSWRF_SFC|SNOD_SFC|TCDC_SFC
 			CHRDPSVariables tlg("DPT_AGL|RH_AGL|TMP_AGL");
 			CHRDPSVariables isbl("TMP_ISBL|UGRD_ISBL|VGRD_ISBL|VVEL_ISBL");
 

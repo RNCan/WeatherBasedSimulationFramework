@@ -207,10 +207,11 @@ namespace WBSF
 					string argument = "-ot Float32 -dstnodata 9999 -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 
 					//remove +k=90 : no longer supported by PROJ4, RSA 02-08-2022
+					string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+					string projlib_path = GetApplicationPath() + "External\\projlib";
+					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 					argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";
-					argument += " \"" + filePath + "\" \"" + filePathOut + "\"";
-
-					string command = "\"" + GetApplicationPath() + "External\\GDALWarp.exe\" " + argument;
+					string command = "\"" + GetApplicationPath() + "External\\GDALWarp.exe\" " + option + " " + argument + " \"" + filePath + "\" \"" + filePathOut + "\"";;
 					msg += WinExecWait(command);
 					if (msg)
 					{

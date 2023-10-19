@@ -501,9 +501,9 @@ namespace WBSF
 
 		if (msg)
 		{
-			if(m_levels.empty())
+			if (m_levels.empty())
 				msg = CreateHourlyGeoTIFF_fromVRT(to_update_map, callback);
-			else 
+			else
 				msg = CreateHourlyGeoTIFF_fromImage(to_update_map, callback);
 		}
 
@@ -603,10 +603,13 @@ namespace WBSF
 
 				//Create GeoTiff from vrt
 
+				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+				string projlib_path = GetApplicationPath() + "External\\projlib";
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 
 				string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
-				string argument = "-stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\"";
-				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+				string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
+				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 				msg += WinExecWait(command);
 
 				//remove vrt
@@ -648,9 +651,19 @@ namespace WBSF
 
 
 			StringVector fileList = it->second;
+			//remove precipitation and radiation
+			for (StringVector::iterator it2 = fileList.begin(); it2 != fileList.end(); )
+			{
+				if (it2->find("APCP") == string::npos && it2->find("DSWRF") == string::npos)
+					it2++;
+				else
+					it2 = fileList.erase(it2);
+			}
+
+
 			string inputFilePath0 = fileList.front();
 
-			
+
 
 			CSfcDatasetCached DSin;
 			msg = DSin.open(inputFilePath0, true);
@@ -673,7 +686,7 @@ namespace WBSF
 				options.m_createOptions.push_back("BLOCKXSIZE=256");
 				options.m_createOptions.push_back("BLOCKYSIZE=256");
 				options.m_createOptions.push_back("BIGTIFF=YES");
-				
+
 
 
 
@@ -681,7 +694,7 @@ namespace WBSF
 				msg += DSout.CreateImage(outputFilePath + "2", options);
 				if (msg)
 				{
-					callback.PushTask("Create GeoTiff " + GetFileTitle(outputFilePath) + ": "+ ToString(fileList.size()) + " layers", fileList.size());
+					callback.PushTask("Create GeoTiff " + GetFileTitle(outputFilePath) + ": " + ToString(fileList.size()) + " layers", fileList.size());
 					//callback.AddMessage("Create HRDPS hourly GeoTiff: " + ToString(to_update_map.size()) + " hours");
 
 					size_t bb = 0;
@@ -713,11 +726,36 @@ namespace WBSF
 							pBandout->RasterIO(GF_Write, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 
 
-							if (pBandin->GetDescription())
-								pBandout->SetDescription(pBandin->GetDescription());
-
+							//if (pBandin->GetDescription())
+							//	pBandout->SetDescription(pBandin->GetDescription());
+							map<string, string> meta_data;
 							if (pBandin->GetMetadata())
-								pBandout->SetMetadata(pBandin->GetMetadata());
+							{
+								char** pMeta = pBandin->GetMetadata();
+								pBandout->SetMetadata(pMeta);
+								for (char** pm = pMeta; *pm != NULL; pm++)
+								{
+									StringVector tmp(*pm, "=");
+									meta_data[tmp [0]] = tmp[1];
+								}
+							}
+
+							string desc = meta_data["GRIB_SHORT_NAME"] + meta_data["GRIB_COMMENT"];
+								//pBandin->GetDescription();
+							///StringVector tmp(desc, "=");
+							//size_t var = GetHRDPSVariable(GetFileTitle(inputFilePath));
+							//desc = tmp[0] + CSfcGribDatabase::META_DATA[var][M_DESC];
+							//pBandout->SetDescription(desc.c_str());
+							pBandout->SetDescription(desc.c_str());
+
+							
+
+							
+					//		pBandoutD->SetMetadataItem("GRIB_COMMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_COMMENT]);
+					//		pBandoutD->SetMetadataItem("GRIB_ELEMENT", CSfcGribDatabase::META_DATA[H_WNDD][M_ELEMENT]);
+					//		pBandoutD->SetMetadataItem("GRIB_SHORT_NAME", CSfcGribDatabase::META_DATA[H_WNDD][M_SHORT_NAME]);
+					//		pBandoutD->SetMetadataItem("GRIB_UNIT", CSfcGribDatabase::META_DATA[H_WNDS][H_WNDD]);
+
 
 							DSin.close();
 
@@ -725,10 +763,10 @@ namespace WBSF
 							msg += callback.StepIt();
 						}//if input open
 
-						
+
 					}//for all variables
 
-					
+
 
 					//if (v == H_WNDS)
 					//{
@@ -801,8 +839,19 @@ namespace WBSF
 			if (msg)
 			{
 				//copy the file to fully use compression with GDAL_translate
-				string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
-				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+				string projlib_path = GetApplicationPath() + "External\\projlib";
+
+				//-stats : do not include stat to avoid the creation of the xml file
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+				string s_prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
+				string t_prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
+				//string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
+				string argument = "--config GDAL_PAM_ENABLED NO -overwrite -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256  -s_srs \"" + s_prj4 + "\" -t_srs \"" + t_prj4 + "\"";
+				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+
+				//string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
 				msg += WinExecWait(command);
 				msg += RemoveFile(outputFilePath + "2");
 				RemoveFile(outputFilePath + "2.aux.xml");
@@ -915,10 +964,16 @@ namespace WBSF
 
 		if (!FileExists(file_path_tif))
 		{
+			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+			string projlib_path = GetApplicationPath() + "External\\projlib";
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+
 			string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
-			string ull = "-a_ullr -2099127.494 -2099388.521 4340872.506 -5739388.521";
-			string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
-			string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path + "\" \"" + file_path_tif + "\"";
+			//string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
+			//string ull = "-a_ullr -2099127.494 -2099388.521 4340872.506 -5739388.521";
+			//string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
+			string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
+			string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + file_path + "\" \"" + file_path_tif + "\"";
 			msg += WinExecWait(command);
 		}
 
@@ -939,10 +994,11 @@ namespace WBSF
 		for (vector < CPrcpHourToUpdate>::const_iterator it = hour_to_update.begin(); it != hour_to_update.end() && msg; it++)
 		{
 			string argument;
+			string out_file_path_tmp = it->m_out_file_path + "2";
+
 
 			if (!it->m_HRDPS_file_path1.empty() && !it->m_HRDPS_file_path2.empty())
 			{
-
 				if (m_bHRDPA6h)
 				{
 					string path1 = it->m_HRDPS_file_path1;
@@ -958,7 +1014,7 @@ namespace WBSF
 						SetFileExtension(path2, ".tif");
 						SetFileExtension(path3, ".tif");
 
-						argument = "-e \"prcp=max(0,round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + path1 + "\" \"" + path2 + "\" \"" + path3 + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+						argument = "-e \"prcp=max(0,round( if(i3b1>0, i4b1*(i2b1-i1b1)/i3b1, i4b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + path1 + "\" \"" + path2 + "\" \"" + path3 + "\" \"" + it->m_HRDPA_file_path + "\" \"" + out_file_path_tmp + "\"";
 					}
 				}
 				else
@@ -975,7 +1031,7 @@ namespace WBSF
 						SetFileExtension(path2, ".tif");
 
 
-						argument = "-e \"prcp=max(0,round( (i2b1-i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + path1 + "\" \"" + path2 + "\" \"" + it->m_out_file_path + "\"";
+						argument = "-e \"prcp=max(0,round( (i2b1-i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + path1 + "\" \"" + path2 + "\" \"" + out_file_path_tmp + "\"";
 					}
 				}
 			}
@@ -1002,7 +1058,7 @@ namespace WBSF
 						SetFileExtension(path3, ".tif");
 
 
-						argument = "-e \"prcp=max(0,round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + path2 + "\" \"" + path3 + "\" \"" + it->m_HRDPA_file_path + "\" \"" + it->m_out_file_path + "\"";
+						argument = "-e \"prcp=max(0,round(if(i2b1>0,  i3b1*i1b1/i2b1, i3b1/" + to_string(it->m_nb_hours) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + path2 + "\" \"" + path3 + "\" \"" + it->m_HRDPA_file_path + "\" \"" + out_file_path_tmp + "\"";
 					}
 				}
 				else
@@ -1014,16 +1070,39 @@ namespace WBSF
 					{
 						SetFileExtension(path2, ".tif");
 
-						argument = "-e \"prcp=max(0,round( i1b1*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + path2 + "\" \"" + it->m_out_file_path + "\"";
+						argument = "-e \"prcp=max(0,round( i1b1*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + path2 + "\" \"" + out_file_path_tmp + "\"";
 					}
 				}
 			}
 
 			ASSERT(!argument.empty());
 
-			string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+			string projlib_path = GetApplicationPath() + "External\\projlib";
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+
+			string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
 			msg += WinExecWait(command);
 			msg += callback.StepIt();
+
+			//reconvert stereo to rotated
+			if (msg)
+			{
+				//string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+				//string projlib_path = GetApplicationPath() + "External\\projlib";
+				//string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+
+				string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
+				//string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
+				//string ull = "-a_ullr -2420087.549 -1750072.952  4757990.554 -5516397.139";
+				//string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
+				string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
+				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + out_file_path_tmp + "\" \"" + it->m_out_file_path + "\"";
+				msg += WinExecWait(command);
+
+				WBSF::RemoveFile(out_file_path_tmp);
+				WBSF::RemoveFile(out_file_path_tmp + ".aux.xml");
+			}
 		}
 
 		callback.PopTask();
@@ -1106,37 +1185,44 @@ namespace WBSF
 						}
 
 						string out_file_path_tmp = out_file_path;
-						SetFileExtension(out_file_path_tmp, "_2.tif");
+						//SetFileExtension(out_file_path_tmp, "_2.tif");
 
 						string argument;
 
 						//j/m² (sum of one hour) -> watt/m²
 						if (FileExists(HRDPS_file_path1) && FileExists(HRDPS_file_path2))
 						{
-							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path_tmp + "\"";
+							argument = "-e \"srad=max(0, round( (i2b1-i1b1)*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + HRDPS_file_path1 + "\" \"" + HRDPS_file_path2 + "\" \"" + out_file_path_tmp + "\"";
 						}
 						else if (FileExists(HRDPS_file_path2) && h2 == 0)
 						{
-							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + HRDPS_file_path2 + "\" \"" + out_file_path_tmp + "\"";
+							argument = "-e \"srad=max(0,round( i1b1*10/3600)/10)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 --config GDAL_PAM_ENABLED NO \"" + HRDPS_file_path2 + "\" \"" + out_file_path_tmp + "\"";
 						}
 
 						if (!argument.empty())
 						{
-							string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + argument;
+							string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+							string projlib_path = GetApplicationPath() + "External\\projlib";
+							string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+							
+
+							string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
 							msg += WinExecWait(command);
 							msg += callback.StepIt();
 
-							if (msg)
-							{
-								string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
-								string ull = "-a_ullr -2099127.494 -2099388.521 4340872.506 -5739388.521";
-								string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
-								string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + out_file_path_tmp + "\" \"" + out_file_path + "\"";
-								msg += WinExecWait(command);
-
-								WBSF::RemoveFile(out_file_path_tmp);
-								WBSF::RemoveFile(out_file_path_tmp + ".aux.xml");
-							}
+							//if (msg)
+							//{
+							//	string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
+							//	string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
+							//	string ull = "-a_ullr -2420087.549 -1750072.952  4757990.554 -5516397.139";
+							//	string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
+							//	string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\"";
+							//	string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + argument + " \"" + out_file_path_tmp + "\" \"" + out_file_path + "\"";
+							//	msg += WinExecWait(command);
+							//
+							//	WBSF::RemoveFile(out_file_path_tmp);
+							//	WBSF::RemoveFile(out_file_path_tmp + ".aux.xml");
+							//}
 						}
 					}
 				}
@@ -1329,9 +1415,14 @@ namespace WBSF
 					if (msg)
 					{
 						//convert with gdal_translate to optimize size
+						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+						string projlib_path = GetApplicationPath() + "External\\projlib";
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+
 						string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
-						string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
-						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
+						string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
+						string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + +" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
 						msg += RemoveFile(file_path_out + "2");
 					}
@@ -1918,15 +2009,21 @@ namespace WBSF
 	void CHRDPSLevels::FromString(std::string str)
 	{
 		clear();
-		tokenizer<escaped_list_separator<char> > tk(str, escaped_list_separator<char>("\\", ",|;", "\""));
-		for (tokenizer<escaped_list_separator<char> >::iterator i(tk.begin()); i != tk.end(); ++i)
+		if (str != "----")
 		{
-			insert(ToSizeT(*i));
+			tokenizer<escaped_list_separator<char> > tk(str, escaped_list_separator<char>("\\", ",|;", "\""));
+			for (tokenizer<escaped_list_separator<char> >::iterator i(tk.begin()); i != tk.end(); ++i)
+			{
+				insert(ToSizeT(*i));
+			}
 		}
 	}
 
 	std::string CHRDPSLevels::ToString()const
 	{
+		if (empty())
+			return "----";
+
 		string str;
 		for (auto it(begin()); it != end(); ++it)
 		{

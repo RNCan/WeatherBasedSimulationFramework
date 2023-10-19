@@ -26,15 +26,15 @@ namespace WBSF
 
 	typedef std::vector<COptimizeInfo> COptimizeInfoVector;
 
-
+	class CWeatherGenerator;
 
 	//**************************************************************
 	//static const size_t NB_QC_VAR = 4;
 	//static const size_t NB_QC_VAR = 4;
 #define NB_QC_VAR 5
 	
-	typedef std::vector<std::pair<CGridPointVectorPtr, std::vector<std::array<size_t, 2>>>> CQCPointInfo;
-	typedef std::array < std::array<CQCPointInfo, NB_QC_VAR>, 12> CQCPointData;
+	typedef std::pair<CGridPointVectorPtr, std::vector<std::array<size_t, 2>>> CQCPointInfo;
+	typedef  std::array < std::array<std::vector <CQCPointInfo>, NB_QC_VAR>, 12> CQCPointData;
 
 	class CQualityControl
 	{
@@ -52,17 +52,27 @@ namespace WBSF
 
 		ERMsg ExecuteHourly(CCallback& callback);
 		ERMsg ExecuteDaily(CCallback& callback);
+		ERMsg CheckDailyWithNormal(CCallback& callback);
+		ERMsg InitDefaultWG(CWeatherGenerator& WG, CCallback& callback);
+		ERMsg CheckBasicValue(CCallback& callback);
 		
 		ERMsg CreateValidation(CCallback& callback);
 		ERMsg ApplyValidation(CCallback& callback);
+		ERMsg CreateValidation2(CCallback& callback);
+		
 
 
 		ERMsg CreateVariogram(CCallback& callback);
-		ERMsg OptimizeParameter(size_t m, size_t v,const CQCPointInfo& pts, COptimizeInfoVector& p, CCallback& callback);
-		CGridInterpolParamVector GetParamterset(size_t m, size_t v);
+		static ERMsg OptimizeParameter(size_t v, const CQCPointInfo& pts, COptimizeInfo& p, CCallback& callback);
+		static CGridInterpolParamVector GetParamterset(size_t v);
 
-
+		static ERMsg LoadStations(const StringVector& file_path, std::vector<CLocationVector>& stations, CCallback& callback);
 		static ERMsg LoadStations(const StringVector& file_path, std::vector<CLocationVector>& stations, CQCPointData& pPts, std::set<int> years, CCallback& callback);
+		static ERMsg LoadStations(const StringVector& file_path, std::vector<CWeatherStationVector>& stations, int year, CCallback& callback);
+		static ERMsg LoadPts(std::vector<CWeatherStationVector>& stations, CQCPointInfo& pPts, CTRef TRef, HOURLY_DATA::TVarH v, CCallback& callback);
+
+		static bool IsBasicCheckValid(size_t v, float value);
+		static bool IsNormalsCheckValid(size_t v, float value, const std::array<CStatistic, HOURLY_DATA::NB_VAR_H>& normals_stats);
 	};
 
 }
