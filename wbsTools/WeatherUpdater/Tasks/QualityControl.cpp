@@ -101,7 +101,7 @@ namespace WBSF
 		vector<double> cook = test.GetCookDistance();*/
 
 		//msg = ExecuteHourly(callback);
-//		msg.ajoute("Not implemented yet.");
+		msg.ajoute("Not implemented yet.");
 		/*
 
 
@@ -111,7 +111,7 @@ namespace WBSF
 
 		//msg = CheckBasicValue(callback);
 		//msg = CheckDailyWithNormal(callback);
-		msg = CreateVariogram(callback);
+		//msg = CreateVariogram(callback);
 
 		return msg;
 	}
