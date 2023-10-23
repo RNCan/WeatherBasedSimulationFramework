@@ -123,7 +123,7 @@ namespace WBSF
 		float ld = 0, lm = 0, ls = 0;
 		sscanf(str.c_str(), "%f %f %f", &ld, &lm, &ls);
 
-		return ld + Signe(ld)*(lm / 60.0 + ls / 3600.0);
+		return ld + Signe(ld) * (lm / 60.0 + ls / 3600.0);
 	}
 
 
@@ -184,7 +184,7 @@ namespace WBSF
 
 					callback.AddMessage(FormatMsg(IDS_LOAD_PAGE, selection.GetName(curI, CProvinceSelection::NAME), ToString(nbPage)));
 
-					for (int j = 0; j < nbPage&&msg; j++)
+					for (int j = 0; j < nbPage && msg; j++)
 					{
 						short startRow = j * SEL_ROW_PER_PAGE + 1;
 						URL = FormatA(pageFormat, selection.GetName(curI, CProvinceSelection::ABVR).c_str(), firstYear, lastYear, today.GetYear(), today.GetMonth(), today.GetDay(), SEL_ROW_PER_PAGE, startRow);
@@ -504,7 +504,7 @@ namespace WBSF
 		CArray<bool> bNeedDownload;
 		bNeedDownload.SetSize(nbYears);
 
-		for (size_t y = 0; y < nbYears&&msg; y++)
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
 
@@ -526,7 +526,7 @@ namespace WBSF
 
 
 
-		for (size_t y = 0; y < nbYears&&msg; y++)
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
 
@@ -535,7 +535,7 @@ namespace WBSF
 				string internalID = info.GetSSI("InternalID");
 				string filePath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
 				CreateMultipleDir(GetPath(filePath));
-				
+
 				static const char pageDataFormat[] =
 				{
 					"https://climate.weather.gc.ca/climate_data/bulk_data_e.html?"
@@ -658,7 +658,7 @@ namespace WBSF
 		//save event if append an error
 		msg += m_stations.Save(GetStationListFilePath());
 
-		
+
 		if (!msg)
 			return msg;
 
@@ -796,7 +796,7 @@ namespace WBSF
 		size_t nbYears = lastYear - firstYear + 1;
 
 		//now extract data 
-		for (size_t y = 0; y < nbYears&&msg; y++)
+		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
 			string filePath = GetOutputFilePath(prov, year, internalID);
@@ -840,6 +840,20 @@ namespace WBSF
 		ERMsg msg;
 
 		enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, YEAR, MONTH, DAY, DATA_QUALITY, MAX_TEMP, MAX_TEMP_FLAG, MIN_TEMP, MIN_TEMP_FLAG, MEAN_TEMP, MEAN_TEMP_FLAG, HEAT_DEG_DAYS, HEAT_DEG_DAYS_FLAG, COOL_DEG_DAYS, COOL_DEG_DAYS_FLAG, TOTAL_RAIN, TOTAL_RAIN_FLAG, TOTAL_SNOW, TOTAL_SNOW_FLAG, TOTAL_PRECIP, TOTAL_PRECIP_FLAG, SNOW_ON_GRND, SNOW_ON_GRND_FLAG, DIR_OF_MAX_GUST, DIR_OF_MAX_GUST_FLAG, SPD_OF_MAX_GUST, SPD_OF_MAX_GUST_FLAG, NB_DAILY_COLUMN };
+
+
+		//bool bInvalidStation = ;
+		CTPeriod invalid_period;
+		//Manouane est
+		if (WBSF::Find(filePath, "706L155"))
+			invalid_period = CTPeriod(2004, JANUARY, DAY_01, 2010, JULY, 31);
+		//Lac Benoit
+		if (WBSF::Find(filePath, "7060826"))
+			invalid_period = CTPeriod(2003, JANUARY, DAY_01, 2010, JULY, 31);
+		//Bonnard
+		if (WBSF::Find(filePath, "706L001"))
+			invalid_period = CTPeriod(2004, JANUARY, DAY_01, 2010, JULY, 31);
+
 
 		//open file
 		ifStream file;
@@ -898,6 +912,12 @@ namespace WBSF
 					{
 						float prcp = ToFloat((*loop)[TOTAL_PRECIP]);
 						ASSERT(prcp >= 0 && prcp < 1000);
+
+						//Here we do an hard-coded cleanup for invalid EnvCan data because Env. Can. doesn't want to remove data
+
+						if (invalid_period.IsInit() && invalid_period.IsInside(Tref))
+							prcp = -999;
+
 						dailyData[Tref][H_PRCP] = prcp;
 					}
 
