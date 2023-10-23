@@ -546,7 +546,17 @@ namespace WBSF
 		{
 			StringVector tmp(it->second, "-");
 			if (tmp.size() == 2)
+			{
 				level = ToInt(tmp[0]);
+				
+				auto it2 = meta_data.find("description");
+				if(it2 != meta_data.end())
+				{
+					string description = it2->second;
+					if (description.find("[hPa]") != string::npos)
+						level *= 100;
+				}
+			}
 		}
 
 		return level;
@@ -597,9 +607,12 @@ namespace WBSF
 						int level = GetLevel(meta_data[b]);
 
 						bool bVar = var != NOT_INIT;
-						bool bLevelType = levelType == "ISBL" || levelType == "SFC" || levelType == "HTGL" || levelType == "HYBL";
-						bool bLevel = level <= 120 || (level >= 75000 && level <= 110000);
-						bIn = bVar && bLevelType && bLevel;
+						//bool bLevelType = levelType == "ISBL" || levelType == "SFC" || levelType == "HTGL" || levelType == "HYBL";
+						//bool bLevel = level <= 120 || (level >= 75000 && level <= 110000);
+						bool b1 = (levelType == "SFC" || levelType == "HTGL");//&& level <= 120
+						bool b2 = (levelType == "ISBL") && (level >= 75000 && level <= 110000);
+						//bool b3 = levelType == "HYBL";
+						bIn = bVar && (b1 || b2);
 					}
 
 					if (bIn && bSurface)
@@ -612,8 +625,14 @@ namespace WBSF
 					{
 						string new_description = meta_data[b]["description"];
 						StringVector description(meta_data[b]["description"], "=");
-						if (description.size() == 2)//replace description of level by description of variable: more usefull in QGIS
+						if (description.size() == 2)//replace description of level by description of variable: more useful in QGIS
+						{
 							new_description = description[0] + " \"" + meta_data[b]["GRIB_COMMENT"] + "\"";
+							
+							//if (description[0].find("[hPa]") != string::npos)
+							//	level *= 100;
+						}
+							
 
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
