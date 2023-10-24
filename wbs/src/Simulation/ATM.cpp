@@ -4103,7 +4103,7 @@ namespace WBSF
 								string strLevel = (*loop)[4];
 								size_t var = GetVar(strVar);
 								size_t level = var != UNKNOWN_POS ? GetLevel(strLevel) : UNKNOWN_POS;
-								if (bSurfaceOnly && level > 0)//open only surface for optimisation
+								if (bSurfaceOnly && level > 0)//open only surface for optimization
 									level = NOT_INIT;
 
 								if (var < NB_ATM_VARIABLES_EX && level < m_bands[var].size())
@@ -4251,6 +4251,8 @@ namespace WBSF
 								if (var < NB_ATM_VARIABLES_EX && !description.empty())
 								{
 									size_t level = as<size_t>(description[0]);
+									if (meta_data[i]["description"].find("[hPa]") != string::npos)
+										level *= 100;
 
 									if (description[2] != "HYBL")
 									{
