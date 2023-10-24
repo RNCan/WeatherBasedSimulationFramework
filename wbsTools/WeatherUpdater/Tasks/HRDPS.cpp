@@ -605,7 +605,8 @@ namespace WBSF
 
 				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 				string projlib_path = GetApplicationPath() + "External\\projlib";
-				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 				string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 				string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
@@ -841,9 +842,9 @@ namespace WBSF
 				//copy the file to fully use compression with GDAL_translate
 				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 				string projlib_path = GetApplicationPath() + "External\\projlib";
+				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
-				//-stats : do not include stat to avoid the creation of the xml file
-				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 				string s_prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
 				string t_prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 				//string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
@@ -966,7 +967,9 @@ namespace WBSF
 		{
 			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 			string projlib_path = GetApplicationPath() + "External\\projlib";
-			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 			string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 			//string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
@@ -1079,7 +1082,9 @@ namespace WBSF
 
 			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 			string projlib_path = GetApplicationPath() + "External\\projlib";
-			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 			string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
 			msg += WinExecWait(command);
@@ -1203,7 +1208,9 @@ namespace WBSF
 						{
 							string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 							string projlib_path = GetApplicationPath() + "External\\projlib";
-							string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+							string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+
+							string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 							
 
 							string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
@@ -1417,7 +1424,8 @@ namespace WBSF
 						//convert with gdal_translate to optimize size
 						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 						string projlib_path = GetApplicationPath() + "External\\projlib";
-						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 						string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";

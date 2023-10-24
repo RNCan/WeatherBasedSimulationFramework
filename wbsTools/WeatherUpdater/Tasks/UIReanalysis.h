@@ -17,7 +17,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TProduct { DATA_ERA5};
+		enum TProduct { DATA_ERA5, DATA_20CRV3};
 		enum TFrequency{ DATA_HOURY, DATA_DAILY	};
 		
 		enum TAttributes { WORKING_DIR, PRODUCT, FREQUENCY, FIRST_YEAR, LAST_YEAR, BOUNDING_BOX, SHOW_DONWLOAD, NB_ATTRIBUTES };

@@ -494,9 +494,10 @@ namespace WBSF
 				//copy the file to fully use compression with GDAL_translate
 				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 				string projlib_path = GetApplicationPath() + "External\\projlib";
+				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
 				//-stats : do not include stat to avoid the creation of the xml file
-				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 				string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 				string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + "2" + "\" \"" + output_file_path + "\"";
 				msg += WinExecWait(command);
@@ -642,9 +643,9 @@ namespace WBSF
 						//copy the file to fully use compression with GDAL_translate
 						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 						string projlib_path = GetApplicationPath() + "External\\projlib";
+						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
-						//-stats : do not include stat to avoid the creation of the xml file
-						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + "2" + "\" \"" + output_file_path + "\"";
 						msg += WinExecWait(command);

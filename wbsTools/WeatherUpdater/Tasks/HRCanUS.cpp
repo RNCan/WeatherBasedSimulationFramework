@@ -176,8 +176,9 @@ namespace WBSF
 			//create and open reprojected can
 			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 			string projlib_path = GetApplicationPath() + "External\\projlib";
+			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
-			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 			string argument = "-te -2700000 -1600000 3300000 3200000 -tr 2500 2500 -r cubic -te_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -t_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -overwrite \"";
 			string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + file_path_in_can + "\" \"" + file_path_tmp1 + "\"";
 			msg += WinExecWait(command);
@@ -318,9 +319,9 @@ namespace WBSF
 						//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 						string projlib_path = GetApplicationPath() + "External\\projlib";
+						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
-						//-stats : do not include stat to avoid the creation of the xml file
-						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
@@ -537,9 +538,9 @@ namespace WBSF
 						//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 						string projlib_path = GetApplicationPath() + "External\\projlib";
+						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
 
-						//-stats : do not include stat to avoid the creation of the xml file
-						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 

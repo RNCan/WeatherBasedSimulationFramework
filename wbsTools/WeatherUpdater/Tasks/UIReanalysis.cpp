@@ -11,6 +11,8 @@
 #include "TaskFactory.h"
 #include "../Resource.h"
 #include "ERA5.h"
+#include "20CRv3.h"
+
 
 
 
@@ -59,7 +61,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case PRODUCT: str = "ERA5"; break;
+		case PRODUCT: str = "ERA5|20CRv3"; break;
 		case FREQUENCY:	str = "Hourly|Daily"; break;
 		};
 		return str;
@@ -89,18 +91,39 @@ namespace WBSF
 
 	ERMsg CUIReanalysis::Execute(CCallback& callback)
 	{
-		CERA5 ERA5;
-		ERA5.m_workingDir = GetDir(WORKING_DIR);
-		ERA5.m_first_year = as<int>(FIRST_YEAR);
-		ERA5.m_last_year = as<int>(LAST_YEAR);
-		ERA5.m_frequency = as<size_t>(FREQUENCY);
-		ERA5.m_show_download = as<bool> (SHOW_DONWLOAD);
-		ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX); 
-		ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+		ERMsg msg;
+		size_t product = as<size_t>(PRODUCT);
+		if (product == DATA_ERA5)
+		{
+			CERA5 ERA5;
+			ERA5.m_workingDir = GetDir(WORKING_DIR);
+			ERA5.m_first_year = as<int>(FIRST_YEAR);
+			ERA5.m_last_year = as<int>(LAST_YEAR);
+			ERA5.m_frequency = as<size_t>(FREQUENCY);
+			ERA5.m_show_download = as<bool>(SHOW_DONWLOAD);
+			ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+			msg = ERA5.Execute(callback);
+		}
+		else if (product == DATA_20CRV3)
+		{
+			C20CRv3 i20CRv3;
+			i20CRv3.m_workingDir = GetDir(WORKING_DIR);
+			i20CRv3.m_first_year = as<int>(FIRST_YEAR);
+			i20CRv3.m_last_year = as<int>(LAST_YEAR);
+			i20CRv3.m_frequency = as<size_t>(FREQUENCY);
+			i20CRv3.m_show_download = as<bool>(SHOW_DONWLOAD);
+			i20CRv3.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			i20CRv3.m_bounding_box.SetPrjID(PRJ_WGS_84);
 
+			if (i20CRv3.m_frequency == DATA_DAILY)
+				msg = i20CRv3.Execute(callback);
+			else 
+				msg.ajoute("Hourly not supported for 20CRv3");
+		}
 		
 
-		return ERA5.Execute(callback);
+		return msg;
 	}
 
 	ERMsg CUIReanalysis::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)

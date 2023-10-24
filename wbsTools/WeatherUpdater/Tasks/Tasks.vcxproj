@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="20CRv3.h" />
     <ClInclude Include="AppendWeather.h" />
     <ClInclude Include="ClipWeather.h" />
     <ClInclude Include="ConvertDB.h" />
@@ -236,6 +237,7 @@
     <ClInclude Include="ZipUnzip.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="20CRv3.cpp" />
     <ClCompile Include="AppendWeather.cpp" />
     <ClCompile Include="ClipWeather.cpp" />
     <ClCompile Include="ConvertDB.cpp" />

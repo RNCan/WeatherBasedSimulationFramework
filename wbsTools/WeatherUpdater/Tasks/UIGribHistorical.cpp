@@ -624,8 +624,8 @@ namespace WBSF
 					if (bIn)
 					{
 						string new_description = meta_data[b]["description"];
-						StringVector description(meta_data[b]["description"], "=");
-						if (description.size() == 2)//replace description of level by description of variable: more useful in QGIS
+						StringVector description(meta_data[b]["description"], "(=");
+						if (description.size() >= 1)//replace description of level by description of variable: more useful in QGIS
 						{
 							new_description = description[0] + " \"" + meta_data[b]["GRIB_COMMENT"] + "\"";
 							
@@ -679,8 +679,8 @@ namespace WBSF
 					if (in_b != NOT_INIT)
 					{
 						string new_description = meta_data[in_b]["description"];
-						StringVector description(meta_data[in_b]["description"], "=");
-						if (description.size() == 2)
+						StringVector description(meta_data[in_b]["description"], "=(");
+						if (description.size() >= 1)
 							new_description = description[0] + " \"" + meta_data[in_b]["GRIB_COMMENT"] + "\"";
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
@@ -743,9 +743,9 @@ namespace WBSF
 		//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 		string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 		string projlib_path = GetApplicationPath() + "External\\projlib";
+		string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
-		//-stats : do not include stat to avoid the creation of the xml file
-		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 		string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 		string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 
@@ -939,8 +939,8 @@ namespace WBSF
 					if (in_b != NOT_INIT)
 					{
 						string new_description = meta_data[in_b]["description"];
-						StringVector description(meta_data[in_b]["description"], "=");
-						if (description.size() == 2)
+						StringVector description(meta_data[in_b]["description"], "=(");
+						if (description.size() >= 1)
 							new_description = description[0] + " \"" + meta_data[in_b]["GRIB_COMMENT"] + "\"";
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(HH+1) << "\">" << endl;
@@ -985,7 +985,9 @@ namespace WBSF
 				//else
 				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
 				string projlib_path = GetApplicationPath() + "External\\projlib";
-				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
+				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
+
 				string argument = "-e \"prcp=max(0,round( (i1b" + to_string(HH + 2) + "-i1b" + to_string(HH+1) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 
 				string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + prcpOutputPath + "\"";
