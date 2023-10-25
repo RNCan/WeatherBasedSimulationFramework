@@ -46,11 +46,11 @@ public:
     double m_rings;
     std::string m_ValidityMask;
 
-    //double m_RMSEThreshold;
-    //size_t m_maxLayers;
     int m_firstYear;
-    //bool m_bExportBreaks;
     bool m_bBreaks;
+    bool m_bBackwardFill;
+    bool m_bForwardFill;
+
 };
 
 typedef std::deque < std::vector< Landsat2::LandsatDataType>> OutputData;

@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
 // 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
 
 
@@ -34,7 +35,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.0.0";
+	const char* CLandTrend::VERSION = "1.0.1";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -78,6 +79,9 @@ namespace WBSF
 			//{ "-Modifier", 1, "modifier", false, "Modifier to assure that disturbance is always positive. Can be 1 or -1. -1 by default for NBR."},
 			{ "-Indice", 1, "indice", false, "Select indice to run model. Indice can be NBR, NDVI, NDMI, NDWI, TCB, TCG, TCW, NBR2, EVI, EVI2, SAVI, MSAVI, SR, CL, HZ, LSWI, VIgreen. NBR by default"  },
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
+			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
+			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
+			
 			//{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
 			//le code ne fonctinnera pas. Il faut que cette couche soit intégrer dans CGDALDatasetEx
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
@@ -201,6 +205,14 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-Breaks"))
 		{
 			m_bBreaks = true;
+		}
+		else if (IsEqual(argv[i], "-BackwardFill"))
+		{
+			m_bBackwardFill = true;
+		}
+		else if (IsEqual(argv[i], "-ForwardFill"))
+		{
+			m_bForwardFill = true;
 		}
 		else
 		{
@@ -530,55 +542,40 @@ namespace WBSF
 					CRealArray data(window.size());
 					CBoolArray goods(window.size());
 
-					assert(validity.size() == window.size());
+					bool bBackwardFill = m_options.m_bBackwardFill;
+					bool bForwardFill = m_options.m_bForwardFill;
+					size_t m_first_valid = NOT_INIT;
+					size_t m_last_valid = NOT_INIT;
+					if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
+					{
+						for (size_t z = 0; z < window.size(); z++)
+						{
+							bool bValid = window.IsValid(z, x, y) && validity[z][xy];
+							if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
+								m_first_valid = z;
 
+							if (m_options.m_bForwardFill && bValid)
+								m_last_valid = z;
+						}
+					}
+					assert(validity.size() == window.size());
 					for (size_t z = 0; z < window.size(); z++)
 					{
-						CLandsatPixel pixel = window.GetPixel(z, x, y);
+						size_t zz = z;
+						
+						if (m_first_valid != NOT_INIT && zz < m_first_valid)
+							zz = m_first_valid;
+						if (m_last_valid != NOT_INIT && zz > m_last_valid)
+							zz = m_last_valid;
+						
 
-						//if (pixel.IsValid())
-						//{
-						//
-						//
-						//
-						//	if (z < window.size() - 1)//if not at the begin or the end
-						//	{
-						//
-						//		size_t previous_pos = window.GetPrevious(z, x, y);
-						//		size_t next_pos = window.GetNext(z, x, y);
+						CLandsatPixel pixel = window.GetPixel(zz, x, y);
+						goods[z] = pixel.IsValid() && validity[zz][xy];
 
-						//		CLandsatPixel previous;
-						//		CLandsatPixel next;
-
-						//		if (previous_pos != -1)
-						//		{
-						//			previous = window.GetPixel(previous_pos, x, y);
-						//		}
-						//		else
-						//		{
-						//			//take median of the first 5 images
-						//		}
-
-						//		if (next_pos != -1)
-						//			next = window.GetPixel(next_pos, x, y);
-
-						//		std::array <Landsat2::CLandsatPixel, 3> p = { previous, pixel, next };
-						//		bool bCloud = IsB1Trigged(p, -125);
-						//		bool bShadow = IsTCBTrigged(p, 750);
-
-						//		if (bCloud || bShadow)
-						//			pixel.Reset();
-						//	}
-						//
-						//
-
-						//
-						//}
-
-					    goods[z] = pixel.IsValid() && validity[z][xy];
-						if(goods[z])
+						if (goods[z])
 						{
-							data[z] = window.GetPixelIndice(z, m_options.m_indice, x, y, m_options.m_rings);
+
+							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
 							//goods[z] = data[z] != no_data;
 						}
 

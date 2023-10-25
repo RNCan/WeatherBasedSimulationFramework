@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-multi -stats -noResult -Breaks -FirstYear 1985 -of VRT -co COMPRESS=LZW -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-multi -stats -BackwardFill -ForwardFill -FirstYear 1985 -of VRT -co COMPRESS=LZW -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
