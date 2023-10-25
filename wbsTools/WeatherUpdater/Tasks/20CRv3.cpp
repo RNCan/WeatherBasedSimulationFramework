@@ -921,9 +921,9 @@ namespace WBSF
 		CTRef TRef;
 
 		string title = GetFileTitle(filePath);
-		int year = WBSF::as<int>(title.substr(5, 4));
-		size_t m = WBSF::as<int>(title.substr(9, 2)) - 1;
-		size_t d = WBSF::as<int>(title.substr(11, 2)) - 1;
+		int year = WBSF::as<int>(title.substr(7, 4));
+		size_t m = WBSF::as<int>(title.substr(11, 2)) - 1;
+		size_t d = WBSF::as<int>(title.substr(13, 2)) - 1;
 		TRef = CTRef(year, m, d);
 
 		return TRef;

@@ -130,26 +130,89 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		CERA5 ERA5;
+		/*CERA5 ERA5;
 		ERA5.m_workingDir = GetDir(WORKING_DIR);
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
 		ERA5.m_frequency = as<size_t>(FREQUENCY);
 
-		return ERA5.GetGribsList(p, gribsList, callback);
+		return ERA5.GetGribsList(p, gribsList, callback);*/
+
+		size_t product = as<size_t>(PRODUCT);
+		if (product == DATA_ERA5)
+		{
+			CERA5 ERA5;
+			ERA5.m_workingDir = GetDir(WORKING_DIR);
+			ERA5.m_first_year = as<int>(FIRST_YEAR);
+			ERA5.m_last_year = as<int>(LAST_YEAR);
+			ERA5.m_frequency = as<size_t>(FREQUENCY);
+			ERA5.m_show_download = as<bool>(SHOW_DONWLOAD);
+			ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+			msg = ERA5.GetGribsList(p, gribsList, callback);
+		}
+		else if (product == DATA_20CRV3)
+		{
+			C20CRv3 i20CRv3;
+			i20CRv3.m_workingDir = GetDir(WORKING_DIR);
+			i20CRv3.m_first_year = as<int>(FIRST_YEAR);
+			i20CRv3.m_last_year = as<int>(LAST_YEAR);
+			i20CRv3.m_frequency = as<size_t>(FREQUENCY);
+			i20CRv3.m_show_download = as<bool>(SHOW_DONWLOAD);
+			i20CRv3.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			i20CRv3.m_bounding_box.SetPrjID(PRJ_WGS_84);
+
+			if (i20CRv3.m_frequency == DATA_DAILY)
+				msg = i20CRv3.GetGribsList(p, gribsList, callback);
+			else
+				msg.ajoute("Hourly not supported for 20CRv3");
+		}
+
+		return msg;
 	}
 
 	ERMsg CUIReanalysis::GetStationList(StringVector& stationList, CCallback& callback)
 	{
 		ERMsg msg;
 
-		CERA5 ERA5;
+		/*CERA5 ERA5;
 		ERA5.m_workingDir = GetDir(WORKING_DIR);
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
 		ERA5.m_frequency = as<size_t>(FREQUENCY);
 
-		return ERA5.GetStationList(stationList, callback);
+		return ERA5.GetStationList(stationList, callback);*/
+		size_t product = as<size_t>(PRODUCT);
+		if (product == DATA_ERA5)
+		{
+			CERA5 ERA5;
+			ERA5.m_workingDir = GetDir(WORKING_DIR);
+			ERA5.m_first_year = as<int>(FIRST_YEAR);
+			ERA5.m_last_year = as<int>(LAST_YEAR);
+			ERA5.m_frequency = as<size_t>(FREQUENCY);
+			ERA5.m_show_download = as<bool>(SHOW_DONWLOAD);
+			ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+			msg = ERA5.GetStationList(stationList, callback);
+		}
+		else if (product == DATA_20CRV3)
+		{
+			C20CRv3 i20CRv3;
+			i20CRv3.m_workingDir = GetDir(WORKING_DIR);
+			i20CRv3.m_first_year = as<int>(FIRST_YEAR);
+			i20CRv3.m_last_year = as<int>(LAST_YEAR);
+			i20CRv3.m_frequency = as<size_t>(FREQUENCY);
+			i20CRv3.m_show_download = as<bool>(SHOW_DONWLOAD);
+			i20CRv3.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			i20CRv3.m_bounding_box.SetPrjID(PRJ_WGS_84);
+
+			if (i20CRv3.m_frequency == DATA_DAILY)
+				msg = i20CRv3.GetStationList(stationList, callback);
+			else
+				msg.ajoute("Hourly not supported for 20CRv3");
+		}
+
+		return msg;
 	}
 	
 	ERMsg CUIReanalysis::GetWeatherStation(const string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
@@ -157,14 +220,44 @@ namespace WBSF
 		ERMsg msg;
 
 		
-		CERA5 ERA5;
+		/*CERA5 ERA5;
 		ERA5.m_workingDir = GetDir(WORKING_DIR);
 		ERA5.m_first_year = as<int>(FIRST_YEAR);
 		ERA5.m_last_year = as<int>(LAST_YEAR);
 		ERA5.m_frequency = as<size_t>(FREQUENCY);
 
-		return ERA5.GetWeatherStation(ID, TM, station, callback);
+		return ERA5.GetWeatherStation(ID, TM, station, callback);*/
+		size_t product = as<size_t>(PRODUCT);
+		if (product == DATA_ERA5)
+		{
+			CERA5 ERA5;
+			ERA5.m_workingDir = GetDir(WORKING_DIR);
+			ERA5.m_first_year = as<int>(FIRST_YEAR);
+			ERA5.m_last_year = as<int>(LAST_YEAR);
+			ERA5.m_frequency = as<size_t>(FREQUENCY);
+			ERA5.m_show_download = as<bool>(SHOW_DONWLOAD);
+			ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
+			msg = GetWeatherStation(ID, TM, station, callback);
+		}
+		else if (product == DATA_20CRV3)
+		{
+			C20CRv3 i20CRv3;
+			i20CRv3.m_workingDir = GetDir(WORKING_DIR);
+			i20CRv3.m_first_year = as<int>(FIRST_YEAR);
+			i20CRv3.m_last_year = as<int>(LAST_YEAR);
+			i20CRv3.m_frequency = as<size_t>(FREQUENCY);
+			i20CRv3.m_show_download = as<bool>(SHOW_DONWLOAD);
+			i20CRv3.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
+			i20CRv3.m_bounding_box.SetPrjID(PRJ_WGS_84);
+
+			if (i20CRv3.m_frequency == DATA_DAILY)
+				msg = i20CRv3.GetWeatherStation(ID, TM, station, callback);
+			else
+				msg.ajoute("Hourly not supported for 20CRv3");
+		}
 		
+		return msg;
 	}
 
 //	ERMsg CUIReanalysis::GetStationListD(StringVector& stationList, CCallback& callback)

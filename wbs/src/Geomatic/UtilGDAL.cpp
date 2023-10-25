@@ -40,13 +40,11 @@ void RegisterGDAL()
 	const char* pTest = CPLGetConfigOption("GDAL_DRIVER_PATH", test);
 	const char* pTest2 = CPLGetConfigOption("GDAL_DATA", test);
 
-	string path = GetApplicationPath() + "External";
+	string path = GetApplicationPath() + "External\\gdalplugins";
 	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
 
 	path = GetApplicationPath() + "External\\gdal-data";
 	CPLSetConfigOption("GDAL_DATA", path.c_str());
-
-
 	
 	path = GetApplicationPath() + "External\\projlib";
 	CPLSetConfigOption("PROJ_LIB", path.c_str());
