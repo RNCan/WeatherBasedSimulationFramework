@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
 // 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
 
@@ -35,7 +36,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.0.1";
+	const char* CLandTrend::VERSION = "1.0.2";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
