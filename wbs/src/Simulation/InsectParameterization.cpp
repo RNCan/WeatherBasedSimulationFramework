@@ -1648,21 +1648,6 @@ namespace WBSF
 							row.m_treatment = (*loop)[i];
 						else if (m_input_pos[i] == I_I)
 							row.m_i = (*loop)[i];
-						/*else if (m_input_pos[i] == I_TIME)
-						{
-							if((*loop)[i] != "NA")
-							{
-								row[m_input_pos[i]] = ToDouble((*loop)[i]);
-								row.m_bIndividual = true;
-							}
-						}
-						else if (m_input_pos[i] == I_MEAN_TIME)
-						{
-							if ((*loop)[i] != "NA")
-							{
-								row[m_input_pos[i]] = ToDouble((*loop)[i]);
-							}
-						}*/
 						else
 						{
 							row[m_input_pos[i]] = ((*loop)[i] != "NA") ? ToDouble((*loop)[i]) : -999.0;
@@ -1704,7 +1689,7 @@ namespace WBSF
 
 				row.SetTime(row.GetTime());
 				row.SetTimeˉ¹(max(0.0, row.GetTime() - 1));
-				if (row.m_type == T_TRANSFER && row.GetTime() < row.GetTime1())
+				if (row.m_type == T_TRANSFER && row.GetTime()>0 && row.GetTime() < row.GetTime1())
 				{
 					msg.ajoute("Error: transfer row with Time1 greater than total Time");
 					msg.ajoute((*loop).GetLastLine());
