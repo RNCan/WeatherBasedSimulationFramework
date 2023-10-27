@@ -8,6 +8,7 @@
 //******************************************************************************
 #pragma once
 
+#include <boost/dynamic_bitset.hpp>
 #include "external/ERMsg/ERMsg.h"
 #include "basic/GeoBasic.h"
 #include "geomatic/UtilGDAL.h"
@@ -125,7 +126,9 @@ public:
 
             if (pos >= 0 && pos < (int64_t)m_data.size())
             {
-                v = m_data.at((size_t)pos);
+                if (IsPixelValid(x, y))
+                    v = m_data.at((size_t)pos);
+                
 //                if (m_pMaskWindow && (m_pMaskWindow.get() != NULL) && m_pMaskWindow->IsPixelMasked(x, y))
                 //                  v = (DataType)m_noData;
             }
@@ -152,19 +155,23 @@ public:
     {
         return at(x, y);
     }
+    
+   /* DataType operator [](size_t xy)const
+    {
+        return m_data[xy];
+    }*/
     bool IsValid(CGeoPointIndex xy)const
     {
-        return IsValid(at(xy));
+        return IsValid(at(xy)) && IsPixelValid(xy.m_x, xy.m_y);
     }
     bool IsValid(int x, int y)const
     {
-        return IsValid(at(x, y));
+        return IsValid(at(x, y))&& IsPixelValid(x, y);
     }
 
     bool IsValid(DataType v)const
     {
-
-        return m_noData == MISSING_NO_DATA || fabs(v - (DataType)m_noData) > EPSILON_NODATA;
+        return (m_noData == MISSING_NO_DATA || fabs(v - (DataType)m_noData) > EPSILON_NODATA);
     }
 
     void SetNoData(double noData)
@@ -176,13 +183,13 @@ public:
         return m_noData;
     }
 
-    DataType* data()
+    DataVector & data()
     {
-        return m_data.data();
+        return m_data;
     }
-    const DataType* data()const
+    const DataVector&  data()const
     {
-        return m_data.data();
+        return m_data;//.data()
     }
 
     CGeoExtents GetExtents()const
@@ -192,30 +199,42 @@ public:
 
     CStatisticEx GetWindowStat(int x, int y, int n_rings)const;
     
+    void SetValidity(const boost::dynamic_bitset<>& in) { m_valid = in; }
+    
 protected:
 
     //does the pixel is used. this layer is a mask layer
-//    bool IsPixelMasked(int x, int y)const
-//    {
-//        if (m_pData == NULL)
-//            return false;
-//
-//        size_t pos = (m_windowRect.m_y - m_dataRect.m_y + y)*m_dataRect.Width() + m_windowRect.m_x - m_dataRect.m_x + x;
-//        if (pos >= m_pData->size())
-//            return false;
-//
-//        DataType maskValue = m_pData->at(pos);
-//
-//        return (m_maskDataUsed == DataTypeMin) ? fabs(maskValue - m_noData) < EPSILON_NODATA : maskValue != m_maskDataUsed;
-//    }
+    bool IsPixelValid(int x, int y)const
+    {
+        if (m_valid.empty())
+            return true;
+
+        //size_t s1 = m_valid.size();
+        //size_t s2 = m_data.size();
+        assert(m_valid.size() == m_data.size());
+        //size_t pos = (m_windowRect.m_y - m_dataRect.m_y + y)*m_dataRect.Width() + m_windowRect.m_x - m_dataRect.m_x + x;
+        int64_t pos = ((int64_t)y - m_dataRect.m_y) * m_dataRect.Width() + (x - m_dataRect.m_x);
+        assert(pos >= 0 && pos < (int64_t)m_data.size());
+
+        if (pos < 0 && pos >= int64_t (m_valid.size()))
+            return true;
+
+        assert(m_valid.size() == m_dataRect.size());
+        return m_valid[pos];
+      //  DataType maskValue = m_mask.at(pos);
+
+        //return (m_maskDataUsed == DataTypeMin) ? fabs(maskValue - m_noData) < EPSILON_NODATA : maskValue != m_maskDataUsed;
+    }
 
     DataVector m_data;
     CGeoRectIndex m_dataRect;
     CGeoRectIndex m_windowRect;
     double m_noData;
-    //DataType m_maskDataUsed;
+    
     CGeoExtents m_extents;
 
+    //DataType m_maskDataUsed;
+    boost::dynamic_bitset<> m_valid;
     //CDataWindowPtr m_pMaskWindow;
 };
 

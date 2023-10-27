@@ -84,9 +84,7 @@ namespace WBSF
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
-			
-			//{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
-			//le code ne fonctinnera pas. Il faut que cette couche soit intégrer dans CGDALDatasetEx
+			{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -271,7 +269,7 @@ namespace WBSF
 
 
 		//load validity mask;
-		deque<boost::dynamic_bitset<>> validity(inputDS.GetNbScenes());
+		/*deque<boost::dynamic_bitset<>> validity(inputDS.GetNbScenes());
 		for (size_t ii = 0; ii < validity.size(); ii++)
 		{
 			size_t i = m_options.m_scene_extents[0] + ii;
@@ -289,7 +287,7 @@ namespace WBSF
 				for (size_t xy = 0; xy < tmp.size(); xy++)
 					validity[ii].set(xy, tmp[xy] != 0);
 			}
-		}
+		}*/
 
 
 		CGeoExtents extents = m_options.m_extents;
@@ -312,8 +310,8 @@ namespace WBSF
 			Landsat2::CLandsatWindow inputData;
 			OutputData outputData;
 			BreaksData breaksData;
-			ReadBlock(inputDS, xBlock, yBlock, inputData);
-			ProcessBlock(xBlock, yBlock, inputData, validity, outputData, breaksData);
+			ReadBlock(inputDS, validityDS, xBlock, yBlock, inputData);
+			ProcessBlock(xBlock, yBlock, inputData, outputData, breaksData);
 			WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 		}//for all blocks
 
@@ -444,14 +442,50 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
+	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& validityDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
 	{
 #pragma omp critical(BlockIO)
 		{
 			m_options.m_timerRead.start();
 
 			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-			inputDS.CGDALDatasetEx::ReadBlock(extents, block_data, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+			inputDS.ReadBlock(extents, block_data, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+
+			if (validityDS.IsOpen())
+			{
+				assert(validityDS.GetRasterCount() == inputDS.GetNbScenes());
+				assert(validityDS.GetRasterXSize() * validityDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
+
+
+				CRasterWindow validity_block;
+				validityDS.ReadBlock(extents, validity_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+				assert(block_data.size() == validity_block.size());
+
+
+
+				
+				for (size_t i = 0; i < validity_block.size(); i++)
+				{
+					assert(block_data[i].data().size() == validity_block[i].data().size());
+
+					boost::dynamic_bitset<> validity(validity_block[i].data().size(), true);
+					//size_t i = m_options.m_scene_extents[0] + ii;
+					//validity.resize(validity_block[i].size(), true);
+
+					//size_t s1 = validity.size();
+					//size_t s2 = validity_block[i].size();
+
+
+					for (size_t xy = 0; xy < validity_block[i].data().size(); xy++)
+						validity.set(xy, validity_block[i].data()[xy] != 0);
+
+					//aet this validity for all scene bands
+					assert(validity.size() == block_data[i].data().size());
+					for (size_t ii = 0; ii < block_data.GetSceneSize(); ii++)
+						block_data.at(i* block_data.GetSceneSize()+ii).SetValidity(validity);
+				}
+			}
+
 			m_options.m_timerRead.stop();
 		}
 	}
@@ -495,7 +529,7 @@ namespace WBSF
 		return (t1 && t2);
 	}
 
-	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, const deque<boost::dynamic_bitset<>>& validity, OutputData& outputData, BreaksData& breaksData)
+	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, OutputData& outputData, BreaksData& breaksData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -553,7 +587,7 @@ namespace WBSF
 					{
 						for (size_t z = 0; z < window.size(); z++)
 						{
-							bool bValid = window.IsValid(z, x, y) && validity[z][xy];
+							bool bValid = window.IsValid(z, x, y);
 							if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
 								m_first_valid = z;
 
@@ -561,7 +595,8 @@ namespace WBSF
 								m_last_valid = z;
 						}
 					}
-					assert(validity.size() == window.size());
+
+					//assert(validity.size() == window.size());
 					for (size_t z = 0; z < window.size(); z++)
 					{
 						size_t zz = z;
@@ -573,7 +608,7 @@ namespace WBSF
 						
 
 						CLandsatPixel pixel = window.GetPixel(zz, x, y);
-						goods[z] = pixel.IsValid() && validity[zz][xy];
+						goods[z] = pixel.IsValid();//&& validity[zz][xy]
 
 						if (goods[z])
 						{
