@@ -58,6 +58,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CaroleCoursolle", "CaroleCo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChillingDegreeDay", "ChillingDegreeDay.vcxproj", "{F0018F27-1E51-43B2-8638-151E4D6127A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClimaticMoistureDeficit", "ClimaticMoistureDeficit.vcxproj", "{994E8BE8-65F2-467A-91A9-BDE3CF347579}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -288,6 +290,14 @@ Global
 		{F0018F27-1E51-43B2-8638-151E4D6127A6}.Release|Win32.Build.0 = Release|Win32
 		{F0018F27-1E51-43B2-8638-151E4D6127A6}.Release|x64.ActiveCfg = Release|x64
 		{F0018F27-1E51-43B2-8638-151E4D6127A6}.Release|x64.Build.0 = Release|x64
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Debug|Win32.ActiveCfg = Debug|Win32
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Debug|Win32.Build.0 = Debug|Win32
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Debug|x64.ActiveCfg = Debug|x64
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Debug|x64.Build.0 = Debug|x64
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Release|Win32.ActiveCfg = Release|Win32
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Release|Win32.Build.0 = Release|Win32
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Release|x64.ActiveCfg = Release|x64
+		{994E8BE8-65F2-467A-91A9-BDE3CF347579}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
