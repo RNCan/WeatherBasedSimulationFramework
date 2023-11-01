@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>ClimaticMoistureDeficit</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>ClimaticMoistureDeficit.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Mean air temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eto</Name>
+            <Title>Eto</Title>
+            <Units>mm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CMD</Name>
+            <Title>CMD</Title>
+            <Units>mm</Units>
+            <Description>Climatic Moisture Deficit</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CMS</Name>
+            <Title>CMS</Title>
+            <Units>mm</Units>
+            <Description>Climatic Moisture Surplus</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Dissecting indices of aridity for assessing the impacts of global climate change &#x0D;&#x0A;Evan H.Girvetz &amp; Chris Zganjar&#x0D;&#x0A;Climatic Change (2014) 126:469–483&#x0D;&#x0A;DOI 10.1007 / s10584 - 014 - 1218 - 9&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
