@@ -2015,6 +2015,36 @@ string CBaseOptions::GetIOFileInfo()const
 	return info;
 }
 
+bool GDALStyleProgressBar(double dfComplete)
+{
+	const int nThisTick =
+		std::min(40, std::max(0, static_cast<int>(dfComplete * 40.0)));
+
+	// Have we started a new progress run?
+	static int nLastTick = -1;
+	if (nThisTick < nLastTick && nLastTick >= 39)
+		nLastTick = -1;
+
+	if (nThisTick <= nLastTick)
+		return true;
+
+	while (nThisTick > nLastTick)
+	{
+		++nLastTick;
+		if (nLastTick % 4 == 0)
+			fprintf(stdout, "%d", (nLastTick / 4) * 10);
+		else
+			fprintf(stdout, ".");
+	}
+
+	if (nThisTick == 40)
+		fprintf(stdout, " - done.\n");
+	else
+		fflush(stdout);
+
+	return true;
+}
+
 void CBaseOptions::UpdateBar()
 {
 	if (!m_bQuiet)
@@ -2024,13 +2054,14 @@ void CBaseOptions::UpdateBar()
 #pragma omp flush(m_xx)
 #pragma omp flush(m_xxx) 
 
-			size_t nbX = (size_t)Round(80.0*m_xx / m_xxFinal);
+			GDALStyleProgressBar(double(m_xx) / m_xxFinal);
+			/*size_t nbX = (size_t)Round(80.0*m_xx / m_xxFinal);
 
 			while (m_xxx<nbX)
 			{
 				cout << ".";
 				m_xxx++;
-			}
+			}*/
 
 #pragma omp flush(m_xxx)
 		}
