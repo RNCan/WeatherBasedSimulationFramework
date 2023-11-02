@@ -85,7 +85,7 @@ namespace WBSF
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
-			{ "-ValidityMask", 1, "name", false, "Mask of valid data. Number of validity bands must be the same as the number of scenes (years)." },
+			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
 			{ "srcfile", 0, "", false, "Input image file path." },
@@ -200,9 +200,9 @@ namespace WBSF
 			m_rings -= 1;//convert radius to rings
 
 		}
-		else if (IsEqual(argv[i], "-ValidityMask"))
+		else if (IsEqual(argv[i], "-CloudsMask"))
 		{
-			m_ValidityMask = argv[++i];
+			m_CloudsMask = argv[++i];
 		}
 		else if (IsEqual(argv[i], "-Breaks"))
 		{
@@ -255,10 +255,10 @@ namespace WBSF
 		CLandsatDataset inputDS;
 		CGDALDatasetEx maskDS;
 		CLandsatDataset outputDS;
-		CGDALDatasetEx validityDS;
+		CGDALDatasetEx cloudsDS;
 		CGDALDatasetEx breaksDS;
 
-		msg = OpenAll(inputDS, maskDS, validityDS, outputDS, breaksDS);
+		msg = OpenAll(inputDS, maskDS, cloudsDS, outputDS, breaksDS);
 		if (!msg)
 			return msg;
 
@@ -276,13 +276,13 @@ namespace WBSF
 			size_t i = m_options.m_scene_extents[0] + ii;
 			validity[ii].resize(inputDS.GetRasterXSize() * inputDS.GetRasterYSize(), true);
 
-			if (validityDS.IsOpen())
+			if (cloudsDS.IsOpen())
 			{
-				assert(validityDS.GetRasterCount() == inputDS.GetRasterCount());
-				assert(validityDS.GetRasterXSize() * validityDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
-				vector<char> tmp(validityDS.GetRasterXSize() * validityDS.GetRasterYSize());
-				GDALRasterBand* pBand = validityDS.GetRasterBand(i);
-				pBand->RasterIO(GF_Read, 0, 0, validityDS.GetRasterXSize(), validityDS.GetRasterYSize(), &(tmp[0]), validityDS.GetRasterXSize(), validityDS.GetRasterYSize(), GDT_Byte, 0, 0);
+				assert(cloudsDS.GetRasterCount() == inputDS.GetRasterCount());
+				assert(cloudsDS.GetRasterXSize() * cloudsDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
+				vector<char> tmp(cloudsDS.GetRasterXSize() * cloudsDS.GetRasterYSize());
+				GDALRasterBand* pBand = cloudsDS.GetRasterBand(i);
+				pBand->RasterIO(GF_Read, 0, 0, cloudsDS.GetRasterXSize(), cloudsDS.GetRasterYSize(), &(tmp[0]), cloudsDS.GetRasterXSize(), cloudsDS.GetRasterYSize(), GDT_Byte, 0, 0);
 
 				assert(validity[ii].size() == tmp.size());
 				for (size_t xy = 0; xy < tmp.size(); xy++)
@@ -311,7 +311,7 @@ namespace WBSF
 			Landsat2::CLandsatWindow inputData;
 			OutputData outputData;
 			BreaksData breaksData;
-			ReadBlock(inputDS, validityDS, xBlock, yBlock, inputData);
+			ReadBlock(inputDS, cloudsDS, xBlock, yBlock, inputData);
 			ProcessBlock(xBlock, yBlock, inputData, outputData, breaksData);
 			WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 		}//for all blocks
@@ -323,7 +323,7 @@ namespace WBSF
 
 
 
-	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS)
+	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS)
 	{
 		ERMsg msg;
 
@@ -362,20 +362,20 @@ namespace WBSF
 			msg += maskDS.OpenInputImage(m_options.m_maskName);
 		}
 
-		if (msg && !m_options.m_ValidityMask.empty())
+		if (msg && !m_options.m_CloudsMask.empty())
 		{
 			if (!m_options.m_bQuiet)
 				cout << "Open validity image..." << endl;
-			msg += validityDS.OpenInputImage(m_options.m_ValidityMask);
+			msg += cloudsDS.OpenInputImage(m_options.m_CloudsMask);
 			if (msg)
 			{
-				cout << "Validity Size      = " << validityDS->GetRasterXSize() << " cols x " << validityDS->GetRasterYSize() << " rows x " << validityDS.GetRasterCount() << " bands" << endl;
+				cout << "Validity Size      = " << cloudsDS->GetRasterXSize() << " cols x " << cloudsDS->GetRasterYSize() << " rows x " << cloudsDS.GetRasterCount() << " bands" << endl;
 
-				if (validityDS.GetRasterCount() != inputDS.GetNbScenes())
-					msg.ajoute("Invalid validity image. Number of bands in validity (+" + to_string(validityDS.GetRasterCount()) + ") is not equal the number of scenes (" + to_string(inputDS.GetNbScenes()) + ")of the input image.");
+				if (cloudsDS.GetRasterCount() != inputDS.GetNbScenes())
+					msg.ajoute("Invalid validity image. Number of bands in validity (+" + to_string(cloudsDS.GetRasterCount()) + ") is not equal the number of scenes (" + to_string(inputDS.GetNbScenes()) + ")of the input image.");
 
-				if (validityDS.GetRasterXSize() != inputDS.GetRasterXSize() ||
-					validityDS.GetRasterYSize() != inputDS.GetRasterYSize())
+				if (cloudsDS.GetRasterXSize() != inputDS.GetRasterXSize() ||
+					cloudsDS.GetRasterYSize() != inputDS.GetRasterYSize())
 					msg.ajoute("Invalid validity image. Image size must have the same size (x and y) than the input image.");
 			}
 		}
@@ -443,7 +443,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& validityDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
+	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
 	{
 #pragma omp critical(BlockIO)
 		{
@@ -452,35 +452,27 @@ namespace WBSF
 			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
 			inputDS.ReadBlock(extents, block_data, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 
-			if (validityDS.IsOpen())
+			if (cloudsDS.IsOpen())
 			{
-				assert(validityDS.GetRasterCount() == inputDS.GetNbScenes());
-				assert(validityDS.GetRasterXSize() * validityDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
+				assert(cloudsDS.GetRasterCount() == inputDS.GetNbScenes());
+				assert(cloudsDS.GetRasterXSize() * cloudsDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
 
 
-				CRasterWindow validity_block;
-				validityDS.ReadBlock(extents, validity_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
-				assert(block_data.size() == validity_block.size());
-
-
-
+				CRasterWindow clouds_block;
+				cloudsDS.ReadBlock(extents, clouds_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+				assert(block_data.size() == clouds_block.size());
+				DataType noData = cloudsDS.GetNoData(0);
 				
-				for (size_t i = 0; i < validity_block.size(); i++)
+				for (size_t i = 0; i < clouds_block.size(); i++)
 				{
 					assert(block_data[i].data().size() == validity_block[i].data().size());
 
-					boost::dynamic_bitset<> validity(validity_block[i].data().size(), true);
-					//size_t i = m_options.m_scene_extents[0] + ii;
-					//validity.resize(validity_block[i].size(), true);
+					boost::dynamic_bitset<> validity(clouds_block[i].data().size(), true);
+					
+					for (size_t xy = 0; xy < clouds_block[i].data().size(); xy++)
+						validity.set(xy, clouds_block[i].data()[xy] == 0 || clouds_block[i].data()[xy] == noData);
 
-					//size_t s1 = validity.size();
-					//size_t s2 = validity_block[i].size();
-
-
-					for (size_t xy = 0; xy < validity_block[i].data().size(); xy++)
-						validity.set(xy, validity_block[i].data()[xy] != 0);
-
-					//aet this validity for all scene bands
+					//set this validity for all scene bands
 					assert(validity.size() == block_data[i].data().size());
 					for (size_t ii = 0; ii < block_data.GetSceneSize(); ii++)
 						block_data.at(i* block_data.GetSceneSize()+ii).SetValidity(validity);

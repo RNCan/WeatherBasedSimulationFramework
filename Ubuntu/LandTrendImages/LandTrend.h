@@ -44,7 +44,7 @@ public:
     size_t fit_method;
     Landsat2::TIndices m_indice;
     double m_rings;
-    std::string m_ValidityMask;
+    std::string m_CloudsMask;
 
     int m_firstYear;
     bool m_bBreaks;
