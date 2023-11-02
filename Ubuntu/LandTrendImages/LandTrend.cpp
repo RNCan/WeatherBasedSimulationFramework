@@ -465,7 +465,7 @@ namespace WBSF
 				
 				for (size_t i = 0; i < clouds_block.size(); i++)
 				{
-					assert(block_data[i].data().size() == validity_block[i].data().size());
+					assert(block_data[i].data().size() == clouds_block[i].data().size());
 
 					boost::dynamic_bitset<> validity(clouds_block[i].data().size(), true);
 					
