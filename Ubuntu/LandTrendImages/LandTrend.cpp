@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask 
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
 // 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
@@ -36,7 +37,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.0.2";
+	const char* CLandTrend::VERSION = "1.0.3";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -461,7 +462,7 @@ namespace WBSF
 				CRasterWindow clouds_block;
 				cloudsDS.ReadBlock(extents, clouds_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == clouds_block.size());
-				DataType noData = cloudsDS.GetNoData(0);
+				DataType noData = (DataType)cloudsDS.GetNoData(0);
 				
 				for (size_t i = 0; i < clouds_block.size(); i++)
 				{
