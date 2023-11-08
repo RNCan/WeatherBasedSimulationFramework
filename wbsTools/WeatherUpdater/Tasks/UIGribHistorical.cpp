@@ -201,7 +201,11 @@ namespace WBSF
 		inputPath = FormatA(HTTP_FORMAT[product], type.c_str(), y, m, y, m, d, y, m, d, h, HH);
 
 		if (product == P_RAP && TRef < CTRef(2012, MAY, DAY_09, 0))
-			ReplaceString(inputPath, "rap", "ruc2anl");
+		{
+			string title = GetFileTitle(inputPath);
+			ReplaceString(title, "rap", "ruc2anl");
+			SetFileTitle(inputPath, title);
+		}
 
 		if (product == P_NAM && bHistorical && HH != 4 && HH != 5)
 		{

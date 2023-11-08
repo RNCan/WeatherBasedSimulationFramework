@@ -1,3 +1,4 @@
+//6.1.5 08/11/2013  Rémi Saint-Amant	Bug correction in RAP before 2012
 //6.1.4 21/09/2023	Rémi Saint-Amant	Add basic validation to daily database creator
 //										Build with GDAL 3.7.1 
 //6.1.3 20/06/2023	Rémi Saint-Amant	Update HRDPS with new file formats
