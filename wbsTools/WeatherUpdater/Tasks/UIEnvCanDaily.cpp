@@ -844,14 +844,14 @@ namespace WBSF
 
 		//bool bInvalidStation = ;
 		CTPeriod invalid_period;
-		//Manouane est
-		if (WBSF::Find(filePath, "706L155"))
+		//Manouane est (706L155)
+		if (GetFileTitle(filePath) == "26798")
 			invalid_period = CTPeriod(2004, JANUARY, DAY_01, 2010, JULY, 31);
-		//Lac Benoit
-		if (WBSF::Find(filePath, "7060826"))
+		//Lac Benoit (7060826)
+		if (GetFileTitle(filePath) == "26778")
 			invalid_period = CTPeriod(2003, JANUARY, DAY_01, 2010, JULY, 31);
-		//Bonnard
-		if (WBSF::Find(filePath, "706L001"))
+		//Bonnard (706L001)
+		if (GetFileTitle(filePath) == "10874")
 			invalid_period = CTPeriod(2004, JANUARY, DAY_01, 2010, JULY, 31);
 
 
@@ -915,10 +915,8 @@ namespace WBSF
 
 						//Here we do an hard-coded cleanup for invalid EnvCan data because Env. Can. doesn't want to remove data
 
-						if (invalid_period.IsInit() && invalid_period.IsInside(Tref))
-							prcp = -999;
-
-						dailyData[Tref][H_PRCP] = prcp;
+						if (!invalid_period.IsInit() || !invalid_period.IsInside(Tref))
+							dailyData[Tref][H_PRCP] = prcp;
 					}
 
 					//By RSA 29-03-2018
