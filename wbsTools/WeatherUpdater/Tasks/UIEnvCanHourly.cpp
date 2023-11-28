@@ -53,14 +53,14 @@ namespace WBSF
 
 
 	//SWOB partners network
-	static const size_t NB_PARTNER_NETWORK = 20;
-	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","nl-water","nt-forestry","nt-water",
+	static const size_t NB_PARTNER_NETWORK = 21;
+	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","nl-water","ns-firewx", "nt-forestry","nt-water",
 		"nb-firewx","on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-water" };
 
 	
     
 
-	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","NL-DECCM-WRMD","NWT_ENR","NWT_ENR",
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","NL-DECCM-WRMD","NS-DLF", "NWT_ENR","NWT_ENR",
 		"NB-DNRED","ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
 
 

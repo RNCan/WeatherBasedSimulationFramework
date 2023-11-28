@@ -1,7 +1,9 @@
-//6.1.5 23/10/2023	Rémi Saint-Amant	Bug correction to corretly convert grib
+//6.1.6 28/11/2023  Rémi Saint-Amant	Add Nova Scotia Fire weather to the Env Can Partner network
+//6.1.5 23/10/2023	Rémi Saint-Amant	Bug correction to correctly convert grib
 //										bud correction to read grib before 2017
-//										Remove invalida precipitation for Manouane Est, Lac Benoit and Bonnard
+//										Remove invalid precipitation for Manouane Est, Lac Benoit and Bonnard
 //6.1.5 08/11/2013  Rémi Saint-Amant	Bug correction in RAP before 2012
+//6.1.5 08/11/2023  Rémi Saint-Amant	Bug correction in RAP before 2012
 //6.1.4 21/09/2023	Rémi Saint-Amant	Add basic validation to daily database creator
 //										Build with GDAL 3.7.1 
 //6.1.3 20/06/2023	Rémi Saint-Amant	Update HRDPS with new file formats
