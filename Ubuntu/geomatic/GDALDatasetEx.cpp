@@ -980,7 +980,7 @@ namespace WBSF
 		if (options.m_extents.m_yBlockSize == 0)
 		{
 			options.m_extents.m_yBlockSize = m_extents.m_yBlockSize;
-			if (options.m_extents.m_yBlockSize > 1)
+			/*if (options.m_extents.m_yBlockSize > 1)
 			{
 
 				if (Find(options.m_createOptions, "TILED", false, false) == NOT_INIT)
@@ -989,7 +989,7 @@ namespace WBSF
 					options.m_createOptions.push_back("BLOCKXSIZE=" + to_string(options.m_extents.m_xBlockSize));
 				if (Find(options.m_createOptions, "BLOCKYSIZE", false, false) == NOT_INIT)
 					options.m_createOptions.push_back("BLOCKYSIZE=" + to_string(options.m_extents.m_yBlockSize));
-			}
+			}*/
 		}
 
 		//		if (!options.m_period.IsInit())
