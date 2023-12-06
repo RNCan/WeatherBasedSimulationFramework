@@ -454,6 +454,7 @@ namespace WBSF
 												{
 													callback.AddMessage("Invalid prcp grib:" + prcpOutputPath);
 													msg += RemoveFile(prcpOutputPath);
+													prcpOutputPath.clear();
 												}
 
 												if (msg)
