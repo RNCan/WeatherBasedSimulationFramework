@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position
 // 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask 
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
@@ -37,7 +38,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.0.3";
+	const char* CLandTrend::VERSION = "1.0.4";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -269,29 +270,6 @@ namespace WBSF
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
 
-
-		//load validity mask;
-		/*deque<boost::dynamic_bitset<>> validity(inputDS.GetNbScenes());
-		for (size_t ii = 0; ii < validity.size(); ii++)
-		{
-			size_t i = m_options.m_scene_extents[0] + ii;
-			validity[ii].resize(inputDS.GetRasterXSize() * inputDS.GetRasterYSize(), true);
-
-			if (cloudsDS.IsOpen())
-			{
-				assert(cloudsDS.GetRasterCount() == inputDS.GetRasterCount());
-				assert(cloudsDS.GetRasterXSize() * cloudsDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
-				vector<char> tmp(cloudsDS.GetRasterXSize() * cloudsDS.GetRasterYSize());
-				GDALRasterBand* pBand = cloudsDS.GetRasterBand(i);
-				pBand->RasterIO(GF_Read, 0, 0, cloudsDS.GetRasterXSize(), cloudsDS.GetRasterYSize(), &(tmp[0]), cloudsDS.GetRasterXSize(), cloudsDS.GetRasterYSize(), GDT_Byte, 0, 0);
-
-				assert(validity[ii].size() == tmp.size());
-				for (size_t xy = 0; xy < tmp.size(); xy++)
-					validity[ii].set(xy, tmp[xy] != 0);
-			}
-		}*/
-
-
 		CGeoExtents extents = m_options.m_extents;
 		m_options.ResetBar((size_t)extents.m_xSize * extents.m_ySize);
 
@@ -366,18 +344,18 @@ namespace WBSF
 		if (msg && !m_options.m_CloudsMask.empty())
 		{
 			if (!m_options.m_bQuiet)
-				cout << "Open validity image..." << endl;
+				cout << "Open clouds image..." << endl;
 			msg += cloudsDS.OpenInputImage(m_options.m_CloudsMask);
 			if (msg)
 			{
-				cout << "Validity Size      = " << cloudsDS->GetRasterXSize() << " cols x " << cloudsDS->GetRasterYSize() << " rows x " << cloudsDS.GetRasterCount() << " bands" << endl;
+				cout << "clouds Image Size      = " << cloudsDS->GetRasterXSize() << " cols x " << cloudsDS->GetRasterYSize() << " rows x " << cloudsDS.GetRasterCount() << " bands" << endl;
 
 				if (cloudsDS.GetRasterCount() != inputDS.GetNbScenes())
-					msg.ajoute("Invalid validity image. Number of bands in validity (+" + to_string(cloudsDS.GetRasterCount()) + ") is not equal the number of scenes (" + to_string(inputDS.GetNbScenes()) + ")of the input image.");
+					msg.ajoute("Invalid clouds image. Number of bands in clouds image (+" + to_string(cloudsDS.GetRasterCount()) + ") is not equal the number of scenes (" + to_string(inputDS.GetNbScenes()) + ") of the input image.");
 
 				if (cloudsDS.GetRasterXSize() != inputDS.GetRasterXSize() ||
 					cloudsDS.GetRasterYSize() != inputDS.GetRasterYSize())
-					msg.ajoute("Invalid validity image. Image size must have the same size (x and y) than the input image.");
+					msg.ajoute("Invalid clouds image. Image size must have the same size (x and y) than the input image.");
 			}
 		}
 
