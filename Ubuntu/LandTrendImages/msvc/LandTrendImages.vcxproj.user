@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-te 1794606 6769814 1794858 6770000 -ty 1 10 -of VRT -Window 1.5 -FirstYear 1985 -co COMPRESS=LZW -of VRT -overwrite -ValidityMask "E:\Landsat\Landsat(LandTrend)\Input\validity_mask.tif" "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -Breaks -Window 1.5 -Indice NBR -MaxSegments 6 -of VRT -te 1105188 5863500 1115892 5899230 -overwrite -multi -CPU -1 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -CloudsMask U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_cloud_shadow_mask.vrt "U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_summ_best_time_series.vrt" "U:\GIS\#documents\#Codes\remi\landtrend\test_loop\TestRemi\TestRemi.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-multi -stats -BackwardFill -ForwardFill -FirstYear 1985 -of VRT -co COMPRESS=LZW -overwrite "E:\Landsat\Landsat(LandTrend)\Input\LandsatPNGJ.vrt" "E:\Landsat\Landsat(LandTrend)\Output\New.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -Breaks -Window 1.5 -Indice NBR -MaxSegments 6 -of VRT -te 1105188 5863500 1115892 5899230 -overwrite -multi -CPU -1 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -CloudsMask U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_cloud_shadow_mask.vrt "U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_summ_best_time_series.vrt" "U:\GIS\#documents\#Codes\remi\landtrend\test_loop\TestRemi\TestRemi.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
