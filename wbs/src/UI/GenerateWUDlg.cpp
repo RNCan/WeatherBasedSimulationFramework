@@ -212,7 +212,7 @@ namespace WBSF
 		CInternetSessionPtr pSession;
 
 
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5);
+		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5);
 		if (msg)
 		{
 			msg = FindFiles(pConnection, FTP_path + "*.*", fileList, false, CCallback::DEFAULT_CALLBACK);
