@@ -50,6 +50,7 @@ public:
         m_extents = windowExtents;
         m_noData = noData;
         m_data.resize(m_dataRect.size(), noData);
+        m_valid.resize(m_dataRect.size(), true);
     }
 
 //    void SetMask(CDataWindowPtr pMaskWindow)
@@ -162,11 +163,11 @@ public:
     }*/
     bool IsValid(CGeoPointIndex xy)const
     {
-        return IsValid(at(xy)) && IsPixelValid(xy.m_x, xy.m_y);
+        return IsValid(at(xy)) && IsPixelValid(xy.m_x+ m_windowRect.m_x, xy.m_y+ m_windowRect.m_y);
     }
     bool IsValid(int x, int y)const
     {
-        return IsValid(at(x, y))&& IsPixelValid(x, y);
+        return IsValid(at(x, y))&& IsPixelValid(x+ m_windowRect.m_x, y+ m_windowRect.m_y);
     }
 
     bool IsValid(DataType v)const
