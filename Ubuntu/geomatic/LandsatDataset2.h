@@ -48,7 +48,7 @@ typedef std::array< CBandStat, Landsat2::SCENES_SIZE> CBandStats;
 
 
 
-typedef int16_t LandsatDataType;
+typedef uint16_t LandsatDataType;
 typedef std::array<LandsatDataType, Landsat2::SCENES_SIZE> LandsatPixel;
 class CLandsatPixel : public LandsatPixel
 {

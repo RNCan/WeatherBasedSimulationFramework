@@ -9,7 +9,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-of VRT -overwrite "E:\Landsat\Landsat(2000-2018)\Output\Output.vrt" "E:\Landsat\Landsat(2000-2018)\Output\test.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-of VRT -RGB LandWater -overwrite -co COMPRESS=LZW E:\Landsat\Landsat(LandTrend)/Input2/SR_L5789.vrt E:\Landsat\Landsat(LandTrend)/Input2/SR_L5789.vrt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>E:\Landsat\Landsat(LandTrend)\output</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

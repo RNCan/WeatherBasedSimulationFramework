@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -Breaks -Window 1.5 -Indice NBR -MaxSegments 6 -of VRT -te 1105188 5863500 1115892 5899230 -overwrite -multi -CPU -1 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -CloudsMask U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_cloud_shadow_mask.vrt "U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_summ_best_time_series.vrt" "U:\GIS\#documents\#Codes\remi\landtrend\test_loop\TestRemi\TestRemi.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -of VRT -Window 1.5 -overwrite -multi -stats -CPU -1 -co COMPRESS=LZW -CloudsMask E:\Landsat\Landsat(LandTrend)/input2/clouds_mask.tif E:\Landsat\Landsat(LandTrend)/input2/SR_L5789.vrt E:\Landsat\Landsat(LandTrend)/Output2/output.vrt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -Breaks -Window 1.5 -Indice NBR -MaxSegments 6 -of VRT -te 1105188 5863500 1115892 5899230 -overwrite -multi -CPU -1 -co "compress=LZW" --config GDAL_CACHEMAX 4096 -CloudsMask U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_cloud_shadow_mask.vrt "U:\GIS1\LANDSAT_SR\mos\20231203_SR_COL2_summ_best_LTD_remi\landsat_col2_summ_best_time_series.vrt" "U:\GIS\#documents\#Codes\remi\landtrend\test_loop\TestRemi\TestRemi.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -of VRT -Window 1.5 -overwrite -multi -stats -CPU -1 -co COMPRESS=LZW -CloudsMask E:\Landsat\Landsat(LandTrend)/input2/clouds_mask.tif E:\Landsat\Landsat(LandTrend)/input2/SR_L5789.vrt E:\Landsat\Landsat(LandTrend)/Output2/output.vrt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

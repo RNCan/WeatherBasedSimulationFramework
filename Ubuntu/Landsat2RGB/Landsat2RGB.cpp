@@ -59,10 +59,10 @@ CLandsat2RGBOption::CLandsat2RGBOption()
     static const COptionDef OPTIONS[] =
     {
         { "-RGB", 1, "t", false, "RGB Type. Type can be Natural or LandWater. NATURAL by default." },
-        //			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//overide scene size defenition
+        //			{ "-SceneSize", 1, "size", false, "Number of images per scene. 9 by default." },//override scene size definition
         //			{ "-Scenes", 2, "first last", false, "Select a first and the last scene (1..nbScenes) to clean cloud. All scenes are selected by default." },
         { "-Virtual", 0, "", false, "Create virtual (.vrt) output file based on input files. Combine with -NoResult, this avoid to create new files. " },
-        { "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greather than max) by no data. 0 and 255 by default." },
+        { "-Bust", 2, "min max", false, "replace busting pixel (lesser than min or greater than max) by no data. 0 and 255 by default." },
         { "srcfile", 0, "", false, "Input image file path." },
         { "dstfile", 0, "", false, "Output image file path." }
     };
@@ -171,12 +171,12 @@ ERMsg CLandsat2RGB::Execute()
         vector<pair<int, int>> XYindex = extents.GetBlockList(); //extents.GetBlockList(5, 5);
 
         m_options.m_stats.resize(nbScenedProcess);
-        if (m_options.m_RGBType == CBaseOptions::TRUE_COLOR)
+        //if (m_options.m_RGBType == CBaseOptions::TRUE_COLOR)
         {
             //Get statistic of the image
             for (size_t zz = 0; zz < nbScenedProcess; zz++)
             {
-                for (size_t b = B1; b <= B3; b++)
+                for (size_t b = B2; b <= B5; b++)
                 {
                     size_t z = (m_options.m_scene_extents[0] + zz) * SCENES_SIZE + b;
                     GDALRasterBand* pBand = inputDS.GetRasterBand(z);
@@ -187,7 +187,7 @@ ERMsg CLandsat2RGB::Execute()
 
 
         omp_set_nested(1);//for IOCPU
-        #pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti)
+        //#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti)
         for (int b = 0; b < (int)XYindex.size(); b++)
         {
             int xBlock = XYindex[b].first;

@@ -128,7 +128,7 @@ namespace WBSF
 		}
 
 		if (m_outputType == GDT_Unknown)
-			m_outputType = GDT_Int16;
+			m_outputType = GDT_UInt16;
 
 
 		return msg;
@@ -537,7 +537,7 @@ namespace WBSF
 		{
 			m_options.m_timerProcess.start();
 
-			int16_t no_data = int16_t(GetDefaultNoData(GDT_Int16));
+			int16_t no_data = int16_t(GetDefaultNoData(GDT_UInt16));
 
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
 			for (int y = 0; y < blockSize.m_y; y++)
@@ -705,12 +705,12 @@ namespace WBSF
 					if (!outputData.empty())
 					{
 						assert(outputData.size() == outputDS.GetRasterCount());
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Int16, 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_UInt16, 0, 0);
 					}
 					else
 					{
 						LandsatDataType noData = (LandsatDataType)outputDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_UInt16, 0, 0);
 					}
 				}
 			}
@@ -733,12 +733,12 @@ namespace WBSF
 						assert(breaksData.size() == breaksDS.GetRasterCount());
 
 						for (int y = 0; y < breaksRect.Height(); y++)
-							pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &(breaksData[z][0]), breaksRect.Width(), breaksRect.Height(), GDT_Int16, 0, 0);
+							pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &(breaksData[z][0]), breaksRect.Width(), breaksRect.Height(), GDT_UInt16, 0, 0);
 					}
 					else
 					{
 						LandsatDataType noData = (LandsatDataType)breaksDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &noData, 1, 1, GDT_Int16, 0, 0);
+						pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &noData, 1, 1, GDT_UInt16, 0, 0);
 					}
 				}
 			}
