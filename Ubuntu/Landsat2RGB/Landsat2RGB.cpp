@@ -3,7 +3,8 @@
 //
 //***********************************************************************
 // version
-// 2.0.0	08/09/2023	Rémi Saint-Amant	Use Scnem2 with 6 bands
+// 2.0.1	20/12/2023	Rémi Saint-Amant	change INT16 by UINT16
+// 2.0.0	08/09/2023	Rémi Saint-Amant	Use classe 2 with 6 bands
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.1.4	29/06/2018  Rémi Saint-Amant	Add -Rename
 // 1.1.3	29/06/2018  Rémi Saint-Amant	Add -Virtual
@@ -36,7 +37,7 @@ using namespace WBSF::Landsat2;
 
 namespace WBSF
 {
-const char* CLandsat2RGB::VERSION = "2.0.0";
+const char* CLandsat2RGB::VERSION = "2.0.1";
 
 //*********************************************************************************************************************
 
@@ -187,7 +188,7 @@ ERMsg CLandsat2RGB::Execute()
 
 
         omp_set_nested(1);//for IOCPU
-        //#pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti)
+        #pragma omp parallel for schedule(static, 1) num_threads( m_options.m_BLOCK_THREADS ) if (m_options.m_bMulti)
         for (int b = 0; b < (int)XYindex.size(); b++)
         {
             int xBlock = XYindex[b].first;
