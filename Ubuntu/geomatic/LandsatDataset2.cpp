@@ -1337,14 +1337,13 @@ Color8 CLandsatPixel::R(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
     {
     case CBaseOptions::NO_RGB:
         break;
-    case CBaseOptions::NATURAL:
-        //pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 90.0) / (1000.0 - 90.0)) * 254.0)));
-        pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) - 2 * 90.0) / (2 * (1000.0 - 90.0))) * 254.0)));
-        break;
+    
+    case CBaseOptions::OLD_NATURAL:     pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 2 * 90.0) / (2 * (1000.0 - 90.0))) * 254.0)));       break;
     //case CBaseOptions::LANDWATER:
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) + 150.0) / 6150.0) * 254.0)));
 //        break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B4) - (stats[B4].m_mean - 1 * stats[B4].m_sd)) / (2 * stats[B4].m_sd))), 1) * 254.0); break;
     case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))) * 254); break;
     //case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max- stats[B3].m_min))), 0.5)* 254.0); break;
    // case CBaseOptions::TRUE_COLOR:
@@ -1366,14 +1365,14 @@ Color8 CLandsatPixel::G(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
     {
     case CBaseOptions::NO_RGB:
         break;
-    case CBaseOptions::NATURAL:
-        //pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) - 170.0) / (1050.0 - 170.0)) * 254.0)));
-        pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 2 * 170.0) / (2 * (1050.0 - 170.0))) * 254.0)));
-        break;
+    
+        
+    case CBaseOptions::OLD_NATURAL: pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) - 2 * 170.0) / (2 * (1050.0 - 170.0))) * 254.0))); break;
     //case CBaseOptions::LANDWATER:
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B5) + 190.0) / 5190.0) * 254.0)));
 //        break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B5) - stats[B5].m_min) / (stats[B5].m_max - stats[B5].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - (stats[B3].m_mean - 1 * stats[B3].m_sd)) / (2 * stats[B3].m_sd))),1) * 254.0); break;
     case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))) * 254); break;
     //case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5)* 254.0); break;
    // case CBaseOptions::TRUE_COLOR:
@@ -1396,20 +1395,18 @@ Color8 CLandsatPixel::B(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
     {
     case CBaseOptions::NO_RGB:
         break;
-    case CBaseOptions::NATURAL:
-        //pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) - 130.0) / (780.0 - 130.0)) * 254.0)));
-        pix_val = Color8(max(0.0, min(254.0, (((double)at(B2) - 2 * 130.0) / (2 * (780.0 - 130.0))) * 254.0)));
-        break;
+    case CBaseOptions::OLD_NATURAL:     pix_val = Color8(max(0.0, min(254.0, (((double)at(B1) - 2 * 130.0) / (2 * (780.0 - 130.0))) * 254.0)));        break;
     //case CBaseOptions::LANDWATER:
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) + 200.0) / 2700.0) * 254.0)));
         //break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - (stats[B2].m_mean - 1 * stats[B2].m_sd)) / (2 * stats[B2].m_sd))), 1) * 254.0); break;
     case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))) * 254); break;
     //case CBaseOptions::TRUE_COLOR:
       //  pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0))) * 254.0);
        //break;
     
-    //case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - (stats[B2].m_mean - 1*stats[B2].m_sd)) / (2*stats[B2].m_sd))), 0.5)* 254.0); break;
+    //case CBaseOptions::TRUE_COLOR: 
     default:
         assert(false);
     }

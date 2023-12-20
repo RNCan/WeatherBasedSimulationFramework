@@ -1434,7 +1434,7 @@ size_t CBaseOptions::m_xx = 0;
 size_t CBaseOptions::m_xxx = 0;
 //const char* CBaseOptions::TEMPORAL_REF_NAME[NB_SOURCES] = { "Jday1970", "YYYYMMDD" };
 //const char* CBaseOptions::TT_TYPE_NAME[NB_TT] = { "OverallYears", "ByYears", "ByMonths", "None" };
-const char* CBaseOptions::RGB_NAME[NB_RGB] = { "Natural", "LandWater", "TrueColor" };
+const char* CBaseOptions::RGB_NAME[NB_RGB] = { "Natural", "LandWater", "TrueColor", "OldNatural" };
 
 const COptionDef CBaseOptions::OPTIONS_DEF[] =
 {

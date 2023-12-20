@@ -229,7 +229,7 @@ class CBaseOptions
 {
 public:
     
-    enum TRGBTye { NO_RGB=-1, NATURAL, LANDWATER, TRUE_COLOR, NB_RGB };
+    enum TRGBTye { NO_RGB=-1, NATURAL, LANDWATER, TRUE_COLOR, OLD_NATURAL, NB_RGB };
     static const char* RGB_NAME[NB_RGB];
 
     static const COptionDef OPTIONS_DEF[];
