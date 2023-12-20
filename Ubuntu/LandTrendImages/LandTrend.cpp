@@ -4,6 +4,7 @@
 //***********************************************************************
 // version
 // 1.0.5	20/12/2023	Rémi Saint-Amant	Change INT16 for UINT16
+//											Bug correction with -Backward -Foreward option
 // 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position
 // 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask 
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
@@ -617,12 +618,18 @@ namespace WBSF
 									CRealArray Y(window.size());
 									for (size_t z = 0; z < window.size(); z++)
 									{
+										size_t zz = z;
+										if (m_first_valid != NOT_INIT && zz < m_first_valid)
+											zz = m_first_valid;
+										if (m_last_valid != NOT_INIT && zz > m_last_valid)
+											zz = m_last_valid;
+
 										X[z] = REAL_TYPE(z);
-										Y[z] = window.GetPixel(z, x, y)[s];
+										Y[z] = window.GetPixel(zz, x, y)[s];
 									}
 
 									CRealArray yfit(Y.size());
-									for (size_t i = 0; i < V.size() - 1; i++)//for all segmentx
+									for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 									{
 										//we need to remove bad data from vertices
 										CBoolArray G = subset(goods, V[i], V[i + 1]);

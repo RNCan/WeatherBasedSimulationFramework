@@ -55,8 +55,11 @@ std::string GetDriverExtension(const std::string& formatName);
 void Close(GDALDataset* poDS);
 void PrintMessage(ERMsg msg);
 
-typedef int16_t DataType;
-static const int16_t DefaultNoData = -32768;
+//typedef int16_t DataType;
+//static const int16_t DefaultNoData = -32768;
+typedef uint16_t DataType;
+static const uint16_t DefaultNoData = 65535;
+
 //static const float DataTypeMin = -FLT_MAX;
 typedef std::vector<DataType> DataVector;
 typedef int MaskDataType;

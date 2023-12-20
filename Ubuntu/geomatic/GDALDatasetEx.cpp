@@ -817,14 +817,14 @@ namespace WBSF
 				assert(nXBlockSize == m_extents.m_xBlockSize);
 				assert(nYBlockSize == m_extents.m_yBlockSize);
 				GDALDataType type = poBand->GetRasterDataType();
-				if (type == GDT_Int16)
+				if (type == GDT_UInt16)
 				{
 					if (nXBlockSize == m_extents.m_xBlockSize && nYBlockSize == m_extents.m_yBlockSize)
 						poBand->ReadBlock(int(i), int(j), block[b].data().data());
 				}
 				else
 				{
-					poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data().data(), dataRect.m_xSize, dataRect.m_ySize, GDT_Int16, 0, 0);
+					poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data().data(), dataRect.m_xSize, dataRect.m_ySize, GDT_UInt16, 0, 0);
 				}
 			}
 		}
@@ -872,7 +872,7 @@ namespace WBSF
 
 					window_data[ii].resize(loadRect, windowRect, windowExtents, DataType(GetNoData(i)));
 					GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
-					pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data().data(), loadRect.m_xSize, loadRect.m_ySize, GDT_Int16, 0, 0);
+					pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data().data(), loadRect.m_xSize, loadRect.m_ySize, GDT_UInt16, 0, 0);
 
 #pragma omp atomic 
 					nb_non_empty++;

@@ -867,7 +867,7 @@ LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind,
         return GetPixel(z, x, y)[ind];
 
 
-    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     int n_rings1 = (int)floor(n_rings);
     int n_rings2 = (int)ceil(n_rings);
@@ -927,7 +927,7 @@ CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, i
 {
     assert(f < GetNbScenes());
     assert(l < GetNbScenes());
-    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
     bool bAllBandsValid = true;
 
     array<CStatisticEx, SCENES_SIZE> stat;
@@ -987,7 +987,7 @@ CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, i
 CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, double n_rings)const
 {
     CLandsatPixel out;
-    //LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    //LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     int n_rings1 = (int)floor(n_rings);
     int n_rings2 = (int)ceil(n_rings);
@@ -1020,7 +1020,7 @@ CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, d
 
 LandsatDataType CLandsatWindow::GetPixelIndiceMedian(Landsat2::TIndices ind, int x, int y, double n_rings)const
 {
-    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     CStatisticEx stat;
     for (size_t z = 0; z < size(); z++)
@@ -1067,13 +1067,13 @@ CLandsatPixel::CLandsatPixel()
 
 void CLandsatPixel::Reset()
 {
-    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
     fill(noData);
 }
 
 LandsatDataType CLandsatPixel::operator[](const Landsat2::TIndices& i)const
 {
-    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType val = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
     if (IsInit(i))
     {
         switch (i)
@@ -1148,7 +1148,7 @@ LandsatDataType CLandsatPixel::operator[](const Landsat2::TIndices& i)const
 
 bool CLandsatPixel::IsInit()const
 {
-    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     if (IsZero())
         return false;
@@ -1162,7 +1162,7 @@ bool CLandsatPixel::IsInit()const
 
 bool CLandsatPixel::IsInit(TIndices i)const
 {
-    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     if (IsZero())
         return false;
@@ -1276,7 +1276,7 @@ bool CLandsatPixel::IsInit(TIndices i)const
 /*CTRef CLandsatPixel::GetTRef()const
 {
 	CTRef TRef;
-	if (at(JD) != (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16))
+	if (at(JD) != (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16))
 		TRef = CBaseOptions::GetTRef(CBaseOptions::JDAY1970, at(JD));
 
 	return TRef;
@@ -1285,7 +1285,7 @@ bool CLandsatPixel::IsInit(TIndices i)const
 
 bool CLandsatPixel::IsValid()const
 {
-    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_Int16);
+    LandsatDataType noData = (LandsatDataType)WBSF::GetDefaultNoData(GDT_UInt16);
 
     if (IsZero())
         return false;
@@ -1320,7 +1320,7 @@ bool CLandsatPixel::IsValid()const
 	for (size_t b = 0; b < SCENES_SIZE - 2; b++)
 	{
 		double newVal = c0[type][b] + c1[type][b] * at(b);
-		at(b) = (LandsatDataType)WBSF::LimitToBound(newVal, GDT_Int16, 1);
+		at(b) = (LandsatDataType)WBSF::LimitToBound(newVal, GDT_UInt16, 1);
 	}
 
 }*/
@@ -1329,6 +1329,7 @@ bool CLandsatPixel::IsValid()const
 {
 	return (double)at(B1) / max(0.1, (double)at(B6));
 }*/
+static const double KK = 3.0;
 
 Color8 CLandsatPixel::R(CBaseOptions::TRGBTye type, const CBandStats& stats)const
 {
@@ -1337,14 +1338,16 @@ Color8 CLandsatPixel::R(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
     {
     case CBaseOptions::NO_RGB:
         break;
-    
+
     case CBaseOptions::OLD_NATURAL:     pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) - 2 * 90.0) / (2 * (1000.0 - 90.0))) * 254.0)));       break;
     //case CBaseOptions::LANDWATER:
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B4) + 150.0) / 6150.0) * 254.0)));
 //        break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))) * 254); break;
-    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B4) - (stats[B4].m_mean - 1 * stats[B4].m_sd)) / (2 * stats[B4].m_sd))), 1) * 254.0); break;
-    case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B4) - (stats[B4].m_mean - KK * stats[B4].m_sd)) / (2 * KK * stats[B4].m_sd))), 1) * 254.0); break;
+    case CBaseOptions::TRUE_COLOR:pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - 6727) / (29091 - 6727))) * 254.0); break;
+    
+        //pix_val = Color8(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))) * 254); break;
     //case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max- stats[B3].m_min))), 0.5)* 254.0); break;
    // case CBaseOptions::TRUE_COLOR:
      //   pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B4) - stats[B4].m_min) / (stats[B4].m_max - stats[B4].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0))) * 254.0);
@@ -1372,8 +1375,8 @@ Color8 CLandsatPixel::G(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B5) + 190.0) / 5190.0) * 254.0)));
 //        break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B5) - stats[B5].m_min) / (stats[B5].m_max - stats[B5].m_min))) * 254); break;
-    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - (stats[B3].m_mean - 1 * stats[B3].m_sd)) / (2 * stats[B3].m_sd))),1) * 254.0); break;
-    case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B5) - (stats[B5].m_mean - KK * stats[B5].m_sd)) / (2 * KK * stats[B5].m_sd))),1) * 254.0); break;
+    case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B5) - 6582) / (25455 - 6582))) * 254.0); break;
     //case CBaseOptions::TRUE_COLOR: pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5)* 254.0); break;
    // case CBaseOptions::TRUE_COLOR:
      //   pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0))) * 254.0);
@@ -1400,8 +1403,8 @@ Color8 CLandsatPixel::B(CBaseOptions::TRGBTye type, const CBandStats& stats)cons
       //  pix_val = Color8(max(0.0, min(254.0, (((double)at(B3) + 200.0) / 2700.0) * 254.0)));
         //break;
     case CBaseOptions::LANDWATER: pix_val = Color8(max(0.0, min(1.0, ((double)at(B3) - stats[B3].m_min) / (stats[B3].m_max - stats[B3].m_min))) * 254); break;
-    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B2) - (stats[B2].m_mean - 1 * stats[B2].m_sd)) / (2 * stats[B2].m_sd))), 1) * 254.0); break;
-    case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))) * 254); break;
+    case CBaseOptions::NATURAL:pix_val = Color8(pow(max(0.0, min(1.0, ((double)at(B3) - (stats[B3].m_mean - KK * stats[B3].m_sd)) / (2 * KK * stats[B3].m_sd))), 1) * 254.0); break;
+    case CBaseOptions::TRUE_COLOR: pix_val = Color8(max(0.0, min(1.0, ((double)at(B3) - 6545) / (16364 - 6545))) * 254.0); break;
     //case CBaseOptions::TRUE_COLOR:
       //  pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0))) * 254.0);
        //break;
