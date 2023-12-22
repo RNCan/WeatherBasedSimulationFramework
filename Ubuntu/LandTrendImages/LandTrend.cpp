@@ -4,7 +4,7 @@
 //***********************************************************************
 // version
 // 1.0.5	20/12/2023	Rémi Saint-Amant	Change INT16 for UINT16
-//											Bug correction with -Backward -Foreward option
+//											Bug correction with -Backward -Forward option
 // 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position
 // 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask 
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
