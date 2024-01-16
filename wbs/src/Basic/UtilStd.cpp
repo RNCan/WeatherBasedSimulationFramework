@@ -40,33 +40,66 @@ using boost::escaped_list_separator;
 
 
 
-template < >
-boost::filesystem::path& boost::filesystem::path::append< typename boost::filesystem::path::iterator >(typename boost::filesystem::path::iterator begin, typename boost::filesystem::path::iterator end, const codecvt_type& cvt)
-{
-	for (; begin != end; ++begin)
-		*this /= *begin;
-	return *this;
-}
+//template < >
+//boost::filesystem::path& boost::filesystem::path::append< typename boost::filesystem::path::iterator >(typename boost::filesystem::path::iterator begin, typename boost::filesystem::path::iterator end, const codecvt_type& cvt)
+//{
+//	for (; begin != end; ++begin)
+//		*this /= *begin;
+//	return *this;
+//}
 
 // Return path when appended to a_From will resolve to same as a_To
-boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::filesystem::path a_To)
-{
-	a_From = boost::filesystem::absolute(a_From); a_To = boost::filesystem::absolute(a_To);
-	boost::filesystem::path ret;
-	boost::filesystem::path::const_iterator itrFrom(a_From.begin()), itrTo(a_To.begin());
-	// Find common base
-	for (boost::filesystem::path::const_iterator toEnd(a_To.end()), fromEnd(a_From.end()); itrFrom != fromEnd && itrTo != toEnd && *itrFrom == *itrTo; ++itrFrom, ++itrTo);
-	// Navigate backwards in directory to reach previously found base
-	for (boost::filesystem::path::const_iterator fromEnd(a_From.end()); itrFrom != fromEnd; ++itrFrom)
-	{
-		if ((*itrFrom) != ".")
-			ret /= "..";
-	}
-	// Now navigate down the directory branch
-	ret.append(itrTo, a_To.end(), boost::filesystem::path::codecvt());
-	return ret;
-}
+//boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::filesystem::path a_To)
+//{
+//	a_From = boost::filesystem::absolute(a_From); a_To = boost::filesystem::absolute(a_To);
+//	boost::filesystem::path ret;
+//	boost::filesystem::path::const_iterator itrFrom(a_From.begin()), itrTo(a_To.begin());
+//	// Find common base
+//	for (boost::filesystem::path::const_iterator toEnd(a_To.end()), fromEnd(a_From.end()); itrFrom != fromEnd && itrTo != toEnd && *itrFrom == *itrTo; ++itrFrom, ++itrTo);
+//	// Navigate backwards in directory to reach previously found base
+//	for (boost::filesystem::path::const_iterator fromEnd(a_From.end()); itrFrom != fromEnd; ++itrFrom)
+//	{
+//		if ((*itrFrom) != ".")
+//			ret /= "..";
+//	}
+//	// Now navigate down the directory branch
+//	ret.append(itrTo, a_To.end(), boost::filesystem::path::codecvt());
+//	return ret;
+//}
 
+namespace fs = boost::filesystem;
+
+auto make_relative(const fs::path& from, const fs::path& to)
+{
+	// Start at the root path and while they are the same then do nothing then when they first
+	// diverge take the entire from path, swap it with '..' segments, and then append the remainder of the to path.
+	auto fromIter = from.begin();
+	auto toIter = to.begin();
+
+	// Loop through both while they are the same to find nearest common directory
+	while (fromIter != from.end() && toIter != to.end() && *toIter == *fromIter)
+	{
+		++toIter;
+		++fromIter;
+	}
+
+	// Replace from path segments with '..' (from => nearest common directory)
+	auto finalPath = fs::path{};
+	while (fromIter != from.end())
+	{
+		finalPath /= "..";
+		++fromIter;
+	}
+
+	// Append the remainder of the to path (nearest common directory => to)
+	while (toIter != to.end())
+	{
+		finalPath /= *toIter;
+		++toIter;
+	}
+
+	return finalPath;
+}
 
 namespace WBSF
 {
