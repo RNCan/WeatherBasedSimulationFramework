@@ -337,7 +337,7 @@ namespace WBSF
 		unsigned long Rand()const
 		{
 			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
-			return m_uniformInt(me.m_gen);
+			return me.m_uniformInt(me.m_gen);
 		}
 
 		//returns a double on the interval 
