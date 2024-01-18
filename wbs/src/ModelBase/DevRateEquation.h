@@ -2,7 +2,6 @@
 #include <bitset>
 #include "Basic/SimulatedAnnealing.h"
 
-
 namespace WBSF
 {
 

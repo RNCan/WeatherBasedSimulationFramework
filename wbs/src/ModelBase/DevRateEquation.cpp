@@ -1,6 +1,10 @@
 ﻿#include "DevRateEquation.h"
 #include <functional>
 #include <random>
+//#include <numbers>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 using namespace std;
 //**************************************************************************************************
@@ -273,7 +277,7 @@ namespace WBSF
 			double Tm = P[P4];
 
 			if (T >= Tb && T <= Tm)
-				rT = psi * pow(sin(_Pi * pow((T - Tb) / (Tm - Tb), k1)), k2);
+				rT = psi * pow(sin(M_PI * pow((T - Tb) / (Tm - Tb), k1)), k2);
 		}
 		else if (model == Briere1_1999)
 		{
