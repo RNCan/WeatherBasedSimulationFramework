@@ -1,0 +1,9 @@
+/bin
+/.vs
+/wbs/lib64
+/wbsTools/BioSIM/.vs/
+/wbsTools/WeatherUpdater/.vs/
+/wbsTools/WeatherUpdater/Debugx64/
+/wbsTools/WeatherUpdater/Releasex64/
+/wbsTools/WeatherUpdater/Tasks/Debugx64/
+/wbsTools/WeatherUpdater/Tasks/Releasex64/
