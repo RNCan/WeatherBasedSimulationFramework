@@ -395,7 +395,7 @@ namespace WBSF
 
 				if (m_age < 1)
 				{
-					if (TRef > m_emergingDate)//dont fly the day of emergence
+					if (TRef > m_emergingDate)//don't fly the day of emergence
 					{
 						double readyToFly = m_world.m_moths_param.m_ready_to_fly[m_sex];
 						if (m_age >= readyToFly)
@@ -413,7 +413,7 @@ namespace WBSF
 											m_state = FLY;
 											m_flight_flag = WAIT_DEPARTURE;
 
-											//compute surise of the next day
+											//compute sunrise of the next day
 											__int64 UTCTime¹ = UTCTimeº + 24 * 3600;
 											__int64 sunriseTime = UTCTime¹ + CATMWorld::get_sunrise(TRef + 1, m_pt, m_UTCShift / 3600); //sunrise of the next day
 
@@ -526,22 +526,6 @@ namespace WBSF
 		}
 	}
 
-	//size_t CSBWMoth::GetState()const
-	//{
-	//	size_t flag = NOT_INIT;
-	//	if (m_state == NOT_EMERGED)
-	//		flag = 0;
-	//	else if (m_state == LIVE)
-	//		flag = 10 + m_no_liftoff_flag;
-	//	else if (m_state == FLY)
-	//		flag = 20 + m_flight_end_flag;
-	//	else if (m_state == FINISHED)
-	//		flag = 30 + m_finish_flag;
-
-	//	WAITING_DEPARTURE/*=-1, NO_FLIGHT_END_DEFINE*/, FLYING
-
-	//	return flag;
-	//}
 
 	size_t CSBWMoth::GetFlag()const
 	{
@@ -641,28 +625,16 @@ namespace WBSF
 					const CProjectionTransformation& toWea = m_world.GetToWeatherTransfo(UTCWeatherTime);
 					const CProjectionTransformation& fromWea = m_world.GetFromWeatherTransfo(UTCWeatherTime);
 					((CGeoPoint3D&)m_pt) = UpdateCoordinate(m_pt, d, toWea, fromWea);
-					//((CGeoPoint3D&)m_newLocation) = UpdateCoordinate(m_newLocation, d, toWea, fromWea);
 
 					double z = z_AGL();
 					if (z <= 5)
 					{
 						//avoid to get negative elevation
-						//m_newLocation.m_z -= z;
 						m_pt.m_z -= z;
 
 						m_flight_flag = LANDING;
 						m_landing_flag = END_BY_TAIR;
 					}
-
-					//if (m_pt.m_z <= 5)
-					//{
-					//	//avoid to get negative elevation
-					//	m_newLocation.m_z -= m_pt.m_z;
-					//	m_pt.m_z -= m_pt.m_z;
-
-					//	m_flight_flag = LANDING;
-					//	m_landing_flag = END_BY_TAIR;
-					//}
 
 					AddStat(w, U, d);
 				}
@@ -723,7 +695,6 @@ namespace WBSF
 				m_logT[T_LANDING_END] = w[ATM_TAIR];
 
 				//end at zero
-				//m_newLocation.m_z -= z;
 				m_pt.m_z -= z;
 			}
 
@@ -894,7 +865,7 @@ namespace WBSF
 		//if (m_pt.m_z <= m_world.m_moths_param.m_Hv)
 		//	return 0.6; //0.6 m/s under Hv meters
 
-		//here Δv will be apply at the begginning and at the end when moth land by temperature. Is it a good behaviour?
+		//here Δv will be apply at the beginning and at the end when moth land by temperature. Is it a good behavior?
 		//double Δv = (z_AGL() > m_world.m_moths_param.m_Hv) ? m_world.m_moths_param.m_Δv : 1;
 		////double Vᶠ = get_Vᵀ(w[ATM_TAIR]) * Δv;
 		//double Vᶠ = get_Vᵀ(w[ATM_TAIR]);
@@ -1016,7 +987,7 @@ namespace WBSF
 		{
 			double p = (C + tau - (2 * pow(tau, 3) / 3) + (pow(tau, 5) / 5)) / (2 * C);
 
-			//potential wingbeat is greater than liftoff wingbeat, then exodus if ready
+			//potential wing-beat is greater than liftoff wing-beat, then exodus if ready
 			if (p > m_p_exodus)
 				bExodus = true;		//this insect is exodus
 		}
@@ -1052,7 +1023,6 @@ namespace WBSF
 			for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
 			{
 				//now compute tau, p and flight
-				//double tau = double(t - tᶜ) / (tᴹ - tᶜ);
 				double tau = (t <= tᶜ) ? double(t - tᶜ) / (tᶜ - tº) : double(t - tᶜ) / (tᴹ - tᶜ);
 				ASSERT(tau >= -1 && tau <= 1);
 
@@ -1062,7 +1032,7 @@ namespace WBSF
 
 				CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
 				bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
-				if (bExodus)//if exodus occurd, set liftoff
+				if (bExodus)//if exodus occurs, set liftoff
 				{
 					liftoff = UTCTimeº + t;
 				}
@@ -1075,14 +1045,14 @@ namespace WBSF
 		return bExodus;
 	}
 
-	//tᶳ [in]: sunset [s] (since the begginning of the day)
-	//tº [out]: start of liftoff [s] (since the begginning of the day)
-	//tᴹ [out]: end of liftoff [s] (since the begginning of the day)
+	//tᶳ [in]: sunset [s] (since the beginning of the day)
+	//tº [out]: start of liftoff [s] (since the beginning of the day)
+	//tᴹ [out]: end of liftoff [s] (since the beginning of the day)
 	//Base on: Modeling the circadian rhythm of migratory flight in spruce budworm
-	//Jacques Régnière, Matthew Garcia and Rémi St-Amant
+	//Jacques Régnière, Matthew Garcia and Rémi Saint-Amant
 	bool CSBWMoth::get_t(__int64 UTCTimeº, __int64 tᶳ, __int64 &tº, __int64 &tᶜ, __int64 &tᴹ)const
 	{
-		ASSERT(tᶳ >= 0 && tᶳ < 24 * 3600);//tᶳ is sunset [s] since the begginnig of the day
+		ASSERT(tᶳ >= 0 && tᶳ < 24 * 3600);//tᶳ is sunset [s] since the beginning of the day
 
 		bool bRep = false;
 
@@ -1122,47 +1092,7 @@ namespace WBSF
 		return bRep;
 	}
 
-	////tᶳ [in]: sunset [s] (since the begginning of the day)
-	////tº [out]: start of liftoff [s] (since the begginning of the day)
-	////tᴹ [out]: end of liftoff [s] (since the begginning of the day)
-	//void CSBWMoth::get_t(__int64 UTCTimeº, __int64 tᶳ, __int64 &tº, __int64 &tᴹ)const
-	//{
-	//	ASSERT(tᶳ >= 0 && tᶳ < 24 * 3600);//tᶳ is sunset [s] since the begginnig of the day
-
-	//	static const __int64 Δtᶠ = 5 * 3600;//s
-	//	static const __int64 Δtᶳ = 3600;//s
-	//	static const __int64 Δt = 60;//s
-	//	static const double Tº = 25.4;//°C
-
-	//	__int64 tº0 = tᶳ + Δtᶳ - Δtᶠ / 2.0; //subtract 1.5 hours to sunset
-	//	__int64 tᴹ0 = tᶳ + 4 * 3600; //25 * 3600;// old value from Regniere is diffcult to implement
-
-
-
-	//	//compute begin of exodus (when temperature is below 25.4°C)
-	//	__int64 tᵀº = 0;
-
-	//	for (__int64 t = tº0; t <= tᴹ0 && tᵀº == 0; t += Δt)
-	//	{
-	//		__int64 UTCCurrentTime = UTCTimeº + t;
-	//		__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
-	//		CATMVariables weather = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
-	//		if (weather.is_init() && weather[ATM_TAIR] <= Tº)
-	//			tᵀº = t;
-	//	}
-
-
-
-	//	ASSERT(tᵀº != 0);
-	//	if (tᵀº == 0)//if tᵀº equal 0, no temperature under Tº. set tᵀº at 22:00 normal time
-	//		tᵀº = 22 * 3600;
-
-	//	//now calculate the real tº, tᶬ 
-	//	tº = max(tº0, tᵀº);
-	//	tᴹ = min(tº + Δtᶠ, tᴹ0);
-
-	//}
-
+	
 	bool CSBWMoth::CanFly()const { return m_flightNo < m_world.m_moths_param.m_maxFlights; }
 	bool CSBWMoth::ForceFirst()const { return m_flightNo == 0 && m_world.m_world_param.m_bForceFirstFlight; }
 	//**************************************************************************************************************
@@ -1190,18 +1120,13 @@ namespace WBSF
 			{
 				for (size_t x = 0; x < dimSize; x++)
 				{
-					//ASSERT(/*pt.m_z == m_world.GetGroundAltitude(pt) ||*/ !m_pt[0][y][x].IsInit() || !m_pt[1][y][x].IsInit() || pt.m_z >= m_pt[0][y][x].m_z);
-					//ASSERT(/*pt.m_z == m_world.GetGroundAltitude(pt) || */!m_pt[0][y][x].IsInit() || !m_pt[1][y][x].IsInit() || pt.m_z <= m_pt[1][y][x].m_z);
 					if (m_pt[z][y][x].IsInit())
 					{
 						ASSERT(m_pt[0][y][x].IsInit());
 						ASSERT(m_pt[1][y][x].IsInit());
-						//ASSERT(pt.m_z >= m_pt[0][y][x].m_z && pt.m_z <= m_pt[1][y][x].m_z);
 						ASSERT(m_pt[0][y][x].m_z <= m_pt[1][y][x].m_z);
-						///*pt.m_z == m_world.GetGroundAltitude(pt) || */!m_pt[0][y][x].IsInit() || !m_pt[1][y][x].IsInit() || );
 						//to avoid lost weight of elevation with distance, we compute 2 weight, one for distance and one for delta elevation
 						double d_xy = max(1.0, ((CGeoPoint&)m_pt[z][y][x]).GetDistance(pt));//limit to 1 meters to avoid division by zero
-						//double d_z = max(0.001, fabs(m_pt[z][y][x].m_z - max(m_pt[0][y][x].m_z, min(m_pt[1][y][x].m_z, pt.m_z))));///limit to 1 mm to avoid division by zero
 						double d_z = max(0.001, fabs(m_pt[z][y][x].m_z - pt.m_z));///limit to 1 mm to avoid division by zero
 						double p1 = 1 / pow(d_xy, POWER);
 						double p2 = 1 / pow(d_z, POWER);
@@ -1283,7 +1208,6 @@ namespace WBSF
 	CATMVariables CATMWeatherCuboids::get_weather(const CGeoPoint3D& pt, __int64 UTCCurrentTime)const
 	{
 		ASSERT(at(0).m_time <= at(1).m_time);
-		//ASSERT(UTCCurrentTime >= at(0).m_time && (at(0).m_time == at(1).m_time || UTCCurrentTime <= at(1).m_time));
 		ASSERT(at(1).m_time - at(0).m_time >= 0 && at(1).m_time - at(0).m_time <= 3600);
 
 		const CATMWeatherCuboids& me = *this;
@@ -1292,7 +1216,7 @@ namespace WBSF
 
 		if (at(1).m_time != at(0).m_time)
 		{
-			//when the time is not between, so we klimit between 0 qnd 1 
+			//when the time is not between, so we limit between 0 and 1 
 			double fᵒ = max(0.0, min(1.0, 1 - (double(UTCCurrentTime) - at(0).m_time) / (at(1).m_time - at(0).m_time))); // get fraction of time
 			if (!m_bUseTimeInterpolation)
 				fᵒ = fᵒ >= 0.5 ? 1 : 0;
@@ -1329,10 +1253,8 @@ namespace WBSF
 
 	CATMVariables CATMWeather::get_weather(const CGeoPoint3D& pt, __int64 UTCWeatherTime, __int64 UTCCurrentTime)const
 	{
-		//ASSERT(UTCCurrentTime>= UTCWeatherTime);
 		ASSERT(pt.IsGeographic());
 
-		//__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
 
 		size_t weather_type = m_world.m_world_param.m_weather_type;
 		if (weather_type == CATMWorldParamters::FROM_GRIBS &&
@@ -1387,10 +1309,6 @@ namespace WBSF
 		default: ASSERT(false);
 		}
 
-		/*if (weather[ATM_PRCP] == -999 &&
-			m_world.m_world_param.m_PSource == CATMWorldParamters::DONT_USE_PRCP)
-			weather[ATM_PRCP] = 0;
-*/
 		return weather;
 	}
 
@@ -1434,20 +1352,15 @@ namespace WBSF
 		z = max(0.0, z);
 
 		//	//http://homepages.cae.wisc.edu/~chinwu/CEE618_Environmental_Fluid_Mechanics/Final_Project/2000_Final_Project/Yao/wind.htm
-		if (bOverWather)//over wather, transform wind
+		if (bOverWather)//over water, transform wind
 		{
 			double F = LandWaterWindFactor(sqrt(Ur*Ur + Vr * Vr), ΔT);
 			Ur *= F;
 			Vr *= F;
 		}
 
-		//if (stabType == CWindStability::AUTO_DETECT)
-		//{
-		//	stabType = CWindStability::STABLE; //CWindStability::NEUTRAL;//
-		//}
 
 		double α = CWindStability::GetAlpha(CWindStability::STABLE, bOverWather); //Hellmann exponent
-		//double α² = CWindStability::GetAlpha(CWindStability::NEUTRAL, bOverWather); //Hellmann exponent
 		static const double Zr = 10;
 
 		//from: http://en.wikipedia.org/wiki/Wind_gradient
@@ -1539,8 +1452,8 @@ namespace WBSF
 		size_t L = NOT_INIT;
 		vector<pair<double, int>> test;
 
-		//in some product, geopotentiel hight is above ground
-		//in other product, geopotentiel hight is above sea level
+		//in some product, geopotential hight is above ground
+		//in other product, geopotential hight is above sea level
 
 		double grAlt = 0;
 		if (!m_bHgtOverSea)
@@ -1594,63 +1507,6 @@ namespace WBSF
 		}
 
 
-
-		//double grAlt = 0;
-		//if (m_bHgtOverSea)
-		//{
-		//	grAlt = GetFirstAltitude(xy, UTCWeatherTime);//get the first level over the ground
-
-		//	if (grAlt <= -999)
-		//		grAlt = m_world.GetGroundAltitude(pt);
-		//}
-		//ASSERT(grAlt > -999);
-		//if (grAlt > -999)
-		//{
-		//	//if (firstAlt == 0)//if the geopotentiel hight is above ground level, we have to substract grouind level to elevation
-		//	//pt.m_z = max(0.0, pt.m_z -grAlt);
-
-		//	//if (grAlt > -999)
-		//		//test.push_back(make_pair(grAlt, 0));
-
-
-		//	for (int l = 0; l < NB_LEVELS; l++)
-		//	{
-		//		size_t b = m_p_weather_DS.get_band(UTCWeatherTime, ATM_HGT, l);
-		//		if (b != NOT_INIT)
-		//		{
-		//			double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy); //geopotential height [m]
-		//			if (gph > -999)
-		//				test.push_back(make_pair(gph, l));
-
-		//			if (l != 0 && gph > (grAlt + pt.m_z))
-		//				break;
-		//		}
-		//		else if (grAlt > -999)
-		//		{
-		//			//see if it's a fixed high layer
-		//			double elev = 0;
-		//			if (m_p_weather_DS.get_fixed_elevation_level(UTCWeatherTime, l, elev))
-		//				test.push_back(make_pair(grAlt + elev, l));
-		//		}
-		//	}
-
-
-
-		//	sort(test.begin(), test.end());
-
-
-		//	if (test.size() >= 2)
-		//	{
-		//		for (size_t l = 0; l < test.size(); l++)
-		//		{
-		//			if (pt.m_z < (test[l].first - grAlt))
-		//			{
-		//				L = test[bLow ? (l == 0 ? 0 : l - 1) : l].second;
-		//				break;
-		//			}
-		//		}
-		//	}
-		//}
 
 		ASSERT(L == NOT_INIT || L < NB_LEVELS);
 		return L;
@@ -1739,12 +1595,6 @@ namespace WBSF
 								double groundAlt = 0;
 
 								//RUC is above sea level and WRF must be above sea level
-								//if (m_bHgtOverSea)
-								//{
-								//	groundAlt = GetFirstAltitude(xy2, UTCWeatherTime);//get the first level over the ground
-								//	if (groundAlt <= -999)
-								//		groundAlt = m_world.GetGroundAltitude(pt);
-								//}
 								if (!m_bHgtOverSea)
 								{
 									groundAlt = GetFirstAltitude(xy2, UTCWeatherTime);//get the first level over the ground
@@ -1758,11 +1608,7 @@ namespace WBSF
 
 								size_t bGph = m_p_weather_DS.get_band(UTCWeatherTime, ATM_HGT, L);
 								double gph = m_p_weather_DS.GetPixel(UTCWeatherTime, bGph, xy2); //geopotential height [m]
-								//(*cuboids)[i].m_pt[z][y][x].m_z = gph - groundAlt;//groundAlt is equal 0 when is over ground
 								(*cuboids)[i].m_pt[z][y][x].m_z = gph + groundAlt;//groundAlt is equal 0 when is over ground
-								//ASSERT(pt.m_z >= m_world.GetGroundAltitude(pt) || pt.m_z >= (*cuboids)[i].m_pt[0][y][x].m_z);
-								//ASSERT(z == 0 || pt.m_z <= (*cuboids)[i].m_pt[1][y][x].m_z);
-
 
 
 								for (size_t v = 0; v < ATM_WATER; v++)
@@ -1782,9 +1628,6 @@ namespace WBSF
 									if (b != UNKNOWN_POS)
 									{
 										(*cuboids)[i][z][y][x][v] = m_p_weather_DS.GetPixel(UTCWeatherTime, b, xy2);
-										//if (v == ATM_PRCP) //precipitation must be in mm/h
-											//(*cuboids)[i][z][y][x][v] *= 3600; //convert mm/s into mm/h
-
 
 										if (bConvertVVEL)
 											(*cuboids)[i][z][y][x][v] = CATMVariables::get_Uw((*cuboids)[i][z][y][x][ATM_PRES] * 100, (*cuboids)[i][z][y][x][ATM_TAIR], (*cuboids)[i][z][y][x][ATM_WNDW]);//convert VVEL into W
@@ -1842,7 +1685,7 @@ namespace WBSF
 		msg = file.open(filepath);
 		if (msg)
 		{
-			//init max image to load at the sime time
+			//init max image to load at the same time
 			m_p_weather_DS.m_max_hour_load = m_world.m_world_param.m_max_hour_load;
 			m_p_weather_DS.m_clipRect = CGeoRect(-84, 40, -56, 56, PRJ_WGS_84);// m_world.m_moths_param.m_clipRect;
 
@@ -2139,20 +1982,13 @@ namespace WBSF
 						if (v == ATM_PRCP)
 						{
 							if (m_world.m_world_param.m_PSource != CATMWorldParamters::DONT_USE_PRCP)
-								callback.AddMessage("WARNING: Not enaught stations with precipitation. replaced by zero.");
+								callback.AddMessage("WARNING: Not enough stations with precipitation. replaced by zero.");
 
 							while (pts->size() < m_world.m_world_param.m_nb_weather_stations)
 								pts->push_back(CGridPoint(0, 0, 10, 0, 0, 0, 45, 22, PRJ_WGS_84));
 						}
 					}
 
-					//	else
-					//	{
-					//		//msg.ajoute("Not enaught stations for " + UTCTRef.GetFormatedString("%Y-%m-%d"));
-					//	}
-					//}
-
-					//if (!pts->empty())
 					if (pts->size() >= m_world.m_world_param.m_nb_weather_stations)
 					{
 						m_iwd[UTCTRef][v].SetDataset(pts);
@@ -2162,21 +1998,6 @@ namespace WBSF
 
 				}//for all variables
 			}//if not loaded
-
-
-			//remove old weather
-			//remove old maps (h-24)
-			/*for (std::map<CTRef, std::array<CIWD, NB_ATM_VARIABLES>>::iterator it = m_iwd.begin(); it != m_iwd.end();)
-			{
-				if (UTCTRef - it->first > 24)
-				{
-					it = m_iwd.erase(it);
-				}
-				else
-				{
-					it++;
-				}
-			}*/
 
 		}//if hour database
 
@@ -2192,7 +2013,7 @@ namespace WBSF
 		{
 			ASSERT(m_p_hourly_DB && m_p_hourly_DB->IsOpen());
 
-			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automaticly trunked
+			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automatically trunked
 			first = CTimeZones::TRef2Time(tmp);
 		}
 
@@ -2237,7 +2058,7 @@ namespace WBSF
 		{
 			ASSERT(m_p_hourly_DB && m_p_hourly_DB->IsOpen());
 
-			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automaticly trunked
+			CTRef tmp = CTimeZones::Time2TRef(UTCTime);//automatically trunked
 			next = CTimeZones::TRef2Time(tmp + 1);//get next time step
 		}
 
@@ -2324,7 +2145,6 @@ namespace WBSF
 		double Tair = 17; //mean temperature of 17 degree by default when there is no weather 
 		if (IsLoaded(UTCWeatherTime))
 		{
-			//	CGridPoint gpt(pt.m_x, pt.m_y, 10, 0, 0, 0, 0, 22, pt.GetPrjID());
 			CATMVariables w = get_weather(pt, UTCWeatherTime, UTCCurrentTime);
 			Tair = w[ATM_TAIR];
 		}
@@ -2404,13 +2224,6 @@ namespace WBSF
 		size_t band = UNKNOWN_POS;
 
 		band = at(UTCWeatherTime)->get_band(v, level);
-		//if (band == UNKNOWN_POS && v == ATM_HGT)
-		//{
-		//	//HRDPS don't have geopotentiel surface height at analysis
-		//	//we take the next hour
-		//	__int64 nextTime = GetNextTime(UTCWeatherTime);
-		//	band = at(nextTime)->get_band(v, level);
-		//}
 
 		return band;
 	}
@@ -2488,12 +2301,6 @@ namespace WBSF
 
 	double CATMWorld::GetGroundAltitude(const CGeoPoint3D& pt_in)const
 	{
-
-		//for optimization, we look if it's the last request
-	//	if (((CGeoPoint&)pt) == m_last_GGA_pt)
-		//	return m_last_GGA;
-
-
 		double alt2 = 0;
 		double alt = 0;
 		if (m_DEM_DS.IsOpen())
@@ -2748,10 +2555,6 @@ namespace WBSF
 			//Copy initial coordinate from last flight
 			it->m_location = CLocation(it->m_location.m_name, it->m_location.m_ID, it->m_pt.m_lat, it->m_pt.m_lon, it->m_pt.m_alt);
 			it->m_UTCShift = __int64(it->m_location.m_lon / 15.0*3600.0);
-			//it->m_UTCShift = CTimeZones::GetTimeZone(it->m_location);
-
-			//initial update of moth height at 10 meters
-			//it->m_pt.m_z = GetGroundAltitude(it->m_pt) + 10;
 
 			if (it->GetState() == CSBWMoth::FINISHED)
 			{
@@ -2767,7 +2570,7 @@ namespace WBSF
 
 				if (it->m_emergingDate == TRef)
 				{
-					//let a chanse to output initial fecondity
+					//let a change to output initial fecundity
 					it->FillOutput(CSBWMoth::HOURLY_STAT, TRef16, output);
 					emerging++;
 				}
@@ -3305,7 +3108,7 @@ namespace WBSF
 						if (countdown1 >= 0)
 						{
 
-							//report oputput only each hour
+							//report output only each hour
 							if (local_seconds % 3600 == 0 || flyer.IsLanded() || flyer.GetState() == CSBWMoth::FINISHED)
 							{
 								CTRef localTRef = UTCTRef + int(flyer.GetUTCShift() / 3600);
@@ -3633,7 +3436,7 @@ namespace WBSF
 			if (it->GetState() != CSBWMoth::FINISHED)
 			{
 				it->init_new_night(period.End() + 1);
-				//let a chanse to output finish flag
+				//let a chance to output finish flag
 				it->FillOutput(CSBWMoth::HOURLY_STAT, TRefEnd, output);
 			}
 		}
@@ -3859,8 +3662,6 @@ namespace WBSF
 				extents.m_xMax = ((int)ceil(extents.m_xMax / m_world_param.m_eggMapsResolution))*m_world_param.m_eggMapsResolution;
 				extents.m_yMin = ((int)ceil(extents.m_yMin / m_world_param.m_eggMapsResolution))*m_world_param.m_eggMapsResolution;
 
-				//extents.m_xSize = std::max(1, (int)ceil(fabs((extents.m_xMax - extents.m_xMin) / m_world_param.m_eggMapsResolution)));
-				//extents.m_ySize = std::max(1, (int)ceil(fabs((extents.m_yMin - extents.m_yMax) / m_world_param.m_eggMapsResolution)));
 				extents.m_xSize = fabs((extents.m_xMax - extents.m_xMin) / m_world_param.m_eggMapsResolution);
 				extents.m_ySize = fabs((extents.m_yMin - extents.m_yMax) / m_world_param.m_eggMapsResolution);
 				ASSERT(extents.m_xSize >= 1);
@@ -3877,7 +3678,7 @@ namespace WBSF
 				options.m_dstNodata = -9999;
 				options.m_createOptions.push_back("-co COMPRESS=LZW");
 				options.m_bComputeStats = true;
-				//options.m_overviewLevels = { { 2, 4, 8, 16 } };
+
 
 				callback.PushTask("Create egg deposition map: "+to_string(extents.m_xSize)+"x"+to_string(extents.m_ySize), nbRecords);
 
@@ -3892,7 +3693,6 @@ namespace WBSF
 
 					for (size_t l = 0; l < nbRecords&& msg; l++)
 					{
-						//CTRef trefTest = savedPeriod.Begin();
 						size_t no = input_file.read_value<size_t>();
 						ASSERT(sizeof(EggRecord) == sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT);
 						
@@ -3923,7 +3723,7 @@ namespace WBSF
 						msg += callback.StepIt();
 					}//l
 
-					GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the seanson
+					GDALRasterBand* pBandOut = outputDS.GetRasterBand(0);//first band keep for the season
 					pBandOut->RasterIO(GF_Write, 0, 0, extents.m_xSize, extents.m_ySize, &(season[0]), extents.m_xSize, extents.m_ySize, GDT_Float32, 0, 0);
 
 					outputDS.Close();
@@ -4161,7 +3961,6 @@ namespace WBSF
 										level = 2;
 									if (strLevel == "120")
 										level = 3;
-									//il y aurait moyen d'utilise TMP uwnd vwund a 40 80 et 120...
 								}
 								else if (strType == "ISBL")
 								{
@@ -4201,16 +4000,6 @@ namespace WBSF
 								}
 							}
 						}
-
-						//now pad the missing geopotentiel height at each 6 hours
-						//for (size_t level = 0; level < m_bands[ATM_HGT].size(); level++)
-						//{
-						//	if (m_bands[ATM_HGT][level] == NOT_INIT)
-						//	{
-						//		//find the nearest level
-						//		m_bands[ATM_HGT][level] = i;
-						//	}
-						//}
 					}
 					else
 					{
@@ -4245,7 +4034,6 @@ namespace WBSF
 								if (!description.empty() && description[0].find('-') != NOT_INIT)
 									description.clear();
 
-								//description.empty();
 
 								size_t var = GetVar(strVar);
 								if (var < NB_ATM_VARIABLES_EX && !description.empty())
@@ -4379,8 +4167,8 @@ namespace WBSF
 				if (m_units[ijk.m_z] == "[K]"|| m_units[ijk.m_z] == "[C]")
 				//unit is not alway correct
 				{
-					//convert Kelvin into Celcius
-					//convert all values greather than 100 (assuming Kelvin)
+					//convert Kelvin into Celsius
+					//convert all values greater than 100 (assuming Kelvin)
 					for (size_t pos = 0; pos < nXBlockSize * nYBlockSize; pos++)
 					{
 						if (pBlockTmp->GetValue(pos) > 100)
