@@ -6,7 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
-// 04-12-2019	1.0.5	Rémi Saint-Amant	Update egss deposition map
+// 04-12-2019	1.0.5	Rémi Saint-Amant	Update eggs deposition map
 // 21-08-2019	1.0.4	Rémi Saint-Amant	Update of the circadian rhythm of migratory flight 
 //											Add adult attrition and maximum longevity
 // 22-01-2019	1.0.3	Rémi Saint-Amant	sieve uniformly for moths reduction (optimization)
@@ -15,7 +15,7 @@
 //											Remove "2" in the temporary name H_TMIN2, H_TAIR2, H_TMAX2 and H_SRAD2
 // 04-09-2018	1.0.0	Rémi Saint-Amant	Add ATM version number.
 // 17-07-2018	        Rémi Saint-Amant	flags change and Bug correction in sub-hourly and time step, optimization of memory
-// 01-05-2018	        Rémi Saint-Amant	Modification to follow publication Régniere & Saint-Amant 2018
+// 01-05-2018	        Rémi Saint-Amant	Modification to follow publication Régnière & Saint-Amant 2018
 // 01-01-2016	        Rémi Saint-Amant	Creation
 //******************************************************************************
 #include "stdafx.h"
