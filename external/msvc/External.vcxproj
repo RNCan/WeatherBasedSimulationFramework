@@ -38,6 +38,9 @@
     <ProjectReference Include="..\netCDF\msvc\netcdfLib.vcxproj">
       <Project>{1544cea3-1365-4482-a719-ff5c14bbae29}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\titanlib\msvc\TitanLib.vcxproj">
+      <Project>{803847c5-b48d-43d4-8503-58af682e1142}</Project>
+    </ProjectReference>
     <ProjectReference Include="cctz.vcxproj">
       <Project>{c5c95523-3635-4df4-8fb8-f51468e3938d}</Project>
     </ProjectReference>
@@ -49,6 +52,9 @@
     </ProjectReference>
     <ProjectReference Include="KMeanLocal.vcxproj">
       <Project>{01ecf23d-14df-4a65-a75a-6faea5cd4dd6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libisotree.vcxproj">
+      <Project>{24be6a09-3d1b-40be-ac9d-1684932184d7}</Project>
     </ProjectReference>
     <ProjectReference Include="MTParserLib.vcxproj">
       <Project>{bcdc0368-ffe3-4ddf-92a6-4681d40bfa40}</Project>
