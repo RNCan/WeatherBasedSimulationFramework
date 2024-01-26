@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.0.6	19/01/2024	Rémi Saint-Amant	Add 
 // 1.0.5	20/12/2023	Rémi Saint-Amant	Change INT16 for UINT16
 //											Bug correction with -Backward -Forward option
 // 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position

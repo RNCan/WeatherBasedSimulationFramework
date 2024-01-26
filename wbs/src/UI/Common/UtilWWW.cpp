@@ -718,8 +718,9 @@ namespace UtilWWW
 						if (pos != std::string::npos)
 						{
 							std::string size = WBSF::Tokenize(str, " ", pos, true);
-							std::remove(size.begin(), size.end(), 'M');
-							std::remove(size.begin(), size.end(), 'K');
+							
+							size.erase(std::remove(size.begin(), size.end(), 'M'), size.end());
+							size.erase(std::remove(size.begin(), size.end(), 'K'), size.end());
 							info.m_time = GetTime(date, time);
 							info.m_size = WBSF::ToInt(size);
 						}
@@ -773,8 +774,8 @@ namespace UtilWWW
 							if (pos != std::string::npos)
 							{
 								std::string size = WBSF::Tokenize(str, " ", pos, true);
-								std::remove(size.begin(), size.end(), 'M');
-								std::remove(size.begin(), size.end(), 'K');
+								size.erase(std::remove(size.begin(), size.end(), 'M'), size.end());
+								size.erase(std::remove(size.begin(), size.end(), 'K'), size.end());
 								info.m_time = GetTime(date, time);
 								info.m_size = WBSF::ToInt(size);
 							}

@@ -110,8 +110,8 @@ namespace WBSF
 
 	void CExport::Reset()
 	{
-		m_fileName.empty();
-		m_scriptName.empty();
+		m_fileName.clear();
+		m_scriptName.clear();
 		m_bAutoExport = false;
 		m_variables.clear();
 		m_statistic.clear();

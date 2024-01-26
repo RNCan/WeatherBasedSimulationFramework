@@ -641,7 +641,7 @@ namespace WBSF
 	{
 		string tmp(format);
 		std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-		std::remove(tmp.begin(), tmp.end(), '%');
+		tmp.erase( std::remove(tmp.begin(), tmp.end(), '%'), tmp.end());
 		//tmp.er.eplace( '%', '' );
 
 		SetName(name);

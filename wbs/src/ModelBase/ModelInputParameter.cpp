@@ -311,8 +311,8 @@ namespace WBSF
 		if (m_type == kMVListByPos || m_type == kMVListByString)
 		{
 			replace(m_listValues.begin(), m_listValues.end(), '\n', '|');
-			remove(m_listValues.begin(), m_listValues.end(), '\r');
-			remove(m_listValues.begin(), m_listValues.end(), '\t');
+			m_listValues.erase( std::remove(m_listValues.begin(), m_listValues.end(), '\r'), m_listValues.end());
+			m_listValues.erase( std::remove(m_listValues.begin(), m_listValues.end(), '\t'), m_listValues.end());
 		}
 	}
 

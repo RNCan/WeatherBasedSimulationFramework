@@ -35,7 +35,7 @@ namespace WBSF
 
 	//enum { H_SPEH = H_TDEW };//used specific humidity instead iof dew point temperature
 
-	typedef std::auto_ptr<NcFile> NcFilePtr;
+	typedef std::unique_ptr<NcFile> NcFilePtr;
 	typedef vector<NcFilePtr> NcFilePtrVector;
 
 	const char* CRCM4_ESM2_NAM_25km::VARIABLES_NAMES[NB_VARIABLES] = { "tasmin", "tas", "tasmax", "pr", "huss", "sfcWind", "rsds", "ps" };
@@ -824,7 +824,7 @@ namespace WBSF
 		{
 			int year = firstYear + y;
 
-			vector<auto_ptr<CYear>> dailyData(m_extents.m_ySize*m_extents.m_xSize);
+			vector<unique_ptr<CYear>> dailyData(m_extents.m_ySize*m_extents.m_xSize);
 			vector<vector<float>> data(ncFiles.size());
 			for (size_t v = 0; v < data.size() && msg; v++)
 				data[v].resize(m_extents.m_ySize*m_extents.m_xSize);

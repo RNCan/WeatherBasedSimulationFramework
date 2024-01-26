@@ -171,6 +171,8 @@ namespace WBSF
 
 		if (msg)
 		{
+			string exe_path = "C:\\Users\\tigro\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\";
+			
 			string box;
 			if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
 				box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
@@ -180,7 +182,7 @@ namespace WBSF
 				date += " --prelimbe";
 
 			string argument = "hourly --variables " + all_variables + date + box + " --levels surface --threads 6 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
-			string command = "era5cli.exe " + argument;
+			string command = exe_path + "era5cli.exe " + argument;
 			msg += WinExecWait(command, GetPath(output_filepath_tmp), m_show_download ? SW_SHOW : SW_HIDE);
 		}
 

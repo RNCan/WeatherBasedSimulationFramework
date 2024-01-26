@@ -448,11 +448,11 @@ namespace WBSF
 
 	void CGraph::Reset()
 	{
-		m_name.empty();
-		m_title.empty();
-		m_Xtitle.empty();
-		m_Ytitle1.empty();
-		m_Ytitle2.empty();
+		m_name.clear();
+		m_title.clear();
+		m_Xtitle.clear();
+		m_Ytitle1.clear();
+		m_Ytitle2.clear();
 		m_XAxis.Reset();
 		m_bShowLegend = false;
 		m_series.clear();

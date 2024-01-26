@@ -718,24 +718,24 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		s.write(buffer.c_str(), size);
 	}
 
-	class lexical_sort : public std::binary_function<std::string, std::string, bool>
-	{
-	protected:
-		const std::collate<char> &coll;
-	public:
-		lexical_sort()
-			: coll(std::use_facet<std::collate<char> >(std::locale(""))) {}
-		bool operator()(const std::string &a, const std::string &b) const
-		{
-			// std::collate::compare() takes C-style string (begin, end)s and
-			// returns values like strcmp or strcoll.  Compare to 0 for results
-			// expected for a less<>-style comparator.
-			return coll.compare(a.c_str(), (a.c_str() + a.size()), b.c_str(), (b.c_str() + b.size())) < 0;
-		}
-	};
+	//class lexical_sort : public std::binary_function<std::string, std::string, bool>
+	//{
+	//protected:
+	//	const std::collate<char> &coll;
+	//public:
+	//	lexical_sort()
+	//		: coll(std::use_facet<std::collate<char> >(std::locale(""))) {}
+	//	bool operator()(const std::string &a, const std::string &b) const
+	//	{
+	//		// std::collate::compare() takes C-style string (begin, end)s and
+	//		// returns values like strcmp or strcoll.  Compare to 0 for results
+	//		// expected for a less<>-style comparator.
+	//		return coll.compare(a.c_str(), (a.c_str() + a.size()), b.c_str(), (b.c_str() + b.size())) < 0;
+	//	}
+	//};
 
 
-	class CCompareString : public std::binary_function<std::string, std::string, bool>
+	class CCompareString
 	{
 	public:
 		CCompareString(const std::locale& loc = std::locale("")) :
@@ -753,10 +753,9 @@ bool map_compare (Map const &lhs, Map const &rhs)
 
 	protected:
 		const std::locale m_locale;
-		const std::collate<char> &m_collate;
+		const std::collate<char>& m_collate;
 
 	};
-
 
 
 //*********************************************************************************************************************

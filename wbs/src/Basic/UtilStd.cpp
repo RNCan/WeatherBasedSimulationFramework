@@ -22,6 +22,7 @@
 #include <ShlObj.h>
 #include <shellapi.h>
 #include <commdlg.h>
+#include <filesystem>
 
 #include "Basic/UtilStd.h"
 #include "Basic/UtilMath.h"
@@ -67,38 +68,45 @@ using boost::escaped_list_separator;
 //	return ret;
 //}
 
-namespace fs = boost::filesystem;
+//namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
-auto make_relative(const fs::path& from, const fs::path& to)
+auto make_relative(const fs::path& base, const fs::path& path)
 {
-	// Start at the root path and while they are the same then do nothing then when they first
-	// diverge take the entire from path, swap it with '..' segments, and then append the remainder of the to path.
-	auto fromIter = from.begin();
-	auto toIter = to.begin();
+	//std::filesystem::path path, file;
 
-	// Loop through both while they are the same to find nearest common directory
-	while (fromIter != from.end() && toIter != to.end() && *toIter == *fromIter)
-	{
-		++toIter;
-		++fromIter;
-	}
+	std::filesystem::path result = std::filesystem::relative(path, base);
+	return result;
 
-	// Replace from path segments with '..' (from => nearest common directory)
-	auto finalPath = fs::path{};
-	while (fromIter != from.end())
-	{
-		finalPath /= "..";
-		++fromIter;
-	}
 
-	// Append the remainder of the to path (nearest common directory => to)
-	while (toIter != to.end())
-	{
-		finalPath /= *toIter;
-		++toIter;
-	}
-
-	return finalPath;
+	//// Start at the root path and while they are the same then do nothing then when they first
+	//// diverge take the entire from path, swap it with '..' segments, and then append the remainder of the to path.
+	//auto fromIter = from.begin();
+	//auto toIter = to.begin();
+	//
+	//// Loop through both while they are the same to find nearest common directory
+	//while (fromIter != from.end() && toIter != to.end() && *toIter == *fromIter)
+	//{
+	//	++toIter;
+	//	++fromIter;
+	//}
+	//
+	//// Replace from path segments with '..' (from => nearest common directory)
+	//auto finalPath = fs::path{};
+	//while (fromIter != from.end())
+	//{
+	//	finalPath /= "..";
+	//	++fromIter;
+	//}
+	//
+	//// Append the remainder of the to path (nearest common directory => to)
+	//while (toIter != to.end())
+	//{
+	//	finalPath /= *toIter;
+	//	++toIter;
+	//}
+	//
+	//return finalPath;
 }
 
 namespace WBSF
@@ -416,8 +424,8 @@ namespace WBSF
 		{
 			std::wstring wBasePath(UTF16(sBasePath));
 			std::wstring wFilePath(UTF16(sFilePath));
-			boost::filesystem::path basePath(wBasePath);
-			boost::filesystem::path filePath(wFilePath);
+			std::filesystem::path basePath(wBasePath);
+			std::filesystem::path filePath(wFilePath);
 			if (basePath.root_name() == filePath.root_name())
 			{
 				boost::filesystem::path relPath = make_relative(basePath, filePath);

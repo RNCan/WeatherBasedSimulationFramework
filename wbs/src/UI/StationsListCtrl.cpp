@@ -507,6 +507,7 @@ namespace WBSF
 		GotoRow(row);
 	}
 
+	
 
 
 	void CStationsListCtrl::SortInfo(int col, int dir)

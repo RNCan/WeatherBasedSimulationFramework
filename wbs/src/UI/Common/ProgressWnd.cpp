@@ -269,7 +269,7 @@ LRESULT CProgressWnd::OnThreadMessage(WPARAM t, LPARAM)
 		//m_callback.DeleteMessages(false);
 		if (!message.empty())
 		{
-			std::remove(message.begin(), message.end(), '\r');
+			message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
 			WBSF::ReplaceString(message, "\n", "\r\n");
 
 			//m_comment += message;
