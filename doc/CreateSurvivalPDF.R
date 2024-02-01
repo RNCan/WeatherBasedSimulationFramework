@@ -6,7 +6,7 @@ library("extrafont")
 
 # Needed only on Windows - run once per R session
 # Adjust the path to match your installation of Ghostscript
-Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.55.0/bin/gswin64c.exe")
+Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs10.02.1/bin/gswin64c.exe")
 
 
 mySize <- 1.9;
