@@ -1785,130 +1785,249 @@ namespace WBSF
 	//	
 	//}
 
+	enum TrClass { LOWER_8, BETWEEN_8_12, BETWEEN_12_16, GREATER_16, NB_TR_CALSS };
+	enum TParams { ALPHA1, BETA1, ALPHA2, BETA2, NB_TR_PARAMS };
+
+	static TrClass GetTrClass(float Tair)
+	{
+		TrClass Tr = TrClass(-1);
+
+		if (Tair <= 8)
+			Tr = LOWER_8;
+		else if (Tair <= 12)
+			Tr = BETWEEN_8_12;
+		else if (Tair <= 16)
+			Tr = BETWEEN_12_16;
+		else
+			Tr = GREATER_16;
+
+		return Tr;
+	}
+
 	//*****************************************************************************************
 	//Precipitation
 	void CWeatherDay::ComputeHourlyPrcp()
 	{
 		CWeatherDay& me = *this;
-		const CWeatherDay& dp = GetPrevious();
-		const CWeatherDay& dn = GetNext();
-		if (!dp[H_PRCP].IsInit() || !me[H_PRCP].IsInit() || !dn[H_PRCP].IsInit())
+		//const CWeatherDay& dp = GetPrevious();
+		//const CWeatherDay& dn = GetNext();
+		//if (!dp[H_PRCP].IsInit() || !me[H_PRCP].IsInit() || !dn[H_PRCP].IsInit())
+			//return;
+		
+		if (!me[H_PRCP].IsInit())
 			return;
 
-		CStatistic stats[3] = { dp[H_PRCP], me[H_PRCP], dn[H_PRCP] };
-
-		if (stats[1][SUM] > 0)
+		//CStatistic stats[3] = { dp[H_PRCP], me[H_PRCP], dn[H_PRCP] };
+		double daily_prcp = Round(me[H_PRCP][SUM], 1);
+		if (daily_prcp > 0)
 		{
 
-			bool bBefor12 = stats[0][SUM] > 0;
-			bool bAfter12 = stats[2][SUM] > 0;
+			//bool bBefor12 = stats[0][SUM] > 0;
+			//bool bAfter12 = stats[2][SUM] > 0;
+			//
+			//short nbHourBefor12 = 0;
+			//short nbHourAfter12 = 0;
+			//
+			//if (bBefor12 && bAfter12 || !bBefor12 && !bAfter12)
+			//{
+			//	if (stats[1][SUM] >= 9.6)
+			//	{
+			//		nbHourBefor12 = nbHourAfter12 = 12;
+			//	}
+			//	else if (stats[1][SUM] >= 1.6)
+			//	{
+			//		nbHourBefor12 = nbHourAfter12 = (short)floor(stats[1][SUM] / (0.8));
+			//	}
+			//	else
+			//	{
+			//		nbHourBefor12 = nbHourAfter12 = 1;
+			//	}
+			//}
+			//else if (bBefor12)
+			//{
+			//	if (stats[1][SUM] >= 4.8)
+			//	{
+			//		nbHourBefor12 = 12;
+			//	}
+			//	else if (stats[1][SUM] >= 0.8)
+			//	{
+			//		nbHourBefor12 = (short)floor(stats[1][SUM] / (0.4));
+			//	}
+			//	else
+			//	{
+			//		nbHourBefor12 = 1;
+			//	}
+			//}
+			//else
+			//{
+			//
+			//	if (stats[1][SUM] >= 4.8)
+			//	{
+			//		nbHourAfter12 = 12;
+			//	}
+			//	else if (stats[1][SUM] >= 0.8)
+			//	{
+			//		nbHourAfter12 = (short)floor(stats[1][SUM] / (0.4));
+			//	}
+			//	else
+			//	{
+			//		nbHourAfter12 = 1;
+			//	}
+			//}
+			//
+			//if (bBefor12 || bAfter12)
+			//{
+			//	for (size_t h = 0; h < nbHourBefor12; h++)
+			//		me[h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+			//
+			//	for (size_t h = nbHourBefor12; h < 12; h++)
+			//		me[h][H_PRCP] = 0;
+			//
+			//	for (size_t h = 0; h < nbHourAfter12; h++)
+			//		me[23 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+			//
+			//	for (size_t h = nbHourAfter12; h < 12; h++)
+			//		me[23 - h][H_PRCP] = 0;
+			//
+			//	//compute difference du to rounding and add it to first hour
+			//	double daily_sum = 0;
+			//	for (size_t h = 0; h < 24; h++)
+			//		daily_sum += me[h][H_PRCP];
+			//
+			//
+			//	double diff = stats[1][SUM] - daily_sum;
+			//
+			//	if (nbHourBefor12 > 0)
+			//		me[0][H_PRCP] += diff;
+			//	else //nbHourAfter12
+			//		me[23][H_PRCP] += diff;
+			//
+			//	ASSERT(me[0][H_PRCP] >= 0 && me[23][H_PRCP] >= 0);
+			//}
+			//else
+			//{
+			//	for (size_t h = 0; h < nbHourBefor12; h++)
+			//		me[11 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+			//
+			//	for (size_t h = nbHourBefor12; h < 12; h++)
+			//		me[11 - h][H_PRCP] = 0;
+			//
+			//	for (size_t h = 0; h < nbHourAfter12; h++)
+			//		me[12 + h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+			//
+			//	for (size_t h = nbHourAfter12; h < 12; h++)
+			//		me[12 + h][H_PRCP] = 0;
+			//
+			//	//compute difference du to rounding and add it to first hour
+			//	double daily_sum = 0;
+			//	for (size_t h = 0; h < 24; h++)
+			//		daily_sum += me[h][H_PRCP];
+			//
+			//	double diff = stats[1][SUM] - daily_sum;
+			//	if (nbHourBefor12 > 0)
+			//		me[11][H_PRCP] += diff;
+			//	else //nbHourAfter12
+			//		me[12][H_PRCP] += diff;
+			//
+			//	ASSERT(me[11][H_PRCP] >= 0 && me[12][H_PRCP] >= 0);
+			//}
 
-			short nbHourBefor12 = 0;
-			short nbHourAfter12 = 0;
-
-			if (bBefor12 && bAfter12 || !bBefor12 && !bAfter12)
+		
+			static const double P[NB_TR_CALSS][12][NB_TR_PARAMS] =
 			{
-				if (stats[1][SUM] >= 9.6)
 				{
-					nbHourBefor12 = nbHourAfter12 = 12;
-				}
-				else if (stats[1][SUM] >= 1.6)
+					{ -0.00284407541630448, 1.00113018767093, -0.00184565592484555, 0.982582019284295 },
+					{-0.00291924547711281, 0.947203182645993, 0.000917735819975669, 1.0864231968764},
+					{-0.00498210381984841, 1.88031295898049, 0.00142819525154501, 7.72408992207765 },
+					{-0.00637392760554769, 1.94339978554979, 0.00214176173684284, -1.33058568862311},
+					{0.00647473916416413, 1.39122671741714, 0.00220057722286499, 1.10872907340077  },
+					{-0.00715749998932849, -0.069924403724782, 0.00306569606715863, 1.64884381334031},
+					{-0.00622353293637693, 1.91581213991504, -0.000783472070386602, 1.41413353477661},
+					{-0.00695111991343828, 1.87568088035894, 0.00307106644226698, 1.19362864982338	},
+					{0.00226096151533121, 1.29642869911666, 0.00403105833171282, 1.1735417874032	},
+					{ 0.00213179170676173, 8.32068087864758, 0.000866537412155696, 2.31886176934777	},
+					{ 0.00206096303888215, -0.29030480064342, 0.000917510774277572, 1.02557702865428},
+					{ -0.00260255875158911, 0.90769026873834, 0.00171352809419077, 0.998831529132042},
+				},
 				{
-					nbHourBefor12 = nbHourAfter12 = (short)floor(stats[1][SUM] / (0.8));
-				}
-				else
+					{0.00924970121111457, 2.13683918134351, -0.00138042183698871, 0.984023641049206	},
+					{0.009090558329706, 2.19419705523707, 0.00156690948538597, 1.15158481291706		},
+					{0.00515718402225976, 0.866091612307948, 0.00426705233147077, 1.15831732502239	},
+					{0.00932266073618154, 0.974580102953293, -0.00726471363281726, 1.89134657009226	},
+					{0.016612385134461, -0.126368095139731, 0.00653549167548792, -1.1970499951173	},
+					{0.0146845778496101, -0.161471241929103, -0.00744831322397603, 1.46155735128842	},
+					{0.0213786947312919, -2.16945471893298, -0.0145393123462066, 1.47357012470363	},
+					{0.0182422192683209, 0.799222315722166, 0.00882257332148857, 0.689345797383271	},
+					{0.0193799068317784, 0.8148780118566, -0.014559883743585, 0.984519240421192		},
+					{ 0.012778375456505, 0.868152119576047, 0.00185800453926523, -0.165859097157394	},
+					{ 0.00862096994100147, 0.999658661053731, 0.00572021607231544, -0.603274965237277},
+					{ 0.00409662718830537, 0.978831088768085, -0.00156553277243986, 1.5544116692213	 },
+				},
 				{
-					nbHourBefor12 = nbHourAfter12 = 1;
+					{0.00317483748327035, 1.36401724602646, -0.00663955820868844, 1.42029365327545	 },
+					{0.00829398579820174, 0.927783175299693, 0.00480843631774363, -0.669480855652638 },
+					{0.014127568178258, 0.895861364380957, 0.0136160777908243, 2.81879442014052		 },
+					{0.0229325987075367, -1.09102823489481, 0.00574950634520312, 1.27224178793115	 },
+					{0.0242056957883524, -2.14530847951066, 0.00939795298521483, 0.340520641574183	 },
+					{0.0291573647123203, 1.86664602319336, 0.0115923908678945, -0.214085937105532	 },
+					{0.0411408819133923, -2.19177439456169, -0.0222720621002542, 0.530741376055701	 },
+					{0.0391262386404851, -4.15603075512214, -0.0204321464646298, 0.0706198931558513	 },
+					{0.0353639057547716, -0.114854480619116, 0.0159504633145749, -0.155391062368276	 },
+					{ 0.013098686892585, -0.0920908553514463, -0.0123308593521949, 0.615576310396964 },
+					{ 0.0091715592570439, 0.74160906564169, 0.00474405570841586, 0.911812498247948	 },
+					{ 0.00746372114632317, -0.707411382703413, -0.00818997731863396, 0.552662089547024},
+				},
+				{
+					{0.0137755908629707, 1.10858960927034, 0.00263961225438576, 1.29152321276311	  },
+					{-0.0038798713351804, 0.219443240892891, 0.00998332335297548, 1.56279912236947	  },
+					{-0.0217233994743617, 0.173632205904224, -0.00593630018018127, 1.0066353264767	  },
+					{0.0239264984165522, -2.16646507717926, -0.0152124903638748, 0.0627030322284112	  },
+					{0.0327987680950779, -1.17312224501802, 0.0132068629250331, -0.142878930085262	  },
+					{-0.0327938281691465, -0.69498912567035, -0.0210543050866947, 0.538689454291165	  },
+					{0.0510721096608351, 0.799500970922798, -0.0314043223261809, -0.954036175255462	  },
+					{0.0562388851927469, -3.17906154574439, 0.0397186646063544, -0.188823760856662	  },
+					{0.0504624917188252, -5.13416114192974, -0.0309550523275174, -1.34876609650143	  },
+					{ 0.0197878541523585, 1.84374936727499, -0.02264145326154, 2.63397816596379		  },
+					{ 0.00413471419182675, 0.971210011055863, 0.0120890248219109, 0.923634447783323	  },
+					{ -0.00896273403146839, 1.86778498417809, -0.00701528830736807, 1.42360051605648  },
 				}
-			}
-			else if (bBefor12)
+			};
+
+			ASSERT(me[H_TAIR].IsInit());
+
+			TrClass Tr = GetTrClass(me[H_TAIR][MEAN]);
+			size_t m = me.GetTRef().GetMonth();
+
+			double hourly_sum = 0;
+			double final_sum = 0;
+			double max_prcp = 0;
+			size_t max_prcp_h = 0;
+			for (size_t h = 0; h < 24; h++)
 			{
-				if (stats[1][SUM] >= 4.8)
-				{
-					nbHourBefor12 = 12;
-				}
-				else if (stats[1][SUM] >= 0.8)
-				{
-					nbHourBefor12 = (short)floor(stats[1][SUM] / (0.4));
-				}
-				else
-				{
-					nbHourBefor12 = 1;
-				}
-			}
-			else
-			{
+				me[h][H_PRCP] = 0;
 
-				if (stats[1][SUM] >= 4.8)
+				double h_prcp = daily_prcp * max(0.0, 1.0 / 24.0 + P[Tr][m][ALPHA1] * cos(2 * PI * (h / 24.0 - P[Tr][m][BETA1])) + P[Tr][m][ALPHA2] * cos(4 * PI * (h / 24.0 - P[Tr][m][BETA2])));
+				hourly_sum += h_prcp;
+
+				if (hourly_sum >= 0.1)
 				{
-					nbHourAfter12 = 12;
+					me[h][H_PRCP] = floor(10.0 * hourly_sum) / 10.0;//trunck to the nearest 0.1
+					hourly_sum -= me[h][H_PRCP];
 				}
-				else if (stats[1][SUM] >= 0.8)
+
+				final_sum += me[h][H_PRCP];
+				if (me[h][H_PRCP] > max_prcp)
 				{
-					nbHourAfter12 = (short)floor(stats[1][SUM] / (0.4));
+					max_prcp = me[h][H_PRCP];
+					max_prcp_h = h;
 				}
-				else
-				{
-					nbHourAfter12 = 1;
-				}
+
 			}
 
-			if (bBefor12 || bAfter12)
-			{
-				for (size_t h = 0; h < nbHourBefor12; h++)
-					me[h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
+			//adjust final hourly precipitation 
+			double diff = Round(daily_prcp - final_sum, 1);
+			me[max_prcp_h][H_PRCP] = max(0.0, me[max_prcp_h][H_PRCP] + diff);
 
-				for (size_t h = nbHourBefor12; h < 12; h++)
-					me[h][H_PRCP] = 0;
-
-				for (size_t h = 0; h < nbHourAfter12; h++)
-					me[23 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
-
-				for (size_t h = nbHourAfter12; h < 12; h++)
-					me[23 - h][H_PRCP] = 0;
-
-				//compute difference du to rounding and add it to first hour
-				double daily_sum = 0;
-				for (size_t h = 0; h < 24; h++)
-					daily_sum += me[h][H_PRCP];
-
-
-				double diff = stats[1][SUM] - daily_sum;
-
-				if (nbHourBefor12 > 0)
-					me[0][H_PRCP] += diff;
-				else //nbHourAfter12
-					me[23][H_PRCP] += diff;
-
-				ASSERT(me[0][H_PRCP] >= 0 && me[23][H_PRCP] >= 0);
-			}
-			else
-			{
-				for (size_t h = 0; h < nbHourBefor12; h++)
-					me[11 - h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
-
-				for (size_t h = nbHourBefor12; h < 12; h++)
-					me[11 - h][H_PRCP] = 0;
-
-				for (size_t h = 0; h < nbHourAfter12; h++)
-					me[12 + h][H_PRCP] = (float)int(10.0 * (stats[1][SUM] / (nbHourBefor12 + nbHourAfter12))) / 10.0;//truck at 0.1
-
-				for (size_t h = nbHourAfter12; h < 12; h++)
-					me[12 + h][H_PRCP] = 0;
-
-				//compute difference du to rounding and add it to first hour
-				double daily_sum = 0;
-				for (size_t h = 0; h < 24; h++)
-					daily_sum += me[h][H_PRCP];
-
-				double diff = stats[1][SUM] - daily_sum;
-				if (nbHourBefor12 > 0)
-					me[11][H_PRCP] += diff;
-				else //nbHourAfter12
-					me[12][H_PRCP] += diff;
-
-				ASSERT(me[11][H_PRCP] >= 0 && me[12][H_PRCP] >= 0);
-			}
 		}
 		else
 		{
@@ -1921,7 +2040,7 @@ namespace WBSF
 		double daily_sum = 0;
 		for (size_t h = 0; h < 24; h++)
 			daily_sum += me[h][H_PRCP];
-		ASSERT(fabs(stats[1][SUM] - daily_sum) < 0.1);
+		ASSERT(fabs(daily_prcp - daily_sum) < 0.1);
 #endif
 	}
 
@@ -2017,26 +2136,94 @@ namespace WBSF
 	void CWeatherDay::ComputeHourlyWndS()
 	{
 		CWeatherDay& me = *this;
-		const CWeatherDay& dp = GetPrevious();
-		const CWeatherDay& dn = GetNext();
-		if (!dp[H_WNDS].IsInit() || !me[H_WNDS].IsInit() || !dn[H_WNDS].IsInit())
+		//const CWeatherDay& dp = GetPrevious();
+		//const CWeatherDay& dn = GetNext();
+		//if (!dp[H_WNDS].IsInit() || !me[H_WNDS].IsInit() || !dn[H_WNDS].IsInit())
+			//return;
+
+		if (!me[H_WNDS].IsInit())
 			return;
 
 
 
-		CStatistic stats[3] = { GetPrevious()[H_WNDS], me[H_WNDS], GetNext()[H_WNDS] };
-		ASSERT(stats[1].IsInit());
+		//CStatistic stats[3] = { GetPrevious()[H_WNDS], me[H_WNDS], GetNext()[H_WNDS] };
+		//ASSERT(stats[1].IsInit());
 
+		static const double P[NB_TR_CALSS][12][NB_TR_PARAMS] =
+		{
+			{
+				{-0.020187593, 0.996419151, 0.039595941, 1.064213352},
+				{-0.049161813, 1.055798009, 0.051011291, 1.063370175},
+				{-0.103153642, 1.082879939, 0.061623417, 1.080290678},
+				{-0.153121077, 1.067248115, 0.054899512, 1.081878233},
+				{-0.193328536, 1.080271801, 0.040718263, 1.08780045	},
+				{-0.22861179, 1.084095576, 0.042772458, 1.0832414	},
+				{-0.24351187, 1.086241625, 0.046582452, 1.086541162	},
+				{-0.218249001, 1.082525768, 0.062202171, 1.078983944},
+				{-0.151786713, 1.071186382, 0.070230079, 1.069706245},
+				{ -0.087626779, 1.05488434, 0.062839398, 1.053244737},
+				{ -0.03181939, 1.05308761, 0.045347043, 1.041543568	},
+				{ -0.025168486, 1.042880945, 0.040691816, 1.038616258},
+			},
+			{
+				{-0.090411056, 1.141991882, 0.063846001, 1.057647376 },
+				{-0.138847859, 1.113342257, 0.088159952, 1.072172612 },
+				{-0.209279753, 1.113236627, 0.093900249, 1.083136686 },
+				{-0.273753972, 1.103806915, 0.080628297, 1.081758605 },
+				{-0.321886426, 1.09848123, 0.062108069, 1.082258282	 },
+				{-0.347237622, 1.095350415, 0.054004218, 1.092839099 },
+				{-0.36815883, 1.104360496, 0.057035317, 1.094614498	 },
+				{-0.380471644, 1.103606759, 0.09379884, 1.088720736	 },
+				{-0.342484237, 1.089459149, 0.114957757, 1.072302927 },
+				{ -0.249799978, 1.080845495, 0.105907106, 1.055214374},
+				{ -0.137830732, 1.091445363, 0.083515359, 1.049700428},
+				{ -0.102835293, 1.10376691, 0.075336508, 1.054739066 },
+			},
+			{
+				{ -0.207415091, 1.117613084, 0.093731266, 1.058443878},
+				{ -0.226603835, 1.145349138, 0.090665762, 1.070828518},
+				{ -0.2830738, 1.131687644, 0.089205812, 1.087004611	 },
+				{ -0.347740061, 1.123935602, 0.069405205, 1.086386879},
+				{ -0.387845987, 1.12218248, 0.04851106, 1.087708064	 },
+				{ -0.377891218, 1.129963044, 0.028325717, 2.112914317},
+				{ -0.418711159, 1.132625395, 0.059165598, -1.891045366},
+				{ -0.440842155, 1.129170764, 0.086623561, 0.599536253 },
+				{ -0.431854367, 1.105368639, 0.138719118, 1.080846042 },
+				{ -0.313573794, 1.084296701, 0.135335762, 1.068088477 },
+				{ -0.239441216, 1.097117238, 0.119014421, 1.050401787 },
+				{ -0.203696981, 1.132992018, 0.097977366, 1.046225403 },
+			},
+			{
+				{ -0.364172397, 1.15722214, 0.09770804, 1.071392918	  },
+				{ -0.380584626, 1.151741704, 0.105766676, 1.07874914  },
+				{ -0.398110976, 1.161723874, 0.077987432, 1.091208285 },
+				{ -0.447970461, 1.154649351, 0.064727596, 1.091237222 },
+				{ -0.454959198, 1.143115233, -0.045642203, 1.356886685},
+				{ -0.443397608, 1.162259384, -0.049457942, 0.907169871},
+				{ -0.464645485, 0.178709703, -0.086097738, 0.901774767},
+				{ -0.496486272, 0.176105439, -0.126241272, 0.390110242},
+				{ -0.450448117, 1.160262722, -0.132905519, 1.356532459},
+				{ -0.430148987, 1.132624896, 0.142257953, 1.07171873  },
+				{ -0.437498464, 1.131869564, 0.142591794, 1.05709974  },
+				{ -0.3411649, 1.149757034, 0.124803235, 1.070341045	  },
+			}
+		};
+
+
+		TrClass Tr = GetTrClass(me[H_TAIR][MEAN]);
+		size_t m = me.GetTRef().GetMonth();
 
 		for (size_t h = 0; h < 24; h++)
 		{
-			double w1 = h < 12 ? stats[0][MEAN] : stats[1][MEAN];
-			double w2 = h < 12 ? stats[1][MEAN] : stats[2][MEAN];
-			double moduloW = double((h + 12) % 24);
-			double Wday = w1 + moduloW / 24 * (w2 - w1);
-			double Wh = Wday + GetS(h);
+			double h_wnds = me[H_WNDS][MEAN] * max(0.0, 1.0 / 24.0 + P[Tr][m][ALPHA1] * cos(2 * PI * (h / 24.0 - P[Tr][m][BETA1])) + P[Tr][m][ALPHA2] * cos(4 * PI * (h / 24.0 - P[Tr][m][BETA2])));
 
-			me[h][H_WNDS] = (float)max(0.0, Wh); //in km/h
+			//double w1 = h < 12 ? stats[0][MEAN] : stats[1][MEAN];
+			//double w2 = h < 12 ? stats[1][MEAN] : stats[2][MEAN];
+			//double moduloW = double((h + 12) % 24);
+			//double Wday = w1 + moduloW / 24 * (w2 - w1);
+			//double Wh = Wday + GetS(h);
+
+			me[h][H_WNDS] = (float)Round(max(0.0, h_wnds),1); //in km/h
 
 		}
 

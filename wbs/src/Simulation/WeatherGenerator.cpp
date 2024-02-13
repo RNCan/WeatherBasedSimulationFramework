@@ -1742,7 +1742,7 @@ namespace WBSF
 			}
 			else
 			{
-				//creation from incomplete observations
+				//creation from incomplete observations 
 				simulationPointVector[r].CreateYears(m_tgi.GetTPeriod());//complete the creation of all years if missing
 
 				for (size_t y = 0; y < m_tgi.GetNbYears() && msg; y++)
