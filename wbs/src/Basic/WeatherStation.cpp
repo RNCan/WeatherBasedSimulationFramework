@@ -2216,15 +2216,7 @@ namespace WBSF
 		for (size_t h = 0; h < 24; h++)
 		{
 			double h_wnds = me[H_WNDS][MEAN] * max(0.0, 1.0 / 24.0 + P[Tr][m][ALPHA1] * cos(2 * PI * (h / 24.0 - P[Tr][m][BETA1])) + P[Tr][m][ALPHA2] * cos(4 * PI * (h / 24.0 - P[Tr][m][BETA2])));
-
-			//double w1 = h < 12 ? stats[0][MEAN] : stats[1][MEAN];
-			//double w2 = h < 12 ? stats[1][MEAN] : stats[2][MEAN];
-			//double moduloW = double((h + 12) % 24);
-			//double Wday = w1 + moduloW / 24 * (w2 - w1);
-			//double Wh = Wday + GetS(h);
-
 			me[h][H_WNDS] = (float)Round(max(0.0, h_wnds),1); //in km/h
-
 		}
 
 	}
