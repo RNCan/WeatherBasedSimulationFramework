@@ -390,7 +390,7 @@ namespace WBSF
 	}
 
 
-	void CLeucopisModel::GetFValueDaily(CStatisticXY& stat)
+	bool CLeucopisModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		//bitset<3> test;
 		//test.reset();
@@ -400,9 +400,10 @@ namespace WBSF
 		//test.set(I_EMERGED_ADULT);
 
 		if (!IsParamValid())
-			return;
+			return false;
 
-		return CalibrateEmergence(stat);
+		CalibrateEmergence(stat);
+		return true;
 
 		//return CalibrateOviposition(stat);
 
