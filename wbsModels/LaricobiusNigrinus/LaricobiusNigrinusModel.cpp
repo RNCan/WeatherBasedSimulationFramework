@@ -666,7 +666,7 @@ namespace WBSF
 
 	}
 
-	void CLaricobiusNigrinusModel::GetFValueDaily(CStatisticXY& stat)
+	bool CLaricobiusNigrinusModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		bitset<3> test;
 		test.reset();
@@ -676,7 +676,8 @@ namespace WBSF
 		test.set(I_EMERGED_ADULT);
 
 		//return CalibrateDiapauseEndTh(stat);
-		return CalibrateDiapauseEnd(test, stat);
+		CalibrateDiapauseEnd(test, stat);
+		return true;
 		//return CalibrateOviposition(stat);
 
 		if (!m_SAResult.empty())
@@ -745,5 +746,7 @@ namespace WBSF
 				}//have data
 			}
 		}
+
+		return true;
 	}
 }

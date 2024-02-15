@@ -264,7 +264,7 @@ namespace WBSF
 		}
 	}
 
-	void CHemlockLooperModel::GetFValueDaily(CStatisticXY& stat)
+	bool CHemlockLooperModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -301,7 +301,7 @@ namespace WBSF
 						stat.Add(999, -999);
 						stat.Add(-2345, 546);
 						stat.Add(22, -567);
-						return;
+						return false;
 					}
 
 
@@ -333,5 +333,7 @@ namespace WBSF
 				}
 			}
 		}
+		
+		return true;
 	}
 }

@@ -903,7 +903,7 @@ namespace WBSF
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}
 
-	void CMPBiModel::GetFValueAnnual(CStatisticXY& stat)
+	bool CMPBiModel::GetFValueAnnual(CStatisticXY& stat)
 	{
 		//Here the variable used for optimization can be changed
 		ERMsg msg;
@@ -968,13 +968,17 @@ namespace WBSF
 
 
 		}
+
+		return true;
 	}
 
 
-	void CMPBiModel::FinalizeStat(CStatisticXY& stat)
+	bool CMPBiModel::FinalizeStat(CStatisticXY& stat)
 	{
 		if (stat[NB_VALUE] < m_info.m_repCounter.GetTotal()*(m_SAResult.size() - 1))
 			stat.Reset();
+
+		return true;
 	}
 
 }

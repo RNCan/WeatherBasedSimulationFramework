@@ -243,7 +243,7 @@ namespace WBSF
 		}
 	}
 
-	void CWhitePineWeevilModel::GetFValueDaily(CStatisticXY& stat)
+	bool CWhitePineWeevilModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -315,5 +315,7 @@ namespace WBSF
 			//}
 			}
 		}
+
+		return true;
 	}
 }

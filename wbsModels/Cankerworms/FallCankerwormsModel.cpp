@@ -103,7 +103,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		m_fallCR.Execute(m_weather, m_output); 
+		m_fallCR.Execute(m_weather, m_output);
 
 		return msg;
 	}
@@ -132,7 +132,7 @@ namespace WBSF
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}
 
-	void CFallCankerwormsModel::GetFValueDaily(CStatisticXY& stat)
+	bool CFallCankerwormsModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -159,7 +159,7 @@ namespace WBSF
 			//look to see if all ai are in growing order
 			bool bValid = true;
 
-			for (int i = 1; i < NB_FALL_PARAMS&&bValid; i++)
+			for (int i = 1; i < NB_FALL_PARAMS && bValid; i++)
 			{
 				if (m_fallCR.m_a[i] < m_fallCR.m_a[i - 1])
 					bValid = false;
@@ -300,9 +300,11 @@ namespace WBSF
 				//	}
 				//}
 			}
-			}
 		}
 
-
-
+		return true;
 	}
+
+
+
+}

@@ -368,7 +368,7 @@ namespace WBSF
 		return equal;
 	}
 
-	void CWhitemarkedTussockMothModel::GetFValueDaily(CStatisticXY& stat)
+	bool CWhitemarkedTussockMothModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ASSERT(!m_SAResult.empty());
 
@@ -447,7 +447,7 @@ namespace WBSF
 
 		//low and hi relative development rate must be valid
 		if (!IsParamValid())
-			return;
+			return false;
 
 
 		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
@@ -500,6 +500,7 @@ namespace WBSF
 			}
 		}
 
+		return true;
 	}
 
 	//void CWhitemarkedTussockMothModel::AddAnnualResult(const StringVector& header, const StringVector& data)

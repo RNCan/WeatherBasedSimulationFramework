@@ -19,7 +19,7 @@ namespace WBSF
 		static CBioSIMModelBase* CreateObject(){ return new CLaricobiusNigrinusModel; }
 
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
-		virtual void GetFValueDaily(CStatisticXY& stat)override;
+		virtual bool GetFValueDaily(CStatisticXY& stat)override;
 
 		protected:
 

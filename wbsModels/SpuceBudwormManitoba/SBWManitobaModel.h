@@ -26,7 +26,7 @@ namespace WBSF
 		virtual ERMsg OnExecuteDaily();
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data);
-		virtual void GetFValueDaily(CStatisticXY& stat);
+		virtual bool GetFValueDaily(CStatisticXY& stat);
 		static CBioSIMModelBase* CreateObject(){ return new CSBWManitobaModel; }
 
 	protected:

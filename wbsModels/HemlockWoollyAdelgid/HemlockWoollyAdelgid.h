@@ -30,7 +30,7 @@ namespace WBSF
 		void ExecuteDaily(CModelStatVector& output);
 
 		void AddDailyResult(const StringVector& header, const StringVector& data);
-		void GetFValueDaily(CStatisticXY& stat);
+		bool GetFValueDaily(CStatisticXY& stat);
 
 
 	protected:

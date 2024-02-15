@@ -375,7 +375,7 @@ b = 1.39300
 		m_SAResult.push_back(CSAResult(ref, obs));
 	}
 
-	void CEuropeanElmScaleModel::GetFValueDaily(CStatisticXY& stat)
+	bool CEuropeanElmScaleModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -634,5 +634,7 @@ b = 1.39300
 
 			}
 		}
+
+		return true;
 	}
 }

@@ -30,7 +30,7 @@ namespace WBSF
 		CInitialPopulation GetFirstOviposition();
 
 		void AddDailyResult(const StringVector& header, const StringVector& data);
-		void GetFValueDaily(CStatisticXY& stat);
+		bool GetFValueDaily(CStatisticXY& stat);
 		void GetFValueDailyEclosion(CStatisticXY& stat);
 		void GetFValueDailyStage(CStatisticXY& stat);
 		void GetFValueDailyAI(CStatisticXY& stat);

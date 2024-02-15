@@ -415,7 +415,7 @@ namespace WBSF
 
 	}
 
-	void CHLModel::GetFValueDaily(CStatisticXY& stat)
+	bool CHLModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -458,6 +458,8 @@ namespace WBSF
 			default: ASSERT(false);
 			}
 		}
+
+		return true;
 	}
 
 	void CHLModel::GetFValueDailyEclosion(CStatisticXY& stat)

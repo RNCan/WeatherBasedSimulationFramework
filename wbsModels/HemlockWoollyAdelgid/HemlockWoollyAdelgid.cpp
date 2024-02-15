@@ -323,7 +323,7 @@ namespace WBSF
 
 	}
 
-	void CHemlockWoollyAdelgidCMModel::GetFValueDaily(CStatisticXY& stat)
+	bool CHemlockWoollyAdelgidCMModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		
 		if (m_SAResult.size() > 0)
@@ -374,6 +374,8 @@ namespace WBSF
 				}
 			}
 		}
+
+		return true;
 	}
 
 

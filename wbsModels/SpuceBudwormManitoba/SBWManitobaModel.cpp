@@ -225,7 +225,7 @@ namespace WBSF
 		}
 	}
 
-	void CSBWManitobaModel::GetFValueDaily(CStatisticXY& stat)
+	bool CSBWManitobaModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 
@@ -469,6 +469,8 @@ namespace WBSF
 				//}
 			}
 		}
+
+		return true;
 	}
 
 

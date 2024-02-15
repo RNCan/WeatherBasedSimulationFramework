@@ -172,7 +172,7 @@ b9                  	=   0.74483
 
 	}
 
-	void CSpringCankerwormsModel::GetFValueDaily(CStatisticXY& stat)
+	bool CSpringCankerwormsModel::GetFValueDaily(CStatisticXY& stat)
 	{
 		ERMsg msg;
 		
@@ -369,5 +369,7 @@ b9                  	=   0.74483
 				//}
 			}
 		}
+
+		return true;
 	}
 }
