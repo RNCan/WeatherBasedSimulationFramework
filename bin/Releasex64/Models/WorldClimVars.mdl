@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>WorldClimVars</Title>
+    <Version>1.0</Version>
+    <ID>.ccm</ID>
+    <EXE>WorldClimVars.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>19 biological variables</Description>
+    <WindowRect>0 0 115 358</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>AMT</Name>
+            <Title>AMT</Title>
+            <Units>°C</Units>
+            <Description>Annual Mean Temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MDR</Name>
+            <Title>MDR</Title>
+            <Units>°C</Units>
+            <Description>Mean Diurnal Range (Mean of monthly (max temp - min temp))</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ISO</Name>
+            <Title>ISO</Title>
+            <Units/>
+            <Description>Isothermality (P2/P7) (* 100)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TSD</Name>
+            <Title>TSD</Title>
+            <Units/>
+            <Description>Temperature Seasonality (standard deviation *100)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTWM</Name>
+            <Title>MTWM</Title>
+            <Units>°C</Units>
+            <Description>Max Temperature of Warmest Month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTCM</Name>
+            <Title>MTCM</Title>
+            <Units>°C</Units>
+            <Description>Min Temperature of Coldest Month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TAR</Name>
+            <Title>TAR</Title>
+            <Units>°C</Units>
+            <Description>Temperature Annual Range (P5-P6)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTWeQ</Name>
+            <Title>MTWeQ</Title>
+            <Units>°C</Units>
+            <Description>Mean Temperature of Wettest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTDQ</Name>
+            <Title>MTDQ</Title>
+            <Units>°C</Units>
+            <Description>Mean Temperature of Driest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTWaQ</Name>
+            <Title>MTWaQ</Title>
+            <Units>°C</Units>
+            <Description>Mean Temperature of Warmest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MTCQ</Name>
+            <Title>MTCQ</Title>
+            <Units>°C</Units>
+            <Description>Mean Temperature of Coldest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>ASP</Name>
+            <Title>ASP</Title>
+            <Units>mm</Units>
+            <Description>Annual Sum of Precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PWM</Name>
+            <Title>PWM</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Wettest Month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PDM</Name>
+            <Title>PDM</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Driest Month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PCV</Name>
+            <Title>PCV</Title>
+            <Units/>
+            <Description>Precipitation Seasonality (Coefficient of Variation)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PWeQ</Name>
+            <Title>PWeQ</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Wettest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PDQ</Name>
+            <Title>PDQ</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Driest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PWaQ</Name>
+            <Title>PWaQ</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Warmest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PCQ</Name>
+            <Title>PCQ</Title>
+            <Units>mm</Units>
+            <Description>Precipitation of Coldest Quarter</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Convert in c++ from R code dismo biovars&#x0D;&#x0A;BIO1 = Annual Mean Temperature&#x0D;&#x0A;BIO2 = Mean Diurnal Range (Mean of monthly (max temp - min temp))&#x0D;&#x0A;BIO3 = Isothermality (P2/P7) (* 100)&#x0D;&#x0A;BIO4 = Temperature Seasonality (standard deviation *100)&#x0D;&#x0A;BIO5 = Max Temperature of Warmest Month&#x0D;&#x0A;BIO6 = Min Temperature of Coldest Month&#x0D;&#x0A;BIO7 = Temperature Annual Range (P5-P6)&#x0D;&#x0A;BIO8 = Mean Temperature of Wettest Quarter&#x0D;&#x0A;BIO9 = Mean Temperature of Driest Quarter&#x0D;&#x0A;BIO10 = Mean Temperature of Warmest Quarter&#x0D;&#x0A;BIO11 = Mean Temperature of Coldest Quarter&#x0D;&#x0A;BIO12 = Annual Precipitation&#x0D;&#x0A;BIO13 = Precipitation of Wettest Month&#x0D;&#x0A;BIO14 = Precipitation of Driest Month&#x0D;&#x0A;BIO15 = Precipitation Seasonality (Coefficient of Variation)&#x0D;&#x0A;BIO16 = Precipitation of Wettest Quarter&#x0D;&#x0A;BIO17 = Precipitation of Driest Quarter&#x0D;&#x0A;BIO18 = Precipitation of Warmest Quarter&#x0D;&#x0A;BIO19 = Precipitation of Coldest Quarter&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
