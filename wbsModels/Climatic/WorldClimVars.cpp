@@ -108,23 +108,23 @@ namespace WBSF
 		{
 			//int year = m_weather.GetFirstYear() + int(y);
 
-			std::valarray<float> Tmin = { 10,12,14,16,18,20,22,21,19,17,15,12 };
-			std::valarray<float> Tmax = Tmin+5;
-			std::valarray<float> Tavg = (Tmin + Tmax) / 2.0;
-			std::valarray<float> Prcp = { 0, 2, 10, 30, 80, 160, 80, 20, 40, 60, 20, 0 };
+			//std::valarray<float> Tmin = { 10,12,14,16,18,20,22,21,19,17,15,12 };
+			//std::valarray<float> Tmax = Tmin+5;
+			//std::valarray<float> Tavg = (Tmin + Tmax) / 2.0;
+			//std::valarray<float> Prcp = { 0, 2, 10, 30, 80, 160, 80, 20, 40, 60, 20, 0 };
 
-			/*std::valarray<float> Tmin(12);
+			std::valarray<float> Tmin(12);
 			std::valarray<float> Tmax(12);
 			std::valarray<float> Tavg(12);
 			std::valarray<float> Prcp(12);
-			*/
-			/*for (size_t m = 0; m < 12; m++)
+			
+			for (size_t m = 0; m < 12; m++)
 			{
 				Tmin[m] = m_weather[y][m].GetStat(H_TMIN)[MEAN];
 				Tmax[m] = m_weather[y][m].GetStat(H_TMAX)[MEAN];
 				Tavg[m] = (Tmin[m] + Tmax[m]) / 2.0;
 				Prcp[m] = m_weather[y][m].GetStat(H_PRCP)[SUM];
-			}*/
+			}
 
 			std::valarray<float> wet(12);
 			std::valarray<float> tmp(12);
