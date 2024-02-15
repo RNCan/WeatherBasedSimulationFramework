@@ -267,6 +267,9 @@ copy /Y ".\bin\Releasex64\Models\WhitePineWeevil.dll" "..\Install\NRCan\Models\W
 copy /Y ".\bin\Releasex64\Models\WinterThaw.mdl" "..\Install\NRCan\Models\WinterThaw.mdl"
 copy /Y ".\bin\Releasex64\Models\WinterThaw.dll" "..\Install\NRCan\Models\WinterThaw.dll"
 
+
+copy /Y ".\bin\Releasex64\Models\WorldClimVars.dll" "..\Install\NRCan\Models\WorldClimVars.dll"
+copy /Y ".\bin\Releasex64\Models\WorldClimVars.mdl" "..\Install\NRCan\Models\WorldClimVars.mdl"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.dll" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.dll"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.mdl"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.pdf"
