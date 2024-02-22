@@ -50,16 +50,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTWM</Name>
-            <Title>MTWM</Title>
+            <Name>TmaxWM</Name>
+            <Title>TmaxWM</Title>
             <Units>°C</Units>
             <Description>Max Temperature of Warmest Month</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTCM</Name>
-            <Title>MTCM</Title>
+            <Name>TminCM</Name>
+            <Title>TminCM</Title>
             <Units>°C</Units>
             <Description>Min Temperature of Coldest Month</Description>
             <TimeMode>4 0</TimeMode>
@@ -74,42 +74,42 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTWeQ</Name>
-            <Title>MTWeQ</Title>
+            <Name>TWeQ</Name>
+            <Title>TWeQ</Title>
             <Units>°C</Units>
             <Description>Mean Temperature of Wettest Quarter</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTDQ</Name>
-            <Title>MTDQ</Title>
+            <Name>TDQ</Name>
+            <Title>TDQ</Title>
             <Units>°C</Units>
             <Description>Mean Temperature of Driest Quarter</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTWaQ</Name>
-            <Title>MTWaQ</Title>
+            <Name>TWaQ</Name>
+            <Title>TWaQ</Title>
             <Units>°C</Units>
             <Description>Mean Temperature of Warmest Quarter</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>MTCQ</Name>
-            <Title>MTCQ</Title>
+            <Name>TCQ</Name>
+            <Title>TCQ</Title>
             <Units>°C</Units>
             <Description>Mean Temperature of Coldest Quarter</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ASP</Name>
-            <Title>ASP</Title>
+            <Name>ATP</Name>
+            <Title>ATP</Title>
             <Units>mm</Units>
-            <Description>Annual Sum of Precipitation</Description>
+            <Description>Annual Total Precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -133,7 +133,7 @@
             <Name>PCV</Name>
             <Title>PCV</Title>
             <Units/>
-            <Description>Precipitation Seasonality (Coefficient of Variation)</Description>
+            <Description>Precipitation Seasonality (Coefficient of Variation*100)</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -171,6 +171,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Convert in c++ from R code dismo biovars&#x0D;&#x0A;BIO1 = Annual Mean Temperature&#x0D;&#x0A;BIO2 = Mean Diurnal Range (Mean of monthly (max temp - min temp))&#x0D;&#x0A;BIO3 = Isothermality (P2/P7) (* 100)&#x0D;&#x0A;BIO4 = Temperature Seasonality (standard deviation *100)&#x0D;&#x0A;BIO5 = Max Temperature of Warmest Month&#x0D;&#x0A;BIO6 = Min Temperature of Coldest Month&#x0D;&#x0A;BIO7 = Temperature Annual Range (P5-P6)&#x0D;&#x0A;BIO8 = Mean Temperature of Wettest Quarter&#x0D;&#x0A;BIO9 = Mean Temperature of Driest Quarter&#x0D;&#x0A;BIO10 = Mean Temperature of Warmest Quarter&#x0D;&#x0A;BIO11 = Mean Temperature of Coldest Quarter&#x0D;&#x0A;BIO12 = Annual Precipitation&#x0D;&#x0A;BIO13 = Precipitation of Wettest Month&#x0D;&#x0A;BIO14 = Precipitation of Driest Month&#x0D;&#x0A;BIO15 = Precipitation Seasonality (Coefficient of Variation)&#x0D;&#x0A;BIO16 = Precipitation of Wettest Quarter&#x0D;&#x0A;BIO17 = Precipitation of Driest Quarter&#x0D;&#x0A;BIO18 = Precipitation of Warmest Quarter&#x0D;&#x0A;BIO19 = Precipitation of Coldest Quarter&#x0D;&#x0A;</Credit>
+    <Credit>Convert in c++ from R code dismo biovars&#x0D;&#x0A;BIO01 = AMT = Annual Mean Temperature&#x0D;&#x0A;BIO02 = MDR = Mean Diurnal Range (Mean of monthly (max temp - min temp))&#x0D;&#x0A;BIO03 = ISO = Isothermality (P2/P7) (* 100)&#x0D;&#x0A;BIO04 = TSD = Temperature Seasonality (standard deviation *100)&#x0D;&#x0A;BIO05 = MTWM = Max Temperature of Warmest Month&#x0D;&#x0A;BIO06 = MTCM = Min Temperature of Coldest Month&#x0D;&#x0A;BIO07 = TAR = Temperature Annual Range (P5-P6)&#x0D;&#x0A;BIO08 = TWeQ = Mean Temperature of Wettest Quarter&#x0D;&#x0A;BIO09 = TDQ = Mean Temperature of Driest Quarter&#x0D;&#x0A;BIO10 = TWaQ = Mean Temperature of Warmest Quarter&#x0D;&#x0A;BIO11 = TCQ = Mean Temperature of Coldest Quarter&#x0D;&#x0A;BIO12 = ATP = Annual Total Precipitation&#x0D;&#x0A;BIO13 = PWM = Precipitation of Wettest Month&#x0D;&#x0A;BIO14 = PDM = Precipitation of Driest Month&#x0D;&#x0A;BIO15 = PCV = Precipitation Seasonality (Coefficient of Variation)&#x0D;&#x0A;BIO16 = PWeQ = Precipitation of Wettest Quarter&#x0D;&#x0A;BIO17 = PDQ = Precipitation of Driest Quarter&#x0D;&#x0A;BIO18 = PWaQ = Precipitation of Warmest Quarter&#x0D;&#x0A;BIO19 = PCQ = Precipitation of Coldest Quarter&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>
