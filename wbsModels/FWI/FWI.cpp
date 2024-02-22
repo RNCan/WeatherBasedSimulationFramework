@@ -695,7 +695,7 @@ namespace WBSF
 	size_t CFWI::GetNbDayLastRain(const CWeatherYear& weather, size_t firstDay)
 	{
 		size_t nbDay = 0;
-		for (size_t jd = firstDay; jd >= 0; jd--, nbDay++)
+		for (size_t jd = firstDay; jd != NOT_INIT; jd--, nbDay++)
 		{
 			//Get the last day with at least 2mm of water
 			if (weather.GetDay(jd)[H_PRCP][SUM] > 2)
