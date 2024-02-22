@@ -1,3 +1,4 @@
+// 4.4.8    22-02-2024	Rémi Saint-Amant	Add try/catch with CMFCToolBarDateTimeCtrl
 // 4.4.7    08-09-2023	Rémi Saint-Amant	Build with GDAL 3.7.1
 // 4.4.6	20/12/2021	Rémi Saint-Amant	Compile with GDAL 3.0.5 
 // 4.4.5	02/08/2021	Rémi Saint-Amant	Compile with VC 2019 and MFC dll version

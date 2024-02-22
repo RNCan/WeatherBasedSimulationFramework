@@ -210,27 +210,23 @@ void CWeatherSpreadsheetWnd::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHi
 
 	if (lHint == CDailyEditorDoc::INIT || lHint == CDailyEditorDoc::DATA_PROPERTIES_PERIOD_CHANGE)
 	{
-		COleDateTime oFirstDate;
-		COleDateTime oLastDate;
+		
 		if (period.IsInit())
 		{
-			oFirstDate = COleDateTime(period.Begin().GetYear(), (int)period.Begin().GetMonth() + 1, (int)period.Begin().GetDay() + 1, 0, 0, 0);
-			oLastDate = COleDateTime(period.End().GetYear(), (int)period.End().GetMonth() + 1, (int)period.End().GetDay() + 1, 23, 59, 59);
-		}
-		else
-		{
-			oFirstDate.SetStatus(COleDateTime::null);
-			oLastDate.SetStatus(COleDateTime::null);
-		}
+			COleDateTime oFirstDate(period.Begin().GetYear(), (int)period.Begin().GetMonth() + 1, (int)period.Begin().GetDay() + 1, 0, 0, 0);
+			COleDateTime oLastDate(period.End().GetYear(), (int)period.End().GetMonth() + 1, (int)period.End().GetDay() + 1, 23, 59, 59);
 
-		CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_BEGIN); ASSERT(pCtrl1);
-		CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_END); ASSERT(pCtrl2);
+			CMFCToolBarDateTimeCtrl* pCtrl1 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_BEGIN); ASSERT(pCtrl1);
+			CMFCToolBarDateTimeCtrl* pCtrl2 = CMFCToolBarDateTimeCtrl::GetByCmd(ID_TABLE_PERIOD_END); ASSERT(pCtrl2);
 
-		if (oFirstDate.GetStatus() == COleDateTime::valid &&
-			oLastDate.GetStatus() == COleDateTime::valid)
-		{
-			pCtrl1->SetTime(oFirstDate);
-			pCtrl2->SetTime(oLastDate);
+			try
+			{
+				pCtrl1->SetTime(oFirstDate);
+				pCtrl2->SetTime(oLastDate);
+			}
+			catch (...)
+			{
+			}
 		}
 	}
 
