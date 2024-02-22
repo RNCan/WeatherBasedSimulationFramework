@@ -74,8 +74,8 @@ namespace WBSF
 
 		size_t GetInitialValue(const CWeatherStation& weather, size_t y, size_t lastDay, double& FFMC, double& DMC, double& DC);
 
-		CTRef GetFirstDay(const CWeatherYear& weather);
-		CTRef GetLastDay(const CWeatherYear& weather);
+		CTRef GetFirstSnowDay(const CWeatherYear& weather);
+		CTRef GetLastSnowDay(const CWeatherYear& weather);
 		
 
 		TMethod m_method;

@@ -131,38 +131,38 @@ namespace WBSF
 	//prcp: precipitation [mm]
 	double CFWI::GetFFMC(double Fo, double T, double Hr, double Ws, double prcp)
 	{
-		double wmo = 147.2*(101 - Fo) / (59.5 + Fo);
+		double wmo = 147.2 * (101 - Fo) / (59.5 + Fo);
 		if (prcp > 0.5)
 		{
 			double ra = prcp - 0.5;
 			if (wmo > 150)
-				wmo += 42.5*ra*exp(-100.0 / (251 - wmo))*(1.0 - exp(-6.93 / ra)) + 0.0015*(wmo - 150)*(wmo - 150)*sqrt(ra);
-			else wmo += 42.5*ra*exp(-100.0 / (251 - wmo))*(1.0 - exp(-6.93 / ra));
+				wmo += 42.5 * ra * exp(-100.0 / (251 - wmo)) * (1.0 - exp(-6.93 / ra)) + 0.0015 * (wmo - 150) * (wmo - 150) * sqrt(ra);
+			else wmo += 42.5 * ra * exp(-100.0 / (251 - wmo)) * (1.0 - exp(-6.93 / ra));
 		}
 
 		if (wmo > 250)
 			wmo = 250;
 
 		double temp = T;
-		double ed = 0.942*pow(Hr, 0.679) + (11.0*exp((Hr - 100.0) / 10.0)) + 0.18*(21.1 - temp)*(1.0 - 1.0 / exp(Hr*0.115));
-		double ew = 0.618*pow(Hr, 0.753) + (10.0*exp((Hr - 100.0) / 10.0)) + 0.18*(21.1 - temp)*(1.0 - 1.0 / exp(Hr*0.115));
+		double ed = 0.942 * pow(Hr, 0.679) + (11.0 * exp((Hr - 100.0) / 10.0)) + 0.18 * (21.1 - temp) * (1.0 - 1.0 / exp(Hr * 0.115));
+		double ew = 0.618 * pow(Hr, 0.753) + (10.0 * exp((Hr - 100.0) / 10.0)) + 0.18 * (21.1 - temp) * (1.0 - 1.0 / exp(Hr * 0.115));
 
 		double wm = wmo;
 		if (wm < ed && wm < ew)
 		{
-			double z = 0.424*(1.0 - pow(((100.0 - Hr) / 100.0), 1.7)) + 0.0694*sqrt(Ws)*(1.0 - pow((100.0 - Hr) / 100.0, 8.0));
-			double x = z * 0.581*exp(0.0365*temp);
+			double z = 0.424 * (1.0 - pow(((100.0 - Hr) / 100.0), 1.7)) + 0.0694 * sqrt(Ws) * (1.0 - pow((100.0 - Hr) / 100.0, 8.0));
+			double x = z * 0.581 * exp(0.0365 * temp);
 			wm = ew - (ew - wmo) / pow(10.0, x);
 		}
 		else if (wm > ed)
 		{
-			double z = 0.424*(1.0 - pow((Hr / 100.), 1.7)) + 0.0694*sqrt(Ws)*(1 - pow(Hr / 100, 8.0));
-			double x = z * 0.581*exp(0.0365*temp);
+			double z = 0.424 * (1.0 - pow((Hr / 100.), 1.7)) + 0.0694 * sqrt(Ws) * (1 - pow(Hr / 100, 8.0));
+			double x = z * 0.581 * exp(0.0365 * temp);
 			wm = ed + (wmo - ed) / pow(10.0, x);
 		}
 
 
-		double ffmc = max(0.0, min(101.0, 59.5*(250.0 - wm) / (147.2 + wm)));
+		double ffmc = max(0.0, min(101.0, 59.5 * (250.0 - wm) / (147.2 + wm)));
 
 		return ffmc;
 	}
@@ -177,10 +177,10 @@ namespace WBSF
 	//Kerry Anderson, Canadian Forest Service, 2009
 	double CFWI::GetHFFMC(double Fo, double T, double Hr, double Ws, double ro, TVanWagner VanWagnerType)
 	{
-		double vw1 = VanWagnerType == VAN_WAGNER_1977 ? 205.2:147.2;
-		double vw2 = VanWagnerType == VAN_WAGNER_1977 ? 82.9:59.5;
+		double vw1 = VanWagnerType == VAN_WAGNER_1977 ? 205.2 : 147.2;
+		double vw2 = VanWagnerType == VAN_WAGNER_1977 ? 82.9 : 59.5;
 
-		double mo = vw1 *(101.0 - Fo) / (vw2 + Fo);
+		double mo = vw1 * (101.0 - Fo) / (vw2 + Fo);
 
 
 		if (ro > 0)
@@ -189,48 +189,48 @@ namespace WBSF
 			if (mo <= 150.0)
 			{
 				//[7a] m = mn + 42.5 r(e " 1 0 ° / ( 2 5 1 ~ m0) ) (1 - « r 6 ' 9 3 / r o ) .r o o : \, mQ £ 150
-				mr = mo + 42.5*ro*exp(-100.0 / (251.0 - mo))* (1 - exp(-6.93 / ro));
+				mr = mo + 42.5 * ro * exp(-100.0 / (251.0 - mo)) * (1 - exp(-6.93 / ro));
 			}
 			else
 			{
 				//[7b] mr = mQ + 42.5 r o(e ~1 0 0 / *2 5 1 ~' % h (1 - e " 6*9 3 / ro)+ 0.0015(mQ - 150) r° * 5 , mQ > 150
-				mr = mo + 42.5*ro*exp(-100.0 / (251.0 - mo))* (1 - exp(-6.93 / ro)) + 0.0015*(mo - 150.0)* sqrt(ro);
+				mr = mo + 42.5 * ro * exp(-100.0 / (251.0 - mo)) * (1 - exp(-6.93 / ro)) + 0.0015 * (mo - 150.0) * sqrt(ro);
 			}
 
 			mo = mr;
 		}
 
-		
+
 		if (mo > 250)
 			mo = 250;
 
 
 		double m = 0;
 		//[2a] 
-		double Ed = 0.942*pow(Hr, 0.679) + 11.0*exp((Hr - 100.0) / 10.0) + 0.18*(21.1 - T)*(1 - exp(-0.115*Hr));
+		double Ed = 0.942 * pow(Hr, 0.679) + 11.0 * exp((Hr - 100.0) / 10.0) + 0.18 * (21.1 - T) * (1 - exp(-0.115 * Hr));
 		if (mo > Ed)
 		{
 			//[3a]
-			double Ka = 0.424*(1.0 - pow(Hr / 100.0, 1.7)) + 0.0694*pow(Ws, 0.5)*(1.0 - pow(Hr / 100.0, 8.0));
+			double Ka = 0.424 * (1.0 - pow(Hr / 100.0, 1.7)) + 0.0694 * pow(Ws, 0.5) * (1.0 - pow(Hr / 100.0, 8.0));
 			//[3b]
-			double Kd = 0.0579*Ka*exp(0.0365*T);
+			double Kd = 0.0579 * Ka * exp(0.0365 * T);
 
 			//[5a]
-			m = Ed + (mo - Ed)*exp(-2.303*Kd);
+			m = Ed + (mo - Ed) * exp(-2.303 * Kd);
 		}
 		else
 		{
 			//[2b]
-			double Ew = 0.618*pow(Hr, 0.753) + 10.0*exp((Hr - 100.0) / 10.0) + 0.18*(21.1 - T)*(1 - exp(-0.115*Hr));
+			double Ew = 0.618 * pow(Hr, 0.753) + 10.0 * exp((Hr - 100.0) / 10.0) + 0.18 * (21.1 - T) * (1 - exp(-0.115 * Hr));
 			if (mo < Ew)
 			{
 				//[4a]
-				double Kb = 0.424*(1 - pow((100.0 - Hr) / 100.0, 1.7)) + 0.0694 *sqrt(Ws)*(1 - pow((100 - Hr) / 100.0, 8.0));
+				double Kb = 0.424 * (1 - pow((100.0 - Hr) / 100.0, 1.7)) + 0.0694 * sqrt(Ws) * (1 - pow((100 - Hr) / 100.0, 8.0));
 				//[4b]
-				double Kw = 0.0579*Kb*exp(0.0365*T);
+				double Kw = 0.0579 * Kb * exp(0.0365 * T);
 
 				//[5b]
-				m = Ew + (Ew - mo)*exp(-2.303*Kw);
+				m = Ew + (Ew - mo) * exp(-2.303 * Kw);
 			}
 			else
 			{
@@ -240,7 +240,7 @@ namespace WBSF
 
 
 		//[6]
-		double F = vw2 *(250 - m) / (vw1 + m);
+		double F = vw2 * (250 - m) / (vw1 + m);
 
 		return max(0.0, min(101.0, F));
 	}
@@ -257,24 +257,24 @@ namespace WBSF
 		double temp = T;
 		double t = max(-1.1, temp);
 
-		double rk = 1.894*(t + 1.1)*(100.0 - Hr)*el[m] * 0.0001;
+		double rk = 1.894 * (t + 1.1) * (100.0 - Hr) * el[m] * 0.0001;
 
 		_ASSERTE(oldDMC >= 0);
 		double pr = oldDMC;
 		if (prcp > 1.5)
 		{
 			double ra = prcp;
-			double rw = 0.92*ra - 1.27;
-			double wmi = 20.0 + 280.0 / exp(0.023*oldDMC);
+			double rw = 0.92 * ra - 1.27;
+			double wmi = 20.0 + 280.0 / exp(0.023 * oldDMC);
 
-			double b = 6.2*log(oldDMC) - 17.2;
+			double b = 6.2 * log(oldDMC) - 17.2;
 			if (oldDMC <= 33)
-				b = 100.0 / (0.5 + 0.3*oldDMC);
+				b = 100.0 / (0.5 + 0.3 * oldDMC);
 			else if (oldDMC <= 65)
-				b = 14.0 - 1.3*log(oldDMC);
+				b = 14.0 - 1.3 * log(oldDMC);
 
-			double wmr = wmi + 1000.0*rw / (48.77 + b * rw);
-			pr = max(0.0, 43.43*(5.6348 - log(wmr - 20.0)));
+			double wmr = wmi + 1000.0 * rw / (48.77 + b * rw);
+			pr = max(0.0, 43.43 * (5.6348 - log(wmr - 20.0)));
 		}
 
 		double dmc = max(0.0, pr + rk);
@@ -300,7 +300,7 @@ namespace WBSF
 		double t = max(-2.8, temp);
 		//Daylength factor adjustment by latitude for Potential Evapotranspiration
 		double fl = lat <= -20 ? flS[m] : lat > 20 ? flN[m] : 1.4;
-		double pe = max(0.0, (0.36*(t + 2.8) + fl) / 2.0);
+		double pe = max(0.0, (0.36 * (t + 2.8) + fl) / 2.0);
 		//double pe = max(0.0, (0.36*(t + 2.8) + fl[m]) / 2.0);
 
 
@@ -309,9 +309,9 @@ namespace WBSF
 		if (prcp > 2.8)
 		{
 			double ra = prcp;
-			double rw = 0.83*ra - 1.27;
+			double rw = 0.83 * ra - 1.27;
 			double smi = 800 * exp(-oldDC / 400);
-			dr = max(0.0, oldDC - 400.0*log(1.0 + 3.937*rw / smi));
+			dr = max(0.0, oldDC - 400.0 * log(1.0 + 3.937 * rw / smi));
 		}
 
 		double dc = max(0.0, dr + pe);
@@ -350,7 +350,7 @@ namespace WBSF
 		double vw2 = VanWagnerType == VAN_WAGNER_1977 ? 82.9 : 59.5;
 
 		//Eq. 10 - Moisture content
-		double fm = vw1 *(101.0 - Fo) / (vw2 + Fo);
+		double fm = vw1 * (101.0 - Fo) / (vw2 + Fo);
 		//double fm = 147.27723 * (101.0 - Fo) / (59.5 + Fo);
 		//Eq. 24 - Wind Effect
 		//the ifelse, also takes care of the ISI modification for the fbp functions
@@ -370,12 +370,12 @@ namespace WBSF
 		double bui = 0;
 
 		if (dmc == 0 && dc == 0) bui = 0;
-		else bui = 0.8*dc*dmc / (dmc + 0.4*dc);
+		else bui = 0.8 * dc * dmc / (dmc + 0.4 * dc);
 
 		if (bui < dmc)
 		{
 			double p = (dmc - bui) / dmc;
-			double cc = 0.92 + pow((0.0114*dmc), 1.7);
+			double cc = 0.92 + pow((0.0114 * dmc), 1.7);
 			bui = max(0.0, dmc - cc * p);
 		}
 
@@ -387,13 +387,13 @@ namespace WBSF
 	{
 		double bb = 0;
 		if (bui > 80)
-			bb = 0.1*isi*(1000.0 / (25.0 + 108.64 / exp(0.023*bui)));
+			bb = 0.1 * isi * (1000.0 / (25.0 + 108.64 / exp(0.023 * bui)));
 		else
-			bb = 0.1*isi*(0.626*pow(bui, 0.809) + 2.0);
+			bb = 0.1 * isi * (0.626 * pow(bui, 0.809) + 2.0);
 
 		double fwi = bb;
 		if (fwi > 1)
-			fwi = exp(2.72*pow(0.434*log(fwi), 0.647));
+			fwi = exp(2.72 * pow(0.434 * log(fwi), 0.647));
 
 		return fwi;
 	}
@@ -401,7 +401,7 @@ namespace WBSF
 	//Daily Severity Rating
 	double CFWI::GetDSR(double fwi)
 	{
-		double dsr = 0.0272*pow(fwi, 1.77);
+		double dsr = 0.0272 * pow(fwi, 1.77);
 		return dsr;
 	}
 
@@ -461,8 +461,8 @@ namespace WBSF
 		int ND = abs(int(DJ) - int(D0));
 		//Calculate final FMC
 		//Eqs. 6, 7, &8 (FCFDG 1992)
-		double FMC = (ND < 30) ? 85.0 + 0.0189 * ND *ND :
-			(ND >= 30 && ND < 50) ? 32.9 + 3.17 * ND - 0.0288 * ND*ND : 120;
+		double FMC = (ND < 30) ? 85.0 + 0.0189 * ND * ND :
+			(ND >= 30 && ND < 50) ? 32.9 + 3.17 * ND - 0.0288 * ND * ND : 120;
 
 		return FMC;
 	}
@@ -632,7 +632,7 @@ namespace WBSF
 
 	//If there is at lean 75% of the day of January an February that have at least 1cm
 	//and there is at least 10 cm then hte first day is 3 days after the snowmelt date
-	CTRef CFWI::GetFirstDay(const CWeatherYear& weather)
+	CTRef CFWI::GetFirstSnowDay(const CWeatherYear& weather)
 	{
 		CTRef firstDate;
 
@@ -663,7 +663,7 @@ namespace WBSF
 		return firstDate;
 	}
 
-	CTRef CFWI::GetLastDay(const CWeatherYear& weather)
+	CTRef CFWI::GetLastSnowDay(const CWeatherYear& weather)
 	{
 		//find begin of snow
 		CSnowAnalysis snow;
@@ -711,10 +711,16 @@ namespace WBSF
 	{
 		double lastDC = DC;
 
-		size_t firstDay = GetFirstDay(weather[y]).GetJDay();
+		size_t firstDay = NOT_INIT;
 
-		if (firstDay >= 0)
+
+		CTRef firstSnow = GetFirstSnowDay(weather[y]);
+		//size_t firstDay = GetFirstSnowDay(weather[y]).GetJDay();
+
+		if (firstSnow.IsInit())
 		{
+			ASSERT(firstSnow.GetJDay() >= 0 && firstSnow.GetJDay() < 366);
+			firstDay = firstSnow.GetJDay();
 			FFMC = 85;
 			DMC = 6;
 			DC = 15;
@@ -723,14 +729,14 @@ namespace WBSF
 		{
 			//no snow
 			//Find 3 consecutive days where noon temperature is above m_thresholdStart (12°C)
-			//firstDay = GetFirstDay3xThreshold(weather[y]); 
+			//firstDay = GetFirstSnowDay3xThreshold(weather[y]); 
 			CGSInfo start(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeStart), '>', m_thresholdStart, m_nbDaysStart);
 			CGSInfo end(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeEnd), '<', m_thresholdEnd, m_nbDaysEnd);
 			CGrowingSeason GS(start, end);
 
 			CTPeriod p = GS.GetPeriod(weather[y]);
 			//firstDay = p.Begin().GetJDay();
-			//firstDay = weather[y].GetFir.GetFirstDayThreshold(m_nbDaysStart, m_TtypeStart, m_thresholdStart, '>').GetJDay();
+			//firstDay = weather[y].GetFir.GetFirstSnowDayThreshold(m_nbDaysStart, m_TtypeStart, m_thresholdStart, '>').GetJDay();
 
 			if (p.Begin().IsInit())
 			{
@@ -765,14 +771,14 @@ namespace WBSF
 				const double b = m_effectivenessOfWinterPrcp;
 
 				double Qf = 800 * exp(-lastDC / 400);
-				double Qs = a * Qf + b * 3.94*Rw;
+				double Qs = a * Qf + b * 3.94 * Rw;
 				DC = max(0.0, 400 * log(800 / Qs));
 			}
 		}
 
 		return firstDay;
 	}
-	
+
 	double CFWI::GetNoonToNoonPrcp(const CWeatherDay& day)
 	{
 		double prcp = 0;
@@ -785,7 +791,7 @@ namespace WBSF
 		for (size_t h = 0; h <= 12; h++)
 			if (!WEATHER::IsMissing(day[h][H_PRCP]))
 				prcp += day[h][H_PRCP];
-		
+
 		return prcp;
 	}
 
@@ -796,7 +802,7 @@ namespace WBSF
 		ERMsg msg;
 		output.clear();
 		output.Init(weather.GetEntireTPeriod(CTM(m_method == ALL_HOURS_CALCULATION ? CTM::HOURLY : CTM::DAILY)), CFWIStat::NB_D_STAT, MISSING);
-		
+
 		bool bContinueMode = false;
 		size_t firstDay = NOT_INIT;
 		size_t lastDay = NOT_INIT;
@@ -816,7 +822,7 @@ namespace WBSF
 					firstDay = GetInitialValue(weather, y, lastDay, oldFFMC, oldDMC, oldDC);
 
 				//compute the new last day for this year
-				lastDay = GetLastDay(weather[y]).GetJDay();
+				lastDay = GetLastSnowDay(weather[y]).GetJDay();
 			}
 			else
 			{
@@ -877,7 +883,7 @@ namespace WBSF
 						double Tnoon = day[12][H_TAIR];
 						double RHnoon = day[12][H_RELH];
 						double prcp = GetNoonToNoonPrcp(day);//compute daily prcp from noon to noon summation
-						
+
 						double DMC = GetDMC(oldDMC, m, Tnoon, RHnoon, prcp);
 
 						// compute DC 
@@ -890,7 +896,7 @@ namespace WBSF
 						for (size_t h = 0; h < 24; h++)
 						{
 							const CHourlyData& hour = day[h];
-							
+
 							// compute HFFMC
 							double HFFMC = GetHFFMC(oldFFMC, hour[H_TAIR], hour[H_RELH], hour[H_WNDS], hour[H_PRCP], m_VanWagnerType);
 
@@ -918,7 +924,7 @@ namespace WBSF
 							output[TRefh][CFWIStat::BUI] = BUI;
 							output[TRefh][CFWIStat::FWI] = FWI;
 							output[TRefh][CFWIStat::DSR] = DSR;
-							
+
 							oldFFMC = HFFMC;
 						}
 
@@ -962,7 +968,7 @@ namespace WBSF
 
 						// compute ISI
 						double ISI = GetISI(FFMC, WSnoon, m_fbpMod);
-						
+
 						// compute FWI from BUI ans ISI
 						double FWI = GetFWI(BUI, ISI);
 

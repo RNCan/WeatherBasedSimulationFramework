@@ -1,4 +1,5 @@
 //*********************************************************************
+//22/02/2024	3.2.4	Rémi Saint-Amant    VS 2022. Bug correction in begin date when no snow. 
 //24/07/2023	3.2.3	Rémi Saint-Amant    Update with new Growing season calculation
 //19/10/2020	3.2.2	Rémi Saint-Amant    Add wind direction
 //09/10/2020	3.2.1	Rémi Saint-Amant    Add hourly computation. Use of noon to noon prcp in FWI computation
@@ -48,7 +49,7 @@ namespace WBSF
 	{
 		// initialize your variable here (optional)
 		NB_INPUT_PARAMETER=10;
-		VERSION = "3.2.3 (2023)";
+		VERSION = "3.2.4 (2024)";
 
 		m_bAutoSelect = true;
 		m_firstDay = NOT_INIT;
