@@ -2,21 +2,22 @@
 //Modifications
 // 01/01/1994  precision fix etc........bmw
 // 01/10/2002
-//     to eliminate negative evapouration from DC skit in November
+//     to eliminate negative evaporation from DC skit in November
 //     thru March.  Change of code to match equations in FTR-33 (1985) 
 //     report (change from F32.FOR)
 // 01/06/2005  to add STDLIB.h to solve recent problems in conversion of startups
 //    from char to float
 // 10/12/2007 	Rémi Saint-Amant	Incorporate in BioSIMModelBase
-// 01/02/2009	Rémi Saint-Amant	Use new snow model to predic last snow day
-// 27/02/2009	Rémi Saint-Amant	Include new variable for montly model
-// 05/03/2010	Rémi Saint-Amant	Include overwintering DC and continious mode when no freezing
+// 01/02/2009	Rémi Saint-Amant	Use new snow model to predict last snow day
+// 27/02/2009	Rémi Saint-Amant	Include new variable for monthly model
+// 05/03/2010	Rémi Saint-Amant	Include overwintering DC and continuous mode when no freezing
 // 11/03/2010	Rémi Saint-Amant	Include start threshold
 // 18/05/2011   Rémi Saint-Amant	Change result format( January 1 to December 31), correction of a bug in computing new DC
 //									Add of m_carryOverFraction and EFFECTIVENESS_OF_WINTER as static parameters
 // 06/02/2012	Rémi Saint-Amant	Correction of a bug in the first date. The first date must start 3 days after the snow melt 
 // 05/09/2016	Rémi Saint-Amant	Many modifications to support hourly inputs
 // 16/03/2020   Rémi Saint-Amant	Add initial values from file
+// 22/02/2024   Rémi Saint-Amant	Bug correction when no snow
 //**********************************************************************
 #include <math.h>
 #include "Basic/CSV.h"
@@ -419,8 +420,8 @@ namespace WBSF
 	// Args:
 	//   lat : Latitude(decimal degrees)
 	//   lon : Longitude(decimal degrees)
-	//   alt : Elevation(metres)
-	//   DJ : Day of year(offeren referred to as julian date)
+	//   alt : Elevation(meters)
+	//   DJ : Day of year(also referred to as Julian date)
 	//   D0 : Date of minimum foliar moisture content
 	//   
 	// Returns :
@@ -630,8 +631,8 @@ namespace WBSF
 		return 0;
 	}
 
-	//If there is at lean 75% of the day of January an February that have at least 1cm
-	//and there is at least 10 cm then hte first day is 3 days after the snowmelt date
+	//If there is at lean 75% of the day of January an February that have at least 10 cm
+	//and there is at least 10 cm then the first day is 3 days after the snow melt date
 	CTRef CFWI::GetFirstSnowDay(const CWeatherYear& weather)
 	{
 		CTRef firstDate;
@@ -712,10 +713,7 @@ namespace WBSF
 		double lastDC = DC;
 
 		size_t firstDay = NOT_INIT;
-
-
 		CTRef firstSnow = GetFirstSnowDay(weather[y]);
-		//size_t firstDay = GetFirstSnowDay(weather[y]).GetJDay();
 
 		if (firstSnow.IsInit())
 		{
@@ -729,14 +727,11 @@ namespace WBSF
 		{
 			//no snow
 			//Find 3 consecutive days where noon temperature is above m_thresholdStart (12°C)
-			//firstDay = GetFirstSnowDay3xThreshold(weather[y]); 
 			CGSInfo start(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeStart), '>', m_thresholdStart, m_nbDaysStart);
 			CGSInfo end(CGSInfo::GET_FIRST, CGSInfo::TTemperature(m_TtypeEnd), '<', m_thresholdEnd, m_nbDaysEnd);
 			CGrowingSeason GS(start, end);
 
 			CTPeriod p = GS.GetPeriod(weather[y]);
-			//firstDay = p.Begin().GetJDay();
-			//firstDay = weather[y].GetFir.GetFirstSnowDayThreshold(m_nbDaysStart, m_TtypeStart, m_thresholdStart, '>').GetJDay();
 
 			if (p.Begin().IsInit())
 			{
@@ -748,7 +743,7 @@ namespace WBSF
 			}
 			else
 			{
-				//we start the first on july
+				//we start the first on July
 				//a very cold place, no fire problem...
 				firstDay = 183;
 				FFMC = 85;
@@ -939,7 +934,6 @@ namespace WBSF
 				CTPeriod p = weather[y].GetEntireTPeriod(CTM::DAILY);
 				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)//for all day
 				{
-					//const CWeatherDay& pday = weather.GetDay(TRef).HavePrevious() ? weather.GetDay(TRef).GetPrevious() : weather.GetDay(TRef);
 					const CWeatherDay& day = weather.GetDay(TRef);
 
 					size_t jd = TRef.GetJDay();
