@@ -6,7 +6,7 @@
     <EXE>Leucopis.dll</EXE>
     <Behaviour>0</Behaviour>
     <Description/>
-    <WindowRect>0 0 629 439</WindowRect>
+    <WindowRect>0 0 89 439</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -31,8 +31,8 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
-            <Name>CDD</Name>
-            <Title>CDD</Title>
+            <Name>CDD_La_g1</Name>
+            <Title>CDD_La_g1</Title>
             <Units/>
             <Description>Adult emergence growing degree day</Description>
             <TimeMode>4 0</TimeMode>
@@ -42,15 +42,15 @@
             <Name>La_g1</Name>
             <Title>La_g1</Title>
             <Units>%</Units>
-            <Description>L. argenticolis g1</Description>
+            <Description>L. argenticolis first generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>La_g2</Name>
-            <Title>La_g2</Title>
+            <Name>CDD_Lp</Name>
+            <Title>CDD_Lp</Title>
             <Units/>
-            <Description>L. argenticolis g1</Description>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -59,6 +59,22 @@
             <Title>Lp</Title>
             <Units/>
             <Description>L. piniperda</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD_La_g2</Name>
+            <Title>CDD_La_g2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>La_g2</Name>
+            <Title>La_g2</Title>
+            <Units/>
+            <Description>L. argenticolis second generation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
