@@ -18,7 +18,9 @@ namespace WBSF
 {
 
 
+	
 
+	//COpenDirEditCtrl m_FTPFilePathCtrl;
 
 
 	class CGenerateWUProjectDlg : public CDialogEx
@@ -29,19 +31,26 @@ namespace WBSF
 		enum { T_HOURLY, T_DAILY, T_NORMALS_PAST, T_NORMALS_CURRENT, T_NORMALS_FUTURE, T_GRIBS, NB_DATABASE_TYPE };
 
 
-		CGenerateWUProjectDlg(bool bGenerate, CWnd* pParent = NULL);   // standard constructor
+		CGenerateWUProjectDlg(CWnd* pParent = NULL);   // standard constructor
 		virtual ~CGenerateWUProjectDlg();
 
 
-		static ERMsg GetFTPFileList(const std::string& path, CFileInfoVector& list);
-		std::string GetFTPPath();
+		
+		std::string GetGoogleDriveFolderID();
+
 
 		std::string m_project_name;
-		std::string m_FTP_path;
-		std::string m_FTP_file_name;
-		std::string m_FTP_file_path;
-		std::string m_locale_path;
+		//std::string m_file_URL;
+		//std::string m_folder_URL;
+		std::string m_folder_id;
+		std::string m_file_id;
+		std::string m_file_name;
+		std::string m_weather_path;
+		//std::string m_locale_path;
+		CFileInfoVector m_file_list;
 
+		bool m_bShowOutputDir;
+		bool m_bShowProject;
 		// Implementation
 	protected:
 
@@ -59,7 +68,7 @@ namespace WBSF
 		DECLARE_MESSAGE_MAP()
 
 	
-		bool m_bGenerate;
+		//bool m_bGenerate;
 
 		void UpdateCtrl(void);
 		afx_msg void OnTypeChange();
@@ -68,10 +77,10 @@ namespace WBSF
 		
 		CCFLEdit	m_WeatherUpdaterProjectTitleCtrl;
 		CCFLComboBox m_databaseTypeCtrl;
-		CCFLComboBox m_FTPFileNameCtrl;
-		CCFLComboBox m_localeDirectoryCtrl;
+		CCFLComboBox m_fileListCtrl;
+		CCFLComboBox m_weatherDirectoryCtrl;
 
-		COpenDirEditCtrl m_FTPFilePathCtrl;
+		COpenDirEditCtrl m_folderURLCtrl;
 		
 	};
 

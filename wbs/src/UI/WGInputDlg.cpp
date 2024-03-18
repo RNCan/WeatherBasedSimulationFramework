@@ -22,6 +22,8 @@
 #include <codecvt>
 #include <cstdint>
 
+#include "Basic/CallcURL.h"
+#include "Basic/GoogleDrive.h"
 #include "FileManager/FileManager.h"
 #include "UI/Common/AppOption.h"
 #include "UI/Common/SYShowMessage.h"
@@ -604,7 +606,7 @@ namespace WBSF
 
 		int t = rand();
 		CString tmp = GetTempPath() + CString::Format( _T("tmp_File%06d"), t);
-			
+
 
 		HANDLE h = CreateFile(tmp,
 			FILE_APPEND_DATA,
@@ -643,95 +645,53 @@ namespace WBSF
 */
 	void CWGInputDlg::OnDownloadWeather()
 	{
-		CGenerateWUProjectDlg generateWUProjectDlg(false, this);
-		if (generateWUProjectDlg.DoModal() == IDOK)
+		CGenerateWUProjectDlg dlg(this);
+		dlg.m_bShowProject = false;
+		if (dlg.DoModal() == IDOK)
 		{
 			ERMsg msg;
 
-			//WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
-			//m_projectNameCtrl.FillList(list, generateWUProjectDlg.m_project_name);
-
-			//CTRef TRef = GetTRef(s, fileList[i].m_filePath);
-
 			string update_path = WBSF::GetFM().WeatherUpdate().GetLocalPath();
 			string tmp_path = GetPath(update_path) + "tmp\\";
-			string file_path_zip = tmp_path + generateWUProjectDlg.m_FTP_file_name;
-			string wea_path = generateWUProjectDlg.m_locale_path;
-			//string wea_path = GetPath(update_path) + "..\\Weather\\";
-			string scriptFilePath = tmp_path + "script.txt";
+			string file_path_zip = tmp_path + dlg.m_file_name;
+
+			string wea_path = dlg.m_weather_path;
 			CreateMultipleDir(tmp_path);
 			CreateMultipleDir(wea_path);
 
-			
-			
-			ofStream stript;
-			//std::locale utf8_locale(std::locale(), new gel::stdx::utf8cvt<true>);
-			//std::locale utf8_locale(std::locale(), ::new utf8cvt<false>);
-			std::locale utf8_locale = std::locale(std::locale::classic(), ::new std::codecvt_utf8<size_t>());
-			stript.imbue(utf8_locale);
-			msg = stript.open(scriptFilePath);
+			msg = CGoogleDrive::DownloadFile(dlg.m_file_id, file_path_zip,true);
+
 			if (msg)
 			{
-				//string input_file_path = generateWUProjectDlg.m_FTP_file_path;
-				
-				//string tmpFilePaht = path + GetFileName(fileList[i].m_filePath);
-								//CreateMultipleDir(GetPath(outputFilePaht));
-
-				stript << "open ftp://anonymous:anonymous%40example.com@ftp.cfl.scf.rncan.gc.ca" << endl;
-
-				stript << "cd " << WBSF::ANSI_UTF8(generateWUProjectDlg.m_FTP_path) << endl;
-				stript << "lcd \"" << WBSF::ANSI_UTF8(tmp_path) << "\"" << endl;
-				stript << "get " << WBSF::ANSI_UTF8(generateWUProjectDlg.m_FTP_file_name) << endl;
-				stript << "exit" << endl;
-				stript.close();
-
-				//call WinSCP
-				bool bShow = true;
-				string command = "\"" + GetApplicationPath() + "External\\WinSCP.com\" " + string(bShow ? "/console " : "") + "/timeout=300 /passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
-				DWORD exit_code = 0;
-				msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
-				if (msg)
+				if (FileExists(file_path_zip))
 				{
-					if (msg && exit_code != 0)
-						msg.ajoute("WinSCP.exe was unable to download file: " + generateWUProjectDlg.m_FTP_file_path);
+					//call 7z
 
-					
-					
+					//unzip only .csv file because they are smaller than the zip file
+					string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
 
-					
-					
-					if (msg)
+					DWORD exit_code = 0;
+					msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
+
+					if (msg && exit_code == 0)
 					{
-						if (FileExists(file_path_zip))
-						{
-							//call 7z
-
-							//unzip only .csv file because they are smaller than the zip file
-							string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
-							msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);
-
-							if (msg && exit_code == 0)
-							{
-								//reload all database
-								FillNormalsDBNameList();
-								FillDailyDBNameList();
-								FillHourlyDBNameList();
-								FillGribsDBNameList();
-							}
-							else
-							{
-								msg.ajoute("7za.exe was unable to unzip file: " + file_path_zip);
-							}
-						}
-						else
-						{
-							msg.ajoute("File was not downloaded: " + file_path_zip);
-						}
+						//reload all database
+						FillNormalsDBNameList();
+						FillDailyDBNameList();
+						FillHourlyDBNameList();
+						FillGribsDBNameList();
 					}
-				}//if msg
-
-
-			}//if msg
+					else
+					{
+						msg.ajoute("7za.exe was unable to unzip file: " + file_path_zip);
+					}
+				}
+				else
+				{
+					msg.ajoute("File was not downloaded: " + file_path_zip);
+				}
+			}
+			
 
 			if (!msg)
 				SYShowMessage(msg, this);

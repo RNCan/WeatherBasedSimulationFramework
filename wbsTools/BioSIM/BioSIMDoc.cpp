@@ -69,67 +69,6 @@ BOOL CBioSIMDoc::OnNewDocument()
 
 	m_bInit = false;
 
-	//UpdateAllViews(NULL, INIT);
-
-	/*CStdioFile file1(_T("H:\\Travaux\\Dispersal2007\\Weather\\WRFdata\\wrfbud2_000.txt"), CFile::modeRead);
-	CStdioFile file2(_T("H:\\Travaux\\Dispersal2007\\Input\\wrfbud2_000.csv"), CFile::modeWrite | CFile::modeCreate);
-	file2.WriteString(_T("ID,Latitude,Longitude"));
-	CString line;
-	int i = 0; 
-	while (file1.ReadString(line))
-	{
-		if (i % 38 == 0)
-		{
-			int pos = 0;
-			CString lat = line.Tokenize(_T(" "), pos);
-			CString lon = line.Tokenize(_T(" "), pos);
-			CString ID = line.Tokenize(_T(" "), pos);
-			CString line2;
-			line2.Format(_T("%s,%s,%s\n"), ID, lat, lon);
-			file2.WriteString(line2);
-		}
-		i++;
-	}
-
-	file1.Close();
-	file2.Close();*/
-	/*	CStdioFile file1("D:\\project\\models\\MPB\\Hourly\\Data\\snran.txt", CFile::modeRead);
-		CStdioFile file2("D:\\project\\models\\MPB\\Hourly\\Data\\snras.txt", CFile::modeRead);
-		CStdioFile file3("D:\\project\\models\\MPB\\Hourly\\Data\\snra1992-2004.txt", CFile::modeWrite|CFile::modeCreate);
-		file3.WriteString("Year\tJD\tTime\tNorthBl\tSouthBl\tAverBl\n");
-		CString line1;
-		CString line2;
-		VERIFY( file1.ReadString(line1) );
-		VERIFY( file2.ReadString(line2) );
-		int pos1 = 0;
-		int pos2 = 0;
-
-		int y = 1992;
-		int jd = 199;
-		int h = 0;
-		while( pos1!=-1 && pos2!=-1 )
-		{
-		CString t1 = line1.Tokenize(" ", pos1);
-		CString t2 = line2.Tokenize(" ", pos2);
-		if( !t1.IsEmpty() && !t2.IsEmpty() )
-		{
-		CString line3;
-		line3.Format("%d\t%d\t%d\t%.1lf\t%.1lf\t%.1lf\n", y, jd+1, h*100,atof(t1), atof(t2), (atof(t1)+atof(t2))/2);
-		file3.WriteString(line3);
-		}
-
-		h = (++h)%24;
-		if( h==0)
-		jd++;
-
-		if( jd == WBSF::GetNbDay(y) )
-		{
-		jd=0;
-		y++;
-		}
-		}
-		*/
-
 	return TRUE;
 }
 
@@ -156,7 +95,6 @@ BOOL CBioSIMDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		m_curSel = "Project";
 
 		LoadProjectState(lpszPathName);
-		//UpdateAllViews(NULL, INIT);
 	}
 	else
 	{
@@ -177,129 +115,129 @@ BOOL CBioSIMDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	ERMsg msg = GetProject().Save(filePath);
 	if (msg)
 	{
-		m_lastSaveProject = GetProject();
-		GetFileManager().SetProjectPath(GetPath(filePath));
-		GetFileManager().CreateDefaultDirectories();
+		//m_lastSaveProject = GetProject();
+		//GetFileManager().SetProjectPath(GetPath(filePath));
+		//GetFileManager().CreateDefaultDirectories();
 
-		if (newProject)
-		{
-			filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Current Normals Database.Update";
-			if (!FileExists(filePath))
-			{
-				ofStream file;
-				if (file.open(filePath))
-				{
-					file << "<?xml version=\"1.0\" encoding=\"Windows - 1252\"?>" << endl;
-					file << "<WeatherUpdater version=\"2\">" << endl;
-					file << "<Tasks type=\"Tools\">" << endl;
-					file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
-					file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
-					file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
-					file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Local\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
-					file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Password\"/>" << endl;
-					file << "<Parameters name=\"Proxy\"/>" << endl;
-					file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Normals/Canada-USA_1981-2010.zip</Parameters>" << endl;
-					file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
-					file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
-					file << "<Parameters name=\"UserName\"/>" << endl;
-					file << "</Task>" << endl;
-					file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
-					file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Command\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
-					file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
-					file << "<Parameters name=\"ZipFilepath\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
-					file << "</Task>" << endl;
-					file << "</Tasks>" << endl;
-					file << "</WeatherUpdater>" << endl;
+		//if (newProject)
+		//{
+		//	filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Current Normals Database.Update";
+		//	if (!FileExists(filePath))
+		//	{
+		//		ofStream file;
+		//		if (file.open(filePath))
+		//		{
+		//			file << "<?xml version=\"1.0\" encoding=\"Windows - 1252\"?>" << endl;
+		//			file << "<WeatherUpdater version=\"2\">" << endl;
+		//			file << "<Tasks type=\"Tools\">" << endl;
+		//			file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+		//			file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+		//			file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Local\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Password\"/>" << endl;
+		//			file << "<Parameters name=\"Proxy\"/>" << endl;
+		//			file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Normals/Canada-USA_1981-2010.zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
+		//			file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"UserName\"/>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+		//			file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+		//			file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+		//			file << "<Parameters name=\"ZipFilepath\">tmp\\Canada-USA_1981-2010.zip</Parameters>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "</Tasks>" << endl;
+		//			file << "</WeatherUpdater>" << endl;
 
-					file.close();
-				}
-			}
+		//			file.close();
+		//		}
+		//	}
 
-			CTRef today = CTRef::GetCurrentTRef();
-			filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Canada " + to_string(today.GetYear() - 1) + "-" + to_string(today.GetYear()) + ".Update";
-			if (!FileExists(filePath))
-			{
-				ofStream file;
-				if (file.open(filePath))
-				{
-					
-					//
-					file << "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>" << endl;
-					file << "<WeatherUpdater version=\"2\">" << endl;
-					file << "<Tasks type=\"Tools\">" << endl;
-					file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
-					file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
-					file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
-					file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Local\">tmp\\Canada_" << (today.GetYear()-1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Password\"/>" << endl;
-					file << "<Parameters name=\"Proxy\"/>" << endl;
-					file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Daily/Canada_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
-					file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
-					file << "<Parameters name=\"UserName\"/>" << endl;
-					file << "</Task>" << endl;
-					file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
-					file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Command\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
-					file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
-					file << "<Parameters name=\"ZipFilepath\">tmp\\Canada_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "</Task>" << endl;
-					file << "</Tasks>" << endl;
-					file << "</WeatherUpdater>" << endl;
-					file.close();
-				}
-			}
+		//	CTRef today = CTRef::GetCurrentTRef();
+		//	filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download Canada " + to_string(today.GetYear() - 1) + "-" + to_string(today.GetYear()) + ".Update";
+		//	if (!FileExists(filePath))
+		//	{
+		//		ofStream file;
+		//		if (file.open(filePath))
+		//		{
+		//			
+		//			//
+		//			file << "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>" << endl;
+		//			file << "<WeatherUpdater version=\"2\">" << endl;
+		//			file << "<Tasks type=\"Tools\">" << endl;
+		//			file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+		//			file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+		//			file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Local\">tmp\\Canada_" << (today.GetYear()-1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Password\"/>" << endl;
+		//			file << "<Parameters name=\"Proxy\"/>" << endl;
+		//			file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Daily/Canada_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
+		//			file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"UserName\"/>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+		//			file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+		//			file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+		//			file << "<Parameters name=\"ZipFilepath\">tmp\\Canada_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "</Tasks>" << endl;
+		//			file << "</WeatherUpdater>" << endl;
+		//			file.close();
+		//		}
+		//	}
 
-			filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download USA " + to_string(today.GetYear() - 1) + "-" + to_string(today.GetYear()) + ".Update";
-			if (!FileExists(filePath))
-			{
-				ofStream file;
-				if (file.open(filePath))
-				{
+		//	filePath = GetFileManager().WeatherUpdate().GetLocalPath() + "Download USA " + to_string(today.GetYear() - 1) + "-" + to_string(today.GetYear()) + ".Update";
+		//	if (!FileExists(filePath))
+		//	{
+		//		ofStream file;
+		//		if (file.open(filePath))
+		//		{
 
-					//
-					file << "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>" << endl;
-					file << "<WeatherUpdater version=\"2\">" << endl;
-					file << "<Tasks type=\"Tools\">" << endl;
-					file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
-					file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
-					file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
-					file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Local\">tmp\\USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Password\"/>" << endl;
-					file << "<Parameters name=\"Proxy\"/>" << endl;
-					file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Daily/USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
-					file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
-					file << "<Parameters name=\"UserName\"/>" << endl;
-					file << "</Task>" << endl;
-					file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
-					file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
-					file << "<Parameters name=\"Command\">1</Parameters>" << endl;
-					file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
-					file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
-					file << "<Parameters name=\"ZipFilepath\">tmp\\USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
-					file << "</Task>" << endl;
-					file << "</Tasks>" << endl;
-					file << "</WeatherUpdater>" << endl;
-					file.close();
-				}
-			}
-		}
+		//			//
+		//			file << "<?xml version=\"1.0\" encoding=\"Windows-1252\"?>" << endl;
+		//			file << "<WeatherUpdater version=\"2\">" << endl;
+		//			file << "<Tasks type=\"Tools\">" << endl;
+		//			file << "<Task execute=\"true\" name=\"DownloadFile\" type=\"FTPTransfer\">" << endl;
+		//			file << "<Parameters name=\"Ascii\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Connection\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"ConnectionTimeout\">15000</Parameters>" << endl;
+		//			file << "<Parameters name=\"Direction\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Limit\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Local\">tmp\\USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Passive\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Password\"/>" << endl;
+		//			file << "<Parameters name=\"Proxy\"/>" << endl;
+		//			file << "<Parameters name=\"Remote\">regniere/Data11/Weather/Daily/USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "<Parameters name=\"Server\">ftp.cfl.scf.rncan.gc.ca</Parameters>" << endl;
+		//			file << "<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"UserName\"/>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+		//			file << "<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+		//			file << "<Parameters name=\"Command\">1</Parameters>" << endl;
+		//			file << "<Parameters name=\"Directory\">..\\Weather\\</Parameters>" << endl;
+		//			file << "<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+		//			file << "<Parameters name=\"ZipFilepath\">tmp\\USA_" << (today.GetYear() - 1) << "-" << today.GetYear() << ".zip</Parameters>" << endl;
+		//			file << "</Task>" << endl;
+		//			file << "</Tasks>" << endl;
+		//			file << "</WeatherUpdater>" << endl;
+		//			file.close();
+		//		}
+		//	}
+		//}
 
 		m_bInit = true;
 
@@ -420,7 +358,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	UpdateAllViews(NULL, PROJECT_CHANGE, NULL);
 
 
-	GetProject().LoadDefaultCtrl(); 
+	GetProject().LoadDefaultCtrl();
 
 
 	CProgressWnd& progressWnd = pView->GetProgressWnd();
@@ -429,7 +367,7 @@ ERMsg CBioSIMDoc::Execute(CComPtr<ITaskbarList3>& pTaskbarList)
 	CProgressStepDlgParam param(m_projectPtr.get(), (void*)&m_strPathName, &GetFM());
 
 	TRY
-	{ 
+	{
 		//try to save   
 		CAppOption option;
 		if (option.GetProfileBool(_T("SaveAtRun"), false))
@@ -474,7 +412,7 @@ void CBioSIMDoc::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 void CBioSIMDoc::OnInitialUpdate() // called first time after construct
 {
 	ERMsg msg;
-	
+
 	if (!msg)
 		SYShowMessage(msg, ::AfxGetMainWnd());
 

@@ -176,6 +176,7 @@
     <ClInclude Include="CreateRadarAnimation.h" />
     <ClInclude Include="CreateWeaGridDB.h" />
     <ClInclude Include="ERA5.h" />
+    <ClInclude Include="GoogleDriveTask.h" />
     <ClInclude Include="HRCanUS.h" />
     <ClInclude Include="HRDPA.h" />
     <ClInclude Include="HRDPS.h" />
@@ -254,6 +255,7 @@
     <ClCompile Include="CreateRadarAnimation.cpp" />
     <ClCompile Include="CreateWeaGridDB.cpp" />
     <ClCompile Include="ERA5.cpp" />
+    <ClCompile Include="GoogleDriveTask.cpp" />
     <ClCompile Include="HRCanUS.cpp" />
     <ClCompile Include="HRDPA.cpp" />
     <ClCompile Include="HRDPS.cpp" />

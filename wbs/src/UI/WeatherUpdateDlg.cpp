@@ -21,9 +21,10 @@
 #include "UI/GenerateWUDlg.h"
 
 #include "UI/WeatherUpdateDlg.h"
+#include "WeatherBasedSimulationString.h"
 
 using namespace std;
-
+using namespace UtilWin;
 
 
 #ifdef _DEBUG
@@ -80,12 +81,51 @@ namespace WBSF
 	
 	void CWeatherUpdateDlg::OnGenerateWeatherUpdater()
 	{
-		CGenerateWUProjectDlg generateWUProjectDlg(true, this);
-		if (generateWUProjectDlg.DoModal() == IDOK)
+		CGenerateWUProjectDlg dlg(this);
+		if (dlg.DoModal() == IDOK)
 		{
-			WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
-			m_projectNameCtrl.FillList(list, generateWUProjectDlg.m_project_name);
-			UpdateCtrl();
+			ERMsg msg;
+
+			if (!dlg.m_project_name.empty())
+			{
+				if (!dlg.m_file_name.empty())
+				{
+					string WU_file_path = WBSF::GetFM().WeatherUpdate().GetLocalPath() + dlg.m_project_name;
+
+					bool bSave = true;
+					if (FileExists(WU_file_path))
+					{
+						CString sOutMessage;
+						AfxFormatString1(sOutMessage, IDS_RT_ERRFILEEXIST, CString(dlg.m_project_name.c_str()));
+						int retCode = MessageBox(sOutMessage, AfxGetAppName(), MB_ICONQUESTION | MB_OKCANCEL);
+						bSave = retCode == IDOK;
+					}
+
+					if (bSave)
+					{
+						msg = CWeatherUpdate::GenerateWUProject(WU_file_path, dlg.m_file_id, dlg.m_weather_path);
+					}
+				}
+				else
+				{
+					msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
+				}
+			}
+			else
+			{
+				msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
+			}
+
+			if (!msg)
+				SYShowMessage(msg, this);
+		
+
+			if (msg)
+			{
+				WBSF::StringVector list = WBSF::GetFM().WeatherUpdate().GetFilesList();
+				m_projectNameCtrl.FillList(list, dlg.m_project_name);
+				UpdateCtrl();
+			}
 		}
 
 	}

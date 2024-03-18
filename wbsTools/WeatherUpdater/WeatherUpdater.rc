@@ -172,6 +172,7 @@ BEGIN
     SEPARATOR
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
+    BUTTON      ID_TASK_GOOGLE_DRIVE
     BUTTON      ID_TASK_CONVERT_DB
     BUTTON      ID_TASK_CREATE_ANIMATION
     SEPARATOR
@@ -235,6 +236,7 @@ BEGIN
     BUTTON      ID_TASK_CREATE_WEAGRID
     BUTTON      ID_TASK_ZIP_UNZIP
     BUTTON      ID_TASK_DOWNLOAD_UPLOAD
+    BUTTON      ID_TASK_GOOGLE_DRIVE
     BUTTON      ID_TASK_CONVERT_DB
     BUTTON      ID_TASK_CREATE_ANIMATION
     BUTTON      ID_TASK_UPDATE
@@ -254,8 +256,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,1,6,2
- PRODUCTVERSION 6,1,6,2
+ FILEVERSION 6,1,7,1
+ PRODUCTVERSION 6,1,7,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -272,21 +274,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "6.1.6.2"
+            VALUE "FileVersion", "6.1.7.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "6.1.6.2"
+            VALUE "ProductVersion", "6.1.7.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "6.1.6.2"
+            VALUE "FileVersion", "6.1.7.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "6.1.6.2"
+            VALUE "ProductVersion", "6.1.7.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -760,9 +762,10 @@ BEGIN
     IDS_TOOL_MERGE_DB_P     "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Distance max(m)|Différence d'élévation Max(m)|Type|Priorité à"
     IDS_TOOL_APPEND_DB_P    "Fichier d'entrée 1|Fichier d'entrée 2|Fichier de sortie|Type"
     IDS_TOOL_CROP_DB_P      "Fichier d'entrée|Fichier de sortie|Première Année|Dernière Année|Inclure ID|Exclude ID|Limites|Shapefile|Fichier de localisations|Variables"
-    IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si compresser)|Include sous-répertoires (si compresser)"
+    IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si commande=compresser)|Include sous-répertoires (si commande=compresser)|Afficher progression"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Délais de connexion|Mode passif|Afficher progression"
+    IDS_TOOL_GOOGLE_DRIVE_P "Fichier Google Drive (id ou lien)|Répertoire de sortie|Afficher progression"
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Tâche d'image radar|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
@@ -773,6 +776,10 @@ BEGIN
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Debut|Fin"
     IDS_UPDATER_GRIB_CURRENT_P 
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Copier des prévisions si possible"
+END
+
+STRINGTABLE
+BEGIN
     IDS_TOOL_QUALITY_CONTROL_P 
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Copier des prévisions si possible"
 END
@@ -849,6 +856,7 @@ BEGIN
     ID_TASK_CREATE_WEAGRID  "Créer une base de données météo (horaire/quotidien) à partir d'un fichier Gribs\nCréer BD météo"
     ID_TASK_ZIP_UNZIP       "Compresser/Décompresser des fichiers\nCompresser/Décompresser"
     ID_TASK_DOWNLOAD_UPLOAD "Télécharger/téléverser un fichier de/vers un site FTP\nFTP"
+    ID_TASK_GOOGLE_DRIVE    "Télécharger un fichier de Google Drive\nGoogle Drive"
     ID_TASK_CONVERT_DB      "Convertir une base de données météo\nConvertir"
     ID_TASK_CREATE_ANIMATION 
                             "Créer une animation a partir d'images radar\nAnimation"
@@ -1160,7 +1168,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotentiel Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Snow density|Surface water runoff amount|Snow depth water equivalent|HPBL|PTYPE|SKINT|Universal thermal climate index"
+    IDS_HRDPS_VAR_SFC       "Surface lifting indices|Albedo|Total Precipitation|Downward long wave rad flux|Downward short wave rad flux|Geopotential Height|Couverture de glace(1:glace, 0:pas de glace)|Couvert de terre(1:terre, 0:ocean)|Latent heat net flux|Net long wave radiation flux(surface)|Net short wave radiation flux(surface)|Precipitation rate|Pressure|Showalter index|Sensible heat net flux|Snow depth|Specific humidity|Total cloud cover|Soil temperature|Accumulated freezing rain water equivalent|Accumulated ice pellets water equivalent|Accumulated rain water equivalent|Accumulated snow water equivalent|Water Temperature|Surface Wind Gust|Ice thickness|Relative Humidity Surface|Soil Moisture Percentiles|Max wind gust|Min wind gust|Snow density|Surface water runoff amount|Snow depth water equivalent|HPBL|PTYPE|SKINT|Universal thermal climate index"
     IDS_HRDPS_VAR_TGL       "Density|Dew point depression|Dew point temperature|Relative humidity|Specific humidity|Temperature|u-component of wind|v-component of wind|Wind direction(from which blowing)|Wind speed|Max wind gust|Min wind gust|wind gust"
     IDS_HRDPS_VAR_ISBL      "Absolute vorticity|Dew point depression|Geopotential height|Relative humidity|Specific humidity|temperature|u-component of wind|v-component of wind|Vertical velocity(pressure)|Wind direction(from which blowing)|Wind speed|MU_VT_LI|SHWINX"
     IDS_HRDPS_VAR_ISBY      "Geopotential height"
@@ -1170,7 +1178,7 @@ BEGIN
     IDS_HRDPS_VAR_DBLY      "Soil temperature W"
     IDS_HRDPS_VAR_DBLL      "Soil temperature L|Soil temperature W"
     IDS_HRDPS_VAR_NTAT      "Downward short wave rad flux|Upward long wave rad flux|Upward short wave rad flux"
-    IDS_MESOWEST_API_TYPE   "Current|Historique"
+    IDS_MESOWEST_API_TYPE   "Current|Historical"
 END
 
 STRINGTABLE
@@ -1254,17 +1262,18 @@ END
 STRINGTABLE
 BEGIN
     IDS_TOOL_CREATE_NORMALS_P 
-                            "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Futur Period|Nb neighbor|Maximum Distance [km]|Power"
+                            "Input File|Output File|First year|Last year|Minimum number of years|Apply climatic change|MMG file path|Period of Reference|Future Period|Nb neighbor|Maximum Distance [km]|Power"
     IDS_TOOL_CREATE_GRIBS_P "Data task 1|Data task 2|Data task 3|Forecast task 1|Forecast task 2|Forecast task 3|Output File|First date|Last date|Type"
     IDS_TOOL_CREATE_MMG_P   "Data task|Output File"
     IDS_TOOL_CREATE_WEAGRID_P 
                             "Gribs file|Locations file|Output file|Variables|Nb points|First date|Last date|Incremental"
     IDS_TOOL_MERGE_DB_P     "Input file 1|Input file 2|Output file path|Max distance(m)|Max elevation difference(m)|Type|Priority to"
     IDS_TOOL_APPEND_DB_P    "Input file 1|Input file 2|Output file|Type"
-    IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location filepath|Variables"
-    IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip filter (if Zip)|Include sub-directory (if zip)"
+    IDS_TOOL_CROP_DB_P      "Input file|Output file|First year|Last year|Include ID|Exclude ID|Bounding box|Shapefile|Location file path|Variables"
+    IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip filter (if Command=Zip)|Include sub-directory (if Command=Zip)|Show Progress"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local file|User name|Password|Connection timeout|Passive Mode|Show Progress"
+    IDS_TOOL_GOOGLE_DRIVE_P "Google file (id or link)|Local path|Show Progress"
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Radar task|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"
@@ -1274,9 +1283,13 @@ BEGIN
     IDS_UPDATER_GRIB_HISTORICAL_P 
                             "Working directory|Product|Surface/3D|Variables|Begin|End"
     IDS_UPDATER_GRIB_CURRENT_P 
-                            "Working directory|Product|Surrface/3D|Variables|Copy from forecast if possible"
+                            "Working directory|Product|Surface/3D|Variables|Copy from forecast if possible"
+END
+
+STRINGTABLE
+BEGIN
     IDS_TOOL_QUALITY_CONTROL_P 
-                            "Working directory|Product|Surrface/3D|Variables|Copy from forecast if possible"
+                            "Working directory|Product|Surface/3D|Variables|Copy from forecast if possible"
 END
 
 STRINGTABLE
@@ -1345,11 +1358,12 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_TASK_QUALITY_CONTROL "Appply quality control on weather database\nQuality Controle"
+    ID_TASK_QUALITY_CONTROL "Apply quality control on weather database\nQuality Control"
     ID_TASK_CREATE_CANUS    "Create Canada/USA grib from HRDPS and HRRR\nCreate CanUS Grid"
     ID_TASK_CREATE_WEAGRID  "Create weather database (hourly/daily) from Gribs file\nWeather DB"
     ID_TASK_ZIP_UNZIP       "Zip/Unzip files\nZip/Unzip"
     ID_TASK_DOWNLOAD_UPLOAD "Download/Upload a file from/to a FTP site\nFTP"
+    ID_TASK_GOOGLE_DRIVE    "Download a file from Google Drive\nGoogle Drive"
     ID_TASK_CONVERT_DB      "Convert weather database\nConvert"
     ID_TASK_CREATE_ANIMATION "Create animation from radar images\nAnimation"
     ID_TASK_DELETE_UPDATE   "Remove a update task\nRemove"

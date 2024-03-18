@@ -10,8 +10,8 @@ namespace WBSF
 {
 
 	//*********************************************************************
-	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory" };
-	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_INDEX, T_FILEPATH, T_PATH, T_STRING, T_BOOL };
+	const char* CZipUnzip::ATTRIBUTE_NAME[] = { "Command", "ZipFilepath", "Directory", "Filter", "AddSubDirectory", "ShowProgress" };
+	const size_t CZipUnzip::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_COMBO_INDEX, T_FILEPATH, T_PATH, T_STRING, T_BOOL, T_BOOL };
 	const UINT CZipUnzip::ATTRIBUTE_TITLE_ID = IDS_TOOL_ZIP_UNZIP_P;
 	const UINT CZipUnzip::DESCRIPTION_TITLE_ID = ID_TASK_ZIP_UNZIP;
 
@@ -50,6 +50,7 @@ namespace WBSF
 		case COMMAND:	str = ToString(UNZIP); break;
 		case FILTER:	str = "*.*"; break;
 		case COPY_SUB_DIRECTORY: str = "0"; break;
+		case SHOW_PROGRSS: str = "0"; break;
 		};
 
 		return str;
@@ -79,6 +80,7 @@ namespace WBSF
 		string filepath = Get(ZIP_FILEPATH);
 		string dir = GetDir(DIRECTORY);
 		string filter = Get(FILTER);
+		bool bShow = as<bool>(SHOW_PROGRSS);
 
 		if (dir.empty())
 			dir = ".\\";
@@ -96,7 +98,7 @@ namespace WBSF
 		callback.PushTask(GetString(IDS_ZIP_FILE), NOT_INIT);
 		callback.AddMessage(GetString(IDS_ZIP_FILE));
 
-		msg = WinExecWait(command.c_str());
+		msg = WinExecWait(command.c_str(), "", bShow?SW_SHOW:SW_HIDE);
 
 		if (msg)
 		{
@@ -123,6 +125,7 @@ namespace WBSF
 
 		string filepath = Get(ZIP_FILEPATH);
 		string dir = GetDir(DIRECTORY);
+		bool bShow = as<bool>(SHOW_PROGRSS);
 
 		if (FileExists(filepath))
 		{
@@ -134,7 +137,7 @@ namespace WBSF
 				callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 				callback.AddMessage(GetString(IDS_UNZIP_FILE));
 
-				msg = WinExecWait(command.c_str());
+				msg = WinExecWait(command.c_str(), "", bShow ? SW_SHOW : SW_HIDE);
 
 				callback.PopTask();
 			}

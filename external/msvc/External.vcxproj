@@ -47,6 +47,9 @@
     <ProjectReference Include="ChartCtrl.vcxproj">
       <Project>{31ee05fc-1ca1-42b8-9da1-25f637785e4d}</Project>
     </ProjectReference>
+    <ProjectReference Include="dlib.vcxproj">
+      <Project>{2793eb11-0862-4f8c-85ac-4d2d2702e493}</Project>
+    </ProjectReference>
     <ProjectReference Include="hxGrid.vcxproj">
       <Project>{9e652079-404d-43c5-8c8e-39736aeb3f7a}</Project>
     </ProjectReference>

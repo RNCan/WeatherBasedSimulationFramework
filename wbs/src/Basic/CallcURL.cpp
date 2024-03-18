@@ -46,13 +46,13 @@ namespace WBSF
 	}
 
 
-	ERMsg CCallcURL::copy_file(const std::string& URL, std::string& output_filepath, bool bShowCurl)
+	ERMsg CCallcURL::copy_file(const std::string& URL, const std::string& output_filepath, bool bShowCurl)
 	{
 		ERMsg msg;
 
 
 		//string strHeaders = "-H \"Content-Type: application/x-www-form-urlencoded\"";
-		string argument = string(bShowCurl ? "" : "-s ") + "-k ";
+		string argument = string(bShowCurl ? "" : "-s ") + "-k --ssl-no-revoke ";
 		if (m_timeout > 0)
 			argument += "--connect-timeout " + to_string(m_timeout) + " ";
 		

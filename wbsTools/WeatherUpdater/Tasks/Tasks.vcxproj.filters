@@ -239,6 +239,9 @@
     <ClInclude Include="20CRv3.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="GoogleDriveTask.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertDB.cpp">
@@ -467,6 +470,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="20CRv3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GoogleDriveTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

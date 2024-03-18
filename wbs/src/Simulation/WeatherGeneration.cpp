@@ -11,8 +11,8 @@
 //******************************************************************************
 #include "stdafx.h"
 #include <sstream>
-#include <WTypes.h>
-#include <psapi.h>
+//#include <WTypes.h>
+//#include <psapi.h>
 #include <boost/algorithm/string.hpp>
 #include "KMeanLocal/KMlocal.h" 
 
@@ -22,7 +22,7 @@
 #include "Basic/GeoBasic.h"
 #include "Basic/WeatherDatabaseCreator.h"
 #include "Basic/Timer.h"
-#include "Basic/hxGrid.h"
+//#include "Basic/hxGrid.h"
 #include "ModelBase/Model.h"
 #include "ModelBase/WGInput.h"
 #include "FileManager/FileManager.h"
@@ -32,7 +32,7 @@
 #include "Geomatic/SfcGribsDatabase.h"
 
 using namespace std;
-using namespace VITALENGINE;
+//using namespace VITALENGINE;
 using namespace WBSF::WEATHER;
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::NORMALS_DATA;

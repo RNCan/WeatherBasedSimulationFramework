@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 		enum TCommand{ ZIP, UNZIP, NB_COMMANDS };
-		enum TAttributes { COMMAND, ZIP_FILEPATH, DIRECTORY, FILTER, COPY_SUB_DIRECTORY, NB_ATTRIBUTES };
+		enum TAttributes { COMMAND, ZIP_FILEPATH, DIRECTORY, FILTER, COPY_SUB_DIRECTORY, SHOW_PROGRSS, NB_ATTRIBUTES };
 
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CZipUnzip); }

@@ -276,6 +276,7 @@
     <ClCompile Include="..\src\Basic\FileStamp.cpp" />
     <ClCompile Include="..\src\Basic\FrequencyTable.cpp" />
     <ClCompile Include="..\src\Basic\GeoBasic.cpp" />
+    <ClCompile Include="..\src\Basic\GoogleDrive.cpp" />
     <ClCompile Include="..\src\Basic\GrowingSeason.cpp" />
     <ClCompile Include="..\src\Basic\gzip.cpp" />
     <ClCompile Include="..\src\Basic\HourlyDatabase.cpp" />
@@ -365,6 +366,7 @@
     <ClInclude Include="..\src\Basic\FileStamp.h" />
     <ClInclude Include="..\src\Basic\FrequencyTable.h" />
     <ClInclude Include="..\src\Basic\GeoBasic.h" />
+    <ClInclude Include="..\src\Basic\GoogleDrive.h" />
     <ClInclude Include="..\src\Basic\GrowingSeason.h" />
     <ClInclude Include="..\src\Basic\gzip.h" />
     <ClInclude Include="..\src\Basic\HourlyDatabase.h" />

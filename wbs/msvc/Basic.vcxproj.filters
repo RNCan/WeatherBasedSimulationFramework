@@ -236,6 +236,9 @@
     <ClCompile Include="..\src\Basic\QGISPalette.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\GoogleDrive.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -509,6 +512,9 @@
       <Filter>Source\json</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\QGISPalette.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\GoogleDrive.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

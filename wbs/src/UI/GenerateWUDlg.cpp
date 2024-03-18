@@ -10,6 +10,9 @@
 //****************************************************************************
 #include "stdafx.h"
 
+
+#include "Basic/GoogleDrive.h"
+#include "Basic/CallcURL.h"
 #include "FileManager/FileManager.h"
 #include "Simulation/WeatherUpdater.h"
 #include "UI/Common/AppOption.h"
@@ -38,11 +41,15 @@ using namespace std;
 namespace WBSF
 {
 
+	
+
 	//************************************************************************
-	CGenerateWUProjectDlg::CGenerateWUProjectDlg(bool bGenerate, CWnd* pParent) :
-		m_bGenerate(bGenerate),
+	CGenerateWUProjectDlg::CGenerateWUProjectDlg( CWnd* pParent) :
+		//m_bGenerate(bGenerate),
 		CDialogEx(CGenerateWUProjectDlg::IDD, pParent)
 	{
+		bool m_bShowOutputDir = true;
+		bool m_bShowProject = true;
 	}
 
 	CGenerateWUProjectDlg::~CGenerateWUProjectDlg()
@@ -56,32 +63,41 @@ namespace WBSF
 
 		DDX_Control(pDX, IDC_WU_PROJECT_TITLE, m_WeatherUpdaterProjectTitleCtrl);
 		DDX_Control(pDX, IDC_DATABASE_TYPE, m_databaseTypeCtrl);
-		DDX_Control(pDX, IDC_FTP_FILE_NAME, m_FTPFileNameCtrl);
-		DDX_Control(pDX, IDC_FTP_FILEPATH, m_FTPFilePathCtrl);
-		DDX_Control(pDX, IDC_LOCALE_DIRECTORY, m_localeDirectoryCtrl);
-		
-		
-		
-		if (m_bGenerate)
-		{
-			//do not select output directoy when generate
-			GetDlgItem(IDC_LOCALE_DIRECTORY)->EnableWindow(FALSE);
-		}
-		else
-		{
-			CString title;
-			GetDlgItemText(IDC_STATIC1, title);
-			SetWindowText(title);
-
-			CWnd* pOKCtrl = GetDlgItem(IDOK);
-			ASSERT(pOKCtrl);
-			GetDlgItemText(IDC_STATIC2, title);
-			pOKCtrl->SetWindowText(title);
+		DDX_Control(pDX, IDC_FTP_FILE_NAME, m_fileListCtrl);
+		DDX_Control(pDX, IDC_FTP_FILEPATH, m_folderURLCtrl);
+		DDX_Control(pDX, IDC_LOCALE_DIRECTORY, m_weatherDirectoryCtrl);
 
 
-			GetDlgItem(IDC_STATIC3)->ShowWindow(SW_HIDE);
-			m_WeatherUpdaterProjectTitleCtrl.ShowWindow(SW_HIDE);
-		}
+
+		//if (m_bGenerate)
+		//{
+		//	//do not select output directory when generate
+		//	GetDlgItem(IDC_LOCALE_DIRECTORY)->EnableWindow(FALSE);
+		//}
+		//else
+		//{
+		CString title;
+		GetDlgItemText(IDC_STATIC1, title);
+		SetWindowText(title);
+
+		//CWnd* pOKCtrl = GetDlgItem(IDOK);
+		//ASSERT(pOKCtrl);
+		//GetDlgItemText(IDC_STATIC2, title);
+		//pOKCtrl->SetWindowText(title);
+
+		//bool m_bShowOutputDir = false;
+		GetDlgItem(IDC_STATIC4)->ShowWindow(m_bShowOutputDir ? SW_SHOW : SW_HIDE);
+		m_weatherDirectoryCtrl.ShowWindow(m_bShowOutputDir ? SW_SHOW : SW_HIDE);
+
+
+			
+		//bool m_bShowProject = false;
+		GetDlgItem(IDC_STATIC3)->ShowWindow(m_bShowProject ? SW_SHOW : SW_HIDE);
+		m_WeatherUpdaterProjectTitleCtrl.ShowWindow(m_bShowProject ? SW_SHOW : SW_HIDE);
+
+			
+			
+		//}
 	}
 
 
@@ -92,7 +108,7 @@ namespace WBSF
 		ON_CBN_SELCHANGE(IDC_LOCALE_DIRECTORY, &OnLocaleDirectoryChange)
 	END_MESSAGE_MAP()
 
-	static const char* SERVER_NAME = "ftp.cfl.scf.rncan.gc.ca";
+	//static const char* SERVER_NAME = "ftp.cfl.scf.rncan.gc.ca";
 
 	/////////////////////////////////////////////////////////////////////////////
 	// CGenerateWUProjectDlg msg handlers
@@ -114,12 +130,12 @@ namespace WBSF
 
 
 		CFileManager& FM = GetFileManager();
-		StringVector paths (FM.GetWeatherPath(), "|");
+		StringVector paths(FM.GetWeatherPath(), "|");
 		paths.insert(paths.begin(), FM.GetProjectPath() + "Weather\\");
-		
-		
-		m_localeDirectoryCtrl.FillList(paths, paths[0]);
-		
+
+
+		m_weatherDirectoryCtrl.FillList(paths, paths[0]);
+
 		//UpdateCtrl();
 
 		return TRUE;  // return TRUE unless you set the focus to a control
@@ -128,57 +144,65 @@ namespace WBSF
 	void CGenerateWUProjectDlg::UpdateCtrl()
 	{
 
-		BOOL bEnable = m_FTPFileNameCtrl.GetCurSel() != CB_ERR;
+		BOOL bEnable = m_fileListCtrl.GetCurSel() != CB_ERR;
 
 		CWnd* pOKCtrl = GetDlgItem(IDOK);
 		ASSERT(pOKCtrl);
 
 		pOKCtrl->EnableWindow(bEnable);
 
+		size_t pos = (size_t)m_fileListCtrl.GetCurSel();
+		/*string id;
+		if (pos != NOT_INIT)
+		{
+			ASSERT(pos < m_file_list.size());
+			id = GetPartID(m_file_list[pos].m_filePath);
+		}*/
+		//m_FTPFilePathCtrl.SetWindowText("https://drive.google.com/file/d/" + id);
 
+		m_folderURLCtrl.SetWindowText(CGoogleDrive::GetURLFromFolderID(GetGoogleDriveFolderID()) + "/");//add id of the file will be remove in 
 
-		string FTP_path = CGenerateWUProjectDlg::GetFTPPath();
-		string file_name = m_FTPFileNameCtrl.GetString();
-
-		string filePath = SERVER_NAME + FTP_path + file_name;
-		ReplaceString(filePath, "\\", "/");
-
-		m_FTPFilePathCtrl.SetWindowText("ftp://" + filePath);
 	}
 
-	string CGenerateWUProjectDlg::GetFTPPath()
+	string CGenerateWUProjectDlg::GetGoogleDriveFolderID()
 	{
 
 
 		//Fill FTP database available
 		int type = m_databaseTypeCtrl.GetCurSel();
-		string FTP_path;
+		string folder_id;
 
 		switch (type)
 		{
-		case T_HOURLY: FTP_path = "/regniere/Data11/Weather/Hourly/"; break;
-		case T_DAILY: FTP_path = "/regniere/Data11/Weather/Daily/"; break;
-		case T_NORMALS_PAST: FTP_path = "/regniere/Data11/Weather/Normals/past/"; break;
-		case T_NORMALS_CURRENT: FTP_path = "/regniere/Data11/Weather/Normals/"; break;
-		case T_NORMALS_FUTURE: FTP_path = "/regniere/Data11/Weather/Normals/ClimateChange/"; break;
-		case T_GRIBS: FTP_path = "/regniere/Data11/Weather/Gribs/"; break;
+		case T_HOURLY: folder_id = "103Rw3VUQ3B93rp7xml14JUiq_LNLpQKH"; break;
+		case T_DAILY: folder_id = "1KZBlYp54URTP3eoMHZcvGI_BO6LrxW1Q"; break;
+		case T_NORMALS_PAST: folder_id = "1-ken5YCyE3dhEu3nKtJ1qVIiVpKpwCrI"; break;
+		case T_NORMALS_CURRENT: folder_id = "1NKlamU4ytsq3ahSTzAISq4t6U5NIRl4G"; break;
+		case T_NORMALS_FUTURE: folder_id = "15xe2hsTIq_kvKzoSuoVfVMxpXa7Gs44X"; break;
+		case T_GRIBS: folder_id = "106zhz9deYMyKb9mnAinZGoyoMKD_i_LM"; break;
+
 		default: ASSERT(false);
 		}
 
-		return FTP_path;
+		return folder_id;
 	}
 
 	void CGenerateWUProjectDlg::OnTypeChange()
 	{
-		string FTP_path = GetFTPPath();
+		//string link = GetGoogleDriveLink();
+		string folder_id= GetGoogleDriveFolderID();
 
-		CFileInfoVector file_list;
-		ERMsg msg = GetFTPFileList(FTP_path, file_list);
+		m_file_list.clear();
+		//ERMsg msg = GetGoogleDriveFileList(link, m_file_list);
+		ERMsg msg = CGoogleDrive::GetFolderFileList(folder_id, m_file_list);
 		if (msg)
 		{
-			m_FTPFileNameCtrl.ResetContent();
-			for (size_t i = 0; i < file_list.size(); i++)
-				m_FTPFileNameCtrl.AddString(CString(GetFileName(file_list[i].m_filePath).c_str()));
+			m_fileListCtrl.ResetContent();
+			for (size_t i = 0; i < m_file_list.size(); i++)
+			{
+				string name = CGoogleDrive::GetPartName(m_file_list[i].m_filePath);
+				m_fileListCtrl.AddString(CString(name.c_str()));
+			}
 		}
 		else
 		{
@@ -194,35 +218,24 @@ namespace WBSF
 		string project_name = m_WeatherUpdaterProjectTitleCtrl.GetString();
 		if (project_name.empty())
 		{
-			string file_name = m_FTPFileNameCtrl.GetString();
-			SetFileExtension(file_name, "");
-			m_WeatherUpdaterProjectTitleCtrl.SetString(file_name);
+			size_t pos = (size_t)m_fileListCtrl.GetCurSel();
+			string name;
+
+			if (pos != NOT_INIT)
+			{
+				ASSERT(pos < m_file_list.size());
+				name = CGoogleDrive::GetPartName(m_file_list[pos].m_filePath);
+				SetFileExtension(name, "");
+			}
+
+			m_WeatherUpdaterProjectTitleCtrl.SetString(name);
 		}
 
 
 		UpdateCtrl();
 	}
 
-	ERMsg CGenerateWUProjectDlg::GetFTPFileList(const string& FTP_path, CFileInfoVector& fileList)
-	{
-
-		ERMsg msg;
-
-		CFtpConnectionPtr pConnection;
-		CInternetSessionPtr pSession;
-
-
-		msg = GetFtpConnection(SERVER_NAME, pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", false, 5);
-		if (msg)
-		{
-			msg = FindFiles(pConnection, FTP_path + "*.*", fileList, false, CCallback::DEFAULT_CALLBACK);
-			pConnection->Close();
-			pSession->Close();
-		}
-
-		return msg;
-	}
-
+	
 	void CGenerateWUProjectDlg::OnOK()
 	{
 		ERMsg msg;
@@ -232,57 +245,25 @@ namespace WBSF
 		if (!m_project_name.empty())
 			SetFileExtension(m_project_name, WBSF::GetFM().WeatherUpdate().GetExtensions());
 
+		size_t pos = (size_t)m_fileListCtrl.GetCurSel();
+		string name;
+		string id;
 
-		m_FTP_path = GetFTPPath();
-		m_FTP_file_name = m_FTPFileNameCtrl.GetString();
-		m_FTP_file_path = m_FTP_path + m_FTP_file_name;
-		m_locale_path = m_localeDirectoryCtrl.GetString();
-
-
-		if (m_bGenerate)
+		if (pos != NOT_INIT)
 		{
-			if (!m_project_name.empty())
-			{
-				if (!m_FTP_file_name.empty())
-				{
-					string WU_file_path = WBSF::GetFM().WeatherUpdate().GetLocalPath() + m_project_name;
+			ASSERT(pos < m_file_list.size());
+			name = CGoogleDrive::GetPartName(m_file_list[pos].m_filePath);
+			id = CGoogleDrive::GetPartID(m_file_list[pos].m_filePath);
 
-					bool bSave = true;
-					if (FileExists(WU_file_path))
-					{
-						CString sOutMessage;
-						AfxFormatString1(sOutMessage, IDS_RT_ERRFILEEXIST, fileName);
-						int retCode = MessageBox(sOutMessage, AfxGetAppName(), MB_ICONQUESTION | MB_OKCANCEL);
-						bSave = retCode == IDOK;
-					}
-
-					if (bSave)
-					{
-						msg = CWeatherUpdate::GenerateWUProject(WU_file_path, SERVER_NAME, m_FTP_file_path);
-
-						if (msg)
-						{
-							CDialogEx::OnOK();
-						}
-					}
-				}
-				else
-				{
-					msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
-				}
-			}
-			else
-			{
-				msg.ajoute(GetString(IDS_BSC_NAME_EMPTY));
-			}
-
-			if (!msg)
-				SYShowMessage(msg, this);
 		}
-		else
-		{
-			CDialogEx::OnOK();
-		}
+		
+		m_folder_id = GetGoogleDriveFolderID();
+		m_file_id = id;
+		m_file_name = name;
+		m_weather_path = m_weatherDirectoryCtrl.GetString();
+
+		CDialogEx::OnOK();
+
 	}
 
 	BOOL CGenerateWUProjectDlg::DestroyWindow()

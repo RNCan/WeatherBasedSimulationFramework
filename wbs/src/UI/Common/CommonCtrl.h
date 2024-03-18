@@ -601,27 +601,27 @@ public:
 };
 
 
-class CStdBrowseProperty : public CStdGridProperty
-{
-public:
-
-	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
-		CStdGridProperty(strName, value, description, dwData)
-	{
-		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
-
-		for (INT_PTR i = 0; i < OPTIONS_VALUES.GetSize(); i++)
-			AddOption(OPTIONS_VALUES[i]);
-
-		SetOriginalValue(CString(value.c_str()));
-	}
-
-	virtual BOOL HasButton() const{ return TRUE; }
-	virtual void OnClickButton(CPoint point)
-	{
-		AfxMessageBox(_T("a faire"));
-	}
-};
+//class CStdBrowseProperty : public CStdGridProperty
+//{
+//public:
+//
+//	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+//		CStdGridProperty(strName, value, description, dwData)
+//	{
+//		CStringArrayEx OPTIONS_VALUES(CString(options.c_str()));
+//
+//		for (INT_PTR i = 0; i < OPTIONS_VALUES.GetSize(); i++)
+//			AddOption(OPTIONS_VALUES[i]);
+//
+//		SetOriginalValue(CString(value.c_str()));
+//	}
+//
+//	virtual BOOL HasButton() const{ return TRUE; }
+//	virtual void OnClickButton(CPoint point)
+//	{
+//		AfxMessageBox(_T("a faire"));
+//	}
+//};
 
 
 
@@ -652,49 +652,49 @@ public:
 
 
 
-class CStdGriFilepathProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
+//class CStdGriFilepathProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
+//{
+//	friend class CMFCPropertyGridCtrl;
+//
+//public:
+//
+//
+//	CStdGriFilepathProperty(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
+//		bool bOpen = TRUE, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT) :
+//		CMFCPropertyGridFileProperty(CString(name.c_str()), bOpen, CString(fileName.c_str()), NULL, dwFlags, CString(filter.c_str()), CString(description.c_str()), (DWORD_PTR)no)
+//	{}
+//
+//	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+//	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+//
+//};
+//
+
+//class CStdGridFolderProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
+//{
+//	friend class CMFCPropertyGridCtrl;
+//
+//public:
+//
+//	CStdGridFolderProperty(const std::string& name, const std::string& folderName, const std::string& description, const std::string& filter, size_t no) :
+//		CMFCPropertyGridFileProperty(CString(name.c_str()), CString(folderName.c_str()), (DWORD_PTR)no, CString(description.c_str()))
+//	{}
+//
+//	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
+//	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
+//	
+//};
+
+
+
+
+class CStdGridFolderProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
 {
 	friend class CMFCPropertyGridCtrl;
 
 public:
 
-
-	CStdGriFilepathProperty(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
-		bool bOpen = TRUE, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT) :
-		CMFCPropertyGridFileProperty(CString(name.c_str()), bOpen, CString(fileName.c_str()), NULL, dwFlags, CString(filter.c_str()), CString(description.c_str()), (DWORD_PTR)no)
-	{}
-
-	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
-	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
-
-};
-
-
-class CStdGriFolderProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
-{
-	friend class CMFCPropertyGridCtrl;
-
-public:
-
-	CStdGriFolderProperty(const std::string& name, const std::string& folderName, const std::string& description, const std::string& filter, size_t no) :
-		CMFCPropertyGridFileProperty(CString(name.c_str()), CString(folderName.c_str()), (DWORD_PTR)no, CString(description.c_str()))
-	{}
-
-	virtual std::string get_string(){ return std::string(CStringA(GetValue())); }
-	virtual void set_string(std::string str){ SetValue(CString(str.c_str())); }
-	
-};
-
-
-
-
-class CStdGriFolderProperty2 : public CStdGriInterface, public CMFCPropertyGridFileProperty
-{
-	friend class CMFCPropertyGridCtrl;
-
-public:
-
-	CStdGriFolderProperty2(const std::string& name, const std::string& folderName, const std::string& description, const std::string& filter, size_t no) :
+	CStdGridFolderProperty(const std::string& name, const std::string& folderName, const std::string& description, const std::string& filter, size_t no) :
 		CMFCPropertyGridFileProperty(CString(name.c_str()), CString(folderName.c_str()), (DWORD_PTR)no, CString(description.c_str()))
 	{
 		m_filter = filter;
@@ -1015,14 +1015,14 @@ protected:
 };
 
 
-class CStdGriFilepathProperty2 : public CStdGriInterface, public CMFCPropertyGridFileProperty
+class CStdGridFilepathProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
 {
 	friend class CMFCPropertyGridCtrl;
 
 public:
 
 
-	CStdGriFilepathProperty2(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
+	CStdGridFilepathProperty(const std::string& name, const std::string& fileName, const std::string& description, const std::string& filter, size_t no,
 		bool bOpen = TRUE, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ENABLESIZING)
 		: CMFCPropertyGridFileProperty(CString(name.c_str()), bOpen, CString(fileName.c_str()), NULL, dwFlags, CString(filter.c_str()), CString(description.c_str()), (DWORD_PTR)no)
 	{}
@@ -1032,11 +1032,11 @@ public:
 
 };
 
-class CStdBrowseProperty2 : public CStdGridProperty
+class CStdBrowseProperty : public CStdGridProperty
 {
 public:
 
-	CStdBrowseProperty2(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
+	CStdBrowseProperty(const std::string& strName, const std::string& value, const std::string& description, const std::string& options, size_t dwData) :
 		CStdGridProperty(strName, value, description, dwData)
 	{
 
@@ -1093,6 +1093,24 @@ public:
 
 	std::string m_possibleValues;
 	std::string m_convertValues;
+};
+
+//**************************************************************************************************************************************
+class CStdGridWeatherURLProperty : public CStdGriInterface, public CMFCPropertyGridFileProperty
+{
+	friend class CMFCPropertyGridCtrl;
+
+public:
+
+	CStdGridWeatherURLProperty(const std::string& name, const std::string& URL, const std::string& description, size_t no) :
+		CMFCPropertyGridFileProperty(CString(name.c_str()), CString(URL.c_str()), (DWORD_PTR)no, CString(description.c_str()))
+	{
+	}
+
+	virtual std::string get_string() { return std::string(CStringA(GetValue())); }
+	virtual void set_string(std::string str) { SetValue(CString(str.c_str())); }
+
+	virtual void OnClickButton(CPoint point);
 };
 
 //**************************************************************************************************************************************

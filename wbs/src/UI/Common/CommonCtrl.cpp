@@ -12,6 +12,7 @@
 #include "Basic/Statistic.h"
 #include "Basic/GeoBasic.h"
 #include "UI/Common/CommonCtrl.h"
+#include "UI/GenerateWUDlg.h"
 #include "WeatherBasedSimulationString.h"
 #include "WeatherBasedSimulationUI.h"
 
@@ -30,11 +31,11 @@ static char THIS_FILE[] = __FILE__;
 CString CCFLComboBox::GetWindowText()const
 {
 	CString tmp;
-	UINT style = GetStyle()&0x0003L;
-	if( style == CBS_DROPDOWNLIST)
+	UINT style = GetStyle() & 0x0003L;
+	if (style == CBS_DROPDOWNLIST)
 	{
 		int pos = GetCurSel();
-		if( pos != CB_ERR)
+		if (pos != CB_ERR)
 			GetLBText(pos, tmp);
 	}
 	else GetWindowText(tmp);
@@ -45,13 +46,13 @@ CString CCFLComboBox::GetWindowText()const
 int CCFLComboBox::SelectStringExact(int nStartAfter, LPCTSTR lpszString, int defaultSel)
 {
 	int pos = CB_ERR;
-	if( GetCount() > 0 )
+	if (GetCount() > 0)
 	{
-		ASSERT( defaultSel >= CB_ERR && defaultSel < GetCount());
+		ASSERT(defaultSel >= CB_ERR && defaultSel < GetCount());
 		pos = FindStringExact(nStartAfter, lpszString);
-		if( pos == CB_ERR)
+		if (pos == CB_ERR)
 			pos = defaultSel;
-	
+
 		SetCurSel(pos);
 	}
 	return pos;
@@ -60,9 +61,9 @@ int CCFLComboBox::SelectStringExact(int nStartAfter, LPCTSTR lpszString, int def
 int CCFLComboBox::GetItemDataIndex(int itemData)const
 {
 	int pos = CB_ERR;
-	for(int i=0; i<GetCount(); i++)
+	for (int i = 0; i < GetCount(); i++)
 	{
-		if( GetItemData(i) == itemData)
+		if (GetItemData(i) == itemData)
 		{
 			pos = i;
 			break;
@@ -77,22 +78,22 @@ int CCFLComboBox::GetCurItemData()const
 	int itemData = CB_ERR;
 
 	int pos = GetCurSel();
-	if( pos != CB_ERR )
+	if (pos != CB_ERR)
 		itemData = (int)GetItemData(pos);
-	
+
 	return itemData;
 }
 
 int CCFLComboBox::SelectFromItemData(int itemData, int defaultSel)
 {
 	int pos = CB_ERR;
-	if( GetCount() > 0 )
+	if (GetCount() > 0)
 	{
 		pos = GetItemDataIndex(itemData);
-		if( pos == CB_ERR)
+		if (pos == CB_ERR)
 			pos = defaultSel;
-	
-		SetCurSel(pos);			
+
+		SetCurSel(pos);
 	}
 
 	return pos;
@@ -101,10 +102,10 @@ void CCFLComboBox::FillList(const WBSF::StringVector& list, std::string selectio
 {
 	if (selection.empty())
 		selection = GetString();
-	
+
 	ResetContent();
 
-	for (size_t i = 0; i<list.size(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 		AddString(list[i].c_str());
 
 	SelectStringExact(0, selection);
@@ -126,13 +127,13 @@ void CDefaultComboBox::FillList(const WBSF::StringVector& list, std::string sele
 
 	ResetContent();
 
-	for (size_t i = 0; i<list.size(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 		AddString(list[i].c_str());
 
 	InsertString(0, m_defaultStr);
 	SelectStringExact(0, selection);
 
-	ASSERT(GetCount()>0);
+	ASSERT(GetCount() > 0);
 }
 
 //**************************************************************************
@@ -147,9 +148,9 @@ CString CCFLListBox::GetText(int i)const
 int CCFLListBox::GetItemDataIndex(int itemData)const
 {
 	int pos = CB_ERR;
-	for(int i=0; i<GetCount(); i++)
+	for (int i = 0; i < GetCount(); i++)
 	{
-		if( GetItemData(i) == itemData)
+		if (GetItemData(i) == itemData)
 		{
 			pos = i;
 			break;
@@ -161,7 +162,7 @@ int CCFLListBox::GetItemDataIndex(int itemData)const
 
 
 CStdTimeModePropertyGridProperty::CStdTimeModePropertyGridProperty(const std::string& name, WBSF::CTM TM, const std::string& description, size_t no) :
-CStdGridProperty(name, WBSF::to_string(TM), description, no)
+	CStdGridProperty(name, WBSF::to_string(TM), description, no)
 {
 	CStringArrayEx OPTIONS_VALUES(UtilWin::GetCString(IDS_STR_TM_TYPE));
 
@@ -180,7 +181,7 @@ CStdGridProperty(name, WBSF::to_string(TM), description, no)
 
 
 CIntEdit::CIntEdit(short base) :
-m_base(base)
+	m_base(base)
 {}
 
 CIntEdit::~CIntEdit()
@@ -208,14 +209,14 @@ void CIntEdit::SetInt(__int64 val)
 {
 	TCHAR buffer[100] = { 0 };
 
-	
+
 	_i64tot_s(val, buffer, 100, m_base);
 	SetWindowText(buffer);
 }
 
 __int64 CIntEdit::GetInt()const
 {
-	TCHAR* end=NULL;
+	TCHAR* end = NULL;
 	return _wcstoi64((LPCWSTR)GetWindowTextW(), &end, m_base);
 }
 
@@ -255,7 +256,7 @@ BEGIN_MESSAGE_MAP(CReadOnlyEdit, CEdit)
 	ON_WM_CREATE()
 	ON_WM_CONTEXTMENU()
 	ON_WM_WINDOWPOSCHANGING()
-	
+
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateToolBar)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, OnUpdateToolBar)
@@ -289,7 +290,7 @@ void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CMenu menu;
 	menu.LoadMenu(IDR_MENU_EDIT);
-	
+
 	CMenu* pSumMenu = menu.GetSubMenu(0);
 
 	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CFrameWndEx)))
@@ -305,27 +306,27 @@ void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 
 	SetFocus();
 
-//
-//	SetFocus();
-//
-//	CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
-//	HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
-//	if (hMenu != NULL)
-//	{
-//		CFrameWnd* pwndFrame = (CFrameWnd*)AfxGetMainWnd();
-//		if (NULL != pwndFrame)
-//			pwndFrame->SendMessage(WM_CONTEXTMENU, WPARAM(hMenu), MAKELPARAM(point.x, point.y));
-//
-//
-//		//CMenu* pMenu = CMenu::FromHandle(hMenu);
-//		//ASSERT(pMenu);
-//
-////		CMenu* pSumMenu = pMenu->GetSubMenu(0);
-//	//	ASSERT(pSumMenu);
-//		//pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, AfxGetMainWnd());
-//
-//		SetFocus();
-//	}
+	//
+	//	SetFocus();
+	//
+	//	CContextMenuManager* pMM = ((CWinAppEx*)AfxGetApp())->GetContextMenuManager();
+	//	HMENU hMenu = pMM->GetMenuByName(_T("Edit1"));
+	//	if (hMenu != NULL)
+	//	{
+	//		CFrameWnd* pwndFrame = (CFrameWnd*)AfxGetMainWnd();
+	//		if (NULL != pwndFrame)
+	//			pwndFrame->SendMessage(WM_CONTEXTMENU, WPARAM(hMenu), MAKELPARAM(point.x, point.y));
+	//
+	//
+	//		//CMenu* pMenu = CMenu::FromHandle(hMenu);
+	//		//ASSERT(pMenu);
+	//
+	////		CMenu* pSumMenu = pMenu->GetSubMenu(0);
+	//	//	ASSERT(pSumMenu);
+	//		//pMM->TrackPopupMenu(*pSumMenu, point.x, point.y, AfxGetMainWnd());
+	//
+	//		SetFocus();
+	//	}
 }
 
 
@@ -347,7 +348,7 @@ BOOL CReadOnlyEdit::PreTranslateMessage(MSG* pMsg)
 	return CEdit::PreTranslateMessage(pMsg);
 }
 
-void CReadOnlyEdit::OnUpdateToolBar(CCmdUI *pCmdUI)
+void CReadOnlyEdit::OnUpdateToolBar(CCmdUI* pCmdUI)
 {
 	DWORD sel = GetSel();
 	int len = GetWindowTextLength();
@@ -357,14 +358,14 @@ void CReadOnlyEdit::OnUpdateToolBar(CCmdUI *pCmdUI)
 	case ID_EDIT_COPY:			pCmdUI->Enable(LOWORD(sel) != HIWORD(sel)); break;
 	case ID_EDIT_PASTE:			pCmdUI->Enable(false); break;
 	case ID_EDIT_SELECT_ALL:	pCmdUI->Enable(len != 0 && !(LOWORD(sel) == 0 && HIWORD(sel) == len)); break;
-	case ID_EDIT_CLEAR:			pCmdUI->Enable(len>0); break;
+	case ID_EDIT_CLEAR:			pCmdUI->Enable(len > 0); break;
 	}
 }
 
 
 BOOL CReadOnlyEdit::OnToolBarCommand(UINT ID)
 {
-	
+
 	switch (ID)
 	{
 	case ID_EDIT_COPY:			SendMessage(LOWORD(WM_COPY)); break;
@@ -372,7 +373,7 @@ BOOL CReadOnlyEdit::OnToolBarCommand(UINT ID)
 	case ID_EDIT_SELECT_ALL:	SendMessage(EM_SETSEL, 0, -1); break;
 	case ID_EDIT_CLEAR:			SetWindowText(_T("")); break;
 	}
-	
+
 	return TRUE;
 }
 //**************************************************************************
@@ -382,7 +383,7 @@ BEGIN_MESSAGE_MAP(CStatisticComboBox, CComboBox)
 END_MESSAGE_MAP()
 
 CStatisticComboBox::CStatisticComboBox(bool bAddAll) :
-m_bAddAll(bAddAll)
+	m_bAddAll(bAddAll)
 {
 }
 
@@ -419,14 +420,14 @@ void CStatisticComboBox::Init()
 	SetFont(&m_font, FALSE);
 
 	ResetContent();
-	
+
 	if (m_bAddAll)
 		AddString(GetCString(IDS_STR_ALL_STAT));
 
 
-	for(int i=0; i<WBSF::NB_STAT_TYPE; i++)
+	for (int i = 0; i < WBSF::NB_STAT_TYPE; i++)
 		AddString(GetStatisticTitle(i));
-	
+
 }
 
 
@@ -479,8 +480,8 @@ void CTMTypeComboBox::Init()
 	SetFont(&m_font, FALSE);
 
 	ResetContent();
-	
-	for (size_t i = 0; i<m_nbTypeAvailable; i++)
+
+	for (size_t i = 0; i < m_nbTypeAvailable; i++)
 	{
 		AddString(GetTitle(short(i)));
 	}
@@ -533,7 +534,7 @@ void CTMModeComboBox::Init()
 
 	ResetContent();
 
-	for (int i = 0; i<WBSF::CTM::NB_MODE; i++)
+	for (int i = 0; i < WBSF::CTM::NB_MODE; i++)
 	{
 		AddString(GetTitle(i));
 	}
@@ -632,7 +633,7 @@ BOOL CTransparentEdit::PreCreateWindow(CREATESTRUCT& cs)
 	return CCFLEdit::PreCreateWindow(cs);
 }
 
-HBRUSH CreateCtrlBrush( CWnd* a_pDlg, CWnd* a_pCtrl, CBrush& a_brush)
+HBRUSH CreateCtrlBrush(CWnd* a_pDlg, CWnd* a_pCtrl, CBrush& a_brush)
 {
 	CRect ctrlRect;
 	CRect dlgRect;
@@ -677,8 +678,8 @@ HBRUSH CTransparentEdit::CtlColor(CDC* pDC, UINT /*nCtlColor*/)
 
 	return (HBRUSH)a_brush;
 
-//	pDC->SetBkMode(TRANSPARENT);
-	//return reinterpret_cast<HBRUSH>(GetStockObject(NULL_BRUSH));
+	//	pDC->SetBkMode(TRANSPARENT);
+		//return reinterpret_cast<HBRUSH>(GetStockObject(NULL_BRUSH));
 }
 
 void CTransparentEdit::PreSubclassWindow()
@@ -692,24 +693,24 @@ void CTransparentEdit::PreSubclassWindow()
 // Reusable function for all of your dialogs 
 /*
 
-// CTransparentCheckBox message handlers 
-HBRUSH CTransparentCheckBox::CtlColor(CDC* pDC, UINT nCtlColor) 
-{ 
+// CTransparentCheckBox message handlers
+HBRUSH CTransparentCheckBox::CtlColor(CDC* pDC, UINT nCtlColor)
+{
 	//static CBrush m_brush;
 
 	//if ( nCtlColor == CTLCOLOR_STATIC && (HBRUSH)m_brush == NULL)
-	//{     
+	//{
 		//return CreateCtrlBrush( GetParent(), this, m_brush );
 	//}
-	
+
    //if((HBRUSH)brush == NULL)
-     //   brush.CreateSolidBrush(RGB(255,0,0));
-//   pDC->SetBkMode(TRANSPARENT); 
+	 //   brush.CreateSolidBrush(RGB(255,0,0));
+//   pDC->SetBkMode(TRANSPARENT);
   // ::DrawThemeParentBackground(this, hdc, GetClientRect());
 
    //return (HBRUSH)GetStockObject(NULL_BRUSH);
-	return (HBRUSH)GetStockObject(WHITE_BRUSH); 
-} 
+	return (HBRUSH)GetStockObject(WHITE_BRUSH);
+}
 
 LRESULT CTransparentCheckBox::OnControlColorStatic(UINT uMsg, UINT wParam, LONG lParam)
 {
@@ -731,7 +732,7 @@ LRESULT CTransparentCheckBox::OnControlColorStatic(UINT uMsg, UINT wParam, LONG 
 //CAutoEnableStatic
 CAutoEnableStatic::CAutoEnableStatic(bool bShowButton, int buttonType)
 {
-	
+
 	m_bShowButton = bShowButton;
 	m_buttonType = buttonType;
 }
@@ -752,7 +753,7 @@ END_MESSAGE_MAP()
 
 void CAutoEnableStatic::Init()
 {
-		// Get the static size
+	// Get the static size
 	GetWindowRect(&m_rcStatic);
 	ScreenToClient(&m_rcStatic);
 
@@ -761,16 +762,16 @@ void CAutoEnableStatic::Init()
 
 	// Grab the caption off the static
 	// We are going to put it on the button so it is aligned nicely
-	
+
 	GetWindowText(m_caption);
 	SetWindowText(_T(""));
 
 	// Now figure out how long the string is
 	CClientDC dc(this);
-	dc.SelectObject( GetFont() );
+	dc.SelectObject(GetFont());
 	CSize size = dc.GetTextExtent(m_caption);
 
-	CRect rect(m_rcStatic.left + 10, m_rcStatic.top , m_rcStatic.left + 10 + size.cx + 20, m_rcStatic.top + size.cy);
+	CRect rect(m_rcStatic.left + 10, m_rcStatic.top, m_rcStatic.left + 10 + size.cx + 20, m_rcStatic.top + size.cy);
 	//ClientToScreen(rect);
 	//GetParent()->ScreenToClient(rect);
 
@@ -782,19 +783,19 @@ void CAutoEnableStatic::Init()
 
 	static int ID_STATICCHECKBOX = 999;
 
-	
+
 	//CWnd* pParent=this;
 	//if( GetParent() )
 		//pParent=GetParent();
 	//m_checkbox.CreateEx(WS_EX_TRANSPARENT, _T("BUTTON"), _T("&Transparency?"), WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | BS_CHECKBOX, CRect(m_rcStatic.left + 10, m_rcStatic.top , m_rcStatic.left + size.cx, m_rcStatic.top + size.cy),
 		//this, ID_STATICCHECKBOX--);
-	
-	if(!m_checkbox.Create(m_caption, WS_CHILD | WS_VISIBLE  | WS_TABSTOP | BS_CHECKBOX, 
+
+	if (!m_checkbox.Create(m_caption, WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_CHECKBOX,
 		rect,
 		this, ID_STATICCHECKBOX--))
 		AfxMessageBox(_T("Failed to create CheckedGroupBox"));
 
-	
+
 	//m_checkbox.ModifyStyleEx(0, WS_EX_TRANSPARENT);
 
 	//m_caption
@@ -803,12 +804,12 @@ void CAutoEnableStatic::Init()
 	//	CRect(m_rcStatic.left + 10, m_rcStatic.top , m_rcStatic.left + 10 + size.cx, m_rcStatic.top + size.cy),
 	//	this, ID_STATICCHECKBOX--))
 	//	AfxMessageBox("Failed to create CheckedGroupBox");
-	
+
 	//m_radio.ModifyStyleEx(0, WS_EX_LAYERED|WS_EX_TRANSPARENT);
 
 
 	//SetWindowText(m_bShowButton?"":m_caption);
-	m_checkbox.ShowWindow(m_bShowButton&&m_buttonType==CHECKBOX?SW_SHOW:SW_HIDE);
+	m_checkbox.ShowWindow(m_bShowButton && m_buttonType == CHECKBOX ? SW_SHOW : SW_HIDE);
 	//m_radio.ShowWindow(m_bShowButton&&m_buttonType==RADIO_BUTTON?SW_SHOW:SW_HIDE);
 	//if( !m_bShowButton )
 	//{
@@ -820,14 +821,14 @@ void CAutoEnableStatic::Init()
 	// All of the above would be useless if we did not make sure both buttons had the same font in them...
 	m_checkbox.SetFont(GetFont());
 	//m_radio.SetFont(GetFont());
-	
+
 	// Assume that the dialog starts active, a SetCheck function is provided where this is not the case
 	m_checkbox.SetCheck(true);
 	//m_radio.SetCheck(true);
 	// Build a list of dialog item ID's
 
 //	CClientDC dc(this);
-	
+
 	//BOOL rep = (BOOL)GetParent()->SendMessage(WM_ERASEBKGND, (WPARAM)dc.GetSafeHdc(), 0);
 	//HBRUSH hBrush = (HBRUSH)GetParent()->SendMessage(WM_CTLCOLOR, (WPARAM)(GetParent()->GetDC()->GetSafeHdc()), MAKELONG(GetSafeHwnd(), 0));
 	//HBRUSH hBrush = (HBRUSH)GetParent()->SendMessage(WM_CTLCOLORDLG, (WPARAM)NULL,(LPARAM)MAKELONG(GetSafeHwnd(), 0));
@@ -846,7 +847,7 @@ BOOL CAutoEnableStatic::EnableWindow(BOOL bEnable)
 }
 
 
-BOOL CALLBACK CAutoEnableStatic::EnumChildProc(HWND hwndChild, LPARAM lParam) 
+BOOL CALLBACK CAutoEnableStatic::EnumChildProc(HWND hwndChild, LPARAM lParam)
 {
 	CAutoEnableStatic* pMe = (CAutoEnableStatic*)lParam;
 	ASSERT(pMe);
@@ -858,18 +859,18 @@ BOOL CALLBACK CAutoEnableStatic::EnumChildProc(HWND hwndChild, LPARAM lParam)
 	CRect rect;
 	pChild->GetWindowRect(&rect);
 	pMe->ScreenToClient(&rect);
-	
-	if(pMe->m_rcStatic.PtInRect(rect.TopLeft()))
+
+	if (pMe->m_rcStatic.PtInRect(rect.TopLeft()))
 	{
 		int ID = pChild->GetDlgCtrlID();
-		if(ID==-1)
+		if (ID == -1)
 		{
 			static int NEW_ID = 900;
 			pChild->SetDlgCtrlID(NEW_ID);
 			ID = NEW_ID++;
 		}
-		ASSERT(ID>0);
-		
+		ASSERT(ID > 0);
+
 		pMe->m_IDList.Add(ID);
 	}
 
@@ -878,18 +879,18 @@ BOOL CALLBACK CAutoEnableStatic::EnumChildProc(HWND hwndChild, LPARAM lParam)
 }
 
 
-BOOL CAutoEnableStatic::OnCommand(WPARAM wParam, LPARAM lParam) 
+BOOL CAutoEnableStatic::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	if (wParam == m_checkbox.GetDlgCtrlID() )
+	if (wParam == m_checkbox.GetDlgCtrlID())
 	{
 		BOOL check = m_checkbox.GetCheck();
 		m_checkbox.SetCheck(!check);
 
 		UpdateChild(!check);
 
-		
+
 		GetParent()->SendMessage(WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
-	
+
 		return TRUE;
 	}
 
@@ -919,17 +920,17 @@ void CAutoEnableStatic::ClearItems()
 
 void CAutoEnableStatic::SetCheck(BOOL check)
 {
-	if( m_buttonType == CHECKBOX)
+	if (m_buttonType == CHECKBOX)
 		m_checkbox.SetCheck(check);
 	//else m_radio.SetCheck(check);
-	
+
 	UpdateChild(check);
 }
 
 BOOL CAutoEnableStatic::GetCheck()
 {
 	BOOL bCheck = FALSE;
-	if( m_buttonType == CHECKBOX)
+	if (m_buttonType == CHECKBOX)
 		bCheck = m_checkbox.GetCheck();
 	//else bCheck = m_radio.GetCheck();
 
@@ -945,22 +946,22 @@ void CAutoEnableStatic::UpdateChild(BOOL check)
 	}
 	else
 	{
-		EnumChildWindows(GetParent()->GetSafeHwnd(),EnableParentChild, LPARAM(this));
+		EnumChildWindows(GetParent()->GetSafeHwnd(), EnableParentChild, LPARAM(this));
 	}
 }
 
-BOOL CALLBACK CAutoEnableStatic::EnableChild(HWND hwndChild, LPARAM lParam) 
+BOOL CALLBACK CAutoEnableStatic::EnableChild(HWND hwndChild, LPARAM lParam)
 {
 	CAutoEnableStatic* pMe = (CAutoEnableStatic*)lParam;
 
-	bool bEnable = pMe->IsWindowEnabled() && (!pMe->m_bShowButton || pMe->GetCheck() );
+	bool bEnable = pMe->IsWindowEnabled() && (!pMe->m_bShowButton || pMe->GetCheck());
 	CWnd* pChild = CWnd::FromHandle(hwndChild);
-	pChild->EnableWindow( bEnable );
+	pChild->EnableWindow(bEnable);
 
 	return TRUE;
 }
 
-BOOL CALLBACK CAutoEnableStatic::EnableParentChild(HWND hwndChild, LPARAM lParam) 
+BOOL CALLBACK CAutoEnableStatic::EnableParentChild(HWND hwndChild, LPARAM lParam)
 {
 	CAutoEnableStatic* pMe = (CAutoEnableStatic*)lParam;
 	ASSERT(pMe);
@@ -972,14 +973,14 @@ BOOL CALLBACK CAutoEnableStatic::EnableParentChild(HWND hwndChild, LPARAM lParam
 	CRect rect;
 	pChild->GetWindowRect(&rect);
 	pMe->ScreenToClient(&rect);
-	
-	if( pMe->m_rcStatic.PtInRect(rect.TopLeft()) && 
-		hwndChild != pMe->m_checkbox.GetSafeHwnd() && 
+
+	if (pMe->m_rcStatic.PtInRect(rect.TopLeft()) &&
+		hwndChild != pMe->m_checkbox.GetSafeHwnd() &&
 		//hwndChild != pMe->m_radio.GetSafeHwnd() && 
-		hwndChild != pMe->GetSafeHwnd() )
+		hwndChild != pMe->GetSafeHwnd())
 	{
-		bool bEnable = pMe->IsWindowEnabled() && (!pMe->m_bShowButton || pMe->GetCheck() );
-		pChild->EnableWindow( bEnable );
+		bool bEnable = pMe->IsWindowEnabled() && (!pMe->m_bShowButton || pMe->GetCheck());
+		pChild->EnableWindow(bEnable);
 	}
 
 
@@ -1010,29 +1011,29 @@ void AFXAPI CAutoEnableStatic::DDX_Check(CDataExchange* pDX, int nIDC, bool& val
 	pDX->PrepareCtrl(nIDC);
 
 	CAutoEnableStatic* pWnd = dynamic_cast<CAutoEnableStatic*>(pDX->m_pDlgWnd->GetDlgItem(nIDC));
-	if( pWnd )
+	if (pWnd)
 	{
 		if (pDX->m_bSaveAndValidate)
 		{
-			value = pWnd->GetCheck()!=0;
+			value = pWnd->GetCheck() != 0;
 		}
 		else
 		{
-			 pWnd->SetCheck(value);
+			pWnd->SetCheck(value);
 		}
 	}
 }
 
 HBRUSH CAutoEnableStatic::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	if( pWnd == &m_checkbox)
+	if (pWnd == &m_checkbox)
 	{
 		CClientDC dc(this);
 		//CRect rect;
 		//pWnd->GetWindowRect(rect);
 		COLORREF rgb = dc.GetPixel(0, 0);
 		//COLORREF rgb = pDC->GetPixel(0, 0);
-		if((HBRUSH)m_br == NULL)
+		if ((HBRUSH)m_br == NULL)
 			m_br.CreateSolidBrush(rgb);
 
 		return m_br;
@@ -1067,7 +1068,7 @@ void CSplittedToolBar::AdjustLocations()
 		return;
 	}
 
-	BOOL bHorz =  GetCurrentAlignment() & CBRS_ORIENT_HORZ ? TRUE : FALSE;
+	BOOL bHorz = GetCurrentAlignment() & CBRS_ORIENT_HORZ ? TRUE : FALSE;
 
 	CRect rectClient;
 	GetClientRect(rectClient);
@@ -1116,14 +1117,14 @@ void CSplittedToolBar::AdjustLocations()
 			break;
 		}
 
-		
+
 
 		ASSERT_VALID(pButton);
 
 		BOOL bVisible = TRUE;
 
 		CSize sizeButton = pButton->OnCalculateSize(&dc, sizeGrid, bHorz);
-		
+
 		if (pButton->m_bTextBelow && bHorz)
 		{
 			sizeButton.cy = sizeGrid.cy;
@@ -1195,7 +1196,7 @@ void CSplittedToolBar::AdjustLocations()
 			int delta = std::max(0, (bHorz ? rectClient.Width() : rectClient.Height()) - iOffset - 1 - size);
 			iOffset += delta;
 		}
-		
+
 	}
 
 
@@ -1207,7 +1208,7 @@ void CSplittedToolBar::AdjustLocations()
 //*********************************************************************************************************
 IMPLEMENT_DYNAMIC(CStdTRefProperty, CMFCPropertyGridProperty)
 
-void CStdGriFolderProperty2::OnClickButton(CPoint point)
+void CStdGridFolderProperty::OnClickButton(CPoint point)
 
 {
 	CString strFolder = GetValue();
@@ -1226,7 +1227,7 @@ void CStdGriFolderProperty2::OnClickButton(CPoint point)
 
 //**************************************************************************************************************
 CStdTPeriodProperty::CStdTPeriodProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
-CStdGridProperty(name, no, true)
+	CStdGridProperty(name, no, true)
 {
 
 	WBSF::CTPeriod p;
@@ -1295,7 +1296,7 @@ void CStdTPeriodProperty::set_string(std::string str)
 
 //************************************************************************************************************
 CStdGeoRectProperty::CStdGeoRectProperty(const std::string& name, const std::string& value, const std::string& description, size_t no) :
-CStdGridProperty(name, no, true)
+	CStdGridProperty(name, no, true)
 {
 
 	WBSF::CGeoRect rect(-180, -90, 180, 90, WBSF::PRJ_WGS_84);
@@ -1334,7 +1335,7 @@ std::string CStdGeoRectProperty::get_string()
 	else
 	{
 		v = GetValue();
-		v.Replace(',',' ');
+		v.Replace(',', ' ');
 	}
 
 	return (LPCSTR)v;
@@ -1365,7 +1366,7 @@ void CStdGeoRectProperty::set_string(std::string str)
 	{
 		std::stringstream tmp;
 		tmp << rect;
-		
+
 		CString value(tmp.str().c_str());
 		value.Replace(' ', ',');
 
@@ -1382,62 +1383,30 @@ CStdColorProperty::CStdColorProperty(const std::string& strName, const COLORREF&
 	EnableOtherButton(UtilWin::GetCString(IDS_STR_OTHER));
 }
 
-//**** pour créer des menu à partir de string  ********
 
+//*********************************************************************************************************
+//IMPLEMENT_DYNAMIC(CStdGridWeatherURLProperty, CMFCPropertyGridProperty)
 
-//void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
-//{
-//CStringArrayEx str(IDS_STR_EDIT_COMMAND);
+void CStdGridWeatherURLProperty::OnClickButton(CPoint point)
 
-//CMenu menu;
-//menu.CreatePopupMenu();
+{
+	//CString strFolder = GetValue();
+	//if (strFolder.IsEmpty())
+		//strFolder = CStringA(WBSF::GetApplicationPath().c_str());
 
-//DWORD sel = GetSel();
-//DWORD flags = LOWORD(sel) == HIWORD(sel) ? MF_GRAYED : 0;
-//menu.InsertMenu(0, MF_BYPOSITION | flags, WM_COPY, str[2]);
+	
+	
+	WBSF::CGenerateWUProjectDlg dlg(m_pWndList);
+	dlg.m_bShowOutputDir = false;
+	dlg.m_bShowProject = false;
+	if (dlg.DoModal() == IDOK)
+	{
+		std::string file_id = dlg.m_file_id;
+		//std::string  link = //"https://drive.google.com/file/d/"+ file_id +"/view?usp=drive_link";
 
-//int len = GetWindowTextLength();
-//flags = (!len || (LOWORD(sel) == 0 && HIWORD(sel) ==len)) ? MF_GRAYED : 0;
-//menu.InsertMenu(1, MF_BYPOSITION | flags, ID_EDIT_SELECT_ALL, str[0]);
-//menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON |TPM_RIGHTBUTTON, point.x, point.y, this);
-//
-//SetFocus();
-//}
+		set_string(file_id);
+		//SetValue(CStringA (link.c_str()));
 
-//BOOL CReadOnlyEdit::OnCommand(WPARAM wParam, LPARAM lParam)
-//{
-//	switch (LOWORD(wParam))
-//	{
-//	case WM_CUT:
-//	case WM_CLEAR:
-//	case WM_PASTE:break;
-//	case WM_COPY: return SendMessage(LOWORD(wParam))!=0;
-//	case ID_EDIT_SELECT_ALL: return SendMessage(EM_SETSEL, 0, -1) != 0;
-//	}
-//
-//	return CEdit::OnCommand(wParam, lParam);
-//}
+	}//do modal
 
-//void CReadOnlyEdit::OnContextMenu(CWnd* pWnd, CPoint point)
-//{
-//	CEdit::OnContextMenu(pWnd, point);
-//	/*CMenu menu;
-//	menu.LoadMenu(IDR_OUTPUT_POPUP);
-//
-//	CMenu* pSumMenu = menu.GetSubMenu(0);
-//
-//	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-//	{
-//		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
-//
-//		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-//			return;
-//
-//		((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-//		UpdateDialogControls(this, FALSE);
-//	}
-//
-//	SetFocus();*/
-//}
-
-//#define ME_SELECTALL    WM_USER + 0x7000
+}
