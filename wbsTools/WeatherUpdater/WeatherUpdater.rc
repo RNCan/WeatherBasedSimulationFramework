@@ -765,7 +765,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Commande|Fichiers Zip|Répertoire|Filtre (si commande=compresser)|Include sous-répertoires (si commande=compresser)|Afficher progression"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Hôte|Fichier distant|Fichier local|Nom d'usager|Mot de passe|Délais de connexion|Mode passif|Afficher progression"
-    IDS_TOOL_GOOGLE_DRIVE_P "Fichier Google Drive (id ou lien)|Répertoire de sortie|Afficher progression"
+    IDS_TOOL_GOOGLE_DRIVE_P "Fichier Google Drive (id ou lien)|Répertoire de téléchargement|Dézipper|Répertoire de sortie|Afficher progression"
     IDS_TOOL_CONVERT_DB_P   "Type|Fichier d'entrée|Fichier de sortie"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Tâche d'image radar|Répertoirte de sortie|Date début|Date fin|Heure début (UTC)|Heure fin (UTC)|Délais [ms]|Bouclé l'animation|Re-créer toutes les animations"
@@ -1273,7 +1273,7 @@ BEGIN
     IDS_TOOL_ZIP_UNZIP_P    "Command|Zip file path|Directory|Zip filter (if Command=Zip)|Include sub-directory (if Command=Zip)|Show Progress"
     IDS_TOOL_DOWNLOAD_UPLOAD_P 
                             "Direction|Server|Remote file|Local file|User name|Password|Connection timeout|Passive Mode|Show Progress"
-    IDS_TOOL_GOOGLE_DRIVE_P "Google file (id or link)|Local path|Show Progress"
+    IDS_TOOL_GOOGLE_DRIVE_P "Google file (id or link)|Download path|Unzip file|Output path|Show Progress"
     IDS_TOOL_CONVERT_DB_P   "Type|Input file|Output file"
     IDS_TOOL_CREATE_ANIMATION_P 
                             "Radar task|Output directory|Start date|Ens date|Start hour (UTC)|End hour (UTC)|Delay [ms]|Loop animation|Re-create all animation"

@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "GoogleDriveTask.h"
+#include "UIGoogleDriveTask.h"
 #include "basic/CallcURL.h"
 #include "basic/GoogleDrive.h"
 #include "TaskFactory.h"
@@ -15,8 +15,8 @@ namespace WBSF
 
 
 	//*********************************************************************
-	const char* CGoogleDriveTask::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GoogleDriveLink", "Local", "ShowProgress" };
-	const size_t CGoogleDriveTask::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_URL, T_PATH, T_BOOL };
+	const char* CGoogleDriveTask::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "GoogleDriveLink", "DownloadPath", "UnzipFile", "OutputPath", "ShowProgress" };
+	const size_t CGoogleDriveTask::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_URL, T_PATH, T_BOOL, T_PATH, T_BOOL };
 	const UINT CGoogleDriveTask::ATTRIBUTE_TITLE_ID = IDS_TOOL_GOOGLE_DRIVE_P;
 	const UINT CGoogleDriveTask::DESCRIPTION_TITLE_ID = ID_TASK_GOOGLE_DRIVE;
 
@@ -51,6 +51,7 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
+		case UNZIP_FILE:	str = "1"; break;
 		case SHOW_PROGRESS:	str = "0"; break;
 		default:;
 		};
@@ -64,19 +65,43 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string file_id = Get(REMOTE);
-		if (file_id.find("drive.google.com")!=string::npos)
+		string file_id = Get(URL_LINK);
+		if (file_id.find("drive.google.com") != string::npos)
 			file_id = CGoogleDrive::GetFileIDFromURL(file_id);
 
 
 		string file_name = CGoogleDrive::GetFileName(file_id);
-		string path_out = Get(LOCAL);
-		string file_path_out = path_out + "\\" + file_name;
+		string download_path = Get(DOWNLOAD_PATH);
+		string download_filepath = download_path + "\\" + file_name;
 		bool bShow = as<bool>(SHOW_PROGRESS);
+		bool bUnzip = as<bool>(UNZIP_FILE);
 
-		CreateMultipleDir(path_out);
+		msg += CreateMultipleDir(download_path);
+		if(msg)
+			msg += CGoogleDrive::DownloadFile(file_id, download_filepath, bShow, callback);
 
-		msg = CGoogleDrive::DownloadFile(file_id, file_path_out, bShow, callback);
+		if (msg && bUnzip)
+		{
+			ASSERT(FileExists(download_filepath));
+
+			string path_out = Get(OUTPUT_PATH);
+
+			msg = CreateMultipleDir(path_out);
+			if (msg)
+			{
+				string command = GetApplicationPath() + "External\\7za.exe x \"" + download_filepath + "\" -aoa -o\"" + path_out + "\"";
+
+				callback.PushTask(GetString(IDS_UNZIP_FILE) + ": "+ GetFileName(download_filepath), NOT_INIT);
+				callback.AddMessage(GetString(IDS_UNZIP_FILE) );
+				callback.AddMessage(path_out);
+
+				msg = WinExecWait(command.c_str(), "", bShow ? SW_SHOW : SW_HIDE);
+
+				callback.PopTask();
+			}
+
+
+		}
 
 		return msg;
 	}

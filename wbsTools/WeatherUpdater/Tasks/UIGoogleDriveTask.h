@@ -9,7 +9,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TAttributes { REMOTE, LOCAL, SHOW_PROGRESS, NB_ATTRIBUTES };
+		enum TAttributes { URL_LINK, DOWNLOAD_PATH, UNZIP_FILE, OUTPUT_PATH, SHOW_PROGRESS, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CGoogleDriveTask); }
 

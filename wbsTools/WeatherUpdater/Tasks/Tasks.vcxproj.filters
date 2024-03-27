@@ -239,7 +239,7 @@
     <ClInclude Include="20CRv3.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="GoogleDriveTask.h">
+    <ClInclude Include="UIGoogleDriveTask.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -472,7 +472,7 @@
     <ClCompile Include="20CRv3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GoogleDriveTask.cpp">
+    <ClCompile Include="UIGoogleDriveTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
