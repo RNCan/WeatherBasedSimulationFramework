@@ -153,7 +153,7 @@ namespace WBSF
 		
 		string project_path = WBSF::GetPath(WU_file_path);
 		string download_path = project_path + "tmp\\";
-		string zip_filepath = download_path + CGoogleDrive::GetFileName(file_id);
+		//string zip_filepath = download_path + CGoogleDrive::GetFileName(file_id);
 	//	string weather_path = project_path + "..\\Weather\\";
 		//string file_name = GetFileName(file_path);
 
@@ -168,17 +168,19 @@ namespace WBSF
 			file << "\t<Tasks type=\"Tools\">" << endl;
 			file << "\t\t<Task execute=\"true\" name=\"DownloadFile\" type=\"GoogleDrive\">" << endl;
 			file << "\t\t\t<Parameters name=\"GoogleDriveLink\">" << file_id << "</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"Local\">" << download_path << "</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+			file << "\t\t\t<Parameters name=\"DownloadPath\">" << download_path << "</Parameters>" << endl;
+			file << "\t\t\t<Parameters name=\"OutputPath\">" << weather_path << "</Parameters>" << endl;
+			file << "\t\t\t<Parameters name=\"ShowProgress\">1</Parameters>" << endl;
+			file << "\t\t\t<Parameters name=\"UnzipFile\">1</Parameters>" << endl;
 			file << "\t\t</Task>" << endl;
-			file << "\t\t<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
-			file << "\t\t\t<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"Command\">1</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"Directory\">"<< weather_path <<"</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"Filter\">*.*</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"ZipFilepath\">" << zip_filepath << "</Parameters>" << endl;
-			file << "\t\t\t<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
-			file << "\t\t</Task>" << endl;
+			//file << "\t\t<Task execute=\"true\" name=\"UnzipFile\" type=\"ZipUnzip\">" << endl;
+			//file << "\t\t\t<Parameters name=\"AddSubDirectory\">0</Parameters>" << endl;
+			//file << "\t\t\t<Parameters name=\"Command\">1</Parameters>" << endl;
+			//file << "\t\t\t<Parameters name=\"Directory\">"<< weather_path <<"</Parameters>" << endl;
+			//file << "\t\t\t<Parameters name=\"Filter\">*.*</Parameters>" << endl;
+			//file << "\t\t\t<Parameters name=\"ZipFilepath\">" << zip_filepath << "</Parameters>" << endl;
+			//file << "\t\t\t<Parameters name=\"ShowProgress\">0</Parameters>" << endl;
+			//file << "\t\t</Task>" << endl;
 			file << "\t</Tasks>" << endl;
 			file << "</WeatherUpdater>" << endl;
 
