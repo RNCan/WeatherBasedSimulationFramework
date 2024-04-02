@@ -136,8 +136,8 @@ namespace WBSF
 	{
 		if (&in != this)
 		{
-			register INT_PTR i = 0;
-			register INT_PTR nSize(in.size());
+			INT_PTR i = 0;
+			INT_PTR nSize(in.size());
 
 			resize(nSize);
 			for (i = 0; i < nSize; i++)
@@ -155,8 +155,8 @@ namespace WBSF
 
 	bool CExecutableVector::operator == (const CExecutableVector& in)const
 	{
-		register INT_PTR i = 0;
-		register INT_PTR nSize(size());
+		INT_PTR i = 0;
+		INT_PTR nSize(size());
 
 		if (nSize != in.size())
 		{

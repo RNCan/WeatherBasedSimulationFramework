@@ -785,9 +785,11 @@ namespace WBSF
 			m_metadata.AddSection(section);
 			m_index.insert(sectionNo, CDBSectionIndex(m_file.tellp(), UNKNOWN_POS, period.size(), period.Begin(), section.HaveData()));
 			m_file.write((const char*)tmp.data(), tmp.size() * sizeof(float));
+			assert(!msg || m_file.lengthp() == GetDataSize());
+
 			m_CS.Leave();
 
-			assert(!msg || m_file.lengthp() == GetDataSize());
+			
 		}
 
 
