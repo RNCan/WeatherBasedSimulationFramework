@@ -1,4 +1,4 @@
-//6.1.8 01/04/2024  Rémi Saint-Amant	Update New-Brunswick 
+//6.1.8 02/04/2024  Rémi Saint-Amant	Update New-Brunswick. Add Partner network: Park Canada and ON water
 //6.1.7 18/03/2024  Rémi Saint-Amant	Add Google Drive download task
 //6.1.6 28/11/2023  Rémi Saint-Amant	Add Nova Scotia Fire weather to the Env Can Partner network
 //6.1.5 23/10/2023	Rémi Saint-Amant	Bug correction to correctly convert grib

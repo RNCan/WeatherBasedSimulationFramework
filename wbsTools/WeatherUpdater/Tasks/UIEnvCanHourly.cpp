@@ -53,15 +53,14 @@ namespace WBSF
 
 
 	//SWOB partners network
-	static const size_t NB_PARTNER_NETWORK = 21;
-	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-RioTinto","bc-tran","dfo-ccg-lighthouse","nl-water","ns-firewx", "nt-forestry","nt-water",
-		"nb-firewx","on-firewx","on-grca","on-mto","on-trca","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-water" };
+	static const size_t NB_PARTNER_NETWORK = 23;
+	static const char* PARTNERS_NETWORK_NAME[NB_PARTNER_NETWORK] = { "bc-RioTinto","bc-crd", "bc-env-aq","bc-env-snow","bc-forestry","bc-tran","dfo-ccg-lighthouse","nb-firewx","nl-water","ns-firewx", "nt-forestry","nt-water",
+		"on-firewx","on-grca","on-mto","on-trca","on_water","pc-firewx","qc-pom","sk-forestry","yt-avalanche","yt-firewx","yt-water" };
 
-	
-    
 
-	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","RIOTINTO","BC_TRAN","DFO","NL-DECCM-WRMD","NS-DLF", "NWT_ENR","NWT_ENR",
-		"NB-DNRED","ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
+
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "RIOTINTO","BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","BC_TRAN","DFO","NB-DNRED","NL-DECCM-WRMD","NS-DLF", "NWT_ENR","NWT_ENR",
+		"ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","ON-MNRF-EC-WSC","PC-NRMB","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
 
 
 
@@ -132,11 +131,17 @@ namespace WBSF
 
 				ID = network + "_" + stID;
 			}
-			else if (p_network == "qc-pom" || p_network == "yt-firewx" || p_network == "yt-avalanche")
+			else if (p_network == "qc-pom" || p_network == "yt-firewx" ||
+				p_network == "yt-avalanche")
 			{
-				string stID = tmp[7];
-
 				ID = tmp[7];
+			}
+			else if (p_network == "on_water")
+			{
+				if (tmp[7].find("wiski") != string::npos)
+					ID = "ON_MNR_" + tmp[7];
+				else
+					ID = "EC_" + tmp[7];
 			}
 			else if (p_network == "on-mto")
 			{
@@ -157,7 +162,7 @@ namespace WBSF
 		else
 		{
 			StringVector tmp(filepath, "/");
-			assert(tmp.size() == 6|| tmp.size() == 7);
+			assert(tmp.size() == 6 || tmp.size() == 7);
 			ID = tmp[5];
 		}
 
@@ -224,12 +229,16 @@ namespace WBSF
 	{
 		string owner = "EnvCan";
 
-		static const char* PROVIDER_LONG_NAME[] = {
-		"Government of Canada: Fisheries and Oceans Canada Canadian Coast Guard",
+		static const char* PROVIDER_LONG_NAME[NB_PARTNER_NETWORK] = {
+		"RioTinto",
+		"Capital Regional District (CRD)",
+		"Government of British Columbia: Ministry of Environment (BC-ENV)"
 		"Government of British Columbia: Ministry of Environment",
-		"Government of British Columbia: Ministry of Transportation and Infrastructure",
 		"Government of British Columbia: Ministry of Forests Lands and Natural Resource Operations and Rural Development BC Wildfire Service",
+		"Government of British Columbia: Ministry of Transportation and Infrastructure",
+		"Government of Canada: Fisheries and Oceans Canada Canadian Coast Guard",
 		"Department of Fisheries and Ocean Canada",
+		"The Government of New Brunswick: Department of Natural Resources and Energy Development",
 		"Government of Newfoundland and Labrador: Department of Environment Climate Change and Municipalities Water Resources Management Division",
 		"Government of Northwest Territories: Department of Environment and Natural Resources Forest Management Division",
 		"Government of Northwest Territories: Department of Environment and Natural Resources Water Resources Division",
@@ -238,35 +247,43 @@ namespace WBSF
 		"Toronto and Region Conservation Authority",
 		"ON Ministry of Natural Resources and Forestry Aviation Forest Fire and Emergency Services",
 		"Port of Montreal",
+		"Parks Canada Agency: Natural Resource Management Branch",
 		"Government of Saskatchewan: Public Safety Agency",
 		"Avalanche Canada",
 		"Government of Yukon: Department of Community Services Wildland Fire Management (YT-DCS-WFM).",
 		"Government of Yukon: Department of Environment Water Resources Branch",
 		"Government of Yukon",
 		"Government of Yukon on behalf of The Yukon Avalanche Association"
+
 		};
 
 
-		static const char* PROVIDER_SHORT_NAME[] = {
-	"Canadian Coast Guard",
-	"BC Environment",
-	"BC Transportation",
-	"BC Forests",
-	"Fisheries and Ocean Canada",
-	"Newfoundland Resources",
-	"Northwest Territories Forest",
-	"Northwest Territories Water",
-	"Grand River Conservation Authority",
-	"Ontario Transportation",
-	"Toronto and Region Conservation Authority",
-	"Ontario Resources",
-	"Port of Montreal",
-	"Saskatchewan Public Safety Agency",
-	"Avalanche Canada",
-	"Yukon Wildfire",
-	"Yukon Water",
-	"Yukon Government",
-	"Yukon Avalanche Association"
+		static const char* PROVIDER_SHORT_NAME[NB_PARTNER_NETWORK] = {
+		"BC RioTinto",
+		"BC CRD"
+		"BC Environment",
+		"BC Environment",
+		"BC Forests",
+		"BC Transportation",
+		"Canadian Coast Guard",
+		"Fisheries and Ocean Canada",
+		"New Brunswick Government",
+		"Newfoundland Resources",
+		"Northwest Territories Forest",
+		"Northwest Territories Water",
+		"Ontario Grand River Conservation Authority",
+		"Ontario Transportation",
+		"Toronto and Region Conservation Authority",
+		"Ontario Resources",
+		"Port of Montreal",
+		"Parks Canada Agency",
+		"Saskatchewan Public Safety Agency",
+		"Avalanche Canada",
+		"Yukon Wildfire",
+		"Yukon Water",
+		"Yukon Government",
+		"Yukon Avalanche Association",
+
 		};
 
 
@@ -1467,7 +1484,7 @@ namespace WBSF
 					size_t TdewColPos = variables[H_TDEW];
 					size_t RelHColPos = variables[H_RELH];
 
-					ASSERT(TairColPos < NB_INPUT_HOURLY_COLUMNS&& TdewColPos < NB_INPUT_HOURLY_COLUMNS&& RelHColPos < NB_INPUT_HOURLY_COLUMNS);
+					ASSERT(TairColPos < NB_INPUT_HOURLY_COLUMNS && TdewColPos < NB_INPUT_HOURLY_COLUMNS && RelHColPos < NB_INPUT_HOURLY_COLUMNS);
 				}
 
 				if ((*loop).size() >= TEMPERATURE)
@@ -1526,7 +1543,8 @@ namespace WBSF
 	"wnd_dir_10m_pst1hr_max_spd", "avg_wnd_spd_10m_pst1hr", "avg_wnd_dir_10m_pst1hr", "avg_air_temp_pst1hr",
 	"max_air_temp_pst1hr", "max_rel_hum_pst1hr", "min_air_temp_pst1hr", "min_rel_hum_pst1hr", "pcpn_amt_pst1hr",
 	"snw_dpth", "rnfl_amt_pst1hr", "max_vis_pst1hr", "dwpt_temp", "tot_globl_solr_radn_pst1hr",
-	"min_air_temp_pst24hrs", "max_air_temp_pst24hrs", "pcpn_amt_pst24hrs"
+	"min_air_temp_pst24hrs", "max_air_temp_pst24hrs", "pcpn_amt_pst24hrs", "min_rel_hum_pst24hrs","max_rel_hum_pst24hrs",
+	"avg_wnd_spd_pst2mts",	"avg_wnd_dir_pst2mts"
 	};
 
 
@@ -1538,7 +1556,8 @@ namespace WBSF
 		"°", "km/h", "°", "°C",
 		"°C", "%", "°C", "%", "mm",
 		"cm", "mm", "km", "°C", "W/m²",
-		"°C", "°C", "mm"
+		"°C", "°C", "mm", "%", "%",
+		"km/h", "°"
 	};
 
 	const TVarH CUIEnvCanHourly::VARIABLE_TYPE[NB_SWOB_VARIABLES] =
@@ -1547,7 +1566,8 @@ namespace WBSF
 		H_SKIP, H_WNDS, H_WNDD, H_TAIR,
 		H_TMAX, H_ADD2, H_TMIN, H_ADD1, H_PRCP,
 		H_SNDH, H_SKIP, H_SWE, H_TDEW, H_SRAD,
-		H_SKIP, H_SKIP, H_SKIP
+		H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP,
+		H_WNDS, H_WNDD,
 	};
 
 
@@ -1686,7 +1706,7 @@ namespace WBSF
 			//le fichie est corrompu en date du 20 décembre 2022
 			CLocationVector locations;
 			for (CSVIterator loop(file, ",", true, true); loop != CSVIterator() && msg; ++loop)
-			//for (CSVIterator loop(file, ";", true, true); loop != CSVIterator() && msg; ++loop)
+				//for (CSVIterator loop(file, ";", true, true); loop != CSVIterator() && msg; ++loop)
 			{
 				if (locations.empty())
 				{
@@ -1753,6 +1773,11 @@ namespace WBSF
 					location.SetSSI("Province", "QC");
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
+				if (location.m_ID == "ON-MNRF-AFFES_PNF")//Petawawa
+					location.m_lon = -77.4385;
+
+
+				ASSERT(location.m_lon >= -180 && location.m_lon <= 180);
 
 				auto it_p_network = station_partners_network.find(location.m_ID);
 
@@ -1853,7 +1878,7 @@ namespace WBSF
 
 						//warning if new network
 						auto it_network = find_if(begin(PARTNERS_NETWORK_NAME), end(PARTNERS_NETWORK_NAME), [p_network](const char* name) {return IsEqual(p_network, name); });
-						if (it_network == end(PARTNERS_NETWORK_NAME) && p_network != "tc-pom")
+						if (it_network == end(PARTNERS_NETWORK_NAME) && p_network != "dfo-moored-buoys")
 						{
 							callback.AddMessage("Warning: new network was added: " + p_network);
 						}
@@ -2400,7 +2425,7 @@ namespace WBSF
 			}
 			else
 			{
-				
+
 				callback.AddMessage(msgSaved);
 			}
 
@@ -2487,6 +2512,9 @@ namespace WBSF
 		{
 			//Parter
 			prov = ID.substr(0, 2);
+			if (prov == "EC")
+				prov = "ON";
+
 			ASSERT(CProvinceSelection::GetProvince(prov) != NOT_INIT);
 		}
 
@@ -2638,7 +2666,11 @@ namespace WBSF
 						}
 						else
 						{
-							if (name == "avg_wnd_spd_10m_pst10mts")
+							if (name == "avg_air_temp_pst2mts")
+								type_equivalent = SWOB_AIR_TEMP;
+							else if (name == "avg_rel_hum_pst2mts")
+								type_equivalent = SWOB_REL_HUM;
+							else if (name == "avg_wnd_spd_10m_pst10mts")
 								type_equivalent = SWOB_AVG_WND_SPD_10M_PST1HR;//does 10 minutes speed equivalent to one hour speed
 							else if (name == "avg_wnd_dir_pst1hr" || name == "avg_wnd_dir_10m_pst10mts")
 								type_equivalent = SWOB_AVG_WND_DIR_10M_PST1HR;
@@ -2661,8 +2693,9 @@ namespace WBSF
 				}//for all attributes
 
 				//replace element by equivalent if missing
-				size_t eq_type[4] = { SWOB_AVG_WND_SPD_10M_PST1HR, SWOB_AVG_WND_DIR_10M_PST1HR, SWOB_SNW_DPTH,SWOB_SNW_DPTH_WTR_EQUI };
-				for (size_t i = 0; i < 4; i++)
+				size_t eq_type[6] = { SWOB_AIR_TEMP, SWOB_REL_HUM, SWOB_AVG_WND_SPD_10M_PST1HR, SWOB_AVG_WND_DIR_10M_PST1HR, SWOB_SNW_DPTH, SWOB_SNW_DPTH_WTR_EQUI };
+
+				for (size_t i = 0; i < 6; i++)
 				{
 					if (data[eq_type[i] * 2 + 4].empty() && !data_equivalent[eq_type[i] * 2 + 4].empty())
 					{
@@ -2773,6 +2806,18 @@ namespace WBSF
 										strQA = str_str_rnfl_QA;
 									}
 								}
+
+								if (vv == AVG_WND_SPD_PST2MTS && station[year][m][d][h][v] != WEATHER::MISSING)
+								{
+									//if 1 hour wind speed is already define, don't use 2 minutes
+									strValue.clear();
+								}
+								if (vv == AVG_WND_DIR_PST2MTS && station[year][m][d][h][v] != WEATHER::MISSING)
+								{
+									//if 1 hour wind speed is already define, don't use 2 minutes
+									strValue.clear();
+								}
+
 
 								if (!strValue.empty() && strValue != "MSNG" && !strQA.empty())
 								{
@@ -2993,7 +3038,7 @@ namespace WBSF
 
 			ofStream ofile;
 			msg = ofile.open(lastUpdateFilePath);
-			for(size_t t=0; t<5&& !msg; t++)
+			for (size_t t = 0; t < 5 && !msg; t++)
 			{
 				//wait 10 second and retry
 				WaitServer(10);//remove error
