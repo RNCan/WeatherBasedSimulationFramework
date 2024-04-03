@@ -12,7 +12,7 @@ namespace WBSF
 	public:
 
 		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
-		enum TNetwork { FIRE_HISTORICAL, AGRI_DAILY, AGRI_HOURLY, NB_NETWORKS };
+		enum TNetwork { FIRE_HISTORICAL, AGRI_DAILY, AGRI_HOURLY, FIRE_HOURLY, NB_NETWORKS };
 		enum TAttributes { WORKING_DIR, NETWORK, FIRST_YEAR, LAST_YEAR, USER_NAME, PASSWORD, SHOW_CURL, NB_ATTRIBUTES };
 		static size_t GetNetworkFromName(std::string name);
 
@@ -51,10 +51,12 @@ namespace WBSF
 		ERMsg ExecuteAgricultureHourly(CCallback& callback);
 		
 
-		//ERMsg SaveStation(const std::string& outputFilePath, std::string str);
+		ERMsg ExecuteFireHourly(CCallback& callback);
+		ERMsg SplitFireHourly(const std::string& source, CCallback& callback);
+
+
+		
 		ERMsg SplitAgriStation(const std::string& outputFilePath);
-		//ERMsg LoadStationList(CCallback& callback);
-		//ERMsg MergeData(const std::string& ID, const std::string& filePath, CCallback& callback)const;
 		ERMsg DownloadAgriStationDaily(const std::string& filePath, int year);
 
 		ERMsg ReadFireHistorical(const std::string& filePath, CTM TM, CWeatherYears& data, CCallback& callback)const;

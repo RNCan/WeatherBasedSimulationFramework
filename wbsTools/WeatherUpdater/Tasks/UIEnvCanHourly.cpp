@@ -1544,7 +1544,7 @@ namespace WBSF
 	"max_air_temp_pst1hr", "max_rel_hum_pst1hr", "min_air_temp_pst1hr", "min_rel_hum_pst1hr", "pcpn_amt_pst1hr",
 	"snw_dpth", "rnfl_amt_pst1hr", "max_vis_pst1hr", "dwpt_temp", "tot_globl_solr_radn_pst1hr",
 	"min_air_temp_pst24hrs", "max_air_temp_pst24hrs", "pcpn_amt_pst24hrs", "min_rel_hum_pst24hrs","max_rel_hum_pst24hrs",
-	"avg_wnd_spd_pst2mts",	"avg_wnd_dir_pst2mts"
+	"avg_wnd_spd_pst2mts",	"avg_wnd_dir_pst2mts", "rnfl_amt_pst24hrs"
 	};
 
 
@@ -1557,7 +1557,7 @@ namespace WBSF
 		"°C", "%", "°C", "%", "mm",
 		"cm", "mm", "km", "°C", "W/m²",
 		"°C", "°C", "mm", "%", "%",
-		"km/h", "°"
+		"km/h", "°", "mm"
 	};
 
 	const TVarH CUIEnvCanHourly::VARIABLE_TYPE[NB_SWOB_VARIABLES] =
@@ -1567,7 +1567,7 @@ namespace WBSF
 		H_TMAX, H_ADD2, H_TMIN, H_ADD1, H_PRCP,
 		H_SNDH, H_SKIP, H_SWE, H_TDEW, H_SRAD,
 		H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP,
-		H_WNDS, H_WNDD,
+		H_WNDS, H_WNDD, H_SKIP
 	};
 
 
@@ -1773,9 +1773,11 @@ namespace WBSF
 					location.SetSSI("Province", "QC");
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
-				if (location.m_ID == "ON-MNRF-AFFES_PNF")//Petawawa
+				if (location.m_ID == "ON-MNRF-AFFES_PNF")//Petawawa, ON
 					location.m_lon = -77.4385;
-
+				if (location.m_ID == "NB-DNRED_DUNG")//Dungarvon, NB
+					location.m_lon = -66.3067;
+				
 
 				ASSERT(location.m_lon >= -180 && location.m_lon <= 180);
 
