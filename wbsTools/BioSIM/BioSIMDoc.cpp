@@ -115,9 +115,9 @@ BOOL CBioSIMDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	ERMsg msg = GetProject().Save(filePath);
 	if (msg)
 	{
-		//m_lastSaveProject = GetProject();
-		//GetFileManager().SetProjectPath(GetPath(filePath));
-		//GetFileManager().CreateDefaultDirectories();
+		m_lastSaveProject = GetProject();
+		GetFileManager().SetProjectPath(GetPath(filePath));
+		GetFileManager().CreateDefaultDirectories();
 
 		//if (newProject)
 		//{

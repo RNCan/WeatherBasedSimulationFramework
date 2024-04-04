@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM
-// 11.8.19:18/03/2024	Rémi Saint-Amant	Chnage FTP by Google Drive download
-// 11.8.18:13/02/2024	Rémi Saint-Amant	New hourly precipittion and wind speed
+// 11.8.20:04/04/2024	Rémi Saint-Amant	Bug correction when creating project
+// 11.8.19:18/03/2024	Rémi Saint-Amant	Change FTP by Google Drive download
+// 11.8.18:13/02/2024	Rémi Saint-Amant	New hourly precipitation and wind speed
 // 11.8.17:15/12/2023	Rémi Saint-Amant	Use active FTP.
 // 11.8.16:20/09/2023	Rémi Saint-Amant	Change in default optimization parameters of parametrization curve
 // 11.8.16:08/09/2023	Rémi Saint-Amant	Build with GDAL 3.7.1
