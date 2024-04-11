@@ -5,7 +5,7 @@
     <ID>.nul</ID>
     <EXE>Climatic.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>This model compute climatic variable daily including wind</Description>
+    <Description>This model computes climatic variables daily including wind</Description>
     <WindowRect>0 0 83 386</WindowRect>
     <SimulatedCategory>TN T TX P TD H WS WD R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>

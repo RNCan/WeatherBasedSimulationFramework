@@ -5,7 +5,7 @@
     <ID>.cqc</ID>
     <EXE>ClimaticQc.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>This model compute annual climatic variable from temperature and precipitation only</Description>
+    <Description>This model computes annual climatic variables from temperature and precipitation only</Description>
     <WindowRect>0 0 130 527</WindowRect>
     <SimulatedCategory>TN T TX P TD H R</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>

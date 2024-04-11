@@ -5,7 +5,7 @@
     <ID/>
     <EXE>CCBio.dll</EXE>
     <Behaviour>0</Behaviour>
-    <Description>Modèle créé pour Yanick Gendreau. Version Mensuelle</Description>
+    <Description>Model created for Yanick Gendreau. Monthly version</Description>
     <WindowRect>0 0 100 250</WindowRect>
     <SimulatedCategory>TN T TX P</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
@@ -34,7 +34,7 @@
             <Name>Tmin</Name>
             <Title>Tmin</Title>
             <Units>°C</Units>
-            <Description>Température minimum moyenne mensuelle</Description>
+            <Description>Monthly average of daily minimum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -42,7 +42,7 @@
             <Name>Tmax</Name>
             <Title>Tmax</Title>
             <Units>°C</Units>
-            <Description>Température maximum moyenne mensuelle</Description>
+            <Description>Monthly average of daily maximum temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -50,7 +50,7 @@
             <Name>Tavg</Name>
             <Title>Tair</Title>
             <Units>°C</Units>
-            <Description>Température moyenne mensuelle</Description>
+            <Description>Monthly average of daily mean temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -58,7 +58,7 @@
             <Name>Prec</Name>
             <Title>Prcp</Title>
             <Units>mm</Units>
-            <Description>Précipitation total mensuelle</Description>
+            <Description>Total Monthly Precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -66,7 +66,7 @@
             <Name>GDD</Name>
             <Title>GDD5</Title>
             <Units/>
-            <Description>Degré-jours au dessus de 5°C</Description>
+            <Description>Degree days above 5°C</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -74,7 +74,7 @@
             <Name>Tsea</Name>
             <Title>Tsea</Title>
             <Units/>
-            <Description>Coefficient de variation sur la température moyenne journalière</Description>
+            <Description>Coefficient of variation of average daily temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -82,7 +82,7 @@
             <Name>Psea</Name>
             <Title>Psea</Title>
             <Units/>
-            <Description>Coefficient de variation du la précipitation journalière</Description>
+            <Description>Coefficient of variation of daily precipitation</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -90,7 +90,7 @@
             <Name>PET</Name>
             <Title>PET</Title>
             <Units>mm</Units>
-            <Description>Évapotranspiration potentielle de Hamon. Formule mensuelle.</Description>
+            <Description>Hamon's potential evapotranspiration using average monthly temperature</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -98,7 +98,7 @@
             <Name>WBAL</Name>
             <Title>WBAL</Title>
             <Units>mm</Units>
-            <Description>Précipitation totale annuelle - l'évapotranspiration potentiel (mm)</Description>
+            <Description>Total Annual Precipitation minus Potential Evapotranspiration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -106,7 +106,7 @@
             <Name>WRAT</Name>
             <Title>WRAT</Title>
             <Units/>
-            <Description>Precipitation devide by evapotranspiration</Description>
+            <Description>Precipitation divide by evapotranspiration</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
@@ -114,7 +114,7 @@
             <Name>CDD</Name>
             <Title>CDD</Title>
             <Units/>
-            <Description>Degré-jours de gel. Accumulation des degré-jours quand la température moyenne est en dessous de zéro.</Description>
+            <Description>Frost degree days. Accumulation of degree-days when the average daily temperature is below freezing.</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
