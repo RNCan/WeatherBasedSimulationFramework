@@ -619,22 +619,26 @@ namespace WBSF
 
 		CWGInput WGInput;
 		m_pWGInputDlg->GetWGInput(WGInput);
-
-		bool bModified = WGInput != m_lastWGInput;
-
-		if (bModified)
+		
+		msg = WGInput.IsValid();
+		if (msg)
 		{
-			bool bSave = true;
-			if (askConfirm)
-			{
-				CString sOutMessage;
-				AfxFormatString1(sOutMessage, IDS_SAVE_MODELINPUT, TGName);
-				bSave = MessageBox(sOutMessage, AfxGetAppName(), MB_YESNO) == IDYES;
-			}
+			bool bModified = WGInput != m_lastWGInput;
 
-			if (bSave)
+			if (bModified)
 			{
-				msg = GetFM().WGInput().Set(ToUTF8(TGName), WGInput);
+				bool bSave = true;
+				if (askConfirm)
+				{
+					CString sOutMessage;
+					AfxFormatString1(sOutMessage, IDS_SAVE_MODELINPUT, TGName);
+					bSave = MessageBox(sOutMessage, AfxGetAppName(), MB_YESNO) == IDYES;
+				}
+
+				if (bSave)
+				{
+					msg = GetFM().WGInput().Set(ToUTF8(TGName), WGInput);
+				}
 			}
 		}
 

@@ -399,6 +399,7 @@ namespace WBSF
 		ASSERT(m_target.IsValid());
 		ASSERT(m_tgi.m_firstYear <= 0 || (m_tgi.m_firstYear >= 1800 && m_tgi.m_firstYear <= 2100));
 		ASSERT(m_tgi.m_lastYear == 0 || (m_tgi.m_lastYear >= 1800 && m_tgi.m_lastYear <= 2100));
+		ASSERT(m_tgi.m_lastYear == 0 || (m_tgi.m_lastYear <= m_tgi.m_lastYear));
 		ASSERT(m_tgi.m_nbNormalsStations > 0);
 		//ASSERT(m_tgi.m_nbDailyStations > 0);
 		ASSERT(m_tgi.m_seed >= CRandomGenerator::RANDOM_SEED && m_tgi.m_seed <= CRandomGenerator::FIXE_SEED);

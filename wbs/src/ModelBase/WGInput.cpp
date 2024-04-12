@@ -238,6 +238,9 @@ namespace WBSF
 
 		if (m_sourceType == FROM_OBSERVATIONS)
 		{
+			if(m_firstYear>m_lastYear)
+				msg.ajoute("First year ("+ ToString(m_firstYear) +") must be smaller than last year ("+ ToString(m_lastYear) +")");
+
 			if (m_generationType == GENERATE_DAILY)
 			{
 				if (m_dailyDBName.empty()&&!m_bUseGribs)
