@@ -51,6 +51,8 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
+		case DOWNLOAD_PATH: str = GetAbsoluteFilePath("./tmp/"); break;
+		case OUTPUT_PATH:	str = GetAbsoluteFilePath("../Weather/"); break;
 		case UNZIP_FILE:	str = "1"; break;
 		case SHOW_PROGRESS:	str = "0"; break;
 		default:;
