@@ -565,11 +565,9 @@ BOOL CMainFrame::OnHelp(UINT id)
 	string lang = (registry.GetLanguage() == CRegistry::FRENCH) ? "Fr" : "En";
 	switch(id)
 	{
-	case ID_DOWNLOAD_DATA:	name="ftp://ftp.cfl.scf.rncan.gc.ca/regniere/Data11/Weather/";break;
-	//case ID_HELP_MANUAL:	name="\"" + GetApplicationPath() + "BioSIM10 Manual.pdf\"";break;
-	//case ID_HELP_TUTORIAL:	name="\"" + GetApplicationPath() + "BioSIM10 Tutorial.pdf\"";break;
-	case ID_HELP_MANUAL:	name = "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_Manual_" + lang + ".pdf"; break;
-	case ID_HELP_TUTORIAL:	name = "ftp://ftp.cfl.scf.rncan.gc.ca/regniere/software/BioSIM/BioSIM11_Tutorial_" + lang + ".pdf"; break;
+	case ID_DOWNLOAD_DATA:	name="https://drive.google.com/drive/u/0/folders/1KZBlYp54URTP3eoMHZcvGI_BO6LrxW1Q";break;
+	case ID_HELP_MANUAL:	
+	case ID_HELP_TUTORIAL:	name = "https://drive.google.com/drive/u/0/folders/15I1IQtIGnbUuEigSumc_Q5JwFdjKEdsu";break;
 	default: ASSERT(false);
 	}
 	

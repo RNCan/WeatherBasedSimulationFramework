@@ -274,8 +274,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,8,20,3
- PRODUCTVERSION 11,8,20,3
+ FILEVERSION 11,8,20,4
+ PRODUCTVERSION 11,8,20,4
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -292,23 +292,23 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Simulateur phénologique basé sur la météorologie"
-            VALUE "FileVersion", "11.8.20.3"
+            VALUE "FileVersion", "11.8.20.4"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2021"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "Simulateur BioSIM"
-            VALUE "ProductVersion", "11.8.20.3"
+            VALUE "ProductVersion", "11.8.20.4"
         END
         BLOCK "100904e4"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Phenology simulator base on weather"
-            VALUE "FileVersion", "11.8.20.3"
+            VALUE "FileVersion", "11.8.20.4"
             VALUE "InternalName", "BioSIM.exe"
             VALUE "LegalCopyright", "Copyright (C) 1993-2021"
             VALUE "OriginalFilename", "BioSIM.exe"
             VALUE "ProductName", "BioSIM simulator"
-            VALUE "ProductVersion", "11.8.20.3"
+            VALUE "ProductVersion", "11.8.20.4"
         END
     END
     BLOCK "VarFileInfo"
@@ -425,9 +425,8 @@ BEGIN
     END
     POPUP "A&ide"
     BEGIN
-        MENUITEM "&Manuel...",                  ID_HELP_MANUAL
-        MENUITEM "&Tutoriel...",                ID_HELP_TUTORIAL
-        MENUITEM "Télécharger &d'autres bases de données météo", ID_DOWNLOAD_DATA
+        MENUITEM "&Documentation...",           ID_HELP_MANUAL
+        MENUITEM "&Télécharger d'autres bases de données météo", ID_DOWNLOAD_DATA
         MENUITEM SEPARATOR
         MENUITEM "&À propos de BioSIM...",      ID_APP_ABOUT
     END
@@ -952,9 +951,8 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&Manual...",                  ID_HELP_MANUAL
-        MENUITEM "&Tutorial...",                ID_HELP_TUTORIAL
-        MENUITEM "&Download other weather database...", ID_DOWNLOAD_DATA
+        MENUITEM "&Documentation...",           ID_HELP_MANUAL
+        MENUITEM "Download other &weather database...", ID_DOWNLOAD_DATA
         MENUITEM SEPARATOR
         MENUITEM "&About BioSIM...",            ID_APP_ABOUT
     END
