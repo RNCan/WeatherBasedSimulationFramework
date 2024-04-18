@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>ShootDevelopmentIndex(params)</Title>
+    <Version>1.0</Version>
+    <ID>.SDI</ID>
+    <EXE>ShootDevelopmentIndex.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>Compute shoot development index for spruce budworm host: Balsam Fir, White Spruce, Black Spruce, Norway Spruce, Red Spruce</Description>
+    <WindowRect>0 0 270 408</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 15 30 270</Rect>
+            <SeparatorPos>75</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>5</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumulative</Name>
+            <Caption>Cumulative</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>35 15 55 270</Rect>
+            <SeparatorPos>75</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Non cumulative|Cumulative</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 15 165 230</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Normals</Name>
+            <Caption>Normals</Caption>
+            <Description/>
+            <Type>4</Type>
+            <Rect>175 15 195 370</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>S0</Name>
+            <Title>S0</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S1</Name>
+            <Title>S1</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S2</Name>
+            <Title>S2</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S3</Name>
+            <Title>S3</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S4</Name>
+            <Title>S4</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>S5</Name>
+            <Title>S5</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SDI</Name>
+            <Title>SDI</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Can phenological models predict tree phenology accurately in the future? The unrevealed hurdle of endodormancy breakChuine 2016</Credit>
+    <HelpFileName/>
+</Model>
