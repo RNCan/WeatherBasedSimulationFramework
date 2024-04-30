@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurst</Title>
+    <Version>1.0</Version>
+    <ID>.bb</ID>
+    <EXE>BudBurst.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 218 366</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description>Degree day over -5 after April first</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>1</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BB</Name>
+            <Title>BB</Title>
+            <Units/>
+            <Description>Probability of budburst</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>3</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Predicting the data of leaf emergence for sugar maple accross its native range&#x0D;&#x0A;Raulier, Frederic;Bernier, Pierre Canadian Journal of Forest Research; Sep 2000; 30, 9; Materials Science &amp; Engineering Collection pg. 1429</Credit>
+    <HelpFileName/>
+</Model>

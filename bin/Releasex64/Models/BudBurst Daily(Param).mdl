@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurst</Title>
+    <Version>1.0</Version>
+    <ID>.bb</ID>
+    <EXE>BudBurst.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 218 366</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue>Balsam Fir;White Spruce;Black Spruce;Norway Spruce;Sugar Maple</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>StartDOY</Name>
+            <Caption>StartDOY</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>360</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdT</Name>
+            <Caption>ThresholdT</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ThresholdCD</Name>
+            <Caption>ThresholdCD</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 95 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>150</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Sw</Name>
+            <Caption>Sw</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>95 10 120 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>16</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a2</Name>
+            <Caption>a2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>120 10 140 300</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>-0.07</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DD</Name>
+            <Title>DD</Title>
+            <Units/>
+            <Description>Number of days of chilling under 10°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>8</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BB</Name>
+            <Title>BB</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>8</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Predicting the data of leaf emergence for sugar maple accross its native range&#x0D;&#x0A;Raulier, Frederic;Bernier, Pierre Canadian Journal of Forest Research; Sep 2000; 30, 9; Materials Science &amp; Engineering Collection pg. 1429</Credit>
+    <HelpFileName/>
+</Model>

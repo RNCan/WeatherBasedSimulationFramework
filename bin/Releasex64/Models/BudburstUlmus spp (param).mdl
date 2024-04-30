@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>BudBurstUlmus spp (Param)</Title>
+    <Version>1.0</Version>
+    <ID>.elm</ID>
+    <EXE>BudBurstUlmus.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 321 298</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Species</Name>
+            <Caption>Species</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>10 10 30 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>americana|glabra|laevis|minor</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>T1</Name>
+            <Caption>T1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>T2</Name>
+            <Caption>T2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>a</Name>
+            <Caption>a</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 95 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>19.3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>b</Name>
+            <Caption>b</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 10 130 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>377</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>r</Name>
+            <Caption>r</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>135 10 155 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>-100</MinValue>
+            <MaxValue>-0.001</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>TT</Name>
+            <Title>ThermalTime</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CD</Name>
+            <Title>ChillingDays</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TTT</Name>
+            <Title>TermalTimeThreshold</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>BB</Name>
+            <Title>BudBurst</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
