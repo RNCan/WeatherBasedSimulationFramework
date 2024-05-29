@@ -138,8 +138,8 @@ namespace WBSF
 					//Get today's temperature
 					double tmin = m_normals.Interpole(m, d, TMIN_MN) + e_min[d];
 					double tmax = m_normals.Interpole(m, d, TMAX_MN) + e_max[d];
-					ASSERT(tmin>-99 && tmin<99);
-					ASSERT(tmax>-99 && tmax<99);
+					ASSERT(tmin > -99 && tmin < 99);
+					ASSERT(tmax > -99 && tmax < 99);
 
 					if (tmin > tmax)
 						Switch(tmin, tmax);
@@ -184,8 +184,17 @@ namespace WBSF
 					double mean = m_normals[m][RELH_MN] / 100;
 					double variance = Square(m_normals[m][RELH_SD] / 100);
 
-					double alpha = mean * ((mean*(1 - mean) / variance) - 1);
-					double beta = (1 - mean)*((mean*(1 - mean) / variance) - 1);
+					double alpha = mean * ((mean * (1 - mean) / variance) - 1);
+					double beta = (1 - mean) * ((mean * (1 - mean) / variance) - 1);
+					_ASSERTE(alpha > 0);
+					_ASSERTE(beta > 0);
+
+					if (alpha <= 0 || beta <= 0)
+					{
+						ERMsg msg;
+						msg.ajoute("Kernel error. Invalid Normal humidity");
+						throw msg;
+					}
 
 					for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 					{
@@ -213,7 +222,7 @@ namespace WBSF
 		if (m_variables[H_WNDS] || m_variables[H_WND2])
 		{
 			ASSERT(m_normals.GetVariables()[H_WNDS]);
-			
+
 			for (int m = 0; m < 12; m++)
 			{
 				//WARNING : the mean and maximum of wind speed have been replaced, RSA 26/07/2012
@@ -221,7 +230,7 @@ namespace WBSF
 				double windSpeedMean = m_normals[m][WNDS_MN];
 				double windSpeedSD = m_normals[m][WNDS_SD];
 				double dailyPpt = max(0.1f, m_normals[m][PRCP_TT]) / GetNbDayPerMonth(m);
-				double WSMax = exp(1.43319 + 0.74865*windSpeedMean + 0.71983*windSpeedSD);//*1.25;
+				double WSMax = exp(1.43319 + 0.74865 * windSpeedMean + 0.71983 * windSpeedSD);//*1.25;
 
 				for (size_t d = 0; d < GetNbDayPerMonth(m); d++)
 				{
@@ -233,12 +242,12 @@ namespace WBSF
 					static const double B = 0.1371;
 					static const double C = 0.8853;
 
-					double WS = m_rand.RandUnbiasedLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
+					double WS = m_rand.RandUnbiasedLogNormal(windSpeedMean, windSpeedSD) * (A + B * log(Rp + C));
 
 					if (WS > WSMax)
 					{
 						while (WS<exp(windSpeedMean) || WS > WSMax)
-							WS = m_rand.RandUnbiasedLogNormal(windSpeedMean, windSpeedSD)*(A + B*log(Rp + C));
+							WS = m_rand.RandUnbiasedLogNormal(windSpeedMean, windSpeedSD) * (A + B * log(Rp + C));
 					}
 
 					if (WS < 0.1)
@@ -249,7 +258,7 @@ namespace WBSF
 
 					//Wnd2 from WndS 
 					if (m_variables[H_WND2])
-						dailyData[m][d][H_WND2] = WS*4.87 / log(67.8 * 10 - 5.42);//wind speed at 2 meters
+						dailyData[m][d][H_WND2] = WS * 4.87 / log(67.8 * 10 - 5.42);//wind speed at 2 meters
 				}
 			}
 		}
@@ -284,12 +293,12 @@ namespace WBSF
 			double Weibull = 1;
 			//new equations and parameters for high sp values (29/10/2006)
 			double Nu = 0.9277 / normalTmp[i][PRCP_SD] + 0.0752 / (normalTmp[i][PRCP_SD] * normalTmp[i][PRCP_SD]); //Régnière (2007) Eq. [12]
-			double Lambda = 1.1174* pow(1 - exp(-4.4107*Nu), 7.5088); //Régnière (2007) Eq. [13]
+			double Lambda = 1.1174 * pow(1 - exp(-4.4107 * Nu), 7.5088); //Régnière (2007) Eq. [13]
 
 			//Random number in [0,1[
 			double p_rand = m_rand.Randv();
 			//Compute a Weibull-distributed variate.
-			Weibull = min(25.0, max(0.0, (pow(-log(1.0 - p_rand), 1.0 / Nu)*Lambda)));
+			Weibull = min(25.0, max(0.0, (pow(-log(1.0 - p_rand), 1.0 / Nu) * Lambda)));
 
 			normalTmp[i][PRCP_TT] *= float(Weibull);
 		}
@@ -331,8 +340,8 @@ namespace WBSF
 			double gamma = m_rand.RandNormal(0, sigma_gamma);
 			double zeta = m_rand.RandNormal(0, sigma_zeta);
 
-			m_delta[2] = A1*m_delta[1] + A2*m_delta[0] + gamma;
-			m_epsilon[2] = (B1*m_epsilon[1] + B2*m_epsilon[0] + sigma_epsilon / sigma_delta * (P*gamma + (1 - abs(P))*zeta));
+			m_delta[2] = A1 * m_delta[1] + A2 * m_delta[0] + gamma;
+			m_epsilon[2] = (B1 * m_epsilon[1] + B2 * m_epsilon[0] + sigma_epsilon / sigma_delta * (P * gamma + (1 - abs(P)) * zeta));
 
 			//Shift time series
 			m_delta[0] = m_delta[1];
@@ -370,16 +379,16 @@ namespace WBSF
 		//Régnière (2007) Eq [3] in standard 2nd order autoregressive process formulation
 		//Initialize time series 
 
-		double LimitTmin = 3.9*sigma_delta;
-		double LimitTmax = 3.9*sigma_epsilon;
+		double LimitTmin = 3.9 * sigma_delta;
+		double LimitTmax = 3.9 * sigma_epsilon;
 		for (size_t j = 0; j < GetNbDayPerMonth(month); j++)
 		{
 			double gamma = m_rand.RandNormal(0, sigma_gamma);
 			double zeta = m_rand.RandNormal(0, sigma_zeta);
 
 			//Régnière (2007) Eq [3] in standard 2nd order autoregressive process formulation
-			m_delta[2] = A1*m_delta[1] + A2*m_delta[0] + gamma;
-			m_epsilon[2] = (B1*m_epsilon[1] + B2*m_epsilon[0] + sigma_epsilon / sigma_delta * (P*gamma + (1 - abs(P))*zeta));
+			m_delta[2] = A1 * m_delta[1] + A2 * m_delta[0] + gamma;
+			m_epsilon[2] = (B1 * m_epsilon[1] + B2 * m_epsilon[0] + sigma_epsilon / sigma_delta * (P * gamma + (1 - abs(P)) * zeta));
 
 			//store deviations
 			e_min[j] = min(LimitTmin, max(-LimitTmin, m_delta[2]));
@@ -393,8 +402,8 @@ namespace WBSF
 		}
 
 		//now we can limit more
-		LimitTmin = 2.33*sigma_delta;
-		LimitTmax = 1.96*sigma_epsilon;
+		LimitTmin = 2.33 * sigma_delta;
+		LimitTmax = 1.96 * sigma_epsilon;
 		for (size_t j = 0; j < GetNbDayPerMonth(month); j++)
 		{
 			e_min[j] = min(LimitTmin, max(-LimitTmin, e_min[j]));
@@ -506,5 +515,5 @@ namespace WBSF
 		}
 	}
 
-	
+
 }

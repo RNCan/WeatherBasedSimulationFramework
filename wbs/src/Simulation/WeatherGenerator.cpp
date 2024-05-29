@@ -1798,8 +1798,7 @@ namespace WBSF
 			}//from normals or observation
 		}//for all replication
 
-
-
+		
 		return msg;
 	}
 
@@ -1847,6 +1846,7 @@ namespace WBSF
 				}
 			}
 		}
+		
 
 		if (msg)
 		{
@@ -1909,6 +1909,15 @@ namespace WBSF
 							msg.ajoute(FormatMsg(IDS_WG_MISS_COMPUTE_INPUT, GetVariableTitle(v), GetFileName(m_pNormalDB->GetFilePath()), vars));
 					}
 				}
+			}
+		}
+
+		if (msg)
+		{
+			msg = normals.IsValid();
+			if (!msg)
+			{
+				msg.ajoute("Error generating point: " + m_target.m_ID);
 			}
 		}
 
