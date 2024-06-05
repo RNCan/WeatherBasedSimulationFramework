@@ -958,6 +958,9 @@ namespace WBSF
 					CWeatherStation dailyStation;
 
 					msg = inputDB.Get(dailyStation, i);
+					msg += dailyStation.IsValid();
+					if (!msg)
+						msg.ajoute("Invalid weather data for station: "+ dailyStation.m_ID);
 					dailyStation.m_siteSpeceficInformation.clear();//remove all SSI
 					dailyStation.UseIt(true);
 
@@ -980,22 +983,35 @@ namespace WBSF
 
 							if (station.FromDaily(dailyStation, m_nbYearMin))
 							{
-								if (m_bApplyCC)
+								//msg = station.IsValid();
+								//if (!msg)
+									//msg.ajoute("Invalid weather data for station: " + station.m_ID);
+								if (station.IsValid())
 								{
-									//now adjust standard deviation if they are present
+									if (msg)
+									{
+										if (m_bApplyCC)
+										{
+											//now adjust standard deviation if they are present
 
-									MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
+											MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
+										}
+
+										//add normal to database
+										ERMsg messageTmp = outputDB.Add(station);
+										if (messageTmp)
+										{
+											nbStationAdded++;
+										}
+
+										if (!messageTmp)
+											callback.AddMessage(messageTmp, 1);
+									}
 								}
-
-								//add normal to database
-								ERMsg messageTmp = outputDB.Add(station);
-								if (messageTmp)
+								else
 								{
-									nbStationAdded++;
+									callback.AddMessage("Invalid weather data for station: " + station.m_ID, 1);
 								}
-
-								if (!messageTmp)
-									callback.AddMessage(messageTmp, 1);
 							}
 						}//if valid stations
 
