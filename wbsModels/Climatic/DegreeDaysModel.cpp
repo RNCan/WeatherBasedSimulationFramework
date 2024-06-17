@@ -27,6 +27,7 @@
 //		Degree day summation.
 //
 //*****************************************************************************
+// 19/03/2024	3.2.1	Rémi Saint-Amant    Compile with VS 2022
 // 11/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
 // 01/09/2017	3.1.1	Rémi Saint-Amant    Bug correction in monthly and annual when start and end is define
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
@@ -65,7 +66,7 @@ namespace WBSF
 	{
 		//NB_INPUT_PARAMETER and VERSION are 2 framework variable
 		NB_INPUT_PARAMETER = 8; //set the number of parameters for this model
-		VERSION = "3.2.0 (2018)"; //set the version of this model
+		VERSION = "3.2.1 (2024)"; //set the version of this model
 
 		//This model has 8 input parameters 
 		CMonthDay m_firstDate = CMonthDay(FIRST_MONTH, FIRST_DAY);
@@ -127,12 +128,14 @@ namespace WBSF
 		CTTransformation TT(pIn, TM);
 		CTStatMatrix stats(input, TT);
 		
+		//output.Init(stats.m_period, CDegreeDays::NB_OUTPUT, CBioSIMModelBase::VMISS, CDegreeDays::HEADER);
 		output.Init(stats.m_period, CDegreeDays::NB_OUTPUT, CBioSIMModelBase::VMISS, CDegreeDays::HEADER);
 	
 		int year = stats.m_period.GetFirstYear();
 		CStatistic DDsum;
 
 		for (CTRef TRef = stats.m_period.Begin(); TRef <= stats.m_period.End(); TRef++)
+		//for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
 			if (TRef.GetYear() != year)
 			{
