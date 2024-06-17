@@ -43,7 +43,7 @@ namespace WBSF
 		m_bApplyAttrition = false;
 		m_bCumul = false;
 
-		for (size_t p = 0; p < LAZ::NB_EMERGENCE_PARAMS; p++)
+		for (size_t p = 0; p < NB_EMERGENCE_PARAMS; p++)
 			m_adult_emerg[p] = CLeucopisArgenticollisEquations::ADULT_EMERG[p];
 
 
@@ -53,6 +53,10 @@ namespace WBSF
 
 		for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
 			m_ovip_param[p] = CLeucopisArgenticollisEquations::OVIP_PARAM[p];
+
+		//for (size_t p = 0; p < m_EOD_param.size(); p++)
+			//m_EOD_param[p] = CLeucopisArgenticollisEquations::OVIP_PARAM[p];
+
 
 	}
 
@@ -82,6 +86,8 @@ namespace WBSF
 			for (size_t p = 0; p < NB_OVIP_PARAMS; p++)
 				m_ovip_param[p] = parameters[c++].GetFloat();
 
+			//for (size_t p = 0; p < m_EOD_param.size(); p++)
+			//m_EOD_param[p] = parameters[c++].GetFloat();
 			
 		}
 
@@ -202,8 +208,8 @@ namespace WBSF
 		}
 	}
 
-	enum TSpecies { S_LA_G1, S_LA_G2, S_LP, S_LN };
-	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_DAILY_COUNT, NB_INPUTS };
+	enum TSpecies { S_LA_G0, S_LA_G1, S_LP, S_LN };
+	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_TMIN, I_DAILY_COUNT, NB_INPUTS };
 	enum TInputInternal { I_S, I_N, NB_INPUTS_INTERNAL };
 	void CLeucopisArgenticollisModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
@@ -213,11 +219,11 @@ namespace WBSF
 
 		CStatistic egg_creation_date;
 
-		if (data[I_SPECIES] == "La" && data[I_G] == "2")
+		if (data[I_SPECIES] == "La" && data[I_G] == "1")
 		{
 			obs.m_ref.FromFormatedString(data[I_DATE]);
 			obs.m_obs.resize(NB_INPUTS_INTERNAL);
-			obs.m_obs[I_S] = S_LA_G2;
+			obs.m_obs[I_S] = S_LA_G1;
 			obs.m_obs[I_N] = stod(data[I_DAILY_COUNT]);
 
 
@@ -507,7 +513,7 @@ namespace WBSF
 					{
 
 						double obs_y = Round(m_SAResult[i].m_obs[NB_INPUTS_INTERNAL], 4);
-						double sim_y = Round(output[m_SAResult[i].m_ref][S_EMERGENCE1], 4);
+						double sim_y = Round(output[m_SAResult[i].m_ref][S_EMERGENCE1a], 4);
 
 						if (obs_y > -999)
 						{

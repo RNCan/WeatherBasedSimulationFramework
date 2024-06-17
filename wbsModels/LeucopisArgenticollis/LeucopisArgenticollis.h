@@ -24,7 +24,7 @@ namespace WBSF
 		enum TLeucopisArgenticollisStats
 		{
 			S_CDD, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_PUPA2, 
-			S_EMERGENCE0, S_EMERGENCE1, S_BROOD0, S_BROOD1, S_DEAD_ATTRITION, NB_STATS
+			S_EMERGENCE0, S_EMERGENCE1a, S_EMERGENCE1b, S_BROOD0, S_BROOD1, S_DEAD_ATTRITION, NB_STATS
 		}; 
 
 
@@ -78,12 +78,16 @@ namespace WBSF
 		double m_RDR[LAZ::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_adult_emergence_date;
 		bool m_bDiapause;
+		bool m_bDiapause1;//diapause in generation 1
 		std::array<CTRef, LAZ::NB_STAGES + 1> m_reachDate;
 
 		double m_to; //pre oviposition period [days]
 		double m_t; // decimal time since adult emergence [days]
 		double m_Fi; //fecundity
 		bool m_bDeadByAttrition;
+		std::array<double,2> m_generationSurvival;
+
+
 	};
 
 	//*******************************************************************************************************

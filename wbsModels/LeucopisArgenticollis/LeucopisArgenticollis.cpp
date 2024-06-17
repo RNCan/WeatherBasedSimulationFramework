@@ -22,6 +22,7 @@ using namespace WBSF::LAZ;
 namespace WBSF
 {
 
+	static const bool CALIBRATE_PUPAE_AND_EMERGENCE_G2 = false;
 	//*********************************************************************************
 	//CLeucopisArgenticollis class
 
@@ -42,6 +43,11 @@ namespace WBSF
 
 
 		m_bDiapause = age == PUPAE;
+		m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.75;//diapause in generation 1 (75% of diapause)
+		if (CALIBRATE_PUPAE_AND_EMERGENCE_G2)
+			m_bDiapause1 = false;
+
+
 		m_creationDate = creationDate;
 		if (age == PUPAE)
 			m_adult_emergence_date = GetAdultEmergence(year);
@@ -49,25 +55,34 @@ namespace WBSF
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-		m_to = (m_sex == FEMALE) ? Equations().GetPreOvipPeriod(): 0.0;//adjusted to avoid unrealistic rate for pupa
+		m_to = (m_sex == FEMALE) ? Equations().GetPreOvipPeriod() : 0.0;//adjusted to avoid unrealistic rate for pupa
 		m_t = 0;
 		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity((22.5 / m_RDR[ADULT])) : 0.0;//23.4 is the mean of the median 22.5
 		m_bDeadByAttrition = false;
+		m_generationSurvival = { 0.05, 0.08 };
 
-
-		/*if (age == PUPAE)
+//for Preston 2021 and Tonya 2024 experiment, we trick the input to mimic the experimental protocol
+		if (age == PUPAE)
 		{
-			
-			static const array<string, 3> LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)" };
-			static const array<CTRef, 3> LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15) , CTRef(2022, MARCH, DAY_03) };
 
-			for (size_t i = 0; i < 3; i++)
+			static const array<string, 4> LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)" };
+			static const array<CTRef, 4> LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15), CTRef(2022, MARCH, DAY_03), CTRef(2024, MARCH, DAY_21) };
+
+			for (size_t i = 0; i < 4; i++)
 			{
 				if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[i] && creationDate.GetYear() == LOC_DATE[i].GetYear())
 					m_adult_emergence_date = LOC_DATE[i];
 			}
-			
-		}*/
+
+			if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[0] && creationDate.GetYear() == LOC_DATE[0].GetYear())
+			{
+				m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.77;
+			}
+			else if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[2] && creationDate.GetYear() == LOC_DATE[2].GetYear())
+			{
+				m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.69;
+			}
+		}
 
 	}
 
@@ -76,9 +91,10 @@ namespace WBSF
 	{
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
 		CTPeriod p = weather_station[year].GetEntireTPeriod(CTM::DAILY);
+		double Tjan = weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
 
 		CTRef adult_emergence;
-		double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
+		double adult_emerging_CDD = Equations().GetAdultEmergingCDD(Tjan);
 		const CModelStatVector& CDD = GetStand()->m_adult_emergence_CDD;
 
 		for (CTRef TRef = p.Begin(); TRef <= p.End() && !adult_emergence.IsInit(); TRef++)
@@ -103,7 +119,9 @@ namespace WBSF
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-
+			m_bDiapause = in.m_bDiapause;
+			m_bDiapause1 = in.m_bDiapause1;
+			m_generationSurvival = in.m_generationSurvival;
 			m_adult_emergence_date = in.m_adult_emergence_date;
 			m_reachDate = in.m_reachDate;
 			m_to = in.m_to;
@@ -155,20 +173,21 @@ namespace WBSF
 
 		//Time step development rate
 		double r = Equations().GetRate(s, T) / nb_steps;
-		if (s < PUPAE)
+		if (s < PUPAE || m_bDiapause1)//|| m_bDiapause1
 			r *= Equations().m_ovip_param[1];
-		else if (s == PUPAE)
+		else if (s == PUPAE && !m_bDiapause1)
 			r = Equations().GetPupaRate(T) / nb_steps;
-		
-		
-		
-		
+
+
+
+
 
 		//Relative development rate for this individual
 		double rr = m_RDR[s];
-		if (s < PUPAE)
-			rr *= Equations().m_ovip_param[2];
-		else if (s == PUPAE)
+		//if (s < PUPAE || m_bDiapause1)
+		//	rr *= Equations().m_ovip_param[2];
+		//else 
+		if (s == PUPAE && !m_bDiapause1)
 			rr = Equations().GetPupaRDR();
 
 		//Time step development rate for this individual
@@ -176,9 +195,10 @@ namespace WBSF
 		ASSERT(r >= 0 && r < 1);
 
 		//Adjust age
-		m_age += r;
+		if (!m_bDiapause)
+			m_age += r;
 
-		//evaluate attrition once a day
+		//evaluate attrition
 		if (GetStand()->m_bApplyAttrition)
 		{
 			if (IsDeadByAttrition(s, T, r))
@@ -228,7 +248,7 @@ namespace WBSF
 
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT && !m_bDiapause; step++)
+		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT/* && !m_bDiapause*/; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -248,14 +268,19 @@ namespace WBSF
 	{
 		assert(m_sex == FEMALE);
 
+		bool bCreateEgg = m_generation == 0 || m_generation == 1;
+		if (CALIBRATE_PUPAE_AND_EMERGENCE_G2)
+			bCreateEgg = m_generation == 0;
 
-		if (m_broods > 0 && (m_generation == 0 || m_generation == 1))
+
+		if (m_broods > 0 && bCreateEgg)
 		{
 			ASSERT(m_age >= ADULT);
 			CLAZStand* pStand = GetStand(); ASSERT(pStand);
 
-			double attRate = 0.05;// GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
-			double scaleFactor = m_broods * m_scaleFactor * attRate;
+			//size_t g = (m_generation == 0 || !m_bDiapause1) ? m_generation : 2;
+			//double attRate = m_generationSurvival;// GetStand()->m_bApplyAttrition ? pStand->m_generationAttrition : 1;//10% of survival by default
+			double scaleFactor = m_broods * m_scaleFactor * m_generationSurvival[m_generation];
 			CIndividualPtr object = make_shared<CLeucopisArgenticollis>(m_pHost, weather.GetTRef(), EGG, RANDOM_SEX, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
 		}
@@ -349,8 +374,11 @@ namespace WBSF
 				if (s == ADULT && m_generation == 0)
 					stat[S_EMERGENCE0] += m_scaleFactor;
 
-				if (s == ADULT && m_generation == 1)
-					stat[S_EMERGENCE1] += m_scaleFactor;
+				if (s == ADULT && m_generation == 1 && !m_bDiapause1)
+					stat[S_EMERGENCE1a] += m_scaleFactor;
+
+				if (s == ADULT && m_generation == 1 && m_bDiapause1)
+					stat[S_EMERGENCE1b] += m_scaleFactor;
 			}
 
 			stat[S_BROOD0 + m_generation] += m_broods;// *m_scaleFactor;

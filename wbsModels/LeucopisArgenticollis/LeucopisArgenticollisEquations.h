@@ -21,8 +21,8 @@ namespace WBSF
 		enum TRDR { σ, NB_RDR_PARAMS }; //Relative Development Rate
 		enum TEmergence{ μ, ѕ, delta, Τᴴ¹, Τᴴ², NB_EMERGENCE_PARAMS };//Emergence of Adult parameters
 		enum TPUPA { NB_PUPA_DEV=6, PUPA_S= NB_PUPA_DEV, NB_PUPA_PARAMS };//
-		//enum TADULT { NB_ADULT_PARAMS = 5 };//
 		enum TOVIP { NB_OVIP_PARAMS = 3 };//
+		enum TEOD { EOD_A, EOD_B, NB_EOD_PARAMS };
 	}
 
 
@@ -33,15 +33,15 @@ namespace WBSF
 	public:
 
 		static const std::array<double, LAZ::NB_EMERGENCE_PARAMS> ADULT_EMERG;
-		//static const double ADULT_EMERG[LAZ::NB_EMERGENCE_PARAMS];//Emergence of Adult parameters
-		static const double PUPA_PARAM[LAZ::NB_PUPA_PARAMS];//Cumulative Egg Creation
-		//static const double ADULT_PARAM[LAZ::NB_ADULT_PARAMS];//Cumulative Egg Creation
-		static const double OVIP_PARAM[LAZ::NB_OVIP_PARAMS];//Cumulative Egg Creation
+		static const std::array<double, LAZ::NB_PUPA_PARAMS> PUPA_PARAM;//Cumulative Egg Creation
+		static const std::array<double, LAZ::NB_OVIP_PARAMS> OVIP_PARAM;//Cumulative Egg Creation
+		static const std::array<double, LAZ::NB_EOD_PARAMS> EOD_PARAM;//End of diapause correction
 
-		double m_adult_emerg[LAZ::NB_EMERGENCE_PARAMS];//emergence of adult parameters
-		//double m_adult_param[LAZ::NB_ADULT_PARAMS];//Cumulative Egg Creation parameters
-		double m_pupa_param[LAZ::NB_PUPA_PARAMS];//Pupa parameters
-		double m_ovip_param[LAZ::NB_OVIP_PARAMS];//Cumulative Egg Creation parameters
+
+		std::array<double, LAZ::NB_EMERGENCE_PARAMS> m_adult_emerg;//emergence of adult parameters
+		std::array<double, LAZ::NB_PUPA_PARAMS> m_pupa_param;//Pupa parameters
+		std::array<double, LAZ::NB_OVIP_PARAMS> m_ovip_param;//Cumulative Egg Creation parameters
+		std::array<double, LAZ::NB_EOD_PARAMS > m_EOD_param;//End of diapause correction
 		
 		
 		CLeucopisArgenticollisEquations(const CRandomGenerator& RG);
@@ -61,7 +61,7 @@ namespace WBSF
 
 		//CDegreeDays GetAdultEmergingDDModel()const;
 		void GetAdultEmergingCDD(const CWeatherYears& weather, CModelStatVector& CDD)const;
-		double GetAdultEmergingCDD()const;
+		double GetAdultEmergingCDD(double Tjan)const;
 
 	};
 
