@@ -11,9 +11,9 @@ namespace WBSF
 
 	public:
 
-		enum TSpecies {S_LA_G1, S_LP, S_LA_G2, NB_SPECIES};
+		enum TSpecies {S_LA_G0, S_LP, S_LA_G1, NB_SPECIES};
 		enum TParam { Τᴴ¹, Τᴴ², delta, μ, ѕ, NB_CDD_PARAMS };
-		enum TAllParam { P_LA_G1= NB_CDD_PARAMS * S_LA_G1, P_LP= NB_CDD_PARAMS* S_LP, P_LA_G2 = NB_CDD_PARAMS * S_LA_G2,NB_PARAMS= NB_SPECIES * NB_CDD_PARAMS};
+		enum TAllParam { P_LA_G0= NB_CDD_PARAMS * S_LA_G0, P_LP= NB_CDD_PARAMS* S_LP, P_LA_G1 = NB_CDD_PARAMS * S_LA_G1,P_EOD_A= NB_SPECIES * NB_CDD_PARAMS, P_EOD_B, P_EOD_C, NB_PARAMS};
 
 		CLeucopisModel();
 		virtual ~CLeucopisModel();

@@ -4,22 +4,26 @@
 //***********************************************************
 #include "LeucopisModel.h"
 #include "ModelBase/EntryPoint.h"
-#include "Basic\DegreeDays.h"
-#include <boost/math/distributions/weibull.hpp>
-#include <boost/math/distributions/beta.hpp>
-#include <boost/math/distributions/Rayleigh.hpp>
+#include "Basic/DegreeDays.h"
 #include <boost/math/distributions/logistic.hpp>
-#include <boost/math/distributions/exponential.hpp>
-#include <boost/math/distributions/lognormal.hpp>
 #include "ModelBase/SimulatedAnnealingVector.h"
+#include "ModelBase/ModelDistribution.h"
 
 
-
-//Best parameters separate, v 1.0.1 (2024-02-25)
+//Best parameters separate, v 1.0.1 (2024-03-30)
+//Best parameters separate, v 1.0.2 (2024-05-03)
 //Sp	G	n		To	Th1		Th2		mu		s		R²
-//La	1	459		45	2.5		18.5	239.1	44.01	0.870
-//Lp	1	1842	45	2.5		18.5	646.1	41.37	0.980
-//La	2	1674	45	2.5		50.0	933.3	53.02	0.987
+//La	0	913		45	2.5		18.5	227.4	34.58	0.792
+//Lp	-	1860	45	2.5		18.5	647.8	41.96	0.979
+//La	1	1686	45	2.5		50.0	935.8	53.11	0.978
+//Best parameters separate, v 1.0.3 (2024-05-23)
+//Sp	G	n		To	Th1		Th2		mu		s		R²
+//La	0	913		45	2.5		18.5	F(Tjan)	32.06	0.834
+//Lp	-	1860	45	2.5		18.5	647.8	41.96	0.979
+//La	1	1686	45	2.5		50.0	935.8	53.11	0.978
+//EOD_a = -9.9
+//EOD_b = 259.8
+//Where F(Tjan) = EOD_b  * (max(-9.5, Tjan) - EOD_a) / (1 + max(-9.5, Tjan) - EOD_a );
 
 
 using namespace WBSF::HOURLY_DATA;
@@ -33,7 +37,7 @@ namespace WBSF
 {
 
 	static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::ALLEN_WAVE;
-	enum { O_CDD_LA_G1, O_EMERGENCE_LA_G1, O_CDD_LP, O_EMERGENCE_LP, O_CDD_LA_G2, O_EMERGENCE_LA_G2, NB_OUTPUTS };
+	enum { O_CDD_LA_G0, O_EMERGENCE_LA_G0, O_CDD_LP, O_EMERGENCE_LP, O_CDD_LA_G1, O_EMERGENCE_LA_G1, NB_OUTPUTS };
 
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =
@@ -44,32 +48,41 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2024)";
+		VERSION = "1.0.3 (2024)";
 
 		m_bCumul = false;
 
 
 		//La g1
-		m_P[P_LA_G1 + Τᴴ¹] = 2.5;
-		m_P[P_LA_G1 + Τᴴ²] = 18.5;
-		m_P[P_LA_G1 + delta] = 45;
-		m_P[P_LA_G1 + μ] = 239.1;
-		m_P[P_LA_G1 + ѕ] = 44.01;
+		m_P[P_LA_G0 + Τᴴ¹] = 2.5;
+		m_P[P_LA_G0 + Τᴴ²] = 18.5;
+		m_P[P_LA_G0 + delta] = 45;
+		m_P[P_LA_G0 + μ] = 227.4;
+		m_P[P_LA_G0 + ѕ] = 34.58;
 		
 		//Lp
 		m_P[P_LP + Τᴴ¹] = 2.5;
 		m_P[P_LP + Τᴴ²] = 18.5;
 		m_P[P_LP + delta] = 45;
-		m_P[P_LP + μ] = 646.1;
-		m_P[P_LP + ѕ] = 41.37;
+		m_P[P_LP + μ] = 647.8;
+		m_P[P_LP + ѕ] = 41.96;
 		
 		//La g2
-		m_P[P_LA_G2 + Τᴴ¹] = 2.5;
-		m_P[P_LA_G2 + Τᴴ²] = 50.0;
-		m_P[P_LA_G2 + delta] = 45;
-		m_P[P_LA_G2 + μ] = 933.3;
-		m_P[P_LA_G2 + ѕ] = 53.02;
-		
+		m_P[P_LA_G1 + Τᴴ¹] = 2.5;
+		m_P[P_LA_G1 + Τᴴ²] = 50.0;
+		m_P[P_LA_G1 + delta] = 45;
+		m_P[P_LA_G1 + μ] = 935.8;
+		m_P[P_LA_G1 + ѕ] = 53.11;
+
+
+		//La end of diapause
+		m_P[P_LA_G1 + delta] = 45;
+		m_P[P_LA_G1 + μ] = 935.8;
+		m_P[P_LA_G1 + ѕ] = 53.11;
+
+		 m_P[P_EOD_A] = -9.9;
+		 m_P[P_EOD_B] = 259.8;
+		 m_P[P_EOD_C] = 0;
 
 	}
 
@@ -93,17 +106,17 @@ namespace WBSF
 				m_P[p] = parameters[c++].GetFloat();
 
 
-			if (parameters[c++].GetBool())//same as La g1 (Th)
+			if (parameters[c++].GetBool())//same as La g0 (Th)
 			{
-				m_P[P_LA_G2 + Τᴴ¹] = m_P[P_LA_G1 + Τᴴ¹];
-				m_P[P_LA_G2 + delta] = m_P[P_LA_G1 + delta];
+				m_P[P_LA_G1 + Τᴴ¹] = m_P[P_LA_G0 + Τᴴ¹];
+				m_P[P_LA_G1 + delta] = m_P[P_LA_G0 + delta];
 			}
 
-			if (parameters[c++].GetBool())//same as La g1
+			if (parameters[c++].GetBool())//same as La g0
 			{
-				m_P[P_LP + Τᴴ¹] = m_P[P_LA_G1 + Τᴴ¹];
-				m_P[P_LP + Τᴴ²] = m_P[P_LA_G1 + Τᴴ²];
-				m_P[P_LP + delta] = m_P[P_LA_G1 + delta];
+				m_P[P_LP + Τᴴ¹] = m_P[P_LA_G0 + Τᴴ¹];
+				m_P[P_LP + Τᴴ²] = m_P[P_LA_G0 + Τᴴ²];
+				m_P[P_LP + delta] = m_P[P_LA_G0 + delta];
 			}
 		}
 
@@ -127,20 +140,41 @@ namespace WBSF
 
 		array<CModelStatVector, NB_SPECIES> CDD;
 		GetCDD(m_weather, CDD);
+		
 
-		array< boost::math::logistic_distribution<double>, NB_SPECIES> emerge_dist = { { {m_P[P_LA_G1 + μ], m_P[P_LA_G1 + ѕ]},{m_P[P_LP + μ], m_P[P_LP + ѕ]},{m_P[P_LA_G2 + μ], m_P[P_LA_G2 + ѕ]} } };
-		for (size_t s = 0; s < NB_SPECIES; s++)
+
+
+		//array< boost::math::logistic_distribution<double>, NB_SPECIES> emerge_dist = { { {m_P[P_LA_G0 + μ], m_P[P_LA_G0 + ѕ]},{m_P[P_LP + μ], m_P[P_LP + ѕ]},{m_P[P_LA_G1 + μ], m_P[P_LA_G1 + ѕ]} } };
+		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 		{
-			for (CTRef d = p.Begin(); d <= p.End(); d++)
+			//int year = TRef.GetYear();
+			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+			double TJan = m_weather[y][JANUARY].GetStat(H_TMIN)[MEAN];
+
+			for (size_t s = 0; s < NB_SPECIES; s++)
 			{
-				if (d.GetJDay() >= m_P[s * NB_CDD_PARAMS + delta])
+
+				double mu = m_P[s * NB_CDD_PARAMS + μ];
+				double sigma = m_P[s * NB_CDD_PARAMS + ѕ];
+
+				if (s == S_LA_G0)
 				{
-					m_output[d][s * 2 + 0] = CDD[s][d][0];
-					m_output[d][s * 2 + 1] = Round(100 * cdf(emerge_dist[s], CDD[s][d][0]), 1);
+					//For La g0, we determine the mu from mean January minimum temperature (a kind of end of diapause)
+					mu = m_P[P_EOD_B] * (max(-9.5, TJan) - m_P[P_EOD_A]) / (1 + max(-9.5, TJan) - m_P[P_EOD_A]);
+				}
+
+				boost::math::logistic_distribution<double> emerge_dist(mu, sigma);
+
+				for (CTRef d = p.Begin(); d <= p.End(); d++)
+				{
+					if (d.GetJDay() >= m_P[s * NB_CDD_PARAMS + delta])
+					{
+						m_output[d][s * 2 + 0] = CDD[s][d][0];
+						m_output[d][s * 2 + 1] = Round(100 * cdf(emerge_dist, CDD[s][d][0]), 1);
+					}
 				}
 			}
 		}
-
 		if (!m_bCumul)
 		{
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
@@ -148,9 +182,9 @@ namespace WBSF
 				CTPeriod p = m_weather[y].GetEntireTPeriod();
 				for (CTRef d = p.End(); d > p.Begin(); d--)
 				{
-					m_output[d][O_EMERGENCE_LA_G1] = m_output[d][O_EMERGENCE_LA_G1] - m_output[d - 1][O_EMERGENCE_LA_G1];
+					m_output[d][O_EMERGENCE_LA_G0] = m_output[d][O_EMERGENCE_LA_G0] - m_output[d - 1][O_EMERGENCE_LA_G0];
 					m_output[d][O_EMERGENCE_LP] = m_output[d][O_EMERGENCE_LP] - m_output[d - 1][O_EMERGENCE_LP];
-					m_output[d][O_EMERGENCE_LA_G2] = m_output[d][O_EMERGENCE_LA_G2] - m_output[d - 1][O_EMERGENCE_LA_G2];
+					m_output[d][O_EMERGENCE_LA_G1] = m_output[d][O_EMERGENCE_LA_G1] - m_output[d - 1][O_EMERGENCE_LA_G1];
 
 				}
 			}
@@ -174,7 +208,7 @@ namespace WBSF
 	}
 
 	
-	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_DAILY_COUNT, NB_INPUTS };
+	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_TMIN, I_DAILY_COUNT, NB_INPUTS };
 	enum TInputInternal { I_S, I_N, NB_INPUTS_INTERNAL };
 
 	void CLeucopisModel::AddDailyResult(const StringVector& header, const StringVector& data)
@@ -191,12 +225,12 @@ namespace WBSF
 		obs.m_obs[I_N] = stod(data[I_DAILY_COUNT]);
 
 
-		if (data[I_SPECIES] == "La" && data[I_G] == "1")
-			obs.m_obs[I_S] = S_LA_G1;
+		if (data[I_SPECIES] == "La" && data[I_G] == "0")
+			obs.m_obs[I_S] = S_LA_G0;
 		else if (data[I_SPECIES] == "Lp")
 			obs.m_obs[I_S] = S_LP;
-		else if (data[I_SPECIES] == "La" && data[I_G] == "2")
-			obs.m_obs[I_S] = S_LA_G2;
+		else if (data[I_SPECIES] == "La" && data[I_G] == "1")
+			obs.m_obs[I_S] = S_LA_G1;
 
 
 		m_SAResult.push_back(obs);
@@ -222,7 +256,7 @@ namespace WBSF
 
 
 	enum TPout { P_CDD, P_CUMUL_EMERG, NB_P_OUT, NB_P = CLeucopisModel::NB_SPECIES * NB_P_OUT };
-	void CLeucopisModel::GetPobs(CModelStatVector& P)
+	void CLeucopisModel::GetPobs(CModelStatVector& P)//add array<CStatisitc, CLeucopisModel::NB_SPECIES> statCDD
 	{
 		string ID = GetInfo().m_loc.m_ID;
 		string SY = ID.substr(0, ID.length() - 2);
@@ -294,20 +328,54 @@ namespace WBSF
 			size_t s = m_SAResult[i].m_obs[I_S];//s is compute at new run
 			CTRef TRef = m_SAResult[i].m_ref;
 
+			int year = TRef.GetYear();
+			double TJan = m_weather[year][JANUARY].GetStat(H_TMIN)[MEAN];
+
+
 			double mu = m_P[s * NB_CDD_PARAMS + μ];
-			double S = m_P[s * NB_CDD_PARAMS + ѕ];
+			double sigma = m_P[s * NB_CDD_PARAMS + ѕ];
 
 			//Theoretical curve
-			boost::math::logistic_distribution<double> emerge_dist(mu, S);
+			
+			//boost::math::logistic_distribution<double> emerge_dist(mu, S);
+			
+			double MU = mu;
+			double S = sigma;
+
+			if (s == S_LA_G0)
+			{
+				//boost::math::logistic_distribution<double> F_mu(m_P[P_EOD_MU], m_P[P_EOD_S]);
+				//double F = exp((-0.5 + cdf(F_mu, TJan)) / m_P[P_EOD_DELTA]);
+				//MU = mu * F;
+				//MU = mu + (-0.5 + cdf(F_mu, TJan)) * m_P[P_EOD_DELTA];
+				//S = sigma * 1; 
+
+				MU = m_P[P_EOD_B] * (max(-9.5, TJan) - m_P[P_EOD_A]) / (1 + max(-9.5, TJan) - m_P[P_EOD_A]);
+			}
+
+			//boost::math::logistic_distribution<double> F_mu(m_P[P_LP + μ]);
+			//double F = m_P[P_LP + ѕ] * exp(-m_P[P_LP + ѕ] * (m_P[P_LP + μ] - TJan + 50));
+			//double MU = mu * F;
+			//boost::math::weibull_distribution<double> F_mu(m_P[P_EOD_MU], m_P[P_EOD_S]);
+			//double MU = mu * cdf(F_mu, max(0.0, m_P[P_LP + delta]+TJan));
+			//double S = sigma * exp(-0.5 + cdf(F_mu, TJan)) / m_P[S_LA_G1 + delta];
+			boost::math::logistic_distribution<double> emerge_dist(MU, S);
+
 
 			double CDD = P[TRef][s * NB_P_OUT + P_CDD];
 			double obs = P[TRef][s * NB_P_OUT + P_CUMUL_EMERG];
 			ASSERT(obs >= 0 && obs <= 100);
 
 			double sim = Round(100 * cdf(emerge_dist, max(0.0, CDD)), 1);
+			//double sim = Round(100 * CModelDistribution::get_cdf(CDD, CModelDistribution::WEIBULL, mu, S, m_P[P_LP + μ]), 1);
 
 			for (size_t ii = 0; ii < m_SAResult[i].m_obs[I_N]; ii++)
 				stat.Add(obs, sim);
+
+			/*if(obs>=5 && obs<=95)
+			{
+				double CDD_sim = boost::math::quantile(emerge_dist, obs / 100.0);
+			}*/
 
 		}//for all results
 
