@@ -12,7 +12,7 @@ namespace WBSF
 
 	enum TRadar
 	{ 
-		R_ATL, R_ONT, R_PNR, R_PYR, R_QUE, 
+		R_NAT, R_ATL, R_ONT, R_PNR, R_PYR, R_QUE, 
 		R_WUJ, R_XBE, R_WBI, R_WHK, R_XNC, R_XDR, R_WSO, R_XFW, R_XFT, R_XGO, R_WTP, 
 		R_WHN, R_WKR, R_WMB, R_XLA, R_XME, R_XMB, R_WMN, R_WGJ, R_XTI, R_XPG, R_XRA, 
 		R_XBU, R_XSS, R_WWW, R_XSM, R_XNI, R_XAM, R_XSI, R_WVY, R_XWL, NB_RADARS
@@ -55,14 +55,17 @@ namespace WBSF
 	protected:
 
 		static const char* DEFAULT_LIST[NB_RADARS][NB_INFO];
+	
 	};
 
+	
+	typedef std::map<std::string, std::string>  CRadarListNational;
 
 	class CUIEnvCanRadar : public CTaskBase
 	{
 	public:
 
-		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR, NB_TEMPORAL_TYPE };
+		enum TTemporal{ CURRENT_RADAR, HISTORICAL_RADAR, NEW_NATIONAL_RADAR, NB_TEMPORAL_TYPE };
 		enum TPrcp{ T_SNOW, T_RAIN, NB_TYPE };
 		enum TBackground { B_WHITE, B_BROWN};
 
@@ -101,6 +104,13 @@ namespace WBSF
 		std::string GetOutputFilePath(size_t t, const std::string& fileName)const;
 		CTPeriod GetPeriod()const;
 		static std::string GetRadarID(size_t t, const std::string& URL);
+
+		ERMsg ExecuteNational(CCallback& callback);
+		CRadarListNational GetNationalRadarListToUpdate()const;
+		
+		
+
+
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];

@@ -19,6 +19,7 @@ namespace WBSF
 
 	//Canada
 	//http://climate.weather.gc.ca/radar/image.php?time=04-MAR-14%2005.21.06.293480%20PM&site=WBI
+	// other site ofr radar: http://hpfx.collab.science.gc.ca/
 	//USA 
 	//http://radar.weather.gov/ridge/Conus/RadarImg/
 	//http://www.ncdc.noaa.gov/nexradinv/
@@ -28,6 +29,7 @@ namespace WBSF
 
 	const char* CCanadianRadar::DEFAULT_LIST[NB_RADARS][NB_INFO] =
 	{
+		{ "NAT", "NAT", "National", "" },
 		{ "ATL", "ATL", "Atlantique", "" },
 		{ "ONT", "ONT", "Ontario", "" },
 		{ "PNR", "PNR", "Prairies", "" },
@@ -186,7 +188,7 @@ namespace WBSF
 		string str;
 		switch (i)
 		{
-		case TYPE:		str = "Current|Historical"; break;
+		case TYPE:		str = "Current|Historical|New National"; break;
 		case PRCP_TYPE:	str = "Snow|Rain"; break;
 		case BACKGROUND:str = "White|Brown"; break;
 		case RADAR:		str = CCanadianRadar::GetAllPossibleValue(); break;
@@ -197,11 +199,11 @@ namespace WBSF
 	std::string CUIEnvCanRadar::Default(size_t i)const
 	{
 		string str;
-
+		
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Radar\\"; break;
-		case TYPE:		str = ToString(CURRENT_RADAR); break;
+		case TYPE:		str = ToString(NEW_NATIONAL_RADAR); break;
 		case PRCP_TYPE:	str = ToString(T_SNOW); break;
 		case BACKGROUND:str = ToString(B_BROWN); break;
 		case RADAR:		str = ""; break;
@@ -216,43 +218,21 @@ namespace WBSF
 	ERMsg CUIEnvCanRadar::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-
-	
-		/*StringVector tmpList = GetFilesList("D:/Travaux/WeatherUpdater/EnvCan/Radar/CASVD/*.gif", 2, true);
-		sort(tmpList.begin(), tmpList.end());
-
-		for (size_t i = tmpList.size()-1; i < tmpList.size(); i--)
-		{
-			string file1 = GetFileTitle(tmpList[i]);
-			string year = file1.substr(0, 4);
-			string month = file1.substr(4, 2);
-			string day = file1.substr(6, 2);
-			string hour = file1.substr(8, 2);
-			string min = file1.substr(10, 2);
-
-			CTRef TRef(ToInt(year), ToSizeT(month)-1, ToSizeT(day)-1, ToSizeT(hour));
-			
-			TRef += 5;
-			
-
-			string file_path2 = tmpList[i];
-			string file2 = TRef.GetFormatedString("%Y%m%d%H") + file1.substr(10);
-			SetFileTitle(file_path2, file2);
-
-			WBSF::RenameFile(tmpList[i], file_path2);
-		}*/
-
-
+		
 		switch (as<int>(TYPE))
 		{
 		case CURRENT_RADAR: msg = ExecuteCurrent(callback); break;
 		case HISTORICAL_RADAR: msg = ExecuteHistorical(callback); break;
+		case NEW_NATIONAL_RADAR:msg = ExecuteNational(callback); break;
 		default: ASSERT(false);
 		}
-
+		
 
 		return msg;
 	}
+
+	
+	
 
 	bool CUIEnvCanRadar::NeedDownload(const CFileInfo& info, const string& filePath)const
 	{
@@ -283,10 +263,6 @@ namespace WBSF
 		string path;
 		if (t == CURRENT_RADAR)
 		{
-			/*string year = URL.substr(0, 4);
-			string month = URL.substr(4, 2);
-			string day = URL.substr(6, 2);
-			string region = URL.substr(13, 3);*/
 			StringVector tmp(URL, "_");
 			ASSERT(tmp.size() == 4 || tmp.size() == 5);
 
@@ -296,14 +272,7 @@ namespace WBSF
 			string hour = tmp[0].substr(8, 2);
 			string min = tmp[0].substr(10, 2);
 			string radar_id = tmp[1];
-			/*if (radar_id.length() == 5)
-			{
-				size_t id = CCanadianRadar::GetRadar(radar_id, CCanadianRadar::ABRV2);
-				radar_id = CCanadianRadar::GetName(id, CCanadianRadar::ABRV1);
-			}*/
-
-
-			//string type = tmp[2] + "_" + tmp[3];
+			
 			path = GetDir(WORKING_DIR) + radar_id + "\\" + year + "\\" + month + "\\" + day + "\\" + URL;
 		}
 		else if (t == HISTORICAL_RADAR)
@@ -311,7 +280,7 @@ namespace WBSF
 			size_t pos = URL.find("|");
 			ASSERT(pos != string::npos);
 
-			
+
 			StringVector tmp(URL.substr(0, pos), "_");
 			ASSERT(tmp.size() == 5);
 
@@ -322,12 +291,6 @@ namespace WBSF
 			string hour = date.substr(8, 2);
 			string min = date.substr(10, 2);
 			string radar_id = tmp[1];
-			/*if (radar_id.length() == 5)
-			{
-				size_t id = CCanadianRadar::GetRadar(radar_id, CCanadianRadar::ABRV2);
-				radar_id = CCanadianRadar::GetName(id, CCanadianRadar::ABRV1);
-			}*/
-
 
 			string type = tmp[2] + "_" + tmp[3];
 
@@ -735,6 +698,109 @@ namespace WBSF
 	}
 
 
+	CRadarListNational CUIEnvCanRadar::GetNationalRadarListToUpdate()const
+	{
+		CRadarListNational image_list;
+
+		time_t ltime;
+		tm today = { 0 };
+
+		_tzset();
+		time(&ltime);
+		_gmtime64_s(&today, &ltime);
+
+		//month is zero base and day is in 1 base
+		CTRef now = CTRef(1900 + today.tm_year, today.tm_mon, today.tm_mday - 1, today.tm_hour, CTM::HOURLY);
+		int minute = int(today.tm_min/6)*6;
+		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
+		CTPeriod p(now-3, now);//4 hours are available on the site
+		
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			int mb = (TRef == p.Begin()) ? minute : 0;
+			int me = (TRef == p.End()) ? minute : 60;
+			for (int m = mb; m < me; m += 6)//images every 6 minutes
+			{
+				string date = FormatA("%04d-%02d-%02dT%02d:%02d:00Z", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), m);
+				string path = FormatA("%s%s\\%04d\\%02d\\%02d\\%02d\\National_%04d-%02d-%02dT%02d%02d00Z.tif", GetDir(WORKING_DIR).c_str(), "National", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), m);
+				
+				if (!FileExists(path))
+					image_list[date] = path;
+			}
+		}
+
+		return image_list;
+	}
+
+	ERMsg CUIEnvCanRadar::ExecuteNational(CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		CRadarListNational images_list = GetNationalRadarListToUpdate();
+
+		//https://geo.meteo.gc.ca/geomet?lang=fr&SERVICE=WMS&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=&VERSION=1.3.0&LAYERS=RADAR_1KM_RRAI&WIDTH=1871&HEIGHT=700&CRS=EPSG:3978&BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&TIME=2024-06-17T13%3A30%3A00Z
+		//https://geo.meteo.gc.ca/geomet?lang=fr&SERVICE=WMS&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=&VERSION=1.3.0&LAYERS=RADAR_1KM_RRAI&WIDTH=1871&HEIGHT=700&CRS=EPSG:3978&BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&TIME=2024-06-18T9:00:00Z
+
+		static const char PAGE_FORMAT_NAT[] =
+			"https://geo.meteo.gc.ca/geomet?"
+			"lang=fr&"
+			"SERVICE=WMS&"
+			"REQUEST=GetMap&"
+			"FORMAT=image/png&"
+			"TRANSPARENT=TRUE&"
+			"STYLES=&VERSION=1.3.0&"
+			"LAYERS=RADAR_1KM_RRAI&"
+			"WIDTH=1871&"
+			"HEIGHT=700&"
+			"CRS=EPSG:3978&"
+			"BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&"
+			"TIME=%s";
+
+
+		for (auto it = images_list.begin(); it != images_list.end()&&msg; it++)
+		{
+			string URL = FormatA(PAGE_FORMAT_NAT, it->first.c_str());
+			string output_file_path = it->second;
+
+			CreateMultipleDir( GetPath(output_file_path));
+
+			string argument = "-s -k \"" + URL + "\"";
+			
+			CCallcURL cURL;
+			msg += cURL.copy_file(URL, output_file_path + ".png");
+
+			if (msg)
+			{
+				//verify that is a valid png file
+				WBSF::ifStream file;
+				file.open(output_file_path + ".png");
+				char buffer[5] = { 0 };
+				file.read(buffer, 4);
+				file.close();
+
+				if (string(buffer) == "‰PNG")
+				{
+					//gdal_translate - of GTiff - a_srs EPSG : 3978 - a_ullr - 6991528.601092203  4077507.0562611124 7859563.601092203 - 1478754.0562611124 "10;19.png" "OUTPUT3.tif"
+					string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+					string projlib_path = GetApplicationPath() + "External\\projlib";
+					string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+
+					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
+					string argument = "-co COMPRESS=LZW -co TILED=YES -a_srs EPSG:3978 -a_ullr -6991528.601092203 4077507.0562611124 7859563.601092203 -1478754.0562611124";
+					string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + ".png" + "\" \"" + output_file_path + "\"";
+					msg += WinExecWait(command);
+				}
+
+
+				msg += RemoveFile(output_file_path + ".png");
+			}
+		}
+
+		return msg;
+	}
+
+
 	ERMsg CUIEnvCanRadar::GetRadarList(CTPeriod p, std::map<std::string, StringVector>& imageList, CCallback& callback)
 	{
 		ASSERT(p.GetTType() == CTM::DAILY);
@@ -743,28 +809,19 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-
-
-
-
-
 		CCanadianRadar radar(Get(RADAR));
-		//StringVector radarList(Get(RADAR), "|");
+		
 
 		StringVector radars = GetDirectoriesList(GetDir(WORKING_DIR) + "*");
 		for (size_t d = 0; d < radars.size(); d++)
 		{
 			if (radar.at(radars[d]))
 			{
-
-				//for (size_t r = 0; r < radarList.size(); r++)
-				//{
 				string radar_id = radars[d];
 				string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
-				//string path = "*_" + radar_id + "_" + type + ".gif";
 
 				StringVector years = GetDirectoriesList(inputDir + "*");
-				//callback.PushTask("Get file list", dir.size());
+				
 				for (size_t y = 0; y < years.size() && msg; y++)
 				{
 					int year = ToInt(years[y]);
@@ -801,34 +858,16 @@ namespace WBSF
 							msg += callback.StepIt(0);
 
 						}
-
-
-						//callback.PopTask();
-						//callback.PushTask("Get file list", tmpList.size());
-						/*for (size_t i = 0; i < tmpList.size() && msg; i++)
-						{
-							string ID = GetID(tmpList[i]);
-							CTRef TRef = GetTRef(tmpList[i]);
-							string an_file_path = GetAnimationFilePath(TRef, ID);
-							if (!an_file_path.empty())
-							{
-								string current_animation = GetAnimationFilePath(CTRef::GetCurrentTRef(CTM::HOURLY), ID);
-								if (!FileExists(an_file_path) || bCreateAll || an_file_path == current_animation)
-									fileList[an_file_path].push_back(tmpList[i]);
-
-								msg += callback.StepIt(0);
-							}
-						}*/
 					}
 
 					msg += callback.StepIt();
 				}
-				//}
 			}//is radar selected
 		}//for all directories
 
 
 		return msg;
 	}
+
 
 }
