@@ -168,7 +168,7 @@ namespace WBSF
 	CTaskBase::TType CUIEnvCanRadar::ClassType()const { return CTaskBase::UPDATER; }
 	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIEnvCanRadar::CLASS_NAME(), (createF)CUIEnvCanRadar::create);
 
-	const char* CUIEnvCanRadar::SERVER_NAME[NB_TEMPORAL_TYPE] = { "dd.weather.gc.ca", "climat.meteo.gc.ca" };
+	const char* CUIEnvCanRadar::SERVER_NAME[NB_TEMPORAL_TYPE] = { "dd.weather.gc.ca", "climat.meteo.gc.ca", "geo.meteo.gc.ca" };
 	const char* CUIEnvCanRadar::SERVER_PATH = "radar/PRECIPET/GIF/";
 
 	const char* CUIEnvCanRadar::TYPE_NAME_OLD[NB_TYPE] = { "PRECIP_SNOW_WEATHEROFFICE", "PRECIP_RAIN_WEATHEROFFICE" };
@@ -199,7 +199,7 @@ namespace WBSF
 	std::string CUIEnvCanRadar::Default(size_t i)const
 	{
 		string str;
-		
+
 		switch (i)
 		{
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Radar\\"; break;
@@ -218,7 +218,7 @@ namespace WBSF
 	ERMsg CUIEnvCanRadar::Execute(CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		switch (as<int>(TYPE))
 		{
 		case CURRENT_RADAR: msg = ExecuteCurrent(callback); break;
@@ -226,13 +226,13 @@ namespace WBSF
 		case NEW_NATIONAL_RADAR:msg = ExecuteNational(callback); break;
 		default: ASSERT(false);
 		}
-		
+
 
 		return msg;
 	}
 
-	
-	
+
+
 
 	bool CUIEnvCanRadar::NeedDownload(const CFileInfo& info, const string& filePath)const
 	{
@@ -272,7 +272,7 @@ namespace WBSF
 			string hour = tmp[0].substr(8, 2);
 			string min = tmp[0].substr(10, 2);
 			string radar_id = tmp[1];
-			
+
 			path = GetDir(WORKING_DIR) + radar_id + "\\" + year + "\\" + month + "\\" + day + "\\" + URL;
 		}
 		else if (t == HISTORICAL_RADAR)
@@ -711,10 +711,10 @@ namespace WBSF
 
 		//month is zero base and day is in 1 base
 		CTRef now = CTRef(1900 + today.tm_year, today.tm_mon, today.tm_mday - 1, today.tm_hour, CTM::HOURLY);
-		int minute = int(today.tm_min/6)*6;
+		int minute = int(today.tm_min / 6) * 6;
 		//CTRef now = CTRef::GetCurrentTRef(CTM::HOURLY, true);
-		CTPeriod p(now-3, now);//4 hours are available on the site
-		
+		CTPeriod p(now - 3, now);//4 hours are available on the site
+
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
 			int mb = (TRef == p.Begin()) ? minute : 0;
@@ -723,7 +723,7 @@ namespace WBSF
 			{
 				string date = FormatA("%04d-%02d-%02dT%02d:%02d:00Z", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), m);
 				string path = FormatA("%s%s\\%04d\\%02d\\%02d\\%02d\\National_%04d-%02d-%02dT%02d%02d00Z.tif", GetDir(WORKING_DIR).c_str(), "National", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), m);
-				
+
 				if (!FileExists(path))
 					image_list[date] = path;
 			}
@@ -737,7 +737,21 @@ namespace WBSF
 		ERMsg msg;
 
 
+
+
+
+		callback.AddMessage(GetString(IDS_UPDATE_DIR));
+		callback.AddMessage(GetDir(WORKING_DIR), 1);
+		callback.AddMessage(GetString(IDS_UPDATE_FROM));
+		callback.AddMessage(SERVER_NAME[NEW_NATIONAL_RADAR], 1);
+		callback.AddMessage("");
+
 		CRadarListNational images_list = GetNationalRadarListToUpdate();
+
+		callback.PushTask("Download national radar images (" + ToString(images_list.size()) + ")", images_list.size());
+		callback.AddMessage("Number of images to download: " + ToString(images_list.size()));
+
+
 
 		//https://geo.meteo.gc.ca/geomet?lang=fr&SERVICE=WMS&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=&VERSION=1.3.0&LAYERS=RADAR_1KM_RRAI&WIDTH=1871&HEIGHT=700&CRS=EPSG:3978&BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&TIME=2024-06-17T13%3A30%3A00Z
 		//https://geo.meteo.gc.ca/geomet?lang=fr&SERVICE=WMS&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=&VERSION=1.3.0&LAYERS=RADAR_1KM_RRAI&WIDTH=1871&HEIGHT=700&CRS=EPSG:3978&BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&TIME=2024-06-18T9:00:00Z
@@ -757,16 +771,16 @@ namespace WBSF
 			"BBOX=-6991528.601092203,-1478754.0562611124,7859563.601092203,4077507.0562611124&"
 			"TIME=%s";
 
-
-		for (auto it = images_list.begin(); it != images_list.end()&&msg; it++)
+		size_t nbDownload = 0;
+		for (auto it = images_list.begin(); it != images_list.end() && msg; it++)
 		{
 			string URL = FormatA(PAGE_FORMAT_NAT, it->first.c_str());
 			string output_file_path = it->second;
 
-			CreateMultipleDir( GetPath(output_file_path));
+			CreateMultipleDir(GetPath(output_file_path));
 
 			string argument = "-s -k \"" + URL + "\"";
-			
+
 			CCallcURL cURL;
 			msg += cURL.copy_file(URL, output_file_path + ".png");
 
@@ -790,12 +804,18 @@ namespace WBSF
 					string argument = "-co COMPRESS=LZW -co TILED=YES -a_srs EPSG:3978 -a_ullr -6991528.601092203 4077507.0562611124 7859563.601092203 -1478754.0562611124";
 					string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + ".png" + "\" \"" + output_file_path + "\"";
 					msg += WinExecWait(command);
+
+					nbDownload++;
 				}
 
 
 				msg += RemoveFile(output_file_path + ".png");
+				msg += callback.StepIt();
 			}
 		}
+
+		callback.AddMessage("Number of images downloaded: " + ToString(nbDownload));
+		callback.PopTask();
 
 		return msg;
 	}
@@ -808,61 +828,114 @@ namespace WBSF
 		ERMsg msg;
 
 		string workingDir = GetDir(WORKING_DIR);
+		size_t source_type = as<size_t>(TYPE);
 
-		CCanadianRadar radar(Get(RADAR));
-		
-
-		StringVector radars = GetDirectoriesList(GetDir(WORKING_DIR) + "*");
-		for (size_t d = 0; d < radars.size(); d++)
+		if (source_type == NEW_NATIONAL_RADAR)
 		{
-			if (radar.at(radars[d]))
+			string inputDir = GetDir(WORKING_DIR) + "National\\";
+			StringVector years = GetDirectoriesList(inputDir + "*");
+
+			for (size_t y = 0; y < years.size() && msg; y++)
 			{
-				string radar_id = radars[d];
-				string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
-
-				StringVector years = GetDirectoriesList(inputDir + "*");
-				
-				for (size_t y = 0; y < years.size() && msg; y++)
+				int year = ToInt(years[y]);
+				if (p.as(CTM::ANNUAL).IsInside(year))
 				{
-					int year = ToInt(years[y]);
-					if (p.as(CTM::ANNUAL).IsInside(year))
+					//StringVector months = GetDirectoriesList(GetDir(WORKING_DIR) + "National\\" + years[y] + "\\*");
+
+					/*for (size_t m = 0; m < months.size() && msg; m++)
 					{
-						string type = as<bool>(COMPOSITE) ? "COMP_" : "";
-						if (year <= 2013)
-							type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIP_RAIN" : "PRECIP_SNOW";
-						else
-							type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIPET_RAIN" : "PRECIPET_SNOW";
-
-						if (as<size_t>(BACKGROUND) == B_WHITE)
-							type += "_A11Y";
-
-
-						StringVector tmpList = GetFilesList(inputDir + years[y] + "*_" + radar_id + "_" + type + ".gif", 2, true);
-						for (size_t i = 0; i < tmpList.size() && msg; i++)
+						size_t month = ToSizeT(months[m]);
+						if (p.as(CTM::MONTHLY).IsInside(CTRef(year, month)))
 						{
+							StringVector days = GetDirectoriesList(GetDir(WORKING_DIR) + "National\\" + years[y] + "\\"+months[m] + "\\*");
+							for (size_t d = 0; d < days.size() && msg; d++)
+							{
+								size_t day = ToSizeT(days[d]);
+								if (p.as(CTM::DAILY).IsInside(CTRef(year, month, day)))
+								{*/
+					StringVector tmpList = GetFilesList(inputDir + years[y] + "\\National_*.tif", 2, true);
+					for (size_t i = 0; i < tmpList.size() && msg; i++)
+					{
 
-							StringVector tmp(GetFileTitle(tmpList[i]), "_");
-							ASSERT(tmp.size() == 4 || tmp.size() == 5);
+						StringVector tmp(GetFileTitle(tmpList[i]), "_");
+						ASSERT(tmp.size() == 2);
 
-							string year = tmp[0].substr(0, 4);
-							string month = tmp[0].substr(4, 2);
-							string day = tmp[0].substr(6, 2);
-							//string hour = tmp[0].substr(8, 2);
+						string year = tmp[1].substr(0, 4);
+						string month = tmp[1].substr(5, 2);
+						string day = tmp[1].substr(8, 2);
+						//string hour = tmp[0].substr(8, 2);
 
 
-							CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
+						CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
 
-							if (p.as(CTM::DAILY).IsInside(TRef))
-								imageList[radar_id + "_" + type].push_back(tmpList[i]);
+						if (p.as(CTM::DAILY).IsInside(TRef))
+							imageList["National_Rain"].push_back(tmpList[i]);
 
-							msg += callback.StepIt(0);
+						msg += callback.StepIt(0);
 
+					}
+				}
+			}
+
+			//For now, tif is not supported by component CreateRadarAnimation, so clear list
+			imageList.clear();
+		}
+		else
+		{
+			CCanadianRadar radar(Get(RADAR));
+			//callback.AddTask()
+
+			StringVector radars = GetDirectoriesList(GetDir(WORKING_DIR) + "*");
+			for (size_t d = 0; d < radars.size(); d++)
+			{
+
+				if (radar.at(radars[d]))
+				{
+					string radar_id = radars[d];
+					string inputDir = GetDir(WORKING_DIR) + radar_id + "\\";
+
+					StringVector years = GetDirectoriesList(inputDir + "*");
+
+					for (size_t y = 0; y < years.size() && msg; y++)
+					{
+						int year = ToInt(years[y]);
+						if (p.as(CTM::ANNUAL).IsInside(year))
+						{
+							string type = as<bool>(COMPOSITE) ? "COMP_" : "";
+							if (year <= 2013)
+								type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIP_RAIN" : "PRECIP_SNOW";
+							else
+								type += (as<size_t>(PRCP_TYPE) == T_RAIN) ? "PRECIPET_RAIN" : "PRECIPET_SNOW";
+
+							if (as<size_t>(BACKGROUND) == B_WHITE)
+								type += "_A11Y";
+
+
+							StringVector tmpList = GetFilesList(inputDir + years[y] + "*_" + radar_id + "_" + type + ".gif", 2, true);
+							for (size_t i = 0; i < tmpList.size() && msg; i++)
+							{
+
+								StringVector tmp(GetFileTitle(tmpList[i]), "_");
+								ASSERT(tmp.size() == 4 || tmp.size() == 5);
+
+								string year = tmp[0].substr(0, 4);
+								string month = tmp[0].substr(4, 2);
+								string day = tmp[0].substr(6, 2);
+								//string hour = tmp[0].substr(8, 2);
+
+
+								CTRef TRef(ToInt(year), ToSizeT(month) - 1, ToSizeT(day) - 1);
+
+								if (p.as(CTM::DAILY).IsInside(TRef))
+									imageList[radar_id + "_" + type].push_back(tmpList[i]);
+
+								msg += callback.StepIt(0);
+
+							}
 						}
 					}
-
-					msg += callback.StepIt();
-				}
-			}//is radar selected
+				}//is radar selected
+			}
 		}//for all directories
 
 
