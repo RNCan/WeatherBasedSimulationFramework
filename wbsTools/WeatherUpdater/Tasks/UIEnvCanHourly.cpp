@@ -1588,7 +1588,8 @@ namespace WBSF
 
 		//le fichier est corrompu en date du 20 décembre 2022
 		//if(network==N_SWOB)//reéativer plus tard
-		msg = UpdateSWOBLocations(network, callback);
+		// Le fichier esr innaccessible en date du 2024-06-16: à remeetre plus tard
+		//msg = UpdateSWOBLocations(network, callback);
 
 
 		if (msg)
