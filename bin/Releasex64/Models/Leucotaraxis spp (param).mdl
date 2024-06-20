@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Leucotaraxis spp</Title>
+    <Version>1.0</Version>
+    <ID>.LCP</ID>
+    <EXE>Leucotaraxis spp.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 388 576</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 10 30 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g1_Th1</Name>
+            <Caption>La_g1_Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>45 10 70 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>2.5</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g1_Th2</Name>
+            <Caption>La_g1_Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 100 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>18.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g1_delta</Name>
+            <Caption>La_g1_delta</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 10 130 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g1_mu</Name>
+            <Caption>La_g1_mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>155 10 180 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>247.4</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g1_s</Name>
+            <Caption>La_g1_s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>185 10 210 160</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>42.15</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_Th1</Name>
+            <Caption>Lp_Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>40 195 60 345</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>2.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_Th2</Name>
+            <Caption>Lp_Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>70 195 95 345</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>18.5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_delta</Name>
+            <Caption>Lp_delta</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 195 125 345</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_mu</Name>
+            <Caption>Lp_mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>150 195 170 345</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>652.6</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_s</Name>
+            <Caption>Lp_s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 195 205 345</Rect>
+            <SeparatorPos>60</SeparatorPos>
+            <DefaultValue>39.93</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g2_Th1</Name>
+            <Caption>La_g2_Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>40 365 60 515</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>2.5</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g2_Th2</Name>
+            <Caption>La_g2_Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>70 365 90 515</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g2_delta</Name>
+            <Caption>La_g2_delta</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 365 125 515</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>45</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g2_mu</Name>
+            <Caption>La_g2_mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>145 365 170 515</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>933.7</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>50000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_g2_s</Name>
+            <Caption>La_g2_s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>180 365 200 515</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>61.6</DefaultValue>
+            <MinValue>0.0001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EOD_a</Name>
+            <Caption>EOD_a</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>240 10 260 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>-8</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>30</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EOD_b</Name>
+            <Caption>EOD_b</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>265 10 290 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>0.65</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EOD_c</Name>
+            <Caption>EOD_c</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>295 10 315 160</Rect>
+            <SeparatorPos>65</SeparatorPos>
+            <DefaultValue>300</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>La_same_La_g1</Name>
+            <Caption>g2 same as g1</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>5 365 30 515</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Lp_same_La_g1</Name>
+            <Caption>Lp Same As La g1</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 195 30 345</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>CDD_La_g0</Name>
+            <Title>CDD_La_g0</Title>
+            <Units/>
+            <Description>Adult emergence growing degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>La_g0</Name>
+            <Title>La_g0</Title>
+            <Units>%</Units>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD_Lp</Name>
+            <Title>CDD_Lp</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Lp</Name>
+            <Title>Lp</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CDD_La_g1</Name>
+            <Title>CDD_La_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>La_g1</Name>
+            <Title>La_g1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>
