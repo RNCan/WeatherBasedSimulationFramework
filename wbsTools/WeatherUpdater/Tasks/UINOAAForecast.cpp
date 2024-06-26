@@ -4,6 +4,7 @@
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
+#include "basic/CallcURL.h"
 //#include "cctz\time_zone.h"
 
 
@@ -184,12 +185,12 @@ namespace WBSF
 		size_t nbDownload = 0;
 
 
-		callback.PushTask("Downlaod NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1);
+		callback.PushTask("Download NOAA Forecast (" + ToString((NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1) + " gribs files )", (NB_HOURLY_VARS + NB_DAILY_VARS) * 2 - 1);
 
-		CInternetSessionPtr pSession;
-		CFtpConnectionPtr pConnection;
+		//CInternetSessionPtr pSession;
+		//CFtpConnectionPtr pConnection;
 
-		msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
+		//msg = GetFtpConnection("tgftp.nws.noaa.gov", pConnection, pSession, PRE_CONFIG_INTERNET_ACCESS, "", "", true, 5, callback);
 		if (msg)
 		{
 			for (size_t t = 0; t < NB_DATA_TYPE&&msg; t++)
@@ -223,7 +224,12 @@ namespace WBSF
 								WBSF::CopyOneFile(outputFilePath1, outputFilePath2, false);
 						}*/
 
-						msg += UtilWWW::CopyFile(pConnection, inputFilePath, outputFilePath);
+						//msg += UtilWWW::CopyFile(pConnection, inputFilePath, outputFilePath);
+
+						CCallcURL cURL;
+						//string argument = "-s -k \"" + inputFilePath + "\" -o \"" + outputFilePath + "\"";
+						
+						msg += cURL.copy_file("https://tgftp.nws.noaa.gov/" + inputFilePath, outputFilePath);
 						if (msg)
 							nbDownload++;
 
@@ -233,8 +239,8 @@ namespace WBSF
 				}
 			}
 
-			pConnection->Close();
-			pSession->Close();
+			//pConnection->Close();
+			//pSession->Close();
 
 		}
 
