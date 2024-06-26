@@ -1578,27 +1578,6 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
-		if (false)
-		{
-			StringVector a2022 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2022/*.csv", FILE_PATH, true);
-			StringVector a2023 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2023/*.csv", FILE_PATH, true);
-			StringVector a2024 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2024/*.csv", FILE_PATH, true);
-			StringVector list;
-			list.insert(list.end(), a2022.begin(), a2022.end());
-			list.insert(list.end(), a2023.begin(), a2023.end());
-			list.insert(list.end(), a2024.begin(), a2024.end());
-			
-			for (size_t i = 0; i < list.size()&&msg; i++)
-			{
-				string name = GetFileName(list[i]);
-				if (name.find("_") != string::npos)
-				{
-					WBSF::ReplaceString(name, "_", "-");
-
-					msg = WBSF::RenameFile(list[i], GetPath(list[i])+ name);
-				}
-			}
-		}
 
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
