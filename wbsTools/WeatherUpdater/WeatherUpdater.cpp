@@ -1,3 +1,4 @@
+//6.2.0 26/06/2024  Rémi Saint-Amant	replace all _ by - in SWOB-Partner ID
 //6.1.9 18/06/2024  Rémi Saint-Amant	Add new Canada-USA radar images
 //6.1.8 02/04/2024  Rémi Saint-Amant	Update New-Brunswick. Add Partner network: Park Canada and ON water
 //6.1.7 18/03/2024  Rémi Saint-Amant	Add Google Drive download task

@@ -59,8 +59,8 @@ namespace WBSF
 
 
 
-	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "RIOTINTO","BC-CRD","BC_ENV-AQ","BC_ENV-ASW","BC_WMB","BC_TRAN","DFO","NB-DNRED","NL-DECCM-WRMD","NS-DLF", "NWT_ENR","NWT_ENR",
-		"ON-MNRF-AFFES","ON_GRCA","ON_MTO","ON_TRCA","ON-MNRF-EC-WSC","PC-NRMB","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
+	static const char* PARTNERS_NETWORK_ID[NB_PARTNER_NETWORK] = { "RIOTINTO","BC-CRD","BC-ENV-AQ","BC-ENV-ASW","BC-WMB","BC-TRAN","DFO","NB-DNRED","NL-DECCM-WRMD","NS-DLF", "NWT-ENR","NWT-ENR",
+		"ON-MNRF-AFFES","ON-GRCA","ON-MTO","ON-TRCA","ON-MNRF-EC-WSC","PC-NRMB","POM","SK-SPSA-WMB","YAA","YT-DCS-WFM","YT-DE-WRB" };
 
 
 
@@ -120,7 +120,7 @@ namespace WBSF
 
 				string stID = tmp[7] + "-" + tmp[8];
 
-				ID = network + "_" + stID;
+				ID = network + "-" + stID;
 			}
 			else if (p_network == "nl-water")
 			{
@@ -129,7 +129,7 @@ namespace WBSF
 
 				string stID = tmp[7];
 
-				ID = network + "_" + stID;
+				ID = network + "-" + stID;
 			}
 			else if (p_network == "qc-pom" || p_network == "yt-firewx" ||
 				p_network == "yt-avalanche")
@@ -139,9 +139,9 @@ namespace WBSF
 			else if (p_network == "on_water")
 			{
 				if (tmp[7].find("wiski") != string::npos)
-					ID = "ON_MNR_" + tmp[7];
+					ID = "ON-MNR-" + tmp[7];
 				else
-					ID = "EC_" + tmp[7];
+					ID = "EC-" + tmp[7];
 			}
 			else if (p_network == "on-mto")
 			{
@@ -150,13 +150,13 @@ namespace WBSF
 				ASSERT(stID.length() >= 7);
 				stID = stID.substr(3, 2) + "-" + stID.substr(5);
 
-				ID = network + "_" + stID;
+				ID = network + "-" + stID;
 			}
 			else
 			{
 				string stID = tmp[7];
 
-				ID = network + "_" + stID;
+				ID = network + "-" + stID;
 			}
 		}
 		else
@@ -166,6 +166,7 @@ namespace WBSF
 			ID = tmp[5];
 		}
 
+		WBSF::ReplaceString(ID, "_", "-");
 		return MakeUpper(ID);
 	}
 
@@ -1577,6 +1578,28 @@ namespace WBSF
 
 		string workingDir = GetDir(WORKING_DIR);
 
+		if (false)
+		{
+			StringVector a2022 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2022/*.csv", FILE_PATH, true);
+			StringVector a2023 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2023/*.csv", FILE_PATH, true);
+			StringVector a2024 = WBSF::GetFilesList(workingDir + "SWOB-Partners/2024/*.csv", FILE_PATH, true);
+			StringVector list;
+			list.insert(list.end(), a2022.begin(), a2022.end());
+			list.insert(list.end(), a2023.begin(), a2023.end());
+			list.insert(list.end(), a2024.begin(), a2024.end());
+			
+			for (size_t i = 0; i < list.size()&&msg; i++)
+			{
+				string name = GetFileName(list[i]);
+				if (name.find("_") != string::npos)
+				{
+					WBSF::ReplaceString(name, "_", "-");
+
+					msg = WBSF::RenameFile(list[i], GetPath(list[i])+ name);
+				}
+			}
+		}
+
 
 		callback.AddMessage(GetString(IDS_UPDATE_DIR));
 		callback.AddMessage(workingDir + NETWORK_NAME[network] + "\\", 1);
@@ -1586,38 +1609,42 @@ namespace WBSF
 
 		string infoFilePath = GetSWOBStationsListFilePath(network);
 
-		//le fichier est corrompu en date du 20 décembre 2022
-		//if(network==N_SWOB)//reéativer plus tard
-		// Le fichier esr innaccessible en date du 2024-06-16: à remeetre plus tard
-		//msg = UpdateSWOBLocations(network, callback);
 
+		ERMsg msgLoc = UpdateSWOBLocations(network, callback);
+		if (!msgLoc)
+		{
+			callback.AddMessage("Warning:");
+			callback.AddMessage(msgLoc);
+		}
+
+
+		CLocationVector locations;
+		msg = locations.Load(infoFilePath);
 
 		if (msg)
 		{
-			CLocationVector locations;
-			msg = locations.Load(infoFilePath);
+
+
+			string filePath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
+			CLocationVector missingLoc;
+			if (missingLoc.Load(filePath))
+				locations.insert(locations.end(), missingLoc.begin(), missingLoc.end());
+
+
+			map<string, CFileInfoVector> fileList;
+			//set<string> missingID;
+			msg = GetSWOBList(network, locations, fileList, callback);
+
 			if (msg)
 			{
-				string filePath = workingDir + NETWORK_NAME[network] + "\\MissingStations.csv";
-				CLocationVector missingLoc;
-				if (missingLoc.Load(filePath))
-					locations.insert(locations.end(), missingLoc.begin(), missingLoc.end());
+				//					if (!missingID.empty())
+					//					msg = UpdateMissingLocation(network, locations, fileList, missingID, callback);
 
-
-				map<string, CFileInfoVector> fileList;
-				//set<string> missingID;
-				msg = GetSWOBList(network, locations, fileList, callback);
 
 				if (msg)
-				{
-					//					if (!missingID.empty())
-						//					msg = UpdateMissingLocation(network, locations, fileList, missingID, callback);
-
-
-					if (msg)
-						msg = DownloadSWOB(network, locations, fileList, callback);
-				}
+					msg = DownloadSWOB(network, locations, fileList, callback);
 			}
+
 		}
 
 		return msg;
@@ -1717,6 +1744,17 @@ namespace WBSF
 				CLocation location;
 
 				location.m_ID = (*loop)[columns[C_ID_MSC]]; ASSERT(!location.m_ID.empty());
+				//if(location.m_ID.length() > 3 && location.m_ID[2] == '_')
+					//location.m_ID[2] = '-';
+				//else if (location.m_ID.length() > 4 && location.m_ID[3] == '_')
+					//location.m_ID[3] = '-';
+				//else if (location.m_ID.find("RioTinto_") != string::npos )
+					//location.m_ID[8] = '-';
+				//replace all _ by -
+				WBSF::ReplaceString(location.m_ID,"_","-");
+				WBSF::ReplaceString(location.m_ID, "TRCA", "ON-TRCA");
+
+
 				location.m_name = GetCleanSwobName((*loop)[columns[C_NAME]]);
 				location.m_lat = WBSF::as<double>((*loop)[columns[C_LATITUDE]]);
 				location.m_lon = WBSF::as<double>((*loop)[columns[C_LONGITUDE]]);
@@ -1728,7 +1766,7 @@ namespace WBSF
 
 					if (prov_name.empty())
 					{
-						if (location.m_ID.find("BC_ENV") != string::npos)
+						if (location.m_ID.find("BC-ENV") != string::npos)
 							prov_name = "BC";
 					}
 
@@ -1758,10 +1796,10 @@ namespace WBSF
 				{
 					string IATA = location.GetSSI("IATA");
 					MakeLower(IATA);
-					ReplaceString(IATA, " ", "_");
+					ReplaceString(IATA, " ", "-");
 
 					string ID = location.m_ID;
-					location.m_ID = "DFO_" + MakeUpper(IATA);
+					location.m_ID = "DFO-" + MakeUpper(IATA);
 
 					location.SetSSI("IATA", ID);
 
@@ -1774,11 +1812,11 @@ namespace WBSF
 					location.SetSSI("Province", "QC");
 				if (location.m_ID == "2203913")
 					location.SetSSI("Province", "NT");
-				if (location.m_ID == "ON-MNRF-AFFES_PNF")//Petawawa, ON
+				if (location.m_ID == "ON-MNRF-AFFES-PNF")//Petawawa, ON
 					location.m_lon = -77.4385;
-				if (location.m_ID == "NB-DNRED_DUNG")//Dungarvon, NB
+				if (location.m_ID == "NB-DNRED-DUNG")//Dungarvon, NB
 					location.m_lon = -66.3067;
-				
+
 
 				ASSERT(location.m_lon >= -180 && location.m_lon <= 180);
 
@@ -1976,6 +2014,10 @@ namespace WBSF
 				for (CFileInfoVector::const_iterator it1 = dir1.begin(); it1 != dir1.end() && msg; it1++)
 				{
 					string p_network = GetNetwork(it1->m_filePath);
+
+					if (p_network == "dfo-moored-buoys")
+						continue;
+
 					string YYYYMMDD = GetLastDirName(it1->m_filePath);
 					int year = WBSF::as<int>(YYYYMMDD.substr(0, 4));
 					size_t m = WBSF::as<size_t>(YYYYMMDD.substr(4, 2)) - 1;
@@ -2062,7 +2104,7 @@ namespace WBSF
 							}
 						}
 					}
-					else
+					else//if (p_network != "yt-water" && p_network != "nl-water")
 					{
 						dir2.push_back(*it1);
 						dates.insert(YYYYMMDD);
@@ -2115,7 +2157,7 @@ namespace WBSF
 					}
 
 
-
+					
 					msg += callback.StepIt();
 				}//if msg
 
