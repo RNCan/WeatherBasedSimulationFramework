@@ -2532,7 +2532,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
+		//const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
 		CTRef TRef16 = TRef.as(CTM::HOURLY);
 		TRef16.m_hour = 16;
@@ -3360,7 +3360,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
+		//const int nbSubPerHour = 3600 / m_world_param.m_outputFrequency;
 
 		size_t nbLines = sub_output.size()*sub_output[0].size();
 		boost::dynamic_bitset<size_t> have_data(nbLines);

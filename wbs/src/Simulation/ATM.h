@@ -324,8 +324,8 @@ namespace WBSF
 			m_water_name.clear();
 
 			m_bOutputSubHourly = false;
-			m_outputFileTitle = "10MinutesOutput.csv";
-			m_outputFrequency = 600;
+			m_outputFileTitle = "06MinutesOutput.csv";
+			m_outputFrequency = 360;
 
 			m_bCreateEggMaps = false;
 			m_eggMapsTitle = "EggDensity.tif";

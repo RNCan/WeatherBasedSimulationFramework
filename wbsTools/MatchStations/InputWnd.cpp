@@ -147,7 +147,7 @@ void CInputPropertyCtrl::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			CMFCPropertyGridProperty* pItem = NULL;
 			switch (INPUT_TYPE[i])
 			{
-			case IT_FILEPATH:	pItem = new CStdGriFilepathProperty(title[i], value, description[i], filter, i); break;
+			case IT_FILEPATH:	pItem = new CStdGridFilepathProperty(title[i], value, description[i], filter, i); break;
 			case IT_OBS_TYPE:	pItem = new CObservationTypeProperty(title[i], value, description[i], i); break;
 			case IT_VAR:		pItem = new CWeatherVariableProperty(title[i], value, description[i], i); break;
 			case IT_STRING:		pItem = new CStdGridProperty(title[i], value, description[i], i); break;
