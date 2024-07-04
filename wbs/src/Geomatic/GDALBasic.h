@@ -139,7 +139,11 @@ namespace WBSF
 
 		bool IsValid(DataType v)const
 		{
-			return m_noData == MISSING_NO_DATA || fabs(v - (DataType)m_noData) > EPSILON_NODATA;
+			bool b1 = m_noData == MISSING_NO_DATA;
+			bool b2 = std::isnan(m_noData) && !std::isnan(v);
+			bool b3 = fabs(v - (DataType)m_noData) > EPSILON_NODATA;
+
+			return b1 || b2 || b3;
 		}
 
 		double GetNoData()const{ return m_noData; }

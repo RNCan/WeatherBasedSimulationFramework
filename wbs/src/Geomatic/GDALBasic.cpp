@@ -1283,6 +1283,7 @@ namespace WBSF
 				{
 					for (int x = 0; x < blockExtents.m_xSize; x++)
 					{
+
 						if (window->IsValid(x, y))
 						{
 							CGridPoint pt;
