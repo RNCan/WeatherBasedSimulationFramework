@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM
 // 11.8.21:04/07/2024	Rémi Saint-Amant	Support when no_data is nan
+//											replace std::uniform_int by std::uniform_int_distribution in UtilMath
 // 11.8.20:04/04/2024	Rémi Saint-Amant	Bug correction when creating project
 // 11.8.19:18/03/2024	Rémi Saint-Amant	Change FTP by Google Drive download
 // 11.8.18:13/02/2024	Rémi Saint-Amant	New hourly precipitation and wind speed

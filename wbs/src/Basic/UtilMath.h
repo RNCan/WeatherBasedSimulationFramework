@@ -11,9 +11,6 @@
 
 
 #include <random>
-//#include <math.h>
-//#include <stdlib.h>
-
 #include "Basic/UtilStd.h"
 
 
@@ -21,20 +18,6 @@
 
 namespace WBSF
 {
-
-
-	//inline const int Max(int x, int y){ return (x > y) ? x : y; }
-	//template<class T, class U> inline double Max(const T& x, const U& y){ return double((x > y) ? x : y); }
-	//template<class T> inline const T& Max(const T& x, const T& y){ return (x > y) ? x : y; }
-
-
-	//inline const float Min(float x, float y){ return (x < y)?x:y; }
-	//inline const double Min(double x, double y){ return (x < y)?x:y; }
-	// template function returns y if x > y
-	// To avoid conflicts with min and max in WINDEF.H
-	//inline const int Min(int x, int y){ return (x < y) ? x : y; }
-	//template<class T, class U> inline double Min(const T& x, const U& y){ return double((x < y) ? x : y); }
-	//template<class T> inline const T& Min(const T& x, const T& y){ return (x < y) ? x : y; }
 
 
 	static const double VMISS = -9999999.f;
@@ -325,8 +308,8 @@ namespace WBSF
 		static const int RAND_MAX_INT = 2147483600;//2147483647;
 
 
-		CRandomGenerator(size_t	seed = 0) :
-			m_uniformInt(0, RAND_MAX_INT)
+		CRandomGenerator(size_t	seed = 0)
+		//	m_uniformInt(0, RAND_MAX_INT)
 		{
 			Randomize(seed);
 		}
@@ -336,8 +319,9 @@ namespace WBSF
 
 		unsigned long Rand()const
 		{
+			std::uniform_int_distribution<int> uniformInt;
 			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
-			return me.m_uniformInt(me.m_gen);
+			return uniformInt(me.m_gen);
 		}
 
 		//returns a double on the interval 
@@ -463,7 +447,7 @@ namespace WBSF
 
 
 		std::mt19937 m_gen;
-		std::uniform_int<int> m_uniformInt;
+		
 	};
 
 
