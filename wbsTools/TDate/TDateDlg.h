@@ -58,6 +58,6 @@ protected:
 
     bool m_bChangeStadard;
     bool m_bChangeJulian;
-    int m_nDate;
+    size_t m_nDate;
 };
 

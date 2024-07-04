@@ -39,7 +39,7 @@ protected:
 	
 	DECLARE_MESSAGE_MAP()
 
-	CStaticBitmap	m_bitmap;
+	//CStaticBitmap	m_bitmap;
 };
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
@@ -49,7 +49,7 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_BITMAP, m_bitmap);
+	//DDX_Control(pDX, IDC_BITMAP, m_bitmap);
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
@@ -142,13 +142,13 @@ void CTDateDlg::SetCurrentDate(void)
 {
     CTime time = CTime::GetCurrentTime();
 
-	int jDay = GetJDay(time.GetYear(), time.GetMonth()-1, time.GetDay()-1)+1;
+	size_t jDay = GetJDay(time.GetYear(), time.GetMonth()-1, time.GetDay()-1)+1;
     
 	if (jDay != m_nDate)
     {
 		m_nDate = jDay;
         m_bChangeJulian = true;
-        SetDlgItemInt(IDC_DATEJULIEN, m_nDate);
+        SetDlgItemInt(IDC_DATEJULIEN, int(m_nDate));
 
         m_bChangeJulian = false;	
 
@@ -222,8 +222,8 @@ void CTDateDlg::OnChangeDateStandard(NMHDR* /*pNMHDR*/, LRESULT* pResult)
 
         CTime time;
         m_standard.GetTime(time); 
-		int nDate = GetJDay(time.GetYear(), time.GetMonth() - 1, time.GetDay()-1)+1;
-        SetDlgItemInt(IDC_DATEJULIEN, nDate);
+		size_t nDate = GetJDay(time.GetYear(), time.GetMonth() - 1, time.GetDay()-1)+1;
+        SetDlgItemInt(IDC_DATEJULIEN, int(nDate));
 
         m_bChangeJulian = false;	
     }
@@ -251,11 +251,11 @@ void CTDateDlg::OnChangeDatejulien()
 
 
             m_standard.EnableWindow(true);
-			int nDay = WBSF::GetDayOfTheMonth(time.GetYear(), jDay - 1) + 1;
-			int nMonth = WBSF::GetMonthIndex(time.GetYear(), jDay - 1) + 1;
+			size_t nDay = WBSF::GetDayOfTheMonth(time.GetYear(), jDay - 1) + 1;
+			size_t nMonth = WBSF::GetMonthIndex(time.GetYear(), jDay - 1) + 1;
 
             
-            CTime time2(time.GetYear(), nMonth, nDay, 0,0,0);
+            CTime time2(time.GetYear(), int(nMonth), int(nDay), 0,0,0);
             
             m_standard.SetTime(&time2); 
         }

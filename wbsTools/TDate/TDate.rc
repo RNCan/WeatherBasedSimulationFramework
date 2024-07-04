@@ -25,8 +25,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,0,1
- PRODUCTVERSION 2,2,0,1
+ FILEVERSION 2,3,0,1
+ PRODUCTVERSION 2,3,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -43,11 +43,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresterie des Laurentides"
             VALUE "FileDescription", "Tranforme des dates juliens en dates standards"
-            VALUE "FileVersion", "2,2,0,1"
+            VALUE "FileVersion", "2.3.0.1"
             VALUE "InternalName", "TDate"
             VALUE "OriginalFilename", "TDate.EXE"
             VALUE "ProductName", "TDate Application"
-            VALUE "ProductVersion", "2,2,0,1"
+            VALUE "ProductVersion", "2.3.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -66,12 +66,14 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\TDate.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
 IDB_RNCan               BITMAP                  "res\\RNCan.bmp"
+
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -142,10 +144,11 @@ CAPTION "Au sujet de Transforme Date"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,25,20,20
-    LTEXT           "Transforme Date Version 2.2",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Transforme Date Version 2.3.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
     LTEXT           "Programmer par : Rémi Saint-Amant",IDC_STATIC,40,33,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Ressources naturelles Canada,\nCentre de foresterie des Laurentides,\nC.P 3800, Sainte-Foy, QC, Canada, G1V 4C7",IDC_STATIC,53,60,175,29,0,WS_EX_TRANSPARENT
+    CONTROL         IDB_RNCan,IDC_STATIC,"Static",SS_BITMAP,7,56,41,38
 END
 
 IDD_TDATE_DIALOG DIALOGEX 0, 0, 212, 39
@@ -201,6 +204,17 @@ BEGIN
         MENUITEM "Au Sujet de TDate...",        IDM_ABOUTBOX
         MENUITEM "Convertir un fichier",        IDM_CONVERT_FILE
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 
