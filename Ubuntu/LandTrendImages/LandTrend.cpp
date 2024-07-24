@@ -3,7 +3,10 @@
 //
 //***********************************************************************
 // version
-// 1.0.6	19/01/2024	Rémi Saint-Amant	Add 
+// 1.1.0	24/07/2024	Rémi Saint-Amant	Change UINT16 for INT16. 
+//											Bug correction in desawtooth.
+//											Bug correction in CloudMask
+//											New version of rings, use only pixel of the ring and not all 
 // 1.0.5	20/12/2023	Rémi Saint-Amant	Change INT16 for UINT16
 //											Bug correction with -Backward -Forward option
 // 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position
@@ -41,7 +44,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.0.5";
+	const char* CLandTrend::VERSION = "1.1.0";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -131,7 +134,7 @@ namespace WBSF
 		}
 
 		if (m_outputType == GDT_Unknown)
-			m_outputType = GDT_UInt16;
+			m_outputType = GetGDALDataType();
 
 
 		return msg;
@@ -540,7 +543,6 @@ namespace WBSF
 		{
 			m_options.m_timerProcess.start();
 
-			int16_t no_data = int16_t(GetDefaultNoData(GDT_UInt16));
 
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
 			for (int y = 0; y < blockSize.m_y; y++)
@@ -571,7 +573,7 @@ namespace WBSF
 						}
 					}
 
-					//assert(validity.size() == window.size());
+					
 					for (size_t z = 0; z < window.size(); z++)
 					{
 						size_t zz = z;
@@ -583,20 +585,20 @@ namespace WBSF
 						
 
 						CLandsatPixel pixel = window.GetPixel(zz, x, y);
-						goods[z] = pixel.IsValid();//&& validity[zz][xy]
+						goods[z] = pixel.IsValid();
 
 						if (goods[z])
 						{
-
 							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
-							//goods[z] = data[z] != no_data;
+							assert(data[z] != 0);
 						}
-
 					}
 
-
+					
 					if (goods.max())//at least one valid pixel
 					{
+						size_t nbVal = sum(goods);
+
 						//compute LandTrend for this time series indice
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
 							m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
@@ -639,8 +641,8 @@ namespace WBSF
 										CRealArray yy = subset(Y, V[i], V[i + 1])[G];
 										assert(xx.size() == yy.size());
 										assert(xx.size() > 0);
-										xx = CRealArray(xx[yy != no_data]);
-										yy = CRealArray(yy[yy != no_data]);
+										assert(sum(yy == no_data)==0);//don't have no data here
+
 										if (xx.size() >= 2)
 										{
 											//if we've done desawtooth, it's possible that all of the
@@ -677,7 +679,7 @@ namespace WBSF
 								}
 							}
 						}
-					}//if al leat one valid pixel
+					}//if at least one valid pixel
 
 #pragma omp atomic
 					m_options.m_xx++;
@@ -714,12 +716,12 @@ namespace WBSF
 					if (!outputData.empty())
 					{
 						assert(outputData.size() == outputDS.GetRasterCount());
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_UInt16, 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GetGDALDataType(), 0, 0);
 					}
 					else
 					{
 						LandsatDataType noData = (LandsatDataType)outputDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_UInt16, 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GetGDALDataType(), 0, 0);
 					}
 				}
 			}
@@ -742,12 +744,12 @@ namespace WBSF
 						assert(breaksData.size() == breaksDS.GetRasterCount());
 
 						for (int y = 0; y < breaksRect.Height(); y++)
-							pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &(breaksData[z][0]), breaksRect.Width(), breaksRect.Height(), GDT_UInt16, 0, 0);
+							pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &(breaksData[z][0]), breaksRect.Width(), breaksRect.Height(), GetGDALDataType(), 0, 0);
 					}
 					else
 					{
 						LandsatDataType noData = (LandsatDataType)breaksDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &noData, 1, 1, GDT_UInt16, 0, 0);
+						pBand->RasterIO(GF_Write, breaksRect.m_x, breaksRect.m_y, breaksRect.Width(), breaksRect.Height(), &noData, 1, 1, GetGDALDataType(), 0, 0);
 					}
 				}
 			}

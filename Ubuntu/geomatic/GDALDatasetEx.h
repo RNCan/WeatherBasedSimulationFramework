@@ -40,7 +40,7 @@ public:
 
     }
 
-    void resize(const CGeoRectIndex& dataRect, CGeoRectIndex& windowRect, const CGeoExtents& windowExtents, DataType noData = DefaultNoData)
+    void resize(const CGeoRectIndex& dataRect, CGeoRectIndex& windowRect, const CGeoExtents& windowExtents, DataType noData)// = DefaultNoData
     {
         assert(m_windowRect.UpperLeft() >= m_dataRect.UpperLeft());
         assert(m_windowRect.LowerRight() <= m_dataRect.LowerRight());
@@ -127,7 +127,11 @@ public:
 
             if (pos >= 0 && pos < (int64_t)m_data.size())
             {
-                if (IsPixelValid(x, y))
+                //if (IsPixelValid(x, y))
+                //double pValid = double(m_valid.count())/m_valid.size();
+
+                if(m_valid[pos])
+                //if (true)
                     v = m_data.at((size_t)pos);
                 
 //                if (m_pMaskWindow && (m_pMaskWindow.get() != NULL) && m_pMaskWindow->IsPixelMasked(x, y))
@@ -253,7 +257,7 @@ public:
         //m_windowRect = windowRect;
     }
 
-    void resize(size_t size, const CGeoExtents& extents, DataType noData = DefaultNoData)
+    void resize(size_t size, const CGeoExtents& extents, DataType noData)// = DefaultNoData
     {
         m_windowRect = extents.GetPosRect();
         m_extents = extents;

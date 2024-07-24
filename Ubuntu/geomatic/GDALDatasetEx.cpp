@@ -765,7 +765,7 @@ namespace WBSF
 			file.close();
 		}
 
-#if _MSVC
+#if _MSC_VER
 		string command = "gdalbuildvrt.exe -separate -overwrite -input_file_list \"" + listFilePath + "\" \"" + m_filePath + "\"" + (options.m_bQuiet ? " -q" : "");
 		msg = WinExecWait(command);
 #else
@@ -800,7 +800,8 @@ namespace WBSF
 		CGeoExtents extents = GetExtents().GetBlockExtents(int(i), int(j));
 		CGeoRectIndex dataRect = GetExtents().GetBlockRect(int(i), int(j));
 
-		block.resize(GetRasterCount(), extents);
+		
+		block.resize(GetRasterCount(), extents, DataType(GetNoData(0)));
 		for (size_t b = 0; b < GetRasterCount(); b++)
 		{
 			const CGeoExtents& iExtents = GetInternalExtents(b);
@@ -817,14 +818,14 @@ namespace WBSF
 				assert(nXBlockSize == m_extents.m_xBlockSize);
 				assert(nYBlockSize == m_extents.m_yBlockSize);
 				GDALDataType type = poBand->GetRasterDataType();
-				if (type == GDT_UInt16)
+				if (type == GetGDALDataType())
 				{
 					if (nXBlockSize == m_extents.m_xBlockSize && nYBlockSize == m_extents.m_yBlockSize)
 						poBand->ReadBlock(int(i), int(j), block[b].data().data());
 				}
 				else
 				{
-					poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data().data(), dataRect.m_xSize, dataRect.m_ySize, GDT_UInt16, 0, 0);
+					poBand->RasterIO(GF_Read, dataRect.m_x, dataRect.m_y, dataRect.m_xSize, dataRect.m_ySize, block[b].data().data(), dataRect.m_xSize, dataRect.m_ySize, GetGDALDataType(), 0, 0);
 				}
 			}
 		}
@@ -849,7 +850,7 @@ namespace WBSF
 		size_t nb_layer = (last_scene - first_scene + 1) * GetSceneSize();
 
 		int nb_non_empty = 0;
-		window_data.resize(nb_layer, windowExtents);
+		window_data.resize(nb_layer, windowExtents, DataType(GetNoData(0)));
 		//#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
 		for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)
 		{
@@ -872,7 +873,7 @@ namespace WBSF
 
 					window_data[ii].resize(loadRect, windowRect, windowExtents, DataType(GetNoData(i)));
 					GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
-					pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data().data(), loadRect.m_xSize, loadRect.m_ySize, GDT_UInt16, 0, 0);
+					pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data().data(), loadRect.m_xSize, loadRect.m_ySize, GetGDALDataType(), 0, 0);
 
 #pragma omp atomic 
 					nb_non_empty++;

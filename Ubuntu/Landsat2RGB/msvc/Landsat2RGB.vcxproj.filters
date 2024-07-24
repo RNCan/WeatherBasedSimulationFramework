@@ -60,6 +60,8 @@
     <ClCompile Include="..\..\external\tinyxml2\tinyxml2.cpp">
       <Filter>external</Filter>
     </ClCompile>
+    <ClCompile Include="..\Landsat2RGB.cpp" />
+    <ClCompile Include="..\Landsat2RGBApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\basic\GeoBasic.h">
@@ -128,5 +130,6 @@
     <ClInclude Include="..\..\external\tinyxml2\tinyxml2.h">
       <Filter>external</Filter>
     </ClInclude>
+    <ClInclude Include="..\Landsat2RGB.h" />
   </ItemGroup>
 </Project>

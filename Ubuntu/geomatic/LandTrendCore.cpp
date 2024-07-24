@@ -112,6 +112,7 @@ CBestModelInfo fit_trajectory_v2(const CRealArray& all_years, const CRealArray& 
     if (n_zeroes > (0.3 * all_years.size()))
         return best_model;
 
+    
     if (CRealArray(all_x[goods]).size() < minneeded)
     {
         //not enough data to run the fitting, then set all to flat line
@@ -131,7 +132,7 @@ CBestModelInfo fit_trajectory_v2(const CRealArray& all_years, const CRealArray& 
     //Take out spikes that start && end at same value (to get rid of weird years
     //			left over after cloud filtering)
 
-    CRealArray all_y = (desawtooth_val < 1.0) ? desawtooth(vvals, desawtooth_val) : vvals;
+    CRealArray all_y = (desawtooth_val < 1.0) ? desawtooth(vvals, goods, desawtooth_val) : vvals;
     all_y *= modifier;  //this sets everything so disturbance is always positive
 
 

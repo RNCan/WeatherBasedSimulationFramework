@@ -48,7 +48,7 @@ typedef std::array< CBandStat, Landsat2::SCENES_SIZE> CBandStats;
 
 
 
-typedef uint16_t LandsatDataType;
+typedef DataType LandsatDataType;
 typedef std::array<LandsatDataType, Landsat2::SCENES_SIZE> LandsatPixel;
 class CLandsatPixel : public LandsatPixel
 {
@@ -63,6 +63,9 @@ public:
     {
         return ((const CLandsatPixel*)(this))->operator[](i);
     }
+
+    static LandsatDataType GetLandsatNoData();
+
 
     bool IsInit()const;
     bool IsInit(Landsat2::TIndices i)const;
@@ -118,7 +121,7 @@ public:
         return CRasterWindow::size() / SCENES_SIZE;
     }
 
-    void resize(size_t size, const CGeoExtents& extents, DataType noData = DefaultNoData)
+    void resize(size_t size, const CGeoExtents& extents, DataType noData)// = DefaultNoData
     {
         CRasterWindow::resize(size* SCENES_SIZE, m_extents, noData );
         //for (size_t s = 0; s < CRasterWindow::size(); s++)
@@ -143,11 +146,11 @@ public:
     {
         return GetPixelMedian(0, GetNbScenes() - 1, x, y, n_rings);
     }
-    CLandsatPixel GetPixelMedian(size_t f, size_t l, int x, int y, double n_rings)const;
-    CLandsatPixel GetPixelMedian(int x, int y, double n_rings)const
-    {
-        return GetPixelMedian(0, GetNbScenes() - 1, x, y, n_rings);
-    }
+    //CLandsatPixel GetPixelMedian(size_t f, size_t l, int x, int y, double n_rings)const;
+    //CLandsatPixel GetPixelMedian(int x, int y, double n_rings)const
+    //{
+    //    return GetPixelMedian(0, GetNbScenes() - 1, x, y, n_rings);
+    //}
     //bool GetPixel(size_t i, int x, int y, CLandsatPixel& pixel)const;
     CLandsatPixelVector Synthetize(Landsat2::TIndices ind, int x, int y, const std::vector<LandsatDataType>& fit_ind, double n_rings = 0)const;
 

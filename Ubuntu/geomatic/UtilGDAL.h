@@ -14,11 +14,14 @@
 #include "basic/UtilStd.h"
 #include "basic/Statistic.h"
 #include "basic/GeoBasic.h"
-
+#include "geomatic/GDAL.h"
 
 class GDALDataset;
 class GDALRasterBand;
 class GDALDriver;
+//extern enum GDALDataType;
+
+
 
 namespace WBSF
 {
@@ -55,10 +58,17 @@ std::string GetDriverExtension(const std::string& formatName);
 void Close(GDALDataset* poDS);
 void PrintMessage(ERMsg msg);
 
-//typedef int16_t DataType;
-//static const int16_t DefaultNoData = -32768;
-typedef uint16_t DataType;
-static const uint16_t DefaultNoData = 65535;
+typedef int16_t DataType;
+static const int16_t DefaultNoData = -32768;
+
+
+inline GDALDataType GetGDALDataType()
+{
+    return GDT_Int16;
+}
+
+//typedef uint16_t DataType;
+//static const uint16_t DefaultNoData = 65535;
 
 //static const float DataTypeMin = -FLT_MAX;
 typedef std::vector<DataType> DataVector;

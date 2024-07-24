@@ -201,6 +201,9 @@ CfindCorrection find_correction(const CRealArray& vals)
 
         out.prop_correction[i] = (1. - (diff_2[i] / md));
         out.correction[i] = out.prop_correction[i] * (((vals[i - 1] + vals[i + 1]) / 2) - (vals[i]));
+
+        if (std::isnan(out.prop_correction[i]))//avoid nan in the prop_correction. This cause problem in valarray.
+            out.prop_correction[i] = 0;
     }
 
     return out;
@@ -210,11 +213,12 @@ CfindCorrection find_correction(const CRealArray& vals)
 
 
 
-CRealArray desawtooth(CRealArray vals, REAL_TYPE  stopat)
+CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE  stopat)
 {
     assert(stopat != 0);
 
-    CRealArray v = vals;
+   
+    CRealArray v = vals[goods];
 
     REAL_TYPE  prop = 1.0;
     size_t count = 1;
@@ -222,11 +226,13 @@ CRealArray desawtooth(CRealArray vals, REAL_TYPE  stopat)
     do
     {
         CfindCorrection c = find_correction(v);
-        prop = c.prop_correction.max();
+        size_t wh_max = distance(begin(c.prop_correction), max_element(begin(c.prop_correction), end(c.prop_correction)));
+        prop = c.prop_correction[wh_max];
+        //prop = c.prop_correction.max();
 
         if (prop > stopat)
         {
-            size_t wh_max = distance(begin(c.prop_correction), max_element(begin(c.prop_correction), end(c.prop_correction)));
+            
 
             v[wh_max] = v[wh_max] + (c.correction[wh_max]);
             count = count + 1;
@@ -234,8 +240,9 @@ CRealArray desawtooth(CRealArray vals, REAL_TYPE  stopat)
     }
     while (prop > stopat);
 
+    vals[goods] = v;
 
-    return v;
+    return vals;
 
 }
 

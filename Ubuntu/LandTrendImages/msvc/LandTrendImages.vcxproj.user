@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-te 1493620 7207120 1493680 7207210 -BackwardFill -ForwardFill -of VRT -Window 1.5 -overwrite -multi -stats -CPU -1 -co COMPRESS=LZW -CloudsMask E:\Landsat\Landsat(LandTrend)/input2/clouds_mask.tif E:\Landsat\Landsat(LandTrend)/input2/SR_L5789.vrt E:\Landsat\Landsat(LandTrend)/Output2/output.vrt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-te 1759620 6988860 1759680 6988920 -FirstYear 1984 -of VRT -overwrite -dstNoData 65535 -co tiled=YES -co compress=LZW -CloudsMask ".\CloudsMaskCol2\_mos_clouds.vrt" ".\bandes_input_col2_x10000\_subset_col2.vrt" ".\RemiCol2v2\RemiCol2.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>G:\Travaux\PhilippeVillemaire</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-BackwardFill -ForwardFill -of VRT -Window 1.5 -overwrite -multi -stats -CPU -1 -co COMPRESS=LZW -CloudsMask E:\Landsat\Landsat(LandTrend)/input2/clouds_mask.tif E:\Landsat\Landsat(LandTrend)/input2/SR_L5789.vrt E:\Landsat\Landsat(LandTrend)/Output2/output.vrt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-te 1759620 6988860 1759680 6988920 -FirstYear 1984 -of VRT -overwrite -dstNoData 65535 -co tiled=YES -co compress=LZW -CloudsMask ".\CloudsMaskCol2\_mos_clouds.vrt" ".\bandes_input_col2_x10000\_subset_col2.vrt" ".\RemiCol2v2\RemiCol2.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>G:\Travaux\PhilippeVillemaire</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 </Project>

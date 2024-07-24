@@ -47,6 +47,8 @@ void RegisterGDAL()
     GDALAllRegister();
 }
 
+
+
 ERMsg OpenInputImage(const string& filePath, GDALDataset** poInputDS, double srcNodata, bool bUseDefaultNoData, bool bReadOnly)
 {
     ERMsg msg;
@@ -2020,15 +2022,15 @@ void CBaseOptions::UpdateBar()
             #pragma omp flush(m_xxx)
 
             GDALStyleProgressBar(double (m_xx )/ m_xxFinal);
-            /*size_t nbX = (size_t)round(80.0 * m_xx / m_xxFinal);
-
-            while (m_xxx < nbX)
-            {
-                cout << ".";
-                m_xxx++;
-            }*/
-
-            //cout.flush();
+            //size_t nbX = (size_t)round(80.0 * m_xx / m_xxFinal);
+            //
+            //while (m_xxx < nbX)
+            //{
+            //    cout << ".";
+            //    m_xxx++;
+            //}
+            //
+            cout.flush();
 
             #pragma omp flush(m_xxx)
         }

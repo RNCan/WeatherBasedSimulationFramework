@@ -177,7 +177,7 @@ ERMsg CLandsat2RGB::Execute()
             //Get statistic of the image
             for (size_t zz = 0; zz < nbScenedProcess; zz++)
             {
-                for (size_t b = B2; b <= B5; b++)
+                for (size_t b = B1; b <= B5; b++)
                 {
                     size_t z = (m_options.m_scene_extents[0] + zz) * SCENES_SIZE + b;
                     GDALRasterBand* pBand = inputDS.GetRasterBand(z);
