@@ -228,12 +228,9 @@ CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE  stopa
         CfindCorrection c = find_correction(v);
         size_t wh_max = distance(begin(c.prop_correction), max_element(begin(c.prop_correction), end(c.prop_correction)));
         prop = c.prop_correction[wh_max];
-        //prop = c.prop_correction.max();
 
         if (prop > stopat)
         {
-            
-
             v[wh_max] = v[wh_max] + (c.correction[wh_max]);
             count = count + 1;
         }
