@@ -3,6 +3,8 @@
 //
 //***********************************************************************
 // version
+// 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
+//											use only pixel of all rings
 // 1.1.0	24/07/2024	Rémi Saint-Amant	Change UINT16 for INT16. 
 //											Bug correction in desawtooth.
 //											Bug correction in CloudMask
@@ -44,7 +46,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.0";
+	const char* CLandTrend::VERSION = "1.1.1";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
