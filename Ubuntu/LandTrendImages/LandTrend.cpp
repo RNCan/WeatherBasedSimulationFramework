@@ -556,8 +556,6 @@ namespace WBSF
 					CRealArray data(window.size());
 					CBoolArray goods(window.size());
 
-					bool bBackwardFill = m_options.m_bBackwardFill;
-					bool bForwardFill = m_options.m_bForwardFill;
 					size_t m_first_valid = NOT_INIT;
 					size_t m_last_valid = NOT_INIT;
 					if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
@@ -591,6 +589,7 @@ namespace WBSF
 						{
 							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
 							assert(data[z] != 0);
+							goods[z] = data[z] != 0;//humm!!!
 						}
 					}
 
@@ -641,7 +640,6 @@ namespace WBSF
 										CRealArray yy = subset(Y, V[i], V[i + 1])[G];
 										assert(xx.size() == yy.size());
 										assert(xx.size() > 0);
-										assert(sum(yy == no_data)==0);//don't have no data here
 
 										if (xx.size() >= 2)
 										{
@@ -663,7 +661,9 @@ namespace WBSF
 
 									for (size_t z = 0; z < window.size(); z++)
 									{
-										outputData[z * SCENES_SIZE + s][xy] = DataType(yfit[z]);
+										assert(GetGDALDataType()== GDT_Int16);
+										DataType val = (DataType)max(GetTypeLimit(GetGDALDataType(), true) + 1, min(GetTypeLimit(GetGDALDataType(), false), yfit[z]));
+										outputData[z * SCENES_SIZE + s][xy] = val;
 									}
 								}
 							}
