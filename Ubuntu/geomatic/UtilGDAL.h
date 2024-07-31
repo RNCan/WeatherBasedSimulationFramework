@@ -58,13 +58,22 @@ std::string GetDriverExtension(const std::string& formatName);
 void Close(GDALDataset* poDS);
 void PrintMessage(ERMsg msg);
 
-typedef int16_t DataType;
-static const int16_t DefaultNoData = -32768;
+//typedef int16_t DataType;
+//static const int16_t DefaultNoData = -32768;
+//
+//
+//inline GDALDataType GetGDALDataType()
+//{
+//    return GDT_Int16;
+//}
+
+typedef int32_t DataType;
+static const int32_t DefaultNoData = -32768;
 
 
 inline GDALDataType GetGDALDataType()
 {
-    return GDT_Int16;
+    return GDT_Int32;
 }
 
 //typedef uint16_t DataType;

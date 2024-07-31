@@ -1763,7 +1763,7 @@ namespace WBSF
 		{
 			assert(IsValid(x, y));
 
-			float window[3][3] = { 0 };
+			double window[3][3] = { 0 };
 
 			for (int xx = 0; xx < 3; xx++)
 			{

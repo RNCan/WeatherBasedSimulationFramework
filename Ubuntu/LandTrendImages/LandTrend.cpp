@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32. 
 // 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
 //											use only pixel of all rings
 // 1.1.0	24/07/2024	Rémi Saint-Amant	Change UINT16 for INT16. 
@@ -46,7 +47,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.1";
+	const char* CLandTrend::VERSION = "1.1.2";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -136,7 +137,8 @@ namespace WBSF
 		}
 
 		if (m_outputType == GDT_Unknown)
-			m_outputType = GetGDALDataType();
+			m_outputType = GDT_Int16;
+		GetGDALDataType();
 
 
 		return msg;
@@ -663,8 +665,8 @@ namespace WBSF
 
 									for (size_t z = 0; z < window.size(); z++)
 									{
-										assert(GetGDALDataType()== GDT_Int16);
-										DataType val = (DataType)max(GetTypeLimit(GetGDALDataType(), true) + 1, min(GetTypeLimit(GetGDALDataType(), false), yfit[z]));
+										
+										DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
 										outputData[z * SCENES_SIZE + s][xy] = val;
 									}
 								}

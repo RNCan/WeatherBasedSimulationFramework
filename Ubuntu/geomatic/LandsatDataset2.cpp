@@ -1065,7 +1065,7 @@ namespace WBSF
 
 	LandsatDataType CLandsatPixel::GetLandsatNoData()
 	{
-		return (LandsatDataType)WBSF::GetDefaultNoData(GetGDALDataType());
+		return (LandsatDataType)DefaultNoData;
 	}
 
 	void CLandsatPixel::Reset()

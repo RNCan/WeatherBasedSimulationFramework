@@ -1321,7 +1321,7 @@ bool IsValidSlopeWindow(float window[3][3], double noData)
     return window[1][1] > noData || nbNoData == 1;
 }
 
-void GetSlopeAndAspect(float window[3][3], double ewres, double nsres, double scale, double& slope, double& aspect)
+void GetSlopeAndAspect(double window[3][3], double ewres, double nsres, double scale, double& slope, double& aspect)
 {
     //slope = 0;
     //aspect = 0;
@@ -1336,8 +1336,8 @@ void GetSlopeAndAspect(float window[3][3], double ewres, double nsres, double sc
 
     double key = (dx * dx + dy * dy);
 
-    slope = (float)(100 * (sqrt(key) / (8 * scale)));
-    aspect = (float)(atan2(dy, -dx) * RAD2DEG);
+    slope = (double)(100 * (sqrt(key) / (8 * scale)));
+    aspect = (double)(atan2(dy, -dx) * RAD2DEG);
 
     if (dx == 0 && dy == 0)
     {

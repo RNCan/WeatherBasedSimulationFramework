@@ -247,8 +247,8 @@ std::string CoordToString(double coord, int prec = 0);
 //Get distance in meter from 2 points
 double GetDistance(double lat1, double lon1, double lat2, double lon2);
 
-bool IsValidSlopeWindow(float window[3][3], double noData);
-void GetSlopeAndAspect(float window[3][3], double ewres, double nsres, double scale, double& slope, double& aspect);
+bool IsValidSlopeWindow(double window[3][3], double noData);
+void GetSlopeAndAspect(double window[3][3], double ewres, double nsres, double scale, double& slope, double& aspect);
 
 
 // Note that the functions Gamma and LogGamma are mutually dependent.
