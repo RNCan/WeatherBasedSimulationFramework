@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>WaterBalance</Title>
+    <Version>1.0</Version>
+    <ID>.wbm</ID>
+    <EXE>WaterBalance.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>McCabe water balance model</Description>
+    <WindowRect>0 0 268 468</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>AWHCFilePath</Name>
+            <Caption>AWHCFilePath</Caption>
+            <Description/>
+            <Type>4</Type>
+            <Rect>10 10 30 425</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DefaultAWHC</Name>
+            <Caption>DefaultAWHC</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>30 10 50 255</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>200</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>RunoffFactor</Name>
+            <Caption>RunoffFactor</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>50 10 75 255</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>50</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>RainTempThreshold</Name>
+            <Caption>RainTempThreshold</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>75 10 95 255</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>7</DefaultValue>
+            <MinValue>-5</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SnowTempThreshold</Name>
+            <Caption>SnowTempThreshold</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>105 10 130 255</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>-4</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>0</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DirectRunoffFactor</Name>
+            <Caption>DirectRunoffFactor</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>135 10 155 255</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>MaxMeltRate</Name>
+            <Caption>MaxMeltRate</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>160 10 180 260</Rect>
+            <SeparatorPos>115</SeparatorPos>
+            <DefaultValue>47</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units>Celsius</Units>
+            <Description>Mean monthly air temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>1</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Sum of monthly precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+            <Climatic>3</Climatic>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Monthly potential evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PreciPET</Name>
+            <Title>PrecPET</Title>
+            <Units>mm</Units>
+            <Description>Precipitation - PET</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SoilMoisture</Name>
+            <Title>SoilMoisture</Title>
+            <Units>mm</Units>
+            <Description>Soil Moisture Storage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>AET</Name>
+            <Title>AET</Title>
+            <Units>mm</Units>
+            <Description>Monthly actual evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET_AET</Name>
+            <Title>PET_AET</Title>
+            <Units>mm</Units>
+            <Description>PET - AET</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SWE</Name>
+            <Title>SWE</Title>
+            <Units>mm</Units>
+            <Description>Snow Storage</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Suplus</Name>
+            <Title>Suplus</Title>
+            <Units>mm</Units>
+            <Description>Over storage runoff</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TotalRunoff</Name>
+            <Title>TotalRunoff</Title>
+            <Units>mm</Units>
+            <Description>Suplus runoff + direct runoff</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DirectRunoff</Name>
+            <Title>DirectRunoff</Title>
+            <Units>mm</Units>
+            <Description>Direct runoff</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SnowMelt</Name>
+            <Title>SnowMelt</Title>
+            <Units>mm</Units>
+            <Description>Snow melt</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>McCabe, G.J., and Markstrom, S.L., 2007, A monthly water-balance model driven by a graphical user interface: U.S. Geological Survey Open-File report 2007-1088, 6 p., https://doi.org/10.3133/ofr20071088&#x0D;&#x0A;&#x0D;&#x0A;Original java code:&#x0D;&#x0A;https://pubs.usgs.gov/publication/ofr20071088&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;McCabe GJ, Wolock DM (2011) Independent effects of temperature and precipitation on modeled runoff in the conterminous United States: effects of temperature and precipitation on runoff. &#x0D;&#x0A;Water Resour Res. &#x0D;&#x0A;https://doi.org/10.1029/2011WR010630&#x0D;&#x0A;&#x0D;&#x0A;</Credit>
+    <HelpFileName/>
+</Model>
