@@ -305,7 +305,7 @@ namespace WBSF
 
 		
 		enum TSeed { RANDOM_SEED, FIXE_SEED };
-		static const int RAND_MAX_INT = 2147483600;//2147483647;
+		//static const int RAND_MAX_INT = 2147483600;//2147483647;
 
 
 		CRandomGenerator(size_t	seed = 0)
@@ -317,9 +317,9 @@ namespace WBSF
 		void Randomize(size_t seed = RANDOM_SEED);
 
 
-		unsigned long Rand()const
+		unsigned int Rand()const
 		{
-			std::uniform_int_distribution<int> uniformInt;
+			std::uniform_int_distribution<> uniformInt;
 			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
 			return uniformInt(me.m_gen);
 		}
@@ -331,9 +331,12 @@ namespace WBSF
 		//]0,1[ : (rand()+1)/(RAND_MAX+2)
 		double Randu(bool bExcLower = false, bool bExcUpper = false)const
 		{
-			double numerator = (double)Rand();
-			double denominator = (double)RAND_MAX_INT;
-
+			std::uniform_int_distribution<> uniformInt;
+			CRandomGenerator& me = const_cast<CRandomGenerator&>(*this);
+			
+			long double numerator = (long double)uniformInt(me.m_gen);
+			long double denominator = (long double)uniformInt.max();
+			
 			if (bExcLower)
 			{
 				numerator++;
@@ -343,7 +346,7 @@ namespace WBSF
 			if (bExcUpper)
 				denominator++;
 
-			double u = numerator / denominator;
+			double u = double (numerator / denominator);
 
 			_ASSERTE(bExcLower || (u >= 0));
 			_ASSERTE(!bExcLower || (u > 0));
