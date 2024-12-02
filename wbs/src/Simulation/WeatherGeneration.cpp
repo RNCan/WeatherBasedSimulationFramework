@@ -747,7 +747,7 @@ namespace WBSF
 			GetLocationIndexGrid(locations, locPos);
 
 			CRandomGenerator rand(WGInput.m_seed);
-			unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+			unsigned long seed = rand.Rand(1, RAND_MAX);
 
 			int nested = omp_get_nested();
 			int dynamic = omp_get_dynamic();

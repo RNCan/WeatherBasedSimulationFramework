@@ -874,7 +874,7 @@ namespace WBSF
 		ERMsg msg;
 
 		CRandomGenerator rand;
-		unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+		unsigned long seed = rand.Rand(1, RAND_MAX);
 
 		//open parent data...
 		CResultPtr pWeather = GetParent()->GetResult(fileManager);

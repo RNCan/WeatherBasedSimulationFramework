@@ -495,7 +495,7 @@ namespace WBSF
 		CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
 		vector<unsigned long> seeds;
 		for (size_t i=0; i< total_seeds; i++)
-			seeds.push_back( rand.Rand(1, CRandomGenerator::RAND_MAX_INT) );
+			seeds.push_back( rand.Rand(1, RAND_MAX) );
 		
 		
 		// for all loc station in the loc array
@@ -681,7 +681,7 @@ namespace WBSF
 		CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
 		vector<unsigned long> seeds;
 		for (size_t i = 0; i < total_seeds; i++)
-			seeds.push_back(rand.Rand(1, CRandomGenerator::RAND_MAX_INT));
+			seeds.push_back(rand.Rand(1, RAND_MAX));
 
 
 
