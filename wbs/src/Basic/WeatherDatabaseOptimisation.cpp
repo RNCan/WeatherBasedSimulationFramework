@@ -220,7 +220,7 @@ namespace WBSF
 
 
 			m_fileData.seekp(0, ios::end);
-			ULONGLONG curPos = m_fileData.tellp().seekpos();
+			ULONGLONG curPos = m_fileData.tellp();
 			info.second = curPos;
 
 			std::stringstream ss;
@@ -235,7 +235,7 @@ namespace WBSF
 			m_fileData << ss.rdbuf();
 			m_fileData.flush();
 
-			fpos_t test = m_fileData.tellp().seekpos();
+			fpos_t test = m_fileData.tellp();
 			ASSERT(test == curPos + length + sizeof(curPos) + sizeof(length));
 		}
 
