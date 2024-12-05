@@ -58,97 +58,174 @@ namespace WBSF
 	static const double NA_TIME = 1000;//replace Time by 1000 days when NA
 	//**********************************************************************************************
 
-	double GetRateStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double obs_time)
+	//double GetRateStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T, double obs_time)
+	//{
+	//	CStatisticEx stat;
+	//	if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+	//	{
+	//		double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
+	//		if (!isfinite(rate) || isnan(rate))
+	//			return NAN;
+
+	//		stat += rate;//sum of hourly rate
+	//	}
+	//	else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+	//	{
+	//		double rate = 0;
+	//		for (size_t h = 0; h < 24; h++)
+	//			rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
+
+	//		if (!isfinite(rate) || isnan(rate))
+	//			return NAN;
+	//		//for (size_t t = 0; t < obs_time; t++)
+	//		stat += (obs_time * rate);//sum of hourly rate
+	//	}
+	//	else
+	//	{
+	//		for (size_t t = 0; t < obs_time; t++)
+	//		{
+	//			for (size_t h = 0; h < 24; h++)
+	//			{
+	//				double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h]));//daily rate
+	//				if (!isfinite(rate) || isnan(rate))
+	//					return NAN;
+
+	//				stat += rate;//sum of hourly rate
+	//			}
+	//		}
+	//	}
+
+	//	return stat;
+	//}
+
+	//return time (days) to complete stage
+	//double GetTimeStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T)
+	//{
+	//	double time = 0;
+	//	if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+	//	{
+	//		double rate = CDevRateEquation::GetRate(e, X, T[0]);//daily rate
+	//		if (!isfinite(rate) || isnan(rate))
+	//			return NAN;
+
+	//		if (rate > 0)
+	//			time = ceil(1 / rate);//sum of hourly rate
+	//		else
+	//			time = 1000.0 * (1 - rate);//let a chance to converge
+	//	}
+	//	else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+	//	{
+	//		double rate = 0;
+	//		for (size_t h = 0; h < 24; h++)
+	//			rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
+
+	//		if (!isfinite(rate) || isnan(rate))
+	//			return NAN;
+	//		//for (size_t t = 0; t < obs_time; t++)
+	//		//stat += (obs_time*rate);//sum of hourly rate
+
+	//		if (rate > 0)
+	//			time = ceil(1 / rate);//sum of hourly rate
+	//		else
+	//			time = 1000.0 * (1 - rate);//let a chance to converge
+	//	}
+	//	else
+	//	{
+	//		double sum_rate = 0;
+	//		for (size_t h = 0; h < T.size() && sum_rate < 1.0; h++)
+	//		{
+	//			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//daily rate
+	//			if (!isfinite(rate) || isnan(rate))
+	//				return NAN;
+
+	//			sum_rate += rate;//sum of hourly rate
+	//			time += 1;
+	//		}
+
+	//		if (sum_rate >= 1)
+	//			time = ceil(time / 24.0);
+	//		else
+	//			time = 1000 / max(0.001, sum_rate);
+	//	}
+
+	//	return time;
+	//}
+
+	double GetDevRate(TDevRateEquation  e, const vector<double>& X, const CDevRateDataRow& info)
 	{
 		CStatisticEx stat;
-		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
+		if (info.m_type == T_CONSTANT)//optimization at constant temperature (rate is always the same)
 		{
-			double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[0]));//daily rate
-			if (!isfinite(rate) || isnan(rate))
+			double T = info.T()[0];
+			double R = max(0.0, CDevRateEquation::GetRate(e, X, T));//daily rate
+			if (!isfinite(R) || isnan(R))
 				return NAN;
 
-			stat += rate;//sum of hourly rate
+			stat += R;//sum of rate
 		}
-		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		else if (info.m_type == T_TRANSFER)
 		{
-			double rate = 0;
-			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
+			double T1 = info.T()[0];
+			double T2 = info.T()[1];
+			double R1 = max(0.0, CDevRateEquation::GetRate(e, X, T1));//daily rate
+			double R2 = max(0.0, CDevRateEquation::GetRate(e, X, T2));//daily rate
 
-			if (!isfinite(rate) || isnan(rate))
+			if (isnan(R1) || isnan(R2))
 				return NAN;
-			//for (size_t t = 0; t < obs_time; t++)
-			stat += (obs_time * rate);//sum of hourly rate
+
+			assert(false);
+			double t1 = info.t1();
+			double t2 = info.t2();
+			for (size_t h = 0; h < t1 * 24; h++)
+				stat += R1;//sum of rate
+
+			for (size_t h = 0; h < t2 * 24; h++)
+				stat += R2;//sum of rate
+
+		}
+		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
+			info.m_type == T_SINUS )//optimization at constant 24 hour cycle temperature (rate is always the same)
+		{
+			const vector<double>& T = info.T();
+			ASSERT(T.size() == 24);
+
+			for (size_t h = 0; h < 24; h++)
+			{
+				double R = max(0.0, CDevRateEquation::GetRate(e, X, T[h]));
+				if (isnan(R))
+					return NAN;
+
+				stat += R;//sum of rate
+			}
 		}
 		else
 		{
-			for (size_t t = 0; t < obs_time; t++)
-			{
-				for (size_t h = 0; h < 24; h++)
-				{
-					double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[t * 24 + h]));//daily rate
-					if (!isfinite(rate) || isnan(rate))
-						return NAN;
+			double t = info.t();
+			const vector<double>& T = info.T();
+			ASSERT(T.size() <= 24 * t);
 
-					stat += rate;//sum of hourly rate
+
+			for (size_t td = 0; td < ceil(t); td++)//for all days
+			{
+				for (size_t h = 0; h < 24; h++)//for all hours
+				{
+					double th = td + double(h) / 24.0;
+
+					if (th < t)
+					{
+
+						double R = max(0.0, CDevRateEquation::GetRate(e, X, T[td * 24 + h]));//daily rate
+						if (!isfinite(R) || isnan(R))
+							return NAN;
+
+						stat += R;//sum of hourly rate
+					}
 				}
+
 			}
 		}
 
 		return stat;
-	}
-
-	//return time (days) to complete stage
-	double GetTimeStat(TDevRateEquation  e, const vector<double>& X, const vector<double>& T)
-	{
-		double time = 0;
-		if (T.size() == 1)//optimization at constant temperature (rate is always the same)
-		{
-			double rate = CDevRateEquation::GetRate(e, X, T[0]);//daily rate
-			if (!isfinite(rate) || isnan(rate))
-				return NAN;
-
-			if (rate > 0)
-				time = ceil(1 / rate);//sum of hourly rate
-			else
-				time = 1000.0 * (1 - rate);//let a chance to converge
-		}
-		else if (T.size() == 24)//optimization at constant 24 hour cycle temperature (rate is always the same)
-		{
-			double rate = 0;
-			for (size_t h = 0; h < 24; h++)
-				rate += max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//sum of hourly rate
-
-			if (!isfinite(rate) || isnan(rate))
-				return NAN;
-			//for (size_t t = 0; t < obs_time; t++)
-			//stat += (obs_time*rate);//sum of hourly rate
-
-			if (rate > 0)
-				time = ceil(1 / rate);//sum of hourly rate
-			else
-				time = 1000.0 * (1 - rate);//let a chance to converge
-		}
-		else
-		{
-			double sum_rate = 0;
-			for (size_t h = 0; h < T.size() && sum_rate < 1.0; h++)
-			{
-				double rate = max(0.0, CDevRateEquation::GetRate(e, X, T[h])) / 24.0;//daily rate
-				if (!isfinite(rate) || isnan(rate))
-					return NAN;
-
-				sum_rate += rate;//sum of hourly rate
-				time += 1;
-			}
-
-			if (sum_rate >= 1)
-				time = ceil(time / 24.0);
-			else
-				time = 1000 / max(0.001, sum_rate);
-		}
-
-		return time;
 	}
 
 	double GetSurvival(TSurvivalEquation e, const vector<double>& X, const CDevRateDataRow& info)
@@ -165,19 +242,15 @@ namespace WBSF
 			//daily survival
 			double T = info.T()[0];
 			double s = CSurvivalEquation::GetSurvival(e, X, T);
-			//if (!isfinite(s) || isnan(s))
+
 			if (isnan(s))
 				return NAN;
 
 
-			//s = max(0.0, min(1.0, s));
 			//multiplication of all daily survival
 			double t = info.t();
 			ASSERT(t > 0);
 			S = pow(s, t);
-
-
-
 		}
 		else if (info.m_type == T_TRANSFER)
 		{
@@ -199,7 +272,8 @@ namespace WBSF
 			ASSERT(t2 > 0);
 			S = pow(s1, t1) * pow(s2, t2);
 		}
-		else if (info.m_type == T_SQUARE || info.m_type == T_SINUS || info.m_type == T_TRIANGULAR)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
+			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			const vector<double>& T = info.T();
 			ASSERT(T.size() == 24);
@@ -214,16 +288,11 @@ namespace WBSF
 				if (isnan(d_s))
 					return NAN;
 
-				//				d_s = max(0.0, min(1.0, d_s));
-								//hourly survival
+				//hourly survival
 				s[h] = pow(d_s, 1.0 / 24.0);
 				//multiplication of all hourly survival
 				S *= pow(s[h], floor(t));
 			}
-
-			//for (size_t td = size_t(floor(t)); td < size_t(ceil(t)); td++)//for the last day
-			//{
-
 
 			for (size_t h = 0; h < 24; h++)//for the last day
 			{
@@ -235,7 +304,7 @@ namespace WBSF
 					S *= pow(s[h], 1.0 / 24.0);
 				}
 			}
-			//}
+
 		}
 		else
 		{
@@ -262,8 +331,8 @@ namespace WBSF
 						if (isnan(d_s))
 							return NAN;
 
-						//					d_s = max(0.0, min(1.0, d_s));
-											//hourly survival
+
+						//hourly survival
 						double s = pow(d_s, 1.0 / 24.0);
 						//multiplication of all hourly survival
 						S *= s;
@@ -282,7 +351,7 @@ namespace WBSF
 		double sigma_f = X[X.size() - 1];
 
 		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5 * Square(sigma_f), sigma_f);
-		double Fi = quantile(LogNormal, qi);
+		double Fi = quantile(LogNormal, min(0.999, qi));
 
 
 		ASSERT(tiˉ¹ - to >= 0);
@@ -596,11 +665,12 @@ namespace WBSF
 
 
 		}
-		else if (info.m_type == T_SQUARE || info.m_type == T_SINUS || info.m_type == T_TRIANGULAR)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
+			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			ASSERT(T.size() == 24);
 
-			double mean_rateH = 0;
+			double mean_rateD = 0;
 			double rateH24[24] = { 0 };
 			for (size_t h = 0; h < 24; h++)
 			{
@@ -610,7 +680,7 @@ namespace WBSF
 					return false;
 
 				rateH24[h] = rateH;
-				mean_rateH += rateH;
+				mean_rateD += rateH;
 			}
 
 			//there is probably a way to optimized that
@@ -621,9 +691,8 @@ namespace WBSF
 
 			for (auto it = t_xi.begin(); it != t_xi.end(); it++)
 			{
-				it->second = floor(it->first) * mean_rateH;
-				//for (size_t td = size_t(floor(tˉ¹)); td < size_t(ceil(t)); td++)//Add the latest observation
-				//{
+				it->second = floor(it->first) * mean_rateD;
+
 				for (size_t h = 0; h < 24; h++)
 				{
 					double th = floor(it->first) + double(h) / 24.0;
@@ -696,7 +765,8 @@ namespace WBSF
 			stat_rate = (t1 * rateD1 + t2 * rateD2) / (t1 + t2);
 
 		}
-		else if (info.m_type == T_SQUARE || info.m_type == T_SINUS || info.m_type == T_TRIANGULAR)//optimization at constant 24 hour cycle temperature (rate is always the same)
+		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
+			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			const vector<double>& T = info.T();
 			ASSERT(T.size() == 24);
@@ -736,7 +806,7 @@ namespace WBSF
 		double n = info.at(I_N);
 
 		if (time_SD <= 0)
-			time_SD = 1;
+			time_SD = obs_time / 6.0;//an estimate of SD
 
 		//1E-20: avoid division by zero
 		double sim_time = 1.0 / max(1E-20, stat_rate[MEAN]);
@@ -852,7 +922,7 @@ namespace WBSF
 		boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5 * Square(sigma_f), sigma_f);
 
 		//compute individual fecondity (Fi) from Fo and female quantile
-		double Fi = quantile(LogNormal, qBrood);
+		double Fi = quantile(LogNormal, min(0.99999, qBrood));
 
 
 		double Ft = Fi;//remaining fecundity at day t
@@ -939,11 +1009,17 @@ namespace WBSF
 
 
 		//create Poisson distribution from expected values
-		double expected = max(0.001, Ftˉ¹ - Ft);
+		double expected = max(1e-5, Ftˉ¹ - Ft);
+
 		boost::math::poisson_distribution<double> Poisson(expected);
 
 		//compute probability to get observed brood
-		double p = max(1e-20, pdf(Poisson, brood_obs));
+		double p = max(1e-100, boost::math::pdf(Poisson, brood_obs));
+
+		//boost::math::poisson_distribution<double> Poisson(max(0.0001, brood_obs));
+		//double expected = Ftˉ¹ - Ft;
+		//double p = max(1e-20, boost::math::pdf(Poisson, expected));
+
 
 		return log(p);
 	}
@@ -1270,42 +1346,45 @@ namespace WBSF
 			if (data[i].m_type == T_CONSTANT)
 			{
 				//constant T have only one value
-				(*this)[data[i].m_treatment].resize(1, data[i].GetT1T2(true));
+				(*this)[data[i].m_treatment].resize(1, data[i].ComputeT(0));
 			}
 			else if (data[i].m_type == T_TRANSFER)
 			{
 				//transfer T have only two values
-				(*this)[data[i].m_treatment].push_back(data[i].GetT1T2(true));
-				(*this)[data[i].m_treatment].push_back(data[i].GetT1T2(false));
+				(*this)[data[i].m_treatment].push_back(data[i].ComputeT(0));
+				(*this)[data[i].m_treatment].push_back(data[i].ComputeT(1));
 			}
 			else if (data[i].m_type == T_SQUARE ||
-				data[i].m_type == T_SINUS ||
-				data[i].m_type == T_TRIANGULAR)
+				data[i].m_type == T_TRIANGULAR ||
+				data[i].m_type == T_SINUS)
 			{
 
-				double T1 = data[i].GetT1T2(true);
-				double T2 = data[i].GetT1T2(false);
-				size_t h1 = data[i].GetH1();
+				double T1 = data[i].ComputeT(0);
+				double T2 = data[i].ComputeT(1);
 
-				double Tmean = (T1 + T2) / 2;
+
+				size_t h1 = data[i].GetH1();
 
 				for (size_t h = 0; h < 24; h++)
 				{
-					double Ti = Tmean;
+					double Ti = 0;
 					if (data[i].m_type == T_SQUARE)
 					{
 						Ti = h < h1 ? T1 : T2;
 					}
 					else if (data[i].m_type == T_SINUS)
 					{
+						//double Tmean = (data[i].m_type == T_SINUS1) ? (T1 + T2) / 2 : T1;
+						//double deltaT = (data[i].m_type == T_SINUS1) ? abs(T2 - T1) / 2 : T2;
+						double Tmean = T1;
+						double deltaT = T2;
 						ASSERT(h1 == 12);
+
 						double theta = 2 * PI * h / 24.0;
-						Ti = Tmean + (T2 - T1) / 2 * sin(theta);
+						Ti = Tmean + deltaT * sin(theta);
 					}
 					else if (data[i].m_type == T_TRIANGULAR)
 					{
-						//ASSERT(h1 == 12);
-						//Ti = Tmean + (T2 - T1) / 2 * (fabs(12.0 - ((h + 6) % 24)) - 6.0) / 6.0;
 						Ti = (h <= h1) ? T1 + (T2 - T1) * h / h1 : T2 + (T1 - T2) * (h - h1) / (24 - h1);
 					}
 
@@ -1343,6 +1422,8 @@ namespace WBSF
 			type = T_SQUARE;
 		else if (name.find("~") != string::npos)
 			type = T_SINUS;
+		//else if (name.find("±") != string::npos)
+			//type = T_SINUS2;
 		else if (name.find("^") != string::npos)
 			type = T_TRIANGULAR;
 		else if (name.find_first_not_of("-0123456789.") == string::npos)
@@ -1357,12 +1438,13 @@ namespace WBSF
 	{
 		m_type = -1;
 		m_bIndividual = false;
+		m_bTimeSeries = false;
 		m_t1 = 0;
 		m_t = 0;
 		m_tˉ¹ = 0;
 	}
 
-	double CDevRateDataRow::GetT1T2(bool bT1) const
+	/*double CDevRateDataRow::GetT1T2(bool bT1) const
 	{
 		double T = -999;
 
@@ -1379,6 +1461,32 @@ namespace WBSF
 
 			if (tmp.size() == 2 || tmp.size() == 3)
 				T = ToDouble(tmp[bT1 ? 0 : 1]);
+		}
+		else
+		{
+			ASSERT(false);
+		}
+
+		return T;
+	}*/
+	double CDevRateDataRow::ComputeT(size_t i) const
+	{
+		assert(i >= 0 && i <= 1);
+		double T = -999;
+
+
+		if (m_type == T_CONSTANT)
+		{
+			T = ToDouble(m_treatment);
+		}
+		else if (m_type != T_HOBO)
+		{
+			StringVector tmp(m_treatment, "/~^>:");
+			ASSERT(tmp.size() == 2 || tmp.size() == 3);
+			ASSERT(m_type != T_TRANSFER || tmp.size() == 3);
+
+			if (tmp.size() == 2 || tmp.size() == 3)
+				T = ToDouble(tmp[i]);
 		}
 		else
 		{
@@ -1407,15 +1515,13 @@ namespace WBSF
 
 	size_t CDevRateDataRow::GetH1() const
 	{
-		ASSERT(m_type == T_SQUARE || m_type == T_TRIANGULAR);
+		ASSERT(m_type == T_SQUARE || m_type == T_TRIANGULAR || m_type == T_SINUS);
 		size_t h1 = 12;
 
 		if (m_type == T_SQUARE || m_type == T_TRIANGULAR)
 		{
 			StringVector tmp(m_treatment, ":");
-			ASSERT(tmp.size() == 2);
-
-			if (tmp.size() == 2)
+			if (tmp.size() == 2)//if ":", set h1 other than default value of 12 hours
 			{
 				h1 = ToSizeT(tmp[1]);
 				ASSERT(h1 < 24);
@@ -1428,10 +1534,12 @@ namespace WBSF
 	double CDevRateDataRow::GetTime() const
 	{
 		ASSERT((find(I_TIME) != end()) != (find(I_MEAN_TIME) != end()));//Time or MeanTime , but not both
-//		ASSERT(find(I_TIME) != end() || at(I_N) == 1);
+		//		ASSERT(find(I_TIME) != end() || at(I_N) == 1);
 
 		double Time = -999;
-		if (find(I_TIME) != end())
+		if (find(I_START) != end() && find(I_TIME) != end())
+			Time = at(I_START) + at(I_TIME);
+		else if (find(I_TIME) != end())
 			Time = at(I_TIME);
 		else if (find(I_MEAN_TIME) != end())
 			Time = at(I_MEAN_TIME);
@@ -1666,6 +1774,7 @@ namespace WBSF
 
 				row.m_type = get_TType(row.m_treatment);
 				row.m_bIndividual = row.find(I_TIME) != row.end() && row[I_TIME] > 0;
+				row.m_bTimeSeries = find(m_input_pos.begin(), m_input_pos.end(), I_START) != m_input_pos.end() && find(m_input_pos.begin(), m_input_pos.end(), I_I) != m_input_pos.end();
 
 				if (!have_var(I_START))
 					row[I_START] = 0.0;
@@ -1673,8 +1782,8 @@ namespace WBSF
 				if (!have_var(I_N))
 					row[I_N] = 1.0;
 
-				if (!have_var(I_WEIGHT))
-					row[I_WEIGHT] = 1.0;
+				if (!have_var(I_OBS_INT))
+					row[I_OBS_INT] = 1.0;//default observed interval is daily
 
 
 				if (!have_var(I_I))
@@ -1688,8 +1797,8 @@ namespace WBSF
 					row.SetTime1(row.GetTime1());
 
 				row.SetTime(row.GetTime());
-				row.SetTimeˉ¹(max(0.0, row.GetTime() - 1));
-				if (row.m_type == T_TRANSFER && row.GetTime()>0 && row.GetTime() < row.GetTime1())
+				row.SetTimeˉ¹(max(0.0, row.GetTime() - row[I_OBS_INT]));
+				if (row.m_type == T_TRANSFER && row.GetTime() > 0 && row.GetTime() < row.GetTime1())
 				{
 					msg.ajoute("Error: transfer row with Time1 greater than total Time");
 					msg.ajoute((*loop).GetLastLine());
@@ -1714,7 +1823,11 @@ namespace WBSF
 					for (size_t n = 0; n < row[I_N]; n++)
 					{
 						if (row[I_MEAN_TIME] > 0)
+						{
 							m_statsTime[row.m_variable][row.m_treatment].Add(row[I_MEAN_TIME]);
+							m_statsRate[row.m_variable][row.m_treatment].Add(1 / row[I_MEAN_TIME]);
+							m_statsRateByVariable[row.m_variable].Add(1 / row[I_MEAN_TIME]);
+						}
 					}
 
 				}
@@ -1740,16 +1853,17 @@ namespace WBSF
 				for (auto iit = it->second.begin(); iit != it->second.end(); iit++)
 				{
 					const vector<size_t>& pos = iit->second;
-					double last_time = -999;// max(0.0, at(*pos.begin()).GetTime() - 1);//assume one day before the first observation
+					double last_time = -999;
 					for (auto iiit = pos.begin(); iiit != pos.end(); iiit++)
 					{
 						CDevRateDataRow& row = at(*iiit);
 
-						if (row.m_bIndividual)
+
+						if (row.m_bIndividual && !row.m_bTimeSeries)
 						{
 							if (last_time <= 0)
 							{
-								last_time = max(0.0, row.GetTime() - 1);//assume one day before the first observation
+								last_time = max(0.0, row.GetTime() - row[I_OBS_INT]);//assume one day before the first observation
 							}
 
 							row.SetTimeˉ¹(last_time);
@@ -2018,7 +2132,9 @@ namespace WBSF
 			{
 
 				//double q = max(0.005, min(0.995, (cumsum + row[I_N] / 2) / N));
-				double q = max(0.005, min(0.995, (i + 0.5) / qBrood.size()));
+				//double q = max(0.00001, min(0.9999, (i + 0.5) / qBrood.size()));
+				//double q = max(0.00001, min(0.9999, (i + 1.0) / qBrood.size()));
+				double q = (i + 1.0) / qBrood.size();
 
 				//apply this quantile to all observation for this individual
 				string individual = qBrood[i].second;
@@ -3218,6 +3334,12 @@ namespace WBSF
 								//if (m_fitType == F_DEV_TIME_WTH_SIGMA)// add relative development rate variance
 								//{
 								double sigma = m_devTime.GetDefaultSigma(*v);
+								if (sigma == 0)
+								{
+									msg.ajoute("sigma=0. Invalid input Time or MeanTime/TimeSD.");
+									return msg;
+								}
+
 								if (m_devTime.m_bIndividual)
 								{
 									params0.push_back(CSAParameter("sigma", sigma, sigma / SIGMA_FACTOR, sigma * SIGMA_FACTOR));
@@ -3225,7 +3347,7 @@ namespace WBSF
 								else
 								{
 									//fixe sigma here
-									params0.push_back(CSAParameter("sigma", sigma, sigma, sigma));
+									params0.push_back(CSAParameter("sigma", Round(sigma, 3), Round(sigma, 3), Round(sigma, 3)));
 								}
 								//}
 
@@ -3239,7 +3361,14 @@ namespace WBSF
 										{
 											auto iit = find_if(params0.begin(), params0.end(), [&](CSAParameter& p) {return boost::iequals(p.m_name, it->first); });
 											if (iit != params0.end())
-												iit->m_initialValue = it->second;
+											{
+												//if sigma, round to avoid boubnd problem
+												if (it->first != "sigma")
+													iit->m_initialValue = it->second;
+												else
+													iit->m_initialValue = Round(it->second, 3);
+
+											}
 										}
 
 									}
@@ -3469,7 +3598,7 @@ namespace WBSF
 						if (bLogLikelyhoude)
 							file << "Variable,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
 						else
-							file << "Variable,EqName,P,Eq,Math,R2" << endl;
+							file << "Variable,EqName,P,Eq,Math,n,k,RSS,R2" << endl;
 
 						for (auto v = variables.begin(); v != variables.end(); v++)
 						{
@@ -3523,10 +3652,10 @@ namespace WBSF
 
 									if (bLogLikelyhoude)
 										file << output[i].m_computation.m_n_opt << "," << output[i].m_computation.m_k_opt << "," << output[i].m_computation.m_MLLopt << "," << output[i].m_computation.m_AICCopt;
-									else if (output[i].m_computation.m_Fopt != m_ctrl.GetVMiss())
-										file << output[i].m_computation.m_Sopt[STAT_R²];
-									else
-										file << "0,0,0,0";
+									else //if (output[i].m_computation.m_Fopt != m_ctrl.GetVMiss())
+										file << output[i].m_computation.m_Sopt[NB_VALUE] << "," << output[i].m_computation.m_Xopt.size() << "," << output[i].m_computation.m_Sopt[RSS] << "," << output[i].m_computation.m_Sopt[STAT_R²];
+									//else
+									//	file << "0,0,0,0";
 
 									file << endl;
 								}
@@ -3578,7 +3707,7 @@ namespace WBSF
 			computation.m_XP[i] = parameters[i].m_initialValue;
 			computation.m_C[i] = 2;
 			computation.m_VM[i] = computation.m_bounds[i].GetExtent();
-			ASSERT(!computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]));
+			//ASSERT(!computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]));
 			//If the initial value is out of bounds, notify the user and return
 			//to the calling routine.
 			if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
@@ -4331,7 +4460,7 @@ namespace WBSF
 		return bValid;
 	}
 
-	bool CInsectParameterization::IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P)
+	bool CInsectParameterization::IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P, double null_rate_threshold)
 	{
 		bool bValid = true;
 
@@ -4347,7 +4476,7 @@ namespace WBSF
 				if (isnan(rate))
 					return false;
 
-				if (rate < NULL_RATE_THRESHOLD)
+				if (rate < null_rate_threshold)
 					rate = 0;
 
 				stat_sim += rate;
@@ -4369,7 +4498,7 @@ namespace WBSF
 				if (isnan(rate))
 					return false;
 
-				if (rate < NULL_RATE_THRESHOLD)
+				if (rate < null_rate_threshold)
 					rate = 0;
 
 				stat_sim += rate;
@@ -4383,8 +4512,20 @@ namespace WBSF
 		if (m_bLimitMaxRate)
 		{
 
-			double min_T = m_devTime.m_statsTByVariable.at(var)[LOWEST];
-			double max_T = m_devTime.m_statsTByVariable.at(var)[HIGHEST];
+			//double min_T = m_devTime.m_statsTByVariable.at(var)[LOWEST];
+			//double max_T = m_devTime.m_statsTByVariable.at(var)[HIGHEST];
+			//if (m_bConstrainTlo && m_Tlo[0] < min_T)
+			//	min_T = m_Tlo[0];
+			//
+			//if (m_bConstrainThi && m_Thi[1] > max_T)
+			//	max_T = m_Thi[1];
+
+			//min_T -= (max_T - min_T) / 5.0;
+			//max_T += (max_T - min_T) / 5.0;
+
+			//this option must not be use with aging 
+			double min_T = -5;
+			double max_T = 50;
 
 
 			CStatistic stat_sim;
@@ -4396,13 +4537,15 @@ namespace WBSF
 				stat_sim += rate;
 			}
 
-			double K = m_LimitMaxRateP;
 
+
+			double K = m_LimitMaxRateP;
 			double max_rate_obs = m_devTime.m_statsRateByVariable.at(var)[HIGHEST];
 			double max_rate_sim = stat_sim[HIGHEST];
 
-			bValid &= max_rate_sim / max_rate_obs <= K;
-			bValid &= max_rate_obs / max_rate_sim <= K;
+			double k = max_rate_sim / max_rate_obs;
+			bValid &= k <= K;
+			//bValid &= max_rate_obs / max_rate_sim <= K;
 		}
 
 		if (m_bAvoidNullRateInTobs)
@@ -4422,7 +4565,7 @@ namespace WBSF
 			}
 
 			double min_rate_sim = stat_sim[LOWEST];
-			bValid &= min_rate_sim > NULL_RATE_THRESHOLD;
+			bValid &= min_rate_sim > null_rate_threshold;
 		}
 
 
@@ -4442,7 +4585,7 @@ namespace WBSF
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 
-			if (!IsParamValid(var, eq, computation.m_XP) || !IsRateValid(var, eq, computation.m_XP))
+			if (!IsParamValid(var, eq, computation.m_XP) || !IsRateValid(var, eq, computation.m_XP, NULL_RATE_THRESHOLD))
 				return false;
 
 			double sigma = computation.m_XP.back();
@@ -4477,17 +4620,34 @@ namespace WBSF
 					//for (auto it = m_devTime.begin(); it != m_devTime.end(); it++)
 					for (auto iit = pos.begin(); iit != pos.end(); iit++)
 					{
-						double xi = t_xi[m_devTime[*iit].t()];
-						double xiˉ¹ = t_xi[m_devTime[*iit].t(true)];
+						if (bLogLikelyhoude)
+						{
+							double xi = t_xi[m_devTime[*iit].t()];
+							double xiˉ¹ = t_xi[m_devTime[*iit].t(true)];
 
 
-						double p = (isfinite(xi) && isfinite(xiˉ¹)) ? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹) : DBL_MIN;
-						double LL = log(max(DBL_MIN, p));//max: avoid log of 0
-						double n = m_devTime[*iit].at(I_N);
-						LL *= n;///??????
+							double p = (isfinite(xi) && isfinite(xiˉ¹)) ? cdf(LogNormal, xi) - cdf(LogNormal, xiˉ¹) : DBL_MIN;
+							double LL = log(max(DBL_MIN, p));//max: avoid log of 0
+							double n = m_devTime[*iit].at(I_N);
+							LL *= n;///??????
 
-						log_likelyhoude += LL;
-						N_likelyhoude += n;
+							log_likelyhoude += LL;
+							N_likelyhoude += n;
+						}
+						else
+						{
+							if (m_devTime[*iit][I_TIME] > 0)//Use only non NA
+							{
+								double obs = m_devTime[*iit][I_TIME];
+								double sim = 1.0 / max(0.001, GetDevRate(eq, computation.m_XP, m_devTime[*iit]));
+
+								if (!isfinite(sim) || isnan(sim) || sim < -1E8 || sim>1E8)
+									return false;
+
+								for (size_t n = 0; n < m_devTime[*iit][I_N]; n++)
+									stat.Add(sim, obs);
+							}
+						}
 					}
 				}
 				else//use mean
@@ -4496,20 +4656,30 @@ namespace WBSF
 					{
 						if (m_devTime[*iit][I_MEAN_TIME] > 0)//Use only non NA
 						{
-							//LL seem to not have to be multiply by N!
-							double LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_devTime[*iit]);
-							double n = m_devTime[*iit].at(I_N);
+							if (bLogLikelyhoude)
+							{
+								//LL seem to not have to be multiply by N!
+								double LL = Regniere2021DevRateMeanSDn(eq, computation.m_XP, m_devTime[*iit]);
+								double n = m_devTime[*iit].at(I_N);
 
-							log_likelyhoude += LL;
-							//N_likelyhoude += 1;
-							N_likelyhoude += n;//validate with Jacques
+								log_likelyhoude += LL;
+								N_likelyhoude += n;//validate with Jacques
+							}
+							else
+							{
+								double obs = m_devTime[*iit][I_MEAN_TIME];
+								double sim = 1.0 / max(0.001, GetDevRate(eq, computation.m_XP, m_devTime[*iit]));
+
+								if (!isfinite(sim) || isnan(sim) || sim < -1E8 || sim>1E8)
+									return false;
+
+								for (size_t n = 0; n < m_devTime[*iit][I_N]; n++)
+									stat.Add(sim, obs);
+							}
 						}
 					}
-
 				}
 			}
-
-
 		}
 		else if (m_fitType == F_SURVIVAL)
 		{
@@ -4554,7 +4724,11 @@ namespace WBSF
 		else if (m_fitType == F_FECUNDITY)
 		{
 			TFecundityEquation eq = CFecundityEquation::eq(e);
-			if (CFecundityEquation::IsParamValid(eq, computation.m_XP))
+			if (!IsParamValid(var, eq, computation.m_XP) || !IsRateValid(var, eq, computation.m_XP, NULL_RATE_THRESHOLD))
+				return false;
+
+
+			//if (CFecundityEquation::IsParamValid(eq, computation.m_XP))
 			{
 				for (__int64 i = 0; i < (__int64)m_fecundity.size(); i++)
 				{
@@ -4786,7 +4960,7 @@ namespace WBSF
 
 		in[GetMemberName(COUNSTRAIN_T_LO)](m_bConstrainTlo);
 		in[GetMemberName(T_LO_VALUES)](tmp); m_Tlo = ToArray<double, 2>(tmp);
-		in[GetMemberName(COUNSTRAIN_T_LO)](m_bConstrainThi);
+		in[GetMemberName(COUNSTRAIN_T_HI)](m_bConstrainThi);
 		in[GetMemberName(T_HI_VALUES)](tmp); m_Thi = ToArray<double, 2>(tmp);
 
 		in[GetMemberName(FIXE_F0)](m_bFixeF0);

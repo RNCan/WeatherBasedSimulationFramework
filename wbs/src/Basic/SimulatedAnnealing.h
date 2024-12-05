@@ -13,6 +13,7 @@
 #include "basic/ERMsg.h"
 #include "basic/Statistic.h"
 #include "Basic/zenXml.h"
+#include "Basic/UtilMath.h"
 
 
 
@@ -144,7 +145,7 @@ namespace WBSF
 		bool operator != (const CVariableBound& in)const { return !operator==(in); }
 
 
-		bool IsOutOfBound(double& value)const { return (value < m_lowerBound) || (value > m_upperBound); }
+		bool IsOutOfBound(double& value, size_t digit=5)const { return (WBSF::Round(value, digit) < WBSF::Round(m_lowerBound, digit)) || (value > WBSF::Round(m_upperBound,digit)); }
 		double GetExtent()const
 		{
 			_ASSERTE(m_upperBound >= m_lowerBound);

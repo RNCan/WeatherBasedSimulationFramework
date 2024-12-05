@@ -28,7 +28,7 @@ namespace WBSF
 
 	namespace DevRateInput
 	{
-		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TREATMENT, I_I, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_WEIGHT, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, I_BROOD, I_MEAN_BROOD, I_BROOD_SD, I_RFR, I_Q_BROOD, NB_DEV_INPUT };
+		enum TDevTimeCol { I_UNKNOWN = -1, I_VARIABLE, I_TREATMENT, I_I, I_START, I_TIME, I_MEAN_TIME, I_TIME_SD, I_N, I_OBS_INT, I_RDT, I_Q_TIME, I_RATE, I_RDR, I_Q_RATE, I_SURVIVAL, I_BROOD, I_MEAN_BROOD, I_BROOD_SD, I_RFR, I_Q_BROOD, NB_DEV_INPUT };
 		enum TTobsCol {C_UNKNOWN = -1, C_TID, C_T, NB_TOBS_COL };
 		enum TTemperature { T_UNKNOWN = -1, T_CONSTANT, T_TRANSFER, T_SQUARE, T_SINUS, T_TRIANGULAR, T_HOBO, NB_TMP_TYPE };
 		
@@ -51,6 +51,7 @@ namespace WBSF
 		std::string GetProfile()const { return m_variable + "_" + m_treatment + "_" + m_i; }
 		size_t m_type;
 		bool m_bIndividual;
+		bool m_bTimeSeries;
 
 		double GetMaxTime() const;
 
@@ -66,7 +67,7 @@ namespace WBSF
 		const std::vector<double>& T()const { ASSERT(m_Tobs.get());  return  *(m_Tobs.get()); }
 
 		
-		double GetT1T2(bool bT1) const;
+		double ComputeT(size_t i=0) const;
 		double GetTime1() const;
 		double GetTime() const;
 
@@ -335,7 +336,7 @@ namespace WBSF
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		bool GetFValue(std::string s, size_t e, CComputationVariable& computation);
 		bool IsParamValid( const std::string& var, CDevRateEquation::TDevRateEquation eq, const std::vector<double>& P);
-		bool IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation model, const std::vector<double>& P);
+		bool IsRateValid(const std::string& var, CDevRateEquation::TDevRateEquation model, const std::vector<double>& P, double null_rate_treashold);
 
 		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
