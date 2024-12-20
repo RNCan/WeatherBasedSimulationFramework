@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////// 
-// Version of BioSIM
+// Version of BioSIM 
 // 11.8.21:04/07/2024	Rémi Saint-Amant	Support when no_data is nan
 //											replace std::uniform_int by std::uniform_int_distribution in UtilMath
 // 11.8.20:04/04/2024	Rémi Saint-Amant	Bug correction when creating project

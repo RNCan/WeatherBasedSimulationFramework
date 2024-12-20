@@ -31,6 +31,14 @@
     <MissingValue>-999</MissingValue>
     <OutputVariableArray>
         <OutputVariable>
+            <Name>Tmin_jan</Name>
+            <Title>Tmin_jan</Title>
+            <Units/>
+            <Description>Mean January daily minimum temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
             <Name>CDD_La_g0</Name>
             <Title>CDD_La_g0</Title>
             <Units/>

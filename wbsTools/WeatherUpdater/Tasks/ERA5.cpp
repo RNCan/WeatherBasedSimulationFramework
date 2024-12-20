@@ -22,12 +22,15 @@ namespace WBSF
 
 	CERA5::CERA5(const std::string& workingDir) :
 		m_workingDir(workingDir),
-		m_show_download(false)
+		m_show_download(false),
+		m_bLand(false)
 	{}
 
 	CERA5::~CERA5(void)
 	{}
 
+//ERA5 is available on Google Drive: 
+//https://console.cloud.google.com/storage/browser/gcp-public-data-arco-era5/raw/date-variable-single_level/1942/01/01/2m_temperature?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&hl=fr&inv=1&invt=AbincQ
 
 	enum TERA5Var { ERA5_TMIN, ERA5_TMAX, ERA5_PRCP, ERA5_TDEW, ERA5_RELH, ERA5_WNDS, ERA5_WNDD, ERA5_SRAD, ERA5_PRES, ERA5_SNOW, ERA5_SNDH, ERA5_SWE, ERA5_GHGT, NB_ERA5_VARS };
 
@@ -146,7 +149,7 @@ namespace WBSF
 		bool already_downloaded = true;
 		for (size_t v = 0; v < NB_ERA5_VARS_HOURLY && already_downloaded; v++)
 		{
-			string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grd", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+			string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 
 			if (!FileExists(inputFilePath))
 				already_downloaded = false;
@@ -163,6 +166,19 @@ namespace WBSF
 			all_variables += *it;
 		}
 
+		string box_output("");//empty string by default for sprintf
+		string box_option("");//empty string by default for sprintf
+		if ( round(m_bounding_box.m_yMin) != -90 || round(m_bounding_box.m_xMin) != -180 || round(m_bounding_box.m_yMax) != 90 || round(m_bounding_box.m_xMax) != 180)
+		{
+			box_option = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
+
+
+			char a1 = m_bounding_box.m_xMin < 0 ? 'W' : 'E';
+			char a2 = m_bounding_box.m_xMax < 0 ? 'W' : 'E';
+			char a3 = m_bounding_box.m_yMin < 0 ? 'S' : 'N';
+			char a4 = m_bounding_box.m_yMax < 0 ? 'S' : 'N';
+			box_output = WBSF::FormatA("_%.0lf%c-%.0lf%c_%.0lf%c-%.0lf%c", abs(m_bounding_box.m_xMin), a1, abs(m_bounding_box.m_xMax), a2, abs(m_bounding_box.m_yMin), a3, abs(m_bounding_box.m_yMax), a4);
+		}
 
 		callback.PushTask("Download ERA5 for day " + TRef.GetFormatedString(), NOT_INIT);
 
@@ -171,44 +187,83 @@ namespace WBSF
 
 		if (msg)
 		{
-			string exe_path = "C:\\Users\\tigro\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\";
 			
-			string box;
-			if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
-				box = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
+			//C:\Users\Remi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts
+			//string exe_path = "C:\\Users\\tigro\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\";
+			
+		
+			//if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
+				//box_option = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
 
 			string date = " --startyear " + to_string(TRef.GetYear()) + " --months " + to_string(TRef.GetMonth() + 1) + " --day " + to_string(TRef.GetDay() + 1);
-			if (TRef.GetYear() < 1979)
-				date += " --prelimbe";
+			//if (TRef.GetYear() < 1979)
+				//date += " --prelimbe";
 
-			string argument = "hourly --variables " + all_variables + date + box + " --levels surface --threads 6 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
-			string command = exe_path + "era5cli.exe " + argument;
+			string land_option;
+			if (m_bLand)
+				land_option = " --land";
+
+			//Note here that the path of the python script where era5cli.exe is installed must be in the user path
+			string argument = "hourly --overwrite" + land_option +" --variables " + all_variables + date + box_option + " --levels surface --threads 1 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
+			string command = "era5cli.exe " + argument;
+
+			//char Buffer[MAX_PATH * 10] = { 0 };
+			//DWORD rep = GetEnvironmentVariableA("path", Buffer, MAX_PATH * 10);
+
+
 			msg += WinExecWait(command, GetPath(output_filepath_tmp), m_show_download ? SW_SHOW : SW_HIDE);
+
+			//if (msg)
+			//{
+			//	//verify if all files are downloaded
+			//	bool not_downloaded = false;
+			//	for (size_t v = 0; v < NB_ERA5_VARS_HOURLY; v++)
+			//	{
+			//		string output_filepath1 = output_filepath_tmp + FormatA("_%s_%04d-%02d_hourly", ERA5_NAME_H[v].c_str(), TRef.GetYear(), TRef.GetMonth() + 1) + box_output + ".grb";
+			//			//FormatA("%s%d\\%02d\\%02d\\ERA5_%s_%04d-%02d_hourly%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str(), TRef.GetYear(), TRef.GetMonth() + 1, box_output.c_str());
+
+			//		if (!FileExists(output_filepath1))
+			//			not_downloaded = true;
+			//	}
+
+			//	if (not_downloaded)
+			//	{
+			//		callback.AddMessage("Server problem... wait 10 mintues");
+			//		//wait 10 minutes to let the server recovery
+			//		msg = WaitServer(10 * 60, callback);
+			//		if (msg)//re-try after 10 minutes
+			//			msg = WinExecWait(command, GetPath(output_filepath_tmp), m_show_download ? SW_SHOW : SW_HIDE);
+			//	}
+			//}
+			
 		}
 
 
 
 		if (msg)
 		{
-			string box;
+			/*string box;
 			if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
 			{
 				char a1 = m_bounding_box.m_xMin < 0 ? 'W' : 'E';
 				char a2 = m_bounding_box.m_xMax < 0 ? 'W' : 'E';
 				char a3 = m_bounding_box.m_yMin < 0 ? 'S' : 'N';
 				char a4 = m_bounding_box.m_yMax < 0 ? 'S' : 'N';
-				box = WBSF::FormatA("_%.0lf%c-%.0lf%c_%.0lf%c-%.0lf%c", abs(m_bounding_box.m_xMin), a1, abs(m_bounding_box.m_xMax), a2, abs(m_bounding_box.m_yMin), a3, abs(m_bounding_box.m_yMax), a4);
-			}
+				box = WBSF::FormatA("%.0lf%c-%.0lf%c_%.0lf%c-%.0lf%c", abs(m_bounding_box.m_xMin), a1, abs(m_bounding_box.m_xMax), a2, abs(m_bounding_box.m_yMin), a3, abs(m_bounding_box.m_yMax), a4);
+			}*/
 
 			for (size_t v = 0; v < NB_ERA5_VARS_HOURLY && msg; v++)
 			{
-				string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly" + box + ".grb";
+				//string output_filepath1 = output_filepath_tmp + "_" + ERA5_NAME_H[v] + "_" + to_string(TRef.GetYear()) + "_hourly" + box + ".grb";
+				//string output_filepath1 = FormatA("%s%d\\%02d\\%02d\\ERA5_%s_%04d-%02d_hourly%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str(), TRef.GetYear(), TRef.GetMonth() + 1, box_output.c_str());
+				string output_filepath1 = output_filepath_tmp + FormatA("_%s_%04d-%02d_hourly", ERA5_NAME_H[v].c_str(), TRef.GetYear(), TRef.GetMonth() + 1) + box_output + ".grb";
+
 				if (!FileExists(output_filepath1))
 					msg.ajoute("File does't exist: " + output_filepath1);
-
+				
 				if (msg)
 				{
-					string output_filepath2 = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grd", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+					string output_filepath2 = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 					//msg = CreateMultipleDir(GetPath(output_filepath2));
 					if (FileExists(output_filepath2))
 						msg += RemoveFile(output_filepath2);
@@ -239,7 +294,7 @@ namespace WBSF
 		array<CGDALDatasetEx, NB_ERA5_VARS_HOURLY> DSin;
 		for (size_t v = 0; v < NB_ERA5_VARS_HOURLY; v++)
 		{
-			string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grd", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+			string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 
 			if (FileExists(inputFilePath))
 			{

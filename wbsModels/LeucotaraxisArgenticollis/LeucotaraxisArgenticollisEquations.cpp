@@ -110,7 +110,7 @@ namespace WBSF
 	{
 
 		boost::math::lognormal_distribution<double> ln_dist(-WBSF::Square(m_pupa_param[PUPA_S]) / 2.0, m_pupa_param[PUPA_S]);
-		double rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu());
+		double rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
 		while (rT < 0.2 || rT>2.6)//base on individual observation
 			rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
 
@@ -153,14 +153,14 @@ namespace WBSF
 		if (s == ADULT)
 		{
 			boost::math::lognormal_distribution<double> lndist(0, rdt);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
+			rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 			while (rT < 0.2 || rT>5.4)//base on individual observation
 				rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 		}
 		else 
 		{
 			boost::math::lognormal_distribution<double> lndist(-WBSF::Square(rdt) / 2.0, rdt);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
+			rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 			while (rT < 0.2 || rT>2.6)//base on individual observation
 				rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 		}
@@ -231,12 +231,13 @@ namespace WBSF
 	}
 
 
-	double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double Tjan)const
+	double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double TjanIn)const
 	{
+		double Tjan = max(-9.3, TjanIn);
 		double mu = m_EOD_param[EOD_B] * (max(-9.3, Tjan) - m_EOD_param[EOD_A]) / (1 + max(-9.3, Tjan) - m_EOD_param[EOD_A]);
 		boost::math::logistic_distribution<double> emerging_dist(mu, m_adult_emerg[ѕ]);
 
-		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
+		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
 		double p = boost::math::cdf(emerging_dist, CDD);
 		while (p < 0.01 || p>0.99)
 		{

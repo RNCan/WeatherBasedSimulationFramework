@@ -35,6 +35,7 @@ namespace WBSF
 		std::string m_workingDir;
 		bool m_show_download;
 		CGeoRect m_bounding_box;
+		bool m_bLand;
 		
 		std::string GetWorkingDir()const { return m_workingDir; }
 		void SetWorkingDir(const std::string& in){ m_workingDir= in; }

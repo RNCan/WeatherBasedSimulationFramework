@@ -184,7 +184,7 @@ namespace WBSF
 
 		}
 		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
-			info.m_type == T_SINUS )//optimization at constant 24 hour cycle temperature (rate is always the same)
+			info.m_type == T_SINUS || info.m_type == T_SINUS_MEAN)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			const vector<double>& T = info.T();
 			ASSERT(T.size() == 24);
@@ -273,7 +273,7 @@ namespace WBSF
 			S = pow(s1, t1) * pow(s2, t2);
 		}
 		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
-			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
+			info.m_type == T_SINUS || info.m_type == T_SINUS_MEAN)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			const vector<double>& T = info.T();
 			ASSERT(T.size() == 24);
@@ -666,7 +666,7 @@ namespace WBSF
 
 		}
 		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
-			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
+			info.m_type == T_SINUS || info.m_type == T_SINUS_MEAN)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			ASSERT(T.size() == 24);
 
@@ -766,7 +766,7 @@ namespace WBSF
 
 		}
 		else if (info.m_type == T_SQUARE || info.m_type == T_TRIANGULAR ||
-			info.m_type == T_SINUS)//optimization at constant 24 hour cycle temperature (rate is always the same)
+			info.m_type == T_SINUS || info.m_type == T_SINUS_MEAN)//optimization at constant 24 hour cycle temperature (rate is always the same)
 		{
 			const vector<double>& T = info.T();
 			ASSERT(T.size() == 24);
@@ -900,11 +900,11 @@ namespace WBSF
 		if (!isfinite(S) || isnan(S))
 			return S;
 
-		double expected = max(0.001, min(1e10, n * S));//limit to a very low expected when zero survival
+		double expected = max(0.0001, min(1e10, n * S));//limit to a very low expected when zero survival
 		boost::math::poisson_distribution<double> Poisson(expected);
 
 		//compute probability of surviving
-		double p = max(1e-20, pdf(Poisson, S_obs));
+		double p = max(DBL_MIN, pdf(Poisson, S_obs));
 		return log(p);
 	}
 
@@ -1225,6 +1225,9 @@ namespace WBSF
 
 		//begin to read
 		ifStream file;
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+		file.imbue(utf8_locale);
+		//file.imbue(std::locale("en_US.UTF-8"));
 		msg = file.open(file_path);
 		if (msg)
 		{
@@ -1356,7 +1359,7 @@ namespace WBSF
 			}
 			else if (data[i].m_type == T_SQUARE ||
 				data[i].m_type == T_TRIANGULAR ||
-				data[i].m_type == T_SINUS)
+				data[i].m_type == T_SINUS || data[i].m_type == T_SINUS_MEAN)
 			{
 
 				double T1 = data[i].ComputeT(0);
@@ -1372,21 +1375,22 @@ namespace WBSF
 					{
 						Ti = h < h1 ? T1 : T2;
 					}
-					else if (data[i].m_type == T_SINUS)
+					else if (data[i].m_type == T_TRIANGULAR)
 					{
-						//double Tmean = (data[i].m_type == T_SINUS1) ? (T1 + T2) / 2 : T1;
-						//double deltaT = (data[i].m_type == T_SINUS1) ? abs(T2 - T1) / 2 : T2;
-						double Tmean = T1;
-						double deltaT = T2;
+						Ti = (h <= h1) ? T1 + (T2 - T1) * h / h1 : T2 + (T1 - T2) * (h - h1) / (24 - h1);
+					}
+					else if (data[i].m_type == T_SINUS || data[i].m_type == T_SINUS_MEAN)
+					{
+						double Tmean = (data[i].m_type == T_SINUS) ? (T1 + T2) / 2 : T1;
+						double deltaT = (data[i].m_type == T_SINUS) ? (T2 - T1) / 2 : T2;
+						//double Tmean = T1;
+						//double deltaT = T2;
 						ASSERT(h1 == 12);
 
 						double theta = 2 * PI * h / 24.0;
 						Ti = Tmean + deltaT * sin(theta);
 					}
-					else if (data[i].m_type == T_TRIANGULAR)
-					{
-						Ti = (h <= h1) ? T1 + (T2 - T1) * h / h1 : T2 + (T1 - T2) * (h - h1) / (24 - h1);
-					}
+					
 
 
 					(*this)[data[i].m_treatment].push_back(Ti);
@@ -1420,12 +1424,12 @@ namespace WBSF
 			type = T_TRANSFER;
 		else if (name.find("/") != string::npos)
 			type = T_SQUARE;
-		else if (name.find("~") != string::npos)
-			type = T_SINUS;
-		//else if (name.find("±") != string::npos)
-			//type = T_SINUS2;
 		else if (name.find("^") != string::npos)
 			type = T_TRIANGULAR;
+		else if (name.find("~") != string::npos)
+			type = T_SINUS;
+		else if (name.find("±") != string::npos)
+			type = T_SINUS_MEAN;
 		else if (name.find_first_not_of("-0123456789.") == string::npos)
 			type = T_CONSTANT;
 		else
@@ -1481,7 +1485,7 @@ namespace WBSF
 		}
 		else if (m_type != T_HOBO)
 		{
-			StringVector tmp(m_treatment, "/~^>:");
+			StringVector tmp(m_treatment, "/~^>:±");
 			ASSERT(tmp.size() == 2 || tmp.size() == 3);
 			ASSERT(m_type != T_TRANSFER || tmp.size() == 3);
 
@@ -1515,7 +1519,7 @@ namespace WBSF
 
 	size_t CDevRateDataRow::GetH1() const
 	{
-		ASSERT(m_type == T_SQUARE || m_type == T_TRIANGULAR || m_type == T_SINUS);
+		ASSERT(m_type == T_SQUARE || m_type == T_TRIANGULAR || m_type == T_SINUS || m_type == T_SINUS_MEAN);
 		size_t h1 = 12;
 
 		if (m_type == T_SQUARE || m_type == T_TRIANGULAR)
@@ -1641,7 +1645,7 @@ namespace WBSF
 		return max_time;
 	}
 
-	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T", "I", "Start", "Time","MeanTime","TimeSD","N", "W", "RDT", "qTime", "Rate", "RDR", "qRate", "Survival", "Brood", "MeanBrood", "BroodSD", "RFR", "qBrood" };
+	const char* CDevRateData::INPUT_NAME[NB_DEV_INPUT] = { "Variable","T", "I", "Start", "Time","MeanTime","TimeSD","N", "ObsInt", "RDT", "qTime", "Rate", "RDR", "qRate", "Survival", "Brood", "MeanBrood", "BroodSD", "RFR", "qBrood" };
 	TDevTimeCol CDevRateData::get_input(const std::string& name)
 	{
 		TDevTimeCol col = I_UNKNOWN;
@@ -1678,6 +1682,13 @@ namespace WBSF
 
 		//begin to read
 		ifStream file;
+		//std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+
+
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+		file.imbue(utf8_locale);
+
+		//file.imbue(std::locale("en_US.UTF-8"));
 		msg = file.open(file_path);
 		if (msg)
 		{
@@ -1796,6 +1807,7 @@ namespace WBSF
 				if (row.m_type == T_TRANSFER)
 					row.SetTime1(row.GetTime1());
 
+				assert(row.GetTime() - row[I_OBS_INT] >= 0);
 				row.SetTime(row.GetTime());
 				row.SetTimeˉ¹(max(0.0, row.GetTime() - row[I_OBS_INT]));
 				if (row.m_type == T_TRANSFER && row.GetTime() > 0 && row.GetTime() < row.GetTime1())
@@ -2581,6 +2593,10 @@ namespace WBSF
 
 		//begin to read
 		ifStream file;
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+		file.imbue(utf8_locale);
+
+		//file.imbue(std::locale("en_US.UTF-8"));
 		msg = file.open(file_path);
 		if (msg)
 		{
@@ -2676,7 +2692,12 @@ namespace WBSF
 
 		//begin to read
 		ifStream file;
+		std::locale utf8_locale = std::locale(std::locale::classic(), new std::codecvt_utf8<size_t>());
+		file.imbue(utf8_locale);
+
+		//file.imbue(std::locale("en_US.UTF-8"));
 		msg = file.open(file_path);
+
 		if (msg)
 		{
 			msg = load(file);
@@ -4602,7 +4623,7 @@ namespace WBSF
 					{
 						if (iit == pos.begin())
 						{
-							ASSERT(m_devTime[*iit].t(true) > 0);
+							ASSERT(m_devTime[*iit].t(true) >= 0);
 							t_xi[m_devTime[*iit].t(true)] = 0;
 						}
 

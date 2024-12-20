@@ -165,7 +165,7 @@ namespace WBSF
 		//double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
 
-		//Time step development rate
+		//Time step development rate 
 		double r = Equations().GetRate(s, T) / nb_steps;
 		if (s < PUPAE || m_bDiapause1)//|| m_bDiapause1
 			r *= Equations().m_C_param[1];
