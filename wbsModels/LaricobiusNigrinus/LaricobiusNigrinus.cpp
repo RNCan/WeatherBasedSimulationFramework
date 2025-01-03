@@ -38,9 +38,14 @@ namespace WBSF
 		int year = creationDate.GetYear();
 		m_creationDate = GetCreationDate(year);
 		m_adult_emergence = GetAdultEmergence(year);
+		
+		for( size_t s=0; s<NB_STAGES; s++)
+			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-		m_adult_longevity = Equations().GetAdultLongevity(m_sex);
-		m_F = (m_sex == FEMALE) ? Equations().GetFecondity(m_adult_longevity) : 0;
+
+		//m_adult_longevity = Equations().GetAdultLongevity(m_sex);
+		m_t = 0;
+		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity() : 0;
 	}
 
 	CTRef CLaricobiusNigrinus::GetCreationDate(int year)const
@@ -106,9 +111,17 @@ namespace WBSF
 		{
 			CIndividual::operator=(in);
 			
+			m_dropToGroundDate = in.m_dropToGroundDate;
 			m_adult_emergence = in.m_adult_emergence;
-			m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
-			m_F = in.m_F;
+			//m_reachDate = in.m_reachDate;
+			m_t = in.m_t;
+			m_Fi = in.m_Fi;
+			m_deadByAttrition = in.m_deadByAttrition;
+
+
+			//m_adult_emergence = in.m_adult_emergence;
+			//m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
+			//m_F = in.m_F;
 		}
 
 		return *this;
@@ -211,18 +224,19 @@ namespace WBSF
 		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 		day_length = AdjustDLLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), day_length);
 		
-		if (s < AESTIVAL_DIAPAUSE_ADULT)
+		if (s != AESTIVAL_DIAPAUSE_ADULT)
 		{
 			//Time step development rate
 			double r = Equations().GetRate(s, T) / nb_steps;
 			
+			//Relative development rate for this individual
+			double rr = m_RDR[s];
+
 			double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[s][0] : 1;
 
-			//Relative development rate for this individual
-			//double rr = (s == EGG || s == LARVAE) ? m_RDR[s] : 1;
 
 			//Time step development rate for this individual
-			r *= corr_r;
+			r *= rr*corr_r;
 			ASSERT(r >= 0 && r < 1);
 
 			//Adjust age
@@ -230,6 +244,12 @@ namespace WBSF
 
 			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.9)//drop to the soil when 90% competed (guess)
 				m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
+
+			if (GetStand()->m_bApplyAttrition)
+			{
+				if (IsDeadByAttrition(s, T, r))
+					m_deadByAttrition = weather.GetTRef().as(CTM::DAILY);
+			}
 		}
 		else if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
@@ -237,12 +257,28 @@ namespace WBSF
 			if (TRef == m_adult_emergence)
 				m_age = ACTIVE_ADULT;
 		}
-		else//ACTIVE_ADULT
-		{
-			double r = (1.0 / m_adult_longevity) / nb_steps;
-			ASSERT(r >= 0 && r < 1);
+		//else//ACTIVE_ADULT
+		//{
+		//	double r = (1.0 / m_adult_longevity) / nb_steps;
+		//	ASSERT(r >= 0 && r < 1);
+		//
+		//	m_age += r;
+		//}
 
-			m_age += r;
+		if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
+		{
+			double to = 140;
+			double t = timeStep / 24.0;
+			if (m_t > to)
+			{
+				double λ = Equations().GetFecondityRate(GetAge(), weather[H_TAIR]);
+				double brood = m_Fi * (exp(-λ * (m_t - to)) - exp(-λ * (m_t + t - to)));
+
+				m_broods += brood;
+				m_totalBroods += brood;
+			}
+
+			m_t += t;
 		}
 	}
 
@@ -281,12 +317,7 @@ namespace WBSF
 
 		if (GetStage() == ACTIVE_ADULT)
 		{
-			//no brood process done
-
-			//brooding
-			//m_broods = m_F;
-			//m_totalBroods = m_F;
-			//m_F = 0;
+			//all is done is live
 		}
 	}
 
@@ -300,6 +331,11 @@ namespace WBSF
 			//Old age
 			m_status = DEAD;
 			m_death = OLD_AGE;
+		}
+		else if (m_deadByAttrition.IsInit())
+		{
+			m_status = DEAD;
+			m_death = ATTRITION;
 		}
 		else
 		{
@@ -315,9 +351,28 @@ namespace WBSF
 				m_death = FROZEN;
 			}
 		}
-
-
 	}
+
+	//s: stage
+	//T: temperature for this time step
+	//r: development rate for this time step
+	bool CLaricobiusNigrinus::IsDeadByAttrition(size_t s, double T, double r)const
+	{
+		bool bDeath = false;
+
+		//daily survival
+		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+
+		//time step survival
+		double S = pow(ds, r);
+
+		//Computes attrition (probability of survival in a given time step, based on development rate)
+		if (RandomGenerator().RandUniform() > S)
+			bDeath = true;
+
+		return bDeath;
+	}
+
 
 	//*****************************************************************************
 	// GetStat gather information of this object
@@ -342,6 +397,11 @@ namespace WBSF
 			if (HasChangedStage())
 				stat[S_M_EGG + s] += m_scaleFactor;
 
+			if (m_dropToGroundDate.IsInit() && m_dropToGroundDate == d)
+				stat[S_LARVAL_DROP] += m_scaleFactor;
+			
+			
+			stat[S_BROODS] += m_scaleFactor* m_broods;
 			//if (s == ACTIVE_ADULT)
 			//{
 			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;

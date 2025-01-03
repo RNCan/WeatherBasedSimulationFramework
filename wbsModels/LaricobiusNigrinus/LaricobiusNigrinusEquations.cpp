@@ -15,6 +15,7 @@
 #include <boost/math/distributions.hpp>
 #include <boost/math/distributions/logistic.hpp>
 #include "ModelBase/DevRateEquation.h"
+#include "ModelBase/SurvivalEquation.h"
 
 using namespace WBSF;
 using namespace LNF;
@@ -105,7 +106,7 @@ namespace WBSF
 
 
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
-		CEquationTableLookup(RG, AESTIVAL_DIAPAUSE_ADULT, -10, 30, 0.25)
+		CEquationTableLookup(RG, NB_STAGES, -10, 35, 0.25)
 	{
 
 		for (size_t s = 0; s < NB_STAGES; s++)
@@ -133,7 +134,7 @@ namespace WBSF
 	{
 		ASSERT(s >= 0 && s < NB_STAGES);
 
-		double r = 0;
+		//double r = 0;
 
 #if 0
 		static const CDevRateEquation::TDevRateEquation P_EQ[4] =
@@ -152,25 +153,35 @@ namespace WBSF
 			{-0.0144, 0.0047,0,0,0,0}
 		};
 #else
-		static const CDevRateEquation::TDevRateEquation P_EQ[4] =
+		static const CDevRateEquation::TDevRateEquation P_EQ[NB_STAGES] =
 		{
-			CDevRateEquation::Logan6_1976,
-			CDevRateEquation::Ratkowsky_1983,
-			CDevRateEquation::HilbertLoganIII,
-			CDevRateEquation::Bieri_1983,
+			CDevRateEquation::SharpeDeMichele_1977,
+			CDevRateEquation::SharpeDeMichele_1977,
+			CDevRateEquation::SharpeDeMichele_1977,
+			CDevRateEquation::SharpeDeMichele_1977,
+			CDevRateEquation::Unknown,		//aestival diapause adult
+			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
 
-		static const double P_DEV[4][6] =
-		{
-			{1.112472e-02, 1.742345e-01, 2.209286e+01, 1.000115e+00},
-			{1.597533e-02, 8.877193e-01, 3.528062e-05, 2.508830e+01},
-			{1.314744e+02, 6.659223e+02, 4.997764e+01, 3.691572e+00},
-			{4.714239e-03, 7.562195e+01, 2.942047e+00, 3.080090e+01},
-		};
+
+
+
+
+		static const array< vector<double>, NB_STAGES>  P_DEV =
+		{ {
+				//p25,To,Ha,HL,TL,HH,TH
+				{0.0794, 10.9, 2.2245, -55.2932, 5.7, 25.6999, 21.6},
+				{0.1205, 23.4, 1.5541, -41.8623, 5.8, 78.232, 24.9  },
+				{0.053, 15.2, 1.6354, -20.5995, 4.7, 24.7415, 22.4  },
+				{0.0635, 16.2, 1.6958, -51.3567, 2.8, 15.687, 20.3 },
+				{},
+				{ 2.488e-02 / 1.3, 1.066e-01, 4, 9.998e+01                },//adult 1.3: ajustement between Lo and Ln (from McAvoy data)
+		} };
 #endif
+		
 
 
-		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
+		/*vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
 
 		switch (s)
 		{
@@ -179,7 +190,13 @@ namespace WBSF
 		case PREPUPAE:
 		case PUPAE:	r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T)); break;
 		default: _ASSERTE(false);
-		}
+		}*/
+
+		static const double CORRECTION[NB_STAGES] = { 1, 1, 1, 1, 1, 1/1.3 };
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T)) * CORRECTION[s];
+		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
+
+
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -192,8 +209,6 @@ namespace WBSF
 
 	double CLaricobiusNigrinusEquations::GetRelativeDevRate(size_t s)const
 	{
-		double rr = 1;
-
 		//if (s == EGG || s == LARVAE /*|| s == AESTIVAL_DIAPAUSE_ADULT*/)
 		//{
 		//	double Э = m_randomGenerator.Randu(true, true);
@@ -215,8 +230,26 @@ namespace WBSF
 		//		//rr = exp(m_RDR[s][μ] * boost::math::quantile(rldist, m_randomGenerator.Randu()));
 		//}
 
-		_ASSERTE(!_isnan(rr) && _finite(rr));
-		return rr;
+		static const double SIGMA[NB_STAGES] =
+		{
+			//Relative development Time (individual variation): sigma
+			//Non-linear
+			{0.095},//Egg
+			{0.096},//Larval
+			{0.121},//PrePupae
+			{0.071},//Pupae
+			{1.000},//aestival diapause adult
+			{0.401}//adult
+		};
+
+		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
+		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu(true, true));
+		while (RDR < 0.2 || RDR>2.6)//base on individual observation
+			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu(true, true));
+
+		_ASSERTE(!_isnan(RDR) && _finite(RDR));
+
+		return RDR;
 	}
 
 	double CLaricobiusNigrinusEquations::GetCreationCDD()const
@@ -266,25 +299,101 @@ namespace WBSF
 	//****************************************************************************
 	//
 
+
+	//*****************************************************************************
+	//survival
+
+
+
+	double CLaricobiusNigrinusEquations::GetDailySurvivalRate(size_t s, double T)const
+	{
+		static const array<CSurvivalEquation::TSurvivalEquation, NB_STAGES> S_EQ =
+		{
+			CSurvivalEquation::Survival_03, //egg
+			CSurvivalEquation::Survival_01, //Larval
+			CSurvivalEquation::Survival_01,	//PrePupa
+			CSurvivalEquation::Survival_01,	//Pupa
+			CSurvivalEquation::Unknown,		//aestival diapause adult
+			CSurvivalEquation::Unknown,		//adult
+		};
+
+		static const array< vector<double>, NB_STAGES>  P_SUR =
+		{ {
+			{ 8.730019e+01 ,7.256215e+01 , -4.308623e-06, 1.273405e+02 },//egg
+			{ -3.907879e+00,-2.008189e-01, 1.372782e-02, 0 },//Larval
+			{ -2.815295e+00,-1.500702e-01, 8.350179e-03, 0 },//PrePupa
+			{ -2.244723e+00,-2.955180e-01, 1.080062e-02, 0 },//Pupa
+			{},
+			{}
+		} };
+
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], P_SUR[s], T)));
+
+		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
+		return sr;
+	}
+
+
+
+
+
+
+	//****************************************************************************
+	//
+
+
+	//return fecundity [eggs]
+	double CLaricobiusNigrinusEquations::GetFecondity()const
+	{
+		//AICc,maxLL
+		//1690.46,-840.107,5
+		static const double Fo = 100.4;
+		static const double sigma = 0.355;
+		static const double Fcorrection = 0.62;//correction between Fo and Fn (from McAvoy data)
+
+		boost::math::lognormal_distribution<double> fecondity(log(Fo* Fcorrection) - WBSF::Square(sigma) / 2.0, sigma);
+		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Rand(0.01, 0.99));
+
+		ASSERT(!_isnan(Fi) && _finite(Fi));
+
+
+		return Fi;
+	}
+
+	double CLaricobiusNigrinusEquations::GetFecondityRate(double age, double T)const
+	{
+		//AICc,maxLL
+		//1698.68,-839.968
+		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
+
+		static const vector<double> P_FEC = { 0.01518, 10.9, 6.535 };
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
+
+		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
+
+		return r;
+	}
+
+
 	//l: longevity [days]
 	//return fecundity [eggs]
-	double CLaricobiusNigrinusEquations::GetFecondity(double l)const
-	{
-		//Fecondity from Zilahi-Balogh(2001)
-		//100.8 ± 89.6 (range, 2 - 396) eggs.
+	//double CLaricobiusNigrinusEquations::GetFecondity(double l)const
+	//{
+	//	//Fecondity from Zilahi-Balogh(2001)
+	//	//100.8 ± 89.6 (range, 2 - 396) eggs.
 
-		double w = l / 7.0;//[days] --> [weeks]
-		double fm = 6.1*w + 20.1;
-		double fs = 2.6*w + 13.3;
+	//	double w = l / 7.0;//[days] --> [weeks]
+	//	double fm = 6.1*w + 20.1;
+	//	double fs = 2.6*w + 13.3;
 
-		double f = m_randomGenerator.RandNormal(fm, fs);
+	//	double f = m_randomGenerator.RandNormal(fm, fs);
 
-		while (f < 2 || f>396)
-			f = m_randomGenerator.RandNormal(fm, fs);
+	//	while (f < 2 || f>396)
+	//		f = m_randomGenerator.RandNormal(fm, fs);
 
 
-		return f;
-	}
+	//	return f;
+	//}
 
 	//l: longevity [days]
 	double CLaricobiusNigrinusEquations::GetAdultLongevity(size_t sex)const

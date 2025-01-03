@@ -39,6 +39,7 @@ namespace WBSF
 				//m_sumDD = 540;
 
 		m_bCumul = false;
+		m_bApplyAttrition = true;
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
@@ -70,7 +71,7 @@ namespace WBSF
 		size_t c = 0;
 
 		m_bCumul = parameters[c++].GetBool();
-
+		//m_bApplyAttrition = parameters[c++].GetBool();
 		if (parameters.size() == 1 + NB_STAGES * NB_RDR_PARAMS + NB_OVP_PARAMS + NB_ADE_PARAMS + NB_EAS_PARAMS)
 		{
 			for (size_t s = 0; s < NB_STAGES; s++)
@@ -175,7 +176,8 @@ namespace WBSF
 	{
 		//Create stand
 		CLNFStand stand(this, m_OVP[Τᴴ¹], m_OVP[Τᴴ²]);
-
+		stand.m_bApplyAttrition = m_bApplyAttrition;
+		
 		//Set parameters to equation
 		for (size_t s = 0; s < NB_STAGES; s++)
 		{
@@ -228,7 +230,7 @@ namespace WBSF
 			//p.Begin() = CTRef(year - 1, JULY, DAY_01);
 
 
-		//if have other year extend period to February
+		//if have other year extend period to July
 		if (weather[year].HaveNext())
 			p.End() = CTRef(year + 1, JUNE, DAY_30);
 

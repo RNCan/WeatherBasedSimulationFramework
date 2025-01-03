@@ -23,9 +23,9 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT,  
+			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT, S_BROODS,
 			S_M_EGG, S_M_LARVAE, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
-			S_DEAD_FROST, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, NB_STATS
+			S_DEAD_FROST, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, S_LARVAL_DROP, NB_STATS
 			//S_ADULT_EMERGENCE = S_M_ACTIVE_ADULT
 		};
 	}
@@ -72,37 +72,24 @@ namespace WBSF
 		//CTRef GetParentAdultEmergence()const;
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
+		bool IsDeadByAttrition(size_t s, double T, double r)const;
+
 
 	protected:
 
 		//member
 		
-		//double m_creationCDD;//CDD need to create individual
-		//double m_CDD;//actual CDD
-		//double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
+		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_dropToGroundDate;
-		//CTRef m_adult_emergence;
-		//CTRef m_adultDate;
+		CTRef m_deadByAttrition;
 		CTRef m_adult_emergence;
 		CTRef m_reachDate[LNF::NB_STAGES+1];
-		//double m_CDD_ADE;//cumulative negative CDD for aestival diapause end
-		//double m_aestivalDiapauseEndCDD;//CDD need to create individual
-		//double m_aestivalDiapauseEndTavg30;
 		
-		//double m_CDD_AE;//adult emerging CDD
-		//CTRef m_adultEmegenceBegin;
-		//CTRef m_parentAdultEmergence;
-		//double m_adult_emerging_CDD;
-
-		//size_t m_ii;
-
-		double m_adult_longevity; //adult longevity [days]
-		double m_F; //fecundity
-
+		//double m_adult_longevity; //adult longevity [days]
+		double m_Fi; //Initial fecundity
+		//double m_F; //fecundity
+		double m_t; // decimal time since adult emergence  [days]
 		
-		
-
-
 	};
 
 	//*******************************************************************************************************

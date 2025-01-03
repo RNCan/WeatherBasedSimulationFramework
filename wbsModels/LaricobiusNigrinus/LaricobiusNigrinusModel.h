@@ -24,6 +24,7 @@ namespace WBSF
 		protected:
 
 		bool m_bCumul;
+		bool m_bApplyAttrition;
 		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
 		double m_OVP[LNF::NB_OVP_PARAMS];
 		double m_ADE[LNF::NB_ADE_PARAMS];

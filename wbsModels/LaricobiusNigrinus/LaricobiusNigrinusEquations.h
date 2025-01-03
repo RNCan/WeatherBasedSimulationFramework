@@ -41,8 +41,11 @@ namespace WBSF
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
+		double GetDailySurvivalRate(size_t s, double T)const;
+		double GetFecondity()const;
+		double GetFecondityRate(double age, double T)const;
 		double GetAdultLongevity(size_t sex)const;
-		double GetFecondity(double l)const;
+		//		double GetFecondity(double l)const;
 		double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
 		//double GetAestivalDiapauseEndCDD()const;

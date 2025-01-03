@@ -26,6 +26,18 @@
             <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
+        <InputVariable>
+            <Name>ApplyAttrition</Name>
+            <Caption>ApplyAttrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>40 15 60 165</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
     </InputVariableArray>
     <OutputTypeMode>2 0</OutputTypeMode>
     <MissingValue>-999</MissingValue>
@@ -81,6 +93,14 @@
         <OutputVariable>
             <Name>DeadAdult</Name>
             <Title>DeadAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Broods</Name>
+            <Title>Broods</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -171,6 +191,14 @@
             <Title>AdultEmergenceGDD</Title>
             <Units/>
             <Description>Adult emergence growing degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LarvalDrop</Name>
+            <Title>LarvalDrop</Title>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
