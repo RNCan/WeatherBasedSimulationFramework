@@ -255,6 +255,10 @@ copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Daily).mdl" "..\Install\N
 copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit (Hourly).mdl" "..\Install\NRCan\Models\VaporPressureDeficit (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\VaporPressureDeficit.dll" "..\Install\NRCan\Models\VaporPressureDeficit.dll"
 
+
+copy /Y ".\bin\Releasex64\Models\WaterBalance.dll" "..\Install\NRCan\Models\WaterBalance.dll"
+copy /Y ".\bin\Releasex64\Models\WaterBalance (Monthly).mdl" "..\Install\NRCan\Models\WaterBalance (Monthly).mdl"
+
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm (annual).mdl" "..\Install\NRCan\Models\Western Spruce Budworm (annual).mdl"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.dll" "..\Install\NRCan\Models\Western Spruce Budworm.dll"
 copy /Y ".\bin\Releasex64\Models\Western Spruce Budworm.mdl" "..\Install\NRCan\Models\Western Spruce Budworm.mdl"
