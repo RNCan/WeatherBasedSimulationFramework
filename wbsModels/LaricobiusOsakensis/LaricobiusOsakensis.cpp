@@ -257,13 +257,7 @@ namespace WBSF
 
 		if (GetStage() == ACTIVE_ADULT)
 		{
-			//no brood process done
-
-			//brooding
-			//m_broods = m_F;
-			//m_totalBroods = m_F;
-			//m_F = 0;
-			//m_F -= m_F * r;
+			//All is done is live
 		}
 	}
 
