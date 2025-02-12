@@ -233,8 +233,8 @@ namespace WBSF
 
 	double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double TjanIn)const
 	{
-		double Tjan = max(-9.3, TjanIn);
-		double mu = m_EOD_param[EOD_B] * (max(-9.3, Tjan) - m_EOD_param[EOD_A]) / (1 + max(-9.3, Tjan) - m_EOD_param[EOD_A]);
+		double Tjan = max(-9.2, TjanIn);
+		double mu = m_EOD_param[EOD_B] * (Tjan - m_EOD_param[EOD_A]) / (1 + Tjan - m_EOD_param[EOD_A]);
 		boost::math::logistic_distribution<double> emerging_dist(mu, m_adult_emerg[ѕ]);
 
 		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
