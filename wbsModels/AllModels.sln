@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35728.132 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -124,8 +124,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSBWHost", "BudBurst
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LaricobiusNigrinus", "LaricobiusNigrinus\LaricobiusNigrinus.vcxproj", "{600C3ECD-51DD-4331-8686-2087892950CA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Leucopis", "Leucopis\Leucopis.vcxproj", "{89D186EA-3406-4E22-A756-3EF61A3A015B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeteorusTrachynotus-OBL-SBW", "MeteorusTrachynotus_OBL_SBW\MeteorusTrachynotus_OBL_SBW.vcxproj", "{43E0F40A-73D3-41BA-9E8E-49C034627653}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SiteIndexClimate", "SiteIndexClimate\SiteIndexClimate.vcxproj", "{9677AF9A-9721-4C9D-A346-09CF19298FD3}"
@@ -175,6 +173,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpruceBudwormEldon", "SpruceBudworm\SBW-Eldon-Model.vcxproj", "{EC19938A-4D3D-4E6A-BED5-F48CCBCC6685}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BudBurstSaintAmant", "BudBurst\BudBurstSaint-Amant.vcxproj", "{1C150463-16A5-4BB8-955A-4C483CA49D67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Leucotaraxis spp", "Leucotaraxis\Leucotaraxis.vcxproj", "{2A77388C-757F-47A1-A980-0509F4C1B119}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisArgenticollis", "LeucotaraxisArgenticollis\LeucotaraxisArgenticollis.vcxproj", "{279F541E-0458-44EE-81A7-A58CABB5FF4A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisPiniperda", "LeucotaraxisPiniperda\LeucotaraxisPiniperda.vcxproj", "{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -672,14 +676,6 @@ Global
 		{600C3ECD-51DD-4331-8686-2087892950CA}.Release|Win32.Build.0 = Release|Win32
 		{600C3ECD-51DD-4331-8686-2087892950CA}.Release|x64.ActiveCfg = Release|x64
 		{600C3ECD-51DD-4331-8686-2087892950CA}.Release|x64.Build.0 = Release|x64
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Debug|Win32.Build.0 = Debug|Win32
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Debug|x64.ActiveCfg = Debug|x64
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Debug|x64.Build.0 = Debug|x64
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Release|Win32.ActiveCfg = Release|Win32
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Release|Win32.Build.0 = Release|Win32
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Release|x64.ActiveCfg = Release|x64
-		{89D186EA-3406-4E22-A756-3EF61A3A015B}.Release|x64.Build.0 = Release|x64
 		{43E0F40A-73D3-41BA-9E8E-49C034627653}.Debug|Win32.ActiveCfg = Debug|Win32
 		{43E0F40A-73D3-41BA-9E8E-49C034627653}.Debug|Win32.Build.0 = Debug|Win32
 		{43E0F40A-73D3-41BA-9E8E-49C034627653}.Debug|x64.ActiveCfg = Debug|x64
@@ -880,6 +876,30 @@ Global
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|Win32.Build.0 = Release|Win32
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.ActiveCfg = Release|x64
 		{1C150463-16A5-4BB8-955A-4C483CA49D67}.Release|x64.Build.0 = Release|x64
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Debug|Win32.Build.0 = Debug|Win32
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Debug|x64.ActiveCfg = Debug|x64
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Debug|x64.Build.0 = Debug|x64
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|Win32.ActiveCfg = Release|Win32
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|Win32.Build.0 = Release|Win32
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|x64.ActiveCfg = Release|x64
+		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|x64.Build.0 = Release|x64
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Debug|Win32.Build.0 = Debug|Win32
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Debug|x64.ActiveCfg = Debug|x64
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Debug|x64.Build.0 = Debug|x64
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Release|Win32.ActiveCfg = Release|Win32
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Release|Win32.Build.0 = Release|Win32
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Release|x64.ActiveCfg = Release|x64
+		{279F541E-0458-44EE-81A7-A58CABB5FF4A}.Release|x64.Build.0 = Release|x64
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Debug|Win32.Build.0 = Debug|Win32
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Debug|x64.ActiveCfg = Debug|x64
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Debug|x64.Build.0 = Debug|x64
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|Win32.ActiveCfg = Release|Win32
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|Win32.Build.0 = Release|Win32
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.ActiveCfg = Release|x64
+		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

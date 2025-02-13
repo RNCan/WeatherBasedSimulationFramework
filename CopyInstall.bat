@@ -173,9 +173,12 @@ copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Model
 copy /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models\LaricobiusNigrinus.mdl"
 copy /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.dll" "..\Install\NRCan\Models\LaricobiusOsakensis.dll"
 copy /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.mdl" "..\Install\NRCan\Models\LaricobiusOsakensis.mdl"
-copy /Y ".\bin\Releasex64\Models\Leucopis.dll" "..\Install\NRCan\Models\Leucopis.dll"
-copy /Y ".\bin\Releasex64\Models\Leucopis spp.mdl" "..\Install\NRCan\Models\Leucopis spp.mdl"
-
+copy /Y ".\bin\Releasex64\Models\Leucotaraxis spp.dll" "..\Install\NRCan\Models\Leucotaraxis spp.dll"
+copy /Y ".\bin\Releasex64\Models\Leucotaraxis spp.mdl" "..\Install\NRCan\Models\Leucotaraxis spp.mdl"
+copy /Y ".\bin\Releasex64\Models\LeucotaraxisArgenticollis.dll" "..\Install\NRCan\Models\LeucotaraxisArgenticollis.dll"
+copy /Y ".\bin\Releasex64\Models\LeucotaraxisArgenticollis.mdl" "..\Install\NRCan\Models\LeucotaraxisArgenticollis.mdl"
+copy /Y ".\bin\Releasex64\Models\LeucotaraxisPiniperda.dll" "..\Install\NRCan\Models\LeucotaraxisPiniperda.dll"
+copy /Y ".\bin\Releasex64\Models\LeucotaraxisPiniperda.mdl" "..\Install\NRCan\Models\LeucotaraxisPiniperda.mdl"
 
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Daily).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\MPB Cold Tolerance (Annual).mdl" "..\Install\NRCan\Models\MPB Cold Tolerance (Annual).mdl"
