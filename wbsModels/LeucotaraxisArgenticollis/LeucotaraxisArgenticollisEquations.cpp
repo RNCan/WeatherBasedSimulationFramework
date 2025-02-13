@@ -136,11 +136,10 @@ namespace WBSF
 			{0.2477},//Egg
 			{0.1963},//Larva
 			{0.3828},//Pupae (with diapause)
-
+			{0.5},//Guess: Range 4 to 57 days, median 22.5 days, n = 16 females
 		};
 
-
-
+		
 		if (RDT[s][σ] <= 0)
 			return 1;
 
