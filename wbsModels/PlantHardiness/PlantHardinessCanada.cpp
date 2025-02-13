@@ -64,12 +64,13 @@ namespace WBSF
 
 	double CPlantHardinessCanada::GetMeanFrosFreePeriod(const CWeatherStation& weather)
 	{
-		CGrowingSeason gs(CGSInfo::TT_TMIN, 1, 0, CGSInfo::TT_TMIN, 1, 0);
+		//CGrowingSeason gs(CGSInfo::TT_TMIN, 1, 0, CGSInfo::TT_TMIN, 1, 0);
+		CFrostFreePeriod FF;
 
 		CStatistic stat;
 		for (size_t y = 0; y < weather.size(); y++)
 		{
-			CTPeriod p = gs.GetFrostFreePeriod(weather[y]);
+			CTPeriod p = FF.GetPeriod(weather[y]);
 			stat += p.GetNbRef();
 		}
 
