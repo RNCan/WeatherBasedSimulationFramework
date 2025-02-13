@@ -25,8 +25,8 @@ namespace WBSF
 
 	//Defining a simple continuing ratio model
 	enum TInstar{ EGG, L1, L2, L3, L4, PUPA, ADULT, NB_STAGES };
-	extern const char HEADER[] = "EGG,L1,L2,L3,L4,Pupa,Adult";
-	typedef CContinuingRatio<NB_PARAMS, EGG, ADULT, HEADER> CHemlockLooperCR;
+	//extern const char HEADER[] = "EGG,L1,L2,L3,L4,Pupa,Adult";
+	typedef CContinuingRatio<NB_PARAMS, EGG, ADULT> CHemlockLooperCR;
 
 
 	//NbVal=   265	Bias= 0.67693	MAE= 8.24845	RMSE=12.83694	CD= 0.89424	R²= 0.89478

@@ -10,8 +10,8 @@ namespace WBSF
 	enum TSpringInstar { S_EGG, S_L1, S_L2, S_L3, S_L4, S_L5, S_SOIL, S_PUPA, S_ADULT, NB_SPRING_STAGES };
 	enum TSpringParam { S_PUPA_ADULT, S_ADULT_EGG, S_EGG_L1, S_L1_L2, S_L2_L3, S_L3_L4, S_L4_L5, S_L5_SOIL, S_SOIL_PUPA, NB_SPRING_PARAMS };
 
-	extern const char SpringCankerworms_header[];
-	typedef CContinuingRatio<NB_SPRING_PARAMS, S_EGG-2, S_PUPA, SpringCankerworms_header> CSpringCankerwormsCR;
+	//extern const char SpringCankerworms_header[];
+	typedef CContinuingRatio<NB_SPRING_PARAMS, S_EGG-2, S_PUPA> CSpringCankerwormsCR;
 
 	class CSpringCankerwormsModel : public CBioSIMModelBase
 	{

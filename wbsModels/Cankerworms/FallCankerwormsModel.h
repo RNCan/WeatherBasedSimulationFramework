@@ -10,9 +10,9 @@ namespace WBSF
 	enum TFallInstar{ F_EGG, F_L1, F_L2, F_L3, F_L4, F_SOIL, F_PUPA, F_ADULT, NB_FALL_STAGES };
 	enum TFallParam{ F_EGG_L1, F_L1_L2, F_L2_L3, F_L3_L4, F_L4_SOIL, F_SOIL_PUPA, NB_FALL_PARAMS };
 
-	extern const char FallCankerworms_header[];
+	//extern const char FallCankerworms_header[];
 	
-	typedef CContinuingRatio<NB_FALL_PARAMS, F_EGG, F_PUPA, FallCankerworms_header> CFallCankerwormsCR;
+	typedef CContinuingRatio<NB_FALL_PARAMS, F_EGG, F_PUPA> CFallCankerwormsCR;
 
 	class CFallCankerwormsModel : public CBioSIMModelBase
 	{

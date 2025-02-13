@@ -24,8 +24,8 @@ namespace WBSF
 
 	//Defining a simple continuing ratio model
 	enum TInstar{ UNBROODED=-1, EGG, L1, L2, L3, L4, PUPA, ADULT, NB_STAGES };
-	extern const char HEADER[] = "Unbrooded,Egg,L1,L2,L3,L4,Pupa";
-	typedef CContinuingRatio<NB_PARAMS, UNBROODED, ADULT, HEADER> CWhitePineWeevilCR;
+	//extern const char HEADER[] = "Unbrooded,Egg,L1,L2,L3,L4,Pupa";
+	typedef CContinuingRatio<NB_PARAMS, UNBROODED, ADULT> CWhitePineWeevilCR;
 
 
 	//NbVal=    70	Bias= 0.14066	MAE= 3.21604	RMSE= 4.78397	CD= 0.98476	R²= 0.98489

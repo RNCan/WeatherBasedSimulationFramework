@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{89D186EA-3406-4E22-A756-3EF61A3A015B}</ProjectGuid>
+    <ProjectGuid>{279F541E-0458-44EE-81A7-A58CABB5FF4A}</ProjectGuid>
     <RootNamespace>Models</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

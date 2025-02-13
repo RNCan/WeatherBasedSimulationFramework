@@ -14,15 +14,15 @@ namespace WBSF
 	enum TFemaleParam { F_NYPH2o_NYPH2, F_NYPH2_ADULT, F_ADULT_DEADADULT, NB_FEMALE_PARAMS };
 	enum TBabyParam { EGG_NYPH1, NYPH1_NYPH2, NB_BABY_PARAMS };//NYPH2_NYPH2o, 
 
-	extern const char EuropeanElmScale_header[];
+	//extern const char EuropeanElmScale_header[];
 	
-	typedef CContinuingRatio<NB_MALE_PARAMS, M_NYPH2o, M_DEADADULT, EuropeanElmScale_header> CEuropeanElmScaleCRm;
-	typedef CContinuingRatio<NB_FEMALE_PARAMS, F_NYPH2o, F_DEAD_ADULT, EuropeanElmScale_header> CEuropeanElmScaleCRf;
-	typedef CContinuingRatio<NB_BABY_PARAMS, EGG, NYPH2o, EuropeanElmScale_header> CEuropeanElmScaleCRb;
+	typedef CContinuingRatio<NB_MALE_PARAMS, M_NYPH2o, M_DEADADULT> CEuropeanElmScaleCRm;
+	typedef CContinuingRatio<NB_FEMALE_PARAMS, F_NYPH2o, F_DEAD_ADULT> CEuropeanElmScaleCRf;
+	typedef CContinuingRatio<NB_BABY_PARAMS, EGG, NYPH2o> CEuropeanElmScaleCRb;
 
 	
 	enum TDreistadtParam { D_NYPH2_ADULT, D_ADULT_DEADADULT, NB_DREISTADT_PARAMS };
-	typedef CContinuingRatio<NB_DREISTADT_PARAMS, F_NYPH2, F_DEAD_ADULT, EuropeanElmScale_header> CEuropeanElmScaleCRd;
+	typedef CContinuingRatio<NB_DREISTADT_PARAMS, F_NYPH2, F_DEAD_ADULT> CEuropeanElmScaleCRd;
 
 
 	class CEuropeanElmScaleModel : public CBioSIMModelBase
