@@ -6,6 +6,7 @@
 //     the Free Software Foundation
 //  It is provided "as is" without express or implied warranty.
 //******************************************************************************
+// 16-02-2024	1.1.0	Rémi Saint-Amant	Make correction to some equation based on Jacques' modifications
 // 04-12-2019	1.0.5	Rémi Saint-Amant	Update eggs deposition map
 // 21-08-2019	1.0.4	Rémi Saint-Amant	Update of the circadian rhythm of migratory flight 
 //											Add adult attrition and maximum longevity
@@ -26,7 +27,6 @@
 #include "Basic/Callback.h"
 #include "Basic/OpenMP.h"
 #include "Basic/WaterTemperature.h"
-#include "Basic/CSV.h"
 #include "Geomatic/GDALBasic.h"
 #include "Geomatic/GDAL.h"
 #include "cctz/time_zone_info.h"
@@ -34,7 +34,7 @@
 
 #include "WeatherBasedSimulationString.h"
 
-const char* WBSF_ATM_VERSION = "1.0.5";
+const char* WBSF_ATM_VERSION = "1.1.0";
 
 
 
@@ -783,19 +783,31 @@ namespace WBSF
 	}
 
 
-	const double CSBWMoth::K = 167.5;//proportionality constant [Hz·cm²/√g]
-	const double CSBWMoth::a = 23.0;//°C
-	const double CSBWMoth::b = 8.6957;//°C
-	const double CSBWMoth::Vmax = 72.5;//Hz
+	
+	//const double CSBWMoth::a = 23.0;//°C
+	//const double CSBWMoth::b = 8.6957;//°C
+	
+	//const double CSBWMoth::Vmax = 72.5;//Hz
+	//const double CSBWMoth::K = 167.5;//proportionality constant [Hz·cm²/√g]
+
+	const double CSBWMoth::p1 = 4.1775;
+	const double CSBWMoth::p2 = 77.331;
+	const double CSBWMoth::p3 = -0.446;
+	const double CSBWMoth::La = 9.796;//Wing length (mm)
+	const double CSBWMoth::To = 23.242;//°C
+
 
 	//compute potential wingbeat for a temperature
 	//T : air temperature [ᵒC]
 	//Vᵀ: forewing frequency [Hz] 
 	double CSBWMoth::get_Vᵀ(double T)
 	{
-		double Vᵀ = 0;
-		if (T > 0)
-			Vᵀ = Vmax / (1 + exp(-(T - a) / b));
+		double Vᵀ = max(0.0, p1 + p2 * (T / (To + T)) + p3 * La);
+		
+
+//if (T > -To)
+		
+		//	Vᵀ = Vmax / (1 + exp(-(T - a) / b));
 
 		return Vᵀ;
 	}
@@ -806,25 +818,21 @@ namespace WBSF
 		return get_Tᶠ(m_A, m_M, Δv);
 	}
 
-	//K : proportionality constant [Hz·cm²/√g]
+	
 	//A : forewing surface area [cm²]
 	//M : dry weight [g]
 	//Vᴸ : frequency required for takeoff
 	double CSBWMoth::get_Vᴸ(double A, double M)
 	{
+		const double K = 167.5;//proportionality constant [Hz·cm²/√g]
 		return K * sqrt(M) / A;
 	}
 
-	//K : proportionality constant [Hz·cm²/√g]
-	//Vmax: maximum wingbeat [Hz]
 	//A : forewing surface area [cm²]
 	//M : dry weight [g]
 	//Tᴸ : liftoff temperature [ᵒC] 
 	double CSBWMoth::get_Tᴸ(double A, double M)
 	{
-		//double Vᴸ = get_Vᴸ(A, M);
-		//double Tᴸ = (Vᴸ < Vmax) ? a - log(Vmax / Vᴸ - 1.0)/b : 40;
-		//ASSERT(!isnan(Tᴸ));
 		return get_Tᶠ(A, M, 1);
 	}
 
@@ -835,8 +843,16 @@ namespace WBSF
 	//Tᶠ : sustain flight temperature [ᵒC] 
 	double CSBWMoth::get_Tᶠ(double A, double M, double Δv)
 	{
-		double Vᴸ = get_Vᴸ(A, M);
-		double Tᶠ = (Vᴸ < Vmax) ? a - b * log(Δv*Vmax / Vᴸ - 1.0) : 40;
+		//double Vᴸ = get_Vᴸ(A, M);//frequency required for takeoff
+		//double Tᶠ = (Vᴸ < Vmax) ? a - b * log(Δv*Vmax / Vᴸ - 1.0) : 40;//sustain flight temperature [ᵒC] 
+
+		//Vᵀ = (T* (To + Vᵀ) - q * (To + Vᵀ))/p2
+
+
+		double Vᴸ = min(60.0, get_Vᴸ(A, M));//frequency required for takeoff
+		double Tᶠ = (To*(Vᴸ - (p1 + p3 * La))) / (p1 + p2 + p3 * La - Vᴸ );//sustain flight temperature [ᵒC] 
+		
+
 		ASSERT(!isnan(Tᶠ));
 
 		return Tᶠ;
@@ -983,6 +999,8 @@ namespace WBSF
 		double Vᴸ = get_Vᴸ(m_A, m_M);
 		double Vᵀ = get_Vᵀ(T);
 
+
+
 		if (Vᵀ > Vᴸ && P < Pmax && W >= Wmin)//No lift-off if hourly precipitation greater than 2.5 mm
 		{
 			double p = (C + tau - (2 * pow(tau, 3) / 3) + (pow(tau, 5) / 5)) / (2 * C);
@@ -1012,34 +1030,54 @@ namespace WBSF
 		bool bExodus = false;
 		liftoff = 0;
 
-		__int64 tº = 0;
-		__int64 tᶜ = 0;
-		__int64 tᴹ = 0;
+		static const double p1 = -8.5227;
+		static const double p2 = 0.307;
+		static const double p3 = 0.06368;
+		static const double p4 = -0.08955;
+		static const double Stot = 129.031;
+		static const double Wb = 38.2892;
+		
+		//The median hour after sunset that give nearest temperature
+		__int64 UTC_sunset= UTCTimeº + sunset;
 
-		if (get_t(UTCTimeº, sunset, tº, tᶜ, tᴹ))
+		//Get nearest grid of this time
+		UTC_sunset = m_world.m_weather.GetNearestFloorTime(UTC_sunset);
+		double Tsunset = m_world.m_weather.get_air_temperature(m_pt, UTC_sunset, UTC_sunset);//use 17°C by default if the sunset temperature is missing
+
+
+		//computre here probability of liftoff based on sunset temperature
+		double Pflight = 1 / (1 + exp(-(p1 + p2 * Tsunset + p3 * Stot + p4 * Wb)));
+		if (m_world.random().Randu() < Pflight )
 		{
+			__int64 tº = 0;
+			__int64 tᶜ = 0;
+			__int64 tᴹ = 0;
 
-			static const __int64 Δt = 60;
-			for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
+			if (get_t(UTCTimeº, sunset, tº, tᶜ, tᴹ))
 			{
-				//now compute tau, p and flight
-				double tau = (t <= tᶜ) ? double(t - tᶜ) / (tᶜ - tº) : double(t - tᶜ) / (tᴹ - tᶜ);
-				ASSERT(tau >= -1 && tau <= 1);
 
-				__int64 UTCCurrentTime = UTCTimeº + t;
-				__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
-				ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
-
-				CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
-				bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
-				if (bExodus)//if exodus occurs, set liftoff
+				static const __int64 Δt = 60;
+				for (__int64 t = tº; t <= tᴹ && !bExodus; t += Δt)
 				{
-					liftoff = UTCTimeº + t;
-				}
+					//now compute tau, p and flight
+					double tau = (t <= tᶜ) ? double(t - tᶜ) / (tᶜ - tº) : double(t - tᶜ) / (tᴹ - tᶜ);
+					ASSERT(tau >= -1 && tau <= 1);
 
-				AddStat(w);
+					__int64 UTCCurrentTime = UTCTimeº + t;
+					__int64 UTCWeatherTime = m_world.m_weather.GetNearestFloorTime(UTCCurrentTime);
+					ASSERT(m_world.m_weather.IsLoaded(UTCWeatherTime));
 
-			}//for t in exodus period
+					CATMVariables w = m_world.get_weather(m_pt, UTCWeatherTime, UTCCurrentTime);
+					bExodus = ComputeExodus(w[ATM_TAIR], w[ATM_PRCP], w.get_wind_speed(), tau);
+					if (bExodus)//if exodus occurs, set liftoff
+					{
+						liftoff = UTCTimeº + t;
+					}
+
+					AddStat(w);
+
+				}//for t in exodus period
+			}
 		}
 
 		return bExodus;

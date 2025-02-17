@@ -871,10 +871,17 @@ namespace WBSF
 		double m_lastF;				
 
 		static TNoLiftoff  GetNoLiftoffCode(const std::array<size_t, 3>& noLiftoff);
-		static const double a;
-		static const double b;
-		static const double Vmax;
-		static const double K;
+		//static const double a;
+		//static const double b;
+		//static const double Vmax;
+		//static const double K;
+
+		static const double p1;
+		static const double p2;
+		static const double p3;
+		static const double La;//mm
+		static const double To;//°C
+
 	};
 
 
