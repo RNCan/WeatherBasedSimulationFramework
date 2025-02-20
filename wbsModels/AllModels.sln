@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35728.132 d17.12
+VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\wbs\msvc\Basic.vcxproj", "{31FEA106-E963-4F38-B23D-4E227C7200CA}"
 EndProject
@@ -179,6 +179,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisArgenticollis", "LeucotaraxisArgenticollis\LeucotaraxisArgenticollis.vcxproj", "{279F541E-0458-44EE-81A7-A58CABB5FF4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisPiniperda", "LeucotaraxisPiniperda\LeucotaraxisPiniperda.vcxproj", "{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WorldClimVars", "Climatic\WorldClimVar.vcxproj", "{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaterBalance", "WaterBalance\WaterBalance.vcxproj", "{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JapaneseBeetle", "Popillia Japonica\Popillia Japonica.vcxproj", "{97ED93A0-5FCE-48B9-BD54-702BE22F446F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -900,6 +906,30 @@ Global
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|Win32.Build.0 = Release|Win32
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.ActiveCfg = Release|x64
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.Build.0 = Release|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|Win32.Build.0 = Debug|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|x64.ActiveCfg = Debug|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|x64.Build.0 = Debug|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|Win32.ActiveCfg = Release|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|Win32.Build.0 = Release|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|x64.ActiveCfg = Release|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|x64.Build.0 = Release|x64
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Debug|Win32.Build.0 = Debug|Win32
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Debug|x64.ActiveCfg = Debug|x64
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Debug|x64.Build.0 = Debug|x64
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Release|Win32.ActiveCfg = Release|Win32
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Release|Win32.Build.0 = Release|Win32
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Release|x64.ActiveCfg = Release|x64
+		{E16045EA-4A58-4A7B-8B37-A0C18ABD8E62}.Release|x64.Build.0 = Release|x64
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Debug|Win32.Build.0 = Debug|Win32
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Debug|x64.ActiveCfg = Debug|x64
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Debug|x64.Build.0 = Debug|x64
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Release|Win32.ActiveCfg = Release|Win32
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Release|Win32.Build.0 = Release|Win32
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Release|x64.ActiveCfg = Release|x64
+		{97ED93A0-5FCE-48B9-BD54-702BE22F446F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
