@@ -3,12 +3,12 @@
 cd %~dp0
 echo %cd%
 
-mkdir "..\Install"
-mkdir "..\Install\NRCan"
-mkdir "..\Install\NRCan\External"
-mkdir "..\Install\NRCan\Models"
-mkdir "..\Install\NRCan\Layers"
-mkdir "..\Install\NRCan\Palette"
+if not exist "..\Install" mkdir "..\Install"
+if not exist "..\Install\NRCan" mkdir "..\Install\NRCan"
+if not exist "..\Install\NRCan\External" mkdir "..\Install\NRCan\External"
+if not exist "..\Install\NRCan\Models" mkdir "..\Install\NRCan\Models"
+if not exist "..\Install\NRCan\Layers" mkdir "..\Install\NRCan\Layers"
+if not exist "..\Install\NRCan\Palette" mkdir "..\Install\NRCan\Palette"
 
 
 copy /Y ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe"
@@ -288,9 +288,9 @@ xcopy /Y /S ".\bin\Releasex64\Palette\*.*" "..\Install\NRCan\Palette\*.*"
 xcopy /Y /S ".\bin\Releasex64\zoneinfo\*.*" "..\Install\NRCan\zoneinfo\*.*"
 
 
-del "..\Install\BioSIM11_x_x.7z"
+if exist "..\Install\BioSIM11_x_x.7z" del "..\Install\BioSIM11_x_x.7z"
 .\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.7z" "..\Install\NRCan"
-del "..\Install\BioSIM11_x_x.zip"
+if exist "..\Install\BioSIM11_x_x.zip" del "..\Install\BioSIM11_x_x.zip"
 .\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
 
 
