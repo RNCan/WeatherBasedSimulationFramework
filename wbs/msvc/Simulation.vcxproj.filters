@@ -79,9 +79,6 @@
     <ClCompile Include="..\src\Simulation\WeatherGenerator.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Simulation\WeatherGeneratorKernel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Simulation\WeatherUpdater.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -175,9 +172,6 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Simulation\WeatherGenerator.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Simulation\WeatherGeneratorKernel.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Simulation\WeatherUpdater.h">

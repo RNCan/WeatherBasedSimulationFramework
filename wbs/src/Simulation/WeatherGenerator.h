@@ -24,7 +24,7 @@
 #include "Geomatic/SfcGribsDatabase.h"
 #include "ModelBase/WGInput.h"
 #include "Simulation/WeatherGradient.h"
-#include "Simulation/WeatherGeneratorKernel.h"
+#include "Basic/WeatherGeneratorDailyKernel.h"
 //#include "Simulation/ATM.h"
 
 namespace WBSF

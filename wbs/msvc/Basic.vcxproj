@@ -258,6 +258,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\Basic\ApproximateNearestNeighbor.cpp" />
+    <ClCompile Include="..\src\Basic\ARModel\ARModel.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\Basic\Callback.cpp" />
     <ClCompile Include="..\src\Basic\CallcURL.cpp" />
     <ClCompile Include="..\src\Basic\CSV.cpp" />
@@ -314,6 +318,7 @@
     <ClCompile Include="..\src\Basic\WeatherDatabaseOptimisation.cpp" />
     <ClCompile Include="..\src\Basic\WeatherDataSection.cpp" />
     <ClCompile Include="..\src\Basic\WeatherDefine.cpp" />
+    <ClCompile Include="..\src\Basic\WeatherGeneratorDailyKernel.cpp" />
     <ClCompile Include="..\src\Basic\WeatherStation.cpp" />
     <ClCompile Include="..\src\Basic\XMLite.cpp" />
     <ClCompile Include="..\src\Basic\xml\zenxml\static_unit_test.cpp" />
@@ -344,6 +349,7 @@
     <ClInclude Include="..\src\Basic\ANN\pr_queue.h" />
     <ClInclude Include="..\src\Basic\ANN\pr_queue_k.h" />
     <ClInclude Include="..\src\Basic\ApproximateNearestNeighbor.h" />
+    <ClInclude Include="..\src\Basic\ARModel\ARModel.h" />
     <ClInclude Include="..\src\Basic\Callback.h" />
     <ClInclude Include="..\src\Basic\CallcURL.h" />
     <ClInclude Include="..\src\Basic\CSV.h" />
@@ -404,6 +410,7 @@
     <ClInclude Include="..\src\Basic\WeatherDatabaseOptimisation.h" />
     <ClInclude Include="..\src\Basic\WeatherDataSection.h" />
     <ClInclude Include="..\src\Basic\WeatherDefine.h" />
+    <ClInclude Include="..\src\Basic\WeatherGeneratorDailyKernel.h" />
     <ClInclude Include="..\src\Basic\WeatherStation.h" />
     <ClInclude Include="..\src\Basic\XMLite.h" />
     <ClInclude Include="..\src\Basic\xml\zenxml\bind.h" />

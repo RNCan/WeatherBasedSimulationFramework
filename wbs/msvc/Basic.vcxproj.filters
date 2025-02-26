@@ -27,6 +27,9 @@
     <Filter Include="Source\json">
       <UniqueIdentifier>{2dc1fbb9-ef5f-44ef-99a6-5c248243e289}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ARModel">
+      <UniqueIdentifier>{b4301f3c-56db-4e0d-a56b-8db5c1dc76e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Basic\AmountPpt.cpp">
@@ -237,6 +240,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Basic\GoogleDrive.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\ARModel\ARModel.cpp">
+      <Filter>Source\ARModel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Basic\WeatherGeneratorDailyKernel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -515,6 +524,12 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\GoogleDrive.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\ARModel\ARModel.h">
+      <Filter>Source\ARModel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\WeatherGeneratorDailyKernel.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
