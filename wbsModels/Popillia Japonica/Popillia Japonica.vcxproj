@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{545D507B-60F0-40F6-AE5F-6EE4EFCDA4BE}</ProjectGuid>
+    <ProjectGuid>{97ED93A0-5FCE-48B9-BD54-702BE22F446F}</ProjectGuid>
     <RootNamespace>CfSimWinDll</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

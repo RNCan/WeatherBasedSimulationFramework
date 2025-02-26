@@ -1,2 +1,14 @@
 # WeatherBasedSimulationFramework
-The Weather-Based Simulation Framework (WBSF) is a set of C++ classes to help the creation and the execution of weather-driven simulation models
+The Weather-Based Simulation Framework (WBSF) is a set of C++ classes to help the creation and the execution of weather-driven simulation models.
+
+1- Open external solution
+	- Set to release instead of debug
+2- Open wbs solution
+	- Set to release instead of debug
+3- Open wbsModels/AllModels.sln 
+	- Set to release instead of debug
+4- Open ./wbsTools/BioSIM/BioSIM.sln	
+	- Set to release instead of debug then build
+
+
+5- Download ExternalExec.7z from googledrive and extract in ./bin/Releasex64/External
