@@ -180,6 +180,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisArgenticollis",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeucotaraxisPiniperda", "LeucotaraxisPiniperda\LeucotaraxisPiniperda.vcxproj", "{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JapaneseBeetle", "Popillia Japonica\Popillia Japonica.vcxproj", "{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WorldClimVars", "Climatic\WorldClimVar.vcxproj", "{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -900,6 +904,22 @@ Global
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|Win32.Build.0 = Release|Win32
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.ActiveCfg = Release|x64
 		{4A8A3673-F1A2-447F-A0EF-8168A39A12D6}.Release|x64.Build.0 = Release|x64
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Debug|Win32.Build.0 = Debug|Win32
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Debug|x64.ActiveCfg = Debug|x64
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Debug|x64.Build.0 = Debug|x64
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Release|Win32.ActiveCfg = Release|Win32
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Release|Win32.Build.0 = Release|Win32
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Release|x64.ActiveCfg = Release|x64
+		{BA5AE3E8-C032-47D1-B2E3-84893D8148C6}.Release|x64.Build.0 = Release|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|Win32.Build.0 = Debug|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|x64.ActiveCfg = Debug|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Debug|x64.Build.0 = Debug|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|Win32.ActiveCfg = Release|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|Win32.Build.0 = Release|Win32
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|x64.ActiveCfg = Release|x64
+		{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
