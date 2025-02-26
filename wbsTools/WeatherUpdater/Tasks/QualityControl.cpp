@@ -2,11 +2,12 @@
 
 #include <deque>
 #include "QualityControl.h"
+#include "Basic\OpenMP.h"
 #include "Basic\DailyDatabase.h"
 #include "Basic\WeatherStation.h"
 #include "Geomatic/UniversalKriging.h"
 #include "isotree/include/isotree.hpp"
-#include "titanlib/include/titanlib.h"
+//#include "titanlib/include/titanlib.h"
 
 #include "TaskFactory.h"
 #include "../resource.h"
@@ -23,28 +24,28 @@ namespace WBSF
 {
 
 
-	int GetUnixTime(int year, int month, int day)
-	{
-		std::tm tm = { /* .tm_sec  = */ 0,
-			/* .tm_min  = */ 0,
-			/* .tm_hour = */ 0,
-			/* .tm_mday = */ (day),
-			/* .tm_mon  = */ (month)-1,
-			/* .tm_year = */ (year)-1900,
-		};
-		tm.tm_isdst = -1; // Use DST value from local time zone
-		auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-		std::chrono::system_clock::duration d = tp.time_since_epoch();
-		std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(d);
-
-
-		//std::chrono::day::days sec(1);
-		//std::chrono::duration = ;
-		//sys_seconds(tp);
-
-
-		return s.count();
-	}
+	//int GetUnixTime(int year, int month, int day)
+	//{
+	//	std::tm tm = { /* .tm_sec  = */ 0,
+	//		/* .tm_min  = */ 0,
+	//		/* .tm_hour = */ 0,
+	//		/* .tm_mday = */ (day),
+	//		/* .tm_mon  = */ (month)-1,
+	//		/* .tm_year = */ (year)-1900,
+	//	};
+	//	tm.tm_isdst = -1; // Use DST value from local time zone
+	//	auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+	//	std::chrono::system_clock::duration d = tp.time_since_epoch();
+	//	std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(d);
+	//
+	//
+	//	//std::chrono::day::days sec(1);
+	//	//std::chrono::duration = ;
+	//	//sys_seconds(tp);
+	//
+	//
+	//	return s.count();
+	//}
 
 
 	//*********************************************************************
