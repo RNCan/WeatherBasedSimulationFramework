@@ -55,7 +55,7 @@ namespace WBSF
 
 		m_to = (m_sex == FEMALE) ? Equations().GetPreOvipPeriod() : 0.0;//adjusted to avoid unrealistic rate for pupa
 		m_t = 0;
-		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity((22.5 / m_RDR[ADULT])) : 0.0;//23.4 is the mean of the median 22.5
+		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity((22.5 / m_RDR[ADULT])) : 0.0;//median longivity of adult = 22.5
 		m_bDeadByAttrition = false;
 		m_generationSurvival = { 0.05, 0.08 };
 

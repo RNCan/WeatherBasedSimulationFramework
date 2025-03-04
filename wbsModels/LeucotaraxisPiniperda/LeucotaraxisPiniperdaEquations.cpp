@@ -9,6 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 03/03/2025   Rémi Saint-Amant    Add adult longevity, pre-oviposition period and fecundity based on few data observation from Tonya Bittner
 // 18/10/2022   Rémi Saint-Amant    Creation 
 //*****************************************************************************
 #include "LeucotaraxisPiniperdaEquations.h"
@@ -26,7 +27,7 @@ namespace WBSF
 
 
 //Best parameters separate, v 1.0.1 (2024-02-25)
-//Best parameters separate, v 1.0.3 (2024 - 05 - 23)
+//Best parameters separate, v 1.0.3 (2024-05-23)
 //Sp	G	n		To	Th1		Th2		mu		s		R²
 //Lp	- 1860		45	2.5		18.5	647.8	41.96	0.979
 
@@ -37,7 +38,7 @@ namespace WBSF
 
 	const array<double, LPM::NB_EMERGENCE_PARAMS> CLeucotaraxisPiniperdaEquations::ADULT_EMERG = { 647.8, 41.96, 45, 2.5, 18.5 };//logistic distribution
 	const double CLeucotaraxisPiniperdaEquations::PUPA_PARAM[NB_PUPA_PARAMS] = { 0, 0, 0, 0, 0, 0};//Not used
-	const double CLeucotaraxisPiniperdaEquations::C_PARAM[NB_C_PARAMS] = { 0.983,1.164,0.965 };//same as L. argenticollis (based on nothing)
+	const double CLeucotaraxisPiniperdaEquations::C_PARAM[NB_C_PARAMS] = { 1.0, 1.0, 1.0 };
 	
 
 
@@ -73,7 +74,7 @@ namespace WBSF
 			//Non-linear
 			CDevRateEquation::WangLanDing_1982,//Eggs
 			CDevRateEquation::WangLanDing_1982,//Larva
-			CDevRateEquation::WangLanDing_1982,//Pupa  (with diapause)
+			CDevRateEquation::WangLanDing_1982,//Pupa  (with dormency)
 			CDevRateEquation::Poly1,//Adult
 		};
 
@@ -87,8 +88,8 @@ namespace WBSF
 			//Non-linear
 			{0.1682, 0.2273, -0.1, 16.1, 34.7, 0.5003},//egg
 			{0.0570, 0.3284,-50.0, 15.9, 34.9, 9.0197},//Larva
-			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with diapause)
-			{1/22.5, 0},//Range 4 to 57 days, median 22.5 days, n = 16 females (argenticollis)
+			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormency)
+			{1/50.0, 0},//Range 24 to 64 days, median 50 days, n = 16 females (argenticollis)
 		};
 
 
@@ -120,32 +121,35 @@ namespace WBSF
 			//Non-linear
 			{0.1849},//Egg
 			{0.2689},//Larva
-			{0.3727},//Pupae (with diapause)
-			{0.3500},//Adult
+			{0.3727},//Pupae (with dormency)
+			{0.1200},//Adult
 		};
 
 		if (RDT[s][σ] <= 0)
 			return 1;
 
-		double rT = 0;
+		double RDR = 0;
 		if (s == ADULT)
 		{
-			boost::math::lognormal_distribution<double> lndist(0, RDT[s][σ]);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
-			while (rT < 0.2 || rT>5.4)//base on individual observation
-				rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
+			//Longevity: Range 24 to 64 days, median 50 days, n = 11 females
+			double L_median = 50.0;
+			double L_sd = 0.12;
+			boost::math::lognormal_distribution<double> lndist(log(L_median), L_sd);
+			double L = (2* L_median - boost::math::quantile(lndist, m_randomGenerator.Rand(0.001, 0.999)));
+			RDR = L_median/L;
+			
 		}
 		else
 		{
 			boost::math::lognormal_distribution<double> lndist(-WBSF::Square(RDT[s][σ]) / 2.0, RDT[s][σ]);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
-			while (rT < 0.2 || rT>2.6)//base on individual observation
-				rT = boost::math::quantile(lndist, m_randomGenerator.Randu());
+			RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
+			while (RDR < 0.2 || RDR>2.6)//base on individual observation
+				RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 		}
 
-		_ASSERTE(!_isnan(rT) && _finite(rT));
+		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
-		return rT;
+		return RDR;
 	}
 
 
@@ -171,7 +175,7 @@ namespace WBSF
 		{
 			{-3.562622, -0.2123614, 0.008848417},//egg
 			{-4.033288, 0.04749421, -0.002219942},//Larva
-			{3.133109,-1.159329,0.03617767},//Pupa (with diapause)
+			{3.133109,-1.159329,0.03617767},//Pupa (with dormency)
 			{},//Adult
 		};
 
@@ -221,13 +225,12 @@ namespace WBSF
 
 	double CLeucotaraxisPiniperdaEquations::GetPreOvipPeriod()const
 	{
-		//Based on L argenticollis
-		static const double m = 13;
-		static const double E = 2 * m;
-		static const double s = 0.22;
+		//Pre-oviposition: Range 15 to 50 days, median 22 days, n = 7 females who laid eggs
+		static const double m = 22;
+		static const double s = 0.125;
 
-		boost::math::lognormal_distribution<double> To(log(E - m), s);
-		double to = E - boost::math::quantile(To, m_randomGenerator.Rand(0.01, 0.99));
+		boost::math::lognormal_distribution<double> To(log(m), s);
+		double to = boost::math::quantile(To, m_randomGenerator.Rand(0.01, 0.99));
 
 		return to * m_C_param[0];//Give 4 to 18 
 	}
@@ -237,9 +240,9 @@ namespace WBSF
 
 	double CLeucotaraxisPiniperdaEquations::GetFecundity(double L)const
 	{
-		//Base on L argenticollis
-		static const array<double, 3> P = { -90.7,  77.5,   0.0234 };
-		return max(4.0, min(163.0, P[0] + P[1] * exp(P[2] * L)));
+		//Fecundity: Range 1 to 132 eggs, median 34 eggs, n = 7 females who laid eggs (4 females laid 0 eggs, not included)
+		static const array<double, 3> P = { 4.722, 0.131, 0.108 };
+		return max(1.0, min(132.0, P[0] + P[1] * exp(P[2] * L)));
 
 	}
 

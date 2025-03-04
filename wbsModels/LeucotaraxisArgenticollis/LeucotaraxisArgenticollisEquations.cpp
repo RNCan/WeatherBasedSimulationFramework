@@ -136,7 +136,7 @@ namespace WBSF
 			{0.2477},//Egg
 			{0.1963},//Larva
 			{0.3828},//Pupae (with diapause)
-			{0.5},//Guess: Range 4 to 57 days, median 22.5 days, n = 16 females
+			{0.35},//Range 4 to 57 days, median 22.5 days, n = 16 females
 		};
 
 		
@@ -148,30 +148,31 @@ namespace WBSF
 			rdt *= m_C_param[2];
 
 
-		double rT = 0;
+		double RDR = 0;
 		if (s == ADULT)
 		{
-			boost::math::lognormal_distribution<double> lndist(0, rdt);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
-			while (rT < 0.2 || rT>5.4)//base on individual observation
-				rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
+			double L_median = 22.5;
+			double L_sd = 0.35;
+			boost::math::lognormal_distribution<double> lndist(log(L_median), L_sd);
+			double L = boost::math::quantile(lndist, m_randomGenerator.Rand(0.001, 0.999));
+			RDR = L_median / L;
 		}
 		else 
 		{
 			boost::math::lognormal_distribution<double> lndist(-WBSF::Square(rdt) / 2.0, rdt);
-			rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
-			while (rT < 0.2 || rT>2.6)//base on individual observation
-				rT = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
+			RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
+			while (RDR < 0.2 || RDR>2.6)//base on individual observation
+				RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 		}
 
 
 
-		_ASSERTE(!_isnan(rT) && _finite(rT));
+		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
 		//covert relative development time into relative development rate
 		//double rR = 1/rT;//do not inverse
 
-		return rT;
+		return RDR;
 	}
 
 

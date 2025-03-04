@@ -51,7 +51,7 @@ namespace WBSF
 
 		m_to = (m_sex == FEMALE) ? Equations().GetPreOvipPeriod() : 0.0;
 		m_t = 0;
-		m_Fi = (m_sex == FEMALE) ? Equations().GetFecundity(22.5 / m_RDR[ADULT]) : 0.0;
+		m_Fi = (m_sex == FEMALE) ? Equations().GetFecundity(50.0 / m_RDR[ADULT]) : 0.0;
 		m_bDeadByAttrition = false;
 	}
 
@@ -162,7 +162,7 @@ namespace WBSF
 			double t = timeStep / 24.0;
 			if (m_t > m_to)
 			{
-				double λ = 0.3;//Based on 10 000 random longevity, fecundity and pre-oviposition period
+				double λ = 0.15;//Based on 10 000 random longevity, fecundity and pre-oviposition period
 				double brood = m_Fi * (exp(-λ * (m_t - m_to)) - exp(-λ * (m_t + t - m_to)));
 				ASSERT(brood >= 0);
 
