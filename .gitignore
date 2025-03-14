@@ -10,3 +10,5 @@ x64/
 x32/
 /external
 *.vcxproj.user
+build/
+/vcpkg_installed

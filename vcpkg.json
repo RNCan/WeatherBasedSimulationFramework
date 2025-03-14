@@ -1,0 +1,17 @@
+{
+  "dependencies": [
+  {
+	  "name": "gdal",
+	  "version>=": "3.8.1"	  
+  },     
+	"boost",
+	"dlib",
+	"eigen3"
+  ],
+  "overrides": [
+    { 
+      "name": "gdal", 
+      "version": "3.8.1"
+    }
+  ]
+}
