@@ -1391,9 +1391,10 @@ namespace WBSF
 		return ToInt(Tokenize(line, ":", pos));
 	}
 
-	enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, PRECIP, PRECIP_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMNS };
-	static const char* COLUMNS_NAME[NB_INPUT_HOURLY_COLUMNS] = { "Longitude (x)", "Latitude (y)", "Station Name", "Climate ID", "Date/Time (LST)", "Year", "Month", "Day", "Time (LST)", u8"Temp (°C)", "Temp Flag", u8"Dew Point Temp (°C)", "Dew Point Temp Flag", "Rel Hum (%)", "Rel Hum Flag", "Precip. Amount (mm)", "Precip. Amount Flag", "Wind Dir (10s deg)", "Wind Dir Flag", "Wind Spd (km/h)", "Wind Spd Flag", "Visibility (km)", "Visibility Flag", "Stn Press (kPa)", "Stn Press Flag", "Hmdx", "Hmdx Flag", "Wind Chill", "Wind Chill Flag", "Weather" };
-	const TVarH COL_VAR[NB_INPUT_HOURLY_COLUMNS] = { H_SKIP, H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,
+	enum { LONGITUDE_X, LATITUDE_Y, STATION_NAME, CLIMATE_ID, DATE_TIME, H_YEAR, H_MONTH, H_DAY, TIMEVAL, FLAG, TEMPERATURE, TEMPERATURE_FLAG, DEWPOINT, DEWPOINT_FLAG, RELHUM, RELHUM_FLAG, PRECIP, PRECIP_FLAG, WIND_DIR, WIND_DIR_FLAG, WIND_SPEED, WIND_SPEED_FLAG, VISIBILITY, VISIBILITY_FLAG, PRESSURE, PRESSURE_FLAG, HMDX, HMDX_FLAG, WIND_CHILL, WIND_CHILL_FLAG, WEATHER_INFO, NB_INPUT_HOURLY_COLUMNS };
+	static const char* COLUMNS_NAME[NB_INPUT_HOURLY_COLUMNS] = { "Longitude (x)", "Latitude (y)", "Station Name", "Climate ID", "Date/Time (LST)", "Year", "Month", "Day", "Time (LST)", "Flag", u8"Temp (°C)", "Temp Flag", u8"Dew Point Temp (°C)", "Dew Point Temp Flag", "Rel Hum (%)", "Rel Hum Flag", "Precip. Amount (mm)", "Precip. Amount Flag", "Wind Dir (10s deg)", "Wind Dir Flag", "Wind Spd (km/h)", "Wind Spd Flag", "Visibility (km)", "Visibility Flag", "Stn Press (kPa)", "Stn Press Flag", "Hmdx", "Hmdx Flag", "Wind Chill", "Wind Chill Flag", "Weather" };
+	
+	const TVarH COL_VAR[NB_INPUT_HOURLY_COLUMNS] = { H_SKIP, H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP,H_SKIP, H_SKIP,
 			H_TAIR, H_SKIP, H_TDEW, H_SKIP, H_RELH, H_SKIP, H_PRCP, H_SKIP, H_WNDD, H_SKIP, H_WNDS, H_SKIP, H_SKIP, H_SKIP, H_PRES, H_SKIP,
 			H_SKIP, H_SKIP, H_SKIP, H_SKIP, H_SKIP };
 	const double FACTOR[NB_VAR_H] = { 0, 1, 0, 1, 1, 1, 1, 10, 0, 10, 0, 0, 0, 0, 0 };
