@@ -1404,7 +1404,7 @@ namespace WBSF
 
 		if (it == end(COLUMNS_NAME))
 		{
-			throw ERMsg(ERMsg::ERREUR, "Unknown column header in EnvCan hourly data");
+			throw ERMsg(ERMsg::ERREUR, FormatA("Unknown column header in EnvCan hourly data: %s", header.c_str()));
 		}
 
 		return COL_VAR[std::distance(begin(COLUMNS_NAME), it)];
