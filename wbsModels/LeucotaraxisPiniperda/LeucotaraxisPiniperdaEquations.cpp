@@ -9,6 +9,7 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 13/03/2025   Rémi Saint-Amant    New model starting at larval stage
 // 03/03/2025   Rémi Saint-Amant    Add adult longevity, pre-oviposition period and fecundity based on few data observation from Tonya Bittner
 // 18/10/2022   Rémi Saint-Amant    Creation 
 //*****************************************************************************
@@ -32,32 +33,32 @@ namespace WBSF
 //Lp	- 1860		45	2.5		18.5	647.8	41.96	0.979
 
 
+//Best parameters separate, v 1.1.0 (2025-03-13)
+//NbVal = 1860	Bias = 0.51871	MAE = 8.49113	RMSE = 12.50527	CD = 0.82072	R² = 0.82527
+//pupa0 = 0.12436
+//pupa1 = 0.08390
+//pupa2=   3.20000  
+//pupa3 = 33.02940
+//pupa4 = 34.80000
+//pupa5 = 1.36097
+//pupa6 = 0.25667
+//fec0 = 0.74949
 
 
 
 
-	const array<double, LPM::NB_EMERGENCE_PARAMS> CLeucotaraxisPiniperdaEquations::ADULT_EMERG = { 647.8, 41.96, 45, 2.5, 18.5 };//logistic distribution
-	const double CLeucotaraxisPiniperdaEquations::PUPA_PARAM[NB_PUPA_PARAMS] = { 0, 0, 0, 0, 0, 0};//Not used
-	const double CLeucotaraxisPiniperdaEquations::C_PARAM[NB_C_PARAMS] = { 1.0, 1.0, 1.0 };
+	const array<double, LPM::NB_EMERGENCE_PARAMS> CLeucotaraxisPiniperdaEquations::ADULT_EMERG = { 647.8, 41.96, 45, 2.5, 18.5 };//logistic distribution (no longer used)
+	const array<double, LPM::NB_PUPA_PARAMS> CLeucotaraxisPiniperdaEquations::PUPA_PARAM = { 0.124, 0.0839,  3.2, 33.0, 34.8, 1.36, 0.257};//pupa developement at spring
+	const array<double, LPM::NB_C_PARAMS> CLeucotaraxisPiniperdaEquations::C_PARAM = { 0.75, 1.0, 1.0 };
 	
 
 
 	CLeucotaraxisPiniperdaEquations::CLeucotaraxisPiniperdaEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, LPM::NB_STAGES, -20, 35, 0.25)
 	{
-
-
-		for (size_t p = 0; p < NB_EMERGENCE_PARAMS; p++)
-			m_adult_emerg[p] = ADULT_EMERG[p];
-
-
-		for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
-			m_pupa_param[p] = PUPA_PARAM[p];
-
-		for (size_t p = 0; p < NB_C_PARAMS; p++)
-			m_C_param[p] = C_PARAM[p];
-
-
+			m_adult_emerg = ADULT_EMERG;
+			m_pupa_param = PUPA_PARAM;
+			m_C_param = C_PARAM;
 	}
 
 
@@ -78,30 +79,23 @@ namespace WBSF
 			CDevRateEquation::Poly1,//Adult
 		};
 
-
-
-
-
-
-		static const double P_DEV[LPM::NB_STAGES][6] =
+		static const vector<double> P_DEV[LPM::NB_STAGES] =
 		{
-			//Non-linear
+			//Non-linear from laboratory rearing
 			{0.1682, 0.2273, -0.1, 16.1, 34.7, 0.5003},//egg
 			{0.0570, 0.3284,-50.0, 15.9, 34.9, 9.0197},//Larva
 			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormency)
-			{1/50.0, 0},//Range 24 to 64 days, median 50 days, n = 16 females (argenticollis)
+			{1/50.0, 0},//Range 24 to 64 days, median 50 days, n = 16 females
 		};
 
 
 
+		//vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
+		//if (s == PUPAE)
+			//p = vector<double>(begin(PUPA_PARAM), end(PUPA_PARAM));
 
 
-		
-			
-
-		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
-
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -109,13 +103,38 @@ namespace WBSF
 	}
 
 
+	double CLeucotaraxisPiniperdaEquations::GetPupaRate(double T)const
+	{
+		//psi Tb To Tm sigma
+		vector<double> p(begin(m_pupa_param), end(m_pupa_param));
+		double r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::WangLanDing_1982, p, T));
+		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
+
+		return r;
+	}
+
+	double CLeucotaraxisPiniperdaEquations::GetPupaRDR()const
+	{
+
+		boost::math::lognormal_distribution<double> ln_dist(-WBSF::Square(m_pupa_param[PUPA_S]) / 2.0, m_pupa_param[PUPA_S]);
+		double rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
+		while (rT < 0.2 || rT>2.6)//base on individual observation
+			rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
+
+		_ASSERTE(!_isnan(rT) && _finite(rT));
+
+		//covert relative development time into relative development rate
+		//double rR = 1 / rT;don't do that!!
+
+		return rT;
+	}
 	//*****************************************************************************
 	//CSBRelativeDevRate : compute individual relative development rate 
 
 
 	double CLeucotaraxisPiniperdaEquations::GetRelativeDevRate(size_t s)const
 	{
-		const double RDT[NB_STAGES][LPM::NB_RDR_PARAMS] =
+		const double SIGMA[NB_STAGES] =
 		{
 			//Relative development Time (individual variation): sigma
 			//Non-linear
@@ -125,7 +144,7 @@ namespace WBSF
 			{0.1200},//Adult
 		};
 
-		if (RDT[s][σ] <= 0)
+		if (SIGMA[s] <= 0)
 			return 1;
 
 		double RDR = 0;
@@ -141,7 +160,11 @@ namespace WBSF
 		}
 		else
 		{
-			boost::math::lognormal_distribution<double> lndist(-WBSF::Square(RDT[s][σ]) / 2.0, RDT[s][σ]);
+			DOUBLE sigma = SIGMA[s];
+			//if (s == PUPAE)
+				//sigma *= m_C_param[2];//for test only
+
+			boost::math::lognormal_distribution<double> lndist(-WBSF::Square(sigma) / 2.0, sigma);
 			RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
 			while (RDR < 0.2 || RDR>2.6)//base on individual observation
 				RDR = boost::math::quantile(lndist, m_randomGenerator.Randu(true, true));
@@ -232,7 +255,7 @@ namespace WBSF
 		boost::math::lognormal_distribution<double> To(log(m), s);
 		double to = boost::math::quantile(To, m_randomGenerator.Rand(0.01, 0.99));
 
-		return to * m_C_param[0];//Give 4 to 18 
+		return to;
 	}
 
 

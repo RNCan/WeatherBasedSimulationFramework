@@ -1,4 +1,5 @@
 ﻿//***********************************************************
+// 13/03/2025	1.1.0	Rémi Saint-Amant   New ophenology based on Dietschler 2025, La pass winter in larval stage
 // 07/11/2024	1.0.2	Rémi Saint-Amant   Final calibration for publication
 // 18/10/2022	1.0.0	Rémi Saint-Amant   Creation
 //***********************************************************
@@ -27,22 +28,16 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.2 (2024)";
+		VERSION = "1.1.0 (2025)";
 
 
 		m_bApplyAttrition = false;
 		m_bCumul = false;
 
-		for (size_t p = 0; p < LPM::NB_EMERGENCE_PARAMS; p++)
-			m_adult_emerg[p] = CLeucotaraxisPiniperdaEquations::ADULT_EMERG[p];
-
-
-		for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
-			m_pupa_param[p] = CLeucotaraxisPiniperdaEquations::PUPA_PARAM[p];
-
-
-		for (size_t p = 0; p < NB_C_PARAMS; p++)
-			m_C_param[p] = CLeucotaraxisPiniperdaEquations::C_PARAM[p];
+		//set with default values
+		m_adult_emerg = CLeucotaraxisPiniperdaEquations::ADULT_EMERG;
+		m_pupa_param = CLeucotaraxisPiniperdaEquations::PUPA_PARAM;
+		m_C_param = CLeucotaraxisPiniperdaEquations::C_PARAM;
 
 	}
 
@@ -61,9 +56,9 @@ namespace WBSF
 		m_bApplyAttrition = parameters[c++].GetBool();
 		m_bCumul = parameters[c++].GetBool();
 
-		if (parameters.size() == 2 + LPM::NB_EMERGENCE_PARAMS + NB_PUPA_PARAMS + NB_C_PARAMS)
+		if (parameters.size() == 2 + NB_EMERGENCE_PARAMS + NB_PUPA_PARAMS + NB_C_PARAMS)
 		{
-			for (size_t p = 0; p < LPM::NB_EMERGENCE_PARAMS; p++)
+			for (size_t p = 0; p < NB_EMERGENCE_PARAMS; p++)
 				m_adult_emerg[p] = parameters[c++].GetFloat();
 
 			for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
@@ -72,8 +67,7 @@ namespace WBSF
 			for (size_t p = 0; p < NB_C_PARAMS; p++)
 				m_C_param[p] = parameters[c++].GetFloat();
 
-			//Always used the same seed for calibration
-		//	m_randomGenerator.Randomize(CRandomGenerator::FIXE_SEED);
+			
 		}
 
 
@@ -106,32 +100,28 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLeucotaraxisPiniperdaModel::ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& output)
+	void CLeucotaraxisPiniperdaModel::ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& output, bool in_calibration)
 	{
-		//Create stand
+		//Create stand and init it
 		CLPMStand stand(this);
-
 		stand.m_bApplyAttrition = m_bApplyAttrition;
-		//Set parameters to equation
-		for (size_t p = 0; p < LPM::NB_EMERGENCE_PARAMS; p++)
-			stand.m_equations.m_adult_emerg[p] = m_adult_emerg[p];
-
-		for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
-			stand.m_equations.m_pupa_param[p] = m_pupa_param[p];
-
-		for (size_t p = 0; p < NB_C_PARAMS; p++)
-			stand.m_equations.m_C_param[p] = m_C_param[p];
-
+		stand.m_equations.m_adult_emerg = m_adult_emerg;
+		stand.m_equations.m_pupa_param = m_pupa_param;
+		stand.m_equations.m_C_param = m_C_param;
+		stand.m_in_calibration = in_calibration;
 		stand.init(year, weather);
+
 
 		//Create host
 		CLPMHostPtr pHost(new CLPMHost(&stand));
 
+		//pHost->m_nbMinObjects = 10;
 		pHost->m_nbMinObjects = 10;
 		pHost->m_nbMaxObjects = 1000;
 
 
-		pHost->Initialize<CLeucotaraxisPiniperda>(CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0, 400, 100, PUPAE));
+		//pHost->Initialize<CLeucotaraxisPiniperda>(CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0, 400, 100, PUPAE));
+		pHost->Initialize<CLeucotaraxisPiniperda>(CInitialPopulation(CTRef(year, JANUARY, DAY_01), 0, 400, 100, LARVAE+ m_C_param[0]));
 
 		//add host to stand			
 		stand.m_host.push_front(pHost);
@@ -181,8 +171,8 @@ namespace WBSF
 	}
 
 	enum TSpecies { S_LA_G1, S_LA_G2, S_LP, S_LN };
-	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_DAILY_COUNT, NB_INPUTS };
-	enum TInputInternal { I_S, I_N, NB_INPUTS_INTERNAL };
+	enum TInput { I_SYC, I_SITE, I_YEAR, I_COLLECTION, I_SPECIES, I_G, I_DATE, I_CDD, I_TMIN, I_N, I_P, NB_INPUTS };
+	enum TInputInternal { O_S, O_N, O_P, NB_INPUTS_INTERNAL };
 	void CLeucotaraxisPiniperdaModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		ASSERT(data.size() == NB_INPUTS);
@@ -190,23 +180,20 @@ namespace WBSF
 		CSAResult obs;
 
 		CStatistic egg_creation_date;
-
-		if (data[I_SPECIES] == "La" && data[I_G] == "2")
+		//|| data[I_SYC] == "TAC_2020_3"|| data[I_SYC] == "TAC_2020_4"
+		if (data[I_SPECIES] == "Lp" )
 		{
 			obs.m_ref.FromFormatedString(data[I_DATE]);
 			obs.m_obs.resize(NB_INPUTS_INTERNAL);
-			obs.m_obs[I_S] = S_LA_G2;
-			obs.m_obs[I_N] = stod(data[I_DAILY_COUNT]);
+			obs.m_obs[O_S] = S_LP;
+			obs.m_obs[O_N] = stod(data[I_N]);
+			obs.m_obs[O_P] = stod(data[I_P]);
 
 
 			ASSERT(obs.m_obs[I_N] >= 0);
+			ASSERT(obs.m_obs[I_P] >= 0 && obs.m_obs[I_P]<=100);
 			m_SAResult.push_back(obs);
 		}
-
-
-
-
-
 	}
 
 	bool CLeucotaraxisPiniperdaModel::IsParamValid()const
@@ -220,103 +207,115 @@ namespace WBSF
 		return bValid;
 	}
 
-
-	enum TPout { P_CDD, P_CE, LA_G1 = P_CE, P_LA_G2, P_LP, NB_P };//CE = cumulative emergence
+	enum TPout { P_CDD, P_CE, LA_G1 = P_CE, P_LA_G2, P_LP, P_LN, NB_P };//CE = cumulative emergence
 	void CLeucotaraxisPiniperdaModel::GetPobs(CModelStatVector& P)
 	{
-		string ID = GetInfo().m_loc.m_ID;
-		string SY = ID.substr(0, ID.length() - 2);
-
-		//compute CDD for all temperature profile
-		array< double, 4> total = { 0 };
-		vector<tuple<double, CTRef, double, bool, size_t>> d;
-		const CSimulatedAnnealingVector& SA = GetSimulatedAnnealingVector();
-
-		for (size_t i = 0; i < SA.size(); i++)
-		{
-			string IDi = SA[i]->GetInfo().m_loc.m_ID;
-			string SYi = IDi.substr(0, IDi.length() - 2);
-			if (SYi == SY)
-			{
-				CModelStatVector CDD;
-
-				//degree day of the Lp
-				CDegreeDays DDmodel(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
-				DDmodel.GetCDD(int(m_adult_emerg[delta]), m_weather, CDD);
-
-
-				const CSAResultVector& v = SA[i]->GetSAResult();
-				for (size_t ii = 0; ii < v.size(); ii++)
-				{
-					d.push_back(make_tuple(CDD[v[ii].m_ref][0], v[ii].m_ref, v[ii].m_obs[I_N], IDi == ID, v[ii].m_obs[I_S]));
-					total[v[ii].m_obs[I_S]] += v[ii].m_obs[I_N];
-				}
-			}
-		}
-
-		sort(d.begin(), d.end());
-
-		P.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_P, 0);
-		array< double, 4> sum = { 0 };
-		for (size_t i = 0; i < d.size(); i++)
-		{
-			size_t s = std::get<4>(d[i]);
-			sum[s] += std::get<2>(d[i]);
-			if (std::get<3>(d[i]))
-			{
-				CTRef Tref = std::get<1>(d[i]);
-				double CDD = std::get<0>(d[i]);
-				double p = Round(100 * sum[s] / total[s], 1);
-
-				P[Tref][P_CDD] = CDD;
-				P[Tref][P_CE + s] = p;
-			}
-		}
+		//string ID = GetInfo().m_loc.m_ID;
+		//string SY = ID.substr(0, ID.length() - 2);
+		//
+		////compute CDD for all temperature profile
+		//array< double, 4> total = { 0 };
+		//vector<tuple<double, CTRef, double, bool, size_t>> d;
+		//const CSimulatedAnnealingVector& SA = GetSimulatedAnnealingVector();
+		//
+		//for (size_t i = 0; i < SA.size(); i++)
+		//{
+		//	string IDi = SA[i]->GetInfo().m_loc.m_ID;
+		//	string SYi = IDi.substr(0, IDi.length() - 2);
+		//	if (SYi == SY)
+		//	{
+		//		CModelStatVector CDD;
+		//
+		//		//degree day of the La g2 
+		//		CDegreeDays DDmodel(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
+		//		DDmodel.GetCDD(int(m_adult_emerg[delta]), m_weather, CDD);
+		//
+		//		const CSAResultVector& v = SA[i]->GetSAResult();
+		//		for (size_t ii = 0; ii < v.size(); ii++)
+		//		{
+		//			d.push_back(make_tuple(CDD[v[ii].m_ref][0], v[ii].m_ref, v[ii].m_obs[I_N], IDi == ID, v[ii].m_obs[O_S]));
+		//			total[v[ii].m_obs[O_S]] += v[ii].m_obs[O_N];
+		//		}
+		//	}
+		//}
+		//
+		//sort(d.begin(), d.end());
+		//
+		//P.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_P, 0);
+		//array< double, 4> sum = { 0 };
+		//for (size_t i = 0; i < d.size(); i++)
+		//{
+		//	size_t s = std::get<4>(d[i]);
+		//	sum[s] += std::get<2>(d[i]);
+		//	if (std::get<3>(d[i]))
+		//	{
+		//		CTRef Tref = std::get<1>(d[i]);
+		//		double CDD = std::get<0>(d[i]);
+		//		double p = 100 * sum[s] / total[s];
+		//
+		//		P[Tref][P_CDD] = CDD;
+		//		P[Tref][P_CE + s] = p;
+		//	}
+		//}
 	}
 
-
-	bool CLeucotaraxisPiniperdaModel::CalibrateEmergenceG2(CStatisticXY& stat)
+	bool CLeucotaraxisPiniperdaModel::CalibratePupa(CStatisticXY& stat)
 	{
 
 		if (!m_SAResult.empty())
 		{
-
 			if (!m_weather.IsHourly())
 				m_weather.ComputeHourlyVariables();
 
 
-			m_bCumul = true;//SA always cumulative
 
+			m_bCumul = true;//SA always cumulative
 			//Always used the same seed for calibration
 			m_randomGenerator.Randomize(CRandomGenerator::FIXE_SEED);
 
 
-			if (m_SAResult.back().m_obs.size() == NB_INPUTS_INTERNAL)
-			{
-				CModelStatVector P;
-				GetPobs(P);
 
-				for (size_t i = 0; i < m_SAResult.size(); i++)
-				{
-					//double CDD = P[m_SAResult[i].m_ref][P_CDD];
-					double cumul_obs = P[m_SAResult[i].m_ref][P_LA_G2];
-					ASSERT(cumul_obs >= 0 && cumul_obs <= 100);
-
-					m_SAResult[i].m_obs.push_back(cumul_obs);
-				}
-			}
+			//if (m_SAResult.back().m_obs.size() == NB_INPUTS_INTERNAL)
+			//{
+			//	CModelStatVector P;
+			//	GetPobs(P);
+			//
+			//	for (size_t i = 0; i < m_SAResult.size(); i++)
+			//	{
+			//		double cumul_obs = P[m_SAResult[i].m_ref][P_LP];
+			//		ASSERT(cumul_obs >= 0 && cumul_obs <= 100);
+			//
+			//		m_SAResult[i].m_obs[O_P] = cumul_obs;
+			//	}
+			//}
 
 
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 			{
 				int year = m_weather[y].GetTRef().GetYear();
 
-
 				CModelStatVector output;
 				CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
 				output.Init(p, NB_STATS, 0);
-				ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
+				ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output, true);
+
+
+				for (size_t i = 0; i < m_SAResult.size(); i++)
+				{
+					if (output.IsInside(m_SAResult[i].m_ref))
+					{
+
+						double obs_y = Round(m_SAResult[i].m_obs[O_P], 4);
+						double sim_y = Round(output[m_SAResult[i].m_ref][S_EMERGENCE0], 4);
+
+						if (obs_y > -999)
+						{
+							for (size_t ii = 0; ii < m_SAResult[i].m_obs[O_N]; ii++)
+								stat.Add(obs_y, sim_y);
+						}
+					}
+				}//for all results
 
 			}
 		}
@@ -330,7 +329,7 @@ namespace WBSF
 		if (!IsParamValid())
 			return false;
 
-		return CalibrateEmergenceG2(stat);
+		return CalibratePupa(stat);
 	}
 
 

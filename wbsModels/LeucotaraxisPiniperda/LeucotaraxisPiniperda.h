@@ -23,11 +23,11 @@ namespace WBSF
 	{
 		enum TLeucotaraxisPiniperdaStats
 		{
-			S_CDD, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_EMERGENCE0, S_DEAD_ATTRITION, NB_STATS
+			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION, NB_STATS
 		}; 
 
 		enum { NB_CUMUL_STATS = 5 };
-		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION };
+		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_PUPA0, S_ADULT0, S_EGG1, S_EMERGENCE0, S_DEAD_ATTRITION };
 	}
 
 
@@ -122,6 +122,8 @@ namespace WBSF
 		
 		CLeucotaraxisPiniperdaEquations m_equations;
 		CModelStatVector m_adult_emergence_CDD;
+
+		bool m_in_calibration;
 	};
 
 

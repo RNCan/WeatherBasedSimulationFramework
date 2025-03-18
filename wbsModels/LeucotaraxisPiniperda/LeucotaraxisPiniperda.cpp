@@ -1,6 +1,6 @@
 ﻿//*****************************************************************************
 //*****************************************************************************
-// Class: CLeucotaraxisPiniperda
+// Class: CLeucotaraxisPiniperda 
 //          
 //
 // Description: the CLeucotaraxisPiniperda represents a group of LNF insect. scale by m_ScaleFactor
@@ -22,6 +22,7 @@ using namespace WBSF::LPM;
 namespace WBSF
 {
 
+	//static const bool CALIBRATE_PUPAE = true;
 	//*********************************************************************************
 	//CLeucotaraxisPiniperda class
 
@@ -36,15 +37,17 @@ namespace WBSF
 	CLeucotaraxisPiniperda::CLeucotaraxisPiniperda(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
-		ASSERT(age == EGG || age == PUPAE);
+		//ASSERT(age == EGG || age == PUPAE);
+		ASSERT(age == EGG || floor(age) == LARVAE);
 		//reset creation date
 		int year = creationDate.GetYear();
 
-
-		m_bDiapause = age == PUPAE;
+		m_bDiapause = false;
+		//m_bDiapause = age == PUPAE;
 		m_creationDate = creationDate;
-		if (age == PUPAE)
-			m_adult_emergence_date = GetAdultEmergence(year);
+		
+		//if (age == PUPAE)
+			//m_adult_emergence_date = GetAdultEmergence(year);
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
@@ -133,13 +136,25 @@ namespace WBSF
 
 		//Time step development rate
 		double r = Equations().GetRate(s, T) / nb_steps;
+		double time = 1.0 / r;
 
-		if (s < PUPAE)
-			r *= Equations().m_C_param[1];//for test only
+		//if (s == PUPAE)
+			//r *= Equations().m_C_param[1];//for test only
+		if (s == PUPAE )
+			r = Equations().GetPupaRate(T) / nb_steps;
 
 
 		//Relative development rate for this individual
 		double rr = m_RDR[s];
+		//if (s == PUPAE)
+			//rr *= Equations().m_C_param[2];//for test only
+				
+				 
+		if (s == PUPAE )
+			rr = Equations().GetPupaRDR();
+
+		
+
 
 		//Time step development rate for this individual
 		r *= rr;
@@ -189,12 +204,12 @@ namespace WBSF
 		ASSERT(IsCreated(weather.GetTRef()));
 
 
-		if (m_bDiapause && GetStage() == PUPAE && weather.GetTRef() == m_adult_emergence_date)
+		/*if (m_bDiapause && GetStage() == PUPAE && weather.GetTRef() == m_adult_emergence_date)
 		{
 			ASSERT(m_generation == 0);
 			m_bDiapause = false;
 			m_age = ADULT;
-		}
+		}*/
 
 		
 
@@ -203,7 +218,8 @@ namespace WBSF
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
-			if (m_generation == 1 && GetStage() >= PUPAE)
+			//if (m_generation == 1 && GetStage() >= PUPAE)
+			if (m_generation == 1 && GetStage() >= LARVAE)
 				m_bDiapause = true;
 		}
 
@@ -220,7 +236,7 @@ namespace WBSF
 		assert(m_sex == FEMALE);
 
 
-		if (m_broods > 0)
+		if (m_broods > 0 && !GetStand()->m_in_calibration)
 		{
 			ASSERT(m_generation == 0);
 			ASSERT(m_age >= ADULT);
@@ -295,7 +311,7 @@ namespace WBSF
 			if (IsAlive() || (s == DEAD_ADULT))
 			{
 				if (m_generation == 0)
-					stat[S_PUPA0 + s - PUPAE] += m_scaleFactor;
+					stat[S_LARVA0 + s - LARVAE] += m_scaleFactor;
 				else if (m_generation == 1)
 					stat[S_EGG1 + s] += m_scaleFactor;
 			}
@@ -353,6 +369,7 @@ namespace WBSF
 		m_equations(pModel->RandomGenerator())
 	{
 		m_bApplyAttrition = false;
+		m_in_calibration = false;
 	}
 
 
