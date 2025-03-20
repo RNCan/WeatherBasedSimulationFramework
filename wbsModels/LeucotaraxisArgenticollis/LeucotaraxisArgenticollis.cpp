@@ -20,7 +20,7 @@ using namespace WBSF::LAZ;
 namespace WBSF
 {
 
-	static const bool CALIBRATE_PUPAE_AND_EMERGENCE_G2 = false;
+
 	//*********************************************************************************
 	//CLeucotaraxisArgenticollis class
 
@@ -36,13 +36,15 @@ namespace WBSF
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
 	{
 		ASSERT(age == EGG || age == PUPAE);
+
+		
 		//reset creation date
 		int year = creationDate.GetYear();
 
 
 		m_bDiapause = age == PUPAE;
 		m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.75;//diapause in generation 1 (75% of diapause)
-		if (CALIBRATE_PUPAE_AND_EMERGENCE_G2)
+		if (GetStand()->CALIBRATE_PUPAE_AND_EMERGENCE_G2)
 			m_bDiapause1 = false;
 
 
@@ -260,7 +262,7 @@ namespace WBSF
 		assert(m_sex == FEMALE);
 
 		bool bCreateEgg = m_generation == 0 || m_generation == 1;
-		if (CALIBRATE_PUPAE_AND_EMERGENCE_G2)
+		if (GetStand()->CALIBRATE_PUPAE_AND_EMERGENCE_G2)
 			bCreateEgg = m_generation == 0;
 
 
@@ -403,6 +405,7 @@ namespace WBSF
 		WBSF::CStand(pModel),
 		m_equations(pModel->RandomGenerator())
 	{
+		CALIBRATE_PUPAE_AND_EMERGENCE_G2 = false;
 		m_bApplyAttrition = false;
 	}
 
