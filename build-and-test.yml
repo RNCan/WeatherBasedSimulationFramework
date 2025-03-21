@@ -7,6 +7,12 @@ on:
     branches: [ $default-branch 11-test-cmake-based-building-approach-to-unify-and-simplify-build-process]    
   pull_request:
     branches: [ $default-branch 11-test-cmake-based-building-approach-to-unify-and-simplify-build-process]
+  workflow_dispatch:
+    inputs:
+      param:
+        description: 'Optional parameter'
+        required: false
+        default: 'default value'
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
