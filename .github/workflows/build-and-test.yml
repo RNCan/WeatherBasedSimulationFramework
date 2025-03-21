@@ -23,10 +23,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Setup VSWhere.exe
-      uses: warrenbuckley/Setup-VSWhere@v1
-
+        
     - name: VSWhere MSBuild
       run: echo "vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath" >> $VCInstallDir
 
