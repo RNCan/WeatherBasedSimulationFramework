@@ -24,12 +24,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
         
-    - name: VSWhere MSBuild
-      run: echo "vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath" >> $VCInstallDir
+    - name: Get Visual C++ Installation Path
+      id: vswhere
+      shell: powershell
+      run: |
+        $VCInstallDir = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        echo "VCINSTALLDIR=$VCInstallDir" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-    - name: Check Env
-      run: echo "Found VS installation in " $VCInstallDir
-      
+    - name: Verify VC Install Directory
+      run: echo "VCINSTALLDIR=${{ env.VCINSTALLDIR }}"
+     
     - name: Extract External Archives
       run: |
         7z x "${{ env.EXTLIBS_ARCHIVE_PATH }}/ExternalCode/*.7z" -o"${{ github.workspace }}/${{ env.EXTRACT_DIR }}" -y
