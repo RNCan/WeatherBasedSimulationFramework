@@ -15,8 +15,8 @@ include_directories(
 )
 
 # Build as static library
-add_library(WBSF_UnitTest
+add_library(WBSF_UnitTest SHARED
   ${SOURCE_FILES}
 )
 
-
+target_link_libraries(WBSF_UnitTest Basic)
