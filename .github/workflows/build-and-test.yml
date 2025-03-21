@@ -12,11 +12,6 @@ on:
       param:
         description: 'Optional parameter'
         required: false
-        default: 'default value':
-    inputs:
-      param:
-        description: 'Optional parameter'
-        required: false
         default: 'default value'
 
 env:
