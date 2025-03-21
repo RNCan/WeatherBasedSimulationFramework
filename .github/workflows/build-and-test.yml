@@ -7,7 +7,12 @@ on:
     branches: [ $default-branch 11-test-cmake-based-building-approach-to-unify-and-simplify-build-process]    
   pull_request:
     branches: [ $default-branch 11-test-cmake-based-building-approach-to-unify-and-simplify-build-process]
-  workflow_dispatch:
+    workflow_dispatch:
+    inputs:
+      param:
+        description: 'Optional parameter'
+        required: false
+        default: 'default value':
     inputs:
       param:
         description: 'Optional parameter'
