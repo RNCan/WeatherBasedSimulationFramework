@@ -75,6 +75,8 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
 
+enable_testing()
+
 add_subdirectory(wbs)
 
 #if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
