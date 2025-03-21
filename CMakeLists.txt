@@ -16,6 +16,8 @@ add_compile_options(/MP)
 
 remove_definitions(-U_MBCS)
 
+add_definitions("/wd4996")
+
 # Set a default build type if none was specified
 set(default_build_type "Release")
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
