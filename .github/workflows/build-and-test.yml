@@ -29,7 +29,7 @@ jobs:
       shell: powershell
       run: |
         $VCInstallDir = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-        echo "VCINSTALLDIR=$VCInstallDir" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "VCINSTALLDIR=$VCInstallDir/VC" | Out-File -FilePath $env:GITHUB_ENV -Append
 
     - name: Verify VC Install Directory
       run: echo "VCINSTALLDIR=${{ env.VCINSTALLDIR }}"
