@@ -36,16 +36,34 @@ endif()
 include(ExternalProject)
 
 SET(EXTERNAL_PROJECTS_DIR "${CMAKE_SOURCE_DIR}/external")
+SET(EXTERNAL_LIB_DIR "${EXTERNAL_PROJECTS_DIR}/lib64")
 
 #dlib
 SET(EXTERNAL_DLIB_DIR "${EXTERNAL_PROJECTS_DIR}/dlib")
+SET(EXTERNAL_DLIB_INSTALL_DIR "${EXTERNAL_DLIB_DIR}/build/install")
 ExternalProject_Add(dlib
 	SOURCE_DIR "${EXTERNAL_DLIB_DIR}"
 	BINARY_DIR "${EXTERNAL_DLIB_DIR}/build"
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${EXTERNAL_DLIB_DIR}/build/install
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${EXTERNAL_DLIB_INSTALL_DIR}
 )
-EXTERNALPROJECT_GET_PROPERTY(dlib INSTALL_DIR)
-SET(DLIB_INCLUDE_DIRS "${INSTALL_DIR}/include")
+
+SET(DLIB_INCLUDE_DIRS "${EXTERNAL_DLIB_INSTALL_DIR}/include")
+SET(DLIB_LIB_DIR "${EXTERNAL_DLIB_INSTALL_DIR}/lib")
+# here dlib outputs both its debug and release libraries in the same directory.  
+# List them all, then keep a single entry and replace debug and release by CONFIG so it can be replaced later
+file(GLOB DLIB_ALL_LIBS "${DLIB_LIB_DIR}/*.lib")
+foreach(F IN LISTS DLIB_ALL_LIBS)
+#  message(${F})
+  string(REPLACE "debug" "CONFIG" F ${F})
+  string(REPLACE "release" "CONFIG" F ${F})
+  set(DLIB_LIBS ${F})  
+endforeach()
+
+#here DLIB_LIBS contains the last file listed, with _CONFIG_ in the filename.  
+# Now replace that by the proper generator expression so that the correct library is used in debug and release configs
+string(REPLACE "CONFIG" "$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>" DLIB_LIBS ${DLIB_LIBS})
+
+message("${DLIB_LIBS}")
 
 #boost
 SET(EXTERNAL_BOOST_DIR "${EXTERNAL_PROJECTS_DIR}/boost")
@@ -68,6 +86,7 @@ ExternalProject_Add(gdal
 )
 EXTERNALPROJECT_GET_PROPERTY(gdal SOURCE_DIR)
 SET(GDAL_INCLUDE_DIRS "${SOURCE_DIR}/include")
+SET(GDAL_LIB_DIRS "${SOURCE_DIR}/lib64")
 
 if (WIN32)
   message(STATUS "Enabling multi-processor compilation for MSVC")
@@ -79,7 +98,9 @@ endif()
 
 enable_testing()
 
+add_subdirectory(External)
 add_subdirectory(wbs)
+add_subdirectory(wbsTools)
 
 #if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
