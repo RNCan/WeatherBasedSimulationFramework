@@ -15,7 +15,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/..
   ${CMAKE_CURRENT_SOURCE_DIR}/../../msvc/stdafxUI
-  ${EXTERNAL_PROJECTS_DIR}  
+  ${EXTERNAL_PROJECTS_DIR}
+  ${GDAL_INCLUDE_DIRS}
 )
 
 # Build as static library
