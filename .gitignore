@@ -8,6 +8,6 @@ Release/
 Releasex64/
 x64/
 x32/
-/external
+/external/*/
 *.vcxproj.user
 /build
