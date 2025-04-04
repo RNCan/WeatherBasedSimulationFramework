@@ -53,7 +53,7 @@ SET(DLIB_LIB_DIR "${EXTERNAL_DLIB_INSTALL_DIR}/lib")
 # List them all, then keep a single entry and replace debug and release by CONFIG so it can be replaced later
 
 SET(DLIB_LIB_PREFIX "${DLIB_LIB_DIR}/dlib19.24.0_")
-SET(DLIB_LIB_SUFFIX "_64bit_msvc1942.lib")
+SET(DLIB_LIB_SUFFIX "_64bit_msvc${MSVC_VERSION}.lib")
 
 #boost
 SET(EXTERNAL_BOOST_DIR "${EXTERNAL_PROJECTS_DIR}/boost")
