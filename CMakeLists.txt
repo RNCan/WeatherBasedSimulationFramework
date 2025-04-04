@@ -51,17 +51,9 @@ SET(DLIB_INCLUDE_DIRS "${EXTERNAL_DLIB_INSTALL_DIR}/include")
 SET(DLIB_LIB_DIR "${EXTERNAL_DLIB_INSTALL_DIR}/lib")
 # here dlib outputs both its debug and release libraries in the same directory.  
 # List them all, then keep a single entry and replace debug and release by CONFIG so it can be replaced later
-file(GLOB DLIB_ALL_LIBS "${DLIB_LIB_DIR}/*.lib")
-foreach(F IN LISTS DLIB_ALL_LIBS)
-#  message(${F})
-  string(REPLACE "debug" "CONFIG" F ${F})
-  string(REPLACE "release" "CONFIG" F ${F})
-  set(DLIB_LIBS ${F})  
-endforeach()
 
-#here DLIB_LIBS contains the last file listed, with _CONFIG_ in the filename.  
-# Now replace that by the proper generator expression so that the correct library is used in debug and release configs
-string(REPLACE "CONFIG" "$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>" DLIB_LIBS ${DLIB_LIBS})
+SET(DLIB_LIB_PREFIX "${DLIB_LIB_DIR}/dlib19.24.0_")
+SET(DLIB_LIB_SUFFIX "_64bit_msvc1942.lib")
 
 message("${DLIB_LIBS}")
 

@@ -34,7 +34,7 @@ target_link_libraries(BioSim
 	${EXTERNAL_LIB_DIR}/libboost_zlib-vc143-mt$<$<CONFIG:Debug>:-gd>-x64-1_84.lib 
 	${GDAL_LIB_DIRS}/gdal_i.lib 
 	${GDAL_LIB_DIRS}/proj_i.lib
-	${DLIB_LIBS}
+	${DLIB_LIB_PREFIX}$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>${DLIB_LIB_SUFFIX}
 	version.lib
 	Basic
 	Geomatic
