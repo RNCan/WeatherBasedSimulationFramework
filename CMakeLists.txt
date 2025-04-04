@@ -91,6 +91,7 @@ enable_testing()
 add_subdirectory(External)
 add_subdirectory(wbs)
 add_subdirectory(wbsTools)
+add_subdirectory(wbsModels)
 
 #if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
