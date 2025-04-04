@@ -55,8 +55,6 @@ SET(DLIB_LIB_DIR "${EXTERNAL_DLIB_INSTALL_DIR}/lib")
 SET(DLIB_LIB_PREFIX "${DLIB_LIB_DIR}/dlib19.24.0_")
 SET(DLIB_LIB_SUFFIX "_64bit_msvc1942.lib")
 
-message("${DLIB_LIBS}")
-
 #boost
 SET(EXTERNAL_BOOST_DIR "${EXTERNAL_PROJECTS_DIR}/boost")
 ExternalProject_Add(boost
