@@ -31,12 +31,12 @@ namespace WBSF
 	public:
 
 		static const std::array<double, LPM::NB_EMERGENCE_PARAMS> ADULT_EMERG;
-		static const double PUPA_PARAM[LPM::NB_PUPA_PARAMS];//Pupa (without diapause) param
-		static const double C_PARAM[LPM::NB_C_PARAMS];//Correction factor
+		static const std::array<double, LPM::NB_PUPA_PARAMS> PUPA_PARAM;//Pupa (without diapause) param
+		static const std::array<double, LPM::NB_C_PARAMS> C_PARAM;//Correction factor
 
-		double m_adult_emerg[LPM::NB_EMERGENCE_PARAMS];//emergence of adult parameters
-		double m_pupa_param[LPM::NB_PUPA_PARAMS];//Pupa parameters
-		double m_C_param[LPM::NB_C_PARAMS];//Cumulative Egg Creation parameters
+		std::array<double, LPM::NB_EMERGENCE_PARAMS> m_adult_emerg;//emergence of adult parameters
+		std::array<double, LPM::NB_PUPA_PARAMS> m_pupa_param;//Pupa parameters
+		std::array<double, LPM::NB_C_PARAMS> m_C_param;//Cumulative Egg Creation parameters
 		
 		
 		CLeucotaraxisPiniperdaEquations(const CRandomGenerator& RG);
@@ -51,7 +51,8 @@ namespace WBSF
 
 		void GetAdultEmergenceCDD(const CWeatherYears& weather, CModelStatVector& CDD)const;
 		double GetAdultEmergingCDD()const;
-
+		double GetPupaRate(double T)const;
+		double GetPupaRDR()const;
 	};
 
 }

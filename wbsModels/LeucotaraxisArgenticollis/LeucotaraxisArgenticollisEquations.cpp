@@ -64,11 +64,6 @@ namespace WBSF
 			CDevRateEquation::Poly1,//Adult
 		};
 
-
-
-
-
-
 		static const double P_DEV[LAZ::NB_STAGES][6] =
 		{
 			//Non-linear
@@ -77,14 +72,6 @@ namespace WBSF
 			{0.0196,	0.0530, 3.1,	34.9,	34.9,	1.6836},//Pupa (with diapause)
 			{1 / 22.5, 0},//Range 4 to 57 days, median 22.5 days, n = 16 females
 		};
-
-
-
-
-
-
-
-
 
 
 		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));

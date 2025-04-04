@@ -1428,7 +1428,7 @@ namespace WBSF
 
 							if (msg)
 							{
-								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stations.end()));
+								stations.insert(stations.end(), std::make_move_iterator(stationsG.begin()), std::make_move_iterator(stationsG.end()));
 								stationsG.clear();
 
 								stations.GetInverseDistanceMean(v, m_target, simulationPoint, true, m_tgi.m_bUseShore);

@@ -22,18 +22,19 @@ namespace WBSF
 
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;
 		virtual bool GetFValueDaily(CStatisticXY& stat)override;
+		
 
 		protected:
 
 		bool m_bApplyAttrition;
 		bool m_bCumul;
 
-		double m_adult_emerg[LPM::NB_EMERGENCE_PARAMS];//emergence of adult parameters
-		double m_pupa_param[LPM::NB_PUPA_PARAMS];//Cumulative Egg Creation parameters
-		double m_C_param[LPM::NB_C_PARAMS];//Cumulative Egg Creation parameters
+		std::array<double, LPM::NB_EMERGENCE_PARAMS> m_adult_emerg;//emergence of adult parameters
+		std::array<double, LPM::NB_PUPA_PARAMS> m_pupa_param;//Pupa parameters
+		std::array<double, LPM::NB_C_PARAMS> m_C_param;//Cumulative Egg Creation parameters
 		
-		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
-		bool CalibrateEmergenceG2(CStatisticXY& stat);
+		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat, bool in_calibration=false);
+		bool CalibratePupa(CStatisticXY& stat);
 
 
 		void GetPobs(CModelStatVector& P);

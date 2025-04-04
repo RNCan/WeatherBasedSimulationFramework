@@ -6,7 +6,7 @@
     <EXE>LeucotaraxisPiniperda.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>
-    <WindowRect>0 0 142 439</WindowRect>
+    <WindowRect>0 0 96 439</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -19,19 +19,19 @@
             <Caption>ApplyAttrition</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>15 10 35 160</Rect>
+            <Rect>10 15 30 165</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
-            <Name>Boolean</Name>
+            <Name>Cumul</Name>
             <Caption>Cumul</Caption>
             <Description/>
             <Type>0</Type>
-            <Rect>50 10 70 160</Rect>
+            <Rect>10 190 30 340</Rect>
             <SeparatorPos>100</SeparatorPos>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -45,6 +45,14 @@
         <OutputVariable>
             <Name>CDD</Name>
             <Title>CDD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Larva0</Name>
+            <Title>Larva0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -87,14 +95,6 @@
             <Title>Larva1</Title>
             <Units/>
             <Description>Larva</Description>
-            <TimeMode>4 0</TimeMode>
-            <Precision>4</Precision>
-        </OutputVariable>
-        <OutputVariable>
-            <Name>Pupa1</Name>
-            <Title>Pupa1</Title>
-            <Units/>
-            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

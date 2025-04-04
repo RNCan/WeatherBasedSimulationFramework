@@ -453,6 +453,17 @@ namespace WBSF
 
 						(*it2)->SetLastMsg(str);
 					}
+					catch (ERMsg& e_msg)
+					{
+						msg.ajoute("A exception was throw by: " + (*it2)->m_name);
+						msg.ajoute(e_msg);
+
+						std::string str = GetOutputString(msg, callback, false, "\n");
+						ReplaceString(str, "\n", "|");
+						ReplaceString(str, "\r", "");
+
+						(*it2)->SetLastMsg(str);
+					}
 					catch (...)
 					{
 						msg.ajoute("A exception was throw by: " + (*it2)->m_name);

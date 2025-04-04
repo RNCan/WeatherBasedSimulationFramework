@@ -43,6 +43,8 @@ namespace WBSF
 	{
 	public:
 
+		
+
 
 		CLeucotaraxisArgenticollis(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = LAZ::EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CLeucotaraxisArgenticollis(const CLeucotaraxisArgenticollis& in) :WBSF::CIndividual(in){ operator=(in); }
@@ -116,8 +118,10 @@ namespace WBSF
 	{
 	public:
 
+		
 		//global variables of all bugs
 		bool m_bApplyAttrition;
+		bool CALIBRATE_PUPAE_AND_EMERGENCE_G2;
 
 		CLAZStand(WBSF::CBioSIMModelBase* pModel);
 

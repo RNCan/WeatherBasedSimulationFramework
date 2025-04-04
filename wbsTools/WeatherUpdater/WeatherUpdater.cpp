@@ -1,3 +1,4 @@
+//6.2.1 17/03/2025  Rémi Saint-Amant	Add "Flag" column in the Env Can. hourly
 //6.2.0 26/06/2024  Rémi Saint-Amant	replace all _ by - in SWOB-Partner ID
 //6.1.9 18/06/2024  Rémi Saint-Amant	Add new Canada-USA radar images
 //6.1.8 02/04/2024  Rémi Saint-Amant	Update New-Brunswick. Add Partner network: Park Canada and ON water
