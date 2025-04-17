@@ -4,9 +4,9 @@ name: CMake on a single platform
 
 on:
   push:
-    branches: ["11-test-cmake-based-building-approach-to-unify-and-simplify-build-process"]    
+    branches: ["master"]    
   pull_request:
-    branches: ["11-test-cmake-based-building-approach-to-unify-and-simplify-build-process"]
+    branches: ["master"]
   
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
