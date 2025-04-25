@@ -1,0 +1,55 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: CMake on a single platform
+
+on:
+  push:
+    branches: ["master"]    
+  pull_request:
+    branches: ["master"]
+  
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  EXTLIBS_ARCHIVE_PATH: extLibs  # Path to the .7z archives
+  EXTRACT_DIR: external  # Directory where files will be extracted
+  
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+        
+    - name: Get Visual C++ Installation Path
+      id: vswhere
+      shell: powershell
+      run: |
+        $VCInstallDir = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        echo "VCINSTALLDIR=$VCInstallDir/VC" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+    - name: Verify VC Install Directory
+      run: echo "VCINSTALLDIR=${{ env.VCINSTALLDIR }}"
+     
+    - name: Extract External Archives
+      run: |
+        7z x "${{ env.EXTLIBS_ARCHIVE_PATH }}/ExternalCode/*.7z" -o"${{ github.workspace }}/${{ env.EXTRACT_DIR }}" -y
+        
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{env.BUILD_TYPE}}
+

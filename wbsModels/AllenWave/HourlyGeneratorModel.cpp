@@ -100,7 +100,7 @@ namespace WBSF
 			Tair = To2 + b2*sqrt(t - Ho);
 		//}
 
-		ASSERT(Tair>MISSING);
+		ASSERT(Tair > WEATHER::MISSING);
 
 		return Tair;
 
