@@ -1,4 +1,5 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![CMake on a single platform](https://github.com/RNCan/WeatherBasedSimulationFramework/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/RNCan/WeatherBasedSimulationFramework/actions/workflows/build-and-test.yml)
 
 # WeatherBasedSimulationFramework
 
