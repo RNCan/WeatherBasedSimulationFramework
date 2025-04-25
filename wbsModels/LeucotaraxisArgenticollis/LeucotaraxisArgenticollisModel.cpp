@@ -27,23 +27,17 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.3 (2024)";
+		VERSION = "1.1.0 (2025)";
 
 
 		m_bApplyAttrition = false;
 		m_bCumul = false;
 
-		for (size_t p = 0; p < NB_EMERGENCE_PARAMS; p++)
-			m_adult_emerg[p] = CLeucotaraxisArgenticollisEquations::ADULT_EMERG[p];
-
-
-		for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
-			m_pupa_param[p] = CLeucotaraxisArgenticollisEquations::PUPA_PARAM[p];
-
-
-		for (size_t p = 0; p < NB_C_PARAMS; p++)
-			m_C_param[p] = CLeucotaraxisArgenticollisEquations::C_PARAM[p];
-
+		
+		m_adult_emerg = CLeucotaraxisArgenticollisEquations::ADULT_EMERG;
+		m_pupa_param = CLeucotaraxisArgenticollisEquations::PUPA_PARAM;
+		m_C_param = CLeucotaraxisArgenticollisEquations::C_PARAM;
+		m_EOD_param = CLeucotaraxisArgenticollisEquations::EOD_PARAM;
 	}
 
 	CLeucotaraxisArgenticollisModel::~CLeucotaraxisArgenticollisModel()
@@ -61,7 +55,7 @@ namespace WBSF
 		m_bApplyAttrition = parameters[c++].GetBool();
 		m_bCumul = parameters[c++].GetBool();
 
-		if (parameters.size() == 2 + LAZ::NB_EMERGENCE_PARAMS + NB_PUPA_PARAMS + NB_C_PARAMS)
+		if (parameters.size() == 2 + LAZ::NB_EMERGENCE_PARAMS + NB_PUPA_PARAMS + NB_C_PARAMS + NB_EOD_PARAMS)
 		{
 			for (size_t p = 0; p < LAZ::NB_EMERGENCE_PARAMS; p++)
 				m_adult_emerg[p] = parameters[c++].GetFloat();
@@ -71,7 +65,12 @@ namespace WBSF
 
 			for (size_t p = 0; p < NB_C_PARAMS; p++)
 				m_C_param[p] = parameters[c++].GetFloat();
+
+			for (size_t p = 0; p < NB_EOD_PARAMS; p++)
+				m_EOD_param[p] = parameters[c++].GetFloat();
 			
+
+			//m_pupa_param = { {0.0196,	0.0530, 3.1,	34.9,	34.9,	1.6836, 0.3828} };
 		}
 
 
@@ -112,14 +111,10 @@ namespace WBSF
 
 		stand.m_bApplyAttrition = m_bApplyAttrition;
 		//Set parameters to equation
-		for (size_t p = 0; p < LAZ::NB_EMERGENCE_PARAMS; p++)
-			stand.m_equations.m_adult_emerg[p] = m_adult_emerg[p];
-
-		for (size_t p = 0; p < NB_PUPA_PARAMS; p++)
-			stand.m_equations.m_pupa_param[p] = m_pupa_param[p];
-
-		for (size_t p = 0; p < NB_C_PARAMS; p++)
-			stand.m_equations.m_C_param[p] = m_C_param[p];
+		stand.m_equations.m_adult_emerg = m_adult_emerg;
+		stand.m_equations.m_pupa_param = m_pupa_param;
+		stand.m_equations.m_C_param = m_C_param;
+		stand.m_equations.m_EOD_param = m_EOD_param;
 
 		stand.init(year, weather);
 
@@ -197,6 +192,11 @@ namespace WBSF
 			ASSERT(obs.m_obs[O_N] >= 0);
 			ASSERT(obs.m_obs[O_P] >= 0 && obs.m_obs[O_P] <= 100);
 			m_SAResult.push_back(obs);
+
+			if (obs.m_obs[O_P] >= 5 && obs.m_obs[O_P] <= 95)
+			{
+				m_DOY[obs.m_obs[O_G]].insert(obs.m_ref.GetJDay());
+			}
 		}
 		
 
@@ -204,6 +204,38 @@ namespace WBSF
 
 
 
+	}
+
+	double GetSimX(size_t s, CTRef TRefO, double obs, const CModelStatVector& output)
+	{
+		double x = -999;
+
+		if (obs > -999)
+		{
+			//if (obs > 0.01 && obs < 99.99)
+			if (obs >= 100)
+				obs = 99.99;//to avoid some problem of truncation
+
+			long index = output.GetFirstIndex(s, ">=", obs, 1, CTPeriod(TRefO.GetYear(), JANUARY, DAY_01, TRefO.GetYear(), DECEMBER, DAY_31));
+			if (index >= 1)
+			{
+				double obsX1 = output.GetFirstTRef().GetJDay() + index;
+				double obsX2 = output.GetFirstTRef().GetJDay() + index + 1;
+
+				double obsY1 = output[index][s];
+				double obsY2 = output[index + 1][s];
+				if (obsY2 != obsY1)
+				{
+					double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
+					double obsX = obsX1 + (obs - obsY1) * slope;
+					ASSERT(!_isnan(obsX) && _finite(obsX));
+
+					x = obsX;
+				}
+			}
+		}
+
+		return x;
 	}
 
 	bool CLeucotaraxisArgenticollisModel::IsParamValid()const
@@ -271,7 +303,7 @@ namespace WBSF
 
 	bool CLeucotaraxisArgenticollisModel::CalibratePupaWithoutDiapause(CStatisticXY& stat)
 	{
-
+		bool bSuccess = true;
 		if (!m_SAResult.empty())
 		{
 			if (!m_weather.IsHourly())
@@ -320,15 +352,40 @@ namespace WBSF
 				{
 					if (output.IsInside(m_SAResult[i].m_ref))
 					{
-
+						size_t G = m_SAResult[i].m_obs[O_G];
+						size_t stage =  G == 0 ? S_EMERGENCE0 : S_EMERGENCE1a;
 						double obs_y = Round(m_SAResult[i].m_obs[O_P], 4);
-						double sim_y = Round(output[m_SAResult[i].m_ref][m_SAResult[i].m_obs[O_G]==0? S_EMERGENCE0:S_EMERGENCE1a], 4);
+						double sim_y = Round(output[m_SAResult[i].m_ref][stage], 4);
 						
 
 						if (obs_y > -999)
 						{
-							for (size_t ii = 0; ii < m_SAResult[i].m_obs[O_N]; ii++)
+							//for (size_t ii = 0; ii < m_SAResult[i].m_obs[O_N]; ii++)
 								stat.Add(obs_y, sim_y);
+
+
+							if (obs_y >= 5 && obs_y<= 95)
+							{
+								double obs_x = m_SAResult[i].m_ref.GetJDay();
+								double sim_x = GetSimX(stage, m_SAResult[i].m_ref, obs_y, output);
+
+								if (sim_x > -999)
+								{
+									obs_x = Round(100 * (obs_x - m_DOY[G][LOWEST]) / m_DOY[G][RANGE], 4);
+									sim_x = Round(100 * (sim_x - m_DOY[G][LOWEST]) / m_DOY[G][RANGE], 4);
+									
+									//for (size_t ii = 0; ii < m_SAResult[i].m_obs[O_N]; ii++)
+										stat.Add(obs_x, sim_x);
+								}
+								else
+								{
+									bSuccess = false;
+								}
+							}
+						}
+						else
+						{
+							bSuccess = false;
 						}
 					}
 				}//for all results
@@ -336,14 +393,14 @@ namespace WBSF
 			}
 		}
 
-		return true;
+		return bSuccess;// stat[NB_VALUE] == (m_SAResult.size() + m_DOY[0][NB_VALUE] + m_DOY[1][NB_VALUE]);
 	}
 
 
 	bool CLeucotaraxisArgenticollisModel::GetFValueDaily(CStatisticXY& stat)
 	{
-		if (!IsParamValid())
-			return false;
+		//if (!IsParamValid())
+			//return false;
 
 		return CalibratePupaWithoutDiapause(stat);
 	}

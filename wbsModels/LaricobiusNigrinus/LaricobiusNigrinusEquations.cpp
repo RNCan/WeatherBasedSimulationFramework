@@ -78,8 +78,8 @@ namespace WBSF
 
 
 
-	const double CLaricobiusNigrinusEquations::RDR[NB_STAGES][NB_RDR_PARAMS] =
-	{
+	const std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> CLaricobiusNigrinusEquations::RDR =
+	{{
 		//  a1      a2
 		{ 1.00, 0.00 },//Egg (correction factor)
 		{ 1.00, 0.00 },//Larvae (correction factor)
@@ -87,13 +87,13 @@ namespace WBSF
 		{ 0.00, 0.00 },//Pupae
 		{ 0.00, 0.00 },//Aestival diapause adult
 		{ 0.00, 0.00 },//Active adult
-	};
+	}};
 
 	
 	
-	const double CLaricobiusNigrinusEquations::OVP[NB_OVP_PARAMS] = { 220.3, 47.5, 2.1, 20.2 };//logistic distribution
-	const double CLaricobiusNigrinusEquations::ADE[NB_ADE_PARAMS] = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
-	const double CLaricobiusNigrinusEquations::EAS[NB_EAS_PARAMS] = { 1157.8,125.0,-2.5 };//logistic distribution
+	const std::array<double, LNF::NB_OVP_PARAMS> CLaricobiusNigrinusEquations::OVP = { 220.3, 47.5, 2.1, 20.2 };//logistic distribution
+	const std::array<double, LNF::NB_ADE_PARAMS> CLaricobiusNigrinusEquations::ADE = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
+	const std::array<double, LNF::NB_EAS_PARAMS> CLaricobiusNigrinusEquations::EAS = { 1157.8,125.0,-2.5 };//logistic distribution
 
 
 
@@ -109,22 +109,10 @@ namespace WBSF
 		CEquationTableLookup(RG, NB_STAGES, -10, 35, 0.25)
 	{
 
-		for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
-			{
-				m_RDR[s][p] = RDR[s][p];
-			}
-		}
-
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			m_OVP[p] = OVP[p];
-
-		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
-			m_ADE[p] = ADE[p];
-
-		for (size_t p = 0; p < NB_EAS_PARAMS; p++)
-			m_EAS[p] = m_EAS[p];
+		m_RDR = RDR;
+		m_OVP = OVP;
+		m_ADE = ADE;
+		m_EAS = m_EAS;
 	}
 
 

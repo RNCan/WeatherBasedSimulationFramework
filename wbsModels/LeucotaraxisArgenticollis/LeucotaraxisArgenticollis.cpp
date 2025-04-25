@@ -5,12 +5,17 @@
 //
 // Description: the CLeucotaraxisArgenticollis represents a group of L. Argenticollis insects scale by m_ScaleFactor
 //*****************************************************************************
+//salut
 
 #include "LeucotaraxisArgenticollisEquations.h"
 #include "LeucotaraxisArgenticollis.h"
 #include "Basic/DegreeDays.h"
 #include <boost/math/distributions/weibull.hpp>
 #include <boost/math/distributions/logistic.hpp>
+#include <boost/math/distributions/lognormal.hpp>
+#include <boost/math/distributions/beta.hpp>
+#include <random>
+
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -42,15 +47,23 @@ namespace WBSF
 		int year = creationDate.GetYear();
 
 
-		m_bDiapause = age == PUPAE;
-		m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.75;//diapause in generation 1 (75% of diapause)
-		if (GetStand()->CALIBRATE_PUPAE_AND_EMERGENCE_G2)
-			m_bDiapause1 = false;
+		m_bInDiapause = age == PUPAE;
+		m_bWillDiapause = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.75;//diapause in generation 1 (75% of diapause)
+		//if (GetStand()->CALIBRATE_PUPAE_AND_EMERGENCE_G2)
+		//	m_bWillDiapause = false;
 
 
 		m_creationDate = creationDate;
 		if (age == PUPAE)
-			m_adult_emergence_date = GetAdultEmergence(year);
+		{
+			m_age = PUPAE + GetPupaAge(year);
+			m_end_of_diapause = GetEndOfDiapause(year);
+
+			//m_age = PUPAE + GetPupaAge(year);
+			//m_end_of_diapause = CTRef(year, DECEMBER, DAY_31);
+		}
+			
+			
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
@@ -62,7 +75,7 @@ namespace WBSF
 		m_generationSurvival = { 0.05, 0.08 };
 
 //for Preston 2021 and Tonya 2024 experiment, we trick the input to mimic the experimental protocol
-		if (age == PUPAE)
+		//if (age == PUPAE)
 		{
 
 			static const array<string, 4> LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)" };
@@ -74,20 +87,20 @@ namespace WBSF
 					m_adult_emergence_date = LOC_DATE[i];
 			}
 
-			if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[0] && creationDate.GetYear() == LOC_DATE[0].GetYear())
-			{
-				m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.77;
-			}
-			else if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[2] && creationDate.GetYear() == LOC_DATE[2].GetYear())
-			{
-				m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.69;
-			}
+			//if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[0] && creationDate.GetYear() == LOC_DATE[0].GetYear())
+			//{
+			//	m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.77;
+			//}
+			//else if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[2] && creationDate.GetYear() == LOC_DATE[2].GetYear())
+			//{
+			//	m_bDiapause1 = GetStand()->RandomGenerator().Rand(0.0, 1.0) <= 0.69;
+			//}
 		}
 
 	} 
 
 
-	CTRef CLeucotaraxisArgenticollis::GetAdultEmergence(int year)const
+	/*CTRef CLeucotaraxisArgenticollis::GetAdultEmergence(int year)const
 	{
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
 		CTPeriod p = weather_station[year].GetEntireTPeriod(CTM::DAILY);
@@ -107,6 +120,117 @@ namespace WBSF
 
 		assert(adult_emergence.IsInit());
 		return adult_emergence;
+	}*/
+
+	double CLeucotaraxisArgenticollis::GetPupaAge(int year)const
+	{
+
+		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
+		const CLeucotaraxisArgenticollisEquations& equations = GetStand()->m_equations;
+
+		//Get mean January minimum temperature
+		//double Tjan = weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
+
+		double Tsummer = weather_station[year][JUNE].GetStat(H_TNTX)[MEAN];
+
+		
+		//Version larve et pupe
+		/*boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		double m = 0.95 - 0.9*boost::math::cdf(age_dist, Tjan);
+		double s = equations.m_C_param[C_P3];
+		
+		double a = m * (m * (1 - m) / (s*s) - 1); 
+		double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+		
+		boost::math::beta_distribution<double> i_age_dist(a, b);
+		double i_age = -0.3 + 1.25 * boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
+		*/
+
+		boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		double m = 0.05 + 0.90 * boost::math::cdf(age_dist, Tsummer);
+		double s = equations.m_C_param[C_P3];
+
+		double a = m * (m * (1 - m) / (s * s) - 1);
+		double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+
+		boost::math::beta_distribution<double> i_age_dist(a, b);
+		double i_age = boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
+
+		//version pupe seulement
+		//R²=0.84
+		//boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		//double m = 0.95 - 0.9*boost::math::cdf(age_dist, Tjan);//[0.05,0.95]
+		//double s = equations.m_C_param[C_P3];
+		//
+		//double a = m * (m * (1 - m) / (s * s) - 1);
+		//double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+		//
+		//boost::math::beta_distribution<double> i_age_dist(a, b);
+		//double i_age = boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
+
+
+		
+
+		//R²=86.2
+		//double random = GetStand()->RandomGenerator().RandNormal(0.0, equations.m_C_param[C_P3]);
+		//boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		//double i_age = 1 - boost::math::cdf(age_dist, Tjan) + random;
+		//while (i_age < 0 || i_age>0.95)
+		//{
+		//	random = GetStand()->RandomGenerator().RandNormal(0.0, equations.m_C_param[C_P3]);
+		//	i_age = 1 - boost::math::cdf(age_dist, Tjan) + random;
+		//}
+		
+		
+		//double random = 0;// GetStand()->RandomGenerator().RandNormal(0.0, equations.m_C_param[C_P3]);
+		//boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		//double i_age = 1 - 2*boost::math::cdf(age_dist, Tjan) + random;
+		//while (i_age < -1 || i_age>0.95)
+		//{
+		//	random = GetStand()->RandomGenerator().RandNormal(0.0, equations.m_C_param[C_P3]);
+		//	i_age = 1 - 2 * boost::math::cdf(age_dist, Tjan) + random;
+		//}
+
+		
+
+		return i_age;
+	}
+
+	CTRef CLeucotaraxisArgenticollis::GetEndOfDiapause(int year)const
+	{
+		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
+		const CLeucotaraxisArgenticollisEquations& equations = GetStand()->m_equations;
+		double Tjan = weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
+
+		double median_EOD = equations.m_C_param[C_P2] + Tjan * equations.m_C_param[EOD_A];
+		boost::math::lognormal_distribution<double> EOD_dist(log(max(0.01, median_EOD)), equations.m_EOD_param[EOD_B]);
+		size_t DOY = max(0.0, min(180.0, 2 * median_EOD - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+
+
+		//R²=86.2
+		//boost::math::lognormal_distribution<double> EOD_dist(log(max(0.01, equations.m_EOD_param[EOD_A])), equations.m_EOD_param[EOD_B]);
+		//double DOY = max(0.0, min(180.0, 2 * equations.m_C_param[C_P2] - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+		//double DOY = max(0.0, min(180.0, 2 * equations.m_EOD_param[EOD_A] - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+		
+		
+		
+		
+		
+		
+		//for(size_t i =0; DOY<0&&i<10; i++)
+		//	DOY = min(180.0, 2 * equations.m_C_param[C_P2] - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999)));
+		//
+		//if (DOY < 0)
+		//	DOY = 0;
+		
+
+
+		//size_t DOY = equations.m_C_param[C_P2];
+		CJDayRef end_of_diapause(year, DOY);
+		assert(end_of_diapause.IsInit());
+		return end_of_diapause;
+
+		
 	}
 
 	CLeucotaraxisArgenticollis& CLeucotaraxisArgenticollis::operator=(const CLeucotaraxisArgenticollis& in)
@@ -119,10 +243,10 @@ namespace WBSF
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-			m_bDiapause = in.m_bDiapause;
-			m_bDiapause1 = in.m_bDiapause1;
+			m_bInDiapause = in.m_bInDiapause;
+			m_bWillDiapause = in.m_bWillDiapause;
 			m_generationSurvival = in.m_generationSurvival;
-			m_adult_emergence_date = in.m_adult_emergence_date;
+			m_end_of_diapause = in.m_end_of_diapause;
 			m_reachDate = in.m_reachDate;
 			m_to = in.m_to;
 			m_t = in.m_t;
@@ -162,35 +286,67 @@ namespace WBSF
 		double nb_steps = (24.0 / timeStep);
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
+		
+
+
 
 		double T = weather[H_TAIR];
 		//double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
 
 		//Time step development rate 
-		double r = Equations().GetRate(s, T) / nb_steps;
-		if (s < PUPAE || m_bDiapause1)//|| m_bDiapause1
-			r *= Equations().m_C_param[1];
-		else if (s == PUPAE && !m_bDiapause1)
-			r = Equations().GetPupaRate(T) / nb_steps;
+		double r = Equations().GetRate(s, T) / nb_steps; 
+		
 
+		if (s == PUPAE && !m_bInDiapause)
+			r = Equations().GetUndiapausedPupaRate(T, m_generation) / nb_steps;
 
-
-
+		//if (s == PUPAE && m_generation == 1 && !m_bInDiapause)
+		if (s == LARVAE && m_generation == 1 && !m_bInDiapause)
+			r *= Equations().m_adult_emerg[delta];
 
 		//Relative development rate for this individual
 		double rr = m_RDR[s];
-		if (s == PUPAE && !m_bDiapause1)
-			rr = Equations().GetPupaRDR();
+		if (s == PUPAE && !m_bInDiapause)
+			rr = Equations().GetUndiapausedPupaRDR(m_generation);
 
 		//Time step development rate for this individual
 		r *= rr;
 		ASSERT(r >= 0 && r < 1);
 
-		//Adjust age
-		if (!m_bDiapause)
-			m_age += r;
+		//if (s == PUPAE)
+			//r *= pStand->m_equations.m_C_param[C_P1];
 
+
+		//Adjust age
+		//if (!m_bDiapause0)
+		
+		if (m_bInDiapause && IsChangingStage(r))//Want to change to adult, but is int diapause!!!!!
+		{	//r = 0;
+			assert(s == PUPAE);
+			m_bInDiapause = false;
+		}
+
+		if (!m_adult_emergence_date.IsInit())
+		{
+			if (!(m_generation == 2 && m_age >= PUPAE))
+				m_age += min(0.04, r);
+		}
+		else
+		{
+			//for prestion 2023 exception
+			if (s == PUPAE && m_generation == 0 && weather.GetTRef().as(CTM::DAILY) == m_adult_emergence_date)
+			{
+				m_age = ADULT;
+			}
+			else
+			{
+				if (!(m_generation == 2 && m_age >= PUPAE))
+					m_age += min(0.04, r);
+			}
+		}
+
+		
 		//evaluate attrition
 		if (GetStand()->m_bApplyAttrition)
 		{
@@ -232,21 +388,29 @@ namespace WBSF
 
 		ASSERT(IsCreated(weather.GetTRef()));
 
-		if (m_bDiapause && GetStage() == PUPAE && weather.GetTRef() == m_adult_emergence_date)
+		if (m_bInDiapause && weather.GetTRef() >= m_end_of_diapause)
 		{
-			ASSERT(m_generation == 0);
-			m_bDiapause = false;
-			m_age = ADULT;
+			//ASSERT(GetStage() >= PUPAE && GetStage() < ADULT);
+			ASSERT(m_generation <= 2);
+			m_bInDiapause = false;
 		}
 
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT/* && !m_bDiapause*/; step++)
+		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
+			
+			if (m_generation == 0 && GetStage() == PUPAE && HasChangedStage() && m_bInDiapause)
+				m_bInDiapause = false;//remove diapause when passing winter in larval stage
+
+
+			if (m_generation == 1 && GetStage() == PUPAE && HasChangedStage() && m_bWillDiapause)
+				m_bInDiapause = true;
+
 			if (m_generation == 2 && GetStage() >= PUPAE)
-				m_bDiapause = true;
+				m_bInDiapause = true;
 		}
 
 
@@ -355,10 +519,10 @@ namespace WBSF
 				if (s == ADULT && m_generation == 0)
 					stat[S_EMERGENCE0] += m_scaleFactor;
 
-				if (s == ADULT && m_generation == 1 && !m_bDiapause1)
+				if (s == ADULT && m_generation == 1 && !m_bWillDiapause)
 					stat[S_EMERGENCE1a] += m_scaleFactor;
 
-				if (s == ADULT && m_generation == 1 && m_bDiapause1)
+				if (s == ADULT && m_generation == 1 && m_bWillDiapause)
 					stat[S_EMERGENCE1b] += m_scaleFactor;
 			}
 
@@ -412,15 +576,18 @@ namespace WBSF
 
 	void CLAZStand::init(int year, const CWeatherYears& weather)
 	{
-		m_equations.GetAdultEmergenceCDD(weather, m_adult_emergence_CDD);
+		//m_equations.GetAdultEmergenceCDD(weather, m_adult_emergence_CDD);
 	}
 
 	void CLAZStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CStand::GetStat(d, stat, generation);
+		stat[S_CDD0] = -999;
+//		stat[S_CDD1] = -999;
 
-		stat[S_CDD0] = m_adult_emergence_CDD[0][d][0];
-		stat[S_CDD1] = m_adult_emergence_CDD[1][d][0];
+
+		//stat[S_CDD0] = m_adult_emergence_CDD[0][d][0];
+		//stat[S_CDD1] = m_adult_emergence_CDD[1][d][0];
 	}
 
 
