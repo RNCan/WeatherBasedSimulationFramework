@@ -25,13 +25,15 @@ namespace WBSF
 		m_workingDir(workingDir),
 		m_show_download(false),
 		m_bLand(false)
-	{}
+	{
+	}
 
 	CERA5::~CERA5(void)
-	{}
+	{
+	}
 
-//ERA5 is available on Google Drive: 
-//https://console.cloud.google.com/storage/browser/gcp-public-data-arco-era5/raw/date-variable-single_level/1942/01/01/2m_temperature?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&hl=fr&inv=1&invt=AbincQ
+	//ERA5 is available on Google Drive: 
+	//https://console.cloud.google.com/storage/browser/gcp-public-data-arco-era5/raw/date-variable-single_level/1942/01/01/2m_temperature?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&hl=fr&inv=1&invt=AbincQ
 
 	enum TERA5Var { ERA5_TMIN, ERA5_TMAX, ERA5_PRCP, ERA5_TDEW, ERA5_RELH, ERA5_WNDS, ERA5_WNDD, ERA5_SRAD, ERA5_PRES, ERA5_SNOW, ERA5_SNDH, ERA5_SWE, ERA5_GHGT, NB_ERA5_VARS };
 
@@ -169,7 +171,7 @@ namespace WBSF
 
 		string box_output("");//empty string by default for sprintf
 		string box_option("");//empty string by default for sprintf
-		if ( round(m_bounding_box.m_yMin) != -90 || round(m_bounding_box.m_xMin) != -180 || round(m_bounding_box.m_yMax) != 90 || round(m_bounding_box.m_xMax) != 180)
+		if (round(m_bounding_box.m_yMin) != -90 || round(m_bounding_box.m_xMin) != -180 || round(m_bounding_box.m_yMax) != 90 || round(m_bounding_box.m_xMax) != 180)
 		{
 			box_option = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
 
@@ -188,11 +190,11 @@ namespace WBSF
 
 		if (msg)
 		{
-			
+
 			//C:\Users\Remi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts
 			//string exe_path = "C:\\Users\\tigro\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\";
-			
-		
+
+
 			//if (m_bounding_box.m_xMax != -90 || m_bounding_box.m_yMin != -180 || m_bounding_box.m_xMin != 90 || m_bounding_box.m_yMax != 180)
 				//box_option = WBSF::FormatA(" --area %lf %lf %lf %lf", m_bounding_box.m_yMax, m_bounding_box.m_xMin, m_bounding_box.m_yMin, m_bounding_box.m_xMax);
 
@@ -205,7 +207,7 @@ namespace WBSF
 				land_option = " --land";
 
 			//Note here that the path of the python script where era5cli.exe is installed must be in the user path
-			string argument = "hourly --overwrite" + land_option +" --variables " + all_variables + date + box_option + " --levels surface --threads 1 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
+			string argument = "hourly --overwrite" + land_option + " --variables " + all_variables + date + box_option + " --levels surface --threads 1 --format grib --outputprefix \"" + output_filepath_tmp + "\"";
 			string command = "era5cli.exe " + argument;
 
 			//char Buffer[MAX_PATH * 10] = { 0 };
@@ -236,7 +238,7 @@ namespace WBSF
 			//			msg = WinExecWait(command, GetPath(output_filepath_tmp), m_show_download ? SW_SHOW : SW_HIDE);
 			//	}
 			//}
-			
+
 		}
 
 
@@ -261,7 +263,7 @@ namespace WBSF
 
 				if (!FileExists(output_filepath1))
 					msg.ajoute("File does't exist: " + output_filepath1);
-				
+
 				if (msg)
 				{
 					string output_filepath2 = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
@@ -290,28 +292,28 @@ namespace WBSF
 		msg = CreateMultipleDir(output_path);
 
 
-		size_t to_download=0;
+		size_t to_download = 0;
 		for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
 		{
 			string filepath = FormatA("%sERA5_%d%02d%02d_%s.nc", output_path.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
-			if(!FileExists(filepath))
+			if (!FileExists(filepath))
 				to_download++;
 		}
 
-		if (to_download==0)
+		if (to_download == 0)
 			return msg;
 
 
-		
-		callback.PushTask("Download ERA5 for day " + TRef.GetFormatedString(), to_download );
 
-		
-		
+		callback.PushTask("Download ERA5 for day " + TRef.GetFormatedString(), to_download);
+
+
+
 
 		if (msg)
 		{
 			CCallcURL cURL;
-			
+
 			for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
 			{
 				string URL = FormatA("https://storage.googleapis.com/gcp-public-data-arco-era5/raw/date-variable-single_level/2025/01/01/%s/surface.nc", ERA5_NAME_H[v].c_str());
@@ -335,7 +337,7 @@ namespace WBSF
 		ERMsg msg;
 
 		string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-		
+
 
 		//bool convert_xy = false;
 		array<CGDALDatasetEx, NB_ERA5_VARS_HOURLY> DSin;
@@ -351,20 +353,20 @@ namespace WBSF
 			else
 			{*/
 
-				//try with .nc
-				string input_filepath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.nc", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+			//try with .nc
+			string input_filepath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.nc", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 
-				if (FileExists(input_filepath))
-				{
+			if (FileExists(input_filepath))
+			{
 				//	convert_xy = true;//assuming all .grb or .nc
-					msg += DSin[v].OpenInputImage(input_filepath);
-					if (DSin[v].IsOpen() && DSin[v].GetRasterCount() != 24)
-					{
-						msg.ajoute("File don't have 24 hours:" + input_filepath);
-					}
-
+				msg += DSin[v].OpenInputImage(input_filepath);
+				if (DSin[v].IsOpen() && DSin[v].GetRasterCount() != 24)
+				{
+					msg.ajoute("File don't have 24 hours:" + input_filepath);
 				}
-		//	}
+
+			}
+			//	}
 		}
 
 
@@ -376,6 +378,8 @@ namespace WBSF
 			DSin[0].UpdateOption(options);
 
 			options.m_nbBands = NB_ERA5_VARS;
+			options.m_extents.m_xMin -= 180.0;//convert  [0,360] to [-180,180]
+			options.m_extents.m_xMax -= 180.0;//convert  [0,360] to [-180,180]
 			options.m_extents.m_xBlockSize = 256;
 			options.m_extents.m_yBlockSize = 256;
 			options.m_outputType = GDT_Float32;
@@ -412,7 +416,7 @@ namespace WBSF
 					if (DSin[v].IsOpen())
 					{
 						ASSERT(DSin[v].GetRasterCount() == 24);
-						
+
 
 						for (size_t h = 0; h < DSin[v].GetRasterCount() && msg; h++)
 						{
@@ -435,8 +439,8 @@ namespace WBSF
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
 									//data_T[xy] += data_h[xy] - 273.15;
-									if(data_h[xy]!= no_data)
-										data_T[xy] += (data_h[xy]* scale+offset) - 273.15;
+									if (data_h[xy] != no_data)
+										data_T[xy] += (data_h[xy] * scale + offset) - 273.15;
 								}
 								break;
 							}
@@ -458,7 +462,7 @@ namespace WBSF
 								//Reload hourly values
 								vector<__int32> Tair_h(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
 								GDALRasterBand* pBandinTair = DSin[H_ERA5_TAIR].GetRasterBand(h);
-								
+
 								pBandinTair->RasterIO(GF_Read, 0, 0, DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), &(Tair_h[0]), DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), GDT_Int32, 0, 0);
 								double Tscale = pBandinTair->GetScale();
 								double Toffset = pBandinTair->GetOffset();
@@ -474,7 +478,7 @@ namespace WBSF
 										data[ERA5_TDEW][xy] += Tdew / 24;
 										data[ERA5_RELH][xy] += RH / 24;
 									}
-									 
+
 									//data[ERA5_TDEW][xy] += ((data_h[xy] * scale + offset) - 273.15) / 24;
 									//data[ERA5_RELH][xy] += WBSF::Td2Hr(((Tair_h[xy] * Tscale + Toffset) - 273.15), ((data_h[xy] * scale + offset) - 273.15)) / 24;
 								}
@@ -488,7 +492,7 @@ namespace WBSF
 
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									if(data_h[xy] != no_data)
+									if (data_h[xy] != no_data)
 										data_u[xy] += (data_h[xy] * scale + offset) * 3600 / 1000;//m/s --> km/h;
 								}
 
@@ -508,14 +512,14 @@ namespace WBSF
 							}
 							case H_ERA5_SRAD:
 							{
-								double factor = (ERA5_NAME_H[H_ERA5_SRAD] == "surface_net_solar_radiation") ? 3600.0: 1.0;
-				
-				
+								double factor = (ERA5_NAME_H[H_ERA5_SRAD] == "surface_net_solar_radiation") ? 3600.0 : 1.0;
+
+
 								ASSERT(data[ERA5_SRAD].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
 									if (data_h[xy] != no_data)
-										data[ERA5_SRAD][xy] += (data_h[xy] * scale + offset) / (factor*24);
+										data[ERA5_SRAD][xy] += (data_h[xy] * scale + offset) / (factor * 24);
 								}
 								break;
 							}
@@ -553,7 +557,7 @@ namespace WBSF
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
 									ASSERT((data_h[xy] * scale + offset) >= 0);
-									
+
 									if (data_h[xy] != no_data)
 										data[ERA5_SWE][xy] += ((data_h[xy] * scale + offset) * 1000) / 24;//m --> mm
 								}
@@ -575,7 +579,7 @@ namespace WBSF
 									ASSERT((data_h[xy] * scale + offset) >= 0);
 									if (SWE_h[xy] != no_data && data_h[xy] != no_data)
 									{
-										double SWE = (SWE_h[xy] * SWEscale + SWEoffset ) * 997;
+										double SWE = (SWE_h[xy] * SWEscale + SWEoffset) * 997;
 										double SD = (data_h[xy] * scale + offset);
 										data[ERA5_SNDH][xy] += ((SWE / SD) * 100) / 24;// m*kg/m³/ kg/m³ --> cm
 									}
@@ -588,7 +592,7 @@ namespace WBSF
 								ASSERT(data[ERA5_GHGT].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									if(data_h[xy] != no_data)
+									if (data_h[xy] != no_data)
 										data[ERA5_GHGT][xy] += ((data_h[xy] * scale + offset) / 9.8) / 24;//Divide by acceleration at surface m²/s² --> m
 								}
 
@@ -622,10 +626,28 @@ namespace WBSF
 
 				for (size_t v = 0; v < NB_ERA5_VARS; v++)
 				{
-
 					GDALRasterBand* pBandout = DSout.GetRasterBand(v);
 
-					pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[v][0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
+					size_t size_x = DSout.GetRasterXSize();
+					size_t size_y = DSout.GetRasterYSize();
+					ASSERT(size_x* size_y== size_xy);
+
+					//-180.1250000000000000,-90.1250000000000000 : 179.8750000000000000,90.1250000000000000
+					//-0.1250000000000000,-90.1250000000000000 : 359.8750000000000000,90.1250000000000000
+					//Covert [0, 360] to [-180, 180]
+					vector<float> data_out(data[v].size());
+					for (size_t y = 0; y < size_y; y++)
+					{
+						for (size_t x = 0; x < size_x; x++)
+						{
+							size_t xy_in = y * size_x + x;
+							size_t xy_out = y * size_x + ((x+size_x/2)%size_x);
+							data_out[xy_out] = data[v][xy_in];
+						}
+					}
+
+
+					pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data_out[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
 
 					pBandout->SetDescription(ERA5_META_DATA[v][M_DESC]);
 					pBandout->SetMetadataItem("GRIB_COMMENT", ERA5_META_DATA[v][M_COMMENT]);
