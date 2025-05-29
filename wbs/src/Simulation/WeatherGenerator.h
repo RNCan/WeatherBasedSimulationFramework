@@ -44,7 +44,7 @@ namespace WBSF
 
 
 		enum TWarning{ W_DATA_FILLED_WITH_NORMAL, W_UNEEDED_REPLICATION, NB_WARNING };
-		static void OutputWarning(const std::bitset<NB_WARNING>& bits, CCallback& callback);
+		static void OutputWarning(const std::bitset<NB_WARNING>& bits, CWVariablesCounter& missing, CCallback& callback);
 		static void ExposureIndices(double exposure_index[12], double latit, double elev, float slope, float orientation, short albedoType);
 		static int Sol9(double inlatit, double inelev, double inslope, double inazimuth, double *expin);
 		static void CompleteSimpleVariables(CSimulationPoint& simulationPoint, CWVariables variables);
@@ -98,6 +98,7 @@ namespace WBSF
 		void RemoveForecast(CSimulationPoint& simulationPoint);
 
 		const std::bitset<NB_WARNING>& GetWarningBits()const { return m_warning; }
+		const CWVariablesCounter& GetMissingCount() const { return m_missing; }
 
 	protected:
 
@@ -122,6 +123,7 @@ namespace WBSF
 		CSeedMatrix m_seedMatrix;	//seed for random generator for each iteration
 		CWeatherGradient m_gradients;	//gradient at the target location
 		std::bitset<NB_WARNING> m_warning;
+		CWVariablesCounter m_missing;//Keep track of number of missing days/hours
 
 		//new result
 		CSimulationPointVector m_simulationPoints;

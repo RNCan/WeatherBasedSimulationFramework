@@ -662,7 +662,20 @@ namespace WBSF
 						if (!m_tgi.m_bNoFillMissing)
 						{
 							if (!m_tgi.IsNormals())
+							{
 								m_warning.set(W_DATA_FILLED_WITH_NORMAL);
+								CWVariablesCounter count = m_simulationPoints[0].GetVariablesCount(true);//return count in days
+								
+								for (size_t v = 0; v < m_missing.size(); v++)
+								{
+									if (m_tgi.m_variables[v])
+									{
+										m_missing[v].first = m_simulationPoints[0].GetNbDays() - count[v].first;
+										m_missing[v].second = count[v].second;
+									}
+								}
+								
+							}
 
 							msg = GenerateNormals(m_simulationPoints, callback);
 						}
@@ -2172,7 +2185,7 @@ namespace WBSF
 		ASSERT(m_seedMatrix.size() == m_nbReplications);
 	}
 
-	void CWeatherGenerator::OutputWarning(const std::bitset<NB_WARNING>& warning, CCallback& callback)
+	void CWeatherGenerator::OutputWarning(const std::bitset<NB_WARNING>& warning, CWVariablesCounter& missing, CCallback& callback)
 	{
 		for (size_t i = 0; i < warning.size(); i++)
 		{
@@ -2189,6 +2202,17 @@ namespace WBSF
 
 		}
 
+		if (warning.test(0))
+		{
+			for (size_t v = 0; v < missing.size(); v++)
+			{
+				if (missing[v].first > 0)
+				{
+					string msg = FormatA("%s: %d", GetVariableAbvr(v), missing[v].first);
+					callback.AddMessage(msg);
+				}
+			}
+		}
 	}
 
 }

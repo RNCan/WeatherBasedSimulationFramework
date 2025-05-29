@@ -766,6 +766,8 @@ namespace WBSF
 			}
 
 			vector<std::bitset<CWeatherGenerator::NB_WARNING>> warning(nbThreadsLoc);
+			vector<CWVariablesCounter> missing_counter(nbThreadsLoc);
+			
 
 			size_t n = 0;//progress
 
@@ -793,6 +795,7 @@ namespace WBSF
 
 					ERMsg msgTmp = WG.Generate(callback);
 					warning[thread] |= WG.GetWarningBits();
+					missing_counter[thread] += WG.GetMissingCount();
 
 #pragma omp flush(msg)
 					if (msg && !msgTmp)
@@ -846,9 +849,14 @@ namespace WBSF
 			for (size_t i = 1; i < warning.size(); i++)
 			{
 				warning[0] |= warning[i];
+				missing_counter[0] += missing_counter[i];
 			}
 
-			CWeatherGenerator::OutputWarning(warning[0], callback);
+			//devide by the number of LOC
+			//missing_counter[0] /= locations.size();
+			
+
+			CWeatherGenerator::OutputWarning(warning[0], missing_counter[0], callback);
 		}//if open result
 
 
