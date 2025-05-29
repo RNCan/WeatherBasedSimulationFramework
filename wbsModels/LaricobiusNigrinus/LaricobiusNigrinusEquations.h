@@ -3,7 +3,8 @@
 //*****************************************************************************
 #pragma once
 
-#include "crtdbg.h"
+#include <array>
+#include <cassert>
 #include "ModelBase/EquationTableLookup.h"
 
 namespace WBSF
@@ -25,15 +26,15 @@ namespace WBSF
 	{
 	public:
 
-		static const double RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //relative development parameter
-		static const double OVP[LNF::NB_OVP_PARAMS];//oviposition parameters
-		static const double ADE[LNF::NB_ADE_PARAMS];//AdultAestivalDiapauseEnd parameters
-		static const double EAS[LNF::NB_EAS_PARAMS];//AdultAestivalDiapauseEnd parameters
+		static const std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> RDR; //relative development parameter
+		static const std::array<double, LNF::NB_OVP_PARAMS> OVP;//oviposition parameters
+		static const std::array<double, LNF::NB_ADE_PARAMS> ADE;//AdultAestivalDiapauseEnd parameters
+		static const std::array<double, LNF::NB_EAS_PARAMS> EAS;//AdultAestivalDiapauseEnd parameters
 		
-		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS]; //relative development parameter
-		double m_OVP[LNF::NB_OVP_PARAMS];//Creation (initial oviposition) parameters
-		double m_ADE[LNF::NB_ADE_PARAMS];//AestivalDiapauseEnd parameters
-		double m_EAS[LNF::NB_EAS_PARAMS];//Emerging Adult from Soil parameters
+		std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR; //relative development parameter
+		std::array<double, LNF::NB_OVP_PARAMS> m_OVP;//Creation (initial oviposition) parameters
+		std::array<double, LNF::NB_ADE_PARAMS> m_ADE;//AestivalDiapauseEnd parameters
+		std::array<double, LNF::NB_EAS_PARAMS> m_EAS;//Emerging Adult from Soil parameters
 		
 		CLaricobiusNigrinusEquations(const CRandomGenerator& RG);
 		

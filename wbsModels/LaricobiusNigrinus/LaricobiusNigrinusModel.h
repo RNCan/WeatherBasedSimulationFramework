@@ -25,10 +25,10 @@ namespace WBSF
 
 		bool m_bCumul;
 		bool m_bApplyAttrition;
-		double m_RDR[LNF::NB_STAGES][LNF::NB_RDR_PARAMS];
-		double m_OVP[LNF::NB_OVP_PARAMS];
-		double m_ADE[LNF::NB_ADE_PARAMS];
-		double m_EAS[LNF::NB_EAS_PARAMS];
+		std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR;
+		std::array<double, LNF::NB_OVP_PARAMS> m_OVP;
+		std::array<double, LNF::NB_ADE_PARAMS> m_ADE;
+		std::array<double, LNF::NB_EAS_PARAMS> m_EAS;
 
 		std::array < std::set<int>, NB_INPUTS> m_years;
 		std::array<CStatistic, NB_INPUTS> m_nb_days;

@@ -31,10 +31,10 @@ namespace WBSF
 //La	2	1686	45	2.5		50.0	935.8	53.11	0.978
 
 
-	const array<double, LAZ::NB_EMERGENCE_PARAMS> CLeucotaraxisArgenticollisEquations::ADULT_EMERG = { -999, 32.06, 45, 2.5, 18.5 };//logistic distribution
-	const array<double, LAZ::NB_PUPA_PARAMS> CLeucotaraxisArgenticollisEquations::PUPA_PARAM = { 0.2404,0.3327,0.6,8.2,33.6,1.038,0.3404 };//Wang/Lang/Ding parameters (without diapause)
-	const array<double, LAZ::NB_C_PARAMS> CLeucotaraxisArgenticollisEquations::C_PARAM = { 0.9475, 1.077, 1.000 };//correction factor to get reasonable parameters for Pupae
-	const array<double, LAZ::NB_EOD_PARAMS> CLeucotaraxisArgenticollisEquations::EOD_PARAM = { -9.9, 259.8 };//End of diapause correction
+	const array<double, LAZ::NB_EMERGENCE_PARAMS> CLeucotaraxisArgenticollisEquations::ADULT_EMERG = { 1, 1, 2.47, -999, -999 };//logistic distribution
+	const array<double, LAZ::NB_PUPA_PARAMS> CLeucotaraxisArgenticollisEquations::PUPA_PARAM = { 0.23, 0.1149, 3.1, 26.5, 34.9, 4.726, 0.4892 };//Wang/Lang/Ding pupa parameters without diapause
+	const array<double, LAZ::NB_C_PARAMS> CLeucotaraxisArgenticollisEquations::C_PARAM = { -9.3, 3.55, 31, 0.126 };//correction factor to get reasonable parameters for Pupae
+	const array<double, LAZ::NB_EOD_PARAMS> CLeucotaraxisArgenticollisEquations::EOD_PARAM = { -999, -999 };//End of diapause correction
 	
 
 	CLeucotaraxisArgenticollisEquations::CLeucotaraxisArgenticollisEquations(const CRandomGenerator& RG) :
@@ -83,23 +83,38 @@ namespace WBSF
 		return r;
 	}
 
-	double CLeucotaraxisArgenticollisEquations::GetPupaRate(double T)const
+	/*double CLeucotaraxisArgenticollisEquations::GetAdultAging(double T)const
+	{
+		vector<double> p(2) = { 1.0/22.5*m_EOD_param[EOD_A],0.0 }
+		double r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::Poly1, p, T));
+		
+		return r;
+	}*/
+
+
+	double CLeucotaraxisArgenticollisEquations::GetUndiapausedPupaRate(double T, size_t g)const
 	{
 		//psi Tb To Tm sigma
+		//vector<double> p(begin(g==0?m_pupa_param: PUPA_PARAM), end(g==0?m_pupa_param:PUPA_PARAM));
+
 		vector<double> p(begin(m_pupa_param), end(m_pupa_param));
-		double r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::WangLanDing_1982, p, T));
+
+		double r = max(0.0, min(0.5, CDevRateEquation::GetRate(CDevRateEquation::WangLanDing_1982, p, T)));
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 		return r;
 	}
 
-	double CLeucotaraxisArgenticollisEquations::GetPupaRDR()const
+	double CLeucotaraxisArgenticollisEquations::GetUndiapausedPupaRDR(size_t g)const
 	{
-
-		boost::math::lognormal_distribution<double> ln_dist(-WBSF::Square(m_pupa_param[PUPA_S]) / 2.0, m_pupa_param[PUPA_S]);
-		double rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
-		while (rT < 0.2 || rT>2.6)//base on individual observation
-			rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
+		//double sigma = g == 0 ? m_pupa_param[PUPA_S] : PUPA_PARAM[PUPA_S];
+		
+		double sigma = m_pupa_param[PUPA_S];
+		boost::math::lognormal_distribution<double> ln_dist(-WBSF::Square(sigma) / 2.0, sigma);
+		double rT = boost::math::quantile(ln_dist, m_randomGenerator.Rand(0.001, 0.999));
+		//double rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
+		//while (rT < 0.2 || rT>2.6)//base on individual observation
+			//rT = boost::math::quantile(ln_dist, m_randomGenerator.Randu(true, true));
 
 		_ASSERTE(!_isnan(rT) && _finite(rT));
 
@@ -131,8 +146,6 @@ namespace WBSF
 			return 1;
 
 		double rdt = RDT[s][σ];
-		if (s < PUPAE )
-			rdt *= m_C_param[2];
 
 
 		double RDR = 0;
@@ -208,33 +221,33 @@ namespace WBSF
 	//*****************************************************************************
 	//
 
-	void CLeucotaraxisArgenticollisEquations::GetAdultEmergenceCDD(const CWeatherYears& weather, array < CModelStatVector, 2>& CDD)const
-	{
-		CDegreeDays DDmodel0(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
-		CDegreeDays DDmodel1(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], 50);//for valudation perpose only
+	//void CLeucotaraxisArgenticollisEquations::GetAdultEmergenceCDD(const CWeatherYears& weather, array < CModelStatVector, 2>& CDD)const
+	//{
+	//	CDegreeDays DDmodel0(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
+	//	CDegreeDays DDmodel1(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], 50);//for valudation perpose only
 
-		DDmodel0.GetCDD(int(m_adult_emerg[delta]), weather, CDD[0]);
-		DDmodel1.GetCDD(int(m_adult_emerg[delta]), weather, CDD[1]);
-	}
-
-
-	double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double TjanIn)const
-	{
-		double Tjan = max(-9.2, TjanIn);
-		double mu = m_EOD_param[EOD_B] * (Tjan - m_EOD_param[EOD_A]) / (1 + Tjan - m_EOD_param[EOD_A]);
-		boost::math::logistic_distribution<double> emerging_dist(mu, m_adult_emerg[ѕ]);
-
-		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
-		double p = boost::math::cdf(emerging_dist, CDD);
-		while (p < 0.01 || p>0.99)
-		{
-			CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
-			p = boost::math::cdf(emerging_dist, CDD);
-		}
+	//	DDmodel0.GetCDD(int(m_adult_emerg[delta]), weather, CDD[0]);
+	//	DDmodel1.GetCDD(int(m_adult_emerg[delta]), weather, CDD[1]);
+	//}
 
 
-		return CDD;
-	}
+	//double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double TjanIn)const
+	//{
+	//	double Tjan = max(-9.2, TjanIn);
+	//	double mu = m_EOD_param[EOD_B] * (Tjan - m_EOD_param[EOD_A]) / (1 + Tjan - m_EOD_param[EOD_A]);
+	//	boost::math::logistic_distribution<double> emerging_dist(mu, m_adult_emerg[ѕ]);
+
+	//	double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
+	//	double p = boost::math::cdf(emerging_dist, CDD);
+	//	while (p < 0.01 || p>0.99)
+	//	{
+	//		CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
+	//		p = boost::math::cdf(emerging_dist, CDD);
+	//	}
+
+
+	//	return CDD;
+	//}
 
 	//****************************************************************************
 	//
@@ -244,16 +257,16 @@ namespace WBSF
 		//Range 3 to 18 days, median 13 days, n = 13 females who laid eggs
 		//Range 4 to 57 days, median 22.5 days, n = 16 females
 
-		static const double m = 13;
-		static const double E = 2 * m;
-		static const double s = 0.22;
+		double m = 13;
+		double E = 2 * m;
+		double s = 0.22;
 
 		boost::math::lognormal_distribution<double> To(log(E - m), s);
 
-		double to = E - boost::math::quantile(To, m_randomGenerator.Rand(0.01, 0.99));//Give 4 to 18 
+		double to = max(0.0, E - boost::math::quantile(To, m_randomGenerator.Rand(0.01, 0.99)));//Give 4 to 18 
 
 
-		return to * m_C_param[0];//adjusted to avoid unrealistic rate for pupa
+		return to;//adjusted to avoid unrealistic rate for pupa
 	}
 
 

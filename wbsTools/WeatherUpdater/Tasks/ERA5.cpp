@@ -1,10 +1,11 @@
 #include "StdAfx.h"
 #include "ERA5.h"
 #include "Basic/WeatherStation.h"
+#include "Basic/CallcURL.h"
 #include "Geomatic/ShapeFileBase.h"
-#include "TaskFactory.h"
 #include "Geomatic/TimeZones.h"
 #include "Geomatic/SfcGribsDatabase.h"
+#include "TaskFactory.h"
 #include "UI/Common/SYShowMessage.h"
 
 #include "WeatherBasedSimulationString.h"
@@ -91,7 +92,7 @@ namespace WBSF
 					string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
 					if (!FileExists(output_file_path))
 					{
-						msg += DownloadERA5(TRef, callback);
+						msg += DownloadERA5GoogleCloud(TRef, callback);
 						if (msg)
 							msg += CreateDailyGeotiff(TRef, callback);
 					}
@@ -281,34 +282,96 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CERA5::DownloadERA5GoogleCloud(CTRef TRef, CCallback& callback)const
+	{
+		ERMsg msg;
+
+		string output_path = FormatA("%s%d\\%02d\\%02d\\", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+		msg = CreateMultipleDir(output_path);
+
+
+		size_t to_download=0;
+		for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
+		{
+			string filepath = FormatA("%sERA5_%d%02d%02d_%s.nc", output_path.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+			if(!FileExists(filepath))
+				to_download++;
+		}
+
+		if (to_download==0)
+			return msg;
+
+
+		
+		callback.PushTask("Download ERA5 for day " + TRef.GetFormatedString(), to_download );
+
+		
+		
+
+		if (msg)
+		{
+			CCallcURL cURL;
+			
+			for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
+			{
+				string URL = FormatA("https://storage.googleapis.com/gcp-public-data-arco-era5/raw/date-variable-single_level/2025/01/01/%s/surface.nc", ERA5_NAME_H[v].c_str());
+				string filepath = FormatA("%sERA5_%04d%02d%02d_%s.nc", output_path.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+				if (!FileExists(filepath))
+				{
+					msg += cURL.copy_file(URL, filepath);
+					msg += callback.StepIt();
+				}
+			}
+		}
+
+		callback.PopTask();
+
+		return msg;
+	}
+
 
 	ERMsg CERA5::CreateDailyGeotiff(CTRef TRef, CCallback& callback)const
 	{
 		ERMsg msg;
 
 		string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-		//if (FileExists(output_file_path))
-			//return msg;
+		
 
-		//size_t nb_bands = 0;
+		//bool convert_xy = false;
 		array<CGDALDatasetEx, NB_ERA5_VARS_HOURLY> DSin;
 		for (size_t v = 0; v < NB_ERA5_VARS_HOURLY; v++)
 		{
-			string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+			//try with .grb
+			/*string inputFilePath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.grb", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 
 			if (FileExists(inputFilePath))
 			{
 				msg += DSin[v].OpenInputImage(inputFilePath);
 			}
+			else
+			{*/
+
+				//try with .nc
+				string input_filepath = FormatA("%s%d\\%02d\\%02d\\ERA5_%d%02d%02d_%s.nc", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
+
+				if (FileExists(input_filepath))
+				{
+				//	convert_xy = true;//assuming all .grb or .nc
+					msg += DSin[v].OpenInputImage(input_filepath);
+					if (DSin[v].IsOpen() && DSin[v].GetRasterCount() != 24)
+					{
+						msg.ajoute("File don't have 24 hours:" + input_filepath);
+					}
+
+				}
+		//	}
 		}
 
 
 		if (msg)
 		{
-			//size_t nb_days = DSin[0].GetRasterCount();
 			callback.PushTask("Create ERA5 for day " + TRef.GetFormatedString(), NB_ERA5_VARS_HOURLY * 24);
 
-			float no_data = 9999;// GetDefaultNoData(GDT_Int16);
 			CBaseOptions options;
 			DSin[0].UpdateOption(options);
 
@@ -316,7 +379,7 @@ namespace WBSF
 			options.m_extents.m_xBlockSize = 256;
 			options.m_extents.m_yBlockSize = 256;
 			options.m_outputType = GDT_Float32;
-			options.m_dstNodata = no_data;
+			options.m_dstNodata = (float)GetDefaultNoData(GDT_Float32);
 			options.m_bOverwrite = true;
 			options.m_bComputeStats = true;
 			options.m_createOptions.push_back("COMPRESS=LZW");
@@ -349,14 +412,20 @@ namespace WBSF
 					if (DSin[v].IsOpen())
 					{
 						ASSERT(DSin[v].GetRasterCount() == 24);
+						
+
 						for (size_t h = 0; h < DSin[v].GetRasterCount() && msg; h++)
 						{
 							GDALRasterBand* pBandin = DSin[v].GetRasterBand(h);
 							ASSERT(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize() == size_xy);
 
-							float no_data_in = DSin[v].GetNoData(0);
-							vector<float> data_h(size_xy);
-							pBandin->RasterIO(GF_Read, 0, 0, DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), &(data_h[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
+							//float no_data_in = DSin[v].GetNoData(0);
+							__int32 no_data = (__int32)DSin[v].GetNoData(h);
+							vector<__int32> data_h(size_xy);
+							pBandin->RasterIO(GF_Read, 0, 0, DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), &(data_h[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Int32, 0, 0);
+							double scale = pBandin->GetScale();
+							double offset = pBandin->GetOffset();
+
 
 							switch (v)
 							{
@@ -365,7 +434,9 @@ namespace WBSF
 								ASSERT(data_T.size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data_T[xy] += data_h[xy] - 273.15;
+									//data_T[xy] += data_h[xy] - 273.15;
+									if(data_h[xy]!= no_data)
+										data_T[xy] += (data_h[xy]* scale+offset) - 273.15;
 								}
 								break;
 							}
@@ -374,7 +445,8 @@ namespace WBSF
 								ASSERT(data[ERA5_PRCP].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data[ERA5_PRCP][xy] += data_h[xy] * 1000;//m --> mm
+									if (data_h[xy] != no_data)
+										data[ERA5_PRCP][xy] += (data_h[xy] * scale + offset) * 1000;//m --> mm
 								}
 
 								break;
@@ -382,15 +454,29 @@ namespace WBSF
 							case H_ERA5_TDEW:
 							{
 								ASSERT(data[ERA5_TDEW].size() == data_h.size());
-								vector<float> Tair_h(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
 
+								//Reload hourly values
+								vector<__int32> Tair_h(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
 								GDALRasterBand* pBandinTair = DSin[H_ERA5_TAIR].GetRasterBand(h);
-								pBandinTair->RasterIO(GF_Read, 0, 0, DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), &(Tair_h[0]), DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), GDT_Float32, 0, 0);
+								
+								pBandinTair->RasterIO(GF_Read, 0, 0, DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), &(Tair_h[0]), DSin[H_ERA5_TAIR].GetRasterXSize(), DSin[H_ERA5_TAIR].GetRasterYSize(), GDT_Int32, 0, 0);
+								double Tscale = pBandinTair->GetScale();
+								double Toffset = pBandinTair->GetOffset();
 
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data[ERA5_TDEW][xy] += (data_h[xy] - 273.15) / 24;
-									data[ERA5_RELH][xy] += WBSF::Td2Hr((Tair_h[xy] - 273.15), (data_h[xy] - 273.15)) / 24;
+									if (Tair_h[xy] != no_data && data_h[xy] != no_data)
+									{
+										double Tair = (Tair_h[xy] * Tscale + Toffset) - 273.15;
+										double Tdew = (data_h[xy] * scale + offset) - 273.15;
+										double RH = WBSF::Td2Hr(Tair, Tdew);
+
+										data[ERA5_TDEW][xy] += Tdew / 24;
+										data[ERA5_RELH][xy] += RH / 24;
+									}
+									 
+									//data[ERA5_TDEW][xy] += ((data_h[xy] * scale + offset) - 273.15) / 24;
+									//data[ERA5_RELH][xy] += WBSF::Td2Hr(((Tair_h[xy] * Tscale + Toffset) - 273.15), ((data_h[xy] * scale + offset) - 273.15)) / 24;
 								}
 
 
@@ -402,7 +488,8 @@ namespace WBSF
 
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data_u[xy] += data_h[xy] * 3600 / 1000;//m/s --> km/h;
+									if(data_h[xy] != no_data)
+										data_u[xy] += (data_h[xy] * scale + offset) * 3600 / 1000;//m/s --> km/h;
 								}
 
 
@@ -413,7 +500,8 @@ namespace WBSF
 								ASSERT(data_v.size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data_v[xy] += data_h[xy] * 3600 / 1000;//m/s --> km/h;
+									if (data_h[xy] != no_data)
+										data_v[xy] += (data_h[xy] * scale + offset) * 3600 / 1000;//m/s --> km/h;
 								}
 
 								break;
@@ -426,8 +514,8 @@ namespace WBSF
 								ASSERT(data[ERA5_SRAD].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-				
-									data[ERA5_SRAD][xy] += data_h[xy] / (factor*24);
+									if (data_h[xy] != no_data)
+										data[ERA5_SRAD][xy] += (data_h[xy] * scale + offset) / (factor*24);
 								}
 								break;
 							}
@@ -436,7 +524,8 @@ namespace WBSF
 								ASSERT(data[ERA5_PRES].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data[ERA5_PRES][xy] += (data_h[xy] / 100) / 24;//Pa --> hPa
+									if (data_h[xy] != no_data)
+										data[ERA5_PRES][xy] += ((data_h[xy] * scale + offset) / 100) / 24;//Pa --> hPa
 								}
 								break;
 							}
@@ -446,12 +535,13 @@ namespace WBSF
 								ASSERT(data[ERA5_SNOW].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									double v = data_h[xy] * 1000;//m --> mm
+									double v = (data_h[xy] * scale + offset) * 1000;//m --> mm
 									ASSERT(v >= 0);
-									if (v < 0.001)
+									if (data_h[xy] != no_data && v < 0.001)
 										v = 0;
 
-									data[ERA5_SNOW][xy] += v;
+									if (data_h[xy] != no_data)
+										data[ERA5_SNOW][xy] += v;
 
 								}
 
@@ -462,24 +552,33 @@ namespace WBSF
 								ASSERT(data[ERA5_SWE].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									ASSERT(data_h[xy] >= 0);
-									data[ERA5_SWE][xy] += (data_h[xy] * 1000) / 24;//m --> mm
+									ASSERT((data_h[xy] * scale + offset) >= 0);
+									
+									if (data_h[xy] != no_data)
+										data[ERA5_SWE][xy] += ((data_h[xy] * scale + offset) * 1000) / 24;//m --> mm
 								}
 								break;
 							}
 							case H_ERA5_SNOW_DENSITY:
 							{
-								vector<float> SWE_h(size_xy);
+								vector<__int32> SWE_h(size_xy);
 
-								GDALRasterBand* pBandinV = DSin[H_ERA5_SWE].GetRasterBand(h);
-								pBandinV->RasterIO(GF_Read, 0, 0, DSin[H_ERA5_SWE].GetRasterXSize(), DSin[H_ERA5_SWE].GetRasterYSize(), &(SWE_h[0]), DSin[H_ERA5_SWE].GetRasterXSize(), DSin[H_ERA5_SWE].GetRasterYSize(), GDT_Float32, 0, 0);
+								GDALRasterBand* pBandinSWE = DSin[H_ERA5_SWE].GetRasterBand(h);
+								pBandinSWE->RasterIO(GF_Read, 0, 0, DSin[H_ERA5_SWE].GetRasterXSize(), DSin[H_ERA5_SWE].GetRasterYSize(), &(SWE_h[0]), DSin[H_ERA5_SWE].GetRasterXSize(), DSin[H_ERA5_SWE].GetRasterYSize(), GDT_Int32, 0, 0);
+								double SWEscale = pBandinSWE->GetScale();
+								double SWEoffset = pBandinSWE->GetOffset();
+
 
 								ASSERT(data[ERA5_SNDH].size() == data_h.size());
-								//data[ERA5_SNDH].resize(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									ASSERT(data_h[xy] >= 0);
-									data[ERA5_SNDH][xy] += ((SWE_h[xy] * 997 / data_h[xy]) * 100) / 24;// m*kg/m³/ kg/m³ --> cm
+									ASSERT((data_h[xy] * scale + offset) >= 0);
+									if (SWE_h[xy] != no_data && data_h[xy] != no_data)
+									{
+										double SWE = (SWE_h[xy] * SWEscale + SWEoffset ) * 997;
+										double SD = (data_h[xy] * scale + offset);
+										data[ERA5_SNDH][xy] += ((SWE / SD) * 100) / 24;// m*kg/m³/ kg/m³ --> cm
+									}
 								}
 
 								break;
@@ -489,7 +588,8 @@ namespace WBSF
 								ASSERT(data[ERA5_GHGT].size() == data_h.size());
 								for (size_t xy = 0; xy < data_h.size(); xy++)
 								{
-									data[ERA5_GHGT][xy] += (data_h[xy] / 9.8) / 24;//Divide by acceleration at surface m²/s² --> m
+									if(data_h[xy] != no_data)
+										data[ERA5_GHGT][xy] += ((data_h[xy] * scale + offset) / 9.8) / 24;//Divide by acceleration at surface m²/s² --> m
 								}
 
 								break;
@@ -515,13 +615,6 @@ namespace WBSF
 						data[ERA5_WNDS][xy] += sqrt(Square(data_u[xy](h)) + Square(data_v[xy](h))) / data_u[xy].size();
 						data[ERA5_WNDD][xy] += GetWindDirection(data_u[xy](h), data_v[xy](h)) / data_u[xy].size();//approximation of wind direction
 					}
-
-					//double u = data_u[xy][MEAN];
-					//double v = data_v[xy][MEAN];
-					//data[ERA5_WNDS][xy] = sqrt(Square(u) + Square(v));
-
-					//data[ERA5_WNDS][xy] = sqrt(Square(u) + Square(v));
-					//data[ERA5_WNDD][xy] = GetWindDirection(u, v);//approximation of wind direction
 
 					data[ERA5_TMIN][xy] = data_T[xy][LOWEST];
 					data[ERA5_TMAX][xy] = data_T[xy][HIGHEST];
@@ -564,165 +657,158 @@ namespace WBSF
 
 		}//if msg
 
-		//msg += callback.StepIt();
-		//	}//for all days
-
-		//	callback.PopTask();
-	//}//if dataset open
-
-
-
-
 		return msg;
 	}
+
+
 	//canada_0p25grid
-	ERMsg CERA5::CreateDailyGeotiff(const string& title, int year, CCallback& callback)const
-	{
-		ERMsg msg;
+	//ERMsg CERA5::CreateDailyGeotiff(const string& title, int year, CCallback& callback)const
+	//{
+	//	ERMsg msg;
 
-		size_t nb_bands = 0;
-		array<CGDALDatasetEx, NB_ERA5_VARS> DSin;
-		for (size_t v = 0; v < DSin.size(); v++)
-		{
-			string inputFilePath = FormatA("%s%s\\era5_%s_daily_%4d_%s.tif", m_workingDir.c_str(), SUB_DIR[v], SUB_DIR[v], year, title.c_str());
-			if (v == ERA5_GHGT)
-				inputFilePath = FormatA("%s%s\\era5_%s_%s.tif", m_workingDir.c_str(), SUB_DIR[v], SUB_DIR[v], title.c_str());
+	//	size_t nb_bands = 0;
+	//	array<CGDALDatasetEx, NB_ERA5_VARS> DSin;
+	//	for (size_t v = 0; v < DSin.size(); v++)
+	//	{
+	//		string inputFilePath = FormatA("%s%s\\era5_%s_daily_%4d_%s.tif", m_workingDir.c_str(), SUB_DIR[v], SUB_DIR[v], year, title.c_str());
+	//		if (v == ERA5_GHGT)
+	//			inputFilePath = FormatA("%s%s\\era5_%s_%s.tif", m_workingDir.c_str(), SUB_DIR[v], SUB_DIR[v], title.c_str());
 
-			if (FileExists(inputFilePath))
-			{
-				msg += DSin[v].OpenInputImage(inputFilePath);
-				nb_bands++;
-			}
-		}
-
-
-		if (msg)
-		{
-			size_t nb_days = DSin[0].GetRasterCount();
-			callback.PushTask("Create ERA5 for year " + ToString(year) + ": " + ToString(nb_days) + " days", nb_days);
-
-			float no_data = 9999;// GetDefaultNoData(GDT_Int16);
-			CBaseOptions options;
-			DSin[0].UpdateOption(options);
+	//		if (FileExists(inputFilePath))
+	//		{
+	//			msg += DSin[v].OpenInputImage(inputFilePath);
+	//			nb_bands++;
+	//		}
+	//	}
 
 
-			for (size_t d = 0; d < nb_days && msg; d++)
-			{
-				options.m_nbBands = nb_bands;
-				options.m_extents.m_xBlockSize = 256;
-				options.m_extents.m_yBlockSize = 256;
-				options.m_outputType = GDT_Float32;
-				options.m_dstNodata = no_data;
-				options.m_bOverwrite = true;
-				options.m_bComputeStats = true;
-				options.m_createOptions.push_back("COMPRESS=LZW");
-				options.m_createOptions.push_back("PREDICTOR=3");
-				options.m_createOptions.push_back("TILED=YES");
-				options.m_createOptions.push_back("BLOCKXSIZE=256");
-				options.m_createOptions.push_back("BLOCKYSIZE=256");
+	//	if (msg)
+	//	{
+	//		size_t nb_days = DSin[0].GetRasterCount();
+	//		callback.PushTask("Create ERA5 for year " + ToString(year) + ": " + ToString(nb_days) + " days", nb_days);
 
-				CJDayRef TRef(year, d);
-
-				string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d_%s.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, title.c_str());
-				msg = CreateMultipleDir(GetPath(output_file_path));
-
-				CGDALDatasetEx DSout;
-				msg += DSout.CreateImage(output_file_path + "2", options);
-				if (msg)
-				{
+	//		float no_data = 9999;// GetDefaultNoData(GDT_Int16);
+	//		CBaseOptions options;
+	//		DSin[0].UpdateOption(options);
 
 
-					for (size_t v = 0, vv = 0; v < DSin.size(); v++)
-					{
-						GDALRasterBand* pBandout = DSout.GetRasterBand(vv);
+	//		for (size_t d = 0; d < nb_days && msg; d++)
+	//		{
+	//			options.m_nbBands = nb_bands;
+	//			options.m_extents.m_xBlockSize = 256;
+	//			options.m_extents.m_yBlockSize = 256;
+	//			options.m_outputType = GDT_Float32;
+	//			options.m_dstNodata = no_data;
+	//			options.m_bOverwrite = true;
+	//			options.m_bComputeStats = true;
+	//			options.m_createOptions.push_back("COMPRESS=LZW");
+	//			options.m_createOptions.push_back("PREDICTOR=3");
+	//			options.m_createOptions.push_back("TILED=YES");
+	//			options.m_createOptions.push_back("BLOCKXSIZE=256");
+	//			options.m_createOptions.push_back("BLOCKYSIZE=256");
 
-						if (DSin[v].IsOpen())
-						{
-							ASSERT(v == ERA5_GHGT || DSin[0].GetRasterCount() == DSin[v].GetRasterCount());
-							GDALRasterBand* pBandin = DSin[v].GetRasterBand(v == ERA5_GHGT ? 0 : d);
+	//			CJDayRef TRef(year, d);
 
-							ASSERT(DSin[v].GetRasterXSize() == DSout.GetRasterXSize());
-							ASSERT(DSin[v].GetRasterYSize() == DSout.GetRasterYSize() || DSin[v].GetRasterYSize() == DSout.GetRasterYSize() - 1 || DSin[v].GetRasterYSize() == DSout.GetRasterYSize() + 1);
+	//			string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d_%s.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, title.c_str());
+	//			msg = CreateMultipleDir(GetPath(output_file_path));
 
-
-							float no_data_in = DSin[v].GetNoData(0);
-							vector<float> data(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
-							pBandin->RasterIO(GF_Read, 0, 0, DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), &(data[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
-
-							//replace small values of snow by 0
-							if (v == ERA5_SNOW)
-							{
-								for (size_t xy = 0; xy < data.size(); xy++)
-								{
-									if (data[xy] < 0.001)
-										data[xy] = 0;
-								}
-							}
-
-							if (DSin[v].GetRasterYSize() == DSout.GetRasterYSize())
-							{
-								pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
-							}
-							else
-							{
-								pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
-							}
+	//			CGDALDatasetEx DSout;
+	//			msg += DSout.CreateImage(output_file_path + "2", options);
+	//			if (msg)
+	//			{
 
 
-							pBandout->SetDescription(ERA5_META_DATA[v][M_DESC]);
-							pBandout->SetMetadataItem("GRIB_COMMENT", ERA5_META_DATA[v][M_COMMENT]);
-							pBandout->SetMetadataItem("GRIB_ELEMENT", ERA5_META_DATA[v][M_ELEMENT]);
-							pBandout->SetMetadataItem("GRIB_SHORT_NAME", ERA5_META_DATA[v][M_SHORT_NAME]);
-							pBandout->SetMetadataItem("GRIB_UNIT", ERA5_META_DATA[v][M_UNIT]);
-							DSout->FlushCache();
+	//				for (size_t v = 0, vv = 0; v < DSin.size(); v++)
+	//				{
+	//					GDALRasterBand* pBandout = DSout.GetRasterBand(vv);
+
+	//					if (DSin[v].IsOpen())
+	//					{
+	//						ASSERT(v == ERA5_GHGT || DSin[0].GetRasterCount() == DSin[v].GetRasterCount());
+	//						GDALRasterBand* pBandin = DSin[v].GetRasterBand(v == ERA5_GHGT ? 0 : d);
+
+	//						ASSERT(DSin[v].GetRasterXSize() == DSout.GetRasterXSize());
+	//						ASSERT(DSin[v].GetRasterYSize() == DSout.GetRasterYSize() || DSin[v].GetRasterYSize() == DSout.GetRasterYSize() - 1 || DSin[v].GetRasterYSize() == DSout.GetRasterYSize() + 1);
 
 
-							vv++;
-						}
-						/*else
-						{
-							float no_data = -999;
-							pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &no_data, 1, 1, GDT_Float32, 0, 0);
-						}*/
+	//						float no_data_in = DSin[v].GetNoData(0);
+	//						vector<float> data(DSin[v].GetRasterXSize() * DSin[v].GetRasterYSize());
+	//						pBandin->RasterIO(GF_Read, 0, 0, DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), &(data[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
+
+	//						//replace small values of snow by 0
+	//						if (v == ERA5_SNOW)
+	//						{
+	//							for (size_t xy = 0; xy < data.size(); xy++)
+	//							{
+	//								if (data[xy] < 0.001)
+	//									data[xy] = 0;
+	//							}
+	//						}
+
+	//						if (DSin[v].GetRasterYSize() == DSout.GetRasterYSize())
+	//						{
+	//							pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSout.GetRasterXSize(), DSout.GetRasterYSize(), GDT_Float32, 0, 0);
+	//						}
+	//						else
+	//						{
+	//							pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &(data[0]), DSin[v].GetRasterXSize(), DSin[v].GetRasterYSize(), GDT_Float32, 0, 0);
+	//						}
 
 
+	//						pBandout->SetDescription(ERA5_META_DATA[v][M_DESC]);
+	//						pBandout->SetMetadataItem("GRIB_COMMENT", ERA5_META_DATA[v][M_COMMENT]);
+	//						pBandout->SetMetadataItem("GRIB_ELEMENT", ERA5_META_DATA[v][M_ELEMENT]);
+	//						pBandout->SetMetadataItem("GRIB_SHORT_NAME", ERA5_META_DATA[v][M_SHORT_NAME]);
+	//						pBandout->SetMetadataItem("GRIB_UNIT", ERA5_META_DATA[v][M_UNIT]);
+	//						DSout->FlushCache();
+
+
+	//						vv++;
+	//					}
+	//					/*else
+	//					{
+	//						float no_data = -999;
+	//						pBandout->RasterIO(GF_Write, 0, 0, DSout.GetRasterXSize(), DSout.GetRasterYSize(), &no_data, 1, 1, GDT_Float32, 0, 0);
+	//					}*/
 
 
 
 
-					}//for all variables
-
-					DSout.Close();
 
 
-					if (msg)
-					{
-						//copy the file to fully use compression with GDAL_translate
-						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-						string projlib_path = GetApplicationPath() + "External\\projlib";
-						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+	//				}//for all variables
 
-						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
-						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
-						string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + "2" + "\" \"" + output_file_path + "\"";
-						msg += WinExecWait(command);
-						msg += RemoveFile(output_file_path + "2");
-						msg += RemoveFile(output_file_path + "2.aux.xml");
-					}
-
-				}//if msg
-
-				msg += callback.StepIt();
-			}//for all days
-
-			callback.PopTask();
-		}//if dataset open
+	//				DSout.Close();
 
 
+	//				if (msg)
+	//				{
+	//					//copy the file to fully use compression with GDAL_translate
+	//					string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
+	//					string projlib_path = GetApplicationPath() + "External\\projlib";
+	//					string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+
+	//					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
+	//					string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+	//					string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + "2" + "\" \"" + output_file_path + "\"";
+	//					msg += WinExecWait(command);
+	//					msg += RemoveFile(output_file_path + "2");
+	//					msg += RemoveFile(output_file_path + "2.aux.xml");
+	//				}
+
+	//			}//if msg
+
+	//			msg += callback.StepIt();
+	//		}//for all days
+
+	//		callback.PopTask();
+	//	}//if dataset open
 
 
-		return msg;
-	}
+
+
+	//	return msg;
+	//}
 
 
 	//****************************************************************************************************

@@ -24,10 +24,10 @@ namespace WBSF
 		bool m_bApplyAttrition;
 		bool m_bCumul;
 
-		double m_adult_emerg[LAZ::NB_EMERGENCE_PARAMS];//emergence of adult parameters
-		double m_pupa_param[LAZ::NB_PUPA_PARAMS];//Pupa (without diapause) param
-		double m_C_param[LAZ::NB_C_PARAMS];//Correction factor
-		
+		std::array<double, LAZ::NB_EMERGENCE_PARAMS> m_adult_emerg;
+		std::array<double, LAZ::NB_PUPA_PARAMS> m_pupa_param;
+		std::array<double, LAZ::NB_C_PARAMS> m_C_param;
+		std::array<double, LAZ::NB_EOD_PARAMS> m_EOD_param;//End of diapause correction
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
 		bool CalibratePupaWithoutDiapause(CStatisticXY& stat);
@@ -35,6 +35,8 @@ namespace WBSF
 		void GetPobs(CModelStatVector& P);
 
 		bool IsParamValid()const;
+
+		std::array<CStatistic, 2> m_DOY;
 	};
 
 }

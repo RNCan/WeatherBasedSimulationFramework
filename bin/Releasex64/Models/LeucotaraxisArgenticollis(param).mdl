@@ -6,7 +6,7 @@
     <EXE>LeucotaraxisArgenticollis.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>
-    <WindowRect>0 0 392 439</WindowRect>
+    <WindowRect>0 0 391 439</WindowRect>
     <SimulatedCategory>TN T TX</SimulatedCategory>
     <TransferFileVersion>2</TransferFileVersion>
     <SSI/>
@@ -46,7 +46,7 @@
             <Rect>70 195 95 345</Rect>
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>214.4</DefaultValue>
-            <MinValue>1</MinValue>
+            <MinValue>0.01</MinValue>
             <MaxValue>50000</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -107,7 +107,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>0.2404</DefaultValue>
             <MinValue>0.001</MinValue>
-            <MaxValue>3</MaxValue>
+            <MaxValue>5</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -130,7 +130,7 @@
             <Rect>208 10 230 160</Rect>
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>0.6</DefaultValue>
-            <MinValue>0</MinValue>
+            <MinValue>-5</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -142,8 +142,8 @@
             <Rect>230 10 250 160</Rect>
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>8.2</DefaultValue>
-            <MinValue>5</MinValue>
-            <MaxValue>25</MaxValue>
+            <MinValue>0</MinValue>
+            <MaxValue>40</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -154,8 +154,8 @@
             <Rect>252 10 274 160</Rect>
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>33.6</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>50</MaxValue>
+            <MinValue>20</MinValue>
+            <MaxValue>40</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -167,7 +167,7 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>1.038</DefaultValue>
             <MinValue>0.001</MinValue>
-            <MaxValue>10</MaxValue>
+            <MaxValue>300</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -189,9 +189,9 @@
             <Type>2</Type>
             <Rect>160 195 185 345</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>0.9475</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>10</MaxValue>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>-25</MinValue>
+            <MaxValue>25</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -201,9 +201,9 @@
             <Type>2</Type>
             <Rect>190 195 210 345</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>1.077</DefaultValue>
+            <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>50</MaxValue>
+            <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -215,7 +215,43 @@
             <SeparatorPos>55</SeparatorPos>
             <DefaultValue>1</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>50</MaxValue>
+            <MaxValue>500</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>fec3</Name>
+            <Caption>fec3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>245 195 270 345</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>20</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EOD_A</Name>
+            <Caption>EOD_A</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 195 300 345</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.1</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>EOD_B</Name>
+            <Caption>EOD_B</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>305 195 325 345</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.5</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -231,8 +267,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>CDDg1</Name>
-            <Title>CDDg1</Title>
+            <Name>Larva0</Name>
+            <Title>Larva0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

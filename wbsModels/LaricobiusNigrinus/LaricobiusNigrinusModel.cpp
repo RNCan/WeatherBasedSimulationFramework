@@ -1,4 +1,5 @@
 ﻿//***********************************************************
+// 27/03/2025	1.1.0	Rémi Saint-Amant   Uopdate for article
 // 07/03/2019	1.0.0	Rémi Saint-Amant   Creation
 //***********************************************************
 #include "LaricobiusNigrinusModel.h"
@@ -32,7 +33,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.2 (2020)";
+		VERSION = "1.1.0 (2025)";
 
 		//		m_start = CTRef(YEAR_NOT_INIT, JANUARY, DAY_01);
 			//	m_threshold = 5.6;
@@ -40,22 +41,10 @@ namespace WBSF
 
 		m_bCumul = false;
 		m_bApplyAttrition = true;
-		for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
-			{
-				m_RDR[s][p] = CLaricobiusNigrinusEquations::RDR[s][p];
-			}
-		}
-
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			m_OVP[p] = CLaricobiusNigrinusEquations::OVP[p];
-
-		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
-			m_ADE[p] = CLaricobiusNigrinusEquations::ADE[p];
-
-		for (size_t p = 0; p < NB_EAS_PARAMS; p++)
-			m_EAS[p] = CLaricobiusNigrinusEquations::EAS[p];
+		m_RDR = CLaricobiusNigrinusEquations::RDR;
+		m_OVP = CLaricobiusNigrinusEquations::OVP;
+		m_ADE = CLaricobiusNigrinusEquations::ADE;
+		m_EAS = CLaricobiusNigrinusEquations::EAS;
 	}
 
 	CLaricobiusNigrinusModel::~CLaricobiusNigrinusModel()
@@ -179,23 +168,10 @@ namespace WBSF
 		stand.m_bApplyAttrition = m_bApplyAttrition;
 		
 		//Set parameters to equation
-		for (size_t s = 0; s < NB_STAGES; s++)
-		{
-			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
-			{
-				stand.m_equations.m_RDR[s][p] = m_RDR[s][p];
-			}
-		}
-
-
-		for (size_t p = 0; p < NB_OVP_PARAMS; p++)
-			stand.m_equations.m_OVP[p] = m_OVP[p];
-
-		for (size_t p = 0; p < NB_ADE_PARAMS; p++)
-			stand.m_equations.m_ADE[p] = m_ADE[p];
-
-		for (size_t p = 0; p < NB_EAS_PARAMS; p++)
-			stand.m_equations.m_EAS[p] = m_EAS[p];
+		stand.m_equations.m_RDR = m_RDR;
+		stand.m_equations.m_OVP = m_OVP;
+		stand.m_equations.m_ADE = m_ADE;
+		stand.m_equations.m_EAS = m_EAS;
 
 
 		stand.init(year, weather);

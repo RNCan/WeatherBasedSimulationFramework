@@ -26,11 +26,11 @@ namespace WBSF
 		
 		enum TLeucotaraxisArgenticollisStats
 		{
-			S_CDD0, S_CDD1, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_PUPA2,
+			S_CDD0, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_PUPA2,
 			S_EMERGENCE0, S_EMERGENCE1a, S_EMERGENCE1b, S_BROOD0, S_BROOD1, S_DEAD_ATTRITION, NB_STATS
 		}; 
 
-		static const bool CUM_STAT[NB_STATS] = { false, false, false, true, false, true, true, true, true, false, true, true, false, true, true, true, true, true};
+		static const bool CUM_STAT[NB_STATS] = { false, false, false, true, false, true, true, true, true, false, true, true, false, true, true, true, true, true, true};
 	}
 
 
@@ -71,16 +71,19 @@ namespace WBSF
 		inline const CLeucotaraxisArgenticollisEquations& Equations()const;
 
 		CTRef GetCreationDate(int year)const;
-		CTRef GetAdultEmergence(int year)const;
+		//CTRef GetAdultEmergence(int year)const;
 		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		CTRef GetEndOfDiapause(int year)const;
+		double GetPupaAge(int year)const;
 
 	protected:
 
 		//member
 		double m_RDR[LAZ::NB_STAGES]; //Individual's relative development rates for all stages
-		CTRef m_adult_emergence_date;
-		bool m_bDiapause;
-		bool m_bDiapause1;//diapause in generation 1
+		CTRef m_adult_emergence_date;//For prestion 2023
+		CTRef m_end_of_diapause;
+		bool m_bInDiapause;//Are in diapause or not
+		bool m_bWillDiapause;//Will fall in diapause in generation 1
 		std::array<CTRef, LAZ::NB_STAGES + 1> m_reachDate;
 
 		double m_to; //pre oviposition period [days]
@@ -131,7 +134,7 @@ namespace WBSF
 		void init(int year, const CWeatherYears& weather);
 		
 		CLeucotaraxisArgenticollisEquations m_equations;
-		std::array<CModelStatVector, 2> m_adult_emergence_CDD;
+		//std::array<CModelStatVector, 2> m_adult_emergence_CDD;
 	};
 
 

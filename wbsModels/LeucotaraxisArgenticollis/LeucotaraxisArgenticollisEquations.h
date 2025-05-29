@@ -19,7 +19,7 @@ namespace WBSF
 		enum TRDR { σ, NB_RDR_PARAMS }; //Relative Development Rate
 		enum TEmergence{ μ, ѕ, delta, Τᴴ¹, Τᴴ², NB_EMERGENCE_PARAMS };//Emergence of Adult parameters
 		enum TPUPA { NB_PUPA_DEV=6, PUPA_S= NB_PUPA_DEV, NB_PUPA_PARAMS };//
-		enum TOVIP { NB_C_PARAMS = 3 };//
+		enum TCorrection { C_P0, C_P1, C_P2, C_P3, NB_C_PARAMS };//Correction param 
 		enum TEOD { EOD_A, EOD_B, NB_EOD_PARAMS };
 	}
 
@@ -46,16 +46,17 @@ namespace WBSF
 		
 		virtual double ComputeRate(size_t stage, double t)const;
 
-		//relative development
-		double GetPupaRate(double T)const;
-		double GetPupaRDR()const;
+		
+		//double GetAdultAging(double T)const;
+		double GetUndiapausedPupaRate(double T, size_t g)const;
+		double GetUndiapausedPupaRDR(size_t g)const;
 		double GetRelativeDevRate(size_t s)const;
 		double GetDailySurvivalRate(size_t s, double T)const;
 		double GetPreOvipPeriod()const;
 		double GetFecondity(double L)const;
 		
-		void GetAdultEmergenceCDD(const CWeatherYears& weather, std::array < CModelStatVector, 2>& CDD)const;
-		double GetAdultEmergingCDD(double Tjan)const;
+		//void GetAdultEmergenceCDD(const CWeatherYears& weather, std::array < CModelStatVector, 2>& CDD)const;
+		//double GetAdultEmergingCDD(double Tjan)const;
 
 	};
 
