@@ -402,6 +402,16 @@ namespace WBSF
 		//if (!IsParamValid())
 			//return false;
 
+		//double m = m_C_param[C_P0];//0.9 - 0.8 * boost::math::cdf(age_dist, Tdelta);
+		//double s = m_C_param[C_P3];
+		//
+		//double a = m * (m * (1 - m) / (s * s) - 1);
+		//double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+		//
+		//if (a <= 0 || a>=1 || b <= 0 || b >= 1)
+		//	return false;
+
+
 		return CalibratePupaWithoutDiapause(stat);
 	}
 

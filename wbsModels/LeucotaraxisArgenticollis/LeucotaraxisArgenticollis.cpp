@@ -78,10 +78,11 @@ namespace WBSF
 		//if (age == PUPAE)
 		{
 
-			static const array<string, 4> LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)" };
-			static const array<CTRef, 4> LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15), CTRef(2022, MARCH, DAY_03), CTRef(2024, MARCH, DAY_21) };
+			static const size_t NB_OBS = 5;
+			static const array<string, NB_OBS > LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)", "Oswego(NY)" };
+			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15), CTRef(2022, MARCH, DAY_03), CTRef(2024, MARCH, DAY_21), CTRef(2024, MARCH, DAY_10) };
 
-			for (size_t i = 0; i < 4; i++)
+			for (size_t i = 0; i < NB_OBS; i++)
 			{
 				if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[i] && creationDate.GetYear() == LOC_DATE[i].GetYear())
 					m_adult_emergence_date = LOC_DATE[i];
@@ -128,11 +129,26 @@ namespace WBSF
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
 		const CLeucotaraxisArgenticollisEquations& equations = GetStand()->m_equations;
 
+		//double i_age = 0.5;
+
+
 		//Get mean January minimum temperature
 		//double Tjan = weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
 
-		double Tsummer = weather_station[year][JUNE].GetStat(H_TNTX)[MEAN];
+		//double Tsummer = weather_station[year].GetStat(H_TNTX, CTPeriod(year,JUNE,DAY_01, year, DECEMBER, DAY_31))[MEAN];
+		//double Tdelta = weather_station[year][JULY].GetStat(H_TMAX)[MEAN] - weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
 
+		//boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		double m = equations.m_C_param[C_P0];//0.9 - 0.8 * boost::math::cdf(age_dist, Tdelta);
+		double s = equations.m_C_param[C_P3];
+
+		//double a = m * (m * (1 - m) / (s * s) - 1);
+		//double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+		double a = equations.m_C_param[C_P1];
+		double b = equations.m_C_param[C_P2];
+
+		boost::math::beta_distribution<double> i_age_dist(a,b);
+		double i_age = boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
 		
 		//Version larve et pupe
 		/*boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
@@ -146,15 +162,19 @@ namespace WBSF
 		double i_age = -0.3 + 1.25 * boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
 		*/
 
-		boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
-		double m = 0.05 + 0.90 * boost::math::cdf(age_dist, Tsummer);
-		double s = equations.m_C_param[C_P3];
-
-		double a = m * (m * (1 - m) / (s * s) - 1);
-		double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
-
-		boost::math::beta_distribution<double> i_age_dist(a, b);
-		double i_age = boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
+		//boost::math::logistic_distribution<double> age_dist(equations.m_C_param[C_P0], equations.m_C_param[C_P1]);
+		//double m = 0.05 + 0.90 * boost::math::cdf(age_dist, Tsummer);
+		//double s = equations.m_C_param[C_P3];
+		//
+		////double m = equations.m_C_param[C_P0];
+		////double s = equations.m_C_param[C_P3];
+		//
+		//double a = m * (m * (1 - m) / (s * s) - 1);
+		//double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
+		//
+		//boost::math::beta_distribution<double> i_age_dist(a, b);
+		//double i_age = 0.9*boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
+		//double i_age = -equations.m_adult_emerg[μ] + (0.95 - -equations.m_adult_emerg[μ]) * boost::math::quantile(i_age_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999));
 
 		//version pupe seulement
 		//R²=0.84
@@ -202,15 +222,20 @@ namespace WBSF
 		const CLeucotaraxisArgenticollisEquations& equations = GetStand()->m_equations;
 		double Tjan = weather_station[year][JANUARY].GetStat(H_TMIN)[MEAN];
 
-		double median_EOD = equations.m_C_param[C_P2] + Tjan * equations.m_C_param[EOD_A];
-		boost::math::lognormal_distribution<double> EOD_dist(log(max(0.01, median_EOD)), equations.m_EOD_param[EOD_B]);
-		size_t DOY = max(0.0, min(180.0, 2 * median_EOD - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+		//boost::math::logistic_distribution<double> EOD_dist(equations.m_C_param[C_P2], equations.m_EOD_param[EOD_A]);
+		//double median_EOD = equations.m_adult_emerg[μ] + equations.m_adult_emerg[ѕ] * boost::math::cdf(EOD_dist, Tjan);
+
+
+		double median_EOD = equations.m_adult_emerg[μ] + equations.m_adult_emerg[ѕ] * Tjan;
+		boost::math::lognormal_distribution<double> i_EOD_dist(log(max(0.01, median_EOD)), equations.m_EOD_param[EOD_B]);
+		//size_t DOY = max(0.0, min(180.0, boost::math::quantile(i_EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+		size_t DOY = max(0.0, min(180.0, 2 * median_EOD - boost::math::quantile(i_EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
 
 
 		//R²=86.2
-		//boost::math::lognormal_distribution<double> EOD_dist(log(max(0.01, equations.m_EOD_param[EOD_A])), equations.m_EOD_param[EOD_B]);
-		//double DOY = max(0.0, min(180.0, 2 * equations.m_C_param[C_P2] - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
-		//double DOY = max(0.0, min(180.0, 2 * equations.m_EOD_param[EOD_A] - boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
+		//double median_EOD = max(0.0, equations.m_adult_emerg[μ] + equations.m_adult_emerg[ѕ] * Tjan);
+		//boost::math::lognormal_distribution<double> EOD_dist(log(max(0.01, median_EOD)), equations.m_EOD_param[EOD_B]);
+		//double DOY = max(0.0, min(180.0, boost::math::quantile(EOD_dist, GetStand()->RandomGenerator().Rand(0.001, 0.999))));
 		
 		
 		
@@ -304,6 +329,8 @@ namespace WBSF
 		//if (s == PUPAE && m_generation == 1 && !m_bInDiapause)
 		if (s == LARVAE && m_generation == 1 && !m_bInDiapause)
 			r *= Equations().m_adult_emerg[delta];
+		
+		
 
 		//Relative development rate for this individual
 		double rr = m_RDR[s];
