@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>VHR_to_Landsat</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>VHR_to_Landsat.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>CDD</Name>
+            <Title>CDD</Title>
+            <Units/>
+            <Description>cumulative degree-days over 5°C (Double-Sine after January 1st)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>CWI</Name>
+            <Title>CWI</Title>
+            <Units/>
+            <Description>Summer Warmth Index: sum of mean monthly temperatures greater than 0°C</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MST</Name>
+            <Title>MST</Title>
+            <Units>°C</Units>
+            <Description>Mean summer temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MWT</Name>
+            <Title>MWT</Title>
+            <Units>°C</Units>
+            <Description>Mean winter temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MSP</Name>
+            <Title>MSP</Title>
+            <Units>mm</Units>
+            <Description>Mean summer precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MWP</Name>
+            <Title>MWP</Title>
+            <Units>mm</Units>
+            <Description>Mean winter precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MCMT</Name>
+            <Title>MCMT</Title>
+            <Units>°C</Units>
+            <Description>mean coldest month temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MWMT</Name>
+            <Title>MWMT</Title>
+            <Units>°C</Units>
+            <Description>mean warmest month temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

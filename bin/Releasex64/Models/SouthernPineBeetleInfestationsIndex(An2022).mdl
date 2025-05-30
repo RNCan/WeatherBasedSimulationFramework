@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>SouthernPineBeetleInfestationsIndex</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>SouthernPineBeetleInfestationsIndex.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>3</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>SPTt</Name>
+            <Title>SPTt</Title>
+            <Units/>
+            <Description>log average spring temperature in the current year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>FLTt</Name>
+            <Title>FLTt</Title>
+            <Units/>
+            <Description>log average fall temperature in the current year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SPPt1</Name>
+            <Title>SPPt1</Title>
+            <Units/>
+            <Description>log spring total precipitation one year ago</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WNPt1</Name>
+            <Title>WNPt1</Title>
+            <Units/>
+            <Description>log winter total precipitation one year ago</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>MinWNTt1</Name>
+            <Title>MinWNTt1</Title>
+            <Units/>
+            <Description>log winter min temperature one year ago</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SPTt2</Name>
+            <Title>SPTt2</Title>
+            <Units/>
+            <Description>log average spring temperature two years ago</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SMTt2</Name>
+            <Title>SMTt2</Title>
+            <Units/>
+            <Description>log average summer temperature two years ago</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SPBII</Name>
+            <Title>SPBII</Title>
+            <Units/>
+            <Description>Infestation Risk</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Periods and Amplitudes of Southern Pine Beetle Infestations under Climate Change&#x0D;&#x0A;Hyunjin An&#x0D;&#x0A;2022</Credit>
+    <HelpFileName/>
+</Model>

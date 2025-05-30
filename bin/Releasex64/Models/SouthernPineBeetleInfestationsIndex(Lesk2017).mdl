@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>SouthernPineBeetleInfestationsIndex(Lesk2017)</Title>
+    <Version>1.0</Version>
+    <ID/>
+    <EXE>SouthernPineBeetleInfestationsIndex.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description/>
+    <WindowRect>0 0 100 250</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray/>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tmin</Name>
+            <Title>Tmin</Title>
+            <Units/>
+            <Description>Annual lowest Tmin temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Tmax</Name>
+            <Title>Tmax</Title>
+            <Units/>
+            <Description>Annual highest Tmax temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>T15</Name>
+            <Title>T15</Title>
+            <Units/>
+            <Description>Lowest floem temperature (15 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>T45</Name>
+            <Title>T45</Title>
+            <Units/>
+            <Description>Lowest floem temperature (45 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>T51</Name>
+            <Title>T51</Title>
+            <Units/>
+            <Description>Lowest floem temperature (51 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P15</Name>
+            <Title>P15</Title>
+            <Units/>
+            <Description>Probability of SPB presence (15 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P45</Name>
+            <Title>P45</Title>
+            <Units/>
+            <Description>Probability of SPB presence (45 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>P51</Name>
+            <Title>P51</Title>
+            <Units/>
+            <Description>Probability of SPB presence (51 cm)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Threats to North American forests from southern pine beetle with warming winters&#x0D;&#x0A;Corey Lesk&#x0D;&#x0A;2017</Credit>
+    <HelpFileName/>
+</Model>
