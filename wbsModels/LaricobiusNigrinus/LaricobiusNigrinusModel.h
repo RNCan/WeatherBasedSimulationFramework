@@ -8,7 +8,13 @@ namespace WBSF
 
 	public:
 
-		enum TInput { I_EGGS, I_LARVAE, I_EMERGED_ADULT, NB_INPUTS };
+		
+		
+		enum TEvaluatedStage { E_EGGS, E_LARVAE, E_LARVAL_DROP, E_EMERGING_ADULTS, NB_EVALUATED_STAGES };
+		static const std::array<size_t, NB_EVALUATED_STAGES> STAT_STAGE;
+
+
+
 		CLaricobiusNigrinusModel();
 		virtual ~CLaricobiusNigrinusModel();
 
@@ -25,19 +31,22 @@ namespace WBSF
 
 		bool m_bCumul;
 		bool m_bApplyAttrition;
-		std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR;
+		bool m_compute_cumul;
+		//std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR;
 		std::array<double, LNF::NB_OVP_PARAMS> m_OVP;
 		std::array<double, LNF::NB_ADE_PARAMS> m_ADE;
 		std::array<double, LNF::NB_EAS_PARAMS> m_EAS;
 
-		std::array < std::set<int>, NB_INPUTS> m_years;
-		std::array<CStatistic, NB_INPUTS> m_nb_days;
+		std::array < std::set<int>, NB_EVALUATED_STAGES> m_years;
+		std::array<CStatistic, NB_EVALUATED_STAGES> m_nb_days;
 		std::map<std::string, CStatistic> m_egg_creation_date;
+		std::array< CStatistic, NB_EVALUATED_STAGES> m_cumul_stats;
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
-		void CalibrateDiapauseEnd(const std::bitset<3>& test, CStatisticXY& stat);
-		void CalibrateDiapauseEndTh(CStatisticXY& stat);
-		void CalibrateOviposition(CStatisticXY& stat);
+		bool CalibrateDiapauseEnd(const std::bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat);
+		bool CalibrateDiapauseEndTh(CStatisticXY& stat);
+		//bool CalibrateOviposition(CStatisticXY& stat);
+		bool CalibrateEggLarvaeEmergingAdults(const std::bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat);
 		CTRef GetDiapauseEnd(const CWeatherYear& weather);
 
 		bool IsParamValid()const;

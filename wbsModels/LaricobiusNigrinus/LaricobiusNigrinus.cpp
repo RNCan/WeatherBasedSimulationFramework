@@ -39,13 +39,17 @@ namespace WBSF
 		m_creationDate = GetCreationDate(year);
 		m_adult_emergence = GetAdultEmergence(year);
 		
-		for( size_t s=0; s<NB_STAGES; s++)
+
+
+
+		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
 
 		//m_adult_longevity = Equations().GetAdultLongevity(m_sex);
 		m_t = 0;
 		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity() : 0;
+		m_cold_tolerence = Equations().GetColdTolerence();
 	}
 
 	CTRef CLaricobiusNigrinus::GetCreationDate(int year)const
@@ -68,12 +72,15 @@ namespace WBSF
 				creationDate = wDay.GetTRef();
 			}
 		}
+		
+		if (!creationDate.IsInit())
+			creationDate = end;
 
 		ASSERT(creationDate.IsInit());
 
 		return creationDate;
 	}
-	
+
 	CTRef CLaricobiusNigrinus::GetAdultEmergence(int year)const
 	{
 		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
@@ -84,7 +91,7 @@ namespace WBSF
 
 		CTRef begin = GetStand()->m_diapause_end;
 		CTRef end = p.End();
-		if(weather_station[year].HaveNext())
+		if (weather_station[year].HaveNext())
 			end = min(p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
 
 		double CDD = 0;
@@ -92,7 +99,7 @@ namespace WBSF
 		{
 			const CWeatherDay& wday = weather_station.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
-			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 
 			double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);
 			CDD += DD;
@@ -110,7 +117,7 @@ namespace WBSF
 		if (&in != this)
 		{
 			CIndividual::operator=(in);
-			
+
 			m_dropToGroundDate = in.m_dropToGroundDate;
 			m_adult_emergence = in.m_adult_emergence;
 			//m_reachDate = in.m_reachDate;
@@ -126,69 +133,70 @@ namespace WBSF
 
 		return *this;
 	}
-	
+
 	//destructor
 	CLaricobiusNigrinus::~CLaricobiusNigrinus(void)
-	{}
-
-
-	double CLaricobiusNigrinus::AdjustTLab(const string& name, size_t s, CTRef TRef, double T)
 	{
-		if (name == "BlacksburgLab")
-		{
-			if (s == -1)
-			{
-				if (TRef.GetJDay() < CTRef(0, MARCH, DAY_25).GetJDay())
-					s = EGG;
-				else if (TRef.GetJDay() < CTRef(0, APRIL, DAY_15).GetJDay())
-					s = LARVAE;
-				else if (TRef.GetJDay() < CTRef(0, MAY, DAY_25).GetJDay())
-					s = PUPAE;
-				else
-					s = AESTIVAL_DIAPAUSE_ADULT;
-			}
-
-			//if we are in Blacksburg lab situation, take temperature depend of year
-			//lab rearing: change temperature Lamb(2005) thesis
-			if (s == LARVAE)
-				T = 13;
-			else if (s == PREPUPAE || s == PUPAE)
-				T = 15;
-			else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2003)
-				T = 15;
-			else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2004)
-			{
-				if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
-					T = 19;
-				else
-					T = 13;
-			}
-		}
-
-
-		return T;
 	}
 
-	double CLaricobiusNigrinus::AdjustDLLab(const string& name, size_t s, CTRef TRef, double day_length)
-	{
-		/*if (name == "VictoriaLab")
-		{
-			day_length = 12;
-		}
-		else */
-		if (name == "BlacksburgLab")
-		{
-			//if we are in Blacksburg lab situation, take 12 hours
-			if (TRef.GetYear() == 2003)
-				day_length = 14;
-			else if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
-				day_length = 16;
-			else
-				day_length = 10;
-		}
 
-		return day_length;
-	}
+	//double CLaricobiusNigrinus::AdjustTLab(const string& name, size_t s, CTRef TRef, double T)
+	//{
+	//	if (name == "BlacksburgLab")
+	//	{
+	//		if (s == -1)
+	//		{
+	//			if (TRef.GetJDay() < CTRef(0, MARCH, DAY_25).GetJDay())
+	//				s = EGG;
+	//			else if (TRef.GetJDay() < CTRef(0, APRIL, DAY_15).GetJDay())
+	//				s = LARVAE;
+	//			else if (TRef.GetJDay() < CTRef(0, MAY, DAY_25).GetJDay())
+	//				s = PUPAE;
+	//			else
+	//				s = AESTIVAL_DIAPAUSE_ADULT;
+	//		}
+
+	//		//if we are in Blacksburg lab situation, take temperature depend of year
+	//		//lab rearing: change temperature Lamb(2005) thesis
+	//		if (s == LARVAE)
+	//			T = 13;
+	//		else if (s == PREPUPAE || s == PUPAE)
+	//			T = 15;
+	//		else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2003)
+	//			T = 15;
+	//		else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2004)
+	//		{
+	//			if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
+	//				T = 19;
+	//			else
+	//				T = 13;
+	//		}
+	//	}
+
+
+	//	return T;
+	//}
+
+	//double CLaricobiusNigrinus::AdjustDLLab(const string& name, size_t s, CTRef TRef, double day_length)
+	//{
+	//	/*if (name == "VictoriaLab")
+	//	{
+	//		day_length = 12;
+	//	}
+	//	else */
+	//	if (name == "BlacksburgLab")
+	//	{
+	//		//if we are in Blacksburg lab situation, take 12 hours
+	//		if (TRef.GetYear() == 2003)
+	//			day_length = 14;
+	//		else if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
+	//			day_length = 16;
+	//		else
+	//			day_length = 10;
+	//	}
+
+	//	return day_length;
+	//}
 
 
 	void CLaricobiusNigrinus::OnNewDay(const CWeatherDay& weather)
@@ -219,30 +227,30 @@ namespace WBSF
 		size_t s = GetStage();
 
 		double T = weather[H_TAIR];
-		T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
+		//T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
 
-		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
-		day_length = AdjustDLLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), day_length);
-		
+		//double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
+		//day_length = AdjustDLLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), day_length);
+
 		if (s != AESTIVAL_DIAPAUSE_ADULT)
 		{
 			//Time step development rate
 			double r = Equations().GetRate(s, T) / nb_steps;
-			
+
 			//Relative development rate for this individual
 			double rr = m_RDR[s];
 
-			double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[s][0] : 1;
+			//double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[s][0] : 1;
 
 
 			//Time step development rate for this individual
-			r *= rr*corr_r;
+			r *= rr;// *corr_r;
 			ASSERT(r >= 0 && r < 1);
 
 			//Adjust age
 			m_age += r;
 
-			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.9)//drop to the soil when 90% competed (guess)
+			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.95)//drop to the soil when 95% competed (guess)
 				m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
 
 			if (GetStand()->m_bApplyAttrition)
@@ -267,7 +275,7 @@ namespace WBSF
 
 		if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
 		{
-			double to = 140;
+			double to = 140;//pre-oviposition period of 140 days
 			double t = timeStep / 24.0;
 			if (m_t > to)
 			{
@@ -294,12 +302,12 @@ namespace WBSF
 		CIndividual::Live(weather);
 
 		ASSERT(IsCreated(weather.GetTRef()));
-		
+
 		if (!IsCreated(weather.GetTRef()))
 			return;
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps&&m_age < DEAD_ADULT; step++)
+		for (size_t step = 0; step < nbSteps && m_age < DEAD_ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -350,6 +358,14 @@ namespace WBSF
 				m_status = DEAD;
 				m_death = FROZEN;
 			}
+
+			//From Crandall 2023
+			if (weather[H_TMIN][LOWEST] < m_cold_tolerence)
+			{
+				m_status = DEAD;
+				m_death = FROZEN;
+			}
+
 		}
 	}
 
@@ -360,15 +376,27 @@ namespace WBSF
 	{
 		bool bDeath = false;
 
+
 		//daily survival
 		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+		if (size_t(m_lastAge) == ACTIVE_ADULT && HasChangedStage())
+		{
+			//The mean historical subterranean survivorship of laboratory - reared Laricobius
+			//spp.is 37.5 ± 13.6 % (Foley et al., 2021)
+			//overall mean of 17.1 ± 0.8%.
+
+			ds = 0.171;
+		}
+
 
 		//time step survival
 		double S = pow(ds, r);
+		
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
 		if (RandomGenerator().RandUniform() > S)
 			bDeath = true;
+
 
 		return bDeath;
 	}
@@ -388,20 +416,23 @@ namespace WBSF
 			ASSERT(s <= DEAD_ADULT);
 
 			if (IsAlive() || (s == DEAD_ADULT))
-				stat[S_EGG + s] += m_scaleFactor;
+				stat[S_EGGS + s] += m_scaleFactor;
 
 
 			if (m_status == DEAD && m_death == FROZEN)
 				stat[S_DEAD_FROST] += m_scaleFactor;
 
 			if (HasChangedStage())
-				stat[S_M_EGG + s] += m_scaleFactor;
+				stat[S_M_EGGS + s] += m_scaleFactor;
 
 			if (m_dropToGroundDate.IsInit() && m_dropToGroundDate == d)
 				stat[S_LARVAL_DROP] += m_scaleFactor;
-			
-			
-			stat[S_BROODS] += m_scaleFactor* m_broods;
+
+
+			stat[S_BROODS] += m_scaleFactor * m_broods;
+
+			if(d== GetStand()->m_diapause_end)
+				stat[S_M_AESTIVAL_DIAPAUSE_ADULT_END] += m_scaleFactor;
 			//if (s == ACTIVE_ADULT)
 			//{
 			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;
@@ -464,7 +495,7 @@ namespace WBSF
 			const CWeatherDay& wday = weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
-			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 			double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 			sumDD += DD;
 		}
@@ -484,25 +515,25 @@ namespace WBSF
 
 		const CWeatherStation& weather_station = GetModel()->m_weather;
 		const CWeatherDay& wday = weather_station.GetDay(d);
-		
+
 		//use year of diapause to compute correctly the adult emergence cdd
 		int year = m_diapause_end.GetYear();
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
 		CTRef end = CTRef(year, DECEMBER, DAY_31);
 
-		if (d >= begin && d<= end)
+		if (d >= begin && d <= end)
 		{
 			//Egg creation DD (allen 1976)
 			m_egg_creation_CDD += m_DD.GetDD(wday);
-			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
+			stat[S_EGGS_CREATION_CDD] = m_egg_creation_CDD;
 
 			//diapause end negative DD
 			double T = wday[H_TNTX][MEAN];
-			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 			//T = max(m_equations.m_ADE[ʎa], T);
 			double NDD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 
-			int ii = d-begin;
+			int ii = d - begin;
 			//if( ii>=(172-1) && ii<=int(m_equations.m_ADE[ʎ0]-1))
 			if (ii >= int(m_equations.m_ADE[ʎ0] - 1) && ii <= int(m_equations.m_ADE[ʎ1] - 1))
 				m_diapause_end_NCDD += NDD;
@@ -512,16 +543,16 @@ namespace WBSF
 
 
 		begin = m_diapause_end;
-		end = CTRef(m_diapause_end.GetYear()+1, JANUARY, DAY_31);
+		end = CTRef(m_diapause_end.GetYear() + 1, JUNE, DAY_30);
 		if (d >= begin && d <= end)
 		{
 			//adult emergence (growing DD)
 			double T = wday[H_TNTX][MEAN];
-			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 
 			double GDD = max(0.0, T - m_equations.m_EAS[Τᴴ]);
 			m_adult_emergence_CDD += GDD;
-			stat[S_ADULT_EMERGENCE_CDD] = m_adult_emergence_CDD;
+			stat[S_EMERGING_ADULT_CDD] = m_adult_emergence_CDD;
 		}
 	}
 
