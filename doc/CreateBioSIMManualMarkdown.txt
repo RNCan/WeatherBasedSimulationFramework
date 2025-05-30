@@ -1,0 +1,6 @@
+C:\EXE\pandoc\pandoc.exe -f docx -t markdown-pipe_tables-simple_tables-multiline_tables-grid_tables "E:\Project\doc\English\BioSIM11 Manual EN.docx" -o "E:\Project\doc\English\BioSIM11 Manual EN.md" --lua-filter=no-img-attr.lua --wrap=none --reference-links
+
+::Some manual modification is needed to fit with GigHub format:
+::.mwf image must be convert into 
+::Chnage the path of images to fit the images in the GibHub path
+::
