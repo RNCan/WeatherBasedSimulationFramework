@@ -31,10 +31,10 @@ namespace WBSF
 //La	2	1686	45	2.5		50.0	935.8	53.11	0.978
 
 
-	const array<double, LAZ::NB_EMERGENCE_PARAMS> CLeucotaraxisArgenticollisEquations::ADULT_EMERG = { 1, 1, 2.47, -999, -999 };//logistic distribution
-	const array<double, LAZ::NB_PUPA_PARAMS> CLeucotaraxisArgenticollisEquations::PUPA_PARAM = { 0.23, 0.1149, 3.1, 26.5, 34.9, 4.726, 0.4892 };//Wang/Lang/Ding pupa parameters without diapause
-	const array<double, LAZ::NB_C_PARAMS> CLeucotaraxisArgenticollisEquations::C_PARAM = { -9.3, 3.55, 31, 0.126 };//correction factor to get reasonable parameters for Pupae
-	const array<double, LAZ::NB_EOD_PARAMS> CLeucotaraxisArgenticollisEquations::EOD_PARAM = { -999, -999 };//End of diapause correction
+	const array<double, LAZ::NB_EMERGENCE_PARAMS> CLeucotaraxisArgenticollisEquations::ADULT_EMERG = { 48.0, 1.2, 2.10, -999, -999 };//logistic distribution
+	const array<double, LAZ::NB_PUPA_PARAMS> CLeucotaraxisArgenticollisEquations::PUPA_PARAM = { 0.29, 0.1149, 3.1, 27.7, 34.9, 4.588, 0.45 };//Wang/Lang/Ding pupa parameters without diapause
+	const array<double, LAZ::NB_C_PARAMS> CLeucotaraxisArgenticollisEquations::C_PARAM = {0, 2.548, 9.723, 0 };//correction factor to get reasonable parameters for Pupae
+	const array<double, LAZ::NB_EOD_PARAMS> CLeucotaraxisArgenticollisEquations::EOD_PARAM = { -999, 0.04687 };//End of diapause correction
 	
 
 	CLeucotaraxisArgenticollisEquations::CLeucotaraxisArgenticollisEquations(const CRandomGenerator& RG) :

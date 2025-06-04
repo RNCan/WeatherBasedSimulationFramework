@@ -21,6 +21,11 @@ using namespace std;
 
 namespace WBSF
 {
+
+	const std::array<size_t, CLaricobiusNigrinusModel::NB_EVALUATED_STAGES> CLaricobiusNigrinusModel::STAT_STAGE = { S_EGGS, S_LARVAE, S_LARVAL_DROP, S_ACTIVE_ADULTS };
+
+
+
 	static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::MODIFIED_ALLEN_WAVE;
 	enum { ACTUAL_CDD, DATE_DD717, DIFF_DAY, NB_OUTPUTS };
 
@@ -41,10 +46,11 @@ namespace WBSF
 
 		m_bCumul = false;
 		m_bApplyAttrition = true;
-		m_RDR = CLaricobiusNigrinusEquations::RDR;
+		//m_RDR = CLaricobiusNigrinusEquations::RDR;
 		m_OVP = CLaricobiusNigrinusEquations::OVP;
 		m_ADE = CLaricobiusNigrinusEquations::ADE;
 		m_EAS = CLaricobiusNigrinusEquations::EAS;
+		m_compute_cumul = true;
 	}
 
 	CLaricobiusNigrinusModel::~CLaricobiusNigrinusModel()
@@ -67,7 +73,8 @@ namespace WBSF
 			{
 				for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 				{
-					m_RDR[s][p] = parameters[c++].GetFloat();
+					//m_RDR[s][p] = parameters[c++].GetFloat();
+					parameters[c++].GetFloat();
 				}
 			}
 
@@ -166,9 +173,9 @@ namespace WBSF
 		//Create stand
 		CLNFStand stand(this, m_OVP[Τᴴ¹], m_OVP[Τᴴ²]);
 		stand.m_bApplyAttrition = m_bApplyAttrition;
-		
+
 		//Set parameters to equation
-		stand.m_equations.m_RDR = m_RDR;
+		//stand.m_equations.m_RDR = m_RDR;
 		stand.m_equations.m_OVP = m_OVP;
 		stand.m_equations.m_ADE = m_ADE;
 		stand.m_equations.m_EAS = m_EAS;
@@ -233,10 +240,11 @@ namespace WBSF
 		if (m_bCumul)
 		{
 			//cumulative result
-			for (size_t s = S_EGG; s < S_ACTIVE_ADULT; s++)
+			for (size_t ss = 0; ss < NB_CUMULATIVE_STATS; ss++)
 			{
 				CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 
+				size_t s = CUMULATIVE_STATS[ss];
 				CStatistic stat = output.GetStat(s, p);
 				if (stat.IsInit() && stat[SUM] > 0)
 				{
@@ -248,71 +256,58 @@ namespace WBSF
 					}
 				}
 			}
-
-			/*for (size_t s = S_M_EGG; s <= S_M_DEAD_ADULT; s++)
-			{
-				CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-				if (s >= S_M_ACTIVE_ADULT)
-				{
-					p.Begin() = CTRef(year, JULY, DAY_01);
-					if (weather[year].HaveNext())
-						p.End() = CTRef(year + 1, JUNE, DAY_30);
-				}
-
-				CStatistic stat = output.GetStat(s, p);
-				if (stat.IsInit() && stat[SUM] > 0)
-				{
-					for (CTRef d = p.Begin() + 1; d <= p.End(); d++)
-					{
-						if(output.IsInside(d))
-							output[d][s] = output[d - 1][s] + output[d][s] * 100 / stat[SUM];
-						_ASSERTE(!_isnan(output[d][s]));
-					}
-				}
-
-			}*/
-
 		}
 	}
 
 
+
+
+	enum TInput { I_SOURCE, I_SITE, I_DATE, I_EGGS, I_LARVAE, I_LARVAL_DROP, I_EMERGING_ADULTS, I_ACTIVE_ADULTS, I_FEMALES, I_BROODS, NB_INPUTS };
+
+
 	void CLaricobiusNigrinusModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
-		ASSERT(data.size() == 5);
+		ASSERT(data.size() == NB_INPUTS);
 
 		CSAResult obs;
-		//if (data[0] != "BlacksburgLab" && data[0] != "VictoriaLab")
-		//if (data[0] != "VictoriaLab")
-		//{
-		CStatistic egg_creation_date;
 
+		//CStatistic egg_creation_date;
+		
 
-		obs.m_ref.FromFormatedString(data[1]);
-		obs.m_obs.resize(NB_INPUTS);
-		for (size_t i = 0; i < NB_INPUTS; i++)
+		obs.m_ref.FromFormatedString(data[I_DATE]);
+		obs.m_obs.resize(NB_EVALUATED_STAGES);
+		for (size_t i = 0; i < NB_EVALUATED_STAGES; i++)
 		{
-			obs.m_obs[i] = stod(data[i + 2]);
-
-			if (i == 0 && obs.m_obs[i] > -999)
-				m_egg_creation_date[data[0] + "_" + to_string(obs.m_ref.GetYear())] += obs.m_ref.GetJDay();
-
-			//if (i == 1 && obs.m_obs[i] <= -999 && stod(data[i + 5]) > -999)
-				//obs.m_obs[i] = stod(data[i + 5]);//second method
-
-			if (obs.m_obs[i] > -999)
+			if (data[I_EGGS + i] != "NA")
 			{
+				obs.m_obs[i] = stod(data[I_EGGS + i]);
+				
+				//if (i == 0 && obs.m_obs[i] > -999)
+					//m_egg_creation_date[data[0] + "_" + to_string(obs.m_ref.GetYear())] += obs.m_ref.GetJDay();
+
+				//if (i == 1 && obs.m_obs[i] <= -999 && stod(data[i + 5]) > -999)
+					//obs.m_obs[i] = stod(data[i + 5]);//second method
+
+				//if (obs.m_obs[i] > -999)
+				//{
+				
+				m_cumul_stats[i] += obs.m_obs[i];
 				m_nb_days[i] += obs.m_ref.GetJDay();
 				m_years[i].insert(obs.m_ref.GetYear());
+				//}
+			}
+			else
+			{
+				obs.m_obs[i] = -999;
 			}
 		}
 
 		m_SAResult.push_back(obs);
 
-
 		//}
-
-
 	}
+	
+	
 
 	double GetSimX(size_t s, CTRef TRefO, double obs, const CModelStatVector& output)
 	{
@@ -335,7 +330,7 @@ namespace WBSF
 				if (obsY2 != obsY1)
 				{
 					double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
-					double obsX = obsX1 + (obs - obsY1)*slope;
+					double obsX = obsX1 + (obs - obsY1) * slope;
 					ASSERT(!_isnan(obsX) && _finite(obsX));
 
 					x = obsX;
@@ -348,44 +343,47 @@ namespace WBSF
 
 	bool CLaricobiusNigrinusModel::IsParamValid()const
 	{
-		if (m_OVP[Τᴴ¹] >= m_OVP[Τᴴ²])
-			return false;
-
-
 		bool bValid = true;
-		for (size_t s = 0; s <= NB_STAGES && bValid; s++)
-		{
-			if (s == EGG || s == LARVAE /*|| s == AESTIVAL_DIAPAUSE_ADULT*/)
-			{
-				CStatistic rL;
-				for (double Э = 0.01; Э < 0.5; Э += 0.01)
-				{
-					double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
-					if (r >= 0.4 && r <= 2.5)
-						rL += 1.0 / r;//reverse for comparison
-				}
 
-				CStatistic rH;
-				for (double Э = 0.51; Э < 1.0; Э += 0.01)
-				{
-					double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
-					if (r >= 0.4 && r <= 2.5)
-						rH += r;
-				}
 
-				if (rL.IsInit() && rH.IsInit())
-					bValid = fabs(rL[SUM] - rH[SUM]) < 5.3; //in Régnière (2012) obtain a max of 5.3
-				else
-					bValid = false;
-			}
-		}
+		if (m_OVP[Τᴴ¹] >= m_OVP[Τᴴ²])
+			bValid = false;
+
+
+		
+		//for (size_t s = 0; s <= NB_STAGES && bValid; s++)
+		//{
+		//	if (s == EGG || s == LARVAE /*|| s == AESTIVAL_DIAPAUSE_ADULT*/)
+		//	{
+		//		CStatistic rL;
+		//		for (double Э = 0.01; Э < 0.5; Э += 0.01)
+		//		{
+		//			double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
+		//			if (r >= 0.4 && r <= 2.5)
+		//				rL += 1.0 / r;//reverse for comparison
+		//		}
+
+		//		CStatistic rH;
+		//		for (double Э = 0.51; Э < 1.0; Э += 0.01)
+		//		{
+		//			double r = 1.0 - log((pow(Э, m_RDR[s][Ϙ]) - 1.0) / (pow(0.5, m_RDR[s][Ϙ]) - 1.0)) / m_RDR[s][к];
+		//			if (r >= 0.4 && r <= 2.5)
+		//				rH += r;
+		//		}
+
+		//		if (rL.IsInit() && rH.IsInit())
+		//			bValid = fabs(rL[SUM] - rH[SUM]) < 5.3; //in Régnière (2012) obtain a max of 5.3
+		//		else
+		//			bValid = false;
+		//	}
+		//}
 
 		return bValid;
 	}
 
 
 
-	void CLaricobiusNigrinusModel::CalibrateDiapauseEndTh(CStatisticXY& stat)
+	bool CLaricobiusNigrinusModel::CalibrateDiapauseEndTh(CStatisticXY& stat)
 	{
 		static const double DiapauseDuration[3][3] =
 		{
@@ -402,7 +400,7 @@ namespace WBSF
 		};
 
 		if (m_SAResult.size() != 8)
-			return;
+			return false;
 
 
 		for (size_t t = 0; t < 3; t++)
@@ -428,6 +426,8 @@ namespace WBSF
 				}
 			}
 		}
+
+		return true;
 	}
 
 
@@ -443,13 +443,13 @@ namespace WBSF
 
 		double sumDD = 0;
 		//for (CTRef TRef = p.Begin()+172; TRef <= p.End()&& TRef<= p.Begin() + int(m_ADE[ʎ0]); TRef++)
-		for (CTRef TRef = p.Begin() + int(m_ADE[ʎ0]-1); TRef <= p.End() && TRef <= p.Begin() + int(m_ADE[ʎ1]-1); TRef++)
+		for (CTRef TRef = p.Begin() + int(m_ADE[ʎ0] - 1); TRef <= p.End() && TRef <= p.Begin() + int(m_ADE[ʎ1] - 1); TRef++)
 		{
 			//size_t ii = TRef - p.Begin();
 			const CWeatherDay& wday = m_weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
-			T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
+			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 			//T = Round(max(m_ADE[ʎa], T), ROUND_VAL);
 
 			double DD = min(0.0, T - m_ADE[ʎb]);//DD is negative
@@ -458,33 +458,29 @@ namespace WBSF
 		}
 
 
-		
+
 		//boost::math::weibull_distribution<double> begin_dist(-m_ADE[ʎ2], m_ADE[ʎ3]);
 //		int begin = (int)Round(m_ADE[ʎ0] + m_ADE[ʎa] * cdf(begin_dist, -sumDD), 0);
 
 		boost::math::logistic_distribution<double> begin_dist(m_ADE[ʎ2], m_ADE[ʎ3]);
 		int begin = (int)Round(m_ADE[ʎ1] + m_ADE[ʎa] * cdf(begin_dist, sumDD), 0);
 		return  p.Begin() + begin;
-
-
-
 	}
 
 
-	void CLaricobiusNigrinusModel::CalibrateDiapauseEnd(const bitset<3>& test, CStatisticXY& stat)
+	bool CLaricobiusNigrinusModel::CalibrateDiapauseEnd(const bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat)
 	{
-		for (size_t EVALUATE_STAGE = 0; EVALUATE_STAGE < NB_INPUTS; EVALUATE_STAGE++)
-			//for (size_t j = 0; j < NB_INPUTS; j++)
+		for (size_t i = 0; i < NB_EVALUATED_STAGES; i++)
 		{
-			if (test[EVALUATE_STAGE])
+			if (test[i])
 			{
 
 				if (m_OVP[Τᴴ¹] >= m_OVP[Τᴴ²])
-					return;
+					return false;
 
 
 				if (m_SAResult.empty())
-					return;
+					return true;
 
 				if (!m_weather.IsHourly())
 					m_weather.ComputeHourlyVariables();
@@ -494,7 +490,7 @@ namespace WBSF
 				for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 				{
 					int year = m_weather[y].GetTRef().GetYear();
-					if (m_years[EVALUATE_STAGE].find(year) == m_years[EVALUATE_STAGE].end())
+					if (m_years[i].find(year) == m_years[i].end())
 						continue;
 
 
@@ -503,7 +499,7 @@ namespace WBSF
 					vector<double> CDD;
 					CTPeriod p;
 
-					if (EVALUATE_STAGE == I_EMERGED_ADULT)
+					if (i == E_EMERGING_ADULTS)
 					{
 
 						p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
@@ -514,10 +510,6 @@ namespace WBSF
 						{
 							const CWeatherDay& wday = m_weather.GetDay(TRef);
 							double T = wday[H_TNTX][MEAN];
-							T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-
-							//double DD = max(0.0, T - 4.0);//DD is negative
-							//T = min(T, m_OVP[Τᴴ²]);
 							double DD = max(0.0, T - m_EAS[Τᴴ]);//DD is positive
 
 							sumDD += DD;
@@ -536,7 +528,9 @@ namespace WBSF
 
 						CDD.resize(p.size(), 0);
 
+
 						CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_OVP[Τᴴ¹], m_OVP[Τᴴ²]);
+						//DDModel.GetCDD(
 
 						for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 						{
@@ -554,14 +548,14 @@ namespace WBSF
 						size_t ii = m_SAResult[i].m_ref - p.Begin();
 						if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
 						{
-							double obs_y = m_SAResult[i].m_obs[EVALUATE_STAGE];
+							double obs_y = m_SAResult[i].m_obs[STAT_STAGE[i]];
 
 							if (obs_y > -999)
 							{
 
 								double sim_y = 0;
 
-								if (EVALUATE_STAGE == I_EMERGED_ADULT)
+								if (i == E_EMERGING_ADULTS)
 								{
 									boost::math::logistic_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
 									//boost::math::weibull_distribution<double> emerged_dist(m_EAS[μ], m_EAS[ѕ]);
@@ -589,75 +583,65 @@ namespace WBSF
 				}//for all years
 			}//if
 		}//for
-		return;
 
-	}
-
-
-	void CLaricobiusNigrinusModel::CalibrateOviposition(CStatisticXY& stat)
-	{
-		if (m_SAResult.empty())
-			return;
-
-		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
-		{
-			int year = m_weather[y].GetTRef().GetYear();
-			string key = m_info.m_loc.m_ID + "_" + to_string(year);
-
-			if (m_egg_creation_date.find(key) == m_egg_creation_date.end())
-				continue;
-
-			//CTRef emergingBegin = GetDiapauseEnd(m_weather[year-1]);
-
-
-			ASSERT(m_weather[year].HavePrevious());
-
-			if (m_weather[year].HavePrevious())
-			{
-				CStatistic Tmin;
-				Tmin += m_weather[year - 1][NOVEMBER][H_TMIN];
-				Tmin += m_weather[year - 1][DECEMBER][H_TMIN];
-				Tmin += m_weather[year][JANUARY][H_TMIN];
-				Tmin += m_weather[year][FEBRUARY][H_TMIN];
-
-				CStatistic Tmean;
-				Tmean += m_weather[year - 1][NOVEMBER][H_TNTX];
-				Tmean += m_weather[year - 1][DECEMBER][H_TNTX];
-				Tmean += m_weather[year][JANUARY][H_TNTX];
-				Tmean += m_weather[year][FEBRUARY][H_TNTX];
-
-
-				double obs = m_egg_creation_date.at(key);
-				double sim = m_ADE[ʎa] - m_ADE[ʎb] * 1 / (1 + exp(-(Tmean[MEAN] - m_ADE[ʎ2]) / m_ADE[ʎ3]));
-
-				if (sim < 0.1)
-					sim = 0;
-				if (sim > 99.9)
-					sim = 100;
-
-				stat.Add(obs, sim);
-			}
-
-
-		}
-		return;
-
-	}
-
-	bool CLaricobiusNigrinusModel::GetFValueDaily(CStatisticXY& stat)
-	{
-		bitset<3> test;
-		test.reset();
-
-		//test.set(I_EGGS);
-		//test.set(I_LARVAE);
-		test.set(I_EMERGED_ADULT);
-
-		//return CalibrateDiapauseEndTh(stat);
-		CalibrateDiapauseEnd(test, stat);
 		return true;
-		//return CalibrateOviposition(stat);
 
+	}
+
+
+	//bool CLaricobiusNigrinusModel::CalibrateOviposition(CStatisticXY& stat)
+	//{
+	//	if (m_SAResult.empty())
+	//		return;
+
+	//	for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+	//	{
+	//		int year = m_weather[y].GetTRef().GetYear();
+	//		string key = m_info.m_loc.m_ID + "_" + to_string(year);
+
+	//		if (m_egg_creation_date.find(key) == m_egg_creation_date.end())
+	//			continue;
+
+	//		//CTRef emergingBegin = GetDiapauseEnd(m_weather[year-1]);
+
+
+	//		ASSERT(m_weather[year].HavePrevious());
+
+	//		if (m_weather[year].HavePrevious())
+	//		{
+	//			CStatistic Tmin;
+	//			Tmin += m_weather[year - 1][NOVEMBER][H_TMIN];
+	//			Tmin += m_weather[year - 1][DECEMBER][H_TMIN];
+	//			Tmin += m_weather[year][JANUARY][H_TMIN];
+	//			Tmin += m_weather[year][FEBRUARY][H_TMIN];
+
+	//			CStatistic Tmean;
+	//			Tmean += m_weather[year - 1][NOVEMBER][H_TNTX];
+	//			Tmean += m_weather[year - 1][DECEMBER][H_TNTX];
+	//			Tmean += m_weather[year][JANUARY][H_TNTX];
+	//			Tmean += m_weather[year][FEBRUARY][H_TNTX];
+
+
+	//			double obs = m_egg_creation_date.at(key);
+	//			double sim = m_ADE[ʎa] - m_ADE[ʎb] * 1 / (1 + exp(-(Tmean[MEAN] - m_ADE[ʎ2]) / m_ADE[ʎ3]));
+
+	//			if (sim < 0.1)
+	//				sim = 0;
+	//			if (sim > 99.9)
+	//				sim = 100;
+
+	//			stat.Add(obs, sim);
+	//		}
+
+
+	//	}
+	//	return;
+
+	//}
+
+
+	bool CLaricobiusNigrinusModel::CalibrateEggLarvaeEmergingAdults(const bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat)
+	{
 		if (!m_SAResult.empty())
 		{
 			if (!m_bCumul)
@@ -666,18 +650,15 @@ namespace WBSF
 			if (!m_weather.IsHourly())
 				m_weather.ComputeHourlyVariables();
 
-			//low and hi relative development rate must be approximatively the same
-			//if (!IsParamValid())
-				//return;
-
 
 
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 			{
 				int year = m_weather[y].GetTRef().GetYear();
-				if ((test[0] && m_years[I_EGGS].find(year) != m_years[I_EGGS].end()) ||
-					(test[1] && m_years[I_LARVAE].find(year) != m_years[I_LARVAE].end()) ||
-					(test[2] && m_years[I_EMERGED_ADULT].find(year) != m_years[I_EMERGED_ADULT].end()))
+				if ((test[E_EGGS] && m_years[E_EGGS].find(year) != m_years[E_EGGS].end()) ||
+					(test[E_LARVAE] && m_years[E_LARVAE].find(year) != m_years[E_LARVAE].end()) ||
+					(test[E_LARVAL_DROP] && m_years[E_LARVAL_DROP].find(year) != m_years[E_LARVAL_DROP].end()) ||
+					(test[E_EMERGING_ADULTS] && m_years[E_EMERGING_ADULTS].find(year) != m_years[E_EMERGING_ADULTS].end()))
 				{
 
 					CModelStatVector output;
@@ -689,14 +670,14 @@ namespace WBSF
 					output.Init(p, NB_STATS, 0);
 					ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
 
-					static const size_t STAT_STAGE[3] = { S_EGG, S_LARVAE, S_ACTIVE_ADULT };
+
 
 					for (size_t i = 0; i < m_SAResult.size(); i++)
 					{
 						if (output.IsInside(m_SAResult[i].m_ref))
 						{
 
-							for (size_t j = 0; j < NB_INPUTS; j++)
+							for (size_t j = 0; j < NB_EVALUATED_STAGES; j++)
 							{
 								if (test[j])
 								{
@@ -707,15 +688,15 @@ namespace WBSF
 									{
 										stat.Add(obs_y, sim_y);
 
-										double obs_x = m_SAResult[i].m_ref.GetJDay();
+										double obs_x = m_SAResult[i].m_ref.GetJDay(); 
 										double sim_x = GetSimX(STAT_STAGE[j], m_SAResult[i].m_ref, obs_y, output);
 
-										/*if (sim_x > -999)
+										if (obs_y > 5.0 && obs_y<95.0)
 										{
 											obs_x = Round(100 * (obs_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
 											sim_x = Round(100 * (sim_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
 											stat.Add(obs_x, sim_x);
-										}*/
+										}
 									}
 								}
 							}
@@ -726,5 +707,52 @@ namespace WBSF
 		}
 
 		return true;
+	}
+
+	bool CLaricobiusNigrinusModel::GetFValueDaily(CStatisticXY& stat)
+	{
+		if (!IsParamValid())
+				return false;
+				
+		
+		//return CalibrateDiapauseEndTh(stat);
+		//return CalibrateDiapauseEnd(test, stat);
+
+		if (m_compute_cumul)
+		{
+			
+			//Compute cumulative values
+			//for (size_t i = 0; i < m_cumul_stats.size(); i++)
+			//{
+			//	if (m_cumul_stats[i].IsInit() && m_cumul_stats[i][SUM] > 0)
+			//	{
+			//		double sumCum = 0;
+			//		for (size_t j = 0; j < m_SAResult.size(); j++)
+			//		{
+			//			if (m_SAResult[j].m_obs[i] > -999)
+			//			{
+			//				sumCum += m_SAResult[j].m_obs[i];
+			//				m_SAResult[j].m_obs[i] = 100 * sumCum / m_cumul_stats[i][SUM];
+			//			}
+			//		}
+			//	}
+			//}
+
+			m_compute_cumul = false;
+		}
+
+		bitset<NB_EVALUATED_STAGES> test;
+		test.reset();
+
+		test.set(E_EGGS);
+		test.set(E_LARVAE);
+		test.set(E_LARVAL_DROP);
+		
+		//test.set(E_EMERGING_ADULTS);
+
+
+		return CalibrateEggLarvaeEmergingAdults(test, stat);
+		//return CalibrateDiapauseEnd(test, stat);
+
 	}
 }

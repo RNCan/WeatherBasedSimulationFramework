@@ -78,16 +78,16 @@ namespace WBSF
 
 
 
-	const std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> CLaricobiusNigrinusEquations::RDR =
-	{{
-		//  a1      a2
-		{ 1.00, 0.00 },//Egg (correction factor)
-		{ 1.00, 0.00 },//Larvae (correction factor)
-		{ 0.00, 0.00 },//PrePupae
-		{ 0.00, 0.00 },//Pupae
-		{ 0.00, 0.00 },//Aestival diapause adult
-		{ 0.00, 0.00 },//Active adult
-	}};
+	//const std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> CLaricobiusNigrinusEquations::RDR =
+	//{{
+	//	//  a1      a2
+	//	{ 1.00, 0.00 },//Egg (correction factor)
+	//	{ 1.00, 0.00 },//Larvae (correction factor)
+	//	{ 0.00, 0.00 },//PrePupae
+	//	{ 0.00, 0.00 },//Pupae
+	//	{ 0.00, 0.00 },//Aestival diapause adult
+	//	{ 0.00, 0.00 },//Active adult
+	//}};
 
 	
 	
@@ -108,8 +108,7 @@ namespace WBSF
 	CLaricobiusNigrinusEquations::CLaricobiusNigrinusEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, -10, 35, 0.25)
 	{
-
-		m_RDR = RDR;
+		//m_RDR = RDR;
 		m_OVP = OVP;
 		m_ADE = ADE;
 		m_EAS = m_EAS;
@@ -159,11 +158,11 @@ namespace WBSF
 		{ {
 				//p25,To,Ha,HL,TL,HH,TH
 				{0.0794, 10.9, 2.2245, -55.2932, 5.7, 25.6999, 21.6},
-				{0.1205, 23.4, 1.5541, -41.8623, 5.8, 78.232, 24.9  },
-				{0.053, 15.2, 1.6354, -20.5995, 4.7, 24.7415, 22.4  },
+				{0.1205, 23.4, 1.5541, -41.8623, 5.8, 78.232, 24.9 },
+				{0.053, 15.2, 1.6354, -20.5995, 4.7, 24.7415, 22.4 },
 				{0.0635, 16.2, 1.6958, -51.3567, 2.8, 15.687, 20.3 },
 				{},
-				{ 2.488e-02 / 1.3, 1.066e-01, 4, 9.998e+01                },//adult 1.3: ajustement between Lo and Ln (from McAvoy data)
+				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                }, //adult 1.05: ajustement between Lo and Ln (from McAvoy unpublished)
 		} };
 #endif
 		
@@ -180,8 +179,8 @@ namespace WBSF
 		default: _ASSERTE(false);
 		}*/
 
-		static const double CORRECTION[NB_STAGES] = { 1, 1, 1, 1, 1, 1/1.3 };
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T)) * CORRECTION[s];
+		//static const double CORRECTION[NB_STAGES] = { 1, 1, 1, 1, 1, 1 };
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));// * CORRECTION[s]
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 
@@ -335,11 +334,11 @@ namespace WBSF
 	{
 		//AICc,maxLL
 		//1690.46,-840.107,5
-		static const double Fo = 100.4;
-		static const double sigma = 0.355;
-		static const double Fcorrection = 0.62;//correction between Fo and Fn (from McAvoy data)
-
-		boost::math::lognormal_distribution<double> fecondity(log(Fo* Fcorrection) - WBSF::Square(sigma) / 2.0, sigma);
+		static const double Fo = 72.0;//from McAvoy 2024
+		static const double sigma = 0.355;//from Foley 2022
+		//static const double Fcorrection = 72.0/102.1;//correction between Fo and Fn (from McAvoy 2024)
+		
+		boost::math::lognormal_distribution<double> fecondity(log(Fo) - WBSF::Square(sigma) / 2.0, sigma);
 		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Rand(0.01, 0.99));
 
 		ASSERT(!_isnan(Fi) && _finite(Fi));
@@ -384,45 +383,45 @@ namespace WBSF
 	//}
 
 	//l: longevity [days]
-	double CLaricobiusNigrinusEquations::GetAdultLongevity(size_t sex)const
-	{
-		//Longevity of female
-		//value from fecundity/longevity Zilahi-Balogh(2001)
-		static const double P[2][2] =
-		{
-			{ 36.6, 2.4 },
-			{ 30.8, 2.2}
-		};
+	//double CLaricobiusNigrinusEquations::GetAdultLongevity(size_t sex)const
+	//{
+	//	//Longevity of female
+	//	//value from fecundity/longevity Zilahi-Balogh(2001)
+	//	static const double P[2][2] =
+	//	{
+	//		{ 36.6, 2.4 },
+	//		{ 30.8, 2.2}
+	//	};
 
 
-		double w = m_randomGenerator.RandNormal(P[sex][0], P[sex][1]);
-		ASSERT(w > 3);
+	//	double w = m_randomGenerator.RandNormal(P[sex][0], P[sex][1]);
+	//	ASSERT(w > 3);
 
-		//adjustment for attrition
-		return w * 7 * 0.65;//active life [day]
-	}
+	//	//adjustment for attrition
+	//	return w * 7 * 0.65;//active life [day]
+	//}
 
 	//T : temperature [°C]
 	//day_length  : day length  [h]
 	//return Time in soil [days]
-	double CLaricobiusNigrinusEquations::GetTimeInSoil(double T, double day_length)
-	{
-		//data From Lamb 2005
-		//NbVal = 8	Bias = 0.00263	MAE = 0.95222	RMSE = 1.25691	CD = 0.99785	R² = 0.99786
-		//lam0 = 15.8101
-		//lam1 = 2.50857
-		//lam2 = 6.64395
-		//lam3 = 7.81911
-		//lam_a = 0.1634
-		//lam_b = 0.2648
+	//double CLaricobiusNigrinusEquations::GetTimeInSoil(double T, double day_length)const
+	//{
+	//	//data From Lamb 2005
+	//	//NbVal = 8	Bias = 0.00263	MAE = 0.95222	RMSE = 1.25691	CD = 0.99785	R² = 0.99786
+	//	//lam0 = 15.8101
+	//	//lam1 = 2.50857
+	//	//lam2 = 6.64395
+	//	//lam3 = 7.81911
+	//	//lam_a = 0.1634
+	//	//lam_b = 0.2648
 
-		static const double AADD[6] = { 15.8, 2.51, 6.64, 7.82, -0.163, 0.265 };
-		double DiS = 120.0 + (215.0 - 120.0) * 1.0 / (1.0 + exp(-(T - AADD[0]) / AADD[1]));//day in soil base on temperature
-		double DlF = exp(AADD[4] + AADD[5] * 1.0 / (1.0 + exp(-(day_length - AADD[2]) / AADD[3])));//day length factor
+	//	static const double AADD[6] = { 15.8, 2.51, 6.64, 7.82, -0.163, 0.265 };
+	//	double DiS = 120.0 + (215.0 - 120.0) * 1.0 / (1.0 + exp(-(T - AADD[0]) / AADD[1]));//day in soil base on temperature
+	//	double DlF = exp(AADD[4] + AADD[5] * 1.0 / (1.0 + exp(-(day_length - AADD[2]) / AADD[3])));//day length factor
 
-		double nb_days_in_soil = DiS * DlF;
-		return nb_days_in_soil;
-	}
+	//	double nb_days_in_soil = DiS * DlF;
+	//	return nb_days_in_soil;
+	//}
 
 
 
@@ -430,22 +429,22 @@ namespace WBSF
 	//day_length  : day length  [h]
 	//pupationTime : time to the soil before becoming adult (to complete pre-pupation and pupation) [days]
 	//return aestival diapause rate [day-1]
-	double CLaricobiusNigrinusEquations::GetAdultAestivalDiapauseRate(double T, double day_length, double creation_day, double pupation_time)
-	{
-		double TimeInSoil = GetTimeInSoil(T, day_length);//[day]
+	//double CLaricobiusNigrinusEquations::GetAdultAestivalDiapauseRate(double T, double day_length, double creation_day, double pupation_time)const
+	//{
+	//	double TimeInSoil = GetTimeInSoil(T, day_length);//[day]
 
-		double f = exp(m_ADE[ʎ0] + m_ADE[ʎ1] * 1.0 / (1.0 + exp(-(creation_day - m_ADE[ʎ2]) / m_ADE[ʎ3])));//day length factor
-		double AestivalDiapauseTime = max(0.0, (TimeInSoil - pupation_time));
-		double ADATime = f * AestivalDiapauseTime;//aestival diapause adult time
+	//	double f = exp(m_ADE[ʎ0] + m_ADE[ʎ1] * 1.0 / (1.0 + exp(-(creation_day - m_ADE[ʎ2]) / m_ADE[ʎ3])));//day length factor
+	//	double AestivalDiapauseTime = max(0.0, (TimeInSoil - pupation_time));
+	//	double ADATime = f * AestivalDiapauseTime;//aestival diapause adult time
 
-		double r = min(1.0, 1.0 / ADATime);
-		return r;
-	}
+	//	double r = min(1.0, 1.0 / ADATime);
+	//	return r;
+	//}
 
 	//T : temperature [°C]
 	//j_day_since_jan : ordinal day since the 1 January of the emergence year (continue after December 31)
 	//return: abundance (number of LN adult by normalized beating tray
-	double CLaricobiusNigrinusEquations::GetAdultAbundance(double T, size_t j_day_since_jan)
+	double CLaricobiusNigrinusEquations::GetAdultAbundance(double T, size_t j_day_since_jan)const
 	{
 
 		//Coefficients:
@@ -465,4 +464,21 @@ namespace WBSF
 	}
 
 
+	//Return individual cold tolerence temperature
+	double CLaricobiusNigrinusEquations::GetColdTolerence()const
+	{
+		//From Crandall 2023: Establishment and postrelease recovery of Laricobius nigrinus and Laricobius osakensis ...
+		//In Crandall, this regression give the probability of etablishement
+		//Here, we use it as a direct proxy for cold tolerence
+		static const double mu = -23.84615;
+		static const double s = 1.923077;
+
+		boost::math::logistic_distribution<double> establishment_dist(mu, s);
+		double cold_tolerence = boost::math::quantile(establishment_dist, m_randomGenerator.Rand(0.01, 0.99));
+
+		return cold_tolerence;
+	}
+
+	
 }
+

@@ -33,8 +33,8 @@
             <Type>2</Type>
             <Rect>40 10 60 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>9.7</DefaultValue>
-            <MinValue>0.01</MinValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -45,8 +45,8 @@
             <Type>2</Type>
             <Rect>35 170 55 320</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>13.6</DefaultValue>
-            <MinValue>0.01</MinValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>50</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -57,8 +57,8 @@
             <Type>2</Type>
             <Rect>65 10 85 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>2.13</DefaultValue>
-            <MinValue>0.01</MinValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>10</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -69,8 +69,8 @@
             <Type>2</Type>
             <Rect>60 170 80 320</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>47.1</DefaultValue>
-            <MinValue>0.01</MinValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>50</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -177,9 +177,9 @@
             <Type>2</Type>
             <Rect>230 10 255 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>130.5</DefaultValue>
+            <DefaultValue>220.3</DefaultValue>
             <MinValue>1</MinValue>
-            <MaxValue>50000</MaxValue>
+            <MaxValue>10000</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -189,7 +189,7 @@
             <Type>2</Type>
             <Rect>225 170 250 320</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>19.4</DefaultValue>
+            <DefaultValue>47.5</DefaultValue>
             <MinValue>0.0001</MinValue>
             <MaxValue>1000</MaxValue>
             <TextValue/>
@@ -201,7 +201,7 @@
             <Type>2</Type>
             <Rect>265 10 290 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>4.0</DefaultValue>
+            <DefaultValue>2.1</DefaultValue>
             <MinValue>-30</MinValue>
             <MaxValue>30</MaxValue>
             <TextValue/>
@@ -213,7 +213,7 @@
             <Type>2</Type>
             <Rect>265 170 290 320</Rect>
             <SeparatorPos>55</SeparatorPos>
-            <DefaultValue>50</DefaultValue>
+            <DefaultValue>20.2</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>50</MaxValue>
             <TextValue/>
@@ -225,8 +225,8 @@
             <Type>2</Type>
             <Rect>305 10 330 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>-6</DefaultValue>
-            <MinValue>-365</MinValue>
+            <DefaultValue>121</DefaultValue>
+            <MinValue>1</MinValue>
             <MaxValue>365</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -237,9 +237,9 @@
             <Type>2</Type>
             <Rect>335 10 355 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>26</DefaultValue>
-            <MinValue>-5000</MinValue>
-            <MaxValue>5000</MaxValue>
+            <DefaultValue>212</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>365</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -249,9 +249,9 @@
             <Type>2</Type>
             <Rect>360 10 380 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>10.7</DefaultValue>
+            <DefaultValue>-294.5</DefaultValue>
             <MinValue>-4000</MinValue>
-            <MaxValue>4000</MaxValue>
+            <MaxValue>0</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -261,8 +261,8 @@
             <Type>2</Type>
             <Rect>385 10 410 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>0.7</DefaultValue>
-            <MinValue>-1000</MinValue>
+            <DefaultValue>105.8</DefaultValue>
+            <MinValue>0.01</MinValue>
             <MaxValue>2000</MaxValue>
             <TextValue/>
         </InputVariable>
@@ -273,9 +273,9 @@
             <Type>2</Type>
             <Rect>425 10 445 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>167</DefaultValue>
-            <MinValue>-365</MinValue>
-            <MaxValue>365</MaxValue>
+            <DefaultValue>34.8</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -285,9 +285,9 @@
             <Type>2</Type>
             <Rect>450 10 470 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>9.47</DefaultValue>
+            <DefaultValue>20</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>365</MaxValue>
+            <MaxValue>60</MaxValue>
             <TextValue/>
         </InputVariable>
         <InputVariable>
@@ -297,7 +297,7 @@
             <Type>2</Type>
             <Rect>494 10 516 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>1327.3</DefaultValue>
+            <DefaultValue>1157.8</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>10000</MaxValue>
             <TextValue/>
@@ -309,7 +309,7 @@
             <Type>2</Type>
             <Rect>495 175 515 325</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue>95</DefaultValue>
+            <DefaultValue>125</DefaultValue>
             <MinValue>0.01</MinValue>
             <MaxValue>10000</MaxValue>
             <TextValue/>
@@ -321,9 +321,9 @@
             <Type>2</Type>
             <Rect>560 10 582 160</Rect>
             <SeparatorPos>60</SeparatorPos>
-            <DefaultValue/>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <DefaultValue>-2.5</DefaultValue>
+            <MinValue>-10</MinValue>
+            <MaxValue>35</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>
@@ -347,48 +347,56 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PrePupa</Name>
-            <Title>PrePupa</Title>
+            <Name>PrePupae</Name>
+            <Title>PrePupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Pupa</Name>
-            <Title>Pupa</Title>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>AestivatingAdult</Name>
-            <Title>AestivatingAdult</Title>
+            <Name>AestivatingAdults</Name>
+            <Title>AestivatingAdults</Title>
             <Units/>
             <Description>Aestivating Adults</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ActiveAdult</Name>
-            <Title>ActiveAdult</Title>
+            <Name>ActiveAdults</Name>
+            <Title>ActiveAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DeadAdult</Name>
-            <Title>DeadAdult</Title>
+            <Name>DeadAdults</Name>
+            <Title>DeadAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>EggCreated</Name>
-            <Title>EggCreated</Title>
+            <Name>Broods</Name>
+            <Title>Broods</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggsCreated</Name>
+            <Title>EggsCreated</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -427,8 +435,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>AdultEmerged</Name>
-            <Title>AdultEmerged</Title>
+            <Name>EmergingAdults</Name>
+            <Title>EmergingAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -451,8 +459,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>EggCreationCDD</Name>
-            <Title>EggCreationCDD</Title>
+            <Name>EndingDiapause</Name>
+            <Title>EndingDiapause</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggsCreationCDD</Name>
+            <Title>EggsCreationCDD</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -471,6 +487,14 @@
             <Title>AdultEmergenceGDD</Title>
             <Units/>
             <Description>Adult emergence growing degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>LarvalDrop</Name>
+            <Title>LarvalDrop</Title>
+            <Units/>
+            <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>

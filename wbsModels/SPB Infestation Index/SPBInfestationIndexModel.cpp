@@ -4,7 +4,7 @@
 #include "SPBInfestationIndexModel.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic/WeatherDefine.h"
-
+#include <boost/math/distributions/normal.hpp>
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
@@ -60,18 +60,19 @@ namespace WBSF
 		ERMsg msg;
 
 		
-
-		//This is where the model is actually executed
-
-		//lnSPTt(log average spring temperature in the current year) 0.0154 0.0052 0.003
-		//lnFLTt(log average fall temperature in the current year)   0.0141 0.0053 0.008
-		//lnSPPt􀀀1(log spring total precipitation one year ago)      0.0010 0.0004 0.006
-		//lnWNPt􀀀1(log winter total precipitation one year ago)      0.0011 0.0003 0.000
-		//lnMinWNTt􀀀1(log winter min temperature one year ago)       0.0047 0.0017 0.007
-		//lnSPTt􀀀2(log average spring temperature two years ago)     0.0096 0.0049 0.049
-		//lnSMTt􀀀2(log average summer temperature two years ago)     0.0218
-		if (true)
+		bool bAn2002 = m_info.m_modelName == "SouthernPineBeetleInfestationsIndex(An2022)";
+		
+		if (bAn2002)//An (2022) version
 		{
+			//This is where the model is actually executed
+
+			//lnSPTt(log average spring temperature in the current year) 0.0154 0.0052 0.003
+			//lnFLTt(log average fall temperature in the current year)   0.0141 0.0053 0.008
+			//lnSPPt1(log spring total precipitation one year ago)      0.0010 0.0004 0.006
+			//lnWNPt1(log winter total precipitation one year ago)      0.0011 0.0003 0.000
+			//lnMinWNTt1(log winter min temperature one year ago)       0.0047 0.0017 0.007
+			//lnSPTt2(log average spring temperature two years ago)     0.0096 0.0049 0.049
+			//lnSMTt2(log average summer temperature two years ago)     0.0218
 
 			static const array<double, 7> P =
 			{
@@ -102,27 +103,35 @@ namespace WBSF
 					m_output[y][O_SPTt2] = seasonal_variable[y - 2][V_SPRING_T];
 					m_output[y][O_SMPt2] = seasonal_variable[y - 2][V_SUMMER_T];
 
-					m_output[y][O_SPBII] = P[0] * seasonal_variable[y][V_SPRING_T];
-					m_output[y][O_SPBII] += P[1] * seasonal_variable[y][V_FALL_T];
-					m_output[y][O_SPBII] += P[2] * seasonal_variable[y - 1][V_SPRING_P];
-					m_output[y][O_SPBII] += P[3] * seasonal_variable[y - 1][V_WINTER_P];
-					m_output[y][O_SPBII] += P[4] * seasonal_variable[y - 1][V_WINTER_TMIN];
-					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SPRING_T];
-					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SUMMER_T];
+					double probit = 
+						P[0] * seasonal_variable[y][V_SPRING_T] +
+						P[1] * seasonal_variable[y][V_FALL_T] +
+						P[2] * seasonal_variable[y - 1][V_SPRING_P] +
+						P[3] * seasonal_variable[y - 1][V_WINTER_P] + 
+						P[4] * seasonal_variable[y - 1][V_WINTER_TMIN] + 
+						P[5] * seasonal_variable[y - 2][V_SPRING_T] + 
+						P[5] * seasonal_variable[y - 2][V_SUMMER_T];
+
+					boost::math::normal_distribution<double> dist(0.0, 1.0);
+					double prob = boost::math::cdf(dist, probit);
+					
+
+					m_output[y][O_SPBII] = prob;
 				}
 			}
 		}
-		else
+		else//Lesk (2017) version
 		{
+			
 			if (!m_weather.IsHourly())
 				m_weather.ComputeHourlyVariables();
 
 			//This is where the model is actually executed
-
+			//steam diameter
 			static const array <double, 3> K =
 			{
 				0.221,// 15 cm
-				0.154,// (mean)45 cm(mean)
+				0.154,// 45 cm(mean)
 				0.077// 51 cm
 			};
 
@@ -148,7 +157,9 @@ namespace WBSF
 				}
 			}
 
-
+			boost::math::normal_distribution<double> dist(-10.5,2.58);
+			
+			
 
 			CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
 			m_output.Init(p, NB_OUTPUTS, -9999);
@@ -170,38 +181,11 @@ namespace WBSF
 				{
 					double T = stat[v][LOWEST];
 					m_output[y][O_T1 + v] = T;
-					double P = max(0.0, -0.00425 * T * T - 0.0888 * T - 0.305);
+					//double P = max(0.0, -0.00425 * T * T - 0.0888 * T - 0.305);
+					double P = boost::math::pdf(dist, T);
 					m_output[y][O_P1 + v] = P;
 				}
-
-				//int year = p[y].GetYear();
-
-				//for (size_t v = 0; v < NB_SEASONAL_VARIABLES; v++)
-					//m_output[y][v] = seasonal_variable[y][v];
-				/*m_output[y][O_SPTt] = seasonal_variable[y][V_SPRING_T];
-				m_output[y][O_FTPt] = seasonal_variable[y][V_FALL_T];
-				if (y >= 1)
-				{
-					m_output[y][O_SPPt1] = seasonal_variable[y - 1][V_SPRING_P];
-					m_output[y][O_WNPt1] = seasonal_variable[y - 1][V_WINTER_P];
-					m_output[y][O_MinWNTt1] = seasonal_variable[y - 1][V_WINTER_TMIN];
-				}
-
-
-
-				if (y >= 2)
-				{
-					m_output[y][O_SPTt2] = seasonal_variable[y - 2][V_SPRING_T];
-					m_output[y][O_SMPt2] = seasonal_variable[y - 2][V_SUMMER_T];
-
-					m_output[y][O_SPBII] = P[0] * seasonal_variable[y][V_SPRING_T];
-					m_output[y][O_SPBII] += P[1] * seasonal_variable[y][V_FALL_T];
-					m_output[y][O_SPBII] += P[2] * seasonal_variable[y - 1][V_SPRING_P];
-					m_output[y][O_SPBII] += P[3] * seasonal_variable[y - 1][V_WINTER_P];
-					m_output[y][O_SPBII] += P[4] * seasonal_variable[y - 1][V_WINTER_TMIN];
-					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SPRING_T];
-					m_output[y][O_SPBII] += P[5] * seasonal_variable[y - 2][V_SUMMER_T];
-				}*/
+				
 			}
 		}
 
@@ -335,3 +319,5 @@ namespace WBSF
 
 
 }
+
+

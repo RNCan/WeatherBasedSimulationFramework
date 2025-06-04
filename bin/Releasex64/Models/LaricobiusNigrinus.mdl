@@ -59,40 +59,40 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>PrePupa</Name>
-            <Title>PrePupa</Title>
+            <Name>PrePupae</Name>
+            <Title>PrePupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Pupa</Name>
-            <Title>Pupa</Title>
+            <Name>Pupae</Name>
+            <Title>Pupae</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>AestivatingAdult</Name>
-            <Title>AestivatingAdult</Title>
+            <Name>AestivatingAdults</Name>
+            <Title>AestivatingAdults</Title>
             <Units/>
             <Description>Aestivating Adults</Description>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>ActiveAdult</Name>
-            <Title>ActiveAdult</Title>
+            <Name>ActiveAdults</Name>
+            <Title>ActiveAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>DeadAdult</Name>
-            <Title>DeadAdult</Title>
+            <Name>DeadAdults</Name>
+            <Title>DeadAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -107,8 +107,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>EggCreated</Name>
-            <Title>EggCreated</Title>
+            <Name>EggsCreated</Name>
+            <Title>EggsCreated</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -147,8 +147,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>AdultEmerged</Name>
-            <Title>AdultEmerged</Title>
+            <Name>EmergingAdults</Name>
+            <Title>EmergingAdults</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
@@ -171,8 +171,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>EggCreationCDD</Name>
-            <Title>EggCreationCDD</Title>
+            <Name>EndingDiapause</Name>
+            <Title>EndingDiapause</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggsCreationCDD</Name>
+            <Title>EggsCreationCDD</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

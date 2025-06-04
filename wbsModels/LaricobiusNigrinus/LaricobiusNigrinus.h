@@ -23,11 +23,13 @@ namespace WBSF
 	{
 		enum TLaricobiusNigrinusStats
 		{
-			S_EGG, S_LARVAE, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT, S_BROODS,
-			S_M_EGG, S_M_LARVAE, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
-			S_DEAD_FROST, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, S_LARVAL_DROP, NB_STATS
-			//S_ADULT_EMERGENCE = S_M_ACTIVE_ADULT
+			S_EGGS, S_LARVAE, S_PREPUPAE, S_PUPAE, S_AESTIVAL_DIAPAUSE_ADULTS, S_ACTIVE_ADULTS, S_DEAD_ADULTS, S_BROODS,
+			S_M_EGGS, S_M_LARVAE, S_M_PREPUPAE, S_M_PUPAE, S_M_AESTIVAL_DIAPAUSE_ADULTS, S_M_ACTIVE_ADULTS, S_M_DEAD_ADULT,
+			S_DEAD_FROST, S_M_AESTIVAL_DIAPAUSE_ADULT_END, S_EGGS_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_EMERGING_ADULT_CDD, S_LARVAL_DROP, NB_STATS,
+			NB_CUMULATIVE_STATS = 5
 		};
+
+		const static size_t CUMULATIVE_STATS[NB_CUMULATIVE_STATS] = { S_EGGS, S_LARVAE, S_PREPUPAE, S_PUPAE, S_LARVAL_DROP };
 	}
 
 
@@ -40,8 +42,8 @@ namespace WBSF
 	{
 	public:
 
-		static double AdjustTLab(const std::string& name, size_t s, CTRef TRef, double T);
-		static double AdjustDLLab(const std::string& name, size_t s, CTRef TRef, double day_length);
+		//static double AdjustTLab(const std::string& name, size_t s, CTRef TRef, double T);
+		//static double AdjustDLLab(const std::string& name, size_t s, CTRef TRef, double day_length);
 
 
 		CLaricobiusNigrinus(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = LNF::EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
@@ -89,6 +91,9 @@ namespace WBSF
 		double m_Fi; //Initial fecundity
 		//double m_F; //fecundity
 		double m_t; // decimal time since adult emergence  [days]
+
+
+		double m_cold_tolerence;
 		
 	};
 

@@ -1,0 +1,25 @@
+
+
+::git clone https://github.com/RNCan/WeatherBasedSimulationFramework.wiki.git
+
+
+::Document .docx étider dans GoogleDocs (avec les équations)
+
+cd "E:/wiki/WeatherBasedSimulationFramework.wiki"
+C:\EXE\pandoc\pandoc.exe -f docx -t gfm "E:\Project\doc\English\BioSIM11 Manual EN.docx" -o "E:\wiki\WeatherBasedSimulationFramework.wiki\BioSIM11-Manual-EN.md" --extract-media=. 
+C:\EXE\pandoc\pandoc.exe -f odt -t gfm "E:\Project\doc\English\BioSIM11 Manual EN.docx.odt" -o "E:\wiki\WeatherBasedSimulationFramework.wiki\BioSIM11-Manual-EN-odt.md" --extract-media=. 
+
+
+::--default-image-extension=png
+
+
+
+
+::C:\EXE\pandoc\pandoc.exe -f docx -t markdown-pipe_tables-simple_tables-multiline_tables-grid_tables "E:\Project\doc\English\BioSIM11 Manual EN (2).docx" -o "E:\wiki\WeatherBasedSimulationFramework.wiki\BioSIM11-Manual-EN2.md" --extract-media=. --lua-filter="C:\EXE\pandoc\no-img-attr.lua" --wrap=none --reference-links
+
+
+
+
+::"C:\Program Files\ImageMagick\magick.exe" image12.jpg image12.png
+
+
