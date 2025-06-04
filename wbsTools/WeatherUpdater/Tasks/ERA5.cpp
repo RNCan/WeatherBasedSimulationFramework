@@ -75,7 +75,7 @@ namespace WBSF
 		ASSERT(m_first_year <= m_last_year);
 
 
-
+		CTRef today = CTRef::GetCurrentTRef(CTM(CTM::DAILY));
 
 
 		size_t nb_years = m_last_year - m_first_year + 1;
@@ -91,14 +91,17 @@ namespace WBSF
 				for (size_t d = 0; d < GetNbDayPerMonth(year, m) && msg; d++)
 				{
 					CTRef TRef(year, m, d);
-					string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
-					if (!FileExists(output_file_path))
-					{
-						msg += DownloadERA5GoogleCloud(TRef, callback);
-						if (msg)
-							msg += CreateDailyGeotiff(TRef, callback);
-					}
 
+					if (TRef < today - 8)//8 lag days 
+					{
+						string output_file_path = FormatA("%s%d\\%02d\\ERA5_%d%02d%02d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1);
+						if (!FileExists(output_file_path))
+						{
+							msg += DownloadERA5GoogleCloud(TRef, callback);
+							if (msg)
+								msg += CreateDailyGeotiff(TRef, callback);
+						}
+					}
 
 					msg += callback.StepIt();
 
@@ -316,7 +319,7 @@ namespace WBSF
 
 			for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
 			{
-				string URL = FormatA("https://storage.googleapis.com/gcp-public-data-arco-era5/raw/date-variable-single_level/2025/01/01/%s/surface.nc", ERA5_NAME_H[v].c_str());
+				string URL = FormatA("https://storage.googleapis.com/gcp-public-data-arco-era5/raw/date-variable-single_level/%d/%02d/%02d/%s/surface.nc", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 				string filepath = FormatA("%sERA5_%04d%02d%02d_%s.nc", output_path.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 				if (!FileExists(filepath))
 				{
