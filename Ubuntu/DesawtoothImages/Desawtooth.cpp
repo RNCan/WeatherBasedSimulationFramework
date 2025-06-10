@@ -53,7 +53,7 @@ namespace WBSF
 		m_bBackwardFill = false;
 		m_bForwardFill = false;
 
-		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on DesawtoothR analysis.";
+		m_appDescription = "This software export desawtooth of Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) indice.";
 
 
 		//AddOption("-RGB");
