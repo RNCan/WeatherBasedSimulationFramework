@@ -388,7 +388,7 @@ namespace WBSF
 		std::string common = CLandsatDataset::GetCommonName();
 		string title = GetFileTitle(GetInternalName(i * SCENES_SIZE));
 		if (common_end != 255)
-			title = title.substr(common.length(), common_end - common.length());
+			title = title.substr(common.length(), common_end - (common.length()+1));
 
 		return title;
 	}
@@ -1451,6 +1451,11 @@ namespace WBSF
 		return ((double)at(B2) - at(B5)) / max(0.1, double(at(B2)) + at(B5));
 	}
 
+
+	//double CLandsatPixel::NDSI()const
+	//{
+	//	return ((double)at(B2) - at(B5)) / max(0.1, double(at(B2)) + at(B5));
+	//}
 
 	double CLandsatPixel::TCB()const
 	{
