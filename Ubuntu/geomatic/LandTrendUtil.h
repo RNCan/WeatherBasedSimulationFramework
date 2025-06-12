@@ -276,7 +276,7 @@ public:
 
 REAL_TYPE angle_diff(const CRealArray& xcoords, const CRealArray& ycoords, REAL_TYPE yrange, REAL_TYPE distweightfactor);
 CVectices vet_verts3(const CRealArray& x, const CRealArray& y, const CVectices& vertices, size_t desired_count, REAL_TYPE distweightfactor);
-CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE stopat = 0.9);
+CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE stopat = 0.9, CRealArray* output_corr_factore=nullptr);
 CRealArray fill_line(const CRealArray& x, const CVectices& x_endpoints, const CRealArray& y_endpoints);
 CRealArray fill_verts(const CRealArray& x, const CRealArray& p, const CVectices& vertices);
 size_t pick_better_fit(const CRealArray& y, const CRealArray& yfit1, const CRealArray& yfit2);

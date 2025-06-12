@@ -213,12 +213,16 @@ CfindCorrection find_correction(const CRealArray& vals)
 
 
 
-CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE  stopat)
+CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE  stopat, CRealArray* output_corr_factore)
 {
     assert(stopat != 0);
-
+    assert(output_corr_factore == nullptr || output_corr_factore->size() == vals.size());
    
     CRealArray v = vals[goods];
+
+    CRealArray cf;
+    if (output_corr_factore)
+        cf = (*output_corr_factore)[goods];
 
     REAL_TYPE  prop = 1.0;
     size_t count = 1;
@@ -232,12 +236,25 @@ CRealArray desawtooth(CRealArray vals, const CBoolArray& goods, REAL_TYPE  stopa
         if (prop > stopat)
         {
             v[wh_max] = v[wh_max] + (c.correction[wh_max]);
+
+            if (output_corr_factore)
+            {
+                if (cf[wh_max] == 0)
+                    cf[wh_max] = 1;
+
+                cf[wh_max] *= c.correction[wh_max];
+            }
+
             count = count + 1;
         }
     }
     while (prop > stopat);
 
     vals[goods] = v;
+
+    if (output_corr_factore)
+        (*output_corr_factore)[goods] = cf;
+
 
     return vals;
 

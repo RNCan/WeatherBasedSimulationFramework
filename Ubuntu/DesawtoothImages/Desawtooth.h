@@ -52,8 +52,7 @@ public:
 
 };
 
-typedef std::deque < std::vector< Landsat2::LandsatDataType>> OutputData;
-typedef std::deque < std::vector< Landsat2::LandsatDataType>> BreaksData;
+typedef std::deque < std::vector<double>> OutputData;
 
 typedef std::pair<double, size_t> NBRPair;
 typedef std::vector<NBRPair> NBRVector;

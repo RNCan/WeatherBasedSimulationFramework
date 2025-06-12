@@ -54,14 +54,14 @@ namespace WBSF
 		m_bForwardFill = false;
 
 		m_appDescription = "This software export desawtooth of Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) indice.";
-
+		std::string indicesName = Landsat2::GetIndiceNames();
 
 		//AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening) .0.9 by default."},
+			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.9 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
-			{ "-Indice", 1, "indice", false, "Select indice to run model. Indice can be NBR, NDVI, NDMI, NDWI, TCB, TCG, TCW, NBR2, EVI, EVI2, SAVI, MSAVI, SR, CL, HZ, LSWI, VIgreen. NBR by default"  },
+			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
@@ -105,8 +105,11 @@ namespace WBSF
 		}
 
 		if (m_outputType == GDT_Unknown)
-			m_outputType = GDT_Int16;
-		GetGDALDataType();
+			m_outputType = GDT_Float32;
+
+		if (m_dstNodata == MISSING_NO_DATA)
+			m_dstNodata = WBSF::GetDefaultNoData(GDT_Int16);//use Int16 missing value
+
 
 
 		return msg;
@@ -139,7 +142,7 @@ namespace WBSF
 		{
 			string str = argv[++i];
 			m_indice = GetIndiceType(str);
-			if (m_indice >= NB_INDICES)
+			if (m_indice == I_INVALID)
 			{
 				msg.ajoute(str + " is not a valid indice. See help.");
 			}
@@ -188,14 +191,13 @@ namespace WBSF
 		{
 			cout << "Output: " << m_options.m_filesPath[CDesawtoothOption::OUTPUT_FILE_PATH] << endl;
 			cout << "From:   " << m_options.m_filesPath[CDesawtoothOption::INPUT_FILE_PATH] << endl;
-			//cout << "max_segments:   " << m_options.m_max_segments << endl;
 
 			if (!m_options.m_maskName.empty())
 				cout << "Mask:   " << m_options.m_maskName << endl;
 
 		}
 
-		//MODIFIER[] = {}
+		
 		m_options.m_modifier = -1;
 		if (m_options.m_indice == Landsat2::I_B4)
 			m_options.m_modifier = 1;
@@ -223,7 +225,7 @@ namespace WBSF
 		map<int, bool> treadNo;
 
 		omp_set_nested(1);//for IOCPU
-		#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
+//#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int xBlock = XYindex[b].first;
@@ -231,7 +233,7 @@ namespace WBSF
 
 			Landsat2::CLandsatWindow inputData;
 			OutputData outputData;
-			BreaksData breaksData;
+
 			ReadBlock(inputDS, cloudsDS, xBlock, yBlock, inputData);
 			ProcessBlock(xBlock, yBlock, inputData, outputData);
 			WriteBlock(xBlock, yBlock, outputDS, outputData);
@@ -354,7 +356,7 @@ namespace WBSF
 				CRasterWindow clouds_block;
 				cloudsDS.ReadBlock(extents, clouds_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == clouds_block.size());
-				DataType noData = (DataType)cloudsDS.GetNoData(0);
+				DataType cloudNoData = (DataType)cloudsDS.GetNoData(0);
 
 				for (size_t i = 0; i < clouds_block.size(); i++)
 				{
@@ -363,7 +365,7 @@ namespace WBSF
 					boost::dynamic_bitset<> validity(clouds_block[i].data().size(), true);
 
 					for (size_t xy = 0; xy < clouds_block[i].data().size(); xy++)
-						validity.set(xy, clouds_block[i].data()[xy] == 0 || clouds_block[i].data()[xy] == noData);
+						validity.set(xy, clouds_block[i].data()[xy] == 0 || clouds_block[i].data()[xy] == cloudNoData);
 
 					//set this validity for all scene bands
 					assert(validity.size() == block_data[i].data().size());
@@ -377,44 +379,7 @@ namespace WBSF
 	}
 
 
-	bool IsB1Trigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = -125)
-	{
-		size_t c0 = p[0].IsInit() ? 0 : 1;
-		size_t c2 = p[2].IsInit() ? 2 : 1;
-
-		if (!p[1].IsInit())
-			return false;
-
-		if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-			return false;
-
-		bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-		bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-
-
-		return (t1 && t2);
-	}
-
-
-
-
-	bool IsTCBTrigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = 750)
-	{
-		size_t c0 = p[0].IsInit() ? 0 : 1;
-		size_t c2 = p[2].IsInit() ? 2 : 1;
-
-		if (!p[1].IsInit())
-			return false;
-
-		if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-			return false;
-
-		bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
-		bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
-
-		return (t1 && t2);
-	}
-
+	
 	void CDesawtooth::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, OutputData& outputData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
@@ -438,7 +403,7 @@ namespace WBSF
 		{
 			outputData.resize(window.GetNbScenes());
 			for (size_t s = 0; s < outputData.size(); s++)
-				outputData[s].insert(outputData[s].begin(), blockSize.m_x * blockSize.m_y, DataType(m_options.m_dstNodata));
+				outputData[s].insert(outputData[s].begin(), blockSize.m_x * blockSize.m_y, m_options.m_dstNodata);
 		}
 
 
@@ -448,7 +413,7 @@ namespace WBSF
 			m_options.m_timerProcess.start();
 
 
-			#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
+//#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
@@ -502,113 +467,43 @@ namespace WBSF
 						}
 					}
 
+					//avoid little dribs && drabs
+					//check if a bunch of zeros -- this indicates off the edge
+					//double test = m_options.m_srcNodata;
+					//REAL_TYPE background = REAL_TYPE(m_options.m_srcNodata * m_options.m_modifier);
+					size_t n_zeroes = CRealArray(data[abs(data) < 0.1]).size();
+					bool bValidZero = n_zeroes <= (0.3 * data.size());
 
 					size_t nbVal = sum(goods);
-					if (nbVal > m_options.m_minneeded)//at least one valid pixel
+					if (nbVal > m_options.m_minneeded && bValidZero)//at least one valid pixel
 					{
 						REAL_TYPE minimum_x_year = years.min();
 						assert(minimum_x_year == years[0]);
 
 						CRealArray all_x = years - minimum_x_year;
 
-						//avoid little dribs && drabs
-
-						//check if a bunch of zeros -- this indicates off the edge
-						//double test = m_options.m_srcNodata;
-						//REAL_TYPE background = REAL_TYPE(m_options.m_srcNodata * m_options.m_modifier);
-//						size_t n_zeroes = CRealArray(data[abs(data) < 0.1]).size();
 
 
+						//Take out spikes that start && end at same value (to get rid of weird years
+						//			left over after cloud filtering)
 
-							//Take out spikes that start && end at same value (to get rid of weird years
-							//			left over after cloud filtering)
 
+						CRealArray output_corr_factore(data.size());
+
+						//compute Desawtooth for this time series indice
 						assert(m_options.m_desawtooth_val < 1.0);
-						CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val);
+						CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val, &output_corr_factore);
 						assert(all_y.size() == window.size());
 
 						//outputData = all_y;
 						for (size_t z = 0; z < window.size(); z++)
 						{
-							if (goods[z] && all_y[z] > m_options.m_dstNodata )
+							if (goods[z])//&& all_y[z] > m_options.m_dstNodata
 							{
-								DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), all_y[z]));
+								double val = max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), output_corr_factore[z]));
 								outputData[z][xy] = val;
 							}
 						}
-
-
-						//compute Desawtooth for this time series indice
-						//CBestModelInfo result = fit_trajectory_v2(years, data, goods,
-						//	m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
-						//	m_options.m_max_segments, m_options.m_recovery_threshold, 2,
-						//	m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, TFitMethod(m_options.m_fit_method));
-
-
-
-						//if need output
-						/*if (result.ok)
-						{
-							if (!outputData.empty())
-							{
-								//create output image doing a regression for each band by segment
-								for (size_t s = 0; s < SCENES_SIZE; s++)//for all bands
-								{
-
-									CVectices V = result.vertices;
-									CRealArray X(window.size());
-									CRealArray Y(window.size());
-									for (size_t z = 0; z < window.size(); z++)
-									{
-										size_t zz = z;
-										if (m_first_valid != NOT_INIT && zz < m_first_valid)
-											zz = m_first_valid;
-										if (m_last_valid != NOT_INIT && zz > m_last_valid)
-											zz = m_last_valid;
-
-										X[z] = REAL_TYPE(z);
-										Y[z] = window.GetPixel(zz, x, y)[s];
-									}
-
-									CRealArray yfit(Y.size());
-									for (size_t i = 0; i < V.size() - 1; i++)//for all segment
-									{
-										//we need to remove bad data from vertices
-										CBoolArray G = subset(goods, V[i], V[i + 1]);
-
-										CRealArray xx = subset(X, V[i], V[i + 1])[G];
-										CRealArray yy = subset(Y, V[i], V[i + 1])[G];
-										assert(xx.size() == yy.size());
-										assert(xx.size() > 0);
-
-										if (xx.size() >= 2)
-										{
-											//if we've done desawtooth, it's possible that all of the
-											//  values in a segment have same value, in which case regress
-											//  would choke, so deal with that.
-
-											RegressP P = Regress(xx, yy);
-
-											yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
-										}
-										else if (xx.size() == 1)
-										{
-											//if only one point, take this yfit value
-											yfit[get_slice(V[i], V[i + 1])] = yy[0];
-										}
-
-									}
-
-									for (size_t z = 0; z < window.size(); z++)
-									{
-
-										DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
-										outputData[z * SCENES_SIZE + s][xy] = val;
-									}
-								}
-							}
-
-						}*/
 					}//if at least one valid pixel
 
 #pragma omp atomic
@@ -646,12 +541,12 @@ namespace WBSF
 					if (!outputData.empty())
 					{
 						assert(outputData.size() == outputDS.GetRasterCount());
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GetGDALDataType(), 0, 0);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &(outputData[z][0]), outputRect.Width(), outputRect.Height(), GDT_Float64, 0, 0);
 					}
 					else
 					{
-						LandsatDataType noData = (LandsatDataType)outputDS.GetNoData(z);
-						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GetGDALDataType(), 0, 0);
+						double noData = outputDS.GetNoData(z);
+						pBand->RasterIO(GF_Write, outputRect.m_x, outputRect.m_y, outputRect.Width(), outputRect.Height(), &noData, 1, 1, GDT_Float64, 0, 0);
 					}
 				}
 			}

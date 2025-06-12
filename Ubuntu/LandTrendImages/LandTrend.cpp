@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, chnage in NDWI definition: use B4 insted of B2.
 // 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32. 
 // 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
 //											use only pixel of all rings
@@ -47,7 +48,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.2";
+	const char* CLandTrend::VERSION = "1.1.3";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -79,6 +80,7 @@ namespace WBSF
 
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
+		std::string indicesName = Landsat2::GetIndiceNames();
 
 		//AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
@@ -91,8 +93,7 @@ namespace WBSF
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p - value is no more than(2 - bestModelProportion) times the p - value of the best model. 0.75 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
-			//{ "-Modifier", 1, "modifier", false, "Modifier to assure that disturbance is always positive. Can be 1 or -1. -1 by default for NBR."},
-			{ "-Indice", 1, "indice", false, "Select indice to run model. Indice can be NBR, NDVI, NDMI, NDWI, TCB, TCG, TCW, NBR2, EVI, EVI2, SAVI, MSAVI, SR, CL, HZ, LSWI, VIgreen. NBR by default"  },
+			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
