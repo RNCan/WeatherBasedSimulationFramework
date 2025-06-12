@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{42de1fd8-0d86-4c93-8c56-633a726b9036}</ProjectGuid>
+    <RootNamespace>Horizon</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>packages\tbb.4.2.3.1\build\native\include;packages\embree-3\include;packages\Eigen.3.3.3\build\native\include;../..;..\..\..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>packages\tbb.4.2.3.1\build\native\lib\x64\v120\Debug;packages\embree-3\lib;..\..\..\external\gdal\lib64;..\..\..\External\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdal_i.lib;embree3.lib;tbb_debug.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>packages\tbb.4.2.3.1\build\native\include;packages\embree-3\include;packages\Eigen.3.3.3\build\native\include;../..;..\..\..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>packages\tbb.4.2.3.1\build\native\lib\x64\v120\Release;packages\embree-3\lib;..\..\..\external\gdal\lib64;..\..\..\External\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdal_i.lib;embree3.lib;tbb.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\basic\GeoBasic.cpp" />
+    <ClCompile Include="..\..\basic\Statistic.cpp" />
+    <ClCompile Include="..\..\basic\UtilMath.cpp" />
+    <ClCompile Include="..\..\basic\UtilStd.cpp" />
+    <ClCompile Include="..\..\external\ERMsg\Ererreur.cpp" />
+    <ClCompile Include="..\..\external\ERMsg\Erexcept.cpp" />
+    <ClCompile Include="..\..\external\ERMsg\Syenvmsg.cpp" />
+    <ClCompile Include="..\..\external\ERMsg\Symessag.cpp" />
+    <ClCompile Include="..\..\external\mpfit\mpfit.cpp" />
+    <ClCompile Include="..\..\external\pugixml\pugixml.cpp" />
+    <ClCompile Include="..\..\geomatic\GDALDatasetEx.cpp" />
+    <ClCompile Include="..\..\geomatic\LandsatDataset2.cpp" />
+    <ClCompile Include="..\..\geomatic\LandTrendCore.cpp" />
+    <ClCompile Include="..\..\geomatic\LandTrendUtil.cpp" />
+    <ClCompile Include="..\..\geomatic\UtilGDAL.cpp" />
+    <ClCompile Include="..\Horizon.cpp" />
+    <ClCompile Include="..\HorizonApp.cpp" />
+    <ClCompile Include="..\HorizonImage.cpp" />
+    <ClCompile Include="..\horizon_comp.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\_horizon_comp.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\basic\GeoBasic.h" />
+    <ClInclude Include="..\..\basic\OpenMP.h" />
+    <ClInclude Include="..\..\basic\Statistic.h" />
+    <ClInclude Include="..\..\basic\UtilMath.h" />
+    <ClInclude Include="..\..\basic\UtilStd.h" />
+    <ClInclude Include="..\..\external\ERMsg\Ererreur.h" />
+    <ClInclude Include="..\..\external\ERMsg\Erexcept.h" />
+    <ClInclude Include="..\..\external\ERMsg\ERMsg.h" />
+    <ClInclude Include="..\..\external\ERMsg\Sycptref.h" />
+    <ClInclude Include="..\..\external\ERMsg\Sycptref.hpp" />
+    <ClInclude Include="..\..\external\ERMsg\Syenvmsg.h" />
+    <ClInclude Include="..\..\external\ERMsg\Symessag.h" />
+    <ClInclude Include="..\..\external\mpfit\mpfit.h" />
+    <ClInclude Include="..\..\external\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="..\..\external\pugixml\pugixml.hpp" />
+    <ClInclude Include="..\..\geomatic\GDAL.h" />
+    <ClInclude Include="..\..\geomatic\GDALDatasetEx.h" />
+    <ClInclude Include="..\..\geomatic\LandsatDataset2.h" />
+    <ClInclude Include="..\..\geomatic\LandTrendCore.h" />
+    <ClInclude Include="..\..\geomatic\LandTrendUtil.h" />
+    <ClInclude Include="..\..\geomatic\UtilGDAL.h" />
+    <ClInclude Include="..\Horizon.h" />
+    <ClInclude Include="..\HorizonImage.h" />
+    <ClInclude Include="..\horizon_comp.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\_horizon_comp.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\geographiclib.2.5.0\build\native\geographiclib.targets" Condition="Exists('packages\geographiclib.2.5.0\build\native\geographiclib.targets')" />
+    <Import Project="packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets" Condition="Exists('packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets')" />
+    <Import Project="packages\tbb.4.2.3.1\build\native\tbb.targets" Condition="Exists('packages\tbb.4.2.3.1\build\native\tbb.targets')" />
+    <Import Project="packages\Eigen.3.3.3\build\native\Eigen.targets" Condition="Exists('packages\Eigen.3.3.3\build\native\Eigen.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\geographiclib.2.5.0\build\native\geographiclib.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\geographiclib.2.5.0\build\native\geographiclib.targets'))" />
+    <Error Condition="!Exists('packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets'))" />
+    <Error Condition="!Exists('packages\tbb.4.2.3.1\build\native\tbb.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\tbb.4.2.3.1\build\native\tbb.targets'))" />
+    <Error Condition="!Exists('packages\Eigen.3.3.3\build\native\Eigen.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Eigen.3.3.3\build\native\Eigen.targets'))" />
+  </Target>
+</Project>
