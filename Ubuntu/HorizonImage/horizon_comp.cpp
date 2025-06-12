@@ -75,7 +75,7 @@ RTC_NAMESPACE_USE
 #endif
 
 // Error function
-void errorFunction(void* userPtr, enum RTCError error, const char* str) {
+static void errorFunction(void* userPtr, enum RTCError error, const char* str) {
 	printf("error %d: %s\n", error, str);
 }
 

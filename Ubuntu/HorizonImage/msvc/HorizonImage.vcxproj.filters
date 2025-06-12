@@ -83,6 +83,9 @@
     <ClCompile Include="..\horizon_comp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\shadow_comp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_horizon_comp.h">
@@ -158,6 +161,9 @@
       <Filter>external</Filter>
     </ClInclude>
     <ClInclude Include="..\horizon_comp.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shadow_comp.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
