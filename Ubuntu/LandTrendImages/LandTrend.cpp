@@ -3,7 +3,7 @@
 //
 //***********************************************************************
 // version
-// 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, chnage in NDWI definition: use B4 insted of B2.
+// 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 insted of B2.
 // 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32. 
 // 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
 //											use only pixel of all rings
