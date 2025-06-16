@@ -44,7 +44,7 @@ namespace WBSF
 	{
 		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
 		m_desawtooth_val = 0.9;
-		m_modifier = -1;
+		//m_modifier = -1;
 		m_indice = I_NBR;
 		m_rings = 0;
 		m_firstYear = 0;
@@ -63,6 +63,7 @@ namespace WBSF
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
+			//{ "-Modifier", 1, "m", false, "-1 or 1 to invert indices value. -1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
@@ -128,12 +129,12 @@ namespace WBSF
 		{
 			m_minneeded = atoi(argv[++i]);
 		}
-		else if (IsEqual(argv[i], "-Modifier"))
+		/*else if (IsEqual(argv[i], "-Modifier"))
 		{
 			m_modifier = atoi(argv[++i]);
 			if (m_modifier != -1 || m_modifier != 1)
-				msg.ajoute(to_string(m_modifier) + " is an invalid Modifier.");
-		}
+				msg.ajoute(to_string(m_modifier) + " is an invalid Modifier. Modifier must be 1 or -1.");
+		}*/
 		else if (IsEqual(argv[i], "-FirstYear"))
 		{
 			m_firstYear = atoi(argv[++i]);
@@ -198,9 +199,9 @@ namespace WBSF
 		}
 
 		
-		m_options.m_modifier = -1;
+		/*m_options.m_modifier = -1;
 		if (m_options.m_indice == Landsat2::I_B4)
-			m_options.m_modifier = 1;
+			m_options.m_modifier = 1;*/
 
 
 		GDALAllRegister();
@@ -466,28 +467,17 @@ namespace WBSF
 							goods[z] = data[z] != 0;//humm!!!
 						}
 					}
-
-					//avoid little dribs && drabs
-					//check if a bunch of zeros -- this indicates off the edge
-					//double test = m_options.m_srcNodata;
-					//REAL_TYPE background = REAL_TYPE(m_options.m_srcNodata * m_options.m_modifier);
-					size_t n_zeroes = CRealArray(data[abs(data) < 0.1]).size();
-					bool bValidZero = n_zeroes <= (0.3 * data.size());
-
+					
 					size_t nbVal = sum(goods);
-					if (nbVal > m_options.m_minneeded && bValidZero)//at least one valid pixel
+					if (nbVal > m_options.m_minneeded )//at least one valid pixel
 					{
 						REAL_TYPE minimum_x_year = years.min();
 						assert(minimum_x_year == years[0]);
 
 						CRealArray all_x = years - minimum_x_year;
 
-
-
 						//Take out spikes that start && end at same value (to get rid of weird years
 						//			left over after cloud filtering)
-
-
 						CRealArray output_corr_factore(data.size());
 
 						//compute Desawtooth for this time series indice
@@ -495,10 +485,10 @@ namespace WBSF
 						CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val, &output_corr_factore);
 						assert(all_y.size() == window.size());
 
-						//outputData = all_y;
+						
 						for (size_t z = 0; z < window.size(); z++)
 						{
-							if (goods[z])//&& all_y[z] > m_options.m_dstNodata
+							if (goods[z])
 							{
 								double val = max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), output_corr_factore[z]));
 								outputData[z][xy] = val;

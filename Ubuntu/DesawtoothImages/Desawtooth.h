@@ -32,7 +32,7 @@ public:
     //size_t m_max_segments;
     double m_desawtooth_val;
     //size_t m_fit_method;
-    int m_modifier;
+    //int m_modifier;
 
     //size_t max_vertices()const
     //{
