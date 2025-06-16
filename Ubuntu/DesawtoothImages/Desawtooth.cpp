@@ -198,7 +198,7 @@ namespace WBSF
 
 		}
 
-		
+
 		/*m_options.m_modifier = -1;
 		if (m_options.m_indice == Landsat2::I_B4)
 			m_options.m_modifier = 1;*/
@@ -226,7 +226,7 @@ namespace WBSF
 		map<int, bool> treadNo;
 
 		omp_set_nested(1);//for IOCPU
-//#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
+		#pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int xBlock = XYindex[b].first;
@@ -328,7 +328,7 @@ namespace WBSF
 			for (size_t zz = 0; zz < nb_scenes; zz++)
 			{
 				size_t z = m_options.m_scene_extents[0] + zz;
-				string subName = inputDS.GetSubname(z) + "_" + indices_name;
+				string subName = inputDS.GetSubname(z);// +"_" + indices_name;
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + subName + ".tif|";
 
 			}
@@ -380,7 +380,7 @@ namespace WBSF
 	}
 
 
-	
+
 	void CDesawtooth::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, OutputData& outputData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
@@ -414,7 +414,7 @@ namespace WBSF
 			m_options.m_timerProcess.start();
 
 
-//#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
+			#pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
@@ -467,9 +467,9 @@ namespace WBSF
 							goods[z] = data[z] != 0;//humm!!!
 						}
 					}
-					
+
 					size_t nbVal = sum(goods);
-					if (nbVal > m_options.m_minneeded )//at least one valid pixel
+					if (nbVal > m_options.m_minneeded)//at least one valid pixel
 					{
 						REAL_TYPE minimum_x_year = years.min();
 						assert(minimum_x_year == years[0]);
@@ -478,19 +478,58 @@ namespace WBSF
 
 						//Take out spikes that start && end at same value (to get rid of weird years
 						//			left over after cloud filtering)
-						CRealArray output_corr_factore(data.size());
+						//CRealArray output_corr_factore(data.size());
 
 						//compute Desawtooth for this time series indice
 						assert(m_options.m_desawtooth_val < 1.0);
-						CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val, &output_corr_factore);
-						assert(all_y.size() == window.size());
+						//CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val, &output_corr_factore);
+						//assert(all_y.size() == window.size());
 
-						
+
 						for (size_t z = 0; z < window.size(); z++)
 						{
 							if (goods[z])
 							{
-								double val = max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), output_corr_factore[z]));
+
+								CRealArray data3(3);
+								CBoolArray goods3(false, 3);
+
+								data3[1] = data[z];
+								goods3[1] = true;
+								for (size_t zz = z-1; zz < goods.size()&& !goods3[0]; zz--)
+								{
+									if (goods[zz])
+									{
+										goods3[0] = true;
+										data3[0] = data[zz];
+									}
+								}
+
+								if (!goods3[0])
+								{
+									goods3[0] = true;
+									data3[0] = data3[1];
+								}
+
+								for (size_t zz = z+1; zz < goods.size()&& !goods3[2]; zz++)
+								{
+									if (goods[zz])
+									{
+										goods3[2] = true;
+										data3[2] = data[zz];
+									}
+								}
+
+								if (!goods3[2])
+								{
+									goods3[2] = true;
+									data3[2] = data3[1];
+								}
+
+								CRealArray output_corr_factore(data3.size());
+								CRealArray all_y = desawtooth(data3, goods3, m_options.m_desawtooth_val, &output_corr_factore);
+								assert(all_y.size() == data3.size());
+								double val = max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), output_corr_factore[1]));
 								outputData[z][xy] = val;
 							}
 						}
