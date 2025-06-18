@@ -46,9 +46,23 @@ namespace WBSF
 
 	const char* Landsat2::GetIndiceName(size_t i)
 	{
-		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B7", "NBR", "NDVI", "NDMI","NDWI",  "TCB", "TCG", "TCW", "NBR2", "EVI", "EVI2", "SAVI", "MSAVI", "SR", "CL", "HZ", "LSWI", "VIgreen" };
+		static const char* INDICES_NAME[NB_INDICES] = { "B1", "B2", "B3", "B4", "B5", "B7", "NBR", "NDVI", "NDMI", "NDWI", "NDSI", "TCB", "TCG", "TCW", "ZSW", "NBR2", "EVI", "EVI2", "SAVI", "MSAVI", "SR", "HZ",  "LSWI", "VIgreen" };
 		assert(i < NB_INDICES);
 		return INDICES_NAME[i];
+	}
+
+	std::string Landsat2::GetIndiceNames()
+	{
+		std::string indices;
+		for (size_t i = 0; i < NB_INDICES; i++)
+		{
+			if (!indices.empty())
+				indices += ", ";
+
+			indices += GetIndiceName(i);
+		}
+
+		return indices;
 	}
 
 
@@ -388,7 +402,7 @@ namespace WBSF
 		std::string common = CLandsatDataset::GetCommonName();
 		string title = GetFileTitle(GetInternalName(i * SCENES_SIZE));
 		if (common_end != 255)
-			title = title.substr(common.length(), common_end - common.length());
+			title = title.substr(common.length(), common_end - (common.length()+1));
 
 		return title;
 	}
@@ -1087,7 +1101,7 @@ namespace WBSF
 			case B4:
 			case B5:
 			case B7:
-				val = (LandsatDataType)WBSF::LimitToBound(INDICES_FACTOR() * at(i), GDT_Int16, 1);
+				val = (LandsatDataType)WBSF::LimitToBound(at(i), GDT_Int16, 1);
 				break;
 			case I_NBR:
 				val = (LandsatDataType)WBSF::LimitToBound(INDICES_FACTOR() * NBR(), GDT_Int16, 1);
@@ -1100,6 +1114,9 @@ namespace WBSF
 				break;
 			case I_NDWI:
 				val = (LandsatDataType)WBSF::LimitToBound(INDICES_FACTOR() * NDWI(), GDT_Int16, 1);
+				break;
+			case I_NDSI:
+				val = (LandsatDataType)WBSF::LimitToBound(INDICES_FACTOR() * NDSI(), GDT_Int16, 1);
 				break;
 			case I_TCB:
 				val = (LandsatDataType)WBSF::LimitToBound(TCB(), GDT_Int16, 1);
@@ -1192,6 +1209,10 @@ namespace WBSF
 			need.set(B5);
 			break;
 		case I_NDWI:
+			need.set(B4);
+			need.set(B5);
+			break;
+		case I_NDSI:
 			need.set(B2);
 			need.set(B5);
 			break;
@@ -1448,9 +1469,13 @@ namespace WBSF
 
 	double CLandsatPixel::NDWI()const
 	{
-		return ((double)at(B2) - at(B5)) / max(0.1, double(at(B2)) + at(B5));
+		return ((double)at(B4) - at(B5)) / max(0.1, double(at(B4)) + at(B5));
 	}
 
+	double CLandsatPixel::NDSI()const
+	{
+		return ((double)at(B2) - at(B5)) / max(0.1, double(at(B2)) + at(B5));
+	}
 
 	double CLandsatPixel::TCB()const
 	{

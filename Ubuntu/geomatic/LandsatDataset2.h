@@ -20,7 +20,7 @@ namespace Landsat2
 {
 //enum TLandsatFormat { F_UNKNOWN = -1, F_OLD, F_NEW, NB_FORMATS };
 enum TLandsatBands { B1, B2, B3, B4, B5, B7, SCENES_SIZE };
-enum TIndices { I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B7, I_NBR, I_NDVI, I_NDMI, I_NDWI, I_TCB, I_TCG, I_TCW, I_ZSW, I_NBR2, I_EVI, I_EVI2, I_SAVI, I_MSAVI, I_SR, I_HZ, I_LSWI, I_VIgreen, NB_INDICES };
+enum TIndices { I_INVALID = -1, I_B1, I_B2, I_B3, I_B4, I_B5, I_B7, I_NBR, I_NDVI, I_NDMI, I_NDWI, I_NDSI, I_TCB, I_TCG, I_TCW, I_ZSW, I_NBR2, I_EVI, I_EVI2, I_SAVI, I_MSAVI, I_SR, I_HZ, I_LSWI, I_VIgreen, NB_INDICES };
 
 double INDICES_FACTOR();
 void INDICES_FACTOR(double f);
@@ -28,6 +28,8 @@ void INDICES_FACTOR(double f);
 
 const char* GetBandName(size_t s);
 const char* GetIndiceName(size_t i);
+std::string GetIndiceNames();
+
 TIndices GetIndiceType(const std::string& str);
 
 
@@ -85,6 +87,7 @@ public:
     double NDVI()const;
     double NDMI()const;
     double NDWI()const;
+    double NDSI()const;
     double TCB()const;
     double TCG()const;
     double TCW()const;
