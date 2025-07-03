@@ -1,0 +1,252 @@
+# depslib dependency file v1.0
+1694807822 source:/mnt/project/basic/GeoBasic.cpp
+	<iostream>
+	"basic/GeoBasic.h"
+	"basic/Statistic.h"
+	"external/ERMsg/ERMsg.h"
+
+1694807822 /mnt/project/basic/GeoBasic.h
+	<map>
+	<vector>
+	<deque>
+	<algorithm>
+	<boost/bimap.hpp>
+	<float.h>
+	<boost/serialization/serialization.hpp>
+	<boost/archive/text_iarchive.hpp>
+	<boost/serialization/export.hpp>
+	"external/ERMsg/ERMsg.h"
+	"basic/UtilMath.h"
+
+1694807822 /mnt/project/external/ERMsg/ERMsg.h
+	"external/ERMsg/Syenvmsg.h"
+
+1694807822 /mnt/project/external/ERMsg/Syenvmsg.h
+	"external/ERMsg/Erexcept.h"
+	"external/ERMsg/Sycptref.h"
+	"external/ERMsg/Symessag.h"
+
+1694807822 /mnt/project/external/ERMsg/Erexcept.h
+	<string>
+
+1694807822 /mnt/project/external/ERMsg/Sycptref.h
+	"external/ERMsg/Erexcept.h"
+	"Sycptref.hpp"
+
+1694807822 /mnt/project/external/ERMsg/Sycptref.hpp
+
+1694807822 /mnt/project/external/ERMsg/Symessag.h
+	"external/ERMsg/Erexcept.h"
+	<vector>
+	<string>
+
+1722452479 /mnt/project/basic/UtilMath.h
+	<random>
+	"basic/UtilStd.h"
+
+1694807822 /mnt/project/basic/UtilStd.h
+	<assert.h>
+	<map>
+	<set>
+	<unordered_map>
+	<sys/stat.h>
+	<sstream>
+	<functional>
+	<algorithm>
+	<cctype>
+	<fstream>
+	<codecvt>
+	<iomanip>
+	<inttypes.h>
+	<string.h>
+	<cstring>
+	"external/ERMsg/ERMsg.h"
+
+1694807822 /mnt/project/basic/Statistic.h
+	<assert.h>
+	<vector>
+
+1694807822 source:/mnt/project/basic/Statistic.cpp
+	<cmath>
+	<float.h>
+	<algorithm>
+	<boost/math/distributions/normal.hpp>
+	"basic/Statistic.h"
+	"basic/UtilMath.h"
+
+1694807822 source:/mnt/project/basic/UtilMath.cpp
+	<time.h>
+	<float.h>
+	<limits>
+	"basic/UtilMath.h"
+
+1694807822 source:/mnt/project/basic/UtilStd.cpp
+	<boost/tokenizer.hpp>
+	<boost/algorithm/string.hpp>
+	<boost/filesystem/path.hpp>
+	<boost/filesystem/operations.hpp>
+	<boost/crc.hpp>
+	<stdio.h>
+	<stdexcept>
+	<stdarg.h>
+	"basic/UtilStd.h"
+	<windows.h>
+	<processthreadsapi.h>
+
+1694807822 source:/mnt/project/external/ERMsg/Ererreur.cpp
+	"Ererreur.h"
+	<iostream>
+	<fstream>
+	<signal.h>
+	<stdlib.h>
+
+1694807822 /mnt/project/external/ERMsg/Ererreur.h
+	"external/ERMsg/ERMsg.h"
+	<string>
+
+1694807822 source:/mnt/project/external/ERMsg/Erexcept.cpp
+	"external/ERMsg/Erexcept.h"
+	<strstream>
+	<iostream>
+	<assert.h>
+
+1694807822 source:/mnt/project/external/ERMsg/Syenvmsg.cpp
+	"external/ERMsg/Syenvmsg.h"
+
+1694807822 source:/mnt/project/external/ERMsg/Symessag.cpp
+	"external/ERMsg/Symessag.h"
+	<strstream>
+
+1694807822 source:/mnt/project/external/mpfit/mpfit.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	"mpfit.h"
+
+1694807822 /mnt/project/external/mpfit/mpfit.h
+	<float.h>
+
+1694807822 source:/mnt/project/external/pugixml/pugixml.cpp
+	"pugixml.hpp"
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<assert.h>
+	<limits.h>
+	<wchar.h>
+	<math.h>
+	<float.h>
+	<istream>
+	<ostream>
+	<string>
+	<new>
+	<sys/stat.h>
+	<stdint.h>
+
+1694807823 /mnt/project/external/pugixml/pugixml.hpp
+	"pugiconfig.hpp"
+	<stddef.h>
+	<exception>
+	<iterator>
+	<iosfwd>
+	<string>
+
+1694807822 /mnt/project/external/pugixml/pugiconfig.hpp
+
+1694807823 source:/mnt/project/external/tinyxml2/tinyxml2.cpp
+	"tinyxml2.h"
+	<new>
+	<stddef.h>
+	<stdarg.h>
+	<cstddef>
+	<cstdarg>
+
+1694807823 /mnt/project/external/tinyxml2/tinyxml2.h
+	<ctype.h>
+	<limits.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stddef.h>
+	<cctype>
+	<climits>
+	<cstdio>
+	<cstdlib>
+	<cstring>
+	<stdint.h>
+	<android/log.h>
+	<assert.h>
+
+1694740278 source:/mnt/project/geomatic/GDALDatasetEx.cpp
+	<float.h>
+	<limits.h>
+	<iostream>
+	<chrono>
+	"external/pugixml/pugixml.hpp"
+	"basic/OpenMP.h"
+	"geomatic/GDAL.h"
+	"geomatic/UtilGDAL.h"
+	"geomatic/GDALDatasetEx.h"
+
+1694807822 /mnt/project/basic/OpenMP.h
+	<omp.h>
+
+1751468971 /mnt/project/geomatic/GDAL.h
+	"gdal/Include/gdal_priv.h"
+	"gdal/Include/ogr_spatialref.h"
+	"gdal/gdal_priv.h"
+	"gdal/ogr_spatialref.h"
+
+1751468972 /mnt/project/geomatic/UtilGDAL.h
+	<boost/timer/timer.hpp>
+	"external/ERMsg/ERMsg.h"
+	"basic/UtilStd.h"
+	"basic/Statistic.h"
+	"basic/GeoBasic.h"
+	"geomatic/GDAL.h"
+
+1751468971 /mnt/project/geomatic/GDALDatasetEx.h
+	<boost/dynamic_bitset.hpp>
+	"external/ERMsg/ERMsg.h"
+	"basic/GeoBasic.h"
+	"geomatic/UtilGDAL.h"
+	"geomatic/GDAL.h"
+
+1694807823 source:/mnt/project/geomatic/LandsatDataset2.cpp
+	<algorithm>
+	<bitset>
+	"geomatic/GDAL.h"
+	"geomatic/LandsatDataset2.h"
+
+1751468971 /mnt/project/geomatic/LandsatDataset2.h
+	"external/ERMsg/ERMsg.h"
+	"geomatic/GDALDatasetEx.h"
+
+1703170346 source:/mnt/project/Landsat2RGB/Landsat2RGBApp.cpp
+	<iostream>
+	<boost/timer/timer.hpp>
+	"Landsat2RGB.h"
+
+1703170346 /mnt/project/Landsat2RGB/Landsat2RGB.h
+	"geomatic/UtilGDAL.h"
+	"geomatic/LandsatDataset2.h"
+
+1694807823 source:/mnt/project/geomatic/UtilGDAL.cpp
+	<iostream>
+	<boost/scoped_array.hpp>
+	"basic/OpenMP.h"
+	"geomatic/GDAL.h"
+	"geomatic/UtilGDAL.h"
+
+1703170346 source:/mnt/project/Landsat2RGB/Landsat2RGB.cpp
+	<float.h>
+	<math.h>
+	<array>
+	<utility>
+	<iostream>
+	"Landsat2RGB.h"
+	"basic/OpenMP.h"
+	"basic/UtilMath.h"
+	"geomatic/GDAL.h"
+
