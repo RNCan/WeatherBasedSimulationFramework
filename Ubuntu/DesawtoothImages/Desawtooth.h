@@ -33,6 +33,7 @@ public:
     double m_desawtooth_val;
     //size_t m_fit_method;
     //int m_modifier;
+    bool m_year_by_year;
 
     //size_t max_vertices()const
     //{
