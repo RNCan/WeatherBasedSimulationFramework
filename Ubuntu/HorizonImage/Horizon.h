@@ -462,6 +462,53 @@ public:
 
 	size_t ij2i(size_t ij)const { return ij - x_size() * ij2j(ij); }
 	size_t ij2j(size_t ij)const { return size_t(ij / x_size()); }
+
+
+
+	void get_slope_aspect(size_t i, size_t j, double& slope, double& aspect)const
+	{
+		const matrix<pt3>& dem_enu = *this;
+		assert(i < dem_enu.x_size());
+		assert(j < dem_enu.y_size());
+
+		//don't compute slope and aspect at the border
+		if (i == 0 || j == 0 || i == dem_enu.x_size() - 1 || j == dem_enu.y_size() - 1)
+			return;
+
+		//	assert(dem_3x3.x_size() == 3);
+			//assert(dem_3x3.y_size() == 3);
+
+		double x_res = (dem_enu(i + 1, j).x - dem_enu(i - 1, j).x) / 2.0;
+		double y_res = (dem_enu(i, j + 1).y - dem_enu(i, j - 1).y) / 2.0;
+		double scale = 1;
+
+
+		//slope = 0;
+		//aspect = 0;
+		//if( !IsValidSlopeWindow(window) )
+			//return;
+
+		double dy = ((dem_enu(i - 1, j - 1).z + 2 * dem_enu(i, j - 1).z + dem_enu(i + 1, j - 1).z) -
+			(dem_enu(i - 1, j + 1).z + 2 * dem_enu(i, j + 1).z + dem_enu(i + 1, j + 1).z)) / y_res;
+
+		double dx = ((dem_enu(i + 1, j - 1).z + 2 * dem_enu(i + 1, j).z + dem_enu(i + 1, j + 1).z) -
+			(dem_enu(i - 1, j - 1).z + 2 * dem_enu(i - 1, j).z + dem_enu(i - 1, j + 1).z)) / x_res;
+
+		double d = sqrt(dx * dx + dy * dy);
+
+		slope = rad2deg(atan(d / (8 * scale)));//[deg]
+		aspect = rad2deg(atan2(dy, -dx));//[deg]
+		aspect = std::fmod(90 - aspect + 360, 360);//[deg]
+
+		if (dx == 0 && dy == 0)
+		{
+			// lat area 
+			slope = 0;
+			aspect = 0;
+		}
+
+	}
+
 protected:
 
 	size_t m_x_size;
@@ -1365,58 +1412,6 @@ inline void get_slope_aspect(const matrix<pt3>& dem_3x3, double& slope, double& 
 	//	aspect = 0.0f;
 }
 
-inline void get_slope_aspect(size_t i, size_t j, const matrix<pt3>& dem_enu, double& slope, double& aspect)
-{
-	assert(i < dem_enu.x_size());
-	assert(j < dem_enu.y_size());
-
-	//d'ont compute slope and aspect at the border
-	if (i == 0 || j == 0 || i == dem_enu.x_size() - 1 || j == dem_enu.y_size() - 1)
-		return;
-
-//	assert(dem_3x3.x_size() == 3);
-	//assert(dem_3x3.y_size() == 3);
-
-	double x_res = (dem_enu(i+1, j).x - dem_enu(i-1, j).x) / 2.0;
-	double y_res = (dem_enu(i, j+1).y - dem_enu(i, j-1).y) / 2.0;
-	double scale = 1;
-
-
-	//slope = 0;
-	//aspect = 0;
-	//if( !IsValidSlopeWindow(window) )
-		//return;
-
-	double dy = ((dem_enu(i-1, j-1).z + 2 * dem_enu(i, j-1).z + dem_enu(i+1, j-1).z) -
-		(dem_enu(i-1, j+1).z + 2 * dem_enu(i, j+1).z + dem_enu(i + 1, j+1).z)) / y_res;
-
-	double dx = ((dem_enu(i + 1, j-1).z + 2 * dem_enu(i + 1, j).z + dem_enu(i+1, j + 1).z) -
-		(dem_enu(i-1, j-1).z + 2 * dem_enu(i-1, j).z + dem_enu(i-1, j + 1).z)) / x_res;
-
-	double d = sqrt(dx * dx + dy * dy);
-
-	slope = rad2deg(atan(d / (8 * scale)));//[deg]
-	aspect = rad2deg(atan2(dy, -dx));//[deg]
-	aspect = std::fmod(90 - aspect + 360, 360);//[deg]
-
-	if (dx == 0 && dy == 0)
-	{
-		// lat area 
-		slope = 0;
-		aspect = 0;
-	}
-
-	//else //transform from azimut angle to geographic angle
-	//{
-	//	if (aspect > 90.0f)
-	//		aspect = 450.0f - aspect;
-	//	else
-	//		aspect = 90.0f - aspect;
-	//}
-
-	//if (aspect == 360.0)
-	//	aspect = 0.0f;
-}
 //pt3 get_slope_aspect(const matrix<pt3> & dem_3x3_enu)
 //{
 //	assert(dem_3x3_enu.x_size()==3);

@@ -80,7 +80,7 @@ static void errorFunction(void* userPtr, enum RTCError error, const char* str) {
 }
 
 // Initialisation of device and registration of error handler
-RTCDevice initializeDevice() {
+static RTCDevice initializeDevice() {
 	RTCDevice device = rtcNewDevice(NULL);
 	if (!device) {
 		printf("error %d: cannot create device\n", rtcGetDeviceError(NULL));
@@ -102,7 +102,7 @@ struct Quad { int v0, v1, v2, v3; };
 //    integer.
 
 // Initialise scene
-RTCScene initializeScene(RTCDevice device, float* vert_grid,
+static RTCScene initializeScene(RTCDevice device, float* vert_grid,
 	int dem_dim_0, int dem_dim_1, const char* geom_type,
 	float* vert_simp, int num_vert_simp, int* tri_ind_simp, int num_tri_simp) {
 
@@ -327,8 +327,8 @@ void ray_discrete_sampling(double ray_org_x, double ray_org_y, double ray_org_z,
 	size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]) {
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]) {
 
 	for (size_t k = 0; k < azim_num; k++) {
 
@@ -364,8 +364,8 @@ void ray_binary_search(double ray_org_x, double ray_org_y, double ray_org_z,
 	size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]) {
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]) {
 
 	for (size_t k = 0; k < azim_num; k++) {
 
@@ -413,8 +413,8 @@ void ray_guess_const(double ray_org_x, double ray_org_y, double ray_org_z,
 	size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]) {
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]) {
 
 	// ------------------------------------------------------------------------
 	// First azimuth direction (binary search)
@@ -546,8 +546,8 @@ void ray_discrete_sampling_hori_dist(double ray_org_x, double ray_org_y,
 	double ray_org_z, size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer, double* dist_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]) {
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]) {
 
 	double dist = 0.0;
 	double dist_hit = 0.0;
@@ -590,8 +590,8 @@ void ray_binary_search_hori_dist(double ray_org_x, double ray_org_y,
 	double ray_org_z, size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer, double* dist_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]) {
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]) {
 
 	double dist = 0.0;
 	double dist_hit = 0.0;
@@ -1191,7 +1191,7 @@ void ray_binary_search_hori_dist(double ray_org_x, double ray_org_y,
 
 
 
-embree_horizon::embree_horizon(size_t  azim_num, double dist_search, double hori_acc, double ray_org_elev, double hori_fill, double elev_ang_low_lim, double elev_ang_up_lim) :
+embree_horizon::embree_horizon(size_t  azim_num, double dist_search, const char* ray_algorithm, double hori_acc, double ray_org_elev, double hori_fill, double elev_ang_low_lim, double elev_ang_up_lim) :
 	m_device(nullptr),
 	m_scene(nullptr)
 {
@@ -1203,24 +1203,6 @@ embree_horizon::embree_horizon(size_t  azim_num, double dist_search, double hori
 	m_elev_ang_up_lim = deg2rad(elev_ang_up_lim);
 	m_ray_org_elev = ray_org_elev;
 	m_hori_fill = hori_fill;
-};
-
-
-
-
-
-
-
-void embree_horizon::init(float* vert_grid, size_t  dem_dim_0, size_t  dem_dim_1, const char* ray_algorithm, const char* geom_type)
-{
-	// Initialization
-	m_vert_grid = vert_grid;
-	m_dem_dim_0 = dem_dim_0;
-	m_dem_dim_1 = dem_dim_1;
-
-	m_device = initializeDevice();
-	m_scene = initializeScene(m_device, vert_grid, (int)dem_dim_0, (int)dem_dim_1, geom_type, nullptr, 0, nullptr, 0);
-
 
 	// Select algorithm for horizon detection
 	//cout << "Horizon detection algorithm: ";
@@ -1236,11 +1218,30 @@ void embree_horizon::init(float* vert_grid, size_t  dem_dim_0, size_t  dem_dim_1
 	}
 	else if (strcmp(ray_algorithm, "guess_constant") == 0)
 	{
+		assert(false);// this option is bugged
 		//cout << "guess horizon from previous azimuth direction" << endl;
 		m_function_pointer_angle_only = ray_guess_const;
 		m_function_pointer_angle_and_distance = nullptr;
 
 	}
+};
+
+
+
+
+
+
+
+void embree_horizon::init(float* vert_grid, size_t  dem_dim_0, size_t  dem_dim_1, const char* geom_type)
+{
+	// Initialization
+	m_vert_grid = vert_grid;
+	m_dem_dim_0 = dem_dim_0;
+	m_dem_dim_1 = dem_dim_1;
+
+	m_device = initializeDevice();
+	m_scene = initializeScene(m_device, vert_grid, (int)dem_dim_0, (int)dem_dim_1, geom_type, nullptr, 0, nullptr, 0);
+	
 
 	// ------------------------------------------------------------------------
 	// Allocate and initialise arrays with evaluated trigonometric functions
@@ -1298,7 +1299,7 @@ void embree_horizon::clean()
 
 
 //i=y, j=x
-size_t embree_horizon::compute_horizon(size_t i, size_t j, double* hori_buffer)
+size_t embree_horizon::compute_horizon(size_t i, size_t j, double* hori_buffer)const
 {
 	size_t num_rays = 0;
 
@@ -1332,7 +1333,7 @@ size_t embree_horizon::compute_horizon(size_t i, size_t j, double* hori_buffer)
 //#############################################################################
 // Compute horizon for arbitrary locations
 //#############################################################################
-size_t embree_horizon::compute_horizon(double x, double y, double z, double* angle_buffer, double* distance_buffer)
+size_t embree_horizon::compute_horizon(double x, double y, double z, double* angle_buffer, double* distance_buffer)const
 {
 
 	static const double rot_inv[3][3] =

@@ -30,7 +30,7 @@ public:
     	float* surf_enl_fac,
     	float* elevation,
     	unsigned char* mask,
-    	char* geom_type,
+    	const char* geom_type,
     	float sw_dir_cor_fill,
     	float ang_max,
     	int refrac_cor);

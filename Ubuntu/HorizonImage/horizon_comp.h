@@ -173,8 +173,8 @@ typedef void (*def_function_pointer_hori_dist)(double ray_org_x, double ray_org_
 	ray_org_z, size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer, double* dist_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]);
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]);
 
 
 
@@ -182,8 +182,8 @@ typedef void (*def_function_pointer)(double ray_org_x, double ray_org_y, double 
 	size_t azim_num, double hori_acc, double dist_search,
 	double elev_ang_low_lim, double elev_ang_up_lim, int elev_num,
 	RTCScene scene, size_t& num_rays, double* hori_buffer,
-	double* azim_sin, double* azim_cos, double* elev_ang,
-	double* elev_cos, double* elev_sin, const double(&rot_inv)[3][3]);
+	const double* azim_sin, const double* azim_cos, const double* elev_ang,
+	const double* elev_cos, const double* elev_sin, const double(&rot_inv)[3][3]);
 
 
 
@@ -193,12 +193,16 @@ class embree_horizon
 {
 public:
 
-	embree_horizon(size_t  azim_num = 320, double dist_search = 50, double hori_acc = 0.1, double ray_org_elev = 2, double hori_fill = 0, double elev_ang_low_lim = -89.98f, double elev_ang_up_lim = 89.98f);
+	embree_horizon(size_t  azim_num = 360, double dist_search = 50, const char* ray_algorithm = "binary_search", double hori_acc = 0.1, double ray_org_elev = 2, double hori_fill = 0, double elev_ang_low_lim = -89.98f, double elev_ang_up_lim = 89.98f);
 	~embree_horizon() { clean(); }
 
-	void init(float* vert_grid, size_t  dem_dim_0, size_t  dem_dim_1, const char* ray_algorithm, const char* geom_type);
-	size_t compute_horizon(size_t i, size_t j, double* hori_buffer);
-	size_t compute_horizon(double x, double y, double z, double* angle_buffer, double* distance_buffer=nullptr);
+	void init(float* vert_grid, size_t  dem_dim_0, size_t  dem_dim_1, const char* geom_type="grid");
+
+	//Compute horizon for the input DEM at cell i,j
+	size_t compute_horizon(size_t i, size_t j, double* hori_buffer)const;
+
+	//compute horiszon for any particular ENU coordinate
+	size_t compute_horizon(double x, double y, double z, double* angle_buffer, double* distance_buffer=nullptr)const;
 	
 
 	void clean();
@@ -231,13 +235,11 @@ protected:
 	std::vector<double> m_elev_sin;
 	std::vector<double> m_elev_cos;
 	
-	
-	
-	
-
-
 	def_function_pointer m_function_pointer_angle_only;
 	def_function_pointer_hori_dist  m_function_pointer_angle_and_distance;
+
+
+
 	//const char* ray_algorithm;
 	//const char* geom_type;
 };

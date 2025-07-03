@@ -9,7 +9,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>$(TargetPath)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-te 7.0 46.0 8.5 47.5 -overwrite -of VRT -co COMPRESS=LZW -co TILED=YES -stats -multi ./MapInput/srtm_38_03_block.tif ./MapOutput/srtm_38_03_te.vrt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-overwrite -of VRT -co COMPRESS=LZW -co TILED=YES -stats -multi ./MapInput/srtm_38_03_block.tif ./MapOutput/srtm_38_03.vrt</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>G:\TravauxModels\Horizon</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 </Project>
