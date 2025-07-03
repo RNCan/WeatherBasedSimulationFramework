@@ -23,8 +23,10 @@
 				<Linker>
 					<Add option="-static-libstdc++" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
 				</Linker>
 			</Target>
@@ -46,8 +48,10 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
 				</Linker>
 			</Target>

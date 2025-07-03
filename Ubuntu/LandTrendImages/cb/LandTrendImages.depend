@@ -31479,16 +31479,16 @@
 
 1694112913 e:\project\ubuntu\landtrend\external\pugiconfig.hpp
 
-1694695918 source:e:\project\ubuntu\external\ermsg\erexcept.cpp
+1751483112 source:e:\project\ubuntu\external\ermsg\erexcept.cpp
 	"external/ERMsg/Erexcept.h"
-	<strstream>
+	<sstream>
 	<iostream>
-	<assert.h>
+	<cassert>
 
-1694440391 e:\project\ubuntu\external\ermsg\erexcept.h
+1730988564 e:\project\ubuntu\external\ermsg\erexcept.h
 	<string>
 
-1694695756 source:e:\project\ubuntu\basic\geobasic.cpp
+1730988564 source:e:\project\ubuntu\basic\geobasic.cpp
 	<iostream>
 	"basic/GeoBasic.h"
 	"basic/Statistic.h"
@@ -31496,7 +31496,7 @@
 
 1694695756 ERMsg/ERMsg.h"
 
-1694695756 e:\project\ubuntu\basic\geobasic.h
+1730988564 e:\project\ubuntu\basic\geobasic.h
 	<map>
 	<vector>
 	<deque>
@@ -31507,36 +31507,36 @@
 	<boost/archive/text_iarchive.hpp>
 	<boost/serialization/export.hpp>
 	"external/ERMsg/ERMsg.h"
-	"Basic/UtilMath.h"
+	"basic/UtilMath.h"
 
-1694695816 e:\project\ubuntu\external\ermsg\ermsg.h
+1730988564 e:\project\ubuntu\external\ermsg\ermsg.h
 	"external/ERMsg/Syenvmsg.h"
 
 1694695930 ERMsg/Syenvmsg.h"
 
-1694695913 e:\project\ubuntu\external\ermsg\syenvmsg.h
+1730988564 e:\project\ubuntu\external\ermsg\syenvmsg.h
 	"external/ERMsg/Erexcept.h"
 	"external/ERMsg/Sycptref.h"
 	"external/ERMsg/Symessag.h"
 
 1694695913 ERMsg/Symessag.h"
 
-1694695930 e:\project\ubuntu\external\ermsg\sycptref.h
+1730988564 e:\project\ubuntu\external\ermsg\sycptref.h
 	"external/ERMsg/Erexcept.h"
 	"Sycptref.hpp"
 
-1694268156 e:\project\ubuntu\external\ermsg\sycptref.hpp
+1730988564 e:\project\ubuntu\external\ermsg\sycptref.hpp
 
-1694695942 e:\project\ubuntu\external\ermsg\symessag.h
+1730988564 e:\project\ubuntu\external\ermsg\symessag.h
 	"external/ERMsg/Erexcept.h"
 	<vector>
 	<string>
 
-1694532883 e:\project\ubuntu\basic\utilmath.h
+1730988564 e:\project\ubuntu\basic\utilmath.h
 	<random>
-	"Basic/UtilStd.h"
+	"basic/UtilStd.h"
 
-1694695756 e:\project\ubuntu\basic\utilstd.h
+1730988564 e:\project\ubuntu\basic\utilstd.h
 	<assert.h>
 	<map>
 	<set>
@@ -31554,54 +31554,55 @@
 	<cstring>
 	"external/ERMsg/ERMsg.h"
 
-1694529570 e:\project\ubuntu\basic\statistic.h
+1751483728 e:\project\ubuntu\basic\statistic.h
 	<assert.h>
 	<vector>
+	<array>
 
-1694570211 source:e:\project\ubuntu\basic\statistic.cpp
+1730988564 source:e:\project\ubuntu\basic\statistic.cpp
 	<cmath>
 	<float.h>
 	<algorithm>
 	<boost/math/distributions/normal.hpp>
-	"Basic/Statistic.h"
-	"Basic/UtilMath.h"
+	"basic/Statistic.h"
+	"basic/UtilMath.h"
 
-1694695227 source:e:\project\ubuntu\basic\utilmath.cpp
+1730988564 source:e:\project\ubuntu\basic\utilmath.cpp
 	<time.h>
 	<float.h>
 	<limits>
 	"basic/UtilMath.h"
 
-1694611776 source:e:\project\ubuntu\basic\utilstd.cpp
+1751488590 source:e:\project\ubuntu\basic\utilstd.cpp
 	<boost/tokenizer.hpp>
 	<boost/algorithm/string.hpp>
-	<boost/filesystem/path.hpp>
-	<boost/filesystem/operations.hpp>
-	<boost/crc.hpp>
-	<stdio.h>
+	<boost/filesystem.hpp>
+	<cstdio>
 	<stdexcept>
-	<stdarg.h>
+	<cstdarg>
 	"basic/UtilStd.h"
+	<windows.h>
+	<processthreadsapi.h>
 
-1694371141 source:e:\project\ubuntu\external\ermsg\ererreur.cpp
+1730988564 source:e:\project\ubuntu\external\ermsg\ererreur.cpp
 	"Ererreur.h"
 	<iostream>
 	<fstream>
 	<signal.h>
 	<stdlib.h>
 
-1694695892 e:\project\ubuntu\external\ermsg\ererreur.h
+1730988564 e:\project\ubuntu\external\ermsg\ererreur.h
 	"external/ERMsg/ERMsg.h"
 	<string>
 
-1694695930 source:e:\project\ubuntu\external\ermsg\syenvmsg.cpp
+1730988564 source:e:\project\ubuntu\external\ermsg\syenvmsg.cpp
 	"external/ERMsg/Syenvmsg.h"
 
-1694695942 source:e:\project\ubuntu\external\ermsg\symessag.cpp
+1751483180 source:e:\project\ubuntu\external\ermsg\symessag.cpp
 	"external/ERMsg/Symessag.h"
-	<strstream>
+	<sstream>
 
-1694695756 source:e:\project\ubuntu\geomatic\gdaldatasetex.cpp
+1751482835 source:e:\project\ubuntu\geomatic\gdaldatasetex.cpp
 	<float.h>
 	<limits.h>
 	<iostream>
@@ -31612,7 +31613,7 @@
 	"geomatic/UtilGDAL.h"
 	"geomatic/GDALDatasetEx.h"
 
-1694112913 e:\project\ubuntu\external\pugixml\pugixml.hpp
+1730988564 e:\project\ubuntu\external\pugixml\pugixml.hpp
 	"pugiconfig.hpp"
 	<stddef.h>
 	<exception>
@@ -31620,56 +31621,62 @@
 	<iosfwd>
 	<string>
 
-1694112913 e:\project\ubuntu\external\pugixml\pugiconfig.hpp
+1730988564 e:\project\ubuntu\external\pugixml\pugiconfig.hpp
 
-1694529570 e:\project\ubuntu\basic\openmp.h
+1730988564 e:\project\ubuntu\basic\openmp.h
 	<omp.h>
 
-1694530784 e:\project\ubuntu\geomatic\gdal.h
+1751479752 e:\project\ubuntu\geomatic\gdal.h
+	"gdal/Include/gdal_priv.h"
+	"gdal/Include/ogr_spatialref.h"
 	"gdal_priv.h"
 	"ogr_spatialref.h"
+	"gdal/gdal_priv.h"
+	"gdal/ogr_spatialref.h"
 
-1694695756 e:\project\ubuntu\geomatic\utilgdal.h
-	<float.h>
+1730988564 e:\project\ubuntu\geomatic\utilgdal.h
+	<boost/timer/timer.hpp>
 	"external/ERMsg/ERMsg.h"
-	"Basic/UtilStd.h"
-	"Basic/Statistic.h"
-	"Basic/GeoBasic.h"
+	"basic/UtilStd.h"
+	"basic/Statistic.h"
+	"basic/GeoBasic.h"
+	"geomatic/GDAL.h"
 
-1694695756 e:\project\ubuntu\geomatic\gdaldatasetex.h
+1730988564 e:\project\ubuntu\geomatic\gdaldatasetex.h
+	<boost/dynamic_bitset.hpp>
 	"external/ERMsg/ERMsg.h"
 	"basic/GeoBasic.h"
 	"geomatic/UtilGDAL.h"
 	"geomatic/GDAL.h"
 
-1694694394 source:e:\project\ubuntu\geomatic\landsatdataset2.cpp
+1751487929 source:e:\project\ubuntu\geomatic\landsatdataset2.cpp
 	<algorithm>
 	<bitset>
-	"gdal.h"
-	"Geomatic/LandsatDataset2.h"
+	"geomatic/GDAL.h"
+	"geomatic/LandsatDataset2.h"
 
-1694695756 e:\project\ubuntu\geomatic\landsatdataset2.h
+1751482835 e:\project\ubuntu\geomatic\landsatdataset2.h
 	"external/ERMsg/ERMsg.h"
 	"geomatic/GDALDatasetEx.h"
 
-1694693541 source:e:\project\ubuntu\geomatic\utilgdal.cpp
+1749737768 source:e:\project\ubuntu\geomatic\utilgdal.cpp
 	<iostream>
 	<boost/scoped_array.hpp>
 	"basic/OpenMP.h"
 	"geomatic/GDAL.h"
 	"geomatic/UtilGDAL.h"
 
-1694355036 source:e:\project\ubuntu\external\mpfit\mpfit.cpp
+1730988564 source:e:\project\ubuntu\external\mpfit\mpfit.cpp
 	<stdio.h>
 	<stdlib.h>
 	<math.h>
 	<string.h>
 	"mpfit.h"
 
-1694268156 e:\project\ubuntu\external\mpfit\mpfit.h
+1730988564 e:\project\ubuntu\external\mpfit\mpfit.h
 	<float.h>
 
-1694112913 source:e:\project\ubuntu\external\pugixml\pugixml.cpp
+1730988564 source:e:\project\ubuntu\external\pugixml\pugixml.cpp
 	"pugixml.hpp"
 	<stdlib.h>
 	<stdio.h>
@@ -31686,7 +31693,7 @@
 	<sys/stat.h>
 	<stdint.h>
 
-1673751773 source:e:\project\ubuntu\external\tinyxml2\tinyxml2.cpp
+1730988564 source:e:\project\ubuntu\external\tinyxml2\tinyxml2.cpp
 	"tinyxml2.h"
 	<new>
 	<stddef.h>
@@ -31694,7 +31701,7 @@
 	<cstddef>
 	<cstdarg>
 
-1673751773 e:\project\ubuntu\external\tinyxml2\tinyxml2.h
+1730988564 e:\project\ubuntu\external\tinyxml2\tinyxml2.h
 	<ctype.h>
 	<limits.h>
 	<stdio.h>
@@ -31984,4 +31991,54 @@
 	<cassert>
 	"LandTrendUtil.h"
 	"external/mpfit/mpfit.h"
+
+1730988564 source:e:\project\ubuntu\geomatic\landtrendcore.cpp
+	<algorithm>
+	<iostream>
+	<numeric>
+	"LandTrendCore.h"
+
+1730988564 e:\project\ubuntu\geomatic\landtrendcore.h
+	"LandTrendUtil.h"
+
+1749681217 e:\project\ubuntu\geomatic\landtrendutil.h
+	<string>
+	<vector>
+	<valarray>
+	<algorithm>
+	<bitset>
+	<assert.h>
+
+1749681807 source:e:\project\ubuntu\geomatic\landtrendutil.cpp
+	<boost/math/distributions/fisher_f.hpp>
+	<random>
+	<iostream>
+	<valarray>
+	<cassert>
+	"LandTrendUtil.h"
+	"external/mpfit/mpfit.h"
+
+1749739985 source:e:\project\ubuntu\landtrendimages\landtrend.cpp
+	<math.h>
+	<array>
+	<utility>
+	<iostream>
+	"LandTrend.h"
+	"basic/OpenMP.h"
+	"geomatic/GDAL.h"
+	"geomatic/LandTrendUtil.h"
+	"geomatic/LandTrendCore.h"
+
+1730988564 e:\project\ubuntu\landtrendimages\landtrend.h
+	<boost/dynamic_bitset.hpp>
+	<deque>
+	"geomatic/UtilGDAL.h"
+	"geomatic/LandsatDataset2.h"
+
+1730988564 source:e:\project\ubuntu\landtrendimages\landtrendapp.cpp
+	<boost/timer/timer.hpp>
+	<stdio.h>
+	<iostream>
+	"LandTrend.h"
+	"geomatic/LandTrendCore.h"
 

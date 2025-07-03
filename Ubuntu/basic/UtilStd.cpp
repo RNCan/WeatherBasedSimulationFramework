@@ -14,12 +14,12 @@
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/crc.hpp>
-#include <stdio.h>
+#include <boost/filesystem.hpp>
+//#include <boost/filesystem/operations.hpp>
+//#include <boost/crc.hpp>
+#include <cstdio>
 #include <stdexcept>
-#include <stdarg.h>
+#include <cstdarg>
 #include "basic/UtilStd.h"
 
 #if _MSC_VER
@@ -35,15 +35,11 @@ using boost::escaped_list_separator;
 
 
 
-//template < >
-//boost::filesystem::path& boost::filesystem::path::append< typename boost::filesystem::path::iterator >(typename boost::filesystem::path::iterator begin, typename boost::filesystem::path::iterator end, const codecvt_type& cvt)
-//{
-//    for (; begin != end; ++begin)
-//        *this /= *begin;
-//    return *this;
-//}
 
-// Return path when appended to a_From will resolve to same as a_To
+namespace WBSF
+{
+
+    // Return path when appended to a_From will resolve to same as a_To
 boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::filesystem::path a_To)
 {
     boost::filesystem::path ret;
@@ -51,7 +47,7 @@ boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::fil
 
     a_From = boost::filesystem::absolute(a_From);
     a_To = boost::filesystem::absolute(a_To);
-    //boost::filesystem::path ret;
+
     boost::filesystem::path::const_iterator itrFrom(a_From.begin()), itrTo(a_To.begin());
     // Find common base
     for (boost::filesystem::path::const_iterator toEnd(a_To.end()), fromEnd(a_From.end()); itrFrom != fromEnd && itrTo != toEnd && *itrFrom == *itrTo; ++itrFrom, ++itrTo);
@@ -62,8 +58,6 @@ boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::fil
             ret /= "..";
     }
     // Now navigate down the directory branch
-    //ret.append(itrTo, a_To.end(), boost::filesystem::path::codecvt());
-
     auto pp = std::mismatch(a_From.begin(), a_From.end(), a_To.begin());
     for(auto iter = pp.second; iter != a_To.end(); ++iter)
         ret /= *iter;
@@ -72,9 +66,6 @@ boost::filesystem::path make_relative(boost::filesystem::path a_From, boost::fil
     return ret;
 }
 
-
-namespace WBSF
-{
 
     bool GDALStyleProgressBar(double dfComplete)
     {
@@ -416,8 +407,6 @@ std::string GetRelativePath(const std::string& sBasePath, const std::string& sFi
     std::string path;
     if (!sFilePath.empty())
     {
-        //std::wstring wBasePath(UTF16(sBasePath));
-        //std::wstring wFilePath(UTF16(sFilePath));
         boost::filesystem::path basePath(sBasePath);
         boost::filesystem::path filePath(sFilePath);
         if (basePath.root_name() == filePath.root_name())
@@ -468,8 +457,6 @@ std::string GetAbsolutePath(const std::string& sBasePath, const std::string& sFi
     std::string path;
     if (!sFilePath.empty())
     {
-        //std::wstring wBasePath(UTF16(sBasePath));
-        //std::wstring wFilePath(UTF16(sFilePath));
         boost::filesystem::path basePath(sBasePath);
         boost::filesystem::path filePath(sFilePath);
         if (filePath.is_relative())

@@ -17,9 +17,9 @@
 //************************************************************************
 //#include "stdafx.h"
 #include "external/ERMsg/Erexcept.h"
-#include <strstream>
+#include <sstream>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 using namespace std;
 
@@ -86,14 +86,15 @@ ERExceptionContrat::~ERExceptionContrat()
 void ERExceptionContrat::arreteProgramme()
 {
     // ---  Prépare le message
-    char buffer[1024];
-    ostrstream os(buffer, 1023);
+    //char buffer[1024];
+
+    std::ostringstream os;//(buffer, 1023);
     os << "Fichier : " << fichier << endl;
     os << "Ligne   : " << ligne << endl;
     os << "Test    : " << expression << endl << ends;
 
     // ---  Affiche
-    cout << message << endl << buffer;
+    cout << message << endl << os.str();
     assert(false);
     //exit(1);
 }

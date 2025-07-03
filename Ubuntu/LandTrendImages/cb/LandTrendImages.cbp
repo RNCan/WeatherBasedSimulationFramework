@@ -23,8 +23,10 @@
 				<Linker>
 					<Add option="-static-libstdc++" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
 				</Linker>
 			</Target>
@@ -36,17 +38,20 @@
 				<Option parameters="/mnt/data/input/LandsatPNGJ.vrt /mnt/data/output/output.vrt -overwrite -co COMPRESS=LZW -multi -IOCPU 3" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-std=gnu++17" />
 					<Add option="-m64" />
+					<Add option="-std=gnu++17" />
 					<Add option="-fopenmp" />
 					<Add option="-Wno-unused-result" />
+					<Add option="-DNDEBUG" />
 					<Add directory="../.." />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
 				</Linker>
 			</Target>

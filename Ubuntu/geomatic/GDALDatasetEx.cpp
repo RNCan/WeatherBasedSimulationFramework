@@ -220,8 +220,8 @@ namespace WBSF
 
 		msg = WBSF::OpenInputImage(filePath, &m_poDataset, options.m_srcNodata, options.m_bUseDefaultNoData, options.m_bReadOnly);
 		if (msg &&
-			(options.m_scene_extents[0] != NOT_INIT && options.m_scene_extents[0] >= GetNbScenes()) ||
-			(options.m_scene_extents[1] != NOT_INIT && options.m_scene_extents[1] >= GetNbScenes()))
+			((options.m_scene_extents[0] != NOT_INIT && options.m_scene_extents[0] >= GetNbScenes()) ||
+			(options.m_scene_extents[1] != NOT_INIT && options.m_scene_extents[1] >= GetNbScenes())))
 			msg.ajoute("Scenes {" + to_string(options.m_scene_extents[0] + 1) + ", " + to_string(options.m_scene_extents[1] + 1) + "} must be in range {1, " + to_string(GetNbScenes()) + "}");
 
 
@@ -800,7 +800,7 @@ namespace WBSF
 		CGeoExtents extents = GetExtents().GetBlockExtents(int(i), int(j));
 		CGeoRectIndex dataRect = GetExtents().GetBlockRect(int(i), int(j));
 
-		
+
 		block.resize(GetRasterCount(), extents, DataType(GetNoData(0)));
 		for (size_t b = 0; b < GetRasterCount(); b++)
 		{
@@ -875,7 +875,7 @@ namespace WBSF
 					GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
 					pBand->RasterIO(GF_Read, loadRect.m_x, loadRect.m_y, loadRect.m_xSize, loadRect.m_ySize, window_data[ii].data().data(), loadRect.m_xSize, loadRect.m_ySize, GetGDALDataType(), 0, 0);
 
-#pragma omp atomic 
+#pragma omp atomic
 					nb_non_empty++;
 				}
 			}
@@ -1076,7 +1076,7 @@ namespace WBSF
 				{
 					int ii = 0;
 #pragma omp parallel for num_threads( CPU )
-					for (int i = 0; i < GetRasterCount(); i++)
+					for (size_t i = 0; i < GetRasterCount(); i++)
 					{
 						if (m_poDatasetVector[i])
 							m_poDatasetVector[i]->BuildOverviews("NEAREST", (int)list.size(), const_cast<int*>(list.data()), 0, NULL, pProgressFunc, NULL, papszOptions);
@@ -1139,7 +1139,7 @@ namespace WBSF
 
 			int ii = 0;
 #pragma omp parallel for num_threads( CPU )
-			for (int i = 0; i < GetRasterCount(); i++)
+			for (int i = 0; i < (int)GetRasterCount(); i++)
 			{
 				if (GetRasterBand(i))
 				{
@@ -1172,7 +1172,7 @@ namespace WBSF
 
 			int ii = 0;
 #pragma omp parallel for num_threads( CPU )
-			for (int i = 0; i < GetRasterCount(); i++)
+			for (int i = 0; i < (int)GetRasterCount(); i++)
 			{
 				if (GetRasterBand(i))
 				{

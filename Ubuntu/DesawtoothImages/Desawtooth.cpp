@@ -6,15 +6,19 @@
 // 1.0.0	10/06/2025	Rémi Saint-Amant	Creation from LandtrendImage code
 
 
-//"D:\Travaux\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "D:\Travaux\Landsat\Landsat(2000-2018)\Output\test3.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -SpikeThreshold 0.75 
+//"D:\Travaux\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "D:\Travaux\Landsat\Landsat(2000-2018)\Output\test3.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -SpikeThreshold 0.75
 
 
+//#define BOOST_NO_CXX11_SCOPED_ENUMS
+#include <boost/filesystem.hpp>
+//#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
-#include <math.h>
+
+#include <cmath>
 #include <array>
 #include <utility>
 #include <iostream>
-
+//#include <boost/filesystem.hpp>
 
 #include "Desawtooth.h"
 #include "basic/OpenMP.h"
@@ -79,6 +83,9 @@ namespace WBSF
 			AddOption(OPTIONS[i]);
 
 
+//        boost::filesystem::path p1 = "c:/test/a.txt";
+  //      boost::filesystem::path p2 = "c:/test/a.txt";
+    //    boost::filesystem::absolute(p1, p2);
 		//Pour les trigger Bande 1 c’est - 125 quand on fait  ex.b1 1994 – b1 1995 ou b1 1996 – b1 1995.
 		//Pour le tassel Cap brightness c’est + 750  ex.tcb1994 – tcb 1995 ou tcb 1996 – tcb 1995
 
@@ -459,12 +466,12 @@ namespace WBSF
 						{
 							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
 							//assert(data[z] != 0);
-							if (data[z] == 0)
-							{
-								int k;
-								k = 0;
-							}
-							goods[z] = data[z] != 0;//humm!!!
+							//if (data[z] == 0)
+							//{
+							//	int k;
+							//	k = 0;
+							//}
+							//goods[z] = data[z] != 0;//humm!!!
 						}
 					}
 

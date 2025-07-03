@@ -16,6 +16,11 @@
     #include "gdal/Include/gdal_priv.h"
     #include "gdal/Include/ogr_spatialref.h"
 #else
-    #include "gdal/gdal_priv.h"
-    #include "gdal/ogr_spatialref.h"
+    #if _WIN32
+        #include "gdal_priv.h"
+        #include "ogr_spatialref.h"
+    #else
+        #include "gdal/gdal_priv.h"
+        #include "gdal/ogr_spatialref.h"
+    #endif
 #endif

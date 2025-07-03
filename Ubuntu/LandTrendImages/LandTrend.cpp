@@ -4,17 +4,17 @@
 //***********************************************************************
 // version
 // 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 insted of B2.
-// 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32. 
+// 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32.
 // 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
 //											use only pixel of all rings
-// 1.1.0	24/07/2024	Rémi Saint-Amant	Change UINT16 for INT16. 
+// 1.1.0	24/07/2024	Rémi Saint-Amant	Change UINT16 for INT16.
 //											Bug correction in desawtooth.
 //											Bug correction in CloudMask
-//											New version of rings, use only pixel of the ring and not all 
+//											New version of rings, use only pixel of the ring and not all
 // 1.0.5	20/12/2023	Rémi Saint-Amant	Change INT16 for UINT16
 //											Bug correction with -Backward -Forward option
 // 1.0.4	11/12/2023	Rémi Saint-Amant	Bug correction with validity position
-// 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask 
+// 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
 // 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
@@ -452,13 +452,13 @@ namespace WBSF
 				cloudsDS.ReadBlock(extents, clouds_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == clouds_block.size());
 				DataType noData = (DataType)cloudsDS.GetNoData(0);
-				
+
 				for (size_t i = 0; i < clouds_block.size(); i++)
 				{
 					assert(block_data[i].data().size() == clouds_block[i].data().size());
 
 					boost::dynamic_bitset<> validity(clouds_block[i].data().size(), true);
-					
+
 					for (size_t xy = 0; xy < clouds_block[i].data().size(); xy++)
 						validity.set(xy, clouds_block[i].data()[xy] == 0 || clouds_block[i].data()[xy] == noData);
 
@@ -576,16 +576,16 @@ namespace WBSF
 						}
 					}
 
-					
+
 					for (size_t z = 0; z < window.size(); z++)
 					{
 						size_t zz = z;
-						
+
 						if (m_first_valid != NOT_INIT && zz < m_first_valid)
 							zz = m_first_valid;
 						if (m_last_valid != NOT_INIT && zz > m_last_valid)
 							zz = m_last_valid;
-						
+
 
 						CLandsatPixel pixel = window.GetPixel(zz, x, y);
 						goods[z] = pixel.IsValid();
@@ -598,10 +598,10 @@ namespace WBSF
 						}
 					}
 
-					
+
 					if (goods.max())//at least one valid pixel
 					{
-						size_t nbVal = sum(goods);
+						//size_t nbVal = sum(goods);
 
 						//compute LandTrend for this time series indice
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
@@ -666,7 +666,7 @@ namespace WBSF
 
 									for (size_t z = 0; z < window.size(); z++)
 									{
-										
+
 										DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
 										outputData[z * SCENES_SIZE + s][xy] = val;
 									}
