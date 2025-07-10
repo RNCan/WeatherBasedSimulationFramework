@@ -1076,7 +1076,7 @@ namespace WBSF
 				{
 					int ii = 0;
 #pragma omp parallel for num_threads( CPU )
-					for (size_t i = 0; i < GetRasterCount(); i++)
+					for (int i = 0; i < (int)GetRasterCount(); i++)
 					{
 						if (m_poDatasetVector[i])
 							m_poDatasetVector[i]->BuildOverviews("NEAREST", (int)list.size(), const_cast<int*>(list.data()), 0, NULL, pProgressFunc, NULL, papszOptions);
