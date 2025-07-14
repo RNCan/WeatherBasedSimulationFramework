@@ -17,7 +17,7 @@
 //******************************************************************************
 //#include "stdafx.h"
 #include "external/ERMsg/Symessag.h"
-#include <strstream>
+#include <sstream>
 using namespace std;
 
 //******************************************************************************
@@ -197,12 +197,12 @@ void SYMessage::ajoute(double val)
     _INVARIANTS ();
 
     // --- On convertit d'abord.
-    char buffer[256];
-    ostrstream os(buffer, 255);
+    //char buffer[256];
+    ostringstream os;//(buffer, 255);
     os << val << ends;
 
     // ---  Ajoute à la liste la chaîne dans le buffer
-    lstMessages.push_back(buffer);
+    lstMessages.push_back(os.str());
 
     _INVARIANTS ();
 }
@@ -224,12 +224,12 @@ void SYMessage::ajoute(long val)
     _INVARIANTS ();
 
     // --- On convertit d'abord.
-    char buffer[256];
-    ostrstream os(buffer, 255);
+    //char buffer[256];
+    ostringstream os;//(buffer, 255);
     os << val << ends;
 
     // ---  Ajoute à la liste la chaîne dans le buffer
-    lstMessages.push_back(buffer);
+    lstMessages.push_back(os.str());
 
     _INVARIANTS ();
 }

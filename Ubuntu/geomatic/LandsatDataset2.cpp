@@ -302,12 +302,14 @@ namespace WBSF
 		}
 	}*/
 
-	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, CBaseOptions options)
+	ERMsg CLandsatDataset::CreateImage(const std::string& filePath, const CBaseOptions& optionsIn)
 	{
-		assert(options.m_nbBands % options.GetSceneSize() == 0);
+		assert(optionsIn.m_nbBands % optionsIn.GetSceneSize() == 0);
 
 		ERMsg msg;
 
+
+		CBaseOptions options(optionsIn);
 		if (options.m_VRTBandsName.empty())
 		{
 			size_t nbImages = options.m_nbBands / options.GetSceneSize();
@@ -990,7 +992,7 @@ namespace WBSF
 		return pixel;
 	}
 
-	//humm????? 
+	//humm?????
 	//CLandsatPixel CLandsatWindow::GetPixelMedian(size_t f, size_t l, int x, int y, double n_rings)const
 	//{
 	//    CLandsatPixel out;
@@ -1431,7 +1433,7 @@ namespace WBSF
 			  //  pix_val = Color8(max(0.0, min(1.0, (pow(max(0.0, min(1.0, ((double)at(B2) - stats[B2].m_min) / (stats[B2].m_max - stats[B2].m_min))), 0.5) * 254 - 25.0) / (128.0 - 25.0))) * 254.0);
 			   //break;
 
-			//case CBaseOptions::TRUE_COLOR: 
+			//case CBaseOptions::TRUE_COLOR:
 		default:
 			assert(false);
 		}

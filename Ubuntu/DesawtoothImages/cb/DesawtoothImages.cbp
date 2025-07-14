@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/LandTrendImages" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/DesawtoothImages" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -15,21 +15,20 @@
 				<Compiler>
 					<Add option="-m64" />
 					<Add option="-g" />
-					<Add option="-fopenmp" />
-					<Add option="-Wno-unused-result" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../.." />
 				</Compiler>
 				<Linker>
-					<Add option="-static-libstdc++" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/LandTrendImages" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/DesawtoothImages" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -37,25 +36,31 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-m64" />
-					<Add option="-std=gnu++17" />
-					<Add option="-fopenmp" />
-					<Add option="-Wno-unused-result" />
+					<Add option="-DNDEBUG" />
 					<Add directory="../.." />
-					<Add directory="../../../external" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add option="-lgomp -pthread" />
-					<Add option="-lboost_filesystem -lboost_timer" />
+					<Add option="-lboost_filesystem-mt" />
+					<Add option="-lboost_timer-mt" />
 					<Add option="-lgdal" />
+					<Add option="-lgomp" />
+					<Add option="-pthread" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-m64" />
 			<Add option="-fexceptions" />
+			<Add option="-Wno-unused-result" />
+			<Add option="-std=gnu++17" />
+			<Add option="-fopenmp" />
 		</Compiler>
+		<Linker>
+			<Add option="-m64" />
+		</Linker>
 		<Unit filename="../../basic/GeoBasic.cpp" />
 		<Unit filename="../../basic/GeoBasic.h" />
 		<Unit filename="../../basic/OpenMP.h" />
@@ -97,7 +102,6 @@
 		<Unit filename="../Desawtooth.cpp" />
 		<Unit filename="../Desawtooth.h" />
 		<Unit filename="../DesawtoothApp.cpp" />
-		<Unit filename="../version.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

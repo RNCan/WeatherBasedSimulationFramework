@@ -21,7 +21,9 @@ namespace WBSF
 	//HRRR(SFC) historical since at least 2017
 	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20180101/hrrr.t00z.wrfsfcf00.grib2
 	//https://pando-rgw01.chpc.utah.edu/hrrr/sfc/20170101/hrrr.t00z.wrfsfcf00.grib2
-
+	//https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20140916/conus/hrrr.t01z.wrfsubhf10.grib2
+	// 
+	// 
 	//*********************************************************************
 	const char* CHRRR::SERVER_NAME[NB_SOURCES][NB_SERVER_TYPE] = { {"pando-rgw01.chpc.utah.edu" ,""},{"nomads.ncep.noaa.gov", "ftp.ncep.noaa.gov"} };
 	const char* CHRRR::SERVER_PATH[NB_SOURCES][NB_SERVER_TYPE] = { { "/hrrr/%s/%04d%02d%02d/","" },{ "/pub/data/nccf/com/hrrr/prod/", "/pub/data/nccf/com/hrrr/prod/" } };

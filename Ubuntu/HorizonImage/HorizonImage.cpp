@@ -21,6 +21,7 @@
 #include "HorizonImage.h"
 #include "basic/OpenMP.h"
 #include "geomatic/GDAL.h"
+#include "shadow_comp.h"
 
 //#include <tbb/parallel_for.h>
 //#include <tbb/parallel_reduce.h>
@@ -41,12 +42,61 @@ namespace WBSF
 	const size_t CHorizon::NB_THREAD_PROCESS = 2;
 
 
+	static const array<string, 5> OUTPUT_VAR_NAME = { "Slope","Aspect","SVF", "ShadowType", "SRad" };
+
+
+	double earthSunDistance(int DOY)
+	{
+		double d = 1.00011 + 0.01671 * cos(0.017202 * (DOY - 3));
+		return d * 149'597'870'700;
+	}
+
+	double calculateSolarDeclination(int DOY) {
+		// Calculate the day number of the year
+		//int dayOfYear = julianDay - 2451545.0 + 0.5;
+
+		// Calculate the declination in degrees
+		double declination = 23.45 * sin(360 * (284 + DOY) / 365.0 * M_PI / 180.0);
+
+		return declination;
+	}
+
+	double calculateHourAngle(double longitude, double timeInHours) {
+		// Convert longitude to degrees
+		double longitudeDegrees = longitude;
+
+		// Calculate the hour angle
+		double hourAngle = 15.0 * (timeInHours - 12.0) + longitudeDegrees;
+		return hourAngle;
+	}
+
+	double calculateElevationAngle(double declination, double latitude, double hourAngle) {
+		double latitudeRadians = latitude * M_PI / 180.0;
+		double declinationRadians = declination * M_PI / 180.0;
+		double hourAngleRadians = hourAngle * M_PI / 180.0;
+
+		double sinElevation = sin(declinationRadians) * sin(latitudeRadians) + cos(declinationRadians) * cos(latitudeRadians) * cos(hourAngleRadians);
+		return asin(sinElevation) * 180.0 / M_PI;
+	}
+
+
+
+	double calculateAzimuthAngle(double declination, double latitude, double elevationAngle, double hourAngle) {
+		double latitudeRadians = latitude * M_PI / 180.0;
+		double declinationRadians = declination * M_PI / 180.0;
+		double elevationRadians = elevationAngle * M_PI / 180.0;
+		double hourAngleRadians = hourAngle * M_PI / 180.0;
+
+		double cosAzimuth = (sin(declinationRadians) * cos(latitudeRadians) - cos(declinationRadians) * sin(latitudeRadians) * cos(hourAngleRadians)) / cos(elevationRadians);
+		return acos(cosAzimuth) * 180.0 / M_PI;
+	}
+
 	//*********************************************************************************************************************
 
 	CHorizonOption::CHorizonOption()
 	{
 
-		m_rings = 0;
+		m_rings = 1;
 
 		m_dist_search = 50;
 		//m_ray_algorithm = "guess_constant";
@@ -66,16 +116,17 @@ namespace WBSF
 
 		static const COptionDef OPTIONS[] =
 		{
-	
+
 			//{ "-ray_algorithm", 1, "name", false, "Algorithm for horizon detection (discrete_sampling, binary_search, guess_constant). binary_search by default."},
 			{ "-geom_type", 1, "name", false, "Embree geometry type(triangle, quad, grid). grid by default." },
 			{ "-dist_search", 1, "r", false, "Search distance for horizon [km]. 50 km by default."},
 			//{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-ellps", 1, "name", false, "Earth's surface approximation (sphere, GRS80 or WGS84). WGS84 by default"},
-			{ "-Undulation", 0, "", false, "Compute the geoid undulation for the EGM96."},
+			{ "-undulation", 0, "", false, "Compute the geoid undulation for the EGM96."},
 			{ "-azim_num", 1, "n", false, "Number of azimuth sampling directions. 360 by default"},
 			{ "-hori_acc", 1, "acc", false, "Accuracy of horizon computation [degree]. 0.1 degree by default." },
 			{ "-ray_org_elev", 1, "acc", false, "Vertical elevation of ray origin above surface [metre]. 2 meters by default." },
+			{ "-shadow", 0, "", false, "Output shadow instead of horizon. " },
 			//{ "-hori_fill", 1, "acc", false, "Accuracy of horizon computation [degree]. 0.1 degree by default." },
 			{ "-elev_ang_low_lim", 1, "acc", false, "Low horizon angle limit [degree]. -89.98 degree by default." },
 			{ "-elev_ang_up_lim", 1, "acc", false, "high horizon angle limith [degree]. 89.98 degree by default." },
@@ -130,7 +181,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		 
+
 		if (IsEqual(argv[i], "-m_dist_search"))
 		{
 			m_dist_search = atof(argv[++i]);
@@ -205,7 +256,7 @@ namespace WBSF
 
 
 		//let a buffer in function os search distance and resolution
-		m_options.m_rings = 0;// m_options.m_dist_search / ((m_options.m_extents.XRes() + m_options.m_extents.YRes() / 2));
+		m_options.m_rings = 1;// m_options.m_dist_search / ((m_options.m_extents.XRes() + m_options.m_extents.YRes() / 2));
 
 
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
@@ -283,7 +334,9 @@ namespace WBSF
 
 		if (msg && m_options.m_bCreateImage)
 		{
-			size_t nb_scenes = 3;// m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
+			
+
+			size_t nb_scenes = OUTPUT_VAR_NAME.size();
 			CHorizonOption options(m_options);
 			options.m_scenes_def.clear();
 			options.m_nbBands = nb_scenes;
@@ -303,13 +356,13 @@ namespace WBSF
 			//std::string indices_name = Landsat2::GetIndiceName(m_options.m_indice);
 			string filePath = options.m_filesPath[CHorizonOption::OUTPUT_FILE_PATH];
 
-			static const array<string, 3> VAR_NAME = { "Slope","Aspect","SVF" };
+			
 
 			//replace the common part by the new name
 			for (size_t zz = 0; zz < nb_scenes; zz++)
 			{
 				size_t z = zz;
-				string subName = VAR_NAME[zz];
+				string subName = OUTPUT_VAR_NAME[zz];
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + subName + ".tif|";
 
 			}
@@ -358,7 +411,8 @@ namespace WBSF
 		//init memory
 		if (m_options.m_bCreateImage)
 		{
-			outputData.resize(3);
+			
+			outputData.resize(OUTPUT_VAR_NAME.size());
 			for (size_t s = 0; s < outputData.size(); s++)
 				outputData[s].insert(outputData[s].begin(), blockSize.m_x * blockSize.m_y, float(m_options.m_dstNodata));
 		}
@@ -392,8 +446,8 @@ namespace WBSF
 				azimuth[i].sin = std::sin(azimuth[i].angle);
 				azimuth[i].cos = std::cos(azimuth[i].angle);
 			}
-			
-			
+
+
 			//convert memory to pt obsject
 			matrix<pt3> dem(blockSize.m_x, blockSize.m_y);
 			for (int y = 0; y < blockSize.m_y; y++)
@@ -414,22 +468,115 @@ namespace WBSF
 
 			//convert from point to float buffer
 			std::vector<float> vec_dem_enu = dem_enu.vectorize();
-		
 
-			
-			embree_horizon EH(op.m_azim_num, op.m_dist_search, op.m_hori_acc, op.m_ray_org_elev,
-							op.m_dstNodata, op.m_elev_ang_low_lim, op.m_elev_ang_up_lim);
-			
-			EH.init(vec_dem_enu.data(), blockSize.m_y, blockSize.m_x, op.m_ray_algorithm.c_str(), op.m_geom_type.c_str());
+
+
+			embree_horizon EH(op.m_azim_num, op.m_dist_search, op.m_ray_algorithm.c_str(), op.m_hori_acc, op.m_ray_org_elev,
+				op.m_dstNodata, op.m_elev_ang_low_lim, op.m_elev_ang_up_lim);
+
+			EH.init(vec_dem_enu.data(), blockSize.m_y, blockSize.m_x, op.m_geom_type.c_str());
 
 			size_t num_rays = 0;
 
+			float sw_dir_cor_fill = NAN;
+			float ang_max = 89;
+			int refrac_cor = 1;
+
+
+
+			std::vector<float> vec_tilt(dem.xy_size() * 3);//# slope (in global ENU coordinates!)
+			std::vector<float> vec_norm(dem.xy_size() * 3);
+			std::vector<float> elevation_ortho(dem.xy_size());
+			std::vector<float> surf_enl_fac(dem.xy_size());
+
+			for (int ij = 0; ij < dem.xy_size(); ij++)
+			{
+				pt3 pt = dem[ij];
+				pt.z += 1000000;
+				pt3 norm = T.lla2enu(pt);
+				norm /= norm.d();
+
+				vec_norm[3 * ij + 0] = norm.x;
+				vec_norm[3 * ij + 1] = norm.y;
+				vec_norm[3 * ij + 2] = norm.z;
+
+				double slope = 0;//slope in degree
+				double aspect = 0;//aspect degree from North 
+				dem_enu.get_slope_aspect(dem_enu.ij2i(ij), dem_enu.ij2j(ij), slope, aspect);
+				
+				pt3 tilt = T.Normal(slope, aspect);
+
+
+				vec_tilt[3 * ij + 0] = tilt.x;
+				vec_tilt[3 * ij + 1] = tilt.y;
+				vec_tilt[3 * ij + 2] = tilt.z;
+				
+				
+				// Compute surface enlargement factor
+				surf_enl_fac[ij] = 1.0 / tilt.z;// 1.0 / (norm_enu * tilt_enu).sum(axis = 2);
+				elevation_ortho[ij] = dem[ij].z;
+			}
+
+			vector<unsigned char> mask(dem.xy_size(), 1);
+
+
 			
+
+			shapes::CppTerrain terrain;
+			terrain.initialise(vec_dem_enu.data(), blockSize.m_y, blockSize.m_x,
+				0, 0,
+				vec_tilt.data(),
+				vec_norm.data(),
+				blockSize.m_y, blockSize.m_x,
+				surf_enl_fac.data(),
+				elevation_ortho.data(),
+				mask.data(),
+				op.m_geom_type.c_str(),
+				sw_dir_cor_fill,
+				ang_max,
+				refrac_cor);
+
 			//num_rays += tbb::parallel_reduce(
 				//tbb::blocked_range<size_t>(0, blockSize.m_y), 0.0,
 				//[&](tbb::blocked_range<size_t> r, size_t num_rays)
 				//{  // parallel
 					//for (size_t y = r.begin(); y < r.end(); ++y)   // parallel
+			int DOY = 32;
+			std::vector<float> hours = { 9 };
+
+
+
+			std::vector < std::vector<unsigned char>> shadow_buffer(hours.size(), std::vector<unsigned char>(dem.xy_size()));
+			std::vector < std::vector<float>> sw_dir_cor_buffer(hours.size(), std::vector<float>(dem.xy_size()));
+
+			for (size_t h = 0; h < hours.size(); h++)
+			{
+				//astrometric = loc_or.at(t).observe(sun);
+				//alt, az, d = astrometric.apparent().altaz();
+
+				double hourAngle = calculateHourAngle(dem(0, 0).x, hours[h]);
+
+				double declination = calculateSolarDeclination(DOY);
+				double alt = calculateElevationAngle(declination, dem(0, 0).y, hourAngle);
+				double az = calculateAzimuthAngle(declination, dem(0, 0).y, alt, hourAngle);
+				double d = earthSunDistance(DOY);
+				double x = d * std::cos(deg2rad(alt)) * std::sin(deg2rad(az));
+				double y = d * std::cos(deg2rad(alt)) * std::cos(deg2rad(az));
+				double z = d * std::sin(deg2rad(alt));
+
+
+				std::vector<float> sun_position(3);
+
+				sun_position[0] = x;
+				sun_position[1] = y;
+				sun_position[2] = z;
+
+
+				terrain.shadow(sun_position.data(), shadow_buffer[h].data());
+				terrain.sw_dir_cor(sun_position.data(), sw_dir_cor_buffer[h].data());
+			}
+
+
 
 
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
@@ -440,17 +587,19 @@ namespace WBSF
 					int xy = y * blockSize.m_x + x;
 
 					std::vector<double> hori_buffer(azimuth.size());
-					EH.compute_horizon(size_t(y), size_t(x), hori_buffer.data());
-
+					//EH.compute_horizon(size_t(y), size_t(x), hori_buffer.data());
 
 					double slope = 0;//slope in degree
 					double aspect = 0;//aspect degree from North 
-					get_slope_aspect(x, y, dem_enu, slope, aspect);
+					dem_enu.get_slope_aspect(x, y, slope, aspect);
 					pt3 N = T.Normal(slope, aspect);
 
 					outputData[0][xy] = (float)slope;
 					outputData[1][xy] = (float)aspect;//aspect from North 
-					outputData[2][xy] = (float)sky_view_factor(azimuth, hori_buffer, N);
+					//outputData[2][xy] = (float)sky_view_factor(azimuth, hori_buffer, N);
+
+					outputData[3][xy] = (float)shadow_buffer[0][xy]; 
+					outputData[4][xy] = (float)sw_dir_cor_buffer[0][xy];
 
 
 #pragma omp atomic

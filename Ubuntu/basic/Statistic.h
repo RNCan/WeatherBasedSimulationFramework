@@ -162,7 +162,7 @@ protected:
     double m_sum2;
     double m_hightest;
 
-    
+
     //static const char* TITLE[NB_STATXY_TYPE_EX];
     static std::vector<std::string> TITLE;
 };
@@ -570,7 +570,7 @@ public:
 
     bool operator ==(const CXY& in)const
     {
-        return m_x==in.m_x && m_y == in.y;
+        return m_x==in.m_x && m_y == in.m_y;
     }
     bool operator !=(const CXY& in)const
     {
