@@ -102,87 +102,86 @@ namespace WBSF
 
 
 		ERMsg msg;
-		string::size_type posBegin = source.find("data-id=");
-		string::size_type posEnd = posBegin;
+		string::size_type posBegin = source.find("<tr data-selectable");
+
 
 
 		while (posBegin != string::npos)
 		{
+			string::size_type posEnd = posBegin;
+
+			string file_id = FindString(source, "data-id=\"", "\"", posBegin, posEnd);
+
+			string file_name_class = FindString(source, "aria-label=\"", "\"", posBegin, posEnd);
+			string file_date_class = FindString(source, "aria-label=\"", "\"", posBegin, posEnd);
+			string file_size_class = FindString(source, "aria-label=\"", "\n", posBegin, posEnd);
 
 
-			string file_id = FindString(source, "\"", "\"", posBegin, posEnd);
-			if (file_id != "_gd")
+			string file_name_str = WBSF::ReplaceString(file_name_class, " Compressed archive", "");
+			string file_date_str = WBSF::ReplaceString(file_date_class, "Modified ", "");
+			string file_size_str = WBSF::ReplaceString(file_size_class, "Size: ", "");
+
+			if (!file_name_str.empty() && !file_date_str.empty() && !file_size_str.empty())
 			{
-				string file_name_class = FindString(source, "class=\"KL4NAf\"", "</div>", posBegin, posEnd);
-				string file_date_class = FindString(source, "class=\"M3pype\"", "</div>", posBegin, posEnd);
-				string file_size_class = FindString(source, "class=\"M3pype\"", "</div>", posBegin, posEnd);
+				//StringVector file_typeV(file_type_str, ":");
+				//ASSERT(file_typeV.size() == 2);
+				///ASSERT(file_typeV[0] == "Compressed archive");
 
-				string file_type_str = FindString(file_name_class, "data-tooltip=\"", "\"");
-				string file_date_str = FindString(file_date_class, "\"Last modified by", "\"");
-				string file_size_str = FindString(file_size_class, "\"Size:", "\"");
-
-				if (!file_type_str.empty() && !file_date_str.empty() && !file_size_str.empty())
+				std::time_t time = 0;
+				if (file_date_str.find("a.m.") != string::npos || file_date_str.find("p.m.") != string::npos)
 				{
-					StringVector file_typeV(file_type_str, ":");
-					ASSERT(file_typeV.size() == 2);
-					ASSERT(file_typeV[0] == "Compressed archive");
+					ReplaceString(file_date_str, u8" a.m.", " AM");//before a.m. isn't not a space but a special UTF8 character
+					ReplaceString(file_date_str, u8" p.m.", " PM");//before p.m. isn't not a space but a special UTF8 character
 
-					std::time_t time = 0;
-					if (file_date_str.find("a.m.") != string::npos || file_date_str.find("p.m.") != string::npos)
-					{
-						ReplaceString(file_date_str, u8" a.m.", " AM");//before a.m. isn't not a space but a special UTF8 character
-						ReplaceString(file_date_str, u8" p.m.", " PM");//before p.m. isn't not a space but a special UTF8 character
-
-						std::time_t t = std::time(0);   // get time now
-						struct std::tm tm = *std::localtime(&t);
+					std::time_t t = std::time(0);   // get time now
+					struct std::tm tm = *std::localtime(&t);
 
 
-						std::istringstream ss(file_date_str);
-						ss.imbue(std::locale("en_US.UTF-8"));
-						ss >> std::get_time(&tm, "%H:%M %p"); // or just %T in this case
-						ASSERT(!ss.fail());
+					std::istringstream ss(file_date_str);
+					ss.imbue(std::locale("en_US.UTF-8"));
+					ss >> std::get_time(&tm, "%H:%M %p"); // or just %T in this case
+					ASSERT(!ss.fail());
 
-						std::time_t time = mktime(&tm);
-					}
-					else
-					{
-						struct std::tm tm = {};
-						std::istringstream ss(file_date_str);
-						ss.imbue(std::locale("en_US.UTF-8"));
-						ss >> std::get_time(&tm, "%b %d, %Y");
-						ASSERT(!ss.fail());
+					std::time_t time = mktime(&tm);
+				}
+				else
+				{
+					struct std::tm tm = {};
+					std::istringstream ss(file_date_str);
+					ss.imbue(std::locale("en_US.UTF-8"));
+					ss >> std::get_time(&tm, "%b %d, %Y");
+					ASSERT(!ss.fail());
 
-						time = mktime(&tm);
-					}
-
-
-					StringVector file_sizeV(Trim(file_size_str), " ");
-					ASSERT(file_sizeV.size() == 2);
-					double file_size = ToDouble(file_sizeV[0]);
-
-
-					if (file_sizeV[1].find("bytes") != string::npos)
-						file_size *= 1;
-					else if (file_sizeV[1].find("KB") != string::npos)
-						file_size *= 1000;
-					else if (file_sizeV[1].find("MB") != string::npos)
-						file_size *= 1000000;
-					else if (file_sizeV[1].find("GB") != string::npos)
-						file_size *= 1000000000;
-
-					CFileInfo info;
-					info.m_filePath = file_id + ":" + Trim(file_typeV[1]);
-					info.m_time = time;
-					info.m_size = __int64(file_size);
-
-
-					fileList.push_back(info);
+					time = mktime(&tm);
 				}
 
+
+				StringVector file_sizeV(Trim(file_size_str), " ");
+				ASSERT(file_sizeV.size() == 2);
+				double file_size = ToDouble(file_sizeV[0]);
+
+
+				if (file_sizeV[1].find("bytes") != string::npos)
+					file_size *= 1;
+				else if (file_sizeV[1].find("KB") != string::npos)
+					file_size *= 1000;
+				else if (file_sizeV[1].find("MB") != string::npos)
+					file_size *= 1000000;
+				else if (file_sizeV[1].find("GB") != string::npos)
+					file_size *= 1000000000;
+
+				CFileInfo info;
+				info.m_filePath = file_id + ":" + Trim(file_name_str);
+				info.m_time = time;
+				info.m_size = __int64(file_size);
+
+
+				fileList.push_back(info);
 			}
 
-			posBegin = source.find("data-id=", posEnd);
-			posEnd = posBegin;
+
+
+			posBegin = source.find("<tr data-selectable", posEnd);
 		}
 
 		return msg;
