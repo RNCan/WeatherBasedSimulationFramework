@@ -52,7 +52,8 @@ namespace WBSF
 
 	const std::array<double, PJN::NB_PSY> CPopilliaJaponicaEquations::PSY = { {1,1,1,1,1,1,1} };
 	const std::array<double, NB_OTHER_PARAMS> CPopilliaJaponicaEquations::OTHER_NA = { 30.1, 0.3365, 0.93, 0.1815, 0, 18.2651, 1.68499, 0.605301 };
-	const std::array<double, NB_OTHER_PARAMS> CPopilliaJaponicaEquations::OTHER_EU = { 30.1, 0.3365, 0.83, 0.3138, 0, 19.9462, 4.91279, 1.74064 };
+	//const std::array<double, NB_OTHER_PARAMS> CPopilliaJaponicaEquations::OTHER_EU = { 30.1, 0.3365, 0.83, 0.3138, 0, 19.9462, 4.91279, 1.74064 };
+	const std::array<double, NB_OTHER_PARAMS> CPopilliaJaponicaEquations::OTHER_EU = { 30.1, 0.3365, 0.83, 0.3138, 0, 19.9462, 3.7613, 1.7405 };
 	
  
 
@@ -124,12 +125,10 @@ namespace WBSF
 	const vector<double>  CPopilliaJaponicaEquations::EOD_EU =
 	{
 		//0.07476 ,1.07951 ,-27.8375, -1.1266,10.29961,9.74160 ,0.60921
-		0.15014 ,5.25655 ,-0.20547,9.75857,16.71604,1.92469 ,0.15349
+		//0.15014 ,5.25655 ,-0.20547,9.75857,16.71604,1.92469 ,0.15349
+
+		0.16275, 2.58657, -0.20547, 9.75857, 16.716, 1.02669, 0.311466
 	};
-
-
-
-
 
 
 
