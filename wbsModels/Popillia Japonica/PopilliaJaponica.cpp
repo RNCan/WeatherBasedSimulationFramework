@@ -53,10 +53,9 @@ namespace WBSF
 		double a1 = Equations().m_other[SNDH_MU];
 		double a2 = Equations().m_other[SNDH_S];
 		double F = Equations().m_other[SNDH_F];
-		//double sndh = weather[H_SNDH][MEAN];
+
 		double TsoilAMJ = GetStand()->m_TsoilAMJ;
 		double L = 0.5 - CModelDistribution::get_cdf(TsoilAMJ, CModelDistribution::LOGISTIC, a1, a2);
-		//m_diapauseCDD = m_r_snow * Equations().GetEndOfDiapauseCDD();
 		m_r_snow = exp(F * L);
 
 
