@@ -1,9 +1,9 @@
 //#include "pch.h"
 //Entity.cpp
 
-#include "storage_credential.h"
-#include "storage_account.h"
-#include "blob/blob_client.h"
+//#include "storage_credential.h"
+//#include "storage_account.h"
+//#include "blob/blob_client.h"
 #include <boost/algorithm/string/predicate.hpp> 
 
 
