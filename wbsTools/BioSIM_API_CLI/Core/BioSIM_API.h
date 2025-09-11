@@ -48,7 +48,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TParam { MODELS_PATH, AZURE_DLL, SHORE, DEM, DAILY_CACHE_SIZE, NB_PAPAMS };
+		enum TParam { MODELS_PATH, SHORE, DEM, DAILY_CACHE_SIZE, NB_PAPAMS };
 		static const char* NAME[NB_PAPAMS];
 
 
@@ -59,7 +59,7 @@ namespace WBSF
 
 		
 		std::string m_model_path;
-		std::string m_Azure_DLL_file_path;
+		//std::string m_Azure_DLL_file_path;
 		std::string m_shore_file_path;
 		std::string m_DEM_file_path;
 		size_t m_daily_cache_size;
@@ -116,11 +116,11 @@ namespace WBSF
 		CWeatherGeneratorInit();
 		void clear();
 		ERMsg parse(const std::string& options);
-		bool IsAzure()const { return !m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty(); }
+		//bool IsAzure()const { return !m_account_name.empty() && !m_account_key.empty() && !m_container_name.empty(); }
 
-		std::string m_account_name;
-		std::string m_account_key;
-		std::string m_container_name;
+		//std::string m_account_name;
+		//std::string m_account_key;
+		//std::string m_container_name;
 
 		//std::string m_shore_name;
 		std::string m_normal_name;

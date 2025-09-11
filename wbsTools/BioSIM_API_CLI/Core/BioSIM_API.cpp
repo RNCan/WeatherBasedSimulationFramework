@@ -39,7 +39,7 @@
 
 //using namespace boost;
 using namespace std;
-using namespace azure::storage_lite;
+//using namespace azure::storage_lite;
 
 using namespace WBSF;
 using namespace WBSF::WEATHER;
@@ -115,14 +115,13 @@ namespace WBSF
 
 	//******************************************************************************************************************************
 	//
-	const char* CGlobalDLLData::NAME[NB_PAPAMS] = { "ModelsPath", "Azure", "Shore", "DEM", "DailyCacheSize"};
+	const char* CGlobalDLLData::NAME[NB_PAPAMS] = { "ModelsPath", "Shore", "DEM", "DailyCacheSize" };
 
 
 
 	void CGlobalDLLData::clear()
 	{
 		m_model_path.clear();
-		m_Azure_DLL_file_path.clear();
 		m_shore_file_path.clear();
 		m_DEM_file_path.clear();
 		m_daily_cache_size = 200;
@@ -154,7 +153,6 @@ namespace WBSF
 					switch (o)
 					{
 					case MODELS_PATH: m_model_path = value; break;
-					case AZURE_DLL: m_Azure_DLL_file_path = value; break;
 					case SHORE: m_shore_file_path = value; break;
 					case DEM: m_DEM_file_path = value; break;
 					case DAILY_CACHE_SIZE: m_daily_cache_size = std::atoi(value.c_str()); break;
@@ -196,13 +194,6 @@ namespace WBSF
 						pGLOBAL_DLL_DATA->m_model_path += "/";
 				}
 
-				if (!pGLOBAL_DLL_DATA->m_Azure_DLL_file_path.empty())
-				{
-
-					WBSF::CWeatherDatabase::set_azure_dll_filepath(pGLOBAL_DLL_DATA->m_Azure_DLL_file_path);
-				}
-
-
 				//if (!pGLOBAL_DLL_DATA->m_shore_file_path.empty())
 				//{
 
@@ -234,7 +225,7 @@ namespace WBSF
 					}*/
 
 
-				
+
 				msg += CShore::SetShore(pGLOBAL_DLL_DATA->m_shore_file_path);
 
 
@@ -244,7 +235,7 @@ namespace WBSF
 					msg += pGLOBAL_DLL_DATA->m_pDEM->OpenInputImage(pGLOBAL_DLL_DATA->m_DEM_file_path);
 				}
 
-				
+
 			}
 			catch (...)
 			{
@@ -272,9 +263,9 @@ namespace WBSF
 
 	void CWeatherGeneratorInit::clear()
 	{
-		m_account_name.clear();
-		m_account_key.clear();
-		m_container_name.clear();
+		//m_account_name.clear();
+		//m_account_key.clear();
+		//m_container_name.clear();
 		//	m_shore_name.clear();
 		m_normal_name.clear();
 		m_daily_name.clear();
@@ -306,10 +297,10 @@ namespace WBSF
 					switch (o)
 					{
 						//						case DEFAULT_ENDPOINTS_PROTOCOL:
-					case ACCOUNT_NAME:m_account_name = value; break;
-					case ACCOUNT_KEY:m_account_key = value; break;
+					//case ACCOUNT_NAME:m_account_name = value; break;
+					//case ACCOUNT_KEY:m_account_key = value; break;
 						//						case ENDPOINT_SUFFIX:
-					case CONTAINER_NAME:m_container_name = value; break;
+					//case CONTAINER_NAME:m_container_name = value; break;
 						//case SHORE: m_shore_name = value; break;
 					case NORMALS: m_normal_name = value; break;
 					case DAILY: m_daily_name = value; break;
@@ -537,157 +528,157 @@ namespace WBSF
 
 
 
-				std::shared_ptr<storage_credential> cred;
-				std::shared_ptr<storage_account> account;
-				if (m_init.IsAzure())
-				{
-					cred = std::make_shared<shared_key_credential>(m_init.m_account_name, m_init.m_account_key);
-					account = std::make_shared<storage_account>(m_init.m_account_name, cred, /* use_https */ true);
-				}
+				//std::shared_ptr<storage_credential> cred;
+				//std::shared_ptr<storage_account> account;
+				//if (m_init.IsAzure())
+				//{
+				//	cred = std::make_shared<shared_key_credential>(m_init.m_account_name, m_init.m_account_key);
+				//	account = std::make_shared<storage_account>(m_init.m_account_name, cred, /* use_https */ true);
+				//}
 
-	
+
 				if (!m_init.m_normal_name.empty())
 				{
 					m_pNormalDB.reset(new CNormalsDatabase);
 
 
-					if (m_init.IsAzure())
+					//if (m_init.IsAzure())
+					//{
+					//	blob_client client(account, 16);
+					//	std::stringstream azure_stream;
+					//	auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_normal_name, 0, 0, azure_stream).get();
+					//	if (ret.success())
+					//	{
+					//		try
+					//		{
+					//			boost::iostreams::filtering_istreambuf in;
+					//			in.push(boost::iostreams::gzip_decompressor());
+					//			in.push(azure_stream);
+					//			std::istream incoming(&in);
+
+					//			size_t version = 0;
+					//			incoming.read((char*)(&version), sizeof(version));
+					//			if (version == CNormalsDatabase::VERSION)
+					//			{
+					//				incoming >> *m_pNormalDB;
+					//				m_pNormalDB->CreateAllCanals();//create here to be thread safe
+					//			}
+					//			else
+					//			{
+					//				msg.ajoute("Normal binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
+					//			}
+
+					//		}
+					//		catch (const boost::iostreams::gzip_error& exception)
+					//		{
+					//			int error = exception.error();
+					//			if (error == boost::iostreams::gzip::zlib_error)
+					//			{
+					//				//check for all error code    
+					//				msg.ajoute(exception.what());
+					//			}
+					//		}
+					//	}
+					//	else
+					//	{
+					//		msg.ajoute("Failed to download Normals, error: " + ret.error().code + ", " + ret.error().code_name);
+					//	}
+					//}
+					//else
+					//{
+					if (IsEqual(GetFileExtension(m_init.m_normal_name), ".NormalsDB"))
 					{
-						blob_client client(account, 16);
-						std::stringstream azure_stream;
-						auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_normal_name, 0, 0, azure_stream).get();
-						if (ret.success())
-						{
-							try
-							{
-								boost::iostreams::filtering_istreambuf in;
-								in.push(boost::iostreams::gzip_decompressor());
-								in.push(azure_stream);
-								std::istream incoming(&in);
-
-								size_t version = 0;
-								incoming.read((char*)(&version), sizeof(version));
-								if (version == CNormalsDatabase::VERSION)
-								{
-									incoming >> *m_pNormalDB;
-									m_pNormalDB->CreateAllCanals();//create here to be thread safe
-								}
-								else
-								{
-									msg.ajoute("Normal binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
-								}
-
-							}
-							catch (const boost::iostreams::gzip_error& exception)
-							{
-								int error = exception.error();
-								if (error == boost::iostreams::gzip::zlib_error)
-								{
-									//check for all error code    
-									msg.ajoute(exception.what());
-								}
-							}
-						}
-						else
-						{
-							msg.ajoute("Failed to download Normals, error: " + ret.error().code + ", " + ret.error().code_name);
-						}
+						msg += m_pNormalDB->Open(m_init.m_normal_name);
+						if (msg)
+							m_pNormalDB->OpenSearchOptimization(callback);
+					}
+					else if (IsEqual(GetFileExtension(m_init.m_normal_name), ".gz"))
+					{
+						msg += m_pNormalDB->LoadFromBinary(m_init.m_normal_name);
+						if (msg)
+							m_pNormalDB->CreateAllCanals();
 					}
 					else
 					{
-						if (IsEqual(GetFileExtension(m_init.m_normal_name), ".NormalsDB"))
-						{
-							msg += m_pNormalDB->Open(m_init.m_normal_name);
-							if (msg)
-								m_pNormalDB->OpenSearchOptimization(callback);
-						}
-						else if (IsEqual(GetFileExtension(m_init.m_normal_name), ".gz"))
-						{
-							msg += m_pNormalDB->LoadFromBinary(m_init.m_normal_name);
-							if (msg)
-								m_pNormalDB->CreateAllCanals();
-						}
-						else
-						{
-							msg.ajoute("Invalid Normals database extension: " + m_init.m_normal_name);
-						}
+						msg.ajoute("Invalid Normals database extension: " + m_init.m_normal_name);
 					}
+					//}
 
 					if (!m_init.m_daily_name.empty())
 					{
 						m_pDailyDB.reset(new CDailyDatabase(int(pGLOBAL_DLL_DATA->m_daily_cache_size)));
 
 
-						if (m_init.IsAzure())
+						//if (m_init.IsAzure())
+						//{
+						//	m_pDailyDB->m_account_name = m_init.m_account_name;
+						//	m_pDailyDB->m_account_key = m_init.m_account_key;
+						//	m_pDailyDB->m_container_name = m_init.m_container_name;
+						//	m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
+						//	m_pDailyDB->LoadAzureDLL();
+						//
+						//
+						//	blob_client client(account, 16);
+						//	std::stringstream azure_stream;
+						//	auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_daily_name, 0, 0, azure_stream).get();
+						//	if (ret.success())
+						//	{
+						//		try
+						//		{
+						//			boost::iostreams::filtering_istreambuf in;
+						//			in.push(boost::iostreams::gzip_decompressor());
+						//			in.push(azure_stream);
+						//			std::istream incoming(&in);
+						//
+						//			size_t version = 0;
+						//			incoming.read((char*)(&version), sizeof(version));
+						//
+						//			if (version == CDailyDatabase::VERSION)
+						//			{
+						//				incoming >> *m_pDailyDB;
+						//				m_pDailyDB->CreateAllCanals();//create here to be thread safe
+						//			}
+						//			else
+						//			{
+						//				msg.ajoute("Daily binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
+						//			}
+						//
+						//		}
+						//		catch (const boost::iostreams::gzip_error& exception)
+						//		{
+						//			int error = exception.error();
+						//			if (error == boost::iostreams::gzip::zlib_error)
+						//			{
+						//				//check for all error code    
+						//				msg.ajoute(exception.what());
+						//			}
+						//		}
+						//
+						//	}
+						//	else
+						//	{
+						//		msg.ajoute("Failed to download Daily, error: " + ret.error().code + ", " + ret.error().code_name);
+						//	}
+						//}
+						//else
+						//{
+						if (IsEqual(GetFileExtension(m_init.m_daily_name), ".DailyDB"))
 						{
-							m_pDailyDB->m_account_name = m_init.m_account_name;
-							m_pDailyDB->m_account_key = m_init.m_account_key;
-							m_pDailyDB->m_container_name = m_init.m_container_name;
-							m_pDailyDB->m_DB_blob = GetPath(m_init.m_daily_name) + GetFileTitle(m_init.m_daily_name);
-							m_pDailyDB->LoadAzureDLL();
-
-
-							blob_client client(account, 16);
-							std::stringstream azure_stream;
-							auto ret = client.download_blob_to_stream(m_init.m_container_name, m_init.m_daily_name, 0, 0, azure_stream).get();
-							if (ret.success())
-							{
-								try
-								{
-									boost::iostreams::filtering_istreambuf in;
-									in.push(boost::iostreams::gzip_decompressor());
-									in.push(azure_stream);
-									std::istream incoming(&in);
-
-									size_t version = 0;
-									incoming.read((char*)(&version), sizeof(version));
-
-									if (version == CDailyDatabase::VERSION)
-									{
-										incoming >> *m_pDailyDB;
-										m_pDailyDB->CreateAllCanals();//create here to be thread safe
-									}
-									else
-									{
-										msg.ajoute("Daily binary database (version = " + to_string(version) + ") was not created with he latest version (" + to_string(CNormalsDatabase::VERSION) + "). Rebuild new binary.");
-									}
-
-								}
-								catch (const boost::iostreams::gzip_error& exception)
-								{
-									int error = exception.error();
-									if (error == boost::iostreams::gzip::zlib_error)
-									{
-										//check for all error code    
-										msg.ajoute(exception.what());
-									}
-								}
-
-							}
-							else
-							{
-								msg.ajoute("Failed to download Daily, error: " + ret.error().code + ", " + ret.error().code_name);
-							}
+							msg += m_pDailyDB->Open(m_init.m_daily_name, CDailyDatabase::modeRead, callback, true);
+							if (msg)
+								msg += m_pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
+						}
+						else if (IsEqual(GetFileExtension(m_init.m_daily_name), ".gz"))
+						{
+							msg += m_pDailyDB->LoadFromBinary(m_init.m_daily_name);
+							if (msg)
+								m_pDailyDB->CreateAllCanals();
 						}
 						else
 						{
-							if (IsEqual(GetFileExtension(m_init.m_daily_name), ".DailyDB"))
-							{
-								msg += m_pDailyDB->Open(m_init.m_daily_name, CDailyDatabase::modeRead, callback, true);
-								if (msg)
-									msg += m_pDailyDB->OpenSearchOptimization(callback);//open here to be thread safe
-							}
-							else if (IsEqual(GetFileExtension(m_init.m_daily_name), ".gz"))
-							{
-								msg += m_pDailyDB->LoadFromBinary(m_init.m_daily_name);
-								if (msg)
-									m_pDailyDB->CreateAllCanals();
-							}
-							else
-							{
-								msg.ajoute("Invalid Daily database extension: " + m_init.m_daily_name);
-							}
+							msg.ajoute("Invalid Daily database extension: " + m_init.m_daily_name);
 						}
+						//}
 					}
 				}
 
@@ -772,7 +763,7 @@ namespace WBSF
 
 					//init random generator
 					CRandomGenerator rand(WGInput.m_seed);
-					unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+					unsigned long seed = 1+rand.Rand();
 
 					m_pWeatherGenerator->SetSeed(seed);
 					m_pWeatherGenerator->SetNbReplications(options.m_replications);
@@ -784,6 +775,7 @@ namespace WBSF
 					if (msg)
 					{
 						std::bitset<CWeatherGenerator::NB_WARNING> warning = m_pWeatherGenerator->GetWarningBits();
+						
 
 						// Compress
 						std::stringstream sender;
@@ -836,7 +828,8 @@ namespace WBSF
 						//file.close();
 
 
-						CWeatherGenerator::OutputWarning(warning, callback);
+						CWVariablesCounter missing = m_pWeatherGenerator->GetMissingCount();
+						CWeatherGenerator::OutputWarning(warning, missing, callback);
 					}
 				}
 			}	// if (msg)
@@ -885,7 +878,7 @@ namespace WBSF
 					options.GetWGInput(WGInput);
 
 					CRandomGenerator rand(WGInput.m_seed);
-					unsigned long seed = rand.Rand(1, CRandomGenerator::RAND_MAX_INT);
+					unsigned long seed = 1 + rand.Rand();
 
 					m_pWeatherGenerator->SetSeed(seed);
 					m_pWeatherGenerator->SetNbReplications(options.m_replications);
@@ -1100,10 +1093,10 @@ namespace WBSF
 							m_pModel.reset(new CModel);
 
 							string model_file_path = option[1];
-							if(WBSF::GetPath(model_file_path).empty() && !pGLOBAL_DLL_DATA->m_model_path.empty())
+							if (WBSF::GetPath(model_file_path).empty() && !pGLOBAL_DLL_DATA->m_model_path.empty())
 							{
 								model_file_path = pGLOBAL_DLL_DATA->m_model_path + model_file_path;
-								if(!IsEqualNoCase( GetFileExtension(model_file_path), ".mdl" ))
+								if (!IsEqualNoCase(GetFileExtension(model_file_path), ".mdl"))
 									model_file_path += ".mdl";
 							}
 
@@ -1219,7 +1212,7 @@ namespace WBSF
 				CRandomGenerator rand(m_seedType % 2 ? CRandomGenerator::FIXE_SEED : CRandomGenerator::RANDOM_SEED);
 				vector<unsigned long> seeds;
 				for (size_t i = 0; i < total_seeds; i++)
-					seeds.push_back(rand.Rand(1, CRandomGenerator::RAND_MAX_INT));
+					seeds.push_back(1+rand.Rand());
 
 
 

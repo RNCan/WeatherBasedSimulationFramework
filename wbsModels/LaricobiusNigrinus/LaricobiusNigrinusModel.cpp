@@ -262,7 +262,7 @@ namespace WBSF
 
 
 
-	enum TInput { I_SOURCE, I_SITE, I_DATE, I_EGGS, I_LARVAE, I_LARVAL_DROP, I_EMERGING_ADULTS, I_ACTIVE_ADULTS, I_FEMALES, I_BROODS, NB_INPUTS };
+	enum TInput { I_SOURCE, I_SITE, I_DATE, I_EGGS, I_LARVAE, I_LARVAL_DROP, I_EMERGING_ADULTS, I_ACTIVE_ADULTS, I_FEMALES, I_BROODS, I_TYPE, NB_INPUTS };
 
 
 	void CLaricobiusNigrinusModel::AddDailyResult(const StringVector& header, const StringVector& data)
@@ -278,23 +278,14 @@ namespace WBSF
 		obs.m_obs.resize(NB_EVALUATED_STAGES);
 		for (size_t i = 0; i < NB_EVALUATED_STAGES; i++)
 		{
-			if (data[I_EGGS + i] != "NA")
+			if (data[I_EGGS + i] != "NA" && data[I_TYPE] == "C")
 			{
 				obs.m_obs[i] = stod(data[I_EGGS + i]);
-				
-				//if (i == 0 && obs.m_obs[i] > -999)
-					//m_egg_creation_date[data[0] + "_" + to_string(obs.m_ref.GetYear())] += obs.m_ref.GetJDay();
-
-				//if (i == 1 && obs.m_obs[i] <= -999 && stod(data[i + 5]) > -999)
-					//obs.m_obs[i] = stod(data[i + 5]);//second method
-
-				//if (obs.m_obs[i] > -999)
-				//{
 				
 				m_cumul_stats[i] += obs.m_obs[i];
 				m_nb_days[i] += obs.m_ref.GetJDay();
 				m_years[i].insert(obs.m_ref.GetYear());
-				//}
+				
 			}
 			else
 			{
