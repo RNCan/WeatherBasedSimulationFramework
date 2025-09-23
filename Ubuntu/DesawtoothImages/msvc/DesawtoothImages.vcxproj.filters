@@ -78,6 +78,9 @@
     <ClCompile Include="..\DesawtoothApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\DesawtoothDirect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\external\ERMsg\Ererreur.h">
@@ -147,6 +150,9 @@
       <Filter>basic</Filter>
     </ClInclude>
     <ClInclude Include="..\Desawtooth.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DesawtoothDirect.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

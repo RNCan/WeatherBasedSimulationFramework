@@ -21,7 +21,7 @@
 
 
 //"E:\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "E:\Landsat\Landsat(2000-2018)\Output\test2.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -Debug -SpikeThreshold 0.75 -FitMethod 1
-
+//-of VRT -overwrite -co "COMPRESS=LZW" -DirectIndice ".\Input3\SR_L5789.vrt" ".\Output3\SR_L5789.vrt" 
 
 
 #include <math.h>
@@ -291,10 +291,6 @@ namespace WBSF
 #pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
-			// int thread = omp_get_thread_num();
-	//#pragma omp atomic treadNo[thread] = true;
-
-
 			int xBlock = XYindex[b].first;
 			int yBlock = XYindex[b].second;
 
@@ -465,7 +461,7 @@ namespace WBSF
 					//set this validity for all scene bands
 					assert(validity.size() == block_data[i].data().size());
 					for (size_t ii = 0; ii < block_data.GetSceneSize(); ii++)
-						block_data.at(i* block_data.GetSceneSize()+ii).SetValidity(validity);
+						block_data.at(i * block_data.GetSceneSize() + ii).SetValidity(validity);
 				}
 			}
 
@@ -555,11 +551,27 @@ namespace WBSF
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
 					int xy = y * blockSize.m_x + x;
-
 					//Get pixel
 					CRealArray years = ::convert(allpos(window.size()));
 					CRealArray data(window.size());
 					CBoolArray goods(window.size());
+
+
+					/*if (m_options.m_bDirectIndice)
+					{
+						for (size_t z = 0; z < window.size(); z++)
+						{
+							CLandsatPixel pixel = window.GetPixel(z, x, y);
+							goods[z] = pixel.IsValid();
+
+							if (goods[z])
+							{
+								data[z] = window.GetPixelIndice(z, m_options.m_indice, x, y, m_options.m_rings);
+							}
+						}
+					}
+					else
+					{*/
 
 					size_t m_first_valid = NOT_INIT;
 					size_t m_last_valid = NOT_INIT;
@@ -592,11 +604,14 @@ namespace WBSF
 
 						if (goods[z])
 						{
+							
 							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
 							assert(data[z] != 0);
 							goods[z] = data[z] != 0;//humm!!!
+							
 						}
 					}
+					
 
 
 					if (goods.max())//at least one valid pixel

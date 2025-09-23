@@ -169,6 +169,7 @@
     <ClCompile Include="..\..\geomatic\UtilGDAL.cpp" />
     <ClCompile Include="..\Desawtooth.cpp" />
     <ClCompile Include="..\DesawtoothApp.cpp" />
+    <ClCompile Include="..\DesawtoothDirect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\basic\GeoBasic.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\geomatic\LandTrendUtil.h" />
     <ClInclude Include="..\..\geomatic\UtilGDAL.h" />
     <ClInclude Include="..\Desawtooth.h" />
+    <ClInclude Include="..\DesawtoothDirect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

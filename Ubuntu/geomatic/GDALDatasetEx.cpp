@@ -843,6 +843,7 @@ namespace WBSF
 
 		assert(first_scene <= last_scene);
 
+		
 		size_t totalMem = 0;
 
 		size_t first_layer = first_scene * GetSceneSize();
@@ -850,6 +851,7 @@ namespace WBSF
 		size_t nb_layer = (last_scene - first_scene + 1) * GetSceneSize();
 
 		int nb_non_empty = 0;
+		window_data.SetSceneSize(GetSceneSize());
 		window_data.resize(nb_layer, windowExtents, DataType(GetNoData(0)));
 		//#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
 		for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)

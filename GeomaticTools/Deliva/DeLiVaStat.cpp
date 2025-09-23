@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "DeLiVaStat.h"
+
+#include <cfloat>
+
 //#include "UtilGDAL.h"
 //#include "Resource.h"
 //#include "CommunRes.h"
@@ -8,7 +11,7 @@
 
 //#include "ShapeFileBase.h"
 
-#include <float.h>
+
 
 
 using namespace std;

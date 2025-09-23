@@ -3,22 +3,22 @@
 //
 //***********************************************************************
 // version
+// 1.0.1	23/09/2025	Rémi Saint-Amant	Add DirectIndice
 // 1.0.0	10/06/2025	Rémi Saint-Amant	Creation from LandtrendImage code
 
 
 //"D:\Travaux\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "D:\Travaux\Landsat\Landsat(2000-2018)\Output\test3.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -SpikeThreshold 0.75
 
 
-//#define BOOST_NO_CXX11_SCOPED_ENUMS
+
 #include <boost/filesystem.hpp>
-//#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 
 #include <cmath>
 #include <array>
 #include <utility>
 #include <iostream>
-//#include <boost/filesystem.hpp>
+
 
 #include "Desawtooth.h"
 #include "basic/OpenMP.h"
@@ -38,7 +38,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CDesawtooth::VERSION = "1.0.0";
+	const char* CDesawtooth::VERSION = "1.0.1";
 	const size_t CDesawtooth::NB_THREAD_PROCESS = 2;
 
 
@@ -50,6 +50,7 @@ namespace WBSF
 		m_desawtooth_val = 0.9;
 		//m_modifier = -1;
 		m_indice = I_NBR;
+		m_bDirect = false;
 		m_rings = 0;
 		m_firstYear = 0;
 		m_minneeded = 3;
@@ -66,9 +67,9 @@ namespace WBSF
 		{
 			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.9 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
-			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
+			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default. Not used when DirectIndice selected.").c_str()  },
+			{ "-DirectIndice", 0, "", false, "Indice already computed and provided as srsImage. "},
 			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
-			//{ "-Modifier", 1, "m", false, "-1 or 1 to invert indices value. -1 by default." },
 			{ "-YearByYear", 0, "", false, "Compute correction factor by taking the previous and next valid pixel."},
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
@@ -82,18 +83,10 @@ namespace WBSF
 		for (size_t i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
 
-
-//        boost::filesystem::path p1 = "c:/test/a.txt";
-  //      boost::filesystem::path p2 = "c:/test/a.txt";
-    //    boost::filesystem::absolute(p1, p2);
-		//Pour les trigger Bande 1 c’est - 125 quand on fait  ex.b1 1994 – b1 1995 ou b1 1996 – b1 1995.
-		//Pour le tassel Cap brightness c’est + 750  ex.tcb1994 – tcb 1995 ou tcb 1996 – tcb 1995
-
-
 		static const CIOFileInfoDef IO_FILE_INFO[] =
 		{
 			{ "Input Image", "srcfile", "", "nbYears", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B7: Landsat band 7|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "nbYears", "Same as input", "" },
+			{ "Output Image", "dstfile", "", "nbYears", "Indice", "" },
 			{ "Optional Output Image", "dstfile_breaks","1","NbOutputLayers=(MaxSegments+1)*2+1","Nb vertices: number of vertices found|vert1: vertice1. Year if FirstYear is define|fit1: fit of vertice1|... for all vertices"}
 		};
 
@@ -155,6 +148,11 @@ namespace WBSF
 				msg.ajoute(str + " is not a valid indice. See help.");
 			}
 		}
+		else if (IsEqual(argv[i], "-DirectIndice"))
+		{
+			m_bDirect = true;
+			m_scenes_def = { { B1} };
+		}
 		else if (IsEqual(argv[i], "-Window"))
 		{
 			m_rings = atof(argv[++i]);
@@ -206,16 +204,11 @@ namespace WBSF
 		}
 
 
-		/*m_options.m_modifier = -1;
-		if (m_options.m_indice == Landsat2::I_B4)
-			m_options.m_modifier = 1;*/
-
-
 		GDALAllRegister();
 
 		CLandsatDataset inputDS;
 		CGDALDatasetEx maskDS;
-		CLandsatDataset outputDS;
+		CGDALDatasetEx outputDS;
 		CGDALDatasetEx cloudsDS;
 
 		msg = OpenAll(inputDS, maskDS, cloudsDS, outputDS);
@@ -254,7 +247,7 @@ namespace WBSF
 
 
 
-	ERMsg CDesawtooth::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CLandsatDataset& outputDS)
+	ERMsg CDesawtooth::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CGDALDatasetEx& outputDS)
 	{
 		ERMsg msg;
 
@@ -313,10 +306,10 @@ namespace WBSF
 
 		if (msg && m_options.m_bCreateImage)
 		{
-			size_t nb_scenes = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
+			size_t nb_bands = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
 			CDesawtoothOption options(m_options);
 			options.m_scenes_def.clear();
-			options.m_nbBands = nb_scenes;
+			options.m_nbBands = nb_bands;
 
 			if (!m_options.m_bQuiet)
 			{
@@ -324,15 +317,15 @@ namespace WBSF
 				cout << "Open output images..." << endl;
 				cout << "    Size           = " << options.m_extents.m_xSize << " cols x " << options.m_extents.m_ySize << " rows x " << options.m_nbBands << " bands" << endl;
 				cout << "    Extents        = X:{" << ToString(options.m_extents.m_xMin) << ", " << ToString(options.m_extents.m_xMax) << "}  Y:{" << ToString(options.m_extents.m_yMin) << ", " << ToString(options.m_extents.m_yMax) << "}" << endl;
-				//cout << "    NbBands        = " << options.m_nbBands << endl;
-				cout << "    Nb. Scenes     = " << nb_scenes << endl;
+				cout << "    NbBands        = " << options.m_nbBands << endl;
+				//cout << "    Nb. Scenes     = " << nb_scenes << endl;
 			}
 
 			std::string indices_name = Landsat2::GetIndiceName(m_options.m_indice);
 			string filePath = options.m_filesPath[CDesawtoothOption::OUTPUT_FILE_PATH];
 
 			//replace the common part by the new name
-			for (size_t zz = 0; zz < nb_scenes; zz++)
+			for (size_t zz = 0; zz < nb_bands; zz++)
 			{
 				size_t z = m_options.m_scene_extents[0] + zz;
 				string subName = inputDS.GetSubname(z);// +"_" + indices_name;
