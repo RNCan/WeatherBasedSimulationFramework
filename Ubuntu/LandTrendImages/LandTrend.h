@@ -43,6 +43,8 @@ public:
     //set both method;
     size_t fit_method;
     Landsat2::TIndices m_indice;
+    bool m_bDirect;
+    std::string m_indices_file_path;
     double m_rings;
     std::string m_CloudsMask;
 
@@ -70,11 +72,11 @@ public:
         return  std::string("LandTrendImages version ") + VERSION + " (" + __DATE__ + ")";
     }
 
-    ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, Landsat2::CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS);
-    void ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& validityDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& bandHolder);
-    void ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& bandHolder, OutputData& outputData, BreaksData& breaksData);
+    ERMsg OpenAll(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& validityDS, Landsat2::CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS);
+    void ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data, CRasterWindow& indices);
+    void ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& block_data, CRasterWindow& indices, OutputData& outputData, BreaksData& breaksData);
     void WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS, OutputData& outputData, BreaksData& breaksData);
-    void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
+    void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
 
     CLandTrendOption m_options;
 

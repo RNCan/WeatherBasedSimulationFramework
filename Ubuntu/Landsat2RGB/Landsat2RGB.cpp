@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 2.0.2	27/10/2025	Rémi Saint-Amant	cOMPILE WITH gdal 3.11.3
 // 2.0.1	20/12/2023	Rémi Saint-Amant	change INT16 by UINT16
 // 2.0.0	08/09/2023	Rémi Saint-Amant	Use collection 2 with 6 bands
 // 1.2.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
@@ -37,7 +38,7 @@ using namespace WBSF::Landsat2;
 
 namespace WBSF
 {
-const char* CLandsat2RGB::VERSION = "2.0.1";
+const char* CLandsat2RGB::VERSION = "2.0.2";
 
 //*********************************************************************************************************************
 

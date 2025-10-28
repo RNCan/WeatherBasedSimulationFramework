@@ -1695,7 +1695,7 @@ namespace WBSF
 		//3- Get max layer per block
 		int nbLayerMax = max(1, GetMaxBlockSizeZ(blockManager));
 
-		//4- Evaluate block size int respect of memroy cache
+		//4- Evaluate block size int respect of memory cache
 		double rxy = (double)blockManager.m_xBlockSize / blockManager.m_yBlockSize;
 		double yBlockSize = sqrt(memoryLimit / (sizeof(DataType) * rxy * nbLayerMax));
 		double xBlockSize = rxy * yBlockSize;

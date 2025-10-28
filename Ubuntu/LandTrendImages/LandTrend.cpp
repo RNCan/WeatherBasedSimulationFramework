@@ -3,7 +3,8 @@
 //
 //***********************************************************************
 // version
-// 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 insted of B2.
+// 1.1.4	28/10/2025	Rémi Saint-Amant	Add -DirectIndices options
+// 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 instead of B2.
 // 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32.
 // 1.1.1	30/07/2024	Rémi Saint-Amant	Limit result to data type
 //											use only pixel of all rings
@@ -48,7 +49,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.3";
+	const char* CLandTrend::VERSION = "1.1.4";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -72,6 +73,7 @@ namespace WBSF
 		//m_scenesSize = SCENES_SIZE;
 		m_indice = I_NBR;
 		m_rings = 0;
+		m_bDirect = false;
 
 		m_firstYear = 0;
 		m_bBreaks = false;
@@ -89,12 +91,13 @@ namespace WBSF
 			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening) .0.9 by default."},
 			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount.Later, it will be pruned down to maxSegments + 1. 3 by default."},
 			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
-			{ "-pValThreshold", 1, "pVal", false, "If the p - value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg - Marquardt optimizer. 0.1 by default."},
+			{ "-pValThreshold", 1, "pVal", false, "If the p - value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.1 by default."},
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p - value is no more than(2 - bestModelProportion) times the p - value of the best model. 0.75 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
-			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
+			{ "-DirectIndice", 1, "file", false, "Indice already computed and provided as input file. Same size and same number layers than the number of scenes of the input Landsat image. "},
+			{ "-Window", 1, "radius", false, "Compute block_data mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
@@ -107,10 +110,6 @@ namespace WBSF
 		AddOption("-ty");
 		for (size_t i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
 			AddOption(OPTIONS[i]);
-
-
-		//Pour les trigger Bande 1 c’est - 125 quand on fait  ex.b1 1994 – b1 1995 ou b1 1996 – b1 1995.
-		//Pour le tassel Cap brightness c’est + 750  ex.tcb1994 – tcb 1995 ou tcb 1996 – tcb 1995
 
 
 		static const CIOFileInfoDef IO_FILE_INFO[] =
@@ -202,12 +201,17 @@ namespace WBSF
 				msg.ajoute(str + " is not a valid indice. See help.");
 			}
 		}
+		else if (IsEqual(argv[i], "-DirectIndice"))
+		{
+			m_bDirect = true;
+			m_indices_file_path = argv[++i];
+		}
 		else if (IsEqual(argv[i], "-Window"))
 		{
 			m_rings = atof(argv[++i]);
 			if (m_rings < 1)
 			{
-				msg.ajoute(to_string(m_rings) + " is not a valid window radius. Radius must be >= 1.");
+				msg.ajoute(to_string(m_rings) + " is not a valid block_data radius. Radius must be >= 1.");
 			}
 
 			m_rings -= 1;//convert radius to rings
@@ -266,17 +270,19 @@ namespace WBSF
 		GDALAllRegister();
 
 		CLandsatDataset inputDS;
+		CGDALDatasetEx indicesDS;
 		CGDALDatasetEx maskDS;
 		CLandsatDataset outputDS;
 		CGDALDatasetEx cloudsDS;
 		CGDALDatasetEx breaksDS;
 
-		msg = OpenAll(inputDS, maskDS, cloudsDS, outputDS, breaksDS);
-		if (!msg)
-			return msg;
+		msg = OpenAll(inputDS, indicesDS, maskDS, cloudsDS, outputDS, breaksDS);
 
 		if (!msg)
 			return msg;
+
+
+
 
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
@@ -295,21 +301,22 @@ namespace WBSF
 			int yBlock = XYindex[b].second;
 
 			Landsat2::CLandsatWindow inputData;
+			CRasterWindow indices;
 			OutputData outputData;
 			BreaksData breaksData;
-			ReadBlock(inputDS, cloudsDS, xBlock, yBlock, inputData);
-			ProcessBlock(xBlock, yBlock, inputData, outputData, breaksData);
+			ReadBlock(inputDS, indicesDS, cloudsDS, xBlock, yBlock, inputData, indices);
+			ProcessBlock(xBlock, yBlock, inputData, indices, outputData, breaksData);
 			WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 		}//for all blocks
 
-		CloseAll(inputDS, maskDS, outputDS, breaksDS);
+		CloseAll(inputDS, indicesDS, maskDS, outputDS, breaksDS);
 
 		return msg;
 	}
 
 
 
-	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS)
+	ERMsg CLandTrend::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CLandsatDataset& outputDS, CGDALDatasetEx& breaksDS)
 	{
 		ERMsg msg;
 
@@ -340,6 +347,23 @@ namespace WBSF
 			}
 		}
 
+		if (msg && m_options.m_bDirect)
+		{
+			if (!m_options.m_bQuiet)
+				cout << "Open indices image..." << endl;
+
+			msg += indicesDS.OpenInputImage(m_options.m_indices_file_path);
+			if (msg)
+			{
+				if (indicesDS.GetRasterCount() != inputDS.GetNbScenes())
+					msg.ajoute("The number of bands in the indices file (" + to_string(indicesDS.GetRasterCount()) + ") must be the same as the number of scenes in the Landsat images (" + to_string(inputDS.GetNbScenes()) + ")");
+
+				if (indicesDS.GetRasterXSize() != inputDS.GetRasterXSize())
+					msg.ajoute("Invalid indices image. Image size must have the same x size than the input image.");
+				if (indicesDS.GetRasterYSize() != inputDS.GetRasterYSize())
+					msg.ajoute("Invalid indices image. Image size must have the same y size than the input image.");
+			}
+		}
 
 		if (msg && !m_options.m_maskName.empty())
 		{
@@ -429,7 +453,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
+	void CLandTrend::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data, CRasterWindow& indices)
 	{
 #pragma omp critical(BlockIO)
 		{
@@ -437,6 +461,17 @@ namespace WBSF
 
 			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
 			inputDS.ReadBlock(extents, block_data, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+
+			if (indicesDS.IsOpen())
+			{
+				assert(indicesDS.GetRasterCount() == inputDS.GetNbScenes());
+				assert(indicesDS.GetRasterXSize() * indicesDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
+				
+				indicesDS.ReadBlock(extents, indices, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+				assert(block_data.size() == indices.size());
+				//DataType noData = (DataType)cloudsDS.GetNoData(0);
+			}
+
 
 			if (cloudsDS.IsOpen())
 			{
@@ -470,50 +505,50 @@ namespace WBSF
 	}
 
 
-	bool IsB1Trigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = -125)
-	{
-		size_t c0 = p[0].IsInit() ? 0 : 1;
-		size_t c2 = p[2].IsInit() ? 2 : 1;
+	//bool IsB1Trigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = -125)
+	//{
+	//	size_t c0 = p[0].IsInit() ? 0 : 1;
+	//	size_t c2 = p[2].IsInit() ? 2 : 1;
 
-		if (!p[1].IsInit())
-			return false;
+	//	if (!p[1].IsInit())
+	//		return false;
 
-		if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-			return false;
+	//	if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
+	//		return false;
 
-		bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-		bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-
-
-		return (t1 && t2);
-	}
+	//	bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
+	//	bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
 
 
+	//	return (t1 && t2);
+	//}
 
 
-	bool IsTCBTrigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = 750)
-	{
-		size_t c0 = p[0].IsInit() ? 0 : 1;
-		size_t c2 = p[2].IsInit() ? 2 : 1;
 
-		if (!p[1].IsInit())
-			return false;
 
-		if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-			return false;
+	//bool IsTCBTrigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = 750)
+	//{
+	//	size_t c0 = p[0].IsInit() ? 0 : 1;
+	//	size_t c2 = p[2].IsInit() ? 2 : 1;
 
-		bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
-		bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
+	//	if (!p[1].IsInit())
+	//		return false;
 
-		return (t1 && t2);
-	}
+	//	if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
+	//		return false;
 
-	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, OutputData& outputData, BreaksData& breaksData)
+	//	bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
+	//	bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
+
+	//	return (t1 && t2);
+	//}
+
+	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& block_data, CRasterWindow& indices, OutputData& outputData, BreaksData& breaksData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
 
-		if (window.empty())
+		if (block_data.empty())
 		{
 			int nbCells = blockSize.m_x * blockSize.m_y;
 
@@ -529,7 +564,7 @@ namespace WBSF
 		//init memory
 		if (m_options.m_bCreateImage)
 		{
-			outputData.resize(window.GetNbBands());
+			outputData.resize(block_data.GetNbBands());
 			for (size_t s = 0; s < outputData.size(); s++)
 				outputData[s].insert(outputData[s].begin(), blockSize.m_x * blockSize.m_y, DataType(m_options.m_dstNodata));
 		}
@@ -552,66 +587,96 @@ namespace WBSF
 				{
 					int xy = y * blockSize.m_x + x;
 					//Get pixel
-					CRealArray years = ::convert(allpos(window.size()));
-					CRealArray data(window.size());
-					CBoolArray goods(window.size());
+					CRealArray years = ::convert(allpos(block_data.size()));
+					CRealArray data(block_data.size());
+					CBoolArray goods(block_data.size());
+
+					size_t m_first_valid = NOT_INIT;
+					size_t m_last_valid = NOT_INIT;
 
 
-					/*if (m_options.m_bDirectIndice)
+
+					if (m_options.m_bDirect)
 					{
-						for (size_t z = 0; z < window.size(); z++)
+						assert(block_data.size() == indices.size());
+
+
+						if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
 						{
-							CLandsatPixel pixel = window.GetPixel(z, x, y);
-							goods[z] = pixel.IsValid();
+							for (size_t z = 0; z < indices.size(); z++)
+							{
+								bool bValid = indices.IsValid(z, x, y);
+								if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
+									m_first_valid = z;
+
+								if (m_options.m_bForwardFill && bValid)
+									m_last_valid = z;
+							}
+						}
+
+
+
+						for (size_t z = 0; z < indices.size(); z++)
+						{
+							size_t zz = z;
+
+							if (m_first_valid != NOT_INIT && zz < m_first_valid)
+								zz = m_first_valid;
+							if (m_last_valid != NOT_INIT && zz > m_last_valid)
+								zz = m_last_valid;
+
+							goods[z] = indices.IsValid(zz, x, y);
 
 							if (goods[z])
 							{
-								data[z] = window.GetPixelIndice(z, m_options.m_indice, x, y, m_options.m_rings);
+								assert(int(m_options.m_rings) == m_options.m_rings);
+								CStatisticEx stat = indices.at(zz).GetWindowStat(x, y, int(m_options.m_rings));
+								data[z] = stat[MEAN];
+								//data[z] = indices.at(zz).at(x, y);//, m_options.m_rings);
 							}
 						}
 					}
 					else
-					{*/
-
-					size_t m_first_valid = NOT_INIT;
-					size_t m_last_valid = NOT_INIT;
-					if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
 					{
-						for (size_t z = 0; z < window.size(); z++)
-						{
-							bool bValid = window.IsValid(z, x, y);
-							if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
-								m_first_valid = z;
 
-							if (m_options.m_bForwardFill && bValid)
-								m_last_valid = z;
+						if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
+						{
+							for (size_t z = 0; z < block_data.size(); z++)
+							{
+								bool bValid = block_data.IsValid(z, x, y);
+								if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
+									m_first_valid = z;
+
+								if (m_options.m_bForwardFill && bValid)
+									m_last_valid = z;
+							}
+						}
+
+
+
+						for (size_t z = 0; z < block_data.size(); z++)
+						{
+							size_t zz = z;
+
+							if (m_first_valid != NOT_INIT && zz < m_first_valid)
+								zz = m_first_valid;
+							if (m_last_valid != NOT_INIT && zz > m_last_valid)
+								zz = m_last_valid;
+
+
+							CLandsatPixel pixel = block_data.GetPixel(zz, x, y);
+							goods[z] = pixel.IsValid();
+
+							if (goods[z])
+							{
+
+								data[z] = block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
+								assert(data[z] != 0);
+								goods[z] = data[z] != 0;//humm!!!
+
+							}
 						}
 					}
-
-
-					for (size_t z = 0; z < window.size(); z++)
-					{
-						size_t zz = z;
-
-						if (m_first_valid != NOT_INIT && zz < m_first_valid)
-							zz = m_first_valid;
-						if (m_last_valid != NOT_INIT && zz > m_last_valid)
-							zz = m_last_valid;
-
-
-						CLandsatPixel pixel = window.GetPixel(zz, x, y);
-						goods[z] = pixel.IsValid();
-
-						if (goods[z])
-						{
-							
-							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
-							assert(data[z] != 0);
-							goods[z] = data[z] != 0;//humm!!!
-							
-						}
-					}
-					
 
 
 					if (goods.max())//at least one valid pixel
@@ -636,9 +701,9 @@ namespace WBSF
 								{
 
 									CVectices V = result.vertices;
-									CRealArray X(window.size());
-									CRealArray Y(window.size());
-									for (size_t z = 0; z < window.size(); z++)
+									CRealArray X(block_data.size());
+									CRealArray Y(block_data.size());
+									for (size_t z = 0; z < block_data.size(); z++)
 									{
 										size_t zz = z;
 										if (m_first_valid != NOT_INIT && zz < m_first_valid)
@@ -647,7 +712,7 @@ namespace WBSF
 											zz = m_last_valid;
 
 										X[z] = REAL_TYPE(z);
-										Y[z] = window.GetPixel(zz, x, y)[s];
+										Y[z] = block_data.GetPixel(zz, x, y)[s];
 									}
 
 									CRealArray yfit(Y.size());
@@ -673,13 +738,13 @@ namespace WBSF
 										}
 										else if (xx.size() == 1)
 										{
-											//if only one point, take this yfit value
+											//if only one point, take this y-fit value
 											yfit[get_slice(V[i], V[i + 1])] = yy[0];
 										}
 
 									}
 
-									for (size_t z = 0; z < window.size(); z++)
+									for (size_t z = 0; z < block_data.size(); z++)
 									{
 
 										DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
@@ -779,9 +844,10 @@ namespace WBSF
 		}
 	}
 
-	void CLandTrend::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS)
+	void CLandTrend::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS)
 	{
 		inputDS.Close();
+		indicesDS.Close();
 		maskDS.Close();
 
 		m_options.m_timerWrite.start();
