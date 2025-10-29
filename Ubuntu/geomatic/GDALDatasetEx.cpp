@@ -1812,4 +1812,55 @@ namespace WBSF
 
 		return stat;
 	}
+
+	DataType CDataWindow::GetWindowValue(int x, int y, double n_rings)const
+	{
+		assert(n_rings >= 0 && n_rings < 1000);
+
+		if (n_rings == 0)
+			return this->at( x, y);
+
+
+		DataType val = this->GetNoData();
+
+		int n_rings1 = (int)floor(n_rings);
+		int n_rings2 = (int)ceil(n_rings);
+		assert((n_rings - n_rings1) >= 0);
+		assert((n_rings2 - n_rings) >= 0);
+
+
+		if (n_rings1 == n_rings2)
+		{
+			assert(n_rings1 == n_rings && n_rings2 == n_rings);
+			CStatistic stat_i = GetWindowStat(x, y, n_rings1);
+
+
+			if (stat_i.IsInit())
+			{
+				val = DataType(stat_i[MEAN]);
+			}
+		}
+		else
+		{
+			assert((n_rings2 - n_rings1) == 1);
+
+			CStatistic stat_i1 = GetWindowStat(x, y, n_rings1);
+			CStatistic stat_i2 = GetWindowStat(x, y, n_rings2);
+
+			if (stat_i1.IsInit() && stat_i2.IsInit())
+			{
+				val = DataType(stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1));
+			}
+			else if (stat_i1.IsInit())
+			{
+				val = DataType(stat_i1[MEAN]);
+			}
+			else if (stat_i2.IsInit())
+			{
+				val = DataType(stat_i2[MEAN]);
+			}
+		}
+
+		return val;
+	}
 }

@@ -630,9 +630,7 @@ namespace WBSF
 							if (goods[z])
 							{
 								assert(int(m_options.m_rings) == m_options.m_rings);
-								CStatisticEx stat = indices.at(zz).GetWindowStat(x, y, int(m_options.m_rings));
-								data[z] = stat[MEAN];
-								//data[z] = indices.at(zz).at(x, y);//, m_options.m_rings);
+								data[z] = indices.at(zz).GetWindowValue(x, y, m_options.m_rings);
 							}
 						}
 					}
