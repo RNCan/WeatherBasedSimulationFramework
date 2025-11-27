@@ -843,6 +843,7 @@ namespace WBSF
 
 		assert(first_scene <= last_scene);
 
+		
 		size_t totalMem = 0;
 
 		size_t first_layer = first_scene * GetSceneSize();
@@ -850,6 +851,7 @@ namespace WBSF
 		size_t nb_layer = (last_scene - first_scene + 1) * GetSceneSize();
 
 		int nb_non_empty = 0;
+		window_data.SetSceneSize(GetSceneSize());
 		window_data.resize(nb_layer, windowExtents, DataType(GetNoData(0)));
 		//#pragma omp parallel for schedule(static, 1)  num_threads( IOCPU ) if(IOCPU>1)
 		for (int64_t ii = 0; ii < int64_t(nb_layer); ii++)
@@ -1693,7 +1695,7 @@ namespace WBSF
 		//3- Get max layer per block
 		int nbLayerMax = max(1, GetMaxBlockSizeZ(blockManager));
 
-		//4- Evaluate block size int respect of memroy cache
+		//4- Evaluate block size int respect of memory cache
 		double rxy = (double)blockManager.m_xBlockSize / blockManager.m_yBlockSize;
 		double yBlockSize = sqrt(memoryLimit / (sizeof(DataType) * rxy * nbLayerMax));
 		double xBlockSize = rxy * yBlockSize;
@@ -1809,5 +1811,56 @@ namespace WBSF
 		}
 
 		return stat;
+	}
+
+	DataType CDataWindow::GetWindowValue(int x, int y, double n_rings)const
+	{
+		assert(n_rings >= 0 && n_rings < 1000);
+
+		if (n_rings == 0)
+			return this->at( x, y);
+
+
+		DataType val = this->GetNoData();
+
+		int n_rings1 = (int)floor(n_rings);
+		int n_rings2 = (int)ceil(n_rings);
+		assert((n_rings - n_rings1) >= 0);
+		assert((n_rings2 - n_rings) >= 0);
+
+
+		if (n_rings1 == n_rings2)
+		{
+			assert(n_rings1 == n_rings && n_rings2 == n_rings);
+			CStatistic stat_i = GetWindowStat(x, y, n_rings1);
+
+
+			if (stat_i.IsInit())
+			{
+				val = DataType(stat_i[MEAN]);
+			}
+		}
+		else
+		{
+			assert((n_rings2 - n_rings1) == 1);
+
+			CStatistic stat_i1 = GetWindowStat(x, y, n_rings1);
+			CStatistic stat_i2 = GetWindowStat(x, y, n_rings2);
+
+			if (stat_i1.IsInit() && stat_i2.IsInit())
+			{
+				val = DataType(stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1));
+			}
+			else if (stat_i1.IsInit())
+			{
+				val = DataType(stat_i1[MEAN]);
+			}
+			else if (stat_i2.IsInit())
+			{
+				val = DataType(stat_i2[MEAN]);
+			}
+		}
+
+		return val;
 	}
 }

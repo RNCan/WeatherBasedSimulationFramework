@@ -1,8 +1,9 @@
 #pragma once
 
 #include <bitset>
+#include <array>
+
 #include "Basic/Statistic.h"
-//#include "Basic/XMLite.h"
 #include "Geomatic/UtilGDAL.h"
 
 

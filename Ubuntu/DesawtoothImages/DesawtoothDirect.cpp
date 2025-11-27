@@ -2,13 +2,9 @@
 // program to merge Landsat image image over a period
 //
 //***********************************************************************
-// version
-// 1.0.1	23/09/2025	Rémi Saint-Amant	Add DirectIndice
-// 1.0.0	10/06/2025	Rémi Saint-Amant	Creation from LandtrendImage code
 
 
 //"D:\Travaux\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "D:\Travaux\Landsat\Landsat(2000-2018)\Output\test3.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -SpikeThreshold 0.75
-
 
 
 #include <boost/filesystem.hpp>
@@ -20,13 +16,14 @@
 #include <iostream>
 
 
-#include "Desawtooth.h"
+
 #include "basic/OpenMP.h"
 #include "geomatic/GDAL.h"
 #include "geomatic/LandTrendUtil.h"
 #include "geomatic/LandTrendCore.h"
 
 
+#include "DesawtoothDirect.h"
 
 
 
@@ -38,159 +35,12 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CDesawtooth::VERSION = "1.0.1";
-	const size_t CDesawtooth::NB_THREAD_PROCESS = 2;
-
-
+	const size_t CDesawtoothDirect::NB_THREAD_PROCESS = 2;
 	//*********************************************************************************************************************
 
-	CDesawtoothOption::CDesawtoothOption()
-	{
-		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
-		m_desawtooth_val = 0.9;
-		//m_modifier = -1;
-		m_indice = I_NBR;
-		m_bDirect = false;
-		m_rings = 0;
-		m_firstYear = 0;
-		m_minneeded = 3;
-		m_year_by_year = false;
-
-		m_bBackwardFill = false;
-		m_bForwardFill = false;
-
-		m_appDescription = "This software export desawtooth of Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) indice.";
-		std::string indicesName = Landsat2::GetIndiceNames();
-
-		//AddOption("-RGB");
-		static const COptionDef OPTIONS[] =
-		{
-			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.9 by default."},
-			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
-			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default. Not used when DirectIndice selected.").c_str()  },
-			{ "-DirectIndice", 0, "", false, "Indice already computed and provided as srsImage. "},
-			{ "-Window", 1, "radius", false, "Compute window mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
-			{ "-YearByYear", 0, "", false, "Compute correction factor by taking the previous and next valid pixel."},
-			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
-			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
-			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
-			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
-			{ "srcfile", 0, "", false, "Input image file path." },
-			{ "dstfile", 0, "", false, "Output image file path." }
-		};
-
-		AddOption("-ty");
-		for (size_t i = 0; i < sizeof(OPTIONS) / sizeof(COptionDef); i++)
-			AddOption(OPTIONS[i]);
-
-		static const CIOFileInfoDef IO_FILE_INFO[] =
-		{
-			{ "Input Image", "srcfile", "", "nbYears", "B1: Landsat band 1|B2: Landsat band 2|B3: Landsat band 3|B4: Landsat band 4|B5: Landsat band 5|B7: Landsat band 7|... for all scenes", "" },
-			{ "Output Image", "dstfile", "", "nbYears", "Indice", "" },
-			{ "Optional Output Image", "dstfile_breaks","1","NbOutputLayers=(MaxSegments+1)*2+1","Nb vertices: number of vertices found|vert1: vertice1. Year if FirstYear is define|fit1: fit of vertice1|... for all vertices"}
-		};
-
-		for (size_t i = 0; i < sizeof(IO_FILE_INFO) / sizeof(CIOFileInfoDef); i++)
-			AddIOFileInfo(IO_FILE_INFO[i]);
-	}
-
-	ERMsg CDesawtoothOption::ParseOption(int argc, char* argv[])
-	{
-		ERMsg msg = CBaseOptions::ParseOption(argc, argv);
-
-		assert(NB_FILE_PATH == 2);
-		if (msg && m_filesPath.size() != NB_FILE_PATH)
-		{
-			msg.ajoute("ERROR: Invalid argument line. 2 files are needed: the source && destination image.");
-			msg.ajoute("Argument found: ");
-			for (size_t i = 0; i < m_filesPath.size(); i++)
-				msg.ajoute("   " + to_string(i + 1) + "- " + m_filesPath[i]);
-		}
-
-		if (m_outputType == GDT_Unknown)
-			m_outputType = GDT_Float32;
-
-		if (m_dstNodata == MISSING_NO_DATA)
-			m_dstNodata = WBSF::GetDefaultNoData(GDT_Int16);//use Int16 missing value
-
-
-
-		return msg;
-	}
-
-	ERMsg CDesawtoothOption::ProcessOption(int& i, int argc, char* argv[])
+	ERMsg CDesawtoothDirect::Execute()
 	{
 		ERMsg msg;
-
-		if (IsEqual(argv[i], "-SpikeThreshold"))
-		{
-			m_desawtooth_val = atof(argv[++i]);
-		}
-
-		else if (IsEqual(argv[i], "-MinObservationsNeeded"))
-		{
-			m_minneeded = atoi(argv[++i]);
-		}
-		else if (IsEqual(argv[i], "-YearByYear"))
-		{
-			m_year_by_year = true;
-		}
-		else if (IsEqual(argv[i], "-FirstYear"))
-		{
-			m_firstYear = atoi(argv[++i]);
-		}
-		else if (IsEqual(argv[i], "-Indice"))
-		{
-			string str = argv[++i];
-			m_indice = GetIndiceType(str);
-			if (m_indice == I_INVALID)
-			{
-				msg.ajoute(str + " is not a valid indice. See help.");
-			}
-		}
-		else if (IsEqual(argv[i], "-DirectIndice"))
-		{
-			m_bDirect = true;
-			m_scenes_def = { { B1} };
-		}
-		else if (IsEqual(argv[i], "-Window"))
-		{
-			m_rings = atof(argv[++i]);
-			if (m_rings < 1)
-			{
-				msg.ajoute(to_string(m_rings) + " is not a valid window radius. Radius must be >= 1.");
-			}
-
-			m_rings -= 1;//convert radius to rings
-
-		}
-		else if (IsEqual(argv[i], "-CloudsMask"))
-		{
-			m_CloudsMask = argv[++i];
-		}
-		else if (IsEqual(argv[i], "-BackwardFill"))
-		{
-			m_bBackwardFill = true;
-		}
-		else if (IsEqual(argv[i], "-ForwardFill"))
-		{
-			m_bForwardFill = true;
-		}
-		else
-		{
-			//Look to see if it's a know base option
-			msg = CBaseOptions::ProcessOption(i, argc, argv);
-		}
-
-		return msg;
-	}
-
-
-	ERMsg CDesawtooth::Execute()
-	{
-		ERMsg msg;
-
-
 
 
 		if (!m_options.m_bQuiet)
@@ -206,7 +56,7 @@ namespace WBSF
 
 		GDALAllRegister();
 
-		CLandsatDataset inputDS;
+		CGDALDatasetEx inputDS;
 		CGDALDatasetEx maskDS;
 		CGDALDatasetEx outputDS;
 		CGDALDatasetEx cloudsDS;
@@ -232,7 +82,7 @@ namespace WBSF
 			int xBlock = XYindex[b].first;
 			int yBlock = XYindex[b].second;
 
-			Landsat2::CLandsatWindow inputData;
+			CRasterWindow inputData;
 			OutputData outputData;
 
 			ReadBlock(inputDS, cloudsDS, xBlock, yBlock, inputData);
@@ -247,7 +97,7 @@ namespace WBSF
 
 
 
-	ERMsg CDesawtooth::OpenAll(CLandsatDataset& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CGDALDatasetEx& outputDS)
+	ERMsg CDesawtoothDirect::OpenAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& cloudsDS, CGDALDatasetEx& outputDS)
 	{
 		ERMsg msg;
 
@@ -270,8 +120,8 @@ namespace WBSF
 				cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
 				//          cout << "    Projection     = " << prjName << endl;
 				cout << "    NbBands        = " << inputDS.GetRasterCount() << endl;
-				cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
-				cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
+				//cout << "    Scene size     = " << inputDS.GetSceneSize() << endl;
+				//cout << "    Nb. Scenes     = " << inputDS.GetNbScenes() << endl;
 
 				if (inputDS.GetRasterCount() < 2)
 					msg.ajoute("Desawtooth need at least 2 bands");
@@ -328,7 +178,7 @@ namespace WBSF
 			for (size_t zz = 0; zz < nb_bands; zz++)
 			{
 				size_t z = m_options.m_scene_extents[0] + zz;
-				string subName = inputDS.GetSubname(z);// +"_" + indices_name;
+				string subName = FormatA("%02d", z + 1);//inputDS.GetSubname(z);// +"_" + indices_name;
 				options.m_VRTBandsName += GetFileTitle(filePath) + "_" + subName + ".tif|";
 
 			}
@@ -339,7 +189,7 @@ namespace WBSF
 		return msg;
 	}
 
-	void CDesawtooth::ReadBlock(Landsat2::CLandsatDataset& inputDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, Landsat2::CLandsatWindow& block_data)
+	void CDesawtoothDirect::ReadBlock(CGDALDatasetEx& inputDS, CGDALDatasetEx& cloudsDS, int xBlock, int yBlock, CRasterWindow& block_data)
 	{
 #pragma omp critical(BlockIO)
 		{
@@ -381,7 +231,7 @@ namespace WBSF
 
 
 
-	void CDesawtooth::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& window, OutputData& outputData)
+	void CDesawtoothDirect::ProcessBlock(int xBlock, int yBlock, const CRasterWindow& window, OutputData& outputData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -452,43 +302,23 @@ namespace WBSF
 							zz = m_last_valid;
 
 
-						CLandsatPixel pixel = window.GetPixel(zz, x, y);
-						goods[z] = pixel.IsValid();
+						goods[z] = window.IsValid(zz, x, y);
 
 						if (goods[z])
 						{
-							data[z] = window.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
-							//assert(data[z] != 0);
-							//if (data[z] == 0)
-							//{
-							//	int k;
-							//	k = 0;
-							//}
-							//goods[z] = data[z] != 0;//humm!!!
+							CStatistic stat = window[zz].GetWindowStat(x, y, int(m_options.m_rings));//Note: pas la même définition de ring que dans landsat!
+							assert(stat[NB_VALUE] > 0);
+							data[z] = stat[MEAN];
 						}
 					}
 
 					size_t nbVal = sum(goods);
 					if (nbVal > m_options.m_minneeded)//at least one valid pixel
 					{
-						//REAL_TYPE minimum_x_year = years.min();
-						//assert(minimum_x_year == years[0]);
-
-
-
+						
 						if (m_options.m_year_by_year)
 						{
-							//CRealArray all_x = years - minimum_x_year;
-
-							//Take out spikes that start && end at same value (to get rid of weird years
-							//			left over after cloud filtering)
-							//CRealArray output_corr_factore(data.size());
-
-							//compute Desawtooth for this time series indice
 							assert(m_options.m_desawtooth_val < 1.0);
-							//CRealArray all_y = desawtooth(data, goods, m_options.m_desawtooth_val, &output_corr_factore);
-							//assert(all_y.size() == window.size());
-
 
 							for (size_t z = 0; z < window.size(); z++)
 							{
@@ -573,7 +403,7 @@ namespace WBSF
 	}
 
 
-	void CDesawtooth::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, OutputData& outputData)
+	void CDesawtoothDirect::WriteBlock(int xBlock, int yBlock, CGDALDatasetEx& outputDS, OutputData& outputData)
 	{
 #pragma omp critical(BlockIO)
 		{
@@ -612,7 +442,7 @@ namespace WBSF
 		}
 	}
 
-	void CDesawtooth::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
+	void CDesawtoothDirect::CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS)
 	{
 		inputDS.Close();
 		maskDS.Close();

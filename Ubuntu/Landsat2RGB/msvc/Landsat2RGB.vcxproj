@@ -123,7 +123,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>../../../external;../..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../..;C:\local\boost_1_89_0;C:\local\gdal-3-11-3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>false</OpenMPSupport>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -133,9 +133,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\External\gdal\lib$(PlatformArchitecture);..\..\..\External\lib$(PlatformArchitecture);$(PlatformArchitecture);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\local\boost_1_89_0\lib;C:\local\gdal-3-11-3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -175,7 +175,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>../../../external;../..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../..;C:\local\boost_1_89_0;C:\local\gdal-3-11-3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -186,8 +186,8 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;proj_i.lib;external.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\External\gdal\lib$(PlatformArchitecture);..\..\..\External\lib$(PlatformArchitecture);$(PlatformArchitecture);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>User32.lib;Kernel32.lib;OleAut32.lib;version.lib;Shell32.lib;Advapi32.lib;Comdlg32.lib;gdal_i.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local\boost_1_89_0\lib;C:\local\gdal-3-11-3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>

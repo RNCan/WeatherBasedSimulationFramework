@@ -203,6 +203,7 @@ public:
     }
 
     CStatisticEx GetWindowStat(int x, int y, int n_rings)const;
+    DataType GetWindowValue(int x, int y, double n_rings)const;
     
     void SetValidity(const boost::dynamic_bitset<>& in) { m_valid = in; }
     
@@ -250,20 +251,18 @@ class CRasterWindow : public std::deque < CDataWindow >
 {
 public:
 
-//size_t sceneSize = 0, CGeoRectIndex windowRect = CGeoRectIndex()
     CRasterWindow(size_t sceneSize = 0)
     {
         m_sceneSize = sceneSize;
-        //m_windowRect = windowRect;
     }
+
+    void SetSceneSize(size_t sceneSize) {m_sceneSize = sceneSize;}
 
     void resize(size_t size, const CGeoExtents& extents, DataType noData)// = DefaultNoData
     {
         m_windowRect = extents.GetPosRect();
         m_extents = extents;
         std::deque < CDataWindow >::resize(size);
-        //for (size_t i = 0; i < size; i++)
-        //  at(i).resize(m_extents, noData);
     }
 
 
@@ -292,28 +291,6 @@ public:
         return bValid;
     }
 
-//
-//    template <class T>
-//    bool IsValid(size_t i, const T& pixel)const
-//    {
-//        assert(((i + 1)*m_sceneSize - 1) < size());
-////        const_iterator it1 = begin() + i*m_sceneSize;
-//
-//        bool bValid = true;
-//        assert(false);//todo
-//        //for (class T::const_iterator it2 = pixel.begin(); it2 != pixel.end() && bValid; it2++)
-//        //bValid = (*it1)->IsValid(*it2);
-//
-//
-//        return bValid;
-//    }
-
-//    template <class T>
-//    bool IsValid(size_t i, size_t z, const T& pixel)const
-//    {
-//        assert((i*m_sceneSize + z) < size());
-//        return at(i*m_sceneSize + z).IsValid(pixel);
-//    }
 
     CGeoSize GetGeoSize()const
     {

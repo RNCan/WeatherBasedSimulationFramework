@@ -17,11 +17,8 @@
 #include "cpl_conv.h"
 #include "cpl_string.h"
 #include "cpl_minixml.h"
-//#include "cpl_port.h"
-//#include "GDAL_priv.h"
-#include "proj_api.h"
-//#include "ogr_spatialref.h"
-//#include "srsinfo.h"
+//#include "proj_api.h"
+#include "proj9/geodesic.h"
 #include "ogr_spatialref.h"
 #include "Geomatic/Projection.h"
 
