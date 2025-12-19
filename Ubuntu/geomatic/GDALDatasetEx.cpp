@@ -871,7 +871,7 @@ namespace WBSF
 					assert(loadRect.m_xSize >= 0 && loadRect.m_xSize <= GetRasterXSize());
 					assert(loadRect.m_ySize >= 0 && loadRect.m_ySize <= GetRasterYSize());
 					assert(loadRect.Width() >= windowRect.Width());
-					assert(loadRect.Height() >= windowRect.Height());
+					assert(loadRect.Height() >= windowRect.Height());//to verify for the last blocks row
 
 					window_data[ii].resize(loadRect, windowRect, windowExtents, DataType(GetNoData(i)));
 					GDALRasterBand* pBand = m_poDataset->GetRasterBand(int(i + 1));//1 base
