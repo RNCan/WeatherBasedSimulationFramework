@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.1.5	19/12/2025	Rémi Saint-Amant	Add -FillMissing options
 // 1.1.4	28/10/2025	Rémi Saint-Amant	Add -DirectIndices options
 // 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 instead of B2.
 // 1.1.2	31/07/2024	Rémi Saint-Amant	Change internal type from INT16 for INT32.
@@ -49,7 +50,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.4";
+	const char* CLandTrend::VERSION = "1.1.5";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -79,6 +80,8 @@ namespace WBSF
 		m_bBreaks = false;
 		m_bBackwardFill = false;
 		m_bForwardFill = false;
+		m_bFillMissing = false;
+		m_bWithPrevious = true;
 
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
@@ -98,6 +101,7 @@ namespace WBSF
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-DirectIndice", 1, "file", false, "Indice already computed and provided as input file. Same size and same number layers than the number of scenes of the input Landsat image. "},
 			{ "-Window", 1, "radius", false, "Compute block_data mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 1 by default." },
+			{ "-FillMissing", 1, "direction", false, "direction = 0: fill with previous valid, direction = 1: fill with next valid." },
 			{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
 			{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
@@ -211,7 +215,7 @@ namespace WBSF
 			m_rings = atof(argv[++i]);
 			if (m_rings < 1)
 			{
-				msg.ajoute(to_string(m_rings) + " is not a valid block_data radius. Radius must be >= 1.");
+				msg.ajoute(to_string(m_rings) + " is not a valid radius for Windows option. Radius must be >= 1.");
 			}
 
 			m_rings -= 1;//convert radius to rings
@@ -224,6 +228,16 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-Breaks"))
 		{
 			m_bBreaks = true;
+		}
+		else if (IsEqual(argv[i], "-FillMissing"))
+		{
+			m_bFillMissing = true;
+			int direction = atoi(argv[++i]);
+			m_bWithPrevious = direction == 0;
+			if (direction != 0 && direction != 1)
+			{
+				msg.ajoute(to_string(direction) + " is not a valid direction for FillMissing option. Direction must be 0 or 1.");
+			}
 		}
 		else if (IsEqual(argv[i], "-BackwardFill"))
 		{
@@ -294,7 +308,9 @@ namespace WBSF
 		map<int, bool> treadNo;
 
 		omp_set_nested(1);//for IOCPU
+#ifndef _DEBUG
 #pragma omp parallel for schedule(static, 1) num_threads( NB_THREAD_PROCESS ) if (m_options.m_bMulti)
+#endif
 		for (int b = 0; b < (int)XYindex.size(); b++)
 		{
 			int xBlock = XYindex[b].first;
@@ -466,7 +482,7 @@ namespace WBSF
 			{
 				assert(indicesDS.GetRasterCount() == inputDS.GetNbScenes());
 				assert(indicesDS.GetRasterXSize() * indicesDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
-				
+
 				indicesDS.ReadBlock(extents, indices, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == indices.size());
 				//DataType noData = (DataType)cloudsDS.GetNoData(0);
@@ -543,6 +559,43 @@ namespace WBSF
 	//	return (t1 && t2);
 	//}
 
+	template<typename T>
+	size_t GetPrevious(int x, int y, size_t z, const T& data)
+	{
+		size_t zz = NOT_INIT;
+
+		for (; z < data.size() && zz == NOT_INIT; z--)
+		{
+			if (data.IsValid(z, x, y))
+				zz = z;
+		}
+
+		assert(zz != NOT_INIT);
+		return zz;
+	}
+
+
+	template<typename T>
+	size_t GetNext(int x, int y, size_t z, const T& data)
+	{
+		size_t zz = NOT_INIT;
+
+		for (; z < data.size() && zz == NOT_INIT; z++)
+		{
+			if (data.IsValid(z, x, y))
+				zz = z;
+		}
+
+
+		assert(zz != NOT_INIT);
+		return zz;
+	}
+
+
+
+
+
+
 	void CLandTrend::ProcessBlock(int xBlock, int yBlock, const Landsat2::CLandsatWindow& block_data, CRasterWindow& indices, OutputData& outputData, BreaksData& breaksData)
 	{
 		CGeoExtents extents = m_options.GetExtents();
@@ -579,8 +632,9 @@ namespace WBSF
 		{
 			m_options.m_timerProcess.start();
 
-
+#ifndef _DEBUG
 #pragma omp parallel for num_threads( m_options.m_CPU ) if (m_options.m_bMulti )
+#endif
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
@@ -588,98 +642,66 @@ namespace WBSF
 					int xy = y * blockSize.m_x + x;
 					//Get pixel
 					CRealArray years = ::convert(allpos(block_data.size()));
-					CRealArray data(block_data.size());
-					CBoolArray goods(block_data.size());
+					CRealArray data(0.0, block_data.size());
+					CBoolArray goods(false, block_data.size());
 
-					size_t m_first_valid = NOT_INIT;
-					size_t m_last_valid = NOT_INIT;
+					bool bHave_any = false;
+					size_t first_valid = NOT_INIT;
+					size_t last_valid = NOT_INIT;
 
-
-
-					if (m_options.m_bDirect)
+					assert(!m_options.m_bDirect || block_data.size() == indices.size());
+					for (size_t z = 0; z < block_data.size(); z++)
 					{
-						assert(block_data.size() == indices.size());
+						bool bValid = m_options.m_bDirect ? indices.IsValid(z, x, y) : block_data.IsValid(z, x, y);
+						bHave_any |= bValid;
 
+						if (bValid && first_valid == NOT_INIT)
+							first_valid = z;
 
-						if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
-						{
-							for (size_t z = 0; z < indices.size(); z++)
-							{
-								bool bValid = indices.IsValid(z, x, y);
-								if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
-									m_first_valid = z;
-
-								if (m_options.m_bForwardFill && bValid)
-									m_last_valid = z;
-							}
-						}
-
-
-
-						for (size_t z = 0; z < indices.size(); z++)
-						{
-							size_t zz = z;
-
-							if (m_first_valid != NOT_INIT && zz < m_first_valid)
-								zz = m_first_valid;
-							if (m_last_valid != NOT_INIT && zz > m_last_valid)
-								zz = m_last_valid;
-
-							goods[z] = indices.IsValid(zz, x, y);
-
-							if (goods[z])
-							{
-								assert(int(m_options.m_rings) == m_options.m_rings);
-								data[z] = indices.at(zz).GetWindowValue(x, y, m_options.m_rings);
-							}
-						}
-					}
-					else
-					{
-
-						if (m_options.m_bBackwardFill || m_options.m_bForwardFill)
-						{
-							for (size_t z = 0; z < block_data.size(); z++)
-							{
-								bool bValid = block_data.IsValid(z, x, y);
-								if (m_options.m_bBackwardFill && bValid && m_first_valid == NOT_INIT)
-									m_first_valid = z;
-
-								if (m_options.m_bForwardFill && bValid)
-									m_last_valid = z;
-							}
-						}
-
-
-
-						for (size_t z = 0; z < block_data.size(); z++)
-						{
-							size_t zz = z;
-
-							if (m_first_valid != NOT_INIT && zz < m_first_valid)
-								zz = m_first_valid;
-							if (m_last_valid != NOT_INIT && zz > m_last_valid)
-								zz = m_last_valid;
-
-
-							CLandsatPixel pixel = block_data.GetPixel(zz, x, y);
-							goods[z] = pixel.IsValid();
-
-							if (goods[z])
-							{
-
-								data[z] = block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
-								assert(data[z] != 0);
-								goods[z] = data[z] != 0;//humm!!!
-
-							}
-						}
+						if (bValid)
+							last_valid = z;
 					}
 
 
-					if (goods.max())//at least one valid pixel
+
+					if (bHave_any)
 					{
-						//size_t nbVal = sum(goods);
+						size_t size = m_options.m_bDirect ? indices.size() : block_data.size();
+						for (size_t z = 0; z < size; z++)
+						{
+							size_t zz = z;
+
+							assert(bHave_any);
+							assert(first_valid != NOT_INIT);
+							assert(last_valid != NOT_INIT);
+
+							if (zz < first_valid && m_options.m_bBackwardFill)
+								zz = first_valid;
+
+							if (zz > last_valid && m_options.m_bForwardFill)
+								zz = last_valid;
+
+							if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)
+							{
+								if (m_options.m_bDirect)
+									zz = m_options.m_bWithPrevious ? GetPrevious(x, y, zz, indices) : GetNext(x, y, zz, indices);
+								else
+									zz = m_options.m_bWithPrevious ? GetPrevious(x, y, zz, block_data) : GetNext(x, y, zz, block_data);
+							}
+
+							
+							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
+
+
+							goods[z] = m_options.m_bDirect ? indices.IsValid(zz, x, y) : block_data.IsValid(zz, x, y);
+							if (goods[z])
+							{
+								data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
+								//assert(data[z] != 0);
+								//goods[z] = data[z] != 0;//humm!!!
+							}
+						}
+
 
 						//compute LandTrend for this time series indice
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
@@ -688,81 +710,106 @@ namespace WBSF
 							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, TFitMethod(m_options.m_fit_method));
 
 
-
 						//if need output
-						if (result.ok)
+						if (result.ok && !outputData.empty())
 						{
-							if (!outputData.empty())
+
+							//recompute validity because some pixel can be different in Indices than in the Landsat
+							if (m_options.m_bDirect)
 							{
-								//create output image doing a regression for each band by segment
-								for (size_t s = 0; s < SCENES_SIZE; s++)//for all bands
+								bHave_any = false;
+								first_valid = NOT_INIT;
+								last_valid = NOT_INIT;
+
+								for (size_t z = 0; z < block_data.size(); z++)
 								{
+									bool bValid = block_data.IsValid(z, x, y);
+									bHave_any |= bValid;
 
-									CVectices V = result.vertices;
-									CRealArray X(block_data.size());
-									CRealArray Y(block_data.size());
-									for (size_t z = 0; z < block_data.size(); z++)
-									{
-										size_t zz = z;
-										if (m_first_valid != NOT_INIT && zz < m_first_valid)
-											zz = m_first_valid;
-										if (m_last_valid != NOT_INIT && zz > m_last_valid)
-											zz = m_last_valid;
+									if (bValid && first_valid == NOT_INIT)
+										first_valid = z;
 
-										X[z] = REAL_TYPE(z);
-										Y[z] = block_data.GetPixel(zz, x, y)[s];
-									}
-
-									CRealArray yfit(Y.size());
-									for (size_t i = 0; i < V.size() - 1; i++)//for all segment
-									{
-										//we need to remove bad data from vertices
-										CBoolArray G = subset(goods, V[i], V[i + 1]);
-
-										CRealArray xx = subset(X, V[i], V[i + 1])[G];
-										CRealArray yy = subset(Y, V[i], V[i + 1])[G];
-										assert(xx.size() == yy.size());
-										assert(xx.size() > 0);
-
-										if (xx.size() >= 2)
-										{
-											//if we've done desawtooth, it's possible that all of the
-											//  values in a segment have same value, in which case regress
-											//  would choke, so deal with that.
-
-											RegressP P = Regress(xx, yy);
-
-											yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
-										}
-										else if (xx.size() == 1)
-										{
-											//if only one point, take this y-fit value
-											yfit[get_slice(V[i], V[i + 1])] = yy[0];
-										}
-
-									}
-
-									for (size_t z = 0; z < block_data.size(); z++)
-									{
-
-										DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
-										outputData[z * SCENES_SIZE + s][xy] = val;
-									}
+									if (bValid)
+										last_valid = z;
 								}
 							}
 
-							//if output breaks
-							if (!breaksData.empty())
+							//create output image doing a regression for each band by segment
+							for (size_t s = 0; s < SCENES_SIZE && bHave_any; s++)//for all bands
 							{
-								breaksData[0][xy] = (LandsatDataType)result.vertvals.size();
-								for (size_t s = result.vertvals.size() - 1; s < result.vertvals.size(); s--)
+
+								CVectices V = result.vertices;
+								CRealArray X(block_data.size());
+								CRealArray Y(block_data.size());
+								for (size_t z = 0; z < block_data.size(); z++)
 								{
-									breaksData[s * 2 + 1][xy] = (LandsatDataType)(m_options.m_firstYear + result.vertices[s]);
-									breaksData[s * 2 + 2][xy] = (LandsatDataType)result.vertvals[s];
+									size_t zz = z;
+
+
+									if (zz < first_valid && m_options.m_bBackwardFill)
+										zz = first_valid;
+									if (zz > last_valid && m_options.m_bForwardFill)
+										zz = last_valid;
+
+									//does we have to take the indice from indices when direct?
+									if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)
+										zz = m_options.m_bWithPrevious ? GetPrevious(x, y, z, block_data) : GetNext(x, y, z, block_data);
+
+
+									X[z] = REAL_TYPE(z);
+									Y[z] = block_data.GetPixel(zz, x, y)[s];
+								}
+
+								CRealArray yfit(Y.size());
+								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
+								{
+									//we need to remove bad data from vertices
+									CBoolArray G = subset(goods, V[i], V[i + 1]);
+
+									CRealArray xx = subset(X, V[i], V[i + 1])[G];
+									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
+									assert(xx.size() == yy.size());
+									assert(xx.size() > 0);
+
+									if (xx.size() >= 2)
+									{
+										//if we've done desawtooth, it's possible that all of the
+										//  values in a segment have same value, in which case regress
+										//  would choke, so deal with that.
+
+										RegressP P = Regress(xx, yy);
+
+										yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
+									}
+									else if (xx.size() == 1)
+									{
+										//if only one point, take this y-fit value
+										yfit[get_slice(V[i], V[i + 1])] = yy[0];
+									}
+
+								}
+
+								for (size_t z = 0; z < block_data.size(); z++)
+								{
+
+									DataType val = (DataType)max(GetTypeLimit(m_options.m_outputType, true), min(GetTypeLimit(m_options.m_outputType, false), yfit[z]));
+									outputData[z * SCENES_SIZE + s][xy] = val;
 								}
 							}
 						}
-					}//if at least one valid pixel
+
+						//if output breaks
+						if (!breaksData.empty())
+						{
+							breaksData[0][xy] = (LandsatDataType)result.vertvals.size();
+							for (size_t s = result.vertvals.size() - 1; s < result.vertvals.size(); s--)
+							{
+								breaksData[s * 2 + 1][xy] = (LandsatDataType)(m_options.m_firstYear + result.vertices[s]);
+								breaksData[s * 2 + 2][xy] = (LandsatDataType)result.vertvals[s];
+							}
+						}
+
+					}//if at least one valid pixel and output result
 
 #pragma omp atomic
 					m_options.m_xx++;
