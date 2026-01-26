@@ -295,7 +295,9 @@ namespace WBSF
 
 		CTRef& Set(int y_or_r, size_t m, size_t d, size_t h, CTM TM);
 
+		
 		enum TTranformInitType { FIRST_TREF, MID_TREF, LAST_TREF, NB_TRANSFORM_INIT };
+		CTRef& Transform(CTM::TType type, size_t initType = FIRST_TREF) { return Transform(CTM(type), initType); }
 		CTRef& Transform(const CTM& TM, size_t initType = FIRST_TREF);
 		CTRef& Transform(const CTRef& t, size_t initType = FIRST_TREF){ return Transform(t.GetTM(), initType); }//{ m_type = t.m_type; m_mode = t.m_mode; ResetUnused(); return *this; }
 		static CTRef Transform(CTRef t, CTM TM, size_t initType = FIRST_TREF){ CTRef tt(t); tt.Transform(TM, initType); return tt; }
@@ -361,7 +363,7 @@ namespace WBSF
 		static std::string GetMissingString(CTM tm);
 
 		std::string GetFormatedString(std::string format = "")const;
-		void FromFormatedString(std::string str, std::string format = "", const char* sep = "-", int base = 1);
+		CTRef& FromFormatedString(std::string str, std::string format = "", const char* sep = "-", int base = 1);
 		bool IsValid()const;
 
 		short GetType()const{ return m_type; }

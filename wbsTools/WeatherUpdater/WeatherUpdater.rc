@@ -687,7 +687,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Répertoire de travail|Première année|Dernière année|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau|Partenaires SWOB|Télécharger SWOB pendant x jours (0=depuis la dernìère maj)|Précipitation horaire maximum (mm)"
+    IDS_UPDATER_EC_HOURLY_P "Répertoire de travail|Première année|Dernière année|Province(s)|Réseau|Télécharger SWOB pendant x jours (0=depuis la dernìère maj)|Précipitation horaire maximum (mm)"
 END
 
 STRINGTABLE
@@ -1196,7 +1196,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_UPDATER_EC_DAILY_P  "Working directory|First year|Last year|Province(s)"
-    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network|SWOB Partner|download SWOB until x days (0=since last update)|Maximum hourly precipitation (mm)"
+    IDS_UPDATER_EC_HOURLY_P "Working directory|First year|Last year|Province(s)|Network|download SWOB until x days (0=since last update)|Maximum hourly precipitation (mm)"
 END
 
 STRINGTABLE

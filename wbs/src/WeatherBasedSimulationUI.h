@@ -84,6 +84,7 @@
 #define IDC_SIM_MODELINPUT_EDITOR       1007
 #define IDC_TRANSFO_LOG                 1007
 #define IDC_NB_CYCLES2                  1007
+#define IDC_P_EPS                       1007
 #define IDC_CMN_STEP_PROGRESS           1008
 #define IDC_LP_FORM_SIZE                1008
 #define IDC_MAP_IWD_MODEL               1008
@@ -587,10 +588,12 @@
 #define IDC_FIT_EQ_DEV_RATE             1283
 #define IDC_FIT_INPUT_NAME              1284
 #define IDC_FIT_CALIB_RDR               1285
+#define IDC_FIT_SA_PRESET               1285
 #define IDC_FIT_TYPE                    1286
 #define IDC_FIT_OUTPUT_NAME             1287
 #define IDC_FIT_SA                      1288
 #define IDC_FIT_FIXED_SIGMA             1289
+#define IDC_FIT_METHOD                  1289
 #define IDC_FIT_CALIB_SIGMA             1290
 #define IDC_FIT_TB                      1291
 #define IDC_FIT_FIXE_TB                 1292
@@ -606,6 +609,7 @@
 #define IDC_FIT_FIXE_F0                 1300
 #define IDC_FIT_F0                      1301
 #define IDC_FIT_F0_BY                   1301
+#define IDC_FIT_USE_DEAD                1301
 #define IDC_FIT_TB_FROM                 1302
 #define IDC_FIT_TM_FROM                 1303
 #define IDC_FIT_TO_FROM                 1304
@@ -633,6 +637,7 @@
 #define IDC_FIT_LIMIT_THI_TO            1324
 #define IDC_FIT_LIMIT_TLO_FROM          1325
 #define IDC_FIT_LIMIT_TLO_TO            1326
+#define IDC_FIT_ADULT_NAME              1327
 #define IDC_CMN_NEWPRJ_NAME             1350
 #define IDC_CMN_NEWPRJ_PATH             1351
 #define IDC_CMN_OPTION_MODELPATH        1354
@@ -998,7 +1003,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        245
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1327
+#define _APS_NEXT_CONTROL_VALUE         1328
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

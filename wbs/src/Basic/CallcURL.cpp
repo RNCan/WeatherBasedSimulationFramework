@@ -31,6 +31,19 @@ namespace WBSF
 	}
 
 	
+	bool CCallcURL::URL_exists(std::string URL)
+	{
+		if(IsPathEndOk(URL))
+			URL = URL.substr(0, URL.length()-1);
+
+		string cmdline = "\"" + m_exe_filepath + "\" " +  "-k -L --output /dev /null --silent --head --fail \"" +URL+"\"";
+		
+		DWORD exit_code=0;
+		ERMsg msg = WinExecWait(cmdline, "", SW_HIDE, &exit_code);
+
+		return msg && exit_code == 0;
+
+	}
 
 
 	ERMsg CCallcURL::get_text(const std::string& arg, std::string& str_out)
@@ -40,6 +53,18 @@ namespace WBSF
 		str_out.clear();
 
 		string cmdline = "\"" + m_exe_filepath + "\" " + arg;
+		msg = CallApp(cmdline, str_out, m_bufsize);
+
+		return msg;
+	}
+
+	ERMsg CCallcURL::get_URL_text(const std::string& URL, std::string& str_out)
+	{
+		ERMsg msg;
+
+		str_out.clear();
+
+		string cmdline = "\"" + m_exe_filepath + "\" -k -L -s \"" + URL + "\"";
 		msg = CallApp(cmdline, str_out, m_bufsize);
 
 		return msg;

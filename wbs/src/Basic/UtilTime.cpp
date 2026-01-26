@@ -845,7 +845,7 @@ namespace WBSF
 		ASSERT(IsValid());
 	}
 
-
+	
 	CTRef& CTRef::Transform(const CTM& TM, size_t initType)
 	{
 		if (IsInit())
@@ -1069,12 +1069,12 @@ namespace WBSF
 		}
 	}
 
-	void CTRef::FromFormatedString(string str, string format, const char* sep, int base)
+	CTRef& CTRef::FromFormatedString(string str, string format, const char* sep, int base)
 	{
 		Reset();
 
 		if (str.empty())
-			return;
+			return *this;
 
 
 		ASSERT(str.length() >= 2);
@@ -1187,6 +1187,8 @@ namespace WBSF
 			mode = OVERALL_YEARS;
 
 		Set(y_or_r, m - base, d - base, h, CTM(type, mode));
+
+		return *this;
 	}
 
 	CTRef CTRef::GetCurrentTRef(CTM TM, bool bUTC)
