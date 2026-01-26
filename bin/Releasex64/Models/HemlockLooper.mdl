@@ -188,6 +188,6 @@
         </OutputVariable>
     </OutputVariableArray>
     <Copyright/>
-    <Credit>Model developed by Jacques Regnière and Remi Saint-Amant with data from Lucie Royer.&#x0A;This model is based on a individual base model.</Credit>
+    <Credit>Model developed by Jacques Regnière and Remi Saint-Amant with data from Lucie Royer. This model is based on a individual base model.&#x0D;&#x0A;</Credit>
     <HelpFileName/>
 </Model>

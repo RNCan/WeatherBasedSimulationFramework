@@ -87,8 +87,8 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Brood_g1</Name>
-            <Title>Brood_g1</Title>
+            <Name>Brood_g0</Name>
+            <Title>Brood_g0</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>
