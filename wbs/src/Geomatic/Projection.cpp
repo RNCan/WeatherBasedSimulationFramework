@@ -10,15 +10,14 @@
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 #include "stdafx.h"
-//#include <mutex>
+
 
 #pragma warning(disable: 4275 4251)
 #include "cpl_vsi.h"
 #include "cpl_conv.h"
 #include "cpl_string.h"
 #include "cpl_minixml.h"
-//#include "proj_api.h"
-#include "proj9/geodesic.h"
+#include "proj_api.h"
 #include "ogr_spatialref.h"
 #include "Geomatic/Projection.h"
 
@@ -30,7 +29,7 @@ using namespace std;
 namespace WBSF
 {
 
-	extern int FindSRS(const char *pszInput, OGRSpatialReference &oSRS, int bDebug);
+	extern int FindSRS(const char* pszInput, OGRSpatialReference& oSRS, int bDebug);
 
 	const OGRSpatialReference& CProjection::GetSpatialReference()const { assert(m_pSpatialReference); return *m_pSpatialReference; }
 	void CProjection::SetSpatialReference(const OGRSpatialReference& sr)
@@ -59,7 +58,7 @@ namespace WBSF
 	CProjection::CProjection(bool bWGS84)
 	{
 
-		m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(NULL);
+		m_pSpatialReference = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
 		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 		m_pProjPJ = NULL;
 		m_prjID = PRJ_NOT_INIT;
@@ -92,7 +91,7 @@ namespace WBSF
 	{
 		m_pProjPJ = NULL;
 		m_prjID = PRJ_NOT_INIT;
-		m_pSpatialReference = (OGRSpatialReference *)OSRNewSpatialReference(NULL);
+		m_pSpatialReference = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
 		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 
 		if (in.IsInit())
@@ -143,7 +142,7 @@ namespace WBSF
 	}
 
 
-	bool CProjection::operator ==(CProjection const& in)const{ return m_prjStr == in.m_prjStr; }
+	bool CProjection::operator ==(CProjection const& in)const { return m_prjStr == in.m_prjStr; }
 
 
 	ERMsg CProjection::Create(const char* prjStr)
@@ -279,7 +278,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CProjection::Reproject(projPJ src, projPJ dst, long point_count, int point_offset, double *x, double *y, double *z)
+	ERMsg CProjection::Reproject(projPJ src, projPJ dst, long point_count, int point_offset, double* x, double* y, double* z)
 	{
 		ERMsg msg;
 
@@ -360,7 +359,7 @@ namespace WBSF
 				CProjectionPtr pProjection;
 
 				//Register prj name
-				OGRSpatialReference spatialReference; 
+				OGRSpatialReference spatialReference;
 				spatialReference.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 
 				if (FindSRS(prjStr, spatialReference, false))
@@ -376,7 +375,7 @@ namespace WBSF
 
 					if (prjID == PRJ_NOT_INIT)
 					{
-						char * pProj4String = NULL;
+						char* pProj4String = NULL;
 						if (spatialReference.exportToProj4(&pProj4String) == OGRERR_NONE)
 						{
 							projPJ pProjPJ = pj_init_plus(pProj4String);
@@ -392,7 +391,7 @@ namespace WBSF
 
 							CPLFree(pProj4String);
 							pProj4String = NULL;
-						
+
 						}
 						else
 						{
@@ -439,16 +438,16 @@ namespace WBSF
 	CProjectionPtr CProjectionManager::GetUnknownPrj()
 	{
 		static CProjectionPtr UNKNOWN_PROJECTION;
-		
+
 		if (UNKNOWN_PROJECTION.get() == NULL)
 			UNKNOWN_PROJECTION = make_shared<CProjection>();
-		
+
 		return UNKNOWN_PROJECTION;
 	}
 
 	CProjectionPtr CProjectionManager::GetPrj(size_t prjID)
 	{
-	
+
 
 		CProjectionPtr pPrj;
 		if (prjID != PRJ_NOT_INIT)
@@ -494,6 +493,6 @@ namespace WBSF
 
 
 
-	
+
 
 }
