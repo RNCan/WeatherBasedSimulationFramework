@@ -23,11 +23,11 @@ namespace WBSF
 	{
 		enum TLeucotaraxisPiniperdaStats
 		{
-			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION, NB_STATS
+			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION, NB_STATS
 		}; 
 
-		enum { NB_CUMUL_STATS = 5 };
-		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_PUPA0, S_ADULT0, S_EGG1, S_EMERGENCE0, S_DEAD_ATTRITION };
+		enum { NB_CUMUL_STATS = 11 };
+		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_EGG2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION };
 	}
 
 
@@ -75,7 +75,7 @@ namespace WBSF
 		
 		double m_RDR[LPM::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_adult_emergence_date;
-		bool m_bDiapause;
+		bool m_bQuiescence;
 		std::array<CTRef, LPM::NB_STAGES + 1> m_reachDate;
 
 		double m_to; //pre oviposition period [days]

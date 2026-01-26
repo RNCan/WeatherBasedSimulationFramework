@@ -42,8 +42,7 @@ namespace WBSF
 		//reset creation date
 		int year = creationDate.GetYear();
 
-		m_bDiapause = false;
-		//m_bDiapause = age == PUPAE;
+		m_bQuiescence = false;
 		m_creationDate = creationDate;
 		
 		//if (age == PUPAE)
@@ -203,24 +202,16 @@ namespace WBSF
 
 		ASSERT(IsCreated(weather.GetTRef()));
 
-
-		/*if (m_bDiapause && GetStage() == PUPAE && weather.GetTRef() == m_adult_emergence_date)
-		{
-			ASSERT(m_generation == 0);
-			m_bDiapause = false;
-			m_age = ADULT;
-		}*/
-
 		
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT && !m_bDiapause; step++)
+		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT && !m_bQuiescence; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
 			//if (m_generation == 1 && GetStage() >= PUPAE)
-			if (m_generation == 1 && GetStage() >= LARVAE)
-				m_bDiapause = true;
+			if (m_generation == 2 && GetStage() >= LARVAE)
+				m_bQuiescence = true;
 		}
 
 
@@ -314,6 +305,8 @@ namespace WBSF
 					stat[S_LARVA0 + s - LARVAE] += m_scaleFactor;
 				else if (m_generation == 1)
 					stat[S_EGG1 + s] += m_scaleFactor;
+				else if (m_generation == 2)
+					stat[S_EGG2 + s] += m_scaleFactor;
 			}
 
 
@@ -322,8 +315,8 @@ namespace WBSF
 
 			if (HasChangedStage())
 			{
-				if (s == ADULT && m_generation == 0)
-					stat[S_EMERGENCE0] += m_scaleFactor;
+				if (s == ADULT )
+					stat[S_EMERGENCE0+ m_generation] += m_scaleFactor;
 			}
 		}
 	}
