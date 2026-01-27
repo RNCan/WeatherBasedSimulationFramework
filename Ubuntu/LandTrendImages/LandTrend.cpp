@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.1.6	27/01/2026	Rémi Saint-Amant	Do fill gap after desawtooth
 // 1.1.5	19/12/2025	Rémi Saint-Amant	Add -FillMissing options
 // 1.1.4	28/10/2025	Rémi Saint-Amant	Add -DirectIndices options
 // 1.1.3	11/06/2025	Rémi Saint-Amant	Add NDSI, change in NDWI definition: use B4 instead of B2.
@@ -50,7 +51,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.5";
+	const char* CLandTrend::VERSION = "1.1.6";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -521,44 +522,6 @@ namespace WBSF
 	}
 
 
-	//bool IsB1Trigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = -125)
-	//{
-	//	size_t c0 = p[0].IsInit() ? 0 : 1;
-	//	size_t c2 = p[2].IsInit() ? 2 : 1;
-
-	//	if (!p[1].IsInit())
-	//		return false;
-
-	//	if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-	//		return false;
-
-	//	bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-	//	bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::B1] - p[1][Landsat2::B1] < threshold) : true;
-
-
-	//	return (t1 && t2);
-	//}
-
-
-
-
-	//bool IsTCBTrigged(const std::array <Landsat2::CLandsatPixel, 3>& p, int32_t threshold = 750)
-	//{
-	//	size_t c0 = p[0].IsInit() ? 0 : 1;
-	//	size_t c2 = p[2].IsInit() ? 2 : 1;
-
-	//	if (!p[1].IsInit())
-	//		return false;
-
-	//	if (!p[c0].IsInit() && !p[c2].IsInit())//&& !p[3].IsInit()
-	//		return false;
-
-	//	bool t1 = p[c0].IsInit() ? ((int32_t)p[c0][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
-	//	bool t2 = p[c2].IsInit() ? ((int32_t)p[c2][Landsat2::I_TCB] - p[1][Landsat2::I_TCB] > threshold) : true;
-
-	//	return (t1 && t2);
-	//}
-
 	template<typename T>
 	size_t GetPrevious(int x, int y, size_t z, const T& data)
 	{
@@ -675,26 +638,26 @@ namespace WBSF
 							assert(first_valid != NOT_INIT);
 							assert(last_valid != NOT_INIT);
 
-							if (zz < first_valid && m_options.m_bBackwardFill)
+							/*if (zz < first_valid && m_options.m_bBackwardFill)
 								zz = first_valid;
-
+							
 							if (zz > last_valid && m_options.m_bForwardFill)
 								zz = last_valid;
-
+							
 							if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)
 							{
 								if (m_options.m_bDirect)
 									zz = m_options.m_bWithPrevious ? GetPrevious(x, y, zz, indices) : GetNext(x, y, zz, indices);
 								else
 									zz = m_options.m_bWithPrevious ? GetPrevious(x, y, zz, block_data) : GetNext(x, y, zz, block_data);
-							}
+							}*/
 
 							
 							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
 
 
 							goods[z] = m_options.m_bDirect ? indices.IsValid(zz, x, y) : block_data.IsValid(zz, x, y);
-							if (goods[z])
+							if (goods[z]) 
 							{
 								data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
 								//assert(data[z] != 0);
