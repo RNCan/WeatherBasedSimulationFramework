@@ -716,6 +716,7 @@ namespace WBSF
 					stationInfo.SetSSI("Province", prov);
 					stationInfo.SetSSI("Period", period);
 
+					ASSERT(!internalID.empty());
 					stationList.push_back(stationInfo);
 				}
 
@@ -737,6 +738,7 @@ namespace WBSF
 		{
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 			string internalID = it->GetSSI("InternalID");
+			ASSERT(!internalID.empty());
 			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
 
 			if (it2 == stations.end() || it2->m_lat == -999)
@@ -1173,7 +1175,7 @@ namespace WBSF
 			if (network[n])
 			{
 				CLocationVector stations;
-				string network = NETWORK_NAME[n];
+				//string network = NETWORK_NAME[n];
 				switch (n)
 				{
 				case N_HISTORICAL:
@@ -1212,11 +1214,8 @@ namespace WBSF
 
 						if (selection.at(prov))
 						{
-
-							if (n == N_HISTORICAL || n == N_SWOB)
-								network = "";//Historical and SWOB have the same station. They must be merge together
-
-							tmpList.insert(network + "\\" + station.m_ID);
+							ASSERT(!station.m_ID.empty());
+							tmpList.insert(to_string(n) + "\\" + station.m_ID);
 						}
 					}
 
@@ -1232,11 +1231,11 @@ namespace WBSF
 	}
 
 
-	CLocation CUIEnvCanHourly::GetStationInformation(string network, const string& ID)const
+	CLocation CUIEnvCanHourly::GetStationInformation(size_t network, const string& ID)const
 	{
 		CLocation station;
 
-		if (network.empty())//Merge historical and SWOB
+		if (network == N_HISTORICAL || network == N_SWOB)//Merge historical and SWOB
 		{
 			size_t i = m_stations.FindPosByID(ID);
 			if (i < m_stations.size())
@@ -1253,6 +1252,7 @@ namespace WBSF
 		}
 		else //SWOB_PARTNERS
 		{
+			ASSERT(network == N_SWOB_PARTNERS);
 			size_t pos = m_SWOB_partners_stations.FindPosByID(ID);
 			ASSERT(pos != NOT_INIT);
 			station = m_SWOB_partners_stations[pos];
@@ -1331,8 +1331,11 @@ namespace WBSF
 
 		StringVector tmp(Network_ID, "\\");
 		ASSERT(tmp.size() == 2);
+		//if (n == N_HISTORICAL || n == N_SWOB)
+			//network = "";//Historical and SWOB have the same station. They must be merge together
 
-		string network = tmp[0];
+
+		size_t network = stoi(tmp[0]);
 		string ID = tmp[1];
 
 		((CLocation&)station) = GetStationInformation(network, ID);
@@ -1346,7 +1349,7 @@ namespace WBSF
 		station.SetHourly(true);
 		station.CreateYears(firstYear, nbYears);
 
-		if (network.empty())
+		if (network == N_HISTORICAL || network == N_SWOB)
 		{
 			string internalID = station.GetSSI("InternalID");
 			//now extract data 
@@ -1953,7 +1956,7 @@ namespace WBSF
 		{
 			CTRef now = CTRef::GetCurrentTRef();
 
-			
+
 			size_t maxDays = as<size_t>(MAX_SWOB_DAYS);
 
 			map<string, CTRef> lastUpdate;
@@ -2005,7 +2008,7 @@ namespace WBSF
 
 							set<CTRef> already_included;
 							//for (const CFileInfo& info : files)
-							for (auto& it = files.begin(); it!= files.end()&&msg; it++)
+							for (auto& it = files.begin(); it != files.end() && msg; it++)
 							{
 								//GetTRef from file
 								CTRef TRef_file = GetSWOBTRef(it->m_filePath);
@@ -2046,7 +2049,7 @@ namespace WBSF
 					string miss_p = ToString(100 * ((double)miss.second) / dates.size(), 1);
 					callback.AddMessage("Some missing URL (" + miss_p + ") for location ID: " + miss.first);
 
-					if(dates.size()> 10 && miss.second == dates.size())
+					if (dates.size() > 10 && miss.second == dates.size())
 						lastUpdate[miss.first] = now;
 				}
 
@@ -2224,7 +2227,7 @@ namespace WBSF
 		else if (provider == "qc-pom" || provider == "yt-firewx")
 		{
 			string extra = provider == "qc-pom" ? "pom_" : "yt-dcs-wfm_";
-			
+
 			URLs = FormatA("https://%s/%s/WXO-DD/observations/swob-ml/partners/%s/%s/%s%s/%s-????-*", SERVER_NAME[network], date1.c_str(), provider.c_str(), date1.c_str(), extra.c_str(), ID.c_str(), date2.c_str());
 		}
 		else

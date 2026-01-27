@@ -111,7 +111,7 @@ namespace WBSF
 		ERMsg ExecuteHistorical(CCallback& callback);
 		std::string GetOutputFilePath(size_t n, const std::string& prov, int year, size_t m, const std::string& stationName)const;
 		//std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetStationInformation(const std::string& ID, CLocation& station)const;
-		CLocation GetStationInformation(std::string network, const std::string& ID)const;
+		CLocation GetStationInformation(size_t network, const std::string& ID)const;
 		ERMsg ReadSwobData(size_t network, CTM TM, CWeatherStation& station, CCallback& callback);
 
 		//Update station list part
