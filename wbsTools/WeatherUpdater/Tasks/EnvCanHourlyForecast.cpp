@@ -87,7 +87,7 @@ namespace WBSF
 	}
 
 	const char* CEnvCanHourlyForecast::SERVER_NAME = "dd.weather.gc.ca";
-	const char* CEnvCanHourlyForecast::SERVER_PATH = "/meteocode/";
+	const char* CEnvCanHourlyForecast::SERVER_PATH = "/today/meteocode/";
 
 	//*********************************************************************
 

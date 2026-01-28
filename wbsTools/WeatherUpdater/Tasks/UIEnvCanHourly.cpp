@@ -2043,16 +2043,33 @@ namespace WBSF
 
 			if (missing_URL.size() == locations.size())
 			{
+				bool bAllMissing = true;
 				//when a station is missing, net the last update at now
 				for (const auto& miss : missing_URL)
 				{
-					string miss_p = ToString(100 * ((double)miss.second) / dates.size(), 1);
-					callback.AddMessage("Some missing URL (" + miss_p + ") for location ID: " + miss.first);
-
-					if (dates.size() > 10 && miss.second == dates.size())
-						lastUpdate[miss.first] = now;
+					if (miss.second != dates.size())
+						bAllMissing = false;
 				}
 
+				if (bAllMissing)
+				{
+					callback.AddMessage("Invalid path for provider: " + provider);
+				}
+				else
+				{
+
+					for (const auto& miss : missing_URL)
+					{
+						//string miss_p = ToString(100.0 * ((double)miss.second) / dates.size(), 1);
+						//callback.AddMessage("Some missing URL (" + miss_p + ") for location ID: " + miss.first);
+
+						if (dates.size() > 10 && miss.second == dates.size())
+						{
+							callback.AddMessage("Missing station for provider " + provider + ": " + miss.first);
+							lastUpdate[miss.first] = now;
+						}
+					}
+				}
 
 				msg = SetLastUpdate(network, lastUpdate);
 			}
@@ -2118,72 +2135,72 @@ namespace WBSF
 	ERMsg CUIEnvCanHourly::GetSWOBDatesToUpdate(size_t network, std::set<CTRef>& dates, CCallback& callback)
 	{
 		ERMsg msg;
-		/*
-				string workingDir = GetDir(WORKING_DIR);
-				CProvinceSelection selection(Get(PROVINCE));
 
-				CTRef now = CTRef::GetCurrentTRef();
-				map<string, CTRef> lastUpdate;
-				msg = GetLastUpdate(network, lastUpdate);
-				if (!msg)
-					return msg;
+		string workingDir = GetDir(WORKING_DIR);
+		CProvinceSelection selection(Get(PROVINCE));
 
-
-				size_t maxDays = as<size_t>(MAX_SWOB_DAYS);
-				if (maxDays == 0)
-				{
-					maxDays = 100;//all days
-
-					size_t maxDays_prov = 0;
-
-					//Find the selected province with the older data
-					for (size_t p = 0; p < NB_PROVINCES; p++)
-					{
-						if (selection[p])
-						{
-							for (const auto& pp : PROVIDERS)//Find all provider in this province
-							{
-								if (pp.second[PI_PROV] == CProvinceSelection::GetName(p))
-								{
-									string prov = CProvinceSelection::GetName(p);
-									string provider = pp.second[PI_DIR];
-
-									string LU_ID = NETWORK_NAME[network] + provider + prov;
-
-									auto findIt = lastUpdate.find(LU_ID);
-									if (findIt != lastUpdate.end())
-										maxDays_prov = max(maxDays_prov, size_t(max(0, now - findIt->second.as(CTM::DAILY) + 1)));
-									else
-										maxDays_prov = 100;
-								}
-							}
-						}
-					}
-
-					if (maxDays_prov != 0)
-						maxDays = maxDays_prov;
-				}
-
-				//Find dates to update
-				string URL = string("https://") + SERVER_NAME[network] + "/";// +"/today/observations/swob-ml/";
-
-				CFileInfoVector dates_URL;
-				msg = FindDirectoriesCurl(URL, dates_URL, callback);// date
-				if (msg)
-				{
-					for (const CFileInfo& info : dates_URL)
-					{
-						CTRef TRef = GetSwobDateFromURL(info.m_filePath);
-						if (TRef.IsInit() && max(0, now - TRef) <= maxDays)
-							dates.insert(TRef);
-					}//for all URL dates
-
-				}
-
-				*/
+		CTRef now = CTRef::GetCurrentTRef();
+		map<string, CTRef> lastUpdate;
+		msg = GetLastUpdate(network, lastUpdate);
+		if (!msg)
+			return msg;
 
 
-				//Find dates to update
+		//size_t maxDays = as<size_t>(MAX_SWOB_DAYS);
+		//if (maxDays == 0)
+		//{
+		//	maxDays = 100;//all days
+
+		//	size_t maxDays_prov = 0;
+
+		//	//Find the selected province with the older data
+		//	for (size_t p = 0; p < NB_PROVINCES; p++)
+		//	{
+		//		if (selection[p])
+		//		{
+		//			for (const auto& pp : PROVIDERS)//Find all provider in this province
+		//			{
+		//				if (pp.second[PI_PROV] == CProvinceSelection::GetName(p))
+		//				{
+		//					string prov = CProvinceSelection::GetName(p);
+		//					string provider = pp.second[PI_DIR];
+
+		//					string LU_ID = string(NETWORK_NAME[network]) + "/" + provider + "/" + prov;
+
+		//					auto findIt = lastUpdate.find(LU_ID);
+		//					if (findIt != lastUpdate.end())
+		//						maxDays_prov = max(maxDays_prov, size_t(max(0, now - findIt->second.as(CTM::DAILY) + 1)));
+		//					else
+		//						maxDays_prov = 100;
+		//				}
+		//			}
+		//		}
+		//	}
+
+		//	if (maxDays_prov != 0)
+		//		maxDays = maxDays_prov;
+		//}
+
+		////Find dates to update
+		//string URL = string("https://") + SERVER_NAME[network] + "/";// +"/today/observations/swob-ml/";
+
+		//CFileInfoVector dates_URL;
+		//msg = FindDirectoriesCurl(URL, dates_URL, callback);// date
+		//if (msg)
+		//{
+		//	for (const CFileInfo& info : dates_URL)
+		//	{
+		//		CTRef TRef = GetSwobDateFromURL(info.m_filePath);
+		//		if (TRef.IsInit() && max(0, now - TRef) <= maxDays)
+		//			dates.insert(TRef);
+		//	}//for all URL dates
+
+		//}
+
+		
+
+
+		//Find dates to update
 		string URL = string("https://") + SERVER_NAME[network] + "/";
 
 
@@ -2372,12 +2389,19 @@ namespace WBSF
 		string network_name = NETWORK_NAME[network];
 
 		string prov = locations.front().GetSSI("Province");
+		string provider = locations.front().GetSSI(SSI_NAME[C_DATASET_NETWORK]);
+
+		if (network == N_SWOB_PARTNERS)
+			network_name = provider;
+
 		callback.PushTask("Download of " + network_name + " for " + prov + " (" + ToString(file_URL.size()) + " stations)", file_URL.size());
-		callback.AddMessage("Number of " + network_name + " for " + prov + " stations to download: " + ToString(file_URL.size()) + " (nb hours stations = " + ToString(nbDayStation) + ")");
+		callback.AddMessage("Number of " + network_name + " for " + prov + "to download: " + ToString(file_URL.size()) + " stations (" + ToString(nbDayStation) + " hours)");
 
 		map<string, CTRef> lastUpdate;
 		size_t nbDownload = 0;
 		size_t nb_stations_updated = 0;
+		CTRef oldestUpdate;
+
 		//For all stations
 		for (map<string, CFileInfoVector>::const_iterator it1 = file_URL.begin(); it1 != file_URL.end() && msg; it1++)
 		{
@@ -2390,10 +2414,12 @@ namespace WBSF
 
 			map < CTRef, SWOBData > data;
 			CTRef lastTRef;
+			
 
 			//For all URLs (hours)
 			for (CFileInfoVector::const_iterator it2 = it1->second.begin(); it2 != it1->second.end() && msg; it2++)
 			{
+				
 				string source;
 				string URL = it2->m_filePath;
 				msg = cURL.get_URL_text(URL, source);// GetPageTextCurl("-s -k \"" + URL + "\"", source);
@@ -2421,10 +2447,12 @@ namespace WBSF
 					if (msg)
 					{
 						nbDownload++;
-						if (!lastTRef.IsInit() || UTCTRef > lastTRef)
+						if (!lastTRef.IsInit() || UTCTRef > lastTRef)//
 							lastTRef = UTCTRef;
 					}
 				}//if msg
+
+				
 
 				msg += callback.StepIt();
 			}//for all hours
@@ -2446,12 +2474,15 @@ namespace WBSF
 				lastUpdate[ID] = lastTRef;
 				nb_stations_updated++;
 
+				//Get the station that have the latest update
+				if (!oldestUpdate.IsInit() || lastTRef < oldestUpdate)
+					oldestUpdate = lastTRef;
 
 
 				string prov = it_location->GetSSI("Province");
 				string provider = it_location->GetSSI(SSI_NAME[C_DATASET_NETWORK]);
 
-				lastUpdate[NETWORK_NAME[network] + provider + prov] = lastTRef;
+				lastUpdate[string(NETWORK_NAME[network]) + "/" + provider + "/" + prov] = oldestUpdate;
 
 				//save last update at each 15 stations
 				if ((nb_stations_updated % 15) == 0)
@@ -2464,6 +2495,10 @@ namespace WBSF
 				callback.AddMessage(msgSaved);
 			}
 
+
+			
+
+
 			callback.PopTask();
 			msg += callback.StepIt();
 
@@ -2474,7 +2509,7 @@ namespace WBSF
 			msg += SetLastUpdate(network, lastUpdate);
 
 
-		callback.AddMessage("Number of " + network_name + " files downloaded: " + ToString(nbDownload));
+		callback.AddMessage("Number of " + network_name + " hours downloaded: " + ToString(nbDownload));
 		callback.PopTask();
 
 
