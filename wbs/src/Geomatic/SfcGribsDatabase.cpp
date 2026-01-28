@@ -521,7 +521,7 @@ namespace WBSF
 				value = float(value / 100.0);
 			break; //[m] --> [cm]	
 		}
-		case H_SWE: ASSERT(units == "[mm]"); break;
+		case H_SWE: ASSERT(units == "[mm]" || units == "[kg/(m^2)]"); break;
 		}
 
 		return value;

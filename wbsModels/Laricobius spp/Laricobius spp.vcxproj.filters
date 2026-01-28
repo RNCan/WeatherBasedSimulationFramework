@@ -7,12 +7,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LeucotaraxisModel.cpp">
+    <ClCompile Include="LaricobiusModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LeucotaraxisModel.h">
+    <ClInclude Include="LaricobiusModel.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

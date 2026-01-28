@@ -1,3 +1,4 @@
+//6.2.4 26/01/2026  Rémi Saint-Amant	Update of Env Can SWOB-ML and SWOB-Partner
 //6.2.3 22/07/2025  Rémi Saint-Amant	Bug correction in Google Drive download (again).
 //6.2.2 28/05/2025  Rémi Saint-Amant	Download ERA5 fron Google Cloud instead of Copernicus
 //6.2.1 17/03/2025  Rémi Saint-Amant	Add "Flag" column in the Env Can. hourly

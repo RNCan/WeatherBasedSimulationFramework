@@ -35,7 +35,7 @@ namespace WBSF
 			DEFAULT_LIST[i].m_title = NAME[i];
 	}
 
-	size_t CProvinceSelection::GetProvince(const std::string& in, size_t t)
+	size_t CProvinceSelection::GetProvince(const std::string& in)
 	{
 		size_t prov = -1;
 		std::string tmp(in);
@@ -43,7 +43,7 @@ namespace WBSF
 		//MakeUpper(tmp);
 		for (size_t i = 0; i < NB_PROVINCES; i++)
 		{
-			if (WBSF::IsEqual(tmp,DEFAULT_LIST[i][t]))
+			if (WBSF::IsEqual(tmp,DEFAULT_LIST[i][0])|| WBSF::IsEqual(tmp, DEFAULT_LIST[i][1]))
 			{
 				prov = i;
 				break;

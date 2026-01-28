@@ -33,7 +33,7 @@ namespace WBSF
 
 		static CInfo DEFAULT_LIST[NB_PROVINCES];
 		static std::string GetAllPossibleValue(bool bAbvr = true, bool bName = true);
-		static size_t GetProvince(const std::string& in, size_t t = ABVR);
+		static size_t GetProvince(const std::string& in);
 		static std::string GetName(size_t prov, size_t t = ABVR);
 		static void UpdateString();
 

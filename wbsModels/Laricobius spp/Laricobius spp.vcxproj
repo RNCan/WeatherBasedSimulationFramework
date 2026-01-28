@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2A77388C-757F-47A1-A980-0509F4C1B119}</ProjectGuid>
+    <ProjectGuid>{89D186EA-3406-4E22-A756-3EF61A3A015B}</ProjectGuid>
     <RootNamespace>Models</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Leucotaraxis spp</ProjectName>
+    <ProjectName>LaricobiusAdultEmergence</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -243,10 +243,10 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LeucotaraxisModel.cpp" />
+    <ClCompile Include="LaricobiusModel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LeucotaraxisModel.h" />
+    <ClInclude Include="LaricobiusModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

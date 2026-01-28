@@ -73,7 +73,9 @@ namespace WBSF
 			AVG_WND_SPD_PST2MTS, AVG_WND_DIR_PST2MTS, RNFL_AMT_PST24HRS,
 			NB_SWOB_VARIABLES /*= 27*/ };
 		enum TNetwork{ N_HISTORICAL, N_SWOB, N_SWOB_PARTNERS, NB_NETWORKS };
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NETWORK, PARTNERS_NETWORK, MAX_SWOB_DAYS, HOURLY_PRCP_MAX, NB_ATTRIBUTES };
+
+		//PARTNERS_NETWORK, 
+		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, PROVINCE, NETWORK, MAX_SWOB_DAYS, HOURLY_PRCP_MAX, NB_ATTRIBUTES };
 		static const char* CLASS_NAME();
 		static CTaskPtr create(){ return CTaskPtr(new CUIEnvCanHourly); }
 
@@ -109,7 +111,7 @@ namespace WBSF
 		ERMsg ExecuteHistorical(CCallback& callback);
 		std::string GetOutputFilePath(size_t n, const std::string& prov, int year, size_t m, const std::string& stationName)const;
 		//std::bitset<CUIEnvCanHourly::NB_NETWORKS> GetStationInformation(const std::string& ID, CLocation& station)const;
-		CLocation GetStationInformation(std::string network, const std::string& ID)const;
+		CLocation GetStationInformation(size_t network, const std::string& ID)const;
 		ERMsg ReadSwobData(size_t network, CTM TM, CWeatherStation& station, CCallback& callback);
 
 		//Update station list part
@@ -133,14 +135,20 @@ namespace WBSF
 		//std::string GetSWOBPartnersStationsListFilePath()const;
 		ERMsg UpdateSWOBLocations(size_t network, CCallback& callback);
 		ERMsg GetSWOBLocation(const std::string& filePath, CLocation& location);
-		ERMsg GetSWOBList(size_t network, CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
-		CLocation GetMissingLocation(std::string filepath);
+		ERMsg GetSWOBToDownload(size_t network, CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
+		std::string GetStationURL(size_t network, const std::string& provider, CTRef TRef, std::string ID, bool bWithFilter);
+		ERMsg GetLastUpdate(size_t network, std::map<std::string, CTRef>& lastUpdate);
+		ERMsg GetSWOBDatesToUpdate(size_t network, std::set<CTRef>& dates, CCallback& callback);
+		//CLocation GetMissingLocation(std::string filepath);
+		CTRef GetSwobDateFromURL(const std::string& URL);
+
+
 		//std::set<std::string>& missingID, 
 //		ERMsg UpdateMissingLocation(size_t network, CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, std::set<std::string>& missingID, CCallback& callback);
 		ERMsg DownloadSWOB(size_t network, const CLocationVector& locations, const std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
 		ERMsg ReadSWOBData(const std::string& filePath, CTM TM, CWeatherStation& data, CCallback& callback);
 		ERMsg ParseSWOB(CTRef TRef, const std::string& source, SWOBDataHour& data, CCallback& callback);
-		ERMsg UpdateLastUpdate(size_t network, const std::map<std::string, CTRef>& lastUpdate);
+		ERMsg SetLastUpdate(size_t network, const std::map<std::string, CTRef>& lastUpdate);
 
 		ERMsg ReadSWOB(const std::string& filePath, SWOBData& data);
 		ERMsg SaveSWOB(const std::string& filePath, const SWOBData& data);
@@ -156,7 +164,7 @@ namespace WBSF
 		static CTPeriod String2Period(std::string period);
 		static long GetNbDay(const CTime& t);
 		static long GetNbDay(int y, size_t m, size_t d);
-		static CTRef GetSWOBTRef(const std::string & fileName, bool bLighthouse);
+		static CTRef GetSWOBTRef(const std::string & fileName);
 		static std::string GetProvinceFormID(const std::string& ID);
 
 		static const size_t ATTRIBUTE_TYPE[NB_ATTRIBUTES];

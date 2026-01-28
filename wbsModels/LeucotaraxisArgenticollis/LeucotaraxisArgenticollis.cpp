@@ -74,13 +74,13 @@ namespace WBSF
 		m_bDeadByAttrition = false;
 		m_generationSurvival = { 0.05, 0.08 };
 
-//for Preston 2021 and Tonya 2024 experiment, we trick the input to mimic the experimental protocol
-		//if (age == PUPAE)
+//for Preston 2021 and Tonya 2024, Farley 2019 experiment, we trick the input to mimic the experimental protocol
+		if (m_generation==0)
 		{
 
-			static const size_t NB_OBS = 5;
-			static const array<string, NB_OBS > LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)", "Oswego(NY)" };
-			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15), CTRef(2022, MARCH, DAY_03), CTRef(2024, MARCH, DAY_21), CTRef(2024, MARCH, DAY_10) };
+			static const size_t NB_OBS = 7;
+			static const array<string, NB_OBS > LOC_NAME = { "Ithaca(NY)","Bland(VA)","Bland(VA)","Scriba(NY)", "Oswego(NY)", "Dupont(NC)", "Celo(NC)" };
+			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2021, MARCH, DAY_30) , CTRef(2021, FEBRUARY, DAY_15), CTRef(2022, MARCH, DAY_03), CTRef(2024, MARCH, DAY_21), CTRef(2024, MARCH, DAY_10), CTRef(2019, MAY, DAY_22), CTRef(2019, MAY, DAY_22) };
 
 			for (size_t i = 0; i < NB_OBS; i++)
 			{
@@ -362,9 +362,10 @@ namespace WBSF
 		else
 		{
 			//for prestion 2023 exception
-			if (s == PUPAE && m_generation == 0 && weather.GetTRef().as(CTM::DAILY) == m_adult_emergence_date)
+			if (s == PUPAE && m_generation == 0 )
 			{
-				m_age = ADULT;
+				if( weather.GetTRef().as(CTM::DAILY) == m_adult_emergence_date)
+					m_age = ADULT;
 			}
 			else
 			{

@@ -22,8 +22,9 @@ namespace WBSF
 
 		CCallcURL(const std::string& exe_filepath="", DWORD bufsize = 4096);
 		
-
+		bool URL_exists(std::string URL);
 		ERMsg get_text(const std::string& arg, std::string& str_out);
+		ERMsg get_URL_text(const std::string& URL, std::string& str_out);
 		ERMsg copy_file(const std::string& URL, const std::string& outputFilePath, bool bShowCurl=false);
 		static ERMsg CallApp(const std::string& cmdline, std::string& str, DWORD BUFSIZE = 4096);
 

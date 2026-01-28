@@ -19,7 +19,8 @@
 #include <fstream>
 #include <codecvt>
 #include <iomanip>
-//#include <windows.h>
+
+
 
 #include "Basic/ERMsg.h"
 #include "Basic/zenXml.h"
@@ -189,8 +190,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	std::string GetString(UINT nId);
 	std::string& UppercaseFirstLetter(std::string& str);
 
-	bool Match(char const * Wildcards, char const * str);
-	bool Scan(char const *& Wildcards, char const *& str);
+	bool Match(char const * Wildcards, char const * str, bool bCaseSensitive = false);
+	bool Scan(char const *& Wildcards, char const *& str, bool bCaseSensitive);
 
 	std::string Tokenize(const std::string& str, const std::string& delimiter, std::string::size_type& pos, bool bRemoveDuplicate = false, std::string::size_type posEnd = std::string::npos);
 	StringVector Tokenize(const std::string& str, const std::string& delimiter, bool bRemoveDuplicate = true, std::string::size_type pos=0, std::string::size_type posEnd = std::string::npos);
@@ -265,64 +266,73 @@ bool map_compare (Map const &lhs, Map const &rhs)
 		return FormatMsg(sFormat.c_str(), v1, v2, v3, v4, v5, v6, v7, v8, v9);
 	}
 
-	inline bool Match(char const * Wildcards, char const * str)
+	inline bool Match(char const * pattern, char const * str, bool bCaseSensitive)
 	{
 		bool Yes = 1;
 
 		//iterate and delete '?' and '*' one by one
-		while(*Wildcards != '\0' && Yes && *str != '\0')
+		while(*pattern != '\0' && Yes && *str != '\0')
 		{
-			if (*Wildcards == '?') str ++;
-			else if (*Wildcards == '*')
+			if (*pattern == '?') str ++;
+			else if (*pattern == '*')
 			{
-				Yes = Scan(Wildcards, str);
-				Wildcards --;
+				Yes = Scan(pattern, str, bCaseSensitive);
+				pattern--;
 			}
 			else
 			{
-				Yes = (*Wildcards == *str);
+				if(bCaseSensitive)
+					Yes = (*pattern) == (*str);
+				else
+					Yes = std::tolower(static_cast<unsigned char>(*pattern)) == std::tolower(static_cast<unsigned char>(*str));
 				str ++;
 			}
-			Wildcards ++;
+			pattern++;
 		}
-		while (*Wildcards == '*' && Yes)  Wildcards ++;
+		while (*pattern == '*' && Yes)  pattern++;
 
-		return Yes && *str == '\0' && *Wildcards == '\0';
+		return Yes && *str == '\0' && *pattern == '\0';
+		
 	}
 	
 	// scan '?' and '*'
-	inline bool Scan(char const *& Wildcards, char const *& str)
+	inline bool Scan(char const *& pattern, char const *& str, bool bCaseSensitive)
 	{
 		// remove the '?' and '*'
-		for(Wildcards ++; *str != '\0' && (*Wildcards == '?' || *Wildcards == '*'); Wildcards ++)
-			if (*Wildcards == '?') str ++;
-		while ( *Wildcards == '*') Wildcards ++;
+		for(pattern++; *str != '\0' && (*pattern == '?' || *pattern == '*'); pattern++)
+			if (*pattern == '?') str ++;
+		while ( *pattern == '*') pattern++;
 	
 		// if str is empty and Wildcards has more characters or,
 		// Wildcards is empty, return 
-		if (*str == '\0' && *Wildcards != '\0') return false;
-		if (*str == '\0' && *Wildcards == '\0')	return true; 
+		if (*str == '\0' && *pattern != '\0') return false;
+		if (*str == '\0' && *pattern == '\0')	return true;
 		// else search substring
 		else
 		{
-			char const * wdsCopy = Wildcards;
+			char const * wdsCopy = pattern;
 			char const * strCopy = str;
 			bool  Yes     = 1;
 			do 
 			{
-				if (!Match(Wildcards, str))	strCopy ++;
-				Wildcards = wdsCopy;
+				if (!Match(pattern, str, bCaseSensitive))	strCopy ++;
+				pattern = wdsCopy;
 				str		  = strCopy;
-				while ((*Wildcards != *str) && (*str != '\0')) str ++;
-				wdsCopy = Wildcards;
+				if(bCaseSensitive)
+					while ((*pattern != *str) && (*str != '\0')) str++;
+				else 
+					while ((std::tolower(static_cast<unsigned char>(*pattern)) != std::tolower(static_cast<unsigned char>(*str))) && (*str != '\0')) str++;
+				
+				wdsCopy = pattern;
 				strCopy = str;
-			}while ((*str != '\0') ? !Match(Wildcards, str) : (Yes = false) != false);
+			}while ((*str != '\0') ? !Match(pattern, str, bCaseSensitive) : (Yes = false) != false);
 
-			if (*str == '\0' && *Wildcards == '\0')	return true;
+			if (*str == '\0' && *pattern == '\0')	return true;
 
 			return Yes;
 		}
 	}
+	
 	
 
 	static const std::string whiteSpaces( " \f\n\r\t\v" );
