@@ -41,6 +41,9 @@
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="eco-climate.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{11BA571B-DF9C-4FF6-B5EE-A4045A349C32}</ProjectGuid>
     <RootNamespace>Models</RootNamespace>
