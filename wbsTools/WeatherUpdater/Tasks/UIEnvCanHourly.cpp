@@ -87,10 +87,10 @@ namespace WBSF
 		{"Government of Northwest Territories: Department of Environment and Natural Resources Forest Management Division",{"NT Forest","nt-forestry","NT"}},
 		{"Government of Northwest Territories: Department of Environment and Natural Resources Water Resources Division",{"NT Environment","nt-water","NT"}},
 		{"ON Ministry of Northern Development Mines Natural Resources and Forestry Aviation Forest Fire and Emergency Services",{"ON Fire","on-firewx","ON"}},
-		{"Toronto and Region Conservation Authority",{"ON Toronto","on-mto","ON"}},
+		{"Toronto and Region Conservation Authority",{"ON Toronto","on-trca","ON"}},
 		{"Grand River Conservation Authority",{"ON Grand River","on-grca","ON"}},
 		{"Government of Ontario: Ministry of Natural Resources and Forestry",{"ON Forestry","on_water","ON"}},
-		{"Government of Ontario: Ministry of Transportation",{"ON Transportation","on-trca","ON"}},
+		{"Government of Ontario: Ministry of Transportation",{"ON Transportation","on-mto","ON"}},
 		{"Parks Canada Agency: Natural Resource Management Branch",{"CA Parc","pc-firewx",""}},
 		{"Government of Prince Edward Island: Department of Transportation and Infrastructure",{"PE Transportation","pe-rwin","PE"}},
 		{"Port of Montreal",{"QC Montreal","qc-pom","QC"}},
@@ -278,121 +278,6 @@ namespace WBSF
 		//Regina Upgrade - May 2008 
 		return WBSF::PurgeFileName(WBSF::TrimConst(WBSF::UppercaseFirstLetter(UTF8_ANSI(s.str()))));
 	}
-
-	//string GetOwnerName(const string& data_provider)
-	//{
-	//	string owner = "EnvCan";
-
-
-	//	//the number of provider name is longer than the number of provider
-	//	static array<string, 32> PROVIDER_LONG_NAME =
-	//	{
-	//		"Government of Alberta: Ministry of Agriculture and Irrigation"
-	//		"Government of Alberta: Ministry of Forestry and Parks"
-	//		"Capital Regional District (CRD)"
-	//		"Government of British Columbia: Ministry of Environment (BC-ENV)"
-	//		"British Columbia Ministry of Environment and Climate Change Strategy (BC-ENV)"
-	//		"Metro Vancouver Regional District (MVRD)"
-	//		"Government of New Brunswick: Department of Transportation and Infrastructure"
-	//		"Government of Newfoundland and Labrador: Department of Fisheries; Forestry and Agriculture"
-	//		"Government of Newfoundland and Labrador: Department of Environment; Climate Change; and Municipalities; Water Resources Management Division"
-	//		"Government of Nova Scotia: Department of Lands and Forestry"
-	//		"Government of Nova Scotia: Department of Public Works"
-	//		"ON Ministry of Northern Development; Mines; Natural Resources and Forestry; Aviation; Forest Fire and Emergency Services"
-	//		"Toronto and Region Conservation Authority"
-	//		"Government of Prince Edward Island: Department of Transportation and Infrastructure"
-	//		"Government of Saskatchewan: Public Safety Agency and Water Security Agency"
-	//		"Government of Saskatchewan: Public Safety Agency"
-	//		"Government of Yukon: Department of Community Services; Wildland Fire Management (YT-DCS-WFM)."
-	//		"Government of Yukon: Department of Environment; Water Resources Branch"
-	//		"Government of British Columbia: Ministry of Environment"
-	//		"Government of British Columbia: Ministry of Forests"
-	//		"Government of British Columbia: Ministry of Transportation and Infrastructure"
-	//		"Government of Canada: Fisheries and Oceans Canada; Canadian Coast Guard"
-	//		"Government of Northwest Territories: Department of Environment and Natural Resources; Forest Management Division"
-	//		"Government of Northwest Territories: Department of Environment and Natural Resources; Water Resources Division"
-	//		"Grand River Conservation Authority"
-	//		"Government of Ontario: Ministry of Natural Resources and Forestry"
-	//		"Government of Ontario: Ministry of Transportation"
-	//		"Parks Canada Agency: Natural Resource Management Branch"
-	//		"RioTinto"
-	//		"Port of Montreal"
-	//		"Yukon Avalanche Association"
-	//		"The Government of New Brunswick: Department of Natural Resources and Energy Development"
-
-	//	};
-
-
-	//	/*static const char* PROVIDER_SHORT_NAME[NB_PARTNER_NETWORK] = {
-	//	"BC RioTinto",
-	//	"BC CRD"
-	//	"BC Environment",
-	//	"BC Environment",
-	//	"BC Forests",
-	//	"BC Transportation",
-	//	"Canadian Coast Guard",
-	//	"Fisheries and Ocean Canada",
-	//	"New Brunswick Government",
-	//	"Newfoundland Resources",
-	//	"Northwest Territories Forest",
-	//	"Northwest Territories Water",
-	//	"Ontario Grand River Conservation Authority",
-	//	"Ontario Transportation",
-	//	"Toronto and Region Conservation Authority",
-	//	"Ontario Resources",
-	//	"Port of Montreal",
-	//	"Parks Canada Agency",
-	//	"Saskatchewan Public Safety Agency",
-	//	"Avalanche Canada",
-	//	"Yukon Wildfire",
-	//	"Yukon Water",
-	//	"Yukon Government",
-	//	"Yukon Avalanche Association",
-
-	//	};*/
-
-	//	static array<string, 32> PROVIDER_SHORT_NAME =
-	//	{
-	//		"AB Agriculture"
-	//		"AB Forestry"
-	//		"ON Ottawa"
-	//		"BC Environment"
-	//		"BC Climate Change"
-	//		"BC Vancouver"
-	//		"NB Transportation"
-	//		"NL Agriculture"
-	//		"NL Environment"
-	//		"NS Forestry"
-	//		"NS Public Works"
-	//		"ON Forestry"
-	//		"ON Toronto"
-	//		"PE Transportation"
-	//		"SK Water Security"
-	//		"SK Safety"
-	//		"YT Fire"
-	//		"YT Environment"
-	//		"BC Environment"
-	//		"BC Forests"
-	//		"BC Transportation"
-	//		"CA Fisheries"
-	//		"NT Forest"
-	//		"NT Environment"
-	//		"ON Grand River"
-	//		"ON Forestry"
-	//		"ON Transportation"
-	//		"CA Environment"
-	//		"BC RioTinto"
-	//		"QC Montreal"
-	//		"YT Avalanche"
-	//		"NB Energy"
-	//	};
-
-	//	auto it = find_if(PROVIDER_LONG_NAME.begin(), PROVIDER_LONG_NAME.end(), [data_provider](const string& name) {return IsEqual(data_provider, name); });
-	//	if (it != PROVIDER_LONG_NAME.end())
-	//		owner = PROVIDER_SHORT_NAME[std::distance(PROVIDER_LONG_NAME.begin(), it)];
-
-	//	return owner;
-	//}
 
 
 	string GetSwobProvince(string prov_name)
@@ -1701,19 +1586,20 @@ namespace WBSF
 
 			callback.PushTask("Update of " + to_string(nb_p) + " providers from " + to_string(selection.count()) + " provinces", nb_p);
 
-
-			//for (size_t p = 0; p < selection.size() && msg; p++)
+			//for all provinces
 			for (auto& it1 = locations.begin(); it1 != locations.end() && msg; it1++)
 			{
+				//For all providers of this province
 				for (auto& it2 = it1->second.begin(); it2 != it1->second.end() && msg; it2++)
 				{
+					//Find locations and dates to update
 					map<string, CFileInfoVector> files_URL;
 					msg = GetSWOBToDownload(network, it2->second, files_URL, callback);
 
 					if (msg && !files_URL.empty())
 					{
-						if (msg)
-							msg = DownloadSWOB(network, it2->second, files_URL, callback);
+						//Download all dates of alls stations 
+						msg += DownloadSWOB(network, it2->second, files_URL, callback);
 					}
 
 					msg += callback.StepIt();
@@ -1945,11 +1831,6 @@ namespace WBSF
 
 		std::set<CTRef> dates;
 		msg = GetSWOBDatesToUpdate(network, locations, dates, callback);
-		//std::set<CTRef> dates;
-		//dates.insert(CTRef(2026, JANUARY, DAY_20));
-
-
-
 
 		//Find tall files to update
 		if (msg && !dates.empty())
@@ -1964,7 +1845,7 @@ namespace WBSF
 			if (!msg)
 				return msg;
 
-			
+
 
 			CCallcURL cURL;
 			map<string, size_t> missing_URL;
@@ -2045,7 +1926,7 @@ namespace WBSF
 
 			if (missing_URL.size() == locations.size())
 			{
-				bool bAllMissing = true;
+				bool bAllMissing = locations.size() > 2;
 				//when a station is missing, net the last update at now
 				for (const auto& miss : missing_URL)
 				{
@@ -2077,7 +1958,7 @@ namespace WBSF
 			}
 
 
-			
+
 			msg = SetLastUpdate(network, lastUpdate);
 			callback.PopTask();
 		}//if msg
@@ -2234,9 +2115,15 @@ namespace WBSF
 			WBSF::MakeLower(ID);
 			URLs = FormatA("https://%s/%s/WXO-DD/observations/swob-ml/partners/%s/%s/%s-????-%s*", SERVER_NAME[network], date1.c_str(), provider.c_str(), date1.c_str(), date2.c_str(), ID.c_str());
 		}
-		else if (provider == "qc-pom" || provider == "yt-firewx")
+		else if (provider == "qc-pom" || provider == "yt-firewx" || provider == "yt-avalanche")
 		{
-			string extra = provider == "qc-pom" ? "pom_" : "yt-dcs-wfm_";
+			string extra;
+			if (provider == "qc-pom")
+				extra = "pom_";
+			else if (provider == "yt-dcs-wfm")
+				extra = "yt-dcs-wfm_";
+			else if (provider == "yt-avalanche")
+				extra = "yaa_";
 
 			URLs = FormatA("https://%s/%s/WXO-DD/observations/swob-ml/partners/%s/%s/%s%s/%s-????-*", SERVER_NAME[network], date1.c_str(), provider.c_str(), date1.c_str(), extra.c_str(), ID.c_str(), date2.c_str());
 		}
