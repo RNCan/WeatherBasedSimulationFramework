@@ -484,12 +484,11 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string argument = "-s -k \"" + URL + "\"";
-		//string exe = GetApplicationPath() + "External\\curl.exe";
+		//string argument = "-s -k \"" + URL + "\"";
 		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		if (msg)
 		{
@@ -2120,7 +2119,7 @@ namespace WBSF
 			string extra;
 			if (provider == "qc-pom")
 				extra = "pom_";
-			else if (provider == "yt-dcs-wfm")
+			else if (provider == "yt-firewx")
 				extra = "yt-dcs-wfm_";
 			else if (provider == "yt-avalanche")
 				extra = "yaa_";

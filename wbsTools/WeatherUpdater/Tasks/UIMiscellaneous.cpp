@@ -357,7 +357,7 @@ namespace WBSF
 
 		/*callback.PushTask("FTPTransfer...", NOT_INIT);
 
-		string command = "\"" + GetApplicationPath() + "External\\FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
+		string command = "\"" + GetApplicationPath() + "FTPTransfer.exe\" -Server \"" + server + "\" -Remote \"" + inputFilePath + "\" -Local \"" + outputFilePath + "\" -Passive -Download";
 
 		UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
 
@@ -389,7 +389,7 @@ namespace WBSF
 
 			UINT show = APP_VISIBLE && as<bool>(SHOW_PROGRESS) ? SW_SHOW : SW_HIDE;
 			bool bShow = as<bool>(SHOW_PROGRESS);
-			string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
+			string command = "\"" + GetApplicationPath() + "WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
 
 			DWORD exitCode = 0;
 			msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
@@ -415,7 +415,7 @@ namespace WBSF
 
 
 		DWORD exitCode = 0;
-		string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
+		string command = GetApplicationPath() + "7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"";
 		msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 		if (msg && exitCode != 0)

@@ -40,6 +40,9 @@
     <ProjectReference Include="libisotree.vcxproj">
       <Project>{24be6a09-3d1b-40be-ac9d-1684932184d7}</Project>
     </ProjectReference>
+    <ProjectReference Include="libxls.vcxproj">
+      <Project>{5feeadd5-255a-408d-b677-7d1c7bf2e19c}</Project>
+    </ProjectReference>
     <ProjectReference Include="MTParserLib.vcxproj">
       <Project>{bcdc0368-ffe3-4ddf-92a6-4681d40bfa40}</Project>
     </ProjectReference>

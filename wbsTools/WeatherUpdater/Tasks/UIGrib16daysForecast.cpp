@@ -248,7 +248,7 @@ namespace WBSF
 
 					bool bShow = as<bool>(SHOW_WINSCP);
 					//# Execute the script using a command like:
-					string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
+					string command = "\"" + GetApplicationPath() + "WinSCP.exe\" " + string(bShow ? "/console " : "") + "-timeout=300 -passive=on /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath;
 					DWORD exit_code;
 					msg = WBSF::WinExecWait(command, "", SW_SHOW, &exit_code);
 					if (msg)
@@ -1069,14 +1069,14 @@ namespace WBSF
 		{
 			//copy the file to fully use compression with GDAL_translate
 			//string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
-			//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
-			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-			string projlib_path = GetApplicationPath() + "External\\projlib";
-			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+			//string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + argument;
+			string gdal_data_path = GetApplicationPath() + "gdal-data";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 			string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
-			string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+			string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 
 			msg += WinExecWait(command);
 			msg += RemoveFile(outputFilePath + "2");

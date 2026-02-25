@@ -19,6 +19,7 @@
 #include "ogr_api.h"
 #include "ogr_srs_api.h"
 #include "gdal.h"
+#include "proj9/proj.h"
 
 
 
@@ -40,18 +41,29 @@ void RegisterGDAL()
 	const char* pTest = CPLGetConfigOption("GDAL_DRIVER_PATH", test);
 	const char* pTest2 = CPLGetConfigOption("GDAL_DATA", test);
 
-	string path = GetApplicationPath() + "External\\gdalplugins";
+	string path = GetApplicationPath() + "gdalplugins";
 	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
 
-	path = GetApplicationPath() + "External\\gdal-data";
+	path = GetApplicationPath() + "gdal-data";
 	CPLSetConfigOption("GDAL_DATA", path.c_str());
 	
-	path = GetApplicationPath() + "External\\projlib";
+	path = GetApplicationPath() + "projlib";
 	CPLSetConfigOption("PROJ_LIB", path.c_str());
 
-	CPLStringList paths(OSRGetPROJSearchPaths());
-	paths.AddString(path.c_str());
-	OSRSetPROJSearchPaths(paths);
+	//PJ_CONTEXT* ctx = proj_context_create();
+	//CPLStringList paths;
+	//OSRGetPROJSearchPaths();
+	//paths.AddString(path.c_str());
+	//OSRSetPROJSearchPaths(paths);
+	//OSRSetPROJAuxDbPaths(path.c_str());
+
+	
+	//proj_context_set_search_paths(ctx, 1, path.c_str());
+
+
+	// 4. Use context, then destroy
+	//proj_context_destroy(ctx);
+
 
 	GDALAllRegister();
 }

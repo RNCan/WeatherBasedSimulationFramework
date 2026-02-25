@@ -227,12 +227,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string argument = "-s -k \"" + URL + "\"";
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		if (msg)
 		{
@@ -260,14 +258,12 @@ namespace WBSF
 		ERMsg msg;
 
 
-		string argument = "-s -k \"" + URL + "\"";
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
-		//		msg = GetPageText(pConnection, page, source);
+		
 		if (msg)
 		{
 			if (Find(source, "stations found"))
@@ -414,12 +410,12 @@ namespace WBSF
 
 		string URL = FormatA(webPageDataFormat, id, year, month + 1);
 
-		string argument = "-s -k \"" + URL + "\"";
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		//string argument = "-s -k \"" + URL + "\"";
+		//string exe = GetApplicationPath() + "curl.exe";
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		//		try
 				//{
@@ -550,7 +546,7 @@ namespace WBSF
 
 				string URL = FormatA(pageDataFormat, internalID.c_str(), year);
 
-				string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
+				string exe = "\"" + GetApplicationPath() + "curl.exe\"";
 				string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
 				string command = exe + " " + argument;
 

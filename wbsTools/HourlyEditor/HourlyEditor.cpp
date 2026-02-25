@@ -1,3 +1,4 @@
+// 4.5.0	25-02-2026	Rémi Saint-Amant	Update with GDAL 3.12 ans Proj9. Move External to bin.
 // 4.4.8    22-02-2024	Rémi Saint-Amant	Add try/catch with CMFCToolBarDateTimeCtrl
 // 4.4.7    08-09-2023	Rémi Saint-Amant	Build with GDAL 3.7.1
 // 4.4.6	20/12/2021	Rémi Saint-Amant	Compile with GDAL 3.0.5 
@@ -61,7 +62,7 @@ END_MESSAGE_MAP()
 CHourlyEditorApp::CHourlyEditorApp() :
 	m_nGdiplusToken(0)
 {
-	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
+	//SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
 	SetAppID(_T("NRCan.HourlyEditor.4"));
 }
@@ -152,7 +153,7 @@ BOOL CHourlyEditorApp::InitInstance()
 
 	
 	ERMsg msg;
-	msg += CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	msg += CShore::SetShore(GetApplicationPath() + "../Layers/shore.ann");
 
 	if (!msg)
 		UtilWin::SYShowMessage(msg, AfxGetMainWnd());
@@ -200,10 +201,6 @@ void CHourlyEditorApp::LoadCustomState()
 void CHourlyEditorApp::SaveCustomState()
 {
 }
-
-// gestionnaires de messages pour CHourlyEditorApp
-
-
 
 
 

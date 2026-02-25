@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
-// 11.8.24:20/02/2026	Rémi Saint-Amant	Bug correction in Google Drive download (again).
+// 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin.
+//											Bug correction in Google Drive download (again).
 // 11.8.24:22/07/2025	Rémi Saint-Amant	Bug correction in Google Drive download (again).
 // 11.8.23:18/03/2025	Rémi Saint-Amant	Bug correction in Google Drive download.
 //											Bug correction in solar radiation generation when precipitation is not selected
@@ -407,7 +408,7 @@
 
 #include "stdafx.h" 
 //#include "VisualLeakDetector\include\vld.h"
-
+#include <delayimp.h>
 
 #include "Basic/ANN/ANN.h"
 #include "Basic/Registry.h"
@@ -429,7 +430,7 @@
 #include "WeatherBasedSimulationString.h"
 #include "wbs_version.h"
 
-
+//#include "C:/local/gdal-3-12-1/include/proj9/proj.h"
 
 using namespace UtilWin;
 using namespace WBSF;
@@ -442,11 +443,17 @@ using namespace WBSF;
 
 // CBioSIMApp
 
+
+//#define WM_MY_POST_INIT_MESSAGE (WM_USER + 100)
+
+
 BEGIN_MESSAGE_MAP(CBioSIMApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CBioSIMApp::OnAppAbout)
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
+	//ON_THREAD_MESSAGE(WM_MY_POST_INIT_MESSAGE, &CBioSIMApp::OnPostInit)
 END_MESSAGE_MAP()
+
 
 
 // CBioSIMApp construction
@@ -454,7 +461,7 @@ END_MESSAGE_MAP()
 CBioSIMApp::CBioSIMApp():
 	m_gdiplusToken(0)
 {
-	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
+	//SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	EnableHtmlHelp();
 
 	m_bHiColorIcons = TRUE;
@@ -467,7 +474,52 @@ CBioSIMApp::~CBioSIMApp()
 }
 // The one and only CBioSIMApp object
 
+
+// in your message table
+
+// in your app
+//void CBioSIMApp::OnPostInit(WPARAM, LPARAM) // both args unused
+//{
+//	// try load library now...!
+//
+//	//Create a context
+//	//PJ_CONTEXT* C = nullptr;// proj_context_create();
+//
+//
+//
+//	//std::string source = "+proj=longlat +datum=WGS84 +no_defs";
+//	////std::string source = pj_add_type_crs_if_needed(pProj4String);
+//	//PJ* projPJ = proj_create(C, source.c_str());
+//
+//
+//	/////* Create a transformation object */
+//
+//	//PJ* P = proj_create_crs_to_crs(C, "+proj=longlat +datum=WGS84 +no_defs", "EPSG:32632", /* WGS 84 to UTM Zone 32 */ NULL);
+//	//////P = proj_create_crs_to_crs(C, "EPSG:4326", "EPSG:32632", /* WGS 84 to UTM Zone 32 */ NULL);
+//	////if (0 == P) {
+//	////	fprintf(stderr, "Failed to create transformation object.\n");
+//	////	return 1;
+//	////}
+//
+//	///* Perform a forward transformation */
+//	////a = proj_coord(12, 55, 0, 0); /* Longitude, Latitude */
+//	//PJ_COORD a = proj_coord(6080642.113, 1886936.969, 0, 0);
+//	////    b = proj_trans(P, PJ_FWD, a);
+//	//PJ_COORD b = proj_trans(P, PJ_INV, a);
+//
+//
+//
+//	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
+//	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
+//
+//	if (!msg)
+//		SYShowMessage(msg, ::AfxGetMainWnd());
+//
+//}
+
+
 CBioSIMApp theApp;
+
 
 BOOL CBioSIMApp::InitInstance()
 {
@@ -496,7 +548,6 @@ BOOL CBioSIMApp::InitInstance()
 	std::locale::global(THE_LOCALE);
 
 	setlocale(LC_ALL, "en-CA");
-	//setlocale(LC_ALL, ".ACP");
 	if (language == CRegistry::FRENCH)
 		setlocale(LC_ALL, "fr-CA");
 
@@ -557,11 +608,7 @@ BOOL CBioSIMApp::InitInstance()
 	//}
 	//
 
-	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann");
-	msg += CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp");
-
-	if (!msg)
-		SYShowMessage(msg, ::AfxGetMainWnd());
+	
 
 
 	SetRegistryKey(_T("NRCan"));
@@ -591,6 +638,17 @@ BOOL CBioSIMApp::InitInstance()
 	}
 
 	CTRef::SetFormat(format);
+
+
+
+
+	ERMsg msg = CShore::SetShore(GetApplicationPath() + "../Layers/Shore.ann");
+	msg += CTimeZones::Load(GetApplicationPath() + "../zoneinfo/time_zones.shp");
+
+	if (!msg)
+		SYShowMessage(msg, ::AfxGetMainWnd());
+
+
 
 	// Parse command line for standard shell commands, DDE, file open
 	CStdCmdLine cmdInfo;
@@ -698,6 +756,9 @@ BOOL CBioSIMApp::InitInstance()
 	m_pMainWnd->DragAcceptFiles();
 
 	
+	// in InitInstance - post a message to our main thread to handle after init instance...
+	//PostMessage(NULL, WM_MY_POST_INIT_MESSAGE, 0, 0);
+
 	
 	return TRUE;
 }

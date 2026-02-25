@@ -1036,7 +1036,7 @@ namespace WBSF
 
 		if (m_hDll == nullptr)
 		{
-			string filePath = GetApplicationPath() + "External\\azure_weather.dll";
+			string filePath = GetApplicationPath() + "azure_weather.dll";
 			if (!m_azure_dll_filepath.empty())
 				filePath = m_azure_dll_filepath;
 

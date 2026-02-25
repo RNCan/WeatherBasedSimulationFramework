@@ -685,8 +685,8 @@ namespace UtilWWW
 
 
 		string argument = "-s -k \"" + path;
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		//string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL;
 
 		string source;
 		msg = cURL.get_text(argument, source);
@@ -818,12 +818,12 @@ namespace UtilWWW
 			//URL.insert(URL.begin(), '/');
 
 
-		string argument = "-s -k \"" + URL;
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		//string argument = "-s -k \"" + URL;
+		//string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		if (msg)
 		{

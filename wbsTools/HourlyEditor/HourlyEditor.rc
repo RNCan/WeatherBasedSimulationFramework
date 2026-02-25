@@ -180,8 +180,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,4,8,2
- PRODUCTVERSION 4,4,8,2
+ FILEVERSION 4,5,0,0
+ PRODUCTVERSION 4,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -198,21 +198,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ressources naturelles Canada, Service canadien des forêts"
             VALUE "FileDescription", "Éditeur de données météorologiques horaires"
-            VALUE "FileVersion", "4.4.8.2"
+            VALUE "FileVersion", "4.5.0.0"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "ÉditeurHoraire"
-            VALUE "ProductVersion", "4.4.8.2"
+            VALUE "ProductVersion", "4.5.0.0"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Natural Resources Canada, Canadian Forest Service"
             VALUE "FileDescription", "Hourly weather data editor"
-            VALUE "FileVersion", "4.4.8.2"
+            VALUE "FileVersion", "4.5.0.0"
             VALUE "InternalName", "HourlyEditor.exe"
             VALUE "OriginalFilename", "HourlyEditor.exe"
             VALUE "ProductName", "HourlyEditor"
-            VALUE "ProductVersion", "4.4.8.2"
+            VALUE "ProductVersion", "4.5.0.0"
         END
     END
     BLOCK "VarFileInfo"

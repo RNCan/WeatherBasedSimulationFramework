@@ -1,7 +1,8 @@
-//6.2.4 26/01/2026  Rémi Saint-Amant	Update of Env Can SWOB-ML and SWOB-Partner
+//6.3.0 25/02/2026	Rémi Saint-Amant	Update with GDAL 3.12 ans Proj9. Move External to bin.
+//6.2.4 26/01/2026  Rémi Saint-Amant	Update of Env. Can. SWOB-ML and SWOB-Partner
 //6.2.3 22/07/2025  Rémi Saint-Amant	Bug correction in Google Drive download (again).
-//6.2.2 28/05/2025  Rémi Saint-Amant	Download ERA5 fron Google Cloud instead of Copernicus
-//6.2.1 17/03/2025  Rémi Saint-Amant	Add "Flag" column in the Env Can. hourly
+//6.2.2 28/05/2025  Rémi Saint-Amant	Download ERA5 from Google Cloud instead of Copernicus
+//6.2.1 17/03/2025  Rémi Saint-Amant	Add "Flag" column in the Env. Can. hourly
 //6.2.0 26/06/2024  Rémi Saint-Amant	replace all _ by - in SWOB-Partner ID
 //6.1.9 18/06/2024  Rémi Saint-Amant	Add new Canada-USA radar images
 //6.1.8 02/04/2024  Rémi Saint-Amant	Update New-Brunswick. Add Partner network: Park Canada and ON water
@@ -342,8 +343,8 @@ BOOL CWeatherUpdaterApp::InitInstance()
 	RegisterGDAL();
 	
 
-	VERIFY(CShore::SetShore(GetApplicationPath() + "Layers/Shore.ann"));
-	VERIFY(CTimeZones::Load(GetApplicationPath() + "zoneinfo/time_zones.shp"));
+	VERIFY(CShore::SetShore(GetApplicationPath() + "../Layers/Shore.ann"));
+	VERIFY(CTimeZones::Load(GetApplicationPath() + "../zoneinfo/time_zones.shp"));
 
 	
 
@@ -458,7 +459,7 @@ void CWeatherUpdaterApp::OnAppAbout()
 
 void CWeatherUpdaterApp::OnAppUpdaterReference()
 {
-	std::string filepath = WBSF::GetApplicationPath() + "External\\WeatherSourcesReferences.html";
+	std::string filepath = WBSF::GetApplicationPath() + "WeatherSourcesReferences.html";
 	ShellExecute(AfxGetMainWnd()->GetSafeHwnd(), _T("open"), CString(filepath.c_str()), NULL, NULL, SW_SHOW);
 }
 

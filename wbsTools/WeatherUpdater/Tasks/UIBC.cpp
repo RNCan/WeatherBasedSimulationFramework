@@ -350,7 +350,7 @@ namespace WBSF
 
 		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 
-		string command = GetApplicationPath() + "External\\7za.exe x \"" + filePathZip + "\" -y";
+		string command = GetApplicationPath() + "7za.exe x \"" + filePathZip + "\" -y";
 
 		DWORD exitCode = 0;
 		msg = WinExecWait(command, workingDir, SW_HIDE, &exitCode);

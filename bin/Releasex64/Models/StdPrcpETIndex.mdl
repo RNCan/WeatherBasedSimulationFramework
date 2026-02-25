@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>Standardised Precipitation Evapotranspiration Index</Title>
+    <Version>1.0</Version>
+    <ID>.spei</ID>
+    <EXE>Standardised Precipitation Evapotranspiration Index.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>The SPEI is based on precipitation and temperature data, and it has the advantage of combining multiscalar character with the capacity to include the effects of temperature variability on drought assessment.The procedure to calculate the index is detailed and involves a climatic water balance, the accumulation of deficit/surplus at different time scales, and adjustment to a log-logistic probability distribution.</Description>
+    <WindowRect>0 0 107 301</WindowRect>
+    <SimulatedCategory>TN T TX P</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>2</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>k</Name>
+            <Caption>k (months)</Caption>
+            <Description>number of months accumulation</Description>
+            <Type>1</Type>
+            <Rect>10 10 30 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>36</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>ETMethod</Name>
+            <Caption>ETMethod</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>35 10 55 250</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>Thornthwaite|Hargreaves-Samani</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Tair</Name>
+            <Title>Tair</Title>
+            <Units>°C</Units>
+            <Description>Mean air temperature</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Prcp</Name>
+            <Title>Prcp</Title>
+            <Units>mm</Units>
+            <Description>Mean of total precipitation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PET</Name>
+            <Title>PET</Title>
+            <Units>mm</Units>
+            <Description>Mean of total evapotranspiration</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Balance</Name>
+            <Title>Balance</Title>
+            <Units>mm</Units>
+            <Description>Prcp-PET</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>SPEI</Name>
+            <Title>SPEI</Title>
+            <Units/>
+            <Description>Standardised Precipitation Evapotranspiration Index</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Original code from:&#x0D;&#x0A;http://digital.csic.es/handle/10261/10002&#x0D;&#x0A;&#x0D;&#x0A;-------------------------------------------------------------------------------------------------------------------------------------&#x0D;&#x0A;&#x0D;&#x0A;Articles:&#x0D;&#x0A;Standardized precipitation evapotranspiration index (SPEI) revisited: parameter fitting,  evapotranspiration models, tools, datasets and drought monitoring&#x0D;&#x0A;Santiago Beguer´ia, Sergio M. Vicente-Serrano Fergus Reigb and Borja Latorrea&#x0D;&#x0A;&#x0D;&#x0A;Int. J. Climatol. 34: 3001–3023 (2014)&#x0D;&#x0A;Published online 21 December 2013 in Wiley Online Library&#x0D;&#x0A;DOI: 10.1002/joc.3887&#x0D;&#x0A;&#x0D;&#x0A;-------------------------------------------------------------------------------------------------------------------------------------&#x0D;&#x0A;A Multiscalar Drought Index Sensitive to Global Warming: The Standardized&#x0D;&#x0A;Precipitation Evapotranspiration Index&#x0D;&#x0A;Santiago Beguería and Sergio M. Vicente Serrano&#x0D;&#x0A;&#x0D;&#x0A;American Meteorological Society&#x0D;&#x0A;DOI: 10.1175/2009JCLI2909.1&#x0D;&#x0A;&#x0D;&#x0A;-------------------------------------------------------------------------------------------------------------------------------------</Credit>
+    <HelpFileName/>
+</Model>

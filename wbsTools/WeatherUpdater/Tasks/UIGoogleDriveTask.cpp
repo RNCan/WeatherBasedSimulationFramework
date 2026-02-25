@@ -91,7 +91,7 @@ namespace WBSF
 			msg = CreateMultipleDir(path_out);
 			if (msg)
 			{
-				string command = GetApplicationPath() + "External\\7za.exe x \"" + download_filepath + "\" -aoa -o\"" + path_out + "\"";
+				string command = GetApplicationPath() + "7za.exe x \"" + download_filepath + "\" -aoa -o\"" + path_out + "\"";
 
 				callback.PushTask(GetString(IDS_UNZIP_FILE) + ": "+ GetFileName(download_filepath), NOT_INIT);
 				callback.AddMessage(GetString(IDS_UNZIP_FILE) );

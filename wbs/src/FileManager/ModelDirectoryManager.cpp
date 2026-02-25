@@ -18,7 +18,7 @@
 namespace WBSF
 {
 
-	const char* CModelDirectoryManager::SUB_DIR_NAME = "Models\\";
+	const char* CModelDirectoryManager::SUB_DIR_NAME = "..\\Models\\";
 
 
 	CModelDirectoryManager::CModelDirectoryManager(const std::string& path) :

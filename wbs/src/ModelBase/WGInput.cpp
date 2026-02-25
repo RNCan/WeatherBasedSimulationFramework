@@ -203,7 +203,7 @@ namespace WBSF
 		else
 		{
 			m_variables = "TN T TX P";
-			m_normalsDBName = "Canada-USA 1981-2010";
+			m_normalsDBName = "World 1991-2020";
 			m_allowedDerivedVariables = "T R Z S SD SWE ES EA VPD WS2";
 		}
 

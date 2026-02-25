@@ -50,8 +50,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Biology", "S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spruce Budworm Manitoba", "SpuceBudwormManitoba\SBWManitobaModel.vcxproj", "{F4EC15BC-DBF4-49BE-8F60-E048495BF199}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Standardised Precipitation Evapotranspiration Index", "Standardized Precipitation Evapotranspiration Index\SPEIModel.vcxproj", "{E0F91835-E883-4E95-8E6E-229976026583}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tranosema Biology", "Tranosema\Tranosema.vcxproj", "{8EDF6BC4-E6A6-498B-A538-A6B26DF6CA5D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tranosema-OBL-SBW", "Tranosema_OBL_SBW\Tranosema_OBL_SBW.vcxproj", "{A108A618-BC28-4BC5-B9BD-92B7E1847576}"
@@ -183,6 +181,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WorldClimVars", "Climatic\WorldClimVar.vcxproj", "{D01D4A41-80DE-4832-8BD1-9B18422E7B2E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Leucotaraxis spp", "Leucotaraxis spp\Leucotaraxis spp.vcxproj", "{2A77388C-757F-47A1-A980-0509F4C1B119}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdPrcpETIndex", "StdPrcpETIndex\SPEIModel.vcxproj", "{E0F91835-E883-4E95-8E6E-229976026583}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -384,14 +384,6 @@ Global
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|Win32.Build.0 = Release|Win32
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|x64.ActiveCfg = Release|x64
 		{F4EC15BC-DBF4-49BE-8F60-E048495BF199}.Release|x64.Build.0 = Release|x64
-		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|Win32.Build.0 = Debug|Win32
-		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|x64.ActiveCfg = Debug|x64
-		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|x64.Build.0 = Debug|x64
-		{E0F91835-E883-4E95-8E6E-229976026583}.Release|Win32.ActiveCfg = Release|Win32
-		{E0F91835-E883-4E95-8E6E-229976026583}.Release|Win32.Build.0 = Release|Win32
-		{E0F91835-E883-4E95-8E6E-229976026583}.Release|x64.ActiveCfg = Release|x64
-		{E0F91835-E883-4E95-8E6E-229976026583}.Release|x64.Build.0 = Release|x64
 		{8EDF6BC4-E6A6-498B-A538-A6B26DF6CA5D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8EDF6BC4-E6A6-498B-A538-A6B26DF6CA5D}.Debug|Win32.Build.0 = Debug|Win32
 		{8EDF6BC4-E6A6-498B-A538-A6B26DF6CA5D}.Debug|x64.ActiveCfg = Debug|x64
@@ -920,6 +912,14 @@ Global
 		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|Win32.Build.0 = Release|Win32
 		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|x64.ActiveCfg = Release|x64
 		{2A77388C-757F-47A1-A980-0509F4C1B119}.Release|x64.Build.0 = Release|x64
+		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|Win32.Build.0 = Debug|Win32
+		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|x64.ActiveCfg = Debug|x64
+		{E0F91835-E883-4E95-8E6E-229976026583}.Debug|x64.Build.0 = Debug|x64
+		{E0F91835-E883-4E95-8E6E-229976026583}.Release|Win32.ActiveCfg = Release|Win32
+		{E0F91835-E883-4E95-8E6E-229976026583}.Release|Win32.Build.0 = Release|Win32
+		{E0F91835-E883-4E95-8E6E-229976026583}.Release|x64.ActiveCfg = Release|x64
+		{E0F91835-E883-4E95-8E6E-229976026583}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
