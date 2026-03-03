@@ -41,13 +41,13 @@ void RegisterGDAL()
 	const char* pTest = CPLGetConfigOption("GDAL_DRIVER_PATH", test);
 	const char* pTest2 = CPLGetConfigOption("GDAL_DATA", test);
 
-	string path = GetApplicationPath() + "gdalplugins";
+	string path = GetApplicationPath() + "gdal/plugins";
 	CPLSetConfigOption("GDAL_DRIVER_PATH", path.c_str());
 
 	path = GetApplicationPath() + "gdal-data";
 	CPLSetConfigOption("GDAL_DATA", path.c_str());
 	
-	path = GetApplicationPath() + "projlib";
+	path = GetApplicationPath() + "proj9/share";
 	CPLSetConfigOption("PROJ_LIB", path.c_str());
 
 	//PJ_CONTEXT* ctx = proj_context_create();
