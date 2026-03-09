@@ -1,1 +1,1 @@
-xcopy /Y /S "..\..\Releasex64\External\*.*" ".\*.*"
+xcopy /Y /S "..\..\Releasex64\bin\*.*" ".\*.*"

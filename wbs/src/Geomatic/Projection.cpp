@@ -413,10 +413,8 @@ namespace WBSF
 					if (prjID == PRJ_NOT_INIT)
 					{
 						char* pProj4String = NULL;
-						proj_create(0, "EPSG:3978");
 						if (spatialReference.exportToProj4(&pProj4String) == OGRERR_NONE)
 						{
-							//std::string source = pj_add_type_crs_if_needed(pProj4String);
 							projPJ pProjPJ = proj_create(nullptr, pProj4String);
 							if (pProjPJ != NULL)
 							{

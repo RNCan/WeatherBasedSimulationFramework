@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
-// 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin.
+// 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin. 
 //											Bug correction in Google Drive download (again).
 // 11.8.24:22/07/2025	Rémi Saint-Amant	Bug correction in Google Drive download (again).
 // 11.8.23:18/03/2025	Rémi Saint-Amant	Bug correction in Google Drive download.
