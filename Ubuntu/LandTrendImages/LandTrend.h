@@ -50,10 +50,10 @@ public:
 
     int m_firstYear;
     bool m_bBreaks;
-    bool m_bBackwardFill;
-    bool m_bForwardFill;
-    bool m_bFillMissing;
-    bool m_bWithPrevious;
+    //bool m_bBackwardFill;
+    //bool m_bForwardFill;
+    //bool m_bFillMissing;
+    //bool m_bWithPrevious;
 
 };
 

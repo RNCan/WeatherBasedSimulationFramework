@@ -372,6 +372,19 @@ namespace WBSF
 		return title;
 	}
 
+	bool endsWith(const std::string& fullString, const std::string& ending) 
+	{
+		if (fullString.length() >= ending.length()) 
+		{
+			// Compare the ending part of fullString with ending
+			return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
+		}
+		
+		
+		return false;
+		
+	}
+
 	std::string CLandsatDataset::GetCommonImageName(size_t i)const
 	{
 
@@ -381,6 +394,13 @@ namespace WBSF
 		for (size_t j = 1; j < SCENES_SIZE; j++)
 		{
 			string title1 = GetFileTitle(GetInternalName(i * SCENES_SIZE + j));
+			for (size_t i = 0; i < SCENES_SIZE; i++)
+			{
+				if (endsWith(title1, GetBandName(i)))
+					title1 = title1.substr(0, title1.length() - 2);
+			}
+
+
 			size_t k = 0;//common begin
 			while (k < title0.size() && k < title1.size() && title0[k] == title1[k])
 				k++;
@@ -392,6 +412,10 @@ namespace WBSF
 		string title = GetFileTitle(GetInternalName(i * SCENES_SIZE));
 		if (common_end != MAX_PATH)
 			title = title.substr(common.length(), common_end - common.length());
+
+		
+		if (endsWith(title, "_"))
+			title = title.substr(0, title.length() - 1);
 
 		return title;
 	}
@@ -1369,7 +1393,7 @@ namespace WBSF
 	}
 
 
-	/*double CLandsatPixel::GetDespike(double pre, double spike, double post, double min_trigger)
+	double CLandsatPixel::GetDespike(double pre, double spike, double post, double min_trigger)
 	{
 		double d1 = (post - pre);
 		if (abs(d1) < min_trigger)
@@ -1381,6 +1405,6 @@ namespace WBSF
 			return 1;
 
 		return fabs(d1 / d2);
-	}*/
+	}
 
 }

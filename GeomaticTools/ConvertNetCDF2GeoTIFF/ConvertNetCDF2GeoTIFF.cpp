@@ -19,6 +19,7 @@
 #include <array>
 #include <utility>
 #include <iostream>
+#include "gdal_priv.h"
 
 #include "ConvertNetCDF2GeoTIFF.h"
 #include "Basic/OpenMP.h"
@@ -27,8 +28,8 @@
 #include "Basic/CSV.h"
 
 
-#pragma warning(disable: 4275 4251)
-#include "gdal_priv.h"
+
+
 
 using namespace std;
 

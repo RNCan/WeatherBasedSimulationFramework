@@ -3,6 +3,8 @@
 //
 //***********************************************************************
 // version
+// 1.1.7	13/03/2026	Rémi Saint-Amant	Bug correction in regression: don't use the first image after the first break
+//											Remove option -BackwardFill,-ForwardFill,-FillMissing, 
 // 1.1.6	27/01/2026	Rémi Saint-Amant	Do fill gap after desawtooth
 // 1.1.5	19/12/2025	Rémi Saint-Amant	Add -FillMissing options
 // 1.1.4	28/10/2025	Rémi Saint-Amant	Add -DirectIndices options
@@ -21,6 +23,7 @@
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
 // 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
+
 
 
 //"E:\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "E:\Landsat\Landsat(2000-2018)\Output\test2.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -Debug -SpikeThreshold 0.75 -FitMethod 1
@@ -51,7 +54,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.1.6";
+	const char* CLandTrend::VERSION = "1.1.7";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -79,10 +82,10 @@ namespace WBSF
 
 		m_firstYear = 0;
 		m_bBreaks = false;
-		m_bBackwardFill = false;
-		m_bForwardFill = false;
-		m_bFillMissing = false;
-		m_bWithPrevious = true;
+		//m_bBackwardFill = false;
+		//m_bForwardFill = false;
+		//m_bFillMissing = false;
+		//m_bWithPrevious = true;
 
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
@@ -230,7 +233,7 @@ namespace WBSF
 		{
 			m_bBreaks = true;
 		}
-		else if (IsEqual(argv[i], "-FillMissing"))
+		/*else if (IsEqual(argv[i], "-FillMissing"))
 		{
 			m_bFillMissing = true;
 			int direction = atoi(argv[++i]);
@@ -247,7 +250,7 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-ForwardFill"))
 		{
 			m_bForwardFill = true;
-		}
+		}*/
 		else
 		{
 			//Look to see if it's a know base option
@@ -638,12 +641,13 @@ namespace WBSF
 							assert(first_valid != NOT_INIT);
 							assert(last_valid != NOT_INIT);
 
+							//We don't fill missing value to send to LendTrand, only take it in the regression part
 							/*if (zz < first_valid && m_options.m_bBackwardFill)
 								zz = first_valid;
-							
+
 							if (zz > last_valid && m_options.m_bForwardFill)
 								zz = last_valid;
-							
+
 							if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)
 							{
 								if (m_options.m_bDirect)
@@ -652,16 +656,14 @@ namespace WBSF
 									zz = m_options.m_bWithPrevious ? GetPrevious(x, y, zz, block_data) : GetNext(x, y, zz, block_data);
 							}*/
 
-							
+
 							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
 
 
 							goods[z] = m_options.m_bDirect ? indices.IsValid(zz, x, y) : block_data.IsValid(zz, x, y);
-							if (goods[z]) 
+							if (goods[z])
 							{
 								data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
-								//assert(data[z] != 0);
-								//goods[z] = data[z] != 0;//humm!!!
 							}
 						}
 
@@ -708,15 +710,27 @@ namespace WBSF
 								{
 									size_t zz = z;
 
+									//if (!goods[z])
+									//{
+									//	if (zz < first_valid && m_options.m_bBackwardFill)
+									//	{
+									//		zz = first_valid;
+									//		//goods[z] = true;
+									//	}
 
-									if (zz < first_valid && m_options.m_bBackwardFill)
-										zz = first_valid;
-									if (zz > last_valid && m_options.m_bForwardFill)
-										zz = last_valid;
+									//	if (zz > last_valid && m_options.m_bForwardFill)
+									//	{
+									//		zz = last_valid;
+									//		//goods[z] = true;
+									//	}
 
-									//does we have to take the indice from indices when direct?
-									if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)
-										zz = m_options.m_bWithPrevious ? GetPrevious(x, y, z, block_data) : GetNext(x, y, z, block_data);
+									//	if (zz > first_valid && zz < last_valid && m_options.m_bFillMissing)//does we have to take the indice from indices when direct?
+									//	{
+									//		zz = m_options.m_bWithPrevious ? GetPrevious(x, y, z, block_data) : GetNext(x, y, z, block_data);
+									//		//goods[z] = true;
+									//	}
+									//}
+
 
 
 									X[z] = REAL_TYPE(z);
@@ -727,10 +741,11 @@ namespace WBSF
 								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 								{
 									//we need to remove bad data from vertices
-									CBoolArray G = subset(goods, V[i], V[i + 1]);
+									int off = i == 0 ? 0 : 1;//we don't the last value of the last break (except at the beginning)
+									CBoolArray G = subset(goods, V[i] + off, V[i + 1]);
 
-									CRealArray xx = subset(X, V[i], V[i + 1])[G];
-									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
+									CRealArray xx = subset(X, V[i] + off, V[i + 1])[G];
+									CRealArray yy = subset(Y, V[i] + off, V[i + 1])[G];
 									assert(xx.size() == yy.size());
 									assert(xx.size() > 0);
 
@@ -742,12 +757,12 @@ namespace WBSF
 
 										RegressP P = Regress(xx, yy);
 
-										yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
+										yfit[get_slice(V[i] + off, V[i + 1])] = FitRegress(subset(X, V[i] + off, V[i + 1]), P);
 									}
 									else if (xx.size() == 1)
 									{
 										//if only one point, take this y-fit value
-										yfit[get_slice(V[i], V[i + 1])] = yy[0];
+										yfit[get_slice(V[i] + off, V[i + 1])] = yy[0];
 									}
 
 								}

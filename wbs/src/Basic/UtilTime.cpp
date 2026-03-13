@@ -1362,7 +1362,7 @@ namespace WBSF
 
 	bool CTPeriod::IsInside(CTRef ref)const
 	{
-		if (!IsInit())
+		if (!IsInit()||!ref.IsInit())
 			return true;
 
 		ASSERT(m_begin.m_type == m_end.m_type);

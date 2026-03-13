@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.2.1	13/03/2026	Rémi Saint-Amant	Compile with GDAL 3.12.1
 // 1.2.0	13/09/2023	Rémi Saint-Amant	Compile with GDAL 3.7.1
 // 1.1.0	20/12/2021	Rémi Saint-Amant	Compile with VS 2019 and GDAL 3.0.3
 // 1.0.2	10/10/2018 Rémi Saint-Amant		Add -iFactor
@@ -20,20 +21,22 @@
 #include <utility>
 #include <iostream>
 
+#include "gdal_priv.h"
+
 #include "LandsatIndices.h"
 #include "Basic/OpenMP.h"
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
 #include "Geomatic/LandsatCloudsCleaner.h"
-#pragma warning(disable: 4275 4251)
-#include "gdal_priv.h"
+
+
 
 using namespace std;
-using namespace WBSF::Landsat1;
+using namespace WBSF::Landsat2;
 
 namespace WBSF
 {
-	const char* CLandsatIndices::VERSION = "1.2.0";
+	const char* CLandsatIndices::VERSION = "1.2.1";
 	
 
 	///*********************************************************************************************************************
@@ -54,7 +57,7 @@ namespace WBSF
 
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"JD\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
+			{ "-i", 1, "indice", true, "Select indices to output. Indice can be \"B1\"..\"B7\", \"NBR\", \"NDVI\", \"NDMI\", \"TCB\", \"TCG\", \"TCW\", \"NBR2\", \"EVI\", \"SAVI\", \"MSAVI\", \"SR\", \"CL\", \"HZ\"."  },
 			{ "-Despike", 3, "type threshold min", true, "Despike to remove outbound pixels. Type is the indice type, threshold is the despike threshold and min is the minimum between T-1 and T+1 to execute despike. Supported type are the same as indice. Usual value are TCB 0.75 0.1." },
 			{ "-Virtual", 0, "", false, "Create virtual (.vrt) output file that used input file. Combine with -NoResult, this avoid to copy files. " },
 			{ "-Window", 1, "n", false, "Compute window mean around the pixel. n is the number of rings. 0 = 1x1, 1 = 3x3, 2 = 5x5 etc. By default all rings have the same weight. Weight can be modified with option -weight. 1x1 by default." },
@@ -130,7 +133,7 @@ namespace WBSF
 
 		m_outputType = GDT_Int16;
 
-		Landsat1::INDICES_FACTOR(m_iFactor);
+		Landsat2::INDICES_FACTOR(m_iFactor);
 
 		return msg;
 	}
@@ -205,7 +208,7 @@ namespace WBSF
 				{
 					if (!indices.empty())
 						indices += ", ";
-					indices += Landsat1::GetIndiceName(i);
+					indices += Landsat2::GetIndiceName(i);
 				}
 			}
 
@@ -319,6 +322,11 @@ namespace WBSF
 					msg.ajoute("No input scenes intersect -Period (" + m_options.m_period.GetFormatedString("%1 %2", "%F") + ").");
 				}
 			}
+			else
+			{
+				m_options.m_scenes[0] = 0;
+				m_options.m_scenes[1] = inputDS.GetNbScenes() - 1;
+			}
 
 			CGeoExtents extents = inputDS.GetExtents();
 			CProjectionPtr pPrj = inputDS.GetPrj();
@@ -342,6 +350,7 @@ namespace WBSF
 			const std::vector<CTPeriod>& p = inputDS.GetScenePeriod();
 
 			//set the period to the period in the scene selection
+			
 			size_t nbSceneLoaded = m_options.m_scenes[1] - m_options.m_scenes[0] + 1;
 			CTPeriod period;
 			for (size_t z = 0; z < nbSceneLoaded; z++)
@@ -349,6 +358,7 @@ namespace WBSF
 
 			if (m_options.m_period.IsInit())
 				cout << "    User's input working period = " << m_options.m_period.GetFormatedString() << endl;
+			
 
 			cout << "    Size           = " << inputDS.GetRasterXSize() << " cols x " << inputDS.GetRasterYSize() << " rows x " << inputDS.GetRasterCount() << " bands" << endl;
 			cout << "    Extents        = X:{" << ToString(extents.m_xMin) << ", " << ToString(extents.m_xMax) << "}  Y:{" << ToString(extents.m_yMin) << ", " << ToString(extents.m_yMax) << "}" << endl;
@@ -387,7 +397,7 @@ namespace WBSF
 			for (size_t zz = 0; zz < nbScenedProcess; zz++)
 			{
 				size_t z = m_options.m_scenes[0] + zz;
-				string subName = inputDS.GetSubname(z, m_options.m_rename);
+				string subName = inputDS.GetSubname(z);
 				string uniqueSubName = subName;
 				size_t i = 1;
 				while (subnames.find(uniqueSubName) != subnames.end())
@@ -399,7 +409,7 @@ namespace WBSF
 				{
 					if (m_options.m_indices.test(i))
 					{
-						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat1::GetIndiceName(i) + ".tif|";
+						options.m_VRTBandsName += GetFileTitle(filePath) + "_" + uniqueSubName + "_" + Landsat2::GetIndiceName(i) + ".tif|";
 					}
 				}
 			}
@@ -511,7 +521,7 @@ namespace WBSF
 							if (m_options.m_indices.test(i))
 							{
 								size_t xy = (size_t)y*blockSize.m_x + x;
-								outputData[zz][ii][xy] = pixel[Landsat1::TIndices(i)];
+								outputData[zz][ii][xy] = pixel[Landsat2::TIndices(i)];
 								ii++;
 							}
 						}
@@ -599,8 +609,8 @@ namespace WBSF
 				{
 					string subName = WBSF::TrimConst(inputDS.GetCommonImageName(z), "_");
 					std::string filePath = m_options.m_filesPath[CLandsatIndicesOption::OUTPUT_FILE_PATH];
-					filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat1::GetIndiceName(i) + ".vrt";
-					msg += inputDS.CreateIndices(z, filePath, (Landsat1::TIndices)i);
+					filePath = GetPath(filePath) + GetFileTitle(filePath) + "_" + subName + "_" + Landsat2::GetIndiceName(i) + ".vrt";
+					msg += inputDS.CreateIndices(z, filePath, (Landsat2::TIndices)i);
 
 					//Input : le vrt de nos 30 ans Landsat + le dd5, DEM, slope.Le Seuil du despike(ex. 0.75) et le seuil de tolérance(ex. 0.1)
 					//En output : une couche de dNBR par années avec du No Data supprimé par le despike. .

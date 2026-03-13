@@ -31,7 +31,7 @@
 
 #include <gdal.h>
 
-CPL_CVSID("$Id: $");
+//CPL_CVSID("$Id: $");
 
 CPL_C_START
 CPL_DLL void GDALRegister_LandsatIndices(void);
