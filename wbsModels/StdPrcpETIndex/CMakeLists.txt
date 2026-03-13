@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(StandardisedPrecipitationEvapotranspirationIndex)
+project(StdPrcpETIndex)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -15,11 +15,11 @@ include_directories(
 )
 
 # Build as dynamic library
-add_library(StandardisedPrecipitationEvapotranspirationIndex SHARED
+add_library(StdPrcpETIndex SHARED
   ${SOURCE_FILES}
 )
 
-target_link_libraries(StandardisedPrecipitationEvapotranspirationIndex PUBLIC
+target_link_libraries(StdPrcpETIndex PUBLIC
 	${EXTERNAL_LIB_DIR}/libboost_thread-vc143-mt$<$<CONFIG:Debug>:-gd>-x64-1_84.lib 
 	${EXTERNAL_LIB_DIR}/libboost_chrono-vc143-mt$<$<CONFIG:Debug>:-gd>-x64-1_84.lib 
 	${EXTERNAL_LIB_DIR}/libboost_filesystem-vc143-mt$<$<CONFIG:Debug>:-gd>-x64-1_84.lib 
