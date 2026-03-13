@@ -1058,18 +1058,18 @@ namespace WBSF
 
 		string token = Get(API_TOKEN);
 		string URL = "https://api.mesowest.net/v2/networks?token=" + token;
-		string argument = "-s -k \"" + URL + "\"";
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		//string argument = "-s -k \"" + URL + "\"";
+		//string exe = GetApplicationPath() + "External\\curl.exe";
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		if (msg)
 		{
 
 
-			string command = exe + " " + argument;
+			//string command = exe + " " + argument;
 
 			string error;
 			const Json& root = Json::parse(source, error);

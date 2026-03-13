@@ -12,15 +12,17 @@
 #include "stdafx.h"
 
 
+
 #pragma warning(disable: 4275 4251)
 #include "cpl_vsi.h"
 #include "cpl_conv.h"
 #include "cpl_string.h"
 #include "cpl_minixml.h"
-#include "proj_api.h"
+#include "proj9/proj.h"
+//#include "proj_api.h"
 #include "ogr_spatialref.h"
-#include "Geomatic/Projection.h"
 
+#include "Geomatic/Projection.h"
 
 //static std::mutex MUTEX;
 
@@ -60,7 +62,8 @@ namespace WBSF
 
 		m_pSpatialReference = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
 		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-		m_pProjPJ = NULL;
+		m_pProjPJ = nullptr;
+		//m_C = nullptr;
 		m_prjID = PRJ_NOT_INIT;
 
 
@@ -79,7 +82,9 @@ namespace WBSF
 		{
 			m_prjID = prjID;
 			m_prjStr = prjStr;
-			m_pProjPJ = pProjPJ;
+			
+	//		m_C = proj_context_clone(C);
+			m_pProjPJ = proj_clone(nullptr, pProjPJ);
 		}
 		else
 		{
@@ -89,7 +94,8 @@ namespace WBSF
 
 	CProjection::CProjection(CProjection const& in)
 	{
-		m_pProjPJ = NULL;
+		m_pProjPJ = nullptr;
+		//m_C = nullptr;
 		m_prjID = PRJ_NOT_INIT;
 		m_pSpatialReference = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
 		m_pSpatialReference->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
@@ -131,9 +137,14 @@ namespace WBSF
 			OSRDestroySpatialReference(m_pSpatialReference);
 		}
 
+		 
+		//if (m_pProjPJ)
+			//pj_free(m_pProjPJ);
+		if(m_pProjPJ)
+			proj_destroy(m_pProjPJ);
 
-		if (m_pProjPJ)
-			pj_free(m_pProjPJ);
+		//if (m_C)
+			//proj_context_destroy(m_C);
 
 		m_pSpatialReference = NULL;
 		m_pProjPJ = NULL;
@@ -282,30 +293,45 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		if (pj_is_latlong(src))
+		//if (pj_is_latlong(src))
+		//{
+		//	if (x != NULL)
+		//		*x = Deg2Rad(*x);// DEG_TO_RAD;
+		//	if (y != NULL)
+		//		*y = Deg2Rad(*y);
+		//	if (z != NULL)
+		//		*z = Deg2Rad(*z);
+		//}
+
+		//assert(m_C!=nullptr);
+		//assert(m_pProjPJ != nullptr);
+
+		PJ* P = proj_create_crs_to_crs_from_pj(nullptr, src, dst, nullptr, nullptr);
+
+		for (size_t i = point_offset; i < point_count; i++)
 		{
-			if (x != NULL)
-				*x *= DEG_TO_RAD;
-			if (y != NULL)
-				*y *= DEG_TO_RAD;
-			if (z != NULL)
-				*z *= DEG_TO_RAD;
+
+			PJ_COORD a = proj_coord(x[i], y[i], z[i], 0); 
+			PJ_COORD b = proj_trans(P, PJ_FWD, a);
+			x[i] = b.enu.e; //b.xyz.x
+			y[i] = b.enu.n;//b.xyz.y
+			z[i] = b.enu.u;//b.xyz.z
+			//if (pj_transform(src, dst, point_count, point_offset, x, y, z) == 0)
+			//{
+				//msg.ajoute("ERROR: unable to re-projection point (" + ToString(*x) + ", " + ToString(*y) + ((z != NULL) ? ToString(*z) : "") + ")");
+			//}
 		}
 
-		if (pj_transform(src, dst, point_count, point_offset, x, y, z) == 0)
-		{
-			msg.ajoute("ERROR: unable to re-projection point (" + ToString(*x) + ", " + ToString(*y) + ((z != NULL) ? ToString(*z) : "") + ")");
-		}
-
-		if (pj_is_latlong(dst))
+		proj_destroy(P);
+		/*if (pj_is_latlong(dst))
 		{
 			if (x != NULL)
-				*x *= RAD_TO_DEG;
+				*x = Rad2Deg(*x);
 			if (y != NULL)
-				*y *= RAD_TO_DEG;
+				*y = Rad2Deg(*y);
 			if (z != NULL)
-				*z *= RAD_TO_DEG;
-		}
+				*z = Rad2Deg(*z);
+		}*/
 
 		return msg;
 	}
@@ -345,6 +371,17 @@ namespace WBSF
 		GetInstance().m_links.insert(Link(PRJ_WGS_84, CProjectionPtr(new CProjection(true))));
 	}
 
+	std::string pj_add_type_crs_if_needed(const std::string& str) 
+	{
+		std::string ret(str);
+		if ((str.rfind("proj=", 0) == 0 || str.rfind("+proj=", 0) == 0 ||
+			str.rfind("+init=", 0) == 0 || str.rfind("+title=", 0) == 0) &&
+			str.find("type=crs") == std::string::npos) {
+			ret += " +type=crs";
+		}
+		return ret;
+	}
+
 	ERMsg CProjectionManager::CreateProjection(const char* prjStr)
 	{
 		ERMsg msg;
@@ -378,7 +415,7 @@ namespace WBSF
 						char* pProj4String = NULL;
 						if (spatialReference.exportToProj4(&pProj4String) == OGRERR_NONE)
 						{
-							projPJ pProjPJ = pj_init_plus(pProj4String);
+							projPJ pProjPJ = proj_create(nullptr, pProj4String);
 							if (pProjPJ != NULL)
 							{
 								pProjection.reset(new CProjection(prjStr, CProjectionNameManager::Set(prjStr), spatialReference, pProjPJ));

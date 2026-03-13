@@ -5,28 +5,27 @@ echo %cd%
 
 if not exist "..\Install" mkdir "..\Install"
 if not exist "..\Install\NRCan" mkdir "..\Install\NRCan"
-if not exist "..\Install\NRCan\External" mkdir "..\Install\NRCan\External"
+if not exist "..\Install\NRCan\bin" mkdir "..\Install\NRCan\bin"
 if not exist "..\Install\NRCan\Models" mkdir "..\Install\NRCan\Models"
 if not exist "..\Install\NRCan\Layers" mkdir "..\Install\NRCan\Layers"
 if not exist "..\Install\NRCan\Palette" mkdir "..\Install\NRCan\Palette"
 
-
-copy /Y ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe"
-copy /Y ".\bin\Releasex64\HourlyEditor.exe" "..\Install\NRCan\HourlyEditor.exe"
-copy /Y ".\bin\Releasex64\DailyEditor.exe" "..\Install\NRCan\DailyEditor.exe"
-copy /Y ".\bin\Releasex64\NormalsEditor.exe" "..\Install\NRCan\NormalsEditor.exe"
-copy /Y ".\bin\Releasex64\WeatherUpdater.exe" "..\Install\NRCan\WeatherUpdater.exe"
-copy /Y ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe"
-copy /Y ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe"
-copy /Y ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe"
-copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.manifest"
-copy /Y ".\bin\Releasex64\vcruntime140.dll" "..\Install\NRCan\vcruntime140.dll"
-copy /Y ".\bin\Releasex64\vcruntime140_1.dll" "..\Install\NRCan\vcruntime140_1.dll"
-copy /Y ".\bin\Releasex64\msvcp140.dll" "..\Install\NRCan\msvcp140.dll"
-copy /Y ".\bin\Releasex64\vcomp140.dll" "..\Install\NRCan\vcomp140.dll"
-copy /Y ".\bin\Releasex64\msvcp140_1.dll" "..\Install\NRCan\msvcp140_1.dll"
-copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
-copy /Y ".\bin\Releasex64\mfc140u.dll" "..\Install\NRCan\mfc140u.dll"
+xcopy /Y /b ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe*"
+xcopy /Y /b ".\bin\Releasex64\HourlyEditor.exe" "..\Install\NRCan\HourlyEditor.exe*"
+xcopy /Y /b ".\bin\Releasex64\DailyEditor.exe" "..\Install\NRCan\DailyEditor.exe*"
+xcopy /Y /b ".\bin\Releasex64\NormalsEditor.exe" "..\Install\NRCan\NormalsEditor.exe*"
+xcopy /Y /b ".\bin\Releasex64\WeatherUpdater.exe" "..\Install\NRCan\WeatherUpdater.exe*"
+xcopy /Y /b ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe*"
+xcopy /Y /b ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe*"
+xcopy /Y /b ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe*"
+::copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.manifest"
+::copy /Y ".\bin\Releasex64\vcruntime140.dll" "..\Install\NRCan\vcruntime140.dll"
+::copy /Y ".\bin\Releasex64\vcruntime140_1.dll" "..\Install\NRCan\vcruntime140_1.dll"
+::copy /Y ".\bin\Releasex64\msvcp140.dll" "..\Install\NRCan\msvcp140.dll"
+::copy /Y ".\bin\Releasex64\vcomp140.dll" "..\Install\NRCan\vcomp140.dll"
+::copy /Y ".\bin\Releasex64\msvcp140_1.dll" "..\Install\NRCan\msvcp140_1.dll"
+::copy /Y ".\bin\Releasex64\gdal19.dll" "..\Install\NRCan\gdal19.dll"
+::copy /Y ".\bin\Releasex64\mfc140u.dll" "..\Install\NRCan\mfc140u.dll"
 
 copy /Y ".\bin\Releasex64\Models\AllenWave (Hourly).mdl" "..\Install\NRCan\Models\AllenWave (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\AllenWave.dll" "..\Install\NRCan\Models\AllenWave.dll"
@@ -242,9 +241,9 @@ copy /Y ".\bin\Releasex64\Models\Spruce Budworm Laboratory.dll" "..\Install\NRCa
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Manitoba.mdl" "..\Install\NRCan\Models\Spruce Budworm Manitoba.mdl"
 copy /Y ".\bin\Releasex64\Models\Spruce Budworm Manitoba.dll" "..\Install\NRCan\Models\Spruce Budworm Manitoba.dll"
 
-copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.mdl" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.mdl"
-copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index.dll" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index.dll"
-copy /Y ".\bin\Releasex64\Models\Standardised Precipitation Evapotranspiration Index Ex.mdl" "..\Install\NRCan\Models\Standardised Precipitation Evapotranspiration Index Ex.dll"
+copy /Y ".\bin\Releasex64\Models\StdPrcpETIndex.mdl" "..\Install\NRCan\Models\StdPrcpETIndex.mdl"
+copy /Y ".\bin\Releasex64\Models\StdPrcpETIndex.dll" "..\Install\NRCan\Models\StdPrcpETIndex.dll"
+copy /Y ".\bin\Releasex64\Models\StdPrcpETIndexEx.mdl" "..\Install\NRCan\Models\StdPrcpETIndexEx.dll"
 copy /Y ".\bin\Releasex64\Models\TminTairTmax (Hourly).mdl" "..\Install\NRCan\Models\TminTairTmax (Hourly).mdl"
 copy /Y ".\bin\Releasex64\Models\TminTairTmax (Daily).mdl" "..\Install\NRCan\Models\TminTairTmax (Daily).mdl"
 copy /Y ".\bin\Releasex64\Models\TminTairTmax.dll" "..\Install\NRCan\Models\TminTairTmax.dll"
@@ -282,16 +281,18 @@ copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRC
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.pdf"
 
 
-xcopy /Y /S ".\bin\Releasex64\External\*.*" "..\Install\NRCan\External\*.*"
+xcopy /Y /S ".\bin\Releasex64\bin\*.*" "..\Install\NRCan\bin\*.*"
 xcopy /Y /S ".\bin\Releasex64\Layers\*.*" "..\Install\NRCan\Layers\*.*"
 xcopy /Y /S ".\bin\Releasex64\Palette\*.*" "..\Install\NRCan\Palette\*.*"
 xcopy /Y /S ".\bin\Releasex64\zoneinfo\*.*" "..\Install\NRCan\zoneinfo\*.*"
 
 
+
+
 if exist "..\Install\BioSIM11_x_x.7z" del "..\Install\BioSIM11_x_x.7z"
-.\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.7z" "..\Install\NRCan"
+.\bin\Releasex64\bin\7za.exe a -r "..\Install\BioSIM11_x_x.7z" "..\Install\NRCan"
 if exist "..\Install\BioSIM11_x_x.zip" del "..\Install\BioSIM11_x_x.zip"
-.\bin\Releasex64\External\7za.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
+.\bin\Releasex64\bin\7za.exe a -r "..\Install\BioSIM11_x_x.zip" "..\Install\NRCan"
 
 
 

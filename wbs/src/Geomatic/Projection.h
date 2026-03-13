@@ -11,7 +11,16 @@
 #include "Basic/GeoBasic.h"
 
 
-typedef void *projPJ;
+//typedef void *projPJ;
+struct pj_ctx;
+typedef struct pj_ctx PJ_CONTEXT;
+
+struct PJconsts;
+typedef struct PJconsts PJ; /* the PJ object herself */
+
+typedef PJ* projPJ;
+
+
 class OGRSpatialReference;
 class OGRCoordinateTransformation;
 class OGRSpatialReference;
@@ -85,7 +94,13 @@ namespace WBSF
 		std::string m_prjStr;
 		OGRSpatialReference* m_pSpatialReference;
 		projPJ m_pProjPJ;
+		//PJ_CONTEXT* m_C;
 		size_t m_prjID;
+
+
+		
+		//PJ* m_P;
+
 
 	};
 

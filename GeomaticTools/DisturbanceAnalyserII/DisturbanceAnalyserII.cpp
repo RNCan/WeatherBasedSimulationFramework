@@ -19,6 +19,8 @@
 #include <array>
 #include <utility>
 #include <iostream>
+#include "gdal_priv.h"
+
 
 #include "DisturbanceAnalyserII.h"
 #include "..\Segmentation\SegmentationBase.h"
@@ -27,8 +29,8 @@
 #include "Basic/UtilMath.h"
 #include "Geomatic/LandsatCloudsCleaner.h"
 #include "Geomatic/See5hooks.h"
-#pragma warning(disable: 4275 4251)
-#include "gdal_priv.h"
+
+
 
 using namespace std;
 using namespace WBSF::Landsat1;

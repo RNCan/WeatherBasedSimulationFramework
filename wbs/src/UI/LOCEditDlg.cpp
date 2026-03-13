@@ -181,7 +181,7 @@ namespace WBSF
 
 	}
 
-	void CLOCGridCtrl::OnGetCell(int col, long row, CUGCell *cell)
+	void CLOCGridCtrl::OnGetCell(int col, long row, CUGCell* cell)
 	{
 
 		if (m_enableUpdate)
@@ -252,7 +252,7 @@ namespace WBSF
 		CUGEditCtrl::OnGetCell(col, row, cell);
 	}
 
-	void CLOCGridCtrl::OnSetCell(int col, long row, CUGCell *cell)
+	void CLOCGridCtrl::OnSetCell(int col, long row, CUGCell* cell)
 	{
 		ASSERT(m_bDataEdited.size() == m_locations.size());
 
@@ -329,6 +329,15 @@ namespace WBSF
 
 	}
 
+	bool is_ctrl_pressed()
+	{
+		// Check state of the left and right Ctrl keys
+		bool left_ctrl = (GetAsyncKeyState(VK_LCONTROL) & 0x8000) != 0;
+		bool right_ctrl = (GetAsyncKeyState(VK_RCONTROL) & 0x8000) != 0;
+		return left_ctrl || right_ctrl;
+	}
+
+
 
 	void CLOCGridCtrl::OnMenuCommand(int col, long row, int section, int item)
 	{
@@ -340,7 +349,7 @@ namespace WBSF
 
 		if (item == ID_CONTEXT_MENU_DELETE)
 		{
-			CString buffer;
+
 			DeleteRow(row);
 			RedrawAll();
 		}
@@ -406,7 +415,7 @@ namespace WBSF
 	}
 
 
-	int CLOCGridCtrl::OnVScrollHint(long row, CString *string)
+	int CLOCGridCtrl::OnVScrollHint(long row, CString* string)
 	{
 		*string = QuickGetText(-1, row);
 
@@ -567,10 +576,12 @@ namespace WBSF
 
 	//do nothing
 	void CLocDlg::OnOK()
-	{}
+	{
+	}
 
 	void CLocDlg::OnCancel()
-	{}
+	{
+	}
 
 	// generate loc from CGenerateLOCDlg 
 	void CLocDlg::OnLocGenerate()
@@ -709,23 +720,30 @@ namespace WBSF
 	{
 		ASSERT(m_grid.GetNumberRows() > 0);
 
-		std::set<int> lines;
-		int col = -1;	long row = -1;
-		if (m_grid.EnumFirstSelected(&col, &row) == UG_SUCCESS)
+		if (is_ctrl_pressed())
 		{
-			lines.insert(row);
-			while (m_grid.EnumNextSelected(&col, &row) == UG_SUCCESS)
-				lines.insert(row);
-
-			for (std::set<int>::reverse_iterator it = lines.rbegin(); it != lines.rend(); ++it)
+			m_grid.SetData(CLocationVector());
+		}
+		else
+		{
+			std::set<int> lines;
+			int col = -1;	long row = -1;
+			if (m_grid.EnumFirstSelected(&col, &row) == UG_SUCCESS)
 			{
-				if (*it >= 0 && *it < m_grid.GetNumberRows())//selection is sometime pass the last row
-					m_grid.DeleteRow(*it);
+				lines.insert(row);
+				while (m_grid.EnumNextSelected(&col, &row) == UG_SUCCESS)
+					lines.insert(row);
+
+				for (std::set<int>::reverse_iterator it = lines.rbegin(); it != lines.rend(); ++it)
+				{
+					if (*it >= 0 && *it < m_grid.GetNumberRows())//selection is sometime pass the last row
+						m_grid.DeleteRow(*it);
+				}
+
+				m_grid.SetHaveChange(true);
+
+				UpdateCtrl();
 			}
-
-			m_grid.SetHaveChange(true);
-
-			UpdateCtrl();
 		}
 	}
 
@@ -1188,7 +1206,7 @@ namespace WBSF
 
 	}
 
-	void CLocationsFileManagerDlg::OnSelChange(NMHDR * pNotifyStruct, LRESULT * pResult)
+	void CLocationsFileManagerDlg::OnSelChange(NMHDR* pNotifyStruct, LRESULT* pResult)
 	{
 		UpdateCtrl();
 	}

@@ -412,7 +412,7 @@ namespace WBSF
 			{
 				//unzip only .csv file because they are smaller than the zip file
 				DWORD exitCode = 0;
-				string command = GetApplicationPath() + "External\\7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
+				string command = GetApplicationPath() + "7za.exe e \"" + filePathZip + "\" -y -o\"" + outputPath + "\"" + " \"" + GetFileName(filePathData) + "\"";
 				msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 				if (msg && exitCode != 0)
@@ -422,7 +422,7 @@ namespace WBSF
 				if (msg)
 				{
 					//now rezip the file
-					command = GetApplicationPath() + "External\\7za.exe a -tgzip \"" + outputFilePath + "\" \"" + filePathData + "\"";
+					command = GetApplicationPath() + "7za.exe a -tgzip \"" + outputFilePath + "\" \"" + filePathData + "\"";
 					msg = WinExecWait(command, outputPath, SW_HIDE, &exitCode);
 
 					if (msg && exitCode != 0)

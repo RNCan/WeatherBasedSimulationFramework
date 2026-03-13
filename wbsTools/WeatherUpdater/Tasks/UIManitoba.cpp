@@ -1756,7 +1756,7 @@ namespace WBSF
 
 										if (msg)
 										{
-											string xls2csv = GetApplicationPath() + "External\\xls2csv.exe";
+											string xls2csv = GetApplicationPath() + "xls2csv.exe";
 											string command = xls2csv + " \"" + outputFilePath + "\" \"" + tmpFilePath + "\"";
 											WinExecWait(command);
 

@@ -302,7 +302,7 @@ namespace WBSF
 			string filePath = workingDir + location[i].m_ID + "_Line.csv";
 
 			string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
-			string exe = GetApplicationPath() + "External\\curl.exe";
+			string exe = GetApplicationPath() + "curl.exe";
 			string command = exe + " " + argument;
 
 			DWORD exit_code;
@@ -594,7 +594,7 @@ namespace WBSF
 
 		callback.PushTask(GetString(IDS_UNZIP_FILE), NOT_INIT);
 
-		string command = GetApplicationPath() + "External\\7za.exe x \"" + filePathZip + "\" -y";
+		string command = GetApplicationPath() + "7za.exe x \"" + filePathZip + "\" -y";
 		//UINT show = as<bool>(SHOW_APP) ? SW_SHOW : SW_HIDE;
 
 		DWORD exitCode = 0;

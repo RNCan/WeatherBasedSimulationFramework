@@ -47,8 +47,10 @@ public:
 	
 
 	afx_msg void OnAppAbout();
+//	afx_msg void OnPostInit(WPARAM, LPARAM);
 	DECLARE_MESSAGE_MAP()
 
+	
 };
 
 extern CBioSIMApp theApp;

@@ -255,12 +255,12 @@ namespace WBSF
 
 		//https://ws.lioservices.lrc.gov.on.ca/arcgis1061a/rest/services/FFIM/Forest_Fire_Info_Map/MapServer/19/query?token=2T1zsImiiqoH42TMxiqzBulN10Pxsqim8GgeiH8N4nmMRepP1Ce4FKyZlkYlmZRM&f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=STATION_IDENT%20ASC
 		string URL = "https://ws.lioservices.lrc.gov.on.ca/arcgis1061a/rest/services/FFIM/Forest_Fire_Info_Map/MapServer/19/query?token=2T1zsImiiqoH42TMxiqzBulN10Pxsqim8GgeiH8N4nmMRepP1Ce4FKyZlkYlmZRM&f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=STATION_IDENT%20ASC";
-		string argument = "-s -k \"" + URL + "\"";
-		string exe = GetApplicationPath() + "External\\curl.exe";
-		CCallcURL cURL(exe);
+		//string argument = "-s -k \"" + URL + "\"";
+		//string exe = GetApplicationPath() + "curl.exe";
+		CCallcURL cURL;
 
 		string source;
-		msg = cURL.get_text(argument, source);
+		msg = cURL.get_URL_text(URL, source);
 
 		if (msg)
 		{

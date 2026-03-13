@@ -177,7 +177,7 @@ namespace WBSF
 		case T_HOURLY: folder_id = "103Rw3VUQ3B93rp7xml14JUiq_LNLpQKH"; break;
 		case T_DAILY: folder_id = "1KZBlYp54URTP3eoMHZcvGI_BO6LrxW1Q"; break;
 		case T_NORMALS_PAST: folder_id = "1-ken5YCyE3dhEu3nKtJ1qVIiVpKpwCrI"; break;
-		case T_NORMALS_CURRENT: folder_id = "1NKlamU4ytsq3ahSTzAISq4t6U5NIRl4G"; break;
+		case T_NORMALS_CURRENT: folder_id = "1ODXjthinO5ldwLn2GK-qCkfvm1sZa_Jy"; break;
 		case T_NORMALS_FUTURE: folder_id = "15xe2hsTIq_kvKzoSuoVfVMxpXa7Gs44X"; break;
 		case T_GRIBS: folder_id = "106zhz9deYMyKb9mnAinZGoyoMKD_i_LM"; break;
 

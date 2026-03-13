@@ -110,7 +110,7 @@ namespace WBSF
 
 			//void correction8to7(Landsat2::TCorr8 type);
 
-			//static double GetDespike(double pre, double spike, double post, double min_trigger);
+			static double GetDespike(double pre, double spike, double post, double min_trigger);
 
 			//CTRef GetTRef()const;
 			//CTRef GetTRef()const;
@@ -118,87 +118,87 @@ namespace WBSF
 
 		typedef std::vector<CLandsatPixel>CLandsatPixelVector;
 
-	//	class CIndices
-	//	{
-	//	public:
+		class CIndices
+		{
+		public:
 
 
-	//		Landsat2::TIndices	m_type;
-	//		//std::string			m_op;
-	//		//double				m_threshold;
-	//		//double				m_trigger;
+			Landsat2::TIndices	m_type;
+			std::string			m_op;
+			double				m_threshold;
+			double				m_trigger;
 
-	//		CIndices(Landsat2::TIndices	type = Landsat2::I_NBR)
-	//		{
-	//			//ASSERT(op == ">" || op == "<");
+			CIndices(Landsat2::TIndices	type, std::string op, double threshold, double trigger)
+			{
+				ASSERT(op == ">" || op == "<");
 
-	//			m_type = type;
-	//			//m_op = op;
-	//			//m_threshold = threshold;
-	//			//m_trigger = trigger;
-	//		}
+				m_type = type;
+				m_op = op;
+				m_threshold = threshold;
+				m_trigger = trigger;
+			}
 
-	//		//bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
-	//		//{
+			bool IsSpiking(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
+			{
 
-	//		//	bool bRemove = true;
+				bool bRemove = true;
 
-	//		//	double pre = Tm1[m_type];
-	//		//	double spike = T[m_type];
-	//		//	double post = Tp1[m_type];
+				double pre = Tm1[m_type];
+				double spike = T[m_type];
+				double post = Tp1[m_type];
 
-	//		//	bool bRep = false;
-	//		//	if (m_op == "<")
-	//		//		bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) < (1 - m_threshold);
-	//		//	else if (m_op == ">")
-	//		//		bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) > (1 - m_threshold);
-
-
-	//		//	return bRep;
-	//		//	//bRep = CLandsatPixel::GetDespike(pre, spike, post) < (1 - m_threshold);
-	//		//}
-
-	//		//bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)const
-	//		//{
-	//		//	//bool bPass = true;
-	//		//	double pre = Tm1[m_type]; 
-	//		//	double pos = Tp1[m_type];
-	//		//	
-	//		//	bool bRep = false;
-	//		//	if (m_op == "<")
-	//		//		bRep = pre - pos <= m_threshold;
-	//		//	else if (m_op == ">")
-	//		//		bRep = pre - pos >= m_threshold;
-	//		//	return bRep;
-	//		//}
-	///*
-	//		bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
-	//		{
-
-	//			bool bRemove = true;
-
-	//			double T1 = Tm1[m_type];
-	//			double T2 = T[m_type];
-	//			double T3 = Tp1[m_type];
+				bool bRep = false;
+				if (m_op == "<")
+					bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) < (1 - m_threshold);
+				else if (m_op == ">")
+					bRep = CLandsatPixel::GetDespike(pre, spike, post, m_trigger) > (1 - m_threshold);
 
 
-	//			bool bRep = false;
-	//			if (m_op == "<")
-	//				bRep = (T1 - T2 <= m_threshold) || (T2 - T3 <= m_threshold);
-	//			else if (m_op == ">")
-	//				bRep = (T1 - T2 >= m_threshold) || (T2 - T3 >= m_threshold);
-	//			return bRep;
-	//		}
-	//*/
+				return bRep;
+				//bRep = CLandsatPixel::GetDespike(pre, spike, post) < (1 - m_threshold);
+			}
+
+			bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& Tp1)const
+			{
+				//bool bPass = true;
+				double pre = Tm1[m_type]; 
+				double pos = Tp1[m_type];
+				
+				bool bRep = false;
+				if (m_op == "<")
+					bRep = pre - pos <= m_threshold;
+				else if (m_op == ">")
+					bRep = pre - pos >= m_threshold;
+				return bRep;
+			}
+	
+			bool IsTrigged(const CLandsatPixel& Tm1, const CLandsatPixel& T, const CLandsatPixel& Tp1)const
+			{
+
+				bool bRemove = true;
+
+				double T1 = Tm1[m_type];
+				double T2 = T[m_type];
+				double T3 = Tp1[m_type];
+
+
+				bool bRep = false;
+				if (m_op == "<")
+					bRep = (T1 - T2 <= m_threshold) || (T2 - T3 <= m_threshold);
+				else if (m_op == ">")
+					bRep = (T1 - T2 >= m_threshold) || (T2 - T3 >= m_threshold);
+				return bRep;
+			}
+	
 
 	///*static bool IsValidOp(std::string op)
 	//{
 	//	return op == "<" || op == ">";
 	//}*/
-	//	};
+		};
 
 	//	typedef std::vector < CIndices > CIndiciesVector;
-		/*class CIndiciesVector : public std::vector < CIndices >
+		class CIndiciesVector : public std::vector < CIndices >
 		{
 		public:
 
@@ -225,7 +225,7 @@ namespace WBSF
 				return bPass;
 			}
 
-		};*/
+		};
 
 		/*class CLandsatFileInfo
 		{

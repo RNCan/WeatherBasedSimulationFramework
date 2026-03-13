@@ -8,7 +8,7 @@
 //******************************************************************************
 #pragma once
 
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
+//#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 
 
 #pragma warning(disable: 4275 4251)

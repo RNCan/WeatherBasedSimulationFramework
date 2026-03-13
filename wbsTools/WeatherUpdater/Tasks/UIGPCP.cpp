@@ -179,7 +179,7 @@ namespace WBSF
 		//					
 
 		//					
-		//					string command = "External\\7za.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
+		//					string command = "7za.exe e \"" + zipFilePath + "\" -y -o\"" + outputPath + "\"";
 		//					msg += WinExecWait(command.c_str());
 		//					RemoveFile(zipFilePath);
 

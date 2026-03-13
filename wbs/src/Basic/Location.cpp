@@ -811,7 +811,7 @@ namespace WBSF
 
 		//http://nominatim.openstreetmap.org/reverse?format=json&lat=46.736497&lon=-71.450790
 
-		callback.PushTask("Extract location name from nominatim", locations.size());
+		callback.PushTask("Extract location name from Nominatim", locations.size());
 
 
 		//CHttpConnectionPtr pConnection;
@@ -835,12 +835,8 @@ namespace WBSF
 					string strGeo;
 					string URL = "https://nominatim.openstreetmap.org/reverse?zoom=18&format=geojson&lat=" + ToString(locations[i].m_lat) + "&lon=" + ToString(locations[i].m_lon);
 
-					string argument = "-s -k \"" + URL + "\"";
-					string exe = GetApplicationPath() + "External\\curl.exe";
-					CCallcURL cURL(exe);
-
-
-					msg = cURL.get_text(argument, strGeo);
+					CCallcURL cURL;
+					msg = cURL.get_URL_text(URL, strGeo);
 					if (msg)
 					{
 						//extract name from nominatim
@@ -990,12 +986,11 @@ namespace WBSF
 				ii = 0;
 				string strGeo;
 
-				string argument = "-s -k \"" + URL + "\"";
-				string exe = GetApplicationPath() + "External\\curl.exe";
-				CCallcURL cURL(exe);
-				msg = cURL.get_text(argument, strGeo);
+				//string argument = "-s -k \"" + URL + "\"";
+				//string exe = GetApplicationPath() + "External\\curl.exe";
 
-				//msg = UtilWWW::GetPageText(pConnection, URL, strGeo, false, INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID);
+				CCallcURL cURL;
+				msg = cURL.get_URL_text(URL, strGeo);
 				if (msg)
 				{
 					//extract elevation from google

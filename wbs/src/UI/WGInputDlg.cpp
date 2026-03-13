@@ -668,7 +668,7 @@ namespace WBSF
 					//call 7z
 
 					//unzip only .csv file because they are smaller than the zip file
-					string command = GetApplicationPath() + "External\\7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
+					string command = GetApplicationPath() + "7za.exe x \"" + file_path_zip + "\" -y -o\"" + wea_path + "\"";
 
 					DWORD exit_code = 0;
 					msg = WinExecWait(command, wea_path, SW_SHOW, &exit_code);

@@ -576,7 +576,7 @@ namespace WBSF
 			pos = filePath.find("[Models Path]\\");
 			if (pos != -1)
 			{
-				ReplaceString(filePath, "[Models Path]\\", (appPath + "Models\\").c_str());
+				ReplaceString(filePath, "[Models Path]\\", (appPath + "..\\Models\\").c_str());
 			}
 		}
 

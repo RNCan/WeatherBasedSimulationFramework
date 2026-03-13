@@ -396,15 +396,18 @@ namespace WBSF
 					string URL = FormatA(pageFormat, radar_id.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), typeName.c_str());
 					URL.resize(strlen(URL.c_str()));
 
-					string source;
+					//string source;
 					//UtilWWW::GetPageText(pConnection, URL, source, true);
-					string argument = "-s -k \"" + URL + "\"";
-					string exe = GetApplicationPath() + "External\\curl.exe";
-					CCallcURL cURL(exe);
+					//string argument = "-s -k \"" + URL + "\"";
+					//string exe = GetApplicationPath() + "curl.exe";
+					//CCallcURL cURL(exe);
 
 					//string source;
-					msg = cURL.get_text(argument, source);
+					//msg = cURL.get_text(argument, source);
+					CCallcURL cURL;
 
+					string source;
+					msg = cURL.get_URL_text(URL, source);
 
 
 					size_t begin = source.find("blobArray = [") + 13;//skip the first
@@ -634,7 +637,7 @@ namespace WBSF
 					StringVector name(imageList[i], "|"); ASSERT(name.size() == 2);
 					string URL = "https://climate.weather.gc.ca" + name[1];
 
-					string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
+					string exe = "\"" + GetApplicationPath() + "curl.exe\"";
 					string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
 					string command = exe + " " + argument;
 
@@ -796,13 +799,13 @@ namespace WBSF
 				if (string(buffer) == "‰PNG")
 				{
 					//gdal_translate - of GTiff - a_srs EPSG : 3978 - a_ullr - 6991528.601092203  4077507.0562611124 7859563.601092203 - 1478754.0562611124 "10;19.png" "OUTPUT3.tif"
-					string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-					string projlib_path = GetApplicationPath() + "External\\projlib";
-					string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+					string gdal_data_path = GetApplicationPath() + "gdal-data";
+					string projlib_path = GetApplicationPath() + "projlib";
+					string plugin_path = GetApplicationPath() + "gdalplugins";
 
 					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 					string argument = "-co COMPRESS=LZW -co TILED=YES -a_srs EPSG:3978 -a_ullr -6991528.601092203 4077507.0562611124 7859563.601092203 -1478754.0562611124";
-					string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + ".png" + "\" \"" + output_file_path + "\"";
+					string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + option + " " + argument + " \"" + output_file_path + ".png" + "\" \"" + output_file_path + "\"";
 					msg += WinExecWait(command);
 
 					nbDownload++;

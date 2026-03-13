@@ -603,14 +603,14 @@ namespace WBSF
 
 				//Create GeoTiff from vrt
 
-				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-				string projlib_path = GetApplicationPath() + "External\\projlib";
-				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+				string gdal_data_path = GetApplicationPath() + "gdal-data";
+				string projlib_path = GetApplicationPath() + "projlib";
+				string plugin_path = GetApplicationPath() + "gdalplugins";
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 				string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 				string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
-				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
+				string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 				msg += WinExecWait(command);
 
 				//remove vrt
@@ -840,19 +840,19 @@ namespace WBSF
 			if (msg)
 			{
 				//copy the file to fully use compression with GDAL_translate
-				string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-				string projlib_path = GetApplicationPath() + "External\\projlib";
-				string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+				string gdal_data_path = GetApplicationPath() + "gdal-data";
+				string projlib_path = GetApplicationPath() + "projlib";
+				string plugin_path = GetApplicationPath() + "gdalplugins";
 
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 				string s_prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
 				string t_prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 				//string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
 				string argument = "--config GDAL_PAM_ENABLED NO -overwrite -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256  -s_srs \"" + s_prj4 + "\" -t_srs \"" + t_prj4 + "\"";
-				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
+				string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 
 				//string argument = "-ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
-				//string command = "\"" + GetApplicationPath() + "External\\gdal_translate.exe\" " + argument;
+				//string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + argument;
 				msg += WinExecWait(command);
 				msg += RemoveFile(outputFilePath + "2");
 				RemoveFile(outputFilePath + "2.aux.xml");
@@ -965,9 +965,9 @@ namespace WBSF
 
 		if (!FileExists(file_path_tif))
 		{
-			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-			string projlib_path = GetApplicationPath() + "External\\projlib";
-			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+			string gdal_data_path = GetApplicationPath() + "gdal-data";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
@@ -976,7 +976,7 @@ namespace WBSF
 			//string ull = "-a_ullr -2099127.494 -2099388.521 4340872.506 -5739388.521";
 			//string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
 			string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
-			string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + file_path + "\" \"" + file_path_tif + "\"";
+			string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " \"" + file_path + "\" \"" + file_path_tif + "\"";
 			msg += WinExecWait(command);
 		}
 
@@ -1080,21 +1080,21 @@ namespace WBSF
 
 			ASSERT(!argument.empty());
 
-			string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-			string projlib_path = GetApplicationPath() + "External\\projlib";
-			string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+			string gdal_data_path = GetApplicationPath() + "gdal-data";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
-			string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
+			string command = "\"" + GetApplicationPath() + "ImageCalculator.exe\" " + option + " " + argument;
 			msg += WinExecWait(command);
 			msg += callback.StepIt();
 
 			//reconvert stereo to rotated
 			if (msg)
 			{
-				//string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-				//string projlib_path = GetApplicationPath() + "External\\projlib";
+				//string gdal_data_path = GetApplicationPath() + "gdal-data";
+				//string projlib_path = GetApplicationPath() + "projlib";
 				//string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 
 				string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
@@ -1102,7 +1102,7 @@ namespace WBSF
 				//string ull = "-a_ullr -2420087.549 -1750072.952  4757990.554 -5516397.139";
 				//string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
 				string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
-				string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + " \"" + out_file_path_tmp + "\" \"" + it->m_out_file_path + "\"";
+				string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " \"" + out_file_path_tmp + "\" \"" + it->m_out_file_path + "\"";
 				msg += WinExecWait(command);
 
 				WBSF::RemoveFile(out_file_path_tmp);
@@ -1206,14 +1206,14 @@ namespace WBSF
 
 						if (!argument.empty())
 						{
-							string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-							string projlib_path = GetApplicationPath() + "External\\projlib";
-							string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+							string gdal_data_path = GetApplicationPath() + "gdal-data";
+							string projlib_path = GetApplicationPath() + "projlib";
+							string plugin_path = GetApplicationPath() + "gdalplugins";
 
 							string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 							
 
-							string command = "\"" + GetApplicationPath() + "External\\ImageCalculator.exe\" " + option + " " + argument;
+							string command = "\"" + GetApplicationPath() + "ImageCalculator.exe\" " + option + " " + argument;
 							msg += WinExecWait(command);
 							msg += callback.StepIt();
 
@@ -1224,7 +1224,7 @@ namespace WBSF
 							//	string ull = "-a_ullr -2420087.549 -1750072.952  4757990.554 -5516397.139";
 							//	string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" " + ull;
 							//	string argument = "--config GDAL_PAM_ENABLED NO -stats -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\"";
-							//	string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + argument + " \"" + out_file_path_tmp + "\" \"" + out_file_path + "\"";
+							//	string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + argument + " \"" + out_file_path_tmp + "\" \"" + out_file_path + "\"";
 							//	msg += WinExecWait(command);
 							//
 							//	WBSF::RemoveFile(out_file_path_tmp);
@@ -1422,15 +1422,15 @@ namespace WBSF
 					if (msg)
 					{
 						//convert with gdal_translate to optimize size
-						string gdal_data_path = GetApplicationPath() + "External\\gdal-data";
-						string projlib_path = GetApplicationPath() + "External\\projlib";
-						string plugin_path = GetApplicationPath() + "External\\gdalplugins";
+						string gdal_data_path = GetApplicationPath() + "gdal-data";
+						string projlib_path = GetApplicationPath() + "projlib";
+						string plugin_path = GetApplicationPath() + "gdalplugins";
 						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 						string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
 						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -a_srs \"" + prj4 + "\" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						string argument = "--config GDAL_PAM_ENABLED NO -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -t_srs \"" + prj4 + "\"";
-						string command = "\"" + GetApplicationPath() + "External\\gdalwarp.exe\" " + option + " " + argument + +" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
+						string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + +" \"" + file_path_out + "2" + "\" \"" + file_path_out + "\"";
 						msg += WinExecWait(command);
 						msg += RemoveFile(file_path_out + "2");
 					}

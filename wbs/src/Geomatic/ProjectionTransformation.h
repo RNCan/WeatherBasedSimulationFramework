@@ -12,7 +12,7 @@
 #include "Geomatic/Projection.h"
 
 
-typedef void *projPJ;
+//typedef void *projPJ;
 class OGRSpatialReference;
 class OGRCoordinateTransformation;
 class OGRSpatialReference;

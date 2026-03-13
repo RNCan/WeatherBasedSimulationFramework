@@ -7,7 +7,7 @@
 //  It is provided "as is" without express or implied warranty.
 //
 //******************************************************************************
-// 14-09-2023   Rémi Saint-Amant	Port un Linux
+// 14-09-2023   Rémi Saint-Amant	Port on Linux
 // 01-01-2016	Rémi Saint-Amant	Include into Weather-based simulation framework
 //******************************************************************************
 
@@ -1821,7 +1821,7 @@ namespace WBSF
 			return this->at( x, y);
 
 
-		DataType val = this->GetNoData();
+		DataType val = (DataType)GetNoData();
 
 		int n_rings1 = (int)floor(n_rings);
 		int n_rings2 = (int)ceil(n_rings);

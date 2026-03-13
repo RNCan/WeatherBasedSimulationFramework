@@ -22,6 +22,8 @@
 #include <iostream>
 #include <bitset>
 #include <boost/dynamic_bitset.hpp>
+#include "gdal_priv.h"
+
 
 #include "Basic/UtilTime.h"
 #include "Basic/UtilMath.h"
@@ -30,8 +32,8 @@
 #include "Geomatic/See5hooks.h"
 #include "Geomatic/LandsatDataset1.h"
 
-#pragma warning(disable: 4275 4251)
-#include "gdal_priv.h"
+
+
 
 
 using namespace std;

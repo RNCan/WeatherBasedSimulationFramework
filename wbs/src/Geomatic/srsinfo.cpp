@@ -37,7 +37,7 @@
 #include "ogr_api.h"
 #include "ogrsf_frmts.h"
 
-CPL_CVSID("$Id$");
+//CPL_CVSID("$Id$");
 
 namespace WBSF
 {

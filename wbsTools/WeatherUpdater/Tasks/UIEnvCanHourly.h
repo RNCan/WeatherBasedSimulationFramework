@@ -138,7 +138,7 @@ namespace WBSF
 		ERMsg GetSWOBToDownload(size_t network, CLocationVector& locations, std::map<std::string, CFileInfoVector>& fileList, CCallback& callback);
 		std::string GetStationURL(size_t network, const std::string& provider, CTRef TRef, std::string ID, bool bWithFilter);
 		ERMsg GetLastUpdate(size_t network, std::map<std::string, CTRef>& lastUpdate);
-		ERMsg GetSWOBDatesToUpdate(size_t network, std::set<CTRef>& dates, CCallback& callback);
+		ERMsg GetSWOBDatesToUpdate(size_t network, const CLocationVector& locations, std::set<CTRef>& dates, CCallback& callback);
 		//CLocation GetMissingLocation(std::string filepath);
 		CTRef GetSwobDateFromURL(const std::string& URL);
 

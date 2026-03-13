@@ -993,7 +993,7 @@ namespace WBSF
 		string argument = "-s -k --user " + Get(USER_NAME) + ":" + Get(PASSWORD) + " \"" + URL + "\" -o \"" + output + "\"";
 
 		//string argument = "-s -k \"" + URL + "\"";
-		string exe = "\"" + GetApplicationPath() + "External\\curl.exe\"";
+		string exe = "\"" + GetApplicationPath() + "curl.exe\"";
 		//CCallcURL cURL;
 
 		//string source;

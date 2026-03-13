@@ -1,3 +1,4 @@
+// 4.5.0	25-02-2026	Rémi Saint-Amant	Update with GDAL 3.12 ans Proj9. Move External to bin.
 // 4.4.7	08-09-2023	Rémi Saint-Amant	Build with GDAL 3.7.1
 // 4.4.6	20/12/2021	Rémi Saint-Amant	Compile with GDAL 3.0.5 
 // 4.4.5	02/08/2021	Rémi Saint-Amant	Compile with VC 2019 and MFC dll version
@@ -58,7 +59,7 @@ END_MESSAGE_MAP()
 CMatchStationApp::CMatchStationApp() :
 	m_nGdiplusToken(0)
 {
-	SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
+	//SetDllDirectory(CString((GetApplicationPath() + "External").c_str()));
 	m_bHiColorIcons = TRUE;
 	SetAppID(_T("NRCan.MatchStation.4"));
 
@@ -141,7 +142,7 @@ BOOL CMatchStationApp::InitInstance()
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
-	ERMsg msg = CShore::SetShore(GetApplicationPath() + "Layers/shore.ann");
+	ERMsg msg = CShore::SetShore(GetApplicationPath() + "../Layers/shore.ann");
 		
 	if (!msg)
 		UtilWin::SYShowMessage(msg, NULL);

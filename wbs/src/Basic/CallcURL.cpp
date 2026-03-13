@@ -27,7 +27,7 @@ namespace WBSF
 		m_timeout = 0;
 
 		if (m_exe_filepath.empty())
-			m_exe_filepath = GetApplicationPath() + "External\\curl.exe";
+			m_exe_filepath = GetApplicationPath() + "curl.exe";
 	}
 
 	
@@ -167,9 +167,7 @@ namespace WBSF
 		// Create a child process that uses the previously created pipes for STDIN and STDOUT.
 	{
 		ERMsg msg;
-
-
-		//TCHAR szCmdline[] = TEXT("\"E:/Project/bin/Releasex64/External/curl.exe\" -s \"https://climat.meteo.gc.ca/historical_data/search_historic_data_stations_f.html?searchType=stnProv&timeframe=1&lstProvince=QC&optLimit=yearRange&StartYear=2020&EndYear=2020&Year=2020&Month=9&Day=29&selRowPerPage=10\"");
+		
 		PROCESS_INFORMATION piProcInfo;
 		STARTUPINFO siStartInfo;
 		BOOL bSuccess = FALSE;

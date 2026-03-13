@@ -12,7 +12,7 @@
 #include "../Resource.h"
 
 #pragma warning(disable: 4275 4251)
-#include "GDAL\include\gdal_priv.h"
+#include "gdal_priv.h"
 
 
 //National Digital Forecast Database (NDFD)

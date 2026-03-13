@@ -289,7 +289,7 @@ namespace WBSF
 
 				UINT show = /*APP_VISIBLE && */m_bShowFTPTransfer ? SW_SHOW : SW_HIDE;
 				bool bShow = m_bShowFTPTransfer;
-				string command = "\"" + GetApplicationPath() + "External\\WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
+				string command = "\"" + GetApplicationPath() + "WinSCP.exe\" " + string(bShow ? "/console " : "") + " /passive=on" + " /log=\"" + scriptFilePath + ".log\" /ini=nul /script=\"" + scriptFilePath + "\"";
 
 				DWORD exitCode = 0;
 				msg = WinExecWait(command.c_str(), GetApplicationPath().c_str(), show, &exitCode);
