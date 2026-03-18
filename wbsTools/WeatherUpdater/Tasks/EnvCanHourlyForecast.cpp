@@ -116,12 +116,12 @@ namespace WBSF
 
 	std::string CEnvCanHourlyForecast::GetStationListFilePath()const
 	{
-		return GetApplicationPath() + "Layers\\ForecastZones.csv";
+		return GetApplicationPath() + "..\\Layers\\ForecastZones.csv";
 	}
 
 	std::string CEnvCanHourlyForecast::GetShapefileFilePath()const
 	{
-		return GetApplicationPath() + "Layers\\ForecastZones.shp";
+		return GetApplicationPath() + "..\\Layers\\ForecastZones.shp";
 	}
 
 	std::string CEnvCanHourlyForecast::GetDatabaseFilePath()const

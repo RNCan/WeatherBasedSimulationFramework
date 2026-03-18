@@ -280,7 +280,7 @@ namespace WBSF
 
 	string CUICIPRA::GetStationsFilePath()
 	{
-		string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
+		string srcFilePath = GetApplicationPath() + "..\\Layers\\CIPRAStations.csv";
 		
 		return srcFilePath;
 		//return GetDir(WORKING_DIR) + "Stations.csv";
@@ -780,7 +780,7 @@ namespace WBSF
 
 		//if (!FileExists(dstFilePath))
 		//{
-			//string srcFilePath = GetApplicationPath() + "Layers\\CIPRAStations.csv";
+			//string srcFilePath = GetApplicationPath() + "..\\Layers\\CIPRAStations.csv";
 
 			//CString src(CStringA(srcFilePath.c_str()));
 			//CString dst(CStringA(dstFilePath.c_str()));

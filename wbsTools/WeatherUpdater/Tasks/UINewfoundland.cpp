@@ -110,7 +110,7 @@ namespace WBSF
 		if (n == DFFA_NETWORK)
 			file_path = GetDir(WORKING_DIR) + "Station_Metadata.csv";
 		else if (n == WRMD_NETWORK)
-			file_path = WBSF::GetApplicationPath() + "Layers\\NLStationsWRMD.csv";
+			file_path = WBSF::GetApplicationPath() + "..\\Layers\\NLStationsWRMD.csv";
 
 		return file_path;
 	}

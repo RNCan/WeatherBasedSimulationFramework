@@ -152,7 +152,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		string filePath = GetApplicationPath() + "Layers\\QuebecStations.csv";
+		string filePath = GetApplicationPath() + "..\\Layers\\QuebecStations.csv";
 		msg = m_stations.Load(filePath);
 
 		for (size_t i = 0; i < m_stations.size(); i++)

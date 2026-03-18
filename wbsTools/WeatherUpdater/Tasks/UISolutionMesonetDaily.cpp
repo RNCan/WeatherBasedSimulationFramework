@@ -524,7 +524,7 @@ namespace WBSF
 		}
 
 		//add other stations for historical load
-		string otherStations = GetApplicationPath() + "Layers\\QuebecStations.csv";
+		string otherStations = GetApplicationPath() + "..\\Layers\\QuebecStations.csv";
 		CLocationVector stations;
 		msg = stations.Load(otherStations);
 		for (auto it = stations.begin(); it != stations.end(); it++)

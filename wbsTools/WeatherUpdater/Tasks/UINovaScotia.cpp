@@ -103,7 +103,7 @@ namespace WBSF
 	std::string CUINovaScotia::GetStationsListFilePath(size_t network)const
 	{
 		
-		string filePath = GetApplicationPath() + "Layers\\NovaScotiaStations.csv";
+		string filePath = GetApplicationPath() + "..\\Layers\\NovaScotiaStations.csv";
 		return filePath;
 	}
 

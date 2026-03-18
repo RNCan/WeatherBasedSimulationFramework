@@ -815,7 +815,7 @@ namespace WBSF
 	void CCountrySelectionGADM::LoadDefault()
 	{
 		if (m_default_list.empty())
-			Load(GetApplicationPath() + "Layers\\countries.csv");
+			Load(GetApplicationPath() + "..\\Layers\\countries.csv");
 
 		ASSERT(!m_default_list.empty());
 	}

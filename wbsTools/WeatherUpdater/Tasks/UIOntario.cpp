@@ -454,7 +454,7 @@ namespace WBSF
 	std::string CUIOntario::GetStationListFilePath()const
 	{
 
-		return WBSF::GetApplicationPath() + "Layers\\OntarioStations.csv";
+		return WBSF::GetApplicationPath() + "..\\Layers\\OntarioStations.csv";
 	}
 
 	ERMsg CUIOntario::GetStationList(StringVector& stationList, CCallback& callback)

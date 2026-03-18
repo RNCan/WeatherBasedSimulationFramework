@@ -132,7 +132,7 @@ namespace WBSF
 		if (m_networks.empty())
 		{
 			CUIMesoWest& me = const_cast<CUIMesoWest&>(*this);
-			string file_path = GetApplicationPath() + "Layers\\MesoWest-Networks.csv";
+			string file_path = GetApplicationPath() + "..\\Layers\\MesoWest-Networks.csv";
 			LoadNetwork(file_path, me.m_networks);
 		}
 
@@ -325,7 +325,7 @@ namespace WBSF
 
 		if (m_networks.empty())
 		{
-			string file_path = GetApplicationPath() + "Layers\\MesoWest-Networks.csv";
+			string file_path = GetApplicationPath() + "..\\Layers\\MesoWest-Networks.csv";
 			LoadNetwork(file_path, m_networks);
 		}
 
