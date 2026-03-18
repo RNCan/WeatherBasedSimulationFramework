@@ -66,7 +66,7 @@ namespace WBSF
 		ERMsg ParseStationListPage(const std::string& source, CLocationVector& stationList)const;
 		//ERMsg UpdateAllStationList(CCallback& callback);
 		static ERMsg UpdateStationList(CLocationVector& stationList, CLocationVector& stations, CCallback& callback);
-		static ERMsg UpdateCoordinate(__int64 id, int year, size_t m, CLocation& station);
+		static ERMsg UpdateCoordinate(const std::string& id, int year, size_t m, CLocation& station);
 
 
 

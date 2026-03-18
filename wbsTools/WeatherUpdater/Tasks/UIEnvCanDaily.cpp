@@ -65,7 +65,7 @@ namespace WBSF
 		std::string str;
 		switch (i)
 		{
-		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "EnvCan\\Daily\\"; break;
+		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "Daily\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:		str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
 		};
@@ -322,7 +322,8 @@ namespace WBSF
 			CLocation stationInfo;
 
 			string period = PurgeQuote(FindString(source, "name=\"dlyRange\" value=", "/>", posBegin, posEnd));
-			string internalID = PurgeQuote(FindString(source, "name=\"StationID\" value=", "/>", posBegin, posEnd));
+			//string internalID = PurgeQuote(FindString(source, "name=\"climate_id\" value=", "/>", posBegin, posEnd));
+			string ID = PurgeQuote(FindString(source, "name=\"climate_id\" value=", "/>", posBegin, posEnd));
 			string prov = PurgeQuote(FindString(source, "name=\"Prov\" value=", "/>", posBegin, posEnd));
 			string name = PurgeQuote(FindString(source, "<div class=\"col-lg-3 col-md-3 col-sm-3 col-xs-3\">", "</div>", posBegin, posEnd));
 
@@ -332,7 +333,8 @@ namespace WBSF
 				if (!period.empty() && period != "N/A" && period != "|")
 				{
 					stationInfo.m_name = WBSF::PurgeFileName(Trim(WBSF::UppercaseFirstLetter(name)));
-					stationInfo.SetSSI("InternalID", internalID);
+					stationInfo.m_ID = ID;
+				//	stationInfo.SetSSI("InternalID", internalID);
 					stationInfo.SetSSI("Province", prov);
 					stationInfo.SetSSI("Period", period);
 					stationList.push_back(stationInfo);
@@ -358,20 +360,21 @@ namespace WBSF
 			//this station doesn't exist, we add it
 			CTPeriod period = String2Period(it->GetSSI("Period"));
 
-			string internalID = it->GetSSI("InternalID");
-			CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
-			if (it2 == stations.end() || it2->m_lat == -999)
+			//string internalID = it->GetSSI("InternalID");
+			//CLocationVector::iterator it2 = stations.FindBySSI("InternalID", internalID, false);
+			CLocationVector::iterator it2 = stations.FindByID( it->m_ID, false);
+			if (it2 == stations.end() || it->m_lat == -999)
 			{
 				if (it2 == stations.end())
 				{
 					stations.push_back(*it);
-					it2 = stations.FindBySSI("InternalID", internalID, false);
+					it2 = stations.FindByID(it->m_ID, false);
 				}
 
 				ASSERT(it2 != stations.end());
-				__int64 internalID64 = ToInt64(internalID);
+				//__int64 internalID64 = ToInt64(it->m_ID);
 
-				ERMsg msgTmp = UpdateCoordinate(internalID64, period.End().GetYear(), period.End().GetMonth(), *it2);
+				ERMsg msgTmp = UpdateCoordinate(it->m_ID, period.End().GetYear(), period.End().GetMonth(), *it2);
 				if (!msgTmp)
 					callback.AddMessage(msgTmp);
 			}
@@ -394,13 +397,13 @@ namespace WBSF
 
 	//because station coordinate in the csv file is lesser accurate than in the web page
 	//we have to update coordinate from web page
-	ERMsg CUIEnvCanDaily::UpdateCoordinate(__int64 id, int year, size_t month, CLocation& station)
+	ERMsg CUIEnvCanDaily::UpdateCoordinate(const string& id, int year, size_t month, CLocation& station)
 	{
 		static const char webPageDataFormat[] =
 		{
 			"https://climate.weather.gc.ca/climate_data/daily_data_e.html?"
 			"timeframe=2&"
-			"StationID=%ld&"
+			"climate_id=%s&"
 			"Year=%d&"
 			"Month=%d&"
 			"Day=1"
@@ -408,7 +411,7 @@ namespace WBSF
 
 		ERMsg msg;
 
-		string URL = FormatA(webPageDataFormat, id, year, month + 1);
+		string URL = FormatA(webPageDataFormat, id.c_str(), year, month + 1);
 
 		//string argument = "-s -k \"" + URL + "\"";
 		//string exe = GetApplicationPath() + "curl.exe";
@@ -490,6 +493,8 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		CCallcURL cURL;
+
 		string workingDir = GetDir(WORKING_DIR);
 
 		int nbFilesToDownload = 0;
@@ -508,8 +513,8 @@ namespace WBSF
 			CTPeriod period2(CTRef(year, JANUARY, FIRST_DAY), CTRef(year, DECEMBER, LAST_DAY));
 			if (period1.IsIntersect(period2))
 			{
-				string internalID = info.GetSSI("InternalID");
-				string outputPath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
+				//string internalID = info.GetSSI("InternalID");
+				string outputPath = GetOutputFilePath(info.GetSSI("Province"), year, info.m_ID);
 				bNeedDownload[y] = NeedDownload(outputPath, info, year);
 				nbFilesToDownload += bNeedDownload[y] ? 1 : 0;
 			}
@@ -528,31 +533,28 @@ namespace WBSF
 
 			if (bNeedDownload[y])
 			{
-				string internalID = info.GetSSI("InternalID");
-				string filePath = GetOutputFilePath(info.GetSSI("Province"), year, internalID);
+				//string internalID = info.GetSSI("InternalID");
+				string filePath = GetOutputFilePath(info.GetSSI("Province"), year, info.m_ID);
 				CreateMultipleDir(GetPath(filePath));
 
 				static const char pageDataFormat[] =
 				{
 					"https://climate.weather.gc.ca/climate_data/bulk_data_e.html?"
 					"format=csv&"
-					"stationID=%s&"
+					"climate_id=%s&"
 					"Year=%d&"
 					"Month=1&"
 					"Day=1&"
+					"&time=&"
 					"timeframe=2&"
 					"submit=Download+Data"
 				};
 
-				string URL = FormatA(pageDataFormat, internalID.c_str(), year);
+				
 
-				string exe = "\"" + GetApplicationPath() + "curl.exe\"";
-				string argument = "-s -k \"" + URL + "\" --output \"" + filePath + "\"";
-				string command = exe + " " + argument;
-
-				DWORD exit_code;
-				msg = WinExecWait(command, "", SW_HIDE, &exit_code);
-				if (exit_code == 0 && FileExists(filePath))
+				string URL = FormatA(pageDataFormat, info.m_ID.c_str(), year);
+				msg += cURL.copy_file(URL, filePath);
+				if (msg && FileExists(filePath))
 				{
 					ifStream file;
 					msg += file.open(filePath);
@@ -781,7 +783,7 @@ namespace WBSF
 
 		GetStationInformation(ID, station);
 
-		string internalID = station.GetSSI("InternalID");
+		//string ID = station.m_ID;
 		string prov = station.GetSSI("Province");
 		station.m_name = TraitFileName(station.m_name) + " (" + prov + ")";
 		station.m_ID += "D";//add a "D" for daily data
@@ -795,7 +797,7 @@ namespace WBSF
 		for (size_t y = 0; y < nbYears && msg; y++)
 		{
 			int year = firstYear + int(y);
-			string filePath = GetOutputFilePath(prov, year, internalID);
+			string filePath = GetOutputFilePath(prov, year, ID);
 			if (FileExists(filePath))
 				msg = ReadData(filePath, station[year]);
 		}
