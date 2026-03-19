@@ -1,4 +1,5 @@
 //6.3.1 17/03/2026	Rémi Saint-Amant	Update Env. Can historical daily and hourly download.
+//										Remove french accent for MDDELCC
 //6.3.0 25/02/2026	Rémi Saint-Amant	Update with GDAL 3.12 ans Proj9. Move External to bin.
 //6.2.4 26/01/2026  Rémi Saint-Amant	Update of Env. Can. SWOB-ML and SWOB-Partner
 //6.2.3 22/07/2025  Rémi Saint-Amant	Bug correction in Google Drive download (again).

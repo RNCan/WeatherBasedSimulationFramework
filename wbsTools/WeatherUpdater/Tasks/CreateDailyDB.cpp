@@ -525,6 +525,11 @@ namespace WBSF
 													bValid = false;
 											}
 											
+											if (bValid && station[y][m][d][H_TMIN][MEAN] == 0 && station[y][m][d][H_TMAX][MEAN] == 0 )
+											{
+												bValid = false;
+											}
+
 											if (bValid && prev[H_TMIN].IsInit() && next[H_TMIN].IsInit() && 
 												prev[H_TMAX].IsInit() && next[H_TMAX].IsInit())
 											{
