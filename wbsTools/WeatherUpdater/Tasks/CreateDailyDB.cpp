@@ -524,6 +524,14 @@ namespace WBSF
 												if (value >= max(prev[H_TAIR][MEAN], next[H_TAIR][MEAN]) + 40)
 													bValid = false;
 											}
+											
+											if (bValid && prev[H_TMIN].IsInit() && next[H_TMIN].IsInit() && 
+												prev[H_TMAX].IsInit() && next[H_TMAX].IsInit())
+											{
+												if (prev[H_TMIN][MEAN] == 0 && next[H_TMIN][MEAN] == 0  &&
+													prev[H_TMAX][MEAN] == 0 && next[H_TMAX][MEAN] == 0 )//all values are zero
+													bValid = false;
+											}
 
 											if( !bValid )
 											{
