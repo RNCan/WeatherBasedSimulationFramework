@@ -812,7 +812,7 @@ namespace WBSF
 									if (value > -999)
 										output[TRef][v] = value;
 
-									ASSERT(output[TRef][ATM_DEFOLIATION] != 0);
+									ASSERT(output[TRef][ATM_DEFOLIATION] != -999);
 								}
 
 							}

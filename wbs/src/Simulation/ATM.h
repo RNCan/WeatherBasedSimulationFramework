@@ -656,7 +656,7 @@ namespace WBSF
 	public:
 
 		int m_max_hour_load;
-		CGeoRect m_clipRect;
+		CGeoRect m_extents;
 
 		CTimeDatasetMap();
 		
@@ -734,6 +734,7 @@ namespace WBSF
 		__int64 GetNextTime(__int64 UTCTime)const;
 		__int64 GetLastTime()const;
 		CTPeriod GetEntireTPeriod()const;
+		const CGeoRect& GetGeoRect() const { return m_p_weather_DS.m_extents; }
 
 	protected:
 
