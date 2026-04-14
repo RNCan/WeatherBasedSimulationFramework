@@ -248,6 +248,9 @@
     <ClCompile Include="..\src\Basic\WeatherGeneratorDailyKernel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Basic\AdvancedNormalStation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Basic\AmountPpt.h">
@@ -530,6 +533,9 @@
       <Filter>Source\ARModel</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Basic\WeatherGeneratorDailyKernel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Basic\AdvancedNormalStation.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

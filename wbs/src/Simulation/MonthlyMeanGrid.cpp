@@ -21,8 +21,8 @@
 #include "Basic/UtilZen.h"
 #include "Basic/DailyDatabase.h"
 #include "Basic/NormalsDatabase.h"
+#include "Basic/AdvancedNormalStation.h"
 #include "Geomatic/ProjectionTransformation.h"
-#include "Simulation/AdvancedNormalStation.h"
 #include "Simulation/MonthlyMeanGrid.h"
 
 

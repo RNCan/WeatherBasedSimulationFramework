@@ -10,49 +10,50 @@
 #pragma once
 
 
-#include "BioSIMModelBase.h"
-#include "StdString.h"
-#include "NormalFile.h"
-#include "DailyFile.h"
-#include "2DimArray.h"
-#include "UtilWin.h"
-//#include <StlLock.h>
+#include "string.h"
 
-//*******************************************************
-//CCreateBioSIMDatabase
+#include "Basic/WeatherStation.h"
+#include "ModelBase/BioSIMModelBase.h"
 
-class CCreateBioSIMDatabase : public CBioSIMModelBase
+namespace WBSF
 {
-public:
 
-	enum TType {NORAMAL, DAILY};
+	//#include "DailyFile.h"
+	//#include "2DimArray.h"
+	//#include "UtilWin.h"
+	//#include <StlLock.h>
 
-    CCreateBioSIMDatabase();
-    virtual ~CCreateBioSIMDatabase();
+	//*******************************************************
+	//CCreateBioSIMDatabase
 
-	virtual ERMsg OnExecuteDaily();
-    virtual ERMsg OnExecuteMonthly();
-	//virtual ERMsg OnExecuteUntemporal();
-    virtual ERMsg ProcessParameter(const CParameterVector& parameters);
-    virtual ERMsg GetErrorMessage(int errorID);
+	class CCreateBioSIMDatabase : public CBioSIMModelBase
+	{
+	public:
 
+		enum TType { NORAMAL, DAILY };
 
-	static CBioSIMModelBase* CreateObject(){ return new CCreateBioSIMDatabase; }
+		CCreateBioSIMDatabase();
+		virtual ~CCreateBioSIMDatabase();
 
-
-    
-private:
-
-	void GetDailyStation(CDailyStation& station);
-
-	
-
-	bool m_bDeleteOldDB;
-	//static bool m_bExportFile;
-	CStdString m_filePath;
-	
+		virtual ERMsg OnExecuteDaily();
+		virtual ERMsg OnExecuteMonthly();
+		virtual ERMsg ProcessParameters(const CParameterVector& parameters);
+		//virtual ERMsg GetErrorMessage(int errorID);
 
 
-	//CCritSec m_CS;
-	
-};
+		static CBioSIMModelBase* CreateObject() { return new CCreateBioSIMDatabase; }
+
+
+
+	private:
+
+		void GetDailyStation(CWeatherStation& station);
+
+
+
+		bool m_bDeleteOldDB;
+		std::string m_filePath;
+
+	};
+
+}

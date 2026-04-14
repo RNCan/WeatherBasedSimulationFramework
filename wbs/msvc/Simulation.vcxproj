@@ -182,7 +182,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Simulation\AdvancedNormalStation.cpp" />
     <ClCompile Include="..\src\Simulation\Analysis.cpp" />
     <ClCompile Include="..\src\Simulation\ATM.cpp" />
     <ClCompile Include="..\src\Simulation\BioSIMProject.cpp" />
@@ -221,7 +220,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Simulation\AdvancedNormalStation.h" />
     <ClInclude Include="..\src\Simulation\Analysis.h" />
     <ClInclude Include="..\src\Simulation\ATM.h" />
     <ClInclude Include="..\src\Simulation\BioSIMProject.h" />

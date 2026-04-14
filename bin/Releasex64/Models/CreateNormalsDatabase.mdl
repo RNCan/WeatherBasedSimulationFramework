@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>CreateNormalsDatabase</Title>
+    <Version>1.0</Version>
+    <ID>.CBD</ID>
+    <EXE>CreateBioSIMDatabase.dll</EXE>
+    <Behaviour>0</Behaviour>
+    <Description>export BioSIM' Normlal database</Description>
+    <WindowRect>0 0 125 484</WindowRect>
+    <SimulatedCategory>TN T TX P TD H WS WD</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>10</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>false</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>ReplaceDB</Name>
+            <Caption>ReplaceDB</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>10 10 30 160</Rect>
+            <SeparatorPos>75</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Fichier</Name>
+            <Caption>FilePath</Caption>
+            <Description/>
+            <Type>4</Type>
+            <Rect>35 10 55 445</Rect>
+            <SeparatorPos>75</SeparatorPos>
+            <DefaultValue>[Project Path]\Weather\Default.NormalsDB</DefaultValue>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>1 1</OutputTypeMode>
+    <MissingValue>-9999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>TMIN_MN</Name>
+            <Title>TMIN_MN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TMAX_MN</Name>
+            <Title>TMAX_MN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TMNMX_R</Name>
+            <Title>TMNMX_R</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DEL_STD</Name>
+            <Title>DEL_STD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EPS_STD</Name>
+            <Title>EPS_STD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TACF_A1</Name>
+            <Title>TACF_A1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TACF_A2</Name>
+            <Title>TACF_A2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TACF_B1</Name>
+            <Title>TACF_B1</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TACF_B2</Name>
+            <Title>TACF_B2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PRCP_TT</Name>
+            <Title>PRCP_TT</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>PRCP_SD</Name>
+            <Title>PRCP_SD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>TDEW_MN</Name>
+            <Title>TDEW_MN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RELH_MN</Name>
+            <Title>RELH_MN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>RELH_SD</Name>
+            <Title>RELH_SD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WNDS_MN</Name>
+            <Title>WNDS_MN</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>WNDS_SD</Name>
+            <Title>WNDS_SD</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>score = (daily - Normals[mean])/Normals[SD]</Credit>
+    <HelpFileName/>
+</Model>

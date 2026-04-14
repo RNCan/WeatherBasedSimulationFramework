@@ -532,8 +532,10 @@
 #define IDC_MATCH_NAME                  1248
 #define IDC_MAP_GLOBAL_LIMIT_SD         1249
 #define IDC_RESET_DEFAULT               1249
+#define IDC_EXPORT_NORMALS              1249
 #define IDC_MAP_REGIONAL_LIMIT          1250
 #define IDC_SIM_EQUATION                1250
+#define IDC_DB_NAME                     1250
 #define IDC_MAP_GLOBAL_LIMIT            1251
 #define IDC_CHECK1                      1251
 #define IDC_SIM_LIMIT_DEVRATE           1251
