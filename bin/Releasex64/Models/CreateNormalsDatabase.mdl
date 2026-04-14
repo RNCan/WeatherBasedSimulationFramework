@@ -34,8 +34,8 @@
             <Rect>35 10 55 445</Rect>
             <SeparatorPos>75</SeparatorPos>
             <DefaultValue>[Project Path]\Weather\Default.NormalsDB</DefaultValue>
-            <MinValue>-999</MinValue>
-            <MaxValue>999</MaxValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <TextValue/>
         </InputVariable>
     </InputVariableArray>

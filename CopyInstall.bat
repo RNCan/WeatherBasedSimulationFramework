@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 cd %~dp0
 echo %cd%
@@ -10,14 +10,14 @@ if not exist "..\Install\NRCan\Models" mkdir "..\Install\NRCan\Models"
 if not exist "..\Install\NRCan\Layers" mkdir "..\Install\NRCan\Layers"
 if not exist "..\Install\NRCan\Palette" mkdir "..\Install\NRCan\Palette"
 
-xcopy /Y /b ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe*"
-xcopy /Y /b ".\bin\Releasex64\HourlyEditor.exe" "..\Install\NRCan\HourlyEditor.exe*"
-xcopy /Y /b ".\bin\Releasex64\DailyEditor.exe" "..\Install\NRCan\DailyEditor.exe*"
-xcopy /Y /b ".\bin\Releasex64\NormalsEditor.exe" "..\Install\NRCan\NormalsEditor.exe*"
-xcopy /Y /b ".\bin\Releasex64\WeatherUpdater.exe" "..\Install\NRCan\WeatherUpdater.exe*"
-xcopy /Y /b ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe*"
-xcopy /Y /b ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe*"
-xcopy /Y /b ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe*"
+::xcopy /Y /b ".\bin\Releasex64\BioSIM11.exe" "..\Install\NRCan\BioSIM11.exe*"
+::xcopy /Y /b ".\bin\Releasex64\HourlyEditor.exe" "..\Install\NRCan\HourlyEditor.exe*"
+::xcopy /Y /b ".\bin\Releasex64\DailyEditor.exe" "..\Install\NRCan\DailyEditor.exe*"
+::xcopy /Y /b ".\bin\Releasex64\NormalsEditor.exe" "..\Install\NRCan\NormalsEditor.exe*"
+::xcopy /Y /b ".\bin\Releasex64\WeatherUpdater.exe" "..\Install\NRCan\WeatherUpdater.exe*"
+::xcopy /Y /b ".\bin\Releasex64\MatchStation.exe" "..\Install\NRCan\MatchStation.exe*"
+::xcopy /Y /b ".\bin\Releasex64\TDate.exe" "..\Install\NRCan\TDate.exe*"
+::xcopy /Y /b ".\bin\Releasex64\ShowMap.exe" "..\Install\NRCan\ShowMap.exe*"
 ::copy /Y ".\bin\Releasex64\ShowMap.exe.manifest" "..\Install\NRCan\ShowMap.exe.manifest"
 ::copy /Y ".\bin\Releasex64\vcruntime140.dll" "..\Install\NRCan\vcruntime140.dll"
 ::copy /Y ".\bin\Releasex64\vcruntime140_1.dll" "..\Install\NRCan\vcruntime140_1.dll"
@@ -84,6 +84,8 @@ copy /Y ".\bin\Releasex64\Models\ClimaticQc.dll"            "..\Install\NRCan\Mo
 copy /Y ".\bin\Releasex64\Models\CornHeatUnits.mdl" "..\Install\NRCan\Models\CornHeatUnits.mdl"
 copy /Y ".\bin\Releasex64\Models\CornHeatUnits.dll" "..\Install\NRCan\Models\CornHeatUnits.dll"
 
+copy /Y ".\bin\Releasex64\Models\CreateNormalsDatabase.mdl" "..\Install\NRCan\Models\CreateNormalsDatabase.mdl"
+copy /Y ".\bin\Releasex64\Models\CreateBioSIMDatabase.dll" "..\Install\NRCan\Models\CreateBioSIMDatabase.dll"
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (H 2 D).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (H 2 D).mdl"
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly (D 2 H).mdl"    "..\Install\NRCan\Models\Daily vs Hourly (D 2 H).mdl"
 copy /Y ".\bin\Releasex64\Models\Daily vs Hourly.dll"    "..\Install\NRCan\Models\Daily vs Hourly.dll"
@@ -279,6 +281,10 @@ copy /Y ".\bin\Releasex64\Models\WorldClimVars.mdl" "..\Install\NRCan\Models\Wor
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.dll" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.dll"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.mdl" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.mdl"
 copy /Y ".\bin\Releasex64\Models\Yellowheaded Spruce Sawfly.pdf" "..\Install\NRCan\Models\Yellowheaded Spruce Sawfly.pdf"
+
+
+
+
 
 
 xcopy /Y /S ".\bin\Releasex64\bin\*.*" "..\Install\NRCan\bin\*.*"

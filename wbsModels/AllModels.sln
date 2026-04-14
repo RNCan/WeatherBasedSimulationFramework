@@ -186,6 +186,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdPrcpETIndex", "StdPrcpET
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateBioSIMDatabase", "CreateBioSIMDatabase\MakeBioSIMNormalsModel.vcxproj", "{65D980BC-E6A9-4B2E-9B99-C4DA6BA20DCF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaterBalance", "WaterBalance\WaterBalance.vcxproj", "{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -928,6 +930,14 @@ Global
 		{65D980BC-E6A9-4B2E-9B99-C4DA6BA20DCF}.Release|Win32.ActiveCfg = Release|x64
 		{65D980BC-E6A9-4B2E-9B99-C4DA6BA20DCF}.Release|x64.ActiveCfg = Release|x64
 		{65D980BC-E6A9-4B2E-9B99-C4DA6BA20DCF}.Release|x64.Build.0 = Release|x64
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Debug|Win32.Build.0 = Debug|Win32
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Debug|x64.ActiveCfg = Debug|x64
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Debug|x64.Build.0 = Debug|x64
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Release|Win32.ActiveCfg = Release|Win32
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Release|Win32.Build.0 = Release|Win32
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Release|x64.ActiveCfg = Release|x64
+		{62B1FCCC-C402-49BF-B5C7-3C7ABA2DA8DB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
