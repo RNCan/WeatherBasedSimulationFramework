@@ -98,6 +98,9 @@ typedef std::pair<REAL_TYPE, REAL_TYPE> RegressP;
 inline RegressP Regress(const CRealArray& x, const CRealArray& y)
 {
     assert(x.size() == y.size());
+    if(x.size()==1)
+        return std::make_pair(0, y[0]);
+
     //compute slope
     const size_t n = x.size();
     const REAL_TYPE s_x = x.sum();
@@ -115,6 +118,12 @@ inline RegressP Regress(const CRealArray& x, const CRealArray& y)
 
 inline RegressP anchored_regression(const CRealArray& xvals, const CRealArray& yvals, REAL_TYPE yanchorval)
 {
+    assert(xvals.size() == yvals.size());
+    assert(xvals.size() >= 2);
+
+    //if(yvals.size() == 1)
+      //  return std::make_pair(0.0, yanchorval);
+
     // do a simple least - squares regression, but
     //   anchor it so that the zeroth element has the
     //  value "yanchorval"

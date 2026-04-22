@@ -114,7 +114,7 @@ CVectices vet_verts3(const CRealArray& x, const CRealArray& y, const CVectices& 
     CRealArray yscale = ((y - y.min()) / yr) * xr;	//make a square
     REAL_TYPE sc_yr = yscale.max() - yscale.min();
 
-    for (size_t i = 1; i <= vertices.size() - 2; i++)	//i is referenced off of the vertices array
+    for (size_t i = 1; i < vertices.size() - 1; i++)	//i is referenced off of the vertices array
     {
         CVectices ii = { v[i - 1], v[i], v[i + 1] };
         slope_ratios[i - 1] = angle_diff(x[ii], yscale[ii], sc_yr, distweightfactor);
@@ -780,8 +780,8 @@ size_t pick_best_model6(const vector < CBestModelInfo >& info, REAL_TYPE pval, R
     //now pick the best one
     if (use_fstat == false)
     {
-        REAL_TYPE mx = p_of_f.min();
-        CBoolArray le = p_of_f <= ((2 - bestmodelproportion) * mx);
+        REAL_TYPE best_p = p_of_f.min();
+        CBoolArray le = p_of_f <= ((2 - bestmodelproportion) * best_p);
         CVectices valid_p_of_f = get_pos(le);
 
         size_t best = std::distance(begin(valid_p_of_f), std::max_element(begin(valid_p_of_f), end(valid_p_of_f))); //get the fist valid p_of_f
