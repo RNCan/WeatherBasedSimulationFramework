@@ -371,12 +371,12 @@ namespace WBSF
 			OutputData outputData;
 			BreaksData breaksData;
 			
-			if(b == NOT_INIT || b == the_block)
+			if(the_block == NOT_INIT || b == the_block)
 				ReadBlock(inputDS, indicesDS, cloudsDS, xBlock, yBlock, inputData, indices);
 
 			ProcessBlock(xBlock, yBlock, inputData, indices, outputData, breaksData);
 
-			if (b == NOT_INIT || b == the_block)
+			if (the_block == NOT_INIT || b == the_block)
 				WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 
 
@@ -687,7 +687,7 @@ namespace WBSF
 		{
 			if (extents.GetBlockExtents(xBlock, yBlock).IsInside(m_options.m_extract_point))
 			{
-				pt = extents.CoordToXYPos(m_options.m_extract_point);
+				pt = extents.GetBlockExtents(xBlock, yBlock).CoordToXYPos(m_options.m_extract_point);
 				m_extract_data.resize(block_data.size());
 				for (auto& i : m_extract_data)
 					i.fill(DataType(m_options.m_dstNodata));
@@ -722,6 +722,13 @@ namespace WBSF
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
 					bool bExtractPoint = pt.m_x == x && pt.m_y == y;
+					if (bExtractPoint)
+					{
+						int g;
+						g = 0;
+					}
+
+
 					int xy = y * blockSize.m_x + x;
 					//Get pixel
 					CRealArray years = ::convert(allpos(block_data.size()));
