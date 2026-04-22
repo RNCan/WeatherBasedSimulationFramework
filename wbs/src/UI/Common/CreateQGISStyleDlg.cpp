@@ -145,7 +145,7 @@ namespace WBSF
 		ERMsg msg;
 
 
-		std::string file_path = GetApplicationPath() + "Palette\\palettes.xml";
+		std::string file_path = GetApplicationPath() + "..\\Palette\\palettes.xml";
 		CQGISPalettes palettes;
 		msg = palettes.load(file_path);
 		if (!msg)

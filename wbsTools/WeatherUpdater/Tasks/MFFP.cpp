@@ -93,7 +93,7 @@ namespace WBSF
 
 	string CMFFP::GetStationListFilePath()const
 	{
-		return GetApplicationPath() + "Layers\\QuebecStations.csv";
+		return GetApplicationPath() + "..\\Layers\\QuebecStations.csv";
 	}
 
 	string CMFFP::GetOutputFilePath(CTRef TRef)const

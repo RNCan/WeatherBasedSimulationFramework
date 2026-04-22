@@ -555,6 +555,8 @@ namespace WBSF
 		__int64 countdown = UTCCurrentTime - m_liftoff_time;
 		if (countdown >= 0)
 		{
+			//m_world.m_p
+				//m_weather
 			if (m_world.IsInside(m_pt))
 			{
 				if (m_flight_flag == WAIT_DEPARTURE || m_flight_flag == FLIYNG)
@@ -653,8 +655,17 @@ namespace WBSF
 		}
 		else
 		{
-			m_state = FINISHED;
-			m_finish_flag = WEATHER_NOT_INIT;
+			if (m_world.IsInside(m_pt))
+			{
+				m_state = FINISHED;
+				m_finish_flag = WEATHER_NOT_INIT;
+			}
+			else
+			{
+				m_state = FINISHED;
+				m_finish_flag = END_OUTSIDE_MAP;
+			}
+			
 		}
 
 	}
@@ -703,8 +714,16 @@ namespace WBSF
 		}
 		else
 		{
-			m_state = FINISHED;
-			m_finish_flag = WEATHER_NOT_INIT;
+			if (m_world.IsInside(m_pt))
+			{
+				m_state = FINISHED;
+				m_finish_flag = WEATHER_NOT_INIT;
+			}
+			else
+			{
+				m_state = FINISHED;
+				m_finish_flag = END_OUTSIDE_MAP;
+			}
 		}
 	}
 
@@ -1725,7 +1744,7 @@ namespace WBSF
 		{
 			//init max image to load at the same time
 			m_p_weather_DS.m_max_hour_load = m_world.m_world_param.m_max_hour_load;
-			m_p_weather_DS.m_clipRect = CGeoRect(-84, 40, -56, 56, PRJ_WGS_84);// m_world.m_moths_param.m_clipRect;
+			m_p_weather_DS.m_extents = CGeoRect(-180, -90, 180, 90, PRJ_WGS_84);// m_world.m_moths_param.m_clipRect;
 
 
 			std::ios::pos_type length = file.length();
@@ -2519,8 +2538,15 @@ namespace WBSF
 			pt2.Reproject(m_GEO2.at(prjID));
 		}
 
-
-		return 	m_DEM_DS.GetExtents().IsInside(pt2);
+		CGeoPoint pt3(pt);
+		if (pt.GetPrjID() != m_weather.GetGeoRect().GetPrjID())
+		{
+			ASSERT(pt.IsGeographic());
+			size_t prjID = m_weather.GetGeoRect().GetPrjID();
+			pt3.Reproject(m_GEO2.at(prjID));
+		}
+		
+		return 	m_DEM_DS.GetExtents().IsInside(pt2) && m_weather.GetGeoRect().IsInside(pt3);
 	}
 
 	ERMsg CATMWorld::Execute(CATMOutputMatrix& output, ofStream& sub_hourly, CCallback& callback)
@@ -2711,10 +2737,12 @@ namespace WBSF
 
 		}//if moths
 
+
 		string s1 = FormatA("%-6ld (%6.2lf%%)", not_emerged, 100.0*not_emerged / m_seasonalIndividuals);
 		string s2 = FormatA("%-6ld (%6.2lf%%)", emerging, 100.0*emerging / m_seasonalIndividuals);
 		string s3 = FormatA("%-6ld (%6.2lf%%)", waiting_to_fly, 100.0*waiting_to_fly / m_seasonalIndividuals);
-		string s4 = !weather_time.empty() ? FormatA("%-6ld (%6.2lf%%)", flyers.size(), 100.0*flying / m_seasonalIndividuals) : string("----   (------%)");
+		string s4 = flyers.empty() || !weather_time.empty() ? FormatA("%-6ld (%6.2lf%%)", flyers.size(), 100.0*flying / m_seasonalIndividuals) : string("----   (------%)");
+		//string s4 = FormatA("%-6ld (%6.2lf%%)", flyers.size(), 100.0 * flying / m_seasonalIndividuals);
 		string s5 = FormatA("%-6ld (%6.2lf%%)", finishing_laying_eggs, 100.0*finishing_laying_eggs / m_seasonalIndividuals);
 		string s6 = FormatA("%-6ld (%6.2lf%%)", finished, 100.0*finished / m_seasonalIndividuals);
 		string feedback = FormatA("%-10s      %-17s%-17s%-17s%-17s%-17s%-17s",
@@ -3125,8 +3153,9 @@ namespace WBSF
 			{
 				CTRef UTCTRef = CTimeZones::Time2TRef(gribs_time[t - 1]);
 				__int64 step_duration = gribs_time[t] - gribs_time[t - 1];
-
+#ifndef _DEBUG
 #pragma omp parallel for num_threads(m_nb_max_threads)
+#endif // !_DEBUG
 				for (__int64 ii = 0; ii < (__int64)fls.size(); ii++)
 				{
 #pragma omp flush(msg)
@@ -3242,10 +3271,9 @@ namespace WBSF
 			size_t prjID = m_world.m_DEM_DS.GetPrjID();
 			pt.Reproject(m_world.m_GEO2.at(prjID));//convert from GEO to DEM projection
 
-			double defoliation = -999;
-			if (m_no_liftoff_flag != NO_LIFTOFF_DEFINED &&
-				m_landing_flag != NO_FLIGHT_END_DEFINE)
-				defoliation = m_world.get_defoliation(m_pt);
+			double defoliation = m_world.get_defoliation(m_pt);
+			//if (m_no_liftoff_flag != NO_LIFTOFF_DEFINED || m_landing_flag != NO_FLIGHT_END_DEFINE)
+				//defoliation = m_world.get_defoliation(m_pt);
 
 			double eggsLaid = -999;
 
@@ -3311,7 +3339,7 @@ namespace WBSF
 			}//log exists
 		}//if output
 
-		ASSERT(output[m_ID][localTRef][ATM_DEFOLIATION] != 0);
+		//ASSERT(output[m_ID][localTRef][ATM_DEFOLIATION] != 0);
 	}
 
 	void CATMWorld::init_sub_hourly(CTRef TRef, CATMOutputMatrix& sub_output)

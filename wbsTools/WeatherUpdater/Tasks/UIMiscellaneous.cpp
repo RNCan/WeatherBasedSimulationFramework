@@ -86,7 +86,7 @@ namespace WBSF
 		{
 		case CDIAC_RUSSIA:	filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset])) + "Russia_518_inventory.csv"; break;
 		case SOPFEU_HISTORICAL:	filePath = bLocal ? GetDir(WORKING_DIR) + "Historique Positionement Stations météo.csv" : ""; break;
-		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "Layers\\QuebecStations.csv" : ""; break;
+		case QUEBEC_HOURLY: filePath = bLocal ? GetApplicationPath() + "..\\Layers\\QuebecStations.csv" : ""; break;
 		case CWEEDS:		filePath = GetDir(WORKING_DIR) + "CWEEDS_2016_Location_List.csv"; break;
 		case RCM4_22:		filePath = GetDir(WORKING_DIR) + "orog_4nearest_24stations.csv"; break;
 		case CWFIS:			filePath = (bLocal ? GetDir(WORKING_DIR) : string(SERVER_PATH[dataset])) + "cwfis_allstn.csv"; break;

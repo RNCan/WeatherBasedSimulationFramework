@@ -1503,7 +1503,7 @@ namespace WBSF
 		//if (n == FIRE_HISTORICAL)
 			//return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE_HISTORICAL] + "\\" + FILE_NAME[n];
 
-		return WBSF::GetApplicationPath() + "Layers\\NBStations.csv";
+		return WBSF::GetApplicationPath() + "..\\Layers\\NBStations.csv";
 	}
 
 	ERMsg CUINewBrunswick::GetStationList(StringVector& stationList, CCallback& callback)

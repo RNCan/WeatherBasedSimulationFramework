@@ -83,7 +83,7 @@ namespace WBSF
 
 	string CSOPFEU::GetStationListFilePath()const
 	{
-		return GetApplicationPath() + "Layers\\QuebecStations.csv";
+		return GetApplicationPath() + "..\\Layers\\QuebecStations.csv";
 	}
 
 	string CSOPFEU::GetOutputFilePath(CTRef TRef)const

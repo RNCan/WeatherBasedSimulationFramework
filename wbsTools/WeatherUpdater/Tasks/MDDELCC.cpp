@@ -73,8 +73,8 @@ namespace WBSF
 				
 				if (altitude.empty())
 					altitude = "-999";
-
-				CLocation stationInfo(name, ID, stod(latitude), stod(longitude), stod(altitude));
+				
+				CLocation stationInfo(ANSI_2_ASCII(name), ID, stod(latitude), stod(longitude), stod(altitude));
 				stationInfo.SetSSI("Begin", period);
 				stationInfo.SetSSI("Owner", "Québec");
 				stationInfo.SetSSI("Network", "MDDELCC");
@@ -301,7 +301,7 @@ namespace WBSF
 		callback.AddMessage(SERVER_NAME, 1);
 		callback.AddMessage("");
 
-		//Getlocal station list
+		//Get local station list
 		if (!FileExists(GetStationListFilePath()) || bForceUpdateList)
 		{
 			msg = DownloadStationList(m_stations, callback);
@@ -316,7 +316,7 @@ namespace WBSF
 		if (!msg)
 			return msg;
 
-		//remove all station begginning with 0
+		//remove all station beginning with 0
 		CLocationVector stationList;
 		stationList.reserve(m_stations.size());
 		for (CLocationVector::const_iterator it = m_stations.begin(); it != m_stations.end(); it++)

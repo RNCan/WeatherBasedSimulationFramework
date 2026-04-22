@@ -152,7 +152,7 @@ namespace WBSF
 		CCreateStyleOptions options = m_createStyleFile;
 		
 
-		string pal_file_path = GetApplicationPath() + "Palette\\Palettes.xml";
+		string pal_file_path = GetApplicationPath() + "..\\Palette\\Palettes.xml";
 		CQGISPalettes palettes;
 		msg = palettes.load(pal_file_path);
 		if (!msg)

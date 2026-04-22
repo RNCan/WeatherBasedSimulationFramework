@@ -25,7 +25,7 @@ public:
 
     double m_pval;
     double m_recovery_threshold;
-    double m_distweightfactor;
+    double m_distweightfactor;//0 = take recovery near edge. 2 = remove recovery near edge.
     size_t m_vertexcountovershoot;
     double m_bestmodelproportion;
     size_t m_minneeded;
@@ -50,9 +50,15 @@ public:
 
     int m_firstYear;
     bool m_bBreaks;
+
+    bool m_b_extract_point;
+    CGeoPoint m_extract_point;
+    
+
+    
     //bool m_bBackwardFill;
     //bool m_bForwardFill;
-    //bool m_bFillMissing;
+    bool m_bFillMissing;
     //bool m_bWithPrevious;
 
 };
@@ -81,6 +87,10 @@ public:
     void CloseAll(CGDALDatasetEx& inputDS, CGDALDatasetEx& indicesDS, CGDALDatasetEx& maskDS, CGDALDatasetEx& outputDS, CGDALDatasetEx& breaksDS);
 
     CLandTrendOption m_options;
+    //PE_OUTPUT_INDICE2 = PE_OUTPUT_INDICE1 + 1, PE_OUTPUT_INDICE3 = PE_OUTPUT_INDICE2 + 1,
+    enum TPointExtract { PE_INPUT_BANDS, PE_SEGMENT_BREAK= PE_INPUT_BANDS + 6, PE_INPUT_INDICE = PE_SEGMENT_BREAK + 1, PE_DESAWTOOTH_INDICE = PE_INPUT_INDICE + 1, PE_FIT_INDICE = PE_DESAWTOOTH_INDICE +1, PE_OUTPUT_INDICE1= PE_FIT_INDICE + 1,  PE_REGRESS_P = PE_OUTPUT_INDICE1 +1, PE_OUTPUT_BANDS = PE_REGRESS_P + 2 * 6, NB_EXTRACTS = PE_OUTPUT_BANDS + 6 };
+    std::vector< std::array<double, NB_EXTRACTS> > m_extract_data;
+    ofStream m_export_point_file;
 
     static const char* VERSION;
     static const size_t NB_THREAD_PROCESS;

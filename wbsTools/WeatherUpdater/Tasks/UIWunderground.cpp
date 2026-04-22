@@ -93,7 +93,7 @@ namespace WBSF
 
 	std::string CUIWunderground::GetStationListFilePath(const string& country)const
 	{
-		string filepath = GetApplicationPath() + "Layers\\";
+		string filepath = GetApplicationPath() + "..\\Layers\\";
 		if (country == "US")
 			filepath += "WUStationsListUSA.csv";
 		else if (country == "CA")

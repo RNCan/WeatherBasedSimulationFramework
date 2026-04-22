@@ -46,6 +46,7 @@ namespace WBSF
 		void UpdateCtrl();
 		CComboBox m_kindCtrl;
 		CButton m_exportCtrl;
+		CButton m_exportNormalCtrl;
 	};
 
 }

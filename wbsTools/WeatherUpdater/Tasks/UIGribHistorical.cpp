@@ -34,7 +34,15 @@ namespace WBSF
 	//URL =	https://nomads.ncep.noaa.gov/cgi-bin/filter_nam.pl?
 	//file=nam.t00z.awphys00.tm00.grib2&lev_1000_mb=on&lev_10_m_above_ground=on&lev_2_m_above_ground=on&lev_800_mb=on&lev_80_m_above_ground=on&lev_825_mb=on&lev_850_mb=on&lev_875_mb=on&lev_900_mb=on&lev_90-60_mb_above_ground=on&lev_925_mb=on&lev_950_mb=on&lev_975_mb=on&lev_surface=on&var_APCP=on&var_DZDT=on&var_HGT=on&var_PRES=on&var_RH=on&var_TMP=on&var_UGRD=on&var_VGRD=on&var_VVEL=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fnam.20200622
 
+	//RAP 
+	// a since 2021: 
+	// https://www.ncei.noaa.gov/oa/prod-model/index.html#rapid-refresh/access/rap-130-13km/analysis/202301/20230111/
 
+	//HRRR is available her since 2019
+	//ftp.arl.noaa.gov
+	
+	
+	
 	//*********************************************************************
 	const char* CUIGribHistorical::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Dimension", "Variable", "Begin", "End" };
 	const size_t CUIGribHistorical::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE };

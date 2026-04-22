@@ -10,9 +10,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Simulation\AdvancedNormalStation.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Simulation\Analysis.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -102,9 +99,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Simulation\AdvancedNormalStation.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Simulation\Analysis.h">
       <Filter>Source</Filter>
     </ClInclude>

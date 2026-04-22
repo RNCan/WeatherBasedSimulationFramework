@@ -98,7 +98,7 @@ namespace WBSF
 	{
 		static const char* FILE_NAME[NB_NETWORKS] = { "SaskatchewanFireStations.csv" };
 
-		string filePath = WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[network];
+		string filePath = WBSF::GetApplicationPath() + "..\\Layers\\" + FILE_NAME[network];
 		return filePath;
 	}
 

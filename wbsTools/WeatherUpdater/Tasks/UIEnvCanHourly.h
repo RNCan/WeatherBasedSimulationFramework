@@ -117,7 +117,7 @@ namespace WBSF
 		//Update station list part
 		ERMsg DownloadStationList(CLocationVector& stationList, CCallback& callback = DEFAULT_CALLBACK)const;
 		ERMsg GetNbStation(const std::string& URL, size_t& nbStation)const;
-		ERMsg UpdateCoordinate(__int64 ID, int year, size_t m, size_t d, CLocation& station)const;
+		ERMsg UpdateCoordinate(const std::string& ID, int year, size_t m, size_t d, CLocation& station)const;
 		std::string GetStationListFilePath()const{ return GetDir(WORKING_DIR) + "HourlyStationsList.csv"; }
 
 		ERMsg GetStationListPage(const std::string& URL, CLocationVector& stationList)const;

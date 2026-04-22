@@ -239,7 +239,7 @@ namespace WBSF
 	{
 		static const char* FILE_NAME[NB_NETWORKS] = { "ManitobaAgriStations.csv", "ManitobaAgri2Stations.csv", "ManitobaFireStations.csv", "ManitobaHydroStations.csv",  "ManitobaPotatoStations.csv" };
 
-		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "Layers\\";
+		string path = network == FIRE ? GetDir(WORKING_DIR) + SUBDIR_NAME[network] + "\\" : WBSF::GetApplicationPath() + "..\\Layers\\";
 		string filePath = path + FILE_NAME[network];
 
 		return filePath;

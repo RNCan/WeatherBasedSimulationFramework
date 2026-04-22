@@ -651,7 +651,7 @@ namespace WBSF
 		//if (n == FIRE_HISTORICAL)
 			//return GetDir(WORKING_DIR) + NETWORK_NAME[FIRE] + "\\" + FILE_NAME[n];
 
-		return WBSF::GetApplicationPath() + "Layers\\" + FILE_NAME[n];
+		return WBSF::GetApplicationPath() + "..\\Layers\\" + FILE_NAME[n];
 	}
 
 	ERMsg CUIOtherCountries::GetStationList(StringVector& stationList, CCallback& callback)
