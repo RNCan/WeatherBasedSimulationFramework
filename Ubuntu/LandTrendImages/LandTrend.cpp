@@ -812,7 +812,7 @@ namespace WBSF
 								CVectices V = result.vertices;
 								CRealArray X(block_data.size());
 								CRealArray Y(block_data.size());
-								CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
+								//CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
 
 								for (size_t z = 0; z < data.size(); z++)
 								{
@@ -820,23 +820,23 @@ namespace WBSF
 									Y[z] = data[z];
 
 									//replace Y when the is not enough valid value and vertices is missing
-									if (!goods[z] && (z == V).max())
-									{
-										//always find a good value here
-										size_t zz = z;
-										if (zz < first_valid)
-											zz = first_valid;
+									//if (!goods[z] && (z == V).max())
+									//{
+									//	//always find a good value here
+									//	size_t zz = z;
+									//	if (zz < first_valid)
+									//		zz = first_valid;
 
-										if (zz > last_valid)
-											zz = last_valid;
+									//	if (zz > last_valid)
+									//		zz = last_valid;
 
-										if (zz > first_valid && zz < last_valid)
-											zz = GetPrevious(x, y, zz, block_data);
+									//	if (zz > first_valid && zz < last_valid)
+									//		zz = GetPrevious(x, y, zz, block_data);
 
 
-										Y[z] = data[zz];
-										goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
-									}
+									//	Y[z] = data[zz];
+									//	goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
+									//}
 								}
 
 
@@ -849,7 +849,8 @@ namespace WBSF
 									//we need to remove bad data from vertices
 									//take goodsY only if there is less than 5 valid values
 									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
-									CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
+									//CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
+									CBoolArray G = subset(goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
 									assert(xx.size() == yy.size());
@@ -921,7 +922,7 @@ namespace WBSF
 								CRealArray X(block_data.size());
 								CRealArray Y(block_data.size());
 
-								CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
+								//CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
 
 
 								for (size_t z = 0; z < block_data.size(); z++)
@@ -935,23 +936,23 @@ namespace WBSF
 
 
 									//replace Y when the is not enough valid value and vertices is missing
-									if (!goods[z] && (z == V).max())
-									{
-										size_t zz = z;
+									//if (!goods[z] && (z == V).max())
+									//{
+									//	size_t zz = z;
 
-										//We don't fill missing value to send to LandTrend, only take it in the regression part
-										if (zz < first_valid)
-											zz = first_valid;
+									//	//We don't fill missing value to send to LandTrend, only take it in the regression part
+									//	if (zz < first_valid)
+									//		zz = first_valid;
 
-										if (zz > last_valid)
-											zz = last_valid;
+									//	if (zz > last_valid)
+									//		zz = last_valid;
 
-										if (zz > first_valid && zz < last_valid)
-											zz = GetPrevious(x, y, zz, block_data);
+									//	if (zz > first_valid && zz < last_valid)
+									//		zz = GetPrevious(x, y, zz, block_data);
 
-										Y[z] = block_data.GetPixelMedian(zz, zz, x, y, (int)m_options.m_rings)[s];
-										goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
-									}
+									//	Y[z] = block_data.GetPixelMedian(zz, zz, x, y, (int)m_options.m_rings)[s];
+									//	goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
+									//}
 
 
 									if (bExtractPoint)
@@ -966,7 +967,8 @@ namespace WBSF
 									//we need to remove bad data from vertices
 									//take goodsY only if there is less than 5 valid values
 									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
-									CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
+									//CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
+									CBoolArray G = subset( goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
 									assert(xx.size() == yy.size());
