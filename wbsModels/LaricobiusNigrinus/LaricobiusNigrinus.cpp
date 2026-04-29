@@ -4,12 +4,12 @@
 //
 // Description: the CLaricobiusNigrinus represents a group of LNF insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 15/10/2019   Rémi Saint-Amant    Creation
+// 2016-04-28   Rémi Saint-Amant    Clean up for publication
+// 2019-10-15   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
 #include "LaricobiusNigrinusEquations.h"
 #include "LaricobiusNigrinus.h"
-//#include <boost/math/distributions/weibull.hpp>
 #include <boost/math/distributions/logistic.hpp>
 
 using namespace std;
@@ -38,17 +38,12 @@ namespace WBSF
 		int year = creationDate.GetYear();
 		m_creationDate = GetCreationDate(year);
 		m_adult_emergence = GetAdultEmergence(year);
-		
-
-
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-
-		//m_adult_longevity = Equations().GetAdultLongevity(m_sex);
 		m_t = 0;
-		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity() : 0;
+		m_Fi = (m_sex == FEMALE) ? Equations().GetFecundity() : 0;
 		m_cold_tolerence = Equations().GetColdTolerence();
 	}
 
@@ -72,7 +67,7 @@ namespace WBSF
 				creationDate = wDay.GetTRef();
 			}
 		}
-		
+
 		if (!creationDate.IsInit())
 			creationDate = end;
 
@@ -99,14 +94,18 @@ namespace WBSF
 		{
 			const CWeatherDay& wday = weather_station.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
-			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-
 			double DD = max(0.0, T - Equations().m_EAS[Τᴴ]);
 			CDD += DD;
 			if (CDD >= adult_emerging_CDD)
 			{
 				adult_emergence = wday.GetTRef();
 			}
+		}
+
+		if (!adult_emergence.IsInit())
+		{
+			//When there is no adult emergence, set it to the last day of the year
+			adult_emergence = end;
 		}
 
 		return adult_emergence;
@@ -120,15 +119,10 @@ namespace WBSF
 
 			m_dropToGroundDate = in.m_dropToGroundDate;
 			m_adult_emergence = in.m_adult_emergence;
-			//m_reachDate = in.m_reachDate;
 			m_t = in.m_t;
 			m_Fi = in.m_Fi;
 			m_deadByAttrition = in.m_deadByAttrition;
 
-
-			//m_adult_emergence = in.m_adult_emergence;
-			//m_adult_longevity = in.m_adult_longevity;// Equations().GetAdultLongevity(m_sex) / 2;
-			//m_F = in.m_F;
 		}
 
 		return *this;
@@ -139,64 +133,6 @@ namespace WBSF
 	{
 	}
 
-
-	//double CLaricobiusNigrinus::AdjustTLab(const string& name, size_t s, CTRef TRef, double T)
-	//{
-	//	if (name == "BlacksburgLab")
-	//	{
-	//		if (s == -1)
-	//		{
-	//			if (TRef.GetJDay() < CTRef(0, MARCH, DAY_25).GetJDay())
-	//				s = EGG;
-	//			else if (TRef.GetJDay() < CTRef(0, APRIL, DAY_15).GetJDay())
-	//				s = LARVAE;
-	//			else if (TRef.GetJDay() < CTRef(0, MAY, DAY_25).GetJDay())
-	//				s = PUPAE;
-	//			else
-	//				s = AESTIVAL_DIAPAUSE_ADULT;
-	//		}
-
-	//		//if we are in Blacksburg lab situation, take temperature depend of year
-	//		//lab rearing: change temperature Lamb(2005) thesis
-	//		if (s == LARVAE)
-	//			T = 13;
-	//		else if (s == PREPUPAE || s == PUPAE)
-	//			T = 15;
-	//		else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2003)
-	//			T = 15;
-	//		else if (s == AESTIVAL_DIAPAUSE_ADULT && TRef.GetYear() == 2004)
-	//		{
-	//			if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
-	//				T = 19;
-	//			else
-	//				T = 13;
-	//		}
-	//	}
-
-
-	//	return T;
-	//}
-
-	//double CLaricobiusNigrinus::AdjustDLLab(const string& name, size_t s, CTRef TRef, double day_length)
-	//{
-	//	/*if (name == "VictoriaLab")
-	//	{
-	//		day_length = 12;
-	//	}
-	//	else */
-	//	if (name == "BlacksburgLab")
-	//	{
-	//		//if we are in Blacksburg lab situation, take 12 hours
-	//		if (TRef.GetYear() == 2003)
-	//			day_length = 14;
-	//		else if (TRef < CTRef(2004, SEPTEMBER, DAY_27))
-	//			day_length = 16;
-	//		else
-	//			day_length = 10;
-	//	}
-
-	//	return day_length;
-	//}
 
 
 	void CLaricobiusNigrinus::OnNewDay(const CWeatherDay& weather)
@@ -214,7 +150,7 @@ namespace WBSF
 	// Input:	weather: weather of the hour
 	//			timeStep: timeStep [h]
 	//*****************************************************************************
-	void CLaricobiusNigrinus::Live(const CHourlyData& weather, size_t timeStep)
+	void CLaricobiusNigrinus::Live(const CHourlyData& weather, size_t time_step)
 	{
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
@@ -222,64 +158,62 @@ namespace WBSF
 		CLNFHost* pHost = GetHost();
 		CLNFStand* pStand = GetStand();
 
-		double nb_steps = (24.0 / timeStep);
+		double nb_steps = (24.0 / time_step);
 		size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
 
 		double T = weather[H_TAIR];
-		//T = AdjustTLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), T);
 
-		//double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
-		//day_length = AdjustDLLab(weather.GetWeatherStation()->m_name, s, weather.GetTRef(), day_length);
-
-		if (s != AESTIVAL_DIAPAUSE_ADULT)
+		//daily development rate
+		double dr = Equations().GetRate(s, T);
+		if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
-			//Time step development rate
-			double r = Equations().GetRate(s, T) / nb_steps;
+			//for aestival diapause adult, we compute rate from adult emergence 
+			if (!m_aestival_diapause_begin.IsInit())
+				m_aestival_diapause_begin = weather.GetTRef().as(CTM::DAILY);
 
-			//Relative development rate for this individual
-			double rr = m_RDR[s];
+			assert(m_aestival_diapause_begin.IsInit());
+			assert(m_adult_emergence.IsInit());
+			assert(m_adult_emergence - m_aestival_diapause_begin > 0);
 
-			//double corr_r = (s == EGG || s == LARVAE) ? Equations().m_RDR[s][0] : 1;
-
-
-			//Time step development rate for this individual
-			r *= rr;// *corr_r;
-			ASSERT(r >= 0 && r < 1);
-
-			//Adjust age
-			m_age += r;
-
-			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.95)//drop to the soil when 95% competed (guess)
-				m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
-
-			if (GetStand()->m_bApplyAttrition)
-			{
-				if (IsDeadByAttrition(s, T, r))
-					m_deadByAttrition = weather.GetTRef().as(CTM::DAILY);
-			}
+			dr = 1.0 / (m_adult_emergence - m_aestival_diapause_begin);
 		}
-		else if (s == AESTIVAL_DIAPAUSE_ADULT)
+
+
+		//Time step development rate
+		double r = dr / nb_steps;
+
+		//Relative development rate for this individual
+		double rdr = m_RDR[s];
+
+		//Time step development rate for this individual
+		r *= rdr;
+		ASSERT(r >= 0 && r < 1);
+
+		//Adjust age
+		m_age += r;
+
+		//apply attrition
+		if (GetStand()->m_bApplyAttrition)
 		{
-			CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			if (TRef == m_adult_emergence)
-				m_age = ACTIVE_ADULT;
+			if (IsDeadByAttrition(s, T, time_step))
+				m_deadByAttrition = weather.GetTRef().as(CTM::DAILY);
 		}
-		//else//ACTIVE_ADULT
-		//{
-		//	double r = (1.0 / m_adult_longevity) / nb_steps;
-		//	ASSERT(r >= 0 && r < 1);
-		//
-		//	m_age += r;
-		//}
 
+
+		//verify for larval drop
+		if (!m_dropToGroundDate.IsInit() && m_age > LARVAE + 0.95)//drop to the soil when 95% completed (guess)
+			m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
+
+
+		//Oviposition part
 		if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
 		{
 			double to = 140;//pre-oviposition period of 140 days
-			double t = timeStep / 24.0;
+			double t = time_step / 24.0;
 			if (m_t > to)
 			{
-				double λ = Equations().GetFecondityRate(GetAge(), weather[H_TAIR]);
+				double λ = Equations().GetFecundity(GetAge(), weather[H_TAIR]);
 				double brood = m_Fi * (exp(-λ * (m_t - to)) - exp(-λ * (m_t + t - to)));
 
 				m_broods += brood;
@@ -306,6 +240,7 @@ namespace WBSF
 		if (!IsCreated(weather.GetTRef()))
 			return;
 
+		//Simulate the insect for all time steps
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps && m_age < DEAD_ADULT; step++)
 		{
@@ -349,7 +284,8 @@ namespace WBSF
 		{
 			size_t s = GetStage();
 
-			//Preliminary assessment of the cold tolerance of Laricobius nigrinus, a winter - active predator of the hemlock woolly adelgid from western canada
+			//Preliminary assessment of the cold tolerance of Laricobius nigrinus, 
+			//a winter - active predator of the hemlock woolly adelgid from Western Canada
 			//Leland M.Humble
 			static const double COLD_TOLERENCE_T[NB_STAGES] = { -27.5,-22.1, -99.0,-99.0,-19.0,-19.0 };
 			//Toland:L. nigrinus was -13.6 oC (± 0.5) with temperatures that ranged from -6 oC to -21 oC.
@@ -369,37 +305,52 @@ namespace WBSF
 		}
 	}
 
-	//s: stage
-	//T: temperature for this time step
-	//r: development rate for this time step
-	bool CLaricobiusNigrinus::IsDeadByAttrition(size_t s, double T, double r)const
+
+	//stage: stage
+	//T: temperature for this time step (°C)
+	//time_step: time step (hours)
+	bool CLaricobiusNigrinus::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
 	{
 		bool bDeath = false;
 
+		double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
+		double ts_s = pow(d_s, time_step / 24.0);
 
-		//daily survival
-		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
-		if (size_t(m_lastAge) == ACTIVE_ADULT && HasChangedStage())
-		{
-			//The mean historical subterranean survivorship of laboratory - reared Laricobius
-			//spp.is 37.5 ± 13.6 % (Foley et al., 2021)
-			//overall mean of 17.1 ± 0.8%.
-
-			ds = 0.171;
-		}
-
-
-		//time step survival
-		double S = pow(ds, r);
-		
-
-		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > S)
+		//Computes attrition (probability of survival in a given time step)
+		if (RandomGenerator().RandUniform() > ts_s)
 			bDeath = true;
-
 
 		return bDeath;
 	}
+
+
+
+	//stage: stage
+	//T: temperature for this time step (°C)
+	//dr: daily development rate
+	//rdr: individual relative development rate
+	//time_step: time step (hours)
+	//bool CLaricobiusNigrinus::IsDeadByAttrition(size_t stage, double T, double dr, double rdr, size_t time_step)const
+	//{
+	//	bool bDeath = false;
+
+	//	double nb_steps = 24.0 / time_step;
+
+	//	//Get daily rate survival for T
+	//	double d_r = Equations().GetRate(stage, T);//daily rate
+	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
+	//	double S = pow(d_s, (1 / d_r));//overall survival
+
+	//	//compute time step survival
+	//	double ts_r = dr * rdr / nb_steps;
+	//	double ts_s = pow(S, ts_r);
+
+	//	//Computes attrition (probability of survival in a given time step, based on development rate)
+	//	if (RandomGenerator().RandUniform() > ts_s)
+	//		bDeath = true;
+
+	//	return bDeath;
+	//}
 
 
 	//*****************************************************************************
@@ -431,12 +382,9 @@ namespace WBSF
 
 			stat[S_BROODS] += m_scaleFactor * m_broods;
 
-			if(d== GetStand()->m_diapause_end)
+			if (d == GetStand()->m_diapause_end)
 				stat[S_M_AESTIVAL_DIAPAUSE_ADULT_END] += m_scaleFactor;
-			//if (s == ACTIVE_ADULT)
-			//{
-			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;
-			//}
+			
 		}
 	}
 
@@ -495,7 +443,6 @@ namespace WBSF
 			const CWeatherDay& wday = weather.GetDay(TRef);
 			double T = wday[H_TNTX][MEAN];
 
-			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
 			double DD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 			sumDD += DD;
 		}
@@ -523,18 +470,15 @@ namespace WBSF
 
 		if (d >= begin && d <= end)
 		{
-			//Egg creation DD (allen 1976)
+			//Egg creation DD (Allen 1976)
 			m_egg_creation_CDD += m_DD.GetDD(wday);
 			stat[S_EGGS_CREATION_CDD] = m_egg_creation_CDD;
 
 			//diapause end negative DD
 			double T = wday[H_TNTX][MEAN];
-			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-			//T = max(m_equations.m_ADE[ʎa], T);
 			double NDD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 
 			int ii = d - begin;
-			//if( ii>=(172-1) && ii<=int(m_equations.m_ADE[ʎ0]-1))
 			if (ii >= int(m_equations.m_ADE[ʎ0] - 1) && ii <= int(m_equations.m_ADE[ʎ1] - 1))
 				m_diapause_end_NCDD += NDD;
 
@@ -548,8 +492,6 @@ namespace WBSF
 		{
 			//adult emergence (growing DD)
 			double T = wday[H_TNTX][MEAN];
-			//T = CLaricobiusNigrinus::AdjustTLab(wday.GetWeatherStation()->m_name, NOT_INIT, wday.GetTRef(), T);
-
 			double GDD = max(0.0, T - m_equations.m_EAS[Τᴴ]);
 			m_adult_emergence_CDD += GDD;
 			stat[S_EMERGING_ADULT_CDD] = m_adult_emergence_CDD;

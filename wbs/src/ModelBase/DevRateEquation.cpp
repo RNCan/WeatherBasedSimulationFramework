@@ -81,7 +81,7 @@ namespace WBSF
 	{ "LoganTb_1979","psi*exp(k*(T-Tb)-exp(k*(T-Tb)/deltaT))","psi=0.02[1E-4,1]|k=0.2[-1E4,1]|Tb=30[-50,50]|deltaT=2[0.5,1E5]", "psi~e^bgroup('(',k~bgroup('(',T~-~T[b],')')~-~e^{~k~over(T~-~T[b],Delta[T])}, ')')" },
 	{ "ONeill_1972","Beta=(Tm-T)/(Tm-To);ifelse(T<=Tm,psi*Beta^k*exp(k*(1-Beta)),0)","psi=0.08[0.0001,1.0]|k=1[0,100]|To=25[0,50]|Tm=35[0,100]", "list(psi~beta^~k~e^{~k~(1-beta)},scriptstyle(beta~' = '~over(T[m]~-~T,T[m]~-~T[o]) ))" },
 	{ "Poly1","k0+k1*T","k0=0.001[-1,1]|k1=0[0,0.1]", "k[0]+k[1]~T"},
-	{ "Poly2","k0+k1*T+k2*T^2","k0=0.1[-1E5,1]|k1=0.015[0,1]|k2=-0.0004[-1,0]", "k[0]+k[1]~T+k[2]~T^{~2}" },
+	{ "Poly2","k0+k1*T+k2*T^2","k0=0.0[-0.1,0.1]|k1=0.01[0,1e-1]|k2=-0.00025[-1e-3,0]", "k[0]+k[1]~T+k[2]~T^{~2}" },
 	{ "Poly3","k0+k1*T+k2*T^2+k3*T^3","k0=0.001[-1,1]|k1=0[-1E4,1E4]|k2=0[-1E3,1E3]|k3=0[-1E2,1E2]", "k[0]+k[1]~T+k[2]~T^{~2}+k[3]~T^{~3}" },
 	{ "Ratkowsky_1983","ifelse(T>Tb&T<Tm,psi^2*pmax(0, (T-Tb)*(1-exp(k*(T-Tm))))^2,0)","psi=3[1E-6,10]|k=0.0003[1E-6,1]|Tb=0[-50,50]|Tm=50[0,100]", "psi^{~2}~bgroup('[',bgroup('(',T-T[b],')')~bgroup('(',1~-~e^{~k~bgroup('(',T-T[m],')')},')'),']')^~2" },
 	{ "Regniere_1982","beta=(T-Tb)/(Tm-Tb);ifelse(T>Tb&T<Tm,psi*(exp(k*beta)-exp(k-(1-beta)/deltaT )),0)","psi=0.2[1E-6,1]|k=4[1E-6,20]|Tb=5[-50,50]|Tm=35[0,50]|deltaT=0.2[0.001,1E5]", "list(psi~bgroup('[',e^{k~beta}~-~e^bgroup('(',k~-~over(1-beta, Delta[T]) ,')'),']'), ~~~scriptstyle(beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },

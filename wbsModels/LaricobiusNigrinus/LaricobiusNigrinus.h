@@ -29,7 +29,13 @@ namespace WBSF
 			NB_CUMULATIVE_STATS = 5
 		};
 
+		
 		const static size_t CUMULATIVE_STATS[NB_CUMULATIVE_STATS] = { S_EGGS, S_LARVAE, S_PREPUPAE, S_PUPAE, S_LARVAL_DROP };
+
+		enum TAnnualOutputs
+		{
+			AO_BEGIN, AO_END, NB_ANNUAL_OUTPUTS
+		};
 	}
 
 
@@ -41,10 +47,6 @@ namespace WBSF
 	class CLaricobiusNigrinus : public CIndividual
 	{
 	public:
-
-		//static double AdjustTLab(const std::string& name, size_t s, CTRef TRef, double T);
-		//static double AdjustDLLab(const std::string& name, size_t s, CTRef TRef, double day_length);
-
 
 		CLaricobiusNigrinus(WBSF::CHost* pHost, CTRef creationDate = CTRef(), double age = LNF::EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		CLaricobiusNigrinus(const CLaricobiusNigrinus& in) :WBSF::CIndividual(in){ operator=(in); }
@@ -70,11 +72,11 @@ namespace WBSF
 		inline const CLNFStand* GetStand()const;
 		inline const CLaricobiusNigrinusEquations& Equations()const;
 
-		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
-		//CTRef GetParentAdultEmergence()const;
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
-		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		bool IsDeadByAttrition(size_t s, double T, size_t timeStep)const;
+		//bool IsDeadByAttrition(size_t s, double T, double dr, double rdr, size_t timeStep)const;
+		
 
 
 	protected:
@@ -83,6 +85,7 @@ namespace WBSF
 		
 		double m_RDR[LNF::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_dropToGroundDate;
+		CTRef m_aestival_diapause_begin;
 		CTRef m_deadByAttrition;
 		CTRef m_adult_emergence;
 		CTRef m_reachDate[LNF::NB_STAGES+1];
@@ -132,7 +135,7 @@ namespace WBSF
 			m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, Th1, Th2)
 //			m_DD4(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0)
 		{
-			m_bApplyAttrition = false;
+			m_bApplyAttrition = true;
 			m_egg_creation_CDD = 0;
 			m_diapause_end_NCDD = 0;
 			m_adult_emergence_CDD = 0;

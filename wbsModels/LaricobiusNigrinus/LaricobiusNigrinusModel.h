@@ -19,7 +19,7 @@ namespace WBSF
 		virtual ~CLaricobiusNigrinusModel();
 
 		virtual ERMsg OnExecuteDaily()override;
-		//virtual ERMsg OnExecuteAnnual()override;
+		virtual ERMsg OnExecuteAnnual()override;
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
 
 		static CBioSIMModelBase* CreateObject(){ return new CLaricobiusNigrinusModel; }
@@ -31,8 +31,8 @@ namespace WBSF
 
 		bool m_bCumul;
 		bool m_bApplyAttrition;
-		bool m_compute_cumul;
-		//std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR;
+
+
 		std::array<double, LNF::NB_OVP_PARAMS> m_OVP;
 		std::array<double, LNF::NB_ADE_PARAMS> m_ADE;
 		std::array<double, LNF::NB_EAS_PARAMS> m_EAS;
@@ -43,11 +43,16 @@ namespace WBSF
 		std::array< CStatistic, NB_EVALUATED_STAGES> m_cumul_stats;
 		
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
+		
+		
+		
+		
+//calibration method
+		CTRef GetDiapauseEnd(const CWeatherYear& weather);
 		bool CalibrateDiapauseEnd(const std::bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat);
 		bool CalibrateDiapauseEndTh(CStatisticXY& stat);
-		//bool CalibrateOviposition(CStatisticXY& stat);
-		bool CalibrateEggLarvaeEmergingAdults(const std::bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat);
-		CTRef GetDiapauseEnd(const CWeatherYear& weather);
+		bool Calibrate(const std::bitset<NB_EVALUATED_STAGES>& test, CStatisticXY& stat);
+		
 
 		bool IsParamValid()const;
 	};
