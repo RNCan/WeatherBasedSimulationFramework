@@ -139,8 +139,8 @@ public:
     size_t GetPrevious(size_t z, int x, int y)const;
     size_t GetNext(size_t z, int x, int y)const;
 
-    CStatistic GetPixelIndiceI(size_t z, Landsat2::TIndices ind, int x, int y, int n_rings)const;
-    LandsatDataType GetPixelIndice(size_t z, Landsat2::TIndices ind, int x, int y, double n_rings = 0)const;
+    CStatisticEx GetPixelIndiceI(size_t z, Landsat2::TIndices ind, int x, int y, int n_rings)const;
+    LandsatDataType GetPixelIndice(size_t z, Landsat2::TIndices ind, int x, int y, double n_rings = 0, bool b_median = false)const;
     LandsatDataType GetPixelIndiceMedian(Landsat2::TIndices ind, int x, int y, double n_rings = 0)const;
     //CLandsatPixel GetPixelMean(size_t f, size_t l, int x, int y, int buffer, const std::vector<double>& weight = std::vector<double>())const;
     CLandsatPixel GetPixelMean(size_t i, int x, int y, int n_rings, const std::vector<double>& weight = std::vector<double>())const;

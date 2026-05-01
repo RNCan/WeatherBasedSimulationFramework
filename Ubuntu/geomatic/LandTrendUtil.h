@@ -32,7 +32,9 @@ inline size_t sum(const CBoolArray& v)
 
 
 enum TFitMethod { FIT_EARLY_TO_LATE, FIT_MPFIT, NB_FIT_METHODS };
-//typedef std::bitset<NB_FIT_METHODS> TFitMethods;
+enum TStatistic { UNKNOWN=-1, MAE, RSS, ANOVA, FISHER, AICC, NB_STATISTIC};
+
+extern TStatistic GetStatistic(const std::string& name);
 
 
 inline CRealArray convert(const CVectices& v)
@@ -153,55 +155,16 @@ inline REAL_TYPE GetRSS(const CRealArray& y1, const CRealArray& y2)
 }
 
 
-class CBestModelInfo
-{
-public:
-
-    CBestModelInfo()
-    {
-        ok = false;
-        f_stat = 0;
-        p_of_f = 0;
-        ms_regr = 0;
-        ms_resid = 0;
-        AICc = 0;
-    }
-
-    size_t n_obs()
-    {
-        return yfit.size();
-    }
-    size_t n_segments()
-    {
-        return vertices.size() - 1;
-    }
-    size_t n_vertices()
-    {
-        return vertices.size();
-    }
-
-    bool	ok;
-
-    //results
-    CVectices vertices;
-    CRealArray vertvals;
-    CRealArray yfit;
-    CRealArray slope;
-    CRealArray segment_mse;
-
-    //statistic
-    REAL_TYPE f_stat;
-    REAL_TYPE p_of_f;
-    REAL_TYPE ms_regr;
-    REAL_TYPE ms_resid;
-    REAL_TYPE AICc;
-};
-
 class CCalcFittingStats3
 {
 public:
 
     CCalcFittingStats3()
+    {
+        clear();
+    }
+
+    void clear()
     {
         ok = false;
         mean_y = 0;
@@ -233,12 +196,58 @@ public:
     REAL_TYPE total_variance;
 
     REAL_TYPE adjusted_rsquare;
-    REAL_TYPE f_stat;
-    REAL_TYPE p_of_f;
+    REAL_TYPE f_stat;   //F-statistic (or F-ratio) in an Analysis of Variance(ANOVA) table
+    REAL_TYPE p_of_f;   //Probability of Fisher
     REAL_TYPE ms_regr;	//added these two 6/14/06
     REAL_TYPE ms_resid;
     REAL_TYPE abs_diff;	//added these two 6/14/06
     REAL_TYPE AICc;		//added july 29 2007
+};
+
+
+class CBestModelInfo
+{
+public:
+
+    CBestModelInfo()
+    {
+       //ok = false;
+       //f_stat = 0;
+       //p_of_f = 0;
+       //ms_regr = 0;
+       //ms_resid = 0;
+       //AICc = 0;
+    }
+
+    size_t n_obs()
+    {
+        return yfit.size();
+    }
+    size_t n_segments()
+    {
+        return vertices.size() - 1;
+    }
+    size_t n_vertices()
+    {
+        return vertices.size();
+    }
+
+    //bool	ok;
+
+    //results
+    CVectices vertices;
+    CRealArray vertvals;
+    CRealArray yfit;
+    CRealArray slope;
+    CRealArray segment_mse;
+
+    //statistic
+   //REAL_TYPE f_stat;
+   //REAL_TYPE p_of_f;
+   //REAL_TYPE ms_regr;
+   //REAL_TYPE ms_resid;
+   //REAL_TYPE AICc;
+    CCalcFittingStats3 m_stat;
 };
 
 
@@ -297,7 +306,8 @@ CFindBestTrace find_best_trace_mpfit(const CRealArray& x, const CRealArray& y, c
 CFillFromVertices fill_from_vertices(const CRealArray& x, const CVectices& v, const CRealArray& vv);
 
 CTakeOutWeakest2 take_out_weakest2(const CBestModelInfo& info, REAL_TYPE threshold, const CRealArray& x, CRealArray y, const CVectices& v, CRealArray vertvals);
-size_t pick_best_model6(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, bool use_fstat = false);
+size_t pick_best_model6(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, bool bfstat = false);
+size_t pick_best_model7(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat);
 bool check_slopes(const CBestModelInfo& info, REAL_TYPE threshold);
 CCalcFittingStats3 calc_fitting_stats3(const CRealArray& y, const CRealArray& yfit, size_t n_predictors);
 

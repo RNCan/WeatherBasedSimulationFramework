@@ -3,6 +3,13 @@
 //
 //***********************************************************************
 // version
+// 1.2.1	30/04/2026	Rémi Saint_Amant	Add statistic model' selection as option for fit_trajectory_v2
+//											Separate window option for indice and interpolation
+//											-BestModelProportion 0.75 --> 0.65
+//											-SpikeThreshold 0.5 --> 0.65
+// 											-VertexCountOvershoot 3 --> 5
+//											-MaxSegments 6 --> 9
+//											When stat is Fisher and there is many zero, we use AICc instead
 // 1.2.0	16/04/2026	Rémi Saint-Amant	Fill missing with next value 
 //											used of median pixel when windows is used
 //											Add ExtractPointOption
@@ -63,7 +70,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.0";
+	const char* CLandTrend::VERSION = "1.2.1";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -72,20 +79,22 @@ namespace WBSF
 	CLandTrendOption::CLandTrendOption()
 	{
 
+		m_minneeded = 3;
 		m_pval = 0.1;
 		m_recovery_threshold = 0.5;
 		m_distweightfactor = 0; //(0 or 2): Humm! 2 seem to give strange result when recovery at the end
-		m_vertexcountovershoot = 3;
-		m_bestmodelproportion = 0.75;
-		m_minneeded = 6;
-		m_max_segments = 6;
-		m_desawtooth_val = 0.5;
+		m_vertexcountovershoot = 5;
+		m_bestmodelproportion = 0.65;
+		m_max_segments = 9;
+		m_desawtooth_val = 0.65;
 		m_fit_method = FIT_EARLY_TO_LATE;
+		m_stat = TStatistic::FISHER;
 		m_modifier = -1;
 
 		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
 		m_indice = I_NBR;
-		m_rings = 2;
+		m_rings_indice = 2;
+		m_rings_interpol = 2;
 		m_bDirect = false;
 
 		m_firstYear = 0;
@@ -96,24 +105,25 @@ namespace WBSF
 
 		std::string indicesName = Landsat2::GetIndiceNames();
 
+
 		//AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 6 by default."},
-			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.5 by default."},
-			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 3 by default."},
+			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 9 by default."},
+			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.65 by default."},
+			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
 			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.5 by default"},
 			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.1 by default."},
-			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model. 0.75 by default."},
-			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 6 by default."},
+			//{ "-Statistic", 1, "type", false, "Statistic on witch the best model will be selected. can be MAE: Mean Absolute Error, RSS: Residual Sum of Square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
+			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model. 0.65 by default."},
+			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 3 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-DirectIndice", 1, "file", false, "Indice already computed and provided as input file. Same size and same number layers than the number of scenes of the input Landsat image. "},
-			{ "-Window", 1, "radius", false, "Compute block_data mean around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). 3 (5 x 5) by default." },
+			{ "-WindowIndice", 1, "radius", false, "Compute mean/median around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). Add letter d for median instead of mean. For example -WindowIndice 3d. 3 (5 x 5) by default." },
+			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. " },
 			{ "-ExtractPoint", 2, "X Y", false, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
 			//{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
-			//{ "-BackwardFill", 0, "", false, "Fill all missing values at the beginning of the series with the first valid value."},
-			//{ "-ForwardFill", 0, "", false, "Fill all missing values at the end of the series with the last valid value."},
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
@@ -182,6 +192,12 @@ namespace WBSF
 		{
 			m_pval = atof(argv[++i]);
 		}
+		else if (IsEqual(argv[i], "-Statistic"))
+		{
+			m_stat = GetStatistic(argv[++i]);
+			if (m_stat == TStatistic::UNKNOWN)
+				msg.ajoute("Invalid statistic. See help for more info");
+		}
 		else if (IsEqual(argv[i], "-BestModelProportion"))
 		{
 			m_bestmodelproportion = atof(argv[++i]);
@@ -192,7 +208,7 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-FitMethod"))
 		{
-			m_fit_method = atoi(argv[++i]);
+			m_fit_method = (LTR::TFitMethod)atoi(argv[++i]);
 			if (m_fit_method > NB_FIT_METHODS)
 				msg.ajoute(to_string(m_fit_method) + " is an invalid FitMethod.");
 		}
@@ -220,15 +236,37 @@ namespace WBSF
 			m_bDirect = true;
 			m_indices_file_path = argv[++i];
 		}
-		else if (IsEqual(argv[i], "-Window"))
+		else if (IsEqual(argv[i], "-WindowIndice"))
 		{
-			m_rings = atof(argv[++i]);
-			if (m_rings < 1)
+			string r = argv[++i];
+			m_b_median_indice = r.find('d') || r.find('D');
+			std::erase(r, 'd');
+			std::erase(r, 'D');
+
+
+			m_rings_indice = stof(r);
+			if (m_rings_indice < 1)
 			{
-				msg.ajoute(to_string(m_rings) + " is not a valid radius for Windows option. Radius must be >= 1.");
+				msg.ajoute(to_string(m_rings_indice) + " is not a valid radius for -WindowsIndice option. Radius must be >= 1.");
 			}
 
-			m_rings -= 1;//convert radius to rings
+			m_rings_indice -= 1;//convert radius to rings
+
+		}
+		else if (IsEqual(argv[i], "-WindowInterpol"))
+		{
+			string r = argv[++i];
+			m_b_median_interpol = r.find('d') || r.find('D');
+			std::erase(r, 'd');
+			std::erase(r, 'D');
+
+			m_rings_interpol = stof(r);
+			if (m_rings_interpol < 1)
+			{
+				msg.ajoute(to_string(m_rings_interpol) + " is not a valid radius for -WindowInterpol option. Radius must be >= 1.");
+			}
+
+			m_rings_interpol -= 1;//convert radius to rings
 
 		}
 		else if (IsEqual(argv[i], "-ExtractPoint"))
@@ -248,21 +286,7 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-FillMissing"))
 		{
 			m_bFillMissing = true;
-			//int direction = atoi(argv[++i]);
-			//m_bWithPrevious = direction == 0;
-			//if (direction != 0 && direction != 1)
-			//{
-				//msg.ajoute(to_string(direction) + " is not a valid direction for FillMissing option. Direction must be 0 or 1.");
-			//}
 		}
-		/*else if (IsEqual(argv[i], "-BackwardFill"))
-		{
-			m_bBackwardFill = true;
-		}
-		else if (IsEqual(argv[i], "-ForwardFill"))
-		{
-			m_bForwardFill = true;
-		}*/
 		else
 		{
 			//Look to see if it's a know base option
@@ -326,7 +350,7 @@ namespace WBSF
 		int the_block = -1;
 		if (m_options.m_b_extract_point && !m_options.m_bCreateImage)
 		{
-			
+
 			//fin only the block of the point
 			for (size_t b = 0; b < XYindex.size() && the_block == NOT_INIT; b++)
 			{
@@ -370,8 +394,8 @@ namespace WBSF
 			CRasterWindow indices;
 			OutputData outputData;
 			BreaksData breaksData;
-			
-			if(the_block == NOT_INIT || b == the_block)
+
+			if (the_block == NOT_INIT || b == the_block)
 				ReadBlock(inputDS, indicesDS, cloudsDS, xBlock, yBlock, inputData, indices);
 
 			ProcessBlock(xBlock, yBlock, inputData, indices, outputData, breaksData);
@@ -543,15 +567,16 @@ namespace WBSF
 		{
 			m_options.m_timerRead.start();
 
+			int max_ring = max(int(ceil(m_options.m_rings_indice)), int(ceil(m_options.m_rings_interpol)));
 			CGeoExtents extents = m_options.m_extents.GetBlockExtents(xBlock, yBlock);
-			inputDS.ReadBlock(extents, block_data, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+			inputDS.ReadBlock(extents, block_data, max_ring, m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 
 			if (indicesDS.IsOpen())
 			{
 				assert(indicesDS.GetRasterCount() == inputDS.GetNbScenes());
 				assert(indicesDS.GetRasterXSize() * indicesDS.GetRasterYSize() == inputDS.GetRasterXSize() * inputDS.GetRasterYSize());
 
-				indicesDS.ReadBlock(extents, indices, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+				indicesDS.ReadBlock(extents, indices, max_ring, m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == indices.size());
 				//DataType noData = (DataType)cloudsDS.GetNoData(0);
 			}
@@ -564,7 +589,7 @@ namespace WBSF
 
 
 				CRasterWindow clouds_block;
-				cloudsDS.ReadBlock(extents, clouds_block, int(ceil(m_options.m_rings)), m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
+				cloudsDS.ReadBlock(extents, clouds_block, max_ring, m_options.m_IOCPU, m_options.m_scene_extents[0], m_options.m_scene_extents[1]);
 				assert(block_data.size() == clouds_block.size());
 				DataType noData = (DataType)cloudsDS.GetNoData(0);
 
@@ -762,26 +787,26 @@ namespace WBSF
 							size_t zz = z;
 
 							assert(bHave_any);
-							if (m_options.m_bFillMissing)
-							{
-								//We don't fill missing value to send to LendTrand, only take it in the regression part
-								if (zz < first_valid)
-									zz = first_valid;
-
-								if (zz > last_valid)
-									zz = last_valid;
-
-								if (zz > first_valid && zz < last_valid)
-								{
-									if (m_options.m_bDirect)
-										zz = GetPrevious(x, y, zz, indices);
-									else
-										zz = GetPrevious(x, y, zz, block_data);
-								}
-							}
+							//if (m_options.m_bFillMissing)
+							//{
+							//	//We don't fill missing value to send to LendTrand, only take it in the regression part
+							//	if (zz < first_valid)
+							//		zz = first_valid;
+							//
+							//	if (zz > last_valid)
+							//		zz = last_valid;
+							//
+							//	if (zz > first_valid && zz < last_valid)
+							//	{
+							//		if (m_options.m_bDirect)
+							//			zz = GetPrevious(x, y, zz, indices);
+							//		else
+							//			zz = GetPrevious(x, y, zz, block_data);
+							//	}
+							//}
 
 							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
-							data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings);
+							data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings_indice, m_options.m_b_median_indice) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings_indice, m_options.m_b_median_indice);
 
 							double noData = m_options.m_bDirect ? indices.at(zz).GetNoData() : CLandsatPixel::GetLandsatNoData();
 							goods[z] = fabs(data[z] - noData) > 0.1;
@@ -790,21 +815,15 @@ namespace WBSF
 						//compute desawtouth here to output
 						CRealArray Ydesawtouth = desawtooth(data, goods, m_options.m_desawtooth_val);
 
-
-
-						//years = { 0,1,2,3,4, 5};//,6,7,8 };
-						//data = { 493,393,538,538, 469, 498 };// , 555, 108, 221 };
-						//goods = { true, true, true, true, true, true }; //, true, true, true };
-
 						//compute LandTrend for this time series indice
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
 							m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
 							m_options.m_max_segments, m_options.m_recovery_threshold, m_options.m_distweightfactor,
-							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, TFitMethod(m_options.m_fit_method));
+							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_stat);
 
 
 						//if need output
-						if (result.ok)
+						if (result.m_stat.ok)
 						{
 							if (bExtractPoint)
 							{
@@ -820,36 +839,33 @@ namespace WBSF
 									Y[z] = data[z];
 
 									//replace Y when the is not enough valid value and vertices is missing
-									//if (!goods[z] && (z == V).max())
-									//{
-									//	//always find a good value here
-									//	size_t zz = z;
-									//	if (zz < first_valid)
-									//		zz = first_valid;
+									if (!goods[z] && m_options.m_bFillMissing )//&& (z == V).max()
+									{
+										//always find a good value here
+										size_t zz = z;
+										if (zz < first_valid)
+											zz = first_valid;
 
-									//	if (zz > last_valid)
-									//		zz = last_valid;
+										if (zz > last_valid)
+											zz = last_valid;
 
-									//	if (zz > first_valid && zz < last_valid)
-									//		zz = GetPrevious(x, y, zz, block_data);
+										if (zz > first_valid && zz < last_valid)
+											zz = GetPrevious(x, y, zz, block_data);
 
 
-									//	Y[z] = data[zz];
-									//	goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
-									//}
+										Y[z] = data[zz];
+										goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
+									}
 								}
 
 
 								CRealArray yfit1(Y.size());
-								//CRealArray yfit2(Y.size());	//set up
-								//CRealArray yfit3(Y.size());	//set up
 
 								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 								{
 									//we need to remove bad data from vertices
 									//take goodsY only if there is less than 5 valid values
 									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
-									//CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
 									CBoolArray G = subset(goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
@@ -861,21 +877,6 @@ namespace WBSF
 										//Interpolation method1
 										RegressP P = Regress(xx, yy);
 										yfit1[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
-
-										//******
-										//Interpolation method2
-										//double no_data = DataType(m_options.m_dstNodata);
-										//RegressP P2 = (i == 0) ? Regress(xx, yy) : anchored_regression(xx, yy, GetPreviousIfMissing(V[i] - 1, yfit2, no_data));
-										//CRealArray xxx = subset(X, V[i], V[i + 1]);
-										//CRealArray regress = FitRegress(xxx - xxx[0], P2);
-										//yfit2[get_slice(V[i], V[i + 1])] = regress;
-
-										//******
-										//Interpolation method3
-
-										//CRealArray k = fill_line(X, { V[i], V[i + 1] }, { yy[0], yy[yy.size() - 1] });
-										//yfit3[get_slice(V[i], V[i + 1])] = k;
-
 									}
 									else
 									{
@@ -906,13 +907,11 @@ namespace WBSF
 									m_extract_data[z][PE_DESAWTOOTH_INDICE] = Ydesawtouth[z];
 
 									m_extract_data[z][PE_FIT_INDICE] = result.yfit[z];
-									m_extract_data[z][PE_OUTPUT_INDICE1] = yfit1[z];//GetPreviousIfMissing(z, yfit1, no_data);
-									//m_extract_data[z][PE_OUTPUT_INDICE2] = GetPreviousIfMissing(z, yfit2, no_data);
-									//m_extract_data[z][PE_OUTPUT_INDICE3] = GetPreviousIfMissing(z, yfit3, no_data);
+									m_extract_data[z][PE_OUTPUT_INDICE1] = yfit1[z];
 								}
 							}
 
-
+							static const array<Landsat2::TIndices, SCENES_SIZE> BAND_NO = { { I_B1, I_B2, I_B3, I_B4, I_B5, I_B7 } };
 
 							//create output image doing a regression for each band by segment
 							for (size_t s = 0; s < SCENES_SIZE && bHave_any; s++)//for all bands
@@ -922,37 +921,36 @@ namespace WBSF
 								CRealArray X(block_data.size());
 								CRealArray Y(block_data.size());
 
-								//CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
-
-
 								for (size_t z = 0; z < block_data.size(); z++)
 								{
 
 									X[z] = REAL_TYPE(z);
-									Y[z] = block_data.GetPixelMedian(z, z, x, y, (int)m_options.m_rings)[s];
+									//Y[z] = block_data.GetPixelMedian(z, z, x, y, (int)m_options.m_rings)[s];
+									//here band no is converted in band no
+									Y[z] = block_data.GetPixelIndice(z, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
 
 									//update z because window pixel can be good
 									goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
 
 
 									//replace Y when the is not enough valid value and vertices is missing
-									//if (!goods[z] && (z == V).max())
-									//{
-									//	size_t zz = z;
-
-									//	//We don't fill missing value to send to LandTrend, only take it in the regression part
-									//	if (zz < first_valid)
-									//		zz = first_valid;
-
-									//	if (zz > last_valid)
-									//		zz = last_valid;
-
-									//	if (zz > first_valid && zz < last_valid)
-									//		zz = GetPrevious(x, y, zz, block_data);
-
-									//	Y[z] = block_data.GetPixelMedian(zz, zz, x, y, (int)m_options.m_rings)[s];
-									//	goodsY[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
-									//}
+									if (!goods[z] && m_options.m_bFillMissing)//&& (z == V).max()
+									{
+										size_t zz = z;
+									
+										//We don't fill missing value to send to LandTrend, only take it in the regression part
+										if (zz < first_valid)
+											zz = first_valid;
+									
+										if (zz > last_valid)
+											zz = last_valid;
+									
+										if (zz > first_valid && zz < last_valid)
+											zz = GetPrevious(x, y, zz, block_data);
+									
+										Y[z] = block_data.GetPixelIndice(z, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
+										goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
+									}
 
 
 									if (bExtractPoint)
@@ -965,10 +963,8 @@ namespace WBSF
 								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 								{
 									//we need to remove bad data from vertices
-									//take goodsY only if there is less than 5 valid values
 									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
-									//CBoolArray G = subset(nb_valid >= 5 ? goods : goodsY, V[i], V[i + 1]);
-									CBoolArray G = subset( goods, V[i], V[i + 1]);
+									CBoolArray G = subset(goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
 									assert(xx.size() == yy.size());

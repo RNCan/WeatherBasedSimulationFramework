@@ -203,7 +203,7 @@ public:
     }
 
     CStatisticEx GetWindowStat(int x, int y, int n_rings)const;
-    DataType GetWindowValue(int x, int y, double n_rings)const;
+    DataType GetWindowValue(int x, int y, double n_rings, bool b_median)const;
     
     void SetValidity(const boost::dynamic_bitset<>& in) { m_valid = in; }
     

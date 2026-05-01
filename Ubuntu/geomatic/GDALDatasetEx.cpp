@@ -221,7 +221,7 @@ namespace WBSF
 		msg = WBSF::OpenInputImage(filePath, &m_poDataset, options.m_srcNodata, options.m_bUseDefaultNoData, options.m_bReadOnly);
 		if (msg &&
 			((options.m_scene_extents[0] != NOT_INIT && options.m_scene_extents[0] >= GetNbScenes()) ||
-			(options.m_scene_extents[1] != NOT_INIT && options.m_scene_extents[1] >= GetNbScenes())))
+				(options.m_scene_extents[1] != NOT_INIT && options.m_scene_extents[1] >= GetNbScenes())))
 			msg.ajoute("Scenes {" + to_string(options.m_scene_extents[0] + 1) + ", " + to_string(options.m_scene_extents[1] + 1) + "} must be in range {1, " + to_string(GetNbScenes()) + "}");
 
 
@@ -843,7 +843,7 @@ namespace WBSF
 
 		assert(first_scene <= last_scene);
 
-		
+
 		size_t totalMem = 0;
 
 		size_t first_layer = first_scene * GetSceneSize();
@@ -1095,7 +1095,7 @@ namespace WBSF
 				}
 				else
 				{
-					Dataset()->BuildOverviews("NEAREST", (int)list.size(), const_cast<int*>(list.data()), 0, NULL, bQuiet? GDALDummyProgress : GDALTermProgress, NULL, papszOptions);
+					Dataset()->BuildOverviews("NEAREST", (int)list.size(), const_cast<int*>(list.data()), 0, NULL, bQuiet ? GDALDummyProgress : GDALTermProgress, NULL, papszOptions);
 				}
 
 				CPLFree(papszOptions);
@@ -1813,12 +1813,12 @@ namespace WBSF
 		return stat;
 	}
 
-	DataType CDataWindow::GetWindowValue(int x, int y, double n_rings)const
+	DataType CDataWindow::GetWindowValue(int x, int y, double n_rings, bool b_median)const
 	{
 		assert(n_rings >= 0 && n_rings < 1000);
 
 		if (n_rings == 0)
-			return this->at( x, y);
+			return this->at(x, y);
 
 
 		DataType val = (DataType)GetNoData();
@@ -1837,7 +1837,7 @@ namespace WBSF
 
 			if (stat_i.IsInit())
 			{
-				val = DataType(stat_i[MEAN]);
+				val = DataType(stat_i[b_median ? MEDIAN : MEAN]);
 			}
 		}
 		else
@@ -1849,15 +1849,15 @@ namespace WBSF
 
 			if (stat_i1.IsInit() && stat_i2.IsInit())
 			{
-				val = DataType(stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1));
+				val = DataType(stat_i1[b_median ? MEDIAN : MEAN] * (n_rings2 - n_rings) + stat_i2[b_median ? MEDIAN : MEAN] * (n_rings - n_rings1));
 			}
 			else if (stat_i1.IsInit())
 			{
-				val = DataType(stat_i1[MEAN]);
+				val = DataType(stat_i1[b_median ? MEDIAN : MEAN]);
 			}
 			else if (stat_i2.IsInit())
 			{
-				val = DataType(stat_i2[MEAN]);
+				val = DataType(stat_i2[b_median ? MEDIAN : MEAN]);
 			}
 		}
 

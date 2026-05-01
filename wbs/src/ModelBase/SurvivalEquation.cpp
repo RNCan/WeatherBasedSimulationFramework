@@ -242,12 +242,15 @@ namespace WBSF
 
 			s = (T >= Tl && T <= Th) ? 1.0 / exp(kk*(1.0 + exp(-(T - Tl) / deltaTl))*(1.0 + exp(-(Th - T) / deltaTh))) : 0;
 		}
+		else if (model == Survival_constant)
+		{
+			s = P[P0];
+		}
 		else if (model == Unknown)
 		{
 			s = 1.0;
 		}
 
-	//	ASSERT(s >= 0 && s <= 1);
 		return s;
 	}
 
