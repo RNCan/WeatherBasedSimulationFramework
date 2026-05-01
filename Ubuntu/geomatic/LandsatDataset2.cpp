@@ -858,28 +858,25 @@ namespace WBSF
 	//    return i != NOT_INIT && IsValid(i, pixel);
 	//}
 
-	CStatistic CLandsatWindow::GetPixelIndiceI(size_t z, Landsat2::TIndices ind, int x, int y, int n_rings)const
+	CStatisticEx CLandsatWindow::GetPixelIndiceI(size_t z, Landsat2::TIndices ind, int x, int y, int n_rings)const
 	{
-		CStatistic stat;
+		CStatisticEx stat;
 		for (int yy = -n_rings; yy <= n_rings; yy++)
 		{
 			for (int xx = -n_rings; xx <= n_rings; xx++)
 			{
-				//if (yy == n_rings || xx == n_rings)//select only pixel of the current ring. RSA (2024-07-24)
-				//{
 				CLandsatPixel p = GetPixel(z, x + xx, y + yy);
 				if (p.IsValid())
 				{
 					stat += p[ind];
 				}
-				//}
 			}
 		}
 
 		return stat;
 	}
 
-	LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind, int x, int y, double n_rings)const
+	LandsatDataType CLandsatWindow::GetPixelIndice(size_t z, Landsat2::TIndices ind, int x, int y, double n_rings, bool b_median)const
 	{
 		assert(n_rings >= 0 && n_rings < 1000);
 
@@ -898,32 +895,32 @@ namespace WBSF
 		if (n_rings1 == n_rings2)
 		{
 			assert(n_rings1 == n_rings && n_rings2 == n_rings);
-			CStatistic stat_i = GetPixelIndiceI(z, ind, x, y, n_rings1);
+			CStatisticEx stat_i = GetPixelIndiceI(z, ind, x, y, n_rings1);
 
 
 			if (stat_i.IsInit())
 			{
-				val = LandsatDataType(stat_i[MEAN]);
+				val = LandsatDataType(stat_i[b_median?MEDIAN:MEAN]);
 			}
 		}
 		else
 		{
 			assert((n_rings2 - n_rings1) == 1);
 
-			CStatistic stat_i1 = GetPixelIndiceI(z, ind, x, y, n_rings1);
-			CStatistic stat_i2 = GetPixelIndiceI(z, ind, x, y, n_rings2);
+			CStatisticEx stat_i1 = GetPixelIndiceI(z, ind, x, y, n_rings1);
+			CStatisticEx stat_i2 = GetPixelIndiceI(z, ind, x, y, n_rings2);
 
 			if (stat_i1.IsInit() && stat_i2.IsInit())
 			{
-				val = LandsatDataType(stat_i1[MEAN] * (n_rings2 - n_rings) + stat_i2[MEAN] * (n_rings - n_rings1));
+				val = LandsatDataType(stat_i1[b_median ? MEDIAN : MEAN] * (n_rings2 - n_rings) + stat_i2[b_median ? MEDIAN : MEAN] * (n_rings - n_rings1));
 			}
 			else if (stat_i1.IsInit())
 			{
-				val = LandsatDataType(stat_i1[MEAN]);
+				val = LandsatDataType(stat_i1[b_median ? MEDIAN : MEAN]);
 			}
 			else if (stat_i2.IsInit())
 			{
-				val = LandsatDataType(stat_i2[MEAN]);
+				val = LandsatDataType(stat_i2[b_median ? MEDIAN : MEAN]);
 			}
 		}
 

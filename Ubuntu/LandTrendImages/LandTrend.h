@@ -5,7 +5,7 @@
 #include <deque>
 #include "geomatic/UtilGDAL.h"
 #include "geomatic/LandsatDataset2.h"
-
+#include "geomatic/LandTrendUtil.h"
 
 namespace WBSF
 {
@@ -30,10 +30,9 @@ public:
     double m_bestmodelproportion;
     size_t m_minneeded;
     size_t m_max_segments;
-    //int m_background;
-    //int m_modifier;//-1 for NBR
     double m_desawtooth_val;
-    size_t m_fit_method;
+    LTR::TFitMethod m_fit_method;
+    LTR::TStatistic m_stat;
     int m_modifier;
 
     size_t max_vertices()const
@@ -45,7 +44,10 @@ public:
     Landsat2::TIndices m_indice;
     bool m_bDirect;
     std::string m_indices_file_path;
-    double m_rings;
+    bool m_b_median_indice;
+    double m_rings_indice;
+    bool m_b_median_interpol;
+    double m_rings_interpol;
     std::string m_CloudsMask;
 
     int m_firstYear;

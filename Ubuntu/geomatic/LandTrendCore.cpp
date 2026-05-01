@@ -63,7 +63,7 @@ namespace LTR
 	CBestModelInfo fit_trajectory_v2(const CRealArray& all_years, const CRealArray& vvals, const CBoolArray& goods,
 		size_t minneeded, int background, int modifier,
 		REAL_TYPE  desawtooth_val, REAL_TYPE  pval, size_t max_segments, REAL_TYPE  recovery_threshold,
-		REAL_TYPE  distweightfactor, size_t  vertexcountovershoot, REAL_TYPE  bestmodelproportion, TFitMethod fit_method)
+		REAL_TYPE  distweightfactor, size_t  vertexcountovershoot, REAL_TYPE  bestmodelproportion, TFitMethod fit_method, TStatistic stat)
 	{
 		//CBestModelInfo best_model;
 		//February 28, 2008
@@ -116,7 +116,7 @@ namespace LTR
 		if (CRealArray(all_x[goods]).size() < minneeded)
 		{
 			//not enough data to run the fitting, then set all to flat line
-			best_model.ok = true;
+			best_model.m_stat.ok = true;
 			best_model.yfit.resize(vvals.size(), vvals.sum() / vvals.size());
 			best_model.vertvals.resize(2, vvals.sum() / vvals.size());
 			best_model.vertices = { 0, vvals.size() - 1 };
@@ -149,7 +149,7 @@ namespace LTR
 		//   to identify the best fit of the
 
 		best_model = tbcd_v2(all_x, all_y, goods, max_count, pval,
-			recovery_threshold, distweightfactor, vertexcountovershoot, bestmodelproportion, fit_method);	//max_count is the number of segments + 1
+			recovery_threshold, distweightfactor, vertexcountovershoot, bestmodelproportion, fit_method, stat);	//max_count is the number of segments + 1
 
 		//************************
 
@@ -158,7 +158,7 @@ namespace LTR
 		//  Now assign the vert valsvals.
 		//assert(best_model.n_segments == best_model.vertices.size());
 		//assert(best_model.vertices.size() == best_model.segment_mse.size());
-		if (best_model.ok == true)
+		if (best_model.m_stat.ok == true)
 		{
 			best_model.yfit *= modifier;
 			best_model.vertvals *= modifier;
@@ -212,14 +212,15 @@ namespace LTR
 
 			CFindBestTrace best_fit = (fit_method == FIT_EARLY_TO_LATE) ? find_best_trace(x, y, v) : find_best_trace_mpfit(x, y, v);
 
-			CCalcFittingStats3 ok = calc_fitting_stats3(y, best_fit.yfit, (v.size() * 2) - 2);
+			info[i].m_stat = calc_fitting_stats3(y, best_fit.yfit, (v.size() * 2) - 2);
+			//CCalcFittingStats3 ok = calc_fitting_stats3(y, best_fit.yfit, (v.size() * 2) - 2);
 
-			info[i].ok = ok.ok;
-			info[i].f_stat = ok.f_stat;
-			info[i].p_of_f = ok.p_of_f;
-			info[i].ms_regr = ok.ms_regr;
-			info[i].ms_resid = ok.ms_resid;
-			info[i].AICc = ok.AICc;
+			//info[i].ok = ok.ok;
+			//info[i].f_stat = ok.f_stat;
+			//info[i].p_of_f = ok.p_of_f;
+			//info[i].ms_regr = ok.ms_regr;
+			//info[i].ms_resid = ok.ms_resid;
+			//info[i].AICc = ok.AICc;
 
 			info[i].vertices = v;		//vertices are the actual index in the array, not the year
 			info[i].vertvals = best_fit.vertvals;
@@ -254,39 +255,29 @@ namespace LTR
 	//   you need to set the modifier value to -1 before
 	//   running tbcd, so this recovery criterion will
 	//   be applied appropriately.
-	CBestModelInfo pick_best(vector<CBestModelInfo> info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, REAL_TYPE recovery_threshold)
+	CBestModelInfo pick_best(vector<CBestModelInfo> info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, REAL_TYPE recovery_threshold, TStatistic stat)
 	{
 		bool notdone = true;
-		CRealArray fstats(info.size());
-		for (size_t i = 0; i < info.size(); i++)
-			fstats[i] = info[i].f_stat;
-
+		
 
 		size_t increment = 0;
 		size_t best = -1;
 
 		while (notdone)
 		{
-			//	i++;
-			increment = increment + 1;
-
-			best = pick_best_model6(info, pval, bestmodelproportion);
+			best = pick_best_model7(info, pval, bestmodelproportion, stat);
 
 			if (best != UNKNOWN_POS)
 			{
 				//check on the slopes
 				bool ok = check_slopes(info[best], recovery_threshold);
-				if (ok == false)
+				if ( !ok && increment < info.size())
 				{
-					info[best].p_of_f = 1;
-					info[best].f_stat = 0;
-					info[best].AICc = 0;
+					info[best].m_stat.clear();
 				}
 
-
-
-				assert(increment <= info.size());
-				notdone = !(ok || (increment > info.size()));	//once ok = 1,
+				assert(increment < info.size());
+				notdone = !(ok || (increment >= info.size()));	//once ok = 1,
 				//or if we've gone through this as many times as there are vertices, we move on
 			}
 			else
@@ -295,9 +286,15 @@ namespace LTR
 				//  aicc's were valid &&/or that
 				//  none of the segments worked.
 
+				CRealArray fstats(info.size());
+				for (size_t i = 0; i < info.size(); i++)
+					fstats[i] = info[i].m_stat.f_stat;
+
 				best = distance(begin(fstats), std::min_element(begin(fstats), end(fstats)));
 				notdone = false;
 			}
+
+			increment = increment + 1;
 		}
 
 		assert(best != UNKNOWN_POS);
@@ -391,7 +388,7 @@ namespace LTR
 
 	CBestModelInfo tbcd_v2(const CRealArray& all_x, const CRealArray& all_y, const CBoolArray& goods,
 		size_t max_count, REAL_TYPE pval, REAL_TYPE recovery_threshold,
-		REAL_TYPE distweightfactor, size_t vertexcountovershoot, REAL_TYPE bestmodelproportion, TFitMethod fit_method)
+		REAL_TYPE distweightfactor, size_t vertexcountovershoot, REAL_TYPE bestmodelproportion, TFitMethod fit_method, TStatistic stat)
 	{
 		assert(all_x.size() == goods.size());
 		assert(all_x.size() == all_y.size());
@@ -464,12 +461,12 @@ namespace LTR
 		//   running tbcd, so this recovery criterion will
 		//   be applied appropriately.
 
-		best_model = pick_best(info, pval, bestmodelproportion, recovery_threshold);
+		best_model = pick_best(info, pval, bestmodelproportion, recovery_threshold, stat);
 
 
 		//*******************************
 		//IF NO GOOD FIT FOUND, TRY THE MPFIT APPROACH
-		if (fit_method == FIT_EARLY_TO_LATE && best_model.p_of_f > pval)
+		if (fit_method == FIT_EARLY_TO_LATE && best_model.m_stat.p_of_f > pval)
 		{
 			//*********
 			//Find the best fit using the marquardt approach (F7)
@@ -480,7 +477,7 @@ namespace LTR
 
 			//************************************
 			//PICK THE BEST ONE
-			best_model = pick_best(info, pval, bestmodelproportion, recovery_threshold);
+			best_model = pick_best(info, pval, bestmodelproportion, recovery_threshold, stat);
 
 		} // doing F7 if F6 didn't work
 
@@ -587,7 +584,7 @@ namespace LTR
 			best_model.segment_mse = CRealArray(new_segment_mse);
 		}
 
-		if (best_model.p_of_f <= pval)
+		if (best_model.m_stat.p_of_f <= pval)
 		{
 			//***********************
 			//Now fill in the yfit values for the "allyears" range, to get a
@@ -606,7 +603,7 @@ namespace LTR
 		else
 		{
 			//if not good, then set all to flat line
-			best_model.ok = true;
+			best_model.m_stat.ok = true;
 			best_model.yfit.resize(all_y.size(), y.sum() / y.size());
 			best_model.vertvals.resize(2, y.sum() / y.size());
 			best_model.vertices = { 0, all_y.size() - 1 };
