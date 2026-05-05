@@ -58,7 +58,7 @@ namespace WBSF
 		//CTRef end = CTRef(year, JUNE, DAY_30);
 
 		CTRef begin = CTRef(year, DECEMBER, DAY_01);
-		CTRef end = CTRef(year+1, AUGUST, DAY_31);
+		CTRef end = CTRef(year + 1, AUGUST, DAY_31);
 
 		double CDD = 0;
 		for (CTRef TRef = begin; TRef <= end && !creationDate.IsInit(); TRef++)
@@ -67,7 +67,7 @@ namespace WBSF
 			double DD = GetStand()->m_DD.GetDD(wDay);
 			CDD += DD;
 
-			if (CDD  >= creationCDD)
+			if (CDD >= creationCDD)
 			{
 				creationDate = wDay.GetTRef();
 			}
@@ -106,10 +106,12 @@ namespace WBSF
 			}
 		}
 
-		//if (!adult_emergence.IsInit())
-			//adult_emergence = CTRef(year, DECEMBER, DAY_31);//pour test seulement a revoir...
+		if (!adult_emergence.IsInit())
+		{
+			//When there is no adult emergence, set it to the last day of the year
+			adult_emergence = end;
+		}
 
-		//ASSERT(adult_emergence.IsInit());
 		return adult_emergence;
 	}
 
@@ -119,12 +121,13 @@ namespace WBSF
 		{
 			CIndividual::operator=(in);
 
-			//new relative developement rate
+			//new relative development rate
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_RDR[s] = Equations().GetRelativeDevRate(s);
 
 
 			m_dropToGroundDate = in.m_dropToGroundDate;
+			m_aestival_diapause_begin = in.m_dropToGroundDate;
 			m_adult_emergence = in.m_adult_emergence;
 			m_reachDate = in.m_reachDate;
 			m_t = in.m_t;
@@ -137,7 +140,8 @@ namespace WBSF
 
 	//destructor
 	CLaricobiusOsakensis::~CLaricobiusOsakensis(void)
-	{}
+	{
+	}
 
 
 
@@ -172,38 +176,56 @@ namespace WBSF
 		double T = weather[H_TAIR];
 		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
-		if (s < AESTIVAL_DIAPAUSE_ADULT || s == ACTIVE_ADULT)
-		{
+		//if (s < AESTIVAL_DIAPAUSE_ADULT || s == ACTIVE_ADULT)
+		//{
 			//Time step development rate
-			double r = Equations().GetRate(s, T) / nb_steps;
-
-			//Relative development rate for this individual
-			double rr = m_RDR[s];
-
-			//Time step development rate for this individual
-			r *= rr;
-			ASSERT(r >= 0 && r < 1);
-
-			//Adjust age
-			m_age += r;
-
-			if (!m_dropToGroundDate.IsInit() && m_age > LARVAE4 + 0.9)//drop to the soil when 90% competed (guess)
-				m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
-
-			//evaluate attrition once a day
-			if (GetStand()->m_bApplyAttrition)
-			{
-				if (IsDeadByAttrition(s, T, r))
-					m_bDeadByAttrition = true;
-			}
-
-		}
-		else if (s == AESTIVAL_DIAPAUSE_ADULT)
+		double dr = Equations().GetRate(s, T);
+		if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
-			CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			if (TRef == m_adult_emergence)
-				m_age = ACTIVE_ADULT;
+			//for aestival diapause adult, we compute rate from adult emergence 
+			if (!m_aestival_diapause_begin.IsInit())
+				m_aestival_diapause_begin = weather.GetTRef().as(CTM::DAILY);
+
+			assert(m_aestival_diapause_begin.IsInit());
+			assert(m_adult_emergence.IsInit());
+			assert(m_adult_emergence - m_aestival_diapause_begin > 0);
+
+			dr = 1.0 / (m_adult_emergence - m_aestival_diapause_begin);
 		}
+
+		//Relative development rate for this individual
+		double rdr = m_RDR[s];
+
+		//Time step development rate
+		double ts_r = dr / nb_steps;
+
+		//Time step development rate for this individual
+		double i_r = ts_r * rdr;
+
+		//Time step development rate for this individual
+		//r *= rr;
+		ASSERT(i_r >= 0 && i_r < 1);
+
+		//Adjust age
+		m_age += i_r;
+
+		if (!m_dropToGroundDate.IsInit() && m_age > LARVAE4 + 0.9)//drop to the soil when 90% competed (guess)
+			m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
+
+		//evaluate attrition once a day
+		if (GetStand()->m_bApplyAttrition)
+		{
+			if (IsDeadByAttrition(s, T, i_r))
+				m_bDeadByAttrition = true;
+		}
+
+		//}
+		//else if (s == AESTIVAL_DIAPAUSE_ADULT)
+		//{
+		//	CTRef TRef = weather.GetTRef().as(CTM::DAILY);
+		//	if (TRef == m_adult_emergence)
+		//		m_age = ACTIVE_ADULT;
+		//}
 
 		if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
 		{
@@ -217,7 +239,7 @@ namespace WBSF
 
 			m_t += t;
 		}
-	
+
 	}
 
 
@@ -237,7 +259,7 @@ namespace WBSF
 			return;
 
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps&&IsAlive(); step++)
+		for (size_t step = 0; step < nbSteps && m_age < DEAD_ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -282,10 +304,10 @@ namespace WBSF
 		{
 			//size_t s = GetStage();
 
-			////Preliminary assessment of the cold tolerance of Laricobius Osakensis, a winter - active predator of the hemlock woolly adelgid from western canada
-			////Leland M.Humble
+			//Preliminary assessment of the cold tolerance of Laricobius Osakensis, a winter - active predator of the hemlock woolly adelgid from Western Canada
+			//Leland M.Humble
 			//static const double COLD_TOLERENCE_T[NB_STAGES] = { -27.5,-22.1, -99.0,-99.0,-19.0,-19.0 };
-			////Toland:L. Osakensis was -13.6 oC (± 0.5) with temperatures that ranged from -6 oC to -21 oC.
+			//Toland:L. Osakensis was -13.6 oC (± 0.5) with temperatures that ranged from -6 oC to -21 oC.
 			//if (weather[H_TMIN][MEAN] < COLD_TOLERENCE_T[s])
 			//{
 			//	m_status = DEAD;
@@ -295,21 +317,39 @@ namespace WBSF
 	}
 
 
-	//s: stage
+	//stage: stage
 	//T: temperature for this time step
-	//r: development rate for this time step
-	bool CLaricobiusOsakensis::IsDeadByAttrition(size_t s, double T, double r)const
+	//time_step: time step in (hour)
+	//bool CLaricobiusOsakensis::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
+	//{
+	//	bool bDeath = false;
+
+	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
+	//	double ts_s = pow(d_s, time_step / 24.0);
+
+	//	//Computes attrition (probability of survival in a given time step)
+	//	if (RandomGenerator().RandUniform() > ts_s)
+	//		bDeath = true;
+
+	//	return bDeath;
+	//}
+	//stage: stage
+	//T: temperature for this time step
+	//rr: time step development rate 
+	bool CLaricobiusOsakensis::IsDeadByAttrition(size_t stage, double T, double rr)const
 	{
 		bool bDeath = false;
 
-		//daily survival
-		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+		//daily survival at this temperature
+		double ds = Equations().GetDailySurvivalRate(stage, T);
+		//overall (stage) survival at this temperature
+		double S = pow(ds, 1 / Equations().GetRate(stage, T));
 
-		//time step survival
-		double S = pow(ds, r);
+		//time step survival, limit at 1% survival to avoid kill all 
+		double ts_s = pow(max(0.01, S), rr);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > S)
+		if (RandomGenerator().RandUniform() > ts_s)
 			bDeath = true;
 
 		return bDeath;
@@ -333,15 +373,15 @@ namespace WBSF
 			if (IsAlive() || (s == DEAD_ADULT))
 				stat[S_EGG + s] += m_scaleFactor;
 
-			stat[S_LARVAE] = stat[S_L1]+ stat[S_L2]+ stat[S_L3]+ stat[S_L4];
-			
+			stat[S_LARVAE] = stat[S_L1] + stat[S_L2] + stat[S_L3] + stat[S_L4];
+
 			if (HasChangedStatus() && m_status == DEAD && m_death == ATTRITION)
 				stat[S_DEAD_ATTRTION] += m_scaleFactor;
 
 			if (HasChangedStage())
 				stat[S_M_EGG + s] += m_scaleFactor;
 
-			
+
 			//if (s == ACTIVE_ADULT)
 			//{
 			//	stat[S_ADULT_ABUNDANCE] += m_scaleFactor * m_adult_abundance;
@@ -425,19 +465,14 @@ namespace WBSF
 
 		//use year of diapause to compute correctly the adult emergence cdd
 		int year = m_diapause_end.GetYear();
-		
+
 		CTRef begin = CTRef(year, JANUARY, DAY_01);
 		CTRef end = CTRef(year, DECEMBER, DAY_31);
 
 		if (d >= begin && d <= end)
 		{
-			//Egg creation DD (allen 1976)
-			//m_egg_creation_CDD += m_DD.GetDD(wday);
-			//stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
-
 			//diapause end negative DD
 			double T = wday[H_TNTX][MEAN];
-			//T = max(m_equations.m_ADE[ʎa], T);
 			double NDD = min(0.0, T - m_equations.m_ADE[ʎb]);//DD is negative
 
 			int ii = d - begin;
@@ -460,16 +495,16 @@ namespace WBSF
 		}
 
 		//compute egg creation
-		begin = CTRef(year-1, DECEMBER, DAY_01);
+		begin = CTRef(year - 1, DECEMBER, DAY_01);
 		end = CTRef(year, AUGUST, DAY_31);
 
 		if (d >= begin && d <= end)
 		{
-			//Egg creation DD (allen 1976)
+			//Egg creation DD (Allen 1976)
 			m_egg_creation_CDD += m_DD.GetDD(wday);
 			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
 		}
-		
+
 
 	}
 

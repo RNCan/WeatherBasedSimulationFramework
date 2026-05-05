@@ -1,5 +1,7 @@
 ﻿//***********************************************************
-// 07/07/2021	1.0.0	Rémi Saint-Amant   Creation
+// 05/05/2026	1.0.1	Rémi Saint-Amant	Clean up
+//											Bug correction in Attrition
+// 07/07/2021	1.0.0	Rémi Saint-Amant	Creation
 //***********************************************************
 #include "LaricobiusOsakensisModel.h"
 #include "ModelBase/EntryPoint.h"
@@ -35,7 +37,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.0 (2021)";
+		VERSION = "1.0.1 (2026)";
 
 
 		m_bApplyAttrition = false;
@@ -120,7 +122,8 @@ namespace WBSF
 		CLNFStand stand(this, m_CEC[Τᴴ¹], m_CEC[Τᴴ²]);
 
 		stand.m_bApplyAttrition = m_bApplyAttrition;
-		//Set parameters to equation
+		
+		//Set global parameters for equation
 		for (size_t p = 0; p < NB_CEC_PARAMS; p++)
 			stand.m_equations.m_CEC[p] = m_CEC[p];
 
@@ -147,31 +150,16 @@ namespace WBSF
 		//add host to stand			
 		stand.m_host.push_front(pHost);
 
-		//CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 		CTPeriod p(begin, end);
 		if(output.empty())
 			output.Init(p, NB_STATS, 0);
 
-		//if have other year extend period to February
+		
 		ASSERT(weather[year].HavePrevious());
-		//if (BEGIN_DECEMBER)
-		//{
-		//	p.Begin() = CTRef(year - 1, JULY, DAY_01);
-		//}
-		//else
-		//{
-		//if have other year extend period to February
+		
+		//if have other year extend period to July
 		if (weather[year].HaveNext())
 			p.End() = CTRef(year + 1, JUNE, DAY_30);
-
-		//}
-		//if have previous year extend period to DECEMBER
-		//if (weather[year].HavePrevious())
-			//p.Begin() = CTRef(year - 1, DECEMBER, DAY_01);
-
-		
-
-
 
 		for (CTRef d = p.Begin(); d <= p.End(); d++)
 		{
@@ -183,16 +171,11 @@ namespace WBSF
 			HxGridTestConnection();
 		}
 
-
-
-
 		if (m_bCumul)
 		{
 			//cumulative result
 			for (size_t s = S_EGG; s < S_ACTIVE_ADULT; s++)
 			{
-				//CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-
 				CStatistic stat = output.GetStat(s, p);
 				if (stat.IsInit() && stat[SUM] > 0)
 				{
@@ -254,7 +237,7 @@ namespace WBSF
 
 		if (obs > -999)
 		{
-			//if (obs > 0.01 && obs < 99.99)
+			
 			if (obs >= 100)
 				obs = 99.99;//to avoid some problem of truncation
 
@@ -295,88 +278,6 @@ namespace WBSF
 
 	static const int ROUND_VAL = 4;
 
-	//void CLaricobiusOsakensisModel::CalibrateCumulativeEggCreation(CStatisticXY& stat)
-	//{
-	//	size_t EVALUATE_STAGE = 0;
-
-	//	if (m_CEC[Τᴴ¹] >= m_CEC[Τᴴ²])
-	//		return;
-
-
-	//	if (m_SAResult.empty())
-	//		return;
-
-	//	if (!m_weather.IsHourly())
-	//		m_weather.ComputeHourlyVariables();
-
-
-
-	//	for (size_t y = 0; y < m_weather.GetNbYears(); y++)
-	//	{
-	//		int year = m_weather[y].GetTRef().GetYear();
-	//		if (m_years[EVALUATE_STAGE].find(year) == m_years[EVALUATE_STAGE].end())
-	//			continue;
-
-
-
-	//		double sumDD = 0;
-	//		vector<double> CDD;
-	//		CTPeriod p;
-
-
-	//		p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-	//		CDD.resize(p.size(), 0);
-
-	//		CDegreeDays DDModel(CDegreeDays::MODIFIED_ALLEN_WAVE, m_CEC[Τᴴ¹], m_CEC[Τᴴ²]);
-
-	//		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-	//		{
-	//			const CWeatherDay& wday = m_weather.GetDay(TRef);
-	//			size_t ii = TRef - p.Begin();
-	//			sumDD += DDModel.GetDD(wday);
-	//			CDD[ii] = sumDD;
-	//		}
-
-	//		for (size_t i = 0; i < m_SAResult.size(); i++)
-	//		{
-	//			size_t ii = m_SAResult[i].m_ref - p.Begin();
-	//			if (m_SAResult[i].m_ref.GetYear() == year && ii < CDD.size())
-	//			{
-	//				double obs_y = m_SAResult[i].m_obs[EVALUATE_STAGE];
-
-	//				if (obs_y > -999)
-	//				{
-
-	//					double sim_y = 0;
-
-	//					/*if (EVALUATE_STAGE == I_EMERGED_ADULT)
-	//					{
-	//						boost::math::weibull_distribution<double> emerged_dist(m_EAS[ʎ], m_EAS[к]);
-	//						sim_y = Round(cdf(emerged_dist, CDD[ii]) * 100, ROUND_VAL);
-	//					}
-	//					else
-	//					{*/
-	//					boost::math::logistic_distribution<double> create_dist(m_CEC[μ], m_CEC[ѕ]);
-	//					sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
-	//					//}
-
-
-	//					if (sim_y < 0.1)
-	//						sim_y = 0;
-	//					if (sim_y > 99.9)
-	//						sim_y = 100;
-
-	//					stat.Add(obs_y, sim_y);
-	//				}
-	//			}
-	//		}
-	//	}//for all years
-
-
-
-
-	//	return;
-	//}
 
 	void CLaricobiusOsakensisModel::CalibrateCumulativeEggCreation(CStatisticXY& stat)
 	{
@@ -396,11 +297,7 @@ namespace WBSF
 		for (size_t y = FIRST_Y; y < m_weather.GetNbYears(); y++)
 		{
 			int year = m_weather[y].GetTRef().GetYear();
-			//if (m_years[EVALUATE_STAGE].find(year) == m_years[EVALUATE_STAGE].end())
-				//continue;
-
-
-
+			
 			double sumDD = 0;
 			vector<double> CDD;
 			CTPeriod p;
@@ -433,9 +330,7 @@ namespace WBSF
 					{
 
 						double sim_y = 0;
-						//boost::math::logistic_distribution<double> create_dist(m_CEC[μ], m_CEC[ѕ]);
 						boost::math::weibull_distribution<double> create_dist(m_CEC[μ], m_CEC[ѕ]);
-						//boost::math::non_central_f_distribution<double> create_dist( m_CEC[μ], m_CEC[ѕ], m_CEC[ʎf]);
 
 						sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
 						
@@ -461,8 +356,6 @@ namespace WBSF
 
 	bool CLaricobiusOsakensisModel::GetFValueDaily(CStatisticXY& stat)
 	{
-		//return CalibrateCumulativeEggCreation(stat);
-
 
 		if (!m_SAResult.empty())
 		{
@@ -472,12 +365,6 @@ namespace WBSF
 			if (!m_weather.IsHourly())
 				m_weather.ComputeHourlyVariables();
 
-			//low and hi relative development rate must be approximatively the same
-			//if (!IsParamValid())
-				//return;
-
-
-
 			for (size_t y = FIRST_Y; y < m_weather.GetNbYears(); y++)
 			{
 				int year = m_weather[y].GetTRef().GetYear();
@@ -486,13 +373,9 @@ namespace WBSF
 
 					CModelStatVector output;
 					CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-//					p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+
 					if (BEGIN_DECEMBER)
 						p.Begin() = CTRef(year - 1, DECEMBER, DAY_01);
-
-					//not possible to add a second year without having problem in evaluation....
-					//if (m_weather[y].HaveNext())
-						//p.End() = m_weather[y + 1].GetEntireTPeriod(CTM(CTM::DAILY)).End();
 
 					output.Init(p, NB_STATS, 0);
 					ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
@@ -514,16 +397,6 @@ namespace WBSF
 									if (obs_y > -999)
 									{
 										stat.Add(obs_y, sim_y);
-
-										//double obs_x = m_SAResult[i].m_ref.GetJDay();
-										//double sim_x = GetSimX(STAT_STAGE[j], m_SAResult[i].m_ref, obs_y, output);
-
-										/*if (sim_x > -999)
-										{
-											obs_x = Round(100 * (obs_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
-											sim_x = Round(100 * (sim_x - m_nb_days[j][LOWEST]) / m_nb_days[j][RANGE],ROUND_VAL);
-											stat.Add(obs_x, sim_x);
-										}*/
 									}
 								}
 							}

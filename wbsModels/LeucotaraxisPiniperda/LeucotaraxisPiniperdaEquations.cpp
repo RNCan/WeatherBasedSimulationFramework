@@ -48,7 +48,7 @@ namespace WBSF
 
 
 	const array<double, LPM::NB_EMERGENCE_PARAMS> CLeucotaraxisPiniperdaEquations::ADULT_EMERG = { 647.8, 41.96, 45, 2.5, 18.5 };//logistic distribution (no longer used)
-	const array<double, LPM::NB_PUPA_PARAMS> CLeucotaraxisPiniperdaEquations::PUPA_PARAM = { 0.124, 0.0839,  3.2, 33.0, 34.8, 1.36, 0.257};//pupa developement at spring
+	const array<double, LPM::NB_PUPA_PARAMS> CLeucotaraxisPiniperdaEquations::PUPA_PARAM = { 0.124, 0.0839,  3.2, 33.0, 34.8, 1.36, 0.257};//pupa development at spring
 	const array<double, LPM::NB_C_PARAMS> CLeucotaraxisPiniperdaEquations::C_PARAM = { 0.75, 1.0, 1.0 };
 	
 
@@ -75,7 +75,7 @@ namespace WBSF
 			//Non-linear
 			CDevRateEquation::WangLanDing_1982,//Eggs
 			CDevRateEquation::WangLanDing_1982,//Larva
-			CDevRateEquation::WangLanDing_1982,//Pupa  (with dormency)
+			CDevRateEquation::WangLanDing_1982,//Pupa  (with dormancy)
 			CDevRateEquation::Poly1,//Adult
 		};
 
@@ -84,7 +84,7 @@ namespace WBSF
 			//Non-linear from laboratory rearing
 			{0.1682, 0.2273, -0.1, 16.1, 34.7, 0.5003},//egg
 			{0.0570, 0.3284,-50.0, 15.9, 34.9, 9.0197},//Larva
-			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormency)
+			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormancy)
 			{1/50.0, 0},//Range 24 to 64 days, median 50 days, n = 16 females
 		};
 
@@ -140,7 +140,7 @@ namespace WBSF
 			//Non-linear
 			{0.1849},//Egg
 			{0.2689},//Larva
-			{0.3727},//Pupae (with dormency)
+			{0.3727},//Pupae (with dormancy)
 			{0.1200},//Adult
 		};
 
@@ -198,7 +198,7 @@ namespace WBSF
 		{
 			{-3.562622, -0.2123614, 0.008848417},//egg
 			{-4.033288, 0.04749421, -0.002219942},//Larva
-			{3.133109,-1.159329,0.03617767},//Pupa (with dormency)
+			{3.133109,-1.159329,0.03617767},//Pupa (with dormancy)
 			{},//Adult
 		};
 

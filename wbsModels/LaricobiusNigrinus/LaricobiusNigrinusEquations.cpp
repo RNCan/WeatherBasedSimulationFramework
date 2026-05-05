@@ -97,38 +97,15 @@ namespace WBSF
 	{
 		ASSERT(s >= 0 && s < NB_STAGES);
 
-		//double r = 0;
-
-#if 0
-		static const CDevRateEquation::TDevRateEquation P_EQ[4] =
-		{
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1
-		};
-
-		static const double P_DEV[4][6] =
-		{
-			{-0.0907, 0.0165,0,0,0,0},
-			{-0.0151, 0.0048,0,0,0,0},
-			{-0.0132, 0.0047,0,0,0,0},
-			{-0.0144, 0.0047,0,0,0,0}
-		};
-#else
 		static const CDevRateEquation::TDevRateEquation P_EQ[NB_STAGES] =
 		{
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::Unknown,		//aestival diapause adult
+			CDevRateEquation::SharpeDeMichele_1977,	//Egg
+			CDevRateEquation::SharpeDeMichele_1977,	//Larva
+			CDevRateEquation::SharpeDeMichele_1977,	//PrePupa
+			CDevRateEquation::SharpeDeMichele_1977,	//Pupa
+			CDevRateEquation::Poly1,		//aestival diapause adult
 			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
-
-
-
-
 
 		static const array< vector<double>, NB_STAGES>  P_DEV =
 		{ {
@@ -137,10 +114,10 @@ namespace WBSF
 				{0.1205, 23.4, 1.5541, -41.8623, 5.8, 78.232, 24.9 },
 				{0.053, 15.2, 1.6354, -20.5995, 4.7, 24.7415, 22.4 },
 				{0.0635, 16.2, 1.6958, -51.3567, 2.8, 15.687, 20.3 },
-				{},
-				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                }, //adult 1.05: adjustment between Lo and Ln (from McAvoy unpublished)
+				{1.0 / 198.0, 0},										//after Foley (2021), median time is 198 days
+				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                },	//adult 1.05: adjustment between Lo and Ln (from McAvoy unpublished)
 		} };
-#endif
+
 
 		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
@@ -226,10 +203,9 @@ namespace WBSF
 			{ -2.815295e+00,-1.500702e-01, 8.350179e-03, 0 },//PrePupa
 			{ -2.244723e+00,-2.955180e-01, 1.080062e-02, 0 },//Pupa
 			//The mean historical subterranean survivorship of laboratory - reared Laricobius (Foley et al., 2021)
-			//survival of 39.7% over a period of 198 days
-			//daily survival = 0.397^(1/198) = 0.995345
-			//{0.995345},
-			{0.995345},//aestival diapause adult
+			//survival of 39.7% over a period of 198 days. Survival in laboratory is very low, we double the survival
+			//daily survival = 0.397^(1/198) = 0.9955
+			{0.9955},//aestival diapause adult
 			{1.0}//adult
 		} };
 

@@ -33,7 +33,7 @@
             <Type>0</Type>
             <Rect>40 15 60 165</Rect>
             <SeparatorPos>100</SeparatorPos>
-            <DefaultValue>1</DefaultValue>
+            <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <TextValue/>
@@ -155,8 +155,16 @@
             <Precision>4</Precision>
         </OutputVariable>
         <OutputVariable>
-            <Name>Death</Name>
-            <Title>Death</Title>
+            <Name>MoultDeathAdult</Name>
+            <Title>MoultDeathAdult</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadAttrition</Name>
+            <Title>DeadAttrition</Title>
             <Units/>
             <Description/>
             <TimeMode>4 0</TimeMode>

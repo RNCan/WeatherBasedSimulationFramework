@@ -83,14 +83,7 @@ namespace WBSF
 		return r;
 	}
 
-	/*double CLeucotaraxisArgenticollisEquations::GetAdultAging(double T)const
-	{
-		vector<double> p(2) = { 1.0/22.5*m_EOD_param[EOD_A],0.0 }
-		double r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::Poly1, p, T));
-		
-		return r;
-	}*/
-
+	
 
 	double CLeucotaraxisArgenticollisEquations::GetUndiapausedPupaRate(double T, size_t g)const
 	{
@@ -216,38 +209,6 @@ namespace WBSF
 		return sr;
 	}
 
-
-
-	//*****************************************************************************
-	//
-
-	//void CLeucotaraxisArgenticollisEquations::GetAdultEmergenceCDD(const CWeatherYears& weather, array < CModelStatVector, 2>& CDD)const
-	//{
-	//	CDegreeDays DDmodel0(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
-	//	CDegreeDays DDmodel1(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], 50);//for valudation perpose only
-
-	//	DDmodel0.GetCDD(int(m_adult_emerg[delta]), weather, CDD[0]);
-	//	DDmodel1.GetCDD(int(m_adult_emerg[delta]), weather, CDD[1]);
-	//}
-
-
-	//double CLeucotaraxisArgenticollisEquations::GetAdultEmergingCDD(double TjanIn)const
-	//{
-	//	double Tjan = max(-9.2, TjanIn);
-	//	double mu = m_EOD_param[EOD_B] * (Tjan - m_EOD_param[EOD_A]) / (1 + Tjan - m_EOD_param[EOD_A]);
-	//	boost::math::logistic_distribution<double> emerging_dist(mu, m_adult_emerg[ѕ]);
-
-	//	double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
-	//	double p = boost::math::cdf(emerging_dist, CDD);
-	//	while (p < 0.01 || p>0.99)
-	//	{
-	//		CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu(true, true));
-	//		p = boost::math::cdf(emerging_dist, CDD);
-	//	}
-
-
-	//	return CDD;
-	//}
 
 	//****************************************************************************
 	//

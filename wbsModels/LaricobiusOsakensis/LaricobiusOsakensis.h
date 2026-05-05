@@ -26,7 +26,6 @@ namespace WBSF
 			S_EGG, S_L1, S_L2, S_L3, S_L4, S_PREPUPA, S_PUPA, S_AESTIVAL_DIAPAUSE_ADULT, S_ACTIVE_ADULT, S_DEAD_ADULT,
 			S_M_EGG, S_M_L1, S_M_L2, S_M_L3, S_M_L4, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
 			S_DEAD_ATTRTION, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, S_LARVAE, NB_STATS
-			//S_ADULT_EMERGENCE = S_M_ACTIVE_ADULT
 		};
 	}
 
@@ -67,33 +66,22 @@ namespace WBSF
 
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
-		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		//bool IsDeadByAttrition(size_t stage, double T, size_t time_step)const;
+		bool IsDeadByAttrition(size_t stage, double T, double rr)const;
 
 	protected:
 
-		//member
+		//Members
 		
-		//double m_creationCDD;//CDD need to create individual
-		//double m_CDD;//actual CDD
 		double m_RDR[LOF::NB_STAGES]; //Individual's relative development rates for all stages
 		CTRef m_dropToGroundDate;
+		CTRef m_aestival_diapause_begin;
 		CTRef m_adult_emergence;
-		//std::array < CTRef, 2> m_adult_emergence;
 		std::array<CTRef, LOF::NB_STAGES + 1> m_reachDate;
-		//double m_CDD_ADE;//cumulative negative CDD for aestival diapause end
-		//double m_aestivalDiapauseEndCDD;//CDD need to create individual
-		//double m_aestivalDiapauseEndTavg30;
-		
-		//double m_CDD_AE;//adult emerging CDD
-		//CTRef m_adultEmegenceBegin;
-		//CTRef m_parentAdultEmergence;
-		//double m_adult_emerging_CDD;
 
-		//size_t m_ii;
 
-		//double m_adult_longevity; //adult longevity [days]
-		double m_t; // decimal time since adult emergence  [days]
-		double m_Fi; //fecundity
+		double m_t;		//Decimal time since adult emergence  [days]
+		double m_Fi;	//Fecundity
 		bool m_bDeadByAttrition;
 	};
 
@@ -130,7 +118,6 @@ namespace WBSF
 			WBSF::CStand(pModel),
 			m_equations(pModel->RandomGenerator()),
 			m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, Th1, Th2)
-//			m_DD4(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0)
 		{
 			m_bApplyAttrition = false;
 			m_egg_creation_CDD = 0;
@@ -148,22 +135,12 @@ namespace WBSF
 		CModelStatVector m_Tavg30;
 		CLaricobiusOsakensisEquations m_equations;
 		CDegreeDays m_DD;
-		//CDegreeDays m_DD4;
-
 		double m_egg_creation_CDD;
-		//std::map<int, double> m_diapause_end_NCDD;
-		//std::map<int, double> m_adult_emergence_CDD;
-		//std::map<int, CTRef>  m_adultEmergenceBegin;
-		//std::map<int,  CTRef> m_diapause_end;
 
 		double m_diapause_end_NCDD;
 		double m_adult_emergence_CDD;
 		CTRef  m_adultEmergenceBegin;
 		CTRef  m_diapause_end;
-
-
-		//CTRef m_diapause_end;  
-		
 	};
 
 

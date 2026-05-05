@@ -10,7 +10,7 @@
 //				Adult longevity and fecundity 
 //
 //*****************************************************************************
-// 21/07/2021	Rémi Saint-Amant    New aestivation diapause end and adult emergence from L. nigrinus
+// 21/07/2021	Rémi Saint-Amant    New aestival diapause end and adult emergence from L. nigrinus
 // 30/06/2021	Rémi Saint-Amant    L osakensis parameters
 // 25/08/2020   Rémi Saint-Amant    Creation 
 //*****************************************************************************
@@ -92,7 +92,7 @@ namespace WBSF
 			CDevRateEquation::Regniere_2012,//L4
 			CDevRateEquation::Regniere_2012,//PrePupae
 			CDevRateEquation::Regniere_2012,//Pupae
-			CDevRateEquation::Unknown,		//aestival diapause adult
+			CDevRateEquation::Poly1,		//aestival diapause adult
 			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
 
@@ -111,7 +111,7 @@ namespace WBSF
 				{ 1.959e-02, 8.478e-02, 4, 27, 3.596e-01, 5.000e-01 },//L4
 				{ 7.032e-02, 8.388e-02, 4, 34, 50.00e+01, 1.064e+01 },//PrePupae
 				{ 9.590e-03, 1.092e-01, 0, 32, 1.000e-01, 5.001e-01 },//Pupae
-				{                                                   },//aestival diapause adult
+				{ 1.0/ 214.0, 0                                     },//aestival diapause adult
 				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                },//adult
 			} };
 
@@ -147,6 +147,9 @@ namespace WBSF
 			{1.000},//aestival diapause adult
 			{0.401}//adult
 		};
+
+		if (SIGMA[s] == 1.0)
+			return 1.0;
 
 		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
@@ -201,7 +204,7 @@ namespace WBSF
 			CSurvivalEquation::Survival_01, //L4
 			CSurvivalEquation::Survival_01,	//PrePupa
 			CSurvivalEquation::Survival_01,	//Pupa
-			CSurvivalEquation::Unknown,		//aestival diapause adult
+			CSurvivalEquation::Survival_constant,		//aestival diapause adult
 			CSurvivalEquation::Unknown,		// adult
 		};
 	
@@ -214,7 +217,10 @@ namespace WBSF
 			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L4
 			{ -6.276e+00, +2.963e-01, -8.149e-03 },//PrePupa
 			{ +8.134e+00, -1.635e+00, +5.088e-02 },//Pupa
-			{},
+			//The mean historical subterranean survivorship of laboratory - reared Laricobius (Foley et al., 2021)
+			//survival of 39.7% over a period of 198 days. Survival in laboratory is very low, we double the survival
+			//daily survival = 0.339^(1/214) = 0.9950
+			{0.9950},
 			{}
 		} };
 
