@@ -25,7 +25,7 @@ namespace WBSF
 
 		CForestTentCaterpillarEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const;
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;

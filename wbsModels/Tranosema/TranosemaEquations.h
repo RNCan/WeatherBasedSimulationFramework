@@ -43,7 +43,7 @@ namespace WBSF
 	protected:
 
 		//internal development rates
-		virtual double ComputeRate(size_t e, double t)const;
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 
 
 		static double Equation1(size_t s, double T);

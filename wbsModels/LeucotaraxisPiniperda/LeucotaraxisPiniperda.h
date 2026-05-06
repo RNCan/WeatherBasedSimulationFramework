@@ -11,7 +11,7 @@
 #include "Basic/UtilTime.h"
 #include "ModelBase/IndividualBase.h"
 #include "LeucotaraxisPiniperdaEquations.h"
-#include "Basic\DegreeDays.h"
+#include "Basic/DegreeDays.h"
 
 namespace WBSF
 {
@@ -23,11 +23,15 @@ namespace WBSF
 	{
 		enum TLeucotaraxisPiniperdaStats
 		{
-			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION, NB_STATS
+			//S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION, NB_STATS
+			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION, NB_STATS
 		}; 
 
-		enum { NB_CUMUL_STATS = 11 };
-		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_EGG2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION };
+		//enum { NB_CUMUL_STATS = 11 };
+		//static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_EGG2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION };
+
+		enum { NB_CUMUL_STATS = 7 };
+		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION };
 	}
 
 
@@ -67,7 +71,8 @@ namespace WBSF
 
 		
 		CTRef GetAdultEmergence(int year)const;
-		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		//bool IsDeadByAttrition(size_t stage, double T, size_t time_step)const;
+		bool IsDeadByAttrition(size_t stage, double T, double rr)const;
 
 	protected:
 

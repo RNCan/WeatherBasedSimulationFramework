@@ -64,18 +64,18 @@ namespace WBSF
 
 
 	//Compute daily development rate for table lookup
-	double CTranosemaEquations::ComputeRate(size_t s, double T)const
+	double CTranosemaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 		//relative development
 		double Rt = 0;
 
-		switch (s)
+		switch (e)
 		{
 		case EGG:
-		case PUPA: Rt = Equation1(s, T); break;
-		case ADULT:	Rt = Equation2(s, T); break;
+		case PUPA: Rt = Equation1(e, T); break;
+		case ADULT:	Rt = Equation2(e, T); break;
 		default: ASSERT(false);
 		}
 
@@ -91,7 +91,7 @@ namespace WBSF
 
 	double CTranosemaEquations::Equation3(size_t s)const
 	{
-		ASSERT(s >= EGG && s <= ADULT);
+		ASSERT(s < NB_STAGES);
 		static const double P[NB_STAGES][2] =
 		{
 			//  x      s

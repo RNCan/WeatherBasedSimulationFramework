@@ -61,25 +61,27 @@ namespace WBSF
 	}
 
 
-	double CWSBTableLookup::ComputeRate(size_t s, double T)const
+	double CWSBTableLookup::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
+		ASSERT(e < NB_STAGES);
+
 		double Rt = 0;
 
 		if (T <= 0)
 			return 0;
 
 
-		if (s == 8) //Maximum 30 day longevity at lower T, but death in 1 day at T<=0
+		if (e == ADULT) //Maximum 30 day longevity at lower T, but death in 1 day at T<=0
 		{
-			Rt = m_rho25Factor[s] / min(30.0, max(1.0, (m_p[s][0] + m_p[s][1] * T + m_p[s][2] * T*T + m_p[s][3] * T*T*T)));
+			Rt = m_rho25Factor[e] / min(30.0, max(1.0, (m_p[e][0] + m_p[e][1] * T + m_p[e][2] * T*T + m_p[e][3] * T*T*T)));
 		}
 		else
 		{
 			double TK = T + 273.0;
-			double rho25 = m_rho25Factor[s] * m_p[s][0];
-			double num = rho25*TK / 298.0*exp(m_p[s][1] / 1.987*(1 / 298.0 - 1 / TK));
-			double den1 = exp(m_p[s][2] / 1.987*(1 / m_p[s][3] - 1 / TK));
-			double den2 = exp(m_p[s][4] / 1.987*(1 / m_p[s][5] - 1 / TK));
+			double rho25 = m_rho25Factor[e] * m_p[e][0];
+			double num = rho25*TK / 298.0*exp(m_p[e][1] / 1.987*(1 / 298.0 - 1 / TK));
+			double den1 = exp(m_p[e][2] / 1.987*(1 / m_p[e][3] - 1 / TK));
+			double den2 = exp(m_p[e][4] / 1.987*(1 / m_p[e][5] - 1 / TK));
 
 			Rt = num / (1 + den1 + den2);
 		}
@@ -98,7 +100,7 @@ namespace WBSF
 		//Revised 2011-03-07 from SAS output (JR)	
 	{//Egg,    OvL2, FeedL2,     L3,     L4,      L5,      L6,   Pupa, Adult
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, -0.017, -0.039, 0.013, 0 } //ASdjust development rate of females
+		{ 0, 0, 0, 0, 0, -0.017, -0.039, 0.013, 0 } //Adjust development rate of females
 	};
 
 	double CWSBRelativeDevRate::GetRate(size_t s, size_t sex)

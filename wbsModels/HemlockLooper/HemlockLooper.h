@@ -4,7 +4,7 @@
 // Class: CHemlockLooper, CHLVector
 //          
 //
-// Descrition: CHemlockLooper represent one HL insect. 
+// Description: CHemlockLooper represent one HL insect. 
 //			   CHLVector is a vector of HL insect. 
 //*****************************************************************************
 
@@ -58,16 +58,16 @@ namespace WBSF
 		CHLStand* GetStand();
 		const CHLStand* GetStand()const;
 
-		void AssignRelativeDevRate(); //Sets indivivual's relative development rates in all stages, at creation
+		void AssignRelativeDevRate(); //Sets individual's relative development rates in all stages, at creation
 
-		void Develop(const CDailyWaveVector& T, const CWeatherDay& wDay);
-		bool IsDeadByAttrition(double T, double r)const;
+		//void Develop(const CDailyWaveVector& T, const CWeatherDay& wDay);
+		//bool IsDeadByAttrition(double T, double r)const;
 		bool ChangeStage(double RR){ return short(m_age + RR) != GetStage(); }
 
 
 		//member
 		double m_relativeDevRate[HemlockLooper::NB_STAGES];	//Individual's relative development rates in 9 stages
-		double m_potentialFecundity;			//potential fecondity of this individu
+		double m_potentialFecundity;			//potential fecundity of this individual
 		double m_overwinterLuck;				//for overwinter survival
 		double m_adultAge;						//Adult age in days for oviposition
 		double m_ʃT;							//accumulation of energy lost

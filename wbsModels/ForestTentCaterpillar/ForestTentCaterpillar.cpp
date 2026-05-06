@@ -95,7 +95,7 @@ namespace WBSF
 		
 
 		//Time step development rate
-		double r = Equations().GetRate(s, T) / (24.0 / timeStep);
+		double r = Equations().GetDailyDevlopmentRate(s, T) / (24.0 / timeStep);
 		//Relative development rate (development rate is accelerated relative to TREMBLING_ASPEN)
 		
 		double rr = TREE_FACTOR[GetTree()->m_kind]*m_RDR[s];

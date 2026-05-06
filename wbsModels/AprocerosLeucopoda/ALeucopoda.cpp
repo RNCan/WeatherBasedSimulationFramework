@@ -5,6 +5,8 @@
 //
 // Description: the CAprocerosLeucopoda represents a group of TZZ insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 2026-05-06	Rémi Saint-Amant    New attrition computation
+//									Clean up
 // 2022-03-20	Rémi Saint-Amant    Bug correction in emergence
 // 2020-10-17   Rémi Saint-Amant    Creation
 //*****************************************************************************
@@ -40,7 +42,7 @@ namespace WBSF
 
 	double COverheat2::GetTmax(const CWeatherDay& weather)const
 	{
-		if (m_overheat == 1)//by optimisation, avoid compute statistic
+		if (m_overheat == 1)//by optimization, avoid compute statistic
 			return weather[H_TMAX][MEAN];
 
 		return weather[H_TNTX][MEAN] + weather[H_TRNG2][MEAN]/2 * m_overheat;
@@ -77,34 +79,6 @@ namespace WBSF
 	{
 		CTRef creationDate = CTRef(year, JANUARY, DAY_01);
 		return creationDate;
-
-
-		//double creationCDD = Equations().GetCreationCDD();
-
-		//const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		/*CTRef begin = CTRef(year, JANUARY, DAY_01);
-
-
-
-
-
-		CTRef end = CTRef(year, JUNE, DAY_30);
-
-		double CDD = 0;
-		for (CTRef TRef = begin; TRef <= end && !creationDate.IsInit(); TRef++)
-		{
-			const CWeatherDay& wDay = weather_station.GetDay(TRef);
-			double DD = GetStand()->m_DD.GetDD(wDay);
-			CDD += DD;
-			if (CDD >= creationCDD)
-			{
-				creationDate = wDay.GetTRef();
-			}
-		}
-
-		ASSERT(creationDate.IsInit());
-
-		return creationDate;*/
 	}
 
 	CTRef CAprocerosLeucopoda::GetAdultEmergence(int year)const
@@ -116,12 +90,7 @@ namespace WBSF
 		double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
 
 		CTRef begin = p.Begin();
-		//CTRef begin = GetStand()->m_diapause_end;
 		CTRef end = p.End();
-		//if (weather_station[year].HaveNext())
-			//end = min(p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
-
-		//double CDD = 0;
 		
 		static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::ALLEN_WAVE;
 		CDegreeDays DDmodel(DD_METHOD, GetStand()->m_equations.m_EAS[Τᴴ¹], GetStand()->m_equations.m_EAS[Τᴴ²]);
@@ -176,11 +145,6 @@ namespace WBSF
 	void CAprocerosLeucopoda::OnNewDay(const CWeatherDay& weather)
 	{
 		CIndividual::OnNewDay(weather);
-
-		/*if (weather.GetTRef() == m_creationDate)
-		{
-			m_age = EGG;
-		}*/
 	}
 
 	//*****************************************************************************
@@ -211,29 +175,25 @@ namespace WBSF
 		//double day_length = weatherD.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
 
-			//Time step development rate
-		double r = Equations().GetRate(s, T) / nb_steps;
-
-		//double corr_r = (s == EGG || s == LARVAE) ? : 1;
+		//Daily development rate
+		double d_r = Equations().GetDailyDevlopmentRate(s, T);
+		//Time step development rate
+		double st_r = d_r / nb_steps;
 
 		//Relative development rate for this individual
-		double rr = m_RDR[s];
+		double rdr = m_RDR[s];
 
-		//Time step development rate for this individual
-		r *= rr;
-		ASSERT(r >= 0 && r < 1);
+		//Individual time step development rate
+		double i_r = st_r*rdr;
+		ASSERT(i_r >= 0 && i_r < 1);
 
 		//Adjust age
-		m_age += r;
-
-
-		//if (!m_dropToGroundDate.IsInit() && m_age > LARVAE4 + 0.9)//drop to the soil when 90% competed (guess)
-			//m_dropToGroundDate = weather.GetTRef().as(CTM::DAILY);
+		m_age += i_r;
 
 		//evaluate attrition once a day
 		if (GetStand()->m_bApplyAttrition&&m_generation>0)
 		{
-			if (IsDeadByAttrition(s, T, r))
+			if (IsDeadByAttrition(s, T, i_r))
 				m_bDeadByAttrition = true;
 		}
 
@@ -241,20 +201,6 @@ namespace WBSF
 
 		if (!m_adult_emergence.IsInit() && m_age >= ADULT)
 			m_adult_emergence = weatherD.GetTRef().as(CTM::DAILY);
-
-		/*else if (s == AESTIVAL_DIAPAUSE_ADULT)
-		{
-			CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-			if (TRef == m_adult_emergence)
-				m_age = ACTIVE_ADULT;
-		}*/
-		//else//ACTIVE_ADULT
-		//{
-			//double r = (1.0 / m_adult_longevity) / nb_steps;
-			//ASSERT(r >= 0 && r < 1);
-
-		//	m_age += r;
-		//}/
 	}
 
 
@@ -272,22 +218,12 @@ namespace WBSF
 
 		if (weather.GetTRef() < m_adult_emergence)
 			return;
-
-
-		//if (!IsCreated(weather.GetTRef()))
-			//return;
-
-		/*if (m_bDiapause && !m_dropToGroundDate.IsInit() && weather.GetTRef() >= m_adult_emergence)
-		{
-			m_bDiapause = false;
-			m_age = ADULT;
-		}*/
+		
 
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps&&IsAlive() && m_age < DEAD_ADULT && !m_bDiapause; step++)
 		{
 			size_t h = step * GetTimeStep();
-			//Live(weather[h], GetTimeStep());
 			Live(weather, h, GetTimeStep());
 
 			if (GetStage() == PUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 260)
@@ -305,7 +241,7 @@ namespace WBSF
 
 	void CAprocerosLeucopoda::Brood(const CWeatherDay& weather)
 	{
-		assert(/*IsAlive() &&*/ m_sex == FEMALE);
+		assert(m_sex == FEMALE);
 
 
 		if (GetStage() == ADULT)
@@ -317,8 +253,6 @@ namespace WBSF
 			//brooding
 			m_broods = brood;
 			m_totalBroods += brood;
-			//m_F = 0;
-		//}
 
 			if (m_bFertil && m_broods > 0)
 			{
@@ -367,32 +301,19 @@ namespace WBSF
 
 	//s: stage
 	//T: temperature for this time step
-	//r: devlopement rate for this time step
-	bool CAprocerosLeucopoda::IsDeadByAttrition(size_t s, double T, double r)const
+	//i_r: Individual time step development rate 
+	bool CAprocerosLeucopoda::IsDeadByAttrition(size_t s, double T, double i_r)const
 	{
 		bool bDeath = false;
 
-		//daily survival
-		//double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+		//overall (stage) survival at this temperature
+		double S = Equations().GetStageSurvival(s, T);
 
-		////time step survival
-		//double S = pow(ds, r);
-
-		////Computes attrition (probability of survival in a given time step, based on development rate)
-		//if (RandomGenerator().RandUniform() > S)
-		//	bDeath = true;
-
-		//daily survival
-		double ds = max(0.15, GetStand()->m_equations.GetDailySurvivalRate(s, T));
-		//overall survival
-		double Time = 1 / Equations().GetRate(s, T);//time(days)
-		double S = pow(ds, Time);
-
-		//time step survival
-		double SS = pow(S, r);
+		//time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01,S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > SS)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;
@@ -474,7 +395,6 @@ namespace WBSF
 
 	void CTZZStand::init(int year, const CWeatherYears& weather)
 	{
-//		m_diapause_end = ComputeDiapauseEnd(weather[year]);
 	}
 
 	CTRef CTZZStand::ComputeDiapauseEnd(const CWeatherYear& weather)const
@@ -504,48 +424,6 @@ namespace WBSF
 
 
 
-	void CTZZStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
-	{
-		CStand::GetStat(d, stat, generation);
-
-//		const CWeatherStation& weather_station = GetModel()->m_weather;
-//		const CWeatherDay& wday = weather_station.GetDay(d);
-//
-//		//use year of diapause to compute correctly the adult emergence cdd
-//		int year = m_diapause_end.GetYear();
-//		CTRef begin = CTRef(year, JANUARY, DAY_01);
-//		CTRef end = CTRef(year, DECEMBER, DAY_31);
-//
-//		if (d >= begin && d <= end)
-//		{
-//			//Egg creation DD (allen 1976)
-//			//m_egg_creation_CDD += m_DD.GetDD(wday);
-////			stat[S_EGG_CREATION_CDD] = m_egg_creation_CDD;
-//
-//			//diapause end negative DD
-//			double T = wday[H_TNTX][MEAN];
-//			T = max(m_equations.m_EWD[ʎa], T);
-//			double NDD = min(0.0, T - m_equations.m_EWD[ʎb]);//DD is negative
-//
-//			int ii = d - begin;
-//			if (ii >= (172 - 1) && ii <= int(m_equations.m_EWD[ʎ0] - 1))
-//				m_diapause_end_NCDD += NDD;
-//
-//			//stat[S_DIAPAUSE_END_NCDD] = m_diapause_end_NCDD;
-//		}
-//
-
-		//begin = m_diapause_end;
-		//end = CTRef(m_diapause_end.GetYear() + 1, MARCH, DAY_01);
-		//if (d >= begin && d <= end)
-		//{
-		//	//adult emergence (growing DD)
-		//	double T = wday[H_TNTX][MEAN];
-		//	double GDD = max(0.0, T - m_equations.m_EAS[Τᴴ]);
-		//	m_adult_emergence_CDD += GDD;
-		//	stat[S_ADULT_EMERGENCE_CDD] = m_adult_emergence_CDD;
-		//}
-	}
 
 
 }

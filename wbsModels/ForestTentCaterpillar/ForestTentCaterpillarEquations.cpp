@@ -141,13 +141,13 @@ namespace WBSF
 	}
 
 	//Daily development rate
-	double CForestTentCaterpillarEquations::ComputeRate(size_t s, double T)const
+	double CForestTentCaterpillarEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 		double r = 0;
 
-		switch (s)
+		switch (e)
 		{
 		case EGG:	r = GetGrayEggDevRate(TREMBLING_ASPEN, T); break;
 		case L1:
@@ -156,7 +156,7 @@ namespace WBSF
 		case L4:
 		case L5:
 		case PUPAE:
-		case ADULT:	r = GetDevRate(s, T); break;
+		case ADULT:	r = GetDevRate(e, T); break;
 		default: _ASSERTE(false);
 		}
 

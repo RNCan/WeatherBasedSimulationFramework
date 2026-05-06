@@ -48,7 +48,7 @@ namespace WBSF
 
 
 	const array<double, LPM::NB_EMERGENCE_PARAMS> CLeucotaraxisPiniperdaEquations::ADULT_EMERG = { 647.8, 41.96, 45, 2.5, 18.5 };//logistic distribution (no longer used)
-	const array<double, LPM::NB_PUPA_PARAMS> CLeucotaraxisPiniperdaEquations::PUPA_PARAM = { 0.124, 0.0839,  3.2, 33.0, 34.8, 1.36, 0.257};//pupa developement at spring
+	const array<double, LPM::NB_PUPA_PARAMS> CLeucotaraxisPiniperdaEquations::PUPA_PARAM = { 0.124, 0.0839,  3.2, 33.0, 34.8, 1.36, 0.257};//pupa development at spring
 	const array<double, LPM::NB_C_PARAMS> CLeucotaraxisPiniperdaEquations::C_PARAM = { 0.75, 1.0, 1.0 };
 	
 
@@ -64,9 +64,9 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CLeucotaraxisPiniperdaEquations::ComputeRate(size_t s, double T)const
+	double CLeucotaraxisPiniperdaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 
 
@@ -75,7 +75,7 @@ namespace WBSF
 			//Non-linear
 			CDevRateEquation::WangLanDing_1982,//Eggs
 			CDevRateEquation::WangLanDing_1982,//Larva
-			CDevRateEquation::WangLanDing_1982,//Pupa  (with dormency)
+			CDevRateEquation::WangLanDing_1982,//Pupa  (with dormancy)
 			CDevRateEquation::Poly1,//Adult
 		};
 
@@ -84,7 +84,7 @@ namespace WBSF
 			//Non-linear from laboratory rearing
 			{0.1682, 0.2273, -0.1, 16.1, 34.7, 0.5003},//egg
 			{0.0570, 0.3284,-50.0, 15.9, 34.9, 9.0197},//Larva
-			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormency)
+			{0.0718, 0.0839,  3.2, 34.8, 34.8, 2.4296},//Pupa (with dormancy)
 			{1/50.0, 0},//Range 24 to 64 days, median 50 days, n = 16 females
 		};
 
@@ -95,7 +95,7 @@ namespace WBSF
 			//p = vector<double>(begin(PUPA_PARAM), end(PUPA_PARAM));
 
 
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[e], P_DEV[e], T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -140,7 +140,7 @@ namespace WBSF
 			//Non-linear
 			{0.1849},//Egg
 			{0.2689},//Larva
-			{0.3727},//Pupae (with dormency)
+			{0.3727},//Pupae (with dormancy)
 			{0.1200},//Adult
 		};
 
@@ -181,10 +181,11 @@ namespace WBSF
 
 
 
-	double CLeucotaraxisPiniperdaEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CLeucotaraxisPiniperdaEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 
-		static const CSurvivalEquation::TSurvivalEquation S_EQ[LPM::NB_STAGES] =
+		//static const CSurvivalEquation::TSurvivalEquation S_EQ[LPM::NB_STAGES] =
+		static const array<CSurvivalEquation::TSurvivalEquation, LPM::NB_STAGES> S_EQ =
 		{
 			CSurvivalEquation::Survival_01,//egg
 			CSurvivalEquation::Survival_01,//Larva
@@ -194,20 +195,20 @@ namespace WBSF
 
 
 
-		static const double P_SUR[LPM::NB_STAGES][6] =
-		{
+		//static const double P_SUR[LPM::NB_STAGES][6] =
+		static const array< vector<double>, LPM::NB_STAGES>  S_P =
+		{ {
 			{-3.562622, -0.2123614, 0.008848417},//egg
 			{-4.033288, 0.04749421, -0.002219942},//Larva
-			{3.133109,-1.159329,0.03617767},//Pupa (with dormency)
+			{3.133109,-1.159329,0.03617767},//Pupa (with dormancy)
 			{},//Adult
-		};
+		} };
 
 
-		vector<double> p(begin(P_SUR[s]), end(P_SUR[s]));
-
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T)));
-
-		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
+		//vector<double> p(begin(P_SUR[s]), end(P_SUR[s]));
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
+		assert(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 
 		return sr;
 	}

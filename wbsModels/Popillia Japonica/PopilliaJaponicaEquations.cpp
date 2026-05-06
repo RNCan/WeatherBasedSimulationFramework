@@ -61,9 +61,9 @@ namespace WBSF
 		
 		
 		//Daily development rate
-	double CPopilliaJaponicaEquations::ComputeRate(size_t s, double T)const
+	double CPopilliaJaponicaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 
 
@@ -100,18 +100,18 @@ namespace WBSF
 		//Male: 32.1
 
 
-		vector<double> P = P_DEV[s];
+		vector<double> P = P_DEV[e];
 
-		P[0] = P[0] * m_psy[s];
+		P[0] = P[0] * m_psy[e];
 
-		if (s == ADULT)
+		if (e == ADULT)
 		{
 
 			P[0] = 1.0 / m_other[ADULT_LONGEVITY];
 		//	P[0] = 1.0 / (-14.0 / 20.0 * max(10.0, min(30.0, T)) + 49.0);
 		}
 
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P, T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[e], P, T));
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0 && r <= 1);
 
 		return r;
@@ -215,7 +215,7 @@ namespace WBSF
 	//survival
 
 
-	double CPopilliaJaponicaEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CPopilliaJaponicaEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 
 
@@ -230,20 +230,21 @@ namespace WBSF
 			CSurvivalEquation::Unknown,	// Dead
 		};
 
-		static const array< vector<double>, NB_STAGES>  P_SUR =
+		static const array< vector<double>, NB_STAGES>  S_P =
 		{ {
-			{0},//egg
-			{0},//L1
-			{0},//L2
-			{0},//L3
-			{0},//Pupa
-			{0},//Adult
-			{0},//Dead
+			{1.0},//egg
+			{1.0},//L1
+			{1.0},//L2
+			{1.0},//L3
+			{1.0},//Pupa
+			{1.0},//Adult
+			{1.0},//Dead
 		} };
 
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], P_SUR[s], T)));
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
+		assert(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 
-		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 		return sr;
 	}
 

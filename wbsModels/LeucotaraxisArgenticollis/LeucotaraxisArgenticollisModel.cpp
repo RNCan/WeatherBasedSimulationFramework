@@ -1,6 +1,7 @@
 ﻿//***********************************************************
+// 2026/05/04	1.1.1	Rémi Saint-Amant   Clean up and bug correction in attrition
 // 2024/11/01	1.0.3	Rémi Saint-Amant   Add CDDg1
-// 2024/07/01	1.0.2	Rémi Saint-Amant   Add Tjan(Tmin)
+// 2024/07/01	1.0.2	Rémi Saint-Amant   Add Tjan (Tmin)
 // 2022/10/18	1.0.0	Rémi Saint-Amant   Creation
 //***********************************************************
 #include "LeucotaraxisArgenticollisModel.h"
@@ -27,7 +28,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.1.0 (2025)";
+		VERSION = "1.1.1 (2026)";
 
 
 		m_bApplyAttrition = false;
@@ -249,57 +250,7 @@ namespace WBSF
 		return bValid;
 	}
 
-	enum TPout { P_CDD, P_CE, LA_G1 = P_CE, P_LA_G2, P_LP, P_LN, NB_P };//CE = cumulative emergence
-	void CLeucotaraxisArgenticollisModel::GetPobs(CModelStatVector& P)
-	{
-		//string ID = GetInfo().m_loc.m_ID;
-		//string SY = ID.substr(0, ID.length() - 2);
-		//
-		////compute CDD for all temperature profile
-		//array< double, 4> total = { 0 };
-		//vector<tuple<double, CTRef, double, bool, size_t>> d;
-		//const CSimulatedAnnealingVector& SA = GetSimulatedAnnealingVector();
-		//
-		//for (size_t i = 0; i < SA.size(); i++)
-		//{
-		//	string IDi = SA[i]->GetInfo().m_loc.m_ID;
-		//	string SYi = IDi.substr(0, IDi.length() - 2);
-		//	if (SYi == SY)
-		//	{
-		//		CModelStatVector CDD;
-		//
-		//		//degree day of the La g2 
-		//		CDegreeDays DDmodel(CDegreeDays::ALLEN_WAVE, m_adult_emerg[Τᴴ¹], m_adult_emerg[Τᴴ²]);
-		//		DDmodel.GetCDD(int(m_adult_emerg[delta]), m_weather, CDD);
-		//
-		//		const CSAResultVector& v = SA[i]->GetSAResult();
-		//		for (size_t ii = 0; ii < v.size(); ii++)
-		//		{
-		//			d.push_back(make_tuple(CDD[v[ii].m_ref][0], v[ii].m_ref, v[ii].m_obs[I_N], IDi == ID, v[ii].m_obs[I_S]));
-		//			total[v[ii].m_obs[I_S]] += v[ii].m_obs[I_N];
-		//		}
-		//	}
-		//}
-		//
-		//sort(d.begin(), d.end());
-		//
-		//P.Init(m_weather.GetEntireTPeriod(CTM::DAILY), NB_P, 0);
-		//array< double, 4> sum = { 0 };
-		//for (size_t i = 0; i < d.size(); i++)
-		//{
-		//	size_t s = std::get<4>(d[i]);
-		//	sum[s] += std::get<2>(d[i]);
-		//	if (std::get<3>(d[i]))
-		//	{
-		//		CTRef Tref = std::get<1>(d[i]);
-		//		double CDD = std::get<0>(d[i]);
-		//		double p = Round(100 * sum[s] / total[s], 1);
-		//
-		//		P[Tref][P_CDD] = CDD;
-		//		P[Tref][P_CE + s] = p;
-		//	}
-		//}
-	}
+	
 
 	bool CLeucotaraxisArgenticollisModel::CalibratePupaWithoutDiapause(CStatisticXY& stat)
 	{
@@ -314,27 +265,6 @@ namespace WBSF
 			m_bCumul = true;//SA always cumulative
 			//Always used the same seed for calibration
 			m_randomGenerator.Randomize(CRandomGenerator::FIXE_SEED);
-
-
-
-			//if (m_SAResult.back().m_obs.size() == NB_INPUTS_INTERNAL)
-			//{
-			//	
-			//
-			//
-			//	CModelStatVector P;
-			//	GetPobs(P);
-			//
-			//	for (size_t i = 0; i < m_SAResult.size(); i++)
-			//	{
-			//		double cumul_obs = P[m_SAResult[i].m_ref][P_LA_G2];
-			//		ASSERT(cumul_obs >= 0 && cumul_obs <= 100);
-			//
-			//		m_SAResult[i].m_obs.push_back(cumul_obs);
-			//	}
-			//
-			//
-			//}
 
 
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
@@ -393,25 +323,12 @@ namespace WBSF
 			}
 		}
 
-		return bSuccess;// stat[NB_VALUE] == (m_SAResult.size() + m_DOY[0][NB_VALUE] + m_DOY[1][NB_VALUE]);
+		return bSuccess;
 	}
 
 
 	bool CLeucotaraxisArgenticollisModel::GetFValueDaily(CStatisticXY& stat)
 	{
-		//if (!IsParamValid())
-			//return false;
-
-		//double m = m_C_param[C_P0];//0.9 - 0.8 * boost::math::cdf(age_dist, Tdelta);
-		//double s = m_C_param[C_P3];
-		//
-		//double a = m * (m * (1 - m) / (s * s) - 1);
-		//double b = (1 - m) * (m * (1 - m) / (s * s) - 1);
-		//
-		//if (a <= 0 || a>=1 || b <= 0 || b >= 1)
-		//	return false;
-
-
 		return CalibratePupaWithoutDiapause(stat);
 	}
 

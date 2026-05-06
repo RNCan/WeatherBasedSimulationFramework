@@ -70,7 +70,8 @@ namespace WBSF
 				Init(true);
 		}
 
-		double GetRate(size_t s, double L, double T)const;
+
+		double GetDailyDevlopmentRate(size_t s, double L, double T)const;
 
 		double GetRelativeRate(size_t s, size_t sex)const;
 		double GetPreDiapauseRate(double T)const;
@@ -84,7 +85,7 @@ namespace WBSF
 		double m_eggsParam[NB_PARAM];
 		double m_Tlo;
 
-		virtual double ComputeRate(size_t s, double T)const;
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const;
 
 		static const double DEFAULT_P[HemlockLooper::NB_STAGES - 1][NB_PARAM];
 		static const double RHO25_FACTOR[HemlockLooper::NB_STAGES - 1];

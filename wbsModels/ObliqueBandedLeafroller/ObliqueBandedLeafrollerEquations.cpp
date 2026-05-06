@@ -75,9 +75,9 @@ namespace WBSF
 	}
 
 	//Compute daily development rate for table lookup
-	double CObliqueBandedLeafrollerEquations::ComputeRate(size_t e, double T)const
+	double CObliqueBandedLeafrollerEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(e >= 0 && e < 2*NB_STAGES);
+		ASSERT(e < 2*NB_STAGES);
 
 		//relative development
 		double r = Equation1(e, T); 

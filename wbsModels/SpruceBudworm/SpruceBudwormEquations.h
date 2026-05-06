@@ -27,12 +27,12 @@ namespace WBSF
 		CSpruceBudwormEquations(const CRandomGenerator& RG);
 
 		static size_t GetEquationIndex(size_t stage, size_t sex);
-		virtual double ComputeRate(size_t e, double t)const;
+		//virtual double ComputeRate(size_t e, double t)const;
 
-		double GetRate(size_t stage, size_t sex, double T)const
+		double GetDailyDevlopmentRate(size_t stage, size_t sex, double T)const
 		{
 			size_t e = GetEquationIndex(stage, sex);
-			return WBSF::CEquationTableLookup::GetRate(e, T);
+			return WBSF::CEquationTableLookup::GetDailyDevlopmentRate(e, T);
 		}
 
 		//relative development
@@ -50,6 +50,8 @@ namespace WBSF
 
 		
 	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 
 		enum TEquation{ E_EGG, E_L1, E_L2o, E_L2, E_L3, E_L4, E_L5, E_L6_MALE, E_L6_FEMALE, E_PUPAE_MALE, E_PUPAE_FEMALE, E_ADULT, NB_EQUATION };
 		enum TParameters{ PB1, PB2, PB3, PB4, PTB, PTM, NB_PARAMETER };

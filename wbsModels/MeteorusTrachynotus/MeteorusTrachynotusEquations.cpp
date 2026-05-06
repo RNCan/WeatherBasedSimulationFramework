@@ -41,13 +41,13 @@ namespace WBSF
 	}
 
 	//Compute daily development rate for table lookup
-	double COBLPostDiapauseEquations::ComputeRate(size_t s, double T)const
+	double COBLPostDiapauseEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s < NB_OBL_STAGES);
+		ASSERT(e < NB_OBL_STAGES);
 
-		vector<double> p(begin(EQ_P[s]), end(EQ_P[s]));
+		vector<double> p(begin(EQ_P[e]), end(EQ_P[e]));
 
-		double Rt = max(0.0, CDevRateEquation::GetRate(EQ_TYPE[s], p, T));
+		double Rt = max(0.0, CDevRateEquation::GetRate(EQ_TYPE[e], p, T));
 	
 		_ASSERTE(!_isnan(Rt) && _finite(Rt));
 		ASSERT(Rt >= 0);
@@ -105,7 +105,7 @@ namespace WBSF
 	}
 
 	//Compute daily development rate for table lookup
-	double CMeteorusTrachynotusEquations::ComputeRate(size_t e, double T)const
+	double CMeteorusTrachynotusEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
 		ASSERT(e < NB_EQUATIONS);
 

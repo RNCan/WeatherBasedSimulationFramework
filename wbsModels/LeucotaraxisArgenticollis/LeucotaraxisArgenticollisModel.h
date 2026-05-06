@@ -32,8 +32,6 @@ namespace WBSF
 		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
 		bool CalibratePupaWithoutDiapause(CStatisticXY& stat);
 
-		void GetPobs(CModelStatVector& P);
-
 		bool IsParamValid()const;
 
 		std::array<CStatistic, 2> m_DOY;

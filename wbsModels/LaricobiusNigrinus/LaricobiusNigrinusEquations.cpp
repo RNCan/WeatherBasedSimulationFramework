@@ -90,63 +90,36 @@ namespace WBSF
 
 	}
 
-
-
+	
+	
 	//Daily development rate
-	double CLaricobiusNigrinusEquations::ComputeRate(size_t s, double T)const
+	double CLaricobiusNigrinusEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
-		//double r = 0;
-
-#if 0
-		static const CDevRateEquation::TDevRateEquation P_EQ[4] =
+		static const CDevRateEquation::TDevRateEquation D_EQ[NB_STAGES] =
 		{
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1,
-			CDevRateEquation::Poly1
-		};
-
-		static const double P_DEV[4][6] =
-		{
-			{-0.0907, 0.0165,0,0,0,0},
-			{-0.0151, 0.0048,0,0,0,0},
-			{-0.0132, 0.0047,0,0,0,0},
-			{-0.0144, 0.0047,0,0,0,0}
-		};
-#else
-		static const CDevRateEquation::TDevRateEquation P_EQ[NB_STAGES] =
-		{
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::SharpeDeMichele_1977,
-			CDevRateEquation::Unknown,		//aestival diapause adult
+			CDevRateEquation::SharpeDeMichele_1977,	//Egg
+			CDevRateEquation::SharpeDeMichele_1977,	//Larva
+			CDevRateEquation::SharpeDeMichele_1977,	//PrePupa
+			CDevRateEquation::SharpeDeMichele_1977,	//Pupa
+			CDevRateEquation::Poly1,		//aestival diapause adult
 			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
 
-
-
-
-
-		static const array< vector<double>, NB_STAGES>  P_DEV =
+		static const array< vector<double>, NB_STAGES>  D_P =
 		{ {
 				//p25,To,Ha,HL,TL,HH,TH
 				{0.0794, 10.9, 2.2245, -55.2932, 5.7, 25.6999, 21.6},
 				{0.1205, 23.4, 1.5541, -41.8623, 5.8, 78.232, 24.9 },
 				{0.053, 15.2, 1.6354, -20.5995, 4.7, 24.7415, 22.4 },
 				{0.0635, 16.2, 1.6958, -51.3567, 2.8, 15.687, 20.3 },
-				{},
-				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                }, //adult 1.05: adjustment between Lo and Ln (from McAvoy unpublished)
+				{1.0 / 198.0, 0},										//after Foley (2021), median time is 198 days
+				{ 2.488e-02, 1.066e-01, 4, 9.998e+01                },	//adult 1.05: adjustment between Lo and Ln (from McAvoy unpublished)
 		} };
-#endif
-
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));
-		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 
-
+		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_P[e], T));
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 		return r;
@@ -156,12 +129,11 @@ namespace WBSF
 	//CSBRelativeDevRate : compute individual relative development rate 
 
 
-	double CLaricobiusNigrinusEquations::GetRelativeDevRate(size_t s)const
+	double CLaricobiusNigrinusEquations::GetRelativeDevlopmentRate(size_t stage)const
 	{
 		static const double SIGMA[NB_STAGES] =
 		{
 			//Relative development Time (individual variation): sigma
-			//Non-linear
 			{0.095},//Egg
 			{0.096},//Larval
 			{0.121},//PrePupae
@@ -170,11 +142,13 @@ namespace WBSF
 			{0.401}//adult
 		};
 
-		if (SIGMA[s] == 1.0)
+		if (SIGMA[stage] == 1.0)
 			return 1.0;
 
 
-		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
+		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[stage]) / 2.0, SIGMA[stage]);
+		//double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Rand(0.001, 0.999));
+
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu(true, true));
 		while (RDR < 0.2 || RDR>2.6)//base on individual observation
 			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu(true, true));
@@ -183,6 +157,44 @@ namespace WBSF
 
 		return RDR;
 	}
+
+	//*****************************************************************************
+	//Survival
+	double CLaricobiusNigrinusEquations::ComputeDailySurvivalRate(size_t e, double T)const
+	{
+		static const array<CSurvivalEquation::TSurvivalEquation, NB_STAGES> S_EQ =
+		{
+			CSurvivalEquation::Survival_03, //egg
+			CSurvivalEquation::Survival_03, //Larval
+			CSurvivalEquation::Survival_03,	//PrePupa
+			CSurvivalEquation::Survival_03,	//Pupa
+			CSurvivalEquation::Survival_constant,//aestival diapause adult
+			CSurvivalEquation::Unknown,		//adult
+		};
+
+		static const array< vector<double>, NB_STAGES>  S_P =
+		{ {
+			{ 87.3002, 72.562, 0.0000, 127.341},//egg
+			{ 103.791, 9.2726, 7.3132, 25.9916},//Larval
+			{ 32.7736, 71.794, 8.9850, 92.7328},//PrePupa
+			{ 71.2562, 99.449, 13.679, 95.9139},//Pupa
+			//The mean historical subterranean survivorship of laboratory - reared Laricobius (Foley et al., 2021)
+			//survival of 39.7% over a period of 198 days. Survival in laboratory is very low, we double the survival
+			// D'Auria et al. 2025 show a survival of 40% up to 80%. We a reasonable value of 70% survival.
+			//daily survival = (0.7)^(1/198) = 0.9982
+			{0.9982},//aestival diapause adult
+			{1.0}//adult
+		} };
+
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
+
+		assert(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
+		return sr;
+	}
+
+
+
 
 	double CLaricobiusNigrinusEquations::GetCreationCDD()const
 	{
@@ -205,42 +217,7 @@ namespace WBSF
 	}
 
 
-	//*****************************************************************************
-	//Survival
-	double CLaricobiusNigrinusEquations::GetDailySurvivalRate(size_t s, double T)const
-	{
-		static const array<CSurvivalEquation::TSurvivalEquation, NB_STAGES> S_EQ =
-		{
-			CSurvivalEquation::Survival_03, //egg
-			CSurvivalEquation::Survival_01, //Larval
-			CSurvivalEquation::Survival_01,	//PrePupa
-			CSurvivalEquation::Survival_01,	//Pupa
-			CSurvivalEquation::Survival_constant,//aestival diapause adult
-			CSurvivalEquation::Unknown,		//adult
-		};
-
-		static const array< vector<double>, NB_STAGES>  P_SUR =
-		{ {
-			{ 8.730019e+01 ,7.256215e+01 , -4.308623e-06, 1.273405e+02 },//egg
-			{ -3.907879e+00,-2.008189e-01, 1.372782e-02, 0 },//Larval
-			{ -2.815295e+00,-1.500702e-01, 8.350179e-03, 0 },//PrePupa
-			{ -2.244723e+00,-2.955180e-01, 1.080062e-02, 0 },//Pupa
-			//The mean historical subterranean survivorship of laboratory - reared Laricobius (Foley et al., 2021)
-			//survival of 39.7% over a period of 198 days
-			//daily survival = 0.397^(1/198) = 0.995345
-			//{0.995345},
-			{0.995345},//aestival diapause adult
-			{1.0}//adult
-		} };
-
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], P_SUR[s], T)));
-
-		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
-		return sr;
-	}
-
-
-
+	
 
 
 	//Return individual cold tolerance temperature
@@ -281,14 +258,14 @@ namespace WBSF
 		return Fi;
 	}
 
-	double CLaricobiusNigrinusEquations::GetFecundity(double age, double T)const
+	double CLaricobiusNigrinusEquations::ComputeOvipositionRatio(double T)const
 	{
 		//AICc,maxLL
 		//1698.68,-839.968
-		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
+		static const CDevRateEquation::TDevRateEquation F_EQ = CDevRateEquation::Taylor_1981;
 
-		static const vector<double> P_FEC = { 0.01518, 10.9, 6.535 };
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
+		static const vector<double> F_P = { 0.01518, 10.9, 6.535 };
+		double r = max(0.0, CDevRateEquation::GetRate(F_EQ, F_P, T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 

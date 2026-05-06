@@ -107,7 +107,7 @@ namespace WBSF
 
 
 			const CWSBTableLookup& equations = Equations();
-			double RR = m_relativeDevRate[s] * equations.GetRate(s, T) / nbSteps;
+			double RR = m_relativeDevRate[s] * equations.GetDailyDevlopmentRate(s, T) / nbSteps;
 			ASSERT(RR >= 0);
 
 			//Postdiapause development of wSBW starts accumulating on Julian day 60 (1 March).

@@ -3,8 +3,9 @@
 // Class: CLeucotaraxisPiniperda 
 //          
 //
-// Description: the CLeucotaraxisPiniperda represents a group of LNF insect. scale by m_ScaleFactor
+// Description: the CLeucotaraxisPiniperda represents a group of insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 01/05/2026   Rémi Saint-Amant    Bug correction in the attrition 
 // 18/10/2022   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
@@ -55,6 +56,29 @@ namespace WBSF
 		m_t = 0;
 		m_Fi = (m_sex == FEMALE) ? Equations().GetFecundity(50.0 / m_RDR[ADULT]) : 0.0;
 		m_bDeadByAttrition = false;
+
+
+		//for Preston 2021 and Bittner 2024, Farley 2019 experiment, we trick the input to mimic the experimental protocol
+		if (m_generation == 0)
+		{
+
+			static const size_t NB_OBS = 2;
+			static const array<string, NB_OBS > LOC_NAME = { "ICF(NY)" };
+			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2026, APRIL, DAY_23)};
+
+			//“ICF” 42.47144572941413, -76.5507394695125
+			//“P” 42.4610547586098, -76.43973321766447
+			//Release date, adult LA : 22 April 2026
+			//Release date, adult LP : 23 April 2026
+
+			for (size_t i = 0; i < NB_OBS; i++)
+			{
+				if (GetStand()->GetModel()->GetInfo().m_loc.m_ID == LOC_NAME[i] && creationDate.GetYear() == LOC_DATE[i].GetYear())
+					m_adult_emergence_date = LOC_DATE[i];
+			}
+		}
+
+	
 	}
 
 
@@ -133,39 +157,42 @@ namespace WBSF
 		double T = weather[H_TAIR];
 
 
-		//Time step development rate
-		double r = Equations().GetRate(s, T) / nb_steps;
-		double time = 1.0 / r;
-
-		//if (s == PUPAE)
-			//r *= Equations().m_C_param[1];//for test only
-		if (s == PUPAE )
-			r = Equations().GetPupaRate(T) / nb_steps;
-
-
+		//Daily development rate
+		double dr = (s == PUPAE)? Equations().GetPupaRate(T):Equations().GetDailyDevlopmentRate(s, T) ;
 		//Relative development rate for this individual
-		double rr = m_RDR[s];
-		//if (s == PUPAE)
-			//rr *= Equations().m_C_param[2];//for test only
-				
-				 
-		if (s == PUPAE )
-			rr = Equations().GetPupaRDR();
+		double rdr = (s == PUPAE) ? Equations().GetPupaRDR() : m_RDR[s];
 
-		
-
+		//Time step development rate
+		double ts_r = dr / nb_steps;
 
 		//Time step development rate for this individual
-		r *= rr;
-		ASSERT(r >= 0 && r < 1);
+		double i_r = ts_r * rdr;
+		ASSERT(i_r >= 0 && i_r < 1);
 
-		//Adjust age
-		m_age += r;
+		if (!m_adult_emergence_date.IsInit())
+		{
+			//Adjust age
+			m_age += i_r;
+		}
+		else
+		{
+			//for Bittner exception
+			if (s == LARVAE && m_generation == 0)
+			{
+				if (weather.GetTRef().as(CTM::DAILY) == m_adult_emergence_date)
+					m_age = ADULT;
+			}
+			else
+			{
+				m_age += i_r;
+			}
+		}
+		
 
 		//evaluate attrition once a day
 		if (GetStand()->m_bApplyAttrition)
 		{
-			if (IsDeadByAttrition(s, T, r))
+			if (IsDeadByAttrition(s, T, i_r))
 				m_bDeadByAttrition = true;
 		}
 
@@ -209,8 +236,8 @@ namespace WBSF
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
-			//if (m_generation == 1 && GetStage() >= PUPAE)
-			if (m_generation == 2 && GetStage() >= LARVAE)
+			
+			if (m_generation == 1 && GetStage() >= LARVAE)
 				m_bQuiescence = true;
 		}
 
@@ -263,22 +290,22 @@ namespace WBSF
 		}
 	}
 
-
-	//s: stage
+	//stage: stage
 	//T: temperature for this time step
-	//r: development rate for this time step
-	bool CLeucotaraxisPiniperda::IsDeadByAttrition(size_t s, double T, double r)const
+	//i_r: Individual time step development rate 
+	bool CLeucotaraxisPiniperda::IsDeadByAttrition(size_t stage, double T, double i_r)const
 	{
 		bool bDeath = false;
 
-		//daily survival
-		double ds = GetStand()->m_equations.GetDailySurvivalRate(s, T);
+	
+		//Get stage (overall) survival at this temperature
+		double S = Equations().GetStageSurvival(stage, T);
 
-		//time step survival
-		double S = pow(ds, r);
+		//Compute time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01, S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > S)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;
@@ -305,8 +332,8 @@ namespace WBSF
 					stat[S_LARVA0 + s - LARVAE] += m_scaleFactor;
 				else if (m_generation == 1)
 					stat[S_EGG1 + s] += m_scaleFactor;
-				else if (m_generation == 2)
-					stat[S_EGG2 + s] += m_scaleFactor;
+				//else if (m_generation == 2)
+					//stat[S_EGG2 + s] += m_scaleFactor;
 			}
 
 

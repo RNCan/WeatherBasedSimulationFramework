@@ -52,7 +52,7 @@ namespace WBSF
 
 
 		CPopilliaJaponicaEquations(const CRandomGenerator& RG);
-		virtual double ComputeRate(size_t stage, double t)const;
+		//virtual double ComputeRate(size_t stage, double t)const;
 		virtual bool HaveChange()const;
 
 		
@@ -62,7 +62,7 @@ namespace WBSF
 		double GetRelativeDevRate(double sigma)const;
 		//double GetFecondity()const;
 
-		double GetDailySurvivalRate(size_t s, double T)const;
+		//double GetDailySurvivalRate(size_t s, double T)const;
 		//double GetEndOfDiapauseCDD()const;
 		
 		double GetAdultCatchCumul(double CDD)const;
@@ -80,9 +80,14 @@ namespace WBSF
 	
 	protected:
 
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
+
+
 		std::vector<double> m_last_EOD;
 		std::array<double, NB_CDD_PARAMS> m_last_ACC;
 		std::array<double, PJN::NB_PSY > m_last_psy;
+		
 
 	};
 

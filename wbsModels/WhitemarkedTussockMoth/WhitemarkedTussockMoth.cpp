@@ -137,7 +137,7 @@ namespace WBSF
 				double T = weather[H_TAIR];
 
 				//Time step development rate
-				double r = Equations().GetRate(s, T) / (24.0 / timeStep);
+				double r = Equations().GetDailyDevlopmentRate(s, T) / (24.0 / timeStep);
 				if (s == EGG)
 					r *= GetStand()->m_egg_factor[g];
 				//Relative development rate for this individual

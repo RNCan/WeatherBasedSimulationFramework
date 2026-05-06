@@ -1,7 +1,8 @@
 ﻿//***********************************************************
-// 2016-04-28   1.2.0	Rémi Saint-Amant	Bug correction in attrition 
+// 2016-05-06   1.2.0	Rémi Saint-Amant	Bug correction in attrition 
 //											Clean up for publication
 //											Add annual model for 10 days sampling optimum
+//											Add survival and fecundity in lookup table
 // 2025-03-27	1.1.0	Rémi Saint-Amant	Update for article
 // 2019-10-15   1.0.0	Rémi Saint-Amant	Creation
 //***********************************************************
@@ -31,7 +32,7 @@ namespace WBSF
 
 
 	static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::MODIFIED_ALLEN_WAVE;
-	enum { ACTUAL_CDD, DATE_DD717, DIFF_DAY, NB_OUTPUTS };
+	//enum { ACTUAL_CDD, DATE_DD717, DIFF_DAY, NB_OUTPUTS };
 
 	//this line link this model with the EntryPoint of the DLL
 	static const bool bRegistred =

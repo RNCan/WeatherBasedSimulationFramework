@@ -93,7 +93,7 @@ namespace WBSF
 			double T = weather[h][H_TAIR];
 
 			//Relative development rate for time step
-			double r = m_δ[s] * Equations().GetRate(s, m_sex, T) / nbSteps;
+			double r = m_δ[s] * Equations().GetDailyDevlopmentRate(s, m_sex, T) / nbSteps;
 
 			//Check if individual's diapause trigger is set this time step. As soon as an L1 or first 50% of L2 is exposed to short daylength after solstice, diapause is set. It occurs in the L3D stage
 			if ((s == L1 || (s == 2 && m_age < 2.5)) && JDay > 173 && DayLength < GetStand()->m_criticalDaylength)

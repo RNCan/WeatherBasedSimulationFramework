@@ -36,7 +36,9 @@ namespace WBSF
 	protected:
 
 		//internal development rates
-		virtual double ComputeRate(size_t e, double t)const;
+		//virtual double ComputeRate(size_t e, double t)const;
+	
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 	};
 
 
@@ -56,7 +58,7 @@ namespace WBSF
 
 
 		double Getδ(size_t s, size_t g)const { return Getδ(s2e(s, g)); }
-		double GetRate(size_t s, size_t g, double t)const { return CEquationTableLookup::GetRate(s2e(s, g), t); }
+		double GetDailyDevlopmentRate(size_t s, size_t g, double t)const { return CEquationTableLookup::GetDailyDevlopmentRate(s2e(s, g), t); }
 		double GetPmax()const;
 
 		
@@ -66,7 +68,9 @@ namespace WBSF
 		double Getδ(size_t e)const;
 
 		//internal development rates
-		virtual double ComputeRate(size_t e, double t)const;
+		//virtual double ComputeRate(size_t e, double t)const;
+	
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 	};
 
 

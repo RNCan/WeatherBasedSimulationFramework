@@ -583,7 +583,7 @@ namespace WBSF
 	//Remove all the spaces, newlines, and null at the end of a string
 	void strip(char *line)
 	{
-		register int i;
+		int i;
 		i = int(strlen(line)) - 1;
 		while ((line[i] == '\0' || line[i] == '\n' || line[i] == ' ') && (i > -1))
 			--i;

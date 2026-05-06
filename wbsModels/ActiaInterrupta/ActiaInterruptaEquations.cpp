@@ -51,9 +51,9 @@ namespace WBSF
 	}
 
 	//Compute daily development rate for table lookup
-	double CActiaInterruptaEquations::ComputeRate(size_t e, double T)const
+	double CActiaInterruptaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(e >= 0 && e < NB_EQUATIONS);
+		ASSERT(e < NB_EQUATIONS);
 
 		vector<double> p(begin(EQ_P[e]), end(EQ_P[e]));
 		double Rt = 0;

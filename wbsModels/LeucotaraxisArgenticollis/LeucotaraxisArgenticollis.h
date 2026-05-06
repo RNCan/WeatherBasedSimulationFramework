@@ -71,8 +71,7 @@ namespace WBSF
 		inline const CLeucotaraxisArgenticollisEquations& Equations()const;
 
 		CTRef GetCreationDate(int year)const;
-		//CTRef GetAdultEmergence(int year)const;
-		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		bool IsDeadByAttrition(size_t stage, double T, double i_r)const;
 		CTRef GetEndOfDiapause(int year)const;
 		double GetPupaAge(int year)const;
 

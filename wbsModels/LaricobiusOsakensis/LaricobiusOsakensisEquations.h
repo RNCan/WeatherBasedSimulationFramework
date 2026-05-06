@@ -13,7 +13,7 @@ namespace WBSF
 	{
 		enum TStages{ EGG, LARVAE1, LARVAE2, LARVAE3, LARVAE4, PREPUPAE, PUPAE, AESTIVAL_DIAPAUSE_ADULT, ACTIVE_ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT};
 		enum TRDR { σ, NB_RDR_PARAMS }; //Relative Development Rate
-		//enum TCEC{ μ, ѕ, Τᴴ¹, Τᴴ², NB_CEC_PARAMS };//Cumulative Egg Creation (first oviposition)
+
 		enum TCEC { μ, ѕ, ʎf, Τᴴ¹, Τᴴ², NB_CEC_PARAMS };//Cumulative Egg Creation (first oviposition)
 		enum TADE{ ʎ0, ʎ1, ʎ2, ʎ3, ʎa, ʎb, NB_ADE_PARAMS };//Aestival Diapause End
 		enum TEAS{ ʎ, к, Τᴴ, NB_EAS_PARAMS=3 };//Emerging Adult from Soil
@@ -37,15 +37,21 @@ namespace WBSF
 		
 		CLaricobiusOsakensisEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
-		double GetDailySurvivalRate(size_t s, double T)const;
 		double GetFecondity()const;
-		double GetFecondityRate(double age, double T)const;
+		//double GetOvipositionRatio( double T)const;
 		double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
+
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double t)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
+		virtual double ComputeOvipositionRatio(double T)const override;
+		
 	};
 
 }

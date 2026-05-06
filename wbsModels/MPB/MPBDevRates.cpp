@@ -64,9 +64,9 @@ namespace WBSF
 	}
 
 	
-	double CMPBDevelopmentTable::ComputeRate(size_t e, double T)const
+	double CMPBDevelopmentTable::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(e >= 0 && e < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 		const double* p = m_p[e];
 

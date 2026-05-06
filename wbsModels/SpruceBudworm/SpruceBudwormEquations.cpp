@@ -106,9 +106,9 @@ namespace WBSF
 	}
 
 	//Daily development rate
-	double CSpruceBudwormEquations::ComputeRate(size_t e, double T)const
+	double CSpruceBudwormEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(e >= 0 && e < NB_EQUATION);
+		ASSERT(e < NB_EQUATION);
 
 
 		double Rt = 0;
