@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>LaricobiusNigrinus</Title>
+    <Version>1.0</Version>
+    <ID>.LOM</ID>
+    <EXE>LaricobiusOsakensis.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 94 439</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>ApplyAttrition</Name>
+            <Caption>ApplyAttrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>120 15 140 165</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Boolean</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>145 15 165 165</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>0 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Begin</Name>
+            <Title>Begin</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>2 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>End</Name>
+            <Title>End</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>2 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

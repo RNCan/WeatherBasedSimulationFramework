@@ -129,11 +129,11 @@ namespace WBSF
 
 					double r = ComputeDailyDevlopmentRate(e, T);
 					double s = ComputeDailySurvivalRate(e, T);
+					assert(r >= 0);
+					assert(s >= 0 && s <= 1);
+
 					me.m_lookup_table[T_DEVELOPMENT][t][e] = r;
 					me.m_lookup_table[T_SURVIVAL][t][e] = pow(s, 1.0 / r);
-					assert(me.m_lookup_table[i][t][e] >= 0 && me.m_lookup_table[i][t][e] <= 1);
-
-
 				}
 
 				double o = ComputeOvipositionRatio(T);

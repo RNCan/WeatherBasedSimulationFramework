@@ -91,30 +91,67 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		
+
+		if (m_weather.GetNbYears() < 2)
+		{
+			msg.ajoute("Laricobius Osakensis model need at least 2 years of data");
+			return msg;
+		}
+
 		if (!m_weather.IsHourly())
 			m_weather.ComputeHourlyVariables();
 
 		//This is where the model is actually executed
-		CTPeriod p = m_weather.GetEntireTPeriod(CTM::ANNUAL);
-		m_output.Init(p, NB_ANNUAL_OUTPUTS);
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::ANNUAL));
+		p.Begin() += 1;
+		m_output.Init(p, NB_ANNUAL_OUTPUTS, 0);
 
+		//set output year for all years to avoid crash
+		p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
+		CModelStatVector output(p, NB_STATS, 0);
 
-		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+		//we simulate 2 years at a time. 
+		//we also manager the possibility to have only one year
+		m_bCumul = true;
+		for (size_t y = FIRST_Y; y < m_weather.size(); y++)
 		{
+			
 			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
-
-			CModelStatVector output;
-			output.Init(p, NB_STATS, 0);
+			ExecuteDaily(p.GetFirstYear(), m_weather, output);
+			
 
 			//take 50% larval emergence
-			m_bCumul = true;
-			ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
-
-			CTRef end = output.GetFirstTRef(S_LARVAE, ">", 50.0);
-
-			m_output[y][AO_BEGIN] = (end - 10).GetRef();
-			m_output[y][AO_END] = end.GetRef();
+			CTRef end = output.GetFirstTRef(S_LARVAE, ">", 50.0, 1, p);
+			m_output[y-1][AO_BEGIN] = (end - 10).GetRef();
+			m_output[y-1][AO_END] = end.GetRef();
 		}
+
+		//if (msg)
+		//{
+		//	CModelStatVector output = m_output;
+
+		//	//This is where the model is actually executed
+		//	CTPeriod p = m_weather.GetEntireTPeriod(CTM::ANNUAL);
+		//	m_output.Init(p, NB_ANNUAL_OUTPUTS);
+
+		//	for (size_t y = FIRST_Y; y < m_weather.size(); y++)
+		//	{
+		//		CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+
+		//
+		//		//output.Init(p, NB_STATS, 0);
+
+		//		//take 50% larval emergence
+		//		
+		//		//ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
+
+		//		CTRef end = output.GetFirstTRef(S_LARVAE, ">", 50.0, 1, p);
+
+		//		m_output[y][AO_BEGIN] = (end - 10).GetRef();
+		//		m_output[y][AO_END] = end.GetRef();
+		//	}
+		//}
 
 		return msg;
 	}
@@ -154,7 +191,7 @@ namespace WBSF
 		CLNFStand stand(this, m_CEC[Τᴴ¹], m_CEC[Τᴴ²]);
 
 		stand.m_bApplyAttrition = m_bApplyAttrition;
-		
+
 		//Set global parameters for equation
 		for (size_t p = 0; p < NB_CEC_PARAMS; p++)
 			stand.m_equations.m_CEC[p] = m_CEC[p];
@@ -175,7 +212,7 @@ namespace WBSF
 		pHost->m_nbMaxObjects = 1000;
 
 
-		CTRef begin = BEGIN_DECEMBER ? CTRef(year-1, SEPTEMBER, DAY_01) : CTRef(year, JANUARY, DAY_01);
+		CTRef begin = BEGIN_DECEMBER ? CTRef(year - 1, SEPTEMBER, DAY_01) : CTRef(year, JANUARY, DAY_01);
 		CTRef end = BEGIN_DECEMBER ? CTRef(year, DECEMBER, DAY_31) : CTRef(year, DECEMBER, DAY_31);
 		pHost->Initialize<CLaricobiusOsakensis>(CInitialPopulation(begin, 0, 400, 100, -1));
 
@@ -183,12 +220,12 @@ namespace WBSF
 		stand.m_host.push_front(pHost);
 
 		CTPeriod p(begin, end);
-		if(output.empty())
+		if (output.empty())
 			output.Init(p, NB_STATS, 0);
 
-		
+
 		ASSERT(weather[year].HavePrevious());
-		
+
 		//if have other year extend period to July
 		if (weather[year].HaveNext())
 			p.End() = CTRef(year + 1, JUNE, DAY_30);
@@ -269,11 +306,11 @@ namespace WBSF
 
 		if (obs > -999)
 		{
-			
+
 			if (obs >= 100)
 				obs = 99.99;//to avoid some problem of truncation
 
-			long index = output.GetFirstIndex(s, ">=", obs, 1, CTPeriod(TRefO.GetYear()-1, DECEMBER, DAY_01, TRefO.GetYear(), DECEMBER, DAY_31));
+			long index = output.GetFirstIndex(s, ">=", obs, 1, CTPeriod(TRefO.GetYear() - 1, DECEMBER, DAY_01, TRefO.GetYear(), DECEMBER, DAY_31));
 			if (index >= 1)
 			{
 				double obsX1 = output.GetFirstTRef().GetJDay() + index;
@@ -284,7 +321,7 @@ namespace WBSF
 				if (obsY2 != obsY1)
 				{
 					double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
-					double obsX = obsX1 + (obs - obsY1)*slope;
+					double obsX = obsX1 + (obs - obsY1) * slope;
 					ASSERT(!_isnan(obsX) && _finite(obsX));
 
 					x = obsX;
@@ -329,14 +366,14 @@ namespace WBSF
 		for (size_t y = FIRST_Y; y < m_weather.GetNbYears(); y++)
 		{
 			int year = m_weather[y].GetTRef().GetYear();
-			
+
 			double sumDD = 0;
 			vector<double> CDD;
 			CTPeriod p;
 
 
 			p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-			if(BEGIN_DECEMBER)
+			if (BEGIN_DECEMBER)
 				p.Begin() = CTRef(year - 1, DECEMBER, DAY_01);
 
 			CDD.resize(p.size(), 0);
@@ -365,7 +402,7 @@ namespace WBSF
 						boost::math::weibull_distribution<double> create_dist(m_CEC[μ], m_CEC[ѕ]);
 
 						sim_y = Round(cdf(create_dist, CDD[ii]) * 100, ROUND_VAL);
-						
+
 
 						if (sim_y < 0.1)
 							sim_y = 0;
