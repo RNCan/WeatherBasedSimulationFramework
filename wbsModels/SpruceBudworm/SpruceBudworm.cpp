@@ -203,7 +203,7 @@ namespace WBSF
 
 
 		//Time step development rate
-		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
+		double r = Equations().GetDailyDevlopmentRate(s, m_sex, T) / (24.0 / timeStep);
 		//Relative development rate
 		double RR = GetRelativeDevRate(weather[H_TAIR], r);
 

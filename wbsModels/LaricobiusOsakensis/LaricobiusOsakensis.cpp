@@ -5,6 +5,7 @@
 //
 // Description: the CLaricobiusOsakensis represents a group of LNF insect. scale by m_ScaleFactor
 //*****************************************************************************
+// 06/05/2026   Rémi Saint-Amant    Add survival and fecundity in lookup table
 // 07/07/2021   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
@@ -176,10 +177,8 @@ namespace WBSF
 		double T = weather[H_TAIR];
 		double day_length = weather.GetLocation().GetDayLength(weather.GetTRef()) / 3600.0;//[h]
 
-		//if (s < AESTIVAL_DIAPAUSE_ADULT || s == ACTIVE_ADULT)
-		//{
-			//Time step development rate
-		double dr = Equations().GetRate(s, T);
+		//Time step development rate
+		double dr = Equations().GetDailyDevlopmentRate(s, T);
 		if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
 			//for aestival diapause adult, we compute rate from adult emergence 
@@ -201,9 +200,6 @@ namespace WBSF
 
 		//Time step development rate for this individual
 		double i_r = ts_r * rdr;
-
-		//Time step development rate for this individual
-		//r *= rr;
 		ASSERT(i_r >= 0 && i_r < 1);
 
 		//Adjust age
@@ -219,19 +215,11 @@ namespace WBSF
 				m_bDeadByAttrition = true;
 		}
 
-		//}
-		//else if (s == AESTIVAL_DIAPAUSE_ADULT)
-		//{
-		//	CTRef TRef = weather.GetTRef().as(CTM::DAILY);
-		//	if (TRef == m_adult_emergence)
-		//		m_age = ACTIVE_ADULT;
-		//}
-
 		if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
 		{
 			double to = 0;
 			double t = timeStep / 24.0;
-			double λ = Equations().GetFecondityRate(GetAge(), weather[H_TAIR]);
+			double λ = Equations().GetOvipositionRatio( weather[H_TAIR]);
 			double brood = m_Fi * (exp(-λ * (m_t - to)) - exp(-λ * (m_t + t - to)));
 
 			m_broods += brood;
@@ -258,8 +246,9 @@ namespace WBSF
 		if (!IsCreated(weather.GetTRef()))
 			return;
 
+		
 		size_t nbSteps = GetTimeStep().NbSteps();
-		for (size_t step = 0; step < nbSteps && m_age < DEAD_ADULT; step++)
+		for (size_t step = 0; step < nbSteps && IsAlive() && m_age < DEAD_ADULT; step++)
 		{
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
@@ -317,39 +306,22 @@ namespace WBSF
 	}
 
 
+
 	//stage: stage
 	//T: temperature for this time step
-	//time_step: time step in (hour)
-	//bool CLaricobiusOsakensis::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
-	//{
-	//	bool bDeath = false;
-
-	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
-	//	double ts_s = pow(d_s, time_step / 24.0);
-
-	//	//Computes attrition (probability of survival in a given time step)
-	//	if (RandomGenerator().RandUniform() > ts_s)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
-	//stage: stage
-	//T: temperature for this time step
-	//rr: time step development rate 
-	bool CLaricobiusOsakensis::IsDeadByAttrition(size_t stage, double T, double rr)const
+	//i_r: Individual time step development rate 
+	bool CLaricobiusOsakensis::IsDeadByAttrition(size_t stage, double T, double i_r)const
 	{
 		bool bDeath = false;
 
-		//daily survival at this temperature
-		double ds = Equations().GetDailySurvivalRate(stage, T);
-		//overall (stage) survival at this temperature
-		double S = pow(ds, 1 / Equations().GetRate(stage, T));
+		//Get stage (overall) survival at this temperature
+		double S = Equations().GetStageSurvival(stage, T);
 
-		//time step survival, limit at 1% survival to avoid kill all 
-		double ts_s = pow(max(0.01, S), rr);
+		//Compute time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01, S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > ts_s)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;

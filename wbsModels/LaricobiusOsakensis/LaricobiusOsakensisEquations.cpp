@@ -76,13 +76,13 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CLaricobiusOsakensisEquations::ComputeRate(size_t s, double T)const
+	double CLaricobiusOsakensisEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT( e < NB_STAGES);
 
 
 
-		static const array<CDevRateEquation::TDevRateEquation, LOF::NB_STAGES> P_EQ =
+		static const array<CDevRateEquation::TDevRateEquation, LOF::NB_STAGES> D_EQ =
 		{
 			//Non-linear
 			CDevRateEquation::Regniere_2012,//Egg
@@ -96,12 +96,7 @@ namespace WBSF
 			CDevRateEquation::LoganTb_1979	//adult longevity
 		};
 
-
-
-
-
-
-		static const array< vector<double>, LOF::NB_STAGES>  P_DEV =
+		static const array< vector<double>, LOF::NB_STAGES>  D_P =
 		{ {
 				//Non-linear
 				{ 3.962e-02, 8.769e-02, 3, 27, 9.287e-01, 5.000e-01 },//Egg
@@ -120,7 +115,7 @@ namespace WBSF
 			
 		//because the larval stage development rate and mortality was difficulty to estimate, we evaluate larval corrected by percent by stage 
 		static const double PROP_BY_STAGE[LOF::NB_STAGES] = { 1, 0.206, 0.203, 0.227, 0.364, 1, 1, 1, 1 };
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T)) / PROP_BY_STAGE[s];
+		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_P[e], T)) / PROP_BY_STAGE[e];
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
 
@@ -133,20 +128,19 @@ namespace WBSF
 
 	double CLaricobiusOsakensisEquations::GetRelativeDevRate(size_t s)const
 	{
-		static const double SIGMA[NB_STAGES] =
-		{
-			//Relative development Time (individual variation): sigma
-			//Non-linear
-			{0.135},//Egg
-			{0.184},//L1
-			{0.184},//L2
-			{0.184},//L3
-			{0.184},//L4
-			{0.201},//PrePupae
-			{0.128},//Pupae
-			{1.000},//aestival diapause adult
-			{0.401}//adult
-		};
+		static const array<double, NB_STAGES > SIGMA =
+		{ {
+				//Relative development Time (individual variation): sigma
+				{0.135},//Egg
+				{0.184},//L1
+				{0.184},//L2
+				{0.184},//L3
+				{0.184},//L4
+				{0.201},//PrePupae
+				{0.128},//Pupae
+				{1.000},//aestival diapause adult
+				{0.401}//adult
+		} };
 
 		if (SIGMA[s] == 1.0)
 			return 1.0;
@@ -181,17 +175,7 @@ namespace WBSF
 
 	//*****************************************************************************
 	//survival
-
-
-
-
-
-
-
-
-
-
-	double CLaricobiusOsakensisEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CLaricobiusOsakensisEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 
 
@@ -208,7 +192,7 @@ namespace WBSF
 			CSurvivalEquation::Unknown,		// adult
 		};
 	
-		static const array< vector<double>, LOF::NB_STAGES>  P_SUR =
+		static const array< vector<double>, LOF::NB_STAGES>  S_P =
 		{ {
 			{ -5.906e+00, +1.299e-01, -1.459e-03 },//egg
 			{ -1.087e+00, -5.072e-01, +2.209e-02 },//L1
@@ -218,22 +202,19 @@ namespace WBSF
 			{ -6.276e+00, +2.963e-01, -8.149e-03 },//PrePupa
 			{ +8.134e+00, -1.635e+00, +5.088e-02 },//Pupa
 			//The mean historical subterranean survivorship of laboratory - reared Laricobius (Foley et al., 2021)
-			//survival of 39.7% over a period of 198 days. Survival in laboratory is very low, we double the survival
-			//daily survival = 0.339^(1/214) = 0.9950
-			{0.9950},
-			{}
+			//survival of 33.9% over a period of 214 days. Survival in laboratory is very low, we double the survival
+			// D'Auria et al. 2025 show a survival of 40% up to 80%. We a reasonable value of 70% survival.
+			//daily survival = (0.7)^(1/214) = 0.9983
+			{0.9983},
+			{1.0}
 		} };
 
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], P_SUR[s], T)));
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
 
 		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 		return sr;
 	}
-
-
-
-	//*****************************************************************************
-	//
 
 
 
@@ -253,22 +234,22 @@ namespace WBSF
 		boost::math::lognormal_distribution<double> fecondity(log(Fo) - WBSF::Square(sigma) / 2.0, sigma);
 		double Fi = boost::math::quantile(fecondity, m_randomGenerator.Rand(0.001, 0.999));
 
-		ASSERT(!_isnan(Fi) && _finite(Fi));
+		assert(!_isnan(Fi) && _finite(Fi));
 
 
 		return Fi;
 	}
 
-	double CLaricobiusOsakensisEquations::GetFecondityRate(double age, double T)const
+	double CLaricobiusOsakensisEquations::ComputeOvipositionRatio(double T)const
 	{
 		//AICc,maxLL
 		//1698.68,-839.968
-		static const CDevRateEquation::TDevRateEquation P_EQ = CDevRateEquation::Taylor_1981;
+		static const CDevRateEquation::TDevRateEquation F_EQ = CDevRateEquation::Taylor_1981;
 
-		static const vector<double> P_FEC = { 0.01518, 10.9, 6.535 };
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ, P_FEC, T));
+		static const vector<double> F_P = { 0.01518, 10.9, 6.535 };
+		double r = max(0.0, CDevRateEquation::GetRate(F_EQ, F_P, T));
 
-		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
+		assert(!_isnan(r) && _finite(r) && r >= 0);
 
 		return r;
 	}

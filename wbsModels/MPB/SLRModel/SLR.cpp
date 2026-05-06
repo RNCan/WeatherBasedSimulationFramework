@@ -7,7 +7,7 @@
 // 23/01/2018	Rémi Saint-Amant    Bug correction in computing logan stability
 // 04/05/2017	Rémi Saint-Amant    New compile
 // 11/05/2016   Rémi Saint-Amant    Compile with WBSF
-// 25/09/2012   Rémi Saint-Amant    Compile with new developement table
+// 25/09/2012   Rémi Saint-Amant    Compile with new development table
 // 31/10/2007	Rémi Saint-Amant    Remove NEWMAT, use AllenWave and tableLookup
 // 29/08/2007   Rémi Saint-Amant    Add Cold tolerance 
 // 01/09/2003   Rémi Saint-Amant    Creation
@@ -38,7 +38,7 @@ namespace WBSF
 	CSLR::CSLR(const CRandomGenerator& RG) :
 		m_RG(RG)
 	{
-		// initialise your variables here (optionnal)
+		// initialize your variables here (optional)
 		m_nbGeneration = 50;
 		m_overheat = 0;
 		m_dayStart = 199;
@@ -104,7 +104,7 @@ namespace WBSF
 			data.m_lowestMinimum = weatherYear[H_TMIN][LOWEST];//weatherYear.GetStat(STAT_TMIN, LOWEST);
 			data.m_meanMaxAugust = weatherYear[AUGUST][H_TMAX][MEAN];//.GetStat(STAT_TMAX, MEAN);
 			data.m_totalPrecip = weatherYear[H_PRCP][SUM];//GetStat(STAT_PRCP, SUM);
-			//wather deficit was in mm
+			//water deficit was in mm
 
 			//CThornthwaiteET TPET(CThornthwaiteET::POTENTIEL_STANDARD);
 			//CModelStatVector PET;
@@ -195,7 +195,7 @@ namespace WBSF
 		bool bStabilityFlag = false;
 
 		//**********************************
-		// first part : compute developpement rates
+		// first part : compute development rates
 
 		//init the CMPBDevelopmentVector
 		/*CDailyWaveVector t;
@@ -220,20 +220,20 @@ namespace WBSF
 				devRates[d][s] = 0; 
 				
 				for (size_t h = 0; h < 24; h++)
-					devRates[d][s] += devRates.MPB_RATES_TABLE.GetRate(s, t[h]) / 24.0;
+					devRates[d][s] += devRates.MPB_RATES_TABLE.GetDailyDevlopmentRate(s, t[h]) / 24.0;
 			}
 		}
 
 		//RATE_TABLE.Save("d:\\RateTable.csv");
 
 		//**********************************
-		// second part : Evaluate stabilty over years
+		// second part : Evaluate stability over years
 
 		CGenerationVector generations;
 		if (generations.SimulateGeneration(m_nbGeneration, m_dayStart, devRates))
 		{
-			//if the generation is succesfull
-			//test criterias to know the stablility
+			//if the generation is successful
+			//test criteria to know the stability
 			bStabilityFlag = generations.GetStabilityFlag(m_minOvipDate, m_maxOvipDate);
 		}
 

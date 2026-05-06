@@ -32,8 +32,8 @@ namespace WBSF
 	//const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 885.8, 40.96, -2.9, 999 };//logistic distribution
 	//equation calibrate with larval g1 at Québec city 2022 (Lafrenière)
 	const double CAprocerosLeucopodaEquations::EAS[NB_EAS_PARAMS] = { 360.6, 1.81, -0.3, 999 };//logistic distribution
-	
-		
+
+
 
 	CAprocerosLeucopodaEquations::CAprocerosLeucopodaEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, TZZ::NB_STAGES, -20, 40, 0.25)
@@ -49,13 +49,13 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CAprocerosLeucopodaEquations::ComputeRate(size_t s, double T)const
+	double CAprocerosLeucopodaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 
 
-		static const CDevRateEquation::TDevRateEquation P_EQ[TZZ::NB_STAGES] =
+		static const array<CDevRateEquation::TDevRateEquation, TZZ::NB_STAGES> D_EQ =
 		{
 			//Non-linear
 			CDevRateEquation::Briere2_1999,//Egg		
@@ -63,27 +63,17 @@ namespace WBSF
 			CDevRateEquation::Briere2_1999,//Prepupa	
 			CDevRateEquation::Briere2_1999,//Pupa		
 			CDevRateEquation::Briere2_1999,//Adult longevity
-			//CDevRateEquation::Lactin2_1995,//Adult longevity	
 		};
 
-		static const double P_DEV[TZZ::NB_STAGES][6] =
-		{
-			//parameters
-			//{4.766301e-02, 7.908493e-02, 7.000000e+00, 3.200000e+01, 2.168413e-01, 5.000062e-01},//egg
-			//{1.267821e-02, 9.799551e-02, 5.000000e+00, 3.200000e+01, 1.000016e-01, 3.001337e+00},//Larva
-			//{1.211711e-01, 7.678359e-02, 7.000000e+00, 2.700000e+01, 1.748349e-01, 7.239888e-01},//Prepupa
-			//{6.297599e-02, 8.857761e-02, 7.000000e+00, 3.000000e+01, 2.480182e-01, 5.000042e-01},//Pupa
-			//{0.05698138,0.07912117, 9.295232, 32.05075,0.1,0.5000051       },
-			//{0.01288983,0.07141857,-0.7084399,28.01328,49.87554,0.5000132},
-			//{0.1413632 ,0.07802057, 9.149103, 25.79851,0.1000013,0.5000042  },
-			//{0.07509025,0.08925997, 9.112521, 29.98488,0.1000002,0.5001782 },
-			{0.0001758183,9.999999,-8.949422,39.75},
-			{6.732698e-05,9.999959,-9.375635,39.75},
-			{0.0003353867,9.999592,-16.85975,39.75},   
-			{0.0002921427,9.999999,-5.830057,39.75},  
-			{0.0001497986,9.998879,-27.15193,100.0},
-			//			{8.431380e-02, 1.484822e-01, 1.000000e+02, 6.731093e+00},//Adults
-		};
+		static const array< vector<double>, TZZ::NB_STAGES>  D_P =
+		{ {
+				//parameters
+				{0.0001758183,9.999999,-8.949422,39.75},
+				{6.732698e-05,9.999959,-9.375635,39.75},
+				{0.0003353867,9.999592,-16.85975,39.75},
+				{0.0002921427,9.999999,-5.830057,39.75},
+				{0.0001497986,9.998879,-27.15193,100.0},
+		} };
 
 
 		//model was adjusted to Quebec observation 2021-2022. 
@@ -93,11 +83,9 @@ namespace WBSF
 		//3- Bias caused by laboratory rearing
 		static const double BOOST_FACTOR = 1.2;
 
-		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
-
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T))* BOOST_FACTOR;
-
-		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
+		assert(e < NB_STAGES);
+		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_P[e], T)) * BOOST_FACTOR;
+		assert(!_isnan(r) && _finite(r) && r >= 0);
 
 		return r;
 	}
@@ -132,49 +120,17 @@ namespace WBSF
 		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
 		while (RDR < 0.2 || RDR>2.6)//base on individual observation
 			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
-	
+
 
 		_ASSERTE(!_isnan(RDR) && _finite(RDR));
 
 		return RDR;
 	}
-
-	//double CAprocerosLeucopodaEquations::GetCreationCDD()const
-	//{
-	//	boost::math::logistic_distribution<double> rldist(m_OVP[μ], m_OVP[ѕ]);
-
-	//	double CDD = boost::math::quantile(rldist, m_randomGenerator.Rand(0.01, 0.99));
-	//	//while (CDD < 0 || CDD>5000)
-	//		//CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
-
-	//	return CDD;
-	//}
-
-
-	/*double CAprocerosLeucopodaEquations::GetAestivalDiapauseEndCDD()const
-	{
-		boost::math::logistic_distribution<double> rldist(m_EAS[μ], m_EAS[ѕ]);
-
-		double CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
-		while (CDD < 0 || CDD>15000)
-			CDD = boost::math::quantile(rldist, m_randomGenerator.Randu());
-
-		return CDD;
-	}*/
-
 	//*****************************************************************************
 	//survival
 
 
-
-
-
-
-
-
-
-
-	double CAprocerosLeucopodaEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CAprocerosLeucopodaEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 		static const CSurvivalEquation::TSurvivalEquation S_EQ[TZZ::NB_STAGES] =
 		{
@@ -187,14 +143,6 @@ namespace WBSF
 
 		static const double P_SURVIVAL[TZZ::NB_STAGES][6] =
 		{
-			//{+2.821737e+00, -6.107132e-01, 1.640952e-02},//egg
-			//{+5.191147e+00, -1.221510e+00, 3.646663e-02},//Larva
-			//{-1.011495e+01, +7.023644e-02, 9.873714e-03},//Prepupa
-			//{+1.720485e+01, -3.396854e+00, 1.051049e-01},//Pupa
-			//{2.821737e+00 ,-6.107132e-01 ,1.640952e-02}, //
-			//{5.191147e+00 , -1.221510e+00, 3.646663e-02},//
-			//{-1.011495e+01, 7.023644e-02 , 9.873714e-03},//
-			//{1.720485e+01 ,-3.396854e+00 ,1.051049e-01}, //
 			{2.353567e+00 , -5.518595e-01, 1.474152e-02},
 			{1.113231e+01 , 3.305863e+01 , 7.795624e+01, 1.012803e+01},
 			{-3.038607e+01, -9.310410e+00, 3.210279e-01},
@@ -202,11 +150,10 @@ namespace WBSF
 			{0,0,0}
 		};
 
+		ASSERT(e < NB_STAGES);
+		vector<double> p(begin(P_SURVIVAL[e]), end(P_SURVIVAL[e]));
 
-		vector<double> p(begin(P_SURVIVAL[s]), end(P_SURVIVAL[s]));
-
-		double sr = (s < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T))) : 1;
-
+		double sr = (e < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], p, T))) : 1;
 		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 
 		return sr;
@@ -273,87 +220,5 @@ namespace WBSF
 		return brood;
 
 	}
-
-	//l: longevity [days]
-	//double CAprocerosLeucopodaEquations::GetAdultLongevity(double T)const
-	//{
-	//	//Longevity of female
-	//	//value from fecundity/longevity Zilahi-Balogh(2001)
-	//	static const double P[2][2] =
-	//	{
-	//		{ 36.6, 2.4 },
-	//		{ 30.8, 2.2}
-	//	};
-
-
-	//	double w = m_randomGenerator.RandNormal(P[sex][0], P[sex][1]);
-	//	ASSERT(w > 3);
-
-	//	//adjustment for attrition
-	//	return w * 7 * 0.65;//active life [day]
-	//}
-
-	//T : temperature [°C]
-	//day_length  : day length  [h]
-	//return Time in soil [days]
-	//double CAprocerosLeucopodaEquations::GetTimeInSoil(double T, double day_length)
-	//{
-	//	//data From Lamb 2005
-	//	//NbVal = 8	Bias = 0.00263	MAE = 0.95222	RMSE = 1.25691	CD = 0.99785	R² = 0.99786
-	//	//lam0 = 15.8101
-	//	//lam1 = 2.50857
-	//	//lam2 = 6.64395
-	//	//lam3 = 7.81911
-	//	//lam_a = 0.1634
-	//	//lam_b = 0.2648
-
-	//	static const double AADD[6] = { 15.8, 2.51, 6.64, 7.82, -0.163, 0.265 };
-	//	double DiS = 120.0 + (215.0 - 120.0) * 1.0 / (1.0 + exp(-(T - AADD[0]) / AADD[1]));//day in soil base on temperature
-	//	double DlF = exp(AADD[4] + AADD[5] * 1.0 / (1.0 + exp(-(day_length - AADD[2]) / AADD[3])));//day length factor
-
-	//	double nb_days_in_soil = DiS * DlF;
-	//	return nb_days_in_soil;
-	//}
-
-
-
-	////T : temperature [°C]
-	////day_length  : day length  [h]
-	////pupationTime : time to the soil before becoming adult (to complete pre-pupation and pupation) [days]
-	////return aestival diapause rate [day-1]
-	//double CAprocerosLeucopodaEquations::GetAdultAestivalDiapauseRate(double T, double day_length, double creation_day, double pupation_time)
-	//{
-	//	double TimeInSoil = GetTimeInSoil(T, day_length);//[day]
-
-	//	double f = exp(m_EWD[ʎ0] + m_EWD[ʎ1] * 1.0 / (1.0 + exp(-(creation_day - m_EWD[ʎ2]) / m_EWD[ʎ3])));//day length factor
-	//	double AestivalDiapauseTime = max(0.0, (TimeInSoil - pupation_time));
-	//	double ADATime = f * AestivalDiapauseTime;//aestival diapause adult time
-
-	//	double r = min(1.0, 1.0 / ADATime);
-	//	return r;
-	//}
-
-	////T : temperature [°C]
-	////j_day_since_jan : ordinal day since the 1 January of the emergence year (continue after December 31)
-	////return: abundance (number of LN adult by normalized beating tray
-	//double CAprocerosLeucopodaEquations::GetAdultAbundance(double T, size_t j_day_since_jan)
-	//{
-
-	//	//Coefficients:
-	//	//	Estimate Std.Error t value Pr(> | t | )
-	//	//		(Intercept)-2.815284   1.084082 - 2.597  0.01646 *
-	//	//		T            0.088449   0.041528   2.130  0.04461 *
-	//	//		jday         0.008683   0.002774   3.130  0.00487 **
-	//	//		-- -
-	//	//		Signif.codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-	//	//
-	//	//		Residual standard error : 0.4831 on 22 degrees of freedom
-	//	//		Multiple R - squared : 0.4143, Adjusted R - squared : 0.361
-	//	//		F - statistic : 7.78 on 2 and 22 DF, p - value : 0.002784
-
-	//	static const double P[3] = { -2.815284, 0.088449, 0.008683 };
-	//	return max(0.0, P[0] + P[1] * T + P[2] * j_day_since_jan);
-	//}
-
 
 }

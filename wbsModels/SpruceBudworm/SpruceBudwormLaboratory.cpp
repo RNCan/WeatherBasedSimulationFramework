@@ -164,11 +164,12 @@ namespace WBSF
 			//T += overheat.GetOverheat(((const CWeatherDay&)*weather.GetParent()), h, 16);
 
 		
-
+		//daily development rate
+		double d_r = Equations().GetDailyDevlopmentRate(s, m_sex, T);
 		//Time step development rate
-		double r = Equations().GetRate(s, m_sex, T) / (24.0 / timeStep);
+		double ts_r = d_r / (24.0 / timeStep);
 		//Relative development rate
-		double RR = GetRelativeDevRate(weather[H_TAIR], r);
+		double RR = GetRelativeDevRate(weather[H_TAIR], ts_r);
 		
 
 		//development rate for white spruce is accelerated by a factor

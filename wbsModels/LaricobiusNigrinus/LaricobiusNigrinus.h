@@ -74,8 +74,7 @@ namespace WBSF
 
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
-		//bool IsDeadByAttrition(size_t s, double T, size_t timeStep)const;
-		bool IsDeadByAttrition(size_t stage, double T, double rr)const;
+		bool IsDeadByAttrition(size_t stage, double T, double i_r)const;
 
 	protected:
 

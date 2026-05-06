@@ -161,7 +161,7 @@ namespace WBSF
 		{
 
 			//Time step development rate
-			double r = Equations().GetRate(s, Tsoil) / nb_steps;
+			double r = Equations().GetDailyDevlopmentRate(s, Tsoil) / nb_steps;
 
 			if(s==L3)
 				r *= m_r_snow;
@@ -170,7 +170,7 @@ namespace WBSF
 			if (s == ADULT)
 			{
 
-				r = Equations().GetRate(s, Tair) / nb_steps;
+				r = Equations().GetDailyDevlopmentRate(s, Tair) / nb_steps;
 				//double a1 = Equations().m_other[SNDH_MU];
 				//double a2 = Equations().m_other[SNDH_S];
 				//double F = Equations().m_other[SNDH_F];

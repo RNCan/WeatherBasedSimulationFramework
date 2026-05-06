@@ -10,14 +10,12 @@
 namespace WBSF
 {
 
-	namespace TZZ//Aproceros Leucopoda
+	namespace TZZ//Aproceros leucopoda
 	{
 		enum TStages{ EGG, LARVA, PREPUPA, PUPA, ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT};
 		enum TRDR { σ, NB_RDR_PARAMS }; //relative development parameter
-		//enum TOvip{ μ, ѕ, Τᴴ¹, Τᴴ², NB_OVP_PARAMS };//longevity/ovipositing parameters
 		enum TEWD{ ʎ0, ʎ1, ʎ2, ʎ3, ʎa, ʎb, NB_EWD_PARAMS };//entering winter diapause 
 		enum TEAS{ μ, ѕ, Τᴴ¹, Τᴴ², Tᴼ, NB_EAS_PARAMS };//Emerging Adult from Soil (spring)
-		//Τᴴ, ʎ, к
 	}
 
 
@@ -36,19 +34,17 @@ namespace WBSF
 
 		
 		CAprocerosLeucopodaEquations(const CRandomGenerator& RG);
-		
-		virtual double ComputeRate(size_t stage, double t)const;
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
-		double GetDailySurvivalRate(size_t s, double T)const;
-		//double GetAdultLongevity()const;
 		double GetFecondity()const;
 		double GetBrood(double Fi, double T, double t, double delta_t)const;
-
-		//double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
 
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
 	};
 
 }

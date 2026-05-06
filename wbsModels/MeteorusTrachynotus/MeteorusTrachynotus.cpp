@@ -93,7 +93,7 @@ namespace WBSF
 				double T = weather[h][H_TAIR];
 
 				//Relative development rate for time step
-				double r = m_δ[s] * Equations().GetRate(s, m_generation, T) / nbSteps;
+				double r = m_δ[s] * Equations().GetDailyDevlopmentRate(s, m_generation, T) / nbSteps;
 
 				//Adjust age
 				if (weather.GetTRef().GetYear() != m_diapauseTRef.GetYear())
@@ -112,7 +112,7 @@ namespace WBSF
 					ASSERT(m_age >= ADULT);
 
 					double wmax = 13.865 / nbSteps;
-					double dtOnd20 = Equations().GetRate(ADULT, m_generation, T) / Equations().GetRate(ADULT, m_generation, 20.);
+					double dtOnd20 = Equations().GetDailyDevlopmentRate(ADULT, m_generation, T) / Equations().GetDailyDevlopmentRate(ADULT, m_generation, 20.);
 					double as = 2.8126;
 					double th = 1.089e-5;
 
@@ -270,7 +270,7 @@ namespace WBSF
 				double T = weather[h][H_TAIR];
 
 				//Relative development rate for time step
-				double r = OBL_Equations().GetRate(OBL_POST_DIAPAUSE, T) / nbSteps;
+				double r = OBL_Equations().GetDailyDevlopmentRate(OBL_POST_DIAPAUSE, T) / nbSteps;
 				ASSERT(r >= 0);
 
 				m_diapause_age += r * m_δ;

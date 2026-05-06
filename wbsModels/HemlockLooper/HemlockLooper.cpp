@@ -116,7 +116,7 @@ namespace WBSF
 			size_t s = GetStage();
 
 
-			double r = m_relativeDevRate[s] * stand.m_development.GetRate(s, lat, T) / nbSteps;
+			double r = m_relativeDevRate[s] * stand.m_development.GetDailyDevlopmentRate(s, lat, T) / nbSteps;
 			_ASSERTE(r >= 0);
 
 			if (s == EGGS)

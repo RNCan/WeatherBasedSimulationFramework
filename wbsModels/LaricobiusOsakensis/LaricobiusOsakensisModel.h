@@ -12,9 +12,10 @@ namespace WBSF
 		CLaricobiusOsakensisModel();
 		virtual ~CLaricobiusOsakensisModel();
 
-		virtual ERMsg OnExecuteDaily()override;
+		
 		virtual ERMsg ProcessParameters(const CParameterVector& parameters)override;
-
+		virtual ERMsg OnExecuteDaily()override;
+		virtual ERMsg OnExecuteAnnual()override;
 		static CBioSIMModelBase* CreateObject(){ return new CLaricobiusOsakensisModel; }
 
 		virtual void AddDailyResult(const StringVector& header, const StringVector& data)override;

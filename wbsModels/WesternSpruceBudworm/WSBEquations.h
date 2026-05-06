@@ -51,7 +51,9 @@ namespace WBSF
 		double m_rho25Factor[NB_STAGES];
 
 		
-		virtual double ComputeRate(size_t s, double T)const;
+		//virtual double ComputeRate(size_t s, double T)const;
+	
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 		static const double DEFAULT_P[NB_STAGES][NB_PARAMETER];
 		static const double RHO25_FACTOR[NB_STAGES];
 	};

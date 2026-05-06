@@ -30,15 +30,16 @@ namespace WBSF
 		//fecundity
 		double GetEᵗ(double A0, double A1);
 
-		double GetRate(size_t s, size_t sex, double t)const
+		double GetDailyDevlopmentRate(size_t s, size_t sex, double t)const
 		{
-			return CEquationTableLookup::GetRate(sex*OBL::NB_STAGES + s, t);
+			return CEquationTableLookup::GetDailyDevlopmentRate(sex*OBL::NB_STAGES + s, t);
 		}
 
 	protected:
 
 		//internal development rates
-		virtual double ComputeRate(size_t e, double t)const;
+		//virtual double ComputeRate(size_t e, double t)const;
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 
 
 		static double Equation1(size_t s, double T);

@@ -315,8 +315,8 @@ namespace WBSF
 		double dt = GetTimeStep().NbSteps();
 
 		size_t s = GetStage();
-
-		double r = GetStand()->m_rates.GetRate(s, T) / dt;
+		
+		double r = GetStand()->m_rates.GetDailyDevlopmentRate(s, T) / dt;
 		//double r = RATES_DEBUG.ComputeRate(s,T)/dt;
 
 		double RR = 0;

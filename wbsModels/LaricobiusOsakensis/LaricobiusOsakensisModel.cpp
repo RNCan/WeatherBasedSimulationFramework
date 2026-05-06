@@ -1,7 +1,9 @@
 ﻿//***********************************************************
-// 05/05/2026	1.0.1	Rémi Saint-Amant	Clean up
-//											Bug correction in Attrition
-// 07/07/2021	1.0.0	Rémi Saint-Amant	Creation
+// 2016-05-06   1.2.0	Rémi Saint-Amant	Bug correction in attrition 
+//											Clean up
+//											Add annual model for 10 days sampling optimum
+//											Add survival and fecundity in lookup table
+// 2021-07-07	1.0.0	Rémi Saint-Amant	Creation
 //***********************************************************
 #include "LaricobiusOsakensisModel.h"
 #include "ModelBase/EntryPoint.h"
@@ -37,7 +39,7 @@ namespace WBSF
 		//NB_INPUT_PARAMETER is used to determine if the dll
 		//uses the same number of parameters than the model interface
 		NB_INPUT_PARAMETER = -1;
-		VERSION = "1.0.1 (2026)";
+		VERSION = "1.2.0 (2026)";
 
 
 		m_bApplyAttrition = false;
@@ -85,7 +87,37 @@ namespace WBSF
 	}
 
 
+	ERMsg CLaricobiusOsakensisModel::OnExecuteAnnual()
+	{
+		ERMsg msg;
 
+		if (!m_weather.IsHourly())
+			m_weather.ComputeHourlyVariables();
+
+		//This is where the model is actually executed
+		CTPeriod p = m_weather.GetEntireTPeriod(CTM::ANNUAL);
+		m_output.Init(p, NB_ANNUAL_OUTPUTS);
+
+
+		for (size_t y = 0; y < m_weather.GetNbYears(); y++)
+		{
+			CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
+
+			CModelStatVector output;
+			output.Init(p, NB_STATS, 0);
+
+			//take 50% larval emergence
+			m_bCumul = true;
+			ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
+
+			CTRef end = output.GetFirstTRef(S_LARVAE, ">", 50.0);
+
+			m_output[y][AO_BEGIN] = (end - 10).GetRef();
+			m_output[y][AO_END] = end.GetRef();
+		}
+
+		return msg;
+	}
 
 
 	//This method is called to compute the solution

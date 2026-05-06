@@ -142,8 +142,8 @@ namespace WBSF
 				double T = weather[h][H_TAIR];
 
 				//Relative development rate for time step
-
-				double r = m_δ[s] * Equations().GetRate(s, first_generation, T) / nbSteps;
+				
+				double r = m_δ[s] * Equations().GetDailyDevlopmentRate(s, first_generation, T) / nbSteps;
 
 				if (s == ADULT) //Set maximum longevity to 100 days
 					r = max(1.0 / (100.0*nbSteps), r);

@@ -4,8 +4,9 @@
 //
 // Description: the CLaricobiusNigrinus represents a group of LNF insect. scale by m_ScaleFactor
 //*****************************************************************************
-// 2016-04-28   Rémi Saint-Amant    Bug correction in attrition
+// 2026-05-06   Rémi Saint-Amant    Bug correction in attrition
 //									Clean up for publication
+//									Add survival and fecundity in lookup table
 // 2019-10-15   Rémi Saint-Amant    Creation
 //*****************************************************************************
 
@@ -41,7 +42,7 @@ namespace WBSF
 		m_adult_emergence = GetAdultEmergence(year);
 
 		for (size_t s = 0; s < NB_STAGES; s++)
-			m_RDR[s] = Equations().GetRelativeDevRate(s);
+			m_RDR[s] = Equations().GetRelativeDevlopmentRate(s);
 
 		m_t = 0;
 		m_Fi = (m_sex == FEMALE) ? Equations().GetFecundity() : 0;
@@ -165,10 +166,10 @@ namespace WBSF
 		size_t s = GetStage();
 
 		double T = weather[H_TAIR];
-		
+
 
 		//daily development rate
-		double dr = Equations().GetRate(s, T);
+		double d_r = Equations().GetDailyDevlopmentRate(s, T);
 		if (s == AESTIVAL_DIAPAUSE_ADULT)
 		{
 			//for aestival diapause adult, we compute rate from adult emergence 
@@ -179,18 +180,15 @@ namespace WBSF
 			assert(m_adult_emergence.IsInit());
 			assert(m_adult_emergence - m_aestival_diapause_begin > 0);
 
-			dr = 1.0 / (m_adult_emergence - m_aestival_diapause_begin);
+			d_r = 1.0 / (m_adult_emergence - m_aestival_diapause_begin);
 		}
 
 
 		//Time step development rate
-		double ts_r = dr / nb_steps;
-
-		//Relative development rate for this individual
-		double rdr = m_RDR[s];
+		double ts_r = d_r / nb_steps;
 
 		//Time step development rate for this individual
-		double i_r = ts_r*rdr;
+		double i_r = ts_r * m_RDR[s];
 		ASSERT(i_r >= 0 && i_r < 1);
 
 		//Adjust age
@@ -208,7 +206,7 @@ namespace WBSF
 			double t = time_step / 24.0;
 			if (m_t > to)
 			{
-				double λ = Equations().GetFecundity(GetAge(), weather[H_TAIR]);
+				double λ = Equations().GetOvipositionRatio(weather[H_TAIR]);
 				double brood = m_Fi * (exp(-λ * (m_t - to)) - exp(-λ * (m_t + t - to)));
 
 				m_broods += brood;
@@ -309,39 +307,20 @@ namespace WBSF
 
 
 	//stage: stage
-	//T: temperature for this time step (°C)
-	//time_step: time step (hours)
-	//bool CLaricobiusNigrinus::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
-	//{
-	//	bool bDeath = false;
-
-	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
-	//	double ts_s = pow(d_s, time_step / 24.0);
-
-	//	//Computes attrition (probability of survival in a given time step)
-	//	if (RandomGenerator().RandUniform() > ts_s)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
-
-	//stage: stage
 	//T: temperature for this time step
-	//rr: time step development rate 
-	bool CLaricobiusNigrinus::IsDeadByAttrition(size_t stage, double T, double rr)const
+	//i_r: Individual time step development rate 
+	bool CLaricobiusNigrinus::IsDeadByAttrition(size_t stage, double T, double i_r)const
 	{
 		bool bDeath = false;
-	
-		//daily survival at this temperature
-		double ds = Equations().GetDailySurvivalRate(stage, T);
-		//overall (stage) survival at this temperature
-		double S = pow(ds, 1 / Equations().GetRate(stage, T));
 
-		//time step survival, limit at 1% survival to avoid kill all 
-		double ts_s = pow(max(0.01,S), rr);
+		//Get stage (overall) survival at this temperature
+		double S = Equations().GetStageSurvival(stage, T);
+
+		//Compute time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01, S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > ts_s)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;

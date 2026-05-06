@@ -49,9 +49,9 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CLeucotaraxisArgenticollisEquations::ComputeRate(size_t s, double T)const
+	double CLeucotaraxisArgenticollisEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 
 
@@ -74,9 +74,9 @@ namespace WBSF
 		};
 
 
-		vector<double> p(begin(P_DEV[s]), end(P_DEV[s]));
+		vector<double> p(begin(P_DEV[e]), end(P_DEV[e]));
 
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], p, T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[e], p, T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -174,10 +174,11 @@ namespace WBSF
 
 
 
-	double CLeucotaraxisArgenticollisEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CLeucotaraxisArgenticollisEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 
-		static const CSurvivalEquation::TSurvivalEquation S_EQ[LAZ::NB_STAGES] =
+		//static const CSurvivalEquation::TSurvivalEquation S_EQ[LAZ::NB_STAGES] =
+		static const array<CSurvivalEquation::TSurvivalEquation, LAZ::NB_STAGES> S_EQ =
 		{
 			CSurvivalEquation::Survival_01,//egg
 			CSurvivalEquation::Survival_01,//Larva
@@ -186,23 +187,23 @@ namespace WBSF
 		};
 
 
-
-		static const double P_SUR[LAZ::NB_STAGES][6] =
-		{
+		static const array< vector<double>, LAZ::NB_STAGES>  S_P =
+		//static const double S_P[LAZ::NB_STAGES][6] =
+		{ {
 			{-3.784744, -0.1881758, 0.00825744, 0},//egg
 			{-3.992746, 0.03016423, -0.001645645, 0},//Larva
 			{1, 1.517107, 14.31644, 97.17447},//Pupa (with diapause)
-			{},//Adult
-		};
+			{1.0},//Adult
+		} };
 
 		
 
 
 
 
-		vector<double> p(begin(P_SUR[s]), end(P_SUR[s]));
-
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T)));
+		//vector<double> p(begin(S_P[e]), end(S_P[e]));
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
 
 		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 

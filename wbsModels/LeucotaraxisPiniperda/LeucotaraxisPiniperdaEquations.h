@@ -41,11 +41,10 @@ namespace WBSF
 		
 		CLeucotaraxisPiniperdaEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		//virtual double ComputeRate(size_t stage, double t)const;
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
-		double GetDailySurvivalRate(size_t s, double T)const;
 		double GetPreOvipPeriod()const;
 		double GetFecundity(double L)const;
 
@@ -53,6 +52,11 @@ namespace WBSF
 		double GetAdultEmergingCDD()const;
 		double GetPupaRate(double T)const;
 		double GetPupaRDR()const;
+
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
 	};
 
 }

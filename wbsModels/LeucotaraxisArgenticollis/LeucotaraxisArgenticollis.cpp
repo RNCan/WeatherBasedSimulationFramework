@@ -188,7 +188,7 @@ namespace WBSF
 		double T = weather[H_TAIR];
 
 		//Daily development rate 
-		double dr = Equations().GetRate(s, T); 
+		double dr = Equations().GetDailyDevlopmentRate(s, T);
 		
 		if (s == PUPAE && !m_bInDiapause)
 			dr = Equations().GetUndiapausedPupaRate(T, m_generation);
@@ -207,8 +207,6 @@ namespace WBSF
 
 		//Time step development rate for this individual
 		double i_r = ts_r * rdr;
-		//Time step development rate for this individual
-		//r *= rr;
 		ASSERT(i_r >= 0 && i_r < 1);
 
 		if (m_bInDiapause && IsChangingStage(i_r))//Want to change to adult, but is in diapause!!!!!
@@ -358,37 +356,19 @@ namespace WBSF
 
 	//stage: stage
 	//T: temperature for this time step
-	//time_step: time step in (hour)
-	//bool CLeucotaraxisArgenticollis::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
-	//{
-	//	bool bDeath = false;
-
-	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
-	//	double ts_s = pow(d_s, time_step / 24.0);
-
-	//	//Computes attrition (probability of survival in a given time step)
-	//	if (RandomGenerator().RandUniform() > ts_s)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
-	//stage: stage
-	//T: temperature for this time step
-	//rr: time step development rate 
-	bool CLeucotaraxisArgenticollis::IsDeadByAttrition(size_t stage, double T, double rr)const
+	//i_r: Individual time step development rate 
+	bool CLeucotaraxisArgenticollis::IsDeadByAttrition(size_t stage, double T, double i_r)const
 	{
 		bool bDeath = false;
 
-		//daily survival at this temperature
-		double ds = Equations().GetDailySurvivalRate(stage, T);
-		//overall (stage) survival at this temperature
-		double S = pow(ds, 1 / Equations().GetRate(stage, T));
+		//Get stage (overall) survival at this temperature
+		double S = Equations().GetStageSurvival(stage, T);
 
-		//time step survival, limit at 1% survival to avoid kill all 
-		double ts_s = pow(max(0.01, S), rr);
+		//Compute time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01, S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > ts_s)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;

@@ -23,7 +23,6 @@ namespace WBSF
 		{
 			S_EGG, S_LARVA, S_PREPUPA, S_PUPA, S_ADULT, S_DEAD_ADULT, S_DEAD_ATTRITION, S_BROOD, S_DIAPAUSE,
 			S_M_EGG, S_M_LARVA, S_M_PREPUPA, S_M_PUPA, S_M_ADULT, S_M_DEAD_ADULT,
-			//S_DEAD_ATTRITION, S_ADULT_EMERGENCE_CDD, 
 			NB_STATS
 		};
 	}
@@ -64,10 +63,9 @@ namespace WBSF
 		inline const CAprocerosLeucopodaEquations& Equations()const;
 
 		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
-		//CTRef GetParentAdultEmergence()const;
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
-		bool IsDeadByAttrition(size_t s, double T, double r)const;
+		bool IsDeadByAttrition(size_t s, double T, double i_r)const;
 
 	protected:
 
@@ -115,35 +113,21 @@ namespace WBSF
 		CTZZStand(WBSF::CBioSIMModelBase* pModel):
 			WBSF::CStand(pModel),
 			m_equations(pModel->RandomGenerator())
-			//m_DD(CDegreeDays::MODIFIED_ALLEN_WAVE, Th1, Th2)
-//			m_DD4(CDegreeDays::MODIFIED_ALLEN_WAVE, 4.0)
 		{
 			m_bApplyAttrition = false;
-			//m_egg_creation_CDD = 0;
 			m_diapause_end_NCDD = 0;
 			m_adult_emergence_CDD = 0;
 			m_generationSurvival = 1;
 		}
 
-		virtual void GetStat(CTRef d, CModelStat& stat, size_t generation = NOT_INIT)override;
-
-
 		void init(int year, const CWeatherYears& weather);
 		
 		CTRef ComputeDiapauseEnd(const CWeatherYear& weather)const;
 		
-		//CModelStatVector m_Tavg30;
 		CAprocerosLeucopodaEquations m_equations;
-		//CDegreeDays m_DD;
-		//CDegreeDays m_DD4;
-
-		//double m_egg_creation_CDD;
 		double m_diapause_end_NCDD;
 		double m_adult_emergence_CDD;
 		double m_generationSurvival;
-		//std::array<CTRef, 2>  m_adultEmergenceBegin;
-		//CTRef m_diapause_end; // or adult emergence begin;
-		
 	};
 
 

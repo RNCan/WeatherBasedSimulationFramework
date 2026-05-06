@@ -108,7 +108,7 @@ namespace WBSF
 			double T = weather[h][H_TAIR];
 
 			//Relative development rate for time step
-			double r = m_δ[s] * Equations().GetRate(s, T) / nbSteps;
+			double r = m_δ[s] * Equations().GetDailyDevlopmentRate(s, T) / nbSteps;
 			
 			//Check if individual enters diapause this time step
 			

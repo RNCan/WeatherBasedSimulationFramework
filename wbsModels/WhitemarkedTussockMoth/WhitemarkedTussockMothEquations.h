@@ -35,7 +35,7 @@ namespace WBSF
 
 		CWhitemarkedTussockMothEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		//virtual double ComputeRate(size_t stage, double t)const;
 		
 
 		//relative development
@@ -45,6 +45,8 @@ namespace WBSF
 	
 
 	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 		
 	
 

@@ -33,10 +33,10 @@ namespace WBSF
 		
 		static size_t s2e(size_t s, size_t host){return ActiaInterrupta::EQ_MAGGOT_OBL + ((s == ActiaInterrupta::MAGGOT) ? host : s + 1);}
 
-		using CEquationTableLookup::GetRate;
-		double GetRate(size_t s, size_t host, double t)const
+		using CEquationTableLookup::GetDailyDevlopmentRate;
+		double GetDailyDevlopmentRate(size_t s, size_t host, double t)const
 		{
-			return CEquationTableLookup::GetRate(s2e(s, host), t);
+			return CEquationTableLookup::GetDailyDevlopmentRate(s2e(s, host), t);
 		}
 		
 		
@@ -54,7 +54,7 @@ namespace WBSF
 	protected:
 
 		//internal development rates
-		virtual double ComputeRate(size_t e, double t)const;
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const;
 	};
 
 

@@ -37,15 +37,21 @@ namespace WBSF
 		
 		CLaricobiusOsakensisEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		
 
 		//relative development
 		double GetRelativeDevRate(size_t s)const;
-		double GetDailySurvivalRate(size_t s, double T)const;
 		double GetFecondity()const;
-		double GetFecondityRate(double age, double T)const;
+		//double GetOvipositionRatio( double T)const;
 		double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
+
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double t)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
+		virtual double ComputeOvipositionRatio(double T)const override;
+		
 	};
 
 }

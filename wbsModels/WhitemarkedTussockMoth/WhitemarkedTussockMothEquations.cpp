@@ -157,11 +157,11 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CWhitemarkedTussockMothEquations::ComputeRate(size_t s, double T)const
+	double CWhitemarkedTussockMothEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
-		if (s == PUPAE)
+		if (e == PUPAE)
 			return 1;
 
 
@@ -174,7 +174,7 @@ namespace WBSF
 		//}
 		//else
 		//{
-		const vector <double> p(m_P[s], m_P[s] + sizeof m_P[s] / sizeof m_P[s][0]);
+		const vector <double> p(m_P[e], m_P[e] + sizeof m_P[e] / sizeof m_P[e][0]);
 		r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Regniere_2012, p, T)));
 		//}
 

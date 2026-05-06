@@ -296,7 +296,7 @@ namespace WBSF
 		CStatistic tdpv;
 
 		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
-		//CTPeriod p(CTRef(year, JUNE, FIRST_DAY), CTRef(year, AUGUST, LAST_DAY));
+
 		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
 		{
 			const CWeatherDay& day = weather.GetDay(TRef);

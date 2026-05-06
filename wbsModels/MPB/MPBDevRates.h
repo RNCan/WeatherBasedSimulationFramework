@@ -28,12 +28,14 @@ namespace WBSF
 
 
 		CMPBDevelopmentTable(const CRandomGenerator& RG);
-		virtual double ComputeRate(size_t, double) const;
+		//virtual double ComputeRate(size_t, double) const;
 		//double ComputeRate(int e, double T)const;
 		double GetRelativeMean(int e)const;
 		double GetRelativeSigma(int e)const;
 
-	private:
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 
 
 

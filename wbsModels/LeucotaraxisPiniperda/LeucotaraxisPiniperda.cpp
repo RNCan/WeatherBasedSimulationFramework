@@ -158,31 +158,15 @@ namespace WBSF
 
 
 		//Daily development rate
-		double dr = (s == PUPAE)? Equations().GetPupaRate(T):Equations().GetRate(s, T) ;
+		double dr = (s == PUPAE)? Equations().GetPupaRate(T):Equations().GetDailyDevlopmentRate(s, T) ;
 		//Relative development rate for this individual
 		double rdr = (s == PUPAE) ? Equations().GetPupaRDR() : m_RDR[s];
-
-
-
-		//double time = 1.0 / dr;
-
-		//if
-			//dr = Equations().GetPupaRate(T);
 
 		//Time step development rate
 		double ts_r = dr / nb_steps;
 
-		
-				 
-		//if (s == PUPAE )
-			//rdr = Equations().GetPupaRDR();
-
 		//Time step development rate for this individual
 		double i_r = ts_r * rdr;
-
-
-		//Time step development rate for this individual
-		//r *= rr;
 		ASSERT(i_r >= 0 && i_r < 1);
 
 		if (!m_adult_emergence_date.IsInit())
@@ -306,41 +290,22 @@ namespace WBSF
 		}
 	}
 
-
 	//stage: stage
 	//T: temperature for this time step
-	//time_step: time step in (hour)
-	//bool CLeucotaraxisPiniperda::IsDeadByAttrition(size_t stage, double T, size_t time_step)const
-	//{
-	//	bool bDeath = false;
-
-	//	double d_s = Equations().GetDailySurvivalRate(stage, T);//daily survival
-	//	double ts_s = pow(d_s, time_step / 24.0);
-
-	//	//Computes attrition (probability of survival in a given time step)
-	//	if (RandomGenerator().RandUniform() > ts_s)
-	//		bDeath = true;
-
-	//	return bDeath;
-	//}
-
-	//stage: stage
-	//T: temperature for this time step
-	//rr: time step development rate 
-	bool CLeucotaraxisPiniperda::IsDeadByAttrition(size_t stage, double T, double rr)const
+	//i_r: Individual time step development rate 
+	bool CLeucotaraxisPiniperda::IsDeadByAttrition(size_t stage, double T, double i_r)const
 	{
 		bool bDeath = false;
 
-		//daily survival at this temperature
-		double ds = Equations().GetDailySurvivalRate(stage, T);
-		//overall (stage) survival at this temperature
-		double S = pow(ds, 1 / Equations().GetRate(stage, T));
+	
+		//Get stage (overall) survival at this temperature
+		double S = Equations().GetStageSurvival(stage, T);
 
-		//time step survival, limit at 1% survival to avoid kill all 
-		double ts_s = pow(max(0.01, S), rr);
+		//Compute time step survival, limit at 1% survival to avoid annihilation
+		double i_s = pow(max(0.01, S), i_r);
 
 		//Computes attrition (probability of survival in a given time step, based on development rate)
-		if (RandomGenerator().RandUniform() > ts_s)
+		if (RandomGenerator().RandUniform() > i_s)
 			bDeath = true;
 
 		return bDeath;

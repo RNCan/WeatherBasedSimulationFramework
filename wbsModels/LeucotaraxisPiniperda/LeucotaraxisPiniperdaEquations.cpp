@@ -64,9 +64,9 @@ namespace WBSF
 
 
 	//Daily development rate
-	double CLeucotaraxisPiniperdaEquations::ComputeRate(size_t s, double T)const
+	double CLeucotaraxisPiniperdaEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		ASSERT(s >= 0 && s < NB_STAGES);
+		ASSERT(e < NB_STAGES);
 
 
 
@@ -95,7 +95,7 @@ namespace WBSF
 			//p = vector<double>(begin(PUPA_PARAM), end(PUPA_PARAM));
 
 
-		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[s], P_DEV[s], T));
+		double r = max(0.0, CDevRateEquation::GetRate(P_EQ[e], P_DEV[e], T));
 
 		_ASSERTE(!_isnan(r) && _finite(r) && r >= 0);
 
@@ -181,10 +181,11 @@ namespace WBSF
 
 
 
-	double CLeucotaraxisPiniperdaEquations::GetDailySurvivalRate(size_t s, double T)const
+	double CLeucotaraxisPiniperdaEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
 
-		static const CSurvivalEquation::TSurvivalEquation S_EQ[LPM::NB_STAGES] =
+		//static const CSurvivalEquation::TSurvivalEquation S_EQ[LPM::NB_STAGES] =
+		static const array<CSurvivalEquation::TSurvivalEquation, LPM::NB_STAGES> S_EQ =
 		{
 			CSurvivalEquation::Survival_01,//egg
 			CSurvivalEquation::Survival_01,//Larva
@@ -194,20 +195,20 @@ namespace WBSF
 
 
 
-		static const double P_SUR[LPM::NB_STAGES][6] =
-		{
+		//static const double P_SUR[LPM::NB_STAGES][6] =
+		static const array< vector<double>, LPM::NB_STAGES>  S_P =
+		{ {
 			{-3.562622, -0.2123614, 0.008848417},//egg
 			{-4.033288, 0.04749421, -0.002219942},//Larva
 			{3.133109,-1.159329,0.03617767},//Pupa (with dormancy)
 			{},//Adult
-		};
+		} };
 
 
-		vector<double> p(begin(P_SUR[s]), end(P_SUR[s]));
-
-		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[s], p, T)));
-
-		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
+		//vector<double> p(begin(P_SUR[s]), end(P_SUR[s]));
+		assert(e < NB_STAGES);
+		double sr = max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_P[e], T)));
+		assert(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
 
 		return sr;
 	}

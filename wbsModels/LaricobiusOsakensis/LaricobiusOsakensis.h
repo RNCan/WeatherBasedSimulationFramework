@@ -27,6 +27,11 @@ namespace WBSF
 			S_M_EGG, S_M_L1, S_M_L2, S_M_L3, S_M_L4, S_M_PREPUPA, S_M_PUPA, S_M_AESTIVAL_DIAPAUSE_ADULT, S_M_ACTIVE_ADULT, S_M_DEAD_ADULT,
 			S_DEAD_ATTRTION, S_EGG_CREATION_CDD, S_DIAPAUSE_END_NCDD, S_ADULT_EMERGENCE_CDD, S_LARVAE, NB_STATS
 		};
+
+		enum TAnnualOutputs
+		{
+			AO_BEGIN, AO_END, NB_ANNUAL_OUTPUTS
+		};
 	}
 
 
@@ -66,8 +71,7 @@ namespace WBSF
 
 		CTRef GetCreationDate(int year)const;
 		CTRef GetAdultEmergence(int year)const;
-		//bool IsDeadByAttrition(size_t stage, double T, size_t time_step)const;
-		bool IsDeadByAttrition(size_t stage, double T, double rr)const;
+		bool IsDeadByAttrition(size_t stage, double T, double i_r)const;
 
 	protected:
 

@@ -79,7 +79,7 @@ namespace WBSF
 	//L:	latitude [º]
 	//T:	temperature [ºC] 
 	//out:	development rate in function of stage and latitude
-	double HemlockLooperEquations::GetRate(size_t s, double L, double T)const
+	double HemlockLooperEquations::GetDailyDevlopmentRate(size_t s, double L, double T)const
 	{
 		//Equation [4] and [6]
 		//                             egg     larval   pupae   adult
@@ -89,7 +89,7 @@ namespace WBSF
 		size_t e = (s == EGGS) ? 0 : (s < PUPAE) ? 1 : (s < ADULTS) ? 2 : 3;
 
 		//get rate from table lookup and adjust it in function of latitude
-		double rº = CEquationTableLookup::GetRate(s, T);
+		double rº = CEquationTableLookup::GetDailyDevlopmentRate(s, T);
 		double rᴸ = rº * (1 + b[e] * (L - L0));
 
 		return rᴸ;
@@ -98,15 +98,15 @@ namespace WBSF
 	//s:	stage
 	//T:	temperature [ºC] 
 	//out:	relative development rate in function of stage and temperature
-	double HemlockLooperEquations::ComputeRate(size_t s, double T)const
+	double HemlockLooperEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
-		assert(s < NB_STAGES);
+		assert(e < NB_STAGES);
 		assert(T >= 0);
 
 
 		double r = 0;
 
-		if (s == ADULTS) //Adult longevity
+		if (e == ADULTS) //Adult longevity
 		{
 			//Equation []
 			static const double a = 233.2;
@@ -114,7 +114,7 @@ namespace WBSF
 			if (T>0)
 				r = 1.0 / (a * pow(T, b));
 		}
-		else if (s == EGGS) //Eggs
+		else if (e == EGGS) //Eggs
 		{
 			enum{ rho, Hᴬ, Hᴸ, Tᴸ, Hᴴ, Tᴴ };
 			static const double R = 1.987E-3;
@@ -138,10 +138,10 @@ namespace WBSF
 			if (T > 3.35)
 			{
 				double K = T + 273.0;
-				double rho25 = m_rho25Factor[s] * m_p[s][rho];
-				double num = rho25*K / 298.0*exp(m_p[s][Hᴬ] / R*(1 / 298.0 - 1.0 / K));
-				double den1 = exp(m_p[s][Hᴸ] / R*(1 / m_p[s][Tᴸ] - 1 / K));
-				double den2 = exp(m_p[s][Hᴴ] / R*(1 / m_p[s][Tᴴ] - 1 / K));
+				double rho25 = m_rho25Factor[e] * m_p[e][rho];
+				double num = rho25*K / 298.0*exp(m_p[e][Hᴬ] / R*(1 / 298.0 - 1.0 / K));
+				double den1 = exp(m_p[e][Hᴸ] / R*(1 / m_p[e][Tᴸ] - 1 / K));
+				double den2 = exp(m_p[e][Hᴴ] / R*(1 / m_p[e][Tᴴ] - 1 / K));
 
 				r = num / (1 + den1 + den2);
 			}

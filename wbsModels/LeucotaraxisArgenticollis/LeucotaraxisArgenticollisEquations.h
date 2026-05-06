@@ -44,20 +44,23 @@ namespace WBSF
 		
 		CLeucotaraxisArgenticollisEquations(const CRandomGenerator& RG);
 		
-		virtual double ComputeRate(size_t stage, double t)const;
+		
 
 		
 		//double GetAdultAging(double T)const;
 		double GetUndiapausedPupaRate(double T, size_t g)const;
 		double GetUndiapausedPupaRDR(size_t g)const;
 		double GetRelativeDevRate(size_t s)const;
-		double GetDailySurvivalRate(size_t s, double T)const;
 		double GetPreOvipPeriod()const;
 		double GetFecondity(double L)const;
 		
 		//void GetAdultEmergenceCDD(const CWeatherYears& weather, std::array < CModelStatVector, 2>& CDD)const;
 		//double GetAdultEmergingCDD(double Tjan)const;
 
+	protected:
+
+		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
+		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
 	};
 
 }
