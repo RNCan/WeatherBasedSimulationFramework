@@ -60,9 +60,9 @@ namespace LTR
 
 	TStatistic GetStatistic(const std::string& name)
 	{
-		static const array<std::string, NB_STATISTIC > STAT_NAME = { {"MAE", "RSS", "ANOVA", "FISHER", "AICC"} };
+		static const array<std::string, NB_STATISTIC > STAT_NAME = { {"R2", "ANOVA", "FISHER", "AICC"} };
 
-		TStatistic stat = UNKNOWN;
+		TStatistic stat = STAT_UNKNOWN;
 
 		auto it = std::find_if(STAT_NAME.begin(), STAT_NAME.end(),
 			[&name](const std::string& s) {
@@ -74,6 +74,25 @@ namespace LTR
 
 		return stat;
 	}
+
+	TPickBestPriority GetPriority(const std::string& name)
+	{
+		static const array<std::string, NB_STATISTIC > STAT_NAME = { {"MIN", "MEDIAN", "MAX"} };
+
+		TPickBestPriority priority = PRI_UNKNOWN;
+
+		auto it = std::find_if(STAT_NAME.begin(), STAT_NAME.end(),
+			[&name](const std::string& s) {
+				return boost::iequals(s, name);
+			});
+
+		if (it != STAT_NAME.end())
+			priority = (TPickBestPriority)std::distance(STAT_NAME.begin(), it);
+
+		return priority;
+	}
+	
+	
 
 
 	REAL_TYPE angle_diff(const CRealArray& xcoords, const CRealArray& ycoords, REAL_TYPE yrange, REAL_TYPE distweightfactor)
@@ -513,7 +532,7 @@ namespace LTR
 
 				bool endsegment = s == (mses.size() - 1);
 				bool firstsegment = (s == 0);
-				bool disttest = distweightfactor != 0;//just use distweightfactor to determine if disturbance should be considered in initial segments
+				bool disttest = distweightfactor != 0;//just use distweightfactor to determine if disturbance should be considered at edge
 
 				CRealArray xx = subset(x, vertices[s], vertices[s + 1]);
 				CRealArray yy = subset(y, vertices[s], vertices[s + 1]);
@@ -830,105 +849,128 @@ namespace LTR
 	}
 
 
-	size_t pick_best_model7(const vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat)
+	size_t pick_best_model7(const vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority)
 	{
-		assert(bestmodelproportion < 1.0);
+		assert(bestmodelproportion >= 0 && bestmodelproportion <= 1.0);
 
-		std::vector < pair<REAL_TYPE, size_t>> statistic;
+		std::vector<pair<REAL_TYPE, size_t>> statistic;
 
 		for (size_t i = 0; i < info.size(); i++)
 		{
 			if (info[i].m_stat.ok)
 			{
-				double value = std::numeric_limits<double>::lowest();
-				switch (stat)
-				{
-				case MAE:		value = info[i].m_stat.abs_diff; break;
-				case RSS:		value = info[i].m_stat.sum_of_squares_resid; break;
-				case ANOVA:		value = info[i].m_stat.f_stat; break;
-				case FISHER:	if (info[i].m_stat.p_of_f < pval) value = info[i].m_stat.p_of_f; break;
-				case AICC:		value = info[i].m_stat.AICc; break;
-				default: assert(false);
-				}
 
-				if (value > std::numeric_limits<double>::lowest())
+				if (info[i].m_stat.p_of_f < pval)
 				{
+					double value = std::numeric_limits<double>::lowest();
+					switch (stat)
+					{
+					case R2:		value = info[i].m_stat.adjusted_rsquare; break;
+					case ANOVA:		value = info[i].m_stat.f_stat; break;
+					case FISHER:	value = info[i].m_stat.p_of_f; break;
+					case AICC:		value = info[i].m_stat.AICc; break;
+					default: assert(false);
+					}
+
+
 					statistic.push_back(make_pair(value, i));
 				}
 			}
 		}
 
 		if (statistic.empty())
+			return -1;
+
+		if (bestmodelproportion <= 0.0 && stat!= FISHER)
 		{
-			return pick_best_model7(info, pval, bestmodelproportion, TStatistic::AICC);
+			std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)
+			{
+				return a.second <= b.second;//return the model with more vertices
+			});
+		
+			return statistic.begin()->second;
 		}
 
 		std::sort(statistic.begin(), statistic.end());
 
-		if (bestmodelproportion <= 0.0)
-			return statistic.begin()->second;
+		//return the best model
+		if (bestmodelproportion >= 1.0)
+			return (stat == TStatistic::R2 || stat == TStatistic::ANOVA) ? statistic.rbegin()->second : statistic.begin()->second;
 
-		if (stat == TStatistic::FISHER)
+		
+
+		std::vector < pair<REAL_TYPE, size_t>> statistic2;// = statistic;
+
+		//double bestmodelproportion2 = bestmodelproportion;
+		double stepSize = (1.0 - bestmodelproportion);   // How fast it converges (0.1 = 10% per step)
+
+		//for (size_t i=0; i<10&& statistic.size()>2; i++)
+		//while (statistic.size() > 3 && bestmodelproportion < 0.9999)
 		{
-			//try to see if there are many zeroes.
-			//in this case, select AICC instead
-			size_t nb_zero = 0;
-			for (auto it = statistic.begin(); it != statistic.end(); it++)
+			statistic2 = statistic;
+
+
+
+			REAL_TYPE mn = max(1e-12,statistic.begin()->first);
+			REAL_TYPE mx = statistic.rbegin()->first;
+			//eliminate all not enough good model
+			for (auto it = statistic.begin(); it != statistic.end(); )
 			{
-				if (it->first < 1e-6)
-					nb_zero++;
+				bool keep_it = true;
+
+
+				if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
+				{
+					REAL_TYPE limit = bestmodelproportion * mx;
+					keep_it = it->first >= limit;
+				}
+				else if (stat == TStatistic::FISHER)
+				{
+					REAL_TYPE limit = (2 - bestmodelproportion) * mn;
+					keep_it = it->first <= limit;
+				}
+				else if (stat == TStatistic::AICC)
+				{
+					keep_it = (it->first - mn) <= 10 * (1-bestmodelproportion);
+				}
+
+				if (keep_it)
+					it++;
 				else
-					break;
+					it = statistic.erase(it);
+
 			}
 
-			if (nb_zero > 1)
-				return pick_best_model7(info, pval, bestmodelproportion, TStatistic::AICC);
+
+			// Loop until the value is very close to 1
+			//	value = value + (target - value) * stepSize;
+			bestmodelproportion += (1.0 - bestmodelproportion) * stepSize;
 		}
 
-		REAL_TYPE mn = statistic.begin()->first;
-		REAL_TYPE mx = statistic.rbegin()->first;
-		//eliminate all not enough good model
-		for (auto it = statistic.begin(); it != statistic.end(); )
-		{
-			bool keep_it = true;
-			
-			if (stat == TStatistic::MAE || stat == TStatistic::RSS)
-			{
-				keep_it = (it->first - mn) <= (mx - mn) * bestmodelproportion;
-			}
-			else if (stat == TStatistic::ANOVA)
-			{
-				REAL_TYPE limit = bestmodelproportion * mx;
-				keep_it = it->first >= limit;
-			}
-			else if (stat == TStatistic::FISHER)
-			{
-				REAL_TYPE limit = (2 - bestmodelproportion) * mn;
-				keep_it = it->first <= limit;
-			}
-			else if (stat == TStatistic::AICC)
-			{
-				keep_it = (it->first - mn) <= 10 * bestmodelproportion;
-			}
+		if (statistic.empty())
+			statistic = statistic2;
 
-			if (keep_it)
-				it++;
-			else
-				it = statistic.erase(it);
-
-		}
-
-
+		assert(!statistic.empty());
 		if (statistic.empty())
 			return -1;//then stop;
 
-		//re-sort to get the biggest indice (model with lower vertices)
-		std::sort(statistic.begin(), statistic.end(), [](const auto& a, const auto& b)
+		//re-sort to get the lower indice (model with more vertices)
+		//pick the one with the most vertices
+		std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)
 			{
-				return a.second > b.second;
+				return a.second < b.second;//return the model with more vertices
+				//return a.second >= b.second; //return model with less vertices
 			});
 
-		return statistic.begin()->second;
+
+		size_t pos = 0;
+		if (priority == MEDIAN_SEGMENT)
+			pos = size_t((statistic.size() - 1) / 2.0);
+		else if (priority == MIN_SEGMENT)
+			pos = statistic.size() - 1;
+
+		return statistic[pos].second;
+		//return statistic.begin()->second;
 
 	}
 
@@ -958,6 +1000,11 @@ namespace LTR
 			//assert(info.n_obs == info.yfit.size());
 			REAL_TYPE range_of_vals = get_range(subset(info.yfit, 0, info.yfit.size() - 1));
 			CRealArray scaled_slope = abs(info.slope[negatives]) / range_of_vals;
+			//CRealArray n_values = subset(info.vertices, 1, info.vertices.size() - 1) - subset(info.vertices, 0, info.vertices.size() - 2);
+
+			//To avoid elimination of disturbance at the end of the series, make a look on the number of observations.
+			//size_t n_accepted = size_t(1 / threshold);
+			//size_t maxdiff = distance(begin(scaled_slope), std::max_element(begin(scaled_slope), end(scaled_slope)));
 
 			if (scaled_slope.max() > threshold)
 				return false;
@@ -995,7 +1042,7 @@ namespace LTR
 
 		CCalcFittingStats3 out;
 		//   a count for the number of predictor variables used
-		//   to get the predicted vals, return stuff
+		//   to get the predicted values, return stuff
 		//  Assumes equal weights
 
 		REAL_TYPE mean_y = y.sum() / y.size();
@@ -1018,21 +1065,25 @@ namespace LTR
 		{
 			REAL_TYPE residual_variance = ss_resid / df_resid;
 			REAL_TYPE total_variance = ss / (y.size() - 1);
-			REAL_TYPE adjusted_rsquare = 1 - (residual_variance / total_variance);	//terms from Jongman et al. pg 37
+			//REAL_TYPE adjusted_rsquare = 1 - (residual_variance / total_variance);	//terms from Jongman et al. pg 37
+
+			REAL_TYPE rsquare = 1 - (ss_resid / ss);
+			REAL_TYPE adjusted_rsquare = 1 - ((1 - rsquare) * (y.size() - 1)) / (y.size() - n_predictors - 1);
 
 
 			REAL_TYPE ms_regr = ss_regr / df_regr;			//mean square error of regression
-			REAL_TYPE ms_resid = ss_resid / df_resid;		//mean square error of resids
+			REAL_TYPE ms_resid = ss_resid / df_resid;		//mean square error of residuals
 
 			REAL_TYPE f_regr = ms_regr / ms_resid;
 
 			REAL_TYPE p_of_f = 1 - f_test1(f_regr, REAL_TYPE(df_regr), REAL_TYPE(df_resid));
 
-			//calc the AIC
+			//calculate the AIC
 			REAL_TYPE AIC = (2 * n_predictors) + (y.size() * log(ss_resid / y.size()));
 			REAL_TYPE AICc = AIC + ((2 * n_predictors * (n_predictors + 1)) / (y.size() - n_predictors - 1));
 			if (!::isfinite(AICc))
 				AICc = -1;
+
 
 
 			out.ok = true;
@@ -1044,13 +1095,14 @@ namespace LTR
 			out.df_resid = df_resid;
 			out.residual_variance = residual_variance;
 			out.total_variance = total_variance;
+			out.rsquare = rsquare;
 			out.adjusted_rsquare = adjusted_rsquare;
 			out.f_stat = f_regr;
 			out.p_of_f = p_of_f;
 			out.ms_regr = ms_regr;		//added these two 6/14/06
 			out.ms_resid = ms_resid;
 			out.abs_diff = abs_diff;	//added these two 6/14/06
-			out.AICc = AICc;			//added july 29 2007
+			out.AICc = AICc;			//added July 29 2007
 		}
 		else
 		{
@@ -1065,6 +1117,7 @@ namespace LTR
 			out.df_resid = df_resid;
 			out.residual_variance = 0;
 			out.total_variance = 0;
+			out.rsquare = 0;
 			out.adjusted_rsquare = 0;
 			out.f_stat = 0;
 			out.p_of_f = 1.0;

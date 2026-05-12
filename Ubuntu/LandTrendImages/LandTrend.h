@@ -14,8 +14,10 @@ class CLandTrendOption : public CBaseOptions
 {
 public:
 
+
     enum TFilePath		{ INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
-    //enum TDebug {D_NB_NBR, D_};
+    
+    
 
     CLandTrendOption();
     virtual ERMsg ParseOption(int argc, char* argv[]);
@@ -33,6 +35,7 @@ public:
     double m_desawtooth_val;
     LTR::TFitMethod m_fit_method;
     LTR::TStatistic m_stat;
+    LTR::TPickBestPriority m_priority;
     int m_modifier;
 
     size_t max_vertices()const
@@ -40,7 +43,6 @@ public:
         return m_max_segments + 1;
     }
     //set both method;
-    size_t fit_method;
     Landsat2::TIndices m_indice;
     bool m_bDirect;
     std::string m_indices_file_path;
@@ -53,8 +55,8 @@ public:
     int m_firstYear;
     bool m_bBreaks;
 
-    bool m_b_extract_point;
-    CGeoPoint m_extract_point;
+    //bool m_b_extract_point;
+    std::vector<CGeoPoint> m_extract_points;
     
 
     
@@ -91,7 +93,7 @@ public:
     CLandTrendOption m_options;
     //PE_OUTPUT_INDICE2 = PE_OUTPUT_INDICE1 + 1, PE_OUTPUT_INDICE3 = PE_OUTPUT_INDICE2 + 1,
     enum TPointExtract { PE_INPUT_BANDS, PE_SEGMENT_BREAK= PE_INPUT_BANDS + 6, PE_INPUT_INDICE = PE_SEGMENT_BREAK + 1, PE_DESAWTOOTH_INDICE = PE_INPUT_INDICE + 1, PE_FIT_INDICE = PE_DESAWTOOTH_INDICE +1, PE_OUTPUT_INDICE1= PE_FIT_INDICE + 1,  PE_REGRESS_P = PE_OUTPUT_INDICE1 +1, PE_OUTPUT_BANDS = PE_REGRESS_P + 2 * 6, NB_EXTRACTS = PE_OUTPUT_BANDS + 6 };
-    std::vector< std::array<double, NB_EXTRACTS> > m_extract_data;
+    std::vector < std::vector< std::array<double, NB_EXTRACTS> >> m_extract_data;
     ofStream m_export_point_file;
 
     static const char* VERSION;

@@ -3,6 +3,11 @@
 //
 //***********************************************************************
 // version
+// 1.2.2	30/04/2026	Rémi Saint_Amant	Add the possibility to have multiple -ExtractPoint
+//											Select model with more vertices and not the less vertices
+//											Remove use of recovery threshold when selecting best model
+//											-m_recovery_threshold 0.5 --> 0.25
+//											-WindowInterpol 3 --> 1
 // 1.2.1	30/04/2026	Rémi Saint_Amant	Add statistic model' selection as option for fit_trajectory_v2
 //											Separate window option for indice and interpolation
 //											-BestModelProportion 0.75 --> 0.65
@@ -15,7 +20,7 @@
 //											Add ExtractPointOption
 //											Bug correction in reduce_vertice
 //											Annulation of last bug correction
-//											New algo for missing reintroduction
+//											New algorithm for missing reintroduction
 //											Default -Window from 1 to 3
 //											Default -SpikeThreshold from 0.9 to 0.5
 // 1.1.7	13/03/2026	Rémi Saint-Amant	Bug correction in regression: don't use the first image after the first break
@@ -37,14 +42,7 @@
 // 1.0.3	02/11/2023	Rémi Saint-Amant	Change -ValidityMask to -CloudsMask
 // 1.0.2	27/10/2023	Rémi Saint-Amant	Add -ValidityMask options
 // 1.0.1	25/10/2023	Rémi Saint-Amant	Add -BackwardFill -ForwardFill options
-// 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code
-
-
-
-//"E:\Landsat\Landsat(2000-2018)\Input\Landsat_2000-2018(2).vrt" "E:\Landsat\Landsat(2000-2018)\Output\test2.vrt" -of VRT -overwrite -co "COMPRESS=LZW"   -te 1022538.9 6663106.0 1040929.5 6676670.7 -multi -Debug -SpikeThreshold 0.75 -FitMethod 1
-//-of VRT -overwrite -co "COMPRESS=LZW" -DirectIndice ".\Input3\SR_L5789.vrt" ".\Output3\SR_L5789.vrt" 
-
-//-NoResult -ExtractPoint 1481016.1 7421487.8 
+// 1.0.0	29/08/2023	Rémi Saint-Amant	Creation from IDL code: https://github.com/jdbcode/LLR-LandTrendr
 
 #include <math.h>
 #include <array>
@@ -70,7 +68,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.1";
+	const char* CLandTrend::VERSION = "1.2.2";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -81,20 +79,23 @@ namespace WBSF
 
 		m_minneeded = 3;
 		m_pval = 0.1;
-		m_recovery_threshold = 0.5;
+		m_recovery_threshold = 0.25;
 		m_distweightfactor = 0; //(0 or 2): Humm! 2 seem to give strange result when recovery at the end
 		m_vertexcountovershoot = 5;
 		m_bestmodelproportion = 0.65;
 		m_max_segments = 9;
 		m_desawtooth_val = 0.65;
 		m_fit_method = FIT_EARLY_TO_LATE;
-		m_stat = TStatistic::FISHER;
+		m_stat = TStatistic::AICC;
+		m_priority = TPickBestPriority::MEDIAN_SEGMENT;
 		m_modifier = -1;
 
 		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
 		m_indice = I_NBR;
-		m_rings_indice = 2;
-		m_rings_interpol = 2;
+		m_b_median_indice = false;
+		m_rings_indice = 2.0;
+		m_b_median_interpol = false;
+		m_rings_interpol = 0;
 		m_bDirect = false;
 
 		m_firstYear = 0;
@@ -112,17 +113,19 @@ namespace WBSF
 			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 9 by default."},
 			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.65 by default."},
 			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
-			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.5 by default"},
-			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.1 by default."},
-			//{ "-Statistic", 1, "type", false, "Statistic on witch the best model will be selected. can be MAE: Mean Absolute Error, RSS: Residual Sum of Square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
+			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
+			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
+			//{ "-AngleWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
+			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
+			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MEDIAN by default."},
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model. 0.65 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 3 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
 			{ "-DirectIndice", 1, "file", false, "Indice already computed and provided as input file. Same size and same number layers than the number of scenes of the input Landsat image. "},
 			{ "-WindowIndice", 1, "radius", false, "Compute mean/median around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). Add letter d for median instead of mean. For example -WindowIndice 3d. 3 (5 x 5) by default." },
-			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. " },
-			{ "-ExtractPoint", 2, "X Y", false, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
+			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. 1 (1 x 1) by default." },
+			{ "-ExtractPoint", 2, "X Y", true, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
 			//{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
@@ -192,11 +195,21 @@ namespace WBSF
 		{
 			m_pval = atof(argv[++i]);
 		}
-		else if (IsEqual(argv[i], "-Statistic"))
+		else if (IsEqual(argv[i], "-AngleWeightFactor"))
+		{
+			m_distweightfactor = atof(argv[++i]);
+		}
+		else if (IsEqual(argv[i], "-PickBestBy"))
 		{
 			m_stat = GetStatistic(argv[++i]);
-			if (m_stat == TStatistic::UNKNOWN)
-				msg.ajoute("Invalid statistic. See help for more info");
+			if (m_stat == TStatistic::STAT_UNKNOWN)
+				msg.ajoute("Invalid PickBestBy statistic. See help for more info");
+		}
+		else if (IsEqual(argv[i], "-PickBestPriority"))
+		{
+			m_priority = GetPriority(argv[++i]);
+			if (m_priority == TPickBestPriority::PRI_UNKNOWN)
+				msg.ajoute("Invalid priority selection. See help for more info");
 		}
 		else if (IsEqual(argv[i], "-BestModelProportion"))
 		{
@@ -271,9 +284,11 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-ExtractPoint"))
 		{
-			m_b_extract_point = true;
-			m_extract_point.m_x = atof(argv[++i]);
-			m_extract_point.m_y = atof(argv[++i]);
+			//m_b_extract_point = true;
+			CGeoPoint point;
+			point.m_x = atof(argv[++i]);
+			point.m_y = atof(argv[++i]);
+			m_extract_points.push_back(point);
 		}
 		else if (IsEqual(argv[i], "-CloudsMask"))
 		{
@@ -347,39 +362,6 @@ namespace WBSF
 		vector<pair<int, int>> XYindex = extents.GetBlockList();
 		map<int, bool> treadNo;
 
-		int the_block = -1;
-		if (m_options.m_b_extract_point && !m_options.m_bCreateImage)
-		{
-
-			//fin only the block of the point
-			for (size_t b = 0; b < XYindex.size() && the_block == NOT_INIT; b++)
-			{
-				if (extents.GetBlockExtents(XYindex[b].first, XYindex[b].second).IsInside(m_options.m_extract_point))
-					the_block = int(b);
-			}
-
-			/*for (auto it = XYindex.begin(); it != XYindex.end(); )
-			{
-				if (extents.GetBlockExtents(it->first, it->second).IsInside(m_options.m_extract_point))
-					it++;
-				else
-					it = XYindex.erase(it);
-			}*/
-
-			/*if (XYindex.empty())
-			{
-				msg.ajoute("The extraction point (" + to_string(m_options.m_extract_point.m_x) + ", " + to_string(m_options.m_extract_point.m_y) + ") is not in image.");
-				return msg;
-			}*/
-
-			if (the_block == NOT_INIT)
-			{
-				msg.ajoute("The extraction point (" + to_string(m_options.m_extract_point.m_x) + ", " + to_string(m_options.m_extract_point.m_y) + ") is not in image.");
-				return msg;
-			}
-
-		}
-
 
 		omp_set_nested(1);//for IOCPU
 #ifndef _DEBUG
@@ -395,12 +377,25 @@ namespace WBSF
 			OutputData outputData;
 			BreaksData breaksData;
 
-			if (the_block == NOT_INIT || b == the_block)
+			bool process_block = true;
+			if (!m_options.m_extract_points.empty() && !m_options.m_bCreateImage)
+			{
+				process_block = false;
+				//find only the block of the point
+				for (size_t i = 0; i < m_options.m_extract_points.size() && !process_block; i++)
+				{
+					if (extents.GetBlockExtents(XYindex[b].first, XYindex[b].second).IsInside(m_options.m_extract_points[i]))
+						process_block = true;
+				}
+			}
+
+
+			if (process_block)
 				ReadBlock(inputDS, indicesDS, cloudsDS, xBlock, yBlock, inputData, indices);
 
 			ProcessBlock(xBlock, yBlock, inputData, indices, outputData, breaksData);
 
-			if (the_block == NOT_INIT || b == the_block)
+			if (process_block)
 				WriteBlock(xBlock, yBlock, outputDS, breaksDS, outputData, breaksData);
 
 
@@ -547,15 +542,39 @@ namespace WBSF
 			msg += breaksDS.CreateImage(filePath, options);
 		}
 
-		if (msg && m_options.m_b_extract_point)
+		if (msg && !m_options.m_extract_points.empty())
 		{
-			string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
-			msg += m_export_point_file.open(filePath);
+			//verify that all point are inside 
+			size_t nb_scenes = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
+
+			for (auto& point : m_options.m_extract_points)
+			{
+				point.SetPrjID(inputDS.GetExtents().GetPrjID());
+				if (!inputDS.GetExtents().IsInside(point))
+					msg.ajoute("The extraction point (" + to_string(point.m_x) + ", " + to_string(point.m_y) + ") is not in image.");
+			}
+
+			m_extract_data.resize(m_options.m_extract_points.size());
+			for (auto& data : m_extract_data)
+			{
+				data.resize(nb_scenes);
+
+				for (auto& years : data)
+					years.fill(DataType(m_options.m_dstNodata));
+			}
+
 			if (msg)
 			{
-				m_export_point_file << "Year,B1,B2,B3,B4,B5,B7,Segment,IndiceIn,IndiceDesawtooth,IndiceFit,IndiceInterpol,B1_P0,B1_P1,B2_P0,B2_P1,B3_P0,B3_P1,B4_P0,B4_P1,B5_P0,B5_P1,B7_P0,B7_P1,oB1,oB2,oB3,oB4,oB5,oB7" << endl;
+				//open output file
+				string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
+				msg += m_export_point_file.open(filePath);
+				if (msg)
+				{
+					m_export_point_file << "PointNo,X,Y,Year,B1,B2,B3,B4,B5,B7,Segment,IndiceIn,IndiceDesawtooth,IndiceFit,IndiceInterpol,B1_P0,B1_P1,B2_P0,B2_P1,B3_P0,B3_P1,B4_P0,B4_P1,B5_P0,B5_P1,B7_P0,B7_P1,oB1,oB2,oB3,oB4,oB5,oB7" << endl;
+				}
 			}
-			m_options.m_extract_point.SetPrjID(inputDS.GetExtents().GetPrjID());
+
+
 		}
 
 		return msg;
@@ -707,15 +726,16 @@ namespace WBSF
 		}
 
 
-		CGeoPointIndex pt;
-		if (m_options.m_b_extract_point)
+		vector<CGeoPointIndex> pts;
+		if (!m_options.m_extract_points.empty())
 		{
-			if (extents.GetBlockExtents(xBlock, yBlock).IsInside(m_options.m_extract_point))
+			pts.resize(m_options.m_extract_points.size());
+			for (size_t i = 0; i < m_options.m_extract_points.size(); i++)
 			{
-				pt = extents.GetBlockExtents(xBlock, yBlock).CoordToXYPos(m_options.m_extract_point);
-				m_extract_data.resize(block_data.size());
-				for (auto& i : m_extract_data)
-					i.fill(DataType(m_options.m_dstNodata));
+				if (extents.GetBlockExtents(xBlock, yBlock).IsInside(m_options.m_extract_points[i]))
+				{
+					pts[i] = extents.GetBlockExtents(xBlock, yBlock).CoordToXYPos(m_options.m_extract_points[i]);
+				}
 			}
 		}
 
@@ -746,12 +766,10 @@ namespace WBSF
 			{
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
-					bool bExtractPoint = pt.m_x == x && pt.m_y == y;
-					if (bExtractPoint)
-					{
-						int g;
-						g = 0;
-					}
+					size_t extract_point = NOT_INIT;
+					for (size_t i = 0; i < pts.size() && extract_point == NOT_INIT; i++)
+						if (pts[i].m_x == x && pts[i].m_y == y)
+							extract_point = i;
 
 
 					int xy = y * blockSize.m_x + x;
@@ -779,7 +797,7 @@ namespace WBSF
 
 
 
-					if (bHave_any && (!outputData.empty() || !breaksData.empty() || bExtractPoint))
+					if (bHave_any && (!outputData.empty() || !breaksData.empty() || extract_point != NOT_INIT))
 					{
 						size_t size = m_options.m_bDirect ? indices.size() : block_data.size();
 						for (size_t z = 0; z < size; z++)
@@ -819,13 +837,13 @@ namespace WBSF
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
 							m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
 							m_options.m_max_segments, m_options.m_recovery_threshold, m_options.m_distweightfactor,
-							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_stat);
+							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_stat, m_options.m_priority);
 
 
 						//if need output
 						if (result.m_stat.ok)
 						{
-							if (bExtractPoint)
+							if (extract_point != NOT_INIT)
 							{
 								//compute extra output indice for the fun
 								CVectices V = result.vertices;
@@ -839,7 +857,7 @@ namespace WBSF
 									Y[z] = data[z];
 
 									//replace Y when the is not enough valid value and vertices is missing
-									if (!goods[z] && m_options.m_bFillMissing )//&& (z == V).max()
+									if (!goods[z] && m_options.m_bFillMissing)//&& (z == V).max()
 									{
 										//always find a good value here
 										size_t zz = z;
@@ -865,7 +883,6 @@ namespace WBSF
 								{
 									//we need to remove bad data from vertices
 									//take goodsY only if there is less than 5 valid values
-									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
 									CBoolArray G = subset(goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
@@ -884,17 +901,17 @@ namespace WBSF
 
 										//******
 										//Interpolation method1
-										assert(i != 0);
+										//assert(i != 0);
 										if (i != 0)
 											yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i] - 1];
 										else
-											yfit1[get_slice(V[i], V[i + 1])] = DataType(m_options.m_dstNodata);
+											yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i]]; //DataType(m_options.m_dstNodata);//DataType(m_options.m_dstNodata);
 
 									}
 
 									for (size_t z = V[i]; z <= V[i + 1]; z++)
 									{
-										m_extract_data[z][PE_SEGMENT_BREAK] = (double)i + 1;
+										m_extract_data[extract_point][z][PE_SEGMENT_BREAK] = (double)i + 1;
 									}
 								}
 
@@ -903,11 +920,11 @@ namespace WBSF
 								{
 									double no_data = DataType(m_options.m_dstNodata);
 
-									m_extract_data[z][PE_INPUT_INDICE] = data[z];
-									m_extract_data[z][PE_DESAWTOOTH_INDICE] = Ydesawtouth[z];
+									m_extract_data[extract_point][z][PE_INPUT_INDICE] = data[z];
+									m_extract_data[extract_point][z][PE_DESAWTOOTH_INDICE] = Ydesawtouth[z];
 
-									m_extract_data[z][PE_FIT_INDICE] = result.yfit[z];
-									m_extract_data[z][PE_OUTPUT_INDICE1] = yfit1[z];
+									m_extract_data[extract_point][z][PE_FIT_INDICE] = result.yfit[z];
+									m_extract_data[extract_point][z][PE_OUTPUT_INDICE1] = yfit1[z];
 								}
 							}
 
@@ -937,25 +954,25 @@ namespace WBSF
 									if (!goods[z] && m_options.m_bFillMissing)//&& (z == V).max()
 									{
 										size_t zz = z;
-									
+
 										//We don't fill missing value to send to LandTrend, only take it in the regression part
 										if (zz < first_valid)
 											zz = first_valid;
-									
+
 										if (zz > last_valid)
 											zz = last_valid;
-									
+
 										if (zz > first_valid && zz < last_valid)
 											zz = GetPrevious(x, y, zz, block_data);
-									
+
 										Y[z] = block_data.GetPixelIndice(z, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
 										goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
 									}
 
 
-									if (bExtractPoint)
+									if (extract_point != NOT_INIT)
 									{
-										m_extract_data[z][PE_INPUT_BANDS + s] = Y[z];
+										m_extract_data[extract_point][z][PE_INPUT_BANDS + s] = Y[z];
 									}
 								}
 
@@ -963,7 +980,6 @@ namespace WBSF
 								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 								{
 									//we need to remove bad data from vertices
-									size_t nb_valid = subset(goods, V[i], V[i + 1]).size();
 									CBoolArray G = subset(goods, V[i], V[i + 1]);
 									CRealArray xx = subset(X, V[i], V[i + 1])[G];
 									CRealArray yy = subset(Y, V[i], V[i + 1])[G];
@@ -977,32 +993,32 @@ namespace WBSF
 										//  would choke, so deal with that.
 										RegressP P = Regress(xx, yy);
 										yfit[get_slice(V[i], V[i + 1])] = FitRegress(subset(X, V[i], V[i + 1]), P);
-										if (bExtractPoint)
+										if (extract_point != NOT_INIT)
 										{
 											for (size_t z = V[i]; z <= V[i + 1]; z++)
 											{
-												m_extract_data[z][PE_REGRESS_P + 0 + 2 * s] = P.first;
-												m_extract_data[z][PE_REGRESS_P + 1 + 2 * s] = P.second;
+												m_extract_data[extract_point][z][PE_REGRESS_P + 0 + 2 * s] = P.first;
+												m_extract_data[extract_point][z][PE_REGRESS_P + 1 + 2 * s] = P.second;
 											}
 										}
 									}
 									else
 									{
-										assert(i != 0);
+										//assert(i != 0);
 
 										//if only one point, take last y-fit
 										if (i != 0)
 											yfit[get_slice(V[i], V[i + 1])] = yfit[V[i] - 1];
 										else
-											yfit[get_slice(V[i], V[i + 1])] = DataType(m_options.m_dstNodata);
+											yfit[get_slice(V[i], V[i + 1])] = yfit[V[i]]; //DataType(m_options.m_dstNodata);
 
 
-										if (bExtractPoint)
+										if (extract_point != NOT_INIT)
 										{
 											for (size_t z = V[i]; z <= V[i + 1]; z++)
 											{
-												m_extract_data[z][PE_REGRESS_P + 0 + 2 * s] = 0;
-												m_extract_data[z][PE_REGRESS_P + 1 + 2 * s] = yfit[z];
+												m_extract_data[extract_point][z][PE_REGRESS_P + 0 + 2 * s] = 0;
+												m_extract_data[extract_point][z][PE_REGRESS_P + 1 + 2 * s] = yfit[z];
 											}
 										}
 									}
@@ -1018,8 +1034,8 @@ namespace WBSF
 									if (!outputData.empty())
 										outputData[z * SCENES_SIZE + s][xy] = val;
 
-									if (bExtractPoint)
-										m_extract_data[z][PE_OUTPUT_BANDS + s] = val;
+									if (extract_point != NOT_INIT)
+										m_extract_data[extract_point][z][PE_OUTPUT_BANDS + s] = val;
 								}
 							}
 
@@ -1037,7 +1053,7 @@ namespace WBSF
 									breaksData[s * 2 + 2][xy] = (LandsatDataType)result.vertvals[s];
 								}
 							}
-						}//output result is ok
+						}//output result is OK
 
 					}//if at least one valid pixel and output result
 
@@ -1132,20 +1148,29 @@ namespace WBSF
 		breaksDS.Close(m_options);
 
 
-		if (m_options.m_b_extract_point)
+		if (!m_options.m_extract_points.empty())
 		{
 			assert(m_export_point_file.is_open());
-			int year = m_options.m_firstYear;
-			for (const auto& i : m_extract_data)
+
+			for (const auto& data : m_extract_data)
 			{
-				m_export_point_file << year;
-				for (const auto& j : i)
+				size_t index = &data - &m_extract_data[0];
+				CGeoPoint pt = m_options.m_extract_points[index];
+				for (const auto& years : data)
 				{
-					m_export_point_file << "," << j;
+					int year = m_options.m_firstYear + int(&years - &data[0]);
+					m_export_point_file << index + 1 << "," << pt.m_x << "," << pt.m_y << "," << year;
+
+					for (const auto& j : years)
+					{
+						m_export_point_file << "," << j;
+					}
+
+					m_export_point_file << endl;
 				}
 
-				m_export_point_file << endl;
-				year++;
+
+				//year++;
 			}
 			m_export_point_file.close();
 		}
