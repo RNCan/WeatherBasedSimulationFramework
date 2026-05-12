@@ -3,8 +3,10 @@
 //
 //***********************************************************************
 // version
-// 1.2.2	30/04/2026	Rémi Saint_Amant	Add the possibility to have multiple -ExtractPoint
-//											Select model with more vertices and not the less vertices
+// 1.2.2	30/04/2026	Rémi Saint_Amant	Add PickBestBy and PickBestPriority option
+//											By default use AICc instead of Fisher test
+//											By default, select model median number of segment
+//											Add the possibility to have multiple -ExtractPoint
 //											Remove use of recovery threshold when selecting best model
 //											-m_recovery_threshold 0.5 --> 0.25
 //											-WindowInterpol 3 --> 1
