@@ -32,9 +32,11 @@ inline size_t sum(const CBoolArray& v)
 
 
 enum TFitMethod { FIT_EARLY_TO_LATE, FIT_MPFIT, NB_FIT_METHODS };
-enum TStatistic { UNKNOWN=-1, MAE, RSS, ANOVA, FISHER, AICC, NB_STATISTIC};
+enum TStatistic { STAT_UNKNOWN=-1, R2, ANOVA, FISHER, AICC, NB_STATISTIC};
+enum TPickBestPriority { PRI_UNKNOWN=-1,MIN_SEGMENT, MEDIAN_SEGMENT, MAX_SEGMENT };
 
 extern TStatistic GetStatistic(const std::string& name);
+extern TPickBestPriority GetPriority(const std::string& name);
 
 
 inline CRealArray convert(const CVectices& v)
@@ -176,6 +178,7 @@ public:
         residual_variance = 0;
         total_variance = 0;
 
+        rsquare = 0;
         adjusted_rsquare = 0;
         f_stat = 0;
         p_of_f = 1;
@@ -195,6 +198,7 @@ public:
     REAL_TYPE residual_variance;
     REAL_TYPE total_variance;
 
+    REAL_TYPE rsquare;
     REAL_TYPE adjusted_rsquare;
     REAL_TYPE f_stat;   //F-statistic (or F-ratio) in an Analysis of Variance(ANOVA) table
     REAL_TYPE p_of_f;   //Probability of Fisher
@@ -307,7 +311,7 @@ CFillFromVertices fill_from_vertices(const CRealArray& x, const CVectices& v, co
 
 CTakeOutWeakest2 take_out_weakest2(const CBestModelInfo& info, REAL_TYPE threshold, const CRealArray& x, CRealArray y, const CVectices& v, CRealArray vertvals);
 size_t pick_best_model6(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, bool bfstat = false);
-size_t pick_best_model7(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat);
+size_t pick_best_model7(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority);
 bool check_slopes(const CBestModelInfo& info, REAL_TYPE threshold);
 CCalcFittingStats3 calc_fitting_stats3(const CRealArray& y, const CRealArray& yfit, size_t n_predictors);
 
