@@ -304,7 +304,7 @@ CRealArray fill_verts(const CRealArray& x, const CRealArray& p, const CVectices&
 size_t pick_better_fit(const CRealArray& y, const CRealArray& yfit1, const CRealArray& yfit2);
 CSplitSeries split_series(const CRealArray& x, const CRealArray& y, bool endsegment, bool firstsegment, bool disttest);
 CRealArray score_segments(const CRealArray& x, const CRealArray& y, const CVectices& vertices);
-CVectices find_vertices(const CRealArray& x, const CRealArray& y, size_t max_count, REAL_TYPE distweightfactor = 2);
+CVectices find_vertices(const CRealArray& x, const CRealArray& y, size_t max_count, REAL_TYPE distweightfactor);
 CFindBestTrace find_best_trace(const CRealArray& x, const CRealArray& y, const CVectices& v);
 CFindBestTrace find_best_trace_mpfit(const CRealArray& x, const CRealArray& y, const CVectices& v);
 CFillFromVertices fill_from_vertices(const CRealArray& x, const CVectices& v, const CRealArray& vv);

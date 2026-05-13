@@ -3,7 +3,13 @@
 //
 //***********************************************************************
 // version
-// 1.2.2	30/04/2026	Rémi Saint_Amant	Add PickBestBy and PickBestPriority option
+// 1.2.3	13/05/2026	Rémi Saint_Amant	Add DisturbWeightFactor as options
+//											Don't use DisturbWeightFactor when reintroducing missing
+// 											-m_vertexcountovershoot 5 --> 3;
+//											-m_pick_best_by UICc --> FISHER;
+//											-m_priority  MEDIAN_SEGMENT --> MIN_SEGMENT;
+//											-m_distweightfactor 2 --> 0
+// 1.2.2	12/05/2026	Rémi Saint_Amant	Add PickBestBy and PickBestPriority option
 //											By default use AICc instead of Fisher test
 //											By default, select model median number of segment
 //											Add the possibility to have multiple -ExtractPoint
@@ -70,7 +76,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.2";
+	const char* CLandTrend::VERSION = "1.2.3";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -83,13 +89,13 @@ namespace WBSF
 		m_pval = 0.1;
 		m_recovery_threshold = 0.25;
 		m_distweightfactor = 0; //(0 or 2): Humm! 2 seem to give strange result when recovery at the end
-		m_vertexcountovershoot = 5;
+		m_vertexcountovershoot = 3;
 		m_bestmodelproportion = 0.65;
 		m_max_segments = 9;
 		m_desawtooth_val = 0.65;
 		m_fit_method = FIT_EARLY_TO_LATE;
-		m_stat = TStatistic::AICC;
-		m_priority = TPickBestPriority::MEDIAN_SEGMENT;
+		m_pick_best_by = TStatistic::FISHER;
+		m_priority = TPickBestPriority::MIN_SEGMENT;
 		m_modifier = -1;
 
 		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
@@ -117,7 +123,7 @@ namespace WBSF
 			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
 			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
 			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
-			//{ "-AngleWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
+			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
 			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
 			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MEDIAN by default."},
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model. 0.65 by default."},
@@ -197,14 +203,14 @@ namespace WBSF
 		{
 			m_pval = atof(argv[++i]);
 		}
-		else if (IsEqual(argv[i], "-AngleWeightFactor"))
+		else if (IsEqual(argv[i], "-DisturbWeightFactor"))
 		{
 			m_distweightfactor = atof(argv[++i]);
 		}
 		else if (IsEqual(argv[i], "-PickBestBy"))
 		{
-			m_stat = GetStatistic(argv[++i]);
-			if (m_stat == TStatistic::STAT_UNKNOWN)
+			m_pick_best_by = GetStatistic(argv[++i]);
+			if (m_pick_best_by == TStatistic::STAT_UNKNOWN)
 				msg.ajoute("Invalid PickBestBy statistic. See help for more info");
 		}
 		else if (IsEqual(argv[i], "-PickBestPriority"))
@@ -807,24 +813,6 @@ namespace WBSF
 							size_t zz = z;
 
 							assert(bHave_any);
-							//if (m_options.m_bFillMissing)
-							//{
-							//	//We don't fill missing value to send to LendTrand, only take it in the regression part
-							//	if (zz < first_valid)
-							//		zz = first_valid;
-							//
-							//	if (zz > last_valid)
-							//		zz = last_valid;
-							//
-							//	if (zz > first_valid && zz < last_valid)
-							//	{
-							//		if (m_options.m_bDirect)
-							//			zz = GetPrevious(x, y, zz, indices);
-							//		else
-							//			zz = GetPrevious(x, y, zz, block_data);
-							//	}
-							//}
-
 							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
 							data[z] = m_options.m_bDirect ? indices.at(zz).GetWindowValue(x, y, m_options.m_rings_indice, m_options.m_b_median_indice) : block_data.GetPixelIndice(zz, m_options.m_indice, x, y, m_options.m_rings_indice, m_options.m_b_median_indice);
 
@@ -839,7 +827,7 @@ namespace WBSF
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
 							m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
 							m_options.m_max_segments, m_options.m_recovery_threshold, m_options.m_distweightfactor,
-							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_stat, m_options.m_priority);
+							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_pick_best_by, m_options.m_priority);
 
 
 						//if need output
@@ -851,7 +839,6 @@ namespace WBSF
 								CVectices V = result.vertices;
 								CRealArray X(block_data.size());
 								CRealArray Y(block_data.size());
-								//CBoolArray goodsY = goods;//replace Y when the is not enough valid value and vertices is missing
 
 								for (size_t z = 0; z < data.size(); z++)
 								{

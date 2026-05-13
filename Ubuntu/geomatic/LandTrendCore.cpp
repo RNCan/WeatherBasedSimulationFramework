@@ -63,7 +63,7 @@ namespace LTR
 	CBestModelInfo fit_trajectory_v2(const CRealArray& all_years, const CRealArray& vvals, const CBoolArray& goods,
 		size_t minneeded, int background, int modifier,
 		REAL_TYPE  desawtooth_val, REAL_TYPE  pval, size_t max_segments, REAL_TYPE  recovery_threshold,
-		REAL_TYPE  distweightfactor, size_t  vertexcountovershoot, REAL_TYPE  bestmodelproportion, 
+		REAL_TYPE  distweightfactor, size_t  vertexcountovershoot, REAL_TYPE  bestmodelproportion,
 		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority)
 	{
 		//CBestModelInfo best_model;
@@ -309,13 +309,13 @@ namespace LTR
 
 			best = distance(begin(AICc), std::min_element(begin(AICc), end(AICc)));
 		}
-			
+
 		assert(best != UNKNOWN_POS);
 
 		return info[best];
 	}
 
-	void reduce_vertice(CVectices& new_vertices, CRealArray& new_vertvals, CRealArray& new_slope, CRealArray& new_segment_mse)
+	void reduce_vertice(CVectices& new_vertices, CRealArray& new_vertvals, CRealArray& new_slope, CRealArray& new_segment_mse, REAL_TYPE distweightfactor)
 	{
 		assert(new_vertices.size() == new_vertvals.size());
 		assert(new_slope.size() == new_segment_mse.size());
@@ -326,7 +326,7 @@ namespace LTR
 
 		for (size_t i = 1; i < new_vertices.size() - 1; i++)
 		{
-			slope_ratios[i - 1] = angle_diff(convert(subset(new_vertices, i - 1, i + 1)), subset(new_vertvals, i - 1, i + 1), sc_yr, 2);
+			slope_ratios[i - 1] = angle_diff(convert(subset(new_vertices, i - 1, i + 1)), subset(new_vertvals, i - 1, i + 1), sc_yr, distweightfactor);
 		}
 
 		//find the vertex that has the least "bend"
@@ -380,6 +380,93 @@ namespace LTR
 		return tmp;
 	}
 
+	 
+		
+		
+
+	CBestModelInfo reintroduce_missing(const CBoolArray& goods, const CBestModelInfo& best_model_in, REAL_TYPE distweightfactor)
+	{
+
+		CBestModelInfo best_model = best_model_in;
+		//************************
+		//First, fill in the vertices. right now, the vertex values in the info structure are based
+		//  on the x values passed to the routine (the ones that have been
+		//  filtered), so we need to extend in case those first or last years are
+		//  missing for this pixel.
+		CVectices G = get_pos(goods);
+		best_model.vertices = G[best_model.vertices];
+
+
+
+		//front end
+		//all other up to the end: if the vertices is follow by missing, move to the next valid
+		//originally, I had extended the segment forward. But this causes
+		//  problems for disturbances that occur in year 3 (where year 1 has a cloud, year 2
+		//   is pre-disturbance, && year 3 is the disturbance).  In those cases
+		//   the disturbance is propagated back, doubling the intensity && shifting
+		//    the year back one.  Therefore, the safer thing to do is to just
+		//    add a new vertex in front, make it the same y-value.  For the
+		//    long disturbance or recovery situations, this shouldn't add too
+		//    much error, && it seems likely that they will get collapsed later
+		//The one hitch is if there are already 6 segments, so we have to
+		//   handle that
+
+		CVectices new_vertices = best_model.vertices;
+		CRealArray new_vertvals = best_model.vertvals;
+		CRealArray new_slope = best_model.slope;
+		CRealArray new_segment_mse = best_model.segment_mse;
+		CRealArray yfit = best_model.yfit;
+
+		//reintroduce all missing segments
+		for (size_t i = 0; i < goods.size(); i++)
+		{
+			if (!goods[i])
+			{
+				assert(new_vertices.size() == new_slope.size() + 1);
+
+				// Use std::lower_bound with raw pointers/begin/end to find first position
+				auto it = std::lower_bound(std::begin(new_vertices), std::end(new_vertices), i);
+				assert(*it != i);
+
+				size_t prev_i = max(0, int(i) - 1);
+
+				// Calculate position using pointer arithmetic
+				size_t ii = std::distance(std::begin(new_vertices), it);
+				size_t prev_ii = max(0, int(ii) - 1);
+				REAL_TYPE sign = ii == 0 ? -1.0 : 1.0;
+
+				new_vertices = insert(new_vertices, ii, i);
+				new_vertvals = insert(new_vertvals, ii, new_vertvals[prev_ii]);
+				//new_vertvals = insert(new_vertvals, ii, new_vertvals[prev_ii] + sign * new_slope[prev_ii]);
+
+				//yfit = insert(yfit, i, yfit[prev_i] + sign*new_slope[prev_ii]);
+				//new_vertvals = insert(new_vertvals, ii, yfit[i]);
+
+				new_slope = insert(new_slope, prev_ii, new_slope[prev_ii]);
+				//REAL_TYPE slope = new_vertvals[prev_ii] - new_vertvals[ii];
+				//new_slope = insert(new_slope, prev_ii, slope);
+				new_segment_mse = insert(new_segment_mse, prev_ii, ii >= 1 ? new_segment_mse[prev_ii] : 0.0);
+
+				reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse, 0.0);
+			}
+		}
+
+
+		//reduce the vertices up to the initial number of vertices
+		//while (new_vertices.size() > best_model.vertices.size())
+			//reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse, 0.0);
+			
+
+		//set best model to this new model
+		best_model.vertices = CVectices(new_vertices);
+		best_model.vertvals = CRealArray(new_vertvals);
+		best_model.slope = CRealArray(new_slope);
+		best_model.segment_mse = CRealArray(new_segment_mse);
+
+		return best_model;
+	}
+
+
 	//size_t find_next(size_t start_index, const CBoolArray& goods)
 	//{
 	//	size_t next = -1;
@@ -399,7 +486,7 @@ namespace LTR
 
 	CBestModelInfo tbcd_v2(const CRealArray& all_x, const CRealArray& all_y, const CBoolArray& goods,
 		size_t max_count, REAL_TYPE pval, REAL_TYPE recovery_threshold,
-		REAL_TYPE distweightfactor, size_t vertexcountovershoot, REAL_TYPE bestmodelproportion, 
+		REAL_TYPE distweightfactor, size_t vertexcountovershoot, REAL_TYPE bestmodelproportion,
 		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority)
 	{
 		assert(all_x.size() == goods.size());
@@ -417,11 +504,10 @@ namespace LTR
 		//*********************************
 		//FIND ALL POTENTIAL VERTICES FIRST
 		//
-		//given a series of vals y, find the logical segments of
+		//given a series of values y, find the logical segments of
 		//  straight lines.  Use the actual values of the
 		//  curve for the fits
 
-		//CVectices v1 = find_vertices(x, y, max_count + vertexcountovershoot, distweightfactor);//MAKE INTO A PARAMETER
 		CVectices v1 = find_vertices(x, y, max_count + vertexcountovershoot, distweightfactor);
 		const CVectices v = vet_verts3(x, y, v1, max_count, distweightfactor);
 
@@ -495,112 +581,11 @@ namespace LTR
 
 		//**************************************************************
 		//Calculate the MSE of each segment, for use in masking ag later
-
-		//assert(best != -1);
 		best_model.segment_mse = score_segments(x, y, best_model.vertices);
 
 		if (all_x.size() != x.size())
 		{
-			//************************
-			//First, fill in the vertices. right now, the vertex values in the info structure are based
-			//  on the x values passed to the routine (the ones that have been
-			//  filtered), so we need to extend in case those first or last years are
-			//  missing for this pixel.
-			CVectices G = get_pos(goods);
-			best_model.vertices = G[best_model.vertices];
-
-
-
-			//front end
-			//all other up to the end: if the vertices is follow by missing, move to the next valid
-			//originally, I had extended the segment forward. But this causes
-			//  problems for disturbances that occur in year 3 (where year 1 has a cloud, year 2
-			//   is pre-disturbance, && year 3 is the disturbance).  In those cases
-			//   the disturbance is propagated back, doubling the intensity && shifting
-			//    the year back one.  Therefore, the safer thing to do is to just
-			//    add a new vertex in front, make it the same y-value.  For the
-			//    long disturbance or recovery situations, this shouldn't add too
-			//    much error, && it seems likely that they will get collapsed later
-			//The one hitch is if there are already 6 segments, so we have to
-			//   handle that
-
-			assert(goods.size() == all_x.size());
-			//for (size_t i = 0; i < all_x.size(); i++)
-			//{
-			//	if (!goods[i])
-			//	{
-			//		assert(best_model.vertices.size() == best_model.slope.size() + 1);
-
-			//		// Use std::lower_bound with raw pointers/begin/end to find first position
-			//		auto it = std::lower_bound(std::begin(best_model.vertices), std::end(best_model.vertices), i);
-			//		assert(*it != i);
-
-			//		// Calculate position using pointer arithmetic
-			//		size_t ii = std::distance(std::begin(best_model.vertices), it);
-			//		size_t prev_ii = max(0, int(ii) - 1);
-
-			//		CVectices new_vertices = insert(best_model.vertices, ii, i);
-			//		CRealArray new_vertvals = insert(best_model.vertvals, ii, best_model.vertvals[prev_ii]);
-			//		CRealArray new_slope = insert(best_model.slope, prev_ii, 0);
-			//		CRealArray new_segment_mse = insert(best_model.segment_mse, prev_ii, 0);
-
-			//		//Assuming on
-			//		//if (new_vertices.size() > max_count)
-			//			reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse);
-
-			//		best_model.vertices = CVectices(new_vertices);
-			//		best_model.vertvals = CRealArray(new_vertvals);
-			//		best_model.slope = CRealArray(new_slope);
-			//		best_model.segment_mse = CRealArray(new_segment_mse);
-
-			//	}
-			//}
-
-
-			//reintroduce all missing segments
-			CVectices new_vertices = best_model.vertices;
-			CRealArray new_vertvals = best_model.vertvals;
-			CRealArray new_slope = best_model.slope;
-			CRealArray new_segment_mse = best_model.segment_mse;
-			CRealArray yfit = best_model.yfit;
-
-			for (size_t i = 0; i < all_x.size(); i++)
-			{
-				if (!goods[i])
-				{
-					assert(new_vertices.size() == new_slope.size() + 1);
-
-					// Use std::lower_bound with raw pointers/begin/end to find first position
-					auto it = std::lower_bound(std::begin(new_vertices), std::end(new_vertices), i);
-					assert(*it != i);
-
-
-					// Calculate position using pointer arithmetic
-					size_t ii = std::distance(std::begin(new_vertices), it);
-					size_t prev_ii = max(0, int(ii) - 1);
-					//size_t prev_iii = max(0, int(prev_ii) - 1);
-					//REAL_TYPE new_val = yfit[i];
-
-					new_vertices = insert(new_vertices, ii, i);
-					new_vertvals = insert(new_vertvals, ii, new_vertvals[prev_ii] );
-					//new_vertvals = insert(new_vertvals, ii, ii<=1?new_vertvals[prev_ii]:yfit[i]);
-					//new_vertvals = insert(new_vertvals, ii, yfit[i]);
-					yfit = insert(yfit, i, yfit[i]);
-					//new_slope = insert(new_slope, prev_ii, ii>=1?new_slope[prev_ii]:0.0);
-					new_slope = insert(new_slope, prev_ii, 0.0);
-					new_segment_mse = insert(new_segment_mse, prev_ii, ii >= 1 ? new_segment_mse[prev_ii] : 0.0);
-				}
-			}
-
-			//reduce the vertices up to the initial number of vertices
-			while (new_vertices.size() > best_model.vertices.size())
-				reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse);
-
-			//set best model to this new model
-			best_model.vertices = CVectices(new_vertices);
-			best_model.vertvals = CRealArray(new_vertvals);
-			best_model.slope = CRealArray(new_slope);
-			best_model.segment_mse = CRealArray(new_segment_mse);
+			best_model = reintroduce_missing(goods, best_model, distweightfactor);
 		}
 
 		if (best_model.m_stat.p_of_f <= pval)
@@ -611,9 +596,9 @@ namespace LTR
 
 
 			//should be able to use "fill_from_vertices"
-			//   need to pass the allyears, but that needs to be in
-			//    the same year units as the x vals, so that means that I need
-			//    to subtract the min of the allyears from both.
+			//   need to pass the all years, but that needs to be in
+			//    the same year units as the x values, so that means that I need
+			//    to subtract the min of the all years from both.
 			//
 
 			CFillFromVertices ok = fill_from_vertices(all_x, best_model.vertices, best_model.vertvals);
