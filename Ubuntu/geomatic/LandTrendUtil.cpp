@@ -107,8 +107,8 @@ namespace LTR
 
 		//distweightfactor helps determine how much weight is given to angles
 		//  that precede a disturbance.  If set to 0, the angle difference is passed straight on.
-		if (distweightfactor == 0)
-			distweightfactor = 2;
+		//if (distweightfactor == 0)
+			//distweightfactor = 2;
 
 
 		//get the slope of the prior to current points
@@ -532,7 +532,8 @@ namespace LTR
 
 				bool endsegment = s == (mses.size() - 1);
 				bool firstsegment = (s == 0);
-				bool disttest = distweightfactor != 0;//just use distweightfactor to determine if disturbance should be considered at edge
+				//Always considere disturbance at edge. RSA 2026-05-13
+				bool disttest = false;// distweightfactor != 0;//just use distweightfactor to determine if disturbance should be considered at edge
 
 				CRealArray xx = subset(x, vertices[s], vertices[s + 1]);
 				CRealArray yy = subset(y, vertices[s], vertices[s + 1]);
@@ -963,7 +964,7 @@ namespace LTR
 			});
 
 
-		size_t pos = 0;
+		size_t pos = 0;//MAX_SEGMENT by default
 		if (priority == MEDIAN_SEGMENT)
 			pos = size_t((statistic.size() - 1) / 2.0);
 		else if (priority == MIN_SEGMENT)

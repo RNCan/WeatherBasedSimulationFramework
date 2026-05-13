@@ -34,7 +34,7 @@ public:
     size_t m_max_segments;
     double m_desawtooth_val;
     LTR::TFitMethod m_fit_method;
-    LTR::TStatistic m_stat;
+    LTR::TStatistic m_pick_best_by;
     LTR::TPickBestPriority m_priority;
     int m_modifier;
 
