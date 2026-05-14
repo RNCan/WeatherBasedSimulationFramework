@@ -874,8 +874,8 @@ namespace WBSF
 									X[z] = REAL_TYPE(z);
 									Y[z] = data[z];
 
-									//replace Y when the is not enough valid value and vertices is missing
-									if (!goods[z] && m_options.m_bFillMissing)//&& (z == V).max()
+									//replace Y when vertices is missing
+									if (!goods[z] && m_options.m_bFillMissing)
 									{
 										//always find a good value here
 										size_t zz = z;
@@ -919,11 +919,10 @@ namespace WBSF
 
 										//******
 										//Interpolation method1
-										//assert(i != 0);
-										if (i != 0)
-											yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i] - 1];
-										else
-											yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i]]; //DataType(m_options.m_dstNodata);//DataType(m_options.m_dstNodata);
+										//if (i != 0)
+											//yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i] - 1];
+										//else
+										yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i]];
 
 									}
 
@@ -936,11 +935,8 @@ namespace WBSF
 
 								for (size_t z = 0; z < Y.size(); z++)
 								{
-									//double no_data = DataType(m_options.m_dstNodata);
-
 									m_extract_data[extract_point][z][PE_INPUT_INDICE] = data[z];
 									m_extract_data[extract_point][z][PE_DESAWTOOTH_INDICE] = Ydesawtouth[z];
-
 									m_extract_data[extract_point][z][PE_FIT_INDICE] = result.yfit[z];
 									m_extract_data[extract_point][z][PE_OUTPUT_INDICE1] = yfit1[z];
 								}
@@ -958,22 +954,16 @@ namespace WBSF
 
 								for (size_t z = 0; z < block_data.size(); z++)
 								{
-
 									X[z] = REAL_TYPE(z);
-									//Y[z] = block_data.GetPixelMedian(z, z, x, y, (int)m_options.m_rings)[s];
-									//here band no is converted in band no
 									Y[z] = block_data.GetPixelIndice(z, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
 
 									//update z because window pixel can be good
 									goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
 
-
-									//replace Y when the is not enough valid value and vertices is missing
-									if (!goods[z] && m_options.m_bFillMissing)//&& (z == V).max()
+									//replace Y when vertices is missing
+									if (!goods[z] && m_options.m_bFillMissing)
 									{
 										size_t zz = z;
-
-										//We don't fill missing value to send to LandTrend, only take it in the regression part
 										if (zz < first_valid)
 											zz = first_valid;
 
@@ -983,7 +973,7 @@ namespace WBSF
 										if (zz > first_valid && zz < last_valid)
 											zz = GetPrevious(x, y, zz, block_data);
 
-										Y[z] = block_data.GetPixelIndice(z, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
+										Y[z] = block_data.GetPixelIndice(zz, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
 										goods[z] = fabs(Y[z] - CLandsatPixel::GetLandsatNoData()) > 0.1;
 									}
 
@@ -1022,13 +1012,11 @@ namespace WBSF
 									}
 									else
 									{
-										//assert(i != 0);
-
 										//if only one point, take last y-fit
-										if (i != 0)
-											yfit[get_slice(V[i], V[i + 1])] = yfit[V[i] - 1];
-										else
-											yfit[get_slice(V[i], V[i + 1])] = yfit[V[i]]; //DataType(m_options.m_dstNodata);
+										//if (i != 0)
+											//yfit[get_slice(V[i], V[i + 1])] = yfit[V[i] - 1];
+										//else
+										yfit[get_slice(V[i], V[i + 1])] = yfit[V[i]];
 
 
 										if (extract_point != NOT_INIT)
