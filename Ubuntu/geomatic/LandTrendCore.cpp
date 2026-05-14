@@ -219,7 +219,7 @@ namespace LTR
 			info[i].vertvals = best_fit.vertvals;
 			info[i].yfit = best_fit.yfit;	//added [0:n_obs-1] 2/29 to allow for space in
 			info[i].slope = best_fit.slopes;
-
+			info[i].segment_mse = score_segments(x, y, info[i].vertices);
 
 			//compute next step
 			if (i < info.size() - 1)//don't compute the last one
@@ -227,7 +227,6 @@ namespace LTR
 				CTakeOutWeakest2 rr = take_out_weakest2(info[i], recovery_threshold, x, y, v, best_fit.vertvals);
 				v = rr.v;
 			}
-
 		}
 
 		return info;
@@ -380,9 +379,9 @@ namespace LTR
 		return tmp;
 	}
 
-	 
-		
-		
+
+
+
 
 	CBestModelInfo reintroduce_missing(const CBoolArray& goods, const CBestModelInfo& best_model_in, REAL_TYPE distweightfactor)
 	{
@@ -420,6 +419,7 @@ namespace LTR
 		//reintroduce all missing segments
 		for (size_t i = 0; i < goods.size(); i++)
 		{
+			//if ((i==0&&!goods[i]) || (i == goods.size()-1 && !goods[i]))
 			if (!goods[i])
 			{
 				assert(new_vertices.size() == new_slope.size() + 1);
@@ -434,18 +434,25 @@ namespace LTR
 				size_t ii = std::distance(std::begin(new_vertices), it);
 				size_t prev_ii = max(0, int(ii) - 1);
 				REAL_TYPE sign = ii == 0 ? -1.0 : 1.0;
+				REAL_TYPE slope = (ii > 0 && prev_ii < new_slope.size()) ? new_slope[prev_ii] : 0.0;
+				REAL_TYPE new_yfit = yfit[prev_i] + sign * slope;
+				REAL_TYPE mse = (ii > 0 && prev_ii < new_slope.size()) ? new_segment_mse[prev_ii] : 0.0;
+
+				//We used the last vertvals when we introduce a value directly after a break
+				//Otherwise, we used the fit value.
+
+				REAL_TYPE val1 = new_vertvals[prev_ii];
+				REAL_TYPE val2 = new_yfit;
+				bool b_take_val1 = (i - new_vertices[prev_ii] == 1);
+				REAL_TYPE new_val = b_take_val1 ? val1 : val2;
+
+
 
 				new_vertices = insert(new_vertices, ii, i);
-				new_vertvals = insert(new_vertvals, ii, new_vertvals[prev_ii]);
-				//new_vertvals = insert(new_vertvals, ii, new_vertvals[prev_ii] + sign * new_slope[prev_ii]);
-
-				//yfit = insert(yfit, i, yfit[prev_i] + sign*new_slope[prev_ii]);
-				//new_vertvals = insert(new_vertvals, ii, yfit[i]);
-
-				new_slope = insert(new_slope, prev_ii, new_slope[prev_ii]);
-				//REAL_TYPE slope = new_vertvals[prev_ii] - new_vertvals[ii];
-				//new_slope = insert(new_slope, prev_ii, slope);
-				new_segment_mse = insert(new_segment_mse, prev_ii, ii >= 1 ? new_segment_mse[prev_ii] : 0.0);
+				new_vertvals = insert(new_vertvals, ii, new_val);
+				new_slope = insert(new_slope, prev_ii, slope);
+				new_segment_mse = insert(new_segment_mse, prev_ii, mse);
+				yfit = insert(yfit, i, new_yfit);
 
 				reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse, 0.0);
 			}
@@ -455,13 +462,14 @@ namespace LTR
 		//reduce the vertices up to the initial number of vertices
 		//while (new_vertices.size() > best_model.vertices.size())
 			//reduce_vertice(new_vertices, new_vertvals, new_slope, new_segment_mse, 0.0);
-			
+
 
 		//set best model to this new model
 		best_model.vertices = CVectices(new_vertices);
 		best_model.vertvals = CRealArray(new_vertvals);
 		best_model.slope = CRealArray(new_slope);
 		best_model.segment_mse = CRealArray(new_segment_mse);
+		best_model.yfit = CRealArray(yfit);
 
 		return best_model;
 	}
@@ -536,13 +544,12 @@ namespace LTR
 		//    next vertex.  This forces the sequence in order
 		//    from left to right (oldest to newest).
 
-		vector < CBestModelInfo > info;
+		vector < CBestModelInfo > all_models;
 
 		if (fit_method == FIT_EARLY_TO_LATE)
-			info = get_all_model(x, y, v, recovery_threshold, FIT_EARLY_TO_LATE);
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_EARLY_TO_LATE);
 		else
-			info = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
-
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
 
 		//************************************
 		//PICK THE BEST ONE
@@ -559,50 +566,56 @@ namespace LTR
 		//   running tbcd, so this recovery criterion will
 		//   be applied appropriately.
 
-		best_model = pick_best(info, pval, bestmodelproportion/*, recovery_threshold*/, stat, priority);
+		best_model = pick_best(all_models, pval, bestmodelproportion, stat, priority);
 
 
 		//*******************************
-		//IF NO GOOD FIT FOUND, TRY THE MPFIT APPROACH
+		//If no good fit found, try the mpfit approach
 		if (fit_method == FIT_EARLY_TO_LATE && best_model.m_stat.p_of_f > pval)
 		{
 			//*********
 			//Find the best fit using the marquardt approach (F7)
 
 			//************************************
-			//FIND BEST TRACE WITH ALL THOSE VERTICES
-			info = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
+			//Find best trace with all those vertices
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
 
 			//************************************
-			//PICK THE BEST ONE
-			best_model = pick_best(info, pval, bestmodelproportion/*, recovery_threshold*/, stat, priority);
-
-		} // doing F7 if F6 didn't work
-
-		//**************************************************************
-		//Calculate the MSE of each segment, for use in masking ag later
-		best_model.segment_mse = score_segments(x, y, best_model.vertices);
-
-		if (all_x.size() != x.size())
-		{
-			best_model = reintroduce_missing(goods, best_model, distweightfactor);
+			//Pick the best one
+			best_model = pick_best(all_models, pval, bestmodelproportion, stat, priority);
 		}
+
+
 
 		if (best_model.m_stat.p_of_f <= pval)
 		{
-			//***********************
-			//Now fill in the yfit values for the "allyears" range, to get a
-			//  true yfit even for years that were missing from this pixel
+			if (all_x.size() != x.size())
+			{
+				best_model = reintroduce_missing(goods, best_model, distweightfactor);
+
+				//***********************
+				//Now fill in the yfit values for the "allyears" range, to get a
+				//  true yfit even for years that were missing from this pixel
 
 
-			//should be able to use "fill_from_vertices"
-			//   need to pass the all years, but that needs to be in
-			//    the same year units as the x values, so that means that I need
-			//    to subtract the min of the all years from both.
-			//
+				//should be able to use "fill_from_vertices"
+				//   need to pass the all years, but that needs to be in
+				//    the same year units as the x values, so that means that I need
+				//    to subtract the min of the all years from both.
+				//
 
-			CFillFromVertices ok = fill_from_vertices(all_x, best_model.vertices, best_model.vertvals);
-			best_model.yfit = ok.yfit;
+				CFillFromVertices ok = fill_from_vertices(all_x, best_model.vertices, best_model.vertvals);
+				//assert(best_model.yfit == ok.yfit);
+				/*for (size_t i = 0; i < best_model.yfit.size(); i++)
+				{
+					double diff = std::abs(best_model.yfit[i] - ok.yfit[i]);
+					assert(diff<0.001);
+				}
+				*/
+				best_model.yfit = ok.yfit;
+			}
+
+
 		}
 		else
 		{

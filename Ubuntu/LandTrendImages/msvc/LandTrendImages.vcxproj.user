@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-NoResult -ExtractPoint 1142826 7359148 -FirstYear 1984 -of VRT  -overwrite -co "COMPRESS=LZW" ".\Input\HARM_BP.vrt" ".\output\HARM_BP1.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-WindowIndice 1.5 -BestModelProportion 0.85 -NoResult -ExtractPoint 1212102 7245755 -FirstYear 1984 -of VRT  -overwrite -co "COMPRESS=LZW" ".\Input\HARM_BP.vrt" ".\output\HARM_BP1.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\Travaux\Landsat\trblshoot_Subset_feu1989</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>D:\Travaux\Landsat\trblshoot_Subset_feu2023</LocalDebuggerWorkingDirectory>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-NoResult -ExtractPoint 1142826 7359148 -FirstYear 1984 -of VRT  -overwrite -co "COMPRESS=LZW" ".\Input\HARM_BP.vrt" ".\output\HARM_BP1.vrt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-WindowIndice 1.5 -BestModelProportion 0.85 -NoResult -ExtractPoint 1212102 7245755 -FirstYear 1984 -of VRT  -overwrite -co "COMPRESS=LZW" ".\Input\HARM_BP.vrt" ".\output\HARM_BP1.vrt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\Travaux\Landsat\trblshoot_Subset_feu1989</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>D:\Travaux\Landsat\trblshoot_Subset_feu2023</LocalDebuggerWorkingDirectory>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>

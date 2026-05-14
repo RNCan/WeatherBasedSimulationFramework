@@ -91,8 +91,8 @@ namespace LTR
 
 		return priority;
 	}
-	
-	
+
+
 
 
 	REAL_TYPE angle_diff(const CRealArray& xcoords, const CRealArray& ycoords, REAL_TYPE yrange, REAL_TYPE distweightfactor)
@@ -882,74 +882,45 @@ namespace LTR
 		if (statistic.empty())
 			return -1;
 
-		if (bestmodelproportion <= 0.0 && stat!= FISHER)
-		{
-			std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)
-			{
-				return a.second <= b.second;//return the model with more vertices
-			});
-		
-			return statistic.begin()->second;
-		}
-
 		std::sort(statistic.begin(), statistic.end());
+		//REAL_TYPE mn = max(1e-12,statistic.begin()->first);
 
-		//return the best model
-		if (bestmodelproportion >= 1.0)
-			return (stat == TStatistic::R2 || stat == TStatistic::ANOVA) ? statistic.rbegin()->second : statistic.begin()->second;
-
-		
-
-		std::vector < pair<REAL_TYPE, size_t>> statistic2;// = statistic;
-
-		//double bestmodelproportion2 = bestmodelproportion;
-		double stepSize = (1.0 - bestmodelproportion);   // How fast it converges (0.1 = 10% per step)
-
-		//for (size_t i=0; i<10&& statistic.size()>2; i++)
-		//while (statistic.size() > 3 && bestmodelproportion < 0.9999)
+		REAL_TYPE mn = statistic.begin()->first;
+		REAL_TYPE mx = statistic.rbegin()->first;
+		size_t pos_rg = size_t((1.0 - bestmodelproportion) * (statistic.size() - 1));
+		REAL_TYPE rg = statistic[pos_rg].first - mn;
+		//eliminate all not enough good model
+		for (auto it = statistic.begin(); it != statistic.end(); )
 		{
-			statistic2 = statistic;
+			bool keep_it = true;
 
 
-
-			REAL_TYPE mn = max(1e-12,statistic.begin()->first);
-			REAL_TYPE mx = statistic.rbegin()->first;
-			//eliminate all not enough good model
-			for (auto it = statistic.begin(); it != statistic.end(); )
+			if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
 			{
-				bool keep_it = true;
+				//REAL_TYPE limit = bestmodelproportion * mx;
+				REAL_TYPE limit = mn + bestmodelproportion * (mx - mn);
+				keep_it = it->first >= limit;
+			}
+			else if (stat == TStatistic::FISHER)
+			{
+				//REAL_TYPE limit = (2 - bestmodelproportion) * mn;
+				REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
+				keep_it = it->first <= limit;
+			}
+			else if (stat == TStatistic::AICC)
+			{
+				REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
+				keep_it = it->first <= limit;
 
-
-				if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
-				{
-					REAL_TYPE limit = bestmodelproportion * mx;
-					keep_it = it->first >= limit;
-				}
-				else if (stat == TStatistic::FISHER)
-				{
-					REAL_TYPE limit = (2 - bestmodelproportion) * mn;
-					keep_it = it->first <= limit;
-				}
-				else if (stat == TStatistic::AICC)
-				{
-					keep_it = (it->first - mn) <= 10 * (1-bestmodelproportion);
-				}
-
-				if (keep_it)
-					it++;
-				else
-					it = statistic.erase(it);
-
+				//keep_it = (it->first - mn) <= 10 * (1 - bestmodelproportion);
 			}
 
+			if (keep_it)
+				it++;
+			else
+				it = statistic.erase(it);
 
-			// Loop until the value is very close to 1
-			//	value = value + (target - value) * stepSize;
-			bestmodelproportion += (1.0 - bestmodelproportion) * stepSize;
 		}
-
-		if (statistic.empty())
-			statistic = statistic2;
 
 		assert(!statistic.empty());
 		if (statistic.empty())
@@ -960,7 +931,6 @@ namespace LTR
 		std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)
 			{
 				return a.second < b.second;//return the model with more vertices
-				//return a.second >= b.second; //return model with less vertices
 			});
 
 
