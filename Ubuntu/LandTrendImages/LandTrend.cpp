@@ -90,7 +90,7 @@ namespace WBSF
 		m_minneeded = 3;
 		m_pval = 0.1;
 		m_recovery_threshold = 0.25;
-		m_distweightfactor = 0; //(0 or 2): Humm! 2 seem to give strange result when recovery at the end
+		m_distweightfactor = 2;
 		m_vertexcountovershoot = 3;
 		m_bestmodelproportion = 0.65;
 		m_max_segments = 9;
@@ -125,7 +125,7 @@ namespace WBSF
 			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
 			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
 			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
-			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 0 by default."},
+			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
 			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
 			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MEDIAN by default."},
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen. Lower value will reduce number of segments and higher value will increase number of segments. 0.65 by default."},
