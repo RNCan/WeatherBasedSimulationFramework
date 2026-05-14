@@ -3,7 +3,9 @@
 //
 //***********************************************************************
 // version
-// 1.2.3	13/05/2026	Rémi Saint_Amant	Add DisturbWeightFactor as options
+// 1.2.4	14/05/2026	Rémi Saint_Amant	Add -FillMising options
+//											Modification in the BestModelProportion. Range are take into account.
+// 1.2.3	13/05/2026	Rémi Saint_Amant	Add DisturbWeightFactor options
 //											Don't use DisturbWeightFactor when reintroducing missing
 // 											-m_vertexcountovershoot 5 --> 3;
 //											-m_pick_best_by UICc --> FISHER;
@@ -76,7 +78,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.3";
+	const char* CLandTrend::VERSION = "1.2.4";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -123,10 +125,10 @@ namespace WBSF
 			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
 			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
 			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
-			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
+			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 0 by default."},
 			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
 			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MEDIAN by default."},
-			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model. 0.65 by default."},
+			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen. Lower value will reduce number of segments and higher value will increase number of segments. 0.65 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 3 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
@@ -134,7 +136,7 @@ namespace WBSF
 			{ "-WindowIndice", 1, "radius", false, "Compute mean/median around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). Add letter d for median instead of mean. For example -WindowIndice 3d. 3 (5 x 5) by default." },
 			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. 1 (1 x 1) by default." },
 			{ "-ExtractPoint", 2, "X Y", true, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
-			//{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
+			{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
@@ -186,26 +188,39 @@ namespace WBSF
 		if (IsEqual(argv[i], "-MaxSegments"))
 		{
 			m_max_segments = atoi(argv[++i]);
+			if (m_max_segments < 2)
+				msg.ajoute("-MaxSegments must be greater then 2.");
+
 		}
 		else if (IsEqual(argv[i], "-SpikeThreshold"))
 		{
 			m_desawtooth_val = atof(argv[++i]);
+			if (m_desawtooth_val < 0 || m_desawtooth_val>1)
+				msg.ajoute("-SpikeThreshold must be between 0 and 1.");
 		}
 		else if (IsEqual(argv[i], "-VertexCountOvershoot"))
 		{
 			m_vertexcountovershoot = atoi(argv[++i]);
+			if (m_vertexcountovershoot < 0)
+				msg.ajoute("-VertexCountOvershoot must be greater then 0.");
 		}
 		else if (IsEqual(argv[i], "-RecoveryThreshold"))
 		{
 			m_recovery_threshold = atof(argv[++i]);
+			if (m_recovery_threshold < 0 || m_recovery_threshold>1)
+				msg.ajoute("-RecoveryThreshold must be between 0 and 1.");
 		}
 		else if (IsEqual(argv[i], "-pValThreshold"))
 		{
 			m_pval = atof(argv[++i]);
+			if (m_pval < 0 || m_pval >1)
+				msg.ajoute("-pValThreshold must be between 0 and 1.");
 		}
 		else if (IsEqual(argv[i], "-DisturbWeightFactor"))
 		{
 			m_distweightfactor = atof(argv[++i]);
+			if (m_distweightfactor < 0)
+				msg.ajoute("-DisturbWeightFactor must be greater than 0.");
 		}
 		else if (IsEqual(argv[i], "-PickBestBy"))
 		{
@@ -222,6 +237,8 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-BestModelProportion"))
 		{
 			m_bestmodelproportion = atof(argv[++i]);
+			if (m_bestmodelproportion < 0 || m_bestmodelproportion >1)
+				msg.ajoute("-BestModelProportion must be between 0 and 1.");
 		}
 		else if (IsEqual(argv[i], "-MinObservationsNeeded"))
 		{
@@ -811,6 +828,18 @@ namespace WBSF
 						for (size_t z = 0; z < size; z++)
 						{
 							size_t zz = z;
+							if (!goods[z] && m_options.m_bFillMissing)
+							{
+								//always find a good value here
+								if (zz < first_valid)
+									zz = first_valid;
+
+								if (zz > last_valid)
+									zz = last_valid;
+
+								if (zz > first_valid && zz < last_valid)
+									zz = GetPrevious(x, y, zz, block_data);
+							}
 
 							assert(bHave_any);
 							assert(!m_options.m_bDirect || indices.IsValid(zz, x, y) == block_data.IsValid(zz, x, y));
@@ -907,7 +936,7 @@ namespace WBSF
 
 								for (size_t z = 0; z < Y.size(); z++)
 								{
-									double no_data = DataType(m_options.m_dstNodata);
+									//double no_data = DataType(m_options.m_dstNodata);
 
 									m_extract_data[extract_point][z][PE_INPUT_INDICE] = data[z];
 									m_extract_data[extract_point][z][PE_DESAWTOOTH_INDICE] = Ydesawtouth[z];
