@@ -100,7 +100,43 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CCallcURL::copy_files(const std::string& URLs_file_path, const std::string& output_path, bool bShowCurl, size_t max_parallel)
+	{
+		ERMsg msg;
 
+
+		//string strHeaders = "-H \"Content-Type: application/x-www-form-urlencoded\"";
+		string argument = string(bShowCurl ? "" : "-s ") + "-k --ssl-no-revoke ";
+		if (m_timeout > 0)
+			argument += "--connect-timeout " + to_string(m_timeout) + " ";
+
+		if (max_parallel>1)
+			argument += "--parallel --parallel-immediate --parallel-max " + to_string(max_parallel) + " ";//
+
+			
+		argument += "-O --url \"@" + URLs_file_path + "\" --output-dir \"" + output_path + "\"";
+		//--max-time
+
+		string command = "\"" + m_exe_filepath + "\" " + argument;
+
+		//replace all backslash by slash
+		std::replace(command.begin(), command.end(), '\\', '/');
+
+
+
+
+		DWORD exit_code;
+		msg = WinExecWait(command, "", bShowCurl ? SW_SHOW : SW_HIDE, &exit_code);
+		if (exit_code != 0/* && !FileExists(output_filepath)*/)
+		{
+
+			msg.ajoute("Unable to download files' list:");
+			msg.ajoute(URLs_file_path);
+
+		}
+
+		return msg;
+	}
 
 	ERMsg CCallcURL::CallApp(const std::string& cmdline, std::string& str, DWORD BUFSIZE)
 	{

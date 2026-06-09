@@ -6,7 +6,7 @@
 #include "Basic/WeatherDatabase.h"
 #include "Basic/WeatherStation.h"
 #include "UI/Common/SYShowMessage.h"
-#include "Simulation/AdvancedNormalStation.h"
+#include "Basic/AdvancedNormalStation.h"
 
 
 #include "../resource.h"

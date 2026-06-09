@@ -256,8 +256,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,3,1,0
- PRODUCTVERSION 6,3,1,0
+ FILEVERSION 6,3,2,1
+ PRODUCTVERSION 6,3,2,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -274,21 +274,21 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Centre de Foresteries des Laurentides"
             VALUE "FileDescription", "Mise-à-jour des données météorologiques à partir d'internet"
-            VALUE "FileVersion", "6.3.1.0"
+            VALUE "FileVersion", "6.3.2.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "TéléchargeurMétéo"
-            VALUE "ProductVersion", "6.3.1.0"
+            VALUE "ProductVersion", "6.3.2.1"
         END
         BLOCK "100904b0"
         BEGIN
             VALUE "CompanyName", "Laurentian Forestry Center"
             VALUE "FileDescription", "Update weather data from internet"
-            VALUE "FileVersion", "6.3.1.0"
+            VALUE "FileVersion", "6.3.2.1"
             VALUE "InternalName", "WeatherUpdater.exe"
             VALUE "OriginalFilename", "WeatherUpdater.exe"
             VALUE "ProductName", "WeatherUpdater"
-            VALUE "ProductVersion", "6.3.1.0"
+            VALUE "ProductVersion", "6.3.2.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -697,7 +697,7 @@ BEGIN
     IDS_UPDATER_EC_PRCP_RADAR_P 
                             "Répertoire de travail|Produit|Intervale|Max heures"
     IDS_UPDATER_NOAA_GHCND_P 
-                            "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
+                            "Répertoire de travail|Type|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_GSOD_P "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Afficher progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Répertoire de travail|Première année|Dernière année|Pays|États (si États-Unis)|Provinces (si Canada)"
@@ -742,7 +742,7 @@ BEGIN
     IDS_UPDATER_HRRR_P      "Répertoire de travail|Produit|Sources|Type de serveur (si current)|Début archive (YYYY-MM-DD)|Fin archive (YYYY-MM-DD)|Afficher WinSCP (si FTP)|Télécharger précipitation|Mise à jour historique (jours)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Répertoire de travail|Produit|Sureface/3D|Variables|Prévision max (heures)|Supprimer après (jours)"
-    IDS_UPDATER_CMIP5_P     "Répertoire de travail|Télécharger les données|Créer les fichier Gribs|Première année|Dernière année|Fréquence|Modèle|SSP|MinLandWater|Afficher cURL"
+    IDS_UPDATER_CMIP5_P     "Répertoire de travail|Télécharger les données|Créer les fichier Gribs|Première année|Dernière année|Domaine|Modèle|SSP|Afficher cURL"
     IDS_UPDATER_GPCP_P      "Répertoire de travail|Type|Première année|Dernière année|cadre de sélection"
     IDS_UPDATER_RTMA_P      "Répertoire de travail|Produit"
     IDS_UPDATER_ERA5_P      "Répertoire de travail|Produit|Frequence|Première année|Dernière année|cadre de sélection|Afficher téléchargement"
@@ -789,7 +789,7 @@ BEGIN
     ID_TASK_EC_DAILY        "Télécharger les données quotidiennes d'Environnement Canada\nCanada quotidien"
     ID_TASK_EC_HOURLY       "Télécharger les données horaires d'Environnement Canada\nCanada horaire"
     ID_TASK_EC_FORECAST     "Télécharger les prévision d'Environnement Canada\nCanada prévision"
-    ID_TASK_NOAA_GHCND      "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN-Daily)"" via NOAA\nGHCN quotidien"
+    ID_TASK_NOAA_GHCND      "Télécharger les données quotidiennes ""Global Historical Climatology Network (GHCN)"" via NOAA\nGHCN"
     ID_TASK_NOAA_GSOD       "Télécharger les données quotidiennes ""Global Surface Of the Day (GSOD)"" via NOAA\nGSOD quotidien"
     ID_TASK_NOAA_ISD_LITE   "Télécharger les données horaires ""Integrated Surface Data (ISD-Lite)"" via NOAA\nISD-Lite horaire"
     ID_TASK_NOAA_FORECAST   "Télécharger les prévisions NOAA\nPrévision NOAA"
@@ -1205,7 +1205,7 @@ BEGIN
     IDS_UPDATER_EC_RADAR_P  "Working directory|Type|Radar|Composite|Prcp type|Background|Begin (if historical)|End (if historical)"
     IDS_UPDATER_EC_PRCP_RADAR_P "Working directory|Product|Period|Max hours"
     IDS_UPDATER_NOAA_GHCND_P 
-                            "Working directory|First year|Last year|Country|States (if USA)|Show progression"
+                            "Working directory|Type|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_GSOD_P "Working directory|First year|Last year|Country|States (if USA)|Show progression"
     IDS_UPDATER_NOAA_ISD_LITE_P 
                             "Working directory|First year|Last year|Country|States (if USA)|Provinces (if Canada)"
@@ -1250,7 +1250,7 @@ BEGIN
     IDS_UPDATER_HRRR_P      "Working directory|Product|Sources|Server Type (if current)|Archived start (YYYY-MM-DD)|Archived end (YYYY-MM-DD)|Show WinSCP (if FTP)|Download precipitation|Update historical (days)"
     IDS_UPDATER_GRIB_FORECAST_P 
                             "Working directory|Product|Surface/3D|Variables|Max forecast (hours)|Delete after (days)"
-    IDS_UPDATER_CMIP5_P     "Working directory|Download data|Create Grib files|First year|Last year|Frequency|Model|SSP|MinLandWater|Show cURL"
+    IDS_UPDATER_CMIP5_P     "Working directory|Download data|Create Grib files|First year|Last year|Domain|Model|SSP|Show cURL"
     IDS_UPDATER_GPCP_P      "Working directory|Type|First year|Last year|Bounding Box"
     IDS_UPDATER_RTMA_P      "Working directory|Product"
     IDS_UPDATER_ERA5_P      "Working directory|Product|Fequency|First year|Last year|Bounding Box|Show download"
@@ -1297,7 +1297,7 @@ BEGIN
     ID_TASK_EC_DAILY        "Download daily data from Environment Canada\nCanada Daily"
     ID_TASK_EC_HOURLY       "Download hourly data from Environment Canada\nCanada Hourly"
     ID_TASK_EC_FORECAST     "Download Environment Canada hourly forecast\nCanada Forecast"
-    ID_TASK_NOAA_GHCND      "Download Global Historical Climatology Network (GHCN) daily data via NOAA\nGHCN Daily"
+    ID_TASK_NOAA_GHCND      "Download Global Historical Climatology Network (GHCN) data via NOAA\nGHCN"
     ID_TASK_NOAA_GSOD       "Download Global Surface Summary Of the Day (GSOD) daily data via NOAA\nGSOD Daily"
     ID_TASK_NOAA_ISD_LITE   "Download Integrated Surface Data (ISD-Lite) hourly data via NOAA\nISD-Lite Hourly"
     ID_TASK_NOAA_FORECAST   "Download NOAA forecast\nNOAA Forecast"

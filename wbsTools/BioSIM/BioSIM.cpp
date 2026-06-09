@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
+// 11.9.1:20/05/2026	Rémi Saint-Amant	Bug correction development rate fit when using mean+sd+n
 // 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin. 
 //											Bug correction in Google Drive download (again).
 //											Add export Normal Database from input analysis.
@@ -25,11 +26,11 @@
 // 11.8.8:26/05/2022	Rémi Saint-Amant	replace FTPTransfer by WinSCP
 // 11.8.7:22/02/2022	Rémi Saint-Amant	Don't trunk small value in simulated annealing
 //											Correction in InsectParametrisation for HOBO data
-//											Add Saint-Amant_2022 DevEq. Add avoid null dev. 
+//											Add Saint-Amant_2022 DevEq. Add avoid null development. 
 //											Code optimization of InsecParam.
 // 11.8.6:02/02/2022	Rémi Saint-Amant	Add LimitMaxRate, add Boatman_2017, Change in default Tb and Tmax range.
 // 11.8.5:19/01/2022	Rémi Saint-Amant	Change in survival equation
-// 11.8.5:08/01/2022	Rémi Saint-Amant	Bug correction in Regniere 1982 and Regniere 1987 equation to avoid development under Tb.
+// 11.8.5:08/01/2022	Rémi Saint-Amant	Bug correction in Régnière 1982 and Régnière 1987 equation to avoid development under Tb.
 // 11.8.4:19/12/2021	Rémi Saint-Amant	Add set variation from model input 
 //											Add second reduction factor in SA and avoid observation reduction
 //											Add skip loops in Simulated Annealing
@@ -44,10 +45,10 @@
 //											Add oviposition curve fit
 // 11.7.1:04/02/2021	Rémi Saint-Amant	New parametrization of insect development time. Support likelihood and least square
 //											for individuals and mean+sd+n
-// 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Regniere 2012. Fitting development time and survival. 
+// 11.7.0:15/01/2021	Rémi Saint-Amant	Implementation of Régnière 2012. Fitting development time and survival. 
 //											Bug correction for variogram Cubic, Pentaspherical, Sine hole effect
 //											Change lower and upper bound and initial values for variogram Power
-//											Change in search radius in BobyQA (variagram)
+//											Change in search radius in BobyQA (variogram)
 //											Change in the StepWise for regression
 //											Add min/max/step options for variogram search
 // 11.6.8:13/07/2020	Rémi Saint-Amant	Bug correction in elevation web extraction
