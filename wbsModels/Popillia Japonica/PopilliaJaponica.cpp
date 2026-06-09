@@ -58,28 +58,13 @@ namespace WBSF
 		double L = 0.5 - CModelDistribution::get_cdf(TsoilAMJ, CModelDistribution::LOGISTIC, a1, a2);
 		m_r_snow = exp(F * L);
 
-
-		//double snow = GetStand()->m_snow;  
-		//double L = CModelDistribution::get_cdf(snow, CModelDistribution::LOGISTIC, a1, a2)-0.5;
-		//m_r_snow = exp(F * L);
-		
-
-
-		//double L = 0.5 - CModelDistribution::get_cdf(meanTsoil, CModelDistribution::GOMPERTZ1, a1, a2);
-		//m_r_snow = exp(F * L); //1/exp(-F * L);
-
-
-
 		m_diapause_status = 0;
 		m_diapause_RDR = Equations().GetRelativeDevRate(Equations().m_EOD[6]);
 
 		if (m_sex == FEMALE)
 			m_Fi = 50;
 
-
 		m_cooling_point = Equations().GetCoolingPoint();
-		//		m_Fi = (m_sex == FEMALE) ? Equations().GetFecondity() : 0;
-
 	}
 
 	CPopilliaJaponica& CPopilliaJaponica::operator=(const CPopilliaJaponica& in)
@@ -92,13 +77,9 @@ namespace WBSF
 			for (size_t s = 0; s < NB_STAGES; s++)
 				m_RDR[s] = Equations().GetRelativeDevRate(s);
 
-			//m_adult_emergence = in.m_adult_emergence;
-
 			m_EOD = in.m_EOD;
-			//m_ACC = in.m_ACC;
 			m_diapause_date = in.m_diapause_date;
 			m_diapause_status = in.m_diapause_status;
-			//m_diapauseCDD = in.m_diapauseCDD;
 			m_r_snow = in.m_r_snow;
 
 			m_reachDate = in.m_reachDate;
@@ -131,10 +112,7 @@ namespace WBSF
 
 
 		double nb_steps = (24.0 / timeStep);
-		//size_t h = weather.GetTRef().GetHour();
 		size_t s = GetStage();
-
-		//double T = weather[H_TAIR];
 
 		bool bInDiapause = (s == L3) && m_diapause_status < 1.0;
 
@@ -148,78 +126,29 @@ namespace WBSF
 				r *= m_diapause_RDR;
 				r *= m_r_snow;
 				m_diapause_status += r;
-
-
-
-				//if ( m_diapauseCDD >= GetStand()->m_CDD[d][0])
-				//{
-				//m_diapause_status = GetStand()->m_CDD[d][0] / m_diapauseCDD;
-				//	}
 			}
 		}
 		else
 		{
 
-			//Time step development rate
-			double r = Equations().GetDailyDevlopmentRate(s, Tsoil) / nb_steps;
+			//Daily development rate
+			double d_r = Equations().GetDailyDevlopmentRate(s, s == ADULT? Tair:Tsoil);
+			//Time step rate
+			double ts_r = d_r / nb_steps;
 
 			if(s==L3)
-				r *= m_r_snow;
-
-
-			if (s == ADULT)
-			{
-
-				r = Equations().GetDailyDevlopmentRate(s, Tair) / nb_steps;
-				//double a1 = Equations().m_other[SNDH_MU];
-				//double a2 = Equations().m_other[SNDH_S];
-				//double F = Equations().m_other[SNDH_F];
-				//double L = CModelDistribution::get_cdf(Tair, CModelDistribution::LOGISTIC, a1, a2) - 0.5;
-				//m_diapauseCDD = m_r_snow * Equations().GetEndOfDiapauseCDD();
-				//m_r_snow = exp(F * L);
-
-				//r *= m_r_snow;
-			}
+				ts_r *= m_r_snow;
 
 			//Relative development rate for this individual
-			double rr = m_RDR[s];
-			r *= rr;
+			double rdr = m_RDR[s];
+			double i_r = ts_r*rdr;
 
-			
-
-		
-
-
-			//correction factor
-			//double rrr = Equations().m_psy[s];
-			//r *= rrr;
 			ASSERT(floor(m_age + 1) - m_age >= 0 && floor(m_age + 1) - m_age <= 1);
-			r = min(r, floor(m_age + 1) - m_age);
-			ASSERT(r >= 0 && r <= 1);
+			i_r = min(i_r, floor(m_age + 1) - m_age);//do not let to pass the stage age????
+			ASSERT(i_r >= 0 && i_r <= 1);
 
 			//Adjust age
-			m_age += r;
-
-
-			/*if (s == ADULT)
-			{
-				if (IsDeadByAttrition(s, Tsoil, r))
-					m_bDeadByAttrition = true;
-			}*/
-
-
-			//if (m_sex == FEMALE && GetStage() >= ACTIVE_ADULT)
-			//{
-			//	double to = 0;
-			//	double t = timeStep / 24.0;
-			//	double λ = Equations().GetFecondityRate(GetAge(), weather[H_TAIR]);
-			//	double brood = m_Fi * (exp(-λ * (m_t - to)) - exp(-λ * (m_t + t - to)));
-
-			//	m_broods += brood;
-			//	m_totalBroods += brood;
-
-			//	m_t += t;
-			//}
+			m_age += i_r;
 		}
 	}
 
@@ -234,35 +163,14 @@ namespace WBSF
 	{
 		CIndividual::Live(weather);
 
-		//if (weather.GetTRef() < GetStand()->m_diapause_end || m_bInDiapause)
-		//	return;
-
-		//double a1 = Equations().m_other[SNDH_MU];
-		//double a2 = Equations().m_other[SNDH_S];
-		//double F = Equations().m_other[SNDH_F];
-		////double sndh = weather[H_SNDH][MEAN];
-		//double L = 0.5 - CModelDistribution::get_cdf(GetStand()->m_snow, CModelDistribution::LOGISTIC, a1, a2);
-		//double r_snow = exp(F * L); //1/exp(-F * L);
-
-
-		//double r_snow = 1/exp(-pow(sndh,a2)/a1);
-		//double r_snow = 1;
-
 		size_t DOY = weather.GetTRef().GetJDay();
 		size_t nbSteps = GetTimeStep().NbSteps();
 		for (size_t step = 0; step < nbSteps && IsAlive(); step++)
 		{
-
 			size_t h = step * GetTimeStep();
 			//Use soil temperature
-			//CHourlyData weather_soil;
-			//weather_soil[H_TAIR] = 
-			//double Tsoil = GetStand()->m_soil_temperature[DOY*24+h][0];
 			double Tsoil = GetStand()->m_soil_temperature[weather[h].GetTRef()][0];
 			Live(weather.GetTRef(), Tsoil, weather[h][H_TNTX], GetTimeStep());
-
-
-			//Live(weather[h], GetTimeStep());
 		}
 
 		if (weather.GetTRef() == m_creationDate || HasChangedStage())

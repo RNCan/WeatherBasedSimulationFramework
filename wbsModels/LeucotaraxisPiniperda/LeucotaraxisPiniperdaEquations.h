@@ -9,6 +9,8 @@
 
 
 
+#define LP_NB_GENERATION 2
+
 namespace WBSF
 {
 
