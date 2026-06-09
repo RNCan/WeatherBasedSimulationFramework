@@ -850,9 +850,13 @@ namespace LTR
 	}
 
 
-	size_t pick_best_model7(const vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority)
+	size_t pick_best_model7(const vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority_in)
 	{
 		assert(bestmodelproportion >= 0 && bestmodelproportion <= 1.0);
+
+		size_t nb_segments = size_t(priority_in / NB_PRIORITY);
+		size_t priority = size_t(priority_in % NB_PRIORITY);
+
 
 		std::vector<pair<REAL_TYPE, size_t>> statistic;
 
@@ -894,26 +898,25 @@ namespace LTR
 		{
 			bool keep_it = true;
 
+			if (nb_segments == 0)
+			{
+				if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
+				{
+					REAL_TYPE limit = mn + bestmodelproportion * (mx - mn);
+					keep_it = it->first >= limit;
+				}
+				else if (stat == TStatistic::FISHER || stat == TStatistic::AICC)
+				{
+					REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
+					keep_it = it->first <= limit;
+				}
+			}
+			else
+			{
+				size_t i = distance(statistic.begin(), it);
+				keep_it = i < nb_segments;
+			}
 
-			if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
-			{
-				//REAL_TYPE limit = bestmodelproportion * mx;
-				REAL_TYPE limit = mn + bestmodelproportion * (mx - mn);
-				keep_it = it->first >= limit;
-			}
-			else if (stat == TStatistic::FISHER)
-			{
-				//REAL_TYPE limit = (2 - bestmodelproportion) * mn;
-				REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
-				keep_it = it->first <= limit;
-			}
-			else if (stat == TStatistic::AICC)
-			{
-				REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
-				keep_it = it->first <= limit;
-
-				//keep_it = (it->first - mn) <= 10 * (1 - bestmodelproportion);
-			}
 
 			if (keep_it)
 				it++;
@@ -927,13 +930,13 @@ namespace LTR
 			return -1;//then stop;
 
 		//re-sort to get the lower indice (model with more vertices)
-		//pick the one with the most vertices
 		std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)
 			{
 				return a.second < b.second;//return the model with more vertices
 			});
 
 
+		//pick which one after priority
 		size_t pos = 0;//MAX_SEGMENT by default
 		if (priority == MEDIAN_SEGMENT)
 			pos = size_t((statistic.size() - 1) / 2.0);

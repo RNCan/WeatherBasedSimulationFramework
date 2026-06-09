@@ -527,7 +527,7 @@ namespace WBSF
 	//Hs:		Specific humidity						g(H²O)/kg(air) 
 	double Hs2Hr(double Tmin, double Tmax, double Hs)
 	{
-		_ASSERTE(Hs > 0);
+		_ASSERTE(Hs >= 0);
 
 		double Pv = Hs2Pv(Hs);
 		return Pv2Hr(Tmin, Tmax, Pv);
