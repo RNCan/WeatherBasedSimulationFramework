@@ -18,8 +18,8 @@
 #include "Basic/HourlyDatabase.h"
 #include "Basic/Shore.h"
 #include "Basic/WeatherDatabaseCreator.h"
+#include "Basic/AdvancedNormalStation.h"
 #include "FileManager/FileManager.h"
-#include "Simulation/AdvancedNormalStation.h"
 #include "Simulation/WGInputAnalysis.h"
 #include "Simulation/ExecutableFactory.h"
 #include "Simulation/WeatherGeneration.h"
@@ -43,7 +43,7 @@ namespace WBSF
 	//LOWEST, HIGHEST, , STAT_R² 
 	const size_t CWGInputAnalysis::STATISTICS[S_NB_STAT] = { NB_VALUE, MEAN_Y, MEAN_X, BIAS, MAE, RMSE, STAT_R² };
 	const char* CWGInputAnalysis::XML_FLAG = "WGInputAnalysis";
-	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName" };
+	const char* CWGInputAnalysis::MEMBERS_NAME[NB_MEMBERS_EX] = { "Kind", "ExportMatch", "MatchName", "ExportNormals", "NormlasName" };
 	const int CWGInputAnalysis::CLASS_NUMBER = CExecutableFactory::RegisterClass(CWGInputAnalysis::GetXMLFlag(), &CWGInputAnalysis::CreateObject);
 
 	static const char* CAT_ID[4] = { "T", "P", "H", "W" };
@@ -93,6 +93,9 @@ namespace WBSF
 		m_kind = MATCH_STATION_NORMALS;
 		m_bExportMatch = false;
 		m_matchName = "MatchStations.csv";
+		m_bExportNormal = false;
+		m_normalsName = "ExportNormals.NormalsDB";
+
 		m_name = "WGInputAnalysis";
 	}
 
@@ -110,6 +113,8 @@ namespace WBSF
 			m_kind = in.m_kind;
 			m_bExportMatch = in.m_bExportMatch;
 			m_matchName = in.m_matchName;
+			m_bExportNormal = in.m_bExportNormal;
+			m_normalsName = in.m_normalsName;
 		}
 
 		ASSERT(*this == in);
@@ -124,6 +129,8 @@ namespace WBSF
 		if (m_kind != in.m_kind)bEqual = false;
 		if (m_bExportMatch != in.m_bExportMatch)bEqual = false;
 		if (m_matchName != in.m_matchName)bEqual = false;
+		if (m_bExportNormal != in.m_bExportNormal)bEqual = false;
+		if (m_normalsName != in.m_normalsName)bEqual = false;
 
 		return bEqual;
 	}
@@ -462,8 +469,10 @@ namespace WBSF
 		if (msg && m_bExportMatch)
 		{
 			string filePath = fileManager.GetOutputPath() + m_matchName;
-			if (GetFileExtension(m_matchName).empty())
+			if (GetFileExtension(filePath).empty())
 				filePath += ".csv";
+
+			
 			msg += oFile.open(filePath);
 			if (msg)
 			{
@@ -1421,6 +1430,17 @@ namespace WBSF
 		CWeatherGenerator WGBase;
 		msg = InitDefaultWG(fileManager, WGBase, callback);
 
+		CNormalsDatabase normalsDB;
+		if (msg && m_bExportNormal)
+		{
+			string filePath = fileManager.GetOutputPath() + m_normalsName;
+			if (GetFileExtension(filePath).empty())
+				filePath += ".NormalsDB";
+
+			CNormalsDatabase::DeleteDatabase(filePath);
+			msg += normalsDB.Open(filePath);
+		}
+
 		if (!msg)
 			return msg;
 
@@ -1459,10 +1479,18 @@ namespace WBSF
 
 					resultDB.SetSection(l, section);
 					msg += callback.StepIt();
+
+					if (m_bExportNormal)
+						normalsDB.Add(simStation);
+						
 #pragma omp flush(msg)
 				}
 			}
 		}
+
+		if(m_bExportNormal)
+			normalsDB.Close();
+
 
 		return msg;
 	}
@@ -1798,7 +1826,8 @@ namespace WBSF
 		out[GetMemberName(KIND)](m_kind);
 		out[GetMemberName(EXPORT_MATCH)](m_bExportMatch);
 		out[GetMemberName(MATCH_NAME)](m_matchName);
-
+		out[GetMemberName(EXPORT_NORMALS)](m_bExportNormal);
+		out[GetMemberName(NORMALS_NAME)](m_normalsName);
 	}
 
 	bool CWGInputAnalysis::readStruc(const zen::XmlElement& input)
@@ -1808,7 +1837,8 @@ namespace WBSF
 		in[GetMemberName(KIND)](m_kind);
 		in[GetMemberName(EXPORT_MATCH)](m_bExportMatch);
 		in[GetMemberName(MATCH_NAME)](m_matchName);
-
+		in[GetMemberName(EXPORT_NORMALS)](m_bExportNormal);
+		in[GetMemberName(NORMALS_NAME)](m_normalsName);
 
 		return true;
 	}
