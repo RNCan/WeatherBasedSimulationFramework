@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 
 #include "UICMIP6.h"
-//#include "CMIP6.h"
 #include <boost\multi_array.hpp>
 #include "Basic/units.hpp"
 #include "Basic/Statistic.h"
@@ -826,20 +825,30 @@ namespace WBSF
 					msg = cURL.copy_files(URLs_file_path, output_path, as<bool>(SHOW_CURL), index.size());
 
 
-					//msg = cURL.copy_file(URL, output_filepath1, as<bool>(SHOW_CURL));
-					//if (msg)
+					//Convert it into GeoTiff
+					//for (size_t i = 0; i < index.size() && msg; i++)
 					//{
-					//	if (!GoodHDF(output_filepath1))
+					//	string filepath_in = output_path + index[i].m_info[CNEX_GDDP_CMIP6::I_FILE_NAME];
+					//	string filepath_out = filepath_in;
+					//	SetFileExtension(filepath_out, ".tif");
+
+					//	//gdalwarp -nomd -multi -wo NUM_THREADS=ALL_CPUS -co NUM_THREADS=ALL_CPUS 
+					//	// -of GTIFF -co NUM_THREADS=ALL_CPUS -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -overwrite -s_srs  "+proj=longlat +datum=WGS84 +pm=0 +lon_wrap=180"  -t_srs EPSG:4326 NETCDF:"F:\CMIP6(Daily)\NetCDF\CanESM5\historical\tasmin_day_CanESM5_historical_r1i1p1f1_gn_2014_v2.0.nc" "F:\CMIP6(Daily)\GeoTiff\CanESM5\historical\test3.tif"
+					//	string gdal_data_path = GetApplicationPath() + "gdal-data";
+					//	string projlib_path = GetApplicationPath() + "projlib";
+					//	string plugin_path = GetApplicationPath() + "gdalplugins";
+
+					//	string option = "--config GDAL_NUM_THREADS ALL_CPUS --config GDAL_CACHEMAX 4096 --config GDAL_NUM_THREADS ALL_CPUS --config GDAL_PAM_ENABLED NO --config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
+					//	string argument = "-ot Float32 -of GTIFF -co NUM_THREADS=ALL_CPUS -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+					//	string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " \"" + filepath_in + "\" \"" + filepath_out + "\"";
+					//	msg += WinExecWait(command, "", SW_SHOW);
+					//	if (msg && FileExists(filepath_out))
 					//	{
-					//		//msg.ajoute("Invalid NetCDF file:" + output_filepath1);
-					//		callback.AddMessage("Invalid NetCDF file:" + output_filepath1);
-					//		msg += RemoveFile(output_filepath1);
+					//		msg += RemoveFile(filepath_in);
 					//	}
+
 					//}
 
-
-					//msg += callback.StepIt();
-			//}
 
 
 
@@ -863,10 +872,19 @@ namespace WBSF
 		ERMsg msg;
 
 		CPLSetConfigOption("GDAL_CACHEMAX", "4096");
+		CPLSetConfigOption("GDAL_NUM_THREADS", "ALL_CPUS");
+		CPLSetConfigOption("GDAL_NUM_THREADS", "ALL_CPUS");
+		CPLSetConfigOption("GDAL_PAM_ENABLED", "NO");
 
+
+		string working_dir = GetDir(WORKING_DIR);
 		string model = Get(MODEL);
 		string ssp = Get(SSP);
-		bool bWorld = Get(GEO_DOMAIN)=="World";
+		bool bWorld = Get(GEO_DOMAIN) == "World";
+		int first_year = as<int>(FIRST_YEAR);
+		int last_year = as<int>(LAST_YEAR);
+		int nb_years = last_year - first_year + 1;
+
 
 		if (ssp == SSP_NAME[SSP_HISTORICAL])//no MMG for only historical
 		{
@@ -874,23 +892,20 @@ namespace WBSF
 			return msg;
 		}
 
+		msg += WBSF::CreateMultipleDir(GetPath(filepath));
+		if (!msg)
+			return msg;
 
-		string working_dir = GetDir(WORKING_DIR);
-		int first_year = as<int>(FIRST_YEAR);
-		int last_year = as<int>(LAST_YEAR);
-		int nb_years = last_year - first_year + 1;
 
 		//class member to put warning only once
 		m_bWarningMissingFeb29 = false;
 		m_bWarningFixed30DaysData = false;
 
-
-
 		CTPeriod valid_period = get_period(first_year, last_year);
-		string new_orog_filepath = working_dir + (bWorld?"orog_fx_gn.tif":"orog_Canada-USA.tif");
+		//string new_orog_filepath = GetApplicationPath() + "..\\Layers\\" + (bWorld ? "orog_fx_gn_World.tif" : "orog_fx_gn_Canada-USA.tif");
 
 		CBaseOptions options;
-		msg = GetMapOptions(new_orog_filepath, options);
+		msg = GetMapOptions(options);
 		options.m_nbBands = 12 * nb_years;
 
 		size_t nb_ssp = ssp.empty() ? NB_SSP - 1 : 1;
@@ -947,7 +962,7 @@ namespace WBSF
 						msg += callback.StepIt(0);
 					}
 
-					
+
 					if (msg)
 					{
 						string info_str = "Create MMG for " + ssp + " (" + to_string(nb_years) + " years)";
@@ -977,21 +992,19 @@ namespace WBSF
 
 								string filepath_out1 = MMG.GetFilePath(v);
 								string filepath_out2 = filepath_out1;
-								filepath_out2 = SetFileTitle(filepath_out2, GetFileTitle(filepath_out1)+"_tmp");
+								filepath_out2 = SetFileTitle(filepath_out2, GetFileTitle(filepath_out1) + "_tmp");
 								//for an unknown reason, the file is very big.
 								//convert it with gdal_translate.
 								string gdal_data_path = GetApplicationPath() + "gdal-data";
 								string projlib_path = GetApplicationPath() + "projlib";
 								string plugin_path = GetApplicationPath() + "gdalplugins";
-
-								options.m_createOptions.push_back("");
-								options.m_createOptions.push_back("");
-
+								
 								string option = "--config GDAL_NUM_THREADS ALL_CPUS --config GDAL_PAM_ENABLED NO --config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
-								string argument = "-ot Float32 -stats -co NUM_THREADS=ALL_CPUS -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=128 -co BLOCKYSIZE=128";
-								string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + option + " " + argument + " \"" + filepath_out1 + "\" \"" + filepath_out2 + "\"";
+								string argument = "-overwrite -ot Float32 -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+								string prj = "-s_srs \"+proj=longlat +datum=WGS84 +pm=0 +lon_wrap=180\" -t_srs EPSG:4326";
+								string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + option + " " + argument + " " + prj + " \"" + filepath_out1 + "\" \"" + filepath_out2 + "\"";
 								msg += WinExecWait(command);
-								if (msg && FileExists(filepath_out2) )
+								if (msg && FileExists(filepath_out2))
 								{
 									msg += RemoveFile(filepath_out1);
 									msg += RenameFile(filepath_out2, filepath_out1);
@@ -1043,50 +1056,48 @@ namespace WBSF
 			{
 				if (grid[f].IsOpen())
 				{
-
 					GDALRasterBand* pBand = grid[f].GetRasterBand(y * 12 + m);
 					pBand->RasterIO(GF_Write, 0, 0, grid[f].GetRasterXSize(), grid[f].GetRasterYSize(), &(data[m][f][0]), grid[f].GetRasterXSize(), grid[f].GetRasterYSize(), GDT_Float32, 0, 0);
-					//force writing data to disk.
-					//grid[f].FlushCache();
 				}
 
 				msg += callback.StepIt();
 			}//for all months
 		}//for all variables
+
 		callback.PopTask();
 		return msg;
 	}
 
 	string CUICMIP6::GetProjectionWKT() { return PRJ_WGS_84_WKT; }
 
-	ERMsg CUICMIP6::GetMapOptions(string orog_filepath, CBaseOptions& options)const
+	ERMsg CUICMIP6::GetMapOptions(CBaseOptions& options)const
 	{
 		ERMsg msg;
 
 
-		CGDALDatasetEx DS;
-		msg = DS.OpenInputImage(orog_filepath);
-		if (msg)
-		{
-			DS.UpdateOption(options);
-			options.m_dstNodata = -999;
-			options.m_outputType = GDT_Float32;
-			options.m_format = "GTIFF";
-			options.m_bOverwrite = true;
-			options.m_bComputeStats = false;
-			//options.m_overviewLevels = { { 2, 4, 8, 16 } };
-			options.m_createOptions.push_back("COMPRESS=LZW");
-			//options.m_createOptions.push_back("COMPRESS=ZSTD");
-			options.m_createOptions.push_back("PREDICTOR=3");
-			options.m_createOptions.push_back("TILED=YES");
-			options.m_createOptions.push_back("BLOCKXSIZE=128");
-			options.m_createOptions.push_back("BLOCKYSIZE=128");
-			options.m_createOptions.push_back("BIGTIFF=YES");
-			//options.m_createOptions.push_back("SPARSE_OK=TRUE");
-			
+		//CGDALDatasetEx DS;
+		//msg = DS.OpenInputImage(orog_filepath);
+		//if (msg)
+		//{
+			//DS.UpdateOption(options);
+		options.m_dstNodata = -999;
+		options.m_outputType = GDT_Float32;
+		options.m_format = "GTIFF";
+		options.m_bOverwrite = true;
+		options.m_bComputeStats = false;
+		options.m_extents = CGeoExtents(0, -60, 360, 90, 1440, 600, 256, 256, PRJ_WGS_84);
+		//options.m_overviewLevels = { { 2, 4, 8, 16 } };
+		//options.m_createOptions.push_back("COMPRESS=LZW");
+		options.m_createOptions.push_back("COMPRESS=ZSTD");
+		options.m_createOptions.push_back("PREDICTOR=3");
+		//options.m_createOptions.push_back("TILED=YES");
+		//options.m_createOptions.push_back("BLOCKXSIZE=256");
+		//options.m_createOptions.push_back("BLOCKYSIZE=256");
+		options.m_createOptions.push_back("BIGTIFF=YES");
+		options.m_createOptions.push_back("SPARSE_OK=TRUE");
+		options.m_createOptions.push_back("NUM_THREADS=ALL_CPUS");
 
-
-		}
+		//}
 
 		return msg;
 	}
@@ -1258,20 +1269,22 @@ namespace WBSF
 
 	//
 
-	ERMsg CUICMIP6::GetMMGForSSP(std::string model, std::string ssp, int year, const CGeoExtents& extents_in, CMonthlyVariableVector& dataOut, CCallback& callback)
+	ERMsg CUICMIP6::GetMMGForSSP(std::string model, std::string ssp, int year, const CGeoExtents& extents, CMonthlyVariableVector& dataOut, CCallback& callback)
 	{
 		ERMsg msg;
 
 
-		CGeoExtents original_extent(-180, -60, 180, 90, 1440, 600, 64, 64, PRJ_WGS_84);
-		bool b_Canada_USA = ((CGeoRect&)original_extent) != ((CGeoRect&)extents_in);
+		//CGeoExtents original_extent(-180, -60, 180, 90, 1440, 600, 64, 64, PRJ_WGS_84);
+		//bool b_Canada_USA = ((CGeoRect&)original_extent) != ((CGeoRect&)extents_in);
 
-		CGeoExtents extents = extents_in;
-		WBSF::Switch(original_extent.m_yMin, original_extent.m_yMax);
-		WBSF::Switch(extents.m_yMin, extents.m_yMax);
-		CGeoRectIndex geo_rect = original_extent.CoordToXYPos(extents);
-		if (b_Canada_USA)
-			geo_rect.m_x += original_extent.m_xSize / 2;
+		//CGeoExtents extents = extents_in;
+		//WBSF::Switch(original_extent.m_yMin, original_extent.m_yMax);
+		//WBSF::Switch(extents.m_yMin, extents.m_yMax);
+		CGeoRectIndex geo_rect = extents.CoordToXYPos(extents);
+
+
+		//if (b_Canada_USA)
+			//geo_rect.m_x += original_extent.m_xSize / 2;
 
 
 
@@ -1334,7 +1347,7 @@ namespace WBSF
 								if (TRef.GetMonth() == FEBRUARY && TRef.GetDay() == DAY_29)
 									leap_correction++;
 
-							
+
 						}
 						else
 						{
@@ -1383,7 +1396,7 @@ namespace WBSF
 						daily_data[d][v].resize(extents.m_ySize * extents.m_xSize);
 
 
-
+				std::vector<float> tmp_raw_data(extents.m_ySize * extents.m_xSize);
 				for (CTRef TRef = daily_period.Begin(); TRef <= daily_period.End() && TRef <= period.End() && msg; TRef++)
 				{
 
@@ -1430,30 +1443,38 @@ namespace WBSF
 							size_t first_lon = geo_rect.m_x;
 							size_t nbLat = geo_rect.m_ySize;
 							size_t nbLon = geo_rect.m_xSize;
-
-
-							/*if (x_min == -999)
-							{
-								NcVar& var_lon = ncFiles[v]->getVar("lon");
-								vector < double> x(nbLon);
-
-								var_lon.getVar({ first_lon }, { nbLon }, & (x[0]));
-								x_min = x.front();
-							}*/
-
-
+							
+							
 
 
 							vector<size_t> startp = { {dd, first_lat, first_lon } };
 							vector<size_t> countp = { { 1, nbLat, nbLon } };
 							NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
-							var.getVar(startp, countp, &(daily_data[d][v][0]));
+							
+							
+							var.getVar(startp, countp, &(tmp_raw_data[0]));
+							//var.getVar(startp, countp, &(raw_data[d][v][0]));
+							
+							for (size_t r = 0; r < nbLat; ++r) 
+							{
+								size_t srcRowIdx = (nbLat - 1 - r) * nbLon;
+								size_t destRowIdx = r * nbLon;
+
+								// Copy row and revert the Y mapping
+								std::copy(tmp_raw_data.begin() + srcRowIdx,
+									tmp_raw_data.begin() + srcRowIdx + nbLon,
+									daily_data[d][v].begin() + destRowIdx);
+							}
 						}
 						catch (exceptions::NcException& e)
 						{
-							msg.ajoute(e.what());
-							//msg.ajoute(string("period: ") + i_period + ", variable: " + VARIABLES_NAMES[v]);
-							msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
+							//msg.ajoute(e.what());
+							//msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
+							callback.AddMessage(e.what());
+							callback.AddMessage(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
+							//try to copy the last line
+							if (d > 0)
+								daily_data[d][v] = daily_data[d - 1][v];
 						}
 
 						ConvertData(v, daily_data[d][v]);
@@ -1468,7 +1489,8 @@ namespace WBSF
 				//else
 				//	next_TRef.clear();
 
-				bool bRevertImage = !b_Canada_USA;
+				//bool bRevertImage = !b_Canada_USA;
+				//bool bRevertImage = false;
 				if (msg)
 				{
 
@@ -1486,7 +1508,7 @@ namespace WBSF
 						//size_t mmm = montly_Tref - period.Begin().as(CTM::MONTHLY);
 
 						size_t ii = i;
-						if (bRevertImage)
+						/*if (bRevertImage)
 						{
 							size_t x = (i + extents.m_xSize / 2) % extents.m_xSize;
 							size_t y = extents.m_ySize - size_t(i / extents.m_xSize) - 1;
@@ -1497,7 +1519,7 @@ namespace WBSF
 							size_t x = i % extents.m_xSize;
 							size_t y = extents.m_ySize - size_t(i / extents.m_xSize) - 1;
 							ii = y * extents.m_xSize + x;
-						}
+						}*/
 
 						if (daily_data[0][0][i] > -999)
 							ComputeMontlyStatistic((size_t)i, ii, daily_data, dataOut[mm]);
@@ -1789,9 +1811,10 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		string working_dir = GetDir(WORKING_DIR);
 		string model = Get(MODEL);
 		string ssp = Get(SSP);
-		string working_dir = GetDir(WORKING_DIR);
+		bool bWorld = Get(GEO_DOMAIN) == "World";
 		int first_year = as<int>(FIRST_YEAR);
 		int last_year = as<int>(LAST_YEAR);
 		CTPeriod entire_period = get_period(first_year, last_year);
@@ -1802,7 +1825,7 @@ namespace WBSF
 
 
 
-		string new_orog_filepath = working_dir + "orog_fx_gn.tif";
+		string new_orog_filepath = GetApplicationPath() + "..\\Layers\\" + (bWorld ? "orog_fx_gn_World.tif" : "orog_fx_gn_Canada-USA.tif");
 		//Load elevation
 		vector<float> orog;
 		msg += get_orog(new_orog_filepath, orog, no_data_out);
@@ -1815,7 +1838,7 @@ namespace WBSF
 
 
 		CBaseOptions options;
-		GetMapOptions(new_orog_filepath, options);
+		GetMapOptions(options);
 		CGeoExtents extents = options.m_extents;
 
 		size_t nb_ssp = ssp.empty() ? NB_SSP : 1;
@@ -2136,324 +2159,6 @@ namespace WBSF
 	}
 
 
-	//ERMsg CUICMIP6::load_orog_sftlf(std::vector<float>& orog, std::vector<float>& sftlf, float no_data_out, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	string model = Get(MODEL);
-	//	string working_dir = GetDir(WORKING_DIR) + model + "\\";
-	//	float minLandWater = as<float>(MIN_LAND_WATER);
-
-
-
-	//	//Create land/water profile GeoTIFF
-	//	string sftlf_filepath = working_dir + "sftlf_fx_" + model + ".nc";
-	//	string new_sftlf_filepath = working_dir + "sftlf_fx_" + model + ".tif";
-
-	//	if (!FileExists(new_sftlf_filepath))
-	//		msg += save_sftlf(sftlf_filepath, new_sftlf_filepath);
-
-
-	//	//Load land/water profile
-	//	if (msg)
-	//		msg += get_sftlf(new_sftlf_filepath, sftlf);
-
-
-
-	//	//Create elevation
-	//	string orog_filepath = working_dir + "orog_fx_" + model + ".nc";
-	//	string new_orog_filepath = working_dir + "orog_fx_" + model + ".tif";
-	//	SetFileExtension(new_orog_filepath, ".tif");
-
-	//	if (!FileExists(new_orog_filepath))
-	//		msg += save_orog(orog_filepath, new_orog_filepath, sftlf, minLandWater);
-
-
-	//	//Load elevation
-	//	if (msg)
-	//		msg += get_orog(new_orog_filepath, orog, no_data_out);
-
-	//	return msg;
-	//}
-
-	/*CBaseOptions CUICMIP6::GetMapOption()const
-	{
-		CBaseOptions options;
-
-		string model = Get(MODEL);
-		string working_dir = GetDir(WORKING_DIR) + model + "\\";
-		string new_orog_filepath = working_dir + "orog_fx_gn.tif";
-
-		ASSERT(FileExists(new_orog_filepath));
-		GetMapOptions(new_orog_filepath, options);
-
-		return options;
-	}*/
-
-	//ERMsg CUICMIP6::GetMonthlyData(const CMIP6FileList& fileList, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, float no_data_out, COneMonthData& data, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	//open files
-	//	for (auto it = fileList.begin(); it != fileList.end() && msg; it++)
-	//	{
-	//		int year = it->first;
-	//		CTPeriod period = get_period(year, year);
-	//		CTPeriod intersect = valid_period.Intersect(period);
-
-	//		double x_min = -999;
-
-	//		size_t nbLat = 0;
-	//		size_t nbLon = 0;
-	//		size_t nbMonths = 0;
-
-	//		NcFilePtrArray ncFiles;
-	//		array<NcVar, NB_CMIP6_VARIABLES> var;
-
-	//		const std::vector<std::string>& varList = it->second;
-
-	//		string i_ssp;
-	//		if (!varList.empty())
-	//		{
-	//			StringVector tmp(GetFileTitle(varList[0]), "_");
-	//			ASSERT(tmp.size() == NB_COMPONENTS || tmp.size() == NB_COMPONENTS - 1);
-	//			i_ssp = tmp[C_SSP];
-	//		}
-
-
-	//		//Open input
-	//		ASSERT(varList.size() == NB_CMIP6_VARIABLES);
-	//		for (size_t i = 0; i < varList.size() && msg; i++)
-	//		{
-	//			try
-	//			{
-	//				size_t v = GetVar(varList[i]);
-	//				ncFiles[v] = NcFilePtr(new NcFile(varList[i], NcFile::read));
-	//				var[v] = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
-	//				msg += callback.StepIt(0);
-
-	//				if (i == 0)
-	//				{
-	//					auto timeGrid = ncFiles[v]->getDim("time");
-	//					auto latGrid = ncFiles[v]->getDim("lat");
-	//					auto lonGrid = ncFiles[v]->getDim("lon");
-
-	//					nbMonths = timeGrid.getSize();
-	//					nbLat = latGrid.getSize();
-	//					nbLon = lonGrid.getSize();
-
-	//					NcVar& var_lon = ncFiles[v]->getVar("lon");
-	//					vector < double> x(nbLon);
-	//					var_lon.getVar(&(x[0]));
-	//					x_min = x.front();
-
-	//				}
-	//			}
-	//			catch (exceptions::NcException& e)
-	//			{
-	//				msg.ajoute(e.what());
-	//				msg.ajoute(string("Unable to open file : ") + varList[i]);
-	//			}
-	//		}
-
-	//		if (msg)
-	//		{
-	//			callback.PushTask(string("Create data for period ") + intersect.GetFormatedString("%1 to %2"), intersect.size());
-
-	//			for (CTRef TRef = intersect.Begin(); TRef <= intersect.End() && msg; TRef++)// for all months
-	//			{
-	//				size_t m = TRef - valid_period.Begin();
-	//				size_t mm = TRef - period.Begin();
-
-	//				for (size_t v = 0; v < NB_CMIP6_VARIABLES && msg; v++)
-	//				{
-	//					data[m][v].resize(nbLat * nbLon);
-	//					COneVariableLayer tmp(nbLat * nbLon);
-
-	//					try
-	//					{
-	//						vector<size_t> startp = { {mm, 0, 0 } };
-	//						vector<size_t> countp = { { 1, nbLat, nbLon } };
-	//						var[v].getVar(startp, countp, &(tmp[0]));
-	//					}
-	//					catch (exceptions::NcException& e)
-	//					{
-	//						msg.ajoute(e.what());
-	//						msg.ajoute(string("processing variable : ") + VARIABLES_NAMES[v] + " for date " + TRef.GetFormatedString());
-	//					}
-
-	//					ConvertData(v, tmp);
-
-
-	//					if (msg)
-	//					{
-	//						bool bRevertImage = x_min > -10;
-
-
-	//						ASSERT(tmp.size() == extents.m_ySize * extents.m_xSize);
-	//						for (__int64 i = 0; i < (__int64)extents.m_ySize * extents.m_xSize; i++)
-	//						{
-	//							size_t ii = i;
-	//							if (bRevertImage)
-	//							{
-	//								size_t x = (i + extents.m_xSize / 2) % extents.m_xSize;
-	//								size_t y = extents.m_ySize - size_t(i / extents.m_xSize) - 1;
-	//								ii = y * extents.m_xSize + x;
-	//							}
-	//							else
-	//							{
-	//								size_t x = i % extents.m_xSize;
-	//								size_t y = extents.m_ySize - size_t(i / extents.m_xSize) - 1;
-	//								ii = y * extents.m_xSize + x;
-	//							}
-
-
-	//							data[m][v][ii] = (sftlf[ii] >= minLandWater) ? tmp[i] : no_data_out;
-	//						}//for all pixel
-
-	//					}//if msg
-
-	//				}//for all variables
-
-	//				msg += callback.StepIt();
-
-	//			}//for all months
-
-	//			callback.PopTask();
-	//			msg += callback.StepIt();
-	//		}//if msg
-	//	}//for all input files
-
-	//	return msg;
-	//}
-
-	//ERMsg CUICMIP6::CreateMonthlyGribs(string filepath_out, string ripf, CCallback& callback)
-	//{
-	//	ERMsg msg;
-
-	//	string model = Get(MODEL);
-	//	string ssp = Get(SSP);
-	//	string working_dir = GetDir(WORKING_DIR) + model + "\\";
-	//	float minLandWater = as<float>(MIN_LAND_WATER);
-	//	int first_year = as<int>(FIRST_YEAR);
-	//	int last_year = as<int>(LAST_YEAR);
-	//	CTPeriod valid_period(CTRef(first_year, JANUARY), CTRef(last_year, DECEMBER));
-
-
-	//	float no_data_out = -999;
-	//	CStatistic::SetVMiss(no_data_out);
-
-	//	std::vector<float> orog;
-	//	//std::vector<float> sftlf;
-	//	msg = get_orog(orog, no_data_out, callback);
-
-
-	//	CMIP6FileList fileList;
-	//	if (msg)
-	//		msg += GetFileList(model, ssp, valid_period, fileList);
-
-	//	if (!msg)
-	//		return msg;
-
-
-
-
-	//	CBaseOptions options = CUICMIP6::GetMapOption();
-	//	options.m_nbBands = valid_period.size();
-	//	CGeoExtents extents = options.m_extents;
-
-
-
-	//	CMonthlyMeanGrid MMG;
-	//	MMG.m_firstYear = first_year;
-	//	MMG.m_lastYear = last_year;
-
-	//	MMG.m_supportedVariables[TMIN_MN] = true;
-	//	MMG.m_supportedVariables[TMAX_MN] = true;
-	//	MMG.m_supportedVariables[DEL_STD] = false;
-	//	MMG.m_supportedVariables[EPS_STD] = false;
-	//	MMG.m_supportedVariables[PRCP_TT] = true;
-	//	MMG.m_supportedVariables[SPEH_MN] = true;
-	//	MMG.m_supportedVariables[RELH_MN] = false;
-	//	MMG.m_supportedVariables[RELH_SD] = false;
-	//	MMG.m_supportedVariables[WNDS_MN] = true;
-	//	MMG.m_supportedVariables[WNDS_SD] = false;
-
-	//	string filePathOut = filepath_out;
-	//	WBSF::SetFileTitle(filePathOut, WBSF::GetFileTitle(filePathOut) + "_" + model + "_" + ssp + "_" + ripf);
-	//	msg = MMG.Save(filePathOut);
-	//	if (!msg)
-	//		return msg;
-
-	//	callback.PushTask(string("Open output images for ") + ssp, NB_CMIP6_VARIABLES);
-
-	//	size_t nb_grib_open = 0;
-	//	array< CGDALDatasetEx, NB_CMIP6_VARIABLES> grid;
-	//	for (size_t v = 0; v < grid.size(); v++)
-	//	{
-	//		static const size_t VAR_TO_FIELDS[6] = { TMIN_MN,TMAX_MN,PRCP_TT,SPEH_MN,WNDS_MN };
-	//		size_t f = VAR_TO_FIELDS[v];
-	//		string filePathOut = MMG.GetFilePath(f);
-	//		if (!filePathOut.empty())
-	//		{
-	//			msg += grid[v].CreateImage(filePathOut, options);
-	//			nb_grib_open++;
-	//		}
-
-	//		msg += callback.StepIt();
-	//	}
-
-	//	callback.PopTask();
-
-	//	if (!msg)
-	//		return msg;
-
-	//	callback.PushTask(string("Process all files (") + to_string(fileList.size()) + ") for model " + model + " " + ssp + " and period " + valid_period.GetFormatedString("%1 to %2"), fileList.size());
-
-	//	//CMonthlyVariableVector data;
-	//	COneMonthData data(valid_period.size());
-	//	msg = GetMonthlyData(fileList, valid_period, extents, sftlf, minLandWater, no_data_out, data, callback);
-
-	//	//save result
-	//	if (msg)
-	//	{
-	//		callback.PushTask(string("Save output images for ") + ssp, nb_grib_open);
-	//		for (size_t v = 0; v < grid.size() && msg; v++)
-	//		{
-
-	//			if (grid[v].IsOpen())
-	//			{
-	//				callback.PushTask(GetFieldTitle(v), data.size());
-	//				ASSERT(data.size() == grid[v].GetRasterCount());
-	//				for (size_t m = 0; m < data.size() && msg; m++)
-	//				{
-	//					GDALRasterBand* pBand = grid[v].GetRasterBand(m);
-	//					if (data[m][v].size() == grid[v].GetRasterXSize() * grid[v].GetRasterYSize())
-	//						pBand->RasterIO(GF_Write, 0, 0, grid[v].GetRasterXSize(), grid[v].GetRasterYSize(), &(data[m][v][0]), grid[v].GetRasterXSize(), grid[v].GetRasterYSize(), GDT_Float32, 0, 0);
-	//					//else
-	//						//pBand->RasterIO(GF_Write, 0, 0, grid[v].GetRasterXSize(), grid[v].GetRasterYSize(), &(data[m][v][0]), grid[v].GetRasterXSize(), grid[v].GetRasterYSize(), GDT_Float32, 0, 0);
-	//					msg += callback.StepIt();
-	//				}
-
-	//				grid[v].Close();
-	//				callback.PopTask();
-
-	//				msg += callback.StepIt();
-	//			}
-
-
-	//		}
-	//		callback.PopTask();
-	//	}
-
-
-
-
-
-	//	callback.PopTask();
-
-	//	return msg;
-	//}
 
 
 	ERMsg CUICMIP6::GetGribsList(CTPeriod p, CGribsMap& gribsList, CCallback& callback)
