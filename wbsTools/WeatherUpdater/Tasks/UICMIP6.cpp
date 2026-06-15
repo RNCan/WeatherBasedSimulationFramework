@@ -905,7 +905,7 @@ namespace WBSF
 		//string new_orog_filepath = GetApplicationPath() + "..\\Layers\\" + (bWorld ? "orog_fx_gn_World.tif" : "orog_fx_gn_Canada-USA.tif");
 
 		CBaseOptions options;
-		msg = GetMapOptions(options);
+		msg = GetMapOptions(bWorld, options);
 		options.m_nbBands = 12 * nb_years;
 
 		size_t nb_ssp = ssp.empty() ? NB_SSP - 1 : 1;
@@ -1070,7 +1070,7 @@ namespace WBSF
 
 	string CUICMIP6::GetProjectionWKT() { return PRJ_WGS_84_WKT; }
 
-	ERMsg CUICMIP6::GetMapOptions(CBaseOptions& options)const
+	ERMsg CUICMIP6::GetMapOptions(bool bWorld, CBaseOptions& options)const
 	{
 		ERMsg msg;
 
@@ -1086,6 +1086,8 @@ namespace WBSF
 		options.m_bOverwrite = true;
 		options.m_bComputeStats = false;
 		options.m_extents = CGeoExtents(0, -60, 360, 90, 1440, 600, 256, 256, PRJ_WGS_84);
+		if(!bWorld)
+			options.m_extents = CGeoExtents(180, 0, 360, 90, 720, 300, 256, 256, PRJ_WGS_84);
 		//options.m_overviewLevels = { { 2, 4, 8, 16 } };
 		//options.m_createOptions.push_back("COMPRESS=LZW");
 		options.m_createOptions.push_back("COMPRESS=ZSTD");
@@ -1838,7 +1840,7 @@ namespace WBSF
 
 
 		CBaseOptions options;
-		GetMapOptions(options);
+		GetMapOptions(bWorld, options);
 		CGeoExtents extents = options.m_extents;
 
 		size_t nb_ssp = ssp.empty() ? NB_SSP : 1;

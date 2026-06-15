@@ -171,7 +171,7 @@ namespace WBSF
 
 		//ERMsg load_orog_sftlf(std::vector<float>& orog, std::vector<float>& sftlf, float no_data_out, CCallback& callback);
 		//CBaseOptions GetMapOption()const;
-		ERMsg GetMapOptions(CBaseOptions& options)const;
+		ERMsg GetMapOptions(bool bWorld, CBaseOptions& options)const;
 
 		//ERMsg GetMonthlyData(const CMIP6FileList& fileList, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, float no_data_out, COneMonthData& data, CCallback& callback);
 
