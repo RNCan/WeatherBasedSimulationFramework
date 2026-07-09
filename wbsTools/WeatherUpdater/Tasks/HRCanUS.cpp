@@ -175,8 +175,8 @@ namespace WBSF
 			std::array<CSfcDatasetCached, 2> DSin;
 			//create and open reprojected can
 			string gdal_data_path = GetApplicationPath() + "gdal-data";
-			string projlib_path = GetApplicationPath() + "proj9\\share";
-			string plugin_path = GetApplicationPath() + "gdal\\plugins";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 			string argument = "-te -2700000 -1600000 3300000 3200000 -tr 2500 2500 -r cubic -te_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -t_srs \"+proj=lcc +lat_0=40 +lon_0=-96 +lat_1=20 +lat_2=60 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs\" -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 -overwrite \"";
@@ -318,8 +318,8 @@ namespace WBSF
 						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 						//string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						string gdal_data_path = GetApplicationPath() + "gdal-data";
-						string projlib_path = GetApplicationPath() + "proj9\\share";
-						string plugin_path = GetApplicationPath() + "gdal\\plugins";
+						string projlib_path = GetApplicationPath() + "projlib";
+						string plugin_path = GetApplicationPath() + "gdalplugins";
 
 						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
@@ -537,8 +537,8 @@ namespace WBSF
 						//string argument = "-ot Float32 -a_nodata 9999 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";// -a_srs \"" + prj_str ;
 						//string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + argument + " \"" + file_path_out + "2\" \"" + file_path_out + "\"";
 						string gdal_data_path = GetApplicationPath() + "gdal-data";
-						string projlib_path = GetApplicationPath() + "proj9\\share";
-						string plugin_path = GetApplicationPath() + "gdal\\plugins";
+						string projlib_path = GetApplicationPath() + "projlib";
+						string plugin_path = GetApplicationPath() + "gdalplugins";
 
 						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 						string argument = "-unscale -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";

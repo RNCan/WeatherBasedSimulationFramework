@@ -755,8 +755,8 @@ namespace WBSF
 		//string argument = "-ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";// -a_srs \"" + prj4 + "\"";
 		//string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + argument + " \"" + file_path_vrt + "\" \"" + file_path_tif + "\"";
 		string gdal_data_path = GetApplicationPath() + "gdal-data";
-		string projlib_path = GetApplicationPath() + "proj9\\share";
-		string plugin_path = GetApplicationPath() + "gdal\\plugins";
+		string projlib_path = GetApplicationPath() + "projlib";
+		string plugin_path = GetApplicationPath() + "gdalplugins";
 		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 		string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
@@ -997,8 +997,8 @@ namespace WBSF
 					//argument = "-e \"prcp=max(0,round( (i1b1)*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256 \"" + file_path_vrt + "\" \"" + prcpOutputPath + "\"";
 				//else
 				string gdal_data_path = GetApplicationPath() + "gdal-data";
-				string projlib_path = GetApplicationPath() + "proj9\\share";
-				string plugin_path = GetApplicationPath() + "gdal\\plugins";
+				string projlib_path = GetApplicationPath() + "projlib";
+				string plugin_path = GetApplicationPath() + "gdalplugins";
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 				string argument = "-e \"prcp=max(0,round( (i1b" + to_string(HH + 2) + "-i1b" + to_string(HH+1) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";

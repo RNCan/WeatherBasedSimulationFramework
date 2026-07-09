@@ -208,8 +208,8 @@ namespace WBSF
 
 					//remove +k=90 : no longer supported by PROJ4, RSA 02-08-2022
 					string gdal_data_path = GetApplicationPath() + "gdal-data";
-					string projlib_path = GetApplicationPath() + "proj9\\share";
-					string plugin_path = GetApplicationPath() + "gdal\\plugins";
+					string projlib_path = GetApplicationPath() + "projlib";
+					string plugin_path = GetApplicationPath() + "gdalplugins";
 
 					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 					argument += " -t_srs \"+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +a=6371229 +b=6371229 +units=m +no_defs\"";

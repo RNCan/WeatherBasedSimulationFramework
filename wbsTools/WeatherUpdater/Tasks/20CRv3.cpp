@@ -459,8 +459,8 @@ namespace WBSF
 				{
 					//copy the file to fully use compression with GDAL_translate
 					string gdal_data_path = GetApplicationPath() + "gdal-data";
-					string projlib_path = GetApplicationPath() + "proj9\\share";
-					string plugin_path = GetApplicationPath() + "gdal\\plugins";
+					string projlib_path = GetApplicationPath() + "projlib";
+					string plugin_path = GetApplicationPath() + "gdalplugins";
 
 					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path +"\"";
 					string argument = "-ot Float32 -stats -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";//-co PREDICTOR=3 

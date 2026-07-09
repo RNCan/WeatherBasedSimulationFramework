@@ -12,11 +12,12 @@ namespace WBSF
 
 	//****************************************************************
 	//GHCND extractor
-	class CUIGHCND : public CTaskBase
+	class CUIGHCN : public CTaskBase
 	{
 	public:
 
-		enum TAttributes { WORKING_DIR, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, SHOW_PROGRESS, NB_ATTRIBUTES };
+		enum TData { HOURLY_WEATHER, DAILY_WEATHER, NB_TYPE };
+		enum TAttributes { WORKING_DIR, DATA_TYPE, FIRST_YEAR, LAST_YEAR, COUNTRIES, STATES, SHOW_PROGRESS, NB_ATTRIBUTES };
 
 		enum TD32x0
 		{
@@ -36,18 +37,19 @@ namespace WBSF
 		static const int GHCN_VARIABLES[NB_VARIABLES];
 		static size_t GetElementType(const char* type);
 		static const char* CLASS_NAME();
-		static CTaskPtr create(){ return CTaskPtr(new CUIGHCND); }
+		static CTaskPtr create(){ return CTaskPtr(new CUIGHCN); }
 
 		enum TInvetory { DISTANCE_TXT, LOCAL_TXT, LOCAL_CSV, NB_INVENTORY_TYPES };
 
-		CUIGHCND(void);
-		virtual ~CUIGHCND(void);
+		CUIGHCN(void);
+		virtual ~CUIGHCN(void);
 
 
 		virtual const char* ClassName()const{ return CLASS_NAME(); }
 		virtual TType ClassType()const; 
 		virtual UINT GetTitleStringID()const{return ATTRIBUTE_TITLE_ID;}
 		virtual UINT GetDescriptionStringID()const{ return DESCRIPTION_TITLE_ID; }
+		virtual bool IsHourly()const { return as<size_t>(DATA_TYPE) == HOURLY_WEATHER; }
 		virtual bool IsDaily()const{ return true; }
 		virtual bool IsDatabase()const{ return true; }
 		

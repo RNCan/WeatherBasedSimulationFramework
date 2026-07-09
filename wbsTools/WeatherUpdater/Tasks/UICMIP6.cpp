@@ -647,14 +647,10 @@ namespace WBSF
 		int first_year = as<int>(FIRST_YEAR);
 		int last_year = as<int>(LAST_YEAR);
 		size_t nb_years = last_year - first_year + 1;
-		//CTPeriod valid_period(CTRef(first_year, JANUARY, DAY_01), CTRef(last_year, DECEMBER, DAY_31));
 		CCallcURL cURL;
 
 		std::vector<CNEX_GDDP_CMIP6> index_all;
 		msg += GetFilesIndex(index_all, callback);
-
-
-		//index.reserve(index_all.size());
 
 
 		size_t nb_ssp = ssp.empty() ? NB_SSP + 1 : 2;
@@ -677,11 +673,6 @@ namespace WBSF
 			CreateMultipleDir(output_path);
 
 
-
-
-			//std::string str_model = CUICMIP6::Option(MODEL);
-			//StringVector models = WBSF::Tokenize(str_model, "|");
-
 			//clean index
 			std::map<int, std::vector<CNEX_GDDP_CMIP6>> index_map;
 			for (std::vector<CNEX_GDDP_CMIP6>::iterator it = index_all.begin(); it != index_all.end() && msg; it++)
@@ -690,7 +681,7 @@ namespace WBSF
 				string file_path = output_path + it->m_info[CNEX_GDDP_CMIP6::I_FILE_NAME];
 
 				bool b1 = it->is_good_model(model);
-				bool b2 = it->is_good_spp(year < 2015 ? SSP_HISTORICAL : ssp);
+				bool b2 = it->is_good_spp(ssp);
 				bool b3 = it->is_valid_year(first_year, last_year);
 				bool b4 = find(begin(VARIABLES_NAMES), end(VARIABLES_NAMES), it->m_info[CNEX_GDDP_CMIP6::I_VARIABLE]) != end(VARIABLES_NAMES);
 				bool b5 = !FileExists(file_path);//download only missing file
@@ -895,25 +886,25 @@ namespace WBSF
 
 					if (msg)
 					{
-						//string info_str = "Create MMG for " + ssp + " (" + to_string(nb_years) + " years)";
-						//callback.PushTask(info_str, nb_years);
-						//callback.AddMessage(info_str);
-						//
-						//
-						//for (size_t y = 0; y < nb_years && msg; y++)
-						//{
-						//
-						//	int year = int(first_year + y);
-						//
-						//	CMonthlyVariableVector data;
-						//	msg += GetMMGForSSP(model, year < 2015 ? SSP_HISTORICAL : ssp, year, options.m_extents, data, callback);
-						//	if (msg)
-						//		msg += SaveData(y, year, MMG_filepath, data, callback);
-						//
-						//	msg += callback.StepIt();
-						//}//for all years
-						//
-						//callback.PopTask();
+						string info_str = "Create MMG for " + ssp + " (" + to_string(nb_years) + " years)";
+						callback.PushTask(info_str, nb_years);
+						callback.AddMessage(info_str);
+						
+						
+						for (size_t y = 0; y < nb_years && msg; y++)
+						{
+						
+							int year = int(first_year + y);
+						
+							CMonthlyVariableVector data;
+							msg += GetMMGForSSP(model, year < 2015 ? SSP_HISTORICAL : ssp, year, options.m_extents, data, callback);
+							if (msg)
+								msg += SaveData(y, year, MMG_filepath, data, callback);
+						
+							msg += callback.StepIt();
+						}//for all years
+						
+						callback.PopTask();
 						string path = WBSF::GetPath(MMG_filepath);
 						string title = WBSF::GetFileTitle(MMG_filepath);
 
@@ -935,8 +926,8 @@ namespace WBSF
 								if (msg)
 								{
 									string gdal_data_path = GetApplicationPath() + "gdal-data";
-									string projlib_path = GetApplicationPath() + "proj9\\share";
-									string plugin_path = GetApplicationPath() + "gdal\\plugins";
+									string projlib_path = GetApplicationPath() + "projlib";
+									string plugin_path = GetApplicationPath() + "gdalplugins";
 								
 									string option = "--config GDAL_NUM_THREADS ALL_CPUS --config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 									string argument = "-overwrite -ot Float32 -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE="+block_size+" -co BLOCKYSIZE="+block_size;
@@ -1561,8 +1552,8 @@ namespace WBSF
 	//	string tif_filepath = sftlf_filepath + ".tif";
 	//	//convert nc into GeoTIFF
 	//	string gdal_data_path = GetApplicationPath() + "gdal-data";
-	//	string projlib_path = GetApplicationPath() + "proj9\\share";
-	//	string plugin_path = GetApplicationPath() + "gdal\\plugins";
+	//	string projlib_path = GetApplicationPath() + "projlib";
+	//	string plugin_path = GetApplicationPath() + "gdalplugins";
 	//	string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 	//	string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";
@@ -1664,8 +1655,8 @@ namespace WBSF
 		string tif_filepath = orog_filepath + ".tif";
 		//convert nc into GeoTIFF
 		string gdal_data_path = GetApplicationPath() + "gdal-data";
-		string projlib_path = GetApplicationPath() + "proj9\\share";
-		string plugin_path = GetApplicationPath() + "gdal\\plugins";
+		string projlib_path = GetApplicationPath() + "projlib";
+		string plugin_path = GetApplicationPath() + "gdalplugins";
 		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 		string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";

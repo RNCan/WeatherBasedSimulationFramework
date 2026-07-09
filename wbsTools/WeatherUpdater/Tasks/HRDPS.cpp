@@ -604,8 +604,8 @@ namespace WBSF
 				//Create GeoTiff from vrt
 
 				string gdal_data_path = GetApplicationPath() + "gdal-data";
-				string projlib_path = GetApplicationPath() + "proj9\\share";
-				string plugin_path = GetApplicationPath() + "gdal\\plugins";
+				string projlib_path = GetApplicationPath() + "projlib";
+				string plugin_path = GetApplicationPath() + "gdalplugins";
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 				string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
@@ -841,8 +841,8 @@ namespace WBSF
 			{
 				//copy the file to fully use compression with GDAL_translate
 				string gdal_data_path = GetApplicationPath() + "gdal-data";
-				string projlib_path = GetApplicationPath() + "proj9\\share";
-				string plugin_path = GetApplicationPath() + "gdal\\plugins";
+				string projlib_path = GetApplicationPath() + "projlib";
+				string plugin_path = GetApplicationPath() + "gdalplugins";
 
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 				string s_prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
@@ -966,8 +966,8 @@ namespace WBSF
 		if (!FileExists(file_path_tif))
 		{
 			string gdal_data_path = GetApplicationPath() + "gdal-data";
-			string projlib_path = GetApplicationPath() + "proj9\\share";
-			string plugin_path = GetApplicationPath() + "gdal\\plugins";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
@@ -1081,8 +1081,8 @@ namespace WBSF
 			ASSERT(!argument.empty());
 
 			string gdal_data_path = GetApplicationPath() + "gdal-data";
-			string projlib_path = GetApplicationPath() + "proj9\\share";
-			string plugin_path = GetApplicationPath() + "gdal\\plugins";
+			string projlib_path = GetApplicationPath() + "projlib";
+			string plugin_path = GetApplicationPath() + "gdalplugins";
 
 			string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
@@ -1094,7 +1094,7 @@ namespace WBSF
 			if (msg)
 			{
 				//string gdal_data_path = GetApplicationPath() + "gdal-data";
-				//string projlib_path = GetApplicationPath() + "proj9\\share";
+				//string projlib_path = GetApplicationPath() + "projlib";
 				//string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\"";
 
 				string prj4 = "+proj=ob_tran +o_proj=longlat +o_lon_p=-0 +o_lat_p=36.08852 +lon_0=-114.694858 +R=6371229 +no_defs";
@@ -1207,8 +1207,8 @@ namespace WBSF
 						if (!argument.empty())
 						{
 							string gdal_data_path = GetApplicationPath() + "gdal-data";
-							string projlib_path = GetApplicationPath() + "proj9\\share";
-							string plugin_path = GetApplicationPath() + "gdal\\plugins";
+							string projlib_path = GetApplicationPath() + "projlib";
+							string plugin_path = GetApplicationPath() + "gdalplugins";
 
 							string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 							
@@ -1423,8 +1423,8 @@ namespace WBSF
 					{
 						//convert with gdal_translate to optimize size
 						string gdal_data_path = GetApplicationPath() + "gdal-data";
-						string projlib_path = GetApplicationPath() + "proj9\\share";
-						string plugin_path = GetApplicationPath() + "gdal\\plugins";
+						string projlib_path = GetApplicationPath() + "projlib";
+						string plugin_path = GetApplicationPath() + "gdalplugins";
 						string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 						string prj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=252 +x_0=0 +y_0=0 +R=6371229 +units=m +no_defs";
