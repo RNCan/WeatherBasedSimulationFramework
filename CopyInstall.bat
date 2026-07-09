@@ -154,7 +154,7 @@ xcopy /Q /Y ".\bin\Releasex64\Models\JapaneseBeetle.mdl" "..\Install\NRCan\Model
 
 xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.dll" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusNigrinus.mdl" "..\Install\NRCan\Models"
-xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusNigrinus_OptimalLarvalSampling.mdl" "..\Install\NRCan\Models"
+xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusNigrinus_LarvalSampling.mdl" "..\Install\NRCan\Models"
 
 xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.dll" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\LaricobiusOsakensis.mdl" "..\Install\NRCan\Models"
