@@ -11,6 +11,7 @@
 #include "Basic/WeatherDefine.h"
 #include "Basic/AdvancedNormalStation.h"
 #include "Geomatic/GDALBasic.h"
+#include "Simulation/MonthlyMeanGrid.h"
 
 #include "TaskBase.h"
 
@@ -25,8 +26,9 @@ namespace WBSF
 
 
 	typedef std::shared_ptr < netCDF::NcFile > NcFilePtr;
-	typedef std::array< std::vector<float>, NORMALS_DATA::NB_FIELDS> CMonthlyVariables;
-	typedef std::vector<CMonthlyVariables> CMonthlyVariableVector;
+	typedef std::vector<std::vector<float>> CMonthlyVariables;
+	typedef std::array< CMonthlyVariables, NORMALS_DATA::NB_FIELDS> CMonthlyVariableVector;
+	
 	typedef std::vector<std::string> CMIP6FileList;
 
 
@@ -100,7 +102,7 @@ namespace WBSF
 	public:
 
 		enum { DIM_TIME, DIM_LEVEL, DIM_LAT, DIM_LON, NB_DIMS };
-		enum TVariable { V_TMIN, V_TMAX, V_PRCP, V_SPEH, V_WNDS, NB_CMIP6_VARIABLES };//V_SRAD, 
+		enum TVariable { V_TMIN, V_TMAX, V_PRCP, V_RELH, V_WNDS, NB_CMIP6_VARIABLES };//V_SRAD, V_SPEH
 
 		typedef std::vector<float> COneVariableLayer;
 		typedef std::vector< std::array < COneVariableLayer, NB_CMIP6_VARIABLES>> COneMonthData;
@@ -108,7 +110,7 @@ namespace WBSF
 
 		enum TAttributes { WORKING_DIR, DOWNLOAD_DATA, CREATE_GRIBS, FIRST_YEAR, LAST_YEAR, GEO_DOMAIN, MODEL, SSP, SHOW_CURL, NB_ATTRIBUTES };
 		static const char* VARIABLES_NAMES[NB_CMIP6_VARIABLES];
-		static void ComputeMontlyStatistic(size_t i, size_t ii, const COneMonthData& data, CMonthlyVariables& montlhyStat);
+		static void ComputeMontlyStatistic(size_t m, size_t i, const COneMonthData& data, CMonthlyVariableVector& DataOut);
 		static size_t GetVar(std::string name);
 
 
@@ -142,10 +144,11 @@ namespace WBSF
 	protected:
 
 
-		ERMsg SaveData(size_t y, int year, std::array< CGDALDatasetEx, NORMALS_DATA::NB_FIELDS>& grid, CMonthlyVariableVector& data, CCallback& callback);
+		ERMsg SaveData(size_t y, int year, std::string filePathOut, CMonthlyVariableVector& data, CCallback& callback);
 		ERMsg Download(CCallback& callback);
 		ERMsg DownloadFix(std::string prefix, CCallback& callback);
 		ERMsg DownloadData(CCallback& callback);
+		ERMsg CreateVRT(const StringVector& inputFilePath, const std::string& file_path_vrt);
 
 		//From NASA
 		ERMsg DownloadFilesIndex(CCallback& callback);
@@ -175,6 +178,9 @@ namespace WBSF
 
 		//ERMsg GetMonthlyData(const CMIP6FileList& fileList, const CTPeriod& valid_period, const CGeoExtents& extents, const std::vector<float>& sftlf, float minLandWater, float no_data_out, COneMonthData& data, CCallback& callback);
 
+		CMonthlyMeanGrid MMG;
+
+		bool m_bDeleteTmp;
 		bool m_bWarningFixed30DaysData;
 		bool m_bWarningMissingFeb29;
 
@@ -183,7 +189,7 @@ namespace WBSF
 		static const char* ATTRIBUTE_NAME[NB_ATTRIBUTES];
 		static const UINT ATTRIBUTE_TITLE_ID;
 		static const UINT DESCRIPTION_TITLE_ID;
-
+		static CBaseOptions GetMapOptions(bool bWorld);
 
 	};
 
