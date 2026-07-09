@@ -671,8 +671,8 @@ namespace WBSF
 			{
 				//copy the file to fully use compression with GDAL_translate
 				string gdal_data_path = GetApplicationPath() + "gdal-data";
-				string projlib_path = GetApplicationPath() + "projlib";
-				string plugin_path = GetApplicationPath() + "gdalplugins";
+				string projlib_path = GetApplicationPath() + "proj9\\share";
+				string plugin_path = GetApplicationPath() + "gdal\\plugins";
 
 				//-stats : do not include stat to avoid the creation of the xml file
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";

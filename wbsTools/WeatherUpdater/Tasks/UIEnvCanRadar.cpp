@@ -800,8 +800,9 @@ namespace WBSF
 				{
 					//gdal_translate - of GTiff - a_srs EPSG : 3978 - a_ullr - 6991528.601092203  4077507.0562611124 7859563.601092203 - 1478754.0562611124 "10;19.png" "OUTPUT3.tif"
 					string gdal_data_path = GetApplicationPath() + "gdal-data";
-					string projlib_path = GetApplicationPath() + "projlib";
-					string plugin_path = GetApplicationPath() + "gdalplugins";
+					string projlib_path = GetApplicationPath() + "proj9\\share";
+					string plugin_path = GetApplicationPath() + "gdal\\plugins";
+
 
 					string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 					string argument = "-co COMPRESS=LZW -co TILED=YES -a_srs EPSG:3978 -a_ullr -6991528.601092203 4077507.0562611124 7859563.601092203 -1478754.0562611124";

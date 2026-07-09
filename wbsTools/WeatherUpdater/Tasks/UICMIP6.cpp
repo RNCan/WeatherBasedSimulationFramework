@@ -935,8 +935,8 @@ namespace WBSF
 								if (msg)
 								{
 									string gdal_data_path = GetApplicationPath() + "gdal-data";
-									string projlib_path = GetApplicationPath() + "projlib";
-									string plugin_path = GetApplicationPath() + "gdalplugins";
+									string projlib_path = GetApplicationPath() + "proj9\\share";
+									string plugin_path = GetApplicationPath() + "gdal\\plugins";
 								
 									string option = "--config GDAL_NUM_THREADS ALL_CPUS --config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 									string argument = "-overwrite -ot Float32 -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE="+block_size+" -co BLOCKYSIZE="+block_size;
@@ -1561,8 +1561,8 @@ namespace WBSF
 	//	string tif_filepath = sftlf_filepath + ".tif";
 	//	//convert nc into GeoTIFF
 	//	string gdal_data_path = GetApplicationPath() + "gdal-data";
-	//	string projlib_path = GetApplicationPath() + "projlib";
-	//	string plugin_path = GetApplicationPath() + "gdalplugins";
+	//	string projlib_path = GetApplicationPath() + "proj9\\share";
+	//	string plugin_path = GetApplicationPath() + "gdal\\plugins";
 	//	string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 	//	string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";
@@ -1664,8 +1664,8 @@ namespace WBSF
 		string tif_filepath = orog_filepath + ".tif";
 		//convert nc into GeoTIFF
 		string gdal_data_path = GetApplicationPath() + "gdal-data";
-		string projlib_path = GetApplicationPath() + "projlib";
-		string plugin_path = GetApplicationPath() + "gdalplugins";
+		string projlib_path = GetApplicationPath() + "proj9\\share";
+		string plugin_path = GetApplicationPath() + "gdal\\plugins";
 		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
 		string argument = "-unscale -a_srs \"+proj=longlat +datum=WGS84 +no_defs\" -ot Float32 -stats -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=64 -co BLOCKYSIZE=64";
