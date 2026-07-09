@@ -819,6 +819,8 @@ namespace WBSF
 		size_t GetNbScenes()const{ return m_nbScenes; }
 		size_t GetSceneSize()const{ return m_sceneSize; }
 
+		double GetWindowMean(size_t layer, int nbNeighbor, double T, const CGeoPointIndexVector& pts, const std::vector<double>& d);
+		
 	protected:
 
 		CSingleBandHolderPtrVector m_bandHolder;

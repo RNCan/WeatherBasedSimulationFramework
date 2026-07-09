@@ -1,4 +1,4 @@
-//6.3.3 11/06/2026	Rémi Saint-Amant	OPtimisation of CMIP6.
+//6.3.3 09/07/2026	Rémi Saint-Amant	Optimization of CMIP6.
 //6.3.2 09/06/2026	Rémi Saint-Amant	Update CMIP6 from NEX_GDDP_CMIP6.
 //6.3.1 26/03/2026	Rémi Saint-Amant	Update Env. Can historical daily and hourly download.
 //										Remove french accent for MDDELCC
@@ -268,7 +268,7 @@ CWeatherUpdaterApp::CWeatherUpdaterApp() :
 CWeatherUpdaterApp theApp;
 
 
-// initialisation de CWeatherUpdaterApp
+// initialization de CWeatherUpdaterApp
 
 BOOL CWeatherUpdaterApp::InitInstance()
 {

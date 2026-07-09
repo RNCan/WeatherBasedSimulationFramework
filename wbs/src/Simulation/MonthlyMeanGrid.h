@@ -75,6 +75,8 @@ namespace WBSF
 		bool GetNearestPoints(size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, CGeoPointIndexVector& pts, std::vector<double>& d)const;
 		bool GetMonthlyValues(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, std::vector< std::array<std::array<float, NORMALS_DATA::NB_FIELDS>, 12>>& values, CCallback& callback)const;
 
+		CGDALDatasetEx& GetDataset(size_t i) { return m_grid[i]; }
+
 	protected:
 
 		std::string m_filePath;

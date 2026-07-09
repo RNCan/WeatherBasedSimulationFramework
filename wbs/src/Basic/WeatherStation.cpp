@@ -4306,6 +4306,26 @@ namespace WBSF
 		return t;
 	}
 
+	void CWeatherYears::KeepOnlyYears(int firstYear, int lastYear)
+	{
+
+		for (auto it = begin(); it != end();)
+		{
+			int year = it->first;
+
+			if (year >= firstYear && year <= lastYear)
+			{
+				if (it->second->HaveData())
+					it++;
+				else
+					it = erase(it);
+			}
+			else
+			{
+				it = erase(it);
+			}
+		}
+	}
 
 }//namespace WBSF
 
