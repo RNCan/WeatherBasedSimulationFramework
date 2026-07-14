@@ -13,6 +13,9 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	//std::locale::global(std::locale(""));
 
+	//init gdal
+	WBSF::RegisterGDAL();
+
 	CTimer timer(true);
 
 	CNormalsCreator NormalsCreator;

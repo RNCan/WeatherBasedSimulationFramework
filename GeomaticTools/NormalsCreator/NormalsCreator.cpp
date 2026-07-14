@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.0	05/06/2013	Rémi Saint-Amant	Creation from NormalsCreator
+// 1.0.1	14/07/2026  Rémi Saint-Amant	Mnagae projection correctly
+// 1.0.0	05/07/2026	Rémi Saint-Amant	Creation
 
 #include "stdafx.h" 
 #include <float.h>
@@ -35,7 +36,7 @@ namespace WBSF
 	using namespace WEATHER;
 	using namespace HOURLY_DATA;
 	using namespace NORMALS_DATA;
-	const char* CNormalsCreator::VERSION = "1.0.0";
+	const char* CNormalsCreator::VERSION = "1.0.1";
 	const int CNormalsCreator::NB_THREAD_PROCESS = 2;
 
 
@@ -221,7 +222,7 @@ namespace WBSF
 			cout << "Using:  " << m_options.m_filesPath[MMG_FILE_PATH] << endl;
 		}
 
-		GDALAllRegister();
+		//GDALAllRegister();
 
 		CDailyDatabase inputDB;
 		array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS> normalsDB;
