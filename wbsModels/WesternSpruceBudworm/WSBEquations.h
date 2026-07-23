@@ -1,4 +1,4 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // File: WSBDevelopment.h
 //
 // Class: CWSBDevelopment
@@ -6,7 +6,7 @@
 //
 // Descrition: the CWSBDevelopment can compute daily Western Spruce Budworm 
 //			   devlopement rate
-//             CWSBTableLookup is an optimisation table lookup
+//             CWSBEquations is an optimisation table lookup
 //*****************************************************************************
 #pragma once
 
@@ -21,12 +21,12 @@ namespace WBSF
 
 	//***********************************************************************************
 	//CWSBDevelopment
-	class CWSBTableLookup : public CEquationTableLookup
+	class CWSBEquations : public CEquationTableLookup
 	{
 	public:
 
 		enum TParameter{ RHO25, HA, HL, TL, HH, TH, NB_PARAMETER };
-		CWSBTableLookup(const CRandomGenerator& RG);
+		CWSBEquations(const CRandomGenerator& RG);
 
 		void SetRho25(double rho25Factor[NB_STAGES])
 		{
@@ -43,6 +43,18 @@ namespace WBSF
 			if (bForceInit)
 				Init(bForceInit);
 		}
+
+
+		double get_Fº(double A)const;
+		double get_A(size_t sex)const;
+		double get_M(size_t sex, double A, double G)const;
+		double get_ξ(size_t sex, double A)const;
+		double get_P(double T)const;
+		static double get_L(double A);
+
+		double get_p_exodus()const;
+		double get_defoliation(double defoliation)const;
+
 
 
 	protected:

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>WesternSpruceBudwormDispersal</Title>
+    <Version>1.0</Version>
+    <ID>.sbe</ID>
+    <EXE>WesternSpruceBudwormDispersal.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description>Ready-to-fly western spruce budworm dispersal</Description>
+    <WindowRect>0 0 155 315</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>Number of moths</Name>
+            <Caption>Number of moths</Caption>
+            <Description/>
+            <Type>1</Type>
+            <Rect>5 10 25 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>20000</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Defoliation</Name>
+            <Caption>Defoliation (%)</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>35 10 60 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>AdultLongevity</Name>
+            <Caption>Adult Longevity Max (days)</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>70 10 95 280</Rect>
+            <SeparatorPos>165</SeparatorPos>
+            <DefaultValue>12</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>15</MaxValue>
+            <TextValue>No maximum|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15</TextValue>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>4 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>Year</Name>
+            <Title>Year</Title>
+            <Units/>
+            <Description>Ready-to-fly year</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Month</Name>
+            <Title>Month</Title>
+            <Units/>
+            <Description>Ready-to-fly month</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Day</Name>
+            <Title>Day</Title>
+            <Units/>
+            <Description>Ready-to-fly day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Sex</Name>
+            <Title>Sex</Title>
+            <Units/>
+            <Description>Sex. Male=0, Female=1</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>A</Name>
+            <Title>A</Title>
+            <Units>cm²</Units>
+            <Description>Forewing surface area</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>M</Name>
+            <Title>M</Title>
+            <Units>g</Units>
+            <Description>Dry weight</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>G</Name>
+            <Title>G</Title>
+            <Units/>
+            <Description>Gravidity (0=spent, 1=full)</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>6</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>F°</Name>
+            <Title>F°</Title>
+            <Units>eggs</Units>
+            <Description>Initial fecundity in absence of defoliation</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>F</Name>
+            <Title>F</Title>
+            <Units>eggs</Units>
+            <Description>Initial fecundity</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit>Régnière's process-oriented model of spruce budworm seasonal biology&#x0A;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;This process-oriented model was developed by Régnière (1982). &#x0D;&#x0A;Variability in development rates is handled by the method of Régnière (1984). &#x0D;&#x0A;Oviposition is simulated accoding to Régnière (1983). &#x0D;&#x0A;Additional refinements were made by Régnière (1987, 1990). &#x0D;&#x0A;The feeding and defoliation components were described by Régnière &amp; You (1991). &#x0D;&#x0A;To provide for better fit beween predicted and observed development in the early larval stages, development rates were adjusted (Régnière, unpublished).&#x0A;&#x0A;                                                    &#x0D;&#x0A;&#x0D;&#x0A;References:&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;&#x0A;Régnière, J. 1982. A process-oriented model of spruce budworm phenology (Lepidoptera: Tortricidae). Can. Ent. 114:811-825.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1983. An oviposition model for the spruce budworm, Choristoneura fumiferana (Lepidoptera: Tortricidae). Can. Ent. 115:1371-1382.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. 1984. A method of describing and using variability in development rates for the simulation of insect phenology. Can. Ent. 116:1367-1376.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1987. Temperature-dependent development of eggs and larvae of Choristoneura fumiferana (Clem.) (Lepidoptera: Tortricidae) and simulation of its seasonal history. Can. Ent. 119: 717-728.&#x0A;&#x0A;&#x0D;&#x0A;Régnière, J. 1990. Diapause termination and changes in thermal responses during postdiapause development in larvae of the spruce budworm, Choristoneura fumiferana.. J. Insect Physiol. 36: 727-735.&#x0D;&#x0A;&#x0A;&#x0A;Régnière, J. and You, M. 1991. A simulation model of spruce budworm (Lepidoptera: Tortricidae) feeding on balsam fir and white spruce.. Ecol. Modelling 54: 277-297.&#x0A;</Credit>
+    <HelpFileName/>
+</Model>

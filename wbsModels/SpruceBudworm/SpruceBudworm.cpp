@@ -12,7 +12,7 @@
 // 13/03/2017   Jacques Régnière    Reduced EXODUS_AGE to {0.15, 0}  from { 0.5, 0}
 // 08/01/2017	Rémi Saint-Amant	Add hourly live
 // 22/12/2016   Rémi Saint-Amant	Change flight activity by exodus flight
-// 10/05/2016	Rémi Saint-Amant	Elimination of th optimization under -10 
+// 10/05/2016	Rémi Saint-Amant	Elimination of the optimization under -10 
 // 05/03/2015	Rémi Saint-Amant	Update for BioSIM11
 // 27/06/2013	Rémi Saint-Amant	New framework, Bug correction in fix AI
 // 27/09/2011	Rémi Saint-Amant	Add precipitation in live
@@ -54,7 +54,7 @@ namespace WBSF
 	//
 	// Input: See CIndividual creator
 	//
-	// Note: m_relativeDevRate member is init ewith random values.
+	// Note: m_relativeDevRate member is init with random values.
 	//*****************************************************************************
 	CSpruceBudworm::CSpruceBudworm(CHost* pHost, CTRef creationDate, double age, TSex sex, bool bFertil, size_t generation, double scaleFactor) :
 		CIndividual(pHost, creationDate, age, sex, bFertil, generation, scaleFactor)
@@ -70,7 +70,7 @@ namespace WBSF
 		m_Fº = CBioSIMModelBase::VMISS;
 		m_Fᴰ = CBioSIMModelBase::VMISS;
 		m_F = CBioSIMModelBase::VMISS;
-		m_A = Equations().get_A(m_sex);					//Generale forewing area [cm²]
+		m_A = Equations().get_A(m_sex);					//General forewing area [cm²]
 		
 		if (m_sex == FEMALE)
 		{
@@ -79,7 +79,7 @@ namespace WBSF
 			m_F = m_Fᴰ;	//set current fecundity
 		} 
 
-		m_ξ = Equations().get_ξ(m_sex, m_A);			//generater weight term error
+		m_ξ = Equations().get_ξ(m_sex, m_A);			//generate weight term error
 		m_M = Equations().get_M(m_sex, m_A, GetG())*m_ξ;//compute weight
 		
 		m_p_exodus = Equations().get_p_exodus();		//generate exodus liftoff position
@@ -265,7 +265,7 @@ namespace WBSF
 
 	//*****************************************************************************
 	// Develops all stages, including adults
-	// Input:	weather: the weather iof the day
+	// Input:	weather: the weather of the day
 	//*****************************************************************************
 	void CSpruceBudworm::Live(const CWeatherDay& weather)
 	{
@@ -313,7 +313,7 @@ namespace WBSF
 			ASSERT(broods < m_F);
 			ASSERT((m_totalBroods + broods) <= m_Fᴰ);
 
-			//after regniere 1983 Equation [12] at x = 0 :  (29.8 *(1 - exp(-0.214))) = 5.74
+			//after Régnière 1983 Equation [12] at x = 0 :  (29.8 *(1 - exp(-0.214))) = 5.74
 			if (m_F - broods < 5.74)//avoid very small egg deposition
 				broods = m_F;
 
@@ -324,7 +324,7 @@ namespace WBSF
 			m_F = m_Fᴰ - m_totalBroods;
 			ASSERT(m_totalBroods <= m_Fᴰ);
 
-			//Oviposition module after Régniere 1983
+			//Oviposition module after Régnière 1983
 			if (m_bFertil && m_broods > 0)
 			{
 				CSBWTree* pTree = GetTree();
@@ -430,7 +430,7 @@ namespace WBSF
 
 	}
 
-	//Get relative dev rate as function of stage and rate
+	//Get relative development rate as function of stage and rate
 	//NOTE: for L2o, special computation is done
 	double CSpruceBudworm::GetRelativeDevRate(double T, double r)const
 	{
@@ -438,9 +438,9 @@ namespace WBSF
 		double RR = m_relativeDevRate[s] * r;
 		if (s == L2o && r > 0)
 		{
-			//Equation [5] in Régniere 1990
-			//Relative dev rate of L2o depend of the age of L2o
-			//Adjust Relative dev rate
+			//Equation [5] in Régnière 1990
+			//Relative development rate of L2o depend of the age of L2o
+			//Adjust Relative development rate
 			double dprime = min(1.0, max(0.25, m_age - L2o));
 			double tairp = max(T, 5.0);
 			double fat = .091*tairp*pow(dprime, (1.0 - 1.0 / (.091*tairp)));
@@ -578,9 +578,9 @@ namespace WBSF
 	}
 
 
-	//tᶳ [in]: sunset [s] (since the begginning of the day)
-	//tº [out]: start of liftoff [s] (since the begginning of the day)
-	//tᴹ [out]: end of liftoff [s] (since the begginning of the day)
+	//tᶳ [in]: sunset [s] (since the beginning of the day)
+	//tº [out]: start of liftoff [s] (since the beginning of the day)
+	//tᴹ [out]: end of liftoff [s] (since the beginning of the day)
 	//Base on: Modeling the circadian rhythm of migratory flight in spruce budworm
 	//Jacques Régnière, Matthew Garcia and Rémi St-Amant
 	bool CSpruceBudworm::get_t(const CWeatherDay& wº, __int64 &tº, __int64 &tᶜ, __int64 &tᴹ)

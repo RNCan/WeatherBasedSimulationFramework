@@ -24,7 +24,7 @@
 // 26/06/2013	2.4.0	Rémi Saint-Amant    Update with new framework and bug correction in fix AI
 // 25/09/2011			Rémi Saint-Amant    Remove extra parameters. 
 // 23/03/2010			Rémi Saint-Amant    Creation from old code
-// 09/01/1995			Jacques Regniere    Creation
+// 09/01/1995			Jacques Régnière    Creation
 //*****************************************************************************
 #include "Basic/ModelStat.h"
 #include "Basic/UtilStd.h"

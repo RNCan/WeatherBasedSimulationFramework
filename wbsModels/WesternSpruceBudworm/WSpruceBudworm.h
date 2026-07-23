@@ -1,4 +1,4 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // File: WSB.h
 //
 // Class: CWSpruceBudworm, CWSBVector
@@ -41,6 +41,7 @@ namespace WBSF
 		CWSpruceBudworm(CHost* pHost = NULL, CTRef creationDay = CTRef(), double age = EGG, TSex sex = RANDOM_SEX, bool bFertil = true, size_t generation = 0, double scaleFactor = 1);
 		~CWSpruceBudworm(void);
 
+		void Live(const CHourlyData& weather, size_t TimeStep);
 		virtual void Live(const CWeatherDay& weather);
 		virtual void Brood(const CWeatherDay& weather);
 		virtual void Die(const CWeatherDay& weather);
@@ -55,7 +56,28 @@ namespace WBSF
 		inline const CWSBTree* GetTree()const;
 		inline CWSBStand* GetStand();
 		inline const CWSBStand* GetStand()const;
-		inline CWSBTableLookup& Equations();
+		inline CWSBEquations& Equations();
+
+
+		//Dispersal
+		static bool get_t(const CWeatherDay& weather, __int64& tº, __int64& tᶜ, __int64& tᴹ);
+		static double get_Tair(const CWeatherDay& weather, double h);
+		static double get_Prcp(const CWeatherDay& weather, double h);
+		static double get_WndS(const CWeatherDay& weather, double h);
+
+		bool ComputeExodus(double T, double P, double W, double tau);
+		bool ComputeExodus(const CWeatherDay& weather);
+		bool GetExodus()const { return m_bExodus; }
+		void SetExodus(bool in) { m_bExodus = in; }
+
+		double GetA()const { return m_A; }
+		double GetM()const { return m_M; }
+		double Getξ()const { return m_ξ; }
+
+		double GetG()const { return m_sex == FEMALE ? m_F / m_Fº : -9999; }
+		double GetFº()const { return m_Fº; }
+		double GetFᴰ()const { return m_Fᴰ; }
+		double GetF()const { return m_F; }
 
 	protected:
 
@@ -79,6 +101,21 @@ namespace WBSF
 		double m_synchLuck;	//for synchrony survival
 		double m_windowLuck;//for shoot development survival
 		double m_onBole; //for overwintering survival (buffering of temperature)
+
+
+		//Dispersal
+		double m_Fº;			//initial fecundity without defoliation
+		double m_Fᴰ;			//initial fecundity with defoliation
+		double m_F;				//current fecundity
+		double m_ξ;				//weight variability
+		double m_A;				//forewing area [cm²]
+		double m_M;				//actual dry weight [g]
+		double m_p_exodus;
+		bool m_bExodus;
+		bool m_bAlreadyExodus;
+		double m_D;				//defoliation at shoot level
+
+
 		static const double EGG_FREEZING_POINT;
 		static const double ADULT_FREEZING_POINT;
 	};
@@ -107,10 +144,12 @@ namespace WBSF
 		void ComputeMineable(const CWeatherDay& weather);
 		void ComputeShootDevel(const CWeatherDay& weather);
 		//Tree variables
-		double m_DDbud; //Accumulated degree days for bud devlopmnent
+		double m_DDbud; //Accumulated degree days for bud development
 		double m_DDshoot; //Accumulated degree days for shoot development
 		double m_probBudMineable; //Proportion of buds that can be mined by a budworm
 	};
+
+	typedef std::shared_ptr<CWSBTree> CWSBTreePtr;
 
 	//*******************************************************************************************************
 	//*******************************************************************************************************
@@ -128,6 +167,10 @@ namespace WBSF
 		bool m_bApplyAsynchronyMortality;
 		bool m_bApplyWindowMortality;
 		bool m_bFertilEgg;
+		bool m_bApplyAdultAttrition = false;
+		size_t m_adult_longivity_max = 12;
+
+
 		double m_survivalRate;
 		double m_defoliation;
 
@@ -148,7 +191,7 @@ namespace WBSF
 		}
 
 
-		CWSBTableLookup m_equations;
+		CWSBEquations m_equations;
 
 	protected:
 
@@ -161,6 +204,6 @@ namespace WBSF
 	inline const CWSBTree* CWSpruceBudworm::GetTree()const { return static_cast<const CWSBTree*>(m_pHost); }
 	inline CWSBStand* CWSpruceBudworm::GetStand() { ASSERT(m_pHost); return static_cast<CWSBStand*>(GetTree()->GetStand()); }
 	inline const CWSBStand* CWSpruceBudworm::GetStand()const { ASSERT(m_pHost); return static_cast<const CWSBStand*>(GetTree()->GetStand()); }
-	inline CWSBTableLookup& CWSpruceBudworm::Equations() { return GetStand()->m_equations; }
+	inline CWSBEquations& CWSpruceBudworm::Equations() { return GetStand()->m_equations; }
 
 }

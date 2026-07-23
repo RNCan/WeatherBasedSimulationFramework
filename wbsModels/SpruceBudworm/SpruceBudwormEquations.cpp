@@ -9,10 +9,10 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
-// 01/01/2019	Rémi Saint-Amant	Limit adult devlopement temperatrue between 8 and 35
+// 01/01/2019	Rémi Saint-Amant	Limit adult development temperature between 8 and 35
 // 03/03/2017	Rémi Saint-Amant	Add eggs laid proportion
 // 23/12/2016   Rémi Saint-Amant	Add flight activity equations
-// 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation comflict
+// 06/03/2015	Rémi Saint-Amant	Add use of CRandomGenerator to avoid thread random generation conflict
 // 18/06/2013   Rémi Saint-Amant    new format of table
 // 27/09/2011   Rémi Saint-Amant    add b1Factor multiplication
 // 11/03/2010   Rémi Saint-Amant    Creation from new paper
@@ -338,7 +338,7 @@ namespace WBSF
 		ASSERT(defoliation >= 0 && defoliation <= 100);
 		if (defoliation > 0 && defoliation < 100)
 		{
-			//From Regniere 20018 part III Equation [15]
+			//From Régnière 2018 part III Equation [15]
 			double μ = defoliation / 100.0;
 			double σ² = 0.008101 + 0.5289*μ - 0.5228*Square(μ);
 

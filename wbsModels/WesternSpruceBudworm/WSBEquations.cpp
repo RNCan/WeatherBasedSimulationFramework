@@ -1,17 +1,17 @@
-//*****************************************************************************
+﻿//*****************************************************************************
 // File: WSBDevelopment.h
 //
 // Class: CWSBDevelopment
 //          
 //
 // Description: the CWSBDevelopment can compute daily western spruce budworm development rate
-//             CWSBTableLookup is an optimization table lookup
+//             CWSBEquations is an optimization table lookup
 //*****************************************************************************
-// 12/07/2022   R�mi Saint-Amant	Parameters correction HA L3 (9738 instead of 97380)
-// 21/01/2016   R�mi Saint-Amant	Update with BioSIM 11.0
-// 12/10/2012   R�mi Saint-Amant    Update with new template
-// 28/01/2011	R�mi Saint-Amant    Add Attrition 
-// 23/01/2009   R�mi Saint-Amant    Creation from Jacques code
+// 12/07/2022   Rémi Saint-Amant	Parameters correction HA L3 (9738 instead of 97380)
+// 21/01/2016   Rémi Saint-Amant	Update with BioSIM 11.0
+// 12/10/2012   Rémi Saint-Amant    Update with new template
+// 28/01/2011	Rémi Saint-Amant    Add Attrition 
+// 23/01/2009   Rémi Saint-Amant    Creation from Jacques code
 //*****************************************************************************
 
 #include "Basic/UtilMath.h"
@@ -29,7 +29,7 @@ namespace WBSF
 
 
 	//development rate parameters (9 stages, 6 parameters)
-	const double CWSBTableLookup::DEFAULT_P[NB_STAGES][6] =
+	const double CWSBEquations::DEFAULT_P[NB_STAGES][6] =
 	{//Revised 2011-08-06from SAS output (JR)	
 		//rho25	HA		HL		TL		HH		TH
 		0.158, 11443, -59715., +283.900, 99958, 308.2,	//Egg
@@ -45,9 +45,9 @@ namespace WBSF
 
 
 	//L2 adjustment (final model)
-	const double CWSBTableLookup::RHO25_FACTOR[NB_STAGES] = { 1, 1, 2.62, 1, 1, 1, 1, 1, 1 };
+	const double CWSBEquations::RHO25_FACTOR[NB_STAGES] = { 1, 1, 2.62, 1, 1, 1, 1, 1, 1 };
 
-	CWSBTableLookup::CWSBTableLookup(const CRandomGenerator& RG) :
+	CWSBEquations::CWSBEquations(const CRandomGenerator& RG) :
 		CEquationTableLookup(RG, NB_STAGES, 0, 40, 0.25)
 	{
 		for (int i = 0; i < NB_STAGES; i++)
@@ -61,7 +61,7 @@ namespace WBSF
 	}
 
 
-	double CWSBTableLookup::ComputeDailyDevlopmentRate(size_t e, double T)const
+	double CWSBEquations::ComputeDailyDevlopmentRate(size_t e, double T)const
 	{
 		ASSERT(e < NB_STAGES);
 
@@ -86,7 +86,7 @@ namespace WBSF
 			Rt = num / (1 + den1 + den2);
 		}
 
-		return min(1.0, max(0.0, Rt)); //This is daily rate, if time step smaller, must be multyiplied by time step...
+		return min(1.0, max(0.0, Rt)); //This is daily rate, if time step smaller, must be multiplied by time step...
 	}
 
 	//***********************************************************************************
@@ -151,4 +151,137 @@ namespace WBSF
 		return l;
 	}
 
+
+	//***********************************************************************************
+
+	//sex : MALE (0) or FEMALE (1)
+	//A : forewing surface area [cm²]
+	double CWSBEquations::get_A(size_t sex)const
+	{
+		ASSERT(sex < 2);
+
+		static const double A_MEAN[2] = { 0.361, 0.421 };
+		static const double A_SD[2] = { 0.047, 0.063 };
+
+
+		double A = m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
+		while (A < 0.20 || A>0.6)
+			A = m_randomGenerator.RandNormal(A_MEAN[sex], A_SD[sex]);
+
+
+		return A;
+	}
+
+	//A : forewing surface area [cm²]
+	//L : forewing length [cm]
+	double CWSBEquations::get_L(double A)
+	{
+		return sqrt(A / 0.325);
+	}
+
+	//sex : MALE (0) or FEMALE (1)
+	//A : forewing surface area [cm²]
+	//out : dry weight [g]
+	double CWSBEquations::get_M(size_t sex, double A, double G)const
+	{
+		static const double M_A[2] = { -6.7560, -6.4648 };
+		static const double M_B[2] = { 0.0000,  1.3260 };
+		static const double M_C[2] = { 3.7900,  2.1400 };
+		static const double M_D[2] = { 0.0000,  1.3050 };
+
+		return exp(M_A[sex] + M_B[sex] * G + M_C[sex] * A + M_D[sex] * G * A);
+	}
+
+
+	//sex : MALE (0) or FEMALE (1)
+	//A : forewing surface area [cm²]
+	//out : Dry weight error term
+	double CWSBEquations::get_ξ(size_t sex, double A)const
+	{
+		static const double M_ξ[2] = { 0.2060,  0.1600 };
+		static const double M_L[2] = { 0.0015,  0.0090 };//0.009 = low full female
+		static const double M_H[2] = { 0.0150,  0.0600 };//0.06 = hi full female
+
+		double Mfull = get_M(sex, A, 1);
+
+		//find error term that will be good for male or for full or empty female 
+		double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), M_ξ[sex]);
+		while (Mfull * ξ<M_L[sex] || Mfull * ξ >M_H[sex])
+			ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), M_ξ[sex]);
+
+		return ξ;
+	}
+
+	double CWSBEquations::get_p_exodus()const
+	{
+		return 	m_randomGenerator.Randu();
+	}
+
+
+	//A : forewing surface area [cm²]
+	//Fº: Initial fecundity in absence of defoliation [eggs]
+	double CWSBEquations::get_Fº(double A)const
+	{
+		const double α = 1129.2;
+		const double β = 1.760;
+
+		double Fº = 0;
+		do
+		{
+			double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), 0.222);
+			ASSERT(ξ >= 0.33 && ξ < 3.33);
+
+			double F = α * pow(A, β);
+			Fº = F * ξ;
+
+		} while (Fº < 25 || Fº > 500);
+
+		ASSERT(Fº >= 25 && Fº <= 500);
+
+		return Fº;
+	}
+
+
+
+
+	//T: daily mean temperature
+	//P: egg laid proportion 
+	double CWSBEquations::get_P(double T)const
+	{
+		const double α = 0.489;
+		const double β = 15.778;
+		const double c = 2.08;
+
+		double P = 0;
+		do
+		{
+			double ξ = m_randomGenerator.RandUnbiasedLogNormal(log(1), 0.1);
+			double p = α / (1 + exp(-(T - β) / c));
+			P = p * ξ;
+
+		} while (P < 0 || P > 0.7);
+
+		return P;
+	}
+
+	double CWSBEquations::get_defoliation(double defoliation)const
+	{
+		ASSERT(defoliation >= 0 && defoliation <= 100);
+		if (defoliation > 0 && defoliation < 100)
+		{
+			//From Régnière 2018 part III Equation [15]
+			double μ = defoliation / 100.0;
+			double σ² = 0.008101 + 0.5289 * μ - 0.5228 * Square(μ);
+
+			double α = μ * ((μ * (1 - μ) / σ²) - 1);
+			double β = (1 - μ) * ((μ * (1 - μ) / σ²) - 1);
+
+			defoliation = m_randomGenerator.RandBeta(α, β) * 100;
+			while (defoliation < 0 || defoliation>100)
+				defoliation = m_randomGenerator.RandBeta(α, β) * 100;
+
+		}
+		ASSERT(defoliation >= 0 && defoliation <= 100);
+		return defoliation;
+	}
 }
