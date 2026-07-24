@@ -31,7 +31,7 @@ namespace WBSF
 
 	double InvLogistic(double y, double k1, double k2)
 	{
-		// Eq. [3] in Regniere, J. 1984. Canadian Entomologist 116: 1367-1376
+		// Eq. [3] in Régnière, J. 1984. Canadian Entomologist 116: 1367-1376
 		// inverted y = f(x)
 		double x = 1.0 - log((pow(y, -k2) - 1) / (pow(0.5, -k2) - 1)) / k1;
 		return x;
