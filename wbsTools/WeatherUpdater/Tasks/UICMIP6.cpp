@@ -889,21 +889,21 @@ namespace WBSF
 						string info_str = "Create MMG for " + ssp + " (" + to_string(nb_years) + " years)";
 						callback.PushTask(info_str, nb_years);
 						callback.AddMessage(info_str);
-						
-						
+
+
 						for (size_t y = 0; y < nb_years && msg; y++)
 						{
-						
+
 							int year = int(first_year + y);
-						
+
 							CMonthlyVariableVector data;
 							msg += GetMMGForSSP(model, year < 2015 ? SSP_HISTORICAL : ssp, year, options.m_extents, data, callback);
 							if (msg)
 								msg += SaveData(y, year, MMG_filepath, data, callback);
-						
+
 							msg += callback.StepIt();
 						}//for all years
-						
+
 						callback.PopTask();
 						string path = WBSF::GetPath(MMG_filepath);
 						string title = WBSF::GetFileTitle(MMG_filepath);
@@ -928,9 +928,9 @@ namespace WBSF
 									string gdal_data_path = GetApplicationPath() + "gdal-data";
 									string projlib_path = GetApplicationPath() + "projlib";
 									string plugin_path = GetApplicationPath() + "gdalplugins";
-								
+
 									string option = "--config GDAL_NUM_THREADS ALL_CPUS --config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
-									string argument = "-overwrite -ot Float32 -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE="+block_size+" -co BLOCKYSIZE="+block_size;
+									string argument = "-overwrite -ot Float32 -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=" + block_size + " -co BLOCKYSIZE=" + block_size;
 									string prj = "-s_srs \"+proj=longlat +datum=WGS84 +pm=0 +over +lon_wrap=180\" -t_srs EPSG:4326";
 									string extents = string("-te ") + (bWorld ? "-180 -60 180 90" : "-180 15 0 90") + " -tr 0.25 0.25";
 									string command = "\"" + GetApplicationPath() + "gdalwarp.exe\" " + extents + " " + option + " " + argument + " " + prj + " \"" + filepath_in + "\" \"" + filepath_out + "\"";
@@ -940,12 +940,12 @@ namespace WBSF
 										if (m_bDeleteTmp)
 										{
 											StringVector files_list = WBSF::GetFilesList(path_in + "*.*");
-											for(size_t i=0; i< files_list.size(); i++)
+											for (size_t i = 0; i < files_list.size(); i++)
 												RemoveFile(files_list[i]);
-											
+
 											RemoveDirectory(path_in);
 										}
-								
+
 										//std::this_thread::sleep_for(std::chrono::seconds(5));
 										//msg += RemoveFile(filepath_out1);
 										//std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -1181,7 +1181,6 @@ namespace WBSF
 		{
 			for (size_t v = 0; v < data[d].size(); v++)
 			{
-				ASSERT(data[d][v][i] > -999);
 				if (data[d][v][i] > -999)
 					stat[v] += data[d][v][i];
 			}
@@ -1361,6 +1360,7 @@ namespace WBSF
 			size_t nbDays = timeGrid.getSize();
 			callback.PushTask("Compute statistic for year = " + to_string(year), nbDays * ncFiles.size());
 
+			size_t d_read = 0;
 			for (size_t m = 0; m < 12 && msg; m++)
 			{
 				CTPeriod daily_period = CTPeriod(year, m, DAY_01, year, m, LAST_DAY);
@@ -1374,8 +1374,6 @@ namespace WBSF
 
 
 				std::vector<float> tmp_raw_data(extents.m_ySize * extents.m_xSize);
-
-				size_t d = 0;
 				for (CTRef TRef = daily_period.Begin(); TRef <= daily_period.End() && TRef <= period.End() && msg; TRef++)
 				{
 
@@ -1387,7 +1385,7 @@ namespace WBSF
 					}
 
 
-					//size_t d = (size_t)(TRef - daily_period.Begin());
+					size_t d = (size_t)(TRef - daily_period.Begin());
 					//size_t dd = TRef - period.Begin();
 					/*if (bIsMissingFeb29)
 					{
@@ -1422,7 +1420,7 @@ namespace WBSF
 							size_t nbLat = geo_rect.m_ySize;
 							size_t nbLon = geo_rect.m_xSize;
 
-							vector<size_t> startp = { {d, first_lat, first_lon } };
+							vector<size_t> startp = { {d_read, first_lat, first_lon } };
 							vector<size_t> countp = { { 1, nbLat, nbLon } };
 							NcVar& var = ncFiles[v]->getVar(VARIABLES_NAMES[v]);
 
@@ -1461,13 +1459,15 @@ namespace WBSF
 					}
 
 
-					d++;
+					d_read++;
 				}//for all days of the month 
 
 				if (msg)
 				{
-
-					for (size_t i = 0; i < extents.m_ySize * extents.m_xSize; i++)
+					CGeoExtents test_extent(0, -60, 360, 90, 1440, 600, 256, 256, PRJ_WGS_84);
+					CGeoPointIndex index = test_extent.CoordToXYPos(CGeoPoint(214.13, 65.08, PRJ_WGS_84));
+					size_t i = index.m_y * geo_rect.m_xSize + index.m_x;
+					//for (size_t i = 0; i < extents.m_ySize * extents.m_xSize; i++)
 					{
 						if (daily_data[0][0][i] > -999)
 							ComputeMontlyStatistic(m, (size_t)i, daily_data, dataOut);
