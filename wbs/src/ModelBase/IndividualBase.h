@@ -88,7 +88,7 @@ namespace WBSF
 		bool IsChangingStage(double r)const{ return GetStage() != (size_t)(m_age+r); }
 		bool HasChangedStatus()const{ return m_status != m_lastStatus; }
 		bool IsAlive()const{ return m_status == HEALTHY; }				//Reports individual not dead (1) or dead (0) 
-		bool IsCreated(CTRef ref)const{ return ref >= m_creationDate; }	//
+		bool IsCreated(CTRef ref)const{ return ref.as(m_creationDate.GetTM()) >= m_creationDate; }	//
 
 		size_t GetGeneration()const{ return m_generation; }
 		void SetGeneration(size_t in){ m_generation = in; }
