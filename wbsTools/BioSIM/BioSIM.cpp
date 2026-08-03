@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
 // 11.9.1:24/07/2026	Rémi Saint-Amant	Add automtic convertion of dispersal output into gpkg
-//									      	Bug correction development rate fit when using mean+sd+n
+//									      	Bug correction development rate fit when using mean+sd+n 
 //											Add Stage table in fit method. rename proj9 to projlib.
 // 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin. 
 //											Bug correction in Google Drive download (again).

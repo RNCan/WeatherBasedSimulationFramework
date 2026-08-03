@@ -1070,11 +1070,6 @@ namespace WBSF
 		std::wstring wcommand = UTF16(command);
 		LPCWSTR pDir = wdir.empty() ? NULL : wdir.c_str();
 
-
-		// 1. Define your target PROJ_LIB path
-		std::wstring GDALDataEnv = UTF16("GDAL_DATA=" + GetApplicationPath() + "gdal-data");
-		std::wstring projLibEnv = UTF16("PROJ_LIB=" + GetApplicationPath() + "projlib");
-
 		// 2. Get the current process environment block
 		LPWCH currentEnv = GetEnvironmentStringsW();
 		assert(currentEnv != nullptr);
@@ -1109,13 +1104,13 @@ namespace WBSF
 		PROCESS_INFORMATION pi = { 0 };
 
 		// Your ogr2ogr command line
-		std::wstring app_name = UTF16(GetApplicationPath() + "ogr2ogr.exe");
+		//std::wstring app_name = UTF16(GetApplicationPath() + "ogr2ogr.exe");
 		std::wstring commandLine = UTF16(command);
 
 
 		// 7. Launch the process with CREATE_UNICODE_ENVIRONMENT
 		BOOL success = CreateProcessW(
-			&app_name[0], // Application name
+			NULL, // Application name
 			&commandLine[0],                  // Command line
 			nullptr,                          // Process attributes
 			nullptr,                          // Thread attributes
