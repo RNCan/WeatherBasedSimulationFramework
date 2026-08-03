@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.1	14/07/2026  Rémi Saint-Amant	Mnagae projection correctly
+// 1.0.2	25/07/2026  Rémi Saint-Amant	Bug correction in wind computation
+// 1.0.1	14/07/2026  Rémi Saint-Amant	Manage projection correctly
 // 1.0.0	05/07/2026	Rémi Saint-Amant	Creation
 
 #include "stdafx.h" 
@@ -36,7 +37,7 @@ namespace WBSF
 	using namespace WEATHER;
 	using namespace HOURLY_DATA;
 	using namespace NORMALS_DATA;
-	const char* CNormalsCreator::VERSION = "1.0.1";
+	const char* CNormalsCreator::VERSION = "1.0.2";
 	const int CNormalsCreator::NB_THREAD_PROCESS = 2;
 
 
@@ -247,13 +248,11 @@ namespace WBSF
 
 
 			//if (!m_options.m_bQuiet && m_options.m_bCreateImage)
-				//printf("Extract %I64u points with %d threads...\n", ioFile.size(), m_options.m_bMulti ? m_options.m_CPU : 1);
+			printf("Extract %I64u points with %d threads...\n", inputDB.size(), m_options.m_bMulti ? m_options.m_CPU : 1);
 
 
 			CGeoExtents extents = m_options.GetExtents();
 			m_options.m_xxFinal = inputDB.size();
-			//extents.YNbBlocks() * extents.XNbBlocks() *
-
 			//**************************************
 
 			omp_set_nested(1);//for IOCPU
@@ -429,9 +428,9 @@ namespace WBSF
 
 		if (bandHolder[TMIN_MN]->IsEmpty())
 		{
-//#pragma omp atomic		
-//			m_options.m_xx += (int)inputDB.size();
-	//		m_options.UpdateBar();
+			//#pragma omp atomic		
+			//			m_options.m_xx += (int)inputDB.size();
+				//		m_options.UpdateBar();
 
 			return;
 		}
@@ -454,7 +453,9 @@ namespace WBSF
 				years.insert(y);
 
 			//process all point
+#ifndef _DEBUG
 #pragma omp parallel for num_threads( m_options.m_CPU) if (m_options.m_bMulti)	
+#endif			
 			for (int i = 0; i < inputDB.size(); i++)
 			{
 				//for all point in the table
@@ -516,26 +517,41 @@ namespace WBSF
 										//msg = station.IsValid();
 										//if (!msg)
 											//msg.ajoute("Invalid weather data for station: " + station.m_ID);
-										ERMsg msg_valid = normalStation.IsValid();
-										//if (!msg_valid)
-										//{
-										//	callback.AddMessage("Invalid normals weather data for station: " + station.m_ID, 1);
-										//	callback.AddMessage(msg_valid);
-										//}
-
-										//if (msg)
-										//{
-										//if (m_options.ApplyCC())
-										//{
-											//now adjust standard deviation if they are present
-										UpdateStandardDeviation(p, blockExtents, bandHolder, normalStation);
-										//}
-
-										//add normal to database
-#pragma omp critical(ProcessBlock)
+										ERMsg msg_valid1 = normalStation.IsValid();
+										if (msg_valid1)
 										{
-											normalsDB[p]->Add(normalStation);
+											//now adjust standard deviation if they are present
+											UpdateStandardDeviation(p, blockExtents, bandHolder, normalStation);
+											ERMsg msg_valid2 = normalStation.IsValid();
+
+											//add normal to database
+#pragma omp critical(ProcessBlock)
+											{
+												if (msg_valid2)
+												{
+													normalsDB[p]->Add(normalStation);
+												}
+												else
+												{
+
+													//for (int i = 0; i, msg_valid2.dimension(); i++)
+													cout << dailyStation.GetLocation().m_ID << dailyStation.GetLocation().m_name << endl;
+
+												}
+											}
+
 										}
+
+										else
+										{
+#pragma omp critical(ProcessBlock)
+											{
+												for (int i = 0; i, msg_valid1.dimension(); i++)
+													cout << msg_valid1[i];
+											}
+
+										}
+
 										//if (messageTmp)
 										//{
 										//	nbStationAdded++;
@@ -672,7 +688,9 @@ namespace WBSF
 							else if (v == HOURLY_DATA::H_PRCP)
 							{
 								double prcp = stationIn[y][m][d][v][SUM];
-								prcp *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
+								if (ccMonthlyMean[m][f] > 0 && refMonthlyMean[m][f] > 0)
+									prcp *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
+
 								stationII[y][m][d][v] = prcp;
 							}
 							else if (v == HOURLY_DATA::H_TDEW)
@@ -690,6 +708,8 @@ namespace WBSF
 										double Tmax = stationIn[y][m][d][H_TMAX][MEAN];
 										double Hr = stationIn[y][m][d][H_RELH][MEAN];
 										double Hs = Hr2Hs(Tmin, Tmax, Hr);
+										assert(ccMonthlyMean[m][f] > 0);
+										assert(refMonthlyMean[m][f] > 0);
 										Hs *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);//specific humidity ratio
 
 										ASSERT(stationII[y][m][d].GetParent());
@@ -717,7 +737,7 @@ namespace WBSF
 								{
 									//convert Hr to Hs with station temperature
 									double Hr = stationIn[y][m][d][H_RELH][MEAN];
-									Hr = max(0.0, min(100.0, (Hr * ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
+									Hr = max(1.0, min(100.0, (Hr * ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
 									stationII[y][m][d][H_RELH] = Hr;
 
 									//we compute the best Tdew as we can. 
@@ -734,8 +754,15 @@ namespace WBSF
 							}
 							else if (v == HOURLY_DATA::H_WNDS)
 							{
+								
+								assert(ccMonthlyMean[m][f] > 0);
+								assert(refMonthlyMean[m][f] > 0);
+
 								double wndS = stationIn[y][m][d][v][MEAN];
-								wndS *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
+								//Monhtly mean speed is not logged: direct ratio
+								if(ccMonthlyMean[m][f] > 0 && refMonthlyMean[m][f] > 0)
+									wndS *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
+								
 								stationII[y][m][d][v] = wndS;
 							}
 						}//if is valid fields
@@ -844,14 +871,32 @@ namespace WBSF
 					{
 						if (v == DEL_STD || v == EPS_STD || v == PRCP_SD || v == RELH_SD)
 						{
-							data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
+							if (ccMonthlyMean[m][v] > 0 && refMonthlyMean[m][v] > 0)
+								data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
+
 							ASSERT(data[m][v] < 2000);
 						}
 						else if (v == WNDS_SD)
 						{
-							data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
-							if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
-								data[m][v] = (float)log(ccMonthlyMean[m][v]);
+							/*double ref_mean = refMonthlyMean[m][WNDS_MN];
+							double ref_sd = refMonthlyMean[m][WNDS_SD];
+							double refSDLog = sqrt((exp(ref_sd* ref_sd)-1)*exp(2* ref_mean+ ref_sd* ref_sd));
+
+							double cc_mean = ccMonthlyMean[m][WNDS_MN];
+							double cc_sd = ccMonthlyMean[m][WNDS_SD];
+							double ccSDLog = sqrt((exp(cc_sd * cc_sd) - 1) * exp(2 * cc_mean + cc_sd * cc_sd));
+
+							assert(refSDLog > 0);
+							assert(ccSDLog > 0);*/
+
+							/*Need to find a bettwer way to do that*/
+							double sd_wind = exp(data[m][v]);
+							sd_wind *= ccMonthlyMean[m][v]/refMonthlyMean[m][v];
+							data[m][v] = max(0.15, min(1.43, log(sd_wind)));/*limit to resonable values*/
+
+							//float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
+							//if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
+							//	data[m][v] = (float)log(ccMonthlyMean[m][v]);
 
 							ASSERT(data[m][v] > 0);
 						}

@@ -78,7 +78,8 @@ namespace WBSF
 	}
 
 	CDispersal::~CDispersal()
-	{}
+	{
+	}
 
 	void CDispersal::Reset()
 	{
@@ -263,14 +264,14 @@ namespace WBSF
 		//This algorithm is limited to distances such that dlon <pi / 2, i.e those that extend around less than one quarter of the circumference of the earth in longitude.A completely general, but more complicated algorithm is necessary if greater distances are allowed :
 
 		double tc = fmod(3 * PI / 2 - atan2(V, U), 2 * PI);
-		double distance = sqrt(U*U + V * V);//distance in km
+		double distance = sqrt(U * U + V * V);//distance in km
 		double d = distance / 6371; //distance in radian 6366.71
 
 		double lat1 = Deg2Rad(pt.m_lat);
 		double lon1 = Deg2Rad(pt.m_lon);
 
-		double lat2 = asin(sin(lat1)*cos(d) + cos(lat1)*sin(d)*cos(tc));
-		double dlon = atan2(sin(tc)*sin(d)*cos(lat1), cos(d) - sin(lat1)*sin(lat2));
+		double lat2 = asin(sin(lat1) * cos(d) + cos(lat1) * sin(d) * cos(tc));
+		double dlon = atan2(sin(tc) * sin(d) * cos(lat1), cos(d) - sin(lat1) * sin(lat2));
 		double lon2 = fmod(lon1 + dlon + PI, 2 * PI) - PI;
 
 		CGeoPoint pt2(Rad2Deg(lon2), Rad2Deg(lat2), PRJ_WGS_84);
@@ -532,7 +533,7 @@ namespace WBSF
 
 
 		const CLocationVector& locations = metadata.GetLocations();
-		callback.PushTask("Initialize dispersal moths", metadata.GetNbReplications() *locations.size()*metadata.GetParameterSet().size());
+		callback.PushTask("Initialize dispersal moths", metadata.GetNbReplications() * locations.size() * metadata.GetParameterSet().size());
 
 		CGeoExtents extents = world.m_DEM_DS.GetExtents();
 		extents.Reproject(GetReProjection(world.m_DEM_DS.GetPrjID(), PRJ_WGS_84));
@@ -545,7 +546,7 @@ namespace WBSF
 			nbMoths = GetNbMoths(pResult);
 			if (nbMoths > world.m_world_param.m_maxFlyers)
 			{
-				max_moth_prop = ((double)world.m_world_param.m_maxFlyers/ nbMoths);
+				max_moth_prop = ((double)world.m_world_param.m_maxFlyers / nbMoths);
 
 				callback.AddMessage("Number of moths before optimization: " + ToString(nbMoths) + " moths");
 			}
@@ -579,7 +580,7 @@ namespace WBSF
 						if (v[I_YEAR] > -999 && v[I_MONTH] > -999 && v[I_DAY] > -999)
 						{
 							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-							
+
 							if (world.random().Randu() <= max_moth_prop)//remove moth by optimization
 							{
 								if (world.m_world_param.m_simulationPeriod.IsInside(emergingDate))
@@ -616,7 +617,7 @@ namespace WBSF
 									else
 										moths_after++;
 								}
-								
+
 								world.m_seasonalIndividuals++;
 							}
 
@@ -633,12 +634,12 @@ namespace WBSF
 
 		callback.PopTask();
 
-		callback.AddMessage("Kept ratio: " + ToString(100.0*world.m_seasonalIndividuals/ sum_individual, 1) + " %");
+		callback.AddMessage("Kept ratio: " + ToString(100.0 * world.m_seasonalIndividuals / sum_individual, 1) + " %");
 		callback.AddMessage("Number of moths for the entire season: " + ToString(world.m_seasonalIndividuals) + " moths");
-		callback.AddMessage("Number of moths before the period: " + to_string(moths_before) + " moths (" + ToString(100.0*moths_before / world.m_seasonalIndividuals, 2) + " %)");
-		callback.AddMessage("Number of moths for the period: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0*world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
-		callback.AddMessage("Number of moths after the period: " + to_string(moths_after) + " moths (" + ToString(100.0*moths_after / world.m_seasonalIndividuals, 2) + " %)");
-		callback.AddMessage("Execute dispersal with: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0*world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Number of moths before the period: " + to_string(moths_before) + " moths (" + ToString(100.0 * moths_before / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Number of moths for the period: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0 * world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Number of moths after the period: " + to_string(moths_after) + " moths (" + ToString(100.0 * moths_after / world.m_seasonalIndividuals, 2) + " %)");
+		callback.AddMessage("Execute dispersal with: " + to_string(world.m_moths.size()) + " moths (" + ToString(100.0 * world.m_moths.size() / world.m_seasonalIndividuals, 2) + " %)");
 		callback.AddMessage("Weather period:         " + world.m_weather.GetEntireTPeriod().GetFormatedString());
 		callback.AddMessage("Output period:          " + outputPeriod2.GetFormatedString());
 		callback.AddMessage("Output replications (max moths/location):" + ToString(nbReplications));
@@ -648,56 +649,6 @@ namespace WBSF
 
 		if (!world.m_moths.empty())
 		{
-
-			/*CATMOutputMatrix output(world.m_moths.size());
-			for (size_t no = 0; no < output.size(); no++)
-				output[no].Init(outputPeriod, VMISS);
-
-			msg = world.Execute(output, sub_hourly_file, callback);
-			if (msg)
-			{
-				callback.PushTask("Save data" , output.size() );
-
-				ATMOutput missing_output;
-				missing_output.Init(outputPeriod, VMISS);
-
-				for (size_t l = 0; l < locations.size(); l++)
-				{
-					for (size_t p = 0; p < metadata.GetParameterSet().size(); p++)
-					{
-						for (size_t r = 0; r < nbReplications; r++)
-						{
-							size_t section = result.GetSectionNo(l, p, r);
-
-							std::array<size_t, 3> lpr = { {l,p,r} };
-							auto it = find(IDmap2.begin(), IDmap2.end(), lpr);
-							if (it != IDmap2.end())
-							{
-								size_t no = distance(IDmap2.begin(), it);
-								msg += result.SetSection(section, output[no]);
-							}
-							else
-							{
-								msg += result.SetSection(section, missing_output);
-
-							}
-							msg += callback.StepIt();
-						}
-					}
-				}
-
-
-				callback.PopTask();
-
-				if (msg&& m_parameters.m_world.m_bCreateEggMaps)
-				{
-					string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
-					msg = world.CreateEggDepositionMap(outputFilePath, output, callback);
-				}
-			}*/
-
-
-
 			CStatistic::SetVMiss(-999);
 
 			world.Init(callback);
@@ -739,14 +690,33 @@ namespace WBSF
 
 			output_file.close();
 			if (sub_hourly_file.is_open())
+			{
 				sub_hourly_file.close();
+
+				std::string GDALDataEnv = "GDAL_DATA=" + GetApplicationPath() + "gdal-data";
+				std::string projLibEnv = "PROJ_LIB=" + GetApplicationPath() + "projlib";
+				StringVector EnvVar;
+				EnvVar.push_back(GDALDataEnv);
+				EnvVar.push_back(projLibEnv);
+
+
+				string output_file_path_csv = outputFilePath;
+				string output_file_path_gpkg = output_file_path_csv;
+				SetFileExtension(output_file_path_gpkg, "gpkg");
+
+				string command = GetApplicationPath() + "ogr2ogr.exe -f GPKG -oo X_POSSIBLE_NAMES=lon -oo Y_POSSIBLE_NAMES=lat -a_srs EPSG:4326 \"" + output_file_path_gpkg + "\" \"" + output_file_path_csv + "\"";
+
+				callback.PushTask("Convert sub hourly .csv into gpkg", NOT_INIT);
+				msg = WinExecWait(command, "", SW_HIDE, NULL, EnvVar);
+				callback.PopTask();
+			}
 
 			callback.PopTask();
 
 			if (msg)
 				msg += copy_result(DBFilePath + ".tmp", IDmap, savedPeriod, result, callback);
 
-			if (msg&& m_parameters.m_world.m_bCreateEggMaps)
+			if (msg && m_parameters.m_world.m_bCreateEggMaps)
 			{
 				string inputFilePath = DBFilePath + ".tmp";
 				string outputFilePath = fileManager.GetOutputMapPath() + m_parameters.m_world.m_eggMapsTitle + ".tif";
@@ -764,14 +734,14 @@ namespace WBSF
 	ERMsg CDispersal::copy_result(const string& file_path, const std::vector<std::array<size_t, 3>>& IDmap, CTPeriod savedPeriod, CResult& result, CCallback& callback)
 	{
 		ERMsg msg;
-		
+
 		ifStream input_file;
 		msg = input_file.open(file_path, ios_base::in | ios_base::binary);
 		if (msg)
 		{
-			const size_t size_struct = sizeof(size_t) + savedPeriod.size()*(sizeof(__int32) + sizeof(float)*NB_ATM_OUTPUT);
+			const size_t size_struct = sizeof(size_t) + savedPeriod.size() * (sizeof(__int32) + sizeof(float) * NB_ATM_OUTPUT);
 			size_t length = input_file.length();
-			ASSERT(length == IDmap.size()*size_struct);
+			ASSERT(length == IDmap.size() * size_struct);
 
 			callback.PushTask("Save result", result.GetNbSection());
 
@@ -865,7 +835,7 @@ namespace WBSF
 						{
 							nbMoths++;
 							CTRef emergingDate = CTRef(int(v[I_YEAR]), size_t(v[I_MONTH]) - 1, size_t(v[I_DAY]) - 1);
-							
+
 						}
 					}//for all rows
 				}//for all replications
@@ -873,5 +843,39 @@ namespace WBSF
 		}//for all locations
 
 		return nbMoths;
+	}
+
+	ERMsg CDispersal::Export(const CFileManager& fileManager, int format, CCallback& callback)
+	{
+		ERMsg msg;
+
+
+		msg = CExecutable::Export(fileManager, format, callback);
+		//convert .csv into gpkg 
+		if (msg)
+		{
+			string output_file_path_csv = GetExportFilePath(fileManager, format);
+			string output_file_path_gpkg = output_file_path_csv;
+			SetFileExtension(output_file_path_gpkg, "gpkg");
+
+
+			std::string GDALDataEnv = "GDAL_DATA=" + GetApplicationPath() + "gdal-data";
+			std::string projLibEnv = "PROJ_LIB=" + GetApplicationPath() + "projlib";
+			StringVector EnvVar;
+			EnvVar.push_back(GDALDataEnv);
+			EnvVar.push_back(projLibEnv);
+
+
+			string command = GetApplicationPath() + "ogr2ogr.exe -f GPKG -oo X_POSSIBLE_NAMES=Longitude -oo Y_POSSIBLE_NAMES=Latitude -a_srs EPSG:4326 \"" + output_file_path_gpkg + "\" \"" + output_file_path_csv + "\"";
+
+
+
+			callback.PushTask("Convert sub hourly .csv into gpkg", NOT_INIT);
+			msg = WinExecWait(command, "", SW_HIDE, NULL, EnvVar);
+
+			callback.PopTask();
+		}
+
+		return msg;
 	}
 }

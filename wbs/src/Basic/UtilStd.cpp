@@ -1033,11 +1033,11 @@ namespace WBSF
 	}
 
 
-	ERMsg WinExecWait(const std::string& command, std::string inputDir, UINT uCmdShow, LPDWORD pExitCode)
+	ERMsg WinExecWait(const std::string& command, std::string inputDir, UINT uCmdShow, LPDWORD pExitCode, const StringVector& EnvVar)
 	{
 		ERMsg msg;
 
-		while (IsPathEndOk(inputDir))
+		/*while (IsPathEndOk(inputDir))
 			inputDir = inputDir.substr(0, inputDir.length() - 1);
 
 		STARTUPINFO si = { 0 };
@@ -1063,8 +1063,84 @@ namespace WBSF
 		{
 			msg = GetLastErrorMessage();
 			msg.ajoute(std::string("Unable to execute command: ") + command);
-		}
+		}*/
 
+		
+		std::wstring wdir(UTF16(inputDir));
+		std::wstring wcommand = UTF16(command);
+		LPCWSTR pDir = wdir.empty() ? NULL : wdir.c_str();
+
+
+		// 1. Define your target PROJ_LIB path
+		std::wstring GDALDataEnv = UTF16("GDAL_DATA=" + GetApplicationPath() + "gdal-data");
+		std::wstring projLibEnv = UTF16("PROJ_LIB=" + GetApplicationPath() + "projlib");
+
+		// 2. Get the current process environment block
+		LPWCH currentEnv = GetEnvironmentStringsW();
+		assert(currentEnv != nullptr);
+
+		// 3. Copy existing environment into a vector
+		std::vector<wchar_t> newEnvBlock;
+		LPWCH p = currentEnv;
+		while (*p != L'\0') 
+		{
+			size_t len = wcslen(p) + 1;
+			newEnvBlock.insert(newEnvBlock.end(), p, p + len);
+			p += len;
+		}
+		FreeEnvironmentStringsW(currentEnv); // Free original block
+
+		// 4. Append the env variable
+		for(size_t i=0; i < EnvVar.size(); i++)
+		{
+			wstring wvar = UTF16(EnvVar[i]);
+			newEnvBlock.insert(newEnvBlock.end(), wvar.begin(), wvar.end());
+			newEnvBlock.push_back(L'\0'); // Null-terminate the string
+		}
+		
+		// 5. Add the final extra null-terminator for the whole block
+		newEnvBlock.push_back(L'\0');
+
+		// 6. Set up CreateProcess structures
+		STARTUPINFOW si = { sizeof(si) };
+		si.dwFlags = STARTF_USESHOWWINDOW;
+		si.wShowWindow = uCmdShow;
+
+		PROCESS_INFORMATION pi = { 0 };
+
+		// Your ogr2ogr command line
+		std::wstring app_name = UTF16(GetApplicationPath() + "ogr2ogr.exe");
+		std::wstring commandLine = UTF16(command);
+
+
+		// 7. Launch the process with CREATE_UNICODE_ENVIRONMENT
+		BOOL success = CreateProcessW(
+			&app_name[0], // Application name
+			&commandLine[0],                  // Command line
+			nullptr,                          // Process attributes
+			nullptr,                          // Thread attributes
+			FALSE,                            // Inherit handles
+			CREATE_UNICODE_ENVIRONMENT,       // Creation flags
+			newEnvBlock.data(),               // New environment block
+			pDir,                          // Current directory
+			&si,                              // Startup info
+			&pi                               // Process information
+		);
+		
+		if (success) 
+		{
+			WaitForSingleObject(pi.hProcess, INFINITE);
+			CloseHandle(pi.hProcess);
+			CloseHandle(pi.hThread);
+
+			if (pExitCode != NULL)
+				::GetExitCodeProcess(pi.hProcess, pExitCode);
+		}
+		else 
+		{
+			msg = GetLastErrorMessage();
+			msg.ajoute(std::string("Unable to execute command: ") + command);
+		}
 		return msg;
 	}
 

@@ -1464,14 +1464,13 @@ namespace WBSF
 
 				if (msg)
 				{
-					CGeoExtents test_extent(0, -60, 360, 90, 1440, 600, 256, 256, PRJ_WGS_84);
-					CGeoPointIndex index = test_extent.CoordToXYPos(CGeoPoint(214.13, 65.08, PRJ_WGS_84));
-					size_t i = index.m_y * geo_rect.m_xSize + index.m_x;
-					//for (size_t i = 0; i < extents.m_ySize * extents.m_xSize; i++)
+					//CGeoExtents test_extent(0, -60, 360, 90, 1440, 600, 256, 256, PRJ_WGS_84);
+					//CGeoPointIndex index = test_extent.CoordToXYPos(CGeoPoint(214.13, 65.08, PRJ_WGS_84));
+					//size_t i = index.m_y * geo_rect.m_xSize + index.m_x;
+					for (size_t i = 0; i < extents.m_ySize * extents.m_xSize; i++)
 					{
 						if (daily_data[0][0][i] > -999)
 							ComputeMontlyStatistic(m, (size_t)i, daily_data, dataOut);
-
 					}
 				}
 			}//for all months

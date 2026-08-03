@@ -126,6 +126,9 @@
       <Project>{4b930370-8bf8-4e89-a3e7-0741999f8ee5}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\wbs\src\WeatherBasedSimulationString.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

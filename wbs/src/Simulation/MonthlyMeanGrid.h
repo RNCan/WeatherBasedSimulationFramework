@@ -57,7 +57,7 @@ namespace WBSF
 		virtual std::string GetFilePath(size_t v);
 		virtual bool UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CWeatherStation& station, CCallback& callback);
 		virtual bool UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
-		bool UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
+		//bool UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback);
 		virtual ERMsg ExportMonthlyValue(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, CWeatherStation& station, const std::string& filePath, CCallback& callback);
 
 		int m_firstYear;

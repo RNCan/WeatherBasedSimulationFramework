@@ -1,10 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
-// 11.9.1:20/05/2026	Rémi Saint-Amant	Bug correction development rate fit when using mean+sd+n
+// 11.9.1:24/07/2026	Rémi Saint-Amant	Add automtic convertion of dispersal output into gpkg
+//									      	Bug correction development rate fit when using mean+sd+n
 //											Add Stage table in fit method. rename proj9 to projlib.
 // 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin. 
 //											Bug correction in Google Drive download (again).
-//											Add export Normal Database from input analysis.
+//											Add export Normal Database from input analysis. 
 // 11.8.24:22/07/2025	Rémi Saint-Amant	Bug correction in Google Drive download (again).
 // 11.8.23:18/03/2025	Rémi Saint-Amant	Bug correction in Google Drive download.
 //											Bug correction in solar radiation generation when precipitation is not selected

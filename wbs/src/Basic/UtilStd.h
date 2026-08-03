@@ -1068,7 +1068,8 @@ bool map_compare (Map const &lhs, Map const &rhs)
 	StringVector GetDirectoriesList(const std::string& filter);
 	int GetCrc32(const std::string& str, ULONGLONG begin = -1, ULONGLONG end = -1);
 
-	ERMsg WinExecWait(const std::string& command, std::string inputDir = "", UINT uCmdShow = SW_HIDE, LPDWORD pExitCode = NULL);
+	
+	ERMsg WinExecWait(const std::string& command, std::string inputDir = "", UINT uCmdShow = SW_HIDE, LPDWORD pExitCode = NULL, const StringVector& EnvVar = {});
 	ERMsg CallApplication(std::string appType, std::string argument, HWND pCaller = NULL, int showMode = SW_HIDE, bool bAddCote = true, bool bWait = false);
 	size_t GetTotalSystemMemory();
 
