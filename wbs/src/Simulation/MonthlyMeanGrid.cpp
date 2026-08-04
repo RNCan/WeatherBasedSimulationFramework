@@ -490,85 +490,102 @@ namespace WBSF
 	}
 
 	//after created the normal station from daily station, update normal standard deviation when they exist
-	//bool CMonthlyMeanGrid::UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
-	//{
-	//	ASSERT(m_grid[TMIN_MN].IsOpen());
+	bool CMonthlyMeanGrid::UpdateStandardDeviation(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
+	{
+		ASSERT(m_grid[TMIN_MN].IsOpen());
 
-	//	if (!m_grid[DEL_STD].IsOpen() && !m_grid[EPS_STD].IsOpen() && !m_grid[RELH_SD].IsOpen() && !m_grid[WNDS_SD].IsOpen())
-	//		return true;
+		if (!m_grid[DEL_STD].IsOpen() && !m_grid[EPS_STD].IsOpen() && !m_grid[RELH_SD].IsOpen() && !m_grid[WNDS_SD].IsOpen())
+			return true;
 
-	//	CProjectionTransformation PT(CProjectionManager::GetPrj(PRJ_WGS_84), CProjectionManager::GetPrj(m_grid[TMIN_MN]->GetProjectionRef()));
-	//	const CMonthlyMeanGrid& me = *this;
+		CProjectionTransformation PT(CProjectionManager::GetPrj(PRJ_WGS_84), CProjectionManager::GetPrj(m_grid[TMIN_MN]->GetProjectionRef()));
+		const CMonthlyMeanGrid& me = *this;
 
-	//	CGeoPoint pt(station.m_lon, station.m_lat, PRJ_WGS_84);
-	//	pt.Reproject(PT);
+		CGeoPoint pt(station.m_lon, station.m_lat, PRJ_WGS_84);
+		pt.Reproject(PT);
 
-	//	CGeoPointIndex index = m_grid[TMIN_MN].GetExtents().CoordToXYPos(pt);
+		CGeoPointIndex index = m_grid[TMIN_MN].GetExtents().CoordToXYPos(pt);
 
-	//	if (index.m_x < 0 || index.m_x >= m_grid[TMIN_MN]->GetRasterXSize() || index.m_y < 0 || index.m_y >= m_grid[TMIN_MN]->GetRasterYSize())
-	//		return false;
-
-
-	//	CGeoPointIndexVector pts;
-	//	CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
-
-	//	int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
-	//	extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
-
-	//	std::vector<double> d;
-	//	for (size_t i = 0; i < pts.size(); i++)
-	//	{
-	//		CGeoPoint pti = extents.XYPosToCoord(pts[i]);
-	//		double di = max(0.000001, pt.GetDistance(pti));
-	//		if (di < maxDistance)
-	//			d.push_back(di);
-	//	}
-
-	//	pts.erase(pts.begin() + d.size(), pts.end());
-	//	if (pts.empty())
-	//		return false;
-
-	//	double refMonthlyMean[12][NB_FIELDS] = { 0 };
-	//	double ccMonthlyMean[12][NB_FIELDS] = { 0 };
-
-	//	if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
-	//		return false;
-
-	//	if (!GetMonthlyMean(firstCCYear, nbCCYears, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
-	//		return false;
+		if (index.m_x < 0 || index.m_x >= m_grid[TMIN_MN]->GetRasterXSize() || index.m_y < 0 || index.m_y >= m_grid[TMIN_MN]->GetRasterYSize())
+			return false;
 
 
-	//	CNormalsData data = station;
-	//	for (size_t m = 0; m < 12; m++)
-	//	{
-	//		for (size_t v = 0; v < NB_FIELDS; v++)
-	//		{
-	//			if (!IsMissing(data[m][v]))
-	//			{
-	//				if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
-	//				{
-	//					if (v == DEL_STD || v == EPS_STD || v == PRCP_SD || v == RELH_SD)
-	//					{
-	//						data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
-	//						ASSERT(data[m][v] < 2000);
-	//					}
-	//					else if (v == WNDS_SD)
-	//					{
-	//						data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
-	//						if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
-	//							data[m][v] = (float)log(ccMonthlyMean[m][v]);
+		CGeoPointIndexVector pts;
+		CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
 
-	//						ASSERT(data[m][v] > 0);
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
+		int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
+		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
 
-	//	((CNormalsData&)station) = data;
+		std::vector<double> d;
+		for (size_t i = 0; i < pts.size(); i++)
+		{
+			CGeoPoint pti = extents.XYPosToCoord(pts[i]);
+			double di = max(0.000001, pt.GetDistance(pti));
+			if (di < maxDistance)
+				d.push_back(di);
+		}
 
-	//	return true;
-	//}
+		pts.erase(pts.begin() + d.size(), pts.end());
+		if (pts.empty())
+			return false;
+
+		double refMonthlyMean[12][NB_FIELDS] = { 0 };
+		double ccMonthlyMean[12][NB_FIELDS] = { 0 };
+
+		if (!GetMonthlyMean(firstRefYear, nbRefYears, nbNeighbor, power, pts, d, refMonthlyMean, callback))
+			return false;
+
+		if (!GetMonthlyMean(firstCCYear, nbCCYears, nbNeighbor, power, pts, d, ccMonthlyMean, callback))
+			return false;
+
+
+		CNormalsData data = station;
+		for (size_t m = 0; m < 12; m++)
+		{
+			for (size_t v = 0; v < NB_FIELDS; v++)
+			{
+				if (!IsMissing(data[m][v]))
+				{
+					if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
+					{
+						//|| v == PRCP_SD: precippitation st is already updated by nature
+						if (v == DEL_STD || v == EPS_STD  || v == RELH_SD)
+						{
+							data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
+							ASSERT(data[m][v] < 2000);
+						}
+						else if (v == WNDS_SD)
+						{
+							//data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
+							//if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
+							//	data[m][v] = (float)log(ccMonthlyMean[m][v]);
+							double ref_m = refMonthlyMean[m][WNDS_MN];
+							double ref_s = refMonthlyMean[m][WNDS_SD];
+							double ref_s_log = sqrt(log(1 + (ref_s * ref_s / ref_m * ref_m)));
+
+							double cc_m = ccMonthlyMean[m][WNDS_MN];
+							double cc_s = ccMonthlyMean[m][WNDS_SD];
+							double cc_s_log = sqrt(log(1 + (cc_s * cc_s / cc_m * cc_m)));
+
+							assert(ref_s_log > 0);
+							assert(cc_s_log > 0);
+
+							//log_mean = log(m ^ 2 / sqrt(s ^ 2 + m ^ 2))
+
+							double sd_wind = data[m][v];
+							sd_wind *= cc_s_log / ref_s_log;
+							data[m][v] = max(0.1, min(1.5, sd_wind));/*limit to resonable values*/
+
+							ASSERT(data[m][v] > 0);
+						}
+					}
+				}
+			}
+		}
+
+		((CNormalsData&)station) = data;
+
+		return true;
+	}
 
 	bool CMonthlyMeanGrid::UpdateData(int firstRefYear, size_t nbRefYears, int firstCCYear, size_t nbCCYears, size_t nbNeighbor, double maxDistance, double power, CNormalsStation& station, CCallback& callback)
 	{
@@ -1056,12 +1073,11 @@ namespace WBSF
 
 										//When the update is from daily station, we don't have to uupdate stad dev. RSA 2026-08-03
 										//This must be done only if we update from Normals database
-										//if (m_bApplyCC)
-										//{
-										//	//now adjust standard deviation if they are present
-
-										//	MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
-										//}
+										if (m_bApplyCC)
+										{
+											//now adjust standard deviation if they are present for T, RH and WND
+											MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
+										}
 
 										//add normal to database
 										ERMsg messageTmp = outputDB.Add(station);

@@ -3,6 +3,7 @@
 //									 
 //***********************************************************************
 // version
+// 1.0.3	04/08/2026  Rémi Saint-Amant	put warning at the end of operation
 // 1.0.2	25/07/2026  Rémi Saint-Amant	Bug correction in wind computation
 // 1.0.1	14/07/2026  Rémi Saint-Amant	Manage projection correctly
 // 1.0.0	05/07/2026	Rémi Saint-Amant	Creation
@@ -256,7 +257,8 @@ namespace WBSF
 			//**************************************
 
 			omp_set_nested(1);//for IOCPU
-			boost::dynamic_bitset<size_t> treated(inputDB.size());
+			//boost::dynamic_bitset<size_t> treated(inputDB.size());
+			ERMsg warnings;
 
 			for (int yBlock = 0; yBlock < extents.YNbBlocks(); yBlock++)
 			{
@@ -272,13 +274,13 @@ namespace WBSF
 					if (N > 0)
 					{
 						ReadBlock(xBlock, yBlock, bandHolder);//[blockThreadNo]
-						ProcessBlock(xBlock, yBlock, bandHolder, inputDB, normalsDB, treated);//[blockThreadNo]
+						ProcessBlock(xBlock, yBlock, bandHolder, inputDB, normalsDB, warnings);//[blockThreadNo]
 					}
 					else
 					{
 						//#pragma omp atomic
 												//m_options.m_xx += (int)inputDB.size();
-						m_options.m_xx = treated.count();
+						//m_options.m_xx = treated.count();
 
 						m_options.UpdateBar();
 					}
@@ -417,7 +419,7 @@ namespace WBSF
 	}
 
 
-	void CNormalsCreator::ProcessBlock(int xBlock, int yBlock, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder, CDailyDatabase& inputDB, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB, boost::dynamic_bitset<size_t>& treated)
+	void CNormalsCreator::ProcessBlock(int xBlock, int yBlock, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder, CDailyDatabase& inputDB, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB, ERMsg& warnings)
 	{
 		CGeoExtents extents = bandHolder[TMIN_MN]->GetExtents();
 		CGeoSize blockSize = extents.GetBlockSize(xBlock, yBlock);
@@ -454,7 +456,7 @@ namespace WBSF
 
 			//process all point
 #ifndef _DEBUG
-#pragma omp parallel for num_threads( m_options.m_CPU) if (m_options.m_bMulti)	
+#pragma omp parallel for num_threads( m_options.m_CPU) if (m_options.m_bMulti)	shared(warnings)
 #endif			
 			for (int i = 0; i < inputDB.size(); i++)
 			{
@@ -465,9 +467,9 @@ namespace WBSF
 				//find position in the block
 				if (blockRect.IsInside(xy))
 				{
-					ASSERT(!treated[i]);
+					//ASSERT(!treated[i]);
 					//CGeoSize block0 = extents.GetBlockSize(0, 0);
-					treated.set(i);
+					//treated.set(i);
 
 					CWeatherStation dailyStation0;
 
@@ -514,48 +516,46 @@ namespace WBSF
 
 									if (normalStation.FromDaily(dailyStation, m_options.m_nbYearMin))
 									{
-										//msg = station.IsValid();
-										//if (!msg)
-											//msg.ajoute("Invalid weather data for station: " + station.m_ID);
-										ERMsg msg_valid1 = normalStation.IsValid();
-										if (msg_valid1)
-										{
-											//now adjust standard deviation if they are present
-											UpdateStandardDeviation(p, blockExtents, bandHolder, normalStation);
-											ERMsg msg_valid2 = normalStation.IsValid();
-
-											//add normal to database
 #pragma omp critical(ProcessBlock)
+										{
+											ERMsg msg_valid1 = normalStation.IsValid();
+											if (msg_valid1)
 											{
-												if (msg_valid2)
-												{
-													normalsDB[p]->Add(normalStation);
-												}
-												else
-												{
+												//now adjust standard deviation if they are present. Standard deviation muist be updated because we only apply change on monthly values
+												UpdateStandardDeviation(p, blockExtents, bandHolder, normalStation);
+												ERMsg msg_valid2 = normalStation.IsValid();
 
-													//for (int i = 0; i, msg_valid2.dimension(); i++)
-													cout << dailyStation.GetLocation().m_ID << dailyStation.GetLocation().m_name << endl;
+												//add normal to database
 
+												{
+													if (msg_valid2)
+													{
+														normalsDB[p]->Add(normalStation);
+													}
+													else
+													{
+														warnings.ajoute("Invalid output " + dailyStation.GetLocation().m_ID);
+														warnings += msg_valid2;
+
+														//for (int i = 0; i, msg_valid2.dimension(); i++)
+														//cout << dailyStation.GetLocation().m_ID << dailyStation.GetLocation().m_name << endl;
+
+													}
 												}
+
 											}
-
+											else
+											{
+												//#pragma omp critical(ProcessBlock)
+												warnings.ajoute("Invalid output " + dailyStation.GetLocation().m_ID);
+												warnings += msg_valid1;
+											}
 										}
 
-										else
-										{
-#pragma omp critical(ProcessBlock)
-											{
-												for (int i = 0; i, msg_valid1.dimension(); i++)
-													cout << msg_valid1[i];
-											}
-
-										}
-
-										//if (messageTmp)
-										//{
-										//	nbStationAdded++;
-										//}
+									//if (messageTmp)
+									//{
+									//	nbStationAdded++;
+									//}
 									}
 								}//used period
 							}//keepit
@@ -754,15 +754,15 @@ namespace WBSF
 							}
 							else if (v == HOURLY_DATA::H_WNDS)
 							{
-								
+
 								assert(ccMonthlyMean[m][f] > 0);
 								assert(refMonthlyMean[m][f] > 0);
 
 								double wndS = stationIn[y][m][d][v][MEAN];
 								//Monhtly mean speed is not logged: direct ratio
-								if(ccMonthlyMean[m][f] > 0 && refMonthlyMean[m][f] > 0)
+								if (ccMonthlyMean[m][f] > 0 && refMonthlyMean[m][f] > 0)
 									wndS *= (ccMonthlyMean[m][f] / refMonthlyMean[m][f]);
-								
+
 								stationII[y][m][d][v] = wndS;
 							}
 						}//if is valid fields
@@ -812,37 +812,8 @@ namespace WBSF
 		if (!bandHolder[DEL_STD] || !bandHolder[EPS_STD] || !bandHolder[RELH_SD] || !bandHolder[WNDS_SD])
 			return true;
 
-
-		//		CGeoExtents extents = bandHolder[TMIN_MN]->GetExtents();
-				//CProjectionTransformation PT(CProjectionManager::GetPrj(PRJ_WGS_84), CProjectionManager::GetPrj(blockExtents.GetPrjID()));
-				////const CMonthlyMeanGrid& me = *this;
-				//
 		CGeoPoint pt(station.m_lon, station.m_lat, PRJ_WGS_84);
-		//pt.Reproject(PT);
-		//
-		//CGeoPointIndex index = blockExtents.CoordToXYPos(pt);
-		//
-		//if (!blockExtents.IsInside(index))
-		//	return false;
-		//
-		//
-		//CGeoPointIndexVector pts;
-		//int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
-		//blockExtents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
-		//
-		//std::vector<double> d;
-		//for (size_t i = 0; i < pts.size(); i++)
-		//{
-		//	CGeoPoint pti = blockExtents.XYPosToCoord(pts[i]);
-		//	double di = max(0.000001, pt.GetDistance(pti));
-		//	if (di < maxDistance)
-		//		d.push_back(di);
-		//}
-		//
-		//pts.erase(pts.begin() + d.size(), pts.end());
-		//if (pts.empty())
-		//	return false;
-
+		
 		CGeoPointIndexVector pts;
 		std::vector<double> d;
 		if (!GetNearestPoints(nbNeighbor, maxDistance, power, pt, blockExtents, pts, d, bandHolder))
@@ -869,7 +840,8 @@ namespace WBSF
 				{
 					if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
 					{
-						if (v == DEL_STD || v == EPS_STD || v == PRCP_SD || v == RELH_SD)
+						//|| v == PRCP_SD precipitation sd is already corrected by nature of the normals
+						if (v == DEL_STD || v == EPS_STD || v == RELH_SD)
 						{
 							if (ccMonthlyMean[m][v] > 0 && refMonthlyMean[m][v] > 0)
 								data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
@@ -878,21 +850,22 @@ namespace WBSF
 						}
 						else if (v == WNDS_SD)
 						{
-							/*double ref_mean = refMonthlyMean[m][WNDS_MN];
-							double ref_sd = refMonthlyMean[m][WNDS_SD];
-							double refSDLog = sqrt((exp(ref_sd* ref_sd)-1)*exp(2* ref_mean+ ref_sd* ref_sd));
+							double ref_m = refMonthlyMean[m][WNDS_MN];
+							double ref_s = refMonthlyMean[m][WNDS_SD];
+							double ref_s_log = sqrt(log(1 + (ref_s * ref_s / ref_m * ref_m)));
 
-							double cc_mean = ccMonthlyMean[m][WNDS_MN];
-							double cc_sd = ccMonthlyMean[m][WNDS_SD];
-							double ccSDLog = sqrt((exp(cc_sd * cc_sd) - 1) * exp(2 * cc_mean + cc_sd * cc_sd));
+							double cc_m = ccMonthlyMean[m][WNDS_MN];
+							double cc_s = ccMonthlyMean[m][WNDS_SD];
+							double cc_s_log = sqrt(log(1 + (cc_s * cc_s / cc_m * cc_m)));
 
-							assert(refSDLog > 0);
-							assert(ccSDLog > 0);*/
+							assert(ref_s_log > 0);
+							assert(cc_s_log > 0);
 
-							/*Need to find a bettwer way to do that*/
-							double sd_wind = exp(data[m][v]);
-							sd_wind *= ccMonthlyMean[m][v]/refMonthlyMean[m][v];
-							data[m][v] = max(0.15, min(1.43, log(sd_wind)));/*limit to resonable values*/
+							//log_mean = log(m ^ 2 / sqrt(s ^ 2 + m ^ 2))
+
+							double sd_wind = data[m][v];
+							sd_wind *= cc_s_log/ref_s_log;
+							data[m][v] = max(0.1, min(1.5, sd_wind));/*limit to resonable values*/
 
 							//float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
 							//if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...

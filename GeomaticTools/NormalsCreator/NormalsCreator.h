@@ -69,7 +69,7 @@ namespace WBSF
 		ERMsg OpenAll(CDailyDatabase& inputDB, CMonthlyMeanGrid& MMG, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB);
 		static size_t GetNbStationIn(const CGeoExtents& blockExtents, const CDailyDatabase& inputDB);
 		void ReadBlock(int xBlock, int yBlock, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder);
-		void ProcessBlock(int xBlock, int yBlock, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder, CDailyDatabase& inputDB, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB, boost::dynamic_bitset<size_t>& treated);
+		void ProcessBlock(int xBlock, int yBlock, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder, CDailyDatabase& inputDB, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB, ERMsg& warnings);
 		void CloseAll(CDailyDatabase& inputDB, CMonthlyMeanGrid& MMG, std::array<CNormalsDatabasePtr, CNormalsCreatorOption::NB_PERIODS>& normalsDB);
 
 		bool UpdateData(size_t p, CGeoExtents blockExtents, std::array< CBandsHolderPtr, NORMALS_DATA::NB_FIELDS>& bandHolder, CWeatherStation& stationIn);
