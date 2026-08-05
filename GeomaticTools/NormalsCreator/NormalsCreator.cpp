@@ -3,7 +3,8 @@
 //									 
 //***********************************************************************
 // version
-// 1.0.3	04/08/2026  Rémi Saint-Amant	put warning at the end of operation
+// 1.0.4	04/08/2026  Rémi Saint-Amant	put warning at the end of operation. Reintroduce update of PRCP CV.
+// 1.0.3	04/08/2026  Rémi Saint-Amant	put warning at the end of operation. Remove update of PRCP CV.
 // 1.0.2	25/07/2026  Rémi Saint-Amant	Bug correction in wind computation
 // 1.0.1	14/07/2026  Rémi Saint-Amant	Manage projection correctly
 // 1.0.0	05/07/2026	Rémi Saint-Amant	Creation
@@ -38,7 +39,7 @@ namespace WBSF
 	using namespace WEATHER;
 	using namespace HOURLY_DATA;
 	using namespace NORMALS_DATA;
-	const char* CNormalsCreator::VERSION = "1.0.2";
+	const char* CNormalsCreator::VERSION = "1.0.4";
 	const int CNormalsCreator::NB_THREAD_PROCESS = 2;
 
 
@@ -309,9 +310,17 @@ namespace WBSF
 
 
 			CloseAll(inputDB, m_MMG, normalsDB);
+
+
+			if (warnings)
+			{
+				for (size_t i = 0; i < warnings.dimension(); i++)
+					cout << warnings[(int)i] << endl;
+			}
+
 		}
 
-
+		
 		return msg;
 
 	}
@@ -840,8 +849,7 @@ namespace WBSF
 				{
 					if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
 					{
-						//|| v == PRCP_SD precipitation sd is already corrected by nature of the normals
-						if (v == DEL_STD || v == EPS_STD || v == RELH_SD)
+						if (v == DEL_STD || v == EPS_STD || v == RELH_SD || v == PRCP_SD)
 						{
 							if (ccMonthlyMean[m][v] > 0 && refMonthlyMean[m][v] > 0)
 								data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);

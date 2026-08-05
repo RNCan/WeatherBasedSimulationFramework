@@ -547,8 +547,7 @@ namespace WBSF
 				{
 					if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
 					{
-						//|| v == PRCP_SD: precippitation st is already updated by nature
-						if (v == DEL_STD || v == EPS_STD  || v == RELH_SD)
+						if (v == DEL_STD || v == EPS_STD  || v == RELH_SD || v == PRCP_SD)
 						{
 							data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
 							ASSERT(data[m][v] < 2000);

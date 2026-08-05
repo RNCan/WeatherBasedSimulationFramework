@@ -1,5 +1,5 @@
 //***********************************************************************
-// program to extract points from image
+// program to extract points from image 
 //***********************************************************************
 #include "stdafx.h"
 #include <iostream>
