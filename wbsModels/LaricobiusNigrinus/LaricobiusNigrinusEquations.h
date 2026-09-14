@@ -26,12 +26,12 @@ namespace WBSF
 	{
 	public:
 
-		//static const std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> RDR; //relative development parameter
+		//default parameters
 		static const std::array<double, LNF::NB_OVP_PARAMS> OVP;//oviposition parameters
 		static const std::array<double, LNF::NB_ADE_PARAMS> ADE;//AdultAestivalDiapauseEnd parameters
 		static const std::array<double, LNF::NB_EAS_PARAMS> EAS;//EmergingAdult from soil
 		
-		//std::array< std::array<double, LNF::NB_RDR_PARAMS>, LNF::NB_STAGES> m_RDR; //relative development parameter
+		//variable parameters for calibration
 		std::array<double, LNF::NB_OVP_PARAMS> m_OVP;//Creation (initial oviposition) parameters
 		std::array<double, LNF::NB_ADE_PARAMS> m_ADE;//AestivalDiapauseEnd parameters
 		std::array<double, LNF::NB_EAS_PARAMS> m_EAS;//Emerging Adult from Soil parameters
@@ -41,7 +41,6 @@ namespace WBSF
 		//relative development
 		double GetRelativeDevlopmentRate(size_t stage)const;
 		double GetFecundity()const;
-		//double GetOvipositionRatio(double T)const;
 		double GetCreationCDD()const;
 		double GetAdultEmergingCDD()const;
 		double GetColdTolerence()const;

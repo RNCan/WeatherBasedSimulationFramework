@@ -1,5 +1,5 @@
 ﻿//***********************************************************
-// 2016-05-06   1.2.0	Rémi Saint-Amant	Bug correction in attrition 
+// 2026-05-06   1.2.0	Rémi Saint-Amant	Bug correction in attrition 
 //											Clean up for publication
 //											Add annual model for 10 days sampling optimum
 //											Add survival and fecundity in lookup table
@@ -327,14 +327,6 @@ namespace WBSF
 			{
 				if (DiapauseDuration[t][dl] > -999)
 				{
-					//NbVal = 8	Bias = 0.00263	MAE = 0.95222	RMSE = 1.25691	CD = 0.99785	R² = 0.99786
-					//lam0 = 15.81011 {  15.80907, 15.81142}	VM = { 0.00021,   0.00060 }
-					//lam1 = 2.50857 {   2.50779, 2.50943}	VM = { 0.00021,   0.00073 }
-					//lam2 = 6.64395 {   6.63745, 6.64922}	VM = { 0.00113,   0.00379 }
-					//lam3 = 7.81911 {   7.80857, 7.82666}	VM = { 0.00183,   0.00492 }
-					//lam_a = 0.16346 {   0.16328, 0.16369}	VM = { 0.00006,   0.00019 }
-					//lam_b = 0.26484 {   0.26458, 0.26499}	VM = { 0.00007,   0.00020 }
-
 					double T = 10 + 5 * t;
 					double DL = 8 + dl * 4;
 					double DD = 120.0 + (215.0 - 120.0) * 1 / (1 + exp(-(T - m_ADE[ʎ0]) / m_ADE[ʎ1]));
@@ -556,18 +548,6 @@ namespace WBSF
 	{
 		if (!IsParamValid())
 			return false;
-
-
-		//return CalibrateDiapauseEndTh(stat);
-
-		//bitset<NB_EVALUATED_STAGES> test;
-		//test.reset();
-
-		//test.set(E_EGGS);
-		//test.set(E_LARVAE);
-		//test.set(E_LARVAL_DROP);
-		//test.set(E_EMERGING_ADULTS);
-		//return CalibrateDiapauseEnd(test, stat);
 
 
 		bitset<NB_EVALUATED_STAGES> test;
