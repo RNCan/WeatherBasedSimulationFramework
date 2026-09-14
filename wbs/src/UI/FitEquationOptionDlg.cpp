@@ -13,6 +13,7 @@
 #include "ModelBase/DevRateEquation.h"
 #include "ModelBase/SurvivalEquation.h"
 #include "FileManager/FileManager.h"
+#include "Simulation/InsectParameterization.h"
 #include "UI/Common/UtilWin.h"
 #include "UI/Common/FileNameProperty.h"
 #include "UI/Common/AppOption.h"
@@ -27,12 +28,6 @@ using namespace std;
 
 namespace WBSF
 {
-
-
-	//typedef CStdIndexProperty < IDS_SIM_DISPERSAL_WT> CWeatherTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_SEED_TYPE> CSeedTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_BROOD_TYPE> CBroodTypeProperty;
-	//typedef CStdIndexProperty < IDS_SIM_PRCP_TYPE> CPrcpTypeProperty;
 
 	
 	//*****************************************************************************************************
@@ -71,61 +66,11 @@ namespace WBSF
 
 		RemoveAll();
 
-		//General 
-		//for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
-		//{
-		//	TDevRateEquation eq = CDevRateEquation::eq(e);
-		//	string e_name = CDevRateEquation::GetEquationName(eq);
-		//	CSAParameterVector params = CDevRateEquation::GetParameters(eq);
-		//	//CSAParameterVector params = params_0;
-		//	if (m_eq_options->find(e_name) != m_eq_options->end())
-		//	{
-		//		if ((*m_eq_options)[e_name].size() == CDevRateEquation::GetParameters(eq).size())
-		//			params = (*m_eq_options)[e_name];
-		//	}
-		//	//CDevRateEquation::GetEquationR(e)
-		//	CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(CString(e_name.c_str()), -1);
-		//	for (size_t p = 0; p < params.size(); p++)
-		//	{
-
-		//		//string value_0 = FormatA("%.7g", params_0[p].m_initialValue) + params_0[p].m_bounds.ToString();
-		//		//CMFCPropertyGridProperty* pItem = new CMFCPropertyGridProperty(CString(params[p].m_name.c_str()), CString(value.c_str()), _T(""), ee * 10 + p);
-		//		string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
-		//		CStdGridProperty* pItem = new CStdGridProperty(params[p].m_name, value.c_str(), "", e * 10 + p);
-		//		pInput->AddSubItem(pItem);
-		//	}
-
-		//	AddProperty(pInput, FALSE, FALSE);
-		//}
-
-		//ExpandAll(FALSE);
-		//AdjustLayout();
 	}
 	
 	
 
-	void CFitInputParamPropertyGridCtrl::ResetDefault()
-	{
-		//General 
-		/*for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
-		{
-			TDevRateEquation eq = CDevRateEquation::eq(e);
-			string e_name = CDevRateEquation::GetEquationName(eq);
-			CSAParameterVector params = CDevRateEquation::GetParameters(eq);
-			
-			
-			CMFCPropertyGridProperty* pInput = GetProperty((int)e);
-			ASSERT(pInput->GetSubItemsCount()== params.size());
-			for (size_t p = 0; p < params.size(); p++)
-			{
-				string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
-				CMFCPropertyGridProperty* pItem = pInput->GetSubItem((int)p);
-				pItem->SetOriginalValue(CString(value.c_str()));
-				pItem->ResetOriginalValue();
-			}
-		}*/
-	}
-
+	
 	void CFitInputParamPropertyGridCtrl::EnableProperties(BOOL bEnable)
 	{
 		for (int i = 0; i < GetPropertyCount(); i++)
@@ -215,26 +160,24 @@ namespace WBSF
 
 
 			//General 
-			if (m_fitType == F_DEV_TIME_WTH_SIGMA|| m_fitType == F_DEV_TIME_ONLY)
+			if (m_fitType == CInsectParameterization::F_DEV_TIME|| m_fitType == CInsectParameterization::F_STAGES_TABLE)
 			{
 				for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
 				{
 					TDevRateEquation eq = CDevRateEquation::eq(e);
 					string e_name = CDevRateEquation::GetEquationName(eq);
 					CSAParameterVector params = CDevRateEquation::GetParameters(eq);
-					//CSAParameterVector params = params_0;
+			
 					if (m_eq_options.find(e_name) != m_eq_options.end())
 					{
 						if ((m_eq_options)[e_name].size() == CDevRateEquation::GetParameters(eq).size())
 							params = (m_eq_options)[e_name];
 					}
-					//CDevRateEquation::GetEquationR(e)
+			
 					CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(CString(e_name.c_str()), -1);
 					for (size_t p = 0; p < params.size(); p++)
 					{
 
-						//string value_0 = FormatA("%.7g", params_0[p].m_initialValue) + params_0[p].m_bounds.ToString();
-						//CMFCPropertyGridProperty* pItem = new CMFCPropertyGridProperty(CString(params[p].m_name.c_str()), CString(value.c_str()), _T(""), ee * 10 + p);
 						string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
 						CStdGridProperty* pItem = new CStdGridProperty(params[p].m_name, value.c_str(), "", e * 10 + p);
 						pInput->AddSubItem(pItem);
@@ -243,20 +186,20 @@ namespace WBSF
 					m_propertiesCtrl.AddProperty(pInput, FALSE, FALSE);
 				}
 			}
-			else if (m_fitType == F_SURVIVAL)
+			else if (m_fitType == CInsectParameterization::F_SURVIVAL)
 			{
 				for (size_t e = 0; e < CSurvivalEquation::NB_EQUATIONS; e++)
 				{
 					TSurvivalEquation eq = CSurvivalEquation::eq(e);
 					string e_name = CSurvivalEquation::GetEquationName(eq);
 					CSAParameterVector params = CSurvivalEquation::GetParameters(eq);
-					//CSAParameterVector params = params_0;
+					
 					if (m_eq_options.find(e_name) != m_eq_options.end())
 					{
 						if ((m_eq_options)[e_name].size() == CSurvivalEquation::GetParameters(eq).size())
 							params = (m_eq_options)[e_name];
 					}
-					//CDevRateEquation::GetEquationR(e)
+					
 					CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(CString(e_name.c_str()), -1);
 					for (size_t p = 0; p < params.size(); p++)
 					{
@@ -268,26 +211,23 @@ namespace WBSF
 					m_propertiesCtrl.AddProperty(pInput, FALSE, FALSE);
 				}
 			}
-			else if (m_fitType == F_FECUNDITY)
+			else if (m_fitType == CInsectParameterization::F_FECUNDITY)
 			{
 				for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
 				{
 					TDevRateEquation eq = CDevRateEquation::eq(e);
 					string e_name = CDevRateEquation::GetEquationName(eq);
 					CSAParameterVector params = CDevRateEquation::GetParameters(eq);
-					//CSAParameterVector params = params_0;
+					
 					if (m_eq_options.find(e_name) != m_eq_options.end())
 					{
 						if ((m_eq_options)[e_name].size() == CDevRateEquation::GetParameters(eq).size())
 							params = (m_eq_options)[e_name];
 					}
-					//CDevRateEquation::GetEquationR(e)
+					
 					CMFCPropertyGridProperty* pInput = new CMFCPropertyGridProperty(CString(e_name.c_str()), -1);
 					for (size_t p = 0; p < params.size(); p++)
 					{
-
-						//string value_0 = FormatA("%.7g", params_0[p].m_initialValue) + params_0[p].m_bounds.ToString();
-						//CMFCPropertyGridProperty* pItem = new CMFCPropertyGridProperty(CString(params[p].m_name.c_str()), CString(value.c_str()), _T(""), ee * 10 + p);
 						string value = FormatA("%.7g", params[p].m_initialValue) + params[p].m_bounds.ToString();
 						CStdGridProperty* pItem = new CStdGridProperty(params[p].m_name, value.c_str(), "", e * 10 + p);
 						pInput->AddSubItem(pItem);
@@ -299,11 +239,9 @@ namespace WBSF
 
 			m_propertiesCtrl.ExpandAll(FALSE);
 			m_propertiesCtrl.AdjustLayout();
-			//m_propertiesCtrl.ExpandAll(FALSE);
 		}
 	}
 
-	//IMPLEMENT_DYNAMIC(CFitInputParamDlg, CDialogEx)
 
 	BEGIN_MESSAGE_MAP(CFitInputParamDlg, CDialogEx)
 		ON_WM_SIZE()
@@ -389,7 +327,7 @@ namespace WBSF
 	{
 		m_eq_options.clear();
 
-		if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
+		if (m_fitType == CInsectParameterization::F_DEV_TIME || m_fitType == CInsectParameterization::F_STAGES_TABLE)
 		{
 
 			for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
@@ -410,7 +348,7 @@ namespace WBSF
 				}
 			}
 		}
-		else if (m_fitType == F_SURVIVAL)
+		else if (m_fitType == CInsectParameterization::F_SURVIVAL)
 		{
 			for (size_t e = 0; e < CSurvivalEquation::NB_EQUATIONS; e++)
 			{
@@ -430,7 +368,7 @@ namespace WBSF
 				}
 			}
 		}
-		else if (m_fitType == F_FECUNDITY)
+		else if (m_fitType == CInsectParameterization::F_FECUNDITY)
 		{
 
 			for (size_t e = 0; e < CDevRateEquation::NB_EQUATIONS; e++)
@@ -451,7 +389,7 @@ namespace WBSF
 				}
 			}
 		}
-		//m_propertiesCtrl.ResetDefault();
+		
 	}
 
 
@@ -468,7 +406,7 @@ namespace WBSF
 		size_t p = i - e * 10;
 
 		std::string e_name;
-		if (m_fitType == F_DEV_TIME_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY)
+		if (m_fitType == CInsectParameterization::F_DEV_TIME || m_fitType == CInsectParameterization::F_STAGES_TABLE)
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 			ASSERT(e < CDevRateEquation::NB_EQUATIONS);
@@ -479,7 +417,7 @@ namespace WBSF
 				m_eq_options[e_name] = CDevRateEquation::GetParameters(eq);
 
 		}
-		else if (m_fitType == F_SURVIVAL)
+		else if (m_fitType == CInsectParameterization::F_SURVIVAL)
 		{
 			TSurvivalEquation eq = CSurvivalEquation::eq(e);
 			ASSERT(e < CSurvivalEquation::NB_EQUATIONS);
@@ -490,7 +428,7 @@ namespace WBSF
 				m_eq_options[e_name] = CSurvivalEquation::GetParameters(eq);
 
 		}
-		else if (m_fitType == F_FECUNDITY)
+		else if (m_fitType == CInsectParameterization::F_FECUNDITY)
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 			ASSERT(e < CDevRateEquation::NB_EQUATIONS);

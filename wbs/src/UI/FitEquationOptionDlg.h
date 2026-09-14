@@ -31,13 +31,9 @@ namespace WBSF
 		void EnableProperties(CMFCPropertyGridProperty* pProp, BOOL bEnable);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
-		//virtual void OnPropertyChanged(CMFCPropertyGridProperty* pProp) const;
-		
 		virtual BOOL ValidateItemData(CMFCPropertyGridProperty* /*pProp*/);
 		virtual void Init();
-		void ResetDefault();
 
-		//const CSAParametersMap* Get()const{ return CSAParametersMap; }
 		void Set(CSAParametersMap* in) { m_eq_options = in; }
 
 	protected:
@@ -45,8 +41,7 @@ namespace WBSF
 		CSAParametersMap* m_eq_options;
 
 		DECLARE_MESSAGE_MAP()
-		//afx_msg LRESULT OnPropertyChanged(__in WPARAM wparam, __in LPARAM lparam);
-		
+	
 	};
 
 
@@ -55,7 +50,7 @@ namespace WBSF
 	{
 	public:
 
-		enum TFit { F_DEV_TIME_WTH_SIGMA, F_DEV_TIME_ONLY, F_SURVIVAL, F_FECUNDITY, NB_FIT_TYPE };
+		//enum TFit { F_DEV_TIME, F_SURVIVAL, F_FECUNDITY, F_STAGES_TABLE, NB_FIT_TYPE };
 
 		CFitInputParamDlg(size_t type, CWnd* pParentDlg = NULL);
 		~CFitInputParamDlg();

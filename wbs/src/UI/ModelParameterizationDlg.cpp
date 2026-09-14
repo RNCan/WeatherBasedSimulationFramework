@@ -243,7 +243,7 @@ namespace WBSF
 
 	void CModelParameterizationDlg::OnEditSACtrl()
 	{
-		CSimulatedAnnealingCtrlDlg dlg;
+		CSimulatedAnnealingCtrlDlg dlg(true, this);
 
 		dlg.m_ctrl = m_sa.GetControl();
 

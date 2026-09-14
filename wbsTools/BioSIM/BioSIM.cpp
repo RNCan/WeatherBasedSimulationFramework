@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////// 
 // Version of BioSIM 
-// 11.9.1:24/07/2026	Rémi Saint-Amant	Add automtic convertion of dispersal output into gpkg
+// 11.9.2:12/09/2026	Rémi Saint-Amant	change parameters order in Simulated Anneal for model calibration
+// 11.9.1:24/07/2026	Rémi Saint-Amant	Add automatic conversion of dispersal output into gpkg
 //									      	Bug correction development rate fit when using mean+sd+n 
 //											Add Stage table in fit method. rename proj9 to projlib.
 // 11.9.0:25/02/2026	Rémi Saint-Amant	Compile with GDAL 3.12. Use of Proj9. Move External to bin. 
