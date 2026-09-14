@@ -103,6 +103,13 @@ namespace WBSF
 		double notUse = parameters[c++].GetReal();//for reverse model
 
 		//perform verification
+		if (m_DD.m_method >= CDegreeDays::NB_DAILY_METHOD)
+		{
+			msg.ajoute("Invalid method for degree day model");
+			return msg;
+		}
+
+
 		if (!m_firstDate.IsValid())
 			return GetErrorMessage(ERROR_BEGINNING_DATE);
 		if (!m_lastDate.IsValid())

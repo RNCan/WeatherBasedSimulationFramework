@@ -1,3 +1,5 @@
+#pragma once
+
 
 #include <vector>
 #include <bitset>
@@ -16,7 +18,7 @@ namespace WBSF
 		enum TParameters { P0, P1, P2, P3, P4, P5, P6, P7, NB_P_MAX };
 		enum TSurvivalEquation
 		{
-			Unknown=-1, 
+			Unknown=-1, LastStage = Unknown,
 			Survival_01, Survival_02, Survival_03, Survival_04, Survival_05, Survival_06,
 			Survival_07, Survival_08, Survival_09, Survival_10, Survival_11,
 			Survival_12, Survival_13, Survival_14, Survival_15/*GompertzMakeham*/, Survival_16/*wang2*/,

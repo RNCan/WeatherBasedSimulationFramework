@@ -31,6 +31,7 @@ namespace WBSF
 		{"Survival_14","ifelse(T>=Tl&T<=Th,k*(1-exp(-pmax(0,(T-Tl))/deltaT))*(1-exp(-pmax(0,(Th-T))/deltaT)),0)","k=1[0,100]|Tl=10[0,50]|Th=30[10,100]|deltaT=1[0.1,1e4]","{k~bgroup('(',1-e^{~-~over(T~-~T[L],Delta[T])},')')~bgroup('(',{1-e^{~-~over(T[H]~-~T,Delta[T])}}, ')')}"},
 		{"Survival_15","ifelse(T>=Tl&T<=Th,1-exp(k*(1-exp(-pmax(0,(T-Tl))/deltaTl))*(1-exp(-pmax(0,(Th-T))/deltaTh))),0)","k=-1[-100,-1e-5]|Tl=0[-100,100]|Th=50[-100,100]|deltaTl=1[1e-5,1e5]|deltaTh=1[1e-5,1e5]", "1-e^{~kk~bgroup('(',1~-~e^{~-~over(T~-~T[L],Delta[T[L]])},')')~bgroup('(',{1~-~e^{~-~over(T[H]~-~T,Delta[T[H]])}}, ')')}"},
 		{"Survival_16","ifelse(T>=Tl&T<=Th,1/(exp(k*(1+exp(-(T-Tl)/deltaTl))*(1+exp(-(Th-T)/deltaTh)))),0)", "k=5e-5[1e-5,1]|Tl=10[-50,50|Th=30[0,100]|deltaTl=10[0.1,100]|deltaTh=2[0.1,100]", "over(1, e^{kk~bgroup('(',1+e^{~-~over(T~-~T[L],Delta[T[L]])},')')~bgroup('(',1+e^{~-~over(T[H]~-~T,Delta[T[H]])},')')})"},
+		{"constant","k0", "k0=1[0,1]", "k[0]"},
 	};
 
 	bool CSurvivalEquation::IsParamValid(CSurvivalEquation::TSurvivalEquation model, const std::vector<double>& P)
