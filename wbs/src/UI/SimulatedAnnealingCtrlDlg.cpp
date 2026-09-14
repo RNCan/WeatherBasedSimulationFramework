@@ -31,7 +31,8 @@ namespace WBSF
 		/////////////////////////////////////////////////////////////////////////////
 		// CSimulatedAnnealingCtrlDlg property page
 
-		CSimulatedAnnealingCtrlDlg::CSimulatedAnnealingCtrlDlg(CWnd* pParent) :
+		CSimulatedAnnealingCtrlDlg::CSimulatedAnnealingCtrlDlg(bool bShowOptimMethod, CWnd* pParent) :
+		m_bShowOptimMethod(bShowOptimMethod),
 		CDialog(CSimulatedAnnealingCtrlDlg::IDD, pParent)
 	{
 		//{{AFX_DATA_INIT(CSimulatedAnnealingCtrlDlg)
@@ -54,6 +55,7 @@ namespace WBSF
 		DDX_Text(pDX, IDC_INITIAL_TEMPERATURE, m_initialTemperature);
 		DDV_MinMaxDouble(pDX, m_initialTemperature, 1e-8, 1e8);
 		DDX_Text(pDX, IDC_ERROR_TOLERENCE, m_errorTolerence);
+		DDX_Text(pDX, IDC_P_EPS, m_P_EPS);
 		DDX_Text(pDX, IDC_NB_CYCLES, m_nbCycles);
 		DDV_MinMaxInt(pDX, m_nbCycles, 1, 1000);
 		DDX_Text(pDX, IDC_NB_SKIP_LOOP, m_nbSkipLoop);
@@ -77,6 +79,13 @@ namespace WBSF
 		m_ctrl.m_statisticType = curSel + WBSF::BIAS;
 	
 
+		if (!m_bShowOptimMethod)
+		{
+			GetDlgItem(IDC_STATIC1)->ShowWindow(SW_HIDE);
+			GetDlgItem(IDC_OPTIMISATION_TYPE)->ShowWindow(SW_HIDE);
+			GetDlgItem(IDC_STATISTIC_TYPE)->ShowWindow(SW_HIDE);
+		}
+
 		if (pDX->m_bSaveAndValidate)
 			GetSACtrlFromInterface();
 
@@ -89,15 +98,16 @@ namespace WBSF
 
 	void CSimulatedAnnealingCtrlDlg::SetSACtrlToInterface()
 	{
-		m_maxEvaluation = m_ctrl.MAXEVL();
+		m_maxEvaluation = m_ctrl.m_MAXEVL;
 
-		m_nbEps = m_ctrl.NEPS();
-		m_max = m_ctrl.Max();
-		m_seed1 = m_ctrl.Seed1();
-		m_seed2 = m_ctrl.Seed2();
+		m_nbEps = m_ctrl.m_NEPS;
+		m_max = m_ctrl.m_bMax;
+		m_seed1 = m_ctrl.m_seed1;
+		m_seed2 = m_ctrl.m_seed2;
 
-		m_initialTemperature = m_ctrl.T();
-		m_errorTolerence = m_ctrl.EPS();
+		m_initialTemperature = m_ctrl.m_T;
+		m_errorTolerence = m_ctrl.m_EPS;
+		m_P_EPS = m_ctrl.m_P_EPS;
 
 		m_nbCycles = m_ctrl.m_NS;
 		m_nbIteration = m_ctrl.m_NT;
@@ -108,14 +118,15 @@ namespace WBSF
 
 	void CSimulatedAnnealingCtrlDlg::GetSACtrlFromInterface()
 	{
-		m_ctrl.SetMAXEVL(m_maxEvaluation);
-		m_ctrl.SetNEPS(m_nbEps);
-		m_ctrl.SetMax(m_max != 0);
-		m_ctrl.SetSeed1(m_seed1);
-		m_ctrl.SetSeed2(m_seed2);
+		m_ctrl.m_MAXEVL = m_maxEvaluation;
+		m_ctrl.m_NEPS = m_nbEps;
+		m_ctrl.m_bMax = m_max != 0;
+		m_ctrl.m_seed1 = m_seed1;
+		m_ctrl.m_seed2 = m_seed2;
 
-		m_ctrl.SetT(m_initialTemperature);
-		m_ctrl.SetEPS(m_errorTolerence);
+		m_ctrl.m_T = m_initialTemperature;
+		m_ctrl.m_EPS = m_errorTolerence;
+		m_ctrl.m_P_EPS = m_P_EPS;
 		m_ctrl.m_NS = m_nbCycles;
 		m_ctrl.m_NT = m_nbIteration;
 		m_ctrl.m_RT = m_TReduction;

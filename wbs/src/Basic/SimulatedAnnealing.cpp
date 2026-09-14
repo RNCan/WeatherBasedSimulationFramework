@@ -23,9 +23,10 @@ namespace WBSF
 
 	//*****************************************************************
 	const char* CSAControl::XML_FLAG = "Control";
-	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "NbCycles", "NbIterations",  "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2", "nbSkipLoop"};
+	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "P_Epsilon", "NbCycles", "NbIterations",  "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2", "nbSkipLoop"};
 
 
+	
 	CSAControl::CSAControl()
 	{
 		Reset();
@@ -47,6 +48,7 @@ namespace WBSF
 		m_RT = 0.85;
 		m_RT2 = 1.0;
 		m_EPS = 0.001;
+		m_P_EPS = 0.01;
 		m_NS = 20;
 		m_NT = 10;
 		m_NEPS = 4;
@@ -67,6 +69,8 @@ namespace WBSF
 			m_RT = in.m_RT;
 			m_RT2 = in.m_RT2;
 			m_EPS = in.m_EPS;
+			m_P_EPS = in.m_P_EPS;
+			
 			m_NS = in.m_NS;
 			m_NT = in.m_NT;
 			m_NEPS = in.m_NEPS;
@@ -92,6 +96,7 @@ namespace WBSF
 		if (fabs(m_RT - in.m_RT) > 0.001) bEqual = false;
 		if (fabs(m_RT2 - in.m_RT2) > 0.001) bEqual = false;
 		if (fabs(m_EPS - in.m_EPS) > 0.00000001) bEqual = false;
+		if (fabs(m_P_EPS - in.m_P_EPS) > 0.00000001) bEqual = false;
 		if (m_NS != in.m_NS) bEqual = false;
 		if (m_NT != in.m_NT) bEqual = false;
 
@@ -120,6 +125,7 @@ namespace WBSF
 		case REDUCTION_FACTOR:str = ToString(m_RT); break;
 		case REDUCTION_FACTOR2:str = ToString(m_RT2); break;
 		case EPSILON:str = ToString(m_EPS, -1); break;
+		case P_EPSILON:str = ToString(m_P_EPS, -1); break;
 		case NB_CYCLE:str = ToString(m_NS); break;
 		case NB_SKIP_LOOP:str = ToString(m_nbSkipLoop); break;
 		case NB_ITERATION:str = ToString(m_NT); break;
@@ -145,6 +151,7 @@ namespace WBSF
 		case REDUCTION_FACTOR:m_RT = ToDouble(str); break;
 		case REDUCTION_FACTOR2:m_RT2 = ToDouble(str); break;
 		case EPSILON: m_EPS = ToDouble(str); break;
+		case P_EPSILON: m_P_EPS = ToDouble(str); break;
 		case NB_CYCLE: m_NS = ToInt(str); break;
 		case NB_SKIP_LOOP: m_nbSkipLoop = ToInt(str); break;
 		case NB_ITERATION:m_NT = ToInt(str); break;
