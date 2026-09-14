@@ -24,58 +24,17 @@ using namespace std;
 
 namespace WBSF
 {
-
-	//Minimum developmental threshold temperatures were estimated at
-	//5.4°C for eggs, 3.2°C for larvae, 2.9°C for prepupae, and 3.1°C for pupae. Median development times
-	//for eggs, larvae, prepupae, and pupae were 59.5, 208.3, 217.4, and 212.8 degree - days(DD) above
-	//minimum developmental temperatures, respectively.
-
-
 	//Parameters for logistic distribution
+	
+	//Calibration of oviposition (individual creation of egg) with egg and larval observation
 	//WARNING: logistic describe cumulative of egg abundance (cumulative under the curve)
-	//here is calibrated directly from January first with 
-	//				  mu     s     ThLo   ThHi	   N     Bias     MAE      RMSE     CD       R²
-	//EggCreation:	327.2   60.9   0.8    21.7     71   -0.720   3.501    5.232    0.982    0.983
-	//Larvae:       117.0   20.8   6.6    11.9    103   -0.911   5.011    8.385    0.958    0.961
-
-	//parameters estimated with simulated annealing
-	//individual creation of egg
-
-	//parameters with egg and larval observation ( non-linear development equation)
-	//WARNING: logistic describe cumulative of egg creation
 	//NbVal = 174	Bias = -0.31065	MAE = 5.09708	RMSE = 8.51067	CD = 0.95783	R² = 0.95910
-	//mu = 220.3
-	//s = 47.5 
-	//Th1 = 2.1
-	//Th2 = 20.2
 
-	//Egg creation and larval development (with correction)
-	//NbVal = 173	Bias = -0.99017	MAE = 5.03757	RMSE = 8.31326	CD = 0.95879	R² = 0.96159
-	//a1 = 0.813
-	//a2 = 1.197
-	//mu = 199.4
-	//s = 47.86
-	//Th1 = 2.4
-	//Th2 = 18.2
-
-	//Beginning of adult emergence from soil (with BalcksburgLab)
+	//Calibration of end of diapause and adult emergence from soil (with BalcksburgLab)
 	//#NbVal = 100	Bias = 0.48893	MAE = 5.32455	RMSE = 7.49034	CD = 0.96157	R² = 0.96300
-	//lam0 = 121
-	//lam1 = 212
-	//lam2 = -294.5
-	//lam3 = 105.8
-	//lam_a = 34.8
-	//lam_b = 20
-	//mu_ADE = 1157.8
-	//s_ADE = 125.0
-	//Th_ADE = -2.5
-
 
 
 	//parameters estimated with simulated annealing
-	//With linear version
-
-
 	const std::array<double, LNF::NB_OVP_PARAMS> CLaricobiusNigrinusEquations::OVP = { 220.3, 47.5, 2.1, 20.2 };//logistic distribution
 	const std::array<double, LNF::NB_ADE_PARAMS> CLaricobiusNigrinusEquations::ADE = { 121,212,-294.5,105.8,34.8,20 };//logistic distribution
 	const std::array<double, LNF::NB_EAS_PARAMS> CLaricobiusNigrinusEquations::EAS = { 1157.8,125.0,-2.5 };//logistic distribution
