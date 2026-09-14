@@ -127,12 +127,11 @@ namespace WBSF
 
 		DWORD exit_code;
 		msg = WinExecWait(command, "", bShowCurl ? SW_SHOW : SW_HIDE, &exit_code);
-		if (exit_code != 0/* && !FileExists(output_filepath)*/)
+		//if (exit_code != 0/* && !FileExists(output_filepath)*/)
+		if (!msg)
 		{
-
 			msg.ajoute("Unable to download files' list:");
 			msg.ajoute(URLs_file_path);
-
 		}
 
 		return msg;
