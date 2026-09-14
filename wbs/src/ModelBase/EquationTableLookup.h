@@ -81,6 +81,7 @@ namespace WBSF
 		//Save the table to a file
 		ERMsg Save(const char* filePath);
 
+		const CRandomGenerator& RG()const {	return m_randomGenerator;}
 
 	protected:
 

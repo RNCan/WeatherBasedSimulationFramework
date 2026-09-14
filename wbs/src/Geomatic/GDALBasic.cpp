@@ -2980,4 +2980,37 @@ namespace WBSF
 	//	return CE_None;
 	//}
 
+
+	double CBandsHolder::GetWindowMean(size_t layer, int nbNeighbor, double T, const CGeoPointIndexVector& pts, const std::vector<double>& d)
+	{
+		ASSERT(pts.size() > 0);
+		ASSERT(pts.size() == d.size());
+
+		
+		//double noData = GetNoData(pBand);
+
+		CStatistic W;
+		CStatistic H;
+
+		for (size_t i = 0; i < pts.size() && W[NB_VALUE] < nbNeighbor; i++)
+		{
+			//float Fi = (float)noData;
+		//	pBand->RasterIO(GF_Read, pts[i].m_x, pts[i].m_y, 1, 1, &Fi, 1, 1, GDT_Float32, 0, 0);
+			DataType Fi = this->GetPixel(layer, pts[i].m_x, pts[i].m_y);
+			
+
+			//if (fabs(Fi - noData) > EPSILON_NODATA)
+			if(IsValid(layer,Fi))
+			{
+				double Wi = 0;
+				Wi = pow(d[i], -T);
+
+				H += Wi * Fi;
+				W += Wi;
+			}
+		}
+
+		return W[SUM] > 0 ? float(H[SUM] / W[SUM]) : m_bandHolder[layer]->GetNoData();
+	}
+
 }

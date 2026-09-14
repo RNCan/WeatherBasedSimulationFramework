@@ -121,101 +121,111 @@ namespace WBSF
 		double v = 0;
 
 		
-
-		switch (type)
+		try
 		{
-		case NORMALS:
-		{
-			boost::math::normal_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case LOG_NORMAL:
-		{
-			boost::math::lognormal_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case LOGISTIC:
-		{
-			boost::math::logistic_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case WEIBULL:
-		{
-			x = max(0.0, x - p3);
-			boost::math::weibull_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, max(0.0, x));
-			break;
-		}
-		case GAMMA:
-		{
-			boost::math::fisher_f_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case FISHER:
-		{
-			boost::math::extreme_value_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case EXTREME_VALUE:
-		{
-			boost::math::gamma_distribution<double> distribution(p1, p2);
-			v = cdf(distribution, x);
-			break;
-		}
-		case RAYLEIGH:
-		{
-			boost::math::rayleigh_distribution<double> distribution(p2);
-			v = cdf(distribution, max(0.0, x - p1));
-			break;
-		}
-		case MODIFIED_LOGISTIC:
-		{
-			if (x > 0)
+			switch (type)
 			{
-				boost::math::logistic_distribution<double> distribution(p1, sqrt(p2 * x));
+			case NORMALS:
+			{
+				boost::math::normal_distribution<double> distribution(p1, p2);
 				v = cdf(distribution, x);
+				break;
 			}
-			break;
-			//v = m_p1 - log(1 / x - 1) * sqrt(m_p2 * x);  break;
-		}
-		case GOMPERTZ1:
-		{
-			x = max(0.0, x - p3);
-			v = 1 - exp(-p1 * (exp(p2 * max(0.0, x)) - 1));
-			break;
-		}
-		case GOMPERTZ2:
-		{
-			x = max(0.0, x - p3);
-			v = exp(-exp(p1 - p2 * x));
-			break;
-		}
-		case FRECHET:
-		{
-			assert(p2 > 0.0 && p3 > 0.0);
+			case LOG_NORMAL:
+			{
+				boost::math::lognormal_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, x);
+				break;
+			}
+			case LOGISTIC:
+			{
+				boost::math::logistic_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, x);
+				break;
+			}
+			case WEIBULL:
+			{
+				x = max(0.0, x - p3);
+				boost::math::weibull_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, max(0.0, x));
+				break;
+			}
+			case GAMMA:
+			{
+				boost::math::fisher_f_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, x);
+				break;
+			}
+			case FISHER:
+			{
+				boost::math::extreme_value_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, x);
+				break;
+			}
+			case EXTREME_VALUE:
+			{
+				boost::math::gamma_distribution<double> distribution(p1, p2);
+				v = cdf(distribution, x);
+				break;
+			}
+			case RAYLEIGH:
+			{
+				boost::math::rayleigh_distribution<double> distribution(p2);
+				v = cdf(distribution, max(0.0, x - p1));
+				break;
+			}
+			case MODIFIED_LOGISTIC:
+			{
+				if (x > 0)
+				{
+					boost::math::logistic_distribution<double> distribution(p1, sqrt(p2 * x));
+					v = cdf(distribution, x);
+				}
+				break;
+				//v = m_p1 - log(1 / x - 1) * sqrt(m_p2 * x);  break;
+			}
+			case GOMPERTZ1:
+			{
+				x = max(0.0, x - p3);
+				v = 1 - exp(-p1 * (exp(p2 * max(0.0, x)) - 1));
+				break;
+			}
+			case GOMPERTZ2:
+			{
+				x = max(0.0, x - p3);
+				v = exp(-exp(p1 - p2 * x));
+				break;
+			}
+			case FRECHET:
+			{
+				assert(p2 > 0.0 && p3 > 0.0);
 
-			if (x <= p1)
-				return 0.0;
+				if (x <= p1)
+					return 0.0;
 
-			double z = (x - p1) / p2;
-			return exp(-pow(z, -p3));
+				double z = (x - p1) / p2;
+				return exp(-pow(z, -p3));
+			}
+			case LOG_LOGISTIC:
+			{
+				assert(p1 > 0.0 && p2 > 0.0);
+
+				//exp(log(x) * p2 + p1) / (1 + exp(log(x) * p2 + p1));
+				return 1 / (1 + pow(x / p1, -p2));
+			}
+
+
+			default:assert(false);
+			}
 		}
-		case LOG_LOGISTIC:
+		catch (...)
 		{
-			assert(p1 > 0.0 && p2 > 0.0);
-
-			//exp(log(x) * p2 + p1) / (1 + exp(log(x) * p2 + p1));
-			return 1 / (1 + pow(x / p1, -p2));
 		}
 
-	
-		default:assert(false);
-		}
+		assert(!_isnan(v) && _finite(v));
+		if (_isnan(v) || !_finite(v))
+			v = 0;
+
 
 		return v;
 	}
@@ -224,90 +234,103 @@ namespace WBSF
 	{
 
 		double v = 0;
-		switch (type)
+		try
 		{
-		case NORMALS:
-		{
-			boost::math::normal_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case LOG_NORMAL:
-		{
-			boost::math::lognormal_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case LOGISTIC:
-		{
-			boost::math::logistic_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case WEIBULL:
-		{
-			boost::math::weibull_distribution<double> distribution(p1, p2);
-			v = p3 + quantile(distribution, max(0.0,x));
-			break;
-		}
-		case GAMMA:
-		{
-			boost::math::fisher_f_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case FISHER:
-		{
-			boost::math::extreme_value_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case EXTREME_VALUE:
-		{
-			boost::math::gamma_distribution<double> distribution(p1, p2);
-			v = quantile(distribution, x);
-			break;
-		}
-		case RAYLEIGH:
-		{
-			boost::math::rayleigh_distribution<double> distribution(p2);
-			v = p1 + quantile(distribution, x);
-			break;
-		}
-		case MODIFIED_LOGISTIC:
-		{
-			if (x > 0)
+			switch (type)
 			{
-				boost::math::logistic_distribution<double> distribution(p1, sqrt(p2 * x));
+			case NORMALS:
+			{
+				boost::math::normal_distribution<double> distribution(p1, p2);
 				v = quantile(distribution, x);
+				break;
 			}
-			break;
-			//v = m_p1 - log(1 / x - 1) * sqrt(m_p2 * x);  break;
+			case LOG_NORMAL:
+			{
+				boost::math::lognormal_distribution<double> distribution(p1, p2);
+				v = quantile(distribution, x);
+				break;
+			}
+			case LOGISTIC:
+			{
+				boost::math::logistic_distribution<double> distribution(p1, p2);
+				v = quantile(distribution, x);
+				break;
+			}
+			case WEIBULL:
+			{
+				boost::math::weibull_distribution<double> distribution(p1, p2);
+				v = p3 + quantile(distribution, max(0.0, x));
+				break;
+			}
+			case GAMMA:
+			{
+				boost::math::fisher_f_distribution<double> distribution(p1, p2);
+				v = quantile(distribution, x);
+				break;
+			}
+			case FISHER:
+			{
+				boost::math::extreme_value_distribution<double> distribution(p1, p2);
+				v = quantile(distribution, x);
+				break;
+			}
+			case EXTREME_VALUE:
+			{
+				boost::math::gamma_distribution<double> distribution(p1, p2);
+				v = quantile(distribution, x);
+				break;
+			}
+			case RAYLEIGH:
+			{
+				boost::math::rayleigh_distribution<double> distribution(p2);
+				v = p1 + quantile(distribution, x);
+				break;
+			}
+			case MODIFIED_LOGISTIC:
+			{
+				if (x > 0)
+				{
+					boost::math::logistic_distribution<double> distribution(p1, sqrt(p2 * x));
+					v = quantile(distribution, x);
+				}
+				break;
+				//v = m_p1 - log(1 / x - 1) * sqrt(m_p2 * x);  break;
+			}
+			case GOMPERTZ1:
+			{
+				if (x > 0)
+					v = p3 + log(1.0 - log(max(0.0, x)) / p1) / p2;
+				break;
+			}
+			case GOMPERTZ2:
+			{
+				if (x > 0)
+					v = p3 - (log(-log(x)) - p1) / p2;
+				break;
+			}
+			case FRECHET:
+			{
+				v = p1 + p2 * pow(-log(x), -1.0 / p3);
+			}
+			case LOG_LOGISTIC:
+			{
+				assert(p1 > 0.0 && p2 > 0.0);
+				return (p2 / p1) * pow(x / p1, p2 - 1.0) / Square(1.0 + pow(x / p1, p2));
+			}
+
+			default:assert(false);
+			}
 		}
-		case GOMPERTZ1:
+		catch(...)
 		{
-			if (x > 0)
-				v = p3 + log(1.0 - log(max(0.0, x)) / p1) / p2;
-			break;
-		}
-		case GOMPERTZ2:
-		{
-			if (x > 0)
-				v = p3  -(log(-log(x)) - p1) / p2;
-			break;
-		}
-		case FRECHET:
-		{
-			v = p1 + p2 * pow(-log(x), -1.0 / p3);
-		}
-		case LOG_LOGISTIC:
-		{
-			assert(p1 > 0.0 && p2 > 0.0);
-			return (p2 / p1) * pow(x / p1,p2 - 1.0) / Square(1.0 + pow(x / p1 , p2));
+		
 		}
 
-		default:assert(false);
-		}
+		assert(!_isnan(v) && _finite(v));
+		if (_isnan(v) || !_finite(v))
+			v = 0;
+
+
 
 		return v;
 	}

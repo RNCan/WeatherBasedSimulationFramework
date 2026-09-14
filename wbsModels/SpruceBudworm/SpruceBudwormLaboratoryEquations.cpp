@@ -324,7 +324,7 @@ namespace WBSF
 		ASSERT(defoliation >= 0 && defoliation <= 100);
 		if (defoliation > 0 && defoliation < 100)
 		{
-			//From Regniere 20018 part III Equation [15]
+			//From Régnière 20018 part III Equation [15]
 			double μ = defoliation / 100.0;
 			double σ² = 0.008101 + 0.5289*μ - 0.5228*Square(μ);
 

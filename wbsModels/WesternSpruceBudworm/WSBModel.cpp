@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Individual-based model of Western Spruce Busdworm (WSB)
+// Individual-based model of Western Spruce Budworm (WSB)
 // 
 // Jacques Régnière
 // Canadian Forest Service
@@ -14,20 +14,21 @@
 //
 // Class: CWSBModel
 //
-// Description: CWSBModel is a BioSIM model that computes Western Spruce Busdworm 
+// Description: CWSBModel is a BioSIM model that computes Western Spruce Budworm 
 //              seasonal biology. There are two model, one base on individual 
-//				model. The other is base developement rate.(a revoir)
+//				model. The other is base development rate.
 //
 //*****************************************************************************
+// 23/07/2026   3.2.3   Rémi Saint-Amant	Compile with VC 2022
 // 08/07/2022   3.2.2   Rémi Saint-Amant	Compile with VC 2019
 // 06/04/2018   3.2.1   Rémi Saint-Amant	Annual model bug correction
 // 01/04/2018	3.2.0	Rémi Saint-Amant    Compile with VS 2017
 // 29/08/2017	3.1.3	Rémi Saint-Amant    Revised model
 // 04/05/2017	3.1.2	Rémi Saint-Amant    New hourly generation
-// 23/12/2016	3.1.1	Rémi Saint-Amant    Correctiopn on overheating 
+// 23/12/2016	3.1.1	Rémi Saint-Amant    Correction on overheating 
 // 20/09/2016	3.1.0	Rémi Saint-Amant    Change Tair and Trng by Tmin and Tmax
 // 21/01/2016	3.0.0	Rémi Saint-Amant	Update with BioSIM 11.0
-// 19/09/2013	2.10	Rémi Saint-Amant	Add Shoot Devel as output variable
+// 19/09/2013	2.10	Rémi Saint-Amant	Add Shoot Development as output variable
 // 19/06/2013	2.9		Rémi Saint-Amant	Correction in model base that affect m_totalBrood (verify broods)
 // 05/04/2013	2.8		Rémi Saint-Amant	Update with new Simulated Annealing
 // 18/02/2013			Rémi Saint-Amant	Update with new BioSIM Model Base (better autoBalance object)
@@ -46,7 +47,6 @@ using namespace std;
 
 namespace WBSF
 {
-	//uncomment this line to activate version for simulated annealing
 	static const bool ACTIVATE_PARAMETRIZATION = false;
 	static const bool BY_AI = false;
 
@@ -69,10 +69,10 @@ namespace WBSF
 
 		NB_INPUT_PARAMETER = ACTIVATE_PARAMETRIZATION ? 22 : 4;
 
-		VERSION = "3.2.2 (2022)";
+		VERSION = "3.2.3 (2026)";
 
 		m_bApplyMortality = true;
-		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the developement
+		m_bFertilEgg = false;	//If female is fertile, eggs will be added to the development
 		m_survivalRate = 0.2;
 		m_defoliation = 0.5;
 
@@ -328,7 +328,7 @@ namespace WBSF
 
 
 
-	//simulated annaling 
+	//simulated annealing 
 	void CWSBModel::AddDailyResult(const StringVector& header, const StringVector& data)
 	{
 		if (header.size() == NB_DATA_EMERGENCE)
@@ -414,7 +414,7 @@ namespace WBSF
 
 				int m_firstYear = (int)years[LOWEST];
 				int m_lastYear = (int)years[HIGHEST];
-				ASSERT(false);//a faire
+				ASSERT(false);//todo
 				/*while (m_weather.GetNbYears() > 1 && m_weather.GetFirstYear() < m_firstYear)
 					m_weather.RemoveYear(0);
 

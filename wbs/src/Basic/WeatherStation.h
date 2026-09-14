@@ -1187,7 +1187,7 @@ namespace WBSF
 		void CompleteSnow();
 		bool ComputeHourlyVariables(CWVariables variables = CWAllVariables(), std::string options = "");
 		bool IsHourlyComputed()const { return m_bHourlyComputed; }
-
+		void KeepOnlyYears(int firstYear, int lastYear);
 
 	protected:
 

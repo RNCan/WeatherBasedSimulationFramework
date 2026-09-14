@@ -299,22 +299,7 @@ namespace WBSF
 		CModelStatVector PSMI(m_weather.GetEntireTPeriod(CTM::DAILY), 1);// = GetPSMI(m_weather, 200, 400);
 		CModelStatVector Tsoil = GetSoilTemperature(m_weather, 10, m_other[LITTER]);
 
-//copy soil temperature to weather
-		/*for (size_t y = 0; y < m_weather.size(); y++) 
-		{
-			for (size_t m = 0; m < m_weather[y].size(); m++)
-			{
-				for (size_t d = 0; d < m_weather[y][m].size(); d++)
-				{
-					for (size_t h = 0; h < m_weather[y][m][d].size(); h++)
-					{
-						m_weather[y][m][d][h][H_TMIN] = Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-						m_weather[y][m][d][h][H_TAIR] = Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-						m_weather[y][m][d][h][H_TMAX] = Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-					}
-				}
-			}
-		}*/
+
 
 		//This is where the model is actually executed
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
@@ -614,26 +599,6 @@ namespace WBSF
 		if (m_Tsoil.empty())
 			m_Tsoil = GetSoilTemperature(m_weather, 10, m_other[LITTER]);
 
-
-		//replace air temperature by soil temperature
-
-		/*for (size_t y = 0; y < m_weather.size(); y++)
-		{
-			for (size_t m = 0; m < m_weather[y].size(); m++)
-			{
-				for (size_t d = 0; d < m_weather[y][m].size(); d++)
-				{
-					for (size_t h = 0; h < m_weather[y][m][d].size(); h++)
-					{
-						m_weather[y][m][d][h][H_TMIN] = m_Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-						m_weather[y][m][d][h][H_TAIR] = m_Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-						m_weather[y][m][d][h][H_TMAX] = m_Tsoil[m_weather[y][m][d][h].GetTRef()][0];
-					}
-				}
-			}
-		}*/
-
-		//m_weather.ResetStat();
 
 
 		m_bCumul = true;

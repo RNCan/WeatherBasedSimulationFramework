@@ -33,7 +33,7 @@ inline size_t sum(const CBoolArray& v)
 
 enum TFitMethod { FIT_EARLY_TO_LATE, FIT_MPFIT, NB_FIT_METHODS };
 enum TStatistic { STAT_UNKNOWN=-1, R2, ANOVA, FISHER, AICC, NB_STATISTIC};
-enum TPickBestPriority { PRI_UNKNOWN=-1,MIN_SEGMENT, MEDIAN_SEGMENT, MAX_SEGMENT };
+enum TPickBestPriority { PRI_UNKNOWN=-1,MIN_SEGMENT, MEDIAN_SEGMENT, MAX_SEGMENT, NB_PRIORITY, BEST_1= NB_PRIORITY, BEST_2, BEST_3};
 
 extern TStatistic GetStatistic(const std::string& name);
 extern TPickBestPriority GetPriority(const std::string& name);

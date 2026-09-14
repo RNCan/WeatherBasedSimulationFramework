@@ -23,7 +23,6 @@ using namespace WBSF::LPM;
 namespace WBSF
 {
 
-	//static const bool CALIBRATE_PUPAE = true;
 	//*********************************************************************************
 	//CLeucotaraxisPiniperda class
 
@@ -58,13 +57,13 @@ namespace WBSF
 		m_bDeadByAttrition = false;
 
 
-		//for Preston 2021 and Bittner 2024, Farley 2019 experiment, we trick the input to mimic the experimental protocol
+		//for Bittner 2026 experiment, we trick the input to mimic the experimental protocol
 		if (m_generation == 0)
 		{
 
 			static const size_t NB_OBS = 2;
-			static const array<string, NB_OBS > LOC_NAME = { "ICF(NY)" };
-			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2026, APRIL, DAY_23)};
+			static const array<string, NB_OBS > LOC_NAME = { "ICF(NY)", "Wolfville(NS)" };
+			static const array<CTRef, NB_OBS > LOC_DATE = { CTRef(2026, APRIL, DAY_23), CTRef(2026, MAY, DAY_15) };
 
 			//“ICF” 42.47144572941413, -76.5507394695125
 			//“P” 42.4610547586098, -76.43973321766447
@@ -77,8 +76,6 @@ namespace WBSF
 					m_adult_emergence_date = LOC_DATE[i];
 			}
 		}
-
-	
 	}
 
 
@@ -237,7 +234,8 @@ namespace WBSF
 			size_t h = step * GetTimeStep();
 			Live(weather[h], GetTimeStep());
 			
-			if (m_generation == 1 && GetStage() >= LARVAE)
+			assert(LP_NB_GENERATION == 1 || LP_NB_GENERATION == 2);
+			if (m_generation == LP_NB_GENERATION && GetStage() >= LARVAE)
 				m_bQuiescence = true;
 		}
 
@@ -256,11 +254,12 @@ namespace WBSF
 
 		if (m_broods > 0 && !GetStand()->m_in_calibration)
 		{
-			ASSERT(m_generation == 0);
+			ASSERT(m_generation == 0|| (LP_NB_GENERATION==2&&m_generation == 1));
 			ASSERT(m_age >= ADULT);
 			CLPMStand* pStand = GetStand(); ASSERT(pStand);
 
-			double attRate = 0.05;//5% of survival by default
+			
+			double attRate = GetStand()->m_bApplyAttrition?0.25:0.05;//55% of survival by default
 			double scaleFactor = m_broods * m_scaleFactor * attRate;
 			CIndividualPtr object = make_shared<CLeucotaraxisPiniperda>(m_pHost, weather.GetTRef(), EGG, RANDOM_SEX, true, m_generation + 1, scaleFactor);
 			m_pHost->push_front(object);
@@ -332,8 +331,8 @@ namespace WBSF
 					stat[S_LARVA0 + s - LARVAE] += m_scaleFactor;
 				else if (m_generation == 1)
 					stat[S_EGG1 + s] += m_scaleFactor;
-				//else if (m_generation == 2)
-					//stat[S_EGG2 + s] += m_scaleFactor;
+				else if (m_generation == 2)
+					stat[S_EGG2 + s] += m_scaleFactor;
 			}
 
 

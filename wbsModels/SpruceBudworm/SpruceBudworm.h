@@ -139,7 +139,7 @@ namespace WBSF
 
 		bool m_bAutumnCleaned;
 		//Defoliation: uncomment to get defoliation
-		//	double m_budDensity;//number of bud by branche
+		//	double m_budDensity;//number of bud by branch
 		//	double GetDefoliation()const{ return 1-m_foliageRatio; }
 		//	void Eated(double feding){ m_bugsFeeding += feding;}
 		//	void UpdateDefoliation();

@@ -40,7 +40,7 @@ namespace WBSF
 		double m_survivalRate;
 		double m_defoliation;
 
-		//Devloper model
+		//Developer model
 		bool m_bCumulatif;
 		int m_initialPopulation;
 		bool m_bApplyAttrition;
@@ -54,7 +54,7 @@ namespace WBSF
 		double m_rho25Factor[NB_STAGES];
 
 
-		//for optimisation
+		//for optimization
 		enum TOptType{ DATA_UNKNOWN = -1, OPT_EMERGENCE, OPT_STAGE, OPT_AI, NB_DATA_TYPE };
 		enum TDataEmergence{ DE_NAME, DE_ID, DE_LAT, DE_LON, DE_ELEV, DE_YEAR, DE_MONTH, DE_DAY, DE_JDAY, DE_L2o, DE_N, NB_DATA_EMERGENCE };
 		enum TDataStage{ DS_NAME, DS_ID, DS_LAT, DS_LON, DS_ELEV, DS_YEAR, DS_MONTH, DS_DAY, DS_JDAY, DS_L2, DS_L3, DS_L4, DS_L5, DS_L6, DS_PUPEA, DS_ADULT, DS_N, DS_AI, NB_DATA_STAGE };

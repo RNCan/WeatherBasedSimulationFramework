@@ -3,8 +3,8 @@
 #include <array>
 #include "Basic/ApproximateNearestNeighbor.h"
 //#include "ToolsBase.h"
-#include "Simulation/AdvancedNormalStation.h"
-#include "boost\dynamic_bitset.hpp"
+#include "Basic/AdvancedNormalStation.h"
+#include "boost/dynamic_bitset.hpp"
 #include "Geomatic/GDALBasic.h"
 #include "Basic/Mtrx.h"
 #include "Basic/WeatherDefine.h"

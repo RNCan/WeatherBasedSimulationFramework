@@ -88,8 +88,8 @@ namespace WBSF
 								case H_WND2:
 								{
 									_ASSERTE(data[m][d].GetData(v)[MEAN] >= 0);
-									if (data[m][d][v][MEAN]>0)
-										at(y)[v][m] += log(max(0.01, data[m][d][v][MEAN]));//take the log of the wind speed
+									//if (data[m][d][v][MEAN]>0)
+									at(y)[v][m] += log(max(0.01, data[m][d].GetData(v)[MEAN]));//take the log of the wind speed
 
 									break;
 								}
@@ -251,7 +251,8 @@ namespace WBSF
 				for (size_t v = 0; v < NB_VAR_H; v++)
 				{
 					size_t nbDayMin = m_monthStatArray[y].GetNbDaysPerMonthMin(v, m);
-					if (m_monthStatArray[y][v][m][NB_VALUE] >= nbDayMin)
+					size_t nbDay = m_monthStatArray[y][v][m][NB_VALUE];
+					if (nbDay >= nbDayMin)
 					{
 						m_dailyStat[v][m] += m_monthStatArray[y][v][m];
 						size_t  correction = (v == H_PRCP) ? GetNbDayPerMonth(m_monthStatArray[y].GetYear(), m) : 1;
@@ -281,6 +282,8 @@ namespace WBSF
 		{
 			if (bValid[H_TMIN] && bValid[H_TMAX])
 			{
+				assert(m_monthStat[H_TMIN][m][NB_VALUE] >= nbYearMinimum);
+				assert(m_monthStat[H_TMAX][m][NB_VALUE] >= nbYearMinimum);
 				//data[m][TMIN_MN] = float(m_dailyStat[TMIN][m][MEAN]);
 				//data[m][TMAX_MN] = float(m_dailyStat[TMAX][m][MEAN]);
 
@@ -297,6 +300,7 @@ namespace WBSF
 
 			if (bValid[H_PRCP])
 			{
+				
 				ASSERT(m_monthStat[H_PRCP][m][NB_VALUE] >= nbYearMinimum);
 
 				data[m][PRCP_TT] = float(m_monthStat[H_PRCP][m][MEAN]);
@@ -318,6 +322,7 @@ namespace WBSF
 			//can cause some problem in gradient if not all set or reset
 			if (bValid[H_TDEW]&& bValid[H_RELH])
 			{
+				assert(m_monthStat[H_TDEW][m][NB_VALUE] >= nbYearMinimum);
 				data[m][TDEW_MN] = float(m_dailyStat[H_TDEW][m][MEAN]);
 				data[m][RELH_MN] = float(m_dailyStat[H_RELH][m][MEAN]);
 				data[m][RELH_SD] = float(m_dailyStat[H_RELH][m][STD_DEV]);
@@ -325,6 +330,7 @@ namespace WBSF
 
 			if (bValid[H_WNDS])
 			{
+				assert(m_monthStat[H_WNDS][m][NB_VALUE] >= nbYearMinimum);
 				data[m][WNDS_MN] = float(m_dailyStat[H_WNDS][m][MEAN]);
 				data[m][WNDS_SD] = float(m_dailyStat[H_WNDS][m][STD_DEV]);
 			}

@@ -61,10 +61,9 @@ namespace WBSF
 	static const DWORD FLAGS = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_PRAGMA_NOCACHE;
 
 	//*********************************************************************
-	//"UserName", "Password", 
 	const char* CUIACIS::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "DataType", "FirstYear", "LastYear", "UpdateStationsList", "IgnoreEnvCan", "MonthLag", "UserName", "Password" };
 	const size_t CUIACIS::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_BOOL, T_BOOL, T_BOOL,T_STRING, T_PASSWORD };
-	//T_STRING, T_PASSWORD, 
+	
 	const UINT CUIACIS::ATTRIBUTE_TITLE_ID = IDS_UPDATER_ALBERTA_P;
 	const UINT CUIACIS::DESCRIPTION_TITLE_ID = ID_TASK_ALBERTA;
 

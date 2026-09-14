@@ -278,7 +278,7 @@ namespace WBSF
 			ASSERT(broods < m_F);
 			ASSERT((m_totalBroods + broods) <= m_Fᴰ);
 
-			//after regniere 1983 Equation [12] at x = 0 :  (29.8 *(1 - exp(-0.214))) = 5.74
+			//after Régnière 1983 Equation [12] at x = 0 :  (29.8 *(1 - exp(-0.214))) = 5.74
 			if (m_F - broods < 5.74)//avoid very small egg deposition
 				broods = m_F;
 
@@ -292,7 +292,7 @@ namespace WBSF
 			m_F = m_Fᴰ - m_totalBroods;
 			ASSERT(m_totalBroods <= m_Fᴰ);
 
-			//Oviposition module after Régniere 1983
+			//Oviposition module after Régnière 1983
 			if (m_bFertil && m_broods > 0)
 			{
 				CSBWTree* pTree = GetTree();
@@ -423,7 +423,7 @@ namespace WBSF
 		double RR = m_relativeDevRate[s] * r;
 		if (s == L2o && r > 0)
 		{
-			//Equation [5] in Régniere 1990
+			//Equation [5] in Régnière 1990
 			//Relative dev rate of L2o depend of the age of L2o
 			//Adjust Relative dev rate
 			double dprime = min(1.0, max(0.25, m_age - L2o));
@@ -1009,7 +1009,7 @@ namespace WBSF
 	//	double F = .373 - 0.339*cos(twoPi*(time + k1)) - 0.183*sin(twoPi*(time + k1)) + 0.157*cos(fourPi*(time + k1)) + 0.184*sin(fourPi*(time + k1)); //Simmons and Chen (1975)
 
 	//	//effect of temperature. The amplitude of sumF is independent of size of time step.
-	//	//Equation [4] in Regniere unpublished (from CJ Sanders buzzing data)
+	//	//Equation [4] in Régnière unpublished (from CJ Sanders buzzing data)
 	//	if (prcp >= 0)
 	//		F = F*0.91*pow(max(0.0, (31. - weather[h][H_TAIR])), 0.3)*exp(-pow(max(0.0, (31. - weather[h][H_TAIR]) / 9.52), 1.3));
 

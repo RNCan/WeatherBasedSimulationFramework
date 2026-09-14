@@ -36,7 +36,7 @@ namespace WBSF
 
 
 
-	const char* CMonthlyMeanGrid::FILE_NAME[NB_FIELDS] = { "Tmin.tif", "Tmax.tif", "TminTmax.tif", "Tmin_SD.tif", "Tmax_SD.tif", "A1.tif", "A2.tif", "B1.tif", "B2.tif", "Prcp.tif", "Prcp_SD.tif", "SpeH.tif", "RelH.tif", "RelH_SD.tif", "WndS.tif", "WndS_SD.tif" };
+	const char* CMonthlyMeanGrid::FILE_NAME[NB_FIELDS] = { "Tmin", "Tmax", "TminTmax", "Tmin_SD", "Tmax_SD", "A1", "A2", "B1", "B2", "Prcp", "Prcp_SD", "SpeH", "RelH", "RelH_SD", "WndS", "WndS_SD" };
 
 	const char* CMonthlyMeanGrid::XML_FLAG = "MontlyMeanGrids";
 	const char* CMonthlyMeanGrid::MEMBER_NAME[NB_MEMBER] = { "FirstYear", "LastYear", "Variables" };
@@ -150,7 +150,8 @@ namespace WBSF
 		std::string filePath;
 		if (m_supportedVariables[v])
 		{
-			filePath = GetPath(m_filePath) + GetFileTitle(m_filePath) + "_" + FILE_NAME[v];
+			filePath = GetPath(m_filePath) + GetFileTitle(m_filePath) + "_" + FILE_NAME[v] + ".tif";
+			//filePath = GetPath(m_filePath) + GetFileTitle(m_filePath) + "_" + FILE_NAME[v] + ".vrt";
 			//if(v==RELH&&m_bSpecificHumidity)
 			//filePath=GetPath(m_filePath)+"SpcH.bil";
 		}
@@ -192,7 +193,7 @@ namespace WBSF
 				for (size_t v = 0; v < NB_FIELDS && msg; v++)
 				{
 					size_t vv = v;
-					//there are never mmg for PRCP_SD, we use the value of PRCP_TT
+					//there are never MMG for PRCP_SD, we use the value of PRCP_TT
 					if (v == PRCP_SD)
 						vv = PRCP_TT;
 
@@ -228,7 +229,7 @@ namespace WBSF
 		return bRep;
 	}
 
-	bool CMonthlyMeanGrid::GetMonthlyValues(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, std::vector< std::array<std::array<float,NB_FIELDS>,12>>& values, CCallback& callback)const
+	bool CMonthlyMeanGrid::GetMonthlyValues(int firstYear, size_t nbYears, size_t nbNeighbor, double maxDistance, double power, const CGeoPoint& ptIn, std::vector< std::array<std::array<float, NB_FIELDS>, 12>>& values, CCallback& callback)const
 	{
 		ASSERT(firstYear >= m_firstYear && firstYear <= m_lastYear);
 
@@ -253,7 +254,7 @@ namespace WBSF
 				}
 			}
 		}
-		
+
 		return msg;
 	}
 
@@ -273,13 +274,13 @@ namespace WBSF
 			return false;
 
 
-		
+
 		CGeoExtents extents = m_grid[TMIN_MN].GetExtents();
 
 		int level = (int)ceil((sqrt((double)nbNeighbor) - 1) / 2);
 		extents.GetNearestCellPosition(pt, Square((level + 1) * 2 + 1), pts);
 
-		
+
 		for (size_t i = 0; i < pts.size(); i++)
 		{
 			CGeoPoint pti = extents.XYPosToCoord(pts[i]);
@@ -304,7 +305,7 @@ namespace WBSF
 		std::vector<double> d;
 		if (!GetNearestPoints(nbNeighbor, maxDistance, power, ptIn, pts, d))
 			return false;
-	
+
 		return GetMonthlyMean(firstYear, nbYears, nbNeighbor, power, pts, d, monthlyMean, callback);
 	}
 
@@ -318,8 +319,7 @@ namespace WBSF
 			pt.Reproject(CProjectionTransformationManager::Get(pt.GetPrjID(), m_grid[TMIN_MN].GetPrjID()));
 		}
 
-		//mesure temporaire
-		//pt.m_lon += 360;
+		
 		CGeoPointIndex index = m_grid[TMIN_MN].GetExtents().CoordToXYPos(pt);
 
 		if (index.m_x < 0 || index.m_x >= m_grid[TMIN_MN]->GetRasterXSize() || index.m_y < 0 || index.m_y >= m_grid[TMIN_MN]->GetRasterYSize())
@@ -368,7 +368,7 @@ namespace WBSF
 			for (size_t m = 0; m < 12; m++)
 			{
 				//for (size_t d = 0; d < stationIn[y][m].size(); d++)
-				//never take into account the leap year. Too much problem to convert unleap an leap year
+				//never take into account the leap year. Too much problem to convert no-leap an leap year
 				for (size_t d = 0; d < WBSF::GetNbDayPerMonth(m); d++)
 				{
 					for (TVarH v = H_FIRST_VAR; v < NB_VAR_H; ((int&)v)++)
@@ -400,7 +400,7 @@ namespace WBSF
 							{
 								if (IsMissing(refMonthlyMean[m][RELH_MN]))//no relative humidity. then take specific humidity
 								{
-									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specyfic humidity g[H2O]/kg[air]
+									ASSERT(refMonthlyMean[m][f] < 20);//ccMonthlyMean must be specific humidity g[H2O]/kg[air]
 									if (stationIn[y][m][d][H_RELH].IsInit() && stationIn[y][m][d][H_TMIN].IsInit() && stationIn[y][m][d][H_TMAX].IsInit())
 									{
 										ASSERT(stationIn[y][m][d][H_TMIN].IsInit());
@@ -422,7 +422,7 @@ namespace WBSF
 										stationII[y][m][d][H_RELH] = Hr;
 
 
-										//we compute the best Tdew as we can. A vérifier... 
+										//we compute the best Tdew as we can. 
 										double Pv = Hr2Pv(TminII, TmaxII, Hr);
 										double Td = WBSF::Pv2Td(Pv / 1000);
 										stationII[y][m][d][H_TDEW] = Td;
@@ -432,18 +432,26 @@ namespace WBSF
 							else if (v == HOURLY_DATA::H_RELH)
 							{
 								ASSERT(refMonthlyMean[m][f] >= 0 && refMonthlyMean[m][f] <= 100);//ccMonthlyMean must be relative humidity [%]
+								ASSERT(stationIn[y][m][d][H_RELH].IsInit());
 
-								//convert Hr to Hs with station temperature
-								double Hr = stationIn[y][m][d][H_RELH][MEAN];
-								Hr = max(0.0, min(100.0, (Hr * ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
-								stationII[y][m][d][H_RELH] = Hr;
+								if (stationIn[y][m][d][H_TMIN].IsInit() && stationIn[y][m][d][H_TMAX].IsInit())
+								{
+									//convert Hr to Hs with station temperature
+									double Hr = stationIn[y][m][d][H_RELH][MEAN];
+									Hr = max(0.0, min(100.0, (Hr * ccMonthlyMean[m][f] / refMonthlyMean[m][f])));
+									stationII[y][m][d][H_RELH] = Hr;
 
-								//we compute the best Tdew as we can. A vérifier... 
-								double TminII = stationII[y][m][d][H_TMIN][MEAN];
-								double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
-								double Pv = Hr2Pv(TminII, TmaxII, Hr);
-								double Td = WBSF::Pv2Td(Pv / 1000);
-								stationII[y][m][d][H_TDEW] = Td;
+									//we compute the best Tdew as we can. 
+									double TminII = stationII[y][m][d][H_TMIN][MEAN];
+									double TmaxII = stationII[y][m][d][H_TMAX][MEAN];
+									assert(TminII >= -70 && TminII <= 70);
+									assert(TmaxII >= -70 && TmaxII <= 70);
+
+									double Pv = Hr2Pv(TminII, TmaxII, Hr);
+									double Td = WBSF::Pv2Td(Pv / 1000);
+									assert(Td >= -70 && Td <= 70);
+									stationII[y][m][d][H_TDEW] = Td;
+								}
 							}
 							else if (v == HOURLY_DATA::H_WNDS)
 							{
@@ -539,16 +547,32 @@ namespace WBSF
 				{
 					if (!IsMissing(ccMonthlyMean[m][v]) && !IsMissing(refMonthlyMean[m][v]))
 					{
-						if (v == DEL_STD || v == EPS_STD || v == PRCP_SD || v == RELH_SD)
+						if (v == DEL_STD || v == EPS_STD  || v == RELH_SD || v == PRCP_SD)
 						{
 							data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
 							ASSERT(data[m][v] < 2000);
 						}
 						else if (v == WNDS_SD)
 						{
-							data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
-							if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
-								data[m][v] = (float)log(ccMonthlyMean[m][v]);
+							//data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
+							//if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
+							//	data[m][v] = (float)log(ccMonthlyMean[m][v]);
+							double ref_m = refMonthlyMean[m][WNDS_MN];
+							double ref_s = refMonthlyMean[m][WNDS_SD];
+							double ref_s_log = sqrt(log(1 + (ref_s * ref_s / ref_m * ref_m)));
+
+							double cc_m = ccMonthlyMean[m][WNDS_MN];
+							double cc_s = ccMonthlyMean[m][WNDS_SD];
+							double cc_s_log = sqrt(log(1 + (cc_s * cc_s / cc_m * cc_m)));
+
+							assert(ref_s_log > 0);
+							assert(cc_s_log > 0);
+
+							//log_mean = log(m ^ 2 / sqrt(s ^ 2 + m ^ 2))
+
+							double sd_wind = data[m][v];
+							sd_wind *= cc_s_log / ref_s_log;
+							data[m][v] = max(0.1, min(1.5, sd_wind));/*limit to resonable values*/
 
 							ASSERT(data[m][v] > 0);
 						}
@@ -628,22 +652,38 @@ namespace WBSF
 						}
 						else if (v == WNDS_MN)
 						{
+							//Modification by RSA 2026-08-03
 							//ccMonthlyMean and refMonthlyMean are not in log:grid must not be logged
-							data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
+							double cc_m = ccMonthlyMean[m][WNDS_MN];
+							double cc_s = ccMonthlyMean[m][WNDS_SD];
+							double ref_m = refMonthlyMean[m][WNDS_MN];
+							double ref_s = refMonthlyMean[m][WNDS_SD];
+							double ccLog = log(cc_m * cc_m / sqrt(cc_s * cc_s + cc_m * cc_m));
+							double refLog = log(ref_m * ref_m / sqrt(ref_s * ref_s + ref_m * ref_m));
+							data[m][v] *= float(ccLog / refLog);
+							//data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
 						}
 						else if (v == WNDS_SD)
 						{
-							data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
-							if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
-								data[m][v] = (float)log(ccMonthlyMean[m][v]);
-
+							//Modification by RSA 2026-08-03
+							//data[m][v] += float(log(ccMonthlyMean[m][v]) - log(refMonthlyMean[m][v]));
+							//if (data[m][v] < 0.0001)//sometime, variance are negative, in this case we take the variance of future period...
+							//	data[m][v] = (float)log(ccMonthlyMean[m][v]);
+							double cc_m = ccMonthlyMean[m][WNDS_MN];
+							double cc_s = ccMonthlyMean[m][WNDS_SD];
+							double ref_m = refMonthlyMean[m][WNDS_MN];
+							double ref_s = refMonthlyMean[m][WNDS_SD];
+							double ccLog = sqrt(log(1 + (cc_s * cc_s / cc_m * cc_m)));
+							double refLog = sqrt(log(1 + (ref_s * ref_s / ref_m * ref_m)));
+							
+							data[m][v] *= float(ccLog / refLog);
 							ASSERT(data[m][v] > 0);
 						}
 						else if (v == RELH_MN)
 						{
 							data[m][v] *= float(ccMonthlyMean[m][v] / refMonthlyMean[m][v]);
 							data[m][v] = min(100.0f, max(0.0f, data[m][v]));
-							//dew point is lost in convertion. Not mather because they never hused
+							//dew point is lost in conversion. Not mater because they never used
 						}
 						else if (v == SPEH_MN)
 						{
@@ -918,6 +958,12 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+		CPLSetConfigOption("GDAL_CACHEMAX", "4096");
+		//CPLSetConfigOption("GDAL_NUM_THREADS", "ALL_CPUS");
+		//CPLSetConfigOption("GDAL_PAM_ENABLED", "NO");
+
+
+
 		//Open daily(read) 
 		CDailyDatabase inputDB;
 		msg += inputDB.Open(m_inputDBFilePath, CDailyDatabase::modeRead, callback);
@@ -950,50 +996,85 @@ namespace WBSF
 				callback.PushTask("Create " + GetFileTitle(outputDBFilePath), inputDB.size());
 				callback.AddMessage("Create " + GetFileTitle(outputDBFilePath));
 
+				callback.AddMessage("Number of input daily stations: " + to_string(inputDB.size()));
+				
+
+
+				//separate stations by latitude/longitude blocks to used buffer optimization
+				map< int, map< int, vector<size_t>>> index;
+				for (size_t i = 0; i < inputDB.size() && msg; i++)
+				{
+					int lat = int(Round(inputDB.GetLocation(i).m_lat));
+					int lon = int(Round(inputDB.GetLocation(i).m_lon));
+					index[lat][lon].push_back(i);
+				}
+				
 
 				//for all stations in daily database
-				int nbStationAdded = 0;
-				for (int i = 0; i < inputDB.size() && msg; i++)
+				size_t nbStationAdded = 0;
+				//for (size_t i = 0; i < inputDB.size() && msg; i++)
+
+				for (auto it = index.begin(); it != index.end() && msg; it++)
 				{
-					CWeatherStation dailyStation;
-
-					msg = inputDB.Get(dailyStation, i);
-					msg += dailyStation.IsValid();
-					if (!msg)
-						msg.ajoute("Invalid weather data for station: "+ dailyStation.m_ID);
-					dailyStation.m_siteSpeceficInformation.clear();//remove all SSI
-					dailyStation.UseIt(true);
-
-					//remove years not in the period
-					CleanUpYears(dailyStation, m_firstYear, m_lastYear);
-
-					if (m_bApplyCC)
+					for (auto iit = it->second.begin(); iit != it->second.end() && msg; iit++)
 					{
-						//adjust daily data to reflect climatic change
-						msg += ApplyClimaticChange(dailyStation, MMG, p, callback);
-					}
-
-					if (msg)
-					{
-						//if the station have enough years
-						if (dailyStation.size() >= m_nbYearMin)
+						for (auto iiit = iit->second.begin(); iiit != iit->second.end() && msg; iiit++)
 						{
-							//create normal
-							CAdvancedNormalStation station;
+							size_t i = *iiit;
 
-							if (station.FromDaily(dailyStation, m_nbYearMin))
+							CWeatherStation dailyStation;
+
+							msg = inputDB.Get(dailyStation, i);
+							ERMsg msg_valid = dailyStation.IsValid();
+							if (!msg_valid)
 							{
-								//msg = station.IsValid();
-								//if (!msg)
-									//msg.ajoute("Invalid weather data for station: " + station.m_ID);
-								if (station.IsValid())
+								msg.ajoute("Invalid daily weather data for station: " + dailyStation.m_ID);
+								callback.AddMessage(msg_valid);
+							}
+							//msg.ajoute("Invalid weather data for station: "+ dailyStation.m_ID);
+							dailyStation.m_siteSpeceficInformation.clear();//remove all SSI
+							dailyStation.UseIt(true);
+
+
+
+							//remove years not in the period
+							CleanUpYears(dailyStation, m_firstYear, m_lastYear);
+							assert(dailyStation.IsValid());
+
+
+
+
+							if (m_bApplyCC)
+							{
+								//adjust daily data to reflect climatic change
+								msg += ApplyClimaticChange(dailyStation, MMG, p, callback);
+							}
+
+							if (msg)
+							{
+								//if the station have enough years
+								if (dailyStation.size() >= m_nbYearMin)
 								{
-									if (msg)
+									//create normal
+									CAdvancedNormalStation station;
+
+									if (station.FromDaily(dailyStation, m_nbYearMin))
 									{
+										//msg = station.IsValid();
+										//if (!msg)
+											//msg.ajoute("Invalid weather data for station: " + station.m_ID);
+										ERMsg msg_valid = station.IsValid();
+										if (!msg_valid)
+										{
+											callback.AddMessage("Invalid normals weather data for station: " + station.m_ID, 1);
+											callback.AddMessage(msg_valid);
+										}
+
+										//When the update is from daily station, we don't have to uupdate stad dev. RSA 2026-08-03
+										//This must be done only if we update from Normals database
 										if (m_bApplyCC)
 										{
-											//now adjust standard deviation if they are present
-
+											//now adjust standard deviation if they are present for T, RH and WND
 											MMG.UpdateStandardDeviation(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, station, callback);
 										}
 
@@ -1006,18 +1087,20 @@ namespace WBSF
 
 										if (!messageTmp)
 											callback.AddMessage(messageTmp, 1);
-									}
-								}
-								else
-								{
-									callback.AddMessage("Invalid weather data for station: " + station.m_ID, 1);
-								}
-							}
-						}//if valid stations
+										//}
+									//}
+									//else
+									//{
 
-						msg += callback.StepIt();
-					}//if msg
-				}//for all station
+									//}
+									}
+								}//if valid stations
+
+								msg += callback.StepIt();
+							}//if msg
+						}
+					}//for all station
+				}
 
 
 				if (m_bApplyCC)
@@ -1076,7 +1159,7 @@ namespace WBSF
 
 		if (dailyStation.size() >= m_nbYearMin)
 		{
-			//coord of the station
+			//coordinate of the station
 			if (!mmg.UpdateData(m_firstRefYear, m_nbRefYears, GetFirstYear(p), 30, m_nbNeighbor, m_maxDistance, m_power, dailyStation, callback))
 			{
 				dailyStation.clear();

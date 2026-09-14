@@ -6,7 +6,7 @@
 #include "Basic/WeatherDatabase.h"
 #include "Basic/WeatherStation.h"
 #include "UI/Common/SYShowMessage.h"
-#include "Simulation/AdvancedNormalStation.h"
+#include "Basic/AdvancedNormalStation.h"
 
 
 #include "../resource.h"
@@ -102,6 +102,9 @@ namespace WBSF
 	{
 		ASSERT(m_pProject);//parent must be set for creator
 		
+		
+
+
 		ERMsg msg;
 
 		if (as<int>(NB_YEARS_MIN)<= 1)

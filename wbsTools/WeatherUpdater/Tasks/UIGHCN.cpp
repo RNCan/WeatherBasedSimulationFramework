@@ -10,7 +10,9 @@
 #include "UI/Common/SYShowMessage.h"
 #include "Geomatic/ShapeFileBase.h"
 #include "TaskFactory.h"
+
 #include "../Resource.h"
+#include "WeatherBasedSimulationString.h"
 
 #include "CountrySelection.h"
 #include "StateSelection.h"
@@ -24,8 +26,20 @@ using namespace WBSF::HOURLY_DATA;
 using namespace std;
 using namespace UtilWWW;
 
+//NCEI file
+// https://www.ncei.noaa.gov/oa/global-historical-climatology-network/hourly/access/by-year/2026/psv/GHCNh_KEI0000HKMB_2026.psv
+// 
+// 
+// 
+//https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly
+//https://www.ncei.noaa.gov/oa/global-historical-climatology-network/hourly/archive/ghcn-hourly_v1.1.0_d2026_c20260413.tar.gz 
+ 
+
 //HTTPS
 //https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/
+//https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/archive/
+//https://www.ncei.noaa.gov/oa/local-climatological-data/index.html#v2/archive/
+
 
 namespace WBSF
 {
@@ -34,11 +48,11 @@ namespace WBSF
 	using namespace boost;
 
 
-	const int CUIGHCND::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND, AWDR, WESF, SNWD, WESD, TAVG, WDF1 };
+	const int CUIGHCN::GHCN_VARIABLES[NB_VARIABLES] = { TMIN, TMAX, PRCP, AWND, AWDR, WESF, SNWD, WESD, TAVG, WDF1 };
 
 
 	//********************************************************************************************
-	const char* CUIGHCND::ELEM_CODE[NB_ELEMENT] =
+	const char* CUIGHCN::ELEM_CODE[NB_ELEMENT] =
 	{
 		"ASMM", "ASSS", "AWND", "AWDR", "CLDG", "DPNT", "DPTP", "DYSW", "DYVC",
 		"F2MN", "F5SC", "FMTM", "FRGB", "FRGT", "FRTH", "FSIN", "FSMI",
@@ -53,7 +67,7 @@ namespace WBSF
 	//MNPN = Daily minimum temperature of water in an evaporation pan (tenths of degrees C)
 	//MXPN = Daily maximum temperature of water in an evaporation pan (tenths of degrees C)
 
-	size_t CUIGHCND::GetElementType(const char* str)
+	size_t CUIGHCN::GetElementType(const char* str)
 	{
 		//if (var == TMIN || var == TMAX || var == PRCP || var == AWND || var == WESF || var == SNWD || var == WESD)
 		size_t pos = NOT_INIT;
@@ -66,10 +80,10 @@ namespace WBSF
 
 
 	//Global Climate Observing System (GCOS) Surface Network (GSN)
-	const char* CUIGHCND::SERVER_NAME = "ftp.ncdc.noaa.gov";
-	const char* CUIGHCND::SERVER_PATH = "pub/data/ghcn/daily/";
+	const char* CUIGHCN::SERVER_NAME = "ftp.ncdc.noaa.gov";
+	const char* CUIGHCN::SERVER_PATH = "pub/data/ghcn/daily/";
 
-	std::string CUIGHCND::GetStationFilePath(size_t type)const
+	std::string CUIGHCN::GetStationFilePath(size_t type)const
 	{
 		string file_path;
 		switch (type)
@@ -84,41 +98,43 @@ namespace WBSF
 	}
 
 	//*********************************************************************
-	const char* CUIGHCND::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "FirstYear", "LastYear", "Countries", "States", "ShowProgress" };
-	const size_t CUIGHCND::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
-	const UINT CUIGHCND::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
-	const UINT CUIGHCND::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GHCND;
+	const char* CUIGHCN::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Type", "FirstYear", "LastYear", "Countries", "States", "ShowProgress" };
+	const size_t CUIGHCN::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_STRING, T_STRING, T_STRING_SELECT, T_STRING_SELECT, T_BOOL };
+	const UINT CUIGHCN::ATTRIBUTE_TITLE_ID = IDS_UPDATER_NOAA_GHCND_P;
+	const UINT CUIGHCN::DESCRIPTION_TITLE_ID = ID_TASK_NOAA_GHCND;
 
-	const char* CUIGHCND::CLASS_NAME() { static const char* THE_CLASS_NAME = "GHCND";  return THE_CLASS_NAME; }
-	CTaskBase::TType CUIGHCND::ClassType()const { return CTaskBase::UPDATER; }
-	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIGHCND::CLASS_NAME(), (createF)CUIGHCND::create);
+	const char* CUIGHCN::CLASS_NAME() { static const char* THE_CLASS_NAME = "GHCND";  return THE_CLASS_NAME; }
+	CTaskBase::TType CUIGHCN::ClassType()const { return CTaskBase::UPDATER; }
+	static size_t CLASS_ID = CTaskFactory::RegisterTask(CUIGHCN::CLASS_NAME(), (createF)CUIGHCN::create);
 
 
 
-	CUIGHCND::CUIGHCND(void)
+	CUIGHCN::CUIGHCN(void)
 	{}
 
-	CUIGHCND::~CUIGHCND(void)
+	CUIGHCN::~CUIGHCN(void)
 	{}
 
 
-	std::string CUIGHCND::Option(size_t i)const
+	std::string CUIGHCN::Option(size_t i)const
 	{
 		string str;
 		switch (i)
 		{
+		case DATA_TYPE:	str = GetString(IDS_STR_DATA_TYPE); break;
 		case COUNTRIES:	str = CCountrySelectionGADM::GetAllPossibleValue(); break;
 		case STATES:	str = CStateSelection::GetAllPossibleValue(); break;
 		};
 		return str;
 	}
 
-	std::string CUIGHCND::Default(size_t i)const
+	std::string CUIGHCN::Default(size_t i)const
 	{
 		string str;
 
 		switch (i)
 		{
+		case DATA_TYPE: str = "1"; break;
 		case WORKING_DIR: str = m_pProject->GetFilePaht().empty() ? "" : GetPath(m_pProject->GetFilePaht()) + "GHCN\\"; break;
 		case FIRST_YEAR:
 		case LAST_YEAR:	str = ToString(CTRef::GetCurrentTRef().GetYear()); break;
@@ -130,7 +146,7 @@ namespace WBSF
 	//****************************************************
 
 
-	ERMsg CUIGHCND::UpdateStationList(CCallback& callback)
+	ERMsg CUIGHCN::UpdateStationList(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -173,7 +189,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGHCND::convert_txt_to_csv(const std::string& txtFilePath, const std::string& csvFilePath, CCallback& callback)
+	ERMsg CUIGHCN::convert_txt_to_csv(const std::string& txtFilePath, const std::string& csvFilePath, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -319,7 +335,7 @@ namespace WBSF
 
 				if (msg)
 				{
-					//extraxt missing elevations
+					//extract missing elevations
 					ASSERT(locations.IsValid(true));
 					//if missing elevation, extract elevation at 30 meters: not support < -60° and > 60°
 					if (!locations.IsValid(false))
@@ -379,7 +395,7 @@ namespace WBSF
 	}
 
 
-	double CUIGHCND::GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)
+	double CUIGHCN::GetCountrySubDivision(CShapeFileBase& shapefile, double lat, double lon, std::string countryI, std::string subDivisionI, std::string& countryII, std::string& subDivisionII)
 	{
 		double d = -1;
 		countryII = "--";
@@ -470,7 +486,7 @@ namespace WBSF
 		return d;
 	}
 
-	CLocation CUIGHCND::LocationFromLine(std::string line)
+	CLocation CUIGHCN::LocationFromLine(std::string line)
 	{
 		CLocation location;
 
@@ -534,7 +550,7 @@ namespace WBSF
 
 
 
-	ERMsg CUIGHCND::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
+	ERMsg CUIGHCN::GetFileList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -571,7 +587,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGHCND::FTPDownload(const string& server, const string& inputFilePath, const string& outputFilePath, CCallback& callback)
+	ERMsg CUIGHCN::FTPDownload(const string& server, const string& inputFilePath, const string& outputFilePath, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -614,7 +630,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIGHCND::Execute(CCallback& callback)
+	ERMsg CUIGHCN::Execute(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -679,22 +695,22 @@ namespace WBSF
 		return msg;
 	}
 
-	int CUIGHCND::GetYear(const string& fileName)
+	int CUIGHCN::GetYear(const string& fileName)
 	{
 		return ToInt(fileName.substr(0, 4));
 	}
 
-	std::string CUIGHCND::GetOutputFilePath(int year)const
+	std::string CUIGHCN::GetOutputFilePath(int year)const
 	{
 		return GetDir(WORKING_DIR) + "by_year\\" + ToString(year) + ".csv.gz";
 	}
 
-	string CUIGHCND::GetOutputFilePath(const string& fileName)const
+	string CUIGHCN::GetOutputFilePath(const string& fileName)const
 	{
 		return GetDir(WORKING_DIR) + "by_year\\" + fileName;
 	}
 
-	bool CUIGHCND::IsStationInclude(const string& ID)const
+	bool CUIGHCN::IsStationInclude(const string& ID)const
 	{
 		bool bRep = false;
 
@@ -725,7 +741,7 @@ namespace WBSF
 
 		return bRep;
 	}
-	ERMsg CUIGHCND::CleanList(CFileInfoVector& fileList, CCallback& callback)const
+	ERMsg CUIGHCN::CleanList(CFileInfoVector& fileList, CCallback& callback)const
 	{
 		ERMsg msg;
 
@@ -755,7 +771,7 @@ namespace WBSF
 	}
 
 
-	ERMsg CUIGHCND::PreProcess(CCallback& callback)
+	ERMsg CUIGHCN::PreProcess(CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -788,7 +804,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGHCND::GetStationList(StringVector& list, CCallback& callback)
+	ERMsg CUIGHCN::GetStationList(StringVector& list, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -807,7 +823,7 @@ namespace WBSF
 		return msg;
 	}
 
-	ERMsg CUIGHCND::Finalize(TType type, CCallback& callback)
+	ERMsg CUIGHCN::Finalize(TType type, CCallback& callback)
 	{
 		m_loadedData.clear();
 
@@ -833,7 +849,7 @@ namespace WBSF
 		return UppercaseFirstLetter(name);
 	}
 
-	ERMsg CUIGHCND::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
+	ERMsg CUIGHCN::GetWeatherStation(const std::string& ID, CTM TM, CWeatherStation& station, CCallback& callback)
 	{
 		ERMsg msg;
 
@@ -1089,7 +1105,7 @@ namespace WBSF
 
 
 
-	ERMsg CUIGHCND::LoadData(const string& filePath, SimpleDataMap& data, CCallback& callback)const
+	ERMsg CUIGHCN::LoadData(const string& filePath, SimpleDataMap& data, CCallback& callback)const
 	{
 		ASSERT(FileExists(filePath));
 
@@ -1146,9 +1162,9 @@ namespace WBSF
 					{
 						bInclude = IsStationInclude(ID);
 						if (bInclude)
-							const_cast<CUIGHCND*>(this)->m_included.insert(ID);
+							const_cast<CUIGHCN*>(this)->m_included.insert(ID);
 						else
-							const_cast<CUIGHCND*>(this)->m_rejected.insert(ID);
+							const_cast<CUIGHCN*>(this)->m_rejected.insert(ID);
 					}
 
 					lastID = ID;
@@ -1256,7 +1272,7 @@ namespace WBSF
 										data[ID][year][TRef.GetJDay()][V_AWND] = value;
 									}
 									break;
-								case WDF1://Wind direction for the fatest 1 minutes (approximation)
+								case WDF1://Wind direction for the fastest 1 minutes (approximation)
 									ASSERT((int)value >= 0 || value <= -9999 || value == 99999);
 									if ((int)value >= 0 && value <= 360)
 									{

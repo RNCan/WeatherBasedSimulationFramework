@@ -23,15 +23,21 @@ namespace WBSF
 	{
 		enum TLeucotaraxisPiniperdaStats
 		{
-			//S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION, NB_STATS
+#if LP_NB_GENERATION == 1
 			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION, NB_STATS
+#else
+			S_CDD, S_LARVA0, S_PUPA0, S_ADULT0, S_DEAD_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_DEAD_ADULT1, S_EGG2, S_LARVA2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION, NB_STATS
+#endif
 		}; 
 
-		//enum { NB_CUMUL_STATS = 11 };
-		//static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_EGG2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION };
-
+#if LP_NB_GENERATION == 1
 		enum { NB_CUMUL_STATS = 7 };
 		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_EMERGENCE0, S_DEAD_ATTRITION };
+#else
+		enum { NB_CUMUL_STATS = 11 };
+		static const size_t CUM_STAT[NB_CUMUL_STATS] = { S_LARVA0, S_PUPA0, S_ADULT0, S_EGG1, S_LARVA1, S_PUPA1, S_ADULT1, S_EGG2, S_EMERGENCE0, S_EMERGENCE1, S_DEAD_ATTRITION };
+#endif
+		
 	}
 
 
@@ -71,8 +77,7 @@ namespace WBSF
 
 		
 		CTRef GetAdultEmergence(int year)const;
-		//bool IsDeadByAttrition(size_t stage, double T, size_t time_step)const;
-		bool IsDeadByAttrition(size_t stage, double T, double rr)const;
+		bool IsDeadByAttrition(size_t stage, double T, double i_r)const;
 
 	protected:
 

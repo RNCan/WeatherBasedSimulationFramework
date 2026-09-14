@@ -12,6 +12,8 @@
 #include "stdafx.h"
 #include <math.h>
 #include <sstream>
+#include <random>
+
 
 #include "Basic/OpenMP.h"
 #include "Basic/UtilMath.h"
@@ -41,6 +43,25 @@ namespace WBSF
 
 
 
+	static vector<size_t> Shuffle(size_t N)
+	{
+		// Define the range of numbers (e.g., 0 to N-1)
+		// Create a vector with the numbers in the range
+		std::vector<size_t> numbers;
+		for (size_t i = 0; i < N; ++i)
+			numbers.push_back(i);
+
+
+		// Initialize a random number generator engine
+		// Using std::random_device for a non-deterministic seed
+		std::random_device rd;
+		std::mt19937 g(rd()); // Mersenne Twister engine
+
+		// Shuffle the vector
+		std::shuffle(numbers.begin(), numbers.end(), g);
+
+		return numbers;
+	}
 
 	static const char mutexName[] = "hxGridMutex";
 	static const __int8 DIRECT_ACCESS = 0;
@@ -303,7 +324,7 @@ namespace WBSF
 		}
 		else
 		{
-			std::string dllName = "models\\" + m_model.GetDLLName();
+			std::string dllName = "..\\Models\\" + m_model.GetDLLName();
 
 			ASSERT(m_hDLL == NULL);
 			m_hDLL = LoadLibraryW(convert(dllName).c_str());
@@ -459,7 +480,7 @@ namespace WBSF
 			}
 		}
 
-		computation.Initialize(m_ctrl.T(), m_ctrl.NEPS(), m_ctrl.GetVMiss());
+		computation.Initialize(m_ctrl.m_T, m_ctrl.m_NEPS, m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
 		msg += GetFValue(computation.m_XP, computation.m_FP, computation.m_SP, callback);
 		/*computation.m_initial_nb_values = computation.m_SP[NB_VALUE];
@@ -558,6 +579,9 @@ namespace WBSF
 	{
 		string line;
 
+		
+		for (size_t i = 0; i < m_computation.m_XPstat.size(); i++)
+			m_computation.m_Pstat += 100.0 /2.0* m_computation.m_XPstat[i][RANGE] / m_computation.m_XPstat[i][MEAN];
 		//if( m_computation.m_S[NB_VALUE]>0 )
 		//{
 		//	//line.Format("", );
@@ -575,7 +599,7 @@ namespace WBSF
 		{
 			//std::string bestD² = ToString( m_computation.m_Sopt[COEF_D], 5 );
 			//std::string bestR² = ToString( m_computation.m_Sopt[STAT_R²], 5 );
-			double F = m_ctrl.Max() ? m_computation.m_Fopt : -m_computation.m_Fopt;
+			double F = m_ctrl.m_bMax ? m_computation.m_Fopt : -m_computation.m_Fopt;
 
 			//line.Format("", F);
 			//callback.AddMessage(line);
@@ -638,6 +662,7 @@ namespace WBSF
 		line += "}";
 
 		callback.AddMessage(line);
+		line = "P Eps = " + ToString(m_computation.m_Pstat[HIGHEST], 5);
 
 		callback.AddMessage("***********************************");
 		callback.StepIt(0);
@@ -1322,7 +1347,7 @@ namespace WBSF
 				return msg;
 
 			//  Initialize the random number generator RANMAR.
-			CRandomizeNumber random(m_ctrl.Seed1(), m_ctrl.Seed2());
+			CRandomizeNumber random(m_ctrl.m_seed1, m_ctrl.m_seed2);
 
 			//feedback
 			OnStartSimulation(callback);
@@ -1349,9 +1374,11 @@ namespace WBSF
 				long NDOWN = 0;
 				long LNOBDS = 0;
 
-				//Do in write info
-				//for(size_t i=0; i<m_computation.m_VMstat.size(); i++)
-					//m_computation.m_VMstat[i].Reset();
+				//randomize order of the parameters to not always begin with the same parameter
+				vector < vector<size_t>> HH(m_ctrl.m_NT * m_ctrl.m_NS);
+				for (size_t j = 0; j < HH.size(); j++)
+					HH[j] = Shuffle(m_computation.m_X.size());
+
 
 				int NT = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NT;
 				for (int M = 0; M < NT && msg; M++)
@@ -1373,10 +1400,11 @@ namespace WBSF
 							callback.AddMessage("Loop = " + ToString(L) + ", Iteration = " + ToString(M + 1) + ", Cycle = " + ToString(J + 1));
 
 
-						for (int H = 0; H < NACP.size() && msg; H++)
+						for (int h = 0; h < NACP.size() && msg; h++)
 						{
+							int H = int(HH[M * NACP.size() + J][h]);
 							//  If too many function evaluations occur, terminate the algorithm.
-							if (m_computation.m_NFCNEV >= m_ctrl.MAXEVL())
+							if (m_computation.m_NFCNEV >= m_ctrl.m_MAXEVL)
 							{
 								OnEndSimulation(callback);
 								msg.ajoute("Number of function evaluations (NFCNEV) is greater than the maximum number (MAXEVL).");
@@ -1511,10 +1539,10 @@ namespace WBSF
 				//  Loop again.
 
 
-				bQuit = fabs(m_computation.m_F - m_computation.m_Fopt) <= m_ctrl.EPS();
+				bQuit = fabs(m_computation.m_F - m_computation.m_Fopt) <= m_ctrl.m_EPS;// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
 				for (int I = 0; I < m_computation.m_FSTAR.size() && bQuit; I++)
 				{
-					if (fabs(m_computation.m_F - m_computation.m_FSTAR[I]) > m_ctrl.EPS())
+					if (fabs(m_computation.m_F - m_computation.m_FSTAR[I]) > m_ctrl.m_EPS)// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
 						bQuit = false;
 				}
 

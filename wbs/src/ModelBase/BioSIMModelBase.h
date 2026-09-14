@@ -141,7 +141,7 @@ namespace WBSF
 		const std::string& GetFileData(int index)const;
 
 		//void GetOldWeather(CWeather& weather)const;
-
+		bool InCalibration()const {	return !m_SAResult.empty(); }
 	protected:
 
 		ERMsg VerifyNbInputColumn();

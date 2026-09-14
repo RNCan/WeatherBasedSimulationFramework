@@ -3,6 +3,9 @@
 //
 //***********************************************************************
 // version
+// 1.2.5	28/05/2026	Rémi Saint_Amant	Add -ExportPoints options
+// 0.1 --> 0.05
+// 0.65 --> 0.75
 // 1.2.4	14/05/2026	Rémi Saint_Amant	Add -FillMising options
 //											Modification in the BestModelProportion. Range are take into account.
 // 1.2.3	13/05/2026	Rémi Saint_Amant	Add DisturbWeightFactor options
@@ -78,7 +81,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.4";
+	const char* CLandTrend::VERSION = "1.2.5";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -88,11 +91,11 @@ namespace WBSF
 	{
 
 		m_minneeded = 3;
-		m_pval = 0.1;
+		m_pval = 0.05;
 		m_recovery_threshold = 0.25;
 		m_distweightfactor = 2;
 		m_vertexcountovershoot = 3;
-		m_bestmodelproportion = 0.65;
+		m_bestmodelproportion = 0.75;
 		m_max_segments = 9;
 		m_desawtooth_val = 0.65;
 		m_fit_method = FIT_EARLY_TO_LATE;
@@ -127,7 +130,7 @@ namespace WBSF
 			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
 			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
 			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
-			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MEDIAN by default."},
+			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MIN by default."},
 			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen. Lower value will reduce number of segments and higher value will increase number of segments. 0.65 by default."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 3 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
@@ -136,6 +139,7 @@ namespace WBSF
 			{ "-WindowIndice", 1, "radius", false, "Compute mean/median around the pixel where the radius is the number of pixels around the pixel: 1 = 1x1, 2 = 3x3, 3 = 5x5 etc. But can also be a float to get the average between 2 rings. For example 1.25 will be compute as follow: 0.75*(1x1) + 0.25*(3x3). Add letter d for median instead of mean. For example -WindowIndice 3d. 3 (5 x 5) by default." },
 			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. 1 (1 x 1) by default." },
 			{ "-ExtractPoint", 2, "X Y", true, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
+			{ "-ExtractPoints", 1, "file_path", false, "Extract information for a list of specific points. Output in extract_point.csv. Can be used with -NoResult to only extract points" },
 			{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
@@ -230,7 +234,8 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-PickBestPriority"))
 		{
-			m_priority = GetPriority(argv[++i]);
+			string str = argv[++i];//atoi(argv[++i]);
+			m_priority = GetPriority(str);
 			if (m_priority == TPickBestPriority::PRI_UNKNOWN)
 				msg.ajoute("Invalid priority selection. See help for more info");
 		}
@@ -309,11 +314,16 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-ExtractPoint"))
 		{
-			//m_b_extract_point = true;
+
 			CGeoPoint point;
 			point.m_x = atof(argv[++i]);
 			point.m_y = atof(argv[++i]);
 			m_extract_points.push_back(point);
+		}
+		else if (IsEqual(argv[i], "-ExtractPoints"))
+		{
+			string file_path = argv[++i];
+			m_extract_points_file_path = file_path;
 		}
 		else if (IsEqual(argv[i], "-CloudsMask"))
 		{
@@ -567,37 +577,80 @@ namespace WBSF
 			msg += breaksDS.CreateImage(filePath, options);
 		}
 
-		if (msg && !m_options.m_extract_points.empty())
+		if (msg && (!m_options.m_extract_points.empty() || !m_options.m_extract_points_file_path.empty()))
 		{
-			//verify that all point are inside 
-			size_t nb_scenes = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
 
-			for (auto& point : m_options.m_extract_points)
+			if (!m_options.m_extract_points_file_path.empty())
 			{
-				point.SetPrjID(inputDS.GetExtents().GetPrjID());
-				if (!inputDS.GetExtents().IsInside(point))
-					msg.ajoute("The extraction point (" + to_string(point.m_x) + ", " + to_string(point.m_y) + ") is not in image.");
-			}
-
-			m_extract_data.resize(m_options.m_extract_points.size());
-			for (auto& data : m_extract_data)
-			{
-				data.resize(nb_scenes);
-
-				for (auto& years : data)
-					years.fill(DataType(m_options.m_dstNodata));
-			}
-
-			if (msg)
-			{
-				//open output file
-				string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
-				msg += m_export_point_file.open(filePath);
+				ifStream file;
+				msg = file.open(m_options.m_extract_points_file_path);
 				if (msg)
 				{
-					m_export_point_file << "PointNo,X,Y,Year,B1,B2,B3,B4,B5,B7,Segment,IndiceIn,IndiceDesawtooth,IndiceFit,IndiceInterpol,B1_P0,B1_P1,B2_P0,B2_P1,B3_P0,B3_P1,B4_P0,B4_P1,B5_P0,B5_P1,B7_P0,B7_P1,oB1,oB2,oB3,oB4,oB5,oB7" << endl;
+					string line;
+					// Skip the header line (e.g., "X,Y")
+					std::getline(file, line);
+
+					// Read data line by line
+					while (std::getline(file, line))
+					{
+						std::stringstream ss(line);
+						std::string x_str, y_str;
+
+						// Split the line using comma as a delimiter
+						if (std::getline(ss, x_str, ',') && std::getline(ss, y_str, ','))
+						{
+							try
+							{
+								CGeoPoint p;
+								p.m_x = std::stod(x_str); // Convert string to double
+								p.m_y = std::stod(y_str);
+								m_options.m_extract_points.push_back(p);
+							}
+							catch (const std::invalid_argument&)
+							{
+								msg.ajoute("Warning: Invalid data skipped in line: ");
+								msg.ajoute(line);
+							}
+						}
+					}
+
+					file.close();
 				}
 			}
+
+			if (msg && !m_options.m_extract_points.empty())
+			{
+				//verify that all point are inside 
+				size_t nb_scenes = m_options.m_scene_extents[1] - m_options.m_scene_extents[0] + 1;
+
+				for (auto& point : m_options.m_extract_points)
+				{
+					point.SetPrjID(inputDS.GetExtents().GetPrjID());
+					if (!inputDS.GetExtents().IsInside(point))
+						msg.ajoute("The extraction point (" + to_string(point.m_x) + ", " + to_string(point.m_y) + ") is not in image.");
+				}
+
+				m_extract_data.resize(m_options.m_extract_points.size());
+				for (auto& data : m_extract_data)
+				{
+					data.resize(nb_scenes);
+
+					for (auto& years : data)
+						years.fill(DataType(m_options.m_dstNodata));
+				}
+
+				if (msg)
+				{
+					//open output file
+					string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
+					msg += m_export_point_file.open(filePath);
+					if (msg)
+					{
+						m_export_point_file << "PointNo,X,Y,Year,B1,B2,B3,B4,B5,B7,Segment,IndiceIn,IndiceDesawtooth,IndiceFit,IndiceInterpol,B1_P0,B1_P1,B2_P0,B2_P1,B3_P0,B3_P1,B4_P0,B4_P1,B5_P0,B5_P1,B7_P0,B7_P1,oB1,oB2,oB3,oB4,oB5,oB7" << endl;
+					}
+				}
+			}
+
 
 
 		}

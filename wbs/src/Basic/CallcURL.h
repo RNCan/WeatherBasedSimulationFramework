@@ -26,6 +26,8 @@ namespace WBSF
 		ERMsg get_text(const std::string& arg, std::string& str_out);
 		ERMsg get_URL_text(const std::string& URL, std::string& str_out);
 		ERMsg copy_file(const std::string& URL, const std::string& outputFilePath, bool bShowCurl=false);
+		ERMsg copy_files(const std::string& URLs_file_path, const std::string& output_path, bool bShowCurl = true, size_t max_parallel = 4);
+		
 		static ERMsg CallApp(const std::string& cmdline, std::string& str, DWORD BUFSIZE = 4096);
 
 

@@ -47,7 +47,7 @@ void RegisterGDAL()
 	path = GetApplicationPath() + "gdal-data";
 	CPLSetConfigOption("GDAL_DATA", path.c_str());
 	
-	path = GetApplicationPath() + "proj9/share";
+	path = GetApplicationPath() + "projlib";
 	CPLSetConfigOption("PROJ_LIB", path.c_str());
 
 	//PJ_CONTEXT* ctx = proj_context_create();

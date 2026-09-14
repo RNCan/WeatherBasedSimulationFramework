@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+
+#include "gdal_priv.h"
+
 #include "ERA5.h"
 #include "Basic/WeatherStation.h"
 #include "Basic/CallcURL.h"
@@ -10,10 +13,10 @@
 
 #include "WeatherBasedSimulationString.h"
 #include "../Resource.h"
-#pragma warning(disable: 4275 4251)
-#include "gdal_priv.h"
 
-using namespace std;
+
+
+using namespace std; 
 using namespace WBSF::HOURLY_DATA;
 using namespace UtilWWW;
 
@@ -317,7 +320,7 @@ namespace WBSF
 		{
 			CCallcURL cURL;
 
-			for (size_t v = 0; v < ERA5_NAME_H.size(); v++)
+			for (size_t v = 0; v < ERA5_NAME_H.size()&&msg; v++)
 			{
 				string URL = FormatA("https://storage.googleapis.com/gcp-public-data-arco-era5/raw/date-variable-single_level/%d/%02d/%02d/%s/surface.nc", TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
 				string filepath = FormatA("%sERA5_%04d%02d%02d_%s.nc", output_path.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, ERA5_NAME_H[v].c_str());
