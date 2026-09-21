@@ -17,7 +17,7 @@
 
 
 using namespace WBSF::HOURLY_DATA;
-using namespace WBSF::LNF;
+using namespace WBSF::LDD;
 using namespace std;
 
 namespace WBSF
@@ -102,11 +102,11 @@ namespace WBSF
 
 		//This is where the model is actually executed
 		CTPeriod p = m_weather.GetEntireTPeriod(CTM(CTM::DAILY));
-//		p.Begin().m_year += 1;
+		p.Begin().m_year += 1;
 		m_output.Init(p, NB_STATS, 0);
 
 		//simulation overall years
-		for (size_t y = 0; y < m_weather.size(); y++)
+		for (size_t y = 1; y < m_weather.size(); y++)
 		{
 			ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, m_output);
 		}
@@ -117,7 +117,7 @@ namespace WBSF
 	void CGypsyMothEggHatchModel::ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& output)
 	{
 		//Create stand
-		CLNFStand stand(this);
+		CLDDStand stand(this);
 		stand.m_bApplyAttrition = m_bApplyAttrition;
 
 		//Set parameters to equation
@@ -129,7 +129,7 @@ namespace WBSF
 		stand.init(year, weather);
 
 		//Create host
-		CLNFHostPtr pHost(new CLNFHost(&stand));
+		CLDDHostPtr pHost(new CLDDHost(&stand));
 
 		pHost->m_nbMinObjects = 10;
 		pHost->m_nbMaxObjects = 1000;
@@ -145,7 +145,7 @@ namespace WBSF
 		//CTPeriod p_current = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 		
 		//assert(weather[year].HavePrevious());
-		//if (!weather[year].HavePrevious())
+		//if (!weather[year].HavePrevious()) 
 		//	return;
 
 		//if they have other year extend period to July
@@ -204,13 +204,21 @@ namespace WBSF
 		obs.m_ref.FromFormatedString(data[I_DATE]);
 		obs.m_obs.resize(1);
 		
-		if (data[I_EGG_HATCH] != "NA" && data[I_CV] == "C")
+		if (data[I_EGG_HATCH_CUMUL] != "NA" && data[I_CV] == "C")
 		{
 			obs.m_obs[0] = stod(data[I_EGG_HATCH_CUMUL]);
-
-			m_cumul_stats += obs.m_obs[0];
-			m_nb_days += obs.m_ref.GetJDay();
-			m_years.insert(obs.m_ref.GetYear());
+			//obs.m_obs[1] = (data[I_SOURCE] == "Tauber1990" && obs.m_ref.m_year == 1986) ? 0 : 1;
+			//if (obs.m_obs[1]!=0)
+			//{
+				m_cumul_stats += obs.m_obs[0];
+				m_nb_days += obs.m_ref.GetJDay();
+				m_years.insert(obs.m_ref.GetYear());
+			//}
+			//else
+			//{
+				//int g;
+				//g = 0;
+			//}
 
 		}
 		else
@@ -263,7 +271,8 @@ namespace WBSF
 
 		if (m_EOD[DOYb] >= m_EOD[DOYe])
 			bValid = false;
-		else if (m_EOD[Τᴴ¹] >= m_EOD[Τᴴ²]) 
+		else 
+			if (m_EOD[Τᴴ¹] >= m_EOD[Τᴴ²]) 
 			bValid = false;
 		else 
 			bValid = CDevRateEquation::IsParamValid(CDevRateEquation::Régnière_2012, { m_EDP.begin(), m_EDP.end() });
@@ -283,7 +292,10 @@ namespace WBSF
 	{
 		if (!m_SAResult.empty())
 		{
-			
+			Randomize((unsigned int)1);
+			InitRandomGenerator(1);
+
+
 			m_bCumul = true;//SA always cumulative
 			m_bApplyAttrition = false;//no attrition
 
@@ -308,21 +320,37 @@ namespace WBSF
 						{
 							double obs_y = Round(m_SAResult[i].m_obs[0], ROUND_VAL);
 							double sim_y = Round(output[m_SAResult[i].m_ref][S_EGGS_HATCH], ROUND_VAL);
+							assert(!isnan(sim_y) && isfinite(sim_y));
+
 
 							if (obs_y > -999)
 							{
 								stat.Add(obs_y, sim_y);
 
-								double obs_x = m_SAResult[i].m_ref.GetJDay();
-								double sim_x = GetSimX(S_EGGS_HATCH, m_SAResult[i].m_ref, obs_y, output);
-
-								if (obs_y > 5.0 && obs_y < 95.0)
+								//m_SAResult[i].m_obs[1]!=0 && 
+								if (obs_y >= 5.0 && obs_y <= 95.0)
 								{
-									if(sim_x<=-998)
-										return false;
+									
+									double obs_x = m_SAResult[i].m_ref.GetJDay();
+									double sim_x = GetSimX(S_EGGS_HATCH, m_SAResult[i].m_ref, obs_y, output);
+								
+									assert(!isnan(sim_x) && isfinite(sim_x));
+									//if(sim_x<=-998)
+									//	return false;
 
-									obs_x = Round(100 * (obs_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
-									sim_x = Round(100 * (sim_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
+									if (obs_x > 180)
+										obs_x -= 365;
+									if (sim_x > 180)
+										sim_x -= 365;
+										
+
+									//obs_x = Round(100 * (obs_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
+									//sim_x = Round(100 * (sim_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
+									obs_x = Round(100 * (obs_x - 90.0) / 60.0, 1);
+									sim_x = Round(100 * (sim_x - 90.0) / 60.0, 1);
+
+
+									
 									stat.Add(obs_x, sim_x);
 								}
 							}

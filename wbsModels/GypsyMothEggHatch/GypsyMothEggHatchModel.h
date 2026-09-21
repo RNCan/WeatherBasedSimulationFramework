@@ -8,13 +8,7 @@ namespace WBSF
 
 	public:
 
-
-	
-		enum TEggHatchModel { EH_SAINT_AMANT, EH_KHANNA, EH_JOHNSON, EH_LYONS, NB_MODELS};
-		//enum TEvaluatedStage { E_EGGS, E_LARVAE, E_LARVAL_DROP, E_EMERGING_ADULTS, NB_EVALUATED_STAGES };
-		//static const std::array<size_t, NB_EVALUATED_STAGES> STAT_STAGE;
-
-
+		enum TEggHatchModel { EH_SAINT_AMANT, NB_MODELS};
 
 		CGypsyMothEggHatchModel();
 		virtual ~CGypsyMothEggHatchModel();
@@ -31,13 +25,12 @@ namespace WBSF
 
 		bool m_bCumul;
 		bool m_bApplyAttrition;
-		//size_t m_begin;
 		
 		size_t m_eggHatchModel;
 
-		std::array<double, LNF::NB_EOD_PARAMS> m_EOD;
-		std::array<double, LNF::NB_EDP_PARAMS> m_EDP;
-		std::array<double, LNF::NB_RDR_PARAMS> m_RDR;
+		std::array<double, LDD::NB_EOD_PARAMS> m_EOD;
+		std::array<double, LDD::NB_EDP_PARAMS> m_EDP;
+		std::array<double, LDD::NB_RDR_PARAMS> m_RDR;
 		
 
 		std::set<int> m_years;

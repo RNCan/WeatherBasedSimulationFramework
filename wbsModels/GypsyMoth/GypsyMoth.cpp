@@ -3,6 +3,7 @@
 #include "SawyerModel.h"
 #include "LyonsModel.h"
 #include "JohnsonModel.h"
+#include "../GypsyMothEggHatch/SaintAmantModel.h"
 #include "GypsyMothCommon.h"
 #include "Basic/TimeStep.h"
 
@@ -35,7 +36,7 @@ namespace WBSF
 	void CGypsyMoth::Reset()
 	{
 		ASSERT(m_pHatch);
-		m_pHatch->Reset();
+		m_pHatch->clear();
 		m_stageFreq.clear();
 	}
 
@@ -50,6 +51,7 @@ namespace WBSF
 		case LYONS_MODEL: m_pHatch = new CLyonsModel(eggParam); break;
 		case SAWYER_MODEL:m_pHatch = new CSawyerModel(eggParam); break;
 		case GRAY_MODEL:m_pHatch = new CGrayModel(eggParam); break;
+		case SAINT_AMANT_MODEL:m_pHatch = new CSaintAmantModel(eggParam); break;
 		}
 
 		_ASSERTE(m_pHatch);

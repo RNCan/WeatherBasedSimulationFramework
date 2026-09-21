@@ -2,7 +2,7 @@
 // Class: CGypsyMothEggHatch
 //          
 //
-// Description: the CGypsyMothEggHatch represents a group of LNF insect. scale by m_ScaleFactor
+// Description: the CGypsyMothEggHatch represents a group of LDD insect. scale by m_ScaleFactor
 //*****************************************************************************
 // 2026-09-08   Rémi Saint-Amant    Creation
 //*****************************************************************************
@@ -16,7 +16,7 @@
 
 using namespace std;
 using namespace WBSF::HOURLY_DATA;
-using namespace WBSF::LNF;
+using namespace WBSF::LDD;
 
 
 namespace WBSF
@@ -50,51 +50,13 @@ namespace WBSF
 		m_cold_tolerence = Equations().GetColdTolerence();
 	}
 
-
-	//CTRef CGypsyMothEggHatch::GetEndOfDiapause()const
-	//{
-	//	return GetStand()->m_end_of_diapause;
-
-	//	//	GetStand()->GetModel()->m_weather;
-	//	//CTPeriod p = weather_station.GetEntireTPeriod(CTM::DAILY);
-
-	//	//CTRef adult_emergence;
-	//	//double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
-
-	//	//CTRef begin = GetStand()->m_end_of_diapause;
-	//	//CTRef end = p.End();
-	//	////if (weather_station[year].HaveNext())
-	//	//	//end = min(p.End(), CTRef(begin.GetYear() + 1, JUNE, DAY_30));
-
-	//	//double CDD = 0;
-	//	//for (CTRef TRef = begin; TRef <= end && !adult_emergence.IsInit(); TRef++)
-	//	//{
-	//	//	const CWeatherDay& wday = weather_station.GetDay(TRef);
-	//	//	double T = wday[H_TNTX][MEAN];
-	//	//	double DD = max(0.0, T - Equations().m_EOD[Τᴴ]);
-	//	//	CDD += DD;
-	//	//	if (CDD >= adult_emerging_CDD)
-	//	//	{
-	//	//		adult_emergence = wday.GetTRef();
-	//	//	}
-	//	//}
-
-	//	//if (!adult_emergence.IsInit())
-	//	//{
-	//	//	//When there is no adult emergence, set it to the last day of the year
-	//	//	adult_emergence = end;
-	//	//}
-
-	//	//return adult_emergence;
-	//}
-
 	CGypsyMothEggHatch& CGypsyMothEggHatch::operator=(const CGypsyMothEggHatch& in)
 	{
 		if (&in != this)
 		{
 			CIndividual::operator=(in);
 
-			//m_end_of_diapause = in.m_end_of_diapause;
+			m_end_of_diapause = in.m_end_of_diapause;
 			m_deadByAttrition = in.m_deadByAttrition;
 
 		}
@@ -107,16 +69,9 @@ namespace WBSF
 	{
 	}
 
-
-
 	void CGypsyMothEggHatch::OnNewDay(const CWeatherDay& weather)
 	{
 		CIndividual::OnNewDay(weather);
-
-		/*if (weather.GetTRef() == m_creationDate)
-		{
-			m_age = EGG;
-		}*/
 	}
 
 	//*****************************************************************************
@@ -129,8 +84,8 @@ namespace WBSF
 		assert(IsAlive());
 		assert(m_status == HEALTHY);
 
-		CLNFHost* pHost = GetHost();
-		CLNFStand* pStand = GetStand();
+		CLDDHost* pHost = GetHost();
+		CLDDStand* pStand = GetStand();
 
 		double nb_steps = (24.0 / time_step);
 		size_t h = weather.GetTRef().GetHour();
@@ -140,37 +95,39 @@ namespace WBSF
 
 
 		//daily development rate
-		double d_r = 0;// Equations().GetDailyDevlopmentRate(s, T);
+		double d_r = Equations().GetDailyDevlopmentRate(s, T);
+		ASSERT(d_r >= 0.0 && d_r <= 1.0);
 
-#if RSA_MODEL==1
+//#if RSA_MODEL==1
 		if (s == DIAPAUSE_EGG)
 		{
-			d_r = 1.0 / (m_end_of_diapause - CTRef(weather.GetTRef().GetYear(), JANUARY, DAY_01));
+			//d_r = 1.0 / (m_end_of_diapause - CTRef(weather.GetTRef().GetYear(), JANUARY, DAY_01));
+			d_r = 1.0 / (m_end_of_diapause.GetJDay() + 1);
 		} 
-		else
-		{
-			std::vector<double> P = { Equations().m_EDP.begin(),Equations().m_EDP.end() };
-			d_r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, T));
-		}
+		//else
+		//{
+		//	//std::vector<double> P = { Equations().m_EDP.begin(),Equations().m_EDP.end() };
+		//	d_r = max(0.0, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, { Equations().m_EDP.begin(),Equations().m_EDP.end() }, T));
+		//}
 
-#else
-		if (s == DIAPAUSE_EGG)
-		{
-			std::vector<double> P = { Equations().m_EOD.begin(),Equations().m_EOD.end() };
-			//double Tb = P[2];
-			//double Tm = P[3];
-			//P[2] = -Tm;
-			//P[3] = -Tb;
-//			d_r = max(0.0, min(0.25,CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, Tb-T)));
-			d_r = max(0.0, min(0.25, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, -T)));
-		}
-		else
-		{
-			std::vector<double> P = { Equations().m_EDP.begin(),Equations().m_EDP.end() };
-			d_r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, T)));
-		}
-
-#endif
+//#else
+//		if (s == DIAPAUSE_EGG)
+//		{
+//			std::vector<double> P = { Equations().m_EOD.begin(),Equations().m_EOD.end() };
+//			//double Tb = P[2];
+//			//double Tm = P[3];
+//			//P[2] = -Tm;
+//			//P[3] = -Tb;
+////			d_r = max(0.0, min(0.25,CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, Tb-T)));
+//			d_r = max(0.0, min(0.25, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, -T)));
+//		}
+//		else
+//		{
+//			std::vector<double> P = { Equations().m_EDP.begin(),Equations().m_EDP.end() };
+//			d_r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, P, T)));
+//		}
+//
+//#endif
 
 		//vector<double> P = { Equations().m_EDP[0], Equations().m_EDP[2], Equations().m_EDP[3] };
 		//d_r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Briere1_1999, P, T)));
@@ -181,18 +138,18 @@ namespace WBSF
 		double ts_r = d_r / nb_steps;
 
 		//Time step development rate for this individual
-		double i_r = ts_r * m_RDR[s];
-		ASSERT(i_r >= 0 && i_r < 1);
+		double i_r = min(1.0, ts_r * m_RDR[s]);
+		ASSERT(i_r >= 0.0 && i_r < 1.0);
 
 		//Adjust age
 		m_age += i_r;
 
 		//apply attrition
-		if (GetStand()->m_bApplyAttrition)
-		{
-			if (IsDeadByAttrition(s, T, i_r))
-				m_deadByAttrition = weather.GetTRef().as(CTM::DAILY);
-		}
+		//if (GetStand()->m_bApplyAttrition)
+		//{
+		//	if (IsDeadByAttrition(s, T, i_r))
+		//		m_deadByAttrition = weather.GetTRef().as(CTM::DAILY);
+		//}
 	}
 
 
@@ -219,8 +176,9 @@ namespace WBSF
 			Live(weather[h], GetTimeStep());
 		}
 
-		//f (weather.GetTRef() == m_creationDate || HasChangedStage())
-			//m_reachDate[GetStage()] = weather.GetTRef();
+		assert(m_age < NB_STAGES);
+		m_age = min(m_age, (double)LARVAE);
+		
 	}
 
 
@@ -323,28 +281,28 @@ namespace WBSF
 	}
 
 	//*********************************************************************************
-	//CLNFHost
+	//CLDDHost
 
-	CLNFHost::CLNFHost(CStand* pStand) :
+	CLDDHost::CLDDHost(CStand* pStand) :
 		CHost(pStand)
 	{
 	}
 
 
-	void CLNFHost::Live(const CWeatherDay& weather)
+	void CLDDHost::Live(const CWeatherDay& weather)
 	{
 		CHost::Live(weather);
 	}
 
-	void CLNFHost::GetStat(CTRef d, CModelStat& stat, size_t generation)
+	void CLDDHost::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CHost::GetStat(d, stat, generation);
 	}
 
 	//*************************************************
-	//CLNFStand
+	//CLDDStand
 
-	void CLNFStand::init(int year, const CWeatherYears& weather)
+	void CLDDStand::init(int year, const CWeatherYears& weather)
 	{
 		m_equations.ComputeEndOfDiapause(weather[year], m_EOD_mu, m_EOD_sigma, m_diapause_end_NCDD);
 	}
@@ -352,7 +310,7 @@ namespace WBSF
 
 
 
-	void CLNFStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
+	void CLDDStand::GetStat(CTRef d, CModelStat& stat, size_t generation)
 	{
 		CStand::GetStat(d, stat, generation);
 

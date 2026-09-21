@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Model version="3">
     <Title>Gypsy Moth Seasonality(2012)</Title>
-    <Version>1.1</Version>
+    <Version>1.2</Version>
     <ID>.GMS</ID>
     <EXE>Gypsy Moth Seasonality.dll</EXE>
     <Behaviour>0</Behaviour>
@@ -21,10 +21,10 @@
             <Type>5</Type>
             <Rect>40 15 60 255</Rect>
             <SeparatorPos>135</SeparatorPos>
-            <DefaultValue>3</DefaultValue>
+            <DefaultValue>4</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>3</MaxValue>
-            <TextValue>Johnson;Lyons;Sawyer;Gray</TextValue>
+            <MaxValue>4</MaxValue>
+            <TextValue>Johnson;Lyons;Sawyer;Gray;Saint-Amant</TextValue>
         </InputVariable>
         <InputVariable>
             <Name>OvipDate</Name>

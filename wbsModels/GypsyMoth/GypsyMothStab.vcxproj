@@ -222,6 +222,10 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\GypsyMothEggHatch\DoubleSineNDD.cpp" />
+    <ClCompile Include="..\GypsyMothEggHatch\GypsyMothEggHatch.cpp" />
+    <ClCompile Include="..\GypsyMothEggHatch\GypsyMothEggHatchEquations.cpp" />
+    <ClCompile Include="..\GypsyMothEggHatch\SaintAmantModel.cpp" />
     <ClCompile Include="EggModel.cpp" />
     <ClCompile Include="GrayModel.cpp">
       <ForceConformanceInForLoopScope Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ForceConformanceInForLoopScope>
@@ -235,6 +239,9 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "..\..\bin\Release$(Platform)\Models\$
     <ClCompile Include="SawyerModel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\GypsyMothEggHatch\GypsyMothEggHatch.h" />
+    <ClInclude Include="..\GypsyMothEggHatch\GypsyMothEggHatchEquations.h" />
+    <ClInclude Include="..\GypsyMothEggHatch\SaintAmantModel.h" />
     <ClInclude Include="EggModel.h" />
     <ClInclude Include="GypsyMoth.h" />
     <ClInclude Include="GypsyMothCommon.h" />
