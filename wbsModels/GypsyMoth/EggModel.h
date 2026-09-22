@@ -9,6 +9,7 @@
 namespace WBSF
 {
 	class CWeatherStation;
+	class CBioSIMModelBase;
 	
 	class CGMEggParam
 	{
@@ -16,17 +17,20 @@ namespace WBSF
 
 		CGMEggParam()
 		{
-			Reset();
+			clear();
 		}
 
-		void Reset()
+		void clear()
 		{
+			m_pModel = nullptr;
 			m_sawyerModel = 1;
 			m_ovipDate.Reset();
 		}
 
 		int m_sawyerModel;
 		CTRef m_ovipDate;
+
+		CBioSIMModelBase* m_pModel;
 	};
 
 	static const int MAXEGGS = 250;
@@ -39,12 +43,12 @@ namespace WBSF
 
 		CEggModel(const CGMEggParam& param)
 		{
-			Reset();
+			clear();
 			m_param = param;
 		}
 
 	
-		void Reset();
+		void clear();
 	
 		virtual ERMsg ComputeHatch(const CWeatherStation& weather, const CTPeriod& p) = 0;
 

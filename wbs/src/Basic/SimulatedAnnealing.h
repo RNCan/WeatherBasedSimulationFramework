@@ -25,7 +25,11 @@ namespace WBSF
 	class CSAControl
 	{
 	public:
-		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_SKIP_LOOP, NB_MEMBER };
+
+		
+
+		
+		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, P_EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_SKIP_LOOP, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -68,34 +72,26 @@ namespace WBSF
 			return AdjustFValue(stat[m_statisticType]);
 		}
 
-		bool Max()const { return m_bMax; }
-
-		void SetMax(bool bMax) { m_bMax = bMax; }
-
-		//double RT()const { return m_RT; }
-		//void SetRT(double RT) { m_RT = RT; }
-		double EPS()const { return m_EPS; }
-		void SetEPS(double EPS) { m_EPS = EPS; }
-		//double deltaVar()const{	return m_deltaVar; }
-		//void SetdeltaVar(double EPS)	{ m_deltaVar = EPS; }
-		//long NS()const { return m_NS; }
-		//void SetNS(long NS) { m_NS = NS; }
-		//long NT()const { return m_NT; }
-		//void SetNT(long NT) { m_NT = NT; }
-		long NEPS()const { return m_NEPS; }
-		void SetNEPS(long NEPS) { m_NEPS = NEPS; }
-		long MAXEVL()const { return m_MAXEVL; }
-		void SetMAXEVL(long MAXEVL) { m_MAXEVL = MAXEVL; }
-		long Seed1()const { return m_seed1; }
-		void SetSeed1(long seed1) { m_seed1 = seed1; }
-		long Seed2()const { return m_seed2; }
-		void SetSeed2(long seed2) { m_seed2 = seed2; }
-		double T()const { return m_T; }
-		void SetT(double T) { _ASSERTE(T > 0.0);  m_T = T; }
-
-		//void LoadProfile(const std::string& section);
-		//void SaveProfile(const std::string& section);
-
+		//bool Max()const { return m_bMax; }
+		//
+		//void SetMax(bool bMax) { m_bMax = bMax; }
+		//
+		////double EPS()const { return m_EPS; }
+		////void SetEPS(double EPS) { m_EPS = EPS; }
+		//long NEPS()const { return m_NEPS; }
+		//void SetNEPS(long NEPS) { m_NEPS = NEPS; }
+		//long MAXEVL()const { return m_MAXEVL; }
+		//void SetMAXEVL(long MAXEVL) { m_MAXEVL = MAXEVL; }
+		//long Seed1()const { return m_seed1; }
+		//void SetSeed1(long seed1) { m_seed1 = seed1; }
+		//long Seed2()const { return m_seed2; }
+		//void SetSeed2(long seed2) { m_seed2 = seed2; }
+		//double T()const { return m_T; }
+		//void SetT(double T) { _ASSERTE(T > 0.0);  m_T = T; }
+		//
+		////void LoadProfile(const std::string& section);
+		////void SaveProfile(const std::string& section);
+		
 		double GetVMiss() { return m_missing; }
 		void SetVMiss(double in) { m_missing = in; }
 
@@ -104,6 +100,7 @@ namespace WBSF
 		double m_RT;
 		double m_RT2;
 		double m_EPS;
+		double m_P_EPS;
 		long m_NS;
 		long m_NT;
 		//long m_NT2;
@@ -161,7 +158,10 @@ namespace WBSF
 			m_upperBound = std::max(lowerBound, upperBound);
 			_ASSERTE(m_lowerBound <= m_upperBound);
 		}
-
+		double LimitTo(double v)const
+		{
+			return std::max(m_lowerBound, std::min(m_upperBound, v));
+		}
 		std::string ToString()const
 		{
 			return FormatA("[%.7g, %.7g]", m_lowerBound, m_upperBound);
@@ -274,13 +274,9 @@ namespace WBSF
 			m_T = T;
 			
 			//  Initialize variable
-			m_F = missingValue;
-			m_FP = missingValue;
-			m_Fopt = missingValue;
-
+			m_F = m_FP = m_Fopt = missingValue;
 			m_n = m_n_P = m_n_opt = 0;
 			m_k = m_k_P = m_k_opt=0;
-			
 			m_AICC = m_AICCopt = m_AICCP = missingValue;
 			m_MLL = m_MLLP = m_MLLopt = missingValue;
 
@@ -291,60 +287,62 @@ namespace WBSF
 			//Initialize FSTAR
 			m_FSTAR.clear();
 			m_FSTAR.insert(m_FSTAR.begin(), NEPS, DBL_MAX);
-			m_initial_nb_values = 0;
+			//m_initial_nb_values = 0;
 		}
 
-		std::vector<double> m_VM;
-		CStatisticVector m_VMstat;
 
 
 		std::vector<double> m_X;
-		std::vector<double> m_XP;
-		std::vector<double> m_Xopt;
-		CStatisticVector m_XPstat;
+		double m_F;
 		CStatisticVector m_Xstat;
+		double m_AICC;
+		size_t m_n;
+		size_t m_k;
+		double m_MLL;
+		CStatisticXY m_S;
+
+
 		
+		
+		std::vector<double> m_XP;
+		double m_FP;
+		CStatisticVector m_XPstat;
+		double m_AICCP;
+		size_t m_n_P;
+		size_t m_k_P;
+		double m_MLLP;
+		CStatisticXY m_SP;
+
+
+
+		std::vector<double> m_Xopt;
+		double m_Fopt;
+		double m_AICCopt;
+		size_t m_n_opt;
+		size_t m_k_opt;
+		double m_MLLopt;
+		CStatisticXY m_Sopt;
+
+
 
 		
 		double m_T;
 
 		std::vector<double> m_FSTAR;
+		std::vector<double> m_VM;
+		CStatisticVector m_VMstat;
+		CStatisticEx m_Pstat;
 
-		//output                
-		double m_F;
-		double m_FP;
-		double m_Fopt;
+		//constant 
+		std::vector<double> m_C;
+		CVariableBoundVector m_bounds;
+		//size_t m_initial_nb_values;
 
-		//output                
-		double m_AICC;
-		double m_AICCP;
-		double m_AICCopt;
-
-		size_t m_n;
-		size_t m_n_P;
-		size_t m_n_opt;
-		
-		size_t m_k;
-		size_t m_k_P;
-		size_t m_k_opt;
-
-		double m_MLL;
-		double m_MLLP;
-		double m_MLLopt;
-
-		//statistic
-		CStatisticXY m_S;
-		CStatisticXY m_SP;
-		CStatisticXY m_Sopt;
 
 		long m_NACC;
 		long m_NFCNEV;
 		long m_NOBDS;
 
-		//constant 
-		std::vector<double> m_C;
-		CVariableBoundVector m_bounds;
-		size_t m_initial_nb_values;
 	};
 
 }
@@ -364,6 +362,7 @@ namespace zen
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR)](in.m_RT);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR2)](in.m_RT2);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](in.m_EPS);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](in.m_P_EPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](in.m_NS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](in.m_NT);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](in.m_NEPS);
@@ -387,6 +386,7 @@ namespace zen
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR)](out.m_RT);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::REDUCTION_FACTOR2)](out.m_RT2);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](out.m_EPS);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](out.m_P_EPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](out.m_NS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](out.m_NT);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](out.m_NEPS);

@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>GypsyMothEggHatch</Title>
+    <Version>1.0</Version>
+    <ID>.GMEHP</ID>
+    <EXE>GypsyMothEggHatch.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 629 439</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>EggHatchModel</Name>
+            <Caption>EggHatchModel</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>20 10 40 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Saint-Amant|Khanna|Johnson|Lyons</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>45 10 65 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Attrition</Name>
+            <Caption>Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>70 10 90 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Distribution</Name>
+            <Caption>Distribution</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>45 190 65 405</Rect>
+            <SeparatorPos>70</SeparatorPos>
+            <DefaultValue>2</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>12</MaxValue>
+            <TextValue>Normals|LogNormal|Logistic|Weibull|Gamma|Fisher|ExtremeValue|Rayleigh|ModifiedLogistic|Gompertz1|Gompertz2|Frechet|LogLogistic</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>DOYb</Name>
+            <Caption>DOYb</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>70 190 90 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>30</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>DOYe</Name>
+            <Caption>DOYe</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>100 190 125 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>90</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>mu</Name>
+            <Caption>mu</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>125 190 150 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>-5</DefaultValue>
+            <MinValue>-5000</MinValue>
+            <MaxValue>-0.1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>s</Name>
+            <Caption>s</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>155 190 180 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>150</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>2500</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NBDDtype</Name>
+            <Caption>NCDD type</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>185 190 210 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue>nCDD1|NCDD2</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>NCDDb</Name>
+            <Caption>NCDDb</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>215 190 240 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>305</DefaultValue>
+            <MinValue>254</MinValue>
+            <MaxValue>365</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>NCDDe</Name>
+            <Caption>NCDDe</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>245 190 265 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>90</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>120</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th1</Name>
+            <Caption>Th1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>270 190 295 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>-30</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Th2</Name>
+            <Caption>Th2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>295 190 315 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>14</DefaultValue>
+            <MinValue>5</MinValue>
+            <MaxValue>19</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SIGMAb</Name>
+            <Caption>SIGMAb</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>320 190 345 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.1</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>SIGMAe</Name>
+            <Caption>SIGMAe</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>350 190 370 340</Rect>
+            <SeparatorPos>55</SeparatorPos>
+            <DefaultValue>0.3</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>1.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P0</Name>
+            <Caption>P0</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>280 30 305 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.01</DefaultValue>
+            <MinValue>0.00001</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P1</Name>
+            <Caption>P1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>310 30 330 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.1</DefaultValue>
+            <MinValue>0.001</MinValue>
+            <MaxValue>10</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P2</Name>
+            <Caption>P2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>340 30 360 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-50</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P3</Name>
+            <Caption>P3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>370 30 395 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>35</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P4</Name>
+            <Caption>P4</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>400 30 420 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>4</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>P5</Name>
+            <Caption>P5</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>425 30 450 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0.5</MinValue>
+            <MaxValue>50</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma1</Name>
+            <Caption>sigma1</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>485 30 505 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.15</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>0.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma2</Name>
+            <Caption>sigma2</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>515 30 540 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0.15</DefaultValue>
+            <MinValue>0.01</MinValue>
+            <MaxValue>0.5</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>sigma3</Name>
+            <Caption>sigma3</Caption>
+            <Description/>
+            <Type>2</Type>
+            <Rect>550 30 570 180</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DiapauseEggs</Name>
+            <Title>DiapauseEggs</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Larvae</Name>
+            <Title>Larvae</Title>
+            <Units/>
+            <Description>L1 to L4</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEnd</Name>
+            <Title>DiapauseEnd</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggHatch</Name>
+            <Title>EggHatch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Dead</Name>
+            <Title>Dead</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrost</Name>
+            <Title>DeadFrost</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEndNCDD1</Name>
+            <Title>DiapauseEndNCDD1</Title>
+            <Units/>
+            <Description>Cumulative negative degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEndNCDD2</Name>
+            <Title>DiapauseEndNCDD2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

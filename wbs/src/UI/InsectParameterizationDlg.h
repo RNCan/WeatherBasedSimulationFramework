@@ -48,11 +48,10 @@ namespace WBSF
 		CSelectionCtrl 	m_eqDevRateCtrl;
 		CSelectionCtrl 	m_eqSurvivalCtrl;
 		CSelectionCtrl 	m_eqFecundityCtrl;
+		CSelectionCtrl 	m_eqStageTableCtrl;
 
-		CButton			m_fixeTbCtrl;
-		std::array<CCFLEdit, 3> m_TbCtrl;
-		CButton			m_fixeTmCtrl;
-		std::array < CCFLEdit, 3>m_TmCtrl;
+		CCFLComboBox	m_SACtrl;
+		CCFLComboBox	m_methodCtrl;
 		CButton			m_fixeF0Ctrl;
 		CCFLEdit		m_F0Ctrl;
 		CButton			m_limitMaxRateCtrl;
@@ -62,6 +61,7 @@ namespace WBSF
 		std::array < CCFLEdit, 2>m_TloCtrl;
 		CButton			m_ConstrainThiCtrl;
 		std::array < CCFLEdit, 2>m_ThiCtrl;
+		CCFLEdit		m_AdultNameCtrl;
 
 		CButton			m_avoidNullRateInTobsCtrl;
 		
@@ -69,6 +69,9 @@ namespace WBSF
 		CButton			m_useOutputAsInputCtrl;
 		CCFLComboBox	m_outputAsInputCtrl;
 		CButton			m_ShowTraceCtrl;
+		CButton			m_UseDeadCtrl;
+
+		
 		// Overrides
 
 	protected:
@@ -79,7 +82,6 @@ namespace WBSF
 		// Generated message map functions
 		afx_msg void OnEditSACtrl();
 		afx_msg void OnEditEqOptions();
-		afx_msg void OnFitTypeChange();
 		void FillInputFile();
 		void FillOutputAsInputFile();
 

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Model version="3">
+    <Title>GypsyMothEggHatch</Title>
+    <Version>1.0</Version>
+    <ID>.GMEHP</ID>
+    <EXE>GypsyMothEggHatch.dll</EXE>
+    <Behaviour>1</Behaviour>
+    <Description/>
+    <WindowRect>0 0 150 439</WindowRect>
+    <SimulatedCategory>TN T TX</SimulatedCategory>
+    <TransferFileVersion>2</TransferFileVersion>
+    <SSI/>
+    <NbYearMin>1</NbYearMin>
+    <NbYearMax>999</NbYearMax>
+    <ThreadSafe>true</ThreadSafe>
+    <InputVariableArray>
+        <InputVariable>
+            <Name>EggHatchModel</Name>
+            <Caption>EggHatchModel</Caption>
+            <Description/>
+            <Type>5</Type>
+            <Rect>20 10 40 235</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <TextValue>Saint-Amant|Khanna</TextValue>
+        </InputVariable>
+        <InputVariable>
+            <Name>Cumul</Name>
+            <Caption>Cumul</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>45 10 65 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <TextValue/>
+        </InputVariable>
+        <InputVariable>
+            <Name>Attrition</Name>
+            <Caption>Attrition</Caption>
+            <Description/>
+            <Type>0</Type>
+            <Rect>70 10 90 160</Rect>
+            <SeparatorPos>100</SeparatorPos>
+            <DefaultValue/>
+            <MinValue>-999</MinValue>
+            <MaxValue>999</MaxValue>
+            <TextValue/>
+        </InputVariable>
+    </InputVariableArray>
+    <OutputTypeMode>2 0</OutputTypeMode>
+    <MissingValue>-999</MissingValue>
+    <OutputVariableArray>
+        <OutputVariable>
+            <Name>DiapauseEggs</Name>
+            <Title>DiapauseEggs</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Eggs</Name>
+            <Title>Eggs</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Larvae</Name>
+            <Title>Larvae</Title>
+            <Units/>
+            <Description>L1 to L4</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEnd</Name>
+            <Title>DiapauseEnd</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>EggHatch</Name>
+            <Title>EggHatch</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>Dead</Name>
+            <Title>Dead</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DeadFrost</Name>
+            <Title>DeadFrost</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEndNCDD1</Name>
+            <Title>DiapauseEndNCDD1</Title>
+            <Units/>
+            <Description>Cumulative negative degree day</Description>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+        <OutputVariable>
+            <Name>DiapauseEndNCDD2</Name>
+            <Title>DiapauseEndNCDD2</Title>
+            <Units/>
+            <Description/>
+            <TimeMode>4 0</TimeMode>
+            <Precision>4</Precision>
+        </OutputVariable>
+    </OutputVariableArray>
+    <Copyright/>
+    <Credit/>
+    <HelpFileName/>
+</Model>

@@ -597,6 +597,8 @@
 #define IDC_FIT_FIXED_SIGMA             1289
 #define IDC_FIT_METHOD                  1289
 #define IDC_FIT_CALIB_SIGMA             1290
+#define IDC_FIT_EQ_STAGE_TABLE          1290
+#define IDC_FIT_EQ_DEV_RATE2            1290
 #define IDC_FIT_TB                      1291
 #define IDC_FIT_FIXE_TB                 1292
 #define IDC_FIT_TM                      1293

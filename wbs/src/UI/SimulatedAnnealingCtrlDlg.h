@@ -25,9 +25,12 @@ namespace WBSF
 
 		// Construction
 	public:
-		CSimulatedAnnealingCtrlDlg(CWnd* pParent = NULL);
+
+		CSimulatedAnnealingCtrlDlg(bool bShowOptimMethod=true, CWnd* pParent = NULL);
 		~CSimulatedAnnealingCtrlDlg();
 
+
+		
 		CSAControl m_ctrl;
 
 	protected:
@@ -39,12 +42,14 @@ namespace WBSF
 
 
 		enum { IDD = IDD_SIM_SIMULATED_ANNEALING_PARAMETERS };
+		bool m_bShowOptimMethod;
 		CString	m_inputFilePath;
 		double	m_initialTemperature;
 		double	m_errorTolerence;
-		int	m_nbCycles;
-		int	m_nbIteration;
-		int	m_nbSkipLoop;
+		double	m_P_EPS;
+		int		m_nbCycles;
+		int		m_nbIteration;
+		int		m_nbSkipLoop;
 		double	m_TReduction;
 		double  m_TReduction2;
 		long	m_maxEvaluation;

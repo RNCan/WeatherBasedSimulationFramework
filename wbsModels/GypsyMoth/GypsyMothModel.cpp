@@ -1,4 +1,5 @@
 //************************************************************************************
+//16/09/2026	2.3.3	RSA	Add Saint-Amant egg hatch model
 //13/12/2019	2.3.2	RSA	Code cleaning
 //16/11/2016	2.3.1	RSA	Compile for BioSIM 11
 //RSA 25/01/2012:	New model with multi generation
@@ -8,9 +9,9 @@
 //					Add switch to activate or not new gray equation
 //					The model for south hemisphere don't work anymore
 //RSA 17/11/2008: Recompilation with new gray egg equation
-//RSA 14/07/2005: Model ajust ovipDate to simulate the good year
-//RSA 18/05/2005: integretion to BioSIMModelBase + cleaning
-//JR  13/05/2005: harmonized this Gypmphen with the Stability version.
+//RSA 14/07/2005: Model adjust ovipDate to simulate the good year
+//RSA 18/05/2005: integration to BioSIMModelBase + cleaning
+//JR  13/05/2005: harmonized this Gymphen.cpp with the Stability version.
 //
 //JR  02/03/1999: made the model output one line on day 273, if first hatch occurs 
 //           on or after 273. That is to ensure output
@@ -45,7 +46,7 @@ namespace WBSF
 	{
 		// initialize your variables here (optional)
 		NB_INPUT_PARAMETER = 6;
-		VERSION = "2.3.2 (2019)";
+		VERSION = "2.3.3 (2026)";
 
 		m_hatchModelType = CGypsyMoth::GRAY_MODEL;
 		m_bHaveAttrition = false;
@@ -68,6 +69,7 @@ namespace WBSF
 		//transfer your parameters here
 		int c = 0;
 		m_hatchModelType = parameters[c++].GetInt();
+		m_eggParam.m_pModel = this;
 		m_eggParam.m_ovipDate = period.Begin() + parameters[c++].GetInt();
 		m_eggParam.m_sawyerModel = parameters[c++].GetInt();
 		m_bHaveAttrition = parameters[c++].GetBool();
@@ -119,13 +121,9 @@ namespace WBSF
 		
 
 		CGMEggParam eggParamTmp = m_eggParam;
-		//first: do the generation over the first two years
-		//if( m_bConditionOvipDate )
-		//eggParamTmp.m_ovipDate = GetInitialOvipDate(); 
 
-		//Do simulation only if the ovip date of the first generation 
-		//if( eggParamTmp.m_ovipDate.IsInit() )
-		//{
+		//first: do the generation over the first two years
+		//Do simulation only if the oviposition date of the first generation 
 		for (size_t y = 0; y < m_weather.GetNbYears() - 1; y++)
 		{
 			CGypsyMoth gypsyMoth(m_hatchModelType, eggParamTmp);
@@ -135,7 +133,6 @@ namespace WBSF
 			//simulate development
 			gypsyMoth.SimulateDeveloppement(m_weather, p);
 
-			//Attention, ici on prend les output même s'il ne sont pas viable...???
 			//Get output of the second year
 			gypsyMoth.GetOutputStat(stat);
 
@@ -178,16 +175,6 @@ namespace WBSF
 			output[d][O_DEAD_ADULT] = stat[d][DEAD_ADULT];
 			output[d][O_MALE_MOTH] = stat[d][MALE_ADULT];
 			output[d][O_FEMALE_MOTH] = stat[d][FEMALE_ADULT];
-			//		output[d][O_MALE_EMERGED]=stat[d][MALE_EMERGED];
-			//	output[d][O_FEMALE_EMERGED]=stat[d][FEMALE_EMERGED];
-			//if(d.m_month == DECEMBER && d.m_day == 30)
-			//{
-			//	//Test: force the last line to be termiated
-			//	for(int i=EGG; i<TOT_POP; i++)
-			//		output[d][i] = 0;
-			//	
-			//	output[d][DEAD_ADULT] = 100;
-			//}
 		}
 
 	}
@@ -203,25 +190,15 @@ namespace WBSF
 			CTPeriod p2 = p.GetAnnualPeriodByIndex(y);
 			double sumMale = stat.GetStat(MALE_ADULT, p2)[SUM];
 			double sumFemale = stat.GetStat(FEMALE_ADULT, p2)[SUM];
-			//double sumMale2 = stat.GetStat(MALE_EMERGED, p2)[SUM];
-			//double sumFemale2 = stat.GetStat(FEMALE_EMERGED, p2)[SUM];
 
 			for (CTRef d = p2.Begin(); d <= p2.End(); d++)
 			{
 				bool firstDay = d == p2.Begin();
 
-				//double totPop=stat[d][EGG]+stat[d][TOT_POP]; 
-
-
 				//cumulative frequencies (as a %)
 				double cumFreq[NB_STAGE] = { 0 };
 				cumFreq[0] = stat[d][EGG];
-
 				double totPop = stat[d][EGG];
-				//double sumMale = 0;
-				//double sumFemale = 0;
-				//sumMale+=stat[d][MALE_ADULT];
-				//sumFemale+=stat[d][FEMALE_ADULT];
 
 				for (int j = L1; j <= DEAD_ADULT; j++)
 				{
@@ -248,263 +225,10 @@ namespace WBSF
 					if (sumFemale > 0.0001)
 						output[d][O_FEMALE_MOTH] = output[d - 1][O_FEMALE_MOTH] + 100 * stat[d][FEMALE_ADULT] / sumFemale;
 
-					//if(sumMale2>0) 
-					//output[d][O_MALE_EMERGED]=output[d-1][O_MALE_EMERGED] + (100*stat[d][MALE_EMERGED])/sumMale2;
-
-					//if(sumFemale2>0) 
-					//output[d][O_FEMALE_EMERGED]=output[d-1][O_FEMALE_EMERGED] + (100*stat[d][FEMALE_EMERGED])/sumFemale2;
 				}
 			}
-
-			//Test: force the last line to be termiated
-			//for(CTRef d=p2.End()-46; d<=p2.End(); d++)
-			//{
-			//	output[d][EGG] = 0;
-			//	for(int i=L1; i<TOT_POP; i++)
-			//		output[d][i] = 100;
-			//}
 		}
 
-
-
 	}
-
-	/*
-
-	void CGypsyMothModel::ComputeRegularValue(const CGypsyMoth& gypsyMoth, COutputVector& output)
-	{
-	const CEggModel& hatch = gypsyMoth.GetHatch();
-	const CEggStateVector& totalEggs = hatch.GetEggs();
-	const CStageVector& stageFreq = gypsyMoth.GetStage();
-
-	output.SetFirstTRef(m_weather[1].GetFirstTRef());
-	output.resize(m_weather.GetNbDay()-m_weather[0].GetNbDay());
-
-	double eggs_left=(double)100;
-
-	for (int i=0; i<m_weather[1].GetNbDay(); i++)
-	{
-	int day = m_weather[0].GetNbDay()+i;
-	CTRef d = m_weather[1].GetFirstTRef() + i;
-
-	double ee=hatch.GetHatching()[day];
-	eggs_left=__max(0, eggs_left-ee);
-
-	if(eggs_left<0.005*100)
-	eggs_left=0;
-
-	for (int j=0; j<NB_OUTPUT; j++)
-	{
-	if( j==0 )
-	{
-	output[d][j] = eggs_left;
-	}
-	else
-	{
-	if( gypsyMoth.IsSimulated() )
-	output[d][j] = stageFreq[day][j-1];
-	else output[d][j] = CBioSIMModelBase::VMISS;
-	}
-	}
-
-	}
-	}
-
-	void CGypsyMothModel::ComputeCumulativeValue(const CGypsyMoth& gypsyMoth, COutputVector& output)
-	{
-	const CEggModel& hatch = gypsyMoth.GetHatch();
-	const CEggStateVector& totalEggs = hatch.GetEggs();
-	const CStageVector& stageFreq = gypsyMoth.GetStage();
-
-	output.SetFirstTRef(m_weather[1].GetFirstTRef());
-	output.resize(m_weather.GetNbDay()-m_weather[0].GetNbDay());
-
-	double eggs_left=(double)100;
-	double tot_pop=0;
-	double tot_males = gypsyMoth.GetTotal(CStage::MALE_ADULT);
-	double tot_females = gypsyMoth.GetTotal(CStage::FEMALE_ADULT);
-
-	double cum_freq[10]={0};
-	for (int i=0; i<m_weather[1].GetNbDay(); i++)
-	{
-	int day=m_weather[0].GetNbDay()+i;
-	eggs_left=__max(0,eggs_left-hatch.GetHatching()[day]);
-
-	if(eggs_left<0.005*100)
-	eggs_left=0;
-
-	tot_pop=eggs_left+stageFreq[day][10];
-
-	//cumulative frequencies (as a %)
-	for(int j=0; j<8; j++)
-	{
-	cum_freq[j]=0;
-	for(int jj=j; jj<8; jj++)
-	cum_freq[j]+=stageFreq[day][jj];
-	}
-
-	double pc_eggs=0;
-	if(tot_pop>0)
-	pc_eggs=100*eggs_left/tot_pop;
-
-	for(int j=0;j<8;++j)
-	{
-	if(tot_pop>0)
-	cum_freq[j]=100*cum_freq[j]/tot_pop;
-	}
-
-	//% cumulative catch of male/female moths
-	if(tot_males>0)
-	cum_freq[8]+=100*stageFreq[day][8]/tot_males;
-	if(tot_females>0)
-	cum_freq[9]+=100*stageFreq[day][9]/tot_females;
-
-	CTRef d = m_weather[1].GetFirstTRef() + i;
-	output[d][0] = pc_eggs;
-
-	for (int j=0; j<NB_OUTPUT; j++)
-	output[d][j] = j==0?pc_eggs:cum_freq[j-1];
-	}
-	}
-	*/
-
-	//output all generations
-	/*void CGypsyMothModel::ComputeRegularValue2(const CGypsyMothVector& gypsyMothVector, COutputVector& output)
-	{
-	//no consideration of leap years in any generation
-	output.resize( (gypsyMothVector.size()+2)*365 );
-	for(int g=0; g<gypsyMothVector.size(); g++)
-	{
-	const CGypsyMoth& gypsyMoth = gypsyMothVector[g];
-	const CEggModel& hatch = gypsyMoth.GetHatch();
-	const CEggStateVector& totalEggs = hatch.GetEggs();
-	const CStageVector& stageFreq = gypsyMoth.GetStage();
-
-	int firstDay = gypsyMoth.GetFirstDay();
-	int firstHatch = gypsyMoth.GetFirstHatch();
-	int lastDay = gypsyMoth.GetLastDay();
-	int NoPeak=0;
-	if(lastDay<0) {
-	NoPeak=1;
-	lastDay=m_weather.GetNbDay()-1;
-	}
-	if( firstDay < 0)
-	{
-	firstDay = m_param.GetOvipDate();
-	output.resize(output.size()+1);
-	int realYear = m_weather.GetFirstYear() + m_weather.GetYearIndex(m_param.GetOvipDate());
-	int ii = output.size()-1;
-	output[ii][0] = realYear;
-	output[ii][1] = m_param.GetOvipDate()+1;
-	output[ii][2] = 100;
-
-	for(int j=3; j<COutput::NB_OUTPUT; j++)
-	output[ii][j]=0;
-	return;
-	}
-
-
-	double eggs_left=100;
-
-	int nbDay = lastDay-firstDay+1;
-	for (int i=0; i<nbDay; i++)
-	{
-	int day=firstDay+i;
-	int realDay = (day%365)+1;
-	int realYear = (day/365)-2-gypsyMothVector.size()+g+1; // -2 because GetOvipDate() might be two years previous
-
-	double ee=hatch.GetHatching()[day];
-
-	eggs_left=__max(0, eggs_left-ee);
-
-	if(eggs_left<0.5)
-	eggs_left=0;
-
-	int ii = firstDay+i+g*365;
-	output[ii][0] = realYear;
-	output[ii][1] = realDay;
-	output[ii][2] = eggs_left;
-	if( day >= firstHatch )
-	{
-	if(NoPeak)
-	{
-	for (int j=0; j<10; j++)
-	output[ii][j+3] = 0;
-	output[ii][13] = 0;
-	}
-	else
-	{
-	for (int j=0; j<10; j++)
-	output[ii][j+3] = stageFreq[day][j];
-	output[ii][13] = stageFreq[day][11];
-	}
-	}
-	for (int j=0; j<4; j++)
-	output[ii][14+j] = hatch.GetEggsPourcent(day, j);
-	}
-	}
-	}
-	*/
-
-	/*
-	void CGypsyMothModel::ExportAllGenerations(const CGypsyMothVector& gypsyMothVector)
-	{
-	int firstDay = m_weather.GetNbDay()-1;
-	int lastDay = 0;
-
-	for(int g=0; g<gypsyMothVector.size(); g++)
-	{
-	if( gypsyMothVector[g].IsSimulated() )
-	{
-	firstDay = min(firstDay, gypsyMothVector[g].GetFirstDay());
-	lastDay = max( lastDay, gypsyMothVector[g].GetLastDay());
-	}
-	}
-
-	std::ofstream file;
-
-	CCFLString name;
-	name.Format( "%s_%d", (LPCTSTR)m_outputFilePath, 1 );
-	file.open(name);
-
-	for(int d=firstDay; d<lastDay; d++)
-	{
-	int realDay = m_weather.GetJulianDay(d)+ 1;
-	int realYear = m_weather.GetFirstYear() + m_weather.GetYearIndex(d);
-
-	file << realYear << "\t" << realDay << "\t";
-	file.precision(3);
-
-	for(int g=0; g<gypsyMothVector.size(); g++)
-	{
-	if( gypsyMothVector[g].IsSimulated() )
-	{
-	const CEggModel& hatch = gypsyMothVector[g].GetHatch();
-	//const CEggStateVector& totalEggs = hatch.GetEggs();
-	const CStageVector& stageFreq = gypsyMothVector[g].GetStage();
-
-	for (int j=0; j<4; j++)
-	file << hatch.GetEggsPourcent(d, j) << "\t";
-
-
-	file << stageFreq[d][CStage::FEMALE] << "\t";
-	}
-	else
-	{
-	for (int j=0; j<4; j++)
-	file << -1 << "\t";
-
-	file << -1 << "\t";
-	}
-	}
-
-	file << std::endl;
-
-	}
-
-	file.close();
-	}
-	*/
-
 
 }

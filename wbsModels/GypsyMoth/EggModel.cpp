@@ -7,7 +7,7 @@ namespace WBSF
 {
 
 
-	void CEggModel::Reset()
+	void CEggModel::clear()
 	{
 		m_eggState.clear();
 	}
@@ -41,7 +41,7 @@ namespace WBSF
 		return lastHatch;
 	}
 
-	//cumulatif
+	//cumulative
 	CTRef CEggModel::GetMedian(int s)const
 	{
 		_ASSERTE(s >= 0 && s <= 4);
