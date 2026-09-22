@@ -3,6 +3,7 @@
 //
 //***********************************************************************
 // version
+// 1.2.6	28/05/2026	Rémi Saint_Amant	Add -FillMissing options 
 // 1.2.5	28/05/2026	Rémi Saint_Amant	Add -ExportPoints options
 // 0.1 --> 0.05
 // 0.65 --> 0.75
@@ -81,7 +82,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.5";
+	const char* CLandTrend::VERSION = "1.2.6";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -114,6 +115,7 @@ namespace WBSF
 		m_firstYear = 0;
 		m_bBreaks = false;
 		m_bFillMissing = false;
+		m_FMoption.fill(false);
 
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
@@ -140,7 +142,7 @@ namespace WBSF
 			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. 1 (1 x 1) by default." },
 			{ "-ExtractPoint", 2, "X Y", true, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
 			{ "-ExtractPoints", 1, "file_path", false, "Extract information for a list of specific points. Output in extract_point.csv. Can be used with -NoResult to only extract points" },
-			{ "-FillMissing", 0, "", false, "Fill missing with previous valid pixel." },
+			{ "-FillMissing", 1, "where", false, "Fill missing with previous valid pixel (or next in case of the begenning of the series). 1=begin, 2=end, 3=begin/end, 4=all." },
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
@@ -336,6 +338,14 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-FillMissing"))
 		{
 			m_bFillMissing = true;
+			int tmp = stoi(argv[++i]);
+			if (tmp < 1 || tmp>4)
+				msg.ajoute("invalid -FillMissing options. ");
+
+
+			m_FMoption[FM_BEGIN] = tmp != 2;
+			m_FMoption[FM_MIDDLE] = tmp == 4;
+			m_FMoption[FM_END] = tmp != 1;
 		}
 		else
 		{
@@ -884,13 +894,13 @@ namespace WBSF
 							if (!goods[z] && m_options.m_bFillMissing)
 							{
 								//always find a good value here
-								if (zz < first_valid)
+								if (zz < first_valid && m_options.m_FMoption[CLandTrendOption::FM_BEGIN])
 									zz = first_valid;
 
-								if (zz > last_valid)
+								if (zz > last_valid && m_options.m_FMoption[CLandTrendOption::FM_END])
 									zz = last_valid;
 
-								if (zz > first_valid && zz < last_valid)
+								if (zz > first_valid && zz < last_valid && m_options.m_FMoption[CLandTrendOption::FM_MIDDLE])
 									zz = GetPrevious(x, y, zz, block_data);
 							}
 
@@ -932,13 +942,13 @@ namespace WBSF
 									{
 										//always find a good value here
 										size_t zz = z;
-										if (zz < first_valid)
+										if (zz < first_valid && m_options.m_FMoption[CLandTrendOption::FM_BEGIN])
 											zz = first_valid;
 
-										if (zz > last_valid)
+										if (zz > last_valid && m_options.m_FMoption[CLandTrendOption::FM_END])
 											zz = last_valid;
 
-										if (zz > first_valid && zz < last_valid)
+										if (zz > first_valid && zz < last_valid && m_options.m_FMoption[CLandTrendOption::FM_MIDDLE])
 											zz = GetPrevious(x, y, zz, block_data);
 
 
@@ -1017,13 +1027,13 @@ namespace WBSF
 									if (!goods[z] && m_options.m_bFillMissing)
 									{
 										size_t zz = z;
-										if (zz < first_valid)
+										if (zz < first_valid && m_options.m_FMoption[CLandTrendOption::FM_BEGIN])
 											zz = first_valid;
 
-										if (zz > last_valid)
+										if (zz > last_valid && m_options.m_FMoption[CLandTrendOption::FM_END])
 											zz = last_valid;
 
-										if (zz > first_valid && zz < last_valid)
+										if (zz > first_valid && zz < last_valid && m_options.m_FMoption[CLandTrendOption::FM_MIDDLE])
 											zz = GetPrevious(x, y, zz, block_data);
 
 										Y[z] = block_data.GetPixelIndice(zz, BAND_NO[s], x, y, m_options.m_rings_interpol, m_options.m_b_median_interpol);
