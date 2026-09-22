@@ -2,13 +2,10 @@
 // 2026-09-08   1.0.0	Rémi Saint-Amant	Creation
 //***********************************************************
 
-//#include "Basic/DegreeDays.h"
-//#include "ModelBase/DevRateEquation.h"
-
 
 #include "SaintAmantModel.h"
-#include "GypsyMothEggHatch.h"
-#include "GypsyMothEggHatchEquations.h"
+#include "../GypsyMothEggHatch/GypsyMothEggHatch.h"
+#include "../GypsyMothEggHatch/GypsyMothEggHatchEquations.h"
 
 
 
