@@ -9,13 +9,13 @@
 //				stage development rates use optimization table lookup
 //
 //*****************************************************************************
+// 2026-10-02   Rémi Saint-Amant    new calibration
 // 2020-08-25   Rémi Saint-Amant    Creation 
 //*****************************************************************************
 #include "ALeucopodaEquations.h"
-#include <boost/math/distributions.hpp>
-#include <boost/math/distributions/logistic.hpp>
 #include "ModelBase/DevRateEquation.h"
 #include "ModelBase/SurvivalEquation.h"
+#include "ModelBase/ModelDistribution.h"
 
 using namespace WBSF;
 using namespace std;
@@ -53,27 +53,27 @@ namespace WBSF
 	{
 		ASSERT(e < NB_STAGES);
 
-
-
 		static const array<CDevRateEquation::TDevRateEquation, TZZ::NB_STAGES> D_EQ =
 		{
 			//Non-linear
-			CDevRateEquation::Briere2_1999,//Egg		
-			CDevRateEquation::Briere2_1999,//Larva		
-			CDevRateEquation::Briere2_1999,//Prepupa	
-			CDevRateEquation::Briere2_1999,//Pupa		
-			CDevRateEquation::Briere2_1999,//Adult longevity
+			CDevRateEquation::Regniere_2012,//Egg		
+			CDevRateEquation::Regniere_2012,//Larva		
+			CDevRateEquation::Regniere_2012,//Prepupa	
+			CDevRateEquation::Regniere_2012,//Pupa		
+			CDevRateEquation::Regniere_2012,//Adult longevity
 		};
 
-		static const array< vector<double>, TZZ::NB_STAGES>  D_P =
+		static const array< vector<double>, TZZ::NB_STAGES>  D_PARAMETERS =
 		{ {
 				//parameters
-				{0.0001758183,9.999999,-8.949422,39.75},
-				{6.732698e-05,9.999959,-9.375635,39.75},
-				{0.0003353867,9.999592,-16.85975,39.75},
-				{0.0002921427,9.999999,-5.830057,39.75},
-				{0.0001497986,9.998879,-27.15193,100.0},
+				{0.0574, 0.0897, 10.0, 33.7, 0.0528, 0.5077 },//Egg
+				{0.0156, 0.0664, 0.10, 30.0, 47.218, 0.9773 },//Larval
+				{0.1559, 0.0925, 10.0, 30.0, 0.0553, 1.8128 },//PrePupae
+				{0.0806, 0.1001, 10.0, 31.8, 0.0486, 0.5112 },//Pupae
+				{0.0614, 0.0772, 3.70, 89.9, 0.0192, 1.3228 },//Adult longevity
 		} };
+
+
 
 
 		//model was adjusted to Quebec observation 2021-2022. 
@@ -81,11 +81,11 @@ namespace WBSF
 		//1- Insects adaptation for North America climate
 		//2- Host effect
 		//3- Bias caused by laboratory rearing
-		static const double BOOST_FACTOR = 1.2;
+		//4-Overheating by the sun?
+		static const double BOOST_FACTOR = 1.225;
 
 		assert(e < NB_STAGES);
-		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_P[e], T)) * BOOST_FACTOR;
-		assert(!_isnan(r) && _finite(r) && r >= 0);
+		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_PARAMETERS[e], T)) * BOOST_FACTOR;
 
 		return r;
 	}
@@ -96,33 +96,19 @@ namespace WBSF
 
 	double CAprocerosLeucopodaEquations::GetRelativeDevRate(size_t s)const
 	{
-		static const double SIGMA[NB_STAGES] =
+		
+		static const array<double, NB_STAGES> SIGMA =
 		{
 			//Relative development Time (individual variation): sigma
-			//Non-linear
-			//{0.102458},//Egg
-			//{0.157012},//Larva
-			//{0.202788},//Prepupae
-			//{0.117576},//Pupae
-			//0.102458,
-			//0.157012,
-			//0.202788,
-			//0.117576,
-			0.102458,
-			0.157012,
-			0.202788,
-			0.117576,
-			0.102458
-			//0.253597,//Adult
+			0.1141,//Egg
+			0.1672,//Larval
+			0.2173,//PrePupae
+			0.1291,//Pupae
+			0.2540 //Adult
 		};
 
-		boost::math::lognormal_distribution<double> RDR_dist(-WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
-		double RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
-		while (RDR < 0.2 || RDR>2.6)//base on individual observation
-			RDR = boost::math::quantile(RDR_dist, m_randomGenerator.Randu());
-
-
-		_ASSERTE(!_isnan(RDR) && _finite(RDR));
+		CModelDistribution RDR_dist(CModelDistribution::LOG_NORMAL, -WBSF::Square(SIGMA[s]) / 2.0, SIGMA[s]);
+		double RDR = RDR_dist.get_quantile(m_randomGenerator.Rand(0.005, 0.995));
 
 		return RDR;
 	}
@@ -134,52 +120,76 @@ namespace WBSF
 	{
 		static const CSurvivalEquation::TSurvivalEquation S_EQ[TZZ::NB_STAGES] =
 		{
-			CSurvivalEquation::Survival_01,//egg
+			CSurvivalEquation::Survival_12,//egg
 			CSurvivalEquation::Survival_12,//Larva
-			CSurvivalEquation::Survival_01,//Prepupa
-			CSurvivalEquation::Survival_01,//Pupa
-			CSurvivalEquation::Unknown		//Adult
+			CSurvivalEquation::Survival_12,//Prepupa
+			CSurvivalEquation::Survival_12,//Pupa
+			CSurvivalEquation::Constant	   //Adult longevity
 		};
 
-		static const double P_SURVIVAL[TZZ::NB_STAGES][6] =
-		{
-			{2.353567e+00 , -5.518595e-01, 1.474152e-02},
-			{1.113231e+01 , 3.305863e+01 , 7.795624e+01, 1.012803e+01},
-			{-3.038607e+01, -9.310410e+00, 3.210279e-01},
-			{-2.293128e+01, -8.371444e+00, 2.841417e-01},
-			{0,0,0}
-		};
+		static const array<vector<double>, TZZ::NB_STAGES> S_PARAMETERS =
+		{{
+			{12.880,25.0426,32.4763,8.1437},
+			{11.134,33.0543,77.9288,10.129},
+			{8.0865,30.0559,201.657,3.2802},
+			{7.4876,31.6510,999.905,2.0670},
+			{1,0,0,0}
+		}};
+
 
 		ASSERT(e < NB_STAGES);
-		vector<double> p(begin(P_SURVIVAL[e]), end(P_SURVIVAL[e]));
 
-		double sr = (e < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], p, T))) : 1;
-		_ASSERTE(!_isnan(sr) && _finite(sr) && sr >= 0 && sr <= 1);
+		double S = (e < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_PARAMETERS[e], T))) : 1;
+		_ASSERTE(!_isnan(s) && _finite(s) && s >= 0 && s <= 1);
 
-		return sr;
+		return S;
 	}
 
 
 
 	//*****************************************************************************
 	//
-
-
-	double CAprocerosLeucopodaEquations::GetAdultEmergingCDD()const
+	void CAprocerosLeucopodaEquations::InitAdultEmergenceCDD(const CWeatherYear& weather)
 	{
-		//boost::math::weibull_distribution<double> emerging_dist(m_EAS[ʎ], m_EAS[к]);
-		boost::math::logistic_distribution<double> emerging_dist(m_EAS[μ], m_EAS[ѕ]);
+		static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::DOUBLE_SINE;
 
+		m_DDmodel = CDegreeDays(DD_METHOD, m_EAS[Τᴴ¹], m_EAS[Τᴴ²]);
+		m_DDmodel.GetCDD(m_EAS[Tᴼ], weather, m_CDD);
+	}
 
-
-		double CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
+	double CAprocerosLeucopodaEquations::GenerateAdultEmergingCDD()const
+	{
+		
+		CModelDistribution emerging_dist(CModelDistribution::LOGISTIC, m_EAS[μ], m_EAS[ѕ]);
+		
+		double CDD = emerging_dist.get_quantile(m_randomGenerator.Rand(0.005, 0.995));
 		while (CDD < 0 || CDD>15000)
-			CDD = boost::math::quantile(emerging_dist, m_randomGenerator.Randu());
+			CDD = emerging_dist.get_quantile(m_randomGenerator.Rand(0.005, 0.995));
+
 
 		return CDD;
 	}
 
+	CTRef CAprocerosLeucopodaEquations::GenerateAdultEmergingDate()const
+	{
+		CTRef TRef = m_CDD.GetLastTRef();
+		
+		double adult_emerging_CDD = GenerateAdultEmergingCDD();
 
+		// Generate by AI: quick search on CDD
+		auto it = std::lower_bound(m_CDD.begin(), m_CDD.end(), adult_emerging_CDD,
+			[](const CModelStat& CDDmodel, double value) 
+			{
+				return CDDmodel[CDegreeDays::S_DD] < value;
+			});
+	
+		if(it != m_CDD.end())
+			TRef = m_CDD.GetFirstTRef() + long(std::distance(m_CDD.begin(), it));
+		
+		return TRef;
+	}
+
+	
 
 	//****************************************************************************
 	//
@@ -190,35 +200,45 @@ namespace WBSF
 		//After Papp 2017
 		//28.2259016393443
 		static const double Fo = 37;
-		static const double sigma = 0.545039;
+		static const double SIGMA = 0.545;
 
-		double f = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
-
+		CModelDistribution F_dist(CModelDistribution::LOG_NORMAL, log(Fo)-WBSF::Square(SIGMA) / 2.0, SIGMA);
+		double f = F_dist.get_quantile(m_randomGenerator.Rand(0.005, 0.995));
 		while (f < 2 || f>100)
-			f = m_randomGenerator.RandUnbiasedLogNormal(log(Fo), sigma);
+			f = F_dist.get_quantile(m_randomGenerator.Rand(0.005, 0.995));
 
 		return f;
 	}
 
+	double CAprocerosLeucopodaEquations::ComputeOvipositionRatio(double T)const
+	{
+		static const TDevRateEquation F_EQ = CDevRateEquation::Lamb_1992;//lambda		
+
+		//parameters
+		//											    psi  ,  To ,deltaT1, deltaT2
+		static const vector<double> F_PARAMETERS = { { 0.6871, 14.6, 1.4688, 5.2385 } };
+
+		double lambda = max(0.0, CDevRateEquation::GetRate(F_EQ, F_PARAMETERS, T));
+		_ASSERTE(!_isnan(lambda) && _finite(lambda));
+
+		return lambda;
+
+	}
+	
 	double CAprocerosLeucopodaEquations::GetBrood(double Fi, double T, double t, double delta_t)const
 	{
 		static const double to = 0.0;
-		static const TDevRateEquation LAMBDA_EQ = CDevRateEquation::Room_1986;//lambda		
 
-		//parameters
-		static const double P_LAMBDA[6] = { 6.865565e-01,2.307398e-01, 1.824046e-02, 1.462013e+01 };
-
-		vector<double> p(begin(P_LAMBDA), end(P_LAMBDA));
-
-		double lambda = max(0.0, CDevRateEquation::GetRate(LAMBDA_EQ, p, T));
-		_ASSERTE(!_isnan(lambda) && _finite(lambda));
-
-		double brood = 0;
+		double broods = 0;
 		if (t >= to)
-			brood = round(Fi * (exp(-lambda * (t - to)) - exp(-lambda * ((t - to + delta_t)))));
+		{
+			double lambda = GetOvipositionRatio(T);
+			broods = round(Fi * (exp(-lambda * (t - to)) - exp(-lambda * ((t - to + delta_t)))));
+		}
 
-		return brood;
+		return broods;
 
 	}
+
 
 }

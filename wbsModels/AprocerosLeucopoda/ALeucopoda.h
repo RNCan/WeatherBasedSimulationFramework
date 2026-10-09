@@ -60,7 +60,7 @@ namespace WBSF
 		inline const CTZZHost* GetHost()const;
 		inline CTZZStand* GetStand();
 		inline const CTZZStand* GetStand()const;
-		inline const CAprocerosLeucopodaEquations& Equations()const;
+		inline const CAprocerosLeucopodaEquations& GetEquations()const;
 
 		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
 		CTRef GetCreationDate(int year)const;
@@ -115,19 +115,21 @@ namespace WBSF
 			m_equations(pModel->RandomGenerator())
 		{
 			m_bApplyAttrition = false;
-			m_diapause_end_NCDD = 0;
-			m_adult_emergence_CDD = 0;
+		//	m_diapause_end_NCDD = 0;
+		//	m_adult_emergence_CDD = 0;
 			m_generationSurvival = 1;
 		}
 
-		void init(int year, const CWeatherYears& weather);
-		
-		CTRef ComputeDiapauseEnd(const CWeatherYear& weather)const;
+//		void init(int year, const CWeatherYears& weather);
 		
 		CAprocerosLeucopodaEquations m_equations;
-		double m_diapause_end_NCDD;
-		double m_adult_emergence_CDD;
+		//double m_diapause_end_NCDD;
+		//double m_adult_emergence_CDD;
 		double m_generationSurvival;
+
+
+		
+		CModelStatVector m_CDD;
 	};
 
 
@@ -136,7 +138,7 @@ namespace WBSF
 	inline const CTZZHost* CAprocerosLeucopoda::GetHost()const{ return static_cast<const CTZZHost*>(m_pHost); }
 	inline CTZZStand* CAprocerosLeucopoda::GetStand(){ ASSERT(m_pHost); return static_cast<CTZZStand*>(GetHost()->GetStand()); }
 	inline const CTZZStand* CAprocerosLeucopoda::GetStand()const{ ASSERT(m_pHost); return static_cast<const CTZZStand*>(GetHost()->GetStand()); }
-	inline const CAprocerosLeucopodaEquations& CAprocerosLeucopoda::Equations()const{ return GetStand()->m_equations; }
+	inline const CAprocerosLeucopodaEquations& CAprocerosLeucopoda::GetEquations()const{ return GetStand()->m_equations; }
 
 
 }

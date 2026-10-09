@@ -158,24 +158,34 @@ namespace WBSF
 					}
 				}
 			}
+			
+			
+			dayout = dayout;
+			dayout = max(0.0, min(100.0- tout, dayout));
 			tout += dayout;
+			assert(tout >= 0 && tout <= 100);
 
-			//if(first_hatch == 730 && tout >= 0.1) 
-			//{
-			//	first_hatch =  day;
-			//	dayout=tout;
-			//}
 
-			//m_hatching[day]=(float)dayout; 
+			
+			if (tout > 99.9)
+			{
+				dayout += (100 - tout);
+				tout = 100;
+			}
+
 			if (tout >= 0.1)
 			{
 				m_eggState[day][HATCHING] = dayout;
-				m_eggState[day][HATCH] = (tout / 100)*MAXEGGS;
+				m_eggState[day][HATCH] = (tout / 100) * MAXEGGS;
+				//m_eggState[day][POSDIAPAUSE] = MAXEGGS - m_eggState[day][HATCH];
 				m_eggState[day][DIAPAUSE] = MAXEGGS - m_eggState[day][HATCH];
 			}
 
+
+			//}
+
 			day++;
-		} while (tout < 0.995 * 100 && day < m_param.m_ovipDate + 365);
+		} while (tout < 100 && day < m_param.m_ovipDate + 365);
 
 		for (CTRef i = day; i <= m_eggState.GetLastTRef(); i++)
 			m_eggState[i][HATCH] = MAXEGGS;

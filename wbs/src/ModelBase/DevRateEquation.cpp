@@ -86,11 +86,11 @@ namespace WBSF
 	{ "Poly2","k0+k1*T+k2*T^2","k0=0.0[-0.1,0.1]|k1=0.01[0,1e-1]|k2=-0.00025[-1e-3,0]", "k[0]+k[1]~T+k[2]~T^{~2}" },
 	{ "Poly3","k0+k1*T+k2*T^2+k3*T^3","k0=0.001[-1,1]|k1=0[-1E4,1E4]|k2=0[-1E3,1E3]|k3=0[-1E2,1E2]", "k[0]+k[1]~T+k[2]~T^{~2}+k[3]~T^{~3}" },
 	{ "Ratkowsky_1983","ifelse(T>Tb&T<Tm,psi^2*pmax(0, (T-Tb)*(1-exp(k*(T-Tm))))^2,0)","psi=3[1E-6,10]|k=0.0003[1E-6,1]|Tb=0[-50,50]|Tm=50[0,100]", "psi^{~2}~bgroup('[',bgroup('(',T-T[b],')')~bgroup('(',1~-~e^{~k~bgroup('(',T-T[m],')')},')'),']')^~2" },
-	{ "Régnière_1982","beta=(T-Tb)/(Tm-Tb);ifelse(T>Tb&T<Tm,psi*(exp(k*beta)-exp(k-(1-beta)/deltaT )),0)","psi=0.2[1E-6,1]|k=4[1E-6,20]|Tb=5[-50,50]|Tm=35[0,50]|deltaT=0.2[0.001,1E5]", "list(psi~bgroup('[',e^{k~beta}~-~e^bgroup('(',k~-~over(1-beta, Delta[T]) ,')'),']'), ~~~scriptstyle(beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
-	{ "Régnière_1982b","beta=(T-Tb)/(Tm-Tb);psi*(exp(k*beta)-exp(k-(1-beta)/deltaT ))","psi=0.2[1E-6,1]|k=4[1E-6,20]|Tb=5[-50,50]|Tm=35[0,50]|deltaT=0.2[0.001,1E5]", "list(psi~bgroup('[',e^{k~beta}~-~e^bgroup('(',k~-~over(1-beta, Delta[T]) ,')'),']'), ~~~scriptstyle(beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
-	{ "Régnière_1987","Beta=(T-Tb)/(Tm-Tb);ifelse(T>Tb&T<Tm,psi*((1/(1+exp(k1-k2*Beta)))-(exp((Beta-1)/deltaT))),0)","psi=0.02[1E-6,1]|k1=2[1E-6,30]|k2=6[1E-6,30]|Tb=0[-50,50]|Tm=35[0,100]|deltaT=0.15[0.01,1E5]", "list(psi~bgroup('[',bgroup('(',over(1,1+e^{~bgroup('(',k[1]-k[2]~beta,')')}),')')~-~e^bgroup('(',over(beta~-~1, Delta[T]) ,')'),']'), ~~~scriptstyle(~beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
-	{ "Régnière_1987b","Beta=(T-Tb)/(Tm-Tb);psi*((1/(1+exp(k1-k2*Beta)))-(exp((Beta-1)/deltaT)))","psi=0.02[1E-6,1]|k1=2[1E-6,30]|k2=6[1E-6,30]|Tb=0[-50,50]|Tm=35[0,100]|deltaT=0.15[0.01,1E5]", "list(psi~bgroup('[',bgroup('(',over(1,1+e^{~bgroup('(',k[1]-k[2]~beta,')')}),')')~-~e^bgroup('(',over(beta~-~1, Delta[T]) ,')'),']'), ~~~scriptstyle(~beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
-	{ "Régnière_2012","ifelse(T>Tb&T<Tm,psi*(exp(k*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-k*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(k*(Tm-Tb)-(Tm-T)/deltam)),0)","psi=0.01[1E-5,1]|k=0.1[0.001,10]|Tb=0[-50,50]|Tm=35[0,100]|deltab=4[0.01,50]|deltam=5[0.5,50]", "psi~bgroup('[',e^{~k~bgroup('(',T~-~T[b],')')}~-~bgroup('(',scriptstyle(bgroup('(',over(T[m]~-~T,T[m]~-~T[b]),')'))~e^{-~k~bgroup('(',over(T~-~T[b], Delta[T[b]]) ,')')},')')~-~scriptstyle(bgroup('(',over(T~-~T[b],T[m]~-~T[b]),')'))~e^{k~bgroup('(',T[m]~-~T[b],')')~-~bgroup('(',over(T[m]~-~T, Delta[T[m]]) ,')')},']')" },
+	{ "Regniere_1982","beta=(T-Tb)/(Tm-Tb);ifelse(T>Tb&T<Tm,psi*(exp(k*beta)-exp(k-(1-beta)/deltaT )),0)","psi=0.2[1E-6,1]|k=4[1E-6,20]|Tb=5[-50,50]|Tm=35[0,50]|deltaT=0.2[0.001,1E5]", "list(psi~bgroup('[',e^{k~beta}~-~e^bgroup('(',k~-~over(1-beta, Delta[T]) ,')'),']'), ~~~scriptstyle(beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
+	{ "Regniere_1982b","beta=(T-Tb)/(Tm-Tb);psi*(exp(k*beta)-exp(k-(1-beta)/deltaT ))","psi=0.2[1E-6,1]|k=4[1E-6,20]|Tb=5[-50,50]|Tm=35[0,50]|deltaT=0.2[0.001,1E5]", "list(psi~bgroup('[',e^{k~beta}~-~e^bgroup('(',k~-~over(1-beta, Delta[T]) ,')'),']'), ~~~scriptstyle(beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
+	{ "Regniere_1987","Beta=(T-Tb)/(Tm-Tb);ifelse(T>Tb&T<Tm,psi*((1/(1+exp(k1-k2*Beta)))-(exp((Beta-1)/deltaT))),0)","psi=0.02[1E-6,1]|k1=2[1E-6,30]|k2=6[1E-6,30]|Tb=0[-50,50]|Tm=35[0,100]|deltaT=0.15[0.01,1E5]", "list(psi~bgroup('[',bgroup('(',over(1,1+e^{~bgroup('(',k[1]-k[2]~beta,')')}),')')~-~e^bgroup('(',over(beta~-~1, Delta[T]) ,')'),']'), ~~~scriptstyle(~beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
+	{ "Regniere_1987b","Beta=(T-Tb)/(Tm-Tb);psi*((1/(1+exp(k1-k2*Beta)))-(exp((Beta-1)/deltaT)))","psi=0.02[1E-6,1]|k1=2[1E-6,30]|k2=6[1E-6,30]|Tb=0[-50,50]|Tm=35[0,100]|deltaT=0.15[0.01,1E5]", "list(psi~bgroup('[',bgroup('(',over(1,1+e^{~bgroup('(',k[1]-k[2]~beta,')')}),')')~-~e^bgroup('(',over(beta~-~1, Delta[T]) ,')'),']'), ~~~scriptstyle(~beta~' = '~over(T~-~T[omega[b]],T[m]~-~T[omega[b]])))" },
+	{ "Regniere_2012","ifelse(T>Tb&T<Tm,psi*(exp(k*(T-Tb))-((Tm-T)/(Tm-Tb))*exp(-k*(T-Tb)/deltab)-((T-Tb)/(Tm-Tb))*exp(k*(Tm-Tb)-(Tm-T)/deltam)),0)","psi=0.01[1E-5,1]|k=0.1[0.001,10]|Tb=0[-50,50]|Tm=35[0,100]|deltab=4[0.01,50]|deltam=5[0.5,50]", "psi~bgroup('[',e^{~k~bgroup('(',T~-~T[b],')')}~-~bgroup('(',scriptstyle(bgroup('(',over(T[m]~-~T,T[m]~-~T[b]),')'))~e^{-~k~bgroup('(',over(T~-~T[b], Delta[T[b]]) ,')')},')')~-~scriptstyle(bgroup('(',over(T~-~T[b],T[m]~-~T[b]),')'))~e^{k~bgroup('(',T[m]~-~T[b],')')~-~bgroup('(',over(T[m]~-~T, Delta[T[m]]) ,')')},']')" },
 	{ "Room_1986","ifelse(T<=To, psi*exp(-k1*(T-To)^2),psi*exp(-k2*(T-To)^2))","psi=0.01[0.0001,1.0]|k1=0.01[0,100]|k2=0.01[0,100]|To=25[0,50]", "list(psi~e^{-~k[x]~bgroup('(',T~-~T[o],')')^2},~~~scriptstyle(k[x]~' = '~bgroup('{',atop(k[1]~~~~T<=T[o],k[2]~~~~T>T[o]),'')))" },
 	{ "Saint-Amant_2021","psi*exp(-k1*(Toa-T)^2+1/(-k2*pmax(0.001,Tm-T)))","psi=0.5[1E-4,10]|k1=0.001[1E-5,10]|k2=10[1E-4,1000]|Toa=27[-10,50]|Tm=35[15,50]", "psi~e^~bgroup('[',scriptstyle(-k[1]~bgroup('(',T[omega[o]]-T,')')^2)~+~bgroup('(',over(1,-k[2]~bgroup('(',T[m]-T,')')),')'),']')" },
 	{ "Saint-Amant_2022","ifelse(T>Tb&T<Tm,psi * (1.0 - exp(-k1 * (T-Tb)^kk1) - exp(-k2 *(Tm - T)^kk2)),0)","psi=0.1[1e-4,10]|k1=0.5[1E-4,10]|k2=0.5[1E-4,10]|kk1=0.5[0.01,4]|kk2=2[1.01,4]|Tb=5[-50,50]|Tm=35[0,100]", "psi~bgroup('[',1-e^{-k[1]~bgroup('(',T-T[b],')')^kk[1]}~-~e^{-k[2]~bgroup('(',T[m]-T,')')^kk[2]},']')" },
@@ -152,11 +152,11 @@ namespace WBSF
 		case LobryRossoFlandrois_1993:bValid = (P[P1] < P[P2]) && (P[P2] < P[P3]); break;
 		case ONeill_1972:bValid = P[P2] < P[P3]; break;
 		case Ratkowsky_1983:bValid = P[P2] < P[P3]; break;
-		case Régnière_1982:
-		case Régnière_1982b: bValid = P[P2] < P[P3]; break;
-		case Régnière_1987:  
-		case Régnière_1987b:  bValid = (P[P1] < P[P2]); break;
-		case Régnière_2012:bValid = P[P2] < P[P3]; break;
+		case Regniere_1982:
+		case Regniere_1982b: bValid = P[P2] < P[P3]; break;
+		case Regniere_1987:  
+		case Regniere_1987b:  bValid = (P[P1] < P[P2]); break;
+		case Regniere_2012:bValid = P[P2] < P[P3]; break;
 		case SaintAmant_2021:bValid = (P[P3] < P[P4]); break;
 		case SaintAmant_2022:bValid = (P[P5] < P[P6]); break;
 		case Shi_2011: bValid = P[P3] < P[P4]; break;
@@ -583,7 +583,7 @@ namespace WBSF
 			T = T < To ? T : (2 * To - T);
 			rT = psi / (1.0 + exp(k1 + k2 * T));
 		}
-		else if (model == Régnière_1982|| model == Régnière_1982b)
+		else if (model == Regniere_1982|| model == Regniere_1982b)
 		{
 			double psi = P[P0];
 			double k = P[P1];
@@ -592,13 +592,13 @@ namespace WBSF
 			double ΔT = P[P4];
 
 
-			if ((model == Régnière_1982b || T >= Tb) && T <= Tm)//bug correction by RSA 2022-01-08: avoid development under Tb
+			if ((model == Regniere_1982b || T >= Tb) && T <= Tm)//bug correction by RSA 2022-01-08: avoid development under Tb
 			{
 				double beta = (T - Tb) / (Tm - Tb);
 				rT = psi * (exp(k * beta) - exp(k - ((1.0 - beta) / ΔT)));
 			}
 		}
-		else if (model == Régnière_1987|| model == Régnière_1987b)
+		else if (model == Regniere_1987|| model == Regniere_1987b)
 		{
 			double psi = P[P0];
 			double k1 = P[P1];
@@ -607,7 +607,7 @@ namespace WBSF
 			double Tm = P[P4];
 			double ΔT = P[P5];
 
-			if ((model == Régnière_1987b || T >= Tb) && T <= Tm)//bug correction by RSA 2022-01-08: avoid development under Tb
+			if ((model == Regniere_1987b || T >= Tb) && T <= Tm)//bug correction by RSA 2022-01-08: avoid development under Tb
 			{
 				double beta = (T - Tb) / (Tm - Tb);
 				double omega1 = 1.0 / (1.0 + exp(k1 - k2 * beta));
@@ -616,7 +616,7 @@ namespace WBSF
 				rT = psi * (omega1 - omega2);
 			}
 		}
-		else if (model == Régnière_2012)
+		else if (model == Regniere_2012)
 		{
 			double psi = P[P0];//ψ
 			double k = P[P1];

@@ -25,7 +25,7 @@ namespace WBSF
 			Janisch1_1932, Janisch2_1932, Johnson_1974, Kontodimas_2004, Lactin1_1995, Lactin2_1995,
 			Lamb_1992, LobryRossoFlandrois_1993, Logan6_1976, Logan10_1976, LoganTb_1979,
 			ONeill_1972, Poly1, Poly2, Poly3, /*Poly4,*/ 
-			Ratkowsky_1983, Régnière_1982, Régnière_1982b, Régnière_1987, Régnière_1987b, Régnière_2012, Room_1986, SaintAmant_2021,
+			Ratkowsky_1983, Regniere_1982, Regniere_1982b, Regniere_1987, Regniere_1987b, Regniere_2012, Room_1986, SaintAmant_2021,
 			SaintAmant_2022, Schoolfield_1981, SharpeDeMichele_1977, Shi_2011, Shi_2016, Stinner_1974,
 			Taylor_1981, Wagner_1988, WangLanDing_1982, WangEngel_1998, YanHunt_1999, Yin_1995/*, YurkPowell_2010*/,
 			NB_EQUATIONS
