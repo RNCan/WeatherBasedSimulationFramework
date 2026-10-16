@@ -23,7 +23,7 @@ namespace WBSF
 
 	//*****************************************************************
 	const char* CSAControl::XML_FLAG = "Control";
-	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "P_Epsilon", "NbCycles", "NbIterations",  "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2", "nbSkipLoop"};
+	const char* CSAControl::MEMBER_NAME[NB_MEMBER] = { "OptimisationType", "StatisticType", "InitialTemperature", "ReductionFactor", "ReductionFactor2", "Epsilon", "P_Epsilon", "NbCycles", "NbIterations",  "NbEpsilons", "MaxEvaluations", "Seed1", "Seed2", "nbSkipLoop", "MaxLoop", "NbIterations2"};
 
 
 	
@@ -51,8 +51,10 @@ namespace WBSF
 		m_P_EPS = 0.01;
 		m_NS = 20;
 		m_NT = 10;
+		m_NT2 = 5;
 		m_NEPS = 4;
 		m_MAXEVL = 1000000;
+		m_max_loop = 50;
 		m_seed1 = -1;
 		m_seed2 = -1;
 		m_T = 100;
@@ -72,9 +74,11 @@ namespace WBSF
 			m_P_EPS = in.m_P_EPS;
 			
 			m_NS = in.m_NS;
+			m_NT2 = in.m_NT2;
 			m_NT = in.m_NT;
 			m_NEPS = in.m_NEPS;
 			m_MAXEVL = in.m_MAXEVL;
+			m_max_loop = in.m_max_loop;
 			m_seed1 = in.m_seed1;
 			m_seed2 = in.m_seed2;
 			m_T = in.m_T;
@@ -98,10 +102,12 @@ namespace WBSF
 		if (fabs(m_EPS - in.m_EPS) > 0.00000001) bEqual = false;
 		if (fabs(m_P_EPS - in.m_P_EPS) > 0.00000001) bEqual = false;
 		if (m_NS != in.m_NS) bEqual = false;
+		if (m_NT2 != in.m_NT2) bEqual = false;
 		if (m_NT != in.m_NT) bEqual = false;
 
 		if (m_NEPS != in.m_NEPS) bEqual = false;
 		if (m_MAXEVL != in.m_MAXEVL) bEqual = false;
+		if (m_max_loop != in.m_max_loop) bEqual = false;
 		if (m_seed1 != in.m_seed1) bEqual = false;
 		if (m_seed2 != in.m_seed2) bEqual = false;
 		if (m_statisticType != in.m_statisticType) bEqual = false;
@@ -129,8 +135,10 @@ namespace WBSF
 		case NB_CYCLE:str = ToString(m_NS); break;
 		case NB_SKIP_LOOP:str = ToString(m_nbSkipLoop); break;
 		case NB_ITERATION:str = ToString(m_NT); break;
+		case NB_ITERATION2:str = ToString(m_NT2); break;
 		case NB_EPSILON:str = ToString(m_NEPS); break;
 		case MAX_EVALUATION:str = ToString(m_MAXEVL); break;
+		case MAX_LOOP:str = ToString(m_max_loop); break;
 		case SEED1:str = ToString(m_seed1); break;
 		case SEED2:str = ToString(m_seed2); break;
 
@@ -155,8 +163,10 @@ namespace WBSF
 		case NB_CYCLE: m_NS = ToInt(str); break;
 		case NB_SKIP_LOOP: m_nbSkipLoop = ToInt(str); break;
 		case NB_ITERATION:m_NT = ToInt(str); break;
+		case NB_ITERATION2:m_NT2 = ToInt(str); break;
 		case NB_EPSILON:m_NEPS = ToInt(str); break;
 		case MAX_EVALUATION:m_MAXEVL = ToInt(str); break;
+		case MAX_LOOP:m_max_loop = ToInt(str); break;
 		case SEED1:m_seed1 = ToInt(str); break;
 		case SEED2:m_seed2 = ToInt(str); break;
 		default: ASSERT(false);
@@ -166,12 +176,13 @@ namespace WBSF
 	//*****************************************************************
 
 	const char* CSAParameter::XML_FLAG = "Parameter";
-	const char* CSAParameter::MEMBER_NAME[NB_MEMBER] = { "Name", "Value", "Bound" };
+	const char* CSAParameter::MEMBER_NAME[NB_MEMBER] = { "Name", "Value", "Bound", "UseIt" };
 	CSAParameter::CSAParameter(string name, double value, double low, double hi)
 	{
 		m_name = name;
 		m_initialValue = value;
 		m_bounds.SetBound(low, hi);
+		m_b_use_it=true;
 
 	}
 	CSAParameter::~CSAParameter()
@@ -187,6 +198,7 @@ namespace WBSF
 		m_name.clear();
 		m_initialValue = 0;
 		m_bounds.Reset();
+		m_b_use_it = true;
 	}
 
 	CSAParameter& CSAParameter::operator =(const CSAParameter& in)
@@ -196,6 +208,7 @@ namespace WBSF
 			m_name = in.m_name;
 			m_initialValue = in.m_initialValue;
 			m_bounds = in.m_bounds;
+			m_b_use_it = in.m_b_use_it;
 		}
 
 		ASSERT(in == *this);
@@ -209,6 +222,7 @@ namespace WBSF
 		if (m_name != in.m_name) bEqual = false;
 		if (m_initialValue != in.m_initialValue)bEqual = false;
 		if (m_bounds != in.m_bounds)bEqual = false;
+		if (m_b_use_it != in.m_b_use_it)bEqual = false;
 
 		return bEqual;
 	}

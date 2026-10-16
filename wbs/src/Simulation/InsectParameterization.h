@@ -13,6 +13,7 @@
 
 #include "basic/ERMsg.h"
 #include "basic/UtilZen.h"
+#include "Basic/ModelStat.h"
 #include "ModelBase/Model.h"
 #include "ModelBase/ParametersVariations.h"
 #include "ModelBase/DevRateEquation.h"
@@ -450,20 +451,33 @@ namespace WBSF
 		CSAParameterVector m_parameters;
 		CComputationVariable m_computation;
 		double m_fixeSigma;
-		//bool m_bAddRelDevRate;
 	};
 
 
-	typedef std::vector<CFitOutput>CFitOutputVector;
-
-	class CStagesTableRow
+	class CFitOutputVector : public std::vector<CFitOutput>
 	{
 	public:
 
-		//std::string m_treatment;
-		CTRef m_TRef;
-		std::vector<double> m_n;
+		
+
+		size_t m_first_stage;
+		size_t m_last_stage;
+
+		CComputationVariable m_c;
 	};
+
+
+
+
+
+
+
+	//**********************************************************************************************************
+
+
+
+
+
 
 	class COneSimulatedStage
 	{
@@ -471,34 +485,86 @@ namespace WBSF
 
 		double m_p;
 		double m_RDR;
-		std::string m_treatment;
-		double m_temperature;
 
 		double m_time;
 	};
 
-	class COneSimulatedInsect: public std::vector<COneSimulatedStage>
+	class COneSimulatedInsect : public std::vector<COneSimulatedStage>
 	{
 	public:
 
 		vector<double> get_stage_time()
 		{
-			vector<double> time;
+			vector<double> time(size());
+
+
+			for (size_t s = 0; s < size(); s++)
+			{
+				time[s] = ((s == 0) ? 0 : time[s - 1]) + at(s).m_time;
+			}
 
 			return time;
 		}
 
 	};
+	class COneSimulatedTreatment : public std::vector<COneSimulatedInsect>
+	{
+	public:
 
-	class CSimulatedInsects : public std::vector<COneSimulatedInsect>
+		std::string m_treatment;
+		double m_temperature;
+		CModelStatVector m_output;
+	};
+
+	class CSimulatedInsects : public std::vector<COneSimulatedTreatment>
+	{
+	public:
+
+		
+		std::vector<double> get_stage_table(size_t i, CTRef TRef)
+		{
+			if (TRef < at(i).m_output.GetTPeriod().Begin())
+				return m_before_begin;
+			
+			if (TRef > at(i).m_output.GetTPeriod().End())
+				return m_after_end;
+			
+
+			return at(i).m_output[TRef];
+		}
+		
+
+		std::vector<double> m_before_begin;
+		std::vector<double> m_after_end;
+
+	};
+
+	
+	
+
+
+
+
+	class CStagesTableRow
+	{
+	public:
+		CTRef m_TRef;
+		std::vector<double> m_n;
+		std::vector<double> m_cumul;
+		
+
+
+		size_t m_treatments_to_sim_index;
+	};
+
+	class CStagesTableRows : public std::vector<CStagesTableRow>
 	{
 	public:
 		
-		
+		std::vector < CStatistic> m_stats;
 	};
 
-
-	typedef std::map<std::string, std::map<std::string, std::vector<CStagesTableRow>>>  CCStagesTableDataBase;
+	typedef std::map<std::string, std::map<std::string, CStagesTableRows>>  CCStagesTableDataBase;
 	class CCStagesTableData : public CCStagesTableDataBase
 	{
 	public:
@@ -515,6 +581,8 @@ namespace WBSF
 		ERMsg load(const std::string& file_path);
 		ERMsg load(std::istream& io);
 
+		void compute_cumulative();
+
 		void clear();
 		size_t get_pos(TColumns col)const { return have_column(col) ? std::distance(m_input_pos.begin(), std::find(m_input_pos.begin(), m_input_pos.end(), col)) : NOT_INIT; }
 		bool have_column(TColumns col)const { return std::find(m_input_pos.begin(), m_input_pos.end(), col) != m_input_pos.end(); }
@@ -522,11 +590,17 @@ namespace WBSF
 		size_t num_treatments()const { return m_treatments.size(); }
 		std::string get_treatment(size_t t)const { assert(t < m_treatments.size()); return *(std::next(m_treatments.begin(), t)); }
 		size_t num_stages()const {			return m_stage_columns.size();		}
+		std::string get_stage(size_t s)const { assert(s < m_stage_columns.size()); return m_stage_columns[s].first; }
 
 		std::vector<std::pair<std::string, size_t>> m_stage_columns;
 		std::vector<size_t> m_input_pos;
 		std::set<std::string> m_treatments;
+		
+
+		//std::vector<size_t> m_treatments_to_sim_index;
+		bool m_bDOY;
 	};
+
 
 
 	//*******************************************************************************
@@ -632,21 +706,34 @@ namespace WBSF
 
 
 		static ERMsg ReadParametersFromFile(const std::string& outputFilePath, std::map<std::string, std::map<std::string, std::map<std::string, double>>>& params);
+
+
+		size_t get_num_insects()const
+		{
+			static const std::array< size_t, NB_SA_OPTION> NUM_INSECTS = { 50,75,100,150,200 };
+			return NUM_INSECTS[m_SA_preset];
+		}
 	protected:
 
 		ERMsg ExecuteStageTable(const CFileManager& fileManager, CCallback& callback);
+		ERMsg OptimizeStageTable(CFitOutputVector& p, CCallback& callback);
+		bool GetFValueStageTable(CFitOutputVector& p);
+		ERMsg InitialiseComputationVariableStageTable(CFitOutputVector& p, CCallback& callback);
+
+
 		ERMsg ExecuteOther(const CFileManager& fileManager, CCallback& callback);
 
 
 
 		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
 		bool GetFValue(std::string s, size_t e, CComputationVariable& computation);
+
 		bool IsParamValid(const std::string& var, size_t e, const std::vector<double>& P);
 		bool IsRateValid(const std::string& var, size_t e, const std::vector<double>& P, double null_rate_treashold);
 
 		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
-		void WriteInfoEx(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
+		//void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
+		void WriteInfoEx(size_t loop, std::string variable, const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
 
 		double Exprep(const double& RDUM);
 
@@ -659,11 +746,14 @@ namespace WBSF
 		CSurvivalData m_survival;
 		CFecundityData m_fecundity;
 		CCStagesTableData m_stages_table;
-		CSimulatedInsects m_I;//the simulator for the stage_table
+		//CSimulatedInsects m_I;//the simulator for the stage_table
+		std::deque<CSimulatedInsects> m_I_threaded;
 
 		//working data
 		CSAControl m_SA_ctrl;
 
+
+		std::string m_debug_filepath;
 
 		static const char* XML_FLAG;
 		static const char* MEMBERS_NAME[NB_MEMBERS_EX];

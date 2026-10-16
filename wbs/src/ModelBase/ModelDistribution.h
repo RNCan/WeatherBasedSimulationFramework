@@ -39,7 +39,7 @@ namespace WBSF
 	{
 	public:
 		
-		enum TType { NOT_INIT=-1, NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, LOG_LOGISTIC, NB_DISTRIBUTIONS };
+		enum TType { NOT_INIT=-1, NORMAL, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, LOG_LOGISTIC, NB_DISTRIBUTIONS };
 		static double get_cdf(double x, TType type, double p1, double p2, double p3 = 0);
 		static double get_quantile(double x, TType type, double p1, double p2, double p3 = 0);
 
@@ -55,7 +55,7 @@ namespace WBSF
 
 
 
-		CModelDistribution(TType type= NORMALS, double p1=0, double p2=1, double p3 = 0)
+		CModelDistribution(TType type= NORMAL, double p1=0, double p2=1, double p3 = 0)
 		{
 			m_type= type;
 			m_p1 = p1;
