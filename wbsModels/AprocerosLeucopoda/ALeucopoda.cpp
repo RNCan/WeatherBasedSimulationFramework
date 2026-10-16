@@ -66,6 +66,8 @@ namespace WBSF
 		
 		m_adult_emergence = GetEquations().GenerateAdultEmergingDate(); 
 		m_bDiapause = false;// age == PUPA;
+		m_dl_diapause = GetEquations().GetDayLengthDiapause();
+
 
 		for (size_t s = 0; s < NB_STAGES; s++)
 			m_RDR[s] = GetEquations().GetRelativeDevRate(s);
@@ -91,6 +93,8 @@ namespace WBSF
 
 			m_adult_emergence = in.m_adult_emergence;
 			m_bDiapause = in.m_bDiapause;
+			m_dropToGroundDate = in.m_dropToGroundDate;
+			m_dl_diapause = in.m_dl_diapause;
 			m_bDeadByAttrition = in.m_bDeadByAttrition;
 
 			m_adult_emergence = GetEquations().GenerateAdultEmergingDate();
@@ -195,10 +199,14 @@ namespace WBSF
 			size_t h = step * GetTimeStep();
 			Live(weather, h, GetTimeStep());
 
-			if (GetStage() == PUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 260)
+			if (GetStage() == PREPUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 171)//&& weather.GetTRef().GetJDay() >= 260
 			{
-				m_dropToGroundDate = weather.GetTRef();
-				m_bDiapause = true;
+				
+				if (weather.GetDayLength()/3600 < m_dl_diapause)
+				{
+					m_dropToGroundDate = weather.GetTRef();
+					m_bDiapause = true;
+				}
 			}
 		}
 

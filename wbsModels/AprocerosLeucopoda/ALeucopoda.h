@@ -64,7 +64,7 @@ namespace WBSF
 
 		//inline CTRef GetAdultEmergenceBegin(size_t y = 1)const;
 		CTRef GetCreationDate(int year)const;
-		CTRef GetAdultEmergence(int year)const;
+//		CTRef GetAdultEmergence(int year)const;
 		bool IsDeadByAttrition(size_t s, double T, double i_r)const;
 
 	protected:
@@ -79,6 +79,7 @@ namespace WBSF
 		//double m_adult_longevity; //adult longevity [days]
 		double m_Fi; //individual fecundity
 		bool m_bDeadByAttrition;
+		double m_dl_diapause; // individual day length diapause
 	};
 
 	//*******************************************************************************************************

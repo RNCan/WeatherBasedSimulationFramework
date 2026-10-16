@@ -65,15 +65,57 @@ namespace WBSF
 
 		static const array< vector<double>, TZZ::NB_STAGES>  D_PARAMETERS =
 		{ {
-				//parameters
-				{0.0574, 0.0897, 10.0, 33.7, 0.0528, 0.5077 },//Egg
-				{0.0156, 0.0664, 0.10, 30.0, 47.218, 0.9773 },//Larval
-				{0.1559, 0.0925, 10.0, 30.0, 0.0553, 1.8128 },//PrePupae
-				{0.0806, 0.1001, 10.0, 31.8, 0.0486, 0.5112 },//Pupae
-				{0.0614, 0.0772, 3.70, 89.9, 0.0192, 1.3228 },//Adult longevity
+				//psi  , k     , Tb  , Tm  , deltab, deltam
+				{0.0574, 0.0897, 10.0, 36.0, 0.0526, 0.5194 },//Egg
+				{0.0155, 0.0667, 00.2, 30.0, 47.147, 0.9880 },//Larval
+				{0.1569, 0.0911, 10.0, 30.0, 0.0546, 0.7532 },//PrePupae
+				{0.0806, 0.1001, 10.0, 34.0, 0.0482, 0.5184 },//Pupae
+				{0.0591, 0.0772, 03.2, 48.1, 0.0248, 0.6750 },//Adult longevity
 		} };
 
+			//static const array< vector<double>, TZZ::NB_STAGES>  D_PARAMETERS =
+		//{ {
+		//		//parameters
+		//		{0.0574, 0.0897, 10.0, 33.7, 0.0528, 0.5077 },//Egg
+		//		{0.0156, 0.0664, 0.10, 30.0, 47.218, 0.9773 },//Larval
+		//		{0.1559, 0.0925, 10.0, 30.0, 0.0553, 1.8128 },//PrePupae
+		//		{0.0806, 0.1001, 10.0, 31.8, 0.0486, 0.5112 },//Pupae
+		//		{0.0614, 0.0772, 3.70, 89.9, 0.0192, 1.3228 },//Adult longevity
+		//} };
 
+
+		//static const array< vector<double>, TZZ::NB_STAGES>  D_PARAMETERS =
+		//{ {
+		//		//parameters
+		//		{0.0574, 0.0897, 10.0, 33.7, 0.0528, 0.5077 },//Egg
+		//		{0.0156, 0.0664, 0.10, 30.0, 47.218, 0.9773 },//Larval
+		//		{0.1559, 0.0925, 10.0, 30.0, 0.0553, 1.8128 },//PrePupae
+		//		{0.0806, 0.1001, 10.0, 31.8, 0.0486, 0.5112 },//Pupae
+		//		{0.0614, 0.0772, 3.70, 89.9, 0.0192, 1.3228 },//Adult longevity
+		//} };
+
+		//static const array<CDevRateEquation::TDevRateEquation, TZZ::NB_STAGES> D_EQ =
+		//{
+		//	//Non-linear
+		//	CDevRateEquation::Hansen_2011,//Egg		
+		//	CDevRateEquation::Hansen_2011,//Larva		
+		//	CDevRateEquation::Hansen_2011,//Prepupa	
+		//	CDevRateEquation::Hansen_2011,//Pupa		
+		//	CDevRateEquation::Hansen_2011,//Adult longevity
+		//};
+
+		//static const array< vector<double>, TZZ::NB_STAGES>  D_PARAMETERS =
+		//{ {
+		//		//"psi", "k", "Tb", "Tm", "deltaT", 
+		//		{0.0454, 0.0699, -0.3, 32.7, 0.2178},//Egg
+		//		{0.0864, 0.0300,  3.9, 30.0, 0.6807},//Larval
+		//		{0.3913, 0.0509,  5.1, 5.20, 4.4235},//PrePupae
+		//		{0.1173, 0.0614,  2.7, 33.5, 0.2875},//Pupae
+		//		{0.1382, 0.0405, -5.8, 0.00, 98640.},//Adult longevity
+		//} };
+
+
+			
 
 
 		//model was adjusted to Quebec observation 2021-2022. 
@@ -81,8 +123,9 @@ namespace WBSF
 		//1- Insects adaptation for North America climate
 		//2- Host effect
 		//3- Bias caused by laboratory rearing
-		//4-Overheating by the sun?
+		//4- Overheating by the sun?
 		static const double BOOST_FACTOR = 1.225;
+		//static const double BOOST_FACTOR = 1.0;
 
 		assert(e < NB_STAGES);
 		double r = max(0.0, CDevRateEquation::GetRate(D_EQ[e], D_PARAMETERS[e], T)) * BOOST_FACTOR;
@@ -118,7 +161,7 @@ namespace WBSF
 
 	double CAprocerosLeucopodaEquations::ComputeDailySurvivalRate(size_t e, double T)const
 	{
-		static const CSurvivalEquation::TSurvivalEquation S_EQ[TZZ::NB_STAGES] =
+		static const array < CSurvivalEquation::TSurvivalEquation, TZZ::NB_STAGES> S_EQ =
 		{
 			CSurvivalEquation::Survival_12,//egg
 			CSurvivalEquation::Survival_12,//Larva
@@ -129,20 +172,20 @@ namespace WBSF
 
 		static const array<vector<double>, TZZ::NB_STAGES> S_PARAMETERS =
 		{{
-			{12.880,25.0426,32.4763,8.1437},
-			{11.134,33.0543,77.9288,10.129},
-			{8.0865,30.0559,201.657,3.2802},
-			{7.4876,31.6510,999.905,2.0670},
-			{1,0,0,0}
+			{12.880,25.0426,32.4763,8.1437},//egg
+			{11.134,33.0543,77.9288,10.129},//Larva
+			{8.0865,30.0559,201.657,3.2802},//Prepupa
+			{7.4876,31.6510,999.905,2.0670},//Pupa
+			{1,0,0,0}//Adult longevity
 		}};
 
 
 		ASSERT(e < NB_STAGES);
 
-		double S = (e < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_PARAMETERS[e], T))) : 1;
+		double s = (e < ADULT) ? max(0.0, min(1.0, CSurvivalEquation::GetSurvival(S_EQ[e], S_PARAMETERS[e], T))) : 1;
 		_ASSERTE(!_isnan(s) && _finite(s) && s >= 0 && s <= 1);
 
-		return S;
+		return s;
 	}
 
 
@@ -240,5 +283,13 @@ namespace WBSF
 
 	}
 
+
+	double CAprocerosLeucopodaEquations::GetDayLengthDiapause()const
+	{
+		CModelDistribution DL_dist(CModelDistribution::NORMAL, 13.5, 0.5);
+		double dl = DL_dist.get_quantile(m_randomGenerator.Rand(0.01, 0.99));
+		
+		return dl;
+	}
 
 }

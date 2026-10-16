@@ -48,6 +48,7 @@ namespace WBSF
 		void InitAdultEmergenceCDD(const CWeatherYear& weather);
 		double GenerateAdultEmergingCDD()const;
 		CTRef GenerateAdultEmergingDate()const;
+		double GetDayLengthDiapause()const;
 		//CTRef ComputeDiapauseEnd(const CWeatherYear& weather)const;
 
 
