@@ -27,8 +27,8 @@ namespace WBSF
 	class CLandTrendOption : public CBaseOptions
 	{
 	public:
-
-
+		
+		enum TFillMissing { FM_BEGIN, FM_MIDDLE, FM_END, NB_FILL_MISSING };
 		enum TFilePath { INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 
 
@@ -78,6 +78,7 @@ namespace WBSF
 		//bool m_bBackwardFill;
 		//bool m_bForwardFill;
 		bool m_bFillMissing;
+		std::array<bool, NB_FILL_MISSING> m_FMoption;
 		//bool m_bWithPrevious;
 
 	};

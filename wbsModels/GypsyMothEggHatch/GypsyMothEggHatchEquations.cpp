@@ -68,7 +68,7 @@ namespace WBSF
 		double r = 0;
 		if (e == 1)
 		{
-			r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Régnière_2012, { m_EDP.begin(), m_EDP.end() }, T)));
+			r = max(0.0, min(1.0, CDevRateEquation::GetRate(CDevRateEquation::Regniere_2012, { m_EDP.begin(), m_EDP.end() }, T)));
 		}
 
 		return r;
@@ -98,16 +98,16 @@ namespace WBSF
 	{
 		static const array<CSurvivalEquation::TSurvivalEquation, NB_STAGES> S_EQ =
 		{
-			CSurvivalEquation::Unknown,//Diapause
+			CSurvivalEquation::Constant,//Diapause
 			CSurvivalEquation::Survival_03, //Egg
 			CSurvivalEquation::LastStage,	//larva
 		};
 
 		static const array< vector<double>, NB_STAGES>  S_P =
 		{ {
-			{ 0 },//Diapause
+			{ 1 },//Diapause
 			{ 87.3002, 72.562, 0.0000, 127.341},//Egg
-			{ 0 },//Larval
+			{ 1 },//Larval
 		} };
 
 		assert(e < NB_STAGES);

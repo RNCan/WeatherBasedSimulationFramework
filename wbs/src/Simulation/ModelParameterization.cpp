@@ -43,19 +43,13 @@ namespace WBSF
 
 
 
-	static vector<size_t> Shuffle(size_t N)
+	static vector<size_t> Shuffle(size_t N, std::mt19937 g)
 	{
 		// Define the range of numbers (e.g., 0 to N-1)
 		// Create a vector with the numbers in the range
-		std::vector<size_t> numbers;
+		std::vector<size_t> numbers(N);
 		for (size_t i = 0; i < N; ++i)
-			numbers.push_back(i);
-
-
-		// Initialize a random number generator engine
-		// Using std::random_device for a non-deterministic seed
-		std::random_device rd;
-		std::mt19937 g(rd()); // Mersenne Twister engine
+			numbers[i] = i;
 
 		// Shuffle the vector
 		std::shuffle(numbers.begin(), numbers.end(), g);
@@ -380,7 +374,7 @@ namespace WBSF
 		msg += WriteOutputMessage(filePath, logText);
 
 		
-		if (/*msg && */!m_modelInputOptName.empty() && m_computation.m_Xopt.size() == m_parameters.size())
+		if (/*msg && */!m_modelInputOptName.empty() && m_computation.m_opt.m_X.size() == m_parameters.size())
 		{
 			CModelInput m_modelInputOpt = m_modelInput;
 			
@@ -388,7 +382,7 @@ namespace WBSF
 			{
 				if (m_parametersVariations[i].m_bActive)
 				{
-					m_modelInputOpt[i].SetValue( m_computation.m_Xopt[j] );
+					m_modelInputOpt[i].SetValue( m_computation.m_opt.m_X[j] );
 					j++;
 				}
 			}
@@ -449,8 +443,8 @@ namespace WBSF
 		computation.m_bounds.resize(m_parameters.size());
 		computation.m_C.resize(m_parameters.size());
 		computation.m_X.resize(m_parameters.size());
-		computation.m_XP.resize(m_parameters.size());
-		computation.m_XPstat.resize(m_parameters.size());
+		computation.m_P.m_X.resize(m_parameters.size());
+		computation.m_P.m_Xstat.resize(m_parameters.size());
 		computation.m_VM.resize(m_parameters.size());
 		computation.m_VMstat.resize(m_parameters.size());
 
@@ -458,7 +452,7 @@ namespace WBSF
 		for (int i = 0; i < m_parameters.size(); i++)
 		{
 			computation.m_bounds[i] = m_parameters[i].m_bounds;
-			computation.m_XP[i] = m_parameters[i].m_initialValue;
+			computation.m_P.m_X[i] = m_parameters[i].m_initialValue;
 			computation.m_C[i] = 2;
 			computation.m_VM[i] = computation.m_bounds[i].GetExtent();
 
@@ -473,17 +467,17 @@ namespace WBSF
 
 			//If the initial value is out of bounds, notify the user and return
 			//to the calling routine.
-			if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
+			if (computation.m_bounds[i].IsOutOfBound(computation.m_P.m_X[i]))
 			{
-				msg.ajoute("The starting value (" + ToString(computation.m_XP[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
+				msg.ajoute("The starting value (" + ToString(computation.m_P.m_X[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
 				return msg;
 			}
 		}
 
 		computation.Initialize(m_ctrl.m_T, m_ctrl.m_NEPS, m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
-		msg += GetFValue(computation.m_XP, computation.m_FP, computation.m_SP, callback);
-		/*computation.m_initial_nb_values = computation.m_SP[NB_VALUE];
+		msg += GetFValue(computation.m_P.m_X, computation.m_P.m_F, computation.m_P.m_S, callback);
+		/*computation.m_initial_nb_values = computation.m_P.m_S[NB_VALUE];
 		if (computation.m_initial_nb_values == 0)
 		{
 			msg.ajoute("Bad initial parameters. Set initial parameters that give valid solution.");
@@ -491,16 +485,16 @@ namespace WBSF
 
 		computation.m_NFCNEV++;
 
-		computation.m_X = computation.m_XP;
-		computation.m_Xopt = computation.m_XP;
+		computation.m_X = computation.m_P.m_X;
+		computation.m_opt.m_X = computation.m_P.m_X;
 
-		if (computation.m_FP != m_ctrl.GetVMiss())
+		if (computation.m_P.m_F != m_ctrl.GetVMiss())
 		{
-			computation.m_S = computation.m_SP;
-			computation.m_Sopt = m_computation.m_SP;
-			computation.m_F = computation.m_FP;
-			computation.m_Fopt = computation.m_F;
-			computation.m_FSTAR[0] = computation.m_FP;
+			computation.m_S = computation.m_P.m_S;
+			computation.m_opt.m_S = m_computation.m_P.m_S;
+			computation.m_F = computation.m_P.m_F;
+			computation.m_opt.m_F = computation.m_F;
+			computation.m_FSTAR[0] = computation.m_P.m_F;
 		}
 
 
@@ -580,8 +574,8 @@ namespace WBSF
 		string line;
 
 		
-		for (size_t i = 0; i < m_computation.m_XPstat.size(); i++)
-			m_computation.m_Pstat += 100.0 /2.0* m_computation.m_XPstat[i][RANGE] / m_computation.m_XPstat[i][MEAN];
+		for (size_t i = 0; i < m_computation.m_P.m_Xstat.size(); i++)
+			m_computation.m_Pstat += 100.0 /2.0* m_computation.m_P.m_Xstat[i][RANGE] / m_computation.m_P.m_Xstat[i][MEAN];
 		//if( m_computation.m_S[NB_VALUE]>0 )
 		//{
 		//	//line.Format("", );
@@ -595,16 +589,16 @@ namespace WBSF
 		//}
 
 
-		if (m_computation.m_Sopt[NB_VALUE] > 0)
+		if (m_computation.m_opt.m_S[NB_VALUE] > 0)
 		{
-			//std::string bestD² = ToString( m_computation.m_Sopt[COEF_D], 5 );
-			//std::string bestR² = ToString( m_computation.m_Sopt[STAT_R²], 5 );
-			double F = m_ctrl.m_bMax ? m_computation.m_Fopt : -m_computation.m_Fopt;
+			//std::string bestD² = ToString( m_computation.m_opt.m_S[COEF_D], 5 );
+			//std::string bestR² = ToString( m_computation.m_opt.m_S[STAT_R²], 5 );
+			double F = m_ctrl.m_bMax ? m_computation.m_opt.m_F : -m_computation.m_opt.m_F;
 
 			//line.Format("", F);
 			//callback.AddMessage(line);
 
-			line = FormatA("N=%10d\tT=%9.5f\tF=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", m_computation.m_NFCNEV, m_computation.m_T, F, m_computation.m_Sopt[NB_VALUE], m_computation.m_Sopt[BIAS], m_computation.m_Sopt[MAE], m_computation.m_Sopt[RMSE], m_computation.m_Sopt[COEF_D], m_computation.m_Sopt[STAT_R²]);
+			line = FormatA("N=%10d\tT=%9.5f\tF=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", m_computation.m_NFCNEV, m_computation.m_T, F, m_computation.m_opt.m_S[NB_VALUE], m_computation.m_opt.m_S[BIAS], m_computation.m_opt.m_S[MAE], m_computation.m_opt.m_S[RMSE], m_computation.m_opt.m_S[COEF_D], m_computation.m_opt.m_S[STAT_R²]);
 			callback.AddMessage(line);
 		}
 		else
@@ -614,9 +608,9 @@ namespace WBSF
 
 
 		line.clear();
-		ASSERT(m_computation.m_Xopt.size() == m_parameters.size());
+		ASSERT(m_computation.m_opt.m_X.size() == m_parameters.size());
 
-		bool bShowRange = !m_computation.m_XPstat.empty() && m_computation.m_XPstat[0][NB_VALUE] > 0;
+		bool bShowRange = !m_computation.m_P.m_Xstat.empty() && m_computation.m_P.m_Xstat[0][NB_VALUE] > 0;
 		for (size_t i = 0, j = 0; i < m_parameters.size(); i++)
 		{
 			string name = m_parameters[i].m_name; Trim(name);
@@ -624,11 +618,11 @@ namespace WBSF
 
 			if (bShowRange)
 			{
-				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), m_computation.m_Xopt[j], m_computation.m_XPstat[j][LOWEST], m_computation.m_XPstat[j][HIGHEST], m_computation.m_VMstat[j][LOWEST], m_computation.m_VMstat[j][HIGHEST]);
+				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), m_computation.m_opt.m_X[j], m_computation.m_P.m_Xstat[j][LOWEST], m_computation.m_P.m_Xstat[j][HIGHEST], m_computation.m_VMstat[j][LOWEST], m_computation.m_VMstat[j][HIGHEST]);
 			}
 			else
 			{
-				tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), m_computation.m_Xopt[j]);
+				tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), m_computation.m_opt.m_X[j]);
 			}
 
 			line += tmp;
@@ -639,7 +633,7 @@ namespace WBSF
 		line.clear();
 
 
-		double eps = fabs(m_computation.m_Fopt - m_computation.m_F);
+		double eps = fabs(m_computation.m_opt.m_F - m_computation.m_F);
 		line = "Eps = [" + ToString(eps, -1) + "]{";
 
 		for (int i = 0; i < m_computation.m_FSTAR.size(); i++)
@@ -669,8 +663,8 @@ namespace WBSF
 
 
 		//clean X stats
-		for (size_t i = 0; i < m_computation.m_XPstat.size(); i++)
-			m_computation.m_XPstat[i].Reset();
+		for (size_t i = 0; i < m_computation.m_P.m_Xstat.size(); i++)
+			m_computation.m_P.m_Xstat[i].Reset();
 	}
 
 	//devrais faire partie de la class CModel
@@ -1334,6 +1328,13 @@ namespace WBSF
 	{
 		ERMsg msg;
 
+
+		// Initialize a random number generator engine
+		// Using std::random_device for a non-deterministic seed
+		std::random_device rd;
+		std::mt19937 g(rd()); // Mersenne Twister engine
+
+
 		NB_GET_DATA = 0;
 		//for(int i=0; i<m_nbReplication&&msg; i++)
 		//replication are done in model
@@ -1353,6 +1354,8 @@ namespace WBSF
 			OnStartSimulation(callback);
 
 			bool bQuit = false;
+			//randomize order of the parameters to not always begin with the same parameter
+			vector < vector<size_t>> HH(m_ctrl.m_NT * m_ctrl.m_NS);
 
 			//  Start the main loop. Note that it terminates if :
 			//(i) the algorithm successfully optimizes the function 
@@ -1374,12 +1377,10 @@ namespace WBSF
 				long NDOWN = 0;
 				long LNOBDS = 0;
 
-				//randomize order of the parameters to not always begin with the same parameter
-				vector < vector<size_t>> HH(m_ctrl.m_NT * m_ctrl.m_NS);
 				for (size_t j = 0; j < HH.size(); j++)
-					HH[j] = Shuffle(m_computation.m_X.size());
+					HH[j] = Shuffle(m_computation.m_X.size(), g);
 
-
+				
 				int NT = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NT;
 				for (int M = 0; M < NT && msg; M++)
 				{
@@ -1402,7 +1403,7 @@ namespace WBSF
 
 						for (int h = 0; h < NACP.size() && msg; h++)
 						{
-							int H = int(HH[M * NACP.size() + J][h]);
+							int H = int(HH[M * NS + J][h]);
 							//  If too many function evaluations occur, terminate the algorithm.
 							if (m_computation.m_NFCNEV >= m_ctrl.m_MAXEVL)
 							{
@@ -1411,7 +1412,7 @@ namespace WBSF
 								return msg;
 							}
 
-							m_computation.m_XP.resize(m_computation.m_X.size());
+							m_computation.m_P.m_X.resize(m_computation.m_X.size());
 
 							size_t x = 0;
 							do
@@ -1421,27 +1422,35 @@ namespace WBSF
 								for (int I = 0; I < m_computation.m_X.size(); I++)
 								{
 									if (I == H)
-										m_computation.m_XP[I] = m_computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_computation.m_VM[I];
-									else m_computation.m_XP[I] = m_computation.m_X[I];
+										m_computation.m_P.m_X[I] = m_computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_computation.m_VM[I];
+									else m_computation.m_P.m_X[I] = m_computation.m_X[I];
 
 
 									//  If XP is out of bounds, select a point in bounds for the trial.
-									if (m_computation.m_bounds[I].IsOutOfBound(m_computation.m_XP[I]))
+									if (m_computation.m_bounds[I].IsOutOfBound(m_computation.m_P.m_X[I]))
 									{
-										m_computation.m_XP[I] = m_computation.m_bounds[I].GetLowerBound() + m_computation.m_bounds[I].GetExtent()*random.Ranmar();
+										m_computation.m_P.m_X[I] = m_computation.m_bounds[I].GetLowerBound() + m_computation.m_bounds[I].GetExtent()*random.Ranmar();
 
 										LNOBDS++;
-										m_computation.m_NOBDS++;
+										//m_computation.m_NOBDS++;
 									}
 								}
 
 								//  Evaluate the function with the trial point XP and return as FP.
-								msg += GetFValue(m_computation.m_XP, m_computation.m_FP, m_computation.m_SP, callback);
-							} while (x<10 && m_computation.m_SP[NB_VALUE] == 0/*< size_t (ceil(4.0*m_computation.m_initial_nb_values/5.0))*/ );//if no stat or too much elimination of observation (bad parameters), find new parameters
+								try
+								{
+									msg += GetFValue(m_computation.m_P.m_X, m_computation.m_P.m_F, m_computation.m_P.m_S, callback);
+								}
+								catch (...)
+								{
+									assert(false);//hummm
+								}
+
+							} while (x<10 && m_computation.m_P.m_S[NB_VALUE] == 0/*< size_t (ceil(4.0*m_computation.m_initial_nb_values/5.0))*/ );//if no stat or too much elimination of observation (bad parameters), find new parameters
 
 							//add X value to extreme XP statistic
-							for (int i = 0; i < m_computation.m_XP.size() && i < (int)m_computation.m_XPstat.size(); i++)
-								m_computation.m_XPstat[i] += m_computation.m_XP[i];
+							for (int i = 0; i < m_computation.m_P.m_X.size() && i < (int)m_computation.m_P.m_Xstat.size(); i++)
+								m_computation.m_P.m_Xstat[i] += m_computation.m_P.m_X[i];
 
 							for (size_t i = 0; i < m_computation.m_VMstat.size(); i++)
 								m_computation.m_VMstat[i] += m_computation.m_VM[i];
@@ -1449,23 +1458,23 @@ namespace WBSF
 							
 
 							//  Accept the new point if the function value increases.
-							if (m_computation.m_FP != m_ctrl.GetVMiss())
+							if (m_computation.m_P.m_F != m_ctrl.GetVMiss())
 							{
-								if (m_computation.m_FP >= m_computation.m_F)
+								if (m_computation.m_P.m_F >= m_computation.m_F)
 								{
-									m_computation.m_X = m_computation.m_XP;
-									m_computation.m_F = m_computation.m_FP;
-									m_computation.m_S = m_computation.m_SP;
-									m_computation.m_NACC++;
+									m_computation.m_X = m_computation.m_P.m_X;
+									m_computation.m_F = m_computation.m_P.m_F;
+									m_computation.m_S = m_computation.m_P.m_S;
+									//m_computation.m_NACC++;
 									NACP[H]++;
 									NUP++;
 
 									//  If greater than any other point, record as new optimum.
-									if (m_computation.m_FP > m_computation.m_Fopt)
+									if (m_computation.m_P.m_F > m_computation.m_opt.m_F)
 									{
-										m_computation.m_Xopt = m_computation.m_XP;
-										m_computation.m_Fopt = m_computation.m_FP;
-										m_computation.m_Sopt = m_computation.m_SP;
+										m_computation.m_opt.m_X = m_computation.m_P.m_X;
+										m_computation.m_opt.m_F = m_computation.m_P.m_F;
+										m_computation.m_opt.m_S = m_computation.m_P.m_S;
 										NNEW++;
 									}
 								}
@@ -1473,14 +1482,14 @@ namespace WBSF
 								//  acceptance or rejection.
 								else
 								{
-									double P = Exprep((m_computation.m_FP - m_computation.m_F) / m_computation.m_T);
+									double P = Exprep((m_computation.m_P.m_F - m_computation.m_F) / m_computation.m_T);
 									double PP = random.Ranmar();
 									if (PP < P)
 									{
-										m_computation.m_X = m_computation.m_XP;
-										m_computation.m_F = m_computation.m_FP;
-										m_computation.m_S = m_computation.m_SP;
-										m_computation.m_NACC++;
+										m_computation.m_X = m_computation.m_P.m_X;
+										m_computation.m_F = m_computation.m_P.m_F;
+										m_computation.m_S = m_computation.m_P.m_S;
+										//m_computation.m_NACC++;
 										NACP[H]++;
 										NDOWN++;
 									}
@@ -1539,7 +1548,7 @@ namespace WBSF
 				//  Loop again.
 
 
-				bQuit = fabs(m_computation.m_F - m_computation.m_Fopt) <= m_ctrl.m_EPS;// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
+				bQuit = fabs(m_computation.m_F - m_computation.m_opt.m_F) <= m_ctrl.m_EPS;// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
 				for (int I = 0; I < m_computation.m_FSTAR.size() && bQuit; I++)
 				{
 					if (fabs(m_computation.m_F - m_computation.m_FSTAR[I]) > m_ctrl.m_EPS)// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS

@@ -26,10 +26,10 @@ namespace WBSF
 	{
 	public:
 
-		
 
-		
-		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, P_EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_SKIP_LOOP, NB_MEMBER };
+
+
+		enum TMember { TYPE_OPTIMISATION, STAT_OPTIMISATION, INITIAL_TEMPERATURE, REDUCTION_FACTOR, REDUCTION_FACTOR2, EPSILON, P_EPSILON, NB_CYCLE, NB_ITERATION, NB_EPSILON, MAX_EVALUATION, SEED1, SEED2, NB_SKIP_LOOP, MAX_LOOP, NB_ITERATION2, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -62,7 +62,7 @@ namespace WBSF
 
 		double GetFinalFValue(const CStatisticXY& stat)
 		{
-			ASSERT(m_statisticType< NB_STATXY_TYPE);
+			ASSERT(m_statisticType < NB_STATXY_TYPE);
 			return AdjustFValue(stat[m_statisticType]);
 		}
 
@@ -72,26 +72,7 @@ namespace WBSF
 			return AdjustFValue(stat[m_statisticType]);
 		}
 
-		//bool Max()const { return m_bMax; }
-		//
-		//void SetMax(bool bMax) { m_bMax = bMax; }
-		//
-		////double EPS()const { return m_EPS; }
-		////void SetEPS(double EPS) { m_EPS = EPS; }
-		//long NEPS()const { return m_NEPS; }
-		//void SetNEPS(long NEPS) { m_NEPS = NEPS; }
-		//long MAXEVL()const { return m_MAXEVL; }
-		//void SetMAXEVL(long MAXEVL) { m_MAXEVL = MAXEVL; }
-		//long Seed1()const { return m_seed1; }
-		//void SetSeed1(long seed1) { m_seed1 = seed1; }
-		//long Seed2()const { return m_seed2; }
-		//void SetSeed2(long seed2) { m_seed2 = seed2; }
-		//double T()const { return m_T; }
-		//void SetT(double T) { _ASSERTE(T > 0.0);  m_T = T; }
-		//
-		////void LoadProfile(const std::string& section);
-		////void SaveProfile(const std::string& section);
-		
+
 		double GetVMiss() { return m_missing; }
 		void SetVMiss(double in) { m_missing = in; }
 
@@ -103,9 +84,10 @@ namespace WBSF
 		double m_P_EPS;
 		long m_NS;
 		long m_NT;
-		//long m_NT2;
+		float m_NT2;//factor of iteration: NT = NT2* nb variables
 		long m_NEPS;
 		long m_MAXEVL;
+		size_t m_max_loop;
 		long m_seed1;
 		long m_seed2;
 		double m_T;
@@ -142,7 +124,7 @@ namespace WBSF
 		bool operator != (const CVariableBound& in)const { return !operator==(in); }
 
 
-		bool IsOutOfBound(double& value, size_t digit=5)const { return (WBSF::Round(value, digit) < WBSF::Round(m_lowerBound, digit)) || (value > WBSF::Round(m_upperBound,digit)); }
+		bool IsOutOfBound(double& value, size_t digit = 5)const { return (WBSF::Round(value, digit) < WBSF::Round(m_lowerBound, digit)) || (value > WBSF::Round(m_upperBound, digit)); }
 		double GetExtent()const
 		{
 			_ASSERTE(m_upperBound >= m_lowerBound);
@@ -189,7 +171,7 @@ namespace WBSF
 	class CSAParameter
 	{
 	public:
-		enum TMember { NAME, VALUE, BOUND, NB_MEMBER };
+		enum TMember { NAME, VALUE, BOUND, USE_IT, NB_MEMBER };
 
 		static const char* GetMemberName(int i) { _ASSERTE(i >= 0 && i < NB_MEMBER); return MEMBER_NAME[i]; }
 		static const char* GetXMLFlag() { return XML_FLAG; }
@@ -216,6 +198,7 @@ namespace WBSF
 		std::string m_name;
 		double m_initialValue;
 		CVariableBound m_bounds;
+		bool m_b_use_it;
 
 	protected:
 
@@ -230,12 +213,58 @@ namespace WBSF
 	typedef std::map<std::string, CSAParameterVector> CSAParametersMap;
 
 
+	class CCComputationSet
+	{
+	public:
 
+		CCComputationSet()
+		{
+			clear();
+		}
+
+		void clear()
+		{
+			m_X.clear();
+			m_F = 0;
+			m_Xstat.clear();
+			m_AICC = 0;
+			m_n = 0;
+			m_k = 0;
+			m_MLL = 0;
+			m_S.clear();
+		}
+
+		void Initialize(double missingValue)
+		{
+			m_F = missingValue;
+			m_n = 0;
+			m_k = 0;
+			m_AICC = missingValue;
+			m_MLL = missingValue;
+		}
+
+		void resize(size_t size)
+		{
+			m_X.resize(size);
+			m_Xstat.resize(size);
+		}
+
+
+		std::vector<double> m_X;
+		CStatisticVector m_Xstat;
+		double m_F;
+		double m_AICC;
+		size_t m_n;
+		size_t m_k;
+		double m_MLL;
+		CStatisticXY m_S;
+
+	};
 
 
 	//*******************************************************************************
 	//CComputationVariable
-	class CComputationVariable
+	class CComputationVariable : public CCComputationSet
 	{
 	public:
 		CComputationVariable() { Initialize(1, 4, 0); }
@@ -243,7 +272,7 @@ namespace WBSF
 		{
 			ASSERT(L > 0);//L in base 1
 
-			double F = RT * pow(RT2, L-1);
+			double F = RT * pow(RT2, L - 1);
 			m_T = F * m_T;
 			for (size_t I = m_FSTAR.size() - 1; I > 0; I--)
 			{
@@ -252,96 +281,114 @@ namespace WBSF
 
 			m_FSTAR[0] = m_F;
 
-			m_S = m_Sopt;
-			m_F = m_Fopt;
-			m_X = m_Xopt;
-			m_AICC = m_AICCopt;
-			m_MLL = m_MLLopt;
-			m_n = m_n_opt;
-			m_k = m_k_opt;
-			
+			(*this) = m_opt;
 
 			//reset bounding parameter stat each loop
-			for (size_t i = 0; i < m_XPstat.size(); i++)
-			{
-				m_XPstat[i].Reset();
-			}
+			for (size_t i = 0; i < m_P.m_Xstat.size(); i++)
+				m_P.m_Xstat[i].clear();
 		}
 
 		void Initialize(double T, long NEPS, double missingValue)
 		{
-			
-			m_T = T;
-			
-			//  Initialize variable
-			m_F = m_FP = m_Fopt = missingValue;
-			m_n = m_n_P = m_n_opt = 0;
-			m_k = m_k_P = m_k_opt=0;
-			m_AICC = m_AICCopt = m_AICCP = missingValue;
-			m_MLL = m_MLLP = m_MLLopt = missingValue;
 
-			m_NACC = 0;
-			m_NOBDS = 0;
+			m_T = T;
+
+			//  Initialize variable
+			CCComputationSet::Initialize(missingValue);
+			m_P.Initialize(missingValue);
+			m_opt.Initialize(missingValue);
+
 			m_NFCNEV = 0;
 
 			//Initialize FSTAR
 			m_FSTAR.clear();
 			m_FSTAR.insert(m_FSTAR.begin(), NEPS, DBL_MAX);
-			//m_initial_nb_values = 0;
+
+		}
+
+		ERMsg InitializeVar(const CSAParameterVector& parameters)
+		{
+			ERMsg msg;
+			resize(parameters.size());
+			for (size_t i = 0; i < parameters.size(); i++)
+			{
+				m_bounds[i] = parameters[i].m_bounds;
+				m_P.m_X[i] = parameters[i].m_initialValue;
+				m_C[i] = 2;
+				m_VM[i] = m_bounds[i].GetExtent();
+				m_b_use_it[i] = parameters[i].m_b_use_it;
+
+				//If the initial value is out of bounds, notify the user and return
+				//to the calling routine.
+				if (m_bounds[i].IsOutOfBound(m_P.m_X[i]))
+					msg.ajoute("The starting value (" + ToString(m_P.m_X[i]) + ") is not inside the bounds [" + ToString(m_bounds[i].GetLowerBound()) + "," + ToString(m_bounds[i].GetUpperBound()) + "].");
+			}
+
+			return msg;
+		}
+
+		const CComputationVariable& operator=(const CComputationVariable& in)
+		{
+			CCComputationSet::operator=(in);
+			m_P = in.m_P;
+			m_opt = in.m_opt;
+
+			m_T = in.m_T;
+
+			m_FSTAR = in.m_FSTAR;
+			m_VM = in.m_VM;
+			m_VMstat = in.m_VMstat;
+			m_Pstat = in.m_Pstat;
+
+			//constant 
+			m_C = in.m_C;
+			m_bounds = in.m_bounds;
+			m_NFCNEV = in.m_NFCNEV;
+			m_b_use_it = in.m_b_use_it;
+
+			return *this;
+		}
+
+		const CCComputationSet& operator=(const CCComputationSet& in)
+		{
+			return CCComputationSet::operator=(in);
 		}
 
 
-
-		std::vector<double> m_X;
-		double m_F;
-		CStatisticVector m_Xstat;
-		double m_AICC;
-		size_t m_n;
-		size_t m_k;
-		double m_MLL;
-		CStatisticXY m_S;
+		void resize(size_t size)
+		{
+			CCComputationSet::resize(size);
+			m_P.resize(size);
+			m_opt.resize(size);
 
 
-		
-		
-		std::vector<double> m_XP;
-		double m_FP;
-		CStatisticVector m_XPstat;
-		double m_AICCP;
-		size_t m_n_P;
-		size_t m_k_P;
-		double m_MLLP;
-		CStatisticXY m_SP;
+			m_VM.resize(size);
+			m_VMstat.resize(size);
+			m_C.resize(size);
+			m_bounds.resize(size);
+			m_b_use_it.resize(size);
+		}
 
 
+		CCComputationSet m_P;
+		CCComputationSet m_opt;
 
-		std::vector<double> m_Xopt;
-		double m_Fopt;
-		double m_AICCopt;
-		size_t m_n_opt;
-		size_t m_k_opt;
-		double m_MLLopt;
-		CStatisticXY m_Sopt;
-
-
-
-		
 		double m_T;
 
-		std::vector<double> m_FSTAR;
-		std::vector<double> m_VM;
-		CStatisticVector m_VMstat;
-		CStatisticEx m_Pstat;
 
-		//constant 
+
+
+		//variables
+		std::vector<double> m_VM;
 		std::vector<double> m_C;
 		CVariableBoundVector m_bounds;
-		//size_t m_initial_nb_values;
+		std::vector<bool> m_b_use_it;
+		CStatisticVector m_VMstat;
 
-
-		long m_NACC;
 		long m_NFCNEV;
-		long m_NOBDS;
+		std::vector<double> m_FSTAR;
+		CStatisticEx m_Pstat;
+
 
 	};
 
@@ -365,8 +412,10 @@ namespace zen
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](in.m_P_EPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](in.m_NS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](in.m_NT);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION2)](in.m_NT2);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](in.m_NEPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](in.m_MAXEVL);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_LOOP)](in.m_max_loop);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED1)](in.m_seed1);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED2)](in.m_seed2);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_SKIP_LOOP)](in.m_nbSkipLoop);
@@ -389,8 +438,10 @@ namespace zen
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](out.m_P_EPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](out.m_NS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](out.m_NT);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION2)](out.m_NT2);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](out.m_NEPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](out.m_MAXEVL);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_LOOP)](out.m_max_loop);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED1)](out.m_seed1);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::SEED2)](out.m_seed2);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_SKIP_LOOP)](out.m_nbSkipLoop);
@@ -426,6 +477,8 @@ namespace zen
 		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::NAME)](in.m_name);
 		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::VALUE)](in.m_initialValue);
 		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::BOUND)](in.m_bounds);
+		out[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::USE_IT)](in.m_b_use_it);
+
 
 	}
 
@@ -436,6 +489,7 @@ namespace zen
 		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::NAME)](out.m_name);
 		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::VALUE)](out.m_initialValue);
 		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::BOUND)](out.m_bounds);
+		in[WBSF::CSAParameter::GetMemberName(WBSF::CSAParameter::USE_IT)](out.m_b_use_it);
 
 		return true;
 	}
@@ -445,11 +499,11 @@ namespace zen
 		void writeStruc(const WBSF::CSAParameterVector& value, XmlElement& output)
 	{
 		std::for_each(value.begin(), value.end(),
-			[&](const WBSF::CSAParameter & childVal)
-		{
-			XmlElement& newChild = output.addChild(WBSF::CSAParameter::GetXMLFlag());
-			zen::writeStruc(childVal, newChild);
-		}
+			[&](const WBSF::CSAParameter& childVal)
+			{
+				XmlElement& newChild = output.addChild(WBSF::CSAParameter::GetXMLFlag());
+				zen::writeStruc(childVal, newChild);
+			}
 		);
 
 	}

@@ -250,6 +250,10 @@ xcopy /Q /Y ".\bin\Releasex64\Models\WaterBalance (Monthly).mdl" "..\Install\NRC
 xcopy /Q /Y ".\bin\Releasex64\Models\Western Spruce Budworm (annual).mdl" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\Western Spruce Budworm.dll" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\Western Spruce Budworm.mdl" "..\Install\NRCan\Models"
+xcopy /Q /Y ".\bin\Releasex64\Models\WesternSpruceBudwormDispersal.dll" "..\Install\NRCan\Models"
+xcopy /Q /Y ".\bin\Releasex64\Models\WesternSpruceBudwormDispersal.mdl" "..\Install\NRCan\Models"
+
+
 xcopy /Q /Y ".\bin\Releasex64\Models\WetnessDuration (Hourly).mdl" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\WetnessDuration.dll" "..\Install\NRCan\Models"
 xcopy /Q /Y ".\bin\Releasex64\Models\WhitemarkedTussockMoth.mdl" "..\Install\NRCan\Models"

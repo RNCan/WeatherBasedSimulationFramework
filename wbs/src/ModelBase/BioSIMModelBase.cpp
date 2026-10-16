@@ -282,19 +282,29 @@ namespace WBSF
 		bool bValid = true;
 		for (size_t i = 0; i < m_info.m_repCounter.GetTotal()&& bValid; i++)
 		{
-			CStatisticXY statTmp;
+			
 
-			switch (m_info.m_TM.Type())
+			try
 			{
-			case CTM::HOURLY: bValid &= GetFValueHourly(statTmp); break;
-			case CTM::DAILY: bValid &= GetFValueDaily(statTmp); break;
-			case CTM::MONTHLY: bValid &= GetFValueMonthly(statTmp); break;
-			case CTM::ANNUAL: bValid &= GetFValueAnnual(statTmp); break;
-			case CTM::ATEMPORAL: bValid &= GetFValueAtemporal(statTmp); break;
-			default: _ASSERTE(false);
+				CStatisticXY statTmp;
+				switch (m_info.m_TM.Type())
+				{
+				case CTM::HOURLY: bValid &= GetFValueHourly(statTmp); break;
+				case CTM::DAILY: bValid &= GetFValueDaily(statTmp); break;
+				case CTM::MONTHLY: bValid &= GetFValueMonthly(statTmp); break;
+				case CTM::ANNUAL: bValid &= GetFValueAnnual(statTmp); break;
+				case CTM::ATEMPORAL: bValid &= GetFValueAtemporal(statTmp); break;
+				default: _ASSERTE(false);
+				}
+				
+				stat += statTmp;
 			}
-
-			stat += statTmp;
+			catch(...)
+			{
+				assert(false);
+				bValid = false;
+			}
+			
 		}
 
 

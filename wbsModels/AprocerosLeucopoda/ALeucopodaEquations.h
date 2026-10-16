@@ -4,12 +4,15 @@
 #pragma once
 
 #include <array>
-#include "crtdbg.h"
+#include <cassert>
 #include "ModelBase/EquationTableLookup.h"
+#include "Basic/WeatherStation.h"
+#include "Basic/DegreeDays.h"
 
 namespace WBSF
 {
 
+	
 	namespace TZZ//Aproceros leucopoda
 	{
 		enum TStages{ EGG, LARVA, PREPUPA, PUPA, ADULT, DEAD_ADULT, NB_STAGES = DEAD_ADULT};
@@ -39,12 +42,23 @@ namespace WBSF
 		double GetRelativeDevRate(size_t s)const;
 		double GetFecondity()const;
 		double GetBrood(double Fi, double T, double t, double delta_t)const;
-		double GetAdultEmergingCDD()const;
+		
+		
+		
+		void InitAdultEmergenceCDD(const CWeatherYear& weather);
+		double GenerateAdultEmergingCDD()const;
+		CTRef GenerateAdultEmergingDate()const;
+		double GetDayLengthDiapause()const;
+		//CTRef ComputeDiapauseEnd(const CWeatherYear& weather)const;
 
+
+		CDegreeDays m_DDmodel;
+		CModelStatVector m_CDD;
 	protected:
 
 		virtual double ComputeDailyDevlopmentRate(size_t e, double T)const override;
 		virtual double ComputeDailySurvivalRate(size_t e, double T)const override;
+		virtual double ComputeOvipositionRatio(double T)const;
 	};
 
 }

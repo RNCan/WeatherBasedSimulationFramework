@@ -130,14 +130,7 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		/*CERA5 ERA5;
-		ERA5.m_workingDir = GetDir(WORKING_DIR);
-		ERA5.m_first_year = as<int>(FIRST_YEAR);
-		ERA5.m_last_year = as<int>(LAST_YEAR);
-		ERA5.m_frequency = as<size_t>(FREQUENCY);
-
-		return ERA5.GetGribsList(p, gribsList, callback);*/
-
+	
 		size_t product = as<size_t>(PRODUCT);
 		if (product == DATA_ERA5)
 		{
@@ -175,13 +168,6 @@ namespace WBSF
 	{
 		ERMsg msg;
 
-		/*CERA5 ERA5;
-		ERA5.m_workingDir = GetDir(WORKING_DIR);
-		ERA5.m_first_year = as<int>(FIRST_YEAR);
-		ERA5.m_last_year = as<int>(LAST_YEAR);
-		ERA5.m_frequency = as<size_t>(FREQUENCY);
-
-		return ERA5.GetStationList(stationList, callback);*/
 		size_t product = as<size_t>(PRODUCT);
 		if (product == DATA_ERA5)
 		{
@@ -220,13 +206,7 @@ namespace WBSF
 		ERMsg msg;
 
 		
-		/*CERA5 ERA5;
-		ERA5.m_workingDir = GetDir(WORKING_DIR);
-		ERA5.m_first_year = as<int>(FIRST_YEAR);
-		ERA5.m_last_year = as<int>(LAST_YEAR);
-		ERA5.m_frequency = as<size_t>(FREQUENCY);
-
-		return ERA5.GetWeatherStation(ID, TM, station, callback);*/
+		
 		size_t product = as<size_t>(PRODUCT);
 		if (product == DATA_ERA5)
 		{
@@ -238,7 +218,7 @@ namespace WBSF
 			ERA5.m_show_download = as<bool>(SHOW_DONWLOAD);
 			ERA5.m_bounding_box = as<CGeoRect>(BOUNDING_BOX);
 			ERA5.m_bounding_box.SetPrjID(PRJ_WGS_84);
-			msg = GetWeatherStation(ID, TM, station, callback);
+			msg = ERA5.GetWeatherStation(ID, TM, station, callback);
 		}
 		else if (product == DATA_20CRV3)
 		{
