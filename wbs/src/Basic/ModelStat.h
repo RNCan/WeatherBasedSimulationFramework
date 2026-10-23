@@ -146,7 +146,10 @@ namespace WBSF
 		{
 			CModelStatVectorBase::resize(size);
 			for (size_t i = 0; i < size; i++)
+			{
 				at(i).resize(m_nbStat, defaultValue);
+				std::fill(at(i).begin(), at(i).end(), defaultValue);
+			}
 		}
 
 		CModelStatVector& operator=(const CModelStatVector& in);
@@ -160,6 +163,8 @@ namespace WBSF
 		CTPeriod GetTPeriod(size_t v, const std::string& op, double threshold = 0, int nbDayBefore = 1, int nbDayAfter = 1, const CTPeriod& p = CTPeriod())const{ return CTPeriod(GetFirstTRef(v, op, threshold, nbDayBefore, p), GetLastTRef(v, op, threshold, nbDayAfter, p)); }
 		
 		CStatistic GetStat(size_t v, const CTPeriod& period = CTPeriod())const;
+		double GetSimDOY(size_t v, int year, double obs)const;
+
 
 		CTRef GetFirstTRef()const{ return m_firstTRef; }
 		void SetFirstTRef(CTRef firstDate){ m_firstTRef = firstDate; }

@@ -125,7 +125,7 @@ namespace WBSF
 		{
 			switch (type)
 			{
-			case NORMALS:
+			case NORMAL:
 			{
 				boost::math::normal_distribution<double> distribution(p1, p2);
 				v = cdf(distribution, x);
@@ -238,7 +238,7 @@ namespace WBSF
 		{
 			switch (type)
 			{
-			case NORMALS:
+			case NORMAL:
 			{
 				boost::math::normal_distribution<double> distribution(p1, p2);
 				v = quantile(distribution, x);

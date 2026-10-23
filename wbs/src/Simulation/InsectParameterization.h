@@ -13,6 +13,7 @@
 
 #include "basic/ERMsg.h"
 #include "basic/UtilZen.h"
+#include "Basic/ModelStat.h"
 #include "ModelBase/Model.h"
 #include "ModelBase/ParametersVariations.h"
 #include "ModelBase/DevRateEquation.h"
@@ -349,7 +350,7 @@ namespace WBSF
 
 	protected:
 
-		
+
 
 	};
 
@@ -445,25 +446,87 @@ namespace WBSF
 			m_fixeSigma = 0.0;
 		}
 
+		CFitOutput(const CFitOutput& in)
+		{
+			operator=(in);
+		}
+
+		CFitOutput& operator=(const CFitOutput& in)
+		{
+			m_variable = in.m_variable;
+			m_equation = in.m_equation;
+			m_parameters = in.m_parameters;
+			m_computation = in.m_computation;
+			m_fixeSigma = in.m_fixeSigma;
+			return *this;
+		}
+
 		std::string m_variable;
 		size_t m_equation;
 		CSAParameterVector m_parameters;
-		CComputationVariable m_computation;
+		CComputationVariableVector m_computation;
 		double m_fixeSigma;
-		//bool m_bAddRelDevRate;
 	};
 
 
-	typedef std::vector<CFitOutput>CFitOutputVector;
-
-	class CStagesTableRow
+	class CFitOutputVector : public std::vector<CFitOutput>
 	{
 	public:
 
-		//std::string m_treatment;
-		CTRef m_TRef;
-		std::vector<double> m_n;
+		CFitOutputVector()
+		{
+			m_first_stage = m_last_stage = 0;
+		}
+
+		CFitOutputVector(const CFitOutputVector& in)
+		{
+			operator=(in);
+		}
+
+		CFitOutputVector& operator=(const CFitOutputVector& in)
+		{
+			std::vector<CFitOutput>::operator=(in);
+			m_first_stage = in.m_first_stage;
+			m_last_stage = in.m_last_stage;
+			m_c = in.m_c;
+
+			return *this;
+		}
+
+		std::string get_variables()const
+		{
+			std::string variables;
+			for (size_t s = 0; s < size(); s++)
+			{
+				if (s >= m_first_stage && s <= m_last_stage)
+				{
+					if (!variables.empty())
+						variables += ", ";
+
+					variables = variables + at(s).m_variable;
+				}
+			}
+			return variables;
+		}
+
+		size_t m_first_stage;
+		size_t m_last_stage;
+
+		CComputationVariableVector m_c;
 	};
+
+
+
+
+
+
+
+	//**********************************************************************************************************
+
+
+
+
+
 
 	class COneSimulatedStage
 	{
@@ -471,34 +534,86 @@ namespace WBSF
 
 		double m_p;
 		double m_RDR;
-		std::string m_treatment;
-		double m_temperature;
 
 		double m_time;
 	};
 
-	class COneSimulatedInsect: public std::vector<COneSimulatedStage>
+	class COneSimulatedInsect : public std::vector<COneSimulatedStage>
 	{
 	public:
 
 		vector<double> get_stage_time()
 		{
-			vector<double> time;
+			vector<double> time(size());
+
+
+			for (size_t s = 0; s < size(); s++)
+			{
+				time[s] = ((s == 0) ? 0 : time[s - 1]) + at(s).m_time;
+			}
 
 			return time;
 		}
 
 	};
-
-	class CSimulatedInsects : public std::vector<COneSimulatedInsect>
+	class COneSimulatedTreatment : public std::vector<COneSimulatedInsect>
 	{
 	public:
-		
-		
+
+		std::string m_treatment;
+		double m_temperature;
+		CModelStatVector m_output;
+	};
+
+	class CSimulatedInsects : public std::vector<COneSimulatedTreatment>
+	{
+	public:
+
+
+		std::vector<double> get_stage_table(size_t i, CTRef TRef)
+		{
+			if (TRef < at(i).m_output.GetTPeriod().Begin())
+				return m_before_begin;
+
+			if (TRef > at(i).m_output.GetTPeriod().End())
+				return m_after_end;
+
+
+			return at(i).m_output[TRef];
+		}
+
+
+		std::vector<double> m_before_begin;
+		std::vector<double> m_after_end;
+
 	};
 
 
-	typedef std::map<std::string, std::map<std::string, std::vector<CStagesTableRow>>>  CCStagesTableDataBase;
+
+
+
+
+
+	class CStagesTableRow
+	{
+	public:
+		CTRef m_TRef;
+		std::vector<double> m_n;
+		std::vector<double> m_cumul;
+
+
+
+		size_t m_treatments_to_sim_index;
+	};
+
+	class CStagesTableRows : public std::vector<CStagesTableRow>
+	{
+	public:
+
+		std::vector < CStatistic> m_stats;
+	};
+
+	typedef std::map<std::string, std::map<std::string, CStagesTableRows>>  CCStagesTableDataBase;
 	class CCStagesTableData : public CCStagesTableDataBase
 	{
 	public:
@@ -515,18 +630,26 @@ namespace WBSF
 		ERMsg load(const std::string& file_path);
 		ERMsg load(std::istream& io);
 
+		void compute_cumulative();
+
 		void clear();
 		size_t get_pos(TColumns col)const { return have_column(col) ? std::distance(m_input_pos.begin(), std::find(m_input_pos.begin(), m_input_pos.end(), col)) : NOT_INIT; }
 		bool have_column(TColumns col)const { return std::find(m_input_pos.begin(), m_input_pos.end(), col) != m_input_pos.end(); }
 
 		size_t num_treatments()const { return m_treatments.size(); }
 		std::string get_treatment(size_t t)const { assert(t < m_treatments.size()); return *(std::next(m_treatments.begin(), t)); }
-		size_t num_stages()const {			return m_stage_columns.size();		}
+		size_t num_stages()const { return m_stage_columns.size(); }
+		std::string get_stage(size_t s)const { assert(s < m_stage_columns.size()); return m_stage_columns[s].first; }
 
 		std::vector<std::pair<std::string, size_t>> m_stage_columns;
 		std::vector<size_t> m_input_pos;
 		std::set<std::string> m_treatments;
+
+
+		//std::vector<size_t> m_treatments_to_sim_index;
+		bool m_bDOY;
 	};
+
 
 
 	//*******************************************************************************
@@ -547,7 +670,7 @@ namespace WBSF
 			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, STAGE_TABLE_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME,
 			OUTPUT_FILE_NAME, CONTROL, COUNSTRAIN_T_LO, T_LO_VALUES, COUNSTRAIN_T_HI, T_HI_VALUES,
 			FIXE_F0, F0_VALUE, FIXE_T0, T0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, AVOID_NULL_RATE_IN_TOBS, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME,
-			SHOW_TRACE, USE_DEAD, USE_CENCORED, USE_CASUALTIES, ADULT_NAME, SA_PRESET, OPTIM_METHOD, 
+			SHOW_TRACE, USE_DEAD, USE_CENCORED, USE_CASUALTIES, ADULT_NAME, SA_PRESET, OPTIM_METHOD,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -632,21 +755,34 @@ namespace WBSF
 
 
 		static ERMsg ReadParametersFromFile(const std::string& outputFilePath, std::map<std::string, std::map<std::string, std::map<std::string, double>>>& params);
+
+
+		size_t get_num_insects()const
+		{
+			static const std::array< size_t, NB_SA_OPTION> NUM_INSECTS = { 50,75,100,150,200 };
+			return NUM_INSECTS[m_SA_preset];
+		}
 	protected:
 
 		ERMsg ExecuteStageTable(const CFileManager& fileManager, CCallback& callback);
+		ERMsg OptimizeStageTable(CFitOutputVector& p, CCallback& callback);
+		bool GetFValueStageTable(CFitOutputVector& p);
+		ERMsg InitialiseComputationVariableStageTable(CFitOutputVector& p, CCallback& callback);
+
+
 		ERMsg ExecuteOther(const CFileManager& fileManager, CCallback& callback);
 
 
 
-		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		bool GetFValue(std::string s, size_t e, CComputationVariable& computation);
+		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback);
+		bool GetFValue(std::string s, size_t e, CComputationVariableVector& computation);
+
 		bool IsParamValid(const std::string& var, size_t e, const std::vector<double>& P);
 		bool IsRateValid(const std::string& var, size_t e, const std::vector<double>& P, double null_rate_treashold);
 
-		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
-		void WriteInfoEx(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
+		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback);
+		
+		void WriteInfoEx(size_t loop, std::string variable, const CComputationVariableVector& computation, bool b_show_Header, bool b_show_stats, CCallback& callback);
 
 		double Exprep(const double& RDUM);
 
@@ -659,11 +795,14 @@ namespace WBSF
 		CSurvivalData m_survival;
 		CFecundityData m_fecundity;
 		CCStagesTableData m_stages_table;
-		CSimulatedInsects m_I;//the simulator for the stage_table
+		//CSimulatedInsects m_I;//the simulator for the stage_table
+		std::deque<CSimulatedInsects> m_I_threaded;
 
 		//working data
 		CSAControl m_SA_ctrl;
 
+
+		std::string m_debug_filepath;
 
 		static const char* XML_FLAG;
 		static const char* MEMBERS_NAME[NB_MEMBERS_EX];

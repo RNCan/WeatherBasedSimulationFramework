@@ -197,6 +197,7 @@ namespace WBSF
 		if (!p.IsInit())
 			p = GetTPeriod();
 
+		p = GetTPeriod().Intersect(p);
 		ASSERT(GetTPeriod().IsInside(p));
 
 		int fd = p.Begin() - m_firstTRef;
@@ -669,6 +670,40 @@ namespace WBSF
 		}
 	}
 
+	double CModelStatVector::GetSimDOY(size_t s, int year, double obs)const
+	{
+		double DOY = -999;
+
+		if (obs > -999)
+		{
+			if (obs >= 100)
+				obs = 99.99;//to avoid some problem of truncation
+
+			CTPeriod p = GetTPeriod();
+			if (year > -999)
+				p = CTPeriod(year, FIRST_MONTH, FIRST_DAY, year, LAST_MONTH, LAST_DAY);
+
+			long index = GetFirstIndex(s, ">=", obs, 1, p);
+			if (index >= 1)
+			{
+				double obsX1 = GetFirstTRef().GetJDay() + index;
+				double obsX2 = GetFirstTRef().GetJDay() + index + 1;
+
+				double obsY1 = at(index)[s];
+				double obsY2 = at(index + 1)[s];
+				if (obsY2 != obsY1)
+				{
+					double slope = (obsX2 - obsX1) / (obsY2 - obsY1);
+					DOY = obsX1 + (obs - obsY1) * slope;
+					ASSERT(!_isnan(DOY) && _finite(DOY));
+					if (GetTPeriod().GetTM() == CTM::HOURLY)
+						DOY /= 24.0;
+				}
+			}
+		}
+
+		return DOY;
+	}
 
 	//*************************************************************************************************
 	CTStatMatrix::CTStatMatrix(CTPeriod period, size_t nbVars) :

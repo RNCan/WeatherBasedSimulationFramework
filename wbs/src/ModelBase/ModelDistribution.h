@@ -39,17 +39,9 @@ namespace WBSF
 	{
 	public:
 		
-		enum TType { NOT_INIT=-1, NORMALS, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, LOG_LOGISTIC, NB_DISTRIBUTIONS };
-
-		//CModelDistribution(TType type, double p1, double p2);
-
-
-		//double get_cdf(double v)const;
-		//double get_pdf(double v)const;
-		//double get_quantile(double x)const;
-
-		static double get_cdf(double x, TType type, double p1, double p2, double p3=0);
-		static double get_quantile(double x, TType type, double p1, double p2, double p3=0);
+		enum TType { NOT_INIT=-1, NORMAL, LOG_NORMAL, LOGISTIC, WEIBULL, GAMMA, FISHER, EXTREME_VALUE, RAYLEIGH, MODIFIED_LOGISTIC, GOMPERTZ1, GOMPERTZ2, FRECHET, LOG_LOGISTIC, NB_DISTRIBUTIONS };
+		static double get_cdf(double x, TType type, double p1, double p2, double p3 = 0);
+		static double get_quantile(double x, TType type, double p1, double p2, double p3 = 0);
 
 		static double get_cdf(double x, const std::array<double, NB_CDD_PARAMS>& P);
 		static double get_quantile(double x, const std::array<double, NB_CDD_PARAMS>& P);
@@ -58,23 +50,28 @@ namespace WBSF
 		static void get_CDD(const std::array<double, NB_CDD_PARAMS>& params, const CWeatherYear& weather, CModelStatVector& CDD);
 		static void get_ChillCDD(const std::array<double, NB_CDD_PARAMS>& params, const CWeatherYear& weather, CModelStatVector& CDD);
 
-		static void get_CDF(const std::array<double, NB_CDD_PARAMS>& params, const CModelStatVector& CDD, CModelStatVector& CDF, size_t round=1);
-		static void get_CDF(const std::array<double, NB_CDD_PARAMS>& params, const CWeatherYear& weather, CModelStatVector& CDF, size_t round=1);
+		static void get_CDF(const std::array<double, NB_CDD_PARAMS>& params, const CModelStatVector& CDD, CModelStatVector& CDF, size_t round = 1);
+		static void get_CDF(const std::array<double, NB_CDD_PARAMS>& params, const CWeatherYear& weather, CModelStatVector& CDF, size_t round = 1);
 
+
+
+		CModelDistribution(TType type= NORMAL, double p1=0, double p2=1, double p3 = 0)
+		{
+			m_type= type;
+			m_p1 = p1;
+			m_p2 = p2;
+			m_p3 = p3;
+		}
+
+		double get_cdf(double x)const{return get_cdf(x, m_type, m_p1, m_p2, m_p3);}
+		double get_quantile(double x)const { return get_quantile(x, m_type, m_p1, m_p2, m_p3); }
+		
 	protected:
 
-		//TType m_type;
-		//double m_p1;
-		//double m_p2;
-
-		//std::unique_ptr<boost::math::normal_distribution<double>> p_normal_distribution;
-		//std::unique_ptr<boost::math::lognormal_distribution<double>> p_lognormal_distribution;
-		//std::unique_ptr<boost::math::logistic_distribution<double>> p_logistic_distribution;
-		//std::unique_ptr<boost::math::weibull_distribution<double>> p_weibull_distribution;
-		//std::unique_ptr<boost::math::fisher_f_distribution<double>> p_fisher_f_distribution;
-		//std::unique_ptr<boost::math::extreme_value_distribution<double>> p_extreme_value_distribution;
-		//std::unique_ptr<boost::math::gamma_distribution<double>> p_gamma_distribution;
-		//std::unique_ptr<boost::math::rayleigh_distribution<double>> p_rayleigh_distribution;
+		TType m_type;
+		double m_p1;
+		double m_p2;
+		double m_p3;
 
 	};
 

@@ -8,7 +8,7 @@ namespace WBSF
 
 	public:
 
-		enum TEggHatchModel { EH_SAINT_AMANT, NB_MODELS};
+		enum TEggHatchModel { EH_SAINT_AMANT, EH_KHANNA, NB_MODELS};
 
 		CGypsyMothEggHatchModel();
 		virtual ~CGypsyMothEggHatchModel();
@@ -38,12 +38,14 @@ namespace WBSF
 		std::map<std::string, CStatistic> m_egg_creation_date;
 		CStatistic m_cumul_stats;
 		
-		void ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& stat);
-		
+		void ExecuteDailySaintAmant(int year, const CWeatherYears& weather, CModelStatVector& stat);
+		void ExecuteDailyKhanna(int year, const CWeatherYears& weather, CModelStatVector& output);
 		
 		//calibration method
 		bool Calibrate(CStatisticXY& stat);
 		bool IsParamValid()const;
+
+		bool CalibrateKhanna(CStatisticXY& stat);
 	};
 
 }

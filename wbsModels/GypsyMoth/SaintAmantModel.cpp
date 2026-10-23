@@ -34,23 +34,23 @@ namespace WBSF
 
 		ERMsg msg;
 
-		m_eggState.Init(p.GetLength(), p.Begin());
+		m_eggState.Init(p);
 
 		//This is where the model is actually executed
 		CModelStatVector output(p, NB_STATS, 0);
 
 		//simulation overall years
-		for (size_t y = 0; y < weather.size(); y++)
+		for (size_t y = 1; y < weather.size(); y++)
 		{
 			ExecuteDaily(weather[y].GetTRef().GetYear(), weather, output);
 		}
 
 		for (CTRef TRef = p.Begin(); TRef <=  p.End(); TRef++)
 		{
-			m_eggState[TRef][DIAPAUSE] = MAXEGGS* output[TRef][S_DIAPAUSE_EGGS];
+			m_eggState[TRef][DIAPAUSE] = MAXEGGS* output[TRef][S_DIAPAUSE_EGGS] / 100.0;
 			m_eggState[TRef][POSDIAPAUSE] = MAXEGGS * output[TRef][S_EGGS] / 100.0;
 			m_eggState[TRef][HATCH] = MAXEGGS * output[TRef][S_LARVAE] / 100.0;
-			m_eggState[TRef][HATCHING] = MAXEGGS * output[TRef][S_EGGS_HATCH] / 100.0;
+			m_eggState[TRef][HATCHING] = output[TRef][S_EGGS_HATCH];
 		}
 
 		return msg;

@@ -2,7 +2,7 @@
 <Model version="3">
     <Title>GypsyMothEggHatch</Title>
     <Version>1.0</Version>
-    <ID>.GMEHP</ID>
+    <ID>.GMEH</ID>
     <EXE>GypsyMothEggHatch.dll</EXE>
     <Behaviour>1</Behaviour>
     <Description/>

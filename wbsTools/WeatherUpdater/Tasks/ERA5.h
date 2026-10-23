@@ -20,6 +20,8 @@ namespace WBSF
 	{
 	public:
 		
+		enum TFrequency { DATA_HOURY, DATA_DAILY };
+
 		
 		CERA5(const std::string& workingDir="");
 		virtual ~CERA5(void);
@@ -53,11 +55,9 @@ namespace WBSF
 
 		ERMsg DownloadERA5(CTRef TRef, CCallback& callback)const;
 		ERMsg DownloadERA5GoogleCloud(CTRef TRef, CCallback& callback)const;
-		//ERMsg CreateDailyGeotiff(const std::string& inputFilePath, int year, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(CTRef TRef, CCallback& callback)const;
-		//ERMsg CreateDailyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
-		//ERMsg CreateDailyGeotiff(StringVector& filesList, const std::string& file_path_out, CCallback& callback)const;
-
+		ERMsg CreateHourlyGeotiff(CTRef TRef, CCallback& callback)const;
+		
 		
 	};
 

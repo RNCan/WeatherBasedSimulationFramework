@@ -24,29 +24,29 @@ using namespace WBSF::TZZ;
 namespace WBSF
 {
 
-	class COverheat2: public COverheat
-	{
-	public:
+	//class COverheat2: public COverheat
+	//{
+	//public:
 
-		COverheat2(double overheat = 1)
-		{
-			m_overheat = overheat;
-		}
-		
-		virtual double GetTmax(const CWeatherDay& weather)const;
+	//	COverheat2(double overheat = 1)
+	//	{
+	//		m_overheat = overheat;
+	//	}
+	//	
+	//	virtual double GetTmax(const CWeatherDay& weather)const;
 
-	protected:
+	//protected:
 
-		double m_overheat;
-	};
+	//	double m_overheat;
+	//};
 
-	double COverheat2::GetTmax(const CWeatherDay& weather)const
-	{
-		if (m_overheat == 1)//by optimization, avoid compute statistic
-			return weather[H_TMAX][MEAN];
+	//double COverheat2::GetTmax(const CWeatherDay& weather)const
+	//{
+	//	if (m_overheat == 1)//by optimization, avoid compute statistic
+	//		return weather[H_TMAX][MEAN];
 
-		return weather[H_TNTX][MEAN] + weather[H_TRNG2][MEAN]/2 * m_overheat;
-	}
+	//	return weather[H_TNTX][MEAN] + weather[H_TRNG2][MEAN]/2 * m_overheat;
+	//}
 	//*********************************************************************************
 	//CAprocerosLeucopoda class
 
@@ -63,15 +63,17 @@ namespace WBSF
 	{
 		//reset creation date
 		int year = creationDate.GetYear();
-		//m_creationDate = GetCreationDate(year);
-		m_adult_emergence = GetAdultEmergence(year);
+		
+		m_adult_emergence = GetEquations().GenerateAdultEmergingDate(); 
 		m_bDiapause = false;// age == PUPA;
+		m_dl_diapause = GetEquations().GetDayLengthDiapause();
+
 
 		for (size_t s = 0; s < NB_STAGES; s++)
-			m_RDR[s] = Equations().GetRelativeDevRate(s);
+			m_RDR[s] = GetEquations().GetRelativeDevRate(s);
 
-		//m_adult_longevity = Equations().GetAdultLongevity(m_sex);
-		m_Fi = Equations().GetFecondity();
+		
+		m_Fi = GetEquations().GetFecondity();
 		m_bDeadByAttrition = false;
 	}
 
@@ -81,40 +83,7 @@ namespace WBSF
 		return creationDate;
 	}
 
-	CTRef CAprocerosLeucopoda::GetAdultEmergence(int year)const
-	{
-		const CWeatherStation& weather_station = GetStand()->GetModel()->m_weather;
-		CTPeriod p = weather_station[year].GetEntireTPeriod(CTM::DAILY);
-
-		CTRef adult_emergence;
-		double adult_emerging_CDD = Equations().GetAdultEmergingCDD();
-
-		CTRef begin = p.Begin();
-		CTRef end = p.End();
-		
-		static const CDegreeDays::TDailyMethod DD_METHOD = CDegreeDays::ALLEN_WAVE;
-		CDegreeDays DDmodel(DD_METHOD, GetStand()->m_equations.m_EAS[Τᴴ¹], GetStand()->m_equations.m_EAS[Τᴴ²]);
-		
-		CModelStatVector GDD;
-		DDmodel.Execute(weather_station[year], GDD);
-
-		double CDD = 0;
-		for (CTRef TRef = begin; TRef <= end && !adult_emergence.IsInit(); TRef++)
-		{
-			if (TRef.GetJDay() >= GetStand()->m_equations.m_EAS[Tᴼ])//0 base
-			{
-				double DD = GDD[TRef][CDegreeDays::S_DD];
-				CDD += DD;
-			}
-
-			if (CDD >= adult_emerging_CDD)
-			{
-				adult_emergence = TRef;
-			}
-		}
-
-		return adult_emergence;
-	}
+	
 
 	CAprocerosLeucopoda& CAprocerosLeucopoda::operator=(const CAprocerosLeucopoda& in)
 	{
@@ -124,12 +93,16 @@ namespace WBSF
 
 			m_adult_emergence = in.m_adult_emergence;
 			m_bDiapause = in.m_bDiapause;
+			m_dropToGroundDate = in.m_dropToGroundDate;
+			m_dl_diapause = in.m_dl_diapause;
 			m_bDeadByAttrition = in.m_bDeadByAttrition;
 
+			m_adult_emergence = GetEquations().GenerateAdultEmergingDate();
+
 			for (size_t s = 0; s < NB_STAGES; s++)
-				m_RDR[s] = Equations().GetRelativeDevRate(s);
+				m_RDR[s] = GetEquations().GetRelativeDevRate(s);
 			
-			m_Fi = Equations().GetFecondity();;
+			m_Fi = GetEquations().GetFecondity();;
 		}
 
 		return *this;
@@ -176,7 +149,7 @@ namespace WBSF
 
 
 		//Daily development rate
-		double d_r = Equations().GetDailyDevlopmentRate(s, T);
+		double d_r = GetEquations().GetDailyDevlopmentRate(s, T);
 		//Time step development rate
 		double st_r = d_r / nb_steps;
 
@@ -226,10 +199,14 @@ namespace WBSF
 			size_t h = step * GetTimeStep();
 			Live(weather, h, GetTimeStep());
 
-			if (GetStage() == PUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 260)
+			if (GetStage() == PREPUPA && HasChangedStage() && weather.GetTRef().GetJDay() >= 171)//&& weather.GetTRef().GetJDay() >= 260
 			{
-				m_dropToGroundDate = weather.GetTRef();
-				m_bDiapause = true;
+				
+				if (weather.GetDayLength()/3600 < m_dl_diapause)
+				{
+					m_dropToGroundDate = weather.GetTRef();
+					m_bDiapause = true;
+				}
 			}
 		}
 
@@ -249,7 +226,8 @@ namespace WBSF
 			//no brood process done
 
 			size_t nb_days = weather.GetTRef() - m_reachDate[ADULT];
-			double brood = Equations().GetBrood(m_Fi, weather[H_TNTX], nb_days, 1);
+			
+			double brood = GetEquations().GetBrood(m_Fi, weather[H_TNTX], nb_days, 1);
 			//brooding
 			m_broods = brood;
 			m_totalBroods += brood;
@@ -289,7 +267,7 @@ namespace WBSF
 			size_t s = GetStage();
 
 			static const double COLD_TOLERENCE_T[NB_STAGES] = { 0, 0, 0, 0, 0 };
-			//ATTENTION remettre zéro!!
+			
 			if (!m_bDiapause && m_generation>1 && weather[H_TMIN][MEAN] < COLD_TOLERENCE_T[s])
 			{
 				m_status = DEAD;
@@ -307,7 +285,7 @@ namespace WBSF
 		bool bDeath = false;
 
 		//overall (stage) survival at this temperature
-		double S = Equations().GetStageSurvival(s, T);
+		double S = GetEquations().GetStageSurvival(s, T);
 
 		//time step survival, limit at 1% survival to avoid annihilation
 		double i_s = pow(max(0.01,S), i_r);
@@ -393,34 +371,7 @@ namespace WBSF
 	//*************************************************
 	//CTZZStand
 
-	void CTZZStand::init(int year, const CWeatherYears& weather)
-	{
-	}
-
-	CTRef CTZZStand::ComputeDiapauseEnd(const CWeatherYear& weather)const
-	{
-		CTPeriod p = weather.GetEntireTPeriod(CTM::DAILY);
-
-
-		double sumDD = 0;
-
-		for (size_t ii = (172 - 1); ii <= (m_equations.m_EWD[ʎ0] - 1); ii++)
-		{
-			CTRef TRef = p.Begin() + ii;
-			const CWeatherDay& wday = weather.GetDay(TRef);
-			double T = wday[H_TNTX][MEAN];
-			T = max(m_equations.m_EWD[ʎa], T);
-
-			double DD = min(0.0, T - m_equations.m_EWD[ʎb]);//DD is negative
-			sumDD += DD;
-		}
-
-		boost::math::logistic_distribution<double> begin_dist(m_equations.m_EWD[ʎ2], m_equations.m_EWD[ʎ3]);
-		int begin = (int)Round((m_equations.m_EWD[ʎ0] - 1) + m_equations.m_EWD[ʎ1] * cdf(begin_dist, sumDD), 0);
-
-
-		return p.Begin() + begin;
-	}
+	
 
 
 

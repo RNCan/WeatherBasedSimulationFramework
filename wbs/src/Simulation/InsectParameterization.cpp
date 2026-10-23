@@ -54,6 +54,9 @@ using namespace WBSF::DIMENSION;
 namespace WBSF
 {
 
+	static bool b_ouput_file = true;
+
+
 	static const double SIGMA_FACTOR1 = 10.0;
 	static const double SIGMA_FACTOR2 = 4.0;
 	static const double Fo_FACTOR = 5.0;
@@ -69,6 +72,57 @@ namespace WBSF
 	std::string CDataRow::ADULT_NAME;
 
 
+	// Function to calculate factorial iteratively
+	size_t get_Gauss(size_t n)
+	{
+
+		return n * (n + 1) / 2;
+	}
+
+	size_t get_first_stage(size_t l, size_t size)
+	{
+		assert(l < get_Gauss(size));
+
+		//size++;
+		size_t s = 0;
+		for (size_t i = 0; i < l; ++i)
+		{
+			if ((s + 1) % size == 0)
+			{
+				s = 0;
+				size--;
+			}
+			else
+			{
+				s++;
+			}
+		}
+
+		return s;
+	}
+
+	size_t get_last_stage(size_t l, size_t size)
+	{
+		assert(l < get_Gauss(size));
+
+		size_t ss = 0;
+		size_t s = 0;
+		for (size_t i = 0; i < l; ++i)
+		{
+			if ((s + 1) % size == 0)
+			{
+				ss++;
+				//size--;
+				s = ss;
+			}
+			else
+			{
+				s++;
+			}
+		}
+
+		return s;
+	}
 
 	//**********************************************************************************************
 	static vector<size_t> Shuffle(size_t N)
@@ -419,7 +473,7 @@ namespace WBSF
 			//	for (size_t h = 0; h < 24; h++)
 			//	{
 			//		ASSERT(t * 24 + h < T.size());
-			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h])) / 24.0;//hourly rate
+			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[t * 24 + h])) / 24.0;//hourly rate
 			//		if (!isfinite(lambda) || isnan(lambda))
 			//			return NAN;
 
@@ -851,7 +905,7 @@ namespace WBSF
 	//		//double lambda[24] = { 0 };
 	//		//for (size_t h = 0; h < 24; h++)
 	//		//{
-	//		//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+	//		//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[h])) / 24.0;//hourly rate;
 
 	//		//	if (!isfinite(lambda[h]) || isnan(lambda[h]))
 	//		//		return NAN;
@@ -889,7 +943,7 @@ namespace WBSF
 	//		//	for (size_t h = 0; h < 24; h++)
 	//		//	{
 	//		//		ASSERT(t * 24 + h < T.size());
-	//		//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//hourly remaining eggs
+	//		//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[t * 24 + h]));//hourly remaining eggs
 	//		//		if (!isfinite(lambda) || isnan(lambda))
 	//		//			return NAN;
 
@@ -974,7 +1028,7 @@ namespace WBSF
 			//double lambda[24] = { 0 };
 			//for (size_t h = 0; h < 24; h++)
 			//{
-			//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+			//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[h])) / 24.0;//hourly rate;
 
 			//	if (!isfinite(lambda[h]) || isnan(lambda[h]))
 			//		return NAN;
@@ -1012,7 +1066,7 @@ namespace WBSF
 			//	for (size_t h = 0; h < 24; h++)
 			//	{
 			//		ASSERT(t * 24 + h < T.size());
-			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//hourly remaining eggs
+			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[t * 24 + h]));//hourly remaining eggs
 			//		if (!isfinite(lambda) || isnan(lambda))
 			//			return NAN;
 
@@ -1071,7 +1125,7 @@ namespace WBSF
 			//double lambda[24] = { 0 };
 			//for (size_t h = 0; h < 24; h++)
 			//{
-			//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[h])) / 24.0;//hourly rate;
+			//	lambda[h] = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[h])) / 24.0;//hourly rate;
 
 			//	if (!isfinite(lambda[h]) || isnan(lambda[h]))
 			//		return NAN;
@@ -1109,7 +1163,7 @@ namespace WBSF
 			//	for (size_t h = 0; h < 24; h++)
 			//	{
 			//		ASSERT(t * 24 + h < T.size());
-			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_XP, T[t * 24 + h]));//hourly remaining eggs
+			//		double lambda = max(0.0, CDevRateEquation::GetRate(e, computation.m_P.m_X, T[t * 24 + h]));//hourly remaining eggs
 			//		if (!isfinite(lambda) || isnan(lambda))
 			//			return NAN;
 
@@ -3620,78 +3674,181 @@ namespace WBSF
 		ReplaceString(output_file_name, "%i", GetFileTitle(m_inputFileName));
 		string outputFilePath = fileManager.GetOutputPath() + output_file_name;
 
+		m_debug_filepath = fileManager.GetOutputPath() + "debug_stage_table.csv";
+
 		m_SA_ctrl = GetSAOptions();
+
 
 		//Development time only
 		bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
 
 
 		//set vMiss value
-		m_SA_ctrl.SetVMiss(m_SA_ctrl.AdjustFValue(DBL_MAX));
+		m_SA_ctrl.SetVMiss(m_SA_ctrl.AdjustFValue(FLT_MAX));
 
 
 		//Load temperature profile
-		//if (!m_TobsFileName.empty())
-		//{
-			//string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
-			//msg += m_Tobs.load(TobsFilePath);
-		//}
+		if (!m_TobsFileName.empty())
+		{
+			string TobsFilePath = fileManager.Input().GetFilePath(m_TobsFileName);
+			msg += m_Tobs.load(TobsFilePath);
+		}
 
 
 		string inputFilePath = fileManager.Input().GetFilePath(m_inputFileName);
 		//Load observations file
-		CCStagesTableData* pData = &m_stages_table;
+		//CCStagesTableData* pData = &m_stages_table;
 
-		//pData->m_adult_name = m_adult_name;
-		msg = pData->load(inputFilePath);
 
-		//CFitOutputVector output;
-		TDevRateEquation eq = CDevRateEquation::eq(CDevRateEquation::Briere1_1999);
-		string e_name = CDevRateEquation::GetEquationName(eq);
 
-		CSAParameterVector params0 = CDevRateEquation::GetParameters(eq);
-		if (m_eq_options.find(e_name) != m_eq_options.end())
+
+		msg = m_stages_table.load(inputFilePath);
+
+		callback.PushTask("Search optimum for " + to_string(TYPE_NAME[m_fitType]) + ": " + to_string(m_eqStageTable.count()) + " equations  ", m_eqStageTable.count());
+
+
+		CFitOutputVector output;
+		for (size_t e = 0; e < m_eqStageTable.size() && msg; e++)
 		{
-			ASSERT(m_eq_options[e_name].size() == CDevRateEquation::GetParameters(eq).size());
-			params0 = m_eq_options[e_name];
+			if (m_eqStageTable.test(e))
+			{
+
+				TDevRateEquation eq = CDevRateEquation::eq(e);
+				string e_name = CDevRateEquation::GetEquationName(eq);
+
+				CSAParameterVector params0 = CDevRateEquation::GetParameters(eq);
+				if (m_eq_options.find(e_name) != m_eq_options.end())//look for user defined parameters
+				{
+					ASSERT(m_eq_options[e_name].size() == CDevRateEquation::GetParameters(eq).size());
+					params0 = m_eq_options[e_name];
+				}
+
+
+				//double sigma = 0.1;// pData->GetDefaultSigma();
+				double sigma = 0.1;
+				params0.push_back(CSAParameter("sigma", sigma, sigma / SIGMA_FACTOR1, sigma * SIGMA_FACTOR2));
+
+
+				m_I_threaded.clear();
+				m_I_threaded.resize(CTRL.m_nbMaxThreads);
+
+				CFitOutputVector p;
+				for (size_t s = 0; s < m_stages_table.num_stages() - 1; s++)
+					p.push_back(CFitOutput(m_stages_table.get_stage(s), eq, params0));
+
+				p.m_first_stage = 0;
+				p.m_last_stage = p.size() - 1;
+				//p.m_last_stage = 0; //take only the first stage for initialization
+
+
+				size_t n_combinations = get_Gauss(p.size());
+				callback.PushTask("Search optimum for " + e_name + " ( " + to_string(p.size()) + " variables = " + to_string(n_combinations) + " combinations)", n_combinations);
+				msg = InitialiseComputationVariableStageTable(p, callback);
+				if (m_bShowTrace)
+				{
+					for (size_t s = 0; s < p.size(); s++)
+						WriteInfoEx(0, p[s].m_variable, p[s].m_computation, true, true, callback);
+				}
+
+
+				for (size_t c = 0; c < n_combinations && msg; c++)
+				{
+					//size_t c = n_combinations - 1;
+					p.m_first_stage = get_first_stage(c, p.size());
+					p.m_last_stage = get_last_stage(c, p.size());
+					//p.m_c.m_T = m_SA_ctrl.m_T;//reset T to the original
+					p.m_c.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
+
+
+					//each time we change the number of stages, we have to 
+					//compute statistic for this new stage selections
+					GetFValueStageTable(p);
+					p.m_c.m_ = p.m_c.m_P;
+					p.m_c.m_opt = p.m_c.m_P;
+					p.m_c.m_FSTAR[0] = p.m_c.m_P.m_F;
+					
+
+					msg += OptimizeStageTable(p, callback);
+
+					//take the optimum of all stage for the next step
+					for (size_t s = 0; s < p.size(); s++)
+						p[s].m_computation.m_P = p[s].m_computation.m_opt;
+
+					msg += callback.StepIt();
+				}
+
+				//show last optimum result
+				for (size_t s = 0; s < p.size(); s++)
+				{
+					callback.AddMessage(p[s].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(p[s].m_equation)));
+					WriteInfoEx(NOT_INIT, p[s].m_variable, p[s].m_computation, false, true, callback);
+
+					output.push_back(p[s]);
+				}
+
+				callback.PopTask();
+				msg += callback.StepIt();
+
+
+			}//if selected equation
+		}//for all equations
+
+
+		//begin to read
+		ofStream file;
+
+
+		ERMsg msg_file = file.open(outputFilePath);
+		if (msg_file)//save result event if user cancel or error
+		{
+
+			sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_opt.m_F > b.m_computation.m_opt.m_F; });
+			if (bLogLikelyhoude)
+				file << "Stage,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
+			else
+				file << "Stage,EqName,P,Eq,Math,n,k,RSS,TSS,R2" << endl;
+
+
+			vector<string> variables;
+			for (size_t s = 0; s < m_stages_table.num_stages() - 1; s++)
+				variables.push_back(m_stages_table.get_stage(s));
+
+
+			for (auto v = variables.begin(); v != variables.end(); v++)
+			{
+				for (size_t i = 0; i < output.size(); i++)
+				{
+					if (output[i].m_variable == *v)
+					{
+						string name;
+						string R_eq;
+						string R_math;
+						string P;
+						const vector<double>& Xopt = output[i].m_computation.m_opt.m_X;
+
+						TDevRateEquation eq = CDevRateEquation::eq(output[i].m_equation);
+						name = CDevRateEquation::GetEquationName(eq);
+						R_eq = CDevRateEquation::GetEquationR(eq);
+						R_math = CDevRateEquation::GetMathPlot(eq);
+						P = to_string(CDevRateEquation::GetParameters(eq, Xopt));
+						P += " sigma=" + to_string(Xopt.back());
+
+						file << output[i].m_variable << "," << name << "," << P << ",\"" << R_eq << "\",\"" << R_math << "\",";
+
+						if (bLogLikelyhoude)
+							file << output[i].m_computation.m_opt.m_n << "," << output[i].m_computation.m_opt.m_k << "," << output[i].m_computation.m_opt.m_MLL << "," << output[i].m_computation.m_opt.m_AICC;
+						else
+							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[TSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
+
+
+						file << endl;
+					}
+				}
+			}
+
+			file.close();
 		}
-
-
-		double sigma = 0.15;
-		params0.push_back(CSAParameter("sigma", sigma, sigma / SIGMA_FACTOR1, sigma * SIGMA_FACTOR2));
-
-		CFitOutput output("StageTable", eq, params0);
-
-		//callback.PushTask("Search optimum for " + to_string(TYPE_NAME[m_fitType]) + ": " + to_string(nb_e) + " equations  ", output.size());
-		//
-		//
-		//
-		//#ifndef _DEBUG
-		//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) 
-		//#endif
-		//		for (__int64 i = 0; i < (__int64)output.size(); i++)
-		//		{
-		//#pragma omp flush(msg)
-		//			if (msg)
-		//			{
-		msg += Optimize(output.m_variable, output.m_equation, output.m_parameters, output.m_computation, callback);
-		//
-		//#pragma omp critical(WRITE_INFO)
-		//				{
-		//
-		//					callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(output[i].m_equation)));
-		//
-		//					WriteInfo(output[i].m_parameters, output[i].m_computation, callback);
-		//				}
-		//
-		//
-		//				//fileManager, result, callback
-		//				msg += callback.StepIt();
-		//#pragma omp flush(msg)
-		//			}
-		//		}
-		//
-		//		callback.PopTask();
+		callback.PopTask();
 
 
 		return msg;
@@ -4031,7 +4188,7 @@ namespace WBSF
 						callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(output[i].m_equation)));
 
 
-					WriteInfo(output[i].m_parameters, output[i].m_computation, callback);
+					WriteInfoEx(NOT_INIT, output[i].m_variable, output[i].m_computation, false, true, callback);
 				}
 
 
@@ -4059,11 +4216,11 @@ namespace WBSF
 		if (msg_file)//save result event if user cancel or error
 		{
 
-			sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_Fopt > b.m_computation.m_Fopt; });
+			sort(output.begin(), output.end(), [](const CFitOutput& a, const CFitOutput& b) {return a.m_computation.m_opt.m_F > b.m_computation.m_opt.m_F; });
 			if (bLogLikelyhoude)
 				file << "Stage,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
 			else
-				file << "Stage,EqName,P,Eq,Math,n,k,RSS,R2" << endl;
+				file << "Stage,EqName,P,Eq,Math,n,k,RSS,TSS,R2" << endl;
 
 			for (auto v = variables.begin(); v != variables.end(); v++)
 			{
@@ -4075,7 +4232,7 @@ namespace WBSF
 						string R_eq;
 						string R_math;
 						string P;
-						const vector<double>& Xopt = output[i].m_computation.m_Xopt;
+						const vector<double>& Xopt = output[i].m_computation.m_opt.m_X;
 
 
 						if (m_fitType == F_DEV_TIME)
@@ -4112,9 +4269,9 @@ namespace WBSF
 						file << output[i].m_variable << "," << name << "," << P << ",\"" << R_eq << "\",\"" << R_math << "\",";
 
 						if (bLogLikelyhoude)
-							file << output[i].m_computation.m_n_opt << "," << output[i].m_computation.m_k_opt << "," << output[i].m_computation.m_MLLopt << "," << output[i].m_computation.m_AICCopt;
+							file << output[i].m_computation.m_opt.m_n << "," << output[i].m_computation.m_opt.m_k << "," << output[i].m_computation.m_opt.m_MLL << "," << output[i].m_computation.m_opt.m_AICC;
 						else
-							file << output[i].m_computation.m_Sopt[NB_VALUE] << "," << output[i].m_computation.m_Xopt.size() << "," << output[i].m_computation.m_Sopt[RSS] << "," << output[i].m_computation.m_Sopt[STAT_R²];
+							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[TSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
 
 
 						file << endl;
@@ -4161,42 +4318,26 @@ namespace WBSF
 
 	//Initialize input parameter
 	//user can override theses methods
-	ERMsg CInsectParameterization::InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CInsectParameterization::InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback)
 	{
 		ERMsg msg;
 
-		computation.m_bounds.resize(parameters.size());
-		computation.m_C.resize(parameters.size());
-		computation.m_X.resize(parameters.size());
-		computation.m_XP.resize(parameters.size());
-		computation.m_XPstat.resize(parameters.size());
-		computation.m_VM.resize(parameters.size());
-		computation.m_VMstat.resize(parameters.size());
-		for (size_t i = 0; i < parameters.size(); i++)
+		computation.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
+
+
+		ERMsg msgS = computation.InitializeVar(parameters);
+		if (!msgS)
 		{
-			computation.m_bounds[i] = parameters[i].m_bounds;
-			computation.m_XP[i] = parameters[i].m_initialValue;
-			computation.m_C[i] = 2;
-			computation.m_VM[i] = computation.m_bounds[i].GetExtent();
+			if (m_fitType == F_SURVIVAL)
+				msg.ajoute(s + ": " + CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(e)));
+			else
+				msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
 
-			//If the initial value is out of bounds, notify the user and return
-			//to the calling routine.
-			if (computation.m_bounds[i].IsOutOfBound(computation.m_XP[i]))
-			{
-				if (m_fitType == F_DEV_TIME)//_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY
-					msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
-				else if (m_fitType == F_SURVIVAL)
-					msg.ajoute(s + ": " + CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(e)));
-				else if (m_fitType == F_FECUNDITY)
-					msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
+			msg.ajoute(msgS);
 
-
-				msg.ajoute("The starting value (" + ToString(computation.m_XP[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
-				return msg;
-			}
+			return msg;
 		}
 
-		computation.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
 
 
 		//try with random (uniform and normally distributed) values 
@@ -4206,7 +4347,7 @@ namespace WBSF
 		//static const size_t NB_TRY_II = 50000;
 
 
-		vector<double> rand_sd(computation.m_XP.size(), 0.0);
+		vector<double> rand_sd(computation.m_P.m_X.size(), 0.0);
 
 		//+ NB_TRY_II
 
@@ -4216,7 +4357,7 @@ namespace WBSF
 			// 1. try with initial value
 			// 2. try with param around initial value with a growing normal up to (-0.5, 0.5)
 			// 3. finally try with random value in variable range
-			for (size_t i = 0; i < computation.m_XP.size(); i++)
+			for (size_t i = 0; i < computation.m_P.m_X.size(); i++)
 			{
 				bool bRand = x % (i + 1) == 0;
 				//double rd = (x == 0) ? 0 : (x < NB_TRY_I) ? RandNormal(0.0, 0.15 * double(x) / NB_TRY_I) : Randu();
@@ -4225,12 +4366,21 @@ namespace WBSF
 				double ini = parameters[i].m_initialValue;
 				double ext = parameters[i].m_bounds.GetExtent();
 				double value = ini + ext * rd;
-				computation.m_XP[i] = parameters[i].m_bounds.LimitTo(value);
+				computation.m_P.m_X[i] = parameters[i].m_bounds.LimitTo(value);
 			}
 
-			bValid = IsParamValid(s, e, computation.m_XP) && IsRateValid(s, e, computation.m_XP, NULL_RATE_THRESHOLD);
+			bValid = IsParamValid(s, e, computation.m_P.m_X) && IsRateValid(s, e, computation.m_P.m_X, NULL_RATE_THRESHOLD);
 			if (bValid)
-				bValid = GetFValue(s, e, computation);
+			{
+				try
+				{
+					bValid = GetFValue(s, e, computation);
+				}
+				catch (...)
+				{
+					bValid = false;
+				}
+			}
 
 			msg += callback.StepIt(0);
 			x++;
@@ -4240,12 +4390,16 @@ namespace WBSF
 		if (!bValid)
 		{
 			string eq_name;
-			if (m_fitType == F_DEV_TIME)
-				eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(e));
-			else if (m_fitType == F_SURVIVAL)
+			if (m_fitType == F_SURVIVAL)
 				eq_name = CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(e));
-			else if (m_fitType == F_FECUNDITY)
+			else
 				eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(e));
+
+			//else if (m_fitType == F_FECUNDITY)
+				//eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(e));
+			//f (m_fitType == F_FECUNDITY)
+				//eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(e));
+
 
 			msg.ajoute("Unable to find initial parameters: (" + s + ", " + eq_name + ")");
 
@@ -4253,33 +4407,115 @@ namespace WBSF
 
 		if (msg)
 		{
-			assert(computation.m_FP != m_SA_ctrl.GetVMiss());
+			assert(computation.m_P.m_F != m_SA_ctrl.GetVMiss());
 
 			computation.m_NFCNEV++;
 
-			computation.m_X = computation.m_XP;
-			computation.m_S = computation.m_SP;
-			computation.m_F = computation.m_FP;
-			computation.m_AICC = computation.m_AICCP;
-			computation.m_MLL = computation.m_MLLP;
-			computation.m_n = computation.m_n_P;
-			computation.m_k = computation.m_k_P;
-
-			computation.m_Xopt = computation.m_XP;
-			computation.m_Sopt = computation.m_SP;
-			computation.m_Fopt = computation.m_FP;
-			computation.m_AICCopt = computation.m_AICCP;
-			computation.m_MLLopt = computation.m_MLLP;
-			computation.m_n_opt = computation.m_n_P;
-			computation.m_k_opt = computation.m_k_P;
-
-			computation.m_FSTAR[0] = computation.m_FP;
+			computation.m_ = computation.m_P;
+			computation.m_opt = computation.m_P;
+			//computation.m_FSTAR[0] = computation.m_P.m_F;
 
 		}
 
 		return msg;
 	}
 
+	ERMsg CInsectParameterization::InitialiseComputationVariableStageTable(CFitOutputVector& p, CCallback& callback)
+	{
+		ERMsg msg;
+
+		p.m_c.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
+
+		for (size_t s = 0; s < p.size(); s++)
+		{
+			p[s].m_computation.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
+
+
+			ERMsg msgS = p[s].m_computation.InitializeVar(p[s].m_parameters);
+			if (!msgS)
+			{
+				msg.ajoute(p[s].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(p[s].m_equation)));
+				msg.ajoute(msgS);
+			}
+
+		}
+
+
+		//try with random (uniform and normally distributed) values 
+		std::vector<bool> bValid(p.size(), false);
+
+		for (size_t s = 0; s < p.size(); s++)
+		{
+
+			size_t x = 0;
+			static const size_t NB_TRY_I = 100000;
+
+			vector<double> rand_sd(p[s].m_computation.m_P.m_X.size(), 0.0);
+			while (x < NB_TRY_I && !bValid[s] && msg)//try to find valid parameters
+			{
+				//  Generate XP, the trial value of X. 
+				// 1. try with initial value
+				// 2. try with param around initial value with a growing normal up to (-0.5, 0.5)
+				// 3. finally try with random value in variable range
+				for (size_t i = 0; i < p[s].m_computation.m_P.m_X.size(); i++)
+				{
+					bool bRand = x % (i + 1) == 0;
+					double rd = bRand ? RandNormal(0.0, 0.15 * double(x) / NB_TRY_I) : RandNormal(0.0, 0.25 * double(NB_TRY_I - x) / NB_TRY_I);
+					double ini = p[s].m_parameters[i].m_initialValue;
+					double ext = p[s].m_parameters[i].m_bounds.GetExtent();
+					double value = ini + ext * rd;
+					p[s].m_computation.m_P.m_X[i] = p[s].m_parameters[i].m_bounds.LimitTo(value);
+				}
+
+				bValid[s] = IsParamValid(p[s].m_variable, p[s].m_equation, p[s].m_computation.m_P.m_X) && IsRateValid(p[s].m_variable, p[s].m_equation, p[s].m_computation.m_P.m_X, NULL_RATE_THRESHOLD);
+				msg += callback.StepIt(0);
+				x++;
+			}
+		}
+
+		bool all_true = std::all_of(bValid.begin(), bValid.end(), [](bool v) { return v; });
+		if (all_true)
+		{
+			GetFValueStageTable(p);
+		}
+		else
+		{
+			for (size_t s = 0; s < p.size(); s++)
+			{
+				if (!bValid[s])
+				{
+					string eq_name;
+					if (m_fitType == F_SURVIVAL)
+						eq_name = CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(p[s].m_equation));
+					else
+						eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(p[s].m_equation));
+
+					msg.ajoute("Unable to find initial parameters: (" + p[s].m_variable + ", " + eq_name + ")");
+				}
+			}
+
+		}
+
+		if (msg)
+		{
+			for (size_t s = 0; s < p.size(); s++)
+			{
+				assert(p[s].m_computation.m_P.m_F != m_SA_ctrl.GetVMiss());
+
+				p[s].m_computation.m_NFCNEV++;
+				p[s].m_computation.m_ = p[s].m_computation.m_P;
+				p[s].m_computation.m_opt = p[s].m_computation.m_P;
+			}
+
+			p.m_c.m_NFCNEV++;
+			p.m_c.m_ = p.m_c.m_P;
+			p.m_c.m_opt = p.m_c.m_P;
+		}
+
+
+
+		return msg;
+	}
 
 	double CInsectParameterization::Exprep(const double& RDUM)
 	{
@@ -4308,96 +4544,103 @@ namespace WBSF
 
 
 
-	void CInsectParameterization::WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback)
+	void CInsectParameterization::WriteInfoEx(size_t loop, string variable, const CComputationVariableVector& computation, bool b_show_Header, bool b_show_stats, CCallback& callback)
 	{
-		string line;
+		assert(parameters.size() == computation.m_.m_X.size());
 
-		double F = m_SA_ctrl.m_bMax ? computation.m_Fopt : -computation.m_Fopt;
-		bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
-
-		//		CStatistic stat;
-			//	for (size_t i = 0, j = 0; i < computation.m_Xstat.size(); i++)
-				//	stat += 100.0 * computation.m_Xstat[j][RANGE] / computation.m_Xstat[j][MEAN];
-
-		if (bLogLikelyhoude)
-			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_n_opt, computation.m_AICCopt, computation.m_MLLopt);
-		else if (computation.m_Sopt[NB_VALUE] > 0)
-			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²]);
-		else
-			line = "No optimum find yet...";
-
-
-
-		callback.AddMessage(line);
-
-
-		line.clear();
-		if (computation.m_Xopt.size() == parameters.size())
+		if (!variable.empty())
 		{
+			callback.AddMessage(variable);
+		}
 
-			bool bShowRange = !computation.m_XPstat.empty() && computation.m_XPstat[0][NB_VALUE] > 0;
-			for (size_t j = 0; j < parameters.size(); j++)
+		CStatisticEx Pstat;
+		for (size_t i = 0; i < computation.m_P.m_Xstat.size(); i++)
+			Pstat += computation.m_P.m_Xstat[i][RANGE] / computation.m_P.m_Xstat[i][MEAN];
+
+		string line;
+		double F = m_SA_ctrl.AdjustFValue(computation.m_opt.m_F);
+
+
+		if (F > -FLT_MAX)
+		{
+			if (b_show_Header)
 			{
-				string name = parameters[j].m_name; Trim(name);
+				line = FormatA("loop=%03d\tT=%12.8f\tF=%8.5lf", loop, computation.m_T, F);
+
+				//add Fstart
+				string Fstar = "\tF*=[";
+				if (computation.m_NFCNEV > 1)
+					Fstar += FormatA("%8.5lf", fabs(computation.m_.m_F - computation.m_opt.m_F));
+				else
+					Fstar += "NA";
+
+				for (size_t i = 0; i < computation.m_FSTAR.size(); i++)
+				{
+					Fstar += ",";
+
+					if (computation.m_FSTAR[i] > -FLT_MAX && computation.m_FSTAR[i] < FLT_MAX)
+					{
+						double Fs = fabs(computation.m_.m_F - computation.m_FSTAR[i]);
+						Fstar += FormatA("%8.5lf", Fs);
+					}
+					else
+						Fstar += "NA";
+				}
+
+				Fstar += "]\n";
+				line += Fstar;
+			}
+
+			if (b_show_stats)
+			{
+
+				bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
+				if (bLogLikelyhoude)
+				{
+					line += FormatA("NbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_opt.m_n, computation.m_opt.m_AICC, computation.m_opt.m_MLL);
+				}
+				else
+				{
+					line += FormatA("NbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_opt.m_S[NB_VALUE], computation.m_opt.m_S[BIAS], computation.m_opt.m_S[MAE], computation.m_opt.m_S[RMSE], computation.m_opt.m_S[COEF_D], computation.m_opt.m_S[STAT_R²]);
+				}
+			}
+
+			callback.AddMessage(line);
+			line.clear();
+		}
+		else
+		{
+			callback.AddMessage("No optimum find yet...");
+		}
+
+
+		bool bShowRange = !computation.m_P.m_Xstat.empty() && computation.m_P.m_Xstat[0][NB_VALUE] > 0;
+
+		for (size_t i = 0; i < computation.size(); i++)
+		{
+			if (computation[i].m_b_use_it)
+			{
+				string name = computation[i].m_name; Trim(name);
 				string tmp;
 
 				if (bShowRange)
 				{
-					tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_Xopt[j], computation.m_XPstat[j][LOWEST], computation.m_XPstat[j][HIGHEST], computation.m_VMstat[j][LOWEST], computation.m_VMstat[j][HIGHEST]);
+					tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_opt.m_X[i], computation.m_P.m_Xstat[i][LOWEST], computation.m_P.m_Xstat[i][HIGHEST], computation[i].m_VMstat[LOWEST], computation[i].m_VMstat[HIGHEST]);
 				}
 				else
 				{
-					tmp = FormatA("%s = %5.3lg  ", name.c_str(), computation.m_Xopt[j]);
+					tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), computation.m_opt.m_X[i]);
 				}
 
 				line += tmp;
 			}
+			//j++;
+		}
 
+		if(!line.empty())
 			callback.AddMessage(line);
-		}
-	}
+		
 
-	void CInsectParameterization::WriteInfoEx(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback)
-	{
-		string line;
-		double F = m_SA_ctrl.m_bMax ? computation.m_Fopt : -computation.m_Fopt;
-		bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
-
-
-		if (bLogLikelyhoude)
-			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_n_opt, computation.m_AICCopt, computation.m_MLLopt);
-		else if (computation.m_Sopt[NB_VALUE] > 0)
-			line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_Sopt[NB_VALUE], computation.m_Sopt[BIAS], computation.m_Sopt[MAE], computation.m_Sopt[RMSE], computation.m_Sopt[COEF_D], computation.m_Sopt[STAT_R²]);
-		else
-			line = "No optimum find yet...";
-
-
-
-		callback.AddMessage(line);
-
-
-		line.clear();
-		bool bShowRange = !computation.m_XPstat.empty() && computation.m_XPstat[0][NB_VALUE] > 0;
-		for (size_t i = 0, j = 0; i < parameters.size(); i++)
-		{
-			string name = parameters[i].m_name; Trim(name);
-			string tmp;
-
-			if (bShowRange)
-			{
-				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_Xopt[j], computation.m_XPstat[j][LOWEST], computation.m_XPstat[j][HIGHEST], computation.m_VMstat[j][LOWEST], computation.m_VMstat[j][HIGHEST]);
-			}
-			else
-			{
-				tmp = FormatA("% -20.20s\t=%10.5lf  ", name.c_str(), computation.m_Xopt[j]);
-			}
-
-			line += tmp;
-			j++;
-		}
-
-		callback.AddMessage(line);
-		line.clear();
 	}
 
 
@@ -4662,15 +4905,15 @@ namespace WBSF
 	//       some machines.
 	//    3. RMARIN and RANMAR are designed to be portable; they should not
 	//       cause any problems.
-	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//TDevRateEquation eq = CDevRateEquation::eq(e);
 
 		if (m_bShowTrace)
-			WriteInfoEx(parameters, computation, callback);
+			WriteInfoEx(0, s, computation, true, true, callback);
 
+		m_SA_ctrl.m_NT1 = ceil(m_SA_ctrl.m_NT2 * parameters.size());
 		//  Initialize the random number generator RANMAR.
 		CRandomizeNumber random(m_SA_ctrl.m_seed1, m_SA_ctrl.m_seed2);
 
@@ -4691,23 +4934,23 @@ namespace WBSF
 			//long LNOBDS = 0;
 
 			//randomize order of the parameters to not always begin with the same parameter
-			vector < vector<size_t>> H(m_SA_ctrl.m_NT * m_SA_ctrl.m_NS);
+			vector < vector<size_t>> H(m_SA_ctrl.m_NT1 * m_SA_ctrl.m_NS);
 			for (size_t j = 0; j < H.size(); j++)
-				H[j] = Shuffle(computation.m_X.size());
+				H[j] = Shuffle(computation.m_.m_X.size());
 
 
-			int NT = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NT;
+			int NT = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NT1;
 			for (int M = 0; M < NT && msg; M++)
 			{
 				vector<int> NACP;
-				NACP.insert(NACP.begin(), computation.m_X.size(), 0);
+				NACP.insert(NACP.begin(), computation.m_.m_X.size(), 0);
 
 				int NS = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NS;
 				for (size_t j = 0; j < NS && msg; j++)
 				{
 					for (size_t hh = 0; hh < NACP.size() && msg; hh++)
 					{
-						size_t h = H[M * NACP.size() + j][hh];
+						size_t h = H[M * NS + j][hh];
 						//if (j % 2)
 							//h = NACP.size() - h - 1;//to avoid always evaluate h in the same order
 
@@ -4719,10 +4962,10 @@ namespace WBSF
 							return msg;
 						}
 
-						//computation.m_XP.resize(computation.m_X.size());
-						computation.m_XP = computation.m_X;
-						computation.m_SP.Reset();
-						computation.m_FP = m_SA_ctrl.GetVMiss();
+						//computation.m_P.m_X.resize(computation.m_X.size());
+						computation.m_P.m_X = computation.m_.m_X;
+						computation.m_P.m_S.Reset();
+						computation.m_P.m_F = m_SA_ctrl.GetVMiss();
 
 						size_t nb_not_valid = 0;
 						double factorVM = 1;
@@ -4734,53 +4977,48 @@ namespace WBSF
 							if ((nb_not_valid % 20) == 0)
 								factorVM *= 0.9;//temporary decrease VM when too mush not valid
 
-							computation.m_XP[h] = computation.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * computation.m_VM[h] * factorVM;
+							computation.m_P.m_X[h] = computation.m_.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * computation[h].m_VM * factorVM;
 							//  If XP is out of bounds, select a point in bounds for the trial.
-							if (computation.m_bounds[h].IsOutOfBound(computation.m_XP[h]))
-							{
-								computation.m_XP[h] = computation.m_bounds[h].GetLowerBound() + computation.m_bounds[h].GetExtent() * random.Ranmar();
-								computation.m_NOBDS++;
-							}
+							if (computation[h].m_bounds.IsOutOfBound(computation.m_P.m_X[h]))
+								computation.m_P.m_X[h] = computation[h].m_bounds.GetLowerBound() + computation[h].m_bounds.GetExtent() * random.Ranmar();
 
-							bValid = IsParamValid(s, e, computation.m_XP) && IsRateValid(s, e, computation.m_XP, NULL_RATE_THRESHOLD);
+							bValid = IsParamValid(s, e, computation.m_P.m_X) && IsRateValid(s, e, computation.m_P.m_X, NULL_RATE_THRESHOLD);
 						}
 
 
 						//  Evaluate the function with the trial point XP and return as FP.
-						bValid = GetFValue(s, e, computation);
+						try
+						{
+							bValid = GetFValue(s, e, computation);
+						}
+						catch (...)
+						{
+							assert(false);//crash in random generator and distribution
+							bValid = false;
+						}
+
+						if (!bValid)
+							continue;
+
 						assert(bValid);
 
-						computation.m_XPstat[h] += computation.m_XP[h];
-						computation.m_VMstat[h] += computation.m_VM[h];
 
-						assert(computation.m_FP != m_SA_ctrl.GetVMiss());
+						computation.m_P.m_Xstat[h] += computation.m_P.m_X[h];
+						computation[h].m_VMstat += computation[h].m_VM;
 
-						if (computation.m_FP >= computation.m_F)
+						assert(computation.m_P.m_F != m_SA_ctrl.GetVMiss());
+
+						if (computation.m_P.m_F >= computation.m_.m_F)
 						{
-							computation.m_X = computation.m_XP;
-							computation.m_F = computation.m_FP;
-							computation.m_AICC = computation.m_AICCP;
-							computation.m_MLL = computation.m_MLLP;
-							computation.m_S = computation.m_SP;
-							computation.m_n = computation.m_n_P;
-							computation.m_k = computation.m_k_P;
+							computation.m_ = computation.m_P;
 
-
-							computation.m_NACC++;
 							NACP[h]++;
 							NUP++;
 
 							//  If greater than any other point, record as new optimum.
-							if (computation.m_FP > computation.m_Fopt)
+							if (computation.m_P.m_F > computation.m_opt.m_F)
 							{
-								computation.m_Xopt = computation.m_XP;
-								computation.m_Fopt = computation.m_FP;
-								computation.m_AICCopt = computation.m_AICCP;
-								computation.m_MLLopt = computation.m_MLLP;
-								computation.m_MLL = computation.m_MLLP;
-								computation.m_Sopt = computation.m_SP;
-								computation.m_n_opt = computation.m_n_P;
-								computation.m_k_opt = computation.m_k_P;
+								computation.m_opt = computation.m_P;
 								NNEW++;
 							}
 						}
@@ -4788,20 +5026,11 @@ namespace WBSF
 						//  acceptance or rejection.
 						else
 						{
-							double P = Exprep((computation.m_FP - computation.m_F) / computation.m_T);
+							double P = Exprep((computation.m_P.m_F - computation.m_.m_F) / computation.m_T);
 							double PP = random.Ranmar();
 							if (PP < P)
 							{
-								computation.m_X = computation.m_XP;
-								computation.m_F = computation.m_FP;
-								computation.m_AICC = computation.m_AICCP;
-								computation.m_MLL = computation.m_MLLP;
-								computation.m_S = computation.m_SP;
-								computation.m_n = computation.m_n_P;
-								computation.m_k = computation.m_k_P;
-
-
-								computation.m_NACC++;
+								computation.m_ = computation.m_P;
 								NACP[h]++;
 								NDOWN++;
 							}
@@ -4821,62 +5050,30 @@ namespace WBSF
 
 
 				//  Adjust VM so that approximately half of all evaluations are accepted.
-				ASSERT(computation.m_VM.size() == NACP.size());
-				for (int I = 0; I < computation.m_VM.size(); I++)
+				ASSERT(computation.size() == NACP.size());
+				for (size_t h = 0; h < computation.size(); h++)
 				{
-					double RATIO = double(NACP[I]) / double(m_SA_ctrl.m_NS);
+					double RATIO = double(NACP[h]) / double(m_SA_ctrl.m_NS);
 					if (RATIO > 0.6)
 					{
-						computation.m_VM[I] = computation.m_VM[I] * (1. + computation.m_C[I] * (RATIO - .6) / .4);
+						computation[h].m_VM = computation[h].m_VM * (1. + computation[h].m_C * (RATIO - .6) / .4);
 					}
 					else if (RATIO < 0.4)
 					{
-						computation.m_VM[I] = computation.m_VM[I] / (1. + computation.m_C[I] * ((.4 - RATIO) / .4));
+						computation[h].m_VM = computation[h].m_VM / (1. + computation[h].m_C * ((.4 - RATIO) / .4));
 					}
 
 
-					if (computation.m_VM[I] > computation.m_bounds[I].GetExtent())
-					{
-						computation.m_VM[I] = computation.m_bounds[I].GetExtent();
-					}
+					if (computation[h].m_VM > computation[h].m_bounds.GetExtent())
+						computation[h].m_VM = computation[h].m_bounds.GetExtent();
 				}//all VM
 			}//M
 
-			//compute Pstat
-			computation.m_Pstat.clear();
-			for (size_t i = 0; i < computation.m_XPstat.size(); i++)
-				computation.m_Pstat += computation.m_XPstat[i][RANGE] / computation.m_XPstat[i][MEAN];
-
-
 			if (m_bShowTrace)
-				WriteInfoEx(parameters, computation, callback);
-
-
-			//copy XPStat into XStat
-			computation.m_Xstat = computation.m_XPstat;
-
-			//clean XPstat stats
-			for (size_t i = 0; i < computation.m_XPstat.size(); i++)
-				computation.m_XPstat[i].Reset();
-
-			//clean VM stats
-			for (size_t i = 0; i < computation.m_VMstat.size(); i++)
-				computation.m_VMstat[i].Reset();
-
-			//  Loop again.
-			bQuit = fabs(computation.m_F - computation.m_Fopt) <= m_SA_ctrl.m_EPS;//|| computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
-			for (int I = 0; I < computation.m_FSTAR.size() && bQuit; I++)
-			{
-				if (fabs(computation.m_F - computation.m_FSTAR[I]) > m_SA_ctrl.m_EPS)//||  && computation.m_Pstat[HIGHEST] > m_ctrl.m_P_EPS
-					bQuit = false;
-			}
-
-
-
-
+				WriteInfoEx(L, s, computation, true, true, callback);
 
 			//  If termination criteria is not met, prepare for another loop.
-			computation.PrepareForAnotherLoop(m_SA_ctrl.m_RT, m_SA_ctrl.m_RT2, L);
+			bQuit = computation.PrepareForAnotherLoop(m_SA_ctrl, L);
 
 		} while (!bQuit && msg);
 
@@ -4891,19 +5088,14 @@ namespace WBSF
 	{
 		bool bValid = true;
 
-		if (m_fitType == F_DEV_TIME)
-		{
-			bValid = CDevRateEquation::IsParamValid(CDevRateEquation::eq(e), P);
-		}
-		else if (m_fitType == F_SURVIVAL)
+		if (m_fitType == F_SURVIVAL)
 		{
 			bValid = CSurvivalEquation::IsParamValid(CSurvivalEquation::eq(e), P);
 		}
-		else if (m_fitType == F_FECUNDITY)
+		else
 		{
-			bValid = CFecundityEquation::IsParamValid(CFecundityEquation::eq(e), P);
+			bValid = CDevRateEquation::IsParamValid(CDevRateEquation::eq(e), P);
 		}
-
 
 		return bValid;
 	}
@@ -5001,6 +5193,10 @@ namespace WBSF
 					return false;
 			}
 
+		}
+		else if (m_fitType == F_STAGES_TABLE)
+		{
+			//assert(false);//todo
 		}
 
 
@@ -5146,10 +5342,10 @@ namespace WBSF
 		return confusion_matrix;
 	}
 
-	bool CInsectParameterization::GetFValue(string var, size_t e, CComputationVariable& computation)
+	bool CInsectParameterization::GetFValue(string var, size_t e, CComputationVariableVector& computation)
 	{
-		assert(IsParamValid(var, e, computation.m_XP));
-		assert(IsRateValid(var, e, computation.m_XP, NULL_RATE_THRESHOLD));
+		assert(IsParamValid(var, e, computation.m_P.m_X));
+		assert(IsRateValid(var, e, computation.m_P.m_X, NULL_RATE_THRESHOLD));
 
 		bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
 		double log_likelyhoude = 0;
@@ -5160,7 +5356,7 @@ namespace WBSF
 		{
 			TDevRateEquation eq = CDevRateEquation::eq(e);
 
-			double sigma = computation.m_XP.back();
+			double sigma = computation.m_P.m_X.back();
 			//compute probability of changing stage between ti-1 and ti
 
 			boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
@@ -5181,7 +5377,7 @@ namespace WBSF
 
 				if (i_temporal == IT_INDIVIDUAL)//use individual time
 				{
-					if (!Regniere2021DevRate(eq, computation.m_XP, T.Tobs(), t_xi))
+					if (!Regniere2021DevRate(eq, computation.m_P.m_X, T.Tobs(), t_xi))
 						return false;
 
 					size_t i = 0;
@@ -5254,7 +5450,7 @@ namespace WBSF
 				}
 				else//use mean+SD+n
 				{
-					Regniere2021DevRateMeanSDn(eq, computation.m_XP, T.Tobs(), t_xi);
+					Regniere2021DevRateMeanSDn(eq, computation.m_P.m_X, T.Tobs(), t_xi);
 
 
 					//for (auto O : T)
@@ -5280,7 +5476,7 @@ namespace WBSF
 							else
 							{
 								//double obs = O.at(I_MEAN_TIME);
-								//double sim = 1.0 / max(0.001, GetDevRate(eq, computation.m_XP, T.Tobs(), O));
+								//double sim = 1.0 / max(0.001, GetDevRate(eq, computation.m_P.m_X, T.Tobs(), O));
 								double obs_time = xi.second[0];
 								double sim_time = xi.second[1];
 								assert(isfinite(sim_time) && !isnan(sim_time) && sim_time > -1E8 && sim_time < 1E8);
@@ -5311,7 +5507,7 @@ namespace WBSF
 					{
 						//maximum likelihood
 						double n = 1;// m_survival[i][I_N];
-						double LL = Regniere2021Survival(eq, computation.m_XP, T.Tobs(), O);
+						double LL = Regniere2021Survival(eq, computation.m_P.m_X, T.Tobs(), O);
 						assert(isfinite(LL) && !isnan(LL));
 
 
@@ -5324,7 +5520,7 @@ namespace WBSF
 						if (O.at(I_MEAN_TIME) > 0)
 						{
 							double obs = O.at(I_SURVIVAL) / O.at(I_N);
-							double sim = GetSurvival(eq, computation.m_XP, T.Tobs(), O);
+							double sim = GetSurvival(eq, computation.m_P.m_X, T.Tobs(), O);
 
 							assert(isfinite(sim) && !isnan(sim) && sim > -1E8 && sim < 1E8);
 
@@ -5350,13 +5546,13 @@ namespace WBSF
 				if (T.i_temporal() == IT_TIME_SERIES || T.i_temporal() == IT_INDIVIDUAL)//use individual time
 				{
 					CxiVector f_xi = T.get_f_xi(T.i_temporal());
-					if (!Regniere2021FecundityTimeSeries(eq, computation.m_XP, T.Tobs(), f_xi))
+					if (!Regniere2021FecundityTimeSeries(eq, computation.m_P.m_X, T.Tobs(), f_xi))
 						return false;
 
 
 					//Get Fo and sigma from input parameters X
-					double Fo = computation.m_XP[computation.m_XP.size() - 2];
-					double sigma_f = computation.m_XP[computation.m_XP.size() - 1];
+					double Fo = computation.m_P.m_X[computation.m_P.m_X.size() - 2];
+					double sigma_f = computation.m_P.m_X[computation.m_P.m_X.size() - 1];
 
 					//create relative fecundity unbiased log-normal distribution
 					boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5 * Square(sigma_f), sigma_f);
@@ -5407,7 +5603,7 @@ namespace WBSF
 						//	return log(p);// + log(p2)
 
 
-						//	LL = Regniere2021Fecundity(eq, computation.m_XP, T.Tobs(), O.at(I_START) + O.at(I_TIME), O.at(I_BROODS), O.at(I_P_BROOD));
+						//	LL = Regniere2021Fecundity(eq, computation.m_P.m_X, T.Tobs(), O.at(I_START) + O.at(I_TIME), O.at(I_BROODS), O.at(I_P_BROOD));
 						//	LL *= O.at(I_N);
 
 						//	n = O.at(I_N);
@@ -5423,7 +5619,7 @@ namespace WBSF
 						{
 
 							//LL seem to not have to be multiply by N!
-							double LL = Regniere2021FecundityMeanSDn(eq, computation.m_XP, T.Tobs(), O.at(I_MEAN_TIME), O.at(I_MEAN_BROOD), O.at(I_BROOD_SD), O.at(I_N));
+							double LL = Regniere2021FecundityMeanSDn(eq, computation.m_P.m_X, T.Tobs(), O.at(I_MEAN_TIME), O.at(I_MEAN_BROOD), O.at(I_BROOD_SD), O.at(I_N));
 							double n = O.at(I_N);
 
 
@@ -5444,171 +5640,9 @@ namespace WBSF
 		}//If devRate, survival, fecundity
 		else if (m_fitType == F_STAGES_TABLE)
 		{
-			//bLogLikelyhoude = false;
+			assert(false);
 
-			//TDevRateEquation eq = CDevRateEquation::eq(e);
-
-
-			//double sigma = computation.m_XP.back();
-
-			//std::uint32_t seed = static_cast<std::uint32_t>(std::time(0));
-			//boost::random::mt19937 generator{ seed };
-
-			//boost::random::uniform_real_distribution<double> runif(0.01, 0.99);
-			//boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-
-
-
-			//if (m_I.empty())
-			//{
-			//	//create the simulator
-			//	size_t NUM_INSECTS = 100;
-			//	size_t N = m_stages_table.num_treatments() * NUM_INSECTS;
-			//	m_I.reserve(N);
-
-
-			//	for (size_t t = 0; t < m_stages_table.num_treatments(); t++)//for all experimentation
-			//	{
-			//		string treatment = m_stages_table.get_treatment(t);
-			//		double temperature = stof(treatment);
-
-			//		for (size_t i = 0; i < NUM_INSECTS; i++)//for all experimentation
-			//		{
-			//			COneSimulatedInsect I;
-			//			I.resize(m_stages_table.num_stages());
-			//			for (size_t s = 0; s < I.size(); s++)//for all stages
-			//			{
-			//				I[s].m_p = runif(generator);
-			//				I[s].m_RDR = quantile(LogNormal, I[s].m_p);
-			//				I[s].m_treatment = treatment;
-			//				I[s].m_temperature = temperature;
-			//			}
-
-
-			//			m_I.push_back(I);
-			//		}
-			//	}
-
-			//	m_I.run();
-
-			//	double Rate = CDevRateEquation::GetRate(eq, computation.m_XP, temperature);
-			//	I[i][ii].m_time = min(1000.0, 1.0 / (I[i][ii].m_RDR * Rate));
-			//	for (auto& itN : m_stages_table)//for all experimentation
-			//	{
-			//		const auto& N = itN.second;
-			//		for (auto itT = N.begin(); itT != N.end(); itT++)//For all treatments
-			//		{
-			//			string treatment = itT->first;
-			//			double temperature = stof(treatment);
-
-			//			//size_t i = std::distance(N.begin(), itT);
-			//			//I.resize(100);//for all individuals
-			//			//for (size_t i = 0; i < I.size(); i++)//for all individuals
-			//			{
-			//				COneSimulatedInsect i;
-			//				I[i].resize(m_stages_table.num_stages());//for all stages
-
-			//				for (size_t ii = 0; i < I[i].size(); ii++)//for all stages
-			//				{
-			//					I[i][ii].m_p = runif(generator);
-			//					I[i][ii].m_RDR = quantile(LogNormal, I[i][ii].m_p);
-
-			//					double Rate = CDevRateEquation::GetRate(eq, computation.m_XP, temperature);
-			//					I[i][ii].m_time = min(1000.0, 1.0 / (I[i][ii].m_RDR * Rate));
-			//				}
-
-			//			}
-			//		}
-			//	}
-			//}
-			////Compute stage table from individuals
-			//for (size_t i = 0; i < I.size(); i++)//for all probability
-			//{
-			//}
-
-			//const std::vector<CStagesTableRow>& data = itT->second;
-			////	CxiVector f_xi = data.get_t_xi();
-
-			//for (size_t d = 0; d < data.size(); d++)//for all dates
-			//{
-			//	const std::vector<double>& obs = data[d].m_n;
-			//	double n = std::accumulate(obs.begin(), obs.end(), 0.0);
-
-			//	//std::vector<double> sim;
-			//	//double Rate = CDevRateEquation::GetRate(eq, computation.m_XP, temperature);
-
-			//	double mean_time = xi.second[0] / xi.second[1];
-			//	double RDT = quantile(LogNormal, xi.pTime);
-			//	double obs = xi.second[0];
-			//	double sim = min(1000.0, RDT * mean_time);
-			//	assert(isfinite(sim) && !isnan(sim) && sim > -1E8 && sim < 1E8);
-
-			//	for (size_t n = 0; n < xi.n; n++)
-			//		stat.Add(sim, obs);
-
-		//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//	//CxiVector f_xi = T.get_f_xi(T.i_temporal());
-		//	////create relative fecundity unbiased log-normal distribution
-		//	//boost::math::lognormal_distribution<double> LogNormal(log(Fo) - 0.5 * Square(sigma_f), sigma_f);
-
-
-		//	//size_t i = 0;
-		//	//for (const auto& xi : f_xi)
-		//	//{
-		//	//	if (bLogLikelyhoude)//use likelihood method
-		//	//	{
-		//	//		//compute individual fecundity (Fi) from Fo and female position
-		//	//		double Fi = quantile(LogNormal, xi.pFecundity);
-
-
-		//	//		//double Ft = Fi;//remaining fecundity at day t
-		//	//		//double Ftˉ¹ = Fi;//remaining fecundity at day t-1
-
-		//	//		//create Poisson distribution from expected values
-		//	//		double expected = max(1e-5, Fi * (xi.first[1] - xi.second[1]));
-
-		//	//		boost::math::poisson_distribution<double> Poisson(expected);
-
-		//	//		//compute probability to get observed brood
-		//	//		double p = max(1e-20, boost::math::pdf(Poisson, xi.broods));
-
-		//	//		//boost::math::poisson_distribution<double> Poisson(max(0.0001, brood_obs));
-		//	//		//double expected = Ftˉ¹ - Ft;
-		//	//		//double p = max(1e-20, boost::math::pdf(Poisson, expected));
-		//	//		double LL = log(p) * xi.n;
-
-		//	//		log_likelyhoude += LL;
-		//	//		N_likelyhoude += xi.n;
-
-		//	//	}
-		//	//}
-
-		//}//for all treatment
-	//}
-		}//If devRate, survival, fecundity
+		}//If devRate, survival, fecundity, stage table
 
 		if (bLogLikelyhoude)
 		{
@@ -5617,24 +5651,24 @@ namespace WBSF
 			assert(N_likelyhoude > 0);
 
 
-			double k = computation.m_XP.size();
+			double k = computation.m_P.m_X.size();
 			double n = N_likelyhoude;
 			double AIC = 2 * k - 2 * (log_likelyhoude);
 			double AICc = AIC + (2 * k * (k + 1) / max(1.0, n - k - 1));// n/k < 40
 
-			computation.m_k_P = k;
-			computation.m_n_P = n;
-			computation.m_AICCP = AICc;
-			computation.m_MLLP = log_likelyhoude;
-			computation.m_FP = m_SA_ctrl.AdjustFValue(log_likelyhoude);
+			computation.m_P.m_k = k;
+			computation.m_P.m_n = n;
+			computation.m_P.m_AICC = AICc;
+			computation.m_P.m_MLL = log_likelyhoude;
+			computation.m_P.m_F = m_SA_ctrl.AdjustFValue(log_likelyhoude);
 
 		}
 		else
 		{
 			if (stat[NB_VALUE] > 1)
 			{
-				computation.m_FP = m_SA_ctrl.AdjustFValue(stat[m_SA_ctrl.m_statisticType]);
-				computation.m_SP = stat;
+				computation.m_P.m_F = m_SA_ctrl.AdjustFValue(stat[m_SA_ctrl.m_statisticType]);
+				computation.m_P.m_S = stat;
 			}
 		}
 
@@ -5642,6 +5676,283 @@ namespace WBSF
 		return true;
 	}
 
+
+	bool CInsectParameterization::GetFValueStageTable(CFitOutputVector& p)
+	{
+		assert(m_fitType == F_STAGES_TABLE);
+
+		//assert(IsParamValid(var, e, computation.m_P.m_X));
+		//assert(IsRateValid(var, e, computation.m_P.m_X, NULL_RATE_THRESHOLD));
+
+		//bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
+		//double log_likelyhoude = 0;
+		//size_t N_likelyhoude = 0;
+		vector<CStatisticXYEx> stats_stage(p.size());
+		CStatisticXYEx stats;
+
+
+		CSimulatedInsects& m_I = m_I_threaded[omp_get_thread_num()];
+		if (m_I.empty())
+		{
+
+			boost::random::mt19937 generator{ uint32_t(m_SA_ctrl.m_seed1) };
+			boost::random::uniform_real_distribution<double> runif(0.01, 0.99);
+
+			//create the simulator
+			m_I.resize(m_stages_table.num_treatments());
+			m_I.m_before_begin.resize(m_stages_table.num_stages(), 0.0);
+			m_I.m_before_begin[0] = 100.0;
+			m_I.m_after_end.resize(m_stages_table.num_stages(), 100.0);
+
+
+			for (size_t t = 0; t < m_stages_table.num_treatments(); t++)//for all treatments
+			{
+				m_I[t].m_treatment = m_stages_table.get_treatment(t);
+				m_I[t].m_temperature = stof(m_I[t].m_treatment);
+
+				m_I[t].resize(100);
+				for (size_t i = 0; i < m_I[t].size(); i++)//for all insects
+				{
+
+					m_I[t][i].resize(m_stages_table.num_stages());
+
+					for (size_t s = 0; s < m_I[t][i].size() - 1; s++)//for all stages
+					{
+						m_I[t][i][s].m_p = runif(generator);
+					}
+				}//for all insects
+			}//for all treatments
+		}//if empty
+
+
+		for (size_t t = 0; t < m_I.size(); t++)//for all treatments
+		{
+			vector<double> Rate(p.size());
+			for (size_t s = 0; s < p.size(); s++)//For all stages
+			{
+				TDevRateEquation eq = CDevRateEquation::eq(p[s].m_equation);
+				Rate[s] = max(0.0, CDevRateEquation::GetRate(eq, p[s].m_computation.m_P.m_X, m_I[t].m_temperature));
+			}
+
+
+			//compute time for all insects and all stages
+			double max_simul_time = 0;
+			for (size_t i = 0; i < m_I[t].size(); i++)//for all insects
+			{
+				double max_time = 0;
+				for (size_t s = 0; s < m_I[t][i].size() - 1; s++)//For all stages
+				{
+					double sigma = p[s].m_computation.m_P.m_X.back();
+					boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
+
+					m_I[t][i][s].m_RDR = quantile(LogNormal, m_I[t][i][s].m_p);
+					m_I[t][i][s].m_time = min(5000.0 / m_I[t][i].size(), 1.0 / (m_I[t][i][s].m_RDR * Rate[s]));
+					max_time += m_I[t][i][s].m_time;
+				}
+
+				if (max_time > max_simul_time)
+					max_simul_time = max_time;
+
+				assert(max_simul_time <= 5000.1);
+			}
+
+			//CTRef begin(0, 0, 0, 0, CTM::HOURLY);
+			//CTRef end = CTRef(0, 0, 0, 0, CTM::HOURLY) + (int)floor(max_simul_time * 24) + 1;
+			CTRef begin(0, 0, 0);
+			CTRef end = CTRef(0, 0, 0) + (int)ceil(max_simul_time) + 2;//compute it as daily for the moment
+			CTPeriod period(begin, end);
+
+			//Create stages table
+			m_I[t].m_output.Init(period, m_stages_table.num_stages(), 0.0);
+
+
+			//compute the stage table
+			for (size_t i = 0; i < m_I[t].size(); i++)//for all insects
+			{
+				CTRef TRef = period.Begin();
+				
+				double total_time = 0;
+				for (size_t s = 0; s < m_I[t][i].size() - 1; s++)//For all stages (except the last stage)
+				{
+					total_time += m_I[t][i][s].m_time;
+					CTRef end_stage = period.Begin() + (int)Round(total_time);
+					assert(end_stage <= m_I[t].m_output.GetTPeriod().End());
+					for (; TRef <= end_stage; TRef++)
+					{
+						//cumulative values
+						for (size_t ss = 0; ss <= s; ss++)//For all stages up to the current one
+							m_I[t].m_output[TRef][ss] += 100.0 / m_I[t].size();
+					}
+				}
+
+				for (; TRef <= period.End(); TRef++)//complete the series (including the last stage)
+				{
+					//cumulative values
+					for (size_t ss = 0; ss < m_I[t][i].size(); ss++)//For all stages
+						m_I[t].m_output[TRef][ss] += 100.0 / m_I[t].size();
+				}
+			}
+		}
+
+
+#pragma omp critical(WRITE_DEBUF_FILE)
+		{
+			if (m_bShowTrace && b_ouput_file)
+			{
+				string eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(p.front().m_equation));
+
+				b_ouput_file = false;
+				string filepath = m_debug_filepath;
+				WBSF::SetFileTitle(filepath, "debug_stage_table_" + eq_name);
+				ofstream file(filepath);
+				file << "Treatment,Date";
+				for (size_t s = 0; s < m_stages_table.num_stages(); s++)//For all stages
+					file << "," << m_stages_table.get_stage(s) << "_cumul";// << "," << m_stages_table.get_stage(s) << "_cumul_obs";
+
+				file << endl;
+
+				for (size_t t = 0; t < m_I.size(); t++)//for all treatments
+				{
+					CTPeriod p = m_I[t].m_output.GetTPeriod();
+					for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+					{
+						file << m_I[t].m_treatment << "," << TRef.GetFormatedString("%Y-%m-%d");
+						for (size_t s = 0; s < m_I[t].m_output[TRef].size(); s++)//For all stages
+						{
+							//m_stages_table.begin()->second[m_I[t].m_treatment].m_stats
+							file << "," << std::fixed << std::setprecision(1) << m_I[t].m_output[TRef][s];// << "," << ;
+						}
+						file << endl;
+					}
+				}
+				file.close();
+			}
+		}
+
+		//now compute likelihood or statistic 
+		auto itN = *m_stages_table.begin();//take only the first dataset for the moment;
+		{
+			for (auto& itT : itN.second)//for all treatments
+			{
+				//CTRef begin = itT.second.begin()->m_TRef;
+				for (auto& itD : itT.second)//for all dates
+				{
+
+					std::vector<double> sim = m_I.get_stage_table(itD.m_treatments_to_sim_index, itD.m_TRef.as(CTM::DAILY));
+
+					//skip the first stage (all values are 100) 
+					for (size_t s = 1; s < itD.m_cumul.size(); s++)//for all stages (excluding the first one, always 100)
+					{
+						//itS = 100 * itS / sum;
+
+						//if (bLogLikelyhoude)//use likelihood method
+						//{
+						//	//compute probability to get observed brood
+						//	//double p = max(1e-20, boost::math::pdf(Poisson, xi.broods));
+						//	//double LL = log(p) * xi.n;
+						//	//
+						//	//log_likelyhoude += LL;
+						//	//N_likelyhoude += xi.n;
+						//	assert(false);//todo
+						//}
+						//else
+						//{
+						assert(isfinite(sim[s]) && !isnan(sim[s]) && sim[s] > -1E8 && sim[s] < 1E8);
+						assert(sim[s] >= 0 && sim[s] <= 100);
+						assert(itD.m_cumul[s] >= 0 && itD.m_cumul[s] <= 100);
+
+						double obs_y = itD.m_cumul[s];
+						double sim_y = sim[s];
+						stats_stage[s - 1].Add(sim_y, obs_y);
+
+
+						if ((s - 1) >= p.m_first_stage && (s - 1) <= p.m_last_stage)
+							stats.Add(sim_y, obs_y);
+
+						const CStatistic& DOYstats = itT.second.m_stats[s];
+						if (obs_y >= 5.0 && obs_y <= 95.0 && DOYstats[RANGE] > 0)
+						{
+							const CModelStatVector& output = m_I[itD.m_treatments_to_sim_index].m_output;
+
+							double obs_x = 0;
+							if (m_stages_table.m_bDOY)
+							{
+								obs_x = (itD.m_TRef - CTRef(0, 0, 0, 0, CTM::HOURLY)) / 24.0;
+							}
+							else
+							{
+								obs_x = itD.m_TRef.GetJDay();
+								if (itD.m_TRef.GetTM() == CTRef::HOURLY)
+									obs_x += itD.m_TRef.m_hour / 24.0;
+							}
+
+
+							double sim_x = output.GetSimDOY(s, -999, itD.m_cumul[s]);
+
+							assert(!isnan(sim_x) && isfinite(sim_x));
+
+
+							obs_x = Round(100 * (obs_x - DOYstats[LOWEST]) / DOYstats[RANGE], 1);
+							sim_x = Round(100 * (sim_x - DOYstats[LOWEST]) / DOYstats[RANGE], 1);
+
+
+							assert(sim_x > -10000 && sim_x < 10000);
+							assert(obs_x > -10000 && obs_x < 10000);
+							stats_stage[s - 1].Add(sim_x, obs_x);
+
+
+
+							if ((s - 1) >= p.m_first_stage && (s - 1) <= p.m_last_stage)
+								stats.Add(sim_x, obs_x);
+
+
+						}
+					}
+				}
+			}
+		}
+
+
+		//if (bLogLikelyhoude)
+		//{
+		//	//add penalty if over maximum
+
+		//	assert(N_likelyhoude > 0);
+
+
+		//	double k = computation.m_P.m_X.size();
+		//	double n = N_likelyhoude;
+		//	double AIC = 2 * k - 2 * (log_likelyhoude);
+		//	double AICc = AIC + (2 * k * (k + 1) / max(1.0, n - k - 1));// n/k < 40
+
+		//	computation.m_P.m_k = k;
+		//	computation.m_P.m_n = n;
+		//	computation.m_P.m_AICC = AICc;
+		//	computation.m_P.m_MLL = log_likelyhoude;
+		//	computation.m_FP = m_SA_ctrl.AdjustFValue(log_likelyhoude);
+
+		//}
+		//else
+		//{
+
+		//p[0].m_computation.m_FP = 0;
+		//p[0].m_computation.m_SP.Reset();
+
+		if (stats[NB_VALUE] > 1)
+		{
+			p.m_c.m_P.m_F = m_SA_ctrl.AdjustFValue(stats[m_SA_ctrl.m_statisticType] / stats[NB_VALUE]);
+			p.m_c.m_P.m_S = stats;
+		}
+
+		for (size_t s = 0; s < p.size(); s++)//for all stages
+		{
+			p[s].m_computation.m_P.m_F = m_SA_ctrl.AdjustFValue(stats_stage[s][m_SA_ctrl.m_statisticType] / stats_stage[s][NB_VALUE]);
+			p[s].m_computation.m_P.m_S = stats_stage[s];
+		}
+
+
+		return true;
+	}
 
 	ERMsg CInsectParameterization::ReadParametersFromFile(const std::string& outputFilePath, std::map<std::string, std::map<std::string, std::map<std::string, double>>>& params)
 	{
@@ -5718,10 +6029,13 @@ namespace WBSF
 		case SA_LOW_FAST:
 		{
 			options.m_MAXEVL = 200'000;
+			options.m_max_loop = 10;
 			options.m_NS = 20;
-			options.m_NT = 25;
+			options.m_NT1 = 25;
+			options.m_NT2 = 3;
 			options.m_T = 10;
 			options.m_RT = 0.55;
+			options.m_NEPS = 2;
 			options.m_EPS = 0.005;
 
 			break;
@@ -5729,10 +6043,13 @@ namespace WBSF
 		case SA_MEDIUM_MEDIUM:
 		{
 			options.m_MAXEVL = 400'000;
+			options.m_max_loop = 20;
 			options.m_NS = 30;
-			options.m_NT = 30;
+			options.m_NT1 = 30;
+			options.m_NT2 = 4;
 			options.m_T = 100;
 			options.m_RT = 0.65;
+			options.m_NEPS = 2;
 			options.m_EPS = 0.001;
 
 			break;
@@ -5740,10 +6057,13 @@ namespace WBSF
 		case SA_HI_SLOW:
 		{
 			options.m_MAXEVL = 800'000;
+			options.m_max_loop = 30;
 			options.m_NS = 40;
-			options.m_NT = 35;
+			options.m_NT1 = 35;
+			options.m_NT2 = 4;
 			options.m_T = 175;
 			options.m_RT = 0.75;
+			options.m_NEPS = 2;
 			options.m_EPS = 0.001;
 
 			break;
@@ -5751,10 +6071,13 @@ namespace WBSF
 		case SA_VERY_HI_SLOW:
 		{
 			options.m_MAXEVL = 1'200'000;
+			options.m_max_loop = 40;
 			options.m_NS = 50;
-			options.m_NT = 50;
+			options.m_NT1 = 50;
+			options.m_NT2 = 5;
 			options.m_T = 250;
 			options.m_RT = 0.85;
+			options.m_NEPS = 2;
 			options.m_EPS = 0.0005;
 
 			break;
@@ -5952,6 +6275,8 @@ namespace WBSF
 		{
 			msg = load(file);
 			file.close();
+
+			compute_cumulative();
 		}
 
 		return msg;
@@ -5999,7 +6324,7 @@ namespace WBSF
 		assert(posT != NOT_INIT);
 		assert(posD != NOT_INIT);
 
-		bool bDOY = boost::iequals("DOY", loop.Header()[posD]);
+		m_bDOY = boost::iequals("DOY", loop.Header()[posD]);
 
 		//read all individuals time series
 		for (; loop != CSVIterator() && msg; ++loop)
@@ -6017,7 +6342,7 @@ namespace WBSF
 				string strD = (*loop)[posD];
 
 				CTRef TRef;
-				if (bDOY)
+				if (m_bDOY)
 				{
 					double DOY = stof(strD);
 					TRef = CTRef(0, 0, 0, 0, CTM::HOURLY) + (int)Round(DOY * 24);
@@ -6047,6 +6372,7 @@ namespace WBSF
 
 
 
+
 				CCStagesTableData& me = *this;
 				me[strN][strT].push_back(row);
 				m_treatments.insert(strT);
@@ -6054,6 +6380,323 @@ namespace WBSF
 			}
 		}
 
+
+		return msg;
+	}
+
+	void CCStagesTableData::compute_cumulative()
+	{
+		CCStagesTableData& me = *this;
+
+		//for (auto& itN : me)
+		auto& itN = *me.begin();//take only the first dataset fort the moment;
+		{
+			for (auto& itT : itN.second)//for all treatments
+			{
+
+				//CTRef begin = itT.second.begin()->m_TRef;
+				itT.second.m_stats.clear();
+				itT.second.m_stats.resize(num_stages());
+				for (auto& itD : itT.second)//for all dates
+				{
+					double sum = std::accumulate(itD.m_n.begin(), itD.m_n.end(), 0.0);
+					itD.m_cumul.resize(itD.m_n.size(), 0);
+					if (sum > 0)
+					{
+						double x = 0;
+						for (size_t s = itD.m_n.size() - 1; s < itD.m_n.size(); s--)//for all stages
+						{
+							x += itD.m_n[s];
+							itD.m_cumul[s] = 100 * x / sum;
+							if (itD.m_cumul[s] >= 5 && itD.m_cumul[s] <= 95)
+							{
+								double DOY = 0;
+								if (m_bDOY)
+								{
+									DOY = (itD.m_TRef - CTRef(0, 0, 0, 0, CTM::HOURLY)) / 24.0;
+								}
+								else
+								{
+									DOY = itD.m_TRef.GetJDay();
+									if (itD.m_TRef.GetTM() == CTRef::HOURLY)
+										DOY += itD.m_TRef.m_hour / 24.0;
+								}
+
+								itT.second.m_stats[s] += DOY;
+							}
+						}
+					}
+				}
+
+				auto it = std::find(m_treatments.begin(), m_treatments.end(), itT.first);
+				assert(it != m_treatments.end());
+				size_t i = distance(m_treatments.begin(), it);
+
+				for (auto& itD : itT.second)//for all dates
+					itD.m_treatments_to_sim_index = i;
+			}
+		}
+
+
+		//for optimization to avoid to look into the map during the simulation
+		//auto& itN = *begin();//take only the first dataset fort the moment;
+		//{
+		//	for (auto& itT : itN.second)//for all treatments
+		//	{
+		//		auto it = std::find(m_treatments.begin(), m_treatments.end(), itT.first);
+		//		assert(it != m_treatments.end());
+		//		size_t i = distance(m_treatments.begin(), it);
+
+		//		for (auto& itD : itT.second)//for all dates
+		//			itD.m_treatments_to_sim_index = i;
+		//	}
+		//}
+	}
+
+
+
+	ERMsg CInsectParameterization::OptimizeStageTable(CFitOutputVector& p_in, CCallback& callback)
+	{
+		ERMsg msg;
+
+		CFitOutputVector p = p_in;
+
+
+
+		size_t nb_stages = p.m_last_stage - p.m_first_stage + 1;
+		size_t nb_parameters = p[0].m_parameters.size();
+		string variables = p.get_variables();
+
+		callback.PushTask("Search optimum for : " + variables, NOT_INIT);
+
+
+		//  Initialize the random number generator RANMAR.
+		CRandomizeNumber random(m_SA_ctrl.m_seed1, m_SA_ctrl.m_seed2);
+
+		//  Start the main loop. Note that it terminates if :
+		//(i) the algorithm successfully optimizes the function 
+		//(ii) there are too many function evaluations (more than MAXEVL).
+
+
+		bool bQuit = false;
+
+		size_t NL = m_SA_ctrl.m_max_loop;//Loops
+		size_t NT = m_SA_ctrl.m_NT2 * nb_stages * nb_parameters;//Iterations
+		size_t NS = m_SA_ctrl.m_NS;//cycle
+
+
+		for (size_t L = 0; L < NL && !bQuit && msg; L++)
+		{
+
+
+			callback.PushTask("Search optimum for loop : " + to_string(L) + " (" + to_string(NT) + "iterations*" + to_string(NS) + "cycles*" + to_string(nb_stages) + "stages*" + to_string(nb_parameters) + "params=" + to_string(NT * NS * nb_stages * nb_parameters) + ")", NT * NS * nb_stages * nb_parameters);
+
+			size_t step_pos = 0;
+
+
+			for (size_t I = 0; I < NT && msg; I++)//for all iterations
+			{
+				//randomize order of the parameters to not always begin with the same parameter
+				vector < vector<size_t> >H(NS);
+				for (size_t S = 0; S < H.size(); S++)
+					H[S] = Shuffle(nb_stages * nb_parameters);
+
+				//number of accepted values
+				vector < vector<size_t>> NACP(p.size());
+				for (size_t s = 0; s < NACP.size(); s++)
+				{
+					if (s >= p.m_first_stage && s <= p.m_last_stage)
+						NACP[s].insert(NACP[s].begin(), nb_parameters, 0);
+				}
+
+
+
+#ifndef _DEBUG
+#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) shared(p, NACP)
+#endif
+				for (__int64 S = 0; S < (__int64)NS; S++)//for all cycle
+				{
+
+					for (size_t hh = 0; hh < H[S].size() && msg; hh++)//for all position
+					{
+#pragma omp flush(msg)
+
+						size_t s = p.m_first_stage + H[S][hh] / nb_parameters;
+						size_t h = H[S][hh] % nb_parameters;
+
+						assert(s >= p.m_first_stage && s <= p.m_last_stage);
+						assert(h < nb_parameters);
+
+						CFitOutputVector p_thread;
+
+#pragma omp flush(p)
+#pragma omp critical(SET_COMPUTATION)
+						{
+							p_thread = p;
+						}
+
+
+
+
+						p_thread[s].m_computation.m_P.m_X = p_thread[s].m_computation.m_.m_X;
+						p_thread[s].m_computation.m_P.m_S.Reset();
+						p_thread[s].m_computation.m_P.m_F = m_SA_ctrl.GetVMiss();
+
+						p_thread.m_c.m_P.m_S.Reset();
+						p_thread.m_c.m_P.m_F = m_SA_ctrl.GetVMiss();
+
+
+						size_t nb_not_valid = 0;
+						double factorVM = 1;
+						bool bValid = false;
+						//do
+						while (!bValid)
+						{
+							nb_not_valid++;
+							if ((nb_not_valid % 20) == 0)
+								factorVM *= 0.9;//temporary decrease VM when too mush not valid
+
+							p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation.m_.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * p_thread[s].m_computation[h].m_VM * factorVM;
+							//  If XP is out of bounds, select a point in bounds for the trial.
+							if (p_thread[s].m_computation[h].m_bounds.IsOutOfBound(p_thread[s].m_computation.m_P.m_X[h]))
+								p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation[h].m_bounds.GetLowerBound() + p_thread[s].m_computation[h].m_bounds.GetExtent() * random.Ranmar();
+
+							bValid = IsParamValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X) && IsRateValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X, NULL_RATE_THRESHOLD);
+						}
+
+
+						//  Evaluate the function with the trial point XP and return as FP.
+						bValid = GetFValueStageTable(p_thread);
+						if (!bValid)
+							continue;
+
+						assert(bValid);
+
+#pragma omp flush(p)
+#pragma omp critical(SET_COMPUTATION)
+						{
+
+							for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+							{
+								p[ss].m_computation.m_P.m_Xstat[h] += p_thread[ss].m_computation.m_P.m_X[h];
+								p[ss].m_computation[h].m_VMstat += p_thread[ss].m_computation[h].m_VM;
+							}
+
+							assert(p_thread.m_c.m_P.m_F != m_SA_ctrl.GetVMiss());
+
+							if (p_thread.m_c.m_P.m_F >= p.m_c.m_.m_F)
+							{
+								for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+									p[ss].m_computation.m_ = p_thread[ss].m_computation.m_P;
+
+								NACP[s][h]++;
+								p[s].m_computation.m_ = p_thread[s].m_computation.m_P;
+								p.m_c.m_ = p_thread.m_c.m_P;
+
+
+								//  If greater than any other point, record as new optimum.
+								if (p_thread.m_c.m_P.m_F > p.m_c.m_opt.m_F)
+								{
+									for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+										p[ss].m_computation.m_opt = p_thread[ss].m_computation.m_P;
+
+									p.m_c.m_opt = p_thread.m_c.m_P;
+								}
+							}
+							else
+							{
+								//  If the point is lower, use the Metropolis criteria to decide on acceptance or rejection.
+								double P = Exprep((p_thread.m_c.m_P.m_F - p_thread.m_c.m_.m_F) / p.m_c.m_T);
+								double PP = random.Ranmar();
+								if (PP < P)
+								{
+									for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+										p[ss].m_computation.m_ = p_thread[ss].m_computation.m_P;
+
+
+									NACP[s][h]++;
+									p[s].m_computation.m_ = p_thread[s].m_computation.m_P;
+									p.m_c.m_ = p_thread.m_c.m_P;
+								}
+							} //if
+
+							p[s].m_computation.m_NFCNEV++;
+							p.m_c.m_NFCNEV++;
+							step_pos++;
+						}
+
+#pragma omp flush(p)
+
+
+						msg += callback.SetCurrentStepPos(step_pos);
+#pragma omp flush(msg)
+
+					}//for all stages * variables
+				} //for all cycle
+
+
+
+				//  Adjust VM so that approximately half of all evaluations are accepted.
+				assert(p.size() == NACP.size());
+				for (size_t s = 0; s < NACP.size(); s++)
+				{
+
+					for (size_t h = 0; h < NACP[s].size(); h++)
+					{
+						double RATIO = double(NACP[s][h]) / double(m_SA_ctrl.m_NS);
+						if (RATIO > 0.6)
+						{
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_VM * (1. + p[s].m_computation[h].m_C * (RATIO - .6) / .4);
+						}
+						else if (RATIO < 0.4)
+						{
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_VM / (1. + p[s].m_computation[h].m_C * ((.4 - RATIO) / .4));
+						}
+
+						if (p[s].m_computation[h].m_VM > p[s].m_computation[h].m_bounds.GetExtent())
+						{
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_bounds.GetExtent();
+						}
+					}//all VM
+				}//for all stages
+			}//for all iterations
+
+			callback.PopTask();
+
+
+
+			if (m_bShowTrace)//&& 
+				WriteInfoEx(L + 1, variables, p.m_c, true, nb_stages != 1, callback);
+
+
+			for (size_t s = 0; s < p.size(); s++)
+			{
+				if (s >= p.m_first_stage && s <= p.m_last_stage)
+				{
+					if (m_bShowTrace)
+						WriteInfoEx(L + 1, nb_stages == 1?"": p[s].m_variable, p[s].m_computation, false, nb_stages == 1, callback);
+
+					//  If termination criteria is not met, prepare for another loop.
+					//p[s].m_computation.PrepareForAnotherLoop(m_SA_ctrl, L + 1);
+					p[s].m_computation.clear_stat();
+				}//if stage is used
+			}//for all stages
+
+
+			//  If termination criteria is not met, prepare for another loop.
+			bQuit = p.m_c.PrepareForAnotherLoop(m_SA_ctrl, L + 1);
+
+			b_ouput_file = true;
+		} //for all loop
+
+		if (!msg && bQuit == false)
+		{
+			callback.AddMessage("Number of loop is greater than the maximum number of loop (max_loop).");
+		}
+
+		callback.PopTask();
+
+		p_in = p;
 
 		return msg;
 	}

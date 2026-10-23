@@ -181,7 +181,8 @@ namespace WBSF
 		for (size_t p = 0; p < m_EAS.size(); p++)
 			stand.m_equations.m_EAS[p] = m_EAS[p];
 
-		stand.init(year, weather);
+		stand.m_equations.InitAdultEmergenceCDD(weather[year]);
+		//stand.init(year, weather);
 
 		//Create host
 		CTZZHostPtr pHost(new CTZZHost(&stand));

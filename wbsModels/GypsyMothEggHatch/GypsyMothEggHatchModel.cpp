@@ -3,18 +3,11 @@
 //***********************************************************
 
 
-#include <boost/math/distributions/weibull.hpp>
-#include <boost/math/distributions/beta.hpp>
-#include <boost/math/distributions/Rayleigh.hpp>
-#include <boost/math/distributions/logistic.hpp>
-#include <boost/math/distributions/exponential.hpp>
-
-
 #include "GypsyMothEggHatchModel.h"
 #include "ModelBase/EntryPoint.h"
 #include "Basic/DegreeDays.h"
 #include "ModelBase/DevRateEquation.h"
-
+#include "ModelBase/ModelDistribution.h"
 
 using namespace WBSF::HOURLY_DATA;
 using namespace WBSF::LDD;
@@ -33,7 +26,7 @@ namespace WBSF
 	static const bool bRegistred =
 		CModelFactory::RegisterModel(CGypsyMothEggHatchModel::CreateObject);
 
-	CGypsyMothEggHatchModel::CGypsyMothEggHatchModel():
+	CGypsyMothEggHatchModel::CGypsyMothEggHatchModel() :
 		m_EOD(CGypsyMothEggHatchEquations::EOD),
 		m_EDP(CGypsyMothEggHatchEquations::EDP),
 		m_RDR(CGypsyMothEggHatchEquations::RDR)
@@ -70,9 +63,9 @@ namespace WBSF
 		m_bCumul = parameters[c++].GetBool();
 		m_bApplyAttrition = parameters[c++].GetBool();
 
-		
 
-		if (parameters.size() == 3 + NB_EDP_PARAMS + NB_EOD_PARAMS + NB_RDR_PARAMS )
+
+		if (parameters.size() == 3 + NB_EDP_PARAMS + NB_EOD_PARAMS + NB_RDR_PARAMS)
 		{
 			//m_begin = parameters[c++].GetInt();
 
@@ -81,11 +74,11 @@ namespace WBSF
 
 			for (size_t p = 0; p < NB_EDP_PARAMS; p++)
 				m_EDP[p] = parameters[c++].GetFloat();
-			
+
 			for (size_t p = 0; p < NB_RDR_PARAMS; p++)
 				m_RDR[p] = parameters[c++].GetFloat();
 		}
-		
+
 
 		return msg;
 	}
@@ -108,13 +101,51 @@ namespace WBSF
 		//simulation overall years
 		for (size_t y = 1; y < m_weather.size(); y++)
 		{
-			ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, m_output);
+			switch (m_eggHatchModel)
+			{
+			case EH_SAINT_AMANT:ExecuteDailySaintAmant(m_weather[y].GetTRef().GetYear(), m_weather, m_output); break;
+			case EH_KHANNA:ExecuteDailyKhanna(m_weather[y].GetTRef().GetYear(), m_weather, m_output); break;
+			default: assert(false);
+			}
+
 		}
 
 		return msg;
 	}
 
-	void CGypsyMothEggHatchModel::ExecuteDaily(int year, const CWeatherYears& weather, CModelStatVector& output)
+	void CGypsyMothEggHatchModel::ExecuteDailyKhanna(int year, const CWeatherYears& weather, CModelStatVector& output)
+	{
+		//Using my updated analysis, my model has a January 1 biofix 
+		// and a lower developmental threshold of 5.5°C, with thermal requirements of 
+		// 269 ± 14.7 DD for 5 % hatch, 
+		// 290 ± 13.6 DD for 50 % hatch, and 
+		// 327 ± 18 DD for 95 % hatch.
+
+		CDegreeDays DDmodel(CDegreeDays::SINGLE_SINE, 5.5);
+		CModelStatVector CDD;
+		DDmodel.GetCDD(0, weather[year], CDD);
+		
+		CTPeriod p = m_weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
+		for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+		{
+			//output[TRef][s] = output[d - 1][s] + output[d][s] * 100 / stat[SUM];
+			double CDF = Round(100 * CModelDistribution::get_cdf(CDD[TRef][0], CModelDistribution::TType(m_EOD[Distribution]), 34.65, 293.09),1);
+
+
+			output[TRef][S_DIAPAUSE_EGGS] = -999.0;
+			output[TRef][S_EGGS] = 100.0 - CDF;
+			output[TRef][S_LARVAE] = CDF;
+			output[TRef][S_DIAPAUSE_EGGS] = -999.0;
+			output[TRef][S_EGGS_HATCH] = (TRef > p.Begin()) ? (output[TRef][S_LARVAE] - output[TRef - 1][S_LARVAE]) : 0.0;
+			output[TRef][S_DIAPAUSE_END_NCDD1] = CDD[TRef][0];
+			output[TRef][S_DIAPAUSE_END_NCDD2] = CDD[TRef][0];
+
+		}
+
+
+	}
+
+	void CGypsyMothEggHatchModel::ExecuteDailySaintAmant(int year, const CWeatherYears& weather, CModelStatVector& output)
 	{
 		//Create stand
 		CLDDStand stand(this);
@@ -134,16 +165,16 @@ namespace WBSF
 		pHost->m_nbMinObjects = 10;
 		pHost->m_nbMaxObjects = 1000;
 
-		
+
 		//pHost->Initialize<CGypsyMothEggHatch>(CInitialPopulation(400, 100, DIAPAUSE_EGG));
-		pHost->Initialize<CGypsyMothEggHatch>(CInitialPopulation(InCalibration()?100:400, 100, DIAPAUSE_EGG));
+		pHost->Initialize<CGypsyMothEggHatch>(CInitialPopulation(InCalibration() ? 100 : 400, 100, DIAPAUSE_EGG));
 
 		//add host to stand			
 		stand.m_host.push_front(pHost);
 
 		CTPeriod p = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
 		//CTPeriod p_current = weather[year].GetEntireTPeriod(CTM(CTM::DAILY));
-		
+
 		//assert(weather[year].HavePrevious());
 		//if (!weather[year].HavePrevious()) 
 		//	return;
@@ -151,7 +182,7 @@ namespace WBSF
 		//if they have other year extend period to July
 		//p.Begin() = CJDayRef(year - 1, m_EOD[NCDDb] - 1);//-1: convert base 1 into base 0
 		//p.Begin() = CJDayRef(year - 1, m_begin - 1);//-1: convert base 1 into base 0
-		
+
 
 
 		for (CTRef d = p.Begin(); d <= p.End(); d++)
@@ -203,16 +234,16 @@ namespace WBSF
 
 		obs.m_ref.FromFormatedString(data[I_DATE]);
 		obs.m_obs.resize(1);
-		
+
 		if (data[I_EGG_HATCH_CUMUL] != "NA" && data[I_CV] == "C")
 		{
 			obs.m_obs[0] = stod(data[I_EGG_HATCH_CUMUL]);
 			//obs.m_obs[1] = (data[I_SOURCE] == "Tauber1990" && obs.m_ref.m_year == 1986) ? 0 : 1;
 			//if (obs.m_obs[1]!=0)
 			//{
-				m_cumul_stats += obs.m_obs[0];
-				m_nb_days += obs.m_ref.GetJDay();
-				m_years.insert(obs.m_ref.GetYear());
+			m_cumul_stats += obs.m_obs[0];
+			m_nb_days += obs.m_ref.GetJDay();
+			m_years.insert(obs.m_ref.GetYear());
 			//}
 			//else
 			//{
@@ -225,7 +256,7 @@ namespace WBSF
 		{
 			obs.m_obs[0] = -999;
 		}
-		
+
 
 		m_SAResult.push_back(obs);
 	}
@@ -271,11 +302,11 @@ namespace WBSF
 
 		if (m_EOD[DOYb] >= m_EOD[DOYe])
 			bValid = false;
-		else 
-			if (m_EOD[Τᴴ¹] >= m_EOD[Τᴴ²]) 
-			bValid = false;
-		else 
-			bValid = CDevRateEquation::IsParamValid(CDevRateEquation::Régnière_2012, { m_EDP.begin(), m_EDP.end() });
+		else
+			if (m_EOD[Τᴴ¹] >= m_EOD[Τᴴ²])
+				bValid = false;
+			else
+				bValid = CDevRateEquation::IsParamValid(CDevRateEquation::Regniere_2012, { m_EDP.begin(), m_EDP.end() });
 #else
 		bValid = CDevRateEquation::IsParamValid(CDevRateEquation::Régnière_2012, { m_EOD.begin(), m_EOD.end() });
 		bValid &= CDevRateEquation::IsParamValid(CDevRateEquation::Régnière_2012, { m_EDP.begin(), m_EDP.end() });
@@ -287,7 +318,7 @@ namespace WBSF
 
 
 	static const int ROUND_VAL = 4;
-	
+
 	bool CGypsyMothEggHatchModel::Calibrate(CStatisticXY& stat)
 	{
 		if (!m_SAResult.empty())
@@ -305,13 +336,13 @@ namespace WBSF
 			for (size_t y = 0; y < m_weather.GetNbYears(); y++)
 			{
 				int year = m_weather[y].GetTRef().GetYear();
-				if ( m_years.find(year) != m_years.end() )
+				if (m_years.find(year) != m_years.end())
 				{
 					CModelStatVector output;
 					CTPeriod p = m_weather[y].GetEntireTPeriod(CTM(CTM::DAILY));
 
 					output.Init(p, NB_STATS, 0);
-					ExecuteDaily(m_weather[y].GetTRef().GetYear(), m_weather, output);
+					ExecuteDailySaintAmant(m_weather[y].GetTRef().GetYear(), m_weather, output);
 
 
 					for (size_t i = 0; i < m_SAResult.size(); i++)
@@ -330,10 +361,10 @@ namespace WBSF
 								//m_SAResult[i].m_obs[1]!=0 && 
 								if (obs_y >= 5.0 && obs_y <= 95.0)
 								{
-									
+
 									double obs_x = m_SAResult[i].m_ref.GetJDay();
 									double sim_x = GetSimX(S_EGGS_HATCH, m_SAResult[i].m_ref, obs_y, output);
-								
+
 									assert(!isnan(sim_x) && isfinite(sim_x));
 									//if(sim_x<=-998)
 									//	return false;
@@ -342,7 +373,7 @@ namespace WBSF
 										obs_x -= 365;
 									if (sim_x > 180)
 										sim_x -= 365;
-										
+
 
 									//obs_x = Round(100 * (obs_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
 									//sim_x = Round(100 * (sim_x - m_nb_days[LOWEST]) / m_nb_days[RANGE], 1);
@@ -350,7 +381,7 @@ namespace WBSF
 									sim_x = Round(100 * (sim_x - 90.0) / 60.0, 1);
 
 
-									
+
 									stat.Add(obs_x, sim_x);
 								}
 							}
@@ -363,10 +394,29 @@ namespace WBSF
 		return true;
 	}
 
+	bool CGypsyMothEggHatchModel::CalibrateKhanna(CStatisticXY& stat)
+	{
+		if (!m_SAResult.empty())
+		{
+			double CDF = CModelDistribution::get_cdf(269, CModelDistribution::TType(m_EOD[Distribution]), -m_EOD[μ], m_EOD[ѕ]);
+			stat.Add(0.05, CDF);
+			CDF = CModelDistribution::get_cdf(290, CModelDistribution::TType(m_EOD[Distribution]), -m_EOD[μ], m_EOD[ѕ]);
+			stat.Add(0.50, CDF);
+			CDF = CModelDistribution::get_cdf(327, CModelDistribution::TType(m_EOD[Distribution]), -m_EOD[μ], m_EOD[ѕ]);
+			stat.Add(0.95, CDF);
+		}
+
+		return true;
+	}
+
 	bool CGypsyMothEggHatchModel::GetFValueDaily(CStatisticXY& stat)
 	{
+		//return CalibrateKhanna(stat);
+
+
 		if (!IsParamValid())
 			return false;
+
 
 		return Calibrate(stat);
 	}
