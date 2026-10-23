@@ -40,9 +40,9 @@ namespace WBSF
 
 	//HRRR is available her since 2019
 	//ftp.arl.noaa.gov
-	
-	
-	
+
+
+
 	//*********************************************************************
 	const char* CUIGribHistorical::ATTRIBUTE_NAME[NB_ATTRIBUTES] = { "WorkingDir", "Product", "Dimension", "Variable", "Begin", "End" };
 	const size_t CUIGribHistorical::ATTRIBUTE_TYPE[NB_ATTRIBUTES] = { T_PATH, T_COMBO_INDEX, T_COMBO_INDEX, T_COMBO_INDEX, T_DATE, T_DATE };
@@ -102,10 +102,12 @@ namespace WBSF
 
 
 	CUIGribHistorical::CUIGribHistorical(void)
-	{}
+	{
+	}
 
 	CUIGribHistorical::~CUIGribHistorical(void)
-	{}
+	{
+	}
 
 
 	std::string CUIGribHistorical::Option(size_t i)const
@@ -376,17 +378,17 @@ namespace WBSF
 								{
 									int h = int(curTRef.GetHour());
 									int HH = 0;
-									
+
 									if (product == P_NAM || product == P_GFS)
 									{
 										HH = h % 6;
 										h = int(h / 6) * 6;
 										ASSERT(h == 0 || h == 6 || h == 12 || h == 18);
-										
+
 										if (HH == 0)
 										{
 											size_t nb_gribs = 0;
-											for (size_t HH = 0; HH <= 6&&msg; HH++)
+											for (size_t HH = 0; HH <= 6 && msg; HH++)
 											{
 												string inputPath = GetInputFilePath(product, dimension, curTRef, HH);
 												string outputPath = GetOutputFilePath(product, dimension, curTRef, HH, ".grb2");
@@ -407,7 +409,7 @@ namespace WBSF
 
 											if (msg)
 											{
-												if(nb_gribs==6)//create hourly precipitation only if all 6 files exist
+												if (nb_gribs == 6)//create hourly precipitation only if all 6 files exist
 													msg += CreateHourlyPrcp(product, dimension, curTRef, callback);
 
 												if (msg)
@@ -415,8 +417,8 @@ namespace WBSF
 													for (size_t HH = 0; HH < 6; HH++)
 													{
 														string outputPath = GetOutputFilePath(product, dimension, curTRef, HH, ".grb2");
-														
-														if (FileExists(outputPath) )
+
+														if (FileExists(outputPath))
 														{
 															string prcpOutputPath = GetOutputFilePath(product, dimension, curTRef, HH, "_prcp.tif");
 															if (!FileExists(prcpOutputPath))
@@ -561,9 +563,9 @@ namespace WBSF
 			if (tmp.size() == 2)
 			{
 				level = ToInt(tmp[0]);
-				
+
 				auto it2 = meta_data.find("description");
-				if(it2 != meta_data.end())
+				if (it2 != meta_data.end())
 				{
 					string description = it2->second;
 					if (description.find("[hPa]") != string::npos)
@@ -584,7 +586,7 @@ namespace WBSF
 		CGDALDatasetEx DS1;
 		msg += DS1.OpenInputImage(inputFilePath);
 		CGDALDatasetEx DS2;
-		if(!inputPrcpFilePath.empty())
+		if (!inputPrcpFilePath.empty())
 			msg += DS2.OpenInputImage(inputPrcpFilePath);
 
 		if (msg)
@@ -641,15 +643,15 @@ namespace WBSF
 						if (description.size() >= 1)//replace description of level by description of variable: more useful in QGIS
 						{
 							new_description = description[0] + " \"" + meta_data[b]["GRIB_COMMENT"] + "\"";
-							
+
 							//if (description[0].find("[hPa]") != string::npos)
 							//	level *= 100;
 						}
-							
+
 
 
 						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(bb + 1) << "\">" << endl;
-						oFile << "    <Description>" << new_description << "</Description>" << endl; 
+						oFile << "    <Description>" << new_description << "</Description>" << endl;
 						oFile << "    <Metadata>" << endl;
 						oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[b]["GRIB_COMMENT"] << "</MDI>" << endl;
 						oFile << "      <MDI key=\"GRIB_ELEMENT\">" << meta_data[b]["GRIB_ELEMENT"] << "</MDI>" << endl;
@@ -717,7 +719,7 @@ namespace WBSF
 						oFile << "    </ComplexSource>" << endl;
 						oFile << "  </VRTRasterBand>" << endl;
 
-						
+
 					}
 				}
 
@@ -726,7 +728,7 @@ namespace WBSF
 			}
 
 			DS1.Close();
-			if(DS2.IsOpen())
+			if (DS2.IsOpen())
 				DS2.Close();
 		}//if msg
 
@@ -766,7 +768,7 @@ namespace WBSF
 
 
 		msg += RemoveFile(inputFilePath);
-		if(!inputPrcpFilePath.empty())
+		if (!inputPrcpFilePath.empty())
 			msg += RemoveFile(inputPrcpFilePath);
 		msg += RemoveFile(file_path_vrt);
 
@@ -837,7 +839,22 @@ namespace WBSF
 		size_t dimension = as<size_t>(DIMENSION);
 		string workingDir = GetDir(WORKING_DIR) + GetDirectoryName(product, dimension) + "\\";
 
-
+		//if (product == P_HRRR && dimension== D_3D)
+		//{
+		//	CHRRR HRRR(workingDir);
+		//	HRRR.m_product = dimension;
+		//	HRRR.m_source = CHRRR::MESO_WEST;
+		//	HRRR.m_serverType = CHRRR::HTTP_SERVER;
+		//	HRRR.m_bShowWINSCP = false;
+		//	HRRR.m_period = GetPeriod();
+		//	HRRR.m_compute_prcp = false;
+		//	HRRR.m_update_last_n_days = 0;
+		//	HRRR.bUseOnlyBioSIMVar = true;
+		//	HRRR.m_createDailyGeotiff = false;//create daily CanUS instead
+		//	msg = HRRR.GetGribsList(p, gribsList, callback);
+		//}
+		//else
+		//{
 		int firstYear = p.Begin().GetYear();
 		int lastYear = p.End().GetYear();
 		size_t nbYears = lastYear - firstYear + 1;
@@ -854,7 +871,7 @@ namespace WBSF
 					gribsList[TRef] = fileList[i];
 			}
 		}
-
+		//}
 
 		return msg;
 	}
@@ -956,7 +973,7 @@ namespace WBSF
 						if (description.size() >= 1)
 							new_description = description[0] + " \"" + meta_data[in_b]["GRIB_COMMENT"] + "\"";
 
-						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(HH+1) << "\">" << endl;
+						oFile << "  <VRTRasterBand dataType=\"Float64\" band=\"" << ToString(HH + 1) << "\">" << endl;
 						oFile << "    <Description>" << new_description << "</Description>" << endl;
 						oFile << "    <Metadata>" << endl;
 						oFile << "      <MDI key=\"GRIB_COMMENT\">" << meta_data[in_b]["GRIB_COMMENT"] << "</MDI>" << endl;
@@ -1001,13 +1018,13 @@ namespace WBSF
 				string plugin_path = GetApplicationPath() + "gdalplugins";
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
 
-				string argument = "-e \"prcp=max(0,round( (i1b" + to_string(HH + 2) + "-i1b" + to_string(HH+1) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+				string argument = "-e \"prcp=max(0,round( (i1b" + to_string(HH + 2) + "-i1b" + to_string(HH + 1) + ")*100)/100)\" -ot Float32 -dstNoData 9999 -stats -overwrite -co COMPRESS=LZW -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 
 				string command = "\"" + GetApplicationPath() + "ImageCalculator.exe\" " + option + " " + argument + " \"" + file_path_vrt + "\" \"" + prcpOutputPath + "\"";
 				msg += WinExecWait(command);
 				msg += callback.StepIt(0);
 
-				GDALDataset* poDS = (GDALDataset *)GDALOpenEx(prcpOutputPath.c_str(), GDAL_OF_UPDATE | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
+				GDALDataset* poDS = (GDALDataset*)GDALOpenEx(prcpOutputPath.c_str(), GDAL_OF_UPDATE | GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, NULL, NULL, NULL);
 				if (poDS != NULL)
 				{
 					//update metadata

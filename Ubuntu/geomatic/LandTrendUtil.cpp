@@ -708,6 +708,7 @@ namespace LTR
 		assert(v.size() == vertvals.size());
 
 		CBoolArray use(true, v.size());
+		bool run_mse = true;
 
 		//first, check to see if there are any segments that
 		//break the slope criterion.  If so, take them out first.
@@ -724,7 +725,7 @@ namespace LTR
 		size_t n_negatives = negatives.size();
 
 		REAL_TYPE range_of_vals = get_range(info.yfit);//no need of subset here
-		bool run_mse = true;
+		
 
 		CRealArray scaled_slope(threshold - 1, info.slope.size());		//set so it won't be > threshold
 		if (n_negatives > 0)
@@ -743,7 +744,6 @@ namespace LTR
 			//   not fixed by desawtooth, but that situation would be no better
 			//   removing the first vertex anyway, so we stick with this approach
 			//   since it will take out more shadow problems. the only
-
 			//now interpolate to get rid of this point, so it doesn't mess
 			//   up the fits later
 			if (violator + 1 == vertvals.size() - 1)
@@ -751,12 +751,12 @@ namespace LTR
 				y[v[violator + 1]] = y[v[violator + 1] - 1];
 				vertvals[vertvals.size() - 1] = y[v[violator + 1]];
 
-				run_mse = true;	//since the violating point was at }, need to run mse instead after fixing
+				run_mse = true;	//since the violating point was at end, need to run mse instead after fixing
 			}
 			else
 			{
 				//just set == to prior
-				use[violator + 1] = 0;
+				use[violator + 1] = false;
 				REAL_TYPE lefty = y[v[violator + 1] - 1];
 				REAL_TYPE righty = y[v[violator + 1] + 1];
 				REAL_TYPE leftx = x[v[violator + 1] - 1];
@@ -850,36 +850,33 @@ namespace LTR
 	}
 
 
-	size_t pick_best_model7(const vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority_in)
+	size_t pick_best_model7(vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority)
 	{
 		assert(bestmodelproportion >= 0 && bestmodelproportion <= 1.0);
+	
+		
 
-		size_t nb_segments = size_t(priority_in / NB_PRIORITY);
-		size_t priority = size_t(priority_in % NB_PRIORITY);
-
-
+		
 		std::vector<pair<REAL_TYPE, size_t>> statistic;
+
 
 		for (size_t i = 0; i < info.size(); i++)
 		{
-			if (info[i].m_stat.ok)
+			info[i].m_keep = false;
+			if (info[i].m_stat.ok && info[i].m_stat.p_of_f < pval)
 			{
-
-				if (info[i].m_stat.p_of_f < pval)
+				double value = std::numeric_limits<double>::lowest();
+				switch (stat)
 				{
-					double value = std::numeric_limits<double>::lowest();
-					switch (stat)
-					{
-					case R2:		value = info[i].m_stat.adjusted_rsquare; break;
-					case ANOVA:		value = info[i].m_stat.f_stat; break;
-					case FISHER:	value = info[i].m_stat.p_of_f; break;
-					case AICC:		value = info[i].m_stat.AICc; break;
-					default: assert(false);
-					}
-
-
-					statistic.push_back(make_pair(value, i));
+				case R2:		value = info[i].m_stat.adjusted_rsquare; break;
+				case ANOVA:		value = info[i].m_stat.f_stat; break;
+				case FISHER:	value = info[i].m_stat.p_of_f; break;
+				case AICC:		value = info[i].m_stat.AICc; break;
+				default: assert(false);
 				}
+
+
+				statistic.push_back(make_pair(value, i));
 			}
 		}
 
@@ -887,47 +884,87 @@ namespace LTR
 			return -1;
 
 		std::sort(statistic.begin(), statistic.end());
+
+
 		//REAL_TYPE mn = max(1e-12,statistic.begin()->first);
 
 		REAL_TYPE mn = statistic.begin()->first;
 		REAL_TYPE mx = statistic.rbegin()->first;
 		size_t pos_rg = size_t((1.0 - bestmodelproportion) * (statistic.size() - 1));
 		REAL_TYPE rg = statistic[pos_rg].first - mn;
+		//REAL_TYPE rg = (mx - mn);
 		//eliminate all not enough good model
 		for (auto it = statistic.begin(); it != statistic.end(); )
 		{
 			bool keep_it = true;
-
-			if (nb_segments == 0)
+			
+			if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
 			{
-				if (stat == TStatistic::R2 || stat == TStatistic::ANOVA)
-				{
-					REAL_TYPE limit = mn + bestmodelproportion * (mx - mn);
-					keep_it = it->first >= limit;
-				}
-				else if (stat == TStatistic::FISHER || stat == TStatistic::AICC)
-				{
-					REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
-					keep_it = it->first <= limit;
-				}
+				REAL_TYPE limit = mn + bestmodelproportion * (mx - mn);
+				keep_it = it->first >= limit;
 			}
-			else
+			else if (stat == TStatistic::AICC || stat == TStatistic::FISHER)
 			{
-				size_t i = distance(statistic.begin(), it);
-				keep_it = i < nb_segments;
+				REAL_TYPE limit = mn + (1.0 - bestmodelproportion) * rg;
+				//REAL_TYPE limit = (2.0 - bestmodelproportion) * mn;
+				keep_it = it->first <= limit;
 			}
 
 
-			if (keep_it)
+			if (keep_it || statistic.size()==1)
 				it++;
 			else
 				it = statistic.erase(it);
 
 		}
 
-		assert(!statistic.empty());
-		if (statistic.empty())
-			return -1;//then stop;
+		//assert(!statistic.empty());
+		//if (statistic.empty())
+		//	return -1;//then stop;
+
+		if (stat == FISHER)
+		{
+			size_t zero_count = 0;
+			size_t max_segment = 0;
+			//	size_t best_segment = -1;
+			//	double best_AICC = 1e100;
+			for (auto it = statistic.begin(); it != statistic.end(); it++)
+			{
+				if (it->first <= 1e-15)
+				{
+					zero_count++;
+
+					//	if (info[it->second].m_stat.AICc < best_AICC)
+					//	{
+					//		best_AICC = info[it->second].m_stat.AICc;
+					//		best_segment = it->second;
+					//	}
+
+					max_segment = max(max_segment, it->second);
+				}
+			}
+			if (zero_count > 1)
+			{
+				//when many zero, keep the one with the maximum segment
+				for (auto it = statistic.begin(); it != statistic.end(); )
+				{
+					if (it->first <= 1e-15)
+					{
+						if (max_segment == it->second)
+							it++;
+						else
+							it = statistic.erase(it);
+					}
+				}
+			}
+		}
+
+		for (auto it = statistic.begin(); it != statistic.end(); it++)
+		{
+			info[it->second].m_keep = true;
+		}
+
+
 
 		//re-sort to get the lower indice (model with more vertices)
 		std::sort(statistic.begin(), statistic.end(), [stat](const auto& a, const auto& b)

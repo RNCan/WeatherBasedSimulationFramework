@@ -58,14 +58,15 @@ namespace WBSF
 		std::string m_workingDir;
 		std::string GetOutputFilePath(const std::string& filePath)const;
 		std::string GetOutputFilePath(CTRef TRef, size_t HH)const;
-
+		std::string GetOutputFilePathGeoTIFF(CTRef TRef, size_t HH=0)const;
 
 		static CTRef GetRemoteTRef(const std::string& filePath);
 		static CTRef GetLocalTRef(std::string filePath);
 
 		ERMsg GetFilesToDownload(CFileInfoVector& fileList, CCallback& callback);
 		ERMsg CreateHourlyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
-		ERMsg CreateHourlyGeotiff(const std::string& fileList, CCallback& callback)const;
+		ERMsg CreateHourlyGeotiff2d(const std::string& fileList, CCallback& callback)const;
+		ERMsg CreateHourlyGeotiff3d(const std::string& fileList, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(std::set<std::string> date_to_update, CCallback& callback)const;
 		ERMsg CreateDailyGeotiff(StringVector& filesList, const std::string& file_path_out, CCallback& callback)const;
 		//std::set<std::string> GetAll(CCallback& callback)const;

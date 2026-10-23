@@ -64,7 +64,7 @@ namespace LTR
 		size_t minneeded, int background, int modifier,
 		REAL_TYPE  desawtooth_val, REAL_TYPE  pval, size_t max_segments, REAL_TYPE  recovery_threshold,
 		REAL_TYPE  distweightfactor, size_t  vertexcountovershoot, REAL_TYPE  bestmodelproportion,
-		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority)
+		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority, int freedom_penalty, vector < CBestModelInfo >* p_all_models)
 	{
 		//CBestModelInfo best_model;
 		//February 28, 2008
@@ -150,7 +150,7 @@ namespace LTR
 		//   to identify the best fit of the
 
 		best_model = tbcd_v2(all_x, all_y, goods, max_count, pval,
-			recovery_threshold, distweightfactor, vertexcountovershoot, bestmodelproportion, fit_method, stat, priority);
+			recovery_threshold, distweightfactor, vertexcountovershoot, bestmodelproportion, fit_method, stat, priority, freedom_penalty, p_all_models);
 
 		//************************
 
@@ -165,6 +165,18 @@ namespace LTR
 			best_model.vertvals *= modifier;
 			best_model.slope *= modifier;
 			best_model.vertices = best_model.vertices + size_t(minimum_x_year);
+
+
+			if (p_all_models)
+			{
+				for (size_t i = 0; i < (*p_all_models).size(); i++)
+				{
+					(*p_all_models)[i].yfit *= modifier;
+					(*p_all_models)[i].vertvals *= modifier;
+					(*p_all_models)[i].slope *= modifier;
+					(*p_all_models)[i].vertices = (*p_all_models)[i].vertices + size_t(minimum_x_year);
+				}
+			}
 		}
 
 		//need to use the vertvals to do this.
@@ -173,9 +185,9 @@ namespace LTR
 	}
 
 
-	vector<CBestModelInfo> get_all_model(const CRealArray& x, const CRealArray& y, CVectices v, REAL_TYPE recovery_threshold, TFitMethod fit_method)
+	vector<CBestModelInfo> get_all_model(const CRealArray& x, const CRealArray& y, CVectices v, REAL_TYPE recovery_threshold, TFitMethod fit_method, int freedom_penalty)
 	{
-
+		assert(freedom_penalty >= 0 && freedom_penalty <= 10);
 		//********************************
 		//FIND BEST TRACE WITH ALL THOSE VERTICES
 		//
@@ -213,7 +225,9 @@ namespace LTR
 
 			CFindBestTrace best_fit = (fit_method == FIT_EARLY_TO_LATE) ? find_best_trace(x, y, v) : find_best_trace_mpfit(x, y, v);
 
-			info[i].m_stat = calc_fitting_stats3(y, best_fit.yfit, (v.size() * 2) - 2);//it strange that this function return sometime zero
+			//info[i].m_stat = calc_fitting_stats3(y, best_fit.yfit, (v.size() * 2) - 2);//it's strange that this function return sometime zero
+			info[i].m_stat = calc_fitting_stats3(y, best_fit.yfit, (v.size() - 1) * 2 + 1);//change by RSA 2026-09-24 
+
 
 			info[i].vertices = v;		//vertices are the actual index in the array, not the year
 			info[i].vertvals = best_fit.vertvals;
@@ -222,11 +236,11 @@ namespace LTR
 			info[i].segment_mse = score_segments(x, y, info[i].vertices);
 
 			//compute next step
-			if (i < info.size() - 1)//don't compute the last one
-			{
-				CTakeOutWeakest2 rr = take_out_weakest2(info[i], recovery_threshold, x, y, v, best_fit.vertvals);
-				v = rr.v;
-			}
+			//if (i < info.size() - 1)//don't compute the last one: not sure to understand (RSA)
+			//{
+			CTakeOutWeakest2 rr = take_out_weakest2(info[i], recovery_threshold, x, y, v, best_fit.vertvals);
+			v = rr.v;
+			//}
 		}
 
 		return info;
@@ -247,56 +261,56 @@ namespace LTR
 	//   you need to set the modifier value to -1 before
 	//   running tbcd, so this recovery criterion will
 	//   be applied appropriately.
-	//CBestModelInfo pick_best(vector<CBestModelInfo> info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, REAL_TYPE recovery_threshold, TStatistic stat)
-	//{
-	//	bool notdone = true;
-	//	
-
-	//	size_t increment = 0;
-	//	size_t best = -1;
-
-	//	while (notdone)
-	//	{
-	//		//best = pick_best_model6(info, pval, bestmodelproportion, false);
-	//		best = pick_best_model7(info, pval, bestmodelproportion, stat);
-
-	//		if (best != UNKNOWN_POS)
-	//		{
-	//			//check on the slopes
-	//			bool ok = check_slopes(info[best], recovery_threshold);
-	//			if ( !ok && increment < info.size())
-	//			{
-	//				info[best].m_stat.clear();
-	//			}
-
-	//			assert(increment < info.size());
-	//			notdone = !(ok || (increment >= info.size()));	//once ok = 1,
-	//			//or if we've gone through this as many times as there are vertices, we move on
-	//		}
-	//		else
-	//		{
-	//			//if we get here, it means none of the
-	//			//  Fisher's were valid &&/or that
-	//			//  none of the segments worked.
-
-	//			CRealArray AICc(info.size());
-	//			for (size_t i = 0; i < info.size(); i++)
-	//				AICc[i] = info[i].m_stat.AICc;
-
-	//			best = distance(begin(AICc), std::min_element(begin(AICc), end(AICc)));
-	//			notdone = false;
-	//		}
-
-	//		increment = increment + 1;
-	//	}
-
-	//	assert(best != UNKNOWN_POS);
-
-	//	return info[best];
-	//}
+	CBestModelInfo pick_best1(vector<CBestModelInfo> info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, REAL_TYPE recovery_threshold, TStatistic stat)
+	{
+		bool notdone = true;
 
 
-	CBestModelInfo pick_best(vector<CBestModelInfo> info, REAL_TYPE pval, REAL_TYPE bestmodelproportion/*, REAL_TYPE recovery_threshold*/, TStatistic stat, TPickBestPriority priority)
+		size_t increment = 0;
+		size_t best = -1;
+
+		while (notdone)
+		{
+			best = pick_best_model6(info, pval, bestmodelproportion, false);
+			//best = pick_best_model7(info, pval, bestmodelproportion, stat);
+
+			if (best != UNKNOWN_POS)
+			{
+				//check on the slopes
+				bool ok = check_slopes(info[best], recovery_threshold);
+				if (!ok && increment < info.size())
+				{
+					info[best].m_stat.clear();
+				}
+
+				assert(increment < info.size());
+				notdone = !(ok || (increment >= info.size()));	//once ok = 1,
+				//or if we've gone through this as many times as there are vertices, we move on
+			}
+			else
+			{
+				//if we get here, it means none of the
+				//  Fisher's were valid &&/or that
+				//  none of the segments worked.
+
+				CRealArray AICc(info.size());
+				for (size_t i = 0; i < info.size(); i++)
+					AICc[i] = info[i].m_stat.AICc;
+
+				best = distance(begin(AICc), std::min_element(begin(AICc), end(AICc)));
+				notdone = false;
+			}
+
+			increment = increment + 1;
+		}
+
+		assert(best != UNKNOWN_POS);
+
+		return info[best];
+	}
+
+
+	CBestModelInfo pick_best2(vector<CBestModelInfo>& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion/*, REAL_TYPE recovery_threshold*/, TStatistic stat, TPickBestPriority priority)
 	{
 		size_t	best = pick_best_model7(info, pval, bestmodelproportion, stat, priority);
 
@@ -495,12 +509,13 @@ namespace LTR
 	CBestModelInfo tbcd_v2(const CRealArray& all_x, const CRealArray& all_y, const CBoolArray& goods,
 		size_t max_count, REAL_TYPE pval, REAL_TYPE recovery_threshold,
 		REAL_TYPE distweightfactor, size_t vertexcountovershoot, REAL_TYPE bestmodelproportion,
-		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority)
+		TFitMethod fit_method, TStatistic stat, TPickBestPriority priority, int freedom_penalty, vector < CBestModelInfo >* p_all_models)
 	{
 		assert(all_x.size() == goods.size());
 		assert(all_x.size() == all_y.size());
 
 		CBestModelInfo best_model;
+		vector < CBestModelInfo > all_models;
 
 		//February 28, 2007. REK.
 		//Derived from find_segments6 && 7.
@@ -544,12 +559,14 @@ namespace LTR
 		//    next vertex.  This forces the sequence in order
 		//    from left to right (oldest to newest).
 
-		vector < CBestModelInfo > all_models;
+
 
 		if (fit_method == FIT_EARLY_TO_LATE)
-			all_models = get_all_model(x, y, v, recovery_threshold, FIT_EARLY_TO_LATE);
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_EARLY_TO_LATE, freedom_penalty);
 		else
-			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT, freedom_penalty);
+
+		
 
 		//************************************
 		//PICK THE BEST ONE
@@ -566,7 +583,8 @@ namespace LTR
 		//   running tbcd, so this recovery criterion will
 		//   be applied appropriately.
 
-		best_model = pick_best(all_models, pval, bestmodelproportion, stat, priority);
+		//best_model = pick_best1(all_models, pval, bestmodelproportion, recovery_threshold, stat);
+		best_model = pick_best2(all_models, pval, bestmodelproportion, stat, priority);
 
 
 		//*******************************
@@ -578,14 +596,18 @@ namespace LTR
 
 			//************************************
 			//Find best trace with all those vertices
-			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT);
+			all_models = get_all_model(x, y, v, recovery_threshold, FIT_MPFIT, freedom_penalty);
 
 			//************************************
 			//Pick the best one
-			best_model = pick_best(all_models, pval, bestmodelproportion, stat, priority);
+			//best_model = pick_best1(all_models, pval, bestmodelproportion, recovery_threshold, stat);
+			best_model = pick_best2(all_models, pval, bestmodelproportion, stat, priority);
 		}
 
-
+		if (p_all_models)
+		{
+			*p_all_models = all_models;
+		}
 
 		if (best_model.m_stat.p_of_f <= pval)
 		{
@@ -605,14 +627,22 @@ namespace LTR
 				//
 
 				CFillFromVertices ok = fill_from_vertices(all_x, best_model.vertices, best_model.vertvals);
-				//assert(best_model.yfit == ok.yfit);
-				/*for (size_t i = 0; i < best_model.yfit.size(); i++)
-				{
-					double diff = std::abs(best_model.yfit[i] - ok.yfit[i]);
-					assert(diff<0.001);
-				}
-				*/
 				best_model.yfit = ok.yfit;
+
+
+
+
+				//for debug 
+				if (p_all_models)
+				{
+					for (size_t i = 0; i < p_all_models->size(); i++)
+					{
+						(*p_all_models)[i] = reintroduce_missing(goods, (*p_all_models)[i], distweightfactor);
+						CFillFromVertices ok = fill_from_vertices(all_x, (*p_all_models)[i].vertices, (*p_all_models)[i].vertvals);
+						(*p_all_models)[i].yfit = ok.yfit;
+
+					}
+				}
 			}
 
 

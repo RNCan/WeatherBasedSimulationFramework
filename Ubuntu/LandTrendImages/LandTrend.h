@@ -27,7 +27,7 @@ namespace WBSF
 	class CLandTrendOption : public CBaseOptions
 	{
 	public:
-		
+
 		enum TFillMissing { FM_BEGIN, FM_MIDDLE, FM_END, NB_FILL_MISSING };
 		enum TFilePath { INPUT_FILE_PATH, OUTPUT_FILE_PATH, NB_FILE_PATH };
 
@@ -72,8 +72,11 @@ namespace WBSF
 		//bool m_b_extract_point;
 		std::string m_extract_points_file_path;
 		std::vector<CGeoPoint > m_extract_points;
+		bool m_b_extract_models;
+		bool m_b_extract_models_ex;
 
-
+		bool m_b_desawtooth_bands;
+		int m_freedom_penalty;
 
 		//bool m_bBackwardFill;
 		//bool m_bForwardFill;
@@ -111,6 +114,16 @@ namespace WBSF
 		enum TPointExtract { PE_INPUT_BANDS, PE_SEGMENT_BREAK = PE_INPUT_BANDS + 6, PE_INPUT_INDICE = PE_SEGMENT_BREAK + 1, PE_DESAWTOOTH_INDICE = PE_INPUT_INDICE + 1, PE_FIT_INDICE = PE_DESAWTOOTH_INDICE + 1, PE_OUTPUT_INDICE1 = PE_FIT_INDICE + 1, PE_REGRESS_P = PE_OUTPUT_INDICE1 + 1, PE_OUTPUT_BANDS = PE_REGRESS_P + 2 * 6, NB_EXTRACTS = PE_OUTPUT_BANDS + 6 };
 		std::vector < std::vector< std::array<double, NB_EXTRACTS> >> m_extract_data;
 		ofStream m_export_point_file;
+
+		enum TExtractModels { EM_NB_SEGMENTS, EM_AICC, EM_QUI2, EM_PVAL, EM_R2, EM_FINALIST, EM_BEST, NB_EXTRACT_MODELS };
+		std::vector < std::vector< std::array<double, NB_EXTRACT_MODELS> >> m_extract_models;
+		ofStream m_export_model_file;
+
+
+		enum TExtractModelsEx { EM_MODEL, EM_YEAR, EM_Y, EM_YFIT, NB_EXTRACT_MODELS_EX };
+		std::vector < std::vector < std::array<double, NB_EXTRACT_MODELS_EX> >> m_extract_models_ex;
+		ofStream m_export_model_file_ex;
+
 
 		static const char* VERSION;
 		static const size_t NB_THREAD_PROCESS;

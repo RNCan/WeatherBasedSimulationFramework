@@ -37,10 +37,12 @@ namespace WBSF
 		m_compute_prcp(true),
 		m_update_last_n_days(0),
 		m_createDailyGeotiff(false)
-	{}
+	{
+	}
 
 	CHRRR::~CHRRR(void)
-	{}
+	{
+	}
 
 
 
@@ -351,7 +353,11 @@ namespace WBSF
 			CTRef TRef;
 			TRef.FromFormatedString(*it);
 			string outputFilePath = GetOutputFilePath(TRef, 0);
-			msg += CreateHourlyGeotiff(outputFilePath, callback);
+			if(m_product== HRRR_SFC)
+				msg += CreateHourlyGeotiff2d(outputFilePath, callback);
+			else
+				msg += CreateHourlyGeotiff3d(outputFilePath, callback);
+
 			msg += callback.StepIt();
 		}
 
@@ -360,16 +366,39 @@ namespace WBSF
 		return msg;
 	}
 
+	ERMsg CHRRR::CreateHourlyGeotiff3d(const string& inputFilePath, CCallback& callback)const
+	{
+		ERMsg msg;
 
-	ERMsg CHRRR::CreateHourlyGeotiff(const string& inputFilePath, CCallback& callback)const
+		//todo: keep only band supported by BioSIM
+		
+		//copy the file to fully use compression with GDAL_translate
+		CTRef TRef = GetLocalTRef(inputFilePath);
+		
+		string outputFilePath = GetOutputFilePathGeoTIFF(TRef);
+
+		string gdal_data_path = GetApplicationPath() + "gdal-data";
+		string projlib_path = GetApplicationPath() + "projlib";
+		string plugin_path = GetApplicationPath() + "gdalplugins";
+		string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
+
+		string argument = "-unscale -ot Float32 -co NUM_THREADS=ALL_CPUS -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
+		string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + option + " " + argument + " \"" + inputFilePath + "\" \"" + outputFilePath + "\"";
+
+
+		
+		msg += WinExecWait(command);
+		return msg;
+
+	}
+
+	ERMsg CHRRR::CreateHourlyGeotiff2d(const string& inputFilePath, CCallback& callback)const
 	{
 		ERMsg msg;
 
 		CTRef TRef = GetLocalTRef(inputFilePath);
 		string inputFilePath2 = GetOutputFilePath(TRef - 1, 1);
-
-		string outputFilePath = inputFilePath;
-		ReplaceString(outputFilePath, "f00.grib2", "f00.tif");
+		string outputFilePath = GetOutputFilePathGeoTIFF(TRef);
 
 		if (GoodGrib(inputFilePath) || GoodGrib(inputFilePath2))
 		{
@@ -429,7 +458,7 @@ namespace WBSF
 				{
 					for (size_t v = 0, bb = 0; v < DSin1.get_variables().size(); v++)
 					{
-						CSfcDatasetCached&  DSin = (v == H_PRCP) ? DSin2 : DSin1;
+						CSfcDatasetCached& DSin = (v == H_PRCP) ? DSin2 : DSin1;
 						size_t b = DSin.get_band(v);
 
 						if (b != NOT_INIT)
@@ -442,7 +471,7 @@ namespace WBSF
 							ASSERT(DSin.GetRasterYSize() == DSout.GetRasterYSize());
 
 							float no_data_in = DSin.GetNoData(b);
-							vector<float> data(DSin.GetRasterXSize()*DSin.GetRasterYSize());
+							vector<float> data(DSin.GetRasterXSize() * DSin.GetRasterYSize());
 							pBandin->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(data[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 							//replace no data
 							for (size_t xy = 0; xy < data.size(); xy++)
@@ -485,13 +514,13 @@ namespace WBSF
 
 								float no_data_inU = DSin.GetNoData(bU);
 								float no_data_inV = DSin.GetNoData(bV);
-								vector<float> dataU(DSin.GetRasterXSize()*DSin.GetRasterYSize());
-								vector<float> dataV(DSin.GetRasterXSize()*DSin.GetRasterYSize());
+								vector<float> dataU(DSin.GetRasterXSize() * DSin.GetRasterYSize());
+								vector<float> dataV(DSin.GetRasterXSize() * DSin.GetRasterYSize());
 								pBandinU->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataU[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 								pBandinV->RasterIO(GF_Read, 0, 0, DSin.GetRasterXSize(), DSin.GetRasterYSize(), &(dataV[0]), DSin.GetRasterXSize(), DSin.GetRasterYSize(), GDT_Float32, 0, 0);
 
-								vector<float> dataS(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
-								vector<float> dataD(DSin.GetRasterXSize()*DSin.GetRasterYSize(), no_data);
+								vector<float> dataS(DSin.GetRasterXSize() * DSin.GetRasterYSize(), no_data);
+								vector<float> dataD(DSin.GetRasterXSize() * DSin.GetRasterYSize(), no_data);
 								//replace no data
 								for (size_t xy = 0; xy < dataU.size(); xy++)
 								{
@@ -541,7 +570,7 @@ namespace WBSF
 				string projlib_path = GetApplicationPath() + "projlib";
 				string plugin_path = GetApplicationPath() + "gdalplugins";
 				string option = "--config GDAL_DATA \"" + gdal_data_path + "\" --config PROJ_LIB \"" + projlib_path + "\" --config GDAL_DRIVER_PATH \"" + plugin_path + "\"";
-				
+
 				string argument = "-unscale -ot Float32 -co COMPRESS=LZW -co PREDICTOR=3 -co TILED=YES -co BLOCKXSIZE=256 -co BLOCKYSIZE=256";
 				string command = "\"" + GetApplicationPath() + "gdal_translate.exe\" " + option + " " + argument + " \"" + outputFilePath + "2" + "\" \"" + outputFilePath + "\"";
 
@@ -561,25 +590,25 @@ namespace WBSF
 		ERMsg msg;
 
 		std::set<std::string> date_to_update;
-		
 
-		callback.PushTask("Get last file to update: " + to_string(nb_days) + " days", nb_days*24);
-		
+
+		callback.PushTask("Get last file to update: " + to_string(nb_days) + " days", nb_days * 24);
+
 		CTRef TRef = CTRef::GetCurrentTRef(CTM::HOURLY);
-		for (size_t d = 0; d < nb_days * 24&&msg; d++)
+		for (size_t d = 0; d < nb_days * 24 && msg; d++)
 		{
-			
+
 			string file_path = GetOutputFilePath(TRef, 0);
 			if (GoodGrib(file_path))
 			{
 				string tifFilePath = file_path;
 				ReplaceString(tifFilePath, "f00.grib2", "f00.tif");
-				
+
 				CGDALDatasetEx DS;
 				if (DS.OpenInputImage(tifFilePath))
 				{
 					DS.Close();
-				
+
 				}
 				else
 				{
@@ -589,7 +618,7 @@ namespace WBSF
 						msg += RemoveFile(tifFilePath);
 					}
 					date_to_update.insert(TRef.GetFormatedString("%Y-%m-%d-%H"));
-					
+
 				}
 			}
 			else
@@ -600,7 +629,7 @@ namespace WBSF
 					msg += RemoveFile(file_path);
 				}
 			}
-		
+
 
 			msg += callback.StepIt();
 			TRef--;
@@ -627,12 +656,14 @@ namespace WBSF
 
 		callback.PushTask(string("Find gribs to update for period ") + m_period.GetFormatedString("%1 ---- %2") + ": " + to_string(m_period.size()) + " hours", m_period.size());
 
-		for (CTRef h = m_period.Begin(); h <= m_period.End()&&msg; h++)
+		for (CTRef h = m_period.Begin(); h <= m_period.End() && msg; h++)
 		{
 			size_t hh = (h - m_period.Begin());
 			for (size_t i = 0; i < nb_pass; i++)
 			{
-				bGrbNeedDownload[hh][i] = NeedDownload(GetOutputFilePath(h, i));
+				string output_filepath = GetOutputFilePathGeoTIFF(h, i);
+				//bGrbNeedDownload[hh][i] = NeedDownload(output_filepath);
+				bGrbNeedDownload[hh][i] = !FileExists(output_filepath);
 				nbFilesToDownload += bGrbNeedDownload[hh][i] ? 1 : 0;
 			}
 			msg += callback.StepIt();
@@ -799,6 +830,13 @@ namespace WBSF
 		return FormatA("%s%04d\\%02d\\%02d\\hrrr.t%02dz.wrf%sf%02d.grib2", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), PRODUCT_ABR[NOMADS][m_product], HH);
 	}
 
+	
+	string CHRRR::GetOutputFilePathGeoTIFF(CTRef TRef, size_t HH)const
+	{
+		string outputFilePath = FormatA("%s%04d\\%02d\\%02d\\HRRR_%04d%02d%02d_%02d00_%03d.tif", m_workingDir.c_str(), TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetYear(), TRef.GetMonth() + 1, TRef.GetDay() + 1, TRef.GetHour(), HH);
+		return outputFilePath;
+	}
+
 	ERMsg CHRRR::CreateDailyGeotiff(set<string> date_to_update, CCallback& callback)const
 	{
 		ERMsg msg;
@@ -907,7 +945,7 @@ namespace WBSF
 			if (msg)
 			{
 				CGeoExtents extents = DSout.GetExtents();
-				callback.PushTask("Create daily HRRR Geotiff for " + GetFileTitle(file_path_out) + ": " + ToString(filesList.size()) + " hours", var_in.count()*extents.YNbBlocks()*extents.XNbBlocks());
+				callback.PushTask("Create daily HRRR Geotiff for " + GetFileTitle(file_path_out) + ": " + ToString(filesList.size()) + " hours", var_in.count() * extents.YNbBlocks() * extents.XNbBlocks());
 
 				for (size_t by = 0; by < extents.YNbBlocks(); by++)
 				{
@@ -936,7 +974,7 @@ namespace WBSF
 										int nXBlockSize, nYBlockSize;
 										poBand->GetBlockSize(&nXBlockSize, &nYBlockSize);
 										if (stat.empty())
-											stat.resize(nXBlockSize*nYBlockSize);
+											stat.resize(nXBlockSize * nYBlockSize);
 
 										GDALDataType type = poBand->GetRasterDataType();
 
@@ -946,7 +984,7 @@ namespace WBSF
 											nYBlockSize == options.m_extents.m_yBlockSize &&
 											type == GDT_Float32)
 										{
-											data.resize(nXBlockSize*nYBlockSize, no_data);
+											data.resize(nXBlockSize * nYBlockSize, no_data);
 											poBand->ReadBlock(int(bx), int(by), &(data[0]));
 											poBand->FlushBlock(int(bx), int(by));
 											poBand->FlushCache();
@@ -954,7 +992,7 @@ namespace WBSF
 										else//if not the same block size or type
 										{
 											CGeoExtents blockExtent = extents.GetBlockExtents(int(bx), int(by));
-											data.resize(DSout.GetRasterXSize()*DSout.GetRasterYSize());
+											data.resize(DSout.GetRasterXSize() * DSout.GetRasterYSize());
 
 											poBand->RasterIO(GF_Read, blockExtent.m_xMin, blockExtent.m_yMin, blockExtent.m_xBlockSize, blockExtent.m_yBlockSize, &(data[0]), blockExtent.m_xBlockSize, blockExtent.m_yBlockSize, GDT_Float32, 0, 0);
 											ASSERT(data.size() == stat.size());
@@ -978,7 +1016,7 @@ namespace WBSF
 									int nXBlockSize, nYBlockSize;
 									pBandout->GetBlockSize(&nXBlockSize, &nYBlockSize);
 
-									vector<float> data(nXBlockSize*nYBlockSize, no_data);
+									vector<float> data(nXBlockSize * nYBlockSize, no_data);
 									ASSERT(data.size() == stat.size());
 
 									//add min and max
@@ -1011,7 +1049,7 @@ namespace WBSF
 									int nXBlockSize, nYBlockSize;
 									pBandout->GetBlockSize(&nXBlockSize, &nYBlockSize);
 
-									vector<float> data(nXBlockSize*nYBlockSize, no_data);
+									vector<float> data(nXBlockSize * nYBlockSize, no_data);
 									ASSERT(data.size() == stat.size());
 
 									for (size_t xy = 0; xy < data.size(); xy++)
@@ -1034,7 +1072,7 @@ namespace WBSF
 									int nXBlockSize, nYBlockSize;
 									pBandout->GetBlockSize(&nXBlockSize, &nYBlockSize);
 
-									vector<float> data(nXBlockSize*nYBlockSize, no_data);
+									vector<float> data(nXBlockSize * nYBlockSize, no_data);
 									ASSERT(data.size() == stat.size());
 
 									for (size_t xy = 0; xy < data.size(); xy++)
@@ -1208,7 +1246,7 @@ namespace WBSF
 			int year = firstYear + int(y);
 
 			StringVector list1;
-			string filter = m_compute_prcp ? "\\*f00.tif" : "\\*f00.grib2";
+			string filter = "\\*000.tif";
 			list1 = GetFilesList(m_workingDir + ToString(year) + filter, FILE_PATH, true);
 
 			for (size_t i = 0; i < list1.size(); i++)

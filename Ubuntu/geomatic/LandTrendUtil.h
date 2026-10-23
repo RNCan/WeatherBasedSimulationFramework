@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -29,6 +30,58 @@ inline size_t sum(const CBoolArray& v)
 
     return sum;
 }
+
+template <class T>
+T compute_standard_deviation(const std::valarray<T>& v) 
+{
+    if (v.size() == 0) return T(0);
+
+    // 1. Calculate the mean
+    T mean = v.sum() / v.size();
+
+    // 2. Subtract mean, square the differences element-wise
+    std::valarray<T> diffs = v - mean;
+    diffs *= diffs;
+
+    // 3. Divide by N (population) or N-1 (sample), then square root
+    // Use (v.size() - 1) for sample standard deviation if needed
+    T variance = diffs.sum() / v.size();
+
+    return std::sqrt(variance);
+}
+
+template <typename T>
+double compute_median(const std::valarray<T>& va)
+{
+    // Gestion du cas où le valarray est vide
+    if (va.size() == 0) {
+        throw std::invalid_argument("Le valarray ne doit pas être vide.");
+    }
+
+    // 1. Copier les données dans un vecteur pour éviter de modifier le valarray d'origine
+    // std::begin et std::end pour std::valarray sont disponibles depuis C++11
+    std::vector<T> temp(std::begin(va), std::end(va));
+
+    size_t n = temp.size();
+    auto mid = temp.begin() + n / 2;
+
+    // 2. Partitionner partiellement le vecteur autour de l'élément central O(n)
+    std::nth_element(temp.begin(), mid, temp.end());
+
+    // 3. Calculer la médiane selon la parité de la taille
+    if (n % 2 != 0) 
+    {
+        // Taille impaire : l'élément central est la médiane
+        return static_cast<double>(*mid);
+    }
+    else 
+    {
+        // Taille paire : moyenne entre l'élément central et le plus grand des éléments inférieurs
+        auto max_it = std::max_element(temp.begin(), mid);
+        return (static_cast<double>(*mid) + static_cast<double>(*max_it)) / 2.0;
+    }
+}
+
 
 
 enum TFitMethod { FIT_EARLY_TO_LATE, FIT_MPFIT, NB_FIT_METHODS };
@@ -221,6 +274,7 @@ public:
        //ms_regr = 0;
        //ms_resid = 0;
        //AICc = 0;
+        m_keep = false;
     }
 
     size_t n_obs()
@@ -246,12 +300,8 @@ public:
     CRealArray segment_mse;
 
     //statistic
-   //REAL_TYPE f_stat;
-   //REAL_TYPE p_of_f;
-   //REAL_TYPE ms_regr;
-   //REAL_TYPE ms_resid;
-   //REAL_TYPE AICc;
     CCalcFittingStats3 m_stat;
+    bool m_keep;
 };
 
 
@@ -311,7 +361,7 @@ CFillFromVertices fill_from_vertices(const CRealArray& x, const CVectices& v, co
 
 CTakeOutWeakest2 take_out_weakest2(const CBestModelInfo& info, REAL_TYPE threshold, const CRealArray& x, CRealArray y, const CVectices& v, CRealArray vertvals);
 size_t pick_best_model6(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, bool bfstat = false);
-size_t pick_best_model7(const std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority);
+size_t pick_best_model7(std::vector < CBestModelInfo >& info, REAL_TYPE pval, REAL_TYPE bestmodelproportion, TStatistic stat, TPickBestPriority priority);
 bool check_slopes(const CBestModelInfo& info, REAL_TYPE threshold);
 CCalcFittingStats3 calc_fitting_stats3(const CRealArray& y, const CRealArray& yfit, size_t n_predictors);
 

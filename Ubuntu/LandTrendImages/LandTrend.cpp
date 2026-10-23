@@ -3,16 +3,20 @@
 //
 //***********************************************************************
 // version
-// 1.2.6	28/05/2026	Rémi Saint_Amant	Add -FillMissing options 
-// 1.2.5	28/05/2026	Rémi Saint_Amant	Add -ExportPoints options
-// 0.1 --> 0.05
-// 0.65 --> 0.75
+// 1.2.5	23/09/2026	Rémi Saint_Amant	Add -FillMissing options 
+//                                          Add -ExportPoints options
+//											Add -DesawtoothBands
+//											Add -ExportModelsStats
+//                                          Add -FreedomPenalty
+//											-RecoveryThreshold: 0.25 --> 1.0
+//											-BestModelProportion: 0.75 --> 0.95
+//											-MaxSegments 9 --> 12
 // 1.2.4	14/05/2026	Rémi Saint_Amant	Add -FillMising options
 //											Modification in the BestModelProportion. Range are take into account.
 // 1.2.3	13/05/2026	Rémi Saint_Amant	Add DisturbWeightFactor options
 //											Don't use DisturbWeightFactor when reintroducing missing
 // 											-m_vertexcountovershoot 5 --> 3;
-//											-m_pick_best_by UICc --> FISHER;
+//											-m_pick_best_by AICc --> FISHER;
 //											-m_priority  MEDIAN_SEGMENT --> MIN_SEGMENT;
 //											-m_distweightfactor 2 --> 0
 // 1.2.2	12/05/2026	Rémi Saint_Amant	Add PickBestBy and PickBestPriority option
@@ -82,7 +86,7 @@ using namespace LTR;
 
 namespace WBSF
 {
-	const char* CLandTrend::VERSION = "1.2.6";
+	const char* CLandTrend::VERSION = "1.2.5";
 	const size_t CLandTrend::NB_THREAD_PROCESS = 2;
 
 
@@ -92,12 +96,12 @@ namespace WBSF
 	{
 
 		m_minneeded = 3;
-		m_pval = 0.05;
-		m_recovery_threshold = 0.25;
+		m_pval = 0.1;
+		m_recovery_threshold = 1.0;
 		m_distweightfactor = 2;
 		m_vertexcountovershoot = 3;
-		m_bestmodelproportion = 0.75;
-		m_max_segments = 9;
+		m_bestmodelproportion = 0.95;
+		m_max_segments = 12;
 		m_desawtooth_val = 0.65;
 		m_fit_method = FIT_EARLY_TO_LATE;
 		m_pick_best_by = TStatistic::FISHER;
@@ -107,7 +111,7 @@ namespace WBSF
 		m_scenes_def = { { B1,B2,B3,B4,B5,B7 } };
 		m_indice = I_NBR;
 		m_b_median_indice = false;
-		m_rings_indice = 2.0;
+		m_rings_indice = 1.0;
 		m_b_median_interpol = false;
 		m_rings_interpol = 0;
 		m_bDirect = false;
@@ -116,6 +120,10 @@ namespace WBSF
 		m_bBreaks = false;
 		m_bFillMissing = false;
 		m_FMoption.fill(false);
+		m_b_extract_models = false;
+		m_b_extract_models_ex = false;
+		m_b_desawtooth_bands = false;
+		m_freedom_penalty = 0;
 
 		m_appDescription = "This software standardize Landsat images  (composed of " + to_string(SCENES_SIZE) + " bands) based on LandTrendR analysis.";
 
@@ -125,15 +133,17 @@ namespace WBSF
 		//AddOption("-RGB");
 		static const COptionDef OPTIONS[] =
 		{
-			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 9 by default."},
+			{ "-MaxSegments", 1, "s", false, "Maximum number of segments to be fitted on the time series. 12 by default."},
 			{ "-SpikeThreshold", 1, "Thres", false, "Threshold for dampening the spikes (1.0 means no dampening). 0.65 by default."},
-			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 5 by default."},
-			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 0.25 by default"},
-			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.05 by default."},
+			{ "-VertexCountOvershoot", 1, "n", false, "The initial model can overshoot the maxSegments + 1 vertices by this amount. Later, it will be pruned down to maxSegments + 1. 3 by default."},
+			{ "-RecoveryThreshold", 1, "Thres", false, "If a segment has a recovery rate faster than 1 / recoveryThreshold(in years), then the segment is disallowed. 1 by default"},
+			{ "-pValThreshold", 1, "pVal", false, "If the p-value of the fitted model exceeds this threshold, then the current model is discarded and another one is fitted using the Levenberg-Marquardt optimizer. 0.1 by default."},
 			{ "-DisturbWeightFactor", 1, "factor", false, "Give more importance to angle of disturbance than recovery. 2 by default."},
-			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. AICC by default."},
+			//{ "-FreedomPenalty", 1, "penalty", false, "Adjust degree of freedom when computing the statistic of the model selection. 0 by default."},
+			{ "-PickBestBy", 1, "type", false, "Statistic on witch the best model will be selected. Can be R2: adjusted r square, ANOVA: F-Statistic of ANOVA, FISHER: Fisher's test, AICC: Corrected Akaike Information Criterion. FISHER by default."},
 			{ "-PickBestPriority", 1, "type", false, "Select number of segment priority when many models are equivalent. Can be MIN, MEDIAN, MAX. MIN by default."},
-			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen. Lower value will reduce number of segments and higher value will increase number of segments. 0.65 by default."},
+			{ "-BestModelProportion", 1, "f", false, "Allows models with more vertices to be chosen. Lower value will reduce number of segments and higher value will increase number of segments. 0.95 by default."},
+			{ "-DesawtoothBands", 0, "", false, "Apply desawtooth on bands before regression in image creation."},
 			{ "-MinObservationsNeeded", 1, "min", false, "Min observations needed to perform output fitting. 3 by default."},
 			{ "-FitMethod", 1, "method", false, "Select between 0=early-to-late regression and 1=MPFit. 0 by default."},
 			{ "-Indice", 1, "indice", false, ("Select indice to run desawtooth. Indice can be: " + indicesName + ". NBR by default").c_str()  },
@@ -142,7 +152,8 @@ namespace WBSF
 			{ "-WindowInterpol", 1, "radius", false, "Same as -WindowIndice, but for interpolation. 1 (1 x 1) by default." },
 			{ "-ExtractPoint", 2, "X Y", true, "Extract information for a specific point. Output in extract_point.csv. Can be used with -NoResult to only extract point" },
 			{ "-ExtractPoints", 1, "file_path", false, "Extract information for a list of specific points. Output in extract_point.csv. Can be used with -NoResult to only extract points" },
-			{ "-FillMissing", 1, "where", false, "Fill missing with previous valid pixel (or next in case of the begenning of the series). 1=begin, 2=end, 3=begin/end, 4=all." },
+			{ "-FillMissing", 1, "where", false, "Fill missing with previous valid pixel (or next in case of the begenning of the series). 0=none, 1=begin, 2=end, 3=begin/end, 4=all." },
+			{ "-ExportModelsStats", 1, "level", false, "Export all models statistic. Level: 0=no export, 1=statistic only , 2=statistic and y/yFit." },
 			{ "-CloudsMask", 1, "name", false, "Mask of clouds data. Zero = no clouds, others values are invalid. Number of clouds bands must be the same as the number of scenes (years)." },
 			{ "-FirstYear", 1, "year", false, "Specify year of the first image. Return year instead of index. By default, return the image index (0..nbImages-1)" },
 			{ "-Breaks",  0,"",false,"Output breaks information (number of segment, segment index/year, segment fit value. "},
@@ -247,6 +258,10 @@ namespace WBSF
 			if (m_bestmodelproportion < 0 || m_bestmodelproportion >1)
 				msg.ajoute("-BestModelProportion must be between 0 and 1.");
 		}
+		else if (IsEqual(argv[i], "-DesawtoothBands"))
+		{
+			m_b_desawtooth_bands = true;
+		}
 		else if (IsEqual(argv[i], "-MinObservationsNeeded"))
 		{
 			m_minneeded = atoi(argv[++i]);
@@ -266,6 +281,32 @@ namespace WBSF
 		else if (IsEqual(argv[i], "-FirstYear"))
 		{
 			m_firstYear = atoi(argv[++i]);
+		}
+		else if (IsEqual(argv[i], "-ExportModelsStats"))
+		{
+
+			int export_level = atoi(argv[++i]);
+			if (export_level >= 0 || export_level <= 2)
+			{
+				if (export_level >= 1)
+				{
+					m_b_extract_models = true;
+					if (export_level >= 2)
+						m_b_extract_models_ex = true;
+				}
+			}
+			else
+			{
+				msg.ajoute("invalid freedom penalty. Penalty must be positive");
+			}
+
+
+		}
+		else if (IsEqual(argv[i], "-FreedomPenalty"))
+		{
+			m_freedom_penalty = atoi(argv[++i]);
+			if (m_freedom_penalty < 0)
+				msg.ajoute("invalid freedom penalty. Penalty must be positive");
 		}
 		else if (IsEqual(argv[i], "-Indice"))
 		{
@@ -337,15 +378,18 @@ namespace WBSF
 		}
 		else if (IsEqual(argv[i], "-FillMissing"))
 		{
-			m_bFillMissing = true;
-			int tmp = stoi(argv[++i]);
-			if (tmp < 1 || tmp>4)
+			size_t tmp = stoi(argv[++i]);
+			if (tmp > 4)
 				msg.ajoute("invalid -FillMissing options. ");
 
+			if (tmp != 0)
+			{
+				m_bFillMissing = true;
 
-			m_FMoption[FM_BEGIN] = tmp != 2;
-			m_FMoption[FM_MIDDLE] = tmp == 4;
-			m_FMoption[FM_END] = tmp != 1;
+				m_FMoption[FM_BEGIN] = tmp != 2;
+				m_FMoption[FM_MIDDLE] = tmp == 4;
+				m_FMoption[FM_END] = tmp != 1;
+			}
 		}
 		else
 		{
@@ -400,6 +444,11 @@ namespace WBSF
 
 		if (!m_options.m_bQuiet && m_options.m_bCreateImage)
 			cout << "Create output images (" << outputDS.GetRasterXSize() << " C x " << outputDS.GetRasterYSize() << " R x " << outputDS.GetRasterCount() << " B) with " << m_options.m_CPU << " threads..." << endl;
+
+		if (!m_options.m_bQuiet && !m_options.m_extract_points.empty())
+			cout << "Extract points (" << m_options.m_extract_points.size() << " points ) with " << m_options.m_CPU << " threads..." << endl;
+
+
 
 		CGeoExtents extents = m_options.m_extents;
 		m_options.ResetBar((size_t)extents.m_xSize * extents.m_ySize);
@@ -652,13 +701,55 @@ namespace WBSF
 				if (msg)
 				{
 					//open output file
-					string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
+					//string filePath = GetPath(m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH]) + "extract_point.csv";
+					string filePath = m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH];
+					WBSF::SetFileTitle(filePath, WBSF::GetFileTitle(filePath) + "_points");
+					WBSF::SetFileExtension(filePath, ".csv");
+
 					msg += m_export_point_file.open(filePath);
 					if (msg)
 					{
 						m_export_point_file << "PointNo,X,Y,Year,B1,B2,B3,B4,B5,B7,Segment,IndiceIn,IndiceDesawtooth,IndiceFit,IndiceInterpol,B1_P0,B1_P1,B2_P0,B2_P1,B3_P0,B3_P1,B4_P0,B4_P1,B5_P0,B5_P1,B7_P0,B7_P1,oB1,oB2,oB3,oB4,oB5,oB7" << endl;
 					}
 				}
+
+				if (msg)
+				{
+					//open output file
+					if (m_options.m_b_extract_models)
+					{
+						m_extract_models.resize(m_options.m_extract_points.size());
+
+						string filePath = m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH];
+						WBSF::SetFileTitle(filePath, WBSF::GetFileTitle(filePath) + "_models");
+						WBSF::SetFileExtension(filePath, "csv");
+
+						msg += m_export_model_file.open(filePath);
+						if (msg)
+						{
+							m_export_model_file << "PointNo,X,Y,NbSegment,AICc,ANOVA,pVal,R2,Finalist,Best" << endl;
+						}
+					}
+
+
+
+					if (m_options.m_b_extract_models_ex)
+					{
+						m_extract_models_ex.resize(m_options.m_extract_points.size());
+						string filePath_ex = m_options.m_filesPath[CLandTrendOption::OUTPUT_FILE_PATH];
+						WBSF::SetFileTitle(filePath_ex, WBSF::GetFileTitle(filePath_ex) + "_models_ex");
+						WBSF::SetFileExtension(filePath_ex, "csv");
+
+						msg += m_export_model_file_ex.open(filePath_ex);
+						if (msg)
+						{
+							m_export_model_file_ex << "PointNo,NbSegment,Year,y,yFit" << endl;
+						}
+					}
+
+				}
+
+
 			}
 
 
@@ -814,7 +905,7 @@ namespace WBSF
 		}
 
 
-		vector<CGeoPointIndex> pts;
+		/*vector<CGeoPointIndex> pts;
 		if (!m_options.m_extract_points.empty())
 		{
 			pts.resize(m_options.m_extract_points.size());
@@ -825,7 +916,24 @@ namespace WBSF
 					pts[i] = extents.GetBlockExtents(xBlock, yBlock).CoordToXYPos(m_options.m_extract_points[i]);
 				}
 			}
+
+			sort(pts.begin(), pts.end(), );
+			pts
+		}*/
+
+		map<int, map<int, size_t >> pts;
+		if (!m_options.m_extract_points.empty())
+		{
+			for (size_t i = 0; i < m_options.m_extract_points.size(); i++)
+			{
+				if (extents.GetBlockExtents(xBlock, yBlock).IsInside(m_options.m_extract_points[i]))
+				{
+					CGeoPointIndex xy = extents.GetBlockExtents(xBlock, yBlock).CoordToXYPos(m_options.m_extract_points[i]);
+					pts[xy.m_y][xy.m_x] = i;
+				}
+			}
 		}
+
 
 		//init memory
 		if (m_options.m_bCreateImage)
@@ -852,12 +960,20 @@ namespace WBSF
 #endif
 			for (int y = 0; y < blockSize.m_y; y++)
 			{
+				auto pY = pts.find(y);
 				for (int x = 0; x < blockSize.m_x; x++)
 				{
 					size_t extract_point = NOT_INIT;
-					for (size_t i = 0; i < pts.size() && extract_point == NOT_INIT; i++)
+
+					if (pY != pts.end())
+					{
+						auto pX = (*pY).second.find(x);
+						if (pX != (*pY).second.end())
+							extract_point = (*pX).second;
+					}
+					/*for (size_t i = 0; i < pts.size() && extract_point == NOT_INIT; i++)
 						if (pts[i].m_x == x && pts[i].m_y == y)
-							extract_point = i;
+							extract_point = i;*/
 
 
 					int xy = y * blockSize.m_x + x;
@@ -915,11 +1031,19 @@ namespace WBSF
 						//compute desawtouth here to output
 						CRealArray Ydesawtouth = desawtooth(data, goods, m_options.m_desawtooth_val);
 
+						std::vector < CBestModelInfo >* p_all_models = nullptr;
+						std::vector < CBestModelInfo > all_models;
+						if (m_options.m_b_extract_models)
+							p_all_models = &all_models;
+
+
+
 						//compute LandTrend for this time series indice
 						CBestModelInfo result = fit_trajectory_v2(years, data, goods,
 							m_options.m_minneeded, int(m_options.m_srcNodata), m_options.m_modifier, m_options.m_desawtooth_val, m_options.m_pval,
 							m_options.m_max_segments, m_options.m_recovery_threshold, m_options.m_distweightfactor,
-							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method, m_options.m_pick_best_by, m_options.m_priority);
+							m_options.m_vertexcountovershoot, m_options.m_bestmodelproportion, m_options.m_fit_method,
+							m_options.m_pick_best_by, m_options.m_priority, m_options.m_freedom_penalty, p_all_models);
 
 
 						//if need output
@@ -927,6 +1051,45 @@ namespace WBSF
 						{
 							if (extract_point != NOT_INIT)
 							{
+								size_t nb_fit = 0;
+
+								if (m_options.m_b_extract_models)
+								{
+									m_extract_models[extract_point].resize(all_models.size());
+
+									for (size_t i = 0; i < all_models.size(); i++)
+									{
+										m_extract_models[extract_point][i][EM_NB_SEGMENTS] = (double)all_models[i].n_segments();
+										m_extract_models[extract_point][i][EM_AICC] = all_models[i].m_stat.AICc;
+										m_extract_models[extract_point][i][EM_QUI2] = all_models[i].m_stat.f_stat;
+										m_extract_models[extract_point][i][EM_PVAL] = all_models[i].m_stat.p_of_f;
+										m_extract_models[extract_point][i][EM_R2] = all_models[i].m_stat.adjusted_rsquare;
+										m_extract_models[extract_point][i][EM_FINALIST] = all_models[i].m_keep ? 1 : 0;
+										m_extract_models[extract_point][i][EM_BEST] = (all_models[i].n_segments() == result.n_segments()) ? 1 : 0;
+
+										nb_fit += all_models[i].yfit.size();
+
+									}
+								}
+
+								if (m_options.m_b_extract_models_ex)
+								{
+
+									m_extract_models_ex[extract_point].resize(nb_fit);
+									for (size_t i = 0, iii = 0; i < all_models.size(); i++)
+									{
+										for (size_t ii = 0; ii < all_models[i].yfit.size(); ii++, iii++)
+										{
+											m_extract_models_ex[extract_point][iii][EM_MODEL] = (double)all_models[i].n_segments();
+											m_extract_models_ex[extract_point][iii][EM_YEAR] = (double)(m_options.m_firstYear + ii);
+											m_extract_models_ex[extract_point][iii][EM_Y] = Ydesawtouth[ii];
+											m_extract_models_ex[extract_point][iii][EM_YFIT] = all_models[i].yfit[ii];
+										}
+									}
+								}
+
+
+
 								//compute extra output indice for the fun
 								CVectices V = result.vertices;
 								CRealArray X(block_data.size());
@@ -957,6 +1120,8 @@ namespace WBSF
 									}
 								}
 
+								if (m_options.m_b_desawtooth_bands)
+									Y = desawtooth(Y, goods, m_options.m_desawtooth_val);
 
 								CRealArray yfit1(Y.size());
 
@@ -978,6 +1143,7 @@ namespace WBSF
 									}
 									else
 									{
+
 										//if only one point, take previous y
 
 										//******
@@ -985,7 +1151,11 @@ namespace WBSF
 										//if (i != 0)
 											//yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i] - 1];
 										//else
-										yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i]];
+
+										//yfit1[get_slice(V[i], V[i + 1])] = yfit1[V[i]];
+
+										assert(!yy.empty());
+										yfit1[get_slice(V[i], V[i + 1])] = (i == 0) ? yy[0] : yfit1[V[i]];
 
 									}
 
@@ -1047,6 +1217,9 @@ namespace WBSF
 									}
 								}
 
+								if (m_options.m_b_desawtooth_bands)
+									Y = desawtooth(Y, goods, m_options.m_desawtooth_val);
+
 								CRealArray yfit(Y.size());
 								for (size_t i = 0; i < V.size() - 1; i++)//for all segment
 								{
@@ -1079,8 +1252,9 @@ namespace WBSF
 										//if (i != 0)
 											//yfit[get_slice(V[i], V[i + 1])] = yfit[V[i] - 1];
 										//else
-										yfit[get_slice(V[i], V[i + 1])] = yfit[V[i]];
-
+										//yfit[get_slice(V[i], V[i + 1])] = yfit[V[i]];
+										assert(!yy.empty());
+										yfit[get_slice(V[i], V[i + 1])] = (i == 0) ? yy[0] : yfit[V[i]];
 
 										if (extract_point != NOT_INIT)
 										{
@@ -1221,6 +1395,7 @@ namespace WBSF
 		{
 			assert(m_export_point_file.is_open());
 
+
 			for (const auto& data : m_extract_data)
 			{
 				size_t index = &data - &m_extract_data[0];
@@ -1242,6 +1417,60 @@ namespace WBSF
 				//year++;
 			}
 			m_export_point_file.close();
+
+			if (m_options.m_b_extract_models)
+			{
+				assert(m_export_model_file.is_open());
+				for (const auto& models : m_extract_models)
+				{
+					size_t index = &models - &m_extract_models[0];
+					CGeoPoint pt = m_options.m_extract_points[index];
+					for (const auto& model : models)
+					{
+						m_export_model_file << index + 1 << "," << pt.m_x << "," << pt.m_y;
+
+						for (const auto& col : model)
+						{
+							m_export_model_file << "," << col;
+						}
+
+						m_export_model_file << endl;
+
+
+
+					}
+				}
+				m_export_model_file.close();
+			}
+
+
+			if (m_options.m_b_extract_models_ex)
+			{
+				assert(m_export_model_file_ex.is_open());
+				for (auto it = m_extract_models_ex.begin(); it != m_extract_models_ex.end(); it++)
+				{
+					size_t index = std::distance(m_extract_models_ex.begin(), it);
+					for (auto iit = it->begin(); iit != it->end(); iit++)
+					{
+						m_export_model_file_ex << index + 1;
+						for (auto iiit = iit->begin(); iiit != iit->end(); iiit++)
+							m_export_model_file_ex << "," << *iiit;
+
+
+						m_export_model_file_ex << endl;
+
+
+
+					}
+
+
+				}
+				m_export_model_file_ex.close();
+			}
+
+
+
+
 		}
 
 		m_options.m_timerWrite.stop();
