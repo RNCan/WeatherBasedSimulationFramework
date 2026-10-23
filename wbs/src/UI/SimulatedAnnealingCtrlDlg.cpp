@@ -98,7 +98,7 @@ namespace WBSF
 
 	void CSimulatedAnnealingCtrlDlg::SetSACtrlToInterface()
 	{
-		m_maxEvaluation = m_ctrl.m_MAXEVL;
+		m_maxEvaluation = m_ctrl.m_max_loop;
 
 		m_nbEps = m_ctrl.m_NEPS;
 		m_max = m_ctrl.m_bMax;
@@ -110,7 +110,7 @@ namespace WBSF
 		m_P_EPS = m_ctrl.m_P_EPS;
 
 		m_nbCycles = m_ctrl.m_NS;
-		m_nbIteration = m_ctrl.m_NT;
+		m_nbIteration = m_ctrl.m_NT2;
 		m_TReduction = m_ctrl.m_RT;
 		m_TReduction2 = m_ctrl.m_RT2;
 		m_nbSkipLoop = m_ctrl.m_nbSkipLoop;
@@ -118,7 +118,7 @@ namespace WBSF
 
 	void CSimulatedAnnealingCtrlDlg::GetSACtrlFromInterface()
 	{
-		m_ctrl.m_MAXEVL = m_maxEvaluation;
+		m_ctrl.m_max_loop = m_maxEvaluation;
 		m_ctrl.m_NEPS = m_nbEps;
 		m_ctrl.m_bMax = m_max != 0;
 		m_ctrl.m_seed1 = m_seed1;
@@ -128,7 +128,7 @@ namespace WBSF
 		m_ctrl.m_EPS = m_errorTolerence;
 		m_ctrl.m_P_EPS = m_P_EPS;
 		m_ctrl.m_NS = m_nbCycles;
-		m_ctrl.m_NT = m_nbIteration;
+		m_ctrl.m_NT2 = m_nbIteration;
 		m_ctrl.m_RT = m_TReduction;
 		m_ctrl.m_RT2 = m_TReduction2;
 		m_ctrl.m_nbSkipLoop = m_nbSkipLoop;

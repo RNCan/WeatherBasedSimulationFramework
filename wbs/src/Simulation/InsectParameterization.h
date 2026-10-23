@@ -350,7 +350,7 @@ namespace WBSF
 
 	protected:
 
-		
+
 
 	};
 
@@ -446,10 +446,25 @@ namespace WBSF
 			m_fixeSigma = 0.0;
 		}
 
+		CFitOutput(const CFitOutput& in)
+		{
+			operator=(in);
+		}
+
+		CFitOutput& operator=(const CFitOutput& in)
+		{
+			m_variable = in.m_variable;
+			m_equation = in.m_equation;
+			m_parameters = in.m_parameters;
+			m_computation = in.m_computation;
+			m_fixeSigma = in.m_fixeSigma;
+			return *this;
+		}
+
 		std::string m_variable;
 		size_t m_equation;
 		CSAParameterVector m_parameters;
-		CComputationVariable m_computation;
+		CComputationVariableVector m_computation;
 		double m_fixeSigma;
 	};
 
@@ -458,12 +473,46 @@ namespace WBSF
 	{
 	public:
 
-		
+		CFitOutputVector()
+		{
+			m_first_stage = m_last_stage = 0;
+		}
+
+		CFitOutputVector(const CFitOutputVector& in)
+		{
+			operator=(in);
+		}
+
+		CFitOutputVector& operator=(const CFitOutputVector& in)
+		{
+			std::vector<CFitOutput>::operator=(in);
+			m_first_stage = in.m_first_stage;
+			m_last_stage = in.m_last_stage;
+			m_c = in.m_c;
+
+			return *this;
+		}
+
+		std::string get_variables()const
+		{
+			std::string variables;
+			for (size_t s = 0; s < size(); s++)
+			{
+				if (s >= m_first_stage && s <= m_last_stage)
+				{
+					if (!variables.empty())
+						variables += ", ";
+
+					variables = variables + at(s).m_variable;
+				}
+			}
+			return variables;
+		}
 
 		size_t m_first_stage;
 		size_t m_last_stage;
 
-		CComputationVariable m_c;
+		CComputationVariableVector m_c;
 	};
 
 
@@ -520,27 +569,27 @@ namespace WBSF
 	{
 	public:
 
-		
+
 		std::vector<double> get_stage_table(size_t i, CTRef TRef)
 		{
 			if (TRef < at(i).m_output.GetTPeriod().Begin())
 				return m_before_begin;
-			
+
 			if (TRef > at(i).m_output.GetTPeriod().End())
 				return m_after_end;
-			
+
 
 			return at(i).m_output[TRef];
 		}
-		
+
 
 		std::vector<double> m_before_begin;
 		std::vector<double> m_after_end;
 
 	};
 
-	
-	
+
+
 
 
 
@@ -551,7 +600,7 @@ namespace WBSF
 		CTRef m_TRef;
 		std::vector<double> m_n;
 		std::vector<double> m_cumul;
-		
+
 
 
 		size_t m_treatments_to_sim_index;
@@ -560,7 +609,7 @@ namespace WBSF
 	class CStagesTableRows : public std::vector<CStagesTableRow>
 	{
 	public:
-		
+
 		std::vector < CStatistic> m_stats;
 	};
 
@@ -589,13 +638,13 @@ namespace WBSF
 
 		size_t num_treatments()const { return m_treatments.size(); }
 		std::string get_treatment(size_t t)const { assert(t < m_treatments.size()); return *(std::next(m_treatments.begin(), t)); }
-		size_t num_stages()const {			return m_stage_columns.size();		}
+		size_t num_stages()const { return m_stage_columns.size(); }
 		std::string get_stage(size_t s)const { assert(s < m_stage_columns.size()); return m_stage_columns[s].first; }
 
 		std::vector<std::pair<std::string, size_t>> m_stage_columns;
 		std::vector<size_t> m_input_pos;
 		std::set<std::string> m_treatments;
-		
+
 
 		//std::vector<size_t> m_treatments_to_sim_index;
 		bool m_bDOY;
@@ -621,7 +670,7 @@ namespace WBSF
 			FIT_TYPE = CExecutable::NB_MEMBERS, DEV_RATE_EQUATIONS, SURVIVAL_EQUATIONS, FECUNDITY_EQUATIONS, STAGE_TABLE_EQUATIONS, EQ_OPTIONS, INPUT_FILE_NAME, TOBS_FILE_NAME,
 			OUTPUT_FILE_NAME, CONTROL, COUNSTRAIN_T_LO, T_LO_VALUES, COUNSTRAIN_T_HI, T_HI_VALUES,
 			FIXE_F0, F0_VALUE, FIXE_T0, T0_VALUE, LIMIT_MAX_RATE, LIMIT_MAX_RATE_P, AVOID_NULL_RATE_IN_TOBS, USE_OUTPUT_AS_INPUT, OUTPUT_AS_INTPUT_FILENAME,
-			SHOW_TRACE, USE_DEAD, USE_CENCORED, USE_CASUALTIES, ADULT_NAME, SA_PRESET, OPTIM_METHOD, 
+			SHOW_TRACE, USE_DEAD, USE_CENCORED, USE_CASUALTIES, ADULT_NAME, SA_PRESET, OPTIM_METHOD,
 			NB_MEMBERS, NB_MEMBERS_EX = NB_MEMBERS - CExecutable::NB_MEMBERS
 		};
 
@@ -725,15 +774,15 @@ namespace WBSF
 
 
 
-		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		bool GetFValue(std::string s, size_t e, CComputationVariable& computation);
+		ERMsg Optimize(std::string s, size_t e, CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback);
+		bool GetFValue(std::string s, size_t e, CComputationVariableVector& computation);
 
 		bool IsParamValid(const std::string& var, size_t e, const std::vector<double>& P);
 		bool IsRateValid(const std::string& var, size_t e, const std::vector<double>& P, double null_rate_treashold);
 
-		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback);
-		//void WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
-		void WriteInfoEx(size_t loop, std::string variable, const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback);
+		ERMsg InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback);
+		
+		void WriteInfoEx(size_t loop, std::string variable, const CComputationVariableVector& computation, bool b_show_Header, bool b_show_stats, CCallback& callback);
 
 		double Exprep(const double& RDUM);
 

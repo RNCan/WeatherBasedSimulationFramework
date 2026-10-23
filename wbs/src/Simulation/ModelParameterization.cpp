@@ -432,47 +432,50 @@ namespace WBSF
 
 	//Initialize input parameter
 	//user can override theses methods
-	ERMsg CModelParameterization::InitialiseComputationVariable(CComputationVariable& computation, CCallback& callback)
+	ERMsg CModelParameterization::InitialiseComputationVariable(CComputationVariableVector& computation, CCallback& callback)
 	{
 		ERMsg msg;
 
 		callback.PushTask("Initialize Computation Variables", 1);
 		//callback.SetNbStep(1);
 
+		
+		computation.InitializeVar(m_parameters);
+		//computation.resize(m_parameters.size());
 
-		computation.m_bounds.resize(m_parameters.size());
-		computation.m_C.resize(m_parameters.size());
-		computation.m_X.resize(m_parameters.size());
-		computation.m_P.m_X.resize(m_parameters.size());
-		computation.m_P.m_Xstat.resize(m_parameters.size());
-		computation.m_VM.resize(m_parameters.size());
-		computation.m_VMstat.resize(m_parameters.size());
-
-
-		for (int i = 0; i < m_parameters.size(); i++)
-		{
-			computation.m_bounds[i] = m_parameters[i].m_bounds;
-			computation.m_P.m_X[i] = m_parameters[i].m_initialValue;
-			computation.m_C[i] = 2;
-			computation.m_VM[i] = computation.m_bounds[i].GetExtent();
+		//computation.m_bounds.resize(m_parameters.size());
+		//computation.m_C.resize(m_parameters.size());
+		//computation.m_.m_X.resize(m_parameters.size());
+		//computation.m_P.m_X.resize(m_parameters.size());
+		//computation.m_P.m_Xstat.resize(m_parameters.size());
+		//computation.m_VM.resize(m_parameters.size());
+		//computation.m_VMstat.resize(m_parameters.size());
 
 
-			/*if (true)
-			{
-				computation.m_VM[i] = computation.m_bounds[i].GetExtent() / m_ctrl.m_NS2;
-			}*/
-				//computation.m_VM[i] = computation.m_VM[i] / (1. + computation.m_C[i] * ((.4 - RATIO) / .4));
-
-
-
-			//If the initial value is out of bounds, notify the user and return
-			//to the calling routine.
-			if (computation.m_bounds[i].IsOutOfBound(computation.m_P.m_X[i]))
-			{
-				msg.ajoute("The starting value (" + ToString(computation.m_P.m_X[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
-				return msg;
-			}
-		}
+		//for (int i = 0; i < m_parameters.size(); i++)
+		//{
+		//	computation.m_bounds[i] = m_parameters[i].m_bounds;
+		//	computation.m_P.m_X[i] = m_parameters[i].m_initialValue;
+		//	computation.m_C[i] = 2;
+		//	computation.m_VM[i] = computation.m_bounds[i].GetExtent();
+		//
+		//
+		//	/*if (true)
+		//	{
+		//		computation.m_VM[i] = computation.m_bounds[i].GetExtent() / m_ctrl.m_NS2;
+		//	}*/
+		//		//computation.m_VM[i] = computation.m_VM[i] / (1. + computation.m_C[i] * ((.4 - RATIO) / .4));
+		//
+		//
+		//
+		//	//If the initial value is out of bounds, notify the user and return
+		//	//to the calling routine.
+		//	if (computation.m_bounds[i].IsOutOfBound(computation.m_P.m_X[i]))
+		//	{
+		//		msg.ajoute("The starting value (" + ToString(computation.m_P.m_X[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
+		//		return msg;
+		//	}
+		//}
 
 		computation.Initialize(m_ctrl.m_T, m_ctrl.m_NEPS, m_ctrl.GetVMiss());
 		//  Evaluate the function with input X and return value as F.
@@ -485,15 +488,15 @@ namespace WBSF
 
 		computation.m_NFCNEV++;
 
-		computation.m_X = computation.m_P.m_X;
+		computation.m_.m_X = computation.m_P.m_X;
 		computation.m_opt.m_X = computation.m_P.m_X;
 
 		if (computation.m_P.m_F != m_ctrl.GetVMiss())
 		{
-			computation.m_S = computation.m_P.m_S;
+			computation.m_.m_S = computation.m_P.m_S;
 			computation.m_opt.m_S = m_computation.m_P.m_S;
-			computation.m_F = computation.m_P.m_F;
-			computation.m_opt.m_F = computation.m_F;
+			computation.m_.m_F = computation.m_P.m_F;
+			computation.m_opt.m_F = computation.m_.m_F;
 			computation.m_FSTAR[0] = computation.m_P.m_F;
 		}
 
@@ -543,7 +546,7 @@ namespace WBSF
 	{}
 	void CModelParameterization::OnEndSimulation(CCallback& callback)
 	{
-		//update R2 presdicted value with opt parameter
+		//update R2 predicted value with opt parameter
 		WriteInfo(-1, -1, -1, callback);
 	}
 
@@ -552,9 +555,11 @@ namespace WBSF
 		if (m_feedbackType == LOOP)
 			WriteInfo(L, -1, -1, callback);
 
+		
 		//clean VM stats
-		for (size_t i = 0; i < m_computation.m_VMstat.size(); i++)
-			m_computation.m_VMstat[i].Reset();
+		m_computation.clear_stat();
+		//for (size_t i = 0; i < m_computation.m_VMstat.size(); i++)
+			//m_computation.m_VMstat[i].Reset();
 
 	}
 	void CModelParameterization::OnEndIteration(int L, int I, CCallback& callback)
@@ -573,21 +578,10 @@ namespace WBSF
 	{
 		string line;
 
-		
-		for (size_t i = 0; i < m_computation.m_P.m_Xstat.size(); i++)
-			m_computation.m_Pstat += 100.0 /2.0* m_computation.m_P.m_Xstat[i][RANGE] / m_computation.m_P.m_Xstat[i][MEAN];
-		//if( m_computation.m_S[NB_VALUE]>0 )
-		//{
-		//	//line.Format("", );
-		//	//callback.AddMessage(line);
-		//	line.Format("Report values:\tN=%10d\tT=%9.5f\tNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", m_computation.m_NFCNEV, m_computation.m_T, m_computation.m_S[NB_VALUE], m_computation.m_S[BIAS], m_computation.m_S[MAE], m_computation.m_S[RMSE], m_computation.m_S[COEF_D], m_computation.m_S[STAT_R²] );
-		//	callback.AddMessage(line);
-		//}
-		//else
-		//{
-		//	callback.AddMessage("Unable to find reasonable value since last report");
-		//}
 
+		CStatisticEx Pstat;
+		for (size_t i = 0; i < m_computation.m_P.m_Xstat.size(); i++)
+			Pstat += m_computation.m_P.m_Xstat[i][RANGE] / m_computation.m_P.m_Xstat[i][MEAN];
 
 		if (m_computation.m_opt.m_S[NB_VALUE] > 0)
 		{
@@ -618,7 +612,7 @@ namespace WBSF
 
 			if (bShowRange)
 			{
-				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), m_computation.m_opt.m_X[j], m_computation.m_P.m_Xstat[j][LOWEST], m_computation.m_P.m_Xstat[j][HIGHEST], m_computation.m_VMstat[j][LOWEST], m_computation.m_VMstat[j][HIGHEST]);
+				tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), m_computation.m_opt.m_X[j], m_computation.m_P.m_Xstat[j][LOWEST], m_computation.m_P.m_Xstat[j][HIGHEST], m_computation[j].m_VMstat[LOWEST], m_computation[j].m_VMstat[HIGHEST]);
 			}
 			else
 			{
@@ -633,14 +627,14 @@ namespace WBSF
 		line.clear();
 
 
-		double eps = fabs(m_computation.m_opt.m_F - m_computation.m_F);
+		double eps = fabs(m_computation.m_opt.m_F - m_computation.m_.m_F);
 		line = "Eps = [" + ToString(eps, -1) + "]{";
 
 		for (int i = 0; i < m_computation.m_FSTAR.size(); i++)
 		{
 
 			string tmp;
-			double eps = fabs(m_computation.m_F - m_computation.m_FSTAR[i]);
+			double eps = fabs(m_computation.m_.m_F - m_computation.m_FSTAR[i]);
 
 			if (eps < 10e6)
 				tmp = FormatA("%8.5lf", eps);
@@ -655,8 +649,9 @@ namespace WBSF
 
 		line += "}";
 
+		
 		callback.AddMessage(line);
-		line = "P Eps = " + ToString(m_computation.m_Pstat[HIGHEST], 5);
+		line = "P Eps = " + ToString(Pstat[HIGHEST], 5);
 
 		callback.AddMessage("***********************************");
 		callback.StepIt(0);
@@ -1347,6 +1342,10 @@ namespace WBSF
 			if (!msg)
 				return msg;
 
+
+			m_ctrl.m_NT1 = ceil(m_ctrl.m_NT2 * m_parameters.size());
+
+
 			//  Initialize the random number generator RANMAR.
 			CRandomizeNumber random(m_ctrl.m_seed1, m_ctrl.m_seed2);
 
@@ -1355,20 +1354,22 @@ namespace WBSF
 
 			bool bQuit = false;
 			//randomize order of the parameters to not always begin with the same parameter
-			vector < vector<size_t>> HH(m_ctrl.m_NT * m_ctrl.m_NS);
+			vector < vector<size_t>> HH(m_ctrl.m_NT1 * m_ctrl.m_NS);
 
 			//  Start the main loop. Note that it terminates if :
 			//(i) the algorithm successfully optimizes the function 
 			//(ii) there are too many function evaluations (more than MAXEVL).
-			int L = 0;
-			do
+			//int L = 0;
+			//do
+			int NL = (int)m_ctrl.m_max_loop;//Loops
+			for (int L = 0; L < NL && !bQuit && msg; L++)
 			{
-				L++;
+				//L++;
 				OnStartLoop(L, callback);
 
 
 
-				callback.PushTask("Search optimum. Loop = " + ToString(L), m_ctrl.m_NT*m_ctrl.m_NS*m_computation.m_X.size());
+				callback.PushTask("Search optimum. Loop = " + ToString(L), m_ctrl.m_NT1*m_ctrl.m_NS*m_computation.m_.m_X.size());
 				//callback.SetNbStep(m_ctrl.NT()*m_ctrl.NS()*m_computation.m_X.size());
 
 				long NUP = 0;
@@ -1378,16 +1379,16 @@ namespace WBSF
 				long LNOBDS = 0;
 
 				for (size_t j = 0; j < HH.size(); j++)
-					HH[j] = Shuffle(m_computation.m_X.size(), g);
+					HH[j] = Shuffle(m_computation.m_.m_X.size(), g);
 
 				
-				int NT = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NT;
+				int NT = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NT1;
 				for (int M = 0; M < NT && msg; M++)
 				{
 					OnStartIteration(L, M, callback);
 
 					vector<int> NACP;
-					NACP.insert(NACP.begin(), m_computation.m_X.size(), 0);
+					NACP.insert(NACP.begin(), m_computation.m_.m_X.size(), 0);
 
 					int NS = L <= m_ctrl.m_nbSkipLoop ? 2: m_ctrl.m_NS;
 					for (int J = 0; J < NS && msg; J++)
@@ -1405,31 +1406,31 @@ namespace WBSF
 						{
 							int H = int(HH[M * NS + J][h]);
 							//  If too many function evaluations occur, terminate the algorithm.
-							if (m_computation.m_NFCNEV >= m_ctrl.m_MAXEVL)
-							{
-								OnEndSimulation(callback);
-								msg.ajoute("Number of function evaluations (NFCNEV) is greater than the maximum number (MAXEVL).");
-								return msg;
-							}
+							//if (m_computation.m_NFCNEV >= m_ctrl.m_MAXEVL)
+							//{
+							//	OnEndSimulation(callback);
+							//	msg.ajoute("Number of function evaluations (NFCNEV) is greater than the maximum number (MAXEVL).");
+							//	return msg;
+							//}
 
-							m_computation.m_P.m_X.resize(m_computation.m_X.size());
+							m_computation.m_P.m_X.resize(m_computation.m_.m_X.size());
 
 							size_t x = 0;
 							do
 							{
 								x++;
 								//  Generate XP, the trial value of X. Note use of VM to choose XP.
-								for (int I = 0; I < m_computation.m_X.size(); I++)
+								for (int I = 0; I < m_computation.m_.m_X.size(); I++)
 								{
 									if (I == H)
-										m_computation.m_P.m_X[I] = m_computation.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_computation.m_VM[I];
-									else m_computation.m_P.m_X[I] = m_computation.m_X[I];
+										m_computation.m_P.m_X[I] = m_computation.m_.m_X[I] + (random.Ranmar()*2.0 - 1.0) * m_computation[I].m_VM;
+									else m_computation.m_P.m_X[I] = m_computation.m_.m_X[I];
 
 
 									//  If XP is out of bounds, select a point in bounds for the trial.
-									if (m_computation.m_bounds[I].IsOutOfBound(m_computation.m_P.m_X[I]))
+									if (m_computation[I].m_bounds.IsOutOfBound(m_computation.m_P.m_X[I]))
 									{
-										m_computation.m_P.m_X[I] = m_computation.m_bounds[I].GetLowerBound() + m_computation.m_bounds[I].GetExtent()*random.Ranmar();
+										m_computation.m_P.m_X[I] = m_computation[I].m_bounds.GetLowerBound() + m_computation[I].m_bounds.GetExtent()*random.Ranmar();
 
 										LNOBDS++;
 										//m_computation.m_NOBDS++;
@@ -1452,19 +1453,20 @@ namespace WBSF
 							for (int i = 0; i < m_computation.m_P.m_X.size() && i < (int)m_computation.m_P.m_Xstat.size(); i++)
 								m_computation.m_P.m_Xstat[i] += m_computation.m_P.m_X[i];
 
-							for (size_t i = 0; i < m_computation.m_VMstat.size(); i++)
-								m_computation.m_VMstat[i] += m_computation.m_VM[i];
+							for (size_t i = 0; i < m_computation.size(); i++)
+								m_computation[i].m_VMstat += m_computation[i].m_VM;
 
 							
 
 							//  Accept the new point if the function value increases.
 							if (m_computation.m_P.m_F != m_ctrl.GetVMiss())
 							{
-								if (m_computation.m_P.m_F >= m_computation.m_F)
+								if (m_computation.m_P.m_F >= m_computation.m_.m_F)
 								{
-									m_computation.m_X = m_computation.m_P.m_X;
-									m_computation.m_F = m_computation.m_P.m_F;
-									m_computation.m_S = m_computation.m_P.m_S;
+									m_computation.m_ = m_computation.m_P;
+									//m_computation.m_.m_X = m_computation.m_P.m_X;
+									//m_computation.m_.m_F = m_computation.m_P.m_F;
+									//m_computation.m_.m_S = m_computation.m_P.m_S;
 									//m_computation.m_NACC++;
 									NACP[H]++;
 									NUP++;
@@ -1472,9 +1474,10 @@ namespace WBSF
 									//  If greater than any other point, record as new optimum.
 									if (m_computation.m_P.m_F > m_computation.m_opt.m_F)
 									{
-										m_computation.m_opt.m_X = m_computation.m_P.m_X;
-										m_computation.m_opt.m_F = m_computation.m_P.m_F;
-										m_computation.m_opt.m_S = m_computation.m_P.m_S;
+										m_computation.m_opt = m_computation.m_P;
+										//m_computation.m_opt.m_X = m_computation.m_P.m_X;
+										//m_computation.m_opt.m_F = m_computation.m_P.m_F;
+										//m_computation.m_opt.m_S = m_computation.m_P.m_S;
 										NNEW++;
 									}
 								}
@@ -1482,13 +1485,14 @@ namespace WBSF
 								//  acceptance or rejection.
 								else
 								{
-									double P = Exprep((m_computation.m_P.m_F - m_computation.m_F) / m_computation.m_T);
+									double P = Exprep((m_computation.m_P.m_F - m_computation.m_.m_F) / m_computation.m_T);
 									double PP = random.Ranmar();
 									if (PP < P)
 									{
-										m_computation.m_X = m_computation.m_P.m_X;
-										m_computation.m_F = m_computation.m_P.m_F;
-										m_computation.m_S = m_computation.m_P.m_S;
+										m_computation.m_ = m_computation.m_P;
+										//m_computation.m_.m_X = m_computation.m_P.m_X;
+										//m_computation.m_.m_F = m_computation.m_P.m_F;
+										//m_computation.m_.m_S = m_computation.m_P.m_S;
 										//m_computation.m_NACC++;
 										NACP[H]++;
 										NDOWN++;
@@ -1517,27 +1521,23 @@ namespace WBSF
 					} //J
 
 					//  Adjust VM so that approximately half of all evaluations are accepted.
-					ASSERT(m_computation.m_VM.size() == NACP.size());
-					for (int I = 0; I < m_computation.m_VM.size(); I++)
+					ASSERT(m_computation.size() == NACP.size());
+					for (int I = 0; I < m_computation.size(); I++)
 					{
-						double RATIO = double(NACP[I]) / double(m_ctrl.m_NS);///????? a vérifier???
-						//double RATIO = double(NACP[I]) / double(NS);
+						double RATIO = double(NACP[I]) / double(NS);
 						if (RATIO > 0.6)
 						{
-							m_computation.m_VM[I] = m_computation.m_VM[I] * (1. + m_computation.m_C[I] * (RATIO - .6) / .4);
+							m_computation[I].m_VM = m_computation[I].m_VM * (1. + m_computation[I].m_C * (RATIO - .6) / .4);
 						}
 						else if (RATIO < 0.4)
 						{
-							m_computation.m_VM[I] = m_computation.m_VM[I] / (1. + m_computation.m_C[I] * ((.4 - RATIO) / .4));
+							m_computation[I].m_VM = m_computation[I].m_VM / (1. + m_computation[I].m_C * ((.4 - RATIO) / .4));
 						}
 
-
-						if (m_computation.m_VM[I] > m_computation.m_bounds[I].GetExtent())
+						if (m_computation[I].m_VM > m_computation[I].m_bounds.GetExtent())
 						{
-							m_computation.m_VM[I] = m_computation.m_bounds[I].GetExtent();
+							m_computation[I].m_VM = m_computation[I].m_bounds.GetExtent();
 						}
-
-						//m_computation.m_VMstat[I] += m_computation.m_VM[I];
 
 					}//all VM
 
@@ -1547,22 +1547,20 @@ namespace WBSF
 				OnEndLoop(L, callback);
 				//  Loop again.
 
-
-				bQuit = fabs(m_computation.m_F - m_computation.m_opt.m_F) <= m_ctrl.m_EPS;// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
-				for (int I = 0; I < m_computation.m_FSTAR.size() && bQuit; I++)
-				{
-					if (fabs(m_computation.m_F - m_computation.m_FSTAR[I]) > m_ctrl.m_EPS)// || m_computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
-						bQuit = false;
-				}
-
 				//  If termination criteria is not met, prepare for another loop.
-				m_computation.PrepareForAnotherLoop(m_ctrl.m_RT, m_ctrl.m_RT2, L);
+				bQuit = m_computation.PrepareForAnotherLoop(m_ctrl, L);
 
 				callback.PopTask();
-			} while (!bQuit&&msg);
+			}// while (!bQuit&&msg);
 
 
 			OnEndSimulation(callback);
+
+			if (!msg && bQuit == false )
+			{
+				msg.ajoute("Number of loop is greater than the maximum number of loop (max_loop).");
+			}
+
 		}
 
 		return msg;

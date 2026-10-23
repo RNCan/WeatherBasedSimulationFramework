@@ -83,7 +83,7 @@ namespace WBSF
 		double m_EPS;
 		double m_P_EPS;
 		long m_NS;
-		long m_NT;
+		long m_NT1;
 		float m_NT2;//factor of iteration: NT = NT2* nb variables
 		long m_NEPS;
 		long m_MAXEVL;
@@ -181,6 +181,7 @@ namespace WBSF
 		CSAParameter(const CSAParameter& in);
 
 		void Reset();
+		void clear() { Reset(); }
 		CSAParameter& operator =(const CSAParameter& in);
 		bool operator == (const CSAParameter& in)const;
 		bool operator != (const CSAParameter& in)const { return !operator==(in); }
@@ -222,6 +223,25 @@ namespace WBSF
 			clear();
 		}
 
+		CCComputationSet(const CCComputationSet& in)
+		{
+			operator=(in);
+		}
+
+		CCComputationSet& operator=(const CCComputationSet& in)
+		{
+			m_X = in.m_X;
+			m_Xstat = in.m_Xstat;
+			m_F = in.m_F;
+			m_AICC = in.m_AICC;
+			m_n = in.m_n;
+			m_k = in.m_k;
+			m_MLL = in.m_MLL;
+			m_S = in.m_S;
+
+			return *this;
+		}
+
 		void clear()
 		{
 			m_X.clear();
@@ -232,6 +252,12 @@ namespace WBSF
 			m_k = 0;
 			m_MLL = 0;
 			m_S.clear();
+		}
+
+		void clear_stat()
+		{
+			for (size_t i = 0; i < m_Xstat.size(); i++)
+				m_Xstat[i].clear();
 		}
 
 		void Initialize(double missingValue)
@@ -264,29 +290,250 @@ namespace WBSF
 
 	//*******************************************************************************
 	//CComputationVariable
-	class CComputationVariable : public CCComputationSet
+	class CComputationVariable : public CSAParameter
 	{
 	public:
-		CComputationVariable() { Initialize(1, 4, 0); }
-		void PrepareForAnotherLoop(double RT, double RT2, size_t L)
+		CComputationVariable() 
+		{ 
+			clear();
+		}
+
+		CComputationVariable(const CComputationVariable& in)
+		{
+			operator=(in);
+		}
+
+		const CComputationVariable& operator=(const CComputationVariable& in)
+		{
+			CSAParameter::operator=(in);
+			//m_ = in.m_;
+			//m_P = in.m_P;
+			//m_opt = in.m_opt;
+			//m_T = in.m_T;
+			//m_FSTAR = in.m_FSTAR;
+			//m_NFCNEV = in.m_NFCNEV;
+
+			//m_VM = in.m_VM;
+			//m_VMstat = in.m_VMstat;
+			//
+			//
+			////constant 
+			//m_C = in.m_C;
+			//m_bounds = in.m_bounds;
+			//m_b_use_it = in.m_b_use_it;
+
+			m_VM=in.m_VM;
+			m_C = in.m_C;
+			m_VMstat = in.m_VMstat;
+
+			return *this;
+		}
+
+		void clear()
+		{
+			CSAParameter::clear();
+			//m_.clear();
+			//m_P.clear();
+			//m_opt.clear();
+			//m_T=0;
+			//m_NFCNEV = 0;
+			//m_FSTAR.clear();
+
+			//variables
+			//m_VM.clear();
+			//m_C.clear();
+			//m_bounds.clear();
+			//m_b_use_it.clear();
+			m_VMstat.clear();
+		}
+
+		void clear_stat()
+		{
+			//CSAParameter::clear_stat();
+			m_VMstat.clear();
+		}
+
+		//bool PrepareForAnotherLoop(const CSAControl& ctrl, size_t L)
+		//{
+		//	ASSERT(L > 0);//L in base 1
+
+		//	//  Loop again.
+		//	bool bQuit = fabs(m_.m_F - m_opt.m_F) <= ctrl.m_EPS;
+		//	for (size_t i = 0; i < m_FSTAR.size() && bQuit; i++)
+		//	{
+		//		if (fabs(m_.m_F - m_FSTAR[i]) > ctrl.m_EPS)
+		//			bQuit = false;
+		//	}
+
+
+		//	double F = ctrl.m_RT * pow(ctrl.m_RT2, L - 1);
+		//	m_T = F * m_T;
+		//	for (size_t I = m_FSTAR.size() - 1; I > 0; I--)
+		//	{
+		//		m_FSTAR[I] = m_FSTAR[I - 1];
+		//	}
+
+		//	m_FSTAR[0] = m_.m_F;
+
+		//	m_ = m_opt;
+		//	//(*this) = m_opt;
+
+		//	//reset bounding parameter stat each loop
+		//	for (size_t i = 0; i < m_P.m_Xstat.size(); i++)
+		//		m_P.m_Xstat[i].clear();
+
+		//	
+		//	m_.m_Xstat = m_P.m_Xstat;
+
+		//	//clean XPstat stats
+		//	for (size_t i = 0; i < m_P.m_Xstat.size(); i++)
+		//		m_P.m_Xstat[i].Reset();
+
+		//	//clean VM stats
+		//	for (size_t i = 0; i < m_VMstat.size(); i++)
+		//		m_VMstat[i].Reset();
+
+		//	
+
+		//	return bQuit;
+		//}
+
+
+
+		//void Initialize(double T, long NEPS, double missingValue)
+		//{
+
+		//	m_T = T;
+
+		//	//  Initialize variable
+		//	//CCComputationSet::Initialize(missingValue);
+		//	m_.Initialize(missingValue);
+		//	m_P.Initialize(missingValue);
+		//	m_opt.Initialize(missingValue);
+
+		//	m_NFCNEV = 0;
+
+		//	//Initialize FSTAR
+		//	m_FSTAR.clear();
+		//	m_FSTAR.insert(m_FSTAR.begin(), NEPS, DBL_MAX);
+
+		//}
+
+		
+
+		
+
+		//void resize(size_t size)
+		//{
+		//	//CCComputationSet::resize(size);
+		//	//m_.resize(size);
+		//	//m_P.resize(size);
+		//	//m_opt.resize(size);
+		//
+		//
+		//	m_VM.resize(size);
+		//	m_VMstat.resize(size);
+		//	m_C.resize(size);
+		//	m_bounds.resize(size);
+		//	m_b_use_it.resize(size);
+		//}
+
+		
+		
+
+		//variables
+		//std::vector<double> m_VM;
+		//std::vector<double> m_C;
+		//CVariableBoundVector m_bounds;
+		//std::vector<bool> m_b_use_it;
+		//CStatisticVector m_VMstat;
+
+		double m_VM;
+		double m_C;
+		//ndVector m_bounds;
+		//bool> m_b_use_it;
+		CStatistic m_VMstat;
+		
+
+	};
+
+	class CComputationVariableVector : public std::vector<CComputationVariable>
+	{
+	public:
+
+		void resize(size_t size)
+		{
+			vector<CComputationVariable>::resize(size);
+			m_.resize(size);
+			m_P.resize(size);
+			m_opt.resize(size);
+		}
+
+		void clear_stat()
+		{
+			m_.clear_stat();
+			m_P.clear_stat();
+			m_opt.clear_stat();
+
+			for (size_t i = 0; i < size(); i++)
+				at(i).clear_stat();
+		}
+
+		ERMsg InitializeVar(const CSAParameterVector& parameters)
+		{
+			ERMsg msg;
+			resize(parameters.size());
+			for (size_t i = 0; i < parameters.size(); i++)
+			{
+
+				((CSAParameter&)at(i)) = parameters[i];
+				//m_bounds[i] = parameters[i].m_bounds;
+				m_P.m_X[i] = parameters[i].m_initialValue;
+				at(i).m_C = 2;
+				at(i).m_VM = at(i).m_bounds.GetExtent();
+				//m_b_use_it[i] = parameters[i].m_b_use_it;
+
+				//If the initial value is out of bounds, notify the user and return
+				//to the calling routine.
+				if (at(i).m_bounds.IsOutOfBound(m_P.m_X[i]))
+					msg.ajoute("The starting value (" + ToString(m_P.m_X[i]) + ") is not inside the bounds [" + ToString(at(i).m_bounds.GetLowerBound()) + "," + ToString(at(i).m_bounds.GetUpperBound()) + "].");
+			}
+
+			return msg;
+		}
+
+		bool PrepareForAnotherLoop(const CSAControl& ctrl, size_t L)
 		{
 			ASSERT(L > 0);//L in base 1
 
-			double F = RT * pow(RT2, L - 1);
-			m_T = F * m_T;
-			for (size_t I = m_FSTAR.size() - 1; I > 0; I--)
+			//  Loop again.
+			bool bQuit = fabs(m_.m_F - m_opt.m_F) <= ctrl.m_EPS;
+			for (size_t i = 0; i < m_FSTAR.size() && bQuit; i++)
 			{
-				m_FSTAR[I] = m_FSTAR[I - 1];
+				if (fabs(m_.m_F - m_FSTAR[i]) > ctrl.m_EPS)
+					bQuit = false;
 			}
 
-			m_FSTAR[0] = m_F;
 
-			(*this) = m_opt;
+			double F = ctrl.m_RT * pow(ctrl.m_RT2, L - 1);
+			m_T = F * m_T;
 
+			for (size_t i = 0; i < m_FSTAR.size()-1; i++)
+			{
+				m_FSTAR[i+1] = m_FSTAR[i];
+			}
+
+			m_FSTAR[0] = m_.m_F;
+
+			m_ = m_opt;
+			
 			//reset bounding parameter stat each loop
-			for (size_t i = 0; i < m_P.m_Xstat.size(); i++)
-				m_P.m_Xstat[i].clear();
+			clear_stat();
+
+			return bQuit;
 		}
+
+
 
 		void Initialize(double T, long NEPS, double missingValue)
 		{
@@ -294,7 +541,8 @@ namespace WBSF
 			m_T = T;
 
 			//  Initialize variable
-			CCComputationSet::Initialize(missingValue);
+			//CCComputationSet::Initialize(missingValue);
+			m_.Initialize(missingValue);
 			m_P.Initialize(missingValue);
 			m_opt.Initialize(missingValue);
 
@@ -306,90 +554,13 @@ namespace WBSF
 
 		}
 
-		ERMsg InitializeVar(const CSAParameterVector& parameters)
-		{
-			ERMsg msg;
-			resize(parameters.size());
-			for (size_t i = 0; i < parameters.size(); i++)
-			{
-				m_bounds[i] = parameters[i].m_bounds;
-				m_P.m_X[i] = parameters[i].m_initialValue;
-				m_C[i] = 2;
-				m_VM[i] = m_bounds[i].GetExtent();
-				m_b_use_it[i] = parameters[i].m_b_use_it;
-
-				//If the initial value is out of bounds, notify the user and return
-				//to the calling routine.
-				if (m_bounds[i].IsOutOfBound(m_P.m_X[i]))
-					msg.ajoute("The starting value (" + ToString(m_P.m_X[i]) + ") is not inside the bounds [" + ToString(m_bounds[i].GetLowerBound()) + "," + ToString(m_bounds[i].GetUpperBound()) + "].");
-			}
-
-			return msg;
-		}
-
-		const CComputationVariable& operator=(const CComputationVariable& in)
-		{
-			CCComputationSet::operator=(in);
-			m_P = in.m_P;
-			m_opt = in.m_opt;
-
-			m_T = in.m_T;
-
-			m_FSTAR = in.m_FSTAR;
-			m_VM = in.m_VM;
-			m_VMstat = in.m_VMstat;
-			m_Pstat = in.m_Pstat;
-
-			//constant 
-			m_C = in.m_C;
-			m_bounds = in.m_bounds;
-			m_NFCNEV = in.m_NFCNEV;
-			m_b_use_it = in.m_b_use_it;
-
-			return *this;
-		}
-
-		const CCComputationSet& operator=(const CCComputationSet& in)
-		{
-			return CCComputationSet::operator=(in);
-		}
-
-
-		void resize(size_t size)
-		{
-			CCComputationSet::resize(size);
-			m_P.resize(size);
-			m_opt.resize(size);
-
-
-			m_VM.resize(size);
-			m_VMstat.resize(size);
-			m_C.resize(size);
-			m_bounds.resize(size);
-			m_b_use_it.resize(size);
-		}
-
-
+		CCComputationSet m_;
 		CCComputationSet m_P;
 		CCComputationSet m_opt;
 
 		double m_T;
-
-
-
-
-		//variables
-		std::vector<double> m_VM;
-		std::vector<double> m_C;
-		CVariableBoundVector m_bounds;
-		std::vector<bool> m_b_use_it;
-		CStatisticVector m_VMstat;
-
 		long m_NFCNEV;
 		std::vector<double> m_FSTAR;
-		CStatisticEx m_Pstat;
-
-
 	};
 
 }
@@ -411,7 +582,7 @@ namespace zen
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](in.m_EPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](in.m_P_EPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](in.m_NS);
-		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](in.m_NT);
+		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](in.m_NT1);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION2)](in.m_NT2);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](in.m_NEPS);
 		out[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](in.m_MAXEVL);
@@ -437,7 +608,7 @@ namespace zen
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::EPSILON)](out.m_EPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::P_EPSILON)](out.m_P_EPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_CYCLE)](out.m_NS);
-		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](out.m_NT);
+		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION)](out.m_NT1);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_ITERATION2)](out.m_NT2);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::NB_EPSILON)](out.m_NEPS);
 		in[WBSF::CSAControl::GetMemberName(WBSF::CSAControl::MAX_EVALUATION)](out.m_MAXEVL);

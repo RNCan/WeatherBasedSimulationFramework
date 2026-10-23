@@ -50,7 +50,7 @@ namespace WBSF
 		m_EPS = 0.001;
 		m_P_EPS = 0.01;
 		m_NS = 20;
-		m_NT = 10;
+		m_NT1 = 10;
 		m_NT2 = 5;
 		m_NEPS = 4;
 		m_MAXEVL = 1000000;
@@ -75,7 +75,7 @@ namespace WBSF
 			
 			m_NS = in.m_NS;
 			m_NT2 = in.m_NT2;
-			m_NT = in.m_NT;
+			m_NT1 = in.m_NT1;
 			m_NEPS = in.m_NEPS;
 			m_MAXEVL = in.m_MAXEVL;
 			m_max_loop = in.m_max_loop;
@@ -103,7 +103,7 @@ namespace WBSF
 		if (fabs(m_P_EPS - in.m_P_EPS) > 0.00000001) bEqual = false;
 		if (m_NS != in.m_NS) bEqual = false;
 		if (m_NT2 != in.m_NT2) bEqual = false;
-		if (m_NT != in.m_NT) bEqual = false;
+		if (m_NT1 != in.m_NT1) bEqual = false;
 
 		if (m_NEPS != in.m_NEPS) bEqual = false;
 		if (m_MAXEVL != in.m_MAXEVL) bEqual = false;
@@ -134,7 +134,7 @@ namespace WBSF
 		case P_EPSILON:str = ToString(m_P_EPS, -1); break;
 		case NB_CYCLE:str = ToString(m_NS); break;
 		case NB_SKIP_LOOP:str = ToString(m_nbSkipLoop); break;
-		case NB_ITERATION:str = ToString(m_NT); break;
+		case NB_ITERATION:str = ToString(m_NT1); break;
 		case NB_ITERATION2:str = ToString(m_NT2); break;
 		case NB_EPSILON:str = ToString(m_NEPS); break;
 		case MAX_EVALUATION:str = ToString(m_MAXEVL); break;
@@ -162,7 +162,7 @@ namespace WBSF
 		case P_EPSILON: m_P_EPS = ToDouble(str); break;
 		case NB_CYCLE: m_NS = ToInt(str); break;
 		case NB_SKIP_LOOP: m_nbSkipLoop = ToInt(str); break;
-		case NB_ITERATION:m_NT = ToInt(str); break;
+		case NB_ITERATION:m_NT1 = ToInt(str); break;
 		case NB_ITERATION2:m_NT2 = ToInt(str); break;
 		case NB_EPSILON:m_NEPS = ToInt(str); break;
 		case MAX_EVALUATION:m_MAXEVL = ToInt(str); break;

@@ -3737,40 +3737,51 @@ namespace WBSF
 					p.push_back(CFitOutput(m_stages_table.get_stage(s), eq, params0));
 
 				p.m_first_stage = 0;
-				p.m_last_stage = 0;
-				msg = InitialiseComputationVariableStageTable(p, callback);
-				p.m_c = p[0].m_computation;
+				p.m_last_stage = p.size() - 1;
+				//p.m_last_stage = 0; //take only the first stage for initialization
+
 
 				size_t n_combinations = get_Gauss(p.size());
 				callback.PushTask("Search optimum for " + e_name + " ( " + to_string(p.size()) + " variables = " + to_string(n_combinations) + " combinations)", n_combinations);
+				msg = InitialiseComputationVariableStageTable(p, callback);
+				if (m_bShowTrace)
+				{
+					for (size_t s = 0; s < p.size(); s++)
+						WriteInfoEx(0, p[s].m_variable, p[s].m_computation, true, true, callback);
+				}
+
 
 				for (size_t c = 0; c < n_combinations && msg; c++)
 				{
+					//size_t c = n_combinations - 1;
 					p.m_first_stage = get_first_stage(c, p.size());
 					p.m_last_stage = get_last_stage(c, p.size());
+					//p.m_c.m_T = m_SA_ctrl.m_T;//reset T to the original
+					p.m_c.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
+
+
+					//each time we change the number of stages, we have to 
+					//compute statistic for this new stage selections
+					GetFValueStageTable(p);
+					p.m_c.m_ = p.m_c.m_P;
+					p.m_c.m_opt = p.m_c.m_P;
+					p.m_c.m_FSTAR[0] = p.m_c.m_P.m_F;
+					
 
 					msg += OptimizeStageTable(p, callback);
-					if (msg)
-					{
-						//selected this optimum for this stage and continue with he next stage
-						for (size_t s = p.m_first_stage; s <= p.m_last_stage; s++)
-						{
-							p[s].m_computation = p[s].m_computation.m_opt;
-							p[s].m_computation.m_P = p[s].m_computation.m_opt;
-						}
 
-						p.m_c.m_P.m_S.Reset();
-						p.m_c.m_P.m_F = m_SA_ctrl.GetVMiss();
-
-					}
+					//take the optimum of all stage for the next step
+					for (size_t s = 0; s < p.size(); s++)
+						p[s].m_computation.m_P = p[s].m_computation.m_opt;
 
 					msg += callback.StepIt();
 				}
 
+				//show last optimum result
 				for (size_t s = 0; s < p.size(); s++)
 				{
 					callback.AddMessage(p[s].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(p[s].m_equation)));
-					WriteInfoEx(NOT_INIT, p[s].m_variable, p[s].m_parameters, p[s].m_computation, callback);
+					WriteInfoEx(NOT_INIT, p[s].m_variable, p[s].m_computation, false, true, callback);
 
 					output.push_back(p[s]);
 				}
@@ -3795,7 +3806,7 @@ namespace WBSF
 			if (bLogLikelyhoude)
 				file << "Stage,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
 			else
-				file << "Stage,EqName,P,Eq,Math,n,k,RSS,R2" << endl;
+				file << "Stage,EqName,P,Eq,Math,n,k,RSS,TSS,R2" << endl;
 
 
 			vector<string> variables;
@@ -3827,7 +3838,7 @@ namespace WBSF
 						if (bLogLikelyhoude)
 							file << output[i].m_computation.m_opt.m_n << "," << output[i].m_computation.m_opt.m_k << "," << output[i].m_computation.m_opt.m_MLL << "," << output[i].m_computation.m_opt.m_AICC;
 						else
-							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
+							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[TSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
 
 
 						file << endl;
@@ -4177,7 +4188,7 @@ namespace WBSF
 						callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(output[i].m_equation)));
 
 
-					WriteInfoEx(NOT_INIT, output[i].m_variable, output[i].m_parameters, output[i].m_computation, callback);
+					WriteInfoEx(NOT_INIT, output[i].m_variable, output[i].m_computation, false, true, callback);
 				}
 
 
@@ -4209,7 +4220,7 @@ namespace WBSF
 			if (bLogLikelyhoude)
 				file << "Stage,EqName,P,Eq,Math,n,k,maxLL,AICc" << endl;
 			else
-				file << "Stage,EqName,P,Eq,Math,n,k,RSS,R2" << endl;
+				file << "Stage,EqName,P,Eq,Math,n,k,RSS,TSS,R2" << endl;
 
 			for (auto v = variables.begin(); v != variables.end(); v++)
 			{
@@ -4260,7 +4271,7 @@ namespace WBSF
 						if (bLogLikelyhoude)
 							file << output[i].m_computation.m_opt.m_n << "," << output[i].m_computation.m_opt.m_k << "," << output[i].m_computation.m_opt.m_MLL << "," << output[i].m_computation.m_opt.m_AICC;
 						else
-							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
+							file << output[i].m_computation.m_opt.m_S[NB_VALUE] << "," << output[i].m_computation.m_opt.m_X.size() << "," << output[i].m_computation.m_opt.m_S[RSS] << "," << output[i].m_computation.m_opt.m_S[TSS] << "," << output[i].m_computation.m_opt.m_S[STAT_R²];
 
 
 						file << endl;
@@ -4307,42 +4318,9 @@ namespace WBSF
 
 	//Initialize input parameter
 	//user can override theses methods
-	ERMsg CInsectParameterization::InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CInsectParameterization::InitialiseComputationVariable(std::string s, size_t e, const CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback)
 	{
 		ERMsg msg;
-
-		//computation.m_bounds.resize(parameters.size());
-		//computation.m_C.resize(parameters.size());
-		//computation.m_X.resize(parameters.size());
-		//computation.m_P.m_X.resize(parameters.size());
-		//computation.m_P.m_Xstat.resize(parameters.size());
-		//computation.m_VM.resize(parameters.size());
-		//computation.m_VMstat.resize(parameters.size());
-		//for (size_t i = 0; i < parameters.size(); i++)
-		//{
-		//	computation.m_bounds[i] = parameters[i].m_bounds;
-		//	computation.m_P.m_X[i] = parameters[i].m_initialValue;
-		//	computation.m_C[i] = 2;
-		//	computation.m_VM[i] = computation.m_bounds[i].GetExtent();
-
-		//	//If the initial value is out of bounds, notify the user and return
-		//	//to the calling routine.
-		//	if (computation.m_bounds[i].IsOutOfBound(computation.m_P.m_X[i]))
-		//	{
-		//		if (m_fitType == F_DEV_TIME)//_WTH_SIGMA || m_fitType == F_DEV_TIME_ONLY
-		//			msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
-		//		else if (m_fitType == F_SURVIVAL)
-		//			msg.ajoute(s + ": " + CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(e)));
-		//		else if (m_fitType == F_FECUNDITY)
-		//			msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
-
-
-		//		msg.ajoute("The starting value (" + ToString(computation.m_P.m_X[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
-		//		return msg;
-		//	}
-		//}
-
-		//computation.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
 
 		computation.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
 
@@ -4433,9 +4411,9 @@ namespace WBSF
 
 			computation.m_NFCNEV++;
 
-			computation = computation.m_P;
+			computation.m_ = computation.m_P;
 			computation.m_opt = computation.m_P;
-			computation.m_FSTAR[0] = computation.m_P.m_F;
+			//computation.m_FSTAR[0] = computation.m_P.m_F;
 
 		}
 
@@ -4445,6 +4423,8 @@ namespace WBSF
 	ERMsg CInsectParameterization::InitialiseComputationVariableStageTable(CFitOutputVector& p, CCallback& callback)
 	{
 		ERMsg msg;
+
+		p.m_c.Initialize(m_SA_ctrl.m_T, m_SA_ctrl.m_NEPS, m_SA_ctrl.GetVMiss());
 
 		for (size_t s = 0; s < p.size(); s++)
 		{
@@ -4459,37 +4439,10 @@ namespace WBSF
 			}
 
 		}
-		//p[s].m_computation.m_bounds.resize(p[s].m_parameters.size());
-		//computation.m_C.resize(parameters.size());
-		//computation.m_X.resize(parameters.size());
-		//computation.m_P.m_X.resize(parameters.size());
-		//computation.m_P.m_Xstat.resize(parameters.size());
-		//computation.m_VM.resize(parameters.size());
-		//computation.m_VMstat.resize(parameters.size());
-		//for (size_t i = 0; i < parameters.size(); i++)
-		//{
-		//	computation.m_bounds[i] = parameters[i].m_bounds;
-		//	computation.m_P.m_X[i] = parameters[i].m_initialValue;
-		//	computation.m_C[i] = 2;
-		//	computation.m_VM[i] = computation.m_bounds[i].GetExtent();
-		//
-		//	//If the initial value is out of bounds, notify the user and return
-		//	//to the calling routine.
-		//	if (computation.m_bounds[i].IsOutOfBound(computation.m_P.m_X[i]))
-		//	{
-		//		msg.ajoute(s + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(e)));
-		//		msg.ajoute("The starting value (" + ToString(computation.m_P.m_X[i]) + ") is not inside the bounds [" + ToString(computation.m_bounds[i].GetLowerBound()) + "," + ToString(computation.m_bounds[i].GetUpperBound()) + "].");
-		//		return msg;
-		//	}
-		//}
 
 
 		//try with random (uniform and normally distributed) values 
-		//bool bValid = false;
 		std::vector<bool> bValid(p.size(), false);
-
-
-
 
 		for (size_t s = 0; s < p.size(); s++)
 		{
@@ -4547,20 +4500,16 @@ namespace WBSF
 		{
 			for (size_t s = 0; s < p.size(); s++)
 			{
-
 				assert(p[s].m_computation.m_P.m_F != m_SA_ctrl.GetVMiss());
 
 				p[s].m_computation.m_NFCNEV++;
-
-				p[s].m_computation = p[s].m_computation.m_P;
+				p[s].m_computation.m_ = p[s].m_computation.m_P;
 				p[s].m_computation.m_opt = p[s].m_computation.m_P;
-				p[s].m_computation.m_FSTAR[0] = p[s].m_computation.m_P.m_F;
 			}
 
 			p.m_c.m_NFCNEV++;
-			p.m_c = p.m_c.m_P;
+			p.m_c.m_ = p.m_c.m_P;
 			p.m_c.m_opt = p.m_c.m_P;
-			//p.m_c.m_FSTAR[0] = p.m_c.m_P.m_F;
 		}
 
 
@@ -4595,129 +4544,88 @@ namespace WBSF
 
 
 
-	//void CInsectParameterization::WriteInfo(const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback)
-	//{
-	//	string line;
-
-	//	double F = m_SA_ctrl.m_bMax ? computation.m_opt.m_F : -computation.m_opt.m_F;
-	//	bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
-
-	//	//		CStatistic stat;
-	//		//	for (size_t i = 0, j = 0; i < computation.m_Xstat.size(); i++)
-	//			//	stat += 100.0 * computation.m_Xstat[j][RANGE] / computation.m_Xstat[j][MEAN];
-
-	//	if (bLogLikelyhoude)
-	//		line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_opt.m_n, computation.m_opt.m_AICC, computation.m_opt.m_MLL);
-	//	else if (computation.m_opt.m_S[NB_VALUE] > 0)
-	//		line = FormatA("N=%10d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_NFCNEV, computation.m_T, F, computation.m_Pstat[HIGHEST], computation.m_opt.m_S[NB_VALUE], computation.m_opt.m_S[BIAS], computation.m_opt.m_S[MAE], computation.m_opt.m_S[RMSE], computation.m_opt.m_S[COEF_D], computation.m_opt.m_S[STAT_R²]);
-	//	else
-	//		line = "No optimum find yet...";
-
-
-
-	//	callback.AddMessage(line);
-
-
-	//	line.clear();
-	//	if (computation.m_opt.m_X.size() == parameters.size())
-	//	{
-
-	//		bool bShowRange = !computation.m_P.m_Xstat.empty() && computation.m_P.m_Xstat[0][NB_VALUE] > 0;
-	//		for (size_t j = 0; j < parameters.size(); j++)
-	//		{
-	//			if (computation.m_b_use_it[j])
-	//			{
-	//				string name = parameters[j].m_name; Trim(name);
-	//				string tmp;
-
-	//				if (bShowRange)
-	//				{
-	//					tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_opt.m_X[j], computation.m_P.m_Xstat[j][LOWEST], computation.m_P.m_Xstat[j][HIGHEST], computation.m_VMstat[j][LOWEST], computation.m_VMstat[j][HIGHEST]);
-	//				}
-	//				else
-	//				{
-	//					tmp = FormatA("%s = %5.3lg  ", name.c_str(), computation.m_opt.m_X[j]);
-	//				}
-
-	//				line += tmp;
-	//			}
-	//		}
-
-	//		callback.AddMessage(line);
-	//	}
-	//}
-
-	void CInsectParameterization::WriteInfoEx(size_t loop, string variable, const CSAParameterVector& parameters, const CComputationVariable& computation, CCallback& callback)
+	void CInsectParameterization::WriteInfoEx(size_t loop, string variable, const CComputationVariableVector& computation, bool b_show_Header, bool b_show_stats, CCallback& callback)
 	{
-		assert(parameters.size() == computation.m_X.size());
+		assert(parameters.size() == computation.m_.m_X.size());
 
 		if (!variable.empty())
 		{
 			callback.AddMessage(variable);
 		}
 
-
+		CStatisticEx Pstat;
+		for (size_t i = 0; i < computation.m_P.m_Xstat.size(); i++)
+			Pstat += computation.m_P.m_Xstat[i][RANGE] / computation.m_P.m_Xstat[i][MEAN];
 
 		string line;
 		double F = m_SA_ctrl.AdjustFValue(computation.m_opt.m_F);
 
-		//if (computation.m_opt.m_S[NB_VALUE] > 0 || computation.m_opt.m_MLL > 0)
+
 		if (F > -FLT_MAX)
 		{
-			line = FormatA("loop=%03d\tT=%12.8f\tF=%8.5lf\tP=%8.5lf", loop, computation.m_T, F);
-
-			//add Fstart
-			string Fstar = "\tF*=[";
-			for (size_t i = 0; i < computation.m_FSTAR.size(); i++)
+			if (b_show_Header)
 			{
-				if (i > 0)
-					Fstar += ",";
+				line = FormatA("loop=%03d\tT=%12.8f\tF=%8.5lf", loop, computation.m_T, F);
 
-				if (computation.m_FSTAR[i] > -FLT_MAX && computation.m_FSTAR[i] < FLT_MAX)
-				{
-					double Fs = fabs(computation.m_F - computation.m_FSTAR[i]);
-					Fstar += FormatA("%8.5lf", Fs);
-				}
+				//add Fstart
+				string Fstar = "\tF*=[";
+				if (computation.m_NFCNEV > 1)
+					Fstar += FormatA("%8.5lf", fabs(computation.m_.m_F - computation.m_opt.m_F));
 				else
 					Fstar += "NA";
+
+				for (size_t i = 0; i < computation.m_FSTAR.size(); i++)
+				{
+					Fstar += ",";
+
+					if (computation.m_FSTAR[i] > -FLT_MAX && computation.m_FSTAR[i] < FLT_MAX)
+					{
+						double Fs = fabs(computation.m_.m_F - computation.m_FSTAR[i]);
+						Fstar += FormatA("%8.5lf", Fs);
+					}
+					else
+						Fstar += "NA";
+				}
+
+				Fstar += "]\n";
+				line += Fstar;
 			}
 
-			Fstar += "]";
-			line += Fstar;
-
-			bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
-			if (bLogLikelyhoude)
+			if (b_show_stats)
 			{
-				line += FormatA("\nNbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_opt.m_n, computation.m_opt.m_AICC, computation.m_opt.m_MLL);
-			}
-			else
-			{
-				line += FormatA("\nNbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_opt.m_S[NB_VALUE], computation.m_opt.m_S[BIAS], computation.m_opt.m_S[MAE], computation.m_opt.m_S[RMSE], computation.m_opt.m_S[COEF_D], computation.m_opt.m_S[STAT_R²]);
+
+				bool bLogLikelyhoude = m_SA_ctrl.m_statisticType == LIKELIHOOD;
+				if (bLogLikelyhoude)
+				{
+					line += FormatA("NbVal=%d\tAICc=%8.5lf\tmaxLL=%8.5lf", computation.m_opt.m_n, computation.m_opt.m_AICC, computation.m_opt.m_MLL);
+				}
+				else
+				{
+					line += FormatA("NbVal=%6.0lf\tBias=%8.5lf\tMAE=%8.5lf\tRMSE=%8.5lf\tCD=%8.5lf\tR²=%8.5lf", computation.m_opt.m_S[NB_VALUE], computation.m_opt.m_S[BIAS], computation.m_opt.m_S[MAE], computation.m_opt.m_S[RMSE], computation.m_opt.m_S[COEF_D], computation.m_opt.m_S[STAT_R²]);
+				}
 			}
 
+			callback.AddMessage(line);
+			line.clear();
 		}
 		else
 		{
-			line = "No optimum find yet...";
+			callback.AddMessage("No optimum find yet...");
 		}
 
-		callback.AddMessage(line);
 
-
-		line.clear();
 		bool bShowRange = !computation.m_P.m_Xstat.empty() && computation.m_P.m_Xstat[0][NB_VALUE] > 0;
-		for (size_t i = 0; i < parameters.size(); i++)
-		{
-			assert(parameters[i].m_b_use_it == computation.m_b_use_it[i]);
 
-			if (computation.m_b_use_it[i])
+		for (size_t i = 0; i < computation.size(); i++)
+		{
+			if (computation[i].m_b_use_it)
 			{
-				string name = parameters[i].m_name; Trim(name);
+				string name = computation[i].m_name; Trim(name);
 				string tmp;
 
 				if (bShowRange)
 				{
-					tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_opt.m_X[i], computation.m_P.m_Xstat[i][LOWEST], computation.m_P.m_Xstat[i][HIGHEST], computation.m_VMstat[i][LOWEST], computation.m_VMstat[i][HIGHEST]);
+					tmp = FormatA("% -20.20s\t=%10.5lf {%10.5lf,%10.5lf}\tVM={%10.5lf,%10.5lf}\n", name.c_str(), computation.m_opt.m_X[i], computation.m_P.m_Xstat[i][LOWEST], computation.m_P.m_Xstat[i][HIGHEST], computation[i].m_VMstat[LOWEST], computation[i].m_VMstat[HIGHEST]);
 				}
 				else
 				{
@@ -4729,8 +4637,10 @@ namespace WBSF
 			//j++;
 		}
 
-		callback.AddMessage(line);
-		line.clear();
+		if(!line.empty())
+			callback.AddMessage(line);
+		
+
 	}
 
 
@@ -4995,15 +4905,15 @@ namespace WBSF
 	//       some machines.
 	//    3. RMARIN and RANMAR are designed to be portable; they should not
 	//       cause any problems.
-	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariable& computation, CCallback& callback)
+	ERMsg CInsectParameterization::Optimize(string s, size_t  e, CSAParameterVector& parameters, CComputationVariableVector& computation, CCallback& callback)
 	{
 		ERMsg msg;
 
-		//TDevRateEquation eq = CDevRateEquation::eq(e);
 
 		if (m_bShowTrace)
-			WriteInfoEx(0, s, parameters, computation, callback);
+			WriteInfoEx(0, s, computation, true, true, callback);
 
+		m_SA_ctrl.m_NT1 = ceil(m_SA_ctrl.m_NT2 * parameters.size());
 		//  Initialize the random number generator RANMAR.
 		CRandomizeNumber random(m_SA_ctrl.m_seed1, m_SA_ctrl.m_seed2);
 
@@ -5024,16 +4934,16 @@ namespace WBSF
 			//long LNOBDS = 0;
 
 			//randomize order of the parameters to not always begin with the same parameter
-			vector < vector<size_t>> H(m_SA_ctrl.m_NT * m_SA_ctrl.m_NS);
+			vector < vector<size_t>> H(m_SA_ctrl.m_NT1 * m_SA_ctrl.m_NS);
 			for (size_t j = 0; j < H.size(); j++)
-				H[j] = Shuffle(computation.m_X.size());
+				H[j] = Shuffle(computation.m_.m_X.size());
 
 
-			int NT = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NT;
+			int NT = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NT1;
 			for (int M = 0; M < NT && msg; M++)
 			{
 				vector<int> NACP;
-				NACP.insert(NACP.begin(), computation.m_X.size(), 0);
+				NACP.insert(NACP.begin(), computation.m_.m_X.size(), 0);
 
 				int NS = L <= m_SA_ctrl.m_nbSkipLoop ? 2 : m_SA_ctrl.m_NS;
 				for (size_t j = 0; j < NS && msg; j++)
@@ -5053,7 +4963,7 @@ namespace WBSF
 						}
 
 						//computation.m_P.m_X.resize(computation.m_X.size());
-						computation.m_P.m_X = computation.m_X;
+						computation.m_P.m_X = computation.m_.m_X;
 						computation.m_P.m_S.Reset();
 						computation.m_P.m_F = m_SA_ctrl.GetVMiss();
 
@@ -5067,13 +4977,10 @@ namespace WBSF
 							if ((nb_not_valid % 20) == 0)
 								factorVM *= 0.9;//temporary decrease VM when too mush not valid
 
-							computation.m_P.m_X[h] = computation.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * computation.m_VM[h] * factorVM;
+							computation.m_P.m_X[h] = computation.m_.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * computation[h].m_VM * factorVM;
 							//  If XP is out of bounds, select a point in bounds for the trial.
-							if (computation.m_bounds[h].IsOutOfBound(computation.m_P.m_X[h]))
-							{
-								computation.m_P.m_X[h] = computation.m_bounds[h].GetLowerBound() + computation.m_bounds[h].GetExtent() * random.Ranmar();
-								//computation.m_NOBDS++;
-							}
+							if (computation[h].m_bounds.IsOutOfBound(computation.m_P.m_X[h]))
+								computation.m_P.m_X[h] = computation[h].m_bounds.GetLowerBound() + computation[h].m_bounds.GetExtent() * random.Ranmar();
 
 							bValid = IsParamValid(s, e, computation.m_P.m_X) && IsRateValid(s, e, computation.m_P.m_X, NULL_RATE_THRESHOLD);
 						}
@@ -5097,13 +5004,13 @@ namespace WBSF
 
 
 						computation.m_P.m_Xstat[h] += computation.m_P.m_X[h];
-						computation.m_VMstat[h] += computation.m_VM[h];
+						computation[h].m_VMstat += computation[h].m_VM;
 
 						assert(computation.m_P.m_F != m_SA_ctrl.GetVMiss());
 
-						if (computation.m_P.m_F >= computation.m_F)
+						if (computation.m_P.m_F >= computation.m_.m_F)
 						{
-							computation = computation.m_P;
+							computation.m_ = computation.m_P;
 
 							NACP[h]++;
 							NUP++;
@@ -5112,14 +5019,6 @@ namespace WBSF
 							if (computation.m_P.m_F > computation.m_opt.m_F)
 							{
 								computation.m_opt = computation.m_P;
-								//computation.m_Xopt = computation.m_XP;
-								//computation.m_Fopt = computation.m_FP;
-								//computation.m_AICCopt = computation.m_AICCP;
-								//computation.m_MLLopt = computation.m_MLLP;
-								//computation.m_MLL = computation.m_MLLP;
-								//computation.m_Sopt = computation.m_SP;
-								//computation.m_n_opt = computation.m_n_P;
-								//computation.m_k_opt = computation.m_k_P;
 								NNEW++;
 							}
 						}
@@ -5127,11 +5026,11 @@ namespace WBSF
 						//  acceptance or rejection.
 						else
 						{
-							double P = Exprep((computation.m_P.m_F - computation.m_F) / computation.m_T);
+							double P = Exprep((computation.m_P.m_F - computation.m_.m_F) / computation.m_T);
 							double PP = random.Ranmar();
 							if (PP < P)
 							{
-								computation = computation.m_P;
+								computation.m_ = computation.m_P;
 								NACP[h]++;
 								NDOWN++;
 							}
@@ -5151,64 +5050,30 @@ namespace WBSF
 
 
 				//  Adjust VM so that approximately half of all evaluations are accepted.
-				ASSERT(computation.m_VM.size() == NACP.size());
-				for (int I = 0; I < computation.m_VM.size(); I++)
+				ASSERT(computation.size() == NACP.size());
+				for (size_t h = 0; h < computation.size(); h++)
 				{
-					double RATIO = double(NACP[I]) / double(m_SA_ctrl.m_NS);
+					double RATIO = double(NACP[h]) / double(m_SA_ctrl.m_NS);
 					if (RATIO > 0.6)
 					{
-						computation.m_VM[I] = computation.m_VM[I] * (1. + computation.m_C[I] * (RATIO - .6) / .4);
+						computation[h].m_VM = computation[h].m_VM * (1. + computation[h].m_C * (RATIO - .6) / .4);
 					}
 					else if (RATIO < 0.4)
 					{
-						computation.m_VM[I] = computation.m_VM[I] / (1. + computation.m_C[I] * ((.4 - RATIO) / .4));
+						computation[h].m_VM = computation[h].m_VM / (1. + computation[h].m_C * ((.4 - RATIO) / .4));
 					}
 
 
-					if (computation.m_VM[I] > computation.m_bounds[I].GetExtent())
-					{
-						computation.m_VM[I] = computation.m_bounds[I].GetExtent();
-					}
+					if (computation[h].m_VM > computation[h].m_bounds.GetExtent())
+						computation[h].m_VM = computation[h].m_bounds.GetExtent();
 				}//all VM
 			}//M
 
-			//compute Pstat
-			computation.m_Pstat.clear();
-			for (size_t i = 0; i < computation.m_P.m_Xstat.size(); i++)
-				computation.m_Pstat += computation.m_P.m_Xstat[i][RANGE] / computation.m_P.m_Xstat[i][MEAN];
-
-
 			if (m_bShowTrace)
-				WriteInfoEx(L, s, parameters, computation, callback);
-
-
-			//copy XPStat into XStat
-			computation.m_Xstat = computation.m_P.m_Xstat;
-
-			//clean XPstat stats
-			for (size_t i = 0; i < computation.m_P.m_Xstat.size(); i++)
-				computation.m_P.m_Xstat[i].Reset();
-
-			//clean VM stats
-			for (size_t i = 0; i < computation.m_VMstat.size(); i++)
-				computation.m_VMstat[i].Reset();
-
-			//  Loop again.
-			bQuit = fabs(computation.m_F - computation.m_opt.m_F) <= m_SA_ctrl.m_EPS;//|| computation.m_Pstat[HIGHEST] < m_ctrl.m_P_EPS
-			for (int I = 0; I < computation.m_FSTAR.size() && bQuit; I++)
-			{
-				if (fabs(computation.m_F - computation.m_FSTAR[I]) > m_SA_ctrl.m_EPS)//||  && computation.m_Pstat[HIGHEST] > m_ctrl.m_P_EPS
-					bQuit = false;
-			}
-
-
-
-
+				WriteInfoEx(L, s, computation, true, true, callback);
 
 			//  If termination criteria is not met, prepare for another loop.
-			computation.PrepareForAnotherLoop(m_SA_ctrl.m_RT, m_SA_ctrl.m_RT2, L);
-
-			b_ouput_file = true;
+			bQuit = computation.PrepareForAnotherLoop(m_SA_ctrl, L);
 
 		} while (!bQuit && msg);
 
@@ -5477,7 +5342,7 @@ namespace WBSF
 		return confusion_matrix;
 	}
 
-	bool CInsectParameterization::GetFValue(string var, size_t e, CComputationVariable& computation)
+	bool CInsectParameterization::GetFValue(string var, size_t e, CComputationVariableVector& computation)
 	{
 		assert(IsParamValid(var, e, computation.m_P.m_X));
 		assert(IsRateValid(var, e, computation.m_P.m_X, NULL_RATE_THRESHOLD));
@@ -5826,20 +5691,6 @@ namespace WBSF
 		CStatisticXYEx stats;
 
 
-
-		//static const size_t NUM_INSECTS = 100;
-		//size_t num_insects = get_num_insects();
-		//bLogLikelyhoude = false;
-
-		//TDevRateEquation eq = CDevRateEquation::eq(p[0].m_equation);
-
-
-		//double sigma = computation.m_P.m_X.back();
-
-		//std::uint32_t seed = static_cast<std::uint32_t>(std::time(0));
-		//boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
-
-		//CSimulatedInsects m_I;
 		CSimulatedInsects& m_I = m_I_threaded[omp_get_thread_num()];
 		if (m_I.empty())
 		{
@@ -5894,7 +5745,6 @@ namespace WBSF
 					double sigma = p[s].m_computation.m_P.m_X.back();
 					boost::math::lognormal_distribution<double> LogNormal(-0.5 * Square(sigma), sigma);
 
-					//m_I[t][i][s].m_p = runif(generator);
 					m_I[t][i][s].m_RDR = quantile(LogNormal, m_I[t][i][s].m_p);
 					m_I[t][i][s].m_time = min(5000.0 / m_I[t][i].size(), 1.0 / (m_I[t][i][s].m_RDR * Rate[s]));
 					max_time += m_I[t][i][s].m_time;
@@ -5920,11 +5770,10 @@ namespace WBSF
 			for (size_t i = 0; i < m_I[t].size(); i++)//for all insects
 			{
 				CTRef TRef = period.Begin();
-				//CTRef end_stage = period.Begin();
+				
 				double total_time = 0;
 				for (size_t s = 0; s < m_I[t][i].size() - 1; s++)//For all stages (except the last stage)
 				{
-					//end_stage += Round(m_I[t][i][s].m_time);
 					total_time += m_I[t][i][s].m_time;
 					CTRef end_stage = period.Begin() + (int)Round(total_time);
 					assert(end_stage <= m_I[t].m_output.GetTPeriod().End());
@@ -5947,34 +5796,38 @@ namespace WBSF
 
 
 #pragma omp critical(WRITE_DEBUF_FILE)
-		if (b_ouput_file)
 		{
-			b_ouput_file = false;
-			//string path = WBSF::GetPath(m_outputFileName);
-			ofstream file(m_debug_filepath);
-			file << "Treatment,Date";
-			for (size_t s = 0; s < m_stages_table.num_stages(); s++)//For all stages
-				file << "," << m_stages_table.get_stage(s) << "_cumul";// << "," << m_stages_table.get_stage(s) << "_cumul_obs";
-
-			file << endl;
-
-			for (size_t t = 0; t < m_I.size(); t++)//for all treatments
+			if (m_bShowTrace && b_ouput_file)
 			{
-				CTPeriod p = m_I[t].m_output.GetTPeriod();
-				for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
-				{
-					file << m_I[t].m_treatment << "," << TRef.GetFormatedString("%Y-%m-%d");
-					for (size_t s = 0; s < m_I[t].m_output[TRef].size(); s++)//For all stages
-					{
-						//m_stages_table.begin()->second[m_I[t].m_treatment].m_stats
-						file << "," << std::fixed << std::setprecision(1) << m_I[t].m_output[TRef][s];// << "," << ;
-					}
-					file << endl;
-				}
-			}
-			file.close();
-		}
+				string eq_name = CDevRateEquation::GetEquationName(CDevRateEquation::eq(p.front().m_equation));
 
+				b_ouput_file = false;
+				string filepath = m_debug_filepath;
+				WBSF::SetFileTitle(filepath, "debug_stage_table_" + eq_name);
+				ofstream file(filepath);
+				file << "Treatment,Date";
+				for (size_t s = 0; s < m_stages_table.num_stages(); s++)//For all stages
+					file << "," << m_stages_table.get_stage(s) << "_cumul";// << "," << m_stages_table.get_stage(s) << "_cumul_obs";
+
+				file << endl;
+
+				for (size_t t = 0; t < m_I.size(); t++)//for all treatments
+				{
+					CTPeriod p = m_I[t].m_output.GetTPeriod();
+					for (CTRef TRef = p.Begin(); TRef <= p.End(); TRef++)
+					{
+						file << m_I[t].m_treatment << "," << TRef.GetFormatedString("%Y-%m-%d");
+						for (size_t s = 0; s < m_I[t].m_output[TRef].size(); s++)//For all stages
+						{
+							//m_stages_table.begin()->second[m_I[t].m_treatment].m_stats
+							file << "," << std::fixed << std::setprecision(1) << m_I[t].m_output[TRef][s];// << "," << ;
+						}
+						file << endl;
+					}
+				}
+				file.close();
+			}
+		}
 
 		//now compute likelihood or statistic 
 		auto itN = *m_stages_table.begin();//take only the first dataset for the moment;
@@ -6005,13 +5858,19 @@ namespace WBSF
 						//else
 						//{
 						assert(isfinite(sim[s]) && !isnan(sim[s]) && sim[s] > -1E8 && sim[s] < 1E8);
-						stats_stage[s - 1].Add(sim[s], itD.m_cumul[s]);
+						assert(sim[s] >= 0 && sim[s] <= 100);
+						assert(itD.m_cumul[s] >= 0 && itD.m_cumul[s] <= 100);
+
+						double obs_y = itD.m_cumul[s];
+						double sim_y = sim[s];
+						stats_stage[s - 1].Add(sim_y, obs_y);
 
 
 						if ((s - 1) >= p.m_first_stage && (s - 1) <= p.m_last_stage)
-							stats.Add(sim[s], itD.m_cumul[s]);
+							stats.Add(sim_y, obs_y);
 
-						if (itD.m_cumul[s] >= 5.0 && itD.m_cumul[s] <= 95.0)
+						const CStatistic& DOYstats = itT.second.m_stats[s];
+						if (obs_y >= 5.0 && obs_y <= 95.0 && DOYstats[RANGE] > 0)
 						{
 							const CModelStatVector& output = m_I[itD.m_treatments_to_sim_index].m_output;
 
@@ -6032,15 +5891,19 @@ namespace WBSF
 
 							assert(!isnan(sim_x) && isfinite(sim_x));
 
-							const CStatistic& DOYstats = itT.second.m_stats[s];
+
 							obs_x = Round(100 * (obs_x - DOYstats[LOWEST]) / DOYstats[RANGE], 1);
 							sim_x = Round(100 * (sim_x - DOYstats[LOWEST]) / DOYstats[RANGE], 1);
-							stats_stage[s - 1].Add(obs_x, sim_x);
+
+
+							assert(sim_x > -10000 && sim_x < 10000);
+							assert(obs_x > -10000 && obs_x < 10000);
+							stats_stage[s - 1].Add(sim_x, obs_x);
 
 
 
 							if ((s - 1) >= p.m_first_stage && (s - 1) <= p.m_last_stage)
-								stats.Add(obs_x, sim_x);
+								stats.Add(sim_x, obs_x);
 
 
 						}
@@ -6168,7 +6031,7 @@ namespace WBSF
 			options.m_MAXEVL = 200'000;
 			options.m_max_loop = 10;
 			options.m_NS = 20;
-			options.m_NT = 25;
+			options.m_NT1 = 25;
 			options.m_NT2 = 3;
 			options.m_T = 10;
 			options.m_RT = 0.55;
@@ -6182,7 +6045,7 @@ namespace WBSF
 			options.m_MAXEVL = 400'000;
 			options.m_max_loop = 20;
 			options.m_NS = 30;
-			options.m_NT = 30;
+			options.m_NT1 = 30;
 			options.m_NT2 = 4;
 			options.m_T = 100;
 			options.m_RT = 0.65;
@@ -6196,7 +6059,7 @@ namespace WBSF
 			options.m_MAXEVL = 800'000;
 			options.m_max_loop = 30;
 			options.m_NS = 40;
-			options.m_NT = 35;
+			options.m_NT1 = 35;
 			options.m_NT2 = 4;
 			options.m_T = 175;
 			options.m_RT = 0.75;
@@ -6210,7 +6073,7 @@ namespace WBSF
 			options.m_MAXEVL = 1'200'000;
 			options.m_max_loop = 40;
 			options.m_NS = 50;
-			options.m_NT = 50;
+			options.m_NT1 = 50;
 			options.m_NT2 = 5;
 			options.m_T = 250;
 			options.m_RT = 0.85;
@@ -6599,72 +6462,51 @@ namespace WBSF
 		CFitOutputVector p = p_in;
 
 
-		//  Initialize the random number generator RANMAR.
-		CRandomizeNumber random(m_SA_ctrl.m_seed1, m_SA_ctrl.m_seed2);
 
-
-		string variables;
-		for (size_t s = 0; s < p.size(); s++)
-		{
-			if (s >= p.m_first_stage && s <= p.m_last_stage)
-			{
-				if (!variables.empty())
-					variables += ", ";
-
-				variables = variables + p[s].m_variable;
-				if (m_bShowTrace)
-					WriteInfoEx(0, p[s].m_variable, p[s].m_parameters, p[s].m_computation, callback);
-			}
-		}
-
-
+		size_t nb_stages = p.m_last_stage - p.m_first_stage + 1;
+		size_t nb_parameters = p[0].m_parameters.size();
+		string variables = p.get_variables();
 
 		callback.PushTask("Search optimum for : " + variables, NOT_INIT);
+
+
+		//  Initialize the random number generator RANMAR.
+		CRandomizeNumber random(m_SA_ctrl.m_seed1, m_SA_ctrl.m_seed2);
 
 		//  Start the main loop. Note that it terminates if :
 		//(i) the algorithm successfully optimizes the function 
 		//(ii) there are too many function evaluations (more than MAXEVL).
 
-		size_t nb_stages = p.m_last_stage - p.m_first_stage + 1;
-		size_t nb_parameters = p[0].m_parameters.size();
-		//for (size_t s = p.m_last_stage; s <= p.m_first_stage; s++)
-			//nb_parameters += p[s].m_parameters.size();
-
-		//m_SA_ctrl.m_max_loop = nb_stages+1;
 
 		bool bQuit = false;
-		for (size_t L = 0; L < m_SA_ctrl.m_max_loop && !bQuit && msg; L++)
+
+		size_t NL = m_SA_ctrl.m_max_loop;//Loops
+		size_t NT = m_SA_ctrl.m_NT2 * nb_stages * nb_parameters;//Iterations
+		size_t NS = m_SA_ctrl.m_NS;//cycle
+
+
+		for (size_t L = 0; L < NL && !bQuit && msg; L++)
 		{
-			int NT = m_SA_ctrl.m_NT2 * nb_stages * nb_parameters;
-			int NS = m_SA_ctrl.m_NS;
+
 
 			callback.PushTask("Search optimum for loop : " + to_string(L) + " (" + to_string(NT) + "iterations*" + to_string(NS) + "cycles*" + to_string(nb_stages) + "stages*" + to_string(nb_parameters) + "params=" + to_string(NT * NS * nb_stages * nb_parameters) + ")", NT * NS * nb_stages * nb_parameters);
 
 			size_t step_pos = 0;
 
 
-			for (int M = 0; M < NT && msg; M++)
+			for (size_t I = 0; I < NT && msg; I++)//for all iterations
 			{
 				//randomize order of the parameters to not always begin with the same parameter
-				vector < vector < vector<size_t> > >H(NS);
-				for (size_t j = 0; j < H.size(); j++)
-				{
-					H[j].resize(p.size());
-					for (size_t s = 0; s < H[j].size(); s++)
-					{
-						if (s >= p.m_first_stage && s <= p.m_last_stage)
-							H[j][s] = Shuffle(p[s].m_parameters.size());
-					}
+				vector < vector<size_t> >H(NS);
+				for (size_t S = 0; S < H.size(); S++)
+					H[S] = Shuffle(nb_stages * nb_parameters);
 
-					//H[j] = Shuffle(nb_stages * nb_parameters);
-				}
-
-				//accepted values
+				//number of accepted values
 				vector < vector<size_t>> NACP(p.size());
 				for (size_t s = 0; s < NACP.size(); s++)
 				{
 					if (s >= p.m_first_stage && s <= p.m_last_stage)
-						NACP[s].insert(NACP[s].begin(), p[s].m_computation.m_X.size(), 0);
+						NACP[s].insert(NACP[s].begin(), nb_parameters, 0);
 				}
 
 
@@ -6672,236 +6514,182 @@ namespace WBSF
 #ifndef _DEBUG
 #pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) shared(p, NACP)
 #endif
-				for (__int64 j = 0; j < (__int64)NS; j++)
+				for (__int64 S = 0; S < (__int64)NS; S++)//for all cycle
 				{
-					for (size_t s = 0; s < NACP.size() && msg; s++)
+
+					for (size_t hh = 0; hh < H[S].size() && msg; hh++)//for all position
 					{
-						for (size_t hh = 0; hh < NACP[s].size() && msg; hh++)
+#pragma omp flush(msg)
+
+						size_t s = p.m_first_stage + H[S][hh] / nb_parameters;
+						size_t h = H[S][hh] % nb_parameters;
+
+						assert(s >= p.m_first_stage && s <= p.m_last_stage);
+						assert(h < nb_parameters);
+
+						CFitOutputVector p_thread;
+
+#pragma omp flush(p)
+#pragma omp critical(SET_COMPUTATION)
 						{
-#pragma omp flush(msg)
-							if (msg)
+							p_thread = p;
+						}
+
+
+
+
+						p_thread[s].m_computation.m_P.m_X = p_thread[s].m_computation.m_.m_X;
+						p_thread[s].m_computation.m_P.m_S.Reset();
+						p_thread[s].m_computation.m_P.m_F = m_SA_ctrl.GetVMiss();
+
+						p_thread.m_c.m_P.m_S.Reset();
+						p_thread.m_c.m_P.m_F = m_SA_ctrl.GetVMiss();
+
+
+						size_t nb_not_valid = 0;
+						double factorVM = 1;
+						bool bValid = false;
+						//do
+						while (!bValid)
+						{
+							nb_not_valid++;
+							if ((nb_not_valid % 20) == 0)
+								factorVM *= 0.9;//temporary decrease VM when too mush not valid
+
+							p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation.m_.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * p_thread[s].m_computation[h].m_VM * factorVM;
+							//  If XP is out of bounds, select a point in bounds for the trial.
+							if (p_thread[s].m_computation[h].m_bounds.IsOutOfBound(p_thread[s].m_computation.m_P.m_X[h]))
+								p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation[h].m_bounds.GetLowerBound() + p_thread[s].m_computation[h].m_bounds.GetExtent() * random.Ranmar();
+
+							bValid = IsParamValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X) && IsRateValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X, NULL_RATE_THRESHOLD);
+						}
+
+
+						//  Evaluate the function with the trial point XP and return as FP.
+						bValid = GetFValueStageTable(p_thread);
+						if (!bValid)
+							continue;
+
+						assert(bValid);
+
+#pragma omp flush(p)
+#pragma omp critical(SET_COMPUTATION)
+						{
+
+							for (size_t ss = 0; ss < p.size(); ss++)//for all stages
 							{
-								//size_t s = p.m_first_stage + H[j][ss * NACP[ss].size() + hh] / nb_parameters;
-								//size_t h = H[j][ss * NACP[ss].size() + hh] % nb_parameters;
+								p[ss].m_computation.m_P.m_Xstat[h] += p_thread[ss].m_computation.m_P.m_X[h];
+								p[ss].m_computation[h].m_VMstat += p_thread[ss].m_computation[h].m_VM;
+							}
 
-								size_t h = H[j][s][hh];
+							assert(p_thread.m_c.m_P.m_F != m_SA_ctrl.GetVMiss());
 
-								assert(s >= p.m_first_stage && s <= p.m_last_stage);
+							if (p_thread.m_c.m_P.m_F >= p.m_c.m_.m_F)
+							{
+								for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+									p[ss].m_computation.m_ = p_thread[ss].m_computation.m_P;
 
-								CFitOutputVector p_thread;
+								NACP[s][h]++;
+								p[s].m_computation.m_ = p_thread[s].m_computation.m_P;
+								p.m_c.m_ = p_thread.m_c.m_P;
+
+
+								//  If greater than any other point, record as new optimum.
+								if (p_thread.m_c.m_P.m_F > p.m_c.m_opt.m_F)
+								{
+									for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+										p[ss].m_computation.m_opt = p_thread[ss].m_computation.m_P;
+
+									p.m_c.m_opt = p_thread.m_c.m_P;
+								}
+							}
+							else
+							{
+								//  If the point is lower, use the Metropolis criteria to decide on acceptance or rejection.
+								double P = Exprep((p_thread.m_c.m_P.m_F - p_thread.m_c.m_.m_F) / p.m_c.m_T);
+								double PP = random.Ranmar();
+								if (PP < P)
+								{
+									for (size_t ss = 0; ss < p.size(); ss++)//for all stages
+										p[ss].m_computation.m_ = p_thread[ss].m_computation.m_P;
+
+
+									NACP[s][h]++;
+									p[s].m_computation.m_ = p_thread[s].m_computation.m_P;
+									p.m_c.m_ = p_thread.m_c.m_P;
+								}
+							} //if
+
+							p[s].m_computation.m_NFCNEV++;
+							p.m_c.m_NFCNEV++;
+							step_pos++;
+						}
 
 #pragma omp flush(p)
-#pragma omp critical(SET_COMPUTATION)
-								{
-									p_thread = p;
-								}
 
 
-
-
-								p_thread[s].m_computation.m_P.m_X = p_thread[s].m_computation.m_X;
-								p_thread[s].m_computation.m_P.m_S.Reset();
-								p_thread[s].m_computation.m_P.m_F = m_SA_ctrl.GetVMiss();
-
-								p_thread.m_c.m_P.m_S.Reset();
-								p_thread.m_c.m_P.m_F = m_SA_ctrl.GetVMiss();
-
-
-								size_t nb_not_valid = 0;
-								double factorVM = 1;
-								bool bValid = false;
-								//do
-								while (!bValid)
-								{
-									nb_not_valid++;
-									if ((nb_not_valid % 20) == 0)
-										factorVM *= 0.9;//temporary decrease VM when too mush not valid
-
-									p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation.m_X[h] + (random.Ranmar() * 2.0 - 1.0) * p_thread[s].m_computation.m_VM[h] * factorVM;
-									//  If XP is out of bounds, select a point in bounds for the trial.
-									if (p_thread[s].m_computation.m_bounds[h].IsOutOfBound(p_thread[s].m_computation.m_P.m_X[h]))
-										p_thread[s].m_computation.m_P.m_X[h] = p_thread[s].m_computation.m_bounds[h].GetLowerBound() + p_thread[s].m_computation.m_bounds[h].GetExtent() * random.Ranmar();
-
-									bValid = IsParamValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X) && IsRateValid(p_thread[s].m_variable, p_thread[s].m_equation, p_thread[s].m_computation.m_P.m_X, NULL_RATE_THRESHOLD);
-								}
-
-
-								//  Evaluate the function with the trial point XP and return as FP.
-								bValid = GetFValueStageTable(p_thread);
-								if (!bValid)
-									continue;
-
-								assert(bValid);
-
-#pragma omp critical(SET_COMPUTATION)
-								{
-									//p[s].m_computation.m_P.m_Xstat[h] += p_thread[s].m_computation.m_P.m_X[h];
-									//p[s].m_computation.m_VMstat[h] += p_thread[s].m_computation.m_VM[h];
-
-									//assert(p_thread.m_c.m_P.m_F != m_SA_ctrl.GetVMiss());
-
-									//if (p_thread.m_c.m_P.m_F >= p.m_c.m_F)
-									//{
-									//	NACP[s][h]++;
-
-									//	p[s].m_computation = p_thread[s].m_computation.m_P;
-									//	p.m_c = p_thread.m_c.m_P;
-
-
-									//	//  If greater than any other point, record as new optimum.
-									//	if (p_thread.m_c.m_P.m_F > p.m_c.m_opt.m_F)
-									//	{
-									//		p[s].m_computation.m_opt = p_thread[s].m_computation.m_P;
-									//		p.m_c.m_opt = p_thread.m_c.m_P;
-									//	}
-									//}
-									////  If the point is lower, use the Metropolis criteria to decide on
-									//// acceptance or rejection.
-									//else
-									//{
-									//	double P = Exprep((p_thread.m_c.m_P.m_F - p_thread.m_c.m_F) / p[s].m_computation.m_T);
-									//	double PP = random.Ranmar();
-									//	if (PP < P)
-									//	{
-									//		NACP[s][h]++;
-
-									//		p[s].m_computation = p_thread[s].m_computation.m_P;
-									//		p.m_c = p_thread.m_c.m_P;
-
-									//	}
-									//} //if
-
-
-									p[s].m_computation.m_P.m_Xstat[h] += p_thread[s].m_computation.m_P.m_X[h];
-									p[s].m_computation.m_VMstat[h] += p_thread[s].m_computation.m_VM[h];
-
-									assert(p_thread[s].m_computation.m_P.m_F != m_SA_ctrl.GetVMiss());
-
-
-									if (p_thread[s].m_computation.m_P.m_F >= p[s].m_computation.m_F)
-									{
-										NACP[s][h]++;
-
-										p[s].m_computation = p_thread[s].m_computation.m_P;
-
-										//  If greater than any other point, record as new optimum.
-										if (p_thread[s].m_computation.m_P.m_F > p[s].m_computation.m_opt.m_F)
-										{
-											p[s].m_computation.m_opt = p_thread[s].m_computation.m_P;
-										}
-									}
-									//  If the point is lower, use the Metropolis criteria to decide on
-									// acceptance or rejection.
-									else
-									{
-										double P = Exprep((p_thread[s].m_computation.m_P.m_F - p_thread[s].m_computation.m_F) / p[s].m_computation.m_T);
-										double PP = random.Ranmar();
-										if (PP < P)
-										{
-											NACP[s][h]++;
-											p[s].m_computation = p_thread[s].m_computation.m_P;
-
-										}
-									} //if
-
-								}
-
-#pragma omp flush(p)
-#pragma omp atomic
-								p[s].m_computation.m_NFCNEV++;
-#pragma omp atomic
-								step_pos++;
-
-								msg += callback.SetCurrentStepPos(step_pos);
+						msg += callback.SetCurrentStepPos(step_pos);
 #pragma omp flush(msg)
-							} //if msg
-						}//H
-					}//for all stage
-				} //J
+
+					}//for all stages * variables
+				} //for all cycle
 
 
 
 				//  Adjust VM so that approximately half of all evaluations are accepted.
-				for (size_t s = 0; s < p.size(); s++)
+				assert(p.size() == NACP.size());
+				for (size_t s = 0; s < NACP.size(); s++)
 				{
-					if (s >= p.m_first_stage && s <= p.m_last_stage)
+
+					for (size_t h = 0; h < NACP[s].size(); h++)
 					{
-						ASSERT(p[s].m_computation.m_VM.size() == NACP[s].size());
-						for (size_t h = 0; h < p[s].m_computation.m_VM.size(); h++)
+						double RATIO = double(NACP[s][h]) / double(m_SA_ctrl.m_NS);
+						if (RATIO > 0.6)
 						{
-							double RATIO = double(NACP[s][h]) / double(m_SA_ctrl.m_NS);
-							if (RATIO > 0.6)
-							{
-								p[s].m_computation.m_VM[h] = p[s].m_computation.m_VM[h] * (1. + p[s].m_computation.m_C[h] * (RATIO - .6) / .4);
-							}
-							else if (RATIO < 0.4)
-							{
-								p[s].m_computation.m_VM[h] = p[s].m_computation.m_VM[h] / (1. + p[s].m_computation.m_C[h] * ((.4 - RATIO) / .4));
-							}
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_VM * (1. + p[s].m_computation[h].m_C * (RATIO - .6) / .4);
+						}
+						else if (RATIO < 0.4)
+						{
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_VM / (1. + p[s].m_computation[h].m_C * ((.4 - RATIO) / .4));
+						}
 
-
-							if (p[s].m_computation.m_VM[h] > p[s].m_computation.m_bounds[h].GetExtent())
-							{
-								p[s].m_computation.m_VM[h] = p[s].m_computation.m_bounds[h].GetExtent();
-							}
-						}//all VM
-
-					}//if this stage is used
+						if (p[s].m_computation[h].m_VM > p[s].m_computation[h].m_bounds.GetExtent())
+						{
+							p[s].m_computation[h].m_VM = p[s].m_computation[h].m_bounds.GetExtent();
+						}
+					}//all VM
 				}//for all stages
-			}//M
+			}//for all iterations
 
 			callback.PopTask();
 
 
-			//compute Pstat
-			bQuit = true;
+
+			if (m_bShowTrace)//&& 
+				WriteInfoEx(L + 1, variables, p.m_c, true, nb_stages != 1, callback);
+
+
 			for (size_t s = 0; s < p.size(); s++)
 			{
 				if (s >= p.m_first_stage && s <= p.m_last_stage)
 				{
-					p[s].m_computation.m_Pstat.clear();
-					for (size_t i = 0; i < p[s].m_computation.m_P.m_Xstat.size(); i++)
-						p[s].m_computation.m_Pstat += p[s].m_computation.m_P.m_Xstat[i][RANGE] / p[s].m_computation.m_P.m_Xstat[i][MEAN];
-
-
 					if (m_bShowTrace)
-						WriteInfoEx(L, p[s].m_variable, p[s].m_parameters, p[s].m_computation, callback);
-
-
-					//copy XPStat into XStat
-					p[s].m_computation.m_Xstat = p[s].m_computation.m_P.m_Xstat;
-
-					//clean XPstat stats
-					for (size_t i = 0; i < p[s].m_computation.m_P.m_Xstat.size(); i++)
-						p[s].m_computation.m_P.m_Xstat[i].Reset();
-
-					//clean VM stats
-					for (size_t i = 0; i < p[s].m_computation.m_VMstat.size(); i++)
-						p[s].m_computation.m_VMstat[i].Reset();
-
-					//  Loop again.
-					bQuit &= fabs(p[s].m_computation.m_F - p[s].m_computation.m_opt.m_F) <= m_SA_ctrl.m_EPS;
-					for (int I = 0; I < p[s].m_computation.m_FSTAR.size() && bQuit; I++)
-					{
-						if (fabs(p[s].m_computation.m_F - p[s].m_computation.m_FSTAR[I]) > m_SA_ctrl.m_EPS)
-							bQuit = false;
-					}
-
+						WriteInfoEx(L + 1, nb_stages == 1?"": p[s].m_variable, p[s].m_computation, false, nb_stages == 1, callback);
 
 					//  If termination criteria is not met, prepare for another loop.
-					p[s].m_computation.PrepareForAnotherLoop(m_SA_ctrl.m_RT, m_SA_ctrl.m_RT2, L + 1);
+					//p[s].m_computation.PrepareForAnotherLoop(m_SA_ctrl, L + 1);
+					p[s].m_computation.clear_stat();
 				}//if stage is used
 			}//for all stages
 
 
+			//  If termination criteria is not met, prepare for another loop.
+			bQuit = p.m_c.PrepareForAnotherLoop(m_SA_ctrl, L + 1);
 
 			b_ouput_file = true;
-
-
-
 		} //for all loop
 
-		if (bQuit == false)
+		if (!msg && bQuit == false)
 		{
 			callback.AddMessage("Number of loop is greater than the maximum number of loop (max_loop).");
 		}
@@ -6912,36 +6700,7 @@ namespace WBSF
 
 		return msg;
 	}
-	//
-	//#ifndef _DEBUG
-	//#pragma omp parallel for num_threads(CTRL.m_nbMaxThreads) 
-	//#endif
-	//	for (__int64 i = 0; i < (__int64)output.size(); i++)
-	//	{
-	//#pragma omp flush(msg)
-	//		if (msg)
-	//		{
-	//			msg += Optimize(output[i].m_variable, output[i].m_equation, output[i].m_parameters, output[i].m_computation, callback);
-	//
-	//#pragma omp critical(WRITE_INFO)
-	//			{
-	//				if (m_fitType == F_DEV_TIME)
-	//					callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(output[i].m_equation)));
-	//				else if (m_fitType == F_SURVIVAL)
-	//					callback.AddMessage(output[i].m_variable + ": " + CSurvivalEquation::GetEquationName(CSurvivalEquation::eq(output[i].m_equation)));
-	//				else if (m_fitType == F_FECUNDITY)
-	//					callback.AddMessage(output[i].m_variable + ": " + CDevRateEquation::GetEquationName(CDevRateEquation::eq(output[i].m_equation)));
-	//
-	//
-	//				WriteInfo(output[i].m_parameters, output[i].m_computation, callback);
-	//			}
-	//
-	//
-	//			//fileManager, result, callback
-	//			msg += callback.StepIt();
-	//#pragma omp flush(msg)
-	//		}
-	//	}
+
 
 }
 

@@ -104,7 +104,7 @@ namespace WBSF
 
 		//size_t GetNbParameter()const{ return m_parameters.size(); }
 
-		ERMsg InitialiseComputationVariable(CComputationVariable& computation, CCallback& callback);
+		ERMsg InitialiseComputationVariable(CComputationVariableVector& computation, CCallback& callback);
 
 		double Exprep(const double& RDUM);
 
@@ -129,7 +129,7 @@ namespace WBSF
 		//size_t m_locSize;
 
 		//computation variable
-		CComputationVariable m_computation;
+		CComputationVariableVector m_computation;
 		CModelInput m_modelInput;
 		CParametersVariationsDefinition m_parametersVariations;
 		CSAParameterVector m_parameters;
